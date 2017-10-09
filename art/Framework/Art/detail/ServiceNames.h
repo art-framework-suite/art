@@ -28,18 +28,20 @@ namespace art {
 
     class ServiceNames {
     public:
+      using ServiceNames_bimap_t =
+        boost::bimap<bimaps::set_of<std::string>, bimaps::set_of<std::string>>;
 
-      using ServiceNames_bimap_t = boost::bimap<bimaps::set_of<std::string>,bimaps::set_of<std::string>>;
-
-      static std::string const & libname(std::string const & fclname)
+      static std::string const&
+      libname(std::string const& fclname)
       {
-        auto it = lookup_.left.find( fclname );
+        auto it = lookup_.left.find(fclname);
         return it == lookup_.left.end() ? fclname : it->second;
       }
 
-      static std::string const & fclname(std::string const & libname)
+      static std::string const&
+      fclname(std::string const& libname)
       {
-        auto it = lookup_.right.find( libname );
+        auto it = lookup_.right.find(libname);
         return it == lookup_.right.end() ? libname : it->second;
       }
 
@@ -47,8 +49,8 @@ namespace art {
       static ServiceNames_bimap_t lookup_;
     };
 
-  }
-}
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_Art_detail_ServiceNames_h */
 

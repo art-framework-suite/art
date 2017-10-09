@@ -19,102 +19,80 @@
 
 namespace art {
 
-class ModuleBase;
-class ModuleDescription;
+  class ModuleBase;
+  class ModuleDescription;
 
-class CurrentProcessingContext {
+  class CurrentProcessingContext {
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~CurrentProcessingContext() noexcept;
 
-  ~CurrentProcessingContext() noexcept;
+    CurrentProcessingContext() noexcept;
 
-  CurrentProcessingContext() noexcept;
+    explicit CurrentProcessingContext(int streamIndex,
+                                      std::string const* const name,
+                                      int const bitpos,
+                                      bool const isEndPth) noexcept;
 
-  explicit
-  CurrentProcessingContext(int streamIndex, std::string const* const name, int const bitpos, bool const isEndPth) noexcept;
+    CurrentProcessingContext(CurrentProcessingContext const&) noexcept;
 
-  CurrentProcessingContext(CurrentProcessingContext const&) noexcept;
+    CurrentProcessingContext(CurrentProcessingContext&&) noexcept;
 
-  CurrentProcessingContext(CurrentProcessingContext&&) noexcept;
+    CurrentProcessingContext& operator=(
+      CurrentProcessingContext const&) noexcept;
 
-  CurrentProcessingContext&
-  operator=(CurrentProcessingContext const&) noexcept;
+    CurrentProcessingContext& operator=(CurrentProcessingContext&&) noexcept;
 
-  CurrentProcessingContext&
-  operator=(CurrentProcessingContext&&) noexcept;
+  public: // MEMBER FUNCTIONS -- API for the user
+    int streamIndex() const noexcept;
 
-public: // MEMBER FUNCTIONS -- API for the user
+    std::string const* pathName() const noexcept;
 
-  int
-  streamIndex() const noexcept;
+    int bitPos() const noexcept;
 
-  std::string const*
-  pathName() const noexcept;
+    bool isEndPath() const noexcept;
 
-  int
-  bitPos() const noexcept;
+    int slotInPath() const noexcept;
 
-  bool
-  isEndPath() const noexcept;
+    ModuleDescription const* moduleDescription() const noexcept;
 
-  int
-  slotInPath() const noexcept;
+    // ModuleBase*
+    // module() const noexcept;
 
-  ModuleDescription const*
-  moduleDescription() const noexcept;
+  public: // MEMBER FUNCTIONS -- API for Path to set the WorkerInPath and module
+          // description
+    void activate(int theSlotInPath, ModuleDescription const*) noexcept;
 
-  //ModuleBase*
-  //module() const noexcept;
+  public:  // MEMBER FUNCTIONS -- API for WorkerT<T> to set the module ptr
+           // void
+           // setModule(ModuleBase*) noexcept;
+  private: // MEMBER DATA -- Stream info
+    // What stream this module is active on.
+    int streamIndex_{0};
 
-public: // MEMBER FUNCTIONS -- API for Path to set the WorkerInPath and module description
+  private: // MEMBER DATA -- Path info
+    // Name of the currently active
+    // path.
+    std::string const* pathName_{nullptr};
 
-  void
-  activate(int theSlotInPath, ModuleDescription const*) noexcept;
+    // Index of the currently active
+    // path in the trigger results.
+    int bitPos_{0};
 
-public: // MEMBER FUNCTIONS -- API for WorkerT<T> to set the module ptr
+    // Whether or not the currently
+    // active path is the end path.
+    bool isEndPath_{false};
 
-  //void
-  //setModule(ModuleBase*) noexcept;
+  private: // MEMBER DATA -- WorkerInPath info
+    // Index of the current active worker
+    // in the path.
+    int slotInPath_{0};
 
-private: // MEMBER DATA -- Stream info
+  private: // MEMBER DATA -- Module info
+    ModuleDescription const* moduleDescription_{nullptr};
 
-  // What stream this module is active on.
-  int
-  streamIndex_{0};
-
-private: // MEMBER DATA -- Path info
-
-  // Name of the currently active
-  // path.
-  std::string const*
-  pathName_{nullptr};
-
-  // Index of the currently active
-  // path in the trigger results.
-  int
-  bitPos_{0};
-
-  // Whether or not the currently
-  // active path is the end path.
-  bool
-  isEndPath_{false};
-
-private: // MEMBER DATA -- WorkerInPath info
-
-  // Index of the current active worker
-  // in the path.
-  int
-  slotInPath_{0};
-
-private: // MEMBER DATA -- Module info
-
-  ModuleDescription const*
-  moduleDescription_{nullptr};
-
-  ModuleBase*
-  module_{nullptr};
-
-};
+    ModuleBase* module_{nullptr};
+  };
 
 } // namespace art
 

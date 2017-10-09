@@ -3,7 +3,7 @@
 #include <string>
 
 namespace art {
-  std::string parent_path(std::string const & path);
+  std::string parent_path(std::string const& path);
 }
 
 #endif /* art_Utilities_parent_path_h */

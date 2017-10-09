@@ -69,19 +69,21 @@ private:
 
 public:
   struct Config {
-    fhicl::Atom<bool> enableDivByZeroEx {fhicl::Name{"enableDivByZeroEx"}, false};
-    fhicl::Atom<bool> enableInvalidEx {fhicl::Name{"enableInvalidEx"}, false};
-    fhicl::Atom<bool> enableOverFlowEx {fhicl::Name{"enableOverFlowEx"}, false};
-    fhicl::Atom<bool> enableUnderFlowEx {fhicl::Name{"enableUnderFlowEx"}, false};
-    fhicl::Atom<bool> setPrecisionDouble {fhicl::Name{"setPrecisionDouble"}, true};
-    fhicl::Atom<bool> reportSettings {fhicl::Name{"reportSettings"}, false};
+    fhicl::Atom<bool> enableDivByZeroEx{fhicl::Name{"enableDivByZeroEx"},
+                                        false};
+    fhicl::Atom<bool> enableInvalidEx{fhicl::Name{"enableInvalidEx"}, false};
+    fhicl::Atom<bool> enableOverFlowEx{fhicl::Name{"enableOverFlowEx"}, false};
+    fhicl::Atom<bool> enableUnderFlowEx{fhicl::Name{"enableUnderFlowEx"},
+                                        false};
+    fhicl::Atom<bool> setPrecisionDouble{fhicl::Name{"setPrecisionDouble"},
+                                         true};
+    fhicl::Atom<bool> reportSettings{fhicl::Name{"reportSettings"}, false};
   };
 
   using Parameters = ServiceTable<Config>;
   explicit FloatingPointControl(Parameters const&, ActivityRegistry&);
 
 private:
-
   void postEndJob();
   void controlFpe();
   void echoState();
@@ -93,9 +95,9 @@ private:
   bool setPrecisionDouble_;
   bool reportSettings_;
 
-  fp_detail::fp_control_t OSdefault_ {}; // OS's fpu state on job startup
+  fp_detail::fp_control_t OSdefault_{}; // OS's fpu state on job startup
 
-};  // FloatingPointControl
+}; // FloatingPointControl
 
 // ======================================================================
 

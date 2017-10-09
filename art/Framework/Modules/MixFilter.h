@@ -142,9 +142,9 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/EDFilter.h"
-#include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
+#include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -165,21 +165,30 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?
     template <typename T, typename = void>
-    struct has_old_startEvent : std::false_type {};
+    struct has_old_startEvent : std::false_type {
+    };
 
     template <typename T>
-    struct has_old_startEvent<T, enable_if_function_exists_t<void(T::*)(), &T::startEvent>> : std::true_type {};
+    struct has_old_startEvent<
+      T,
+      enable_if_function_exists_t<void (T::*)(), &T::startEvent>>
+      : std::true_type {
+    };
 
     template <typename T>
     struct do_call_old_startEvent {
     public:
-      void operator()(T& t) {
+      void
+      operator()(T& t)
+      {
         static bool need_warning = true;
         if (need_warning) {
           mf::LogWarning("Deprecated")
-            << "Mixing driver function has signature startEvent(), which is deprecated.\n"
+            << "Mixing driver function has signature startEvent(), which is "
+               "deprecated.\n"
             << "Please update your code to define startEvent(Event const&).\n"
-            << "In a future version of ART the old method will no longer be called.";
+            << "In a future version of ART the old method will no longer be "
+               "called.";
           need_warning = false;
         }
         t.startEvent();
@@ -188,32 +197,50 @@ namespace art {
 
     template <typename T>
     struct do_not_call_old_startEvent {
-      void operator()(T&) {}
+      void
+      operator()(T&)
+      {}
     };
 
-    template <typename T> struct do_not_call_startEvent {
+    template <typename T>
+    struct do_not_call_startEvent {
     public:
-      do_not_call_startEvent(Event const&) { }
-      void operator()(T& t) {
+      do_not_call_startEvent(Event const&) {}
+      void
+      operator()(T& t)
+      {
         std::conditional_t<has_old_startEvent<T>::value,
                            do_call_old_startEvent<T>,
-                           do_not_call_old_startEvent<T> > maybe_call_old_startEvent;
+                           do_not_call_old_startEvent<T>>
+          maybe_call_old_startEvent;
         maybe_call_old_startEvent(t);
       }
+
     private:
     };
     //////////
 
     template <typename T, typename = void>
-    struct has_startEvent : std::false_type {};
+    struct has_startEvent : std::false_type {
+    };
 
     template <typename T>
-    struct has_startEvent<T, enable_if_function_exists_t<void(T::*)(Event const&), &T::startEvent>> : std::true_type {};
+    struct has_startEvent<
+      T,
+      enable_if_function_exists_t<void (T::*)(Event const&), &T::startEvent>>
+      : std::true_type {
+    };
 
-    template <typename T> struct call_startEvent {
+    template <typename T>
+    struct call_startEvent {
     public:
-      call_startEvent(Event const& e) : e_{e} { }
-      void operator()(T& t) { t.startEvent(e_); }
+      call_startEvent(Event const& e) : e_{e} {}
+      void
+      operator()(T& t)
+      {
+        t.startEvent(e_);
+      }
+
     private:
       Event const& e_;
     };
@@ -224,28 +251,41 @@ namespace art {
     // Does the detail object have a method size_t eventsToSkip() const?
 
     template <typename T, typename = void>
-    struct has_eventsToSkip : std::false_type {};
+    struct has_eventsToSkip : std::false_type {
+    };
 
     template <typename T>
-    struct has_eventsToSkip<T, enable_if_function_exists_t<size_t(T::*)(), &T::eventsToSkip>> : std::true_type {};
+    struct has_eventsToSkip<
+      T,
+      enable_if_function_exists_t<size_t (T::*)(), &T::eventsToSkip>>
+      : std::true_type {
+    };
 
     template <typename T>
-    struct has_eventsToSkip<T, enable_if_function_exists_t<size_t(T::*)() const, &T::eventsToSkip>> : std::true_type {};
+    struct has_eventsToSkip<
+      T,
+      enable_if_function_exists_t<size_t (T::*)() const, &T::eventsToSkip>>
+      : std::true_type {
+    };
 
     template <typename T>
     struct do_not_setup_eventsToSkip {
-      do_not_setup_eventsToSkip(MixHelper&, T&) { }
+      do_not_setup_eventsToSkip(MixHelper&, T&) {}
     };
 
     template <typename T>
     size_t
-    call_eventsToSkip(T& t) { return t.eventsToSkip(); }
+    call_eventsToSkip(T& t)
+    {
+      return t.eventsToSkip();
+    }
 
     template <typename T>
     struct setup_eventsToSkip {
       setup_eventsToSkip(MixHelper& helper, T& t)
       {
-        helper.setEventsToSkipFunction(std::bind(&detail::call_eventsToSkip<T>, std::ref(t)));
+        helper.setEventsToSkipFunction(
+          std::bind(&detail::call_eventsToSkip<T>, std::ref(t)));
       }
     };
 
@@ -256,19 +296,30 @@ namespace art {
     // processEventIDs(EventIDSequence const&)?
 
     template <typename T, typename = void>
-    struct has_processEventIDs : std::false_type {};
+    struct has_processEventIDs : std::false_type {
+    };
 
     template <typename T>
-    struct has_processEventIDs<T, enable_if_function_exists_t<void(T::*)(EventIDSequence const&), &T::processEventIDs>> : std::true_type {};
+    struct has_processEventIDs<
+      T,
+      enable_if_function_exists_t<void (T::*)(EventIDSequence const&),
+                                  &T::processEventIDs>> : std::true_type {
+    };
 
     template <typename T>
     struct do_not_call_processEventIDs {
-      void operator()(T&, EventIDSequence const&) {}
+      void
+      operator()(T&, EventIDSequence const&)
+      {}
     };
 
     template <typename T>
     struct call_processEventIDs {
-      void operator()(T& t, EventIDSequence const& seq) { t.processEventIDs(seq); }
+      void
+      operator()(T& t, EventIDSequence const& seq)
+      {
+        t.processEventIDs(seq);
+      }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -278,20 +329,31 @@ namespace art {
     // processEventAuxiliaries(EventAuxiliarySequence const&)?
 
     template <typename T, typename = void>
-    struct has_processEventAuxiliaries : std::false_type {};
+    struct has_processEventAuxiliaries : std::false_type {
+    };
 
     template <typename T>
-    struct has_processEventAuxiliaries<T, enable_if_function_exists_t<void(T::*)(EventAuxiliarySequence const&), &T::processEventAuxiliaries>> : std::true_type {};
+    struct has_processEventAuxiliaries<
+      T,
+      enable_if_function_exists_t<void (T::*)(EventAuxiliarySequence const&),
+                                  &T::processEventAuxiliaries>>
+      : std::true_type {
+    };
 
     template <typename T>
     struct do_not_call_processEventAuxiliaries {
-      void operator()(T&, MixHelper&, EntryNumberSequence const&, size_t) {}
+      void
+      operator()(T&, MixHelper&, EntryNumberSequence const&, size_t)
+      {}
     };
 
     template <typename T>
     struct call_processEventAuxiliaries {
       void
-      operator()(T& t, MixHelper& h, EntryNumberSequence const& enseq, size_t nSecondaries)
+      operator()(T& t,
+                 MixHelper& h,
+                 EntryNumberSequence const& enseq,
+                 size_t nSecondaries)
       {
         EventAuxiliarySequence auxseq;
         auxseq.reserve(nSecondaries);
@@ -305,19 +367,30 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void finalizeEvent(Event&)?
     template <typename T, typename = void>
-    struct has_finalizeEvent : std::false_type {};
+    struct has_finalizeEvent : std::false_type {
+    };
 
     template <typename T>
-    struct has_finalizeEvent<T, enable_if_function_exists_t<void(T::*)(Event&), &T::finalizeEvent>> : std::true_type {};
+    struct has_finalizeEvent<
+      T,
+      enable_if_function_exists_t<void (T::*)(Event&), &T::finalizeEvent>>
+      : std::true_type {
+    };
 
     template <typename T>
     struct do_not_call_finalizeEvent {
-      void operator()(T&, Event&) {}
+      void
+      operator()(T&, Event&)
+      {}
     };
 
     template <typename T>
     struct call_finalizeEvent {
-      void operator()(T& t, Event& e) { t.finalizeEvent(e); }
+      void
+      operator()(T& t, Event& e)
+      {
+        t.finalizeEvent(e);
+      }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -325,19 +398,30 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginSubRun(SubRun const&)?
     template <typename T, typename = void>
-    struct has_beginSubRun : std::false_type {};
+    struct has_beginSubRun : std::false_type {
+    };
 
     template <typename T>
-    struct has_beginSubRun<T, enable_if_function_exists_t<void(T::*)(SubRun const&), &T::beginSubRun>> : std::true_type {};
+    struct has_beginSubRun<
+      T,
+      enable_if_function_exists_t<void (T::*)(SubRun const&), &T::beginSubRun>>
+      : std::true_type {
+    };
 
     template <typename T>
     struct do_not_call_beginSubRun {
-      void operator()(T&, SubRun const&) {}
+      void
+      operator()(T&, SubRun const&)
+      {}
     };
 
     template <typename T>
     struct call_beginSubRun {
-      void operator()(T& t, SubRun const& sr) { t.beginSubRun(sr); }
+      void
+      operator()(T& t, SubRun const& sr)
+      {
+        t.beginSubRun(sr);
+      }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -345,19 +429,30 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void endSubRun(SubRun&)?
     template <typename T, typename = void>
-    struct has_endSubRun : std::false_type {};
+    struct has_endSubRun : std::false_type {
+    };
 
     template <typename T>
-    struct has_endSubRun<T, enable_if_function_exists_t<void(T::*)(SubRun&), &T::endSubRun>> : std::true_type {};
+    struct has_endSubRun<
+      T,
+      enable_if_function_exists_t<void (T::*)(SubRun&), &T::endSubRun>>
+      : std::true_type {
+    };
 
     template <typename T>
     struct do_not_call_endSubRun {
-      void operator()(T&, SubRun&) {}
+      void
+      operator()(T&, SubRun&)
+      {}
     };
 
     template <typename T>
     struct call_endSubRun {
-      void operator()(T& t, SubRun& sr) { t.endSubRun(sr); }
+      void
+      operator()(T& t, SubRun& sr)
+      {
+        t.endSubRun(sr);
+      }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -365,19 +460,30 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginRun(Run const&)?
     template <typename T, typename = void>
-    struct has_beginRun : std::false_type {};
+    struct has_beginRun : std::false_type {
+    };
 
     template <typename T>
-    struct has_beginRun<T, enable_if_function_exists_t<void(T::*)(Run const&), &T::beginRun>> : std::true_type {};
+    struct has_beginRun<
+      T,
+      enable_if_function_exists_t<void (T::*)(Run const&), &T::beginRun>>
+      : std::true_type {
+    };
 
     template <typename T>
     struct do_not_call_beginRun {
-      void operator()(T&, Run const&) {}
+      void
+      operator()(T&, Run const&)
+      {}
     };
 
     template <typename T>
     struct call_beginRun {
-      void operator()(T& t, Run const& r) { t.beginRun(r); }
+      void
+      operator()(T& t, Run const& r)
+      {
+        t.beginRun(r);
+      }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -385,19 +491,30 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void endRun(Run&)?
     template <typename T, typename = void>
-    struct has_endRun : std::false_type {};
+    struct has_endRun : std::false_type {
+    };
 
     template <typename T>
-    struct has_endRun<T, enable_if_function_exists_t<void(T::*)(Run&), &T::endRun>> : std::true_type {};
+    struct has_endRun<
+      T,
+      enable_if_function_exists_t<void (T::*)(Run&), &T::endRun>>
+      : std::true_type {
+    };
 
     template <typename T>
     struct do_not_call_endRun {
-      void operator()(T&, Run&) {}
+      void
+      operator()(T&, Run&)
+      {}
     };
 
     template <typename T>
     struct call_endRun {
-      void operator()(T& t, Run& r) { t.endRun(r); }
+      void
+      operator()(T& t, Run& r)
+      {
+        t.endRun(r);
+      }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -405,85 +522,115 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have respondToXXX methods()?
     template <typename T>
-    using respond_to_file = void(T::*)(FileBlock const&);
+    using respond_to_file = void (T::*)(FileBlock const&);
 
     template <typename T, respond_to_file<T>>
     struct respondToXXX_function;
 
-    template <typename T> struct do_not_call_respondToXXX {
+    template <typename T>
+    struct do_not_call_respondToXXX {
       do_not_call_respondToXXX(T&, FileBlock const&) {}
     };
 
-    template <typename T> struct call_respondToOpenInputFile {
-      call_respondToOpenInputFile(T& t, FileBlock const& fb) {
+    template <typename T>
+    struct call_respondToOpenInputFile {
+      call_respondToOpenInputFile(T& t, FileBlock const& fb)
+      {
         t.respondToOpenInputFile(fb);
       }
     };
 
-    template <typename T> struct call_respondToCloseInputFile {
-      call_respondToCloseInputFile(T& t, FileBlock const& fb) {
+    template <typename T>
+    struct call_respondToCloseInputFile {
+      call_respondToCloseInputFile(T& t, FileBlock const& fb)
+      {
         t.respondToCloseInputFile(fb);
       }
     };
 
-    template <typename T> struct call_respondToOpenOutputFiles {
-      call_respondToOpenOutputFiles(T& t, FileBlock const& fb) {
+    template <typename T>
+    struct call_respondToOpenOutputFiles {
+      call_respondToOpenOutputFiles(T& t, FileBlock const& fb)
+      {
         t.respondToOpenOutputFiles(fb);
       }
     };
 
-    template <typename T> struct call_respondToCloseOutputFiles {
-      call_respondToCloseOutputFiles(T& t, FileBlock const& fb) {
+    template <typename T>
+    struct call_respondToCloseOutputFiles {
+      call_respondToCloseOutputFiles(T& t, FileBlock const& fb)
+      {
         t.respondToCloseOutputFiles(fb);
       }
     };
 
     // has_respondToOpenInputFile
     template <typename T, typename = void>
-    struct has_respondToOpenInputFile : std::false_type {};
+    struct has_respondToOpenInputFile : std::false_type {
+    };
 
     template <typename T>
-    struct has_respondToOpenInputFile<T, enable_if_function_exists_t<respond_to_file<T>, &T::respondToOpenInputFile>> : std::true_type {};
+    struct has_respondToOpenInputFile<
+      T,
+      enable_if_function_exists_t<respond_to_file<T>,
+                                  &T::respondToOpenInputFile>>
+      : std::true_type {
+    };
 
     // has_respondToCloseInputFile
     template <typename T, typename = void>
-    struct has_respondToCloseInputFile : std::false_type {};
+    struct has_respondToCloseInputFile : std::false_type {
+    };
 
     template <typename T>
-    struct has_respondToCloseInputFile<T, enable_if_function_exists_t<respond_to_file<T>, &T::respondToCloseInputFile>> : std::true_type {};
+    struct has_respondToCloseInputFile<
+      T,
+      enable_if_function_exists_t<respond_to_file<T>,
+                                  &T::respondToCloseInputFile>>
+      : std::true_type {
+    };
 
     // has_respondToOpenOutputFiles
     template <typename T, typename = void>
-    struct has_respondToOpenOutputFiles : std::false_type {};
+    struct has_respondToOpenOutputFiles : std::false_type {
+    };
 
     template <typename T>
-    struct has_respondToOpenOutputFiles<T, enable_if_function_exists_t<respond_to_file<T>, &T::respondToOpenOutputFiles>> : std::true_type {};
+    struct has_respondToOpenOutputFiles<
+      T,
+      enable_if_function_exists_t<respond_to_file<T>,
+                                  &T::respondToOpenOutputFiles>>
+      : std::true_type {
+    };
 
     // has_respondToCloseOutputFiles
     template <typename T, typename = void>
-    struct has_respondToCloseOutputFiles : std::false_type {};
+    struct has_respondToCloseOutputFiles : std::false_type {
+    };
 
     template <typename T>
-    struct has_respondToCloseOutputFiles<T, enable_if_function_exists_t<respond_to_file<T>, &T::respondToCloseOutputFiles>> : std::true_type {};
+    struct has_respondToCloseOutputFiles<
+      T,
+      enable_if_function_exists_t<respond_to_file<T>,
+                                  &T::respondToCloseOutputFiles>>
+      : std::true_type {
+    };
 
     ////////////////////////////////////////////////////////////////////
 
-  } // detail namespace
+  } // namespace detail
 
-} // art namespace
+} // namespace art
 
 template <class T>
 class art::MixFilter : public EDFilter {
 public: // TYPES
-
   using MixDetail = T;
 
 public: // MEMBER FUNCTIONS -- Special Member Functions
-
   explicit MixFilter(fhicl::ParameterSet const& p);
 
 public: // MEMBER FUNCTIONS -- API supported by EDFilter
-
   void beginJob() override;
   void respondToOpenInputFile(FileBlock const& fb) override;
   void respondToCloseInputFile(FileBlock const& fb) override;
@@ -496,21 +643,17 @@ public: // MEMBER FUNCTIONS -- API supported by EDFilter
   bool endRun(Run& r) override;
 
 private: // MEMBER FUNCTIONS -- Implementation details
-
-  fhicl::ParameterSet const&
-  initEngine_(fhicl::ParameterSet const& p);
+  fhicl::ParameterSet const& initEngine_(fhicl::ParameterSet const& p);
 
 private: // MEMBER DATA
-
   MixHelper helper_;
   MixDetail detail_;
-
 };
 
 template <class T>
 art::MixFilter<T>::MixFilter(fhicl::ParameterSet const& p)
-  :
-  helper_{initEngine_(p), *this}, // See note below
+  : helper_{initEngine_(p), *this}
+  , // See note below
   detail_{p, helper_}
 {
   // Note that the random number engine is created in the initializer
@@ -528,8 +671,7 @@ art::MixFilter<T>::MixFilter(fhicl::ParameterSet const& p)
 template <class T>
 void
 art::MixFilter<T>::beginJob()
-{
-}
+{}
 
 template <class T>
 void
@@ -574,7 +716,8 @@ art::MixFilter<T>::filter(art::Event& e)
   // 1. Call detail object's startEvent() if it exists.
   std::conditional_t<detail::has_startEvent<T>::value,
                      detail::call_startEvent<T>,
-                     detail::do_not_call_startEvent<T>> maybe_call_startEvent{e};
+                     detail::do_not_call_startEvent<T>>
+    maybe_call_startEvent{e};
   maybe_call_startEvent(detail_);
 
   // 2. Ask detail object how many events to read.
@@ -594,13 +737,15 @@ art::MixFilter<T>::filter(art::Event& e)
   // 4. Give the event ID sequence to the detail object.
   std::conditional_t<detail::has_processEventIDs<T>::value,
                      detail::call_processEventIDs<T>,
-                     detail::do_not_call_processEventIDs<T>> maybe_call_processEventIDs;
+                     detail::do_not_call_processEventIDs<T>>
+    maybe_call_processEventIDs;
   maybe_call_processEventIDs(detail_, eIDseq);
 
   // 5. Give the event auxiliary sequence to the detail object.
   std::conditional_t<detail::has_processEventAuxiliaries<T>::value,
                      detail::call_processEventAuxiliaries<T>,
-                     detail::do_not_call_processEventAuxiliaries<T>> maybe_call_processEventAuxiliaries;
+                     detail::do_not_call_processEventAuxiliaries<T>>
+    maybe_call_processEventAuxiliaries;
   maybe_call_processEventAuxiliaries(detail_, helper_, enSeq, nSecondaries);
 
   // 6. Make the MixHelper read info into all the products, invoke the
@@ -610,7 +755,8 @@ art::MixFilter<T>::filter(art::Event& e)
   // 7. Call detail object's finalizeEvent() if it exists.
   std::conditional_t<detail::has_finalizeEvent<T>::value,
                      detail::call_finalizeEvent<T>,
-                     detail::do_not_call_finalizeEvent<T>> maybe_call_finalizeEvent;
+                     detail::do_not_call_finalizeEvent<T>>
+    maybe_call_finalizeEvent;
   maybe_call_finalizeEvent(detail_, e);
   return true;
 }
@@ -621,7 +767,8 @@ art::MixFilter<T>::beginSubRun(SubRun& sr)
 {
   std::conditional_t<detail::has_beginSubRun<T>::value,
                      detail::call_beginSubRun<T>,
-                     detail::do_not_call_beginSubRun<T>> maybe_call_beginSubRun;
+                     detail::do_not_call_beginSubRun<T>>
+    maybe_call_beginSubRun;
   maybe_call_beginSubRun(detail_, sr);
   return true;
 }
@@ -632,7 +779,8 @@ art::MixFilter<T>::endSubRun(SubRun& sr)
 {
   std::conditional_t<detail::has_endSubRun<T>::value,
                      detail::call_endSubRun<T>,
-                     detail::do_not_call_endSubRun<T>> maybe_call_endSubRun;
+                     detail::do_not_call_endSubRun<T>>
+    maybe_call_endSubRun;
   maybe_call_endSubRun(detail_, sr);
   return true;
 }
@@ -643,7 +791,8 @@ art::MixFilter<T>::beginRun(Run& r)
 {
   std::conditional_t<detail::has_beginRun<T>::value,
                      detail::call_beginRun<T>,
-                     detail::do_not_call_beginRun<T>> maybe_call_beginRun;
+                     detail::do_not_call_beginRun<T>>
+    maybe_call_beginRun;
   maybe_call_beginRun(detail_, r);
   return true;
 }
@@ -654,14 +803,16 @@ art::MixFilter<T>::endRun(Run& r)
 {
   std::conditional_t<detail::has_endRun<T>::value,
                      detail::call_endRun<T>,
-                     detail::do_not_call_endRun<T>> maybe_call_endRun;
+                     detail::do_not_call_endRun<T>>
+    maybe_call_endRun;
   maybe_call_endRun(detail_, r);
   return true;
 }
 
 template <class T>
 fhicl::ParameterSet const&
-art::MixFilter<T>::initEngine_(fhicl::ParameterSet const& p) {
+art::MixFilter<T>::initEngine_(fhicl::ParameterSet const& p)
+{
   // If we can't create one of these, the helper will deal with the
   // situation accordingly.
   if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {

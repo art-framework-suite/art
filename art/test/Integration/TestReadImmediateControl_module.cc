@@ -1,5 +1,5 @@
-#include "art/Framework/Modules/ProvenanceDumper.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Modules/ProvenanceDumper.h"
 
 #include "cetlib/quiet_unit_test.hpp"
 
@@ -7,28 +7,30 @@ namespace arttest {
   class RICDetail;
 
   using TestReadImmediateControl = art::ProvenanceDumper<RICDetail>;
-}
+} // namespace arttest
 
 class arttest::RICDetail {
 public:
   struct Config {
-    fhicl::Atom<bool> expectRunProducts { fhicl::Name("expectRunProducts"), true };
-    fhicl::Atom<bool> expectSubRunProducts { fhicl::Name("expectSubRunProducts"), true };
-    fhicl::Atom<bool> expectEventProducts { fhicl::Name("expectEventProducts"), false };
+    fhicl::Atom<bool> expectRunProducts{fhicl::Name("expectRunProducts"), true};
+    fhicl::Atom<bool> expectSubRunProducts{fhicl::Name("expectSubRunProducts"),
+                                           true};
+    fhicl::Atom<bool> expectEventProducts{fhicl::Name("expectEventProducts"),
+                                          false};
   };
 
-  explicit RICDetail(fhicl::TableFragment<Config> const & ps);
+  explicit RICDetail(fhicl::TableFragment<Config> const& ps);
 
   void preProcessRun();
-  void processRunProvenance(art::Provenance const &);
+  void processRunProvenance(art::Provenance const&);
   void postProcessRun();
 
   void preProcessSubRun();
-  void processSubRunProvenance(art::Provenance const &);
+  void processSubRunProvenance(art::Provenance const&);
   void postProcessSubRun();
 
   void preProcessEvent();
-  void processEventProvenance(art::Provenance const &);
+  void processEventProvenance(art::Provenance const&);
   void postProcessEvent();
 
 private:
@@ -36,37 +38,31 @@ private:
   bool const expectSubRunProducts_;
   bool const expectEventProducts_;
 
-  std::size_t presentRunProducts_ { 0ull };
-  std::size_t presentSubRunProducts_ { 0ull };
-  std::size_t presentEventProducts_ { 0ull };
+  std::size_t presentRunProducts_{0ull};
+  std::size_t presentSubRunProducts_{0ull};
+  std::size_t presentEventProducts_{0ull};
 };
 
-arttest::RICDetail::
-RICDetail(fhicl::TableFragment<Config> const & ps)
-  :
-  expectRunProducts_(ps().expectRunProducts()),
-  expectSubRunProducts_(ps().expectSubRunProducts()),
-  expectEventProducts_(ps().expectEventProducts())
-{
-}
+arttest::RICDetail::RICDetail(fhicl::TableFragment<Config> const& ps)
+  : expectRunProducts_(ps().expectRunProducts())
+  , expectSubRunProducts_(ps().expectSubRunProducts())
+  , expectEventProducts_(ps().expectEventProducts())
+{}
 
 void
-arttest::RICDetail::
-preProcessRun()
+arttest::RICDetail::preProcessRun()
 {
   presentRunProducts_ = 0ull;
 }
 
 void
-arttest::RICDetail::
-processRunProvenance(art::Provenance const &)
+arttest::RICDetail::processRunProvenance(art::Provenance const&)
 {
   ++presentRunProducts_;
 }
 
 void
-arttest::RICDetail::
-postProcessRun()
+arttest::RICDetail::postProcessRun()
 {
   if (expectRunProducts_) {
     BOOST_CHECK_GT(presentRunProducts_, 0ull);
@@ -76,22 +72,19 @@ postProcessRun()
 }
 
 void
-arttest::RICDetail::
-preProcessSubRun()
+arttest::RICDetail::preProcessSubRun()
 {
   presentSubRunProducts_ = 0ull;
 }
 
 void
-arttest::RICDetail::
-processSubRunProvenance(art::Provenance const &)
+arttest::RICDetail::processSubRunProvenance(art::Provenance const&)
 {
   ++presentSubRunProducts_;
 }
 
 void
-arttest::RICDetail::
-postProcessSubRun()
+arttest::RICDetail::postProcessSubRun()
 {
   if (expectSubRunProducts_) {
     BOOST_CHECK_GT(presentSubRunProducts_, 0ull);
@@ -101,22 +94,19 @@ postProcessSubRun()
 }
 
 void
-arttest::RICDetail::
-preProcessEvent()
+arttest::RICDetail::preProcessEvent()
 {
   presentEventProducts_ = 0ull;
 }
 
 void
-arttest::RICDetail::
-processEventProvenance(art::Provenance const &)
+arttest::RICDetail::processEventProvenance(art::Provenance const&)
 {
   ++presentEventProducts_;
 }
 
 void
-arttest::RICDetail::
-postProcessEvent()
+arttest::RICDetail::postProcessEvent()
 {
   if (expectEventProducts_) {
     BOOST_CHECK_GT(presentEventProducts_, 0ull);

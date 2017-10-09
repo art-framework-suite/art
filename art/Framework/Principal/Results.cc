@@ -6,15 +6,10 @@
 
 namespace art {
 
-Results::
-~Results()
-{
-}
+  Results::~Results() {}
 
-Results::
-Results(ResultsPrincipal const& p, ModuleDescription const& md)
-  : DataViewImpl{InResults, p, md, false, RangeSet::invalid()}
-{
-}
+  Results::Results(ResultsPrincipal const& p, ModuleDescription const& md)
+    : DataViewImpl{InResults, p, md, false, RangeSet::invalid()}
+  {}
 
 } // namespace art

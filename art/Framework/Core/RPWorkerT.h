@@ -8,60 +8,42 @@
 
 namespace art {
 
-template <typename RP>
-class RPWorkerT : public RPWorker {
+  template <typename RP>
+  class RPWorkerT : public RPWorker {
 
-public:
+  public:
+    using RPType = RP;
 
-  using RPType = RP;
+  public:
+    RPWorkerT(RPParams const& p, fhicl::ParameterSet const& ps);
 
-public:
+  private:
+    RP& rp_() override;
 
-  RPWorkerT(RPParams const& p, fhicl::ParameterSet const& ps);
+    RP const& rp_() const override;
 
-private:
+  private:
+    RP rpPlugin_;
+  };
 
-  RP&
-  rp_() override;
+  template <typename RP>
+  RPWorkerT<RP>::RPWorkerT(RPParams const& p, fhicl::ParameterSet const& ps)
+    : RPWorker(p), rpPlugin_(ps)
+  {}
 
-  RP
-  const&
-  rp_() const override;
+  template <typename RP>
+  inline auto
+  RPWorkerT<RP>::rp_() -> RPType&
+  {
+    return rpPlugin_;
+  }
 
-private:
-
-  RP
-  rpPlugin_;
-
-};
-
-template <typename RP>
-RPWorkerT<RP>::
-RPWorkerT(RPParams const& p, fhicl::ParameterSet const& ps)
-  : RPWorker(p)
-  , rpPlugin_(ps)
-{
-}
-
-template <typename RP>
-inline
-auto
-RPWorkerT<RP>::
-rp_()
--> RPType&
-{
-  return rpPlugin_;
-}
-
-template <typename RP>
-inline
-auto
-RPWorkerT<RP>::
-rp_() const
--> RPType const&
-{
-  return rpPlugin_;
-}
+  template <typename RP>
+  inline auto
+  RPWorkerT<RP>::rp_() const -> RPType const&
+  {
+    return rpPlugin_;
+  }
 
 } // namespace art
 

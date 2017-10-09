@@ -19,40 +19,33 @@
 
 namespace art {
 
-class Event;
-class HLTGlobalStatus;
+  class Event;
+  class HLTGlobalStatus;
 
-class TriggerResultInserter : public EDProducer {
+  class TriggerResultInserter : public EDProducer {
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    explicit TriggerResultInserter(fhicl::ParameterSet const&) = delete;
 
-  explicit
-  TriggerResultInserter(fhicl::ParameterSet const&) = delete;
+    explicit TriggerResultInserter(fhicl::ParameterSet const&,
+                                   int streamIndex) = delete;
 
-  explicit
-  TriggerResultInserter(fhicl::ParameterSet const&, int streamIndex) = delete;
+    // the pset needed here is the one that defines the trigger path names
+    explicit TriggerResultInserter(fhicl::ParameterSet const&,
+                                   int streamIndex,
+                                   HLTGlobalStatus&);
 
-  // the pset needed here is the one that defines the trigger path names
-  explicit
-  TriggerResultInserter(fhicl::ParameterSet const&, int streamIndex, HLTGlobalStatus&);
+  public: // MEMBER FUNCTIONS -- EDProducer API
+    void produce(Event&) override;
 
-public: // MEMBER FUNCTIONS -- EDProducer API
+    // void
+    // produce_in_stream(Event&, int streamIndex) override;
 
-  void
-  produce(Event&) override;
+  private: // MEMBER DATA
+    fhicl::ParameterSetID pset_id_;
 
-  //void
-  //produce_in_stream(Event&, int streamIndex) override;
-
-private: // MEMBER DATA
-
-  fhicl::ParameterSetID
-  pset_id_;
-
-  cet::exempt_ptr<HLTGlobalStatus>
-  trptr_;
-
-};
+    cet::exempt_ptr<HLTGlobalStatus> trptr_;
+  };
 
 } // namespace art
 

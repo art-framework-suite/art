@@ -9,63 +9,48 @@
 
 namespace fhicl {
 
-class ParameterSet;
+  class ParameterSet;
 
 } // namespace fhicl
 
 namespace art {
-namespace actions {
+  namespace actions {
 
-const char*
-actionName(ActionCodes code);
+    const char* actionName(ActionCodes code);
 
-} // namespace actions
+  } // namespace actions
 
-class ActionTable {
+  class ActionTable {
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~ActionTable();
 
-  ~ActionTable();
+    ActionTable();
 
-  ActionTable();
+    explicit ActionTable(const fhicl::ParameterSet&);
 
-  explicit
-  ActionTable(const fhicl::ParameterSet&);
+    ActionTable(ActionTable const&) = delete;
 
-  ActionTable(ActionTable const&) = delete;
+    ActionTable(ActionTable&&) = delete;
 
-  ActionTable(ActionTable&&) = delete;
+    ActionTable& operator=(ActionTable const&) = delete;
 
-  ActionTable&
-  operator=(ActionTable const&) = delete;
+    ActionTable& operator=(ActionTable&&) = delete;
 
-  ActionTable&
-  operator=(ActionTable&&) = delete;
+  public: // MEMBER FUNCTIONS -- Public API, accessors
+    actions::ActionCodes find(std::string const& category) const;
 
-public: // MEMBER FUNCTIONS -- Public API, accessors
+  public: // MEMBER FUNCTIONS -- Public API, modifiers
+    void add(std::string const& category, actions::ActionCodes);
 
-  actions::ActionCodes
-  find(std::string const& category) const;
+  private: // MEMBER FUNCTIONS -- Implementation details
+    void addDefaults_();
 
-public: // MEMBER FUNCTIONS -- Public API, modifiers
+    void install_(actions::ActionCodes, fhicl::ParameterSet const&);
 
-  void
-  add(std::string const& category, actions::ActionCodes);
-
-private: // MEMBER FUNCTIONS -- Implementation details
-
-  void
-  addDefaults_();
-
-  void
-  install_(actions::ActionCodes, fhicl::ParameterSet const&);
-
-private:
-
-  std::map<std::string, actions::ActionCodes>
-  map_;
-
-};
+  private:
+    std::map<std::string, actions::ActionCodes> map_;
+  };
 
 } // namespace art
 

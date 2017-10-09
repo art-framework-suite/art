@@ -24,14 +24,14 @@ namespace art {
   // class.
   class DataFlow;
   using DataFlowDumper = ProvenanceDumper<DataFlow>;
-}
+} // namespace art
 
 class art::DataFlow {
 public:
   struct Config {
-    fhicl::Atom<std::string> dotfile { fhicl::Name("dotfile"), "flow.dot" };
-    fhicl::Atom<std::string> colorscheme { fhicl::Name("colorscheme"), "set312" };
-    fhicl::Atom<int> debuglevel { fhicl::Name("debuglevel"), 0 };
+    fhicl::Atom<std::string> dotfile{fhicl::Name("dotfile"), "flow.dot"};
+    fhicl::Atom<std::string> colorscheme{fhicl::Name("colorscheme"), "set312"};
+    fhicl::Atom<int> debuglevel{fhicl::Name("debuglevel"), 0};
   };
 
   explicit DataFlow(fhicl::TableFragment<Config> const& cfg);
@@ -55,93 +55,102 @@ private:
 
 //-----------------------------------------------------------------
 
-art::DataFlow::DataFlow(fhicl::TableFragment<Config> const& cfg) :
-  out_(cfg().dotfile()),
-  nEvents_(0),
-  colorscheme_(cfg().colorscheme()),
-  debug_(cfg().debuglevel())
+art::DataFlow::DataFlow(fhicl::TableFragment<Config> const& cfg)
+  : out_(cfg().dotfile())
+  , nEvents_(0)
+  , colorscheme_(cfg().colorscheme())
+  , debug_(cfg().debuglevel())
 {
   if (!out_) {
-    throw art::Exception(art::errors::FileOpenError) <<
-      "Failed to create output file: " << cfg().dotfile();
+    throw art::Exception(art::errors::FileOpenError)
+      << "Failed to create output file: " << cfg().dotfile();
   }
 }
 
-void art::DataFlow::preProcessEvent() {
+void
+art::DataFlow::preProcessEvent()
+{
   out_ << "digraph d" << nEvents_ << " {\n";
 }
 
-void art::DataFlow::postProcessEvent() {
+void
+art::DataFlow::postProcessEvent()
+{
   out_ << "}\n\n";
   ++nEvents_;
 }
 
 // Write the identifier for the node for the product to which this
 // Provenance belongs.
-void write_id(art::ProductID const pid, std::ostream& os) {
-  os << "\"b"
-     << pid
-     << '\"';
+void
+write_id(art::ProductID const pid, std::ostream& os)
+{
+  os << "\"b" << pid << '\"';
 }
 
-void write_id(art::Provenance const& p, std::ostream& os) {
+void
+write_id(art::Provenance const& p, std::ostream& os)
+{
   write_id(p.productID(), os);
 }
 
 // format_product_node defines the format for the product nade.
-void format_product_node(std::string const& fcn,
-                         std::string const& pin,
-                         std::ostream& os)
+void
+format_product_node(std::string const& fcn,
+                    std::string const& pin,
+                    std::ostream& os)
 {
   os << " [label = \"" << fcn;
-  if (!pin.empty()) os << "/" << pin;
+  if (!pin.empty())
+    os << "/" << pin;
   os << "\" shape = box];\n";
 }
 
 // Write the line defining the node for the product to which this
 // Provenance belongs.
-void write_product_node(art::Provenance const& p,
-                        std::ostream& os,
-                        int debug) {
+void
+write_product_node(art::Provenance const& p, std::ostream& os, int debug)
+{
   if (debug > 0) {
     os << "# write_product_node for provenance: " << &p << '\n';
   }
-  write_id(p,os);
+  write_id(p, os);
   format_product_node(p.friendlyClassName(), p.productInstanceName(), os);
 }
 
-void write_module_id(art::Provenance const& p, std::ostream& os) {
-  os << '\"'
-     << p.moduleLabel()
-     << '/'
-     << p.processName()
-     << '\"';
+void
+write_module_id(art::Provenance const& p, std::ostream& os)
+{
+  os << '\"' << p.moduleLabel() << '/' << p.processName() << '\"';
 }
 
-std::size_t color(std::string const& procname) {
+std::size_t
+color(std::string const& procname)
+{
   static std::vector<std::string> names_seen;
   auto it = std::find(begin(names_seen), end(names_seen), procname);
   if (it == end(names_seen)) {
     names_seen.push_back(procname);
     return names_seen.size();
   }
-  return std::distance(begin(names_seen), it)+1;
+  return std::distance(begin(names_seen), it) + 1;
 }
 
-void write_module_node(art::Provenance const& p,
-                        std::string const& colorscheme,
-                        std::ostream& os) {
-  os << " [ colorscheme="
-     << colorscheme
-     << " color="
-     << color(p.processName())
+void
+write_module_node(art::Provenance const& p,
+                  std::string const& colorscheme,
+                  std::ostream& os)
+{
+  os << " [ colorscheme=" << colorscheme << " color=" << color(p.processName())
      << " style=filled ];\n";
 }
 
-void write_creator_line(art::Provenance const& p,
-                        std::string const& colorscheme,
-                        std::ostream& os,
-                        int debug) {
+void
+write_creator_line(art::Provenance const& p,
+                   std::string const& colorscheme,
+                   std::ostream& os,
+                   int debug)
+{
   if (debug > 0) {
     os << "# write_creator_line for provenance: " << &p << '\n';
   }
@@ -153,18 +162,21 @@ void write_creator_line(art::Provenance const& p,
   os << ";\n";
 }
 
-void write_parent_id(art::ProductID const parent,
-                     std::ostream& os) {
- os << 'b' << parent;
+void
+write_parent_id(art::ProductID const parent, std::ostream& os)
+{
+  os << 'b' << parent;
 }
 
-void write_parentage_line(art::Provenance const& p,
-                          art::ProductID const parent,
-                          std::ostream& os,
-                          int debug) {
+void
+write_parentage_line(art::Provenance const& p,
+                     art::ProductID const parent,
+                     std::ostream& os,
+                     int debug)
+{
   if (debug > 0) {
-    os << "# write_parentage_line for provenance: " << &p
-       << " parent " << parent << '\n';
+    os << "# write_parentage_line for provenance: " << &p << " parent "
+       << parent << '\n';
   }
   write_parent_id(parent, os);
   os << " -> ";
@@ -172,7 +184,9 @@ void write_parentage_line(art::Provenance const& p,
   os << ";\n";
 }
 
-void art::DataFlow::processEventProvenance(art::Provenance const& p) {
+void
+art::DataFlow::processEventProvenance(art::Provenance const& p)
+{
   write_product_node(p, out_, debug_);
   write_creator_line(p, colorscheme_, out_, debug_);
   for (art::ProductID const parent : p.parents()) {

@@ -1,9 +1,9 @@
 #include "art/Framework/Core/EDAnalyzer.h"
+#include "art/Framework/Core/FileBlock.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Core/ModuleMacros.h"
 #include "cetlib/HorizontalRule.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/intermediate_table.h"
@@ -13,33 +13,30 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <vector>
 #include <tuple>
+#include <vector>
 
 namespace arttest {
   class ToyRawInputTester;
 }
 
 using strings = std::vector<std::string>;
-using std::string;
 using std::ostringstream;
+using std::string;
 
 using namespace art;
 
 class arttest::ToyRawInputTester : public art::EDAnalyzer {
 public:
-
-  explicit ToyRawInputTester(fhicl::ParameterSet const& p) :
-    art::EDAnalyzer{p},
-    fileNames_{p.get<strings>("fileNames")},
-    pset_{p}
+  explicit ToyRawInputTester(fhicl::ParameterSet const& p)
+    : art::EDAnalyzer{p}, fileNames_{p.get<strings>("fileNames")}, pset_{p}
   {
     numFilesExpected_ = fileNames_.size();
     ostringstream expected;
-    for (size_t i=0; i != numFilesExpected_; ++i) {
+    for (size_t i = 0; i != numFilesExpected_; ++i) {
       expected << "open " << fileNames_[i] << '\n';
 
-      std::vector<std::tuple<int,int,int>> tokens;
+      std::vector<std::tuple<int, int, int>> tokens;
       try { // Assume it's a real filename
         fhicl::intermediate_table raw_config;
         cet::filepath_lookup_after1 lookupPolicy(".:");
@@ -64,14 +61,11 @@ public:
         if (newSubRun != -1) {
           ++numSubRunsExpected_;
           currentSubRun = newSubRun;
-          expected << "begin "
-                   << SubRunID(currentRun, currentSubRun) << '\n';
-
+          expected << "begin " << SubRunID(currentRun, currentSubRun) << '\n';
         }
         if (newEvent != -1) {
           ++numEventsExpected_;
-          expected << "event "
-                   << EventID(currentRun, currentSubRun, newEvent)
+          expected << "event " << EventID(currentRun, currentSubRun, newEvent)
                    << '\n';
         }
       }
@@ -79,39 +73,42 @@ public:
     expectedMessage_ = expected.str();
   }
 
-  void respondToOpenInputFile(art::FileBlock const& fb) override
+  void
+  respondToOpenInputFile(art::FileBlock const& fb) override
   {
     ++numFilesSeen_;
-    messages_ << "open " <<  fb.fileName() << '\n';
+    messages_ << "open " << fb.fileName() << '\n';
   }
 
-  void beginRun(art::Run const& r) override
+  void
+  beginRun(art::Run const& r) override
   {
     ++numRunsSeen_;
     messages_ << "begin " << r.id() << '\n';
   }
 
-  void beginSubRun(art::SubRun const& sr) override
+  void
+  beginSubRun(art::SubRun const& sr) override
   {
     ++numSubRunsSeen_;
     messages_ << "begin " << sr.id() << '\n';
   }
 
-  void analyze(art::Event const& e) override
+  void
+  analyze(art::Event const& e) override
   {
     ++numEventsSeen_;
     messages_ << "event " << e.id() << '\n';
   }
 
-  void endJob() override
+  void
+  endJob() override
   {
     cet::HorizontalRule constexpr rule{72};
     std::cerr << rule('-') << '\n'
-              << expectedMessage_
-              << rule('-') << '\n'
+              << expectedMessage_ << rule('-') << '\n'
               << rule('+') << '\n'
-              << messages_.str()
-              << rule('+') << '\n';
+              << messages_.str() << rule('+') << '\n';
     assert(numFilesSeen_ == numFilesExpected_);
     assert(numRunsSeen_ == numRunsExpected_);
     assert(numSubRunsSeen_ == numSubRunsExpected_);

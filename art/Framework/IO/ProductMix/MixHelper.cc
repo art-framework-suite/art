@@ -32,7 +32,8 @@ namespace {
   {
     art::EventIDIndex result;
     for (auto const& element : fileIndex) {
-      if (element.getEntryType() != art::FileIndex::kEvent) continue;
+      if (element.getEntryType() != art::FileIndex::kEvent)
+        continue;
       result.emplace(element.entry_, element.eventID_);
     }
     return result;
@@ -42,6 +43,7 @@ namespace {
   public:
     EventIDLookup(art::EventIDIndex const& index);
     result_type operator()(argument_type entry) const;
+
   private:
     art::EventIDIndex const& index_;
   };
@@ -51,23 +53,21 @@ namespace {
   {
     std::array<cet::exempt_ptr<TTree>, art::NumBranchTypes> result;
     for (auto bt = 0; bt != art::NumBranchTypes; ++bt) {
-      result[bt].reset(static_cast<TTree*>(
-                         currentFile->Get(art::rootNames::dataTreeName(static_cast<art::BranchType>(bt)).c_str())));
+      result[bt].reset(static_cast<TTree*>(currentFile->Get(
+        art::rootNames::dataTreeName(static_cast<art::BranchType>(bt))
+          .c_str())));
       if (result[bt].get() == nullptr and bt != art::InResults) {
         throw art::Exception(art::errors::FileReadError)
           << "Unable to read event tree from secondary event stream file "
-          << currentFile->GetName()
-          << ".\n";
+          << currentFile->GetName() << ".\n";
       }
     }
     return result;
   }
-}  // namespace
+} // namespace
 
-inline
-EventIDLookup::EventIDLookup(art::EventIDIndex const& index)
-  :
-  index_{index}
+inline EventIDLookup::EventIDLookup(art::EventIDIndex const& index)
+  : index_{index}
 {}
 
 EventIDLookup::result_type
@@ -76,15 +76,15 @@ EventIDLookup::operator()(argument_type entry) const
   auto i = index_.find(entry);
   if (i == cend(index_)) {
     throw art::Exception(art::errors::LogicError)
-        << "MixHelper could not find entry number "
-        << entry
-        << " in its own lookup table.\n";
+      << "MixHelper could not find entry number " << entry
+      << " in its own lookup table.\n";
   }
   return i->second;
 }
 
 namespace {
-  double initCoverageFraction(fhicl::ParameterSet const& pset)
+  double
+  initCoverageFraction(fhicl::ParameterSet const& pset)
   {
     auto result = pset.get<double>("coverageFraction", 1.0);
     if (result > (1 + std::numeric_limits<double>::epsilon())) {
@@ -102,10 +102,12 @@ namespace {
     std::unique_ptr<CLHEP::RandFlat> result;
     if (readMode > MixHelper::Mode::SEQUENTIAL) {
       if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
-        result = std::make_unique<CLHEP::RandFlat>(ServiceHandle<RandomNumberGenerator>{}->getEngine());
+        result = std::make_unique<CLHEP::RandFlat>(
+          ServiceHandle<RandomNumberGenerator> {}->getEngine());
       } else {
         throw Exception(errors::Configuration, "MixHelper")
-          << "Random event mixing selected but RandomNumberGenerator service not loaded.\n"
+          << "Random event mixing selected but RandomNumberGenerator service "
+             "not loaded.\n"
           << "Ensure service is loaded with: \n"
           << "services.RandomNumberGenerator: {}\n";
       }
@@ -113,21 +115,19 @@ namespace {
     return result;
   }
 
-}
+} // namespace
 
 art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
                           ProducerBase& producesProvider)
-  :
-  producesProvider_{producesProvider},
-  filenames_{pset.get<std::vector<std::string> >("fileNames", {})},
-  compactMissingProducts_{pset.get<bool>("compactMissingProducts", false)},
-  fileIter_{filenames_.begin()},
-  readMode_{initReadMode_(pset.get<std::string>("readMode", "sequential"))},
-  coverageFraction_{initCoverageFraction(pset)},
-  canWrapFiles_{pset.get<bool>("wrapFiles", false)},
-  dist_{initDist(readMode_)}
-{
-}
+  : producesProvider_{producesProvider}
+  , filenames_{pset.get<std::vector<std::string>>("fileNames", {})}
+  , compactMissingProducts_{pset.get<bool>("compactMissingProducts", false)}
+  , fileIter_{filenames_.begin()}
+  , readMode_{initReadMode_(pset.get<std::string>("readMode", "sequential"))}
+  , coverageFraction_{initCoverageFraction(pset)}
+  , canWrapFiles_{pset.get<bool>("wrapFiles", false)}
+  , dist_{initDist(readMode_)}
+{}
 
 void
 art::MixHelper::registerSecondaryFileNameProvider(ProviderFunc_ func)
@@ -148,67 +148,64 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
   assert(enSeq.empty());
   assert(eIDseq.empty());
   assert(nEventsInFile_ >= 0);
-  bool over_threshold = (readMode_ == Mode::SEQUENTIAL || readMode_ == Mode::RANDOM_NO_REPLACE) ?
-                        ((nEventsReadThisFile_ + nSecondaries) > static_cast<size_t>(nEventsInFile_)) :
-                        ((nEventsReadThisFile_ + nSecondaries) > (nEventsInFile_ * coverageFraction_));
+  bool over_threshold =
+    (readMode_ == Mode::SEQUENTIAL || readMode_ == Mode::RANDOM_NO_REPLACE) ?
+      ((nEventsReadThisFile_ + nSecondaries) >
+       static_cast<size_t>(nEventsInFile_)) :
+      ((nEventsReadThisFile_ + nSecondaries) >
+       (nEventsInFile_ * coverageFraction_));
   if (over_threshold || (!ffVersion_.isValid())) {
     if (openNextFile_()) {
       return generateEventSequence(nSecondaries, enSeq, eIDseq);
-    }
-    else {
+    } else {
       return false;
     }
   }
   switch (readMode_) {
-  case Mode::SEQUENTIAL:
-    enSeq.reserve(nSecondaries);
-    for (size_t
-           i = nEventsReadThisFile_,
-           end = nEventsReadThisFile_ + nSecondaries;
-         i < end;
-         ++i) {
-      enSeq.push_back(i);
-    }
-    break;
-  case Mode::RANDOM_REPLACE:
-    std::generate_n(std::back_inserter(enSeq),
-                    nSecondaries,
-                    [this]() { return dist_.get()->fireInt(nEventsInFile_); });
-    std::sort(enSeq.begin(), enSeq.end());
-    break;
-  case Mode::RANDOM_LIM_REPLACE:
-  {
-    std::unordered_set<EntryNumberSequence::value_type> entries; // Guaranteed unique.
-    while (entries.size() < nSecondaries) {
-      std::generate_n(std::inserter(entries, entries.begin()),
-                      nSecondaries - entries.size(),
-                      [this]() { return dist_.get()->fireInt(nEventsInFile_); });
-    }
-    enSeq.assign(entries.cbegin(), entries.cend());
-    std::sort(enSeq.begin(), enSeq.end());
-    // Since we need to sort at the end anyway, it's unclear whether
-    // unordered_set is faster than set even though inserts are
-    // approximately linear time. Since the complexity of the sort is
-    // NlogN, we'd need a profile run for it all to come out in the
-    // wash.
-    assert(enSeq.size() == nSecondaries); // Should be true by construction.
+    case Mode::SEQUENTIAL:
+      enSeq.reserve(nSecondaries);
+      for (size_t i = nEventsReadThisFile_,
+                  end = nEventsReadThisFile_ + nSecondaries;
+           i < end;
+           ++i) {
+        enSeq.push_back(i);
+      }
+      break;
+    case Mode::RANDOM_REPLACE:
+      std::generate_n(std::back_inserter(enSeq), nSecondaries, [this]() {
+        return dist_.get()->fireInt(nEventsInFile_);
+      });
+      std::sort(enSeq.begin(), enSeq.end());
+      break;
+    case Mode::RANDOM_LIM_REPLACE: {
+      std::unordered_set<EntryNumberSequence::value_type>
+        entries; // Guaranteed unique.
+      while (entries.size() < nSecondaries) {
+        std::generate_n(
+          std::inserter(entries, entries.begin()),
+          nSecondaries - entries.size(),
+          [this]() { return dist_.get()->fireInt(nEventsInFile_); });
+      }
+      enSeq.assign(entries.cbegin(), entries.cend());
+      std::sort(enSeq.begin(), enSeq.end());
+      // Since we need to sort at the end anyway, it's unclear whether
+      // unordered_set is faster than set even though inserts are
+      // approximately linear time. Since the complexity of the sort is
+      // NlogN, we'd need a profile run for it all to come out in the
+      // wash.
+      assert(enSeq.size() == nSecondaries); // Should be true by construction.
+    } break;
+    case Mode::RANDOM_NO_REPLACE: {
+      auto i = shuffledSequence_.cbegin() + nEventsReadThisFile_;
+      enSeq.assign(i, i + nSecondaries);
+    } break;
+    default:
+      throw Exception(errors::LogicError)
+        << "Unrecognized read mode " << static_cast<int>(readMode_)
+        << ". Contact the art developers.\n";
   }
-  break;
-  case Mode::RANDOM_NO_REPLACE:
-  {
-    auto i = shuffledSequence_.cbegin() + nEventsReadThisFile_;
-    enSeq.assign(i, i + nSecondaries);
-  }
-  break;
-  default:
-    throw Exception(errors::LogicError)
-      << "Unrecognized read mode "
-      << static_cast<int>(readMode_)
-      << ". Contact the art developers.\n";
-  }
-  cet::transform_all(enSeq,
-                     back_inserter(eIDseq),
-                     EventIDLookup{eventIDIndex_});
+  cet::transform_all(
+    enSeq, back_inserter(eIDseq), EventIDLookup{eventIDIndex_});
   return true;
 }
 
@@ -217,7 +214,8 @@ art::MixHelper::generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
                                                EventAuxiliarySequence& auxseq)
 {
   auto const eventTree = currentDataTrees_[InEvent];
-  auto auxBranch = eventTree->GetBranch(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
+  auto auxBranch =
+    eventTree->GetBranch(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
   auto aux = std::make_unique<EventAuxiliary>();
   auto pAux = aux.get();
   auxBranch->SetAddress(&pAux);
@@ -227,7 +225,7 @@ art::MixHelper::generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
       // FIXME: Throw an error here!
       // FIXME: -2 means entry number too big.
       // Disconnect the branch from the i/o buffer.
-      //auxBranch->SetAddress(0);
+      // auxBranch->SetAddress(0);
     }
     // Note: Root will overwrite the old event
     //       auxiliary with the new one.
@@ -259,10 +257,10 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
         subRunEntries.emplace_back(it->entry_);
       } else {
         throw Exception(errors::NotFound, "NO_SUBRUN")
-          << "- Unable to find an entry in the SubRun tree corresponding to event ID "
+          << "- Unable to find an entry in the SubRun tree corresponding to "
+             "event ID "
           << eID << " in secondary mixing input file "
-          << currentFile_->GetName()
-          << ".\n";
+          << currentFile_->GetName() << ".\n";
       }
     }
   }
@@ -274,10 +272,10 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
         runEntries.emplace_back(it->entry_);
       } else {
         throw Exception(errors::NotFound, "NO_RUN")
-          << "- Unable to find an entry in the Run tree corresponding to event ID "
+          << "- Unable to find an entry in the Run tree corresponding to "
+             "event ID "
           << eID << " in secondary mixing input file "
-          << currentFile_->GetName()
-          << ".\n";
+          << currentFile_->GetName() << ".\n";
       }
     }
   }
@@ -288,25 +286,25 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
   // Do the branch-wise read, mix and put.
   for (auto const& op : mixOps_) {
     switch (op->branchType()) {
-    case InEvent:
-      op->readFromFile(eventEntries, branchIDLists_.get());
-      op->mixAndPut(e, ptrRemapper_);
-      break;
-    case InSubRun:
-      op->readFromFile(subRunEntries, nullptr);
-      // No Ptrs in subrun products.
-      op->mixAndPut(e, nopRemapper);
-      break;
-    case InRun:
-      op->readFromFile(runEntries, nullptr);
-      // No Ptrs in run products.
-      op->mixAndPut(e, nopRemapper);
-      break;
-    default:
-      throw Exception(errors::LogicError, "Unsupported BranchType")
-        << "- MixHelper::mixAndPut() attempted to handle unsupported branch type "
-        << op->branchType()
-        << ".\n";
+      case InEvent:
+        op->readFromFile(eventEntries, branchIDLists_.get());
+        op->mixAndPut(e, ptrRemapper_);
+        break;
+      case InSubRun:
+        op->readFromFile(subRunEntries, nullptr);
+        // No Ptrs in subrun products.
+        op->mixAndPut(e, nopRemapper);
+        break;
+      case InRun:
+        op->readFromFile(runEntries, nullptr);
+        // No Ptrs in run products.
+        op->mixAndPut(e, nopRemapper);
+        break;
+      default:
+        throw Exception(errors::LogicError, "Unsupported BranchType")
+          << "- MixHelper::mixAndPut() attempted to handle unsupported branch "
+             "type "
+          << op->branchType() << ".\n";
     }
   }
 
@@ -315,35 +313,32 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
 }
 
 void
-art::MixHelper::setEventsToSkipFunction(std::function < size_t () > eventsToSkip)
+art::MixHelper::setEventsToSkipFunction(std::function<size_t()> eventsToSkip)
 {
   eventsToSkip_ = eventsToSkip;
 }
 
 auto
-art::MixHelper::initReadMode_(std::string const& mode) const
-  -> Mode
+art::MixHelper::initReadMode_(std::string const& mode) const -> Mode
 {
   // These regexes must correspond by index to the valid Mode enumerator
   // values.
-  static std::regex const robjs[4] {
+  static std::regex const robjs[4]{
     std::regex("^seq", std::regex_constants::icase),
     std::regex("^random(replace)?$", std::regex_constants::icase),
     std::regex("^randomlimreplace$", std::regex_constants::icase),
-    std::regex("^randomnoreplace$", std::regex_constants::icase)
-  };
-  int i { 0 };
+    std::regex("^randomnoreplace$", std::regex_constants::icase)};
+  int i{0};
   for (auto const& r : robjs) {
     if (std::regex_search(mode, r)) {
       return Mode(i);
-    }
-    else {
+    } else {
       ++i;
     }
   }
   throw Exception(errors::Configuration)
-    << "Unrecognized value of readMode parameter: \""
-    << mode << "\". Valid values are:\n"
+    << "Unrecognized value of readMode parameter: \"" << mode
+    << "\". Valid values are:\n"
     << "  sequential,\n"
     << "  randomReplace (random is accepted for reasons of legacy),\n"
     << "  randomLimReplace,\n"
@@ -355,37 +350,37 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
 {
   // Open file.
   try {
-    //FIXME: threading: This is not thread-safe!!!
+    // FIXME: threading: This is not thread-safe!!!
     currentFile_.reset(TFile::Open(filename.c_str()));
   }
   catch (std::exception const& e) {
     throw Exception(errors::FileOpenError, e.what())
-        << "Unable to open specified secondary event stream file "
-        << filename
-        << ".\n";
+      << "Unable to open specified secondary event stream file " << filename
+      << ".\n";
   }
   if (!currentFile_ || currentFile_->IsZombie()) {
     throw Exception(errors::FileOpenError)
-        << "Unable to open specified secondary event stream file "
-        << filename
-        << ".\n";
+      << "Unable to open specified secondary event stream file " << filename
+      << ".\n";
   }
   // Obtain meta data tree.
-  currentMetaDataTree_.reset(static_cast<TTree*>(currentFile_->Get(rootNames::metaDataTreeName().c_str())));
+  currentMetaDataTree_.reset(static_cast<TTree*>(
+    currentFile_->Get(rootNames::metaDataTreeName().c_str())));
   if (currentMetaDataTree_.get() == nullptr) {
     throw Exception(errors::FileReadError)
-        << "Unable to read meta data tree from secondary event stream file "
-        << filename
-        << ".\n";
+      << "Unable to read meta data tree from secondary event stream file "
+      << filename << ".\n";
   }
   currentDataTrees_ = initDataTrees(currentFile_);
   nEventsInFile_ = currentDataTrees_[InEvent]->GetEntries();
 
-  ffVersion_ = detail::readMetadata<FileFormatVersion>(currentMetaDataTree_.get());
+  ffVersion_ =
+    detail::readMetadata<FileFormatVersion>(currentMetaDataTree_.get());
 
   // Read file index
   FileIndex* fileIndexPtr = &currentFileIndex_;
-  detail::readFileIndex(currentFile_.get(), currentMetaDataTree_.get(), fileIndexPtr);
+  detail::readFileIndex(
+    currentFile_.get(), currentMetaDataTree_.get(), fileIndexPtr);
 
   // To support files that contain BranchIDLists
   BranchIDLists branchIDLists{};
@@ -398,15 +393,13 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
   std::string const expected_era = getFileFormatEra();
   if (ffVersion_.era_ != expected_era) {
     throw Exception(errors::FileReadError)
-        << "Can only read files written during the \""
-        << expected_era << "\" era: "
-        << "Era of "
-        << "\"" << filename
-        << "\" was "
-        << (ffVersion_.era_.empty() ?
-            "not set" :
-            ("set to \"" + ffVersion_.era_ + "\" "))
-        << ".\n";
+      << "Can only read files written during the \"" << expected_era
+      << "\" era: "
+      << "Era of "
+      << "\"" << filename << "\" was "
+      << (ffVersion_.era_.empty() ? "not set" :
+                                    ("set to \"" + ffVersion_.era_ + "\" "))
+      << ".\n";
   }
   auto dbCount = 0;
   for (auto const tree : currentDataTrees_) {
@@ -425,8 +418,9 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
     std::iota(shuffledSequence_.begin(), shuffledSequence_.end(), 0);
     std::random_shuffle(shuffledSequence_.begin(),
                         shuffledSequence_.end(),
-                        [this](EntryNumberSequence::difference_type const& n)
-                        { return dist_.get()->fireInt(n); });
+                        [this](EntryNumberSequence::difference_type const& n) {
+                          return dist_.get()->fireInt(n);
+                        });
   }
 }
 
@@ -449,8 +443,7 @@ art::MixHelper::openNextFile_()
       if (canWrapFiles_) {
         mf::LogWarning("MixingInputWrap")
           << "Wrapping around to initial input file for mixing after "
-          << totalEventsRead_
-          << " secondary events read.";
+          << totalEventsRead_ << " secondary events read.";
         fileIter_ = filenames_.begin();
       } else {
         return false;
@@ -458,7 +451,9 @@ art::MixHelper::openNextFile_()
     }
     filename = *fileIter_;
   }
-  nEventsReadThisFile_ = (readMode_ == Mode::SEQUENTIAL && eventsToSkip_) ? eventsToSkip_() : 0; // Reset for this file.
+  nEventsReadThisFile_ = (readMode_ == Mode::SEQUENTIAL && eventsToSkip_) ?
+                           eventsToSkip_() :
+                           0; // Reset for this file.
   openAndReadMetaData_(filename);
   return true;
 }
@@ -470,7 +465,8 @@ art::MixHelper::buildProductIDTransMap_(MixOpList& mixOps)
   for (auto& mixOp : mixOps) {
     auto const bt = mixOp->branchType();
     mixOp->initializeBranchInfo(dataBranches_[bt]);
-    if (bt != InEvent) continue;
+    if (bt != InEvent)
+      continue;
     transMap[mixOp->incomingProductID()] = mixOp->outgoingProductID();
   }
   return transMap;

@@ -11,93 +11,70 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputFileGranularity.h"
 #include "art/Framework/Core/OutputFileStatus.h"
+#include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 
 #include <memory>
 
 namespace art {
 
-class RangeSet;
+  class RangeSet;
 
-class OutputWorker : public WorkerT<OutputModule> {
+  class OutputWorker : public WorkerT<OutputModule> {
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    virtual ~OutputWorker();
 
-  virtual
-  ~OutputWorker();
+    // This is called directly by the make_worker function created
+    // by the DEFINE_ART_MODULE macro.
+    OutputWorker(OutputModule* mod,
+                 ModuleDescription const&,
+                 WorkerParams const&);
 
-  // This is called directly by the make_worker function created
-  // by the DEFINE_ART_MODULE macro.
-  OutputWorker(OutputModule* mod, ModuleDescription const&, WorkerParams const&);
+  public:
+    std::string const& lastClosedFileName() const;
 
-public:
+    void closeFile();
 
-  std::string const&
-  lastClosedFileName() const;
+    bool fileIsOpen() const;
 
-  void
-  closeFile();
+    void incrementInputFileNumber();
 
-  bool
-  fileIsOpen() const;
+    bool requestsToCloseFile() const;
 
-  void
-  incrementInputFileNumber();
+    bool wantAllEvents() const;
 
-  bool
-  requestsToCloseFile() const;
+    void openFile(FileBlock const& fb);
 
-  bool
-  wantAllEvents() const;
+    void writeRun(RunPrincipal& rp);
 
-  void
-  openFile(FileBlock const& fb);
+    void writeSubRun(SubRunPrincipal& srp);
 
-  void
-  writeRun(RunPrincipal& rp);
+    void writeEvent(EventPrincipal& ep);
 
-  void
-  writeSubRun(SubRunPrincipal& srp);
+    void setRunAuxiliaryRangeSetID(RangeSet const&);
 
-  void
-  writeEvent(EventPrincipal& ep);
+    void setSubRunAuxiliaryRangeSetID(RangeSet const&);
 
-  void
-  setRunAuxiliaryRangeSetID(RangeSet const&);
+    bool limitReached() const;
 
-  void
-  setSubRunAuxiliaryRangeSetID(RangeSet const&);
+    void setFileStatus(OutputFileStatus);
 
-  bool
-  limitReached() const;
+    void configure(OutputModuleDescription const& desc);
 
-  void
-  setFileStatus(OutputFileStatus);
+    Granularity fileGranularity() const;
 
-  void
-  configure(OutputModuleDescription const& desc);
+    virtual void selectProducts(ProductTables const&);
 
-  Granularity
-  fileGranularity() const;
+  private:
+    ServiceHandle<CatalogInterface> ci_{};
 
-  virtual
-  void
-  selectProducts(ProductTables const&);
-
-private:
-
-  ServiceHandle<CatalogInterface>
-  ci_{};
-
-  Granularity
-  fileGranularity_{Granularity::Unset};
-
-};
+    Granularity fileGranularity_{Granularity::Unset};
+  };
 
 } // namespace art
 

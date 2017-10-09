@@ -14,47 +14,38 @@
 
 namespace art {
 
-class RPManager {
+  class RPManager {
 
-public:
+  public:
+    template <typename RET, typename... ARGS>
+    using invoke_function_t = RET (ResultsProducer::*)(ARGS...);
 
-  template <typename RET, typename... ARGS>
-  using invoke_function_t = RET(ResultsProducer::*)(ARGS...);
+    using on_rpworker_t = std::function<void(RPWorker&)>;
 
-  using on_rpworker_t = std::function<void(RPWorker&)>;
+  public:
+    RPManager(fhicl::ParameterSet const& ps);
 
-public:
+  public:
+    template <typename... ARGS>
+    void invoke(invoke_function_t<void, ARGS...> mfunc, ARGS&&... args);
 
-  RPManager(fhicl::ParameterSet const& ps);
+    void for_each_RPWorker(on_rpworker_t wfunc);
 
-public:
+  private:
+    // Maps path name to RPWorkers on that path.
+    std::map<std::string, std::vector<std::unique_ptr<RPWorker>>> rpmap_;
+  };
 
-  template <typename ... ARGS>
+  template <typename... ARGS>
   void
-  invoke(invoke_function_t<void, ARGS...> mfunc, ARGS&& ... args);
-
-  void
-  for_each_RPWorker(on_rpworker_t wfunc);
-
-private:
-
-  // Maps path name to RPWorkers on that path.
-  std::map<std::string, std::vector<std::unique_ptr<RPWorker>>>
-  rpmap_;
-
-};
-
-template <typename... ARGS>
-void
-RPManager::
-invoke(invoke_function_t<void, ARGS...> mfunc, ARGS&& ... args)
-{
-  for (auto& path : rpmap_) {
-    for (auto& w : path.second) {
-      (w->rp().*mfunc)(std::forward<ARGS>(args)...);
+  RPManager::invoke(invoke_function_t<void, ARGS...> mfunc, ARGS&&... args)
+  {
+    for (auto& path : rpmap_) {
+      for (auto& w : path.second) {
+        (w->rp().*mfunc)(std::forward<ARGS>(args)...);
+      }
     }
   }
-}
 
 } // namespace art
 

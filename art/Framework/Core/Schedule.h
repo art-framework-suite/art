@@ -33,8 +33,8 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Utilities/Transition.h"
 #include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/Transition.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
@@ -55,80 +55,63 @@
 
 namespace art {
 
-class ActivityRegistry;
-class UpdateOutputCallbacks;
-class TriggerNamesService;
-class Schedule;
+  class ActivityRegistry;
+  class UpdateOutputCallbacks;
+  class TriggerNamesService;
+  class Schedule;
 
-class Schedule {
+  class Schedule {
 
-public:
+  public:
+    Schedule(int stream,
+             PathManager&,
+             std::string const& processName,
+             fhicl::ParameterSet const& proc_pset,
+             UpdateOutputCallbacks&,
+             ProductDescriptions&,
+             ActionTable&,
+             ActivityRegistry&);
 
-  Schedule(int stream,
-           PathManager&,
-           std::string const& processName,
-           fhicl::ParameterSet const& proc_pset,
-           UpdateOutputCallbacks&,
-           ProductDescriptions&,
-           ActionTable&,
-           ActivityRegistry&);
+    void process(Transition, Principal&);
 
-  void
-  process(Transition, Principal&);
+    void process_event(hep::concurrency::WaitingTask* endPathTask,
+                       EventPrincipal&,
+                       int streamIndex);
 
-  void
-  process_event(hep::concurrency::WaitingTask* endPathTask, EventPrincipal&, int streamIndex);
+    void beginJob();
 
-  void
-  beginJob();
+    void endJob();
 
-  void
-  endJob();
+    void respondToOpenInputFile(FileBlock const&);
 
-  void
-  respondToOpenInputFile(FileBlock const&);
+    void respondToCloseInputFile(FileBlock const&);
 
-  void
-  respondToCloseInputFile(FileBlock const&);
+    void respondToOpenOutputFiles(FileBlock const&);
 
-  void
-  respondToOpenOutputFiles(FileBlock const&);
+    void respondToCloseOutputFiles(FileBlock const&);
 
-  void
-  respondToCloseOutputFiles(FileBlock const&);
+  private:
+    void process_event_pathsDone(hep::concurrency::WaitingTask* endPathTask,
+                                 EventPrincipal&,
+                                 int streamIndex);
 
-private:
+  private:
+    int const stream_;
 
-  void
-  process_event_pathsDone(hep::concurrency::WaitingTask* endPathTask, EventPrincipal&, int streamIndex);
+    fhicl::ParameterSet process_pset_;
 
-private:
+    UpdateOutputCallbacks& outputCallbacks_;
 
-  int const
-  stream_;
+    ActionTable& actionTable_;
 
-  fhicl::ParameterSet
-  process_pset_;
+    ActivityRegistry& actReg_;
 
-  UpdateOutputCallbacks&
-  outputCallbacks_;
+    std::string processName_;
 
-  ActionTable&
-  actionTable_;
+    PathsInfo& triggerPathsInfo_;
 
-  ActivityRegistry&
-  actReg_;
-
-  std::string
-  processName_;
-
-  PathsInfo&
-  triggerPathsInfo_;
-
-  Worker*
-  results_inserter_{};
-
-};
+    Worker* results_inserter_{};
+  };
 } // namespace art
 
 // Local Variables:

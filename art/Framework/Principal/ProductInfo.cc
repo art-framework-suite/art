@@ -10,9 +10,9 @@
 //#include <tuple>
 //#include <vector>
 //
-//using namespace std;
+// using namespace std;
 //
-//namespace art {
+// namespace art {
 //
 //  ProductInfo(ConsumableType const consumableType, TypeID const& tid)
 //    : consumableType_{consumableType}
@@ -20,7 +20,8 @@
 //  {
 //  }
 //
-//  ProductInfo(ConsumableType const consumableType, TypeID const& tid, std::string const& l, std::string const& i,
+//  ProductInfo(ConsumableType const consumableType, TypeID const& tid,
+//  std::string const& l, std::string const& i,
 //              std::string const& pr)
 //    : consumableType_{consumableType}
 //    , typeID_{tid}
@@ -30,12 +31,13 @@
 //  {
 //  }
 //
-//bool
-//operator<(ProductInfo const& a, ProductInfo const& b)
+// bool
+// operator<(ProductInfo const& a, ProductInfo const& b)
 //{
-//  return std::tie(a.consumableType_, a.typeID_, a.label_, a.instance_, a.process_)
-//         < std::tie(b.consumableType_, b.typeID_, b.label_, b.instance_, b.process_);
+//  return std::tie(a.consumableType_, a.typeID_, a.label_, a.instance_,
+//  a.process_)
+//         < std::tie(b.consumableType_, b.typeID_, b.label_, b.instance_,
+//         b.process_);
 //}
 //
 //} // namespace art
-

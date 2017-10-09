@@ -15,46 +15,47 @@
 
 namespace art {
 
-class Principal;
+  class Principal;
 
-namespace detail {
+  namespace detail {
 
-class KeptProvenance {
+    class KeptProvenance {
 
-public:
+    public:
+      ~KeptProvenance();
+      KeptProvenance(DropMetaData dropMetaData,
+                     bool dropMetaDataForDroppedData,
+                     std::set<ProductID>& branchesWithStoredHistory);
 
-  ~KeptProvenance();
-  KeptProvenance(DropMetaData dropMetaData, bool dropMetaDataForDroppedData, std::set<ProductID>& branchesWithStoredHistory);
+    public:
+      ProductProvenance const& insert(ProductProvenance const&);
+      ProductProvenance const& emplace(ProductID, ProductStatus);
+      void setStatus(ProductProvenance const&, ProductStatus);
 
-public:
+      auto
+      begin() const
+      {
+        return provenance_.begin();
+      }
 
-  ProductProvenance const& insert(ProductProvenance const&);
-  ProductProvenance const& emplace(ProductID, ProductStatus);
-  void setStatus(ProductProvenance const&, ProductStatus);
+      auto
+      end() const
+      {
+        return provenance_.end();
+      }
 
-  auto begin() const
-  {
-    return provenance_.begin();
-  }
+      void insertAncestors(ProductProvenance const& iGetParents,
+                           Principal const& principal);
 
-  auto end() const
-  {
-    return provenance_.end();
-  }
+    private:
+      bool const keepProvenance_{true};
+      DropMetaData const dropMetaData_;
+      bool const dropMetaDataForDroppedData_;
+      std::set<ProductID>& branchesWithStoredHistory_;
+      std::set<ProductProvenance> provenance_{};
+    };
 
-  void insertAncestors(ProductProvenance const& iGetParents, Principal const& principal);
-
-private:
-
-  bool const keepProvenance_{true};
-  DropMetaData const dropMetaData_;
-  bool const dropMetaDataForDroppedData_;
-  std::set<ProductID>& branchesWithStoredHistory_;
-  std::set<ProductProvenance> provenance_{};
-
-};
-
-}
+  } // namespace detail
 
 } // namespace art
 

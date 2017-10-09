@@ -26,16 +26,13 @@ namespace {
       auto const& process_name = raw_config.get<std::string>("process_name");
       if (process_name.empty()) {
         throw cet::exception("BAD_PROCESS_NAME")
-            << "Empty process_name not permitted.";
-      }
-      else if (process_name.find('_') != std::string::npos) {
+          << "Empty process_name not permitted.";
+      } else if (process_name.find('_') != std::string::npos) {
         throw cet::exception("BAD_PROCESS_NAME")
-            << "Underscores not permitted in process_name: illegal value \""
-            << process_name
-            << "\"";
+          << "Underscores not permitted in process_name: illegal value \""
+          << process_name << "\"";
       }
-    }
-    else {
+    } else {
       std::cerr << "INFO: using default process_name of \"DUMMY\".\n";
       raw_config.put("process_name", "DUMMY");
     }
@@ -44,8 +41,8 @@ namespace {
   void
   verifyInterfaces(fhicl::intermediate_table& raw_config)
   {
-    std::string const services {"services"};
-    std::string const service_provider {"service_provider"};
+    std::string const services{"services"};
+    std::string const service_provider{"service_provider"};
     auto ciProvider = fhicl_key(services, "CatalogInterface", service_provider);
     auto ftProvider = fhicl_key(services, "FileTransfer", service_provider);
     if (!exists_outside_prolog(raw_config, ciProvider)) {
@@ -65,8 +62,7 @@ namespace {
           throw art::Exception(art::errors::Configuration)
             << "Error: source files specified for EmptyEvent source.";
         }
-      }
-      else {
+      } else {
         raw_config.put("source.module_type", "RootInput");
       }
     } else if (!exists_outside_prolog(raw_config, "source.module_type")) {
@@ -83,30 +79,25 @@ namespace {
   injectModuleLabels(fhicl::intermediate_table& int_table,
                      std::string const& table_spec)
   {
-    if (!int_table.exists(table_spec)) { return; }
+    if (!int_table.exists(table_spec)) {
+      return;
+    }
     auto& top_table_val = int_table.update(table_spec);
     if (!top_table_val.is_a(fhicl::TABLE)) {
       throw art::Exception(art::errors::Configuration)
-        << "Unexpected non-table "
-        << table_spec
-        << ".\n";
+        << "Unexpected non-table " << table_spec << ".\n";
     }
     auto& table = int_table.get<table_t&>(table_spec);
     for (auto const& tval : table) {
       if (tval.first.find('_') != std::string::npos) {
         throw art::Exception(art::errors::Configuration)
-          << "Module parameter set label \""
-          << tval.first
-          << "\" is illegal: "
+          << "Module parameter set label \"" << tval.first << "\" is illegal: "
           << "underscores are not permitted in module names.";
       }
       auto& table_val = int_table.update(table_spec + '.' + tval.first);
       if (!table_val.is_a(fhicl::TABLE)) {
         throw art::Exception(art::errors::Configuration)
-          << "Unexpected non-table "
-          << tval.first
-          << " found in "
-          << table_spec
+          << "Unexpected non-table " << tval.first << " found in " << table_spec
           << ".\n";
       };
       int_table.put(table_spec + '.' + tval.first + ".module_label",
@@ -126,27 +117,25 @@ namespace {
     injectModuleLabels(raw_config, "physics.analyzers");
   }
 
-  void injectServiceType(fhicl::intermediate_table& raw_config,
-                         std::string const& table_spec,
-                         std::vector<std::string> const& excluded = { })
+  void
+  injectServiceType(fhicl::intermediate_table& raw_config,
+                    std::string const& table_spec,
+                    std::vector<std::string> const& excluded = {})
   {
-    if (!exists_outside_prolog(raw_config, table_spec)) { return; }
+    if (!exists_outside_prolog(raw_config, table_spec)) {
+      return;
+    }
     auto& top_table_val = raw_config.update(table_spec);
     if (!top_table_val.is_a(fhicl::TABLE)) {
       throw art::Exception(art::errors::Configuration)
-        << "Unexpected non-table "
-        << table_spec
-        << ".\n";
+        << "Unexpected non-table " << table_spec << ".\n";
     }
     auto& table = raw_config.get<table_t&>(table_spec);
     for (auto const& tval : table) {
       auto& table_val = raw_config.update(table_spec + '.' + tval.first);
       if (!table_val.is_a(fhicl::TABLE)) {
         throw art::Exception(art::errors::Configuration)
-          << "Unexpected non-table "
-          << tval.first
-          << " found in "
-          << table_spec
+          << "Unexpected non-table " << tval.first << " found in " << table_spec
           << ".\n";
       };
       if (std::find(excluded.cbegin(), excluded.cend(), tval.first) ==
@@ -157,9 +146,10 @@ namespace {
     }
   }
 
-  void addServiceType(fhicl::intermediate_table& raw_config)
+  void
+  addServiceType(fhicl::intermediate_table& raw_config)
   {
-    std::vector<std::string> const excluded {"message", "scheduler"};
+    std::vector<std::string> const excluded{"message", "scheduler"};
     injectServiceType(raw_config, "services", excluded);
   }
 } // namespace

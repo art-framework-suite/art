@@ -29,118 +29,95 @@
 
 namespace art {
 
-class BranchDescription;
+  class BranchDescription;
 
-class ProducerBase : public ModuleBase, private ProductRegistryHelper {
+  class ProducerBase : public ModuleBase, private ProductRegistryHelper {
 
-public: // CONFIGURATION
+  public: // CONFIGURATION
+    template <typename UserConfig, typename UserKeysToIgnore = void>
+    class Table : public fhicl::ConfigurationTable {
 
-  template <typename UserConfig, typename UserKeysToIgnore = void>
-  class Table : public fhicl::ConfigurationTable {
+    private: // TYPES
+      template <typename T>
+      struct FullConfig {
 
-  private: // TYPES
+        fhicl::Atom<std::string> module_type{fhicl::Name("module_type")};
 
-    template <typename T>
-    struct FullConfig {
+        fhicl::Atom<bool> errorOnFailureToPut{
+          fhicl::Name("errorOnFailureToPut"),
+          true};
 
-      fhicl::Atom<std::string>
-      module_type{fhicl::Name("module_type")};
+        fhicl::TableFragment<T> user;
+      };
 
-      fhicl::Atom<bool>
-      errorOnFailureToPut{fhicl::Name("errorOnFailureToPut"), true};
+      using KeysToIgnore_t = std::conditional_t<
+        std::is_void<UserKeysToIgnore>::value,
+        detail::IgnoreModuleLabel,
+        fhicl::KeysToIgnore<detail::IgnoreModuleLabel, UserKeysToIgnore>>;
 
-      fhicl::TableFragment<T>
-      user;
+    public: // MEMBER FUNCTIONS -- Special Member Functions
+      explicit Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
 
+      Table(fhicl::ParameterSet const& pset) : fullConfig_{pset} {}
+
+    public: // MEMBER FUNCTIONS -- User-facing API
+      auto const&
+      operator()() const
+      {
+        return fullConfig_().user();
+      }
+
+      auto const&
+      get_PSet() const
+      {
+        return fullConfig_.get_PSet();
+      }
+
+      void
+      print_allowed_configuration(std::ostream& os,
+                                  std::string const& prefix) const
+      {
+        fullConfig_.print_allowed_configuration(os, prefix);
+      }
+
+    private: // MEMBER FUNCTIONS
+      cet::exempt_ptr<fhicl::detail::ParameterBase const>
+      get_parameter_base() const override
+      {
+        return &fullConfig_;
+      }
+
+    private: // DATA MEMBERS
+      fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t> fullConfig_;
     };
 
-    using KeysToIgnore_t = std::conditional_t <
-                           std::is_void<UserKeysToIgnore>::value,
-                           detail::IgnoreModuleLabel,
-                           fhicl::KeysToIgnore<detail::IgnoreModuleLabel, UserKeysToIgnore >>;
-
   public: // MEMBER FUNCTIONS -- Special Member Functions
+    virtual ~ProducerBase();
 
-    explicit
-    Table(fhicl::Name&& name)
-      : fullConfig_{std::move(name)}
-    {
-    }
+    ProducerBase();
 
-    Table(fhicl::ParameterSet const& pset)
-      : fullConfig_{pset}
-    {
-    }
+    ProducerBase(ProducerBase const&) = delete;
 
-  public: // MEMBER FUNCTIONS -- User-facing API
+    ProducerBase(ProducerBase&&) = delete;
 
-    auto const&
-    operator()() const
-    {
-      return fullConfig_().user();
-    }
+    ProducerBase& operator=(ProducerBase const&) = delete;
 
-    auto const&
-    get_PSet() const
-    {
-      return fullConfig_.get_PSet();
-    }
+    ProducerBase& operator=(ProducerBase&&) = delete;
 
-    void
-    print_allowed_configuration(std::ostream& os, std::string const& prefix) const
-    {
-      fullConfig_.print_allowed_configuration(os, prefix);
-    }
-
-  private: // MEMBER FUNCTIONS
-
-    cet::exempt_ptr<fhicl::detail::ParameterBase const>
-    get_parameter_base() const override
-    {
-      return &fullConfig_;
-    }
-
-  private: // DATA MEMBERS
-
-    fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t>
-    fullConfig_;
-
+  public: // MEMBER FUNCTIONS -- Product Registry Helper API
+    using ProductRegistryHelper::expectedProducts;
+    using ProductRegistryHelper::produces;
+    using ProductRegistryHelper::registerProducts;
   };
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
-
-  virtual
-  ~ProducerBase();
-
-  ProducerBase();
-
-  ProducerBase(ProducerBase const&) = delete;
-
-  ProducerBase(ProducerBase&&) = delete;
-
-  ProducerBase&
-  operator=(ProducerBase const&) = delete;
-
-  ProducerBase&
-  operator=(ProducerBase&&) = delete;
-
-public: // MEMBER FUNCTIONS -- Product Registry Helper API
-
-  using ProductRegistryHelper::registerProducts;
-  using ProductRegistryHelper::produces;
-  using ProductRegistryHelper::expectedProducts;
-
-};
-
-template <typename T>
-inline
-std::ostream&
-operator<<(std::ostream& os, ProducerBase::Table<T> const& t)
-{
-  std::ostringstream config;
-  t.print_allowed_configuration(config, std::string(3, ' '));
-  return os << config.str();
-}
+  template <typename T>
+  inline std::ostream&
+  operator<<(std::ostream& os, ProducerBase::Table<T> const& t)
+  {
+    std::ostringstream config;
+    t.print_allowed_configuration(config, std::string(3, ' '));
+    return os << config.str();
+  }
 
 } // namespace art
 

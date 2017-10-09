@@ -10,7 +10,7 @@ namespace art {
     std::string describe(cet::exempt_ptr<fhicl::ConfigurationTable const> pb,
                          std::string const& prefix);
   }
-}
+} // namespace art
 
 // Local variables:
 // mode: c++

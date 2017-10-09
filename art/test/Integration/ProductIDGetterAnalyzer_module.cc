@@ -19,31 +19,33 @@ namespace art {
   namespace test {
     class ProductIDGetterAnalyzer;
   }
-}
+} // namespace art
 
 class art::test::ProductIDGetterAnalyzer : public EDAnalyzer {
   struct Config {
     fhicl::Atom<std::string> input_label{fhicl::Name{"input_label"}};
   };
+
 public:
   using Parameters = Table<Config>;
   explicit ProductIDGetterAnalyzer(Parameters const& p);
+
 private:
   void beginSubRun(SubRun const& sr) override;
   void analyze(Event const& e) override;
   std::string input_label_;
 };
 
-
 art::test::ProductIDGetterAnalyzer::ProductIDGetterAnalyzer(Parameters const& p)
-  : EDAnalyzer{p},
-    input_label_{p().input_label()}
+  : EDAnalyzer{p}, input_label_{p().input_label()}
 {
   consumes<art::Ptr<int>>(input_label_);
   consumes<art::Ptr<int>, art::InSubRun>(input_label_);
 }
 
-void art::test::ProductIDGetterAnalyzer::beginSubRun(SubRun const& sr) {
+void
+art::test::ProductIDGetterAnalyzer::beginSubRun(SubRun const& sr)
+{
   Handle<Ptr<int>> h;
   BOOST_REQUIRE(sr.getByLabel(input_label_, h));
   BOOST_REQUIRE_EQUAL(**h, 5);
@@ -54,7 +56,9 @@ void art::test::ProductIDGetterAnalyzer::beginSubRun(SubRun const& sr) {
   BOOST_REQUIRE_EQUAL(**h, 5);
 }
 
-void art::test::ProductIDGetterAnalyzer::analyze(Event const& e) {
+void
+art::test::ProductIDGetterAnalyzer::analyze(Event const& e)
+{
   Handle<Ptr<int>> h;
   BOOST_REQUIRE(e.getByLabel(input_label_, h));
   BOOST_REQUIRE_EQUAL(**h, 4);

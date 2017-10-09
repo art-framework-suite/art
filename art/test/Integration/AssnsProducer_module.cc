@@ -10,9 +10,9 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/test/TestObjects/AssnTestData.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/Ptr.h"
-#include "art/test/TestObjects/AssnTestData.h"
 
 #include "cetlib/map_vector.h"
 
@@ -20,12 +20,12 @@
 #include <string>
 #include <vector>
 
+using std::make_unique;
 using std::string;
 using std::vector;
-using std::make_unique;
 
-using art::Ptr;
 using art::ProductID;
+using art::Ptr;
 
 using uintvec = vector<size_t>;
 using stringvec = vector<string>;
@@ -43,17 +43,17 @@ private:
   void produce(art::Event& e) override;
 
   std::string const wantVoid_; // "ALL," "NONE," or "SOME."
-  bool const wantMV_; // Produce mapvector and derived Assns.
-  bool const wantMany_; // Produce many-to-many associations.
-  bool const dinkVoid_; // Distinguish ABV from ABD with extra entry.
-  bool const wantAmbiguous_; // Add an extra ABD to cause ambiguity.
+  bool const wantMV_;          // Produce mapvector and derived Assns.
+  bool const wantMany_;        // Produce many-to-many associations.
+  bool const dinkVoid_;        // Distinguish ABV from ABD with extra entry.
+  bool const wantAmbiguous_;   // Add an extra ABD to cause ambiguity.
 };
 
 namespace {
   using AssnsABX_t = art::Assns<size_t, string, arttest::AssnTestData>;
   using AssnsABY_t = art::Assns<size_t, string, string>;
   using AssnsVoid_t = art::Assns<size_t, string>;
-}
+} // namespace
 
 arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const& ps)
   : wantVoid_{ps.get<std::string>("wantVoid", "ALL")}
@@ -92,7 +92,9 @@ arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const& ps)
   }
 }
 
-void arttest::AssnsProducer::produce(art::Event& e) {
+void
+arttest::AssnsProducer::produce(art::Event& e)
+{
 
   // Create the data products among which we will make associations.
   auto vui = make_unique<uintvec>(uintvec{2, 0, 1});
@@ -130,49 +132,49 @@ void arttest::AssnsProducer::produce(art::Event& e) {
   // addS will add to both x and xv a reference between slot1 of
   // productID1 and slot2 of productID2. The reference in x will have
   // associated data td.
-  auto addS =
-    [&e](auto& x,
-         auto& xv,
-         ProductID const id1, size_t const slot1,
-         ProductID const id2, size_t const slot2,
-         auto td)
-    {
-      Ptr<size_t> const p1{id1, slot1, e.productGetter(id1)};
-      Ptr<string> const p2{id2, slot2, e.productGetter(id2)};
-      x->addSingle(p1, p2, td);
-      xv->addSingle(p1, p2);
-    };
+  auto addS = [&e](auto& x,
+                   auto& xv,
+                   ProductID const id1,
+                   size_t const slot1,
+                   ProductID const id2,
+                   size_t const slot2,
+                   auto td) {
+    Ptr<size_t> const p1{id1, slot1, e.productGetter(id1)};
+    Ptr<string> const p2{id2, slot2, e.productGetter(id2)};
+    x->addSingle(p1, p2, td);
+    xv->addSingle(p1, p2);
+  };
   // AddSV adds only to x, and has no td.
-  auto addSV =
-    [&e](auto& x,
-         ProductID const id1, size_t const slot1,
-         ProductID const id2, size_t const slot2)
-    {
-      Ptr<size_t> const p1{id1, slot1, e.productGetter(id1)};
-      Ptr<string> const p2{id2, slot2, e.productGetter(id2)};
-      x->addSingle(p1, p2);
-    };
+  auto addSV = [&e](auto& x,
+                    ProductID const id1,
+                    size_t const slot1,
+                    ProductID const id2,
+                    size_t const slot2) {
+    Ptr<size_t> const p1{id1, slot1, e.productGetter(id1)};
+    Ptr<string> const p2{id2, slot2, e.productGetter(id2)};
+    x->addSingle(p1, p2);
+  };
   // AddSS adds only to x (with td).
-  auto addSS =
-    [&e](auto& x,
-         ProductID const id1, size_t const slot1,
-         ProductID const id2, size_t const slot2,
-         auto td)
-    {
-      Ptr<size_t> const p1{id1, slot1, e.productGetter(id1)};
-      Ptr<string> const p2{id2, slot2, e.productGetter(id2)};
-      x->addSingle(p1, p2, td);
-    };
+  auto addSS = [&e](auto& x,
+                    ProductID const id1,
+                    size_t const slot1,
+                    ProductID const id2,
+                    size_t const slot2,
+                    auto td) {
+    Ptr<size_t> const p1{id1, slot1, e.productGetter(id1)};
+    Ptr<string> const p2{id2, slot2, e.productGetter(id2)};
+    x->addSingle(p1, p2, td);
+  };
 
   // We add associations in an order such that the associated data are
   // in alphabetical order.
-  addS(a, av, vui_pid, 1, vs_pid, 2, AssnTestData(1,2,"A"));
+  addS(a, av, vui_pid, 1, vs_pid, 2, AssnTestData(1, 2, "A"));
   addSS(ay, vui_pid, 1, vs_pid, 2, "A");
 
-  addS(a, av, vui_pid, 2, vs_pid, 0, AssnTestData(2,0,"B"));
+  addS(a, av, vui_pid, 2, vs_pid, 0, AssnTestData(2, 0, "B"));
   addSS(ay, vui_pid, 2, vs_pid, 0, "B");
 
-  addS(a, av, vui_pid, 0, vs_pid, 1, AssnTestData(0,1,"C"));
+  addS(a, av, vui_pid, 0, vs_pid, 1, AssnTestData(0, 1, "C"));
   addSS(ay, vui_pid, 0, vs_pid, 1, "C");
 
   if (dinkVoid_) {
@@ -182,7 +184,7 @@ void arttest::AssnsProducer::produce(art::Event& e) {
   auto am = make_unique<AssnsABX_t>(*a);
   auto avm = make_unique<AssnsVoid_t>(*av);
 
-  addS(am, avm, vui_pid, 1, vs_pid, 2, AssnTestData(1,2,"AA"));
+  addS(am, avm, vui_pid, 1, vs_pid, 2, AssnTestData(1, 2, "AA"));
 
   if (dinkVoid_) {
     addSV(avm, vui_pid, 3, vs_pid, 3);
@@ -193,15 +195,15 @@ void arttest::AssnsProducer::produce(art::Event& e) {
 
   if (wantMV_) {
     ProductID const mvs_pid{e.getProductID<mapvec>("mv")};
-    addS(b, bv, vui_pid, 1, mvs_pid, 0, AssnTestData(1,0,"A"));
-    addS(b, bv, vui_pid, 2, mvs_pid, 11, AssnTestData(2,11,"B"));
-    addS(b, bv, vui_pid, 0, mvs_pid, 22, AssnTestData(0,22,"C"));
+    addS(b, bv, vui_pid, 1, mvs_pid, 0, AssnTestData(1, 0, "A"));
+    addS(b, bv, vui_pid, 2, mvs_pid, 11, AssnTestData(2, 11, "B"));
+    addS(b, bv, vui_pid, 0, mvs_pid, 22, AssnTestData(0, 22, "C"));
     if (dinkVoid_) {
       addSV(bv, vui_pid, 3, mvs_pid, 33);
     }
     bm = make_unique<AssnsABX_t>(*b);
     bvm = make_unique<AssnsVoid_t>(*bv);
-    addS(bm, bvm, vui_pid, 1, mvs_pid, 0, AssnTestData(1,0,"AA"));
+    addS(bm, bvm, vui_pid, 1, mvs_pid, 0, AssnTestData(1, 0, "AA"));
     if (dinkVoid_) {
       addSV(bvm, vui_pid, 3, mvs_pid, 33);
     }

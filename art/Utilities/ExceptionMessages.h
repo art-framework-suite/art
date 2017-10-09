@@ -8,13 +8,13 @@
 namespace art {
 
   void printArtException(cet::exception const& e, char const* prog = 0);
-  void printBadAllocException(char const *prog = 0);
-  void printStdException(std::exception const& e, char const *prog = 0);
-  void printUnknownException(char const *prog = 0);
+  void printBadAllocException(char const* prog = 0);
+  void printStdException(std::exception const& e, char const* prog = 0);
+  void printUnknownException(char const* prog = 0);
 
-}  // art
+} // namespace art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Utilities_ExceptionMessages_h */
 

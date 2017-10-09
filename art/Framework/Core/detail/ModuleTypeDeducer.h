@@ -10,34 +10,34 @@
 #include "art/Framework/Core/ModuleType.h"
 
 namespace art {
-namespace detail {
+  namespace detail {
 
-template <typename T>
-struct ModuleTypeDeducer {
-  static constexpr ModuleType value = ModuleType::NON_ART;
-};
+    template <typename T>
+    struct ModuleTypeDeducer {
+      static constexpr ModuleType value = ModuleType::NON_ART;
+    };
 
-template <>
-struct ModuleTypeDeducer<EDAnalyzer> {
-  static constexpr ModuleType value = ModuleType::ANALYZER;
-};
+    template <>
+    struct ModuleTypeDeducer<EDAnalyzer> {
+      static constexpr ModuleType value = ModuleType::ANALYZER;
+    };
 
-template <>
-struct ModuleTypeDeducer<EDFilter> {
-  static constexpr ModuleType value = ModuleType::FILTER;
-};
+    template <>
+    struct ModuleTypeDeducer<EDFilter> {
+      static constexpr ModuleType value = ModuleType::FILTER;
+    };
 
-template <>
-struct ModuleTypeDeducer<OutputModule> {
-  static constexpr ModuleType value = ModuleType::OUTPUT;
-};
+    template <>
+    struct ModuleTypeDeducer<OutputModule> {
+      static constexpr ModuleType value = ModuleType::OUTPUT;
+    };
 
-template <>
-struct ModuleTypeDeducer<EDProducer> {
-  static constexpr ModuleType value = ModuleType::PRODUCER;
-};
+    template <>
+    struct ModuleTypeDeducer<EDProducer> {
+      static constexpr ModuleType value = ModuleType::PRODUCER;
+    };
 
-} // namespace detail
+  } // namespace detail
 } // namespace art
 
 #endif /* art_Framework_Core_detail_ModuleTypeDeducer_h */

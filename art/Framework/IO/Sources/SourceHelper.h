@@ -8,8 +8,8 @@
 //
 // -----------------------------------------------------------------
 
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/Principal.h"
+#include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
@@ -33,22 +33,20 @@ namespace art {
   class SubRunAuxiliary;
   class Timestamp;
   class SourceHelper;
-}
+} // namespace art
 
 class art::SourceHelper {
 public:
   explicit SourceHelper(ModuleDescription const& md);
 
   template <typename T>
-  Ptr<T>
-  makePtr(TypeLabel const& t,
-          Principal const& p,
-          typename Ptr<T>::key_type key) const;
+  Ptr<T> makePtr(TypeLabel const& t,
+                 Principal const& p,
+                 typename Ptr<T>::key_type key) const;
 
   RunPrincipal* makeRunPrincipal(RunAuxiliary const& runAux) const;
 
-  RunPrincipal* makeRunPrincipal(RunID r,
-                                 Timestamp const& startTime) const;
+  RunPrincipal* makeRunPrincipal(RunID r, Timestamp const& startTime) const;
 
   RunPrincipal* makeRunPrincipal(RunNumber_t r,
                                  Timestamp const& startTime) const;
@@ -65,20 +63,23 @@ public:
   EventPrincipal* makeEventPrincipal(EventAuxiliary const& eventAux,
                                      std::unique_ptr<History>&& history) const;
 
-  EventPrincipal* makeEventPrincipal(EventID const& e,
-                                     Timestamp const& startTime,
-                                     bool isRealData = true,
-                                     EventAuxiliary::ExperimentType eType = EventAuxiliary::Data) const;
+  EventPrincipal* makeEventPrincipal(
+    EventID const& e,
+    Timestamp const& startTime,
+    bool isRealData = true,
+    EventAuxiliary::ExperimentType eType = EventAuxiliary::Data) const;
 
-  EventPrincipal* makeEventPrincipal(RunNumber_t r,
-                                     SubRunNumber_t sr,
-                                     EventNumber_t e,
-                                     Timestamp const& startTime,
-                                     bool isRealData = true,
-                                     EventAuxiliary::ExperimentType eType = EventAuxiliary::Data) const;
+  EventPrincipal* makeEventPrincipal(
+    RunNumber_t r,
+    SubRunNumber_t sr,
+    EventNumber_t e,
+    Timestamp const& startTime,
+    bool isRealData = true,
+    EventAuxiliary::ExperimentType eType = EventAuxiliary::Data) const;
 
 private:
-  template <typename T> friend class Source;
+  template <typename T>
+  friend class Source;
   void throwIfProductsNotRegistered_() const;
   void setPresentProducts(cet::exempt_ptr<ProductTables const> presentProducts);
   cet::exempt_ptr<ProductTables const> presentProducts_{nullptr};
@@ -95,7 +96,6 @@ art::SourceHelper::makePtr(TypeLabel const& tl,
   ProductID const pid{pd.productID()};
   return Ptr<T>{pid, key, p.productGetter(pid)};
 }
-
 
 #endif /* art_Framework_IO_Sources_SourceHelper_h */
 

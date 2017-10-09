@@ -48,67 +48,58 @@
 
 namespace art {
 
-class EDProductGetter;
+  class EDProductGetter;
 
-// To create Ptrs in to a particular collection in an event
-template <class T>
-class PtrMaker {
+  // To create Ptrs in to a particular collection in an event
+  template <class T>
+  class PtrMaker {
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    // Creates a PtrMaker that creates Ptrs in to a collection of type C
+    // created by the module of type MODULETYPE, where the collection has
+    // instance name "instance"
+    template <class EVENT, class MODULETYPE, class C = std::vector<T>>
+    PtrMaker(EVENT const& evt,
+             MODULETYPE const& module,
+             std::string const& instance = std::string());
 
-  // Creates a PtrMaker that creates Ptrs in to a collection of type C
-  // created by the module of type MODULETYPE, where the collection has
-  // instance name "instance"
-  template <class EVENT, class MODULETYPE, class C = std::vector<T>>
-  PtrMaker(EVENT const& evt, MODULETYPE const& module,
-           std::string const& instance = std::string());
+    // use this constructor when making Ptrs to products created in other
+    // modules
+    template <class EVENT>
+    PtrMaker(EVENT const& evt, const ProductID& prodID);
 
-  // use this constructor when making Ptrs to products created in other modules
+  public: // MEMBER FUNCTIONS -- API for the user
+    // Creates a Ptr to an object in the slot indicated by "index"
+    Ptr<T> operator()(std::size_t index) const;
+
+  private: // MEMBER DATA
+    ProductID const prodID_;
+
+    EDProductGetter const* prodGetter_;
+  };
+
+  template <class T>
+  template <class EVENT, class MODULETYPE, class C>
+  PtrMaker<T>::PtrMaker(EVENT const& evt,
+                        MODULETYPE const& /*module*/,
+                        std::string const& instance)
+    : prodID_{evt.template getProductID<C>(instance)}
+    , prodGetter_{evt.productGetter(prodID_)}
+  {}
+
+  template <class T>
   template <class EVENT>
-  PtrMaker(EVENT const& evt, const ProductID& prodID);
+  PtrMaker<T>::PtrMaker(EVENT const& evt, const ProductID& pid)
+    : prodID_(pid), prodGetter_(evt.productGetter(pid))
+  {}
 
-public: // MEMBER FUNCTIONS -- API for the user
-
-  // Creates a Ptr to an object in the slot indicated by "index"
+  template <class T>
   Ptr<T>
-  operator()(std::size_t index) const;
-
-private: // MEMBER DATA
-
-  ProductID const
-  prodID_;
-
-  EDProductGetter const*
-  prodGetter_;
-
-};
-
-template <class T>
-template <class EVENT, class MODULETYPE, class C>
-PtrMaker<T>::
-PtrMaker(EVENT const& evt, MODULETYPE const& /*module*/, std::string const& instance)
-  : prodID_{evt.template getProductID<C>(instance)}
-  , prodGetter_{evt.productGetter(prodID_)}
-{
-}
-
-template <class T>
-template <class EVENT>
-PtrMaker<T>::
-PtrMaker(EVENT const& evt, const ProductID& pid)
-  : prodID_(pid)
-  , prodGetter_(evt.productGetter(pid))
-{
-}
-
-template <class T>
-Ptr<T>
-PtrMaker<T>::
-operator()(std::size_t index) const
-{
-  Ptr<T> artPtr(prodID_, index, prodGetter_);
-  return artPtr;
-}
+  PtrMaker<T>::operator()(std::size_t index) const
+  {
+    Ptr<T> artPtr(prodID_, index, prodGetter_);
+    return artPtr;
+  }
 
 } // namespace art
 

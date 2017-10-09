@@ -56,8 +56,8 @@
 // is not necessary in this case.
 //
 
-#include "art/Framework/Services/Registry/detail/helper_macros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
+#include "art/Framework/Services/Registry/detail/helper_macros.h"
 #include "cetlib/ProvideFilePathMacro.h"
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"
 
@@ -67,31 +67,30 @@
 // Multi-schedule-aware service declarations.
 
 // Declare and define a service.
-#define DECLARE_ART_SERVICE(svc,scope)          \
-  DECLARE_ART_SERVICE_DETAIL(svc,scope)
+#define DECLARE_ART_SERVICE(svc, scope) DECLARE_ART_SERVICE_DETAIL(svc, scope)
 
-#define DEFINE_ART_SERVICE(svc)                 \
-  DEFINE_ART_SH_CREATE(svc)                     \
-  CET_PROVIDE_FILE_PATH()                       \
+#define DEFINE_ART_SERVICE(svc)                                                \
+  DEFINE_ART_SH_CREATE(svc)                                                    \
+  CET_PROVIDE_FILE_PATH()                                                      \
   FHICL_PROVIDE_ALLOWED_CONFIGURATION(svc)
 
 // Declare an interface.
-#define DECLARE_ART_SERVICE_INTERFACE(svc,scope) \
-  DECLARE_ART_SERVICE_INTERFACE_DETAIL(svc,scope)
+#define DECLARE_ART_SERVICE_INTERFACE(svc, scope)                              \
+  DECLARE_ART_SERVICE_INTERFACE_DETAIL(svc, scope)
 
 // Declare and define a service implementing an interface.
-#define DECLARE_ART_SERVICE_INTERFACE_IMPL(svc,iface,scope) \
-  DECLARE_ART_SERVICE_INTERFACE_IMPL_DETAIL(svc,iface,scope)
+#define DECLARE_ART_SERVICE_INTERFACE_IMPL(svc, iface, scope)                  \
+  DECLARE_ART_SERVICE_INTERFACE_IMPL_DETAIL(svc, iface, scope)
 
-#define DEFINE_ART_SERVICE_INTERFACE_IMPL(svc,iface) \
-  DEFINE_ART_SERVICE(svc) \
+#define DEFINE_ART_SERVICE_INTERFACE_IMPL(svc, iface)                          \
+  DEFINE_ART_SERVICE(svc)                                                      \
   DEFINE_ART_SIH_CREATE(iface)
 
 // System service macros (requires support code in Event Processor)
 // since they have no maker function.
 
-#define DECLARE_ART_SYSTEM_SERVICE(svc,scope) \
-  DECLARE_ART_SYSTEM_SERVICE_DETAIL(svc,scope)
+#define DECLARE_ART_SYSTEM_SERVICE(svc, scope)                                 \
+  DECLARE_ART_SYSTEM_SERVICE_DETAIL(svc, scope)
 
 //
 // Note that it makes very little sense to have a system service

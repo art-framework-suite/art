@@ -13,13 +13,19 @@ namespace art {
 
     template <SignalResponseType STYPE, typename SIGNAL, typename FUNC>
     std::enable_if_t<STYPE == SignalResponseType::FIFO>
-    connect_to_signal(SIGNAL & s, FUNC f) { s.emplace_back(f); }
+    connect_to_signal(SIGNAL& s, FUNC f)
+    {
+      s.emplace_back(f);
+    }
 
     template <SignalResponseType STYPE, typename SIGNAL, typename FUNC>
     std::enable_if_t<STYPE == SignalResponseType::LIFO>
-    connect_to_signal(SIGNAL & s, FUNC f) { s.emplace_front(f); }
-  }
-}
+    connect_to_signal(SIGNAL& s, FUNC f)
+    {
+      s.emplace_front(f);
+    }
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_Services_Registry_detail_SignalResponseType_h */
 

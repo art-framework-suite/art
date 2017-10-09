@@ -13,9 +13,8 @@ namespace art {
   class PtrRemapper;
 
   template <typename PROD, typename OPROD = PROD>
-  using MixFunc = std::function<bool(std::vector<PROD const*> const&,
-                                     OPROD&,
-                                     PtrRemapper const&)>;
+  using MixFunc = std::function<
+    bool(std::vector<PROD const*> const&, OPROD&, PtrRemapper const&)>;
 
   using EventIDIndex = std::map<FileIndex::EntryNumber_t, EventID>;
   using SubRunIDIndex = std::map<SubRunID, FileIndex::EntryNumber_t>;
@@ -23,7 +22,7 @@ namespace art {
   using EventIDSequence = std::vector<EventID>;
   using EntryNumberSequence = std::vector<FileIndex::EntryNumber_t>;
   using EventAuxiliarySequence = std::vector<EventAuxiliary>;
-}
+} // namespace art
 
 #endif /* art_Framework_IO_ProductMix_MixTypes_h */
 

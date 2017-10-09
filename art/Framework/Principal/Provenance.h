@@ -2,7 +2,6 @@
 #define art_Framework_Principal_Provenance_h
 // vim: set sw=2 expandtab :
 
-
 //
 // FIXME: This class is nothing more than a facade around Group,
 //        BranchDescription, and ProductProvenance.
@@ -17,7 +16,6 @@
 //
 // Used by Handle and ValidHandle for the most part.
 //
-
 
 #include "art/Framework/Principal/Group.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
@@ -35,7 +33,6 @@ namespace art {
 
   class Provenance {
   public:
-
     // Special Member Functions
     explicit Provenance() = default;
     explicit Provenance(cet::exempt_ptr<Group const> g);
@@ -77,11 +74,9 @@ namespace art {
     cet::exempt_ptr<Group const> group_{nullptr};
   };
 
-  bool
-  operator==(Provenance const& a, Provenance const& b);
+  bool operator==(Provenance const& a, Provenance const& b);
 
-  std::ostream&
-  operator<<(std::ostream& os, Provenance const& p);
+  std::ostream& operator<<(std::ostream& os, Provenance const& p);
 
 } // namespace art
 

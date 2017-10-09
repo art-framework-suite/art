@@ -4,18 +4,18 @@
 
 namespace art {
 
-enum class Transition {
-    BeginJob
-  , EndJob
-  , BeginFile
-  , EndFile
-  , BeginRun
-  , EndRun
-  , BeginSubRun
-  , EndSubRun
-  , BeginEvent
-  , EndEvent
-};
+  enum class Transition {
+    BeginJob,
+    EndJob,
+    BeginFile,
+    EndFile,
+    BeginRun,
+    EndRun,
+    BeginSubRun,
+    EndSubRun,
+    BeginEvent,
+    EndEvent
+  };
 
 } // namespace art
 

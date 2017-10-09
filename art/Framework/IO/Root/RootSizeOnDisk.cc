@@ -4,9 +4,9 @@
 //
 
 #include <iomanip>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 #include "art/Framework/IO/Root/RootSizeOnDisk.h"
 #include "art/Framework/IO/Root/detail/rootFileSizeTools.h"
@@ -14,12 +14,12 @@
 #include "boost/format.hpp"
 #include "cetlib/container_algorithms.h"
 
-#include "TFile.h"
-#include "TList.h"
-#include "TKey.h"
-#include "TTree.h"
 #include "TBranch.h"
+#include "TFile.h"
+#include "TKey.h"
+#include "TList.h"
 #include "TObjArray.h"
+#include "TTree.h"
 
 using namespace std;
 
@@ -28,13 +28,14 @@ namespace {
   // Helper struct used to pull information out of a TList.
   struct MyObjects {
 
-    MyObjects(set<art::RootSizeOnDisk::Record>& akeys):
-      keys(akeys){
-    }
+    MyObjects(set<art::RootSizeOnDisk::Record>& akeys) : keys(akeys) {}
 
-    bool operator()(TObject*aObj) {
-      TKey* key = (TKey*) aObj;
-      keys.insert(art::RootSizeOnDisk::Record(key->GetName(), key->GetClassName()));
+    bool
+    operator()(TObject* aObj)
+    {
+      TKey* key = (TKey*)aObj;
+      keys.insert(
+        art::RootSizeOnDisk::Record(key->GetName(), key->GetClassName()));
       return true;
     }
 
@@ -43,94 +44,82 @@ namespace {
 
 } // end anonymous namespace
 
-art::RootSizeOnDisk::Record::Record (std::string const& aname,
-                                     std::string const& aclassName,
-                                     Long64_t const asize,
-                                     double const afraction):
-  name_(aname),
-  className_(aclassName),
-  size_(asize),
-  fraction_(afraction){
-}
+art::RootSizeOnDisk::Record::Record(std::string const& aname,
+                                    std::string const& aclassName,
+                                    Long64_t const asize,
+                                    double const afraction)
+  : name_(aname), className_(aclassName), size_(asize), fraction_(afraction)
+{}
 
-bool art::greaterBySize(art::RootSizeOnDisk::Record const& lhs, art::RootSizeOnDisk::Record const& rhs)
+bool
+art::greaterBySize(art::RootSizeOnDisk::Record const& lhs,
+                   art::RootSizeOnDisk::Record const& rhs)
 {
   return lhs.size() > rhs.size();
 }
 
-void art::RootSizeOnDisk::print(std::ostream& os, double const minimumFraction) const{
+void
+art::RootSizeOnDisk::print(std::ostream& os, double const minimumFraction) const
+{
 
   os << "\nSize on disk for the file: " << filename() << "\n"
-     << "Total size on disk: " << size()
-     << "\n"
+     << "Total size on disk: " << size() << "\n"
      << endl;
-  os << setw(18) << "Size in bytes"
-     << setw(10) << "   Fraction"
-     << " TTree/TKey Name"
-     << endl;
-  for (RootSizeOnDisk::Record const& key : contents()){
-    if (key.isTree() || key.isTKey()){
+  os << setw(18) << "Size in bytes" << setw(10) << "   Fraction"
+     << " TTree/TKey Name" << endl;
+  for (RootSizeOnDisk::Record const& key : contents()) {
+    if (key.isTree() || key.isTKey()) {
       os << setw(18) << key.size() << " "
-         << boost::format("%10.3f") % key.fraction() << " "
-         << key.name()
+         << boost::format("%10.3f") % key.fraction() << " " << key.name()
          << endl;
     } else {
       os << setw(18) << key.size() << " "
-         << boost::format("%10.3f") % key.fraction() << " "
-         << key.name()
+         << boost::format("%10.3f") % key.fraction() << " " << key.name()
          << "  (skipped because not a TTree or a TKey; it is a"
-         << key.className() << ")"
-         << endl;
+         << key.className() << ")" << endl;
     }
   }
   os << "------------------------------\n"
-     << setw(18) << sum() << " "
-     << boost::format("%10.3f") % fraction() << " "
+     << setw(18) << sum() << " " << boost::format("%10.3f") % fraction() << " "
      << "Total\n"
      << endl;
 
   os << "Details for each TTree that occupies more than the fraction "
-     << minimumFraction
-     << " of the size on disk.\n"
+     << minimumFraction << " of the size on disk.\n"
      << endl;
 
-  for (RootSizeOnDisk::Record const& key : contents()){
-    if (key.isTree() && (key.fraction() > minimumFraction)){
-      os << "\nDetails for branch: "  << key.name() << "\n"        << endl;
-      os << setw(18) << "Size in bytes"
-         << setw(10) << "   Fraction"
-         << " Data Product Name"
-         << endl;
+  for (RootSizeOnDisk::Record const& key : contents()) {
+    if (key.isTree() && (key.fraction() > minimumFraction)) {
+      os << "\nDetails for branch: " << key.name() << "\n" << endl;
+      os << setw(18) << "Size in bytes" << setw(10) << "   Fraction"
+         << " Data Product Name" << endl;
 
       Long64_t sum(0);
-      for (auto const& branch : key.contents()){
+      for (auto const& branch : key.contents()) {
         sum += branch.size();
         os << setw(18) << branch.size() << " "
            << boost::format("%10.3f") % branch.fraction() << " "
-           << branch.name()
-           << endl;
+           << branch.name() << endl;
       }
-      double ratio = double(sum)/double(key.size());
+      double ratio = double(sum) / double(key.size());
       os << "------------------------------\n"
-         << setw(18) << sum << " "
-         << boost::format("%10.3f") % ratio << " "
+         << setw(18) << sum << " " << boost::format("%10.3f") % ratio << " "
          << "Total\n"
          << endl;
     }
   }
 }
 
-art::RootSizeOnDisk::RootSizeOnDisk(std::string const& aFileName, TFile* file):
-  fileName_(aFileName),
-  size_(0),
-  sum_(0),
-  fraction_(0){
+art::RootSizeOnDisk::RootSizeOnDisk(std::string const& aFileName, TFile* file)
+  : fileName_(aFileName), size_(0), sum_(0), fraction_(0)
+{
 
   // File size on disk, in bytes.
   size_ = boost::filesystem::file_size(fileName_.c_str());
 
   // Extract info about top level objects.
-  // There are usually Multiple cycles of these objects; we only want each name once.
+  // There are usually Multiple cycles of these objects; we only want each name
+  // once.
   set<RootSizeOnDisk::Record> topKeys;
   TList* keys = file->GetListOfKeys();
   TIter iter(keys);
@@ -141,21 +130,20 @@ art::RootSizeOnDisk::RootSizeOnDisk(std::string const& aFileName, TFile* file):
 
   // Compute sizes of each top level TTree and TKey.
   for (auto& key : contents_) {
-    if (key.isTree()){
+    if (key.isTree()) {
       TTree* tree;
       file->GetObject(key.name().c_str(), tree);
       Long64_t const size = detail::sizeOnDisk(tree);
       sum_ += size;
-      double const f = double(size)/double(size_);
+      double const f = double(size) / double(size_);
       key.size(size);
       key.fraction(f);
       fillLevel2(key, tree);
-    }
-    else if (key.isTKey()){
+    } else if (key.isTKey()) {
       TKey* tkey = file->FindKey(key.name().c_str());
       Long64_t const size = tkey->GetNbytes();
       sum_ += size;
-      double const f = double(size)/double(size_);
+      double const f = double(size) / double(size_);
       key.size(size);
       key.fraction(f);
     }
@@ -164,8 +152,7 @@ art::RootSizeOnDisk::RootSizeOnDisk(std::string const& aFileName, TFile* file):
   // Sort by decreasing size.
   cet::sort_all(contents_, greaterBySize);
 
-  fraction_ = double(sum_)/double(size_);
-
+  fraction_ = double(sum_) / double(size_);
 }
 
 // For each TTree Record, fill the information about the branches.
@@ -179,8 +166,8 @@ art::RootSizeOnDisk::fillLevel2(Record& key, TTree* tree)
 
   for (size_t i = 0; i < n; ++i) {
     auto subbr = static_cast<TBranch*>(branches->At(i));
-    Long64_t const size = detail::sizeOnDisk(subbr,true);
-    double const f = double(size)/double(key.size());
+    Long64_t const size = detail::sizeOnDisk(subbr, true);
+    double const f = double(size) / double(key.size());
     branchInfo.emplace_back(subbr->GetName(), "TBranch", size, f);
   }
 

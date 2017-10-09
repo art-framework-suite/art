@@ -8,145 +8,145 @@ using namespace std;
 
 namespace art {
 
-Provenance::Provenance(cet::exempt_ptr<Group const> g)
-  : group_{g}
-{}
+  Provenance::Provenance(cet::exempt_ptr<Group const> g) : group_{g} {}
 
-bool
-Provenance::isValid() const
-{
-  return static_cast<bool>(group_);
-}
+  bool
+  Provenance::isValid() const
+  {
+    return static_cast<bool>(group_);
+  }
 
-BranchDescription const&
-Provenance::productDescription() const
-{
-  return group_->productDescription();
-}
+  BranchDescription const&
+  Provenance::productDescription() const
+  {
+    return group_->productDescription();
+  }
 
-bool
-Provenance::produced() const
-{
-  return group_->productDescription().produced();
-}
+  bool
+  Provenance::produced() const
+  {
+    return group_->productDescription().produced();
+  }
 
-string const&
-Provenance::producedClassName() const
-{
-  return group_->productDescription().producedClassName();
-}
+  string const&
+  Provenance::producedClassName() const
+  {
+    return group_->productDescription().producedClassName();
+  }
 
-string const&
-Provenance::branchName() const
-{
-  return group_->productDescription().branchName();
-}
+  string const&
+  Provenance::branchName() const
+  {
+    return group_->productDescription().branchName();
+  }
 
-string const&
-Provenance::friendlyClassName() const
-{
-  return group_->productDescription().friendlyClassName();
-}
+  string const&
+  Provenance::friendlyClassName() const
+  {
+    return group_->productDescription().friendlyClassName();
+  }
 
-string const&
-Provenance::moduleLabel() const
-{
-  return group_->productDescription().moduleLabel();
-}
+  string const&
+  Provenance::moduleLabel() const
+  {
+    return group_->productDescription().moduleLabel();
+  }
 
-string const&
-Provenance::productInstanceName() const
-{
-  return group_->productDescription().productInstanceName();
-}
+  string const&
+  Provenance::productInstanceName() const
+  {
+    return group_->productDescription().productInstanceName();
+  }
 
-string const&
-Provenance::processName() const
-{
-  return group_->productDescription().processName();
-}
+  string const&
+  Provenance::processName() const
+  {
+    return group_->productDescription().processName();
+  }
 
-ProductID
-Provenance::productID() const
-{
-  return group_->productDescription().productID();
-}
+  ProductID
+  Provenance::productID() const
+  {
+    return group_->productDescription().productID();
+  }
 
-set<fhicl::ParameterSetID> const&
-Provenance::psetIDs() const
-{
-  return group_->productDescription().psetIDs();
-}
+  set<fhicl::ParameterSetID> const&
+  Provenance::psetIDs() const
+  {
+    return group_->productDescription().psetIDs();
+  }
 
-fhicl::ParameterSet const&
-Provenance::parameterSet() const
-{
-  return fhicl::ParameterSetRegistry::get(*group_->productDescription().psetIDs().begin());
-}
+  fhicl::ParameterSet const&
+  Provenance::parameterSet() const
+  {
+    return fhicl::ParameterSetRegistry::get(
+      *group_->productDescription().psetIDs().begin());
+  }
 
-InputTag
-Provenance::inputTag() const
-{
-  auto const& pd = group_->productDescription();
-  return InputTag{pd.moduleLabel(), pd.productInstanceName(), pd.processName()};
-}
+  InputTag
+  Provenance::inputTag() const
+  {
+    auto const& pd = group_->productDescription();
+    return InputTag{
+      pd.moduleLabel(), pd.productInstanceName(), pd.processName()};
+  }
 
-ProductStatus const&
-Provenance::productStatus() const
-{
-  return group_->productProvenance()->productStatus();
-}
+  ProductStatus const&
+  Provenance::productStatus() const
+  {
+    return group_->productProvenance()->productStatus();
+  }
 
-Parentage const&
-Provenance::parentage() const
-{
-  return group_->productProvenance()->parentage();
-}
+  Parentage const&
+  Provenance::parentage() const
+  {
+    return group_->productProvenance()->parentage();
+  }
 
-vector<ProductID> const&
-Provenance::parents() const
-{
-  return group_->productProvenance()->parentage().parents();
-}
+  vector<ProductID> const&
+  Provenance::parents() const
+  {
+    return group_->productProvenance()->parentage().parents();
+  }
 
-bool
-Provenance::isPresent() const
-{
-  return productstatus::present(group_->productProvenance()->productStatus());
-}
+  bool
+  Provenance::isPresent() const
+  {
+    return productstatus::present(group_->productProvenance()->productStatus());
+  }
 
-RangeSet const&
-Provenance::rangeOfValidity() const
-{
-  return group_->rangeOfValidity();
-}
+  RangeSet const&
+  Provenance::rangeOfValidity() const
+  {
+    return group_->rangeOfValidity();
+  }
 
-bool
-Provenance::equals(Provenance const& other) const
-{
-  return group_ == other.group_;
-}
+  bool
+  Provenance::equals(Provenance const& other) const
+  {
+    return group_ == other.group_;
+  }
 
-bool
-operator==(Provenance const& a, Provenance const& b)
-{
-  return a.equals(b);
-}
+  bool
+  operator==(Provenance const& a, Provenance const& b)
+  {
+    return a.equals(b);
+  }
 
-ostream&
-Provenance::write(ostream& os) const
-{
-  // This is grossly inadequate, but it is not critical for the
-  // first pass.
-  group_->productDescription().write(os);
-  group_->productProvenance()->write(os);
-  return os;
-}
+  ostream&
+  Provenance::write(ostream& os) const
+  {
+    // This is grossly inadequate, but it is not critical for the
+    // first pass.
+    group_->productDescription().write(os);
+    group_->productProvenance()->write(os);
+    return os;
+  }
 
-ostream&
-operator<<(ostream& os, Provenance const& p)
-{
-  return p.write(os);
-}
+  ostream&
+  operator<<(ostream& os, Provenance const& p)
+  {
+    return p.write(os);
+  }
 
 } // namespace art

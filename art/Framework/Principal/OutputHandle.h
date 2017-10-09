@@ -33,67 +33,53 @@
 
 namespace art {
 
-class EDProduct;
+  class EDProduct;
 
-class OutputHandle {
+  class OutputHandle {
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~OutputHandle();
 
-  ~OutputHandle();
+    OutputHandle(EDProduct const*,
+                 BranchDescription const*,
+                 cet::exempt_ptr<ProductProvenance const>,
+                 RangeSet const&);
 
-  OutputHandle(EDProduct const*, BranchDescription const*, cet::exempt_ptr<ProductProvenance const>, RangeSet const&);
+    /// Used when the attempt to get the data failed
+    OutputHandle(RangeSet const&);
 
-  ///Used when the attempt to get the data failed
-  OutputHandle(RangeSet const&);
+    OutputHandle(OutputHandle const&) = delete;
 
-  OutputHandle(OutputHandle const&) = delete;
+    OutputHandle(OutputHandle&&) = default;
 
-  OutputHandle(OutputHandle&&) = default;
+    OutputHandle& operator=(OutputHandle const&) = delete;
 
-  OutputHandle&
-  operator=(OutputHandle const&) = delete;
+    OutputHandle& operator=(OutputHandle&&) = delete;
 
-  OutputHandle&
-  operator=(OutputHandle&&) = delete;
+  public: // MEMBER FUNCTIONS -- API for the user
+    bool isValid() const;
 
-public: // MEMBER FUNCTIONS -- API for the user
+    BranchDescription const* desc() const;
 
-  bool
-  isValid() const;
+    ProductProvenance const* productProvenance() const;
 
-  BranchDescription const*
-  desc() const;
+    EDProduct const* wrapper() const;
 
-  ProductProvenance const*
-  productProvenance() const;
+    RangeSet const& rangeOfValidity() const;
 
-  EDProduct const*
-  wrapper() const;
+    void swap(OutputHandle&);
 
-  RangeSet const&
-  rangeOfValidity() const;
+  private: // MEMBER DATA
+    BranchDescription const* desc_{nullptr};
 
-  void
-  swap(OutputHandle&);
+    cet::exempt_ptr<ProductProvenance const> productProvenance_{nullptr};
 
-private: // MEMBER DATA
+    EDProduct const* wrap_{nullptr};
 
-  BranchDescription const*
-  desc_{nullptr};
+    RangeSet const& rangeOfValidity_;
+  };
 
-  cet::exempt_ptr<ProductProvenance const>
-  productProvenance_{nullptr};
-
-  EDProduct const*
-  wrap_{nullptr};
-
-  RangeSet const&
-  rangeOfValidity_;
-
-};
-
-void
-swap(OutputHandle&, OutputHandle&);
+  void swap(OutputHandle&, OutputHandle&);
 
 } // namespace art
 

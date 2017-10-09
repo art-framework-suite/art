@@ -7,20 +7,24 @@
 
 namespace {
   using namespace fhicl;
-  struct Config {};
-}
+  struct Config {
+  };
+} // namespace
 
 namespace arttest {
 
   class FailEverything : public art::EDFilter {
   public:
-
     using Parameters = EDFilter::Table<Config>;
-    explicit FailEverything(EDFilter::Table<Config> const&){}
+    explicit FailEverything(EDFilter::Table<Config> const&) {}
 
-    bool filter(art::Event&) override { return EDFilter::Fail; }
+    bool
+    filter(art::Event&) override
+    {
+      return EDFilter::Fail;
+    }
   };
 
-}
+} // namespace arttest
 
 DEFINE_ART_MODULE(arttest::FailEverything)

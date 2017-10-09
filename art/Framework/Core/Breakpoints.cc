@@ -10,4 +10,6 @@
 
 */
 
-void breakpoints::beginJob() {}
+void
+breakpoints::beginJob()
+{}

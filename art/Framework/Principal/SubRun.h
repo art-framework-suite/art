@@ -23,38 +23,31 @@
 
 namespace art {
 
-class SubRun final : public DataViewImpl {
+  class SubRun final : public DataViewImpl {
 
-public:
+  public:
+    ~SubRun();
 
-  ~SubRun();
+    SubRun(SubRunPrincipal const& srp,
+           ModuleDescription const& md,
+           RangeSet const& rs = RangeSet::invalid());
 
-  SubRun(SubRunPrincipal const& srp, ModuleDescription const& md, RangeSet const& rs = RangeSet::invalid());
+    SubRun(SubRun const&) = delete;
 
-  SubRun(SubRun const&) = delete;
+    SubRun(SubRun&&) = delete;
 
-  SubRun(SubRun&&) = delete;
+    SubRun& operator=(SubRun const&) = delete;
 
-  SubRun&
-  operator=(SubRun const&) = delete;
+    SubRun& operator=(SubRun&&) = delete;
 
-  SubRun&
-  operator=(SubRun&&) = delete;
+  public:
+    SubRunID id() const;
 
-public:
+    Run const& getRun() const;
 
-  SubRunID
-  id() const;
-
-  Run const&
-  getRun() const;
-
-private:
-
-  std::unique_ptr<Run const> const
-  run_;
-
-};
+  private:
+    std::unique_ptr<Run const> const run_;
+  };
 
 } // namespace art
 

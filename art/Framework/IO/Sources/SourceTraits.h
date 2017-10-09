@@ -67,7 +67,7 @@ namespace art {
     static constexpr bool value = !Source_generator<DETAIL>::value;
   };
 
-}
+} // namespace art
 #endif /* art_Framework_IO_Sources_SourceTraits_h */
 
 // Local Variables:

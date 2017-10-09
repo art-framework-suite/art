@@ -29,134 +29,120 @@
 
 namespace art {
 
-class ActivityRegistry;
-class EventPrincipal;
+  class ActivityRegistry;
+  class EventPrincipal;
 
-class Path {
+  class Path {
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    Path(ActionTable&,
+         ActivityRegistry&,
+         int const streamIndex,
+         int const bitpos,
+         bool const isEndPath,
+         std::string const& path_name,
+         std::vector<WorkerInPath>&&,
+         HLTGlobalStatus*) noexcept;
 
-  Path(ActionTable&, ActivityRegistry&, int const streamIndex, int const bitpos, bool const isEndPath,
-       std::string const& path_name, std::vector<WorkerInPath>&&, HLTGlobalStatus*) noexcept;
+    Path(Path const&) = delete;
 
-  Path(Path const&) = delete;
+    Path& operator=(Path const&) = delete;
 
-  Path& operator=(Path const&) = delete;
+  public: // MEMBER FUNCTIONS
+    int streamIndex() const;
 
-public: // MEMBER FUNCTIONS
+    int bitPosition() const;
 
-  int
-  streamIndex() const;
+    std::string const& name() const;
 
-  int
-  bitPosition() const;
+    std::vector<WorkerInPath> const& workersInPath() const;
 
-  std::string const&
-  name() const;
+    hlt::HLTState state() const;
 
-  std::vector<WorkerInPath> const&
-  workersInPath() const;
+    std::size_t timesRun() const;
 
-  hlt::HLTState
-  state() const;
+    std::size_t timesPassed() const;
 
-  std::size_t
-  timesRun() const;
+    std::size_t timesFailed() const;
 
-  std::size_t
-  timesPassed() const;
+    std::size_t timesExcept() const;
 
-  std::size_t
-  timesFailed() const;
+    // Note: threading: Clears the counters of workersInPath.
+    void clearCounters();
 
-  std::size_t
-  timesExcept() const;
+    void process(Transition, Principal&);
 
-  // Note: threading: Clears the counters of workersInPath.
-  void
-  clearCounters();
+    void process_event_for_endpath(EventPrincipal&, int streamIndex);
 
-  void
-  process(Transition, Principal&);
+    void process_event(hep::concurrency::WaitingTask* pathsDoneTask,
+                       EventPrincipal&,
+                       int streamIndex);
 
-  void
-  process_event_for_endpath(EventPrincipal&, int streamIndex);
+  private: // MEMBER FUNCTIONS -- Implementation details
+    void process_event_idx_asynch(size_t idx,
+                                  size_t const max_idx,
+                                  EventPrincipal&,
+                                  int si,
+                                  bool should_continue,
+                                  CurrentProcessingContext*);
 
-  void
-  process_event(hep::concurrency::WaitingTask* pathsDoneTask, EventPrincipal&, int streamIndex);
-
-private: // MEMBER FUNCTIONS -- Implementation details
-
-  void
-  process_event_idx_asynch(size_t idx, size_t const max_idx, EventPrincipal&, int si, bool should_continue,
+    void process_event_idx(size_t const idx,
+                           size_t const max_idx,
+                           EventPrincipal&,
+                           int si,
+                           bool const should_continue,
                            CurrentProcessingContext*);
 
-  void
-  process_event_idx(size_t const idx, size_t const max_idx, EventPrincipal&, int si, bool const should_continue, CurrentProcessingContext*);
+    void process_event_workerFinished(size_t const idx,
+                                      size_t const max_idx,
+                                      EventPrincipal&,
+                                      int si,
+                                      bool const should_continue,
+                                      CurrentProcessingContext*);
 
-  void
-  process_event_workerFinished(size_t const idx, size_t const max_idx, EventPrincipal&, int si, bool const should_continue,
-                               CurrentProcessingContext*);
+    void process_event_pathFinished(size_t const idx,
+                                    EventPrincipal&,
+                                    int si,
+                                    bool const should_continue,
+                                    CurrentProcessingContext*);
 
-  void
-  process_event_pathFinished(size_t const idx, EventPrincipal&, int si, bool const should_continue, CurrentProcessingContext*);
+  private: // MEMBER DATA
+    ActionTable& actionTable_;
 
-private: // MEMBER DATA
+    ActivityRegistry& actReg_;
 
-  ActionTable&
-  actionTable_;
+    int streamIndex_;
 
-  ActivityRegistry&
-  actReg_;
+    int bitpos_;
 
-  int
-  streamIndex_;
+    bool isEndPath_;
 
-  int
-  bitpos_;
+    std::string name_;
 
-  bool
-  isEndPath_;
+    // Note: threading: We clear their counters.
+    std::vector<WorkerInPath> workers_;
 
-  std::string
-  name_;
+    // The PathManager trigger paths info actually owns this.
+    // Note: For the end path this will be the nullptr.
+    HLTGlobalStatus* trptr_;
 
-  // Note: threading: We clear their counters.
-  std::vector<WorkerInPath>
-  workers_;
+    CurrentProcessingContext cpc_;
 
-  // The PathManager trigger paths info actually owns this.
-  // Note: For the end path this will be the nullptr.
-  HLTGlobalStatus*
-  trptr_;
+  private: // MEMBER DATA -- Waiting tasks
+    // Tasks waiting for path workers to finish.
+    hep::concurrency::WaitingTaskList waitingTasks_;
 
-  CurrentProcessingContext
-  cpc_;
+  private: // MEMBER DATA -- Atomic part, state and counts
+    std::atomic<hlt::HLTState> state_{hlt::Ready};
 
-private: // MEMBER DATA -- Waiting tasks
+    std::atomic<std::size_t> timesRun_{};
 
-  // Tasks waiting for path workers to finish.
-  hep::concurrency::WaitingTaskList
-  waitingTasks_;
+    std::atomic<std::size_t> timesPassed_{};
 
-private: // MEMBER DATA -- Atomic part, state and counts
+    std::atomic<std::size_t> timesFailed_{};
 
-  std::atomic<hlt::HLTState>
-  state_{hlt::Ready};
-
-  std::atomic<std::size_t>
-  timesRun_{};
-
-  std::atomic<std::size_t>
-  timesPassed_{};
-
-  std::atomic<std::size_t>
-  timesFailed_{};
-
-  std::atomic<std::size_t>
-  timesExcept_{};
-
-};
+    std::atomic<std::size_t> timesExcept_{};
+  };
 
 } // namespace art
 

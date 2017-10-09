@@ -22,8 +22,8 @@
 //    before serving as an argument to ServiceHelper.
 //
 
-#include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Utilities/ScheduleID.h"
 
@@ -31,47 +31,40 @@
 
 namespace art {
 
-template <typename T, ServiceScope SCOPE = detail::ServiceHelper<std::remove_const_t<T>>::scope_val>
-class ServiceHandle {
+  template <typename T,
+            ServiceScope SCOPE =
+              detail::ServiceHelper<std::remove_const_t<T>>::scope_val>
+  class ServiceHandle {
 
-public:
-
-  ServiceHandle() try
-    : instance{&ServiceRegistry::instance().get<std::remove_const_t<T>>()}
-  {
-  }
-  catch (Exception const& x) {
-    throw Exception(errors::ServiceNotFound)
+  public:
+    ServiceHandle() try : instance {
+      &ServiceRegistry::instance().get<std::remove_const_t<T>>()
+    }
+    {
+    }
+    catch (Exception const& x)
+    {
+      throw Exception(errors::ServiceNotFound)
         << "Unable to create ServiceHandle.\n"
-        << "Perhaps the FHiCL configuration does not specify the necessary service?\n"
+        << "Perhaps the FHiCL configuration does not specify the necessary "
+           "service?\n"
         << "The class of the service is noted below...\n"
         << x;
-  }
+    }
 
-  T*
-  operator->() const
-  {
-    return instance;
-  }
+    T* operator->() const { return instance; }
 
-  T&
-  operator*() const
-  {
-    return *instance;
-  }
+    T& operator*() const { return *instance; }
 
-  T*
-  get() const
-  {
-    return instance;
-  }
+    T*
+    get() const
+    {
+      return instance;
+    }
 
-private:
-
-  T*
-  instance;
-
-};
+  private:
+    T* instance;
+  };
 
 } // namespace art
 

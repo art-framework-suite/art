@@ -8,37 +8,30 @@
 #include "fhiclcpp/ParameterSet.h"
 
 namespace art {
-namespace test {
+  namespace test {
 
-class Wanted {
+    class Wanted {
 
-public:
+    public:
+      explicit Wanted(fhicl::ParameterSet const&) {}
 
-  explicit
-  Wanted(fhicl::ParameterSet const&)
-  {
-  }
+      int
+      getCachedValue() const
+      {
+        return cached_value_;
+      }
 
-  int
-  getCachedValue() const
-  {
-    return cached_value_;
-  }
+      void
+      setValue(int const value)
+      {
+        cached_value_ = value;
+      }
 
-  void
-  setValue(int const value)
-  {
-    cached_value_ = value;
-  }
+    private:
+      int cached_value_;
+    };
 
-private:
-
-  int
-  cached_value_;
-
-};
-
-} // namespace test
+  } // namespace test
 } // namespace art
 
 DECLARE_ART_SERVICE(art::test::Wanted, LEGACY)

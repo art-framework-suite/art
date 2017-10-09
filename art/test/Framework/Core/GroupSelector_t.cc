@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE ( GroupSelector_t )
+#define BOOST_TEST_MODULE (GroupSelector_t)
 #include "cetlib/quiet_unit_test.hpp"
 
 #include "art/test/Framework/Core/GroupSelector_t.h"
@@ -32,34 +32,40 @@ namespace {
                         fhicl::ParameterSet const& pset)
   {
     art::TypeID const producedType{typeid(PROD)};
-    return art::BranchDescription{bt,
-                                  art::TypeLabel{producedType, instanceName, art::SupportsView<PROD>::value},
-                                  art::ModuleDescription{pset.id(),
-                                                         "arttest::NOMOD",
-                                                         moduleLabel,
-                                                         1,
-                                                         art::ProcessConfiguration{processName,
-                                                                                   fhicl::ParameterSet{}.id(),
-                                                                                   art::getReleaseVersion()}}};
+    return art::BranchDescription{
+      bt,
+      art::TypeLabel{
+        producedType, instanceName, art::SupportsView<PROD>::value},
+      art::ModuleDescription{
+        pset.id(),
+        "arttest::NOMOD",
+        moduleLabel,
+        1,
+        art::ProcessConfiguration{
+          processName, fhicl::ParameterSet{}.id(), art::getReleaseVersion()}}};
   }
 
-  void apply_gs(art::GroupSelector const& gs,
-                art::ProductDescriptionsByID const& descriptions,
-                std::vector<bool>& results)
+  void
+  apply_gs(art::GroupSelector const& gs,
+           art::ProductDescriptionsByID const& descriptions,
+           std::vector<bool>& results)
   {
     for (auto const& p : descriptions) {
       results.push_back(gs.selected(p.second));
     }
   }
 
-  void doTest(fhicl::ParameterSet const& params,
-              std::string const& testname,
-              art::ProductTables const& pTables,
-              std::initializer_list<bool const> const& expected)
+  void
+  doTest(fhicl::ParameterSet const& params,
+         std::string const& testname,
+         art::ProductTables const& pTables,
+         std::initializer_list<bool const> const& expected)
   {
     std::string const parameterName{"outputCommands"};
-    art::GroupSelectorRules gsr(params.get<std::vector<std::string>>(parameterName, {"keep *"}),
-                                parameterName, testname);
+    art::GroupSelectorRules gsr(
+      params.get<std::vector<std::string>>(parameterName, {"keep *"}),
+      parameterName,
+      testname);
     std::vector<bool> results;
 
     for (std::size_t i{}; i < art::NumBranchTypes; ++i) {
@@ -69,24 +75,30 @@ namespace {
       apply_gs(gs, descriptions, results);
     }
 
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(cbegin(expected), cend(expected),
-                                    cbegin(results), cend(results));
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(
+      cbegin(expected), cend(expected), cbegin(results), cend(results));
   }
 
   class GlobalSetup {
   public:
-    static GlobalSetup& instance() {
+    static GlobalSetup&
+    instance()
+    {
       static GlobalSetup s_gs;
       return s_gs;
     }
 
-    art::ProductTables const& pTables() { return pTables_; }
+    art::ProductTables const&
+    pTables()
+    {
+      return pTables_;
+    }
 
   private:
-
     art::ProductTables const pTables_{initProductTables()};
 
-    art::ProductTables initProductTables()
+    art::ProductTables
+    initProductTables()
     {
       // We pretend to have one module, with two products. The products
       // are of the same and, type differ in instance name.
@@ -94,32 +106,51 @@ namespace {
       modAparams.put("i", 2112);
       modAparams.put("s", "hi");
 
-      auto b1 = makeBranchDescription<arttest::ProdTypeA<std::string>>(art::InEvent, "modA", "PROD", "i1", modAparams);
-      auto b2 = makeBranchDescription<arttest::ProdTypeA<std::string>>(art::InEvent, "modA", "PROD", "i2", modAparams);
+      auto b1 = makeBranchDescription<arttest::ProdTypeA<std::string>>(
+        art::InEvent, "modA", "PROD", "i1", modAparams);
+      auto b2 = makeBranchDescription<arttest::ProdTypeA<std::string>>(
+        art::InEvent, "modA", "PROD", "i2", modAparams);
 
       // Our second pretend module has only one product, and gives it no
       // instance name.
       fhicl::ParameterSet modBparams;
       modBparams.put("d", 2.5);
 
-      auto b3 = makeBranchDescription<arttest::ProdTypeB<std::string>>(art::InRun, "modB", "HLT", "", modBparams);
+      auto b3 = makeBranchDescription<arttest::ProdTypeB<std::string>>(
+        art::InRun, "modB", "HLT", "", modBparams);
 
       // Our third pretend is like modA, except it has a processName_ of
       // "USER"
-      auto b4 = makeBranchDescription<arttest::ProdTypeA<std::string>>(art::InSubRun, "modA", "USER", "i1", modAparams);
-      auto b5 = makeBranchDescription<arttest::ProdTypeA<std::string>>(art::InResults, "modA", "USER", "i2", modAparams);
+      auto b4 = makeBranchDescription<arttest::ProdTypeA<std::string>>(
+        art::InSubRun, "modA", "USER", "i1", modAparams);
+      auto b5 = makeBranchDescription<arttest::ProdTypeA<std::string>>(
+        art::InResults, "modA", "USER", "i2", modAparams);
 
       // Extra tests.
-      auto b6 = makeBranchDescription<art::Ptr<std::string>>(art::InRun, "ptrmvWriter", "PtrmvW", "", modAparams);
+      auto b6 = makeBranchDescription<art::Ptr<std::string>>(
+        art::InRun, "ptrmvWriter", "PtrmvW", "", modAparams);
 
-      // Ordered correctly (via BranchType, then by ProductID) for ease of deducing expected results.
+      // Ordered correctly (via BranchType, then by ProductID) for ease of
+      // deducing expected results.
       art::ProductDescriptions descriptions;
-      descriptions.push_back(std::move(b2)); // ProductID: 1458780065 | Stringarttest::ProdTypeA_modA_i2_PROD, InEvent.
-      descriptions.push_back(std::move(b1)); // ProductID: 1729834300 | Stringarttest::ProdTypeA_modA_i1_PROD, InEvent.
-      descriptions.push_back(std::move(b4)); // ProductID: 105444648  | Stringarttest::ProdTypeA_modA_i1_USER, InSubRun.
-      descriptions.push_back(std::move(b6)); // ProductID: 1113343586 | Stringart::Ptr_ptrmvWriter__PtrmvW, InRun.
-      descriptions.push_back(std::move(b3)); // ProductID: 1125702662 | Stringarttest::ProdTypeB_modB__HLT, InRun.
-      descriptions.push_back(std::move(b5)); // ProductID: 933294005  | Stringarttest::ProdTypeA_modA_i2_USER, InResults.
+      descriptions.push_back(
+        std::move(b2)); // ProductID: 1458780065 |
+                        // Stringarttest::ProdTypeA_modA_i2_PROD, InEvent.
+      descriptions.push_back(
+        std::move(b1)); // ProductID: 1729834300 |
+                        // Stringarttest::ProdTypeA_modA_i1_PROD, InEvent.
+      descriptions.push_back(
+        std::move(b4)); // ProductID: 105444648  |
+                        // Stringarttest::ProdTypeA_modA_i1_USER, InSubRun.
+      descriptions.push_back(
+        std::move(b6)); // ProductID: 1113343586 |
+                        // Stringart::Ptr_ptrmvWriter__PtrmvW, InRun.
+      descriptions.push_back(
+        std::move(b3)); // ProductID: 1125702662 |
+                        // Stringarttest::ProdTypeB_modB__HLT, InRun.
+      descriptions.push_back(
+        std::move(b5)); // ProductID: 933294005  |
+                        // Stringarttest::ProdTypeA_modA_i2_USER, InResults.
       return art::ProductTables{descriptions};
     }
   };
@@ -128,7 +159,7 @@ namespace {
     art::ProductTables const& pTables{GlobalSetup::instance().pTables()};
   };
 
-}
+} // namespace
 
 BOOST_FIXTURE_TEST_SUITE(Tests, ProductListAccessor)
 
@@ -284,12 +315,14 @@ BOOST_AUTO_TEST_CASE(Illegal_spec)
   cmds.push_back(bad_rule);
   std::string const parameterName = "outputCommands";
   bad.put(parameterName, cmds);
-  BOOST_REQUIRE_EXCEPTION(art::GroupSelectorRules(bad.get<std::vector<std::string>>(parameterName),
-                                                  parameterName, "GroupSelectorTest"),
-                          art::Exception,
-                          [](auto const& e) {
-                            return e.categoryCode() == art::errors::Configuration;
-                          });
+  BOOST_REQUIRE_EXCEPTION(
+    art::GroupSelectorRules(bad.get<std::vector<std::string>>(parameterName),
+                            parameterName,
+                            "GroupSelectorTest"),
+    art::Exception,
+    [](auto const& e) {
+      return e.categoryCode() == art::errors::Configuration;
+    });
 }
 
 BOOST_AUTO_TEST_CASE(Drop_by_type_event)
@@ -345,12 +378,14 @@ BOOST_AUTO_TEST_CASE(Bad_type)
   cmds.push_back(bad_rule);
   std::string const parameterName = "outputCommands";
   bad.put(parameterName, cmds);
-  BOOST_REQUIRE_EXCEPTION(art::GroupSelectorRules(bad.get<std::vector<std::string>>(parameterName),
-                                                  parameterName, "GroupSelectorTest"),
-                          art::Exception,
-                          [](auto const& e) {
-                            return e.categoryCode() == art::errors::Configuration;
-                          });
+  BOOST_REQUIRE_EXCEPTION(
+    art::GroupSelectorRules(bad.get<std::vector<std::string>>(parameterName),
+                            parameterName,
+                            "GroupSelectorTest"),
+    art::Exception,
+    [](auto const& e) {
+      return e.categoryCode() == art::errors::Configuration;
+    });
 }
 
 BOOST_AUTO_TEST_SUITE_END()

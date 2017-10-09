@@ -7,11 +7,11 @@
 #include <stack>
 
 namespace art {
-namespace detail {
+  namespace detail {
 
-typedef std::stack<WrapperBase_ptr> ServiceStack;
+    typedef std::stack<WrapperBase_ptr> ServiceStack;
 
-} // namespace detail
+  } // namespace detail
 } // namespace art
 
 #endif /* art_Framework_Services_Registry_detail_ServiceStack_h */

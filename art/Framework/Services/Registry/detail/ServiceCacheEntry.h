@@ -3,8 +3,8 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
-#include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
+#include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -13,82 +13,70 @@
 
 namespace art {
 
-class ActivityRegistry;
+  class ActivityRegistry;
 
-namespace detail {
+  namespace detail {
 
-class ServiceCacheEntry {
+    class ServiceCacheEntry {
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+    public: // MEMBER FUNCTIONS -- Special Member Functions
+      ServiceCacheEntry(fhicl::ParameterSet const& pset,
+                        std::unique_ptr<ServiceHelperBase>&& helper);
 
-  ServiceCacheEntry(fhicl::ParameterSet const& pset, std::unique_ptr<ServiceHelperBase>&& helper);
+      ServiceCacheEntry(fhicl::ParameterSet const& pset,
+                        std::unique_ptr<ServiceHelperBase>&& helper,
+                        ServiceCacheEntry const& impl);
 
-  ServiceCacheEntry(fhicl::ParameterSet const& pset, std::unique_ptr<ServiceHelperBase>&& helper, ServiceCacheEntry const& impl);
+      ServiceCacheEntry(std::shared_ptr<ServiceWrapperBase> premade_service,
+                        std::unique_ptr<ServiceHelperBase>&& helper);
 
-  ServiceCacheEntry(std::shared_ptr<ServiceWrapperBase> premade_service, std::unique_ptr<ServiceHelperBase>&& helper);
+    public: // MEMBER FUNCTIONS -- Public API
+      std::shared_ptr<ServiceWrapperBase> getService(
+        art::ActivityRegistry& reg,
+        ServiceStack& creationOrder) const;
 
-public: // MEMBER FUNCTIONS -- Public API
+      void forceCreation(art::ActivityRegistry& reg) const;
 
-  std::shared_ptr<ServiceWrapperBase>
-  getService(art::ActivityRegistry& reg, ServiceStack& creationOrder) const;
+      fhicl::ParameterSet const& getParameterSet() const;
 
-  void
-  forceCreation(art::ActivityRegistry& reg) const;
+      template <typename T>
+      T& get(art::ActivityRegistry& reg, ServiceStack& creationOrder) const;
 
-  fhicl::ParameterSet const&
-  getParameterSet() const;
+    private: // MEMBER FUNCTIONS -- Implementation details
+      void makeAndCacheService(art::ActivityRegistry& reg) const;
 
-  template <typename T>
-  T&
-  get(art::ActivityRegistry& reg, ServiceStack& creationOrder) const;
+      void createService(art::ActivityRegistry& reg,
+                         ServiceStack& creationOrder) const;
 
-private: // MEMBER FUNCTIONS -- Implementation details
+      void convertService(std::shared_ptr<ServiceWrapperBase>& swb) const;
 
-  void
-  makeAndCacheService(art::ActivityRegistry& reg) const;
+      ServiceScope serviceScope() const;
 
-  void
-  createService(art::ActivityRegistry& reg, ServiceStack& creationOrder) const;
+      bool is_impl() const;
 
-  void
-  convertService(std::shared_ptr<ServiceWrapperBase>& swb) const;
+      bool is_interface() const;
 
-  ServiceScope
-  serviceScope() const;
+    private: // MEMBER DATA
+      fhicl::ParameterSet config_{};
 
-  bool
-  is_impl() const;
+      std::unique_ptr<ServiceHelperBase> helper_;
 
-  bool
-  is_interface() const;
+      mutable std::shared_ptr<ServiceWrapperBase> service_{};
 
-private: // MEMBER DATA
+      ServiceCacheEntry const* const interface_impl_{nullptr};
+    };
 
-  fhicl::ParameterSet
-  config_{};
+    template <typename T>
+    T&
+    ServiceCacheEntry::get(art::ActivityRegistry& reg,
+                           ServiceStack& creationOrder) const
+    {
+      std::shared_ptr<ServiceWrapperBase> swb = getService(reg, creationOrder);
+      return *reinterpret_cast<T*>(
+        dynamic_cast<ServiceLGRHelper&>(*helper_).retrieve(swb));
+    }
 
-  std::unique_ptr<ServiceHelperBase>
-  helper_;
-
-  mutable
-  std::shared_ptr<ServiceWrapperBase>
-  service_{};
-
-  ServiceCacheEntry const* const
-  interface_impl_{nullptr};
-
-};
-
-template <typename T>
-T&
-ServiceCacheEntry::
-get(art::ActivityRegistry& reg, ServiceStack& creationOrder) const
-{
-  std::shared_ptr<ServiceWrapperBase> swb = getService(reg, creationOrder);
-  return *reinterpret_cast<T*>(dynamic_cast<ServiceLGRHelper&>(*helper_).retrieve(swb));
-}
-
-} // namespace detail
+  } // namespace detail
 } // namespace art
 
 #endif /* art_Framework_Services_Registry_detail_ServiceCacheEntry_h */

@@ -5,34 +5,28 @@
 #include "art/Utilities/CurrentProcessingContext.h"
 
 namespace art {
-namespace detail {
+  namespace detail {
 
-class CPCSentry {
+    class CPCSentry {
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+    public: // MEMBER FUNCTIONS -- Special Member Functions
+      ~CPCSentry();
 
-  ~CPCSentry();
+      CPCSentry(CurrentProcessingContext const&);
 
-  CPCSentry(CurrentProcessingContext const&);
+      CPCSentry(CPCSentry const&) = delete;
 
-  CPCSentry(CPCSentry const&) = delete;
+      CPCSentry(CPCSentry&&) = delete;
 
-  CPCSentry(CPCSentry&&) = delete;
+      CPCSentry& operator=(CPCSentry const&) = delete;
 
-  CPCSentry&
-  operator=(CPCSentry const&) = delete;
+      CPCSentry& operator=(CPCSentry&&) = delete;
 
-  CPCSentry&
-  operator=(CPCSentry&&) = delete;
+    private: // MEMBER DATA
+      CurrentProcessingContext cpc_;
+    };
 
-private: // MEMBER DATA
-
-  CurrentProcessingContext
-  cpc_;
-
-};
-
-} // namespace detail
+  } // namespace detail
 } // namespace art
 
 #endif /* art_Utilities_CPCSentry_h */

@@ -17,43 +17,43 @@
 namespace {
 
   struct Config {
-    fhicl::Atom<int> lower { fhicl::Name("lower") };
-    fhicl::Atom<int> upper { fhicl::Name("upper") };
+    fhicl::Atom<int> lower{fhicl::Name("lower")};
+    fhicl::Atom<int> upper{fhicl::Name("upper")};
   };
 
   using engine_t = std::default_random_engine;
   using sizeDist_t = std::uniform_int_distribution<unsigned>;
   using pdgDist_t = std::uniform_int_distribution<int>;
 
-  auto produce_particles(engine_t& gen,
-                         sizeDist_t& sizeDist,
-                         pdgDist_t& pdgDist)
+  auto
+  produce_particles(engine_t& gen, sizeDist_t& sizeDist, pdgDist_t& pdgDist)
   {
-    std::vector<int> particles (sizeDist(gen));
-    std::generate(particles.begin(),
-                  particles.end(),
-                  [&gen,&pdgDist]{ return pdgDist(gen); } );
+    std::vector<int> particles(sizeDist(gen));
+    std::generate(particles.begin(), particles.end(), [&gen, &pdgDist] {
+      return pdgDist(gen);
+    });
     return std::make_unique<decltype(particles)>(particles);
   }
 
   class EventGenerator : public art::EDProducer {
-    engine_t gen_ {};
-    sizeDist_t sizeDist_ {0, 10};
+    engine_t gen_{};
+    sizeDist_t sizeDist_{0, 10};
     pdgDist_t pdgDist_;
-    unsigned nPOTs_ {};
-    unsigned nParticles_ {};
-  public:
+    unsigned nPOTs_{};
+    unsigned nParticles_{};
 
+  public:
     using Parameters = EDProducer::Table<Config>;
     explicit EventGenerator(Parameters const& config)
       : pdgDist_{config().lower(), config().upper()}
     {
       produces<std::vector<int>>("GenParticles");
-      produces<unsigned,art::InSubRun>("nParticles");
-      produces<unsigned,art::InRun>("nPOTs");
+      produces<unsigned, art::InSubRun>("nParticles");
+      produces<unsigned, art::InRun>("nPOTs");
     }
 
-    void produce(art::Event& e) override
+    void
+    produce(art::Event& e) override
     {
       auto particles = produce_particles(gen_, sizeDist_, pdgDist_);
       nParticles_ += particles->size();
@@ -61,20 +61,24 @@ namespace {
       ++nPOTs_;
     }
 
-    void endSubRun(art::SubRun& sr) override
+    void
+    endSubRun(art::SubRun& sr) override
     {
-      sr.put(std::make_unique<unsigned>(nParticles_), "nParticles", art::subRunFragment());
+      sr.put(std::make_unique<unsigned>(nParticles_),
+             "nParticles",
+             art::subRunFragment());
       nParticles_ = 0u;
     }
 
-    void endRun(art::Run& r) override
+    void
+    endRun(art::Run& r) override
     {
       r.put(std::make_unique<unsigned>(nPOTs_), "nPOTs", art::runFragment());
       nPOTs_ = 0u;
     }
 
-  };  // EventGenerator
+  }; // EventGenerator
 
-}
+} // namespace
 
 DEFINE_ART_MODULE(EventGenerator)

@@ -10,12 +10,11 @@
 namespace art {
   namespace detail {
 
-    std::unique_ptr<MetadataSummary>
-    get_MetadataSummary(suffix_type st,
-                        LibraryInfoCollection const& coll);
-
+    std::unique_ptr<MetadataSummary> get_MetadataSummary(
+      suffix_type st,
+      LibraryInfoCollection const& coll);
   }
-}
+} // namespace art
 
 #endif /* art_Framework_Art_detail_get_MetadataSummary_h */
 

@@ -22,31 +22,26 @@
 
 namespace art {
 
-class Run final : public DataViewImpl {
+  class Run final : public DataViewImpl {
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~Run();
 
-  ~Run();
+    explicit Run(RunPrincipal const&,
+                 ModuleDescription const&,
+                 RangeSet const& rs = RangeSet::invalid());
 
-  explicit
-  Run(RunPrincipal const&, ModuleDescription const&, RangeSet const& rs = RangeSet::invalid());
+    Run(Run const&) = delete;
 
-  Run(Run const&) = delete;
+    Run(Run&&) = delete;
 
-  Run(Run&&) = delete;
+    Run& operator=(Run const&) = delete;
 
-  Run&
-  operator=(Run const&) = delete;
+    Run& operator=(Run&&) = delete;
 
-  Run&
-  operator=(Run&&) = delete;
-
-public: // MEMBER FUNCTIONS -- User-facing API
-
-  RunID const
-  id() const;
-
-};
+  public: // MEMBER FUNCTIONS -- User-facing API
+    RunID const id() const;
+  };
 
 } // namespace art
 

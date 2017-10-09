@@ -12,6 +12,7 @@ namespace art {
 class art::BasicOutputOptionsHandler : public art::OptionsHandler {
 public:
   explicit BasicOutputOptionsHandler(bpo::options_description& desc);
+
 private:
   // Check selected options for consistency.
   int doCheckOptions(bpo::variables_map const& vm) override;

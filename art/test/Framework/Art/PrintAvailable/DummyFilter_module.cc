@@ -15,16 +15,21 @@ namespace art {
   namespace test {
     class DummyFilter;
   }
-}
-
+} // namespace art
 
 class art::test::DummyFilter : public EDFilter {
 public:
-  struct Config {};
+  struct Config {
+  };
   using Parameters = EDFilter::Table<Config>;
-  explicit DummyFilter(Parameters const&){}
+  explicit DummyFilter(Parameters const&) {}
+
 private:
-  bool filter(Event&) override {return true;}
+  bool
+  filter(Event&) override
+  {
+    return true;
+  }
 };
 
 DEFINE_ART_MODULE(art::test::DummyFilter)

@@ -16,6 +16,7 @@ class art::BasicOptionsHandler : public art::OptionsHandler {
 public:
   BasicOptionsHandler(bpo::options_description& desc,
                       cet::filepath_maker& maker);
+
 private:
   // Check selected options for consistency.
   int doCheckOptions(bpo::variables_map const& vm) override;

@@ -6,12 +6,19 @@
 namespace arttest {
   class ReadNextArbitrator {
   public:
-    ReadNextArbitrator(fhicl::ParameterSet const& ps) : threshold_{ps.get<unsigned>("threshold", 5)} {}
-    auto threshold() const { return threshold_; }
+    ReadNextArbitrator(fhicl::ParameterSet const& ps)
+      : threshold_{ps.get<unsigned>("threshold", 5)}
+    {}
+    auto
+    threshold() const
+    {
+      return threshold_;
+    }
+
   private:
     unsigned threshold_;
   };
-}
+} // namespace arttest
 
 #endif /* art_test_Integration_ReadNextArbitrator_h */
 

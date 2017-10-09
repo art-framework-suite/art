@@ -13,12 +13,13 @@ namespace art {
     class DummyProductCache {
     public:
       EDProduct const* product(std::string const& wrappedName);
+
     private:
-      std::map<std::string,std::unique_ptr<EDProduct>> dummies_;
+      std::map<std::string, std::unique_ptr<EDProduct>> dummies_;
     };
 
-  }
-}
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_IO_Root_detail_DummyProductCache_h */
 

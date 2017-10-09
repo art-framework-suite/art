@@ -11,11 +11,11 @@
 //#include <tuple>
 //#include <vector>
 //
-//namespace art {
+// namespace art {
 //
-//class ProductInfo {
+// class ProductInfo {
 //
-//public: // TYPES
+// public: // TYPES
 //
 //  enum class ConsumableType {
 //      Product // 0
@@ -23,16 +23,17 @@
 //    , ViewElement // 2
 //  };
 //
-//public: // MEMBER FUNCTIONS -- Special Member Functions
+// public: // MEMBER FUNCTIONS -- Special Member Functions
 //
 //  explicit
 //  ProductInfo(ConsumableType const, TypeID const&);
 //
 //  explicit
-//  ProductInfo(ConsumableType const, TypeID const&, std::string const& label, std::string const& instance,
+//  ProductInfo(ConsumableType const, TypeID const&, std::string const& label,
+//  std::string const& instance,
 //              std::string const& process);
 //
-//public: // MEMBER DATA -- FIXME: Are these supposed to be public?
+// public: // MEMBER DATA -- FIXME: Are these supposed to be public?
 //
 //  ConsumableType
 //  consumableType_;
@@ -51,13 +52,14 @@
 //
 //};
 //
-//bool
-//operator<(ProductInfo const& a, ProductInfo const& b);
+// bool
+// operator<(ProductInfo const& a, ProductInfo const& b);
 //
-//using ConsumableProductVectorPerBranch = std::vector<ProductInfo>;
-//using ConsumableProductSetPerBranch = std::set<ProductInfo>;
-//using ConsumableProducts = std::array<ConsumableProductVectorPerBranch, NumBranchTypes>;
-//using ConsumableProductSets = std::array<ConsumableProductSetPerBranch, NumBranchTypes>;
+// using ConsumableProductVectorPerBranch = std::vector<ProductInfo>;
+// using ConsumableProductSetPerBranch = std::set<ProductInfo>;
+// using ConsumableProducts = std::array<ConsumableProductVectorPerBranch,
+// NumBranchTypes>;  using ConsumableProductSets =
+// std::array<ConsumableProductSetPerBranch, NumBranchTypes>;
 //
 //} // namespace art
 

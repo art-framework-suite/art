@@ -3,13 +3,13 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "canvas/Persistency/Provenance/RangeSet.h"
-#include "cetlib/quiet_unit_test.hpp"
-#include "fhiclcpp/types/TupleAs.h"
 #include "art/test/Integration/product-aggregation/CalibConstants.h"
 #include "art/test/Integration/product-aggregation/Fraction.h"
 #include "art/test/Integration/product-aggregation/Geometry.h"
 #include "art/test/Integration/product-aggregation/TrackEfficiency.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
+#include "cetlib/quiet_unit_test.hpp"
+#include "fhiclcpp/types/TupleAs.h"
 
 using art::EventRange;
 using art::InputTag;
@@ -23,33 +23,32 @@ using std::vector;
 
 namespace {
 
-  double constexpr tolerance  = std::numeric_limits<double>::epsilon();
+  double constexpr tolerance = std::numeric_limits<double>::epsilon();
 
   struct Config {
-    TupleAs<InputTag(string)> trkEffTag { Name("trkEffTag") };
-    TupleAs<InputTag(string)> trkEffValueTag { Name("trkEffValueTag") };
-    TupleAs<InputTag(string)> particleRatioTag { Name("particleRatioTag") };
-    Sequence<double> expParticleRatios { Name("expParticleRatios") };
+    TupleAs<InputTag(string)> trkEffTag{Name("trkEffTag")};
+    TupleAs<InputTag(string)> trkEffValueTag{Name("trkEffValueTag")};
+    TupleAs<InputTag(string)> particleRatioTag{Name("particleRatioTag")};
+    Sequence<double> expParticleRatios{Name("expParticleRatios")};
   };
 
   class CheckMoreProducts : public art::EDAnalyzer {
   public:
-
     using Parameters = EDAnalyzer::Table<Config>;
     explicit CheckMoreProducts(Parameters const& config);
 
     void beginSubRun(art::SubRun const& r) override;
-    void analyze(art::Event const&) override {}
+    void
+    analyze(art::Event const&) override
+    {}
 
   private:
-
     art::InputTag trkEffTag_;
     art::InputTag trkEffValueTag_;
     art::InputTag particleRatioTag_;
     vector<double> expParticleRatios_;
 
-  };  // CheckMoreProducts
-
+  }; // CheckMoreProducts
 
   CheckMoreProducts::CheckMoreProducts(Parameters const& config)
     : EDAnalyzer{config}
@@ -63,7 +62,8 @@ namespace {
   CheckMoreProducts::beginSubRun(art::SubRun const& sr)
   {
     // User-assembled TrackEfficiency check
-    auto const& trkEffH = sr.getValidHandle<arttest::TrackEfficiency>(trkEffTag_);
+    auto const& trkEffH =
+      sr.getValidHandle<arttest::TrackEfficiency>(trkEffTag_);
     auto const& trkEffValueH = sr.getValidHandle<double>(trkEffValueTag_);
     BOOST_CHECK(art::same_ranges(trkEffH, trkEffValueH));
     BOOST_CHECK_CLOSE_FRACTION(trkEffH->efficiency(), *trkEffValueH, tolerance);
@@ -78,6 +78,6 @@ namespace {
     BOOST_CHECK(!art::overlapping_ranges(particleRatioH, trkEffValueH));
   }
 
-}
+} // namespace
 
 DEFINE_ART_MODULE(CheckMoreProducts)

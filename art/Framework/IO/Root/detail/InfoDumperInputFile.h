@@ -4,7 +4,6 @@
 #include "TBranch.h"
 #include "TFile.h"
 #include "TTree.h"
-#include "sqlite3.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -12,6 +11,7 @@
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
+#include "sqlite3.h"
 
 #include <memory>
 #include <ostream>
@@ -22,7 +22,6 @@ namespace art {
 
     class InfoDumperInputFile {
     public:
-
       using EntryNumber = input::EntryNumber;
       using EntryNumbers = input::EntryNumbers;
 
@@ -32,7 +31,11 @@ namespace art {
       void print_event_list(std::ostream&) const;
       void print_file_index(std::ostream&) const;
       void print_branchIDLists(std::ostream& os) const;
-      TFile* tfile() const { return file_.get(); }
+      TFile*
+      tfile() const
+      {
+        return file_.get();
+      }
 
     private:
       RunAuxiliary getAuxiliary(TTree* tree, EntryNumber const entry) const;
@@ -49,8 +52,8 @@ namespace art {
       FileFormatVersion fileFormatVersion_;
     };
 
-  }
-}
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_IO_Root_detail_InfoDumperInputFile_h */
 

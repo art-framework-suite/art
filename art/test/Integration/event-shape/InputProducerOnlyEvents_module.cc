@@ -12,25 +12,26 @@
 
 #include "art/test/TestObjects/ToyProducts.h"
 
-namespace fhicl { class ParameterSet; }
+namespace fhicl {
+  class ParameterSet;
+}
 
 namespace arttest {
 
   class InputProducer : public art::EDProducer {
   public:
-
     explicit InputProducer(fhicl::ParameterSet const&)
     {
       produces<StringProduct>();
     }
 
-    virtual void produce(art::Event& e) override
+    virtual void
+    produce(art::Event& e) override
     {
-      e.put( std::make_unique<StringProduct>("event") );
+      e.put(std::make_unique<StringProduct>("event"));
     }
-
   };
 
-}
+} // namespace arttest
 
 DEFINE_ART_MODULE(arttest::InputProducer)

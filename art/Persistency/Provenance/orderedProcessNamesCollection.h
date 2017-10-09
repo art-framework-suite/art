@@ -9,10 +9,10 @@
 namespace art {
   namespace detail {
 
-    std::vector<std::vector<std::string>> orderedProcessNamesCollection(ProcessHistoryMap const& pHistMap);
-
+    std::vector<std::vector<std::string>> orderedProcessNamesCollection(
+      ProcessHistoryMap const& pHistMap);
   }
-}
+} // namespace art
 
 #endif /* art_Persistency_Provenance_orderedProcessNamesCollection_h */
 

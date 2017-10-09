@@ -23,17 +23,14 @@ class art::FileTransfer {
 public:
   virtual ~FileTransfer() noexcept = default;
 
-  int translateToLocalFilename(std::string const& uri,
-                               std::string& fileFQname);
+  int translateToLocalFilename(std::string const& uri, std::string& fileFQname);
 
 private:
-
   virtual int doTranslateToLocalFilename(std::string const& uri,
                                          std::string& fileFQname) = 0;
 };
 
-inline
-int
+inline int
 art::FileTransfer::translateToLocalFilename(std::string const& uri,
                                             std::string& fileFQname)
 {
@@ -41,7 +38,7 @@ art::FileTransfer::translateToLocalFilename(std::string const& uri,
   return doTranslateToLocalFilename(uri, fileFQname);
 }
 
-DECLARE_ART_SERVICE_INTERFACE(art::FileTransfer,LEGACY)
+DECLARE_ART_SERVICE_INTERFACE(art::FileTransfer, LEGACY)
 #endif /* art_Framework_Services_FileServiceInterfaces_FileTransfer_h */
 
 // Local Variables:

@@ -8,33 +8,27 @@
 #include <memory>
 
 namespace art {
-namespace detail {
+  namespace detail {
 
-class ServiceWrapperBase {
+    class ServiceWrapperBase {
 
-public:
+    public:
+      virtual ~ServiceWrapperBase() = default;
 
-  virtual
-  ~ServiceWrapperBase() = default;
+      explicit ServiceWrapperBase() = default;
 
-  explicit
-  ServiceWrapperBase() = default;
+      ServiceWrapperBase(ServiceWrapperBase const&) = delete;
 
-  ServiceWrapperBase(ServiceWrapperBase const&) = delete;
+      ServiceWrapperBase(ServiceWrapperBase&&) = delete;
 
-  ServiceWrapperBase(ServiceWrapperBase&&) = delete;
+      ServiceWrapperBase& operator=(ServiceWrapperBase const&) = delete;
 
-  ServiceWrapperBase&
-  operator=(ServiceWrapperBase const&) = delete;
+      ServiceWrapperBase& operator=(ServiceWrapperBase&&) = delete;
+    };
 
-  ServiceWrapperBase&
-  operator=(ServiceWrapperBase&&) = delete;
+    using WrapperBase_ptr = std::shared_ptr<ServiceWrapperBase>;
 
-};
-
-using WrapperBase_ptr = std::shared_ptr<ServiceWrapperBase>;
-
-} // namespace detail
+  } // namespace detail
 } // namespace art
 
 #endif /* art_Framework_Services_Registry_detail_ServiceWrapperBase_h */

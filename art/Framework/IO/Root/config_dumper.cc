@@ -1,10 +1,10 @@
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/RootDB/SQLite3Wrapper.h"
 #include "art/Framework/IO/Root/RootDB/tkeyvfs.h"
-#include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
-#include "canvas/Persistency/Provenance/ParameterSetMap.h"
 #include "canvas/Persistency/Provenance/ParameterSetBlob.h"
+#include "canvas/Persistency/Provenance/ParameterSetMap.h"
+#include "canvas/Persistency/Provenance/rootNames.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -31,6 +31,9 @@ extern "C" {
 
 namespace bpo = boost::program_options;
 
+using art::ParameterSetBlob;
+using art::ParameterSetMap;
+using fhicl::ParameterSet;
 using std::back_inserter;
 using std::cerr;
 using std::cout;
@@ -38,20 +41,15 @@ using std::endl;
 using std::ostream;
 using std::string;
 using std::vector;
-using fhicl::ParameterSet;
-using art::ParameterSetBlob;
-using art::ParameterSetMap;
 
 typedef vector<string> stringvec;
 
-enum class PsetType { MODULE,
-    SERVICE,
-    PROCESS };
+enum class PsetType { MODULE, SERVICE, PROCESS };
 
 size_t
-db_size(sqlite3 * db)
+db_size(sqlite3* db)
 {
-  sqlite3_stmt * stmt;
+  sqlite3_stmt* stmt;
   sqlite3_prepare_v2(db, "PRAGMA page_size;", -1, &stmt, nullptr);
   sqlite3_step(stmt);
   size_t page_size = sqlite3_column_int64(stmt, 0);
@@ -63,13 +61,12 @@ db_size(sqlite3 * db)
   return page_size * page_count;
 }
 
-
 std::string
-db_size_hr(sqlite3 * db)
+db_size_hr(sqlite3* db)
 {
   std::string result;
   double size = db_size(db);
-  std::vector<std::string> units = { "b", "KiB", "MiB", "GiB", "TiB" };
+  std::vector<std::string> units = {"b", "KiB", "MiB", "GiB", "TiB"};
   auto unit = units.cbegin(), end = units.cend();
   while (size > 1024.0 && unit != end) {
     size /= 1024.0;
@@ -82,34 +79,31 @@ db_size_hr(sqlite3 * db)
 }
 
 std::string
-want_pset(ParameterSet const& ps,
-          stringvec const& filters,
-          PsetType mode) {
+want_pset(ParameterSet const& ps, stringvec const& filters, PsetType mode)
+{
   string label;
   switch (mode) {
-  case PsetType::MODULE:
-    ps.get_if_present<string>("module_label", label);
-    break;
-  case PsetType::SERVICE:
-    ps.get_if_present<string>("service_provider", label) ||
-      ps.get_if_present<string>("service_type", label);
-    break;
-  case PsetType::PROCESS:
-  {
-    fhicl::ParameterSet dummy;
-    if (ps.get_if_present("source", dummy)) {
-      ps.get_if_present<string>("process_name", label);
-    }
+    case PsetType::MODULE:
+      ps.get_if_present<string>("module_label", label);
+      break;
+    case PsetType::SERVICE:
+      ps.get_if_present<string>("service_provider", label) ||
+        ps.get_if_present<string>("service_type", label);
+      break;
+    case PsetType::PROCESS: {
+      fhicl::ParameterSet dummy;
+      if (ps.get_if_present("source", dummy)) {
+        ps.get_if_present<string>("process_name", label);
+      }
+    } break;
+    default:
+      throw std::string("INTERNAL ERROR: unknown mode ")
+        .append(std::to_string(int(mode)))
+        .append(".");
   }
-  break;
-  default:
-    throw std::string("INTERNAL ERROR: unknown mode ").
-      append(std::to_string(int(mode))).
-      append(".");
-  }
-  return (filters.empty() ||
-          label.empty() ||
-          cet::search_all(filters, label)) ? label : std::string();
+  return (filters.empty() || label.empty() || cet::search_all(filters, label)) ?
+           label :
+           std::string();
 }
 
 ParameterSet
@@ -117,49 +111,49 @@ strip_pset(ParameterSet const& ps, PsetType mode)
 {
   ParameterSet result(ps);
   switch (mode) {
-  case PsetType::MODULE:
-    result.erase("module_label");
-    break;
-  case PsetType::SERVICE:
-    result.erase("service_type");
-    result.erase("service_provider");
-    break;
-  case PsetType::PROCESS:
-    result.erase("process_name");
-    break;
-  default:
-    throw std::string("INTERNAL ERROR: unknown mode ").
-      append(std::to_string(int(mode))).
-      append(".");
+    case PsetType::MODULE:
+      result.erase("module_label");
+      break;
+    case PsetType::SERVICE:
+      result.erase("service_type");
+      result.erase("service_provider");
+      break;
+    case PsetType::PROCESS:
+      result.erase("process_name");
+      break;
+    default:
+      throw std::string("INTERNAL ERROR: unknown mode ")
+        .append(std::to_string(int(mode)))
+        .append(".");
   }
   return result;
 }
 
 // Read all the ParameterSets stored in 'file'. Write any error messages
 // to errors.  Return false on failure, and true on success.
-bool read_all_parameter_sets(TFile& file,
-                             ostream& errors)
+bool
+read_all_parameter_sets(TFile& file, ostream& errors)
 {
   ParameterSetMap psm;
-  ParameterSetMap * psm_address = &psm;
+  ParameterSetMap* psm_address = &psm;
   // Find the TTree that holds this data.
-  TTree * metadata_tree = static_cast<TTree*>(file.Get(art::rootNames::metaDataTreeName().c_str()));
+  TTree* metadata_tree =
+    static_cast<TTree*>(file.Get(art::rootNames::metaDataTreeName().c_str()));
   if (!metadata_tree) {
     errors << "Unable to find the metadata tree in file '" << file.GetName()
            << "';\nthis may not be an ART event data file.\n";
     return false;
   }
   if (metadata_tree->GetBranch(
-      art::rootNames::metaBranchRootName<ParameterSetMap>())) {
+        art::rootNames::metaBranchRootName<ParameterSetMap>())) {
     metadata_tree->SetBranchAddress(
       art::rootNames::metaBranchRootName<ParameterSetMap>(), &psm_address);
   }
   art::FileFormatVersion ffv;
-  art::FileFormatVersion * ffv_address = &ffv;
+  art::FileFormatVersion* ffv_address = &ffv;
   metadata_tree->SetBranchAddress(
-    art::rootNames::metaBranchRootName<art::FileFormatVersion>(),
-    &ffv_address);
-  long bytes_read =  metadata_tree->GetEntry(0);
+    art::rootNames::metaBranchRootName<art::FileFormatVersion>(), &ffv_address);
+  long bytes_read = metadata_tree->GetEntry(0);
   if (bytes_read < 0) {
     errors << "Unable to read the metadata tree in file '" << file.GetName()
            << ";\nthis file appears to be corrupted.\n";
@@ -168,14 +162,11 @@ bool read_all_parameter_sets(TFile& file,
   // Check version
   std::string const expected_era = art::getFileFormatEra();
   if (ffv.era_ != expected_era) {
-    errors << "Can only read files written during the \""
-           << expected_era << "\" era: "
+    errors << "Can only read files written during the \"" << expected_era
+           << "\" era: "
            << "Era of "
-           << "\"" << file.GetName()
-           << "\" was "
-           << (ffv.era_.empty() ?
-               "not set" :
-               ("set to \"" + ffv.era_ + "\" "))
+           << "\"" << file.GetName() << "\" was "
+           << (ffv.era_.empty() ? "not set" : ("set to \"" + ffv.era_ + "\" "))
            << ".\n";
     return false;
   }
@@ -189,8 +180,7 @@ bool read_all_parameter_sets(TFile& file,
     // Open the DB
     art::SQLite3Wrapper sqliteDB(&file, "RootFileDB");
     std::cout << "# Read SQLiteDB from file, total size: "
-              << db_size_hr(sqliteDB)
-              << ".\n"
+              << db_size_hr(sqliteDB) << ".\n"
               << std::endl;
     fhicl::ParameterSetRegistry::importFrom(sqliteDB);
     fhicl::ParameterSetRegistry::stageIn();
@@ -211,11 +201,12 @@ bool read_all_parameter_sets(TFile& file,
 // Caution: We pass 'file' by non-const reference because the TFile interface
 // does not declare the functions we use to be const, even though they do not
 // modify the underlying file.
-int print_pset_from_file(TFile& file,
-                         stringvec const& filters,
-                         PsetType const mode,
-                         ostream& output,
-                         ostream& errors)
+int
+print_pset_from_file(TFile& file,
+                     stringvec const& filters,
+                     PsetType const mode,
+                     ostream& output,
+                     ostream& errors)
 {
   if (!read_all_parameter_sets(file, errors)) {
     errors << "Unable to to read parameter sets.\n";
@@ -232,8 +223,9 @@ int print_pset_from_file(TFile& file,
   std::map<std::string, cet::exempt_ptr<fhicl::ParameterSet const>> sorted_pses;
   for (auto const& pr : collection) {
     auto const& pset = pr.second;
-    std::string const label {want_pset(pset, filters, mode)};
-    if (label.empty()) continue;
+    std::string const label{want_pset(pset, filters, mode)};
+    if (label.empty())
+      continue;
 
     sorted_pses.emplace(label, &pset);
   }
@@ -257,54 +249,50 @@ int print_pset_from_file(TFile& file,
 //
 // The return value is the number of files in which errors were
 // encountered, and is thus 0 to indicate success.
-int print_psets_from_files(stringvec const& file_names,
-                           stringvec const& filters,
-                           PsetType const mode,
-                           ostream& output,
-                           ostream& errors)
+int
+print_psets_from_files(stringvec const& file_names,
+                       stringvec const& filters,
+                       PsetType const mode,
+                       ostream& output,
+                       ostream& errors)
 {
-  int rc {0};
+  int rc{0};
   for (auto const& file_name : file_names) {
-    std::unique_ptr<TFile> current_file {TFile::Open(file_name.c_str(), "READ")};
+    std::unique_ptr<TFile> current_file{TFile::Open(file_name.c_str(), "READ")};
     if (!current_file || current_file->IsZombie()) {
       ++rc;
-      errors << "Unable to open file '"
-             << file_name
-             << "' for reading."
+      errors << "Unable to open file '" << file_name << "' for reading."
              << "\nSkipping to next file.\n";
-    }
-    else {
+    } else {
       std::cout << "=============================================\n";
       std::cout << "Processing file: " << file_name << std::endl;
-      rc += print_pset_from_file(*current_file,
-                                 filters,
-                                 mode,
-                                 output,
-                                 errors);
+      rc += print_pset_from_file(*current_file, filters, mode, output, errors);
     }
   }
   return rc;
 }
 
-int main(int argc, char * argv[])
+int
+main(int argc, char* argv[])
 {
   // ------------------
   // use the boost command line option processing library to help out
   // with command line options
   std::ostringstream descstr;
-  descstr << argv[0]
-          << " <PsetType> <options> [<source-file>]+";
+  descstr << argv[0] << " <PsetType> <options> [<source-file>]+";
   bpo::options_description desc(descstr.str());
-  desc.add_options()
-    ("filter,f",  bpo::value<stringvec>()->composing(),
-     "Only entities whose identifier (label (M), service type (S) "
-     "or process name (P)) match (multiple OK).")
-    ("help,h", "this help message.")
-    ("modules,M", "PsetType: print module configurations (default).")
-    ("source,s", bpo::value<stringvec>()->composing(),
-     "source data file (multiple OK).")
-    ("services,S", "PsetType: print service configurations.")
-    ("process,P", "PsetType: print process configurations.");
+  desc.add_options()(
+    "filter,f",
+    bpo::value<stringvec>()->composing(),
+    "Only entities whose identifier (label (M), service type (S) "
+    "or process name (P)) match (multiple OK).")("help,h",
+                                                 "this help message.")(
+    "modules,M", "PsetType: print module configurations (default).")(
+    "source,s",
+    bpo::value<stringvec>()->composing(),
+    "source data file (multiple OK).")(
+    "services,S", "PsetType: print service configurations.")(
+    "process,P", "PsetType: print process configurations.");
   bpo::options_description all_opts("All Options.");
   all_opts.add(desc);
   // Each non-option argument is interpreted as the name of a file to be
@@ -314,13 +302,16 @@ int main(int argc, char * argv[])
   // The variables_map contains the actual program options.
   bpo::variables_map vm;
   try {
-    bpo::store(bpo::command_line_parser(argc, argv).options(all_opts).positional(pd).run(),
+    bpo::store(bpo::command_line_parser(argc, argv)
+                 .options(all_opts)
+                 .positional(pd)
+                 .run(),
                vm);
     bpo::notify(vm);
   }
   catch (bpo::error const& e) {
-    std::cerr << "Exception from command line processing in "
-              << argv[0] << ": " << e.what() << "\n";
+    std::cerr << "Exception from command line processing in " << argv[0] << ": "
+              << e.what() << "\n";
     return 2;
   }
   if (vm.count("help")) {
@@ -341,8 +332,7 @@ int main(int argc, char * argv[])
   // Obtain any filtering names to limit what we show.
   stringvec filters;
   if (vm.count("filter")) {
-    cet::copy_all(vm["filter"].as<stringvec>(),
-                  std::back_inserter(filters));
+    cet::copy_all(vm["filter"].as<stringvec>(), std::back_inserter(filters));
   }
 
   // Get the names of the files we will process.
@@ -355,16 +345,11 @@ int main(int argc, char * argv[])
     return 3;
   }
   file_names.reserve(file_count);
-  cet::copy_all(vm["source"].as<stringvec>(),
-                std::back_inserter(file_names));
+  cet::copy_all(vm["source"].as<stringvec>(), std::back_inserter(file_names));
 
   // Register the tkey VFS with sqlite:
   tkeyvfs_init();
 
   // Do the work.
-  return print_psets_from_files(file_names,
-                                filters,
-                                mode,
-                                cout,
-                                cerr);
+  return print_psets_from_files(file_names, filters, mode, cout, cerr);
 }

@@ -15,8 +15,12 @@ namespace art {
 
   namespace detail {
 
-    void writeSummary(PathManager& pm, bool wantSummary, cet::cpu_timer const& timer);
-    void triggerReport(PathsInfo const& endPathsInfo, std::vector<PathsInfo> const& triggerPathsInfo, bool wantSummary);
+    void writeSummary(PathManager& pm,
+                      bool wantSummary,
+                      cet::cpu_timer const& timer);
+    void triggerReport(PathsInfo const& endPathsInfo,
+                       std::vector<PathsInfo> const& triggerPathsInfo,
+                       bool wantSummary);
     void timeReport(cet::cpu_timer const& timer);
 
   } // namespace detail

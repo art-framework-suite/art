@@ -2,12 +2,10 @@
 #define art_Framework_Core_InputSource_h
 // vim: set sw=2 expandtab :
 
-
 //
 // InputSource is the abstract interface implemented by all concrete
 // sources.
 //
-
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Principal/fwd.h"
@@ -19,156 +17,123 @@
 
 namespace art {
 
-namespace input {
+  namespace input {
 
-enum ItemType {
-    IsInvalid // 0
-  , IsStop // 1
-  , IsFile // 2
-  , IsRun // 3
-  , IsSubRun // 4
-  , IsEvent // 5
-};
+    enum ItemType {
+      IsInvalid // 0
+      ,
+      IsStop // 1
+      ,
+      IsFile // 2
+      ,
+      IsRun // 3
+      ,
+      IsSubRun // 4
+      ,
+      IsEvent // 5
+    };
 
-inline
-std::ostream&
-operator<<(std::ostream& os, ItemType const it)
-{
-  switch (it) {
-    case IsInvalid:
-      os << "Invalid";
-      break;
-    case IsStop:
-      os << "Stop";
-      break;
-    case IsFile:
-      os << "InputFile";
-      break;
-    case IsRun:
-      os << "Run";
-      break;
-    case IsSubRun:
-      os << "SubRun";
-      break;
-    case IsEvent:
-      os << "Event";
-      break;
-  }
-  return os;
-}
+    inline std::ostream&
+    operator<<(std::ostream& os, ItemType const it)
+    {
+      switch (it) {
+        case IsInvalid:
+          os << "Invalid";
+          break;
+        case IsStop:
+          os << "Stop";
+          break;
+        case IsFile:
+          os << "InputFile";
+          break;
+        case IsRun:
+          os << "Run";
+          break;
+        case IsSubRun:
+          os << "SubRun";
+          break;
+        case IsEvent:
+          os << "Event";
+          break;
+      }
+      return os;
+    }
 
-} // namespace input
+  } // namespace input
 
-class InputSource {
+  class InputSource {
 
-public: // TYPES
-
-  enum
-  ProcessingMode {
+  public: // TYPES
+    enum ProcessingMode {
       Runs // 0
-    , RunsAndSubRuns // 1
-    , RunsSubRunsAndEvents // 2
+      ,
+      RunsAndSubRuns // 1
+      ,
+      RunsSubRunsAndEvents // 2
+    };
+
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    virtual ~InputSource() noexcept;
+
+    explicit InputSource(ModuleDescription const&);
+
+    InputSource(InputSource const&) = delete;
+
+    InputSource(InputSource&&) = delete;
+
+    InputSource& operator=(InputSource const&) = delete;
+
+    InputSource& operator=(InputSource&&) = delete;
+
+  public: // MEMBER FUNCTIONS -- Serial Access Interface
+    virtual input::ItemType nextItemType() = 0;
+
+    virtual std::unique_ptr<FileBlock> readFile() = 0;
+
+    virtual void closeFile() = 0;
+
+    virtual std::unique_ptr<RunPrincipal> readRun() = 0;
+
+    virtual std::unique_ptr<SubRunPrincipal> readSubRun(
+      cet::exempt_ptr<RunPrincipal const> rp) = 0;
+
+    virtual std::unique_ptr<EventPrincipal> readEvent(
+      cet::exempt_ptr<SubRunPrincipal const> srp) = 0;
+
+    virtual std::unique_ptr<RangeSetHandler> runRangeSetHandler() = 0;
+
+    virtual std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() = 0;
+
+  public: // MEMBER FUNCTIONS -- Job Interface
+    virtual void doBeginJob();
+
+    virtual void doEndJob();
+
+  public: // MEMBER FUNCTIONS -- Random Access Interface
+    // Return the Event specified by the given EventID, or the next
+    // one in the input sequence after the given EventID if one with
+    // the given id cannot be found. Derived classes that cannot
+    // perform random access should not implement this function; the
+    // default implementation will throw an exception.
+    virtual std::unique_ptr<EventPrincipal> readEvent(EventID const& id);
+
+    // Skip forward (or backward, if n<0) n events. Derived classes
+    // that cannot perform random access should not implement this
+    // function; the default implementation will throw an exception.
+    virtual void skipEvents(int n);
+
+    // Rewind to the beginning of input. Derived classes that cannot
+    // perform this function will throw an exception.
+    virtual void rewind();
+
+  public: // MEMBER FUNCTIONS
+    ModuleDescription const& moduleDescription() const;
+
+    ProcessConfiguration const& processConfiguration() const;
+
+  private: // MEMBER DATA
+    ModuleDescription moduleDescription_;
   };
-
-public: // MEMBER FUNCTIONS -- Special Member Functions
-
-  virtual
-  ~InputSource() noexcept;
-
-  explicit
-  InputSource(ModuleDescription const&);
-
-  InputSource(InputSource const&) = delete;
-
-  InputSource(InputSource&&) = delete;
-
-  InputSource&
-  operator=(InputSource const&) = delete;
-
-  InputSource&
-  operator=(InputSource&&) = delete;
-
-public: // MEMBER FUNCTIONS -- Serial Access Interface
-
-  virtual
-  input::ItemType
-  nextItemType() = 0;
-
-  virtual
-  std::unique_ptr<FileBlock>
-  readFile() = 0;
-
-  virtual
-  void
-  closeFile() = 0;
-
-  virtual
-  std::unique_ptr<RunPrincipal>
-  readRun() = 0;
-
-  virtual
-  std::unique_ptr<SubRunPrincipal>
-  readSubRun(cet::exempt_ptr<RunPrincipal const> rp) = 0;
-
-  virtual
-  std::unique_ptr<EventPrincipal>
-  readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) = 0;
-
-  virtual
-  std::unique_ptr<RangeSetHandler>
-  runRangeSetHandler() = 0;
-
-  virtual
-  std::unique_ptr<RangeSetHandler>
-  subRunRangeSetHandler() = 0;
-
-public: // MEMBER FUNCTIONS -- Job Interface
-
-  virtual
-  void
-  doBeginJob();
-
-  virtual
-  void
-  doEndJob();
-
-public: // MEMBER FUNCTIONS -- Random Access Interface
-
-  // Return the Event specified by the given EventID, or the next
-  // one in the input sequence after the given EventID if one with
-  // the given id cannot be found. Derived classes that cannot
-  // perform random access should not implement this function; the
-  // default implementation will throw an exception.
-  virtual
-  std::unique_ptr<EventPrincipal>
-  readEvent(EventID const& id);
-
-  // Skip forward (or backward, if n<0) n events. Derived classes
-  // that cannot perform random access should not implement this
-  // function; the default implementation will throw an exception.
-  virtual
-  void
-  skipEvents(int n);
-
-  // Rewind to the beginning of input. Derived classes that cannot
-  // perform this function will throw an exception.
-  virtual
-  void
-  rewind();
-
-public: // MEMBER FUNCTIONS
-
-  ModuleDescription const&
-  moduleDescription() const;
-
-  ProcessConfiguration const&
-  processConfiguration() const;
-
-private: // MEMBER DATA
-
-  ModuleDescription moduleDescription_;
-
-};
 
 } // namespace art
 

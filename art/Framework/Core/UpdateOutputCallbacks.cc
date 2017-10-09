@@ -10,7 +10,8 @@ void
 art::UpdateOutputCallbacks::invoke(ProductTables const& tables)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
-  cet::for_all(callbacks_, [&tables](auto const& callback){ callback(tables); });
+  cet::for_all(callbacks_,
+               [&tables](auto const& callback) { callback(tables); });
 }
 
 void

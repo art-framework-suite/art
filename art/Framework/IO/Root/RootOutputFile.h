@@ -35,40 +35,39 @@ class TTree;
 
 namespace art {
 
-class ResultsPrincipal;
-class RootOutput;
-class History;
-class FileBlock;
-class EventAuxiliary;
-class SubRunAuxiliary;
-class RunAuxiliary;
-class ResultsAuxiliary;
-class RootFileBlock;
+  class ResultsPrincipal;
+  class RootOutput;
+  class History;
+  class FileBlock;
+  class EventAuxiliary;
+  class SubRunAuxiliary;
+  class RunAuxiliary;
+  class ResultsAuxiliary;
+  class RootFileBlock;
 
-class RootOutputFile {
+  class RootOutputFile {
 
-public: // TYPES
-
-  enum class ClosureRequestMode {
+  public: // TYPES
+    enum class ClosureRequestMode {
       MaxEvents // 0
-    , MaxSize // 1
-    , Unset // 2
-  };
+      ,
+      MaxSize // 1
+      ,
+      Unset // 2
+    };
 
-  using  RootOutputTreePtrArray = std::array<std::unique_ptr<RootOutputTree>, NumBranchTypes>;
+    using RootOutputTreePtrArray =
+      std::array<std::unique_ptr<RootOutputTree>, NumBranchTypes>;
 
-  struct OutputItem {
+    struct OutputItem {
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
-
       ~OutputItem() = default;
 
-      explicit
-      OutputItem(BranchDescription const& bd) : branchDescription_{bd}
+      explicit OutputItem(BranchDescription const& bd) : branchDescription_{bd}
       {}
 
     public: // MEMBER FUNCTIONS
-
       std::string const&
       branchName() const
       {
@@ -82,147 +81,154 @@ public: // TYPES
       }
 
     public: // MEMBER DATA
-
       BranchDescription const branchDescription_;
       mutable void const* product_{nullptr};
+    };
 
+    // using OutputItemList = std::set<OutputItem>;
+
+    // using OutputItemListArray = std::array<std::set<OutputItem>,
+    // NumBranchTypes>;
+
+  public: // MEMBER FUNCTIONS -- Static API
+    static bool shouldFastClone(bool const fastCloningSet,
+                                bool const fastCloning,
+                                bool const wantAllEvents,
+                                ClosingCriteria const& cc);
+
+  public: // MEMBER FUNCTIONS
+    explicit RootOutputFile(OutputModule*,
+                            std::string const& fileName,
+                            ClosingCriteria const& fileSwitchCriteria,
+                            int const compressionLevel,
+                            int64_t const saveMemoryObjectThreshold,
+                            int64_t const treeMaxVirtualSize,
+                            int const splitLevel,
+                            int const basketSize,
+                            DropMetaData dropMetaData,
+                            bool dropMetaDataForDroppedData,
+                            bool fastCloningRequested);
+
+    void writeTTrees();
+
+    void writeOne(EventPrincipal const&);
+    void writeSubRun(SubRunPrincipal const&);
+    void writeRun(RunPrincipal const&);
+    void writeFileFormatVersion();
+    void writeFileIndex();
+    void writeEventHistory();
+    void writeProcessConfigurationRegistry();
+    void writeProcessHistoryRegistry();
+    void writeParameterSetRegistry();
+    void writeProductDescriptionRegistry();
+    void writeParentageRegistry();
+    void writeProductDependencies();
+    void writeFileCatalogMetadata(FileStatsCollector const& stats,
+                                  FileCatalogMetadata::collection_type const&,
+                                  FileCatalogMetadata::collection_type const&);
+    void writeResults(ResultsPrincipal& resp);
+    void setRunAuxiliaryRangeSetID(RangeSet const&);
+    void setSubRunAuxiliaryRangeSetID(RangeSet const&);
+    void beginInputFile(RootFileBlock const*, bool fastClone);
+    void incrementInputFileNumber();
+    void respondToCloseInputFile(FileBlock const&);
+    bool requestsToCloseFile();
+    void
+    setFileStatus(OutputFileStatus const ofs)
+    {
+      status_ = ofs;
+    }
+
+    void selectProducts();
+
+    std::string const&
+    currentFileName() const
+    {
+      return file_;
+    }
+
+    bool maxEventsPerFileReached(
+      FileIndex::EntryNumber_t const maxEventsPerFile) const;
+    bool maxSizeReached(unsigned const maxFileSize) const;
+
+  private: // MEMBER FUNCTIONS
+    void createDatabaseTables();
+
+    template <BranchType>
+    void fillBranches(Principal const&,
+                      std::vector<ProductProvenance>*); // Defined in source.
+
+    template <BranchType BT>
+    std::enable_if_t<!detail::RangeSetsSupported<BT>::value, EDProduct const*>
+    getProduct(OutputHandle const&,
+               RangeSet const& productRS,
+               std::string const& wrappedName); // Defined in source.
+
+    template <BranchType BT>
+    std::enable_if_t<detail::RangeSetsSupported<BT>::value, EDProduct const*>
+    getProduct(OutputHandle const&,
+               RangeSet const& productRS,
+               std::string const& wrappedName); // Defined in source.
+
+  private: // MEMBER DATA
+    OutputModule const* om_{nullptr};
+    std::string file_;
+    ClosingCriteria fileSwitchCriteria_;
+    OutputFileStatus status_{OutputFileStatus::Closed};
+    int const compressionLevel_;
+    int64_t const saveMemoryObjectThreshold_;
+    int64_t const treeMaxVirtualSize_;
+    int const splitLevel_;
+    int const basketSize_;
+    DropMetaData dropMetaData_;
+    bool dropMetaDataForDroppedData_;
+    bool fastCloningEnabledAtConstruction_;
+    bool wasFastCloned_{false};
+    std::unique_ptr<TFile> filePtr_; // File closed when d'tor called
+    FileIndex fileIndex_{};
+    FileProperties fp_{};
+    TTree* metaDataTree_{nullptr};
+    TTree* fileIndexTree_{nullptr};
+    TTree* parentageTree_{nullptr};
+    TTree* eventHistoryTree_{nullptr};
+    EventAuxiliary const* pEventAux_{nullptr};
+    SubRunAuxiliary const* pSubRunAux_{nullptr};
+    RunAuxiliary const* pRunAux_{nullptr};
+    ResultsAuxiliary const* pResultsAux_{nullptr};
+    ProductProvenances eventProductProvenanceVector_{};
+    ProductProvenances subRunProductProvenanceVector_{};
+    ProductProvenances runProductProvenanceVector_{};
+    ProductProvenances resultsProductProvenanceVector_{};
+    ProductProvenances* pEventProductProvenanceVector_{
+      &eventProductProvenanceVector_};
+    ProductProvenances* pSubRunProductProvenanceVector_{
+      &subRunProductProvenanceVector_};
+    ProductProvenances* pRunProductProvenanceVector_{
+      &runProductProvenanceVector_};
+    ProductProvenances* pResultsProductProvenanceVector_{
+      &resultsProductProvenanceVector_};
+    History const* pHistory_{nullptr};
+    RootOutputTreePtrArray treePointers_;
+    bool dataTypeReported_{false};
+
+    // The descriptions are owned by the OutputModule base class, so we
+    // are guaranteed that the pointers will remain valid for the
+    // lifetime of the RootOutputFile.
+    std::array<std::map<ProductID, cet::exempt_ptr<BranchDescription const>>,
+               NumBranchTypes>
+      descriptionsToPersist_{{}};
+
+    // Connection closed when d'tor called.  DB written to file when
+    // sqlite3_close is called.
+    cet::sqlite::Connection rootFileDB_;
+    std::array<std::set<OutputItem>, NumBranchTypes> selectedOutputItemList_{
+      {}};
+    detail::DummyProductCache dummyProductCache_{};
+    unsigned subRunRSID_{-1u};
+    unsigned runRSID_{-1u};
+    std::chrono::steady_clock::time_point beginTime_{
+      std::chrono::steady_clock::now()};
   };
-
-  //using OutputItemList = std::set<OutputItem>;
-
-  //using OutputItemListArray = std::array<std::set<OutputItem>, NumBranchTypes>;
-
-public: // MEMBER FUNCTIONS -- Static API
-
-  static
-  bool
-  shouldFastClone(bool const fastCloningSet, bool const fastCloning, bool const wantAllEvents, ClosingCriteria const& cc);
-
-public: // MEMBER FUNCTIONS
-
-  explicit RootOutputFile(OutputModule*,
-                          std::string const& fileName,
-                          ClosingCriteria const& fileSwitchCriteria,
-                          int const compressionLevel,
-                          int64_t const saveMemoryObjectThreshold,
-                          int64_t const treeMaxVirtualSize,
-                          int const splitLevel,
-                          int const basketSize,
-                          DropMetaData dropMetaData,
-                          bool dropMetaDataForDroppedData,
-                          bool fastCloningRequested);
-
-  void writeTTrees();
-
-  void writeOne(EventPrincipal const&);
-  void writeSubRun(SubRunPrincipal const&);
-  void writeRun(RunPrincipal const&);
-  void writeFileFormatVersion();
-  void writeFileIndex();
-  void writeEventHistory();
-  void writeProcessConfigurationRegistry();
-  void writeProcessHistoryRegistry();
-  void writeParameterSetRegistry();
-  void writeProductDescriptionRegistry();
-  void writeParentageRegistry();
-  void writeProductDependencies();
-  void writeFileCatalogMetadata(FileStatsCollector const& stats,
-                                FileCatalogMetadata::collection_type const&,
-                                FileCatalogMetadata::collection_type const&);
-  void writeResults(ResultsPrincipal& resp);
-  void setRunAuxiliaryRangeSetID(RangeSet const&);
-  void setSubRunAuxiliaryRangeSetID(RangeSet const&);
-  void beginInputFile(RootFileBlock const*, bool fastClone);
-  void incrementInputFileNumber();
-  void respondToCloseInputFile(FileBlock const&);
-  bool requestsToCloseFile();
-  void setFileStatus(OutputFileStatus const ofs)
-  {
-    status_ = ofs;
-  }
-
-  void selectProducts();
-
-  std::string const& currentFileName() const
-  {
-    return file_;
-  }
-
-  bool maxEventsPerFileReached(FileIndex::EntryNumber_t const maxEventsPerFile) const;
-  bool maxSizeReached(unsigned const maxFileSize) const;
-
-private: // MEMBER FUNCTIONS
-
-  void createDatabaseTables();
-
-  template <BranchType>
-  void fillBranches(Principal const&,
-                    std::vector<ProductProvenance>*); // Defined in source.
-
-  template <BranchType BT>
-  std::enable_if_t < !detail::RangeSetsSupported<BT>::value, EDProduct const* >
-  getProduct(OutputHandle const&,
-             RangeSet const& productRS,
-             std::string const& wrappedName); // Defined in source.
-
-  template <BranchType BT>
-  std::enable_if_t<detail::RangeSetsSupported<BT>::value, EDProduct const*>
-  getProduct(OutputHandle const&,
-             RangeSet const& productRS,
-             std::string const& wrappedName); // Defined in source.
-
-private: // MEMBER DATA
-
-  OutputModule const* om_{nullptr};
-  std::string file_;
-  ClosingCriteria fileSwitchCriteria_;
-  OutputFileStatus status_{OutputFileStatus::Closed};
-  int const compressionLevel_;
-  int64_t const saveMemoryObjectThreshold_;
-  int64_t const treeMaxVirtualSize_;
-  int const splitLevel_;
-  int const basketSize_;
-  DropMetaData dropMetaData_;
-  bool dropMetaDataForDroppedData_;
-  bool fastCloningEnabledAtConstruction_;
-  bool wasFastCloned_{false};
-  std::unique_ptr<TFile> filePtr_; // File closed when d'tor called
-  FileIndex fileIndex_{};
-  FileProperties fp_{};
-  TTree* metaDataTree_{nullptr};
-  TTree* fileIndexTree_{nullptr};
-  TTree* parentageTree_{nullptr};
-  TTree* eventHistoryTree_{nullptr};
-  EventAuxiliary const* pEventAux_{nullptr};
-  SubRunAuxiliary const* pSubRunAux_{nullptr};
-  RunAuxiliary const* pRunAux_{nullptr};
-  ResultsAuxiliary const* pResultsAux_{nullptr};
-  ProductProvenances eventProductProvenanceVector_{};
-  ProductProvenances subRunProductProvenanceVector_{};
-  ProductProvenances runProductProvenanceVector_{};
-  ProductProvenances resultsProductProvenanceVector_{};
-  ProductProvenances* pEventProductProvenanceVector_{&eventProductProvenanceVector_};
-  ProductProvenances* pSubRunProductProvenanceVector_{&subRunProductProvenanceVector_};
-  ProductProvenances* pRunProductProvenanceVector_{&runProductProvenanceVector_};
-  ProductProvenances* pResultsProductProvenanceVector_{&resultsProductProvenanceVector_};
-  History const* pHistory_{nullptr};
-  RootOutputTreePtrArray treePointers_;
-  bool dataTypeReported_{false};
-
-  // The descriptions are owned by the OutputModule base class, so we
-  // are guaranteed that the pointers will remain valid for the
-  // lifetime of the RootOutputFile.
-  std::array<std::map<ProductID, cet::exempt_ptr<BranchDescription const>>, NumBranchTypes> descriptionsToPersist_{{}};
-
-  // Connection closed when d'tor called.  DB written to file when
-  // sqlite3_close is called.
-  cet::sqlite::Connection rootFileDB_;
-  std::array<std::set<OutputItem>, NumBranchTypes> selectedOutputItemList_{{}};
-  detail::DummyProductCache dummyProductCache_{};
-  unsigned subRunRSID_{-1u};
-  unsigned runRSID_{-1u};
-  std::chrono::steady_clock::time_point beginTime_{std::chrono::steady_clock::now()};
-};
 
 } // namespace art
 

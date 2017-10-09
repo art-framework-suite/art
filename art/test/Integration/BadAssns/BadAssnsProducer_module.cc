@@ -13,10 +13,10 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "art/test/TestObjects/ToyProducts.h"
 
 #include <memory>
 
@@ -24,35 +24,33 @@ namespace arttest {
   class BadAssnsProducer;
 }
 
-
 class arttest::BadAssnsProducer : public art::EDProducer {
 public:
-  explicit BadAssnsProducer(fhicl::ParameterSet const & p);
+  explicit BadAssnsProducer(fhicl::ParameterSet const& p);
   // The compiler-generated destructor is fine for non-base
   // classes without bare pointers or other resource use.
 
   // Plugins should not be copied or assigned.
-  BadAssnsProducer(BadAssnsProducer const &) = delete;
-  BadAssnsProducer(BadAssnsProducer &&) = delete;
-  BadAssnsProducer & operator = (BadAssnsProducer const &) = delete;
-  BadAssnsProducer & operator = (BadAssnsProducer &&) = delete;
+  BadAssnsProducer(BadAssnsProducer const&) = delete;
+  BadAssnsProducer(BadAssnsProducer&&) = delete;
+  BadAssnsProducer& operator=(BadAssnsProducer const&) = delete;
+  BadAssnsProducer& operator=(BadAssnsProducer&&) = delete;
 
   // Required functions.
-  void produce(art::Event & e) override;
+  void produce(art::Event& e) override;
 
 private:
-
 };
 
-
-arttest::BadAssnsProducer::BadAssnsProducer(fhicl::ParameterSet const &)
+arttest::BadAssnsProducer::BadAssnsProducer(fhicl::ParameterSet const&)
 {
   produces<art::Assns<StringProduct, DummyProduct>>();
 }
 
-void arttest::BadAssnsProducer::produce(art::Event & e)
+void
+arttest::BadAssnsProducer::produce(art::Event& e)
 {
-  e.put(std::make_unique<art::Assns<StringProduct, DummyProduct> >());
+  e.put(std::make_unique<art::Assns<StringProduct, DummyProduct>>());
 }
 
 DEFINE_ART_MODULE(arttest::BadAssnsProducer)

@@ -12,25 +12,28 @@ namespace art {
 
     template <art::suffix_type S>
     class MetadataCollectorFor;
-  }
-}
+  } // namespace detail
+} // namespace art
 
 namespace art {
   namespace detail {
 
     class MetadataCollector {
     public:
-
-      PluginMetadata collect(LibraryInfo const& li, std::string const& prefix) const { return doCollect(li, prefix); }
+      PluginMetadata
+      collect(LibraryInfo const& li, std::string const& prefix) const
+      {
+        return doCollect(li, prefix);
+      }
       virtual ~MetadataCollector() = default;
 
     private:
-      virtual PluginMetadata doCollect(LibraryInfo const& li, std::string const& prefix) const = 0;
-
+      virtual PluginMetadata doCollect(LibraryInfo const& li,
+                                       std::string const& prefix) const = 0;
     };
 
-  }
-}
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_Art_detail_MetadataCollector_h */
 

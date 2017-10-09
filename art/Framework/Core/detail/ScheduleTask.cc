@@ -3,8 +3,7 @@
 #include <cstddef>
 
 tbb::task*
-art::detail::ScheduleTask::
-execute()
+art::detail::ScheduleTask::execute()
 {
   return nullptr;
 }

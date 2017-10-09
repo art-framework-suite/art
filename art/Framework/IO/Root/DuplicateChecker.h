@@ -28,12 +28,10 @@ namespace art {
 
   class DuplicateChecker {
   public:
-
     struct Config {
-      fhicl::Atom<std::string> duplicateCheckMode {
+      fhicl::Atom<std::string> duplicateCheckMode{
         fhicl::Name("duplicateCheckMode"),
-        "checkEachRealDataFile"
-      };
+        "checkEachRealDataFile"};
     };
 
     DuplicateChecker(fhicl::TableFragment<Config> const& config);
@@ -48,8 +46,12 @@ namespace art {
                                    std::string const& fileName);
 
   private:
-
-    enum DuplicateCheckMode { noDuplicateCheck, checkEachFile, checkEachRealDataFile, checkAllFilesOpened };
+    enum DuplicateCheckMode {
+      noDuplicateCheck,
+      checkEachFile,
+      checkEachRealDataFile,
+      checkAllFilesOpened
+    };
 
     DuplicateCheckMode duplicateCheckMode_;
 
@@ -60,11 +62,11 @@ namespace art {
     std::set<EventID> eventIDs_;
 
     bool itIsKnownTheFileHasNoDuplicates_;
-  };  // DuplicateChecker
+  }; // DuplicateChecker
 
-}  // art
+} // namespace art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_IO_Root_DuplicateChecker_h */
 

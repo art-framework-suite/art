@@ -11,30 +11,24 @@ using namespace std;
 
 namespace arttest {
 
-class ClonedProdAnalyzer : public EDAnalyzer {
+  class ClonedProdAnalyzer : public EDAnalyzer {
 
-public:
+  public:
+    explicit ClonedProdAnalyzer(ParameterSet const&);
+    void analyze(Event const&) override;
+  };
 
-  explicit ClonedProdAnalyzer(ParameterSet const&);
-  void analyze(Event const&) override;
+  ClonedProdAnalyzer::ClonedProdAnalyzer(ParameterSet const& pset)
+    : EDAnalyzer(pset)
+  {}
 
-};
-
-ClonedProdAnalyzer::
-ClonedProdAnalyzer(ParameterSet const& pset)
-  : EDAnalyzer(pset)
-{
-}
-
-void
-ClonedProdAnalyzer::
-analyze(Event const& e)
-{
-  Handle<ClonedProd> h;
-  e.getByLabel("ClonedProdProducer", h);
-}
+  void
+  ClonedProdAnalyzer::analyze(Event const& e)
+  {
+    Handle<ClonedProd> h;
+    e.getByLabel("ClonedProdProducer", h);
+  }
 
 } // namespace arttest
 
 DEFINE_ART_MODULE(arttest::ClonedProdAnalyzer)
-

@@ -6,21 +6,21 @@
 #define fpControl_GETFPCW _FPU_GETCW
 #define fpControl_SETFPCW _FPU_SETCW
 #elif defined __APPLE__
-#define fpControl_GETFPCW(cw) __asm__ __volatile__ ("fnstcw %0" : "=m" (*&cw))
-#define fpControl_SETFPCW(cw) __asm__ __volatile__ ("fldcw %0" : : "m" (*&cw))
+#define fpControl_GETFPCW(cw) __asm__ __volatile__("fnstcw %0" : "=m"(*&cw))
+#define fpControl_SETFPCW(cw) __asm__ __volatile__("fldcw %0" : : "m"(*&cw))
 #else
 #error OS not valid for FP control
 #endif
 #ifdef fpControl_HAVE_MXCSR
-#define fpControl_GETMXCSR(cw) __asm__ __volatile__ ("stmxcsr %0" : "=m" (*&cw))
-#define fpControl_SETMXCSR(cw) __asm__ __volatile__ ("ldmxcsr %0" : : "m" (*&cw))
+#define fpControl_GETMXCSR(cw) __asm__ __volatile__("stmxcsr %0" : "=m"(*&cw))
+#define fpControl_SETMXCSR(cw) __asm__ __volatile__("ldmxcsr %0" : : "m"(*&cw))
 #endif
 #endif
 
 art::fp_detail::fpsw_t
 art::fp_detail::getFPSW()
 {
-  fpsw_t result {static_cast<fpsw_t>(fetestexcept(FE_ALL_EXCEPT))};
+  fpsw_t result{static_cast<fpsw_t>(fetestexcept(FE_ALL_EXCEPT))};
   return result;
 }
 

@@ -21,62 +21,49 @@ using namespace fhicl;
 
 namespace art {
 
-class RandomNumberSaver : public EDProducer {
+  class RandomNumberSaver : public EDProducer {
 
-public: // CONFIGURATION
+  public: // CONFIGURATION
+    struct Config {
 
-  struct Config {
+      Atom<bool> debug{Name{"debug"}, false};
+    };
 
-    Atom<bool>
-    debug{Name{"debug"}, false};
+    using Parameters = EDProducer::Table<Config>;
 
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    explicit RandomNumberSaver(Parameters const&);
+
+  public: // MEMBER FUNCTIONS -- API required by EDProducer
+    void produce(Event&) override;
+
+  private: // MEMBER DATA
+    // When true makes produce call rng->print_().
+    bool debug_;
+
+    // Used only when debug_ == true to serialize
+    // usage of rng->print_().
+    mutex m_{};
   };
 
-  using Parameters = EDProducer::Table<Config>;
-
-public: // MEMBER FUNCTIONS -- Special Member Functions
-
-  explicit
-  RandomNumberSaver(Parameters const&);
-
-public: // MEMBER FUNCTIONS -- API required by EDProducer
+  RandomNumberSaver::RandomNumberSaver(Parameters const& config)
+    : debug_{config().debug()}, m_{}
+  {
+    produces<vector<RNGsnapshot>>();
+  }
 
   void
-  produce(Event&) override;
-
-private: // MEMBER DATA
-
-  // When true makes produce call rng->print_().
-  bool
-  debug_;
-
-  // Used only when debug_ == true to serialize
-  // usage of rng->print_().
-  mutex
-  m_{};
-
-};
-
-RandomNumberSaver::
-RandomNumberSaver(Parameters const& config)
-  : debug_{config().debug()}
-  , m_{}
-{
-  produces<vector<RNGsnapshot>>();
-}
-
-void
-RandomNumberSaver::
-produce(Event& e)
-{
-  ServiceHandle<RandomNumberGenerator const> rng;
-  e.put(make_unique<vector<RNGsnapshot>>(rng->accessSnapshot_(streamIndex())));
-  if (debug_) {
-    // Only take out the lock if running in debug mode.
-    lock_guard<mutex> hold{m_};
-    rng->print_();
+  RandomNumberSaver::produce(Event& e)
+  {
+    ServiceHandle<RandomNumberGenerator const> rng;
+    e.put(
+      make_unique<vector<RNGsnapshot>>(rng->accessSnapshot_(streamIndex())));
+    if (debug_) {
+      // Only take out the lock if running in debug mode.
+      lock_guard<mutex> hold{m_};
+      rng->print_();
+    }
   }
-}
 
 } // namespace art
 

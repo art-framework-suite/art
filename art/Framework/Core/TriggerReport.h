@@ -16,15 +16,13 @@ creation.
 
 namespace art {
 
-  struct EventSummary
-  {
+  struct EventSummary {
     int totalEvents;
     int totalEventsPassed;
     int totalEventsFailed;
   };
 
-  struct ModuleInPathSummary
-  {
+  struct ModuleInPathSummary {
     int timesVisited;
     int timesPassed;
     int timesFailed;
@@ -33,9 +31,7 @@ namespace art {
     std::string moduleLabel;
   };
 
-
-  struct PathSummary
-  {
+  struct PathSummary {
     int bitPosition;
     int timesRun;
     int timesPassed;
@@ -46,8 +42,7 @@ namespace art {
     std::vector<ModuleInPathSummary> moduleInPathSummaries;
   };
 
-  struct WorkerSummary
-  {
+  struct WorkerSummary {
     int timesVisited;
     int timesRun;
     int timesPassed;
@@ -57,16 +52,14 @@ namespace art {
     std::string moduleLabel;
   };
 
-
-  struct TriggerReport
-  {
-    EventSummary               eventSummary;
-    std::vector<PathSummary>   trigPathSummaries;
-    std::vector<PathSummary>   endPathSummaries;
+  struct TriggerReport {
+    EventSummary eventSummary;
+    std::vector<PathSummary> trigPathSummaries;
+    std::vector<PathSummary> endPathSummaries;
     std::vector<WorkerSummary> workerSummaries;
   };
 
-}
+} // namespace art
 #endif /* art_Framework_Core_TriggerReport_h */
 
 // Local Variables:

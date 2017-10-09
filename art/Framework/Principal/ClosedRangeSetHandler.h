@@ -45,115 +45,80 @@
 
 namespace art {
 
-class ClosedRangeSetHandler final : public RangeSetHandler {
+  class ClosedRangeSetHandler final : public RangeSetHandler {
 
-public: // TYPES
+  public: // TYPES
+    class EventInfo {
 
-  class EventInfo {
+    public: // MEMBER FUNCTIONS -- Special Member Functions
+      ~EventInfo() noexcept;
+
+      EventInfo() noexcept;
+
+      EventInfo(EventInfo const&) noexcept;
+
+      EventInfo(EventInfo&&) noexcept;
+
+      ClosedRangeSetHandler::EventInfo& operator=(EventInfo const&) noexcept;
+
+      ClosedRangeSetHandler::EventInfo& operator=(EventInfo&&) noexcept;
+
+    public: // MEMBER FUNCTIONS -- API for the user
+      EventID const& id() const;
+
+      bool lastInSubRun() const;
+
+      void set(EventID const& eid, bool const last);
+
+    private: // MEMBER DATA
+      EventID id_{EventID::invalidEvent()};
+
+      bool lastInSubRun_{false};
+    };
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
+    virtual ~ClosedRangeSetHandler();
 
-    ~EventInfo() noexcept;
+    explicit ClosedRangeSetHandler(RangeSet const& inputRangeSet);
 
-    EventInfo() noexcept;
+    ClosedRangeSetHandler(ClosedRangeSetHandler const&);
 
-    EventInfo(EventInfo const&) noexcept;
+    ClosedRangeSetHandler(ClosedRangeSetHandler&&);
 
-    EventInfo(EventInfo&&) noexcept;
+    ClosedRangeSetHandler& operator=(ClosedRangeSetHandler const&);
 
-    ClosedRangeSetHandler::EventInfo&
-    operator=(EventInfo const&) noexcept;
-
-    ClosedRangeSetHandler::EventInfo&
-    operator=(EventInfo&&) noexcept;
+    ClosedRangeSetHandler& operator=(ClosedRangeSetHandler&&);
 
   public: // MEMBER FUNCTIONS -- API for the user
+    EventInfo const& eventInfo() const;
 
-    EventID const&
-    id() const;
+  private: // MEMBER FUNCTIONS -- Implementation details
+    std::size_t begin_idx() const;
 
-    bool
-    lastInSubRun() const;
+    std::size_t end_idx() const;
 
-    void
-    set(EventID const& eid, bool const last);
+  private: // MEMBER FUNCTIONS -- API required by RangeSetHandler
+    HandlerType do_type() const override;
+
+    RangeSet do_getSeenRanges() const override;
+
+    void do_update(EventID const&, bool lastInSubRun) override;
+
+    void do_flushRanges() override;
+
+    void do_maybeSplitRange() override;
+
+    void do_rebase() override;
+
+    RangeSetHandler* do_clone() const override;
 
   private: // MEMBER DATA
+    RangeSet ranges_{RangeSet::invalid()};
 
-    EventID
-    id_{EventID::invalidEvent()};
+    std::size_t idx_{0};
 
-    bool
-    lastInSubRun_{false};
-
+    EventInfo eventInfo_{};
   };
-
-public: // MEMBER FUNCTIONS -- Special Member Functions
-
-  virtual
-  ~ClosedRangeSetHandler();
-
-  explicit
-  ClosedRangeSetHandler(RangeSet const& inputRangeSet);
-
-  ClosedRangeSetHandler(ClosedRangeSetHandler const&);
-
-  ClosedRangeSetHandler(ClosedRangeSetHandler&&);
-
-  ClosedRangeSetHandler&
-  operator=(ClosedRangeSetHandler const&);
-
-  ClosedRangeSetHandler&
-  operator=(ClosedRangeSetHandler&&);
-
-public: // MEMBER FUNCTIONS -- API for the user
-
-  EventInfo const&
-  eventInfo() const;
-  
-private: // MEMBER FUNCTIONS -- Implementation details
-
-  std::size_t
-  begin_idx() const;
-
-  std::size_t
-  end_idx() const;
-
-private: // MEMBER FUNCTIONS -- API required by RangeSetHandler
-
-  HandlerType
-  do_type() const override;
-
-  RangeSet
-  do_getSeenRanges() const override;
-
-  void
-  do_update(EventID const&, bool lastInSubRun) override;
-
-  void
-  do_flushRanges() override;
-
-  void
-  do_maybeSplitRange() override;
-
-  void
-  do_rebase() override;
-
-  RangeSetHandler*
-  do_clone() const override;
-
-private: // MEMBER DATA
-
-  RangeSet
-  ranges_{RangeSet::invalid()};
-
-  std::size_t
-  idx_{0};
-
-  EventInfo
-  eventInfo_{};
-
-};
 
 } // namespace art
 

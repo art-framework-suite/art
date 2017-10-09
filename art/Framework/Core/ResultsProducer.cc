@@ -19,8 +19,8 @@
 using namespace hep::concurrency;
 using namespace std;
 
-string const
-cet::PluginTypeDeducer<art::ResultsProducer>::value = "ResultsProducer";
+string const cet::PluginTypeDeducer<art::ResultsProducer>::value =
+  "ResultsProducer";
 
 namespace art {
 
@@ -36,7 +36,9 @@ namespace art {
   ResultsProducer::doBeginJob()
   {
     vector<string> names;
-    for_each(resourceNames_.cbegin(), resourceNames_.cend(), [&names](string const& s){names.emplace_back(s);});
+    for_each(resourceNames_.cbegin(),
+             resourceNames_.cend(),
+             [&names](string const& s) { names.emplace_back(s); });
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     beginJob();
   }
@@ -107,42 +109,34 @@ namespace art {
 
   void
   ResultsProducer::beginJob()
-  {
-  }
+  {}
 
   void
   ResultsProducer::endJob()
-  {
-  }
+  {}
 
   void
   ResultsProducer::beginRun(Run const&)
-  {
-  }
+  {}
 
   void
   ResultsProducer::endRun(Run const&)
-  {
-  }
+  {}
 
   void
   ResultsProducer::beginSubRun(SubRun const&)
-  {
-  }
+  {}
 
   void
   ResultsProducer::endSubRun(SubRun const&)
-  {
-  }
+  {}
 
   void
   ResultsProducer::event(Event const&)
-  {
-  }
+  {}
 
   void
   ResultsProducer::readResults(Results const&)
-  {
-  }
+  {}
 
 } // namespace art

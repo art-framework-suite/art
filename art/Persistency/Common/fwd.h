@@ -12,9 +12,9 @@
 namespace art {
   class DelayedReader;
   class GroupQueryResult;
-}  // art
+} // namespace art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Persistency_Common_fwd_h */
 

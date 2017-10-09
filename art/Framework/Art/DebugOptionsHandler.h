@@ -15,6 +15,7 @@ public:
   explicit DebugOptionsHandler(bpo::options_description& desc,
                                std::string const& basename,
                                detail::DebugOutput& dbg);
+
 private:
   // Check selected options for consistency.
   int doCheckOptions(bpo::variables_map const& vm) override;

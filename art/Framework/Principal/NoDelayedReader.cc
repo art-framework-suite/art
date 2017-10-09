@@ -8,25 +8,17 @@
 
 namespace art {
 
-NoDelayedReader::
-~NoDelayedReader() noexcept
-{
-}
+  NoDelayedReader::~NoDelayedReader() noexcept {}
 
-NoDelayedReader::
-NoDelayedReader()
-  : DelayedReader()
-{
-}
+  NoDelayedReader::NoDelayedReader() : DelayedReader() {}
 
-std::unique_ptr<EDProduct>
-NoDelayedReader::
-getProduct_(ProductID const pid, TypeID const&, RangeSet&) const
-{
-  throw Exception(errors::LogicError, "NoDelayedReader")
-      << "getProduct() called for ProductID: "
-      << pid
-      << "\n";
-}
+  std::unique_ptr<EDProduct>
+  NoDelayedReader::getProduct_(ProductID const pid,
+                               TypeID const&,
+                               RangeSet&) const
+  {
+    throw Exception(errors::LogicError, "NoDelayedReader")
+      << "getProduct() called for ProductID: " << pid << "\n";
+  }
 
 } // namespace art

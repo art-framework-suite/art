@@ -3,13 +3,14 @@
 #include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "canvas/Utilities/Exception.h"
 
-art::FastCloningInfoProvider::
-FastCloningInfoProvider(cet::exempt_ptr<DecrepitRelicInputSourceImplementation> input) :
-  input_(input)
-{ }
+art::FastCloningInfoProvider::FastCloningInfoProvider(
+  cet::exempt_ptr<DecrepitRelicInputSourceImplementation> input)
+  : input_(input)
+{}
 
 off_t
-art::FastCloningInfoProvider::remainingEvents() const {
+art::FastCloningInfoProvider::remainingEvents() const
+{
   if (!fastCloningPermitted()) {
     throw Exception(errors::LogicError)
       << "FastCloningInfoProvider::remainingEvents() has no meaning"
@@ -20,7 +21,8 @@ art::FastCloningInfoProvider::remainingEvents() const {
 }
 
 off_t
-art::FastCloningInfoProvider::remainingSubRuns() const {
+art::FastCloningInfoProvider::remainingSubRuns() const
+{
   if (!fastCloningPermitted()) {
     throw Exception(errors::LogicError)
       << "FastCloningInfoProvider::remainingSubRuns() has no meaning"

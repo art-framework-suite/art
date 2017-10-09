@@ -18,7 +18,7 @@ namespace art {
   namespace test {
     class ProductIDGetterNoPut;
   }
-}
+} // namespace art
 
 class art::test::ProductIDGetterNoPut : public EDProducer {
 public:
@@ -26,14 +26,15 @@ public:
   void produce(art::Event&) override;
 };
 
-
-art::test::ProductIDGetterNoPut::ProductIDGetterNoPut(fhicl::ParameterSet const&)
+art::test::ProductIDGetterNoPut::ProductIDGetterNoPut(
+  fhicl::ParameterSet const&)
 {
   produces<int>();
   produces<int>("i1");
 }
 
-void art::test::ProductIDGetterNoPut::produce(Event& e)
+void
+art::test::ProductIDGetterNoPut::produce(Event& e)
 {
   ProductID const p1{e.getProductID<int>()};
   BOOST_REQUIRE(p1.isValid());

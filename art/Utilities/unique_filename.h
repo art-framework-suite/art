@@ -3,7 +3,8 @@
 #include <string>
 
 namespace art {
-  std::string unique_filename(std::string stem, std::string extension = ".root");
+  std::string unique_filename(std::string stem,
+                              std::string extension = ".root");
 }
 
 #endif /* art_Utilities_unique_filename_h */

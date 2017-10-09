@@ -3,16 +3,15 @@
 
 #include "art/Framework/Art/detail/LibraryInfo.h"
 
-#include <string>
 #include <set>
+#include <string>
 
 namespace art {
   namespace detail {
 
     using LibraryInfoCollection = std::multiset<LibraryInfo>;
-
   }
-}
+} // namespace art
 
 #endif /* art_Framework_Art_detail_LibraryInfoCollection_h */
 

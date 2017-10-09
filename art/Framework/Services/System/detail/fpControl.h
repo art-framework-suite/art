@@ -21,7 +21,8 @@ extern "C" {
 #else
 #error OS not valid for FP control
 #endif
-#define fpControl_ALL_PREC (fpControl_EXTENDED_PREC | fpControl_DOUBLE_PREC | fpControl_SINGLE_PREC)
+#define fpControl_ALL_PREC                                                     \
+  (fpControl_EXTENDED_PREC | fpControl_DOUBLE_PREC | fpControl_SINGLE_PREC)
 #ifdef __x86_64__
 #define fpControl_HAVE_MXCSR
 // for the MMU (SSE), here are the bit definitions
@@ -33,7 +34,7 @@ extern "C" {
 // R- bit 13 Round Negative
 #define fpControl_R_MINUS 0x2000
 // RZ bits 13 and 14 Round To Zero
-#define fpControl_RZ (fpControl_R_PLUS|fpControl_R_MINUS)
+#define fpControl_RZ (fpControl_R_PLUS | fpControl_R_MINUS)
 // RN bits 13 and 14 are 0 Round To Nearest
 #define fpControl_RN_MASK fpControl_RZ
 // PM bit 12 Precision Mask
@@ -119,39 +120,38 @@ namespace art {
 #endif
 
     fp_control_t getFPControl();
-    fp_control_t setFPControl(fp_control_t const & fpControl);
+    fp_control_t setFPControl(fp_control_t const& fpControl);
 
-    char const* on_or_off (bool const b);
-  }
-}
+    char const* on_or_off(bool const b);
+  } // namespace fp_detail
+} // namespace art
 
-inline
-art::fp_detail::fp_control_t
+inline art::fp_detail::fp_control_t
 art::fp_detail::getFPControl()
 {
-  fp_control_t result { getFPCW()
+  fp_control_t result{getFPCW()
 #ifdef fpControl_HAVE_MXCSR
-      , getMXCSR()
+                        ,
+                      getMXCSR()
 #endif
-      };
+  };
   return result;
 }
 
-inline
-art::fp_detail::fp_control_t
-art::fp_detail::setFPControl(fp_control_t const & fpControl)
+inline art::fp_detail::fp_control_t
+art::fp_detail::setFPControl(fp_control_t const& fpControl)
 {
-  fp_control_t result { setFPCW(fpControl.fpcw)
+  fp_control_t result{setFPCW(fpControl.fpcw)
 #ifdef fpControl_HAVE_MXCSR
-      , setMXCSR(fpControl.mxcsr)
+                        ,
+                      setMXCSR(fpControl.mxcsr)
 #endif
-      };
+  };
   return result;
 }
 
-inline
-char const*
-art::fp_detail::on_or_off (bool const b)
+inline char const*
+art::fp_detail::on_or_off(bool const b)
 {
   return b ? " on " : " off";
 }

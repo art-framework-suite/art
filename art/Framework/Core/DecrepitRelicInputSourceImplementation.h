@@ -64,7 +64,6 @@ namespace art {
   class DecrepitRelicInputSourceImplementation : public InputSource {
 
   public: // CONFIGURATION
-
     struct Config {
 
       ~Config();
@@ -81,198 +80,144 @@ namespace art {
       fhicl::Atom<int> reportFrequency;
       fhicl::Atom<bool> errorOnFailureToPut;
       fhicl::Atom<std::string> processingMode;
-
     };
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
+    virtual ~DecrepitRelicInputSourceImplementation() noexcept;
 
-    virtual
-    ~DecrepitRelicInputSourceImplementation() noexcept;
+    DecrepitRelicInputSourceImplementation(fhicl::TableFragment<Config> const&,
+                                           ModuleDescription const&);
 
-    DecrepitRelicInputSourceImplementation(fhicl::TableFragment<Config> const&, ModuleDescription const&);
+    DecrepitRelicInputSourceImplementation(
+      DecrepitRelicInputSourceImplementation const&) = delete;
 
-    DecrepitRelicInputSourceImplementation(DecrepitRelicInputSourceImplementation const&) = delete;
+    DecrepitRelicInputSourceImplementation(
+      DecrepitRelicInputSourceImplementation&&) = delete;
 
-    DecrepitRelicInputSourceImplementation(DecrepitRelicInputSourceImplementation&&) = delete;
+    DecrepitRelicInputSourceImplementation& operator=(
+      DecrepitRelicInputSourceImplementation const&) = delete;
 
-    DecrepitRelicInputSourceImplementation&
-    operator=(DecrepitRelicInputSourceImplementation const&) = delete;
-
-    DecrepitRelicInputSourceImplementation&
-    operator=(DecrepitRelicInputSourceImplementation&&) = delete;
+    DecrepitRelicInputSourceImplementation& operator=(
+      DecrepitRelicInputSourceImplementation&&) = delete;
 
   public: // MEMBER FUNCTIONS -- Serial Access Interface
-
     // Inform subclasses that they're going to be told to close the file
     // for non-exceptional reasons (such as hitting the event limit).
-    virtual void finish() {}
+    virtual void
+    finish()
+    {}
 
-    virtual
-    input::ItemType
-    nextItemType() override;
+    virtual input::ItemType nextItemType() override;
 
     // Close current file
-    virtual
-    void
-    closeFile() override;
+    virtual void closeFile() override;
 
     /// Read next file
-    std::unique_ptr<FileBlock>
-    readFile() override;
+    std::unique_ptr<FileBlock> readFile() override;
 
     // Read next run.
-    virtual
-    std::unique_ptr<RunPrincipal>
-    readRun() override;
+    virtual std::unique_ptr<RunPrincipal> readRun() override;
 
     // Read next subRun
-    virtual
-    std::unique_ptr<SubRunPrincipal>
-    readSubRun(cet::exempt_ptr<RunPrincipal const>) override;
+    virtual std::unique_ptr<SubRunPrincipal> readSubRun(
+      cet::exempt_ptr<RunPrincipal const>) override;
 
     // Read next event
     // Indicate inability to get a new event by returning a null unique_ptr.
-    virtual
-    std::unique_ptr<EventPrincipal>
-    readEvent(cet::exempt_ptr<SubRunPrincipal const>) override;
+    virtual std::unique_ptr<EventPrincipal> readEvent(
+      cet::exempt_ptr<SubRunPrincipal const>) override;
 
     // Not implemented.
-    //virtual
-    //std::unique_ptr<RangeSetHandler>
-    //runRangeSetHandler() = 0;
+    // virtual
+    // std::unique_ptr<RangeSetHandler>
+    // runRangeSetHandler() = 0;
 
     // Not implemented.
-    //virtual
-    //std::unique_ptr<RangeSetHandler>
-    //subRunRangeSetHandler() = 0;
+    // virtual
+    // std::unique_ptr<RangeSetHandler>
+    // subRunRangeSetHandler() = 0;
 
   public: // MEMBER FUNCTIONS -- Job Interface
-
     // Called by framework at beginning of job
-    virtual
-    void
-    doBeginJob() override;
+    virtual void doBeginJob() override;
 
     // Called by framework at end of job
-    virtual
-    void
-    doEndJob() override;
+    virtual void doEndJob() override;
 
   public: // MEMBER FUNCTIONS -- Random Access Interface
-
     // Read a specific event
-    virtual
-    std::unique_ptr<EventPrincipal>
-    readEvent(EventID const&) override;
+    virtual std::unique_ptr<EventPrincipal> readEvent(EventID const&) override;
 
     // Skip the number of events specified.
     // Offset may be negative.
-    virtual
-    void
-    skipEvents(int offset) override;
+    virtual void skipEvents(int offset) override;
 
     // Begin again at the first event
-    virtual
-    void
-    rewind() override;
+    virtual void rewind() override;
 
-  public: // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation specific interface
-
+  public: // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation specific
+          // interface
     // RunsSubRunsAndEvents (default), RunsAndSubRuns, or Runs.
-    ProcessingMode
-    processingMode() const;
+    ProcessingMode processingMode() const;
 
     // Accessor for maximum number of events to be read.
     // -1 is used for unlimited.
-    int
-    maxEvents() const;
+    int maxEvents() const;
 
     // Accessor for remaining number of events to be read.
     // -1 is used for unlimited.
-    int
-    remainingEvents() const;
+    int remainingEvents() const;
 
     // Accessor for maximum number of subRuns to be read.
     // -1 is used for unlimited.
-    int
-    maxSubRuns() const;
+    int maxSubRuns() const;
 
     // Accessor for remaining number of subRuns to be read.
     // -1 is used for unlimited.
-    int
-    remainingSubRuns() const;
+    int remainingSubRuns() const;
 
-  public: // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation specific interface
-
+  public: // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation specific
+          // interface
     // Reset the remaining number of events/subRuns to the maximum number.
-    void
-    repeat_();
+    void repeat_();
 
     // issue an event report
-    void
-    issueReports(EventID const& eventID);
+    void issueReports(EventID const& eventID);
 
   protected: // MEMBER FUNCTIONS -- Utility Functions for Subclasses
+    input::ItemType state() const;
 
-    input::ItemType
-    state() const;
+    void setState(input::ItemType);
 
-    void
-    setState(input::ItemType);
-
-    void
-    reset();
+    void reset();
 
   private: // MEMBER FUNCTIONS -- Required Interface for Subclasses
+    virtual input::ItemType getNextItemType() = 0;
 
-    virtual
-    input::ItemType
-    getNextItemType() = 0;
+    virtual std::unique_ptr<RunPrincipal> readRun_() = 0;
 
-    virtual
-    std::unique_ptr<RunPrincipal>
-    readRun_() = 0;
+    virtual std::unique_ptr<SubRunPrincipal> readSubRun_(
+      cet::exempt_ptr<RunPrincipal const>) = 0;
 
-    virtual
-    std::unique_ptr<SubRunPrincipal>
-    readSubRun_(cet::exempt_ptr<RunPrincipal const>) = 0;
-
-    virtual
-    std::unique_ptr<EventPrincipal>
-    readEvent_() = 0;
+    virtual std::unique_ptr<EventPrincipal> readEvent_() = 0;
 
   private: // MEMBER FUNCTIONS -- Optional Serial Interface for Subclasses
+    virtual std::unique_ptr<FileBlock> readFile_();
 
-    virtual
-    std::unique_ptr<FileBlock>
-    readFile_();
-
-    virtual
-    void
-    closeFile_();
+    virtual void closeFile_();
 
   private: // MEMBER FUNCTIONS -- Optional Job Interface for Subclasses
+    virtual void beginJob();
 
-    virtual
-    void
-    beginJob();
+    virtual void endJob();
 
-    virtual
-    void
-    endJob();
+  private
+    : // MEMBER FUNCTIONS -- Optional Random Access Interface for Subclasses
+    virtual void skip(int);
 
-  private: // MEMBER FUNCTIONS -- Optional Random Access Interface for Subclasses
-
-    virtual
-    void
-    skip(int);
-
-    virtual
-    void
-    rewind_();
+    virtual void rewind_();
 
   private: // MEMBER DATA
-
     ProcessingMode processingMode_{RunsSubRunsAndEvents};
     int maxEvents_;
     int maxSubRuns_;
@@ -281,7 +226,6 @@ namespace art {
     int remainingSubRuns_;
     int numberOfEventsRead_{};
     input::ItemType state_{input::IsInvalid};
-
   };
 
 } // namespace art

@@ -13,11 +13,12 @@ namespace art {
   namespace test {
     class DummyService;
   }
-}
+} // namespace art
 
 class art::test::DummyService {
 public:
-  struct Config {};
+  struct Config {
+  };
   using Parameters = art::ServiceTable<Config>;
   explicit DummyService(Parameters const&) {}
 };

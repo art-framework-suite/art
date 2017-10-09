@@ -12,23 +12,21 @@
 
 namespace art {
 
-class ProcessConfiguration;
+  class ProcessConfiguration;
 
-class SubRunPrincipal final : public Principal {
+  class SubRunPrincipal final : public Principal {
 
-public:
+  public:
+    using Auxiliary = SubRunAuxiliary;
+    static constexpr BranchType branch_type = Auxiliary::branch_type;
 
-  using Auxiliary = SubRunAuxiliary;
-  static constexpr BranchType branch_type = Auxiliary::branch_type;
-
-public:
-
-  SubRunPrincipal(SubRunAuxiliary const&,
-                  ProcessConfiguration const&,
-                  cet::exempt_ptr<ProductTable const>,
-                  std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
-
-};
+  public:
+    SubRunPrincipal(
+      SubRunAuxiliary const&,
+      ProcessConfiguration const&,
+      cet::exempt_ptr<ProductTable const>,
+      std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
+  };
 
 } // namespace art
 

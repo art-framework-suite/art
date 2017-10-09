@@ -8,25 +8,23 @@ using art::CurrentModule;
 
 namespace art {
 
-CurrentModule::
-CurrentModule(ActivityRegistry& r)
-{
-  r.sPreModuleConstruction.watch(this, &CurrentModule::track_module);
-  r.sPreModule.watch            (this, &CurrentModule::track_module);
-  r.sPreModuleBeginJob.watch    (this, &CurrentModule::track_module);
-  r.sPreModuleEndJob.watch      (this, &CurrentModule::track_module);
-  r.sPreModuleBeginRun.watch    (this, &CurrentModule::track_module);
-  r.sPreModuleEndRun.watch      (this, &CurrentModule::track_module);
-  r.sPreModuleBeginSubRun.watch (this, &CurrentModule::track_module);
-  r.sPreModuleEndSubRun.watch   (this, &CurrentModule::track_module);
-}
+  CurrentModule::CurrentModule(ActivityRegistry& r)
+  {
+    r.sPreModuleConstruction.watch(this, &CurrentModule::track_module);
+    r.sPreModule.watch(this, &CurrentModule::track_module);
+    r.sPreModuleBeginJob.watch(this, &CurrentModule::track_module);
+    r.sPreModuleEndJob.watch(this, &CurrentModule::track_module);
+    r.sPreModuleBeginRun.watch(this, &CurrentModule::track_module);
+    r.sPreModuleEndRun.watch(this, &CurrentModule::track_module);
+    r.sPreModuleBeginSubRun.watch(this, &CurrentModule::track_module);
+    r.sPreModuleEndSubRun.watch(this, &CurrentModule::track_module);
+  }
 
-void
-CurrentModule::
-track_module(ModuleDescription const& desc)
-{
-  desc_ = desc;
-}
+  void
+  CurrentModule::track_module(ModuleDescription const& desc)
+  {
+    desc_ = desc;
+  }
 
 } // namespace art
 

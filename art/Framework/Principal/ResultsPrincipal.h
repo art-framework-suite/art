@@ -21,23 +21,21 @@
 
 namespace art {
 
-class ProcessConfiguration;
+  class ProcessConfiguration;
 
-class ResultsPrincipal final : public Principal {
+  class ResultsPrincipal final : public Principal {
 
-public:
+  public:
+    using Auxiliary = ResultsAuxiliary;
+    static constexpr BranchType branch_type = ResultsAuxiliary::branch_type;
 
-  using Auxiliary = ResultsAuxiliary;
-  static constexpr BranchType branch_type = ResultsAuxiliary::branch_type;
-
-public:
-
-  ResultsPrincipal(ResultsAuxiliary const&,
-                   ProcessConfiguration const&,
-                   cet::exempt_ptr<ProductTable const> presentProducts,
-                   std::unique_ptr<DelayedReader>&& reader = std::make_unique<NoDelayedReader>());
-
-};
+  public:
+    ResultsPrincipal(ResultsAuxiliary const&,
+                     ProcessConfiguration const&,
+                     cet::exempt_ptr<ProductTable const> presentProducts,
+                     std::unique_ptr<DelayedReader>&& reader =
+                       std::make_unique<NoDelayedReader>());
+  };
 
 } // namespace art
 

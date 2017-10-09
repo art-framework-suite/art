@@ -14,25 +14,22 @@
 
 // ----------------------------------------------------------------------
 
-namespace arttest
-{
-  class Throwing
-  {
+namespace arttest {
+  class Throwing {
   public:
-   Throwing(fhicl::ParameterSet const& cfg, art::ActivityRegistry& ar);
+    Throwing(fhicl::ParameterSet const& cfg, art::ActivityRegistry& ar);
 
   private:
     void throwError(art::Event const& e);
   };
-}
+} // namespace arttest
 
-arttest::Throwing::Throwing(fhicl::ParameterSet const &,
-                            art::ActivityRegistry & r)
+arttest::Throwing::Throwing(fhicl::ParameterSet const&,
+                            art::ActivityRegistry& r)
 {
   r.sPostProcessEvent.watch(this, &Throwing::throwError);
   mf::LogInfo("testing") << "Throwing service created";
 }
-
 
 void
 arttest::Throwing::throwError(art::Event const&)
@@ -48,5 +45,3 @@ arttest::Throwing::throwError(art::Event const&)
 DECLARE_ART_SERVICE(arttest::Throwing, LEGACY)
 DEFINE_ART_SERVICE(arttest::Throwing)
 // ======================================================================
-
-

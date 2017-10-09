@@ -19,10 +19,12 @@ arttest::SeekToEventClient::SeekToEventClient(Parameters const& config,
 }
 
 void
-arttest::SeekToEventClient::postBeginJobWorkers(art::InputSource* input_source,
-                                                std::vector<art::Worker*> const&)
+arttest::SeekToEventClient::postBeginJobWorkers(
+  art::InputSource* input_source,
+  std::vector<art::Worker*> const&)
 {
-  if (nextEventsToProcess_.empty()) return;
+  if (nextEventsToProcess_.empty())
+    return;
 
   input_ = dynamic_cast<art::RootInput*>(input_source);
   if (!input_)
@@ -43,7 +45,8 @@ arttest::SeekToEventClient::preProcessEvent(art::Event const& e)
 void
 arttest::SeekToEventClient::postProcessEvent(art::Event const&)
 {
-  if (nextEventsToProcess_.empty()) return;
+  if (nextEventsToProcess_.empty())
+    return;
   input_->seekToEvent(nextEventsToProcess_[0]);
   nextEventsToProcess_.erase(nextEventsToProcess_.begin());
 }

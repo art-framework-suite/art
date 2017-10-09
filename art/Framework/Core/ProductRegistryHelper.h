@@ -37,132 +37,118 @@
 
 namespace art {
 
-class ModuleDescription;
+  class ModuleDescription;
 
-namespace {
+  namespace {
 
-inline
-void
-verifyFriendlyClassName(std::string const& fcn)
-{
-  std::string errMsg;
-  if (!detail::checkFriendlyName(fcn, errMsg)) {
-    throw Exception(errors::Configuration)
-      << errMsg
-      << "In particular, underscores are not permissible anywhere in the fully-scoped\n"
-         "class name, including namespaces.\n";
-  }
-}
+    inline void
+    verifyFriendlyClassName(std::string const& fcn)
+    {
+      std::string errMsg;
+      if (!detail::checkFriendlyName(fcn, errMsg)) {
+        throw Exception(errors::Configuration)
+          << errMsg
+          << "In particular, underscores are not permissible anywhere in the "
+             "fully-scoped\n"
+             "class name, including namespaces.\n";
+      }
+    }
 
-inline
-void
-verifyModuleLabel(std::string const& ml)
-{
-  std::string errMsg;
-  if (!detail::checkModuleLabel(ml, errMsg)) {
-    throw Exception(errors::Configuration)
-      << errMsg;
-  }
-}
+    inline void
+    verifyModuleLabel(std::string const& ml)
+    {
+      std::string errMsg;
+      if (!detail::checkModuleLabel(ml, errMsg)) {
+        throw Exception(errors::Configuration) << errMsg;
+      }
+    }
 
-inline
-void
-verifyInstanceName(std::string const& instanceName)
-{
-  std::string errMsg;
-  if (!detail::checkInstanceName(instanceName, errMsg)) {
-    throw Exception(errors::Configuration)
-      << errMsg;
-  }
-}
+    inline void
+    verifyInstanceName(std::string const& instanceName)
+    {
+      std::string errMsg;
+      if (!detail::checkInstanceName(instanceName, errMsg)) {
+        throw Exception(errors::Configuration) << errMsg;
+      }
+    }
 
-} // unnamed namespace
+  } // unnamed namespace
 
-class ProductRegistryHelper {
+  class ProductRegistryHelper {
 
-public: // MEMBER FUNCTIONS
+  public: // MEMBER FUNCTIONS
+    virtual ~ProductRegistryHelper();
 
-  virtual
-  ~ProductRegistryHelper();
+    ProductRegistryHelper();
 
-  ProductRegistryHelper();
+    ProductRegistryHelper(ProductRegistryHelper const&) = delete;
 
-  ProductRegistryHelper(ProductRegistryHelper const&) = delete;
+    ProductRegistryHelper(ProductRegistryHelper&&) = delete;
 
-  ProductRegistryHelper(ProductRegistryHelper&&) = delete;
+    ProductRegistryHelper& operator=(ProductRegistryHelper const&) = delete;
 
-  ProductRegistryHelper&
-  operator=(ProductRegistryHelper const&) = delete;
+    ProductRegistryHelper& operator=(ProductRegistryHelper&&) = delete;
 
-  ProductRegistryHelper&
-  operator=(ProductRegistryHelper&&) = delete;
+  public: // MEMBER FUNCTIONS
+    void registerProducts(ProductDescriptions& producedProducts,
+                          ModuleDescription const& md);
 
-public: // MEMBER FUNCTIONS
+    // Record the production of an object of type P, with optional
+    // instance name, in the Event (by default), Run, or SubRun.
+    template <typename P, BranchType B = InEvent>
+    void produces(std::string const& instanceName = {});
 
-  void registerProducts(ProductDescriptions& producedProducts,
-                        ModuleDescription const& md);
+    // Record the reconstitution of an object of type P, in either the
+    // Run, SubRun, or Event, recording that this object was
+    // originally created by a module with label modLabel, and with an
+    // optional instance name.
+    template <typename P, BranchType B>
+    TypeLabel const& reconstitutes(std::string const& modLabel,
+                                   std::string const& instanceName = {});
 
-  // Record the production of an object of type P, with optional
-  // instance name, in the Event (by default), Run, or SubRun.
-  template <typename P, BranchType B = InEvent>
-  void
-  produces(std::string const& instanceName = {});
+    template <BranchType B = InEvent>
+    std::set<TypeLabel> const& expectedProducts() const;
 
-  // Record the reconstitution of an object of type P, in either the
-  // Run, SubRun, or Event, recording that this object was
-  // originally created by a module with label modLabel, and with an
-  // optional instance name.
-  template <typename P, BranchType B>
-  TypeLabel const&
-  reconstitutes(std::string const& modLabel, std::string const& instanceName = {});
+  private: // MEMBER FUNCTIONS
+    // FIXME: The following function no longer throws!  Is this intentional?
+    TypeLabel const& insertOrThrow(BranchType const bt, TypeLabel const& tl);
+
+  private: // MEMBER DATA
+    std::array<std::set<TypeLabel>, NumBranchTypes> typeLabelList_;
+  };
 
   template <BranchType B = InEvent>
-  std::set<TypeLabel> const&
-  expectedProducts() const;
+  inline std::set<TypeLabel> const&
+  ProductRegistryHelper::expectedProducts() const
+  {
+    return typeLabelList_[B];
+  }
 
-private: // MEMBER FUNCTIONS
+  template <typename P, BranchType B>
+  inline void
+  ProductRegistryHelper::produces(std::string const& instanceName)
+  {
+    verifyInstanceName(instanceName);
+    TypeID const productType{typeid(P)};
+    verifyFriendlyClassName(productType.friendlyClassName());
+    insertOrThrow(B,
+                  TypeLabel{productType, instanceName, SupportsView<P>::value});
+  }
 
-  // FIXME: The following function no longer throws!  Is this intentional?
+  template <typename P, BranchType B>
   TypeLabel const&
-  insertOrThrow(BranchType const bt, TypeLabel const& tl);
-
-private: // MEMBER DATA
-
-  std::array<std::set<TypeLabel>, NumBranchTypes> typeLabelList_;
-};
-
-template <BranchType B = InEvent>
-inline
-std::set<TypeLabel> const&
-ProductRegistryHelper::
-expectedProducts() const
-{
-  return typeLabelList_[B];
-}
-
-template<typename P, BranchType B>
-inline
-void
-ProductRegistryHelper::
-produces(std::string const& instanceName)
-{
-  verifyInstanceName(instanceName);
-  TypeID const productType{typeid(P)};
-  verifyFriendlyClassName(productType.friendlyClassName());
-  insertOrThrow(B, TypeLabel{productType, instanceName, SupportsView<P>::value});
-}
-
-template<typename P, BranchType B>
-TypeLabel const&
-ProductRegistryHelper::
-reconstitutes(std::string const& emulatedModule, std::string const& instanceName)
-{
-  verifyModuleLabel(emulatedModule);
-  verifyInstanceName(instanceName);
-  TypeID const productType{typeid(P)};
-  verifyFriendlyClassName(productType.friendlyClassName());
-  return insertOrThrow(B, TypeLabel{productType, instanceName, SupportsView<P>::value, emulatedModule});
-}
+  ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
+                                       std::string const& instanceName)
+  {
+    verifyModuleLabel(emulatedModule);
+    verifyInstanceName(instanceName);
+    TypeID const productType{typeid(P)};
+    verifyFriendlyClassName(productType.friendlyClassName());
+    return insertOrThrow(
+      B,
+      TypeLabel{
+        productType, instanceName, SupportsView<P>::value, emulatedModule});
+  }
 
 } // namespace art
 

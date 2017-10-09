@@ -14,93 +14,68 @@
 
 namespace art {
 
-// <Singleton>
-class SharedResourcesRegistry {
+  // <Singleton>
+  class SharedResourcesRegistry {
 
-private: // TYPES
+  private: // TYPES
+    class QueueAndCounter {
 
-  class QueueAndCounter {
+    public:
+      ~QueueAndCounter();
 
-  public:
+      QueueAndCounter();
 
-    ~QueueAndCounter();
+      QueueAndCounter(QueueAndCounter const&) = delete;
 
-    QueueAndCounter();
+      QueueAndCounter(QueueAndCounter&&) = delete;
 
-    QueueAndCounter(QueueAndCounter const&) = delete;
+      QueueAndCounter& operator=(QueueAndCounter const&) = delete;
 
-    QueueAndCounter(QueueAndCounter&&) = delete;
+      QueueAndCounter& operator=(QueueAndCounter&&) = delete;
 
-    QueueAndCounter&
-    operator=(QueueAndCounter const&) = delete;
+    public:
+      std::shared_ptr<hep::concurrency::SerialTaskQueue> queue_{};
 
-    QueueAndCounter&
-    operator=(QueueAndCounter&&) = delete;
+      unsigned long counter_{0UL};
+    };
 
-  public:
+  public: // STATIC MEMBER FUNCTIONS
+    static SharedResourcesRegistry* instance();
 
-    std::shared_ptr<hep::concurrency::SerialTaskQueue>
-    queue_{};
+  public: // STATIC MEMBER DATA
+    static std::string const kLegacy;
 
-    unsigned long
-    counter_{0UL};
+  private: // MEMBER FUNCTIONS -- Special Member Functions
+    ~SharedResourcesRegistry();
 
+    SharedResourcesRegistry();
+
+    SharedResourcesRegistry(SharedResourcesRegistry const&) = delete;
+
+    SharedResourcesRegistry& operator=(SharedResourcesRegistry const&) = delete;
+
+    SharedResourcesRegistry(SharedResourcesRegistry&&) = delete;
+
+    SharedResourcesRegistry& operator=(SharedResourcesRegistry&&) = delete;
+
+  public: // MEMBER FUNCTIONS
+    void registerSharedResource(std::string const&);
+
+    std::vector<std::shared_ptr<hep::concurrency::SerialTaskQueue>>
+    createQueues(std::string const& resourceName) const;
+
+    std::vector<std::shared_ptr<hep::concurrency::SerialTaskQueue>>
+    createQueues(std::vector<std::string> const& resourceNames) const;
+
+    std::recursive_mutex* getMutexForSource();
+
+  private: // MEMBER DATA
+    std::map<std::string, QueueAndCounter> resourceMap_;
+
+    unsigned nLegacy_;
+
+    std::recursive_mutex mutexForSource_;
   };
-
-public: // STATIC MEMBER FUNCTIONS
-
-  static
-  SharedResourcesRegistry*
-  instance();
-  
-public: // STATIC MEMBER DATA
-
-  static
-  std::string const
-  kLegacy;
-  
-private: // MEMBER FUNCTIONS -- Special Member Functions
-
-  ~SharedResourcesRegistry();
-
-  SharedResourcesRegistry();
-
-  SharedResourcesRegistry(SharedResourcesRegistry const&) = delete;
-  
-  SharedResourcesRegistry&
-  operator=(SharedResourcesRegistry const&) = delete;
-  
-  SharedResourcesRegistry(SharedResourcesRegistry&&) = delete;
-
-  SharedResourcesRegistry&
-  operator=(SharedResourcesRegistry&&) = delete;
-  
-public: // MEMBER FUNCTIONS
-  
-  void
-  registerSharedResource(std::string const&);
-
-  std::vector<std::shared_ptr<hep::concurrency::SerialTaskQueue>>
-  createQueues(std::string const& resourceName) const;
-  
-  std::vector<std::shared_ptr<hep::concurrency::SerialTaskQueue>>
-  createQueues(std::vector<std::string> const& resourceNames) const;
-  
-  std::recursive_mutex*
-  getMutexForSource();
-  
-private: // MEMBER DATA
-
-  std::map<std::string, QueueAndCounter>
-  resourceMap_;
-
-  unsigned
-  nLegacy_;
-
-  std::recursive_mutex
-  mutexForSource_;
-
-};
 
 } // namespace art
 

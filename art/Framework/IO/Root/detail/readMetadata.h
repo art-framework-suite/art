@@ -1,15 +1,16 @@
 #ifndef art_Framework_IO_Root_detail_readMetadata_h
 #define art_Framework_IO_Root_detail_readMetadata_h
 
+#include "TBranch.h"
 #include "art/Framework/IO/Root/detail/getObjectRequireDict.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/TypeID.h"
-#include "TBranch.h"
 
 namespace art {
   namespace detail {
     template <typename T>
-    T readMetadata(TTree* md, bool const requireDict = true)
+    T
+    readMetadata(TTree* md, bool const requireDict = true)
     {
       auto branch = md->GetBranch(art::rootNames::metaBranchRootName<T>());
       assert(branch != nullptr);
@@ -23,7 +24,8 @@ namespace art {
     }
 
     template <typename T>
-    bool readMetadata(TTree* md, T& field, bool const requireDict = true)
+    bool
+    readMetadata(TTree* md, T& field, bool const requireDict = true)
     {
       auto branch = md->GetBranch(art::rootNames::metaBranchRootName<T>());
       if (branch == nullptr) {
@@ -39,8 +41,8 @@ namespace art {
 
       return true;
     }
-  }
-}
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_IO_Root_detail_readMetadata_h */
 

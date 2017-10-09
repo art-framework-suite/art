@@ -18,57 +18,42 @@
 
 namespace art {
 
-class Principal;
-class ProductProvenance;
-class RangeSet;
+  class Principal;
+  class ProductProvenance;
+  class RangeSet;
 
-class DelayedReader {
+  class DelayedReader {
 
-public:
+  public:
+    virtual ~DelayedReader() noexcept;
 
-  virtual
-  ~DelayedReader() noexcept;
+    DelayedReader();
 
-  DelayedReader();
+    std::unique_ptr<EDProduct> getProduct(ProductID,
+                                          TypeID const& wrapper_type,
+                                          RangeSet&) const;
 
-  std::unique_ptr<EDProduct>
-  getProduct(ProductID, TypeID const& wrapper_type, RangeSet&) const;
+    void setPrincipal(cet::exempt_ptr<Principal>);
 
-  void
-  setPrincipal(cet::exempt_ptr<Principal>);
+    std::vector<ProductProvenance> readProvenance() const;
 
-  std::vector<ProductProvenance>
-  readProvenance() const;
+    bool isAvailableAfterCombine(ProductID) const;
 
-  bool
-  isAvailableAfterCombine(ProductID) const;
+    int openNextSecondaryFile(int idx);
 
-  int
-  openNextSecondaryFile(int idx);
+  private:
+    virtual std::unique_ptr<EDProduct> getProduct_(ProductID,
+                                                   TypeID const&,
+                                                   RangeSet&) const = 0;
 
-private:
+    virtual void setPrincipal_(cet::exempt_ptr<Principal>);
 
-  virtual
-  std::unique_ptr<EDProduct>
-  getProduct_(ProductID, TypeID const&, RangeSet&) const = 0;
+    virtual std::vector<ProductProvenance> readProvenance_() const;
 
-  virtual
-  void
-  setPrincipal_(cet::exempt_ptr<Principal>);
+    virtual bool isAvailableAfterCombine_(ProductID) const;
 
-  virtual
-  std::vector<ProductProvenance>
-  readProvenance_() const;
-
-  virtual
-  bool
-  isAvailableAfterCombine_(ProductID) const;
-
-  virtual
-  int
-  openNextSecondaryFile_(int idx);
-
-};
+    virtual int openNextSecondaryFile_(int idx);
+  };
 
 } // namespace art
 

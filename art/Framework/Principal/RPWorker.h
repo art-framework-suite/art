@@ -16,112 +16,76 @@
 
 namespace art {
 
-class ResultsProducer;
+  class ResultsProducer;
 
-class RPWorker {
+  class RPWorker {
 
-public:
+  public:
+    virtual ~RPWorker() = default;
 
-  virtual
-  ~RPWorker() = default;
+    RPWorker(RPParams const& p);
 
-  RPWorker(RPParams const& p);
+  public:
+    ResultsProducer& rp();
 
-public:
+    ResultsProducer const& rp() const;
 
-  ResultsProducer&
-  rp();
+    RPParams const& params() const;
 
-  ResultsProducer const&
-  rp() const;
+    ModuleDescription const& moduleDescription() const;
 
-  RPParams const&
-  params() const;
+    void setModuleDescription(ModuleDescription const&);
 
-  ModuleDescription const&
-  moduleDescription() const;
+    void setModuleDescription(ModuleDescription&&);
 
-  void
-  setModuleDescription(ModuleDescription const&);
+  private:
+    virtual ResultsProducer& rp_() = 0;
 
-  void
-  setModuleDescription(ModuleDescription&&);
+    virtual ResultsProducer const& rp_() const = 0;
 
-private:
+  private:
+    RPParams p_;
 
-  virtual
-  ResultsProducer&
-  rp_() = 0;
+    ModuleDescription md_;
+  };
 
-  virtual
-  ResultsProducer const&
-  rp_() const = 0;
+  inline RPWorker::RPWorker(RPParams const& p) : p_(p), md_() {}
 
-private:
+  inline ResultsProducer&
+  RPWorker::rp()
+  {
+    return rp_();
+  }
 
-  RPParams
-  p_;
+  inline ResultsProducer const&
+  RPWorker::rp() const
+  {
+    return rp_();
+  }
 
-  ModuleDescription
-  md_;
+  inline RPParams const&
+  RPWorker::params() const
+  {
+    return p_;
+  }
 
-};
+  inline ModuleDescription const&
+  RPWorker::moduleDescription() const
+  {
+    return md_;
+  }
 
-inline
-RPWorker::
-RPWorker(RPParams const& p)
-  : p_(p)
-  , md_()
-{
-}
+  inline void
+  RPWorker::setModuleDescription(ModuleDescription const& md)
+  {
+    md_ = md;
+  }
 
-inline
-ResultsProducer&
-RPWorker::
-rp()
-{
-  return rp_();
-}
-
-inline
-ResultsProducer const&
-RPWorker::
-rp() const
-{
-  return rp_();
-}
-
-inline
-RPParams const&
-RPWorker::
-params() const
-{
-  return p_;
-}
-
-inline
-ModuleDescription const&
-RPWorker::
-moduleDescription() const
-{
-  return md_;
-}
-
-inline
-void
-RPWorker::
-setModuleDescription(ModuleDescription const& md)
-{
-  md_ = md;
-}
-
-inline
-void
-RPWorker::
-setModuleDescription(ModuleDescription&& md)
-{
-  md_ = std::move(md);
-}
+  inline void
+  RPWorker::setModuleDescription(ModuleDescription&& md)
+  {
+    md_ = std::move(md);
+  }
 
 } // namespace art
 

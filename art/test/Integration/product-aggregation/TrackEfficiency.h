@@ -7,22 +7,30 @@ namespace arttest {
 
   class TrackEfficiency {
   public:
-
     explicit TrackEfficiency() = default;
-    explicit TrackEfficiency(unsigned const num,
-                             unsigned const denom)
+    explicit TrackEfficiency(unsigned const num, unsigned const denom)
       : num_{num}, denom_{denom}
     {}
 
-    auto efficiency() const
+    auto
+    efficiency() const
     {
-      return static_cast<double>(num_)/denom_;
+      return static_cast<double>(num_) / denom_;
     }
 
-    auto num() const { return num_; }
-    auto denom() const { return denom_; }
+    auto
+    num() const
+    {
+      return num_;
+    }
+    auto
+    denom() const
+    {
+      return denom_;
+    }
 
-    void aggregate(TrackEfficiency const& other)
+    void
+    aggregate(TrackEfficiency const& other)
     {
       num_ += other.num_;
       denom_ += other.denom_;
@@ -33,7 +41,7 @@ namespace arttest {
     unsigned denom_;
   };
 
-}
+} // namespace arttest
 
 #endif /* art_test_Integration_product_aggregation_TrackEfficiency_h */
 

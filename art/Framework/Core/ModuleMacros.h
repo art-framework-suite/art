@@ -30,83 +30,89 @@
 #include <string>
 
 namespace art {
-namespace detail {
+  namespace detail {
 
-using ModuleMaker_t = ModuleBase*(art::ModuleDescription const&, WorkerParams const&);
-using WorkerFromModuleMaker_t = Worker*(ModuleBase*, ModuleDescription const&, WorkerParams const&);
-using WorkerMaker_t = Worker*(WorkerParams const&, ModuleDescription const&);
-using ModuleTypeFunc_t = ModuleType();
-using ModuleThreadingTypeFunc_t = ModuleThreadingType();
+    using ModuleMaker_t = ModuleBase*(art::ModuleDescription const&,
+                                      WorkerParams const&);
+    using WorkerFromModuleMaker_t = Worker*(ModuleBase*,
+                                            ModuleDescription const&,
+                                            WorkerParams const&);
+    using WorkerMaker_t = Worker*(WorkerParams const&,
+                                  ModuleDescription const&);
+    using ModuleTypeFunc_t = ModuleType();
+    using ModuleThreadingTypeFunc_t = ModuleThreadingType();
 
-} // namespace detail
+  } // namespace detail
 } // namespace art
 
-#define DEFINE_ART_MODULE_NEW(klass) \
-  extern "C" { \
-    CET_PROVIDE_FILE_PATH() \
-    FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass) \
-    art::ModuleBase* \
-    make_module(art::ModuleDescription const& md, art::WorkerParams const& wp) \
-    { \
-      art::ModuleBase* mod = new klass(wp.pset_); \
-      mod->setModuleDescription(md); \
-      mod->setStreamIndex(wp.streamIndex_); \
-      return mod; \
-    } \
-    art::Worker* \
-    make_worker_from_module(art::ModuleBase* mod, art::ModuleDescription const& md, art::WorkerParams const& wp) \
-    { \
-      return new klass::WorkerType(dynamic_cast<klass::ModuleType*>(mod), md, wp); \
-    } \
-    art::ModuleType \
-    moduleType() \
-    { \
-      return art::detail::ModuleTypeDeducer<klass::ModuleType>::value; \
-    } \
+#define DEFINE_ART_MODULE_NEW(klass)                                           \
+  extern "C" {                                                                 \
+  CET_PROVIDE_FILE_PATH()                                                      \
+  FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                                   \
+  art::ModuleBase*                                                             \
+  make_module(art::ModuleDescription const& md, art::WorkerParams const& wp)   \
+  {                                                                            \
+    art::ModuleBase* mod = new klass(wp.pset_);                                \
+    mod->setModuleDescription(md);                                             \
+    mod->setStreamIndex(wp.streamIndex_);                                      \
+    return mod;                                                                \
+  }                                                                            \
+  art::Worker*                                                                 \
+  make_worker_from_module(art::ModuleBase* mod,                                \
+                          art::ModuleDescription const& md,                    \
+                          art::WorkerParams const& wp)                         \
+  {                                                                            \
+    return new klass::WorkerType(                                              \
+      dynamic_cast<klass::ModuleType*>(mod), md, wp);                          \
+  }                                                                            \
+  art::ModuleType                                                              \
+  moduleType()                                                                 \
+  {                                                                            \
+    return art::detail::ModuleTypeDeducer<klass::ModuleType>::value;           \
+  }                                                                            \
   }
 
-#define DEFINE_ART_LEGACY_MODULE(klass) \
-  DEFINE_ART_MODULE_NEW(klass) \
-  extern "C" { \
-    art::ModuleThreadingType \
-    moduleThreadingType() \
-    { \
-      return art::ModuleThreadingType::LEGACY; \
-    } \
+#define DEFINE_ART_LEGACY_MODULE(klass)                                        \
+  DEFINE_ART_MODULE_NEW(klass)                                                 \
+  extern "C" {                                                                 \
+  art::ModuleThreadingType                                                     \
+  moduleThreadingType()                                                        \
+  {                                                                            \
+    return art::ModuleThreadingType::LEGACY;                                   \
+  }                                                                            \
   }
 
-#define DEFINE_ART_ONE_MODULE(klass) \
-  DEFINE_ART_MODULE_NEW(klass) \
-  extern "C" { \
-    art::ModuleThreadingType \
-    moduleThreadingType() \
-    { \
-      return art::ModuleThreadingType::ONE; \
-    } \
+#define DEFINE_ART_ONE_MODULE(klass)                                           \
+  DEFINE_ART_MODULE_NEW(klass)                                                 \
+  extern "C" {                                                                 \
+  art::ModuleThreadingType                                                     \
+  moduleThreadingType()                                                        \
+  {                                                                            \
+    return art::ModuleThreadingType::ONE;                                      \
+  }                                                                            \
   }
 
-#define DEFINE_ART_STREAM_MODULE(klass) \
-  DEFINE_ART_MODULE_NEW(klass) \
-  extern "C" { \
-    art::ModuleThreadingType \
-    moduleThreadingType() \
-    { \
-      return art::ModuleThreadingType::STREAM; \
-    } \
+#define DEFINE_ART_STREAM_MODULE(klass)                                        \
+  DEFINE_ART_MODULE_NEW(klass)                                                 \
+  extern "C" {                                                                 \
+  art::ModuleThreadingType                                                     \
+  moduleThreadingType()                                                        \
+  {                                                                            \
+    return art::ModuleThreadingType::STREAM;                                   \
+  }                                                                            \
   }
 
-#define DEFINE_ART_GLOBAL_MODULE(klass) \
-  DEFINE_ART_MODULE_NEW(klass) \
-  extern "C" { \
-    art::ModuleThreadingType \
-    moduleThreadingType() \
-    { \
-      return art::ModuleThreadingType::GLOBAL; \
-    } \
+#define DEFINE_ART_GLOBAL_MODULE(klass)                                        \
+  DEFINE_ART_MODULE_NEW(klass)                                                 \
+  extern "C" {                                                                 \
+  art::ModuleThreadingType                                                     \
+  moduleThreadingType()                                                        \
+  {                                                                            \
+    return art::ModuleThreadingType::GLOBAL;                                   \
+  }                                                                            \
   }
 
-#define DEFINE_ART_MODULE(klass) \
-  DEFINE_ART_LEGACY_MODULE(klass)
+#define DEFINE_ART_MODULE(klass) DEFINE_ART_LEGACY_MODULE(klass)
 
 #endif /* art_Framework_Core_ModuleMacros_h */
 

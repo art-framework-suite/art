@@ -18,9 +18,10 @@ namespace art {
                           bool dropAllEvents,
                           bool dropAllSubRuns);
 
-    void validateFileNamePattern(bool const do_check, std::string const& pattern);
-  }
-}
+    void validateFileNamePattern(bool const do_check,
+                                 std::string const& pattern);
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_IO_Root_detail_rootOutputConfigurationTools_h */
 

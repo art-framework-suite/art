@@ -17,27 +17,34 @@ namespace art {
 
   class RootFileBlock : public FileBlock {
   public:
-
     RootFileBlock() = default;
 
     RootFileBlock(FileFormatVersion const& version,
                   std::string const& fileName,
                   std::unique_ptr<ResultsPrincipal>&& resp,
                   cet::exempt_ptr<TTree const> ev,
-                  bool const fastCopy) :
-      FileBlock{version, fileName, std::move(resp)},
-      tree_{ev},
-      fastCopyable_{fastCopy}
+                  bool const fastCopy)
+      : FileBlock{version, fileName, std::move(resp)}
+      , tree_{ev}
+      , fastCopyable_{fastCopy}
     {}
 
-    cet::exempt_ptr<TTree const> tree() const {return tree_;}
-    bool fastClonable() const {return fastCopyable_;}
+    cet::exempt_ptr<TTree const>
+    tree() const
+    {
+      return tree_;
+    }
+    bool
+    fastClonable() const
+    {
+      return fastCopyable_;
+    }
 
   private:
     cet::exempt_ptr<TTree const> tree_{nullptr}; // ROOT owns the tree
     bool fastCopyable_{false};
   };
-}
+} // namespace art
 
 #endif /* art_Framework_IO_Root_RootFileBlock_h */
 

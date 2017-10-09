@@ -17,18 +17,18 @@ namespace art {
 
   class FileBlock {
   public:
-
     FileBlock() = default;
     virtual ~FileBlock() noexcept = default;
 
     FileBlock(FileFormatVersion const& version, std::string const& fileName);
-    FileBlock(FileFormatVersion const& version, std::string const& fileName, std::unique_ptr<ResultsPrincipal>&& resp);
+    FileBlock(FileFormatVersion const& version,
+              std::string const& fileName,
+              std::unique_ptr<ResultsPrincipal>&& resp);
 
     FileFormatVersion const& fileFormatVersion() const;
     std::string const& fileName() const;
 
   private:
-
     // Friends only.
     friend class OutputModule;
     ResultsPrincipal const* resultsPrincipal() const;
@@ -37,7 +37,7 @@ namespace art {
     std::string fileName_{};
     std::unique_ptr<ResultsPrincipal> resp_{};
   };
-}
+} // namespace art
 
 #endif /* art_Framework_Core_FileBlock_h */
 

@@ -1,10 +1,11 @@
 #include "art/Framework/Art/detail/AllowedConfiguration.h"
 #include "art/Utilities/PluginSuffixes.h"
 
-int main() try
-{
+int
+main() try {
   for (auto const& pr : art::Suffixes::all()) {
-    art::detail::print_available_plugins(pr.first, true, "art/test/Framework/Art/PrintAvailable/.*");
+    art::detail::print_available_plugins(
+      pr.first, true, "art/test/Framework/Art/PrintAvailable/.*");
   }
 
   // Message facility is special

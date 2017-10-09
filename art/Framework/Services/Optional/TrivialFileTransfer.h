@@ -26,21 +26,24 @@ namespace art {
   class TrivialFileTransfer : public FileTransfer {
   public:
     // configuration
-    struct Config{};
+    struct Config {
+    };
     using Parameters = ServiceTable<Config>;
 
     TrivialFileTransfer(Parameters const& pset);
 
   private:
-
-    int doTranslateToLocalFilename(std::string const& uri, std::string& fileFQname) override;
+    int doTranslateToLocalFilename(std::string const& uri,
+                                   std::string& fileFQname) override;
 
     int stripURI(std::string const& uri, std::string& inFileName) const;
     int copyFile(std::ifstream& in, std::ofstream& out) const;
   };
-} // end of art namespace
+} // namespace art
 
-DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileTransfer, art::FileTransfer, LEGACY)
+DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileTransfer,
+                                   art::FileTransfer,
+                                   LEGACY)
 #endif /* art_Framework_Services_Optional_TrivialFileTransfer_h */
 
 // Local Variables:

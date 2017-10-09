@@ -6,14 +6,15 @@
 namespace art {
   namespace detail {
 
-    inline bool exists_outside_prolog (fhicl::intermediate_table const& config,
-                                       std::string const& key)
+    inline bool
+    exists_outside_prolog(fhicl::intermediate_table const& config,
+                          std::string const& key)
     {
       return config.exists(key) && !config.find(key).in_prolog;
     }
 
-  }
-}
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_Art_detail_exists_outside_prolog_h */
 

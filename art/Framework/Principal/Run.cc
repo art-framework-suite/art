@@ -12,22 +12,18 @@ using fhicl::ParameterSetRegistry;
 
 namespace art {
 
-Run::
-~Run()
-{
-}
+  Run::~Run() {}
 
-Run::
-Run(RunPrincipal const& rp, ModuleDescription const& md, RangeSet const& rs /*= RangeSet::invalid()*/)
-  : DataViewImpl{InRun, rp, md, false, rs}
-{
-}
+  Run::Run(RunPrincipal const& rp,
+           ModuleDescription const& md,
+           RangeSet const& rs /*= RangeSet::invalid()*/)
+    : DataViewImpl{InRun, rp, md, false, rs}
+  {}
 
-RunID const
-Run::
-id() const
-{
-  return DataViewImpl::runID();
-}
+  RunID const
+  Run::id() const
+  {
+    return DataViewImpl::runID();
+  }
 
 } // namespace art

@@ -32,7 +32,6 @@ public:
   explicit DropTestAnalyzer(Parameters const& p);
 
 private:
-
   void analyze(art::Event const& e) override;
 
   art::ProductToken<art::Ptr<std::string>> ptrToken_;
@@ -42,16 +41,17 @@ private:
   bool keepMapVector_;
 };
 
-arttest::DropTestAnalyzer::DropTestAnalyzer(Parameters const& p) :
-  art::EDAnalyzer{p},
-  ptrToken_{consumes<art::Ptr<std::string>>(p().input_label())},
-  mapToken_{consumes<mv_t>(p().input_label())},
-  keepString_{p().keepString()},
-  keepMapVector_{p().keepMapVector()}
-{
-}
+arttest::DropTestAnalyzer::DropTestAnalyzer(Parameters const& p)
+  : art::EDAnalyzer{p}
+  , ptrToken_{consumes<art::Ptr<std::string>>(p().input_label())}
+  , mapToken_{consumes<mv_t>(p().input_label())}
+  , keepString_{p().keepString()}
+  , keepMapVector_{p().keepMapVector()}
+{}
 
-void arttest::DropTestAnalyzer::analyze(art::Event const& e) {
+void
+arttest::DropTestAnalyzer::analyze(art::Event const& e)
+{
   art::Handle<art::Ptr<std::string>> sh;
   BOOST_CHECK_EQUAL((e.getByToken(ptrToken_, sh)), keepString_);
   BOOST_REQUIRE_EQUAL(sh.isValid(), keepString_);
@@ -63,7 +63,8 @@ void arttest::DropTestAnalyzer::analyze(art::Event const& e) {
   BOOST_CHECK_EQUAL((e.getByToken(mapToken_, mvth)), keepMapVector_);
   BOOST_REQUIRE_EQUAL(mvth.isValid(), keepMapVector_);
 
-  if (!keepMapVector_) return;
+  if (!keepMapVector_)
+    return;
 
   mv_t const& mapvec = *mvth;
   BOOST_REQUIRE(mapvec[cet::map_vector_key(7)] == "FOUR");

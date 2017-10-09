@@ -4,11 +4,11 @@
 
 namespace art {
 
-enum BranchActionType {
-  BranchActionBegin, // 0
-  BranchActionEnd, // 1
-  BranchActionProcess // 2
-};
+  enum BranchActionType {
+    BranchActionBegin,  // 0
+    BranchActionEnd,    // 1
+    BranchActionProcess // 2
+  };
 
 } // namespace art
 

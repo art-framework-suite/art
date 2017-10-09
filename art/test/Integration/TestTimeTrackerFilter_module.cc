@@ -13,24 +13,23 @@
 
 namespace arttest {
 
-  class TestTimeTrackerFilter : public art::EDFilter
-  {
+  class TestTimeTrackerFilter : public art::EDFilter {
   public:
-    explicit TestTimeTrackerFilter( fhicl::ParameterSet const& ) {}
+    explicit TestTimeTrackerFilter(fhicl::ParameterSet const&) {}
 
-    bool filter( art::Event& ) override {
+    bool
+    filter(art::Event&) override
+    {
       bool const passesCuts = rand_(dre_) < 0.3;
 
-      return
-        passesCuts ?
-        EDFilter::Pass :
-        EDFilter::Fail ;
+      return passesCuts ? EDFilter::Pass : EDFilter::Fail;
     }
+
   private:
     std::default_random_engine dre_;
     std::uniform_real_distribution<> rand_;
-  };  // TestTimeTrackerFilter
+  }; // TestTimeTrackerFilter
 
-}
+} // namespace arttest
 
 DEFINE_ART_MODULE(arttest::TestTimeTrackerFilter)

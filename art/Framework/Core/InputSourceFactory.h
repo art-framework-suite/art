@@ -5,20 +5,20 @@
 #include <memory>
 
 namespace fhicl {
-class ParameterSet;
+  class ParameterSet;
 } // namespace fhicl
 
 namespace art {
 
-class InputSource;
-class InputSourceDescription;
+  class InputSource;
+  class InputSourceDescription;
 
-namespace InputSourceFactory {
+  namespace InputSourceFactory {
 
-  std::unique_ptr<InputSource>
-  make(fhicl::ParameterSet const&, InputSourceDescription&);
+    std::unique_ptr<InputSource> make(fhicl::ParameterSet const&,
+                                      InputSourceDescription&);
 
-} // namespace InputSourceFactory
+  } // namespace InputSourceFactory
 
 } // namespace art
 

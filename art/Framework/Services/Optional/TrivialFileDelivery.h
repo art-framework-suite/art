@@ -31,7 +31,8 @@ namespace art {
   class TrivialFileDelivery : public CatalogInterface {
   public:
     // configuration
-    struct Config {};
+    struct Config {
+    };
     using Parameters = ServiceTable<Config>;
 
     // ctor -- the services factory will expect this signature
@@ -40,8 +41,9 @@ namespace art {
   private:
     // Classes inheriting this interface must provide the following methods:
     void doConfigure(std::vector<std::string> const& items) override;
-    int  doGetNextFileURI(std::string& uri, double& waitTime) override;
-    void doUpdateStatus(std::string const& uri, FileDisposition status) override;
+    int doGetNextFileURI(std::string& uri, double& waitTime) override;
+    void doUpdateStatus(std::string const& uri,
+                        FileDisposition status) override;
     void doOutputFileOpened(std::string const& module_label) override;
     void doOutputModuleInitiated(std::string const& module_label,
                                  fhicl::ParameterSet const& pset) override;
@@ -54,17 +56,20 @@ namespace art {
     void doRewind() override;
 
     // helper functions
-    std::vector<std::string> extractFileListFromPset(fhicl::ParameterSet const& pset);
+    std::vector<std::string> extractFileListFromPset(
+      fhicl::ParameterSet const& pset);
     std::string prependFileDesignation(std::string const& name) const;
 
     // class data
-    std::vector<std::string> fileList {};
-    std::vector<std::string>::const_iterator nextFile {fileList.cbegin()};
-    std::vector<std::string>::const_iterator endOfFiles {fileList.cend()};
+    std::vector<std::string> fileList{};
+    std::vector<std::string>::const_iterator nextFile{fileList.cbegin()};
+    std::vector<std::string>::const_iterator endOfFiles{fileList.cend()};
   };
 } // end of namespace art
 
-DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileDelivery, art::CatalogInterface, LEGACY)
+DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileDelivery,
+                                   art::CatalogInterface,
+                                   LEGACY)
 #endif /* art_Framework_Services_Optional_TrivialFileDelivery_h */
 
 // Local Variables:

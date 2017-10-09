@@ -101,17 +101,13 @@ namespace art {
   class ResultsProducer : public ModuleBase, private ProductRegistryHelper {
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-
     virtual ~ResultsProducer() noexcept = default;
 
   protected:
-
     template <class P>
-    void
-    produces(std::string const& instanceName = {});
+    void produces(std::string const& instanceName = {});
 
   public:
-
     void doBeginJob();
     void doEndJob();
 
@@ -131,7 +127,6 @@ namespace art {
                           ModuleDescription const& md);
 
   private: // MEMBER FUNCTIONS -- API to be provided by derived classes
-
     virtual void readResults(Results const&);
     virtual void writeResults(Results&) = 0;
 
@@ -147,16 +142,13 @@ namespace art {
     virtual void endSubRun(SubRun const&);
 
     virtual void event(Event const&);
-
   };
 
 } // namespace art
 
-template<class P>
-inline
-void
-art::ResultsProducer::
-produces(std::string const& instanceName)
+template <class P>
+inline void
+art::ResultsProducer::produces(std::string const& instanceName)
 {
   ProductRegistryHelper::produces<P, InResults>(instanceName);
 }
@@ -168,16 +160,16 @@ namespace cet {
   };
 } // namespace cet
 
-#define DEFINE_ART_RESULTS_PLUGIN(klass)                                \
-  extern "C" {                                                          \
-    CET_PROVIDE_FILE_PATH()                                             \
-    FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                          \
-    DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)                  \
-    std::unique_ptr<art::RPWorker>                                      \
-    makeRP(art::RPParams const& rpParams, fhicl::ParameterSet const& ps) \
-    {                                                                   \
-      return std::make_unique<art::RPWorkerT<klass>>(rpParams, ps);     \
-    }                                                                   \
+#define DEFINE_ART_RESULTS_PLUGIN(klass)                                       \
+  extern "C" {                                                                 \
+  CET_PROVIDE_FILE_PATH()                                                      \
+  FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                                   \
+  DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)                           \
+  std::unique_ptr<art::RPWorker>                                               \
+  makeRP(art::RPParams const& rpParams, fhicl::ParameterSet const& ps)         \
+  {                                                                            \
+    return std::make_unique<art::RPWorkerT<klass>>(rpParams, ps);              \
+  }                                                                            \
   }
 
 #endif /* art_Framework_Core_ResultsProducer_h */

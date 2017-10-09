@@ -63,844 +63,725 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-OutputModule::
-~OutputModule() noexcept
-{
-}
+  OutputModule::~OutputModule() noexcept {}
 
-one::
-OutputModule::
-~OutputModule() noexcept
-{
-}
+  one::OutputModule::~OutputModule() noexcept {}
 
-stream::
-OutputModule::
-~OutputModule() noexcept
-{
-}
+  stream::OutputModule::~OutputModule() noexcept {}
 
-global::
-OutputModule::
-~OutputModule() noexcept
-{
-}
+  global::OutputModule::~OutputModule() noexcept {}
 
-OutputModule::
-OutputModule(fhicl::TableFragment<Config> const& config, ParameterSet const& containing_pset)
-  : EventObserverBase{config().eoFragment().selectEvents(), containing_pset}
-  , groupSelectorRules_{config().outputCommands(), "outputCommands", "OutputModule"}
-  , configuredFileName_{config().fileName()}
-  , dataTier_{config().dataTier()}
-  , streamName_{config().streamName()}
-  , plugins_{makePlugins_(containing_pset)}
-{
-}
+  OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
+                             ParameterSet const& containing_pset)
+    : EventObserverBase{config().eoFragment().selectEvents(), containing_pset}
+    , groupSelectorRules_{config().outputCommands(),
+                          "outputCommands",
+                          "OutputModule"}
+    , configuredFileName_{config().fileName()}
+    , dataTier_{config().dataTier()}
+    , streamName_{config().streamName()}
+    , plugins_{makePlugins_(containing_pset)}
+  {}
 
-one::
-OutputModule::
-OutputModule(fhicl::TableFragment<Config> const& config, ParameterSet const& containing_pset)
-  : art::OutputModule{config, containing_pset}
-{
-}
+  one::OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
+                                  ParameterSet const& containing_pset)
+    : art::OutputModule{config, containing_pset}
+  {}
 
-stream::
-OutputModule::
-OutputModule(fhicl::TableFragment<Config> const& config, ParameterSet const& containing_pset)
-  : art::OutputModule{config, containing_pset}
-{
-}
+  stream::OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
+                                     ParameterSet const& containing_pset)
+    : art::OutputModule{config, containing_pset}
+  {}
 
-global::
-OutputModule::
-OutputModule(fhicl::TableFragment<Config> const& config, ParameterSet const& containing_pset)
-  : art::OutputModule{config, containing_pset}
-{
-}
+  global::OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
+                                     ParameterSet const& containing_pset)
+    : art::OutputModule{config, containing_pset}
+  {}
 
-OutputModule::
-OutputModule(ParameterSet const& pset)
-  : EventObserverBase{pset}
-  , groupSelectorRules_{pset.get<vector<string>>("outputCommands", {"keep *"}),
-                        "outputCommands",
-                        "OutputModule"}
-  , configuredFileName_{pset.get<string>("fileName","")}
-  , dataTier_{pset.get<string>("dataTier","")}
-  , streamName_{pset.get<string>("streamName","")}
-  , plugins_{makePlugins_(pset)}
-{
-}
+  OutputModule::OutputModule(ParameterSet const& pset)
+    : EventObserverBase{pset}
+    , groupSelectorRules_{pset.get<vector<string>>("outputCommands",
+                                                   {"keep *"}),
+                          "outputCommands",
+                          "OutputModule"}
+    , configuredFileName_{pset.get<string>("fileName", "")}
+    , dataTier_{pset.get<string>("dataTier", "")}
+    , streamName_{pset.get<string>("streamName", "")}
+    , plugins_{makePlugins_(pset)}
+  {}
 
-one::
-OutputModule::
-OutputModule(ParameterSet const& pset)
-  : art::OutputModule{pset}
-{
-}
+  one::OutputModule::OutputModule(ParameterSet const& pset)
+    : art::OutputModule{pset}
+  {}
 
-stream::
-OutputModule::
-OutputModule(ParameterSet const& pset)
-  : art::OutputModule{pset}
-{
-}
+  stream::OutputModule::OutputModule(ParameterSet const& pset)
+    : art::OutputModule{pset}
+  {}
 
-global::
-OutputModule::
-OutputModule(ParameterSet const& pset)
-  : art::OutputModule{pset}
-{
-}
+  global::OutputModule::OutputModule(ParameterSet const& pset)
+    : art::OutputModule{pset}
+  {}
 
-bool
-OutputModule::
-fileIsOpen() const
-{
-  return isFileOpen();
-}
+  bool
+  OutputModule::fileIsOpen() const
+  {
+    return isFileOpen();
+  }
 
-string
-OutputModule::
-workerType() const
-{
-  return "OutputWorker";
-}
+  string
+  OutputModule::workerType() const
+  {
+    return "OutputWorker";
+  }
 
-void
-OutputModule::
-incrementInputFileNumber()
-{
-}
+  void
+  OutputModule::incrementInputFileNumber()
+  {}
 
-bool
-OutputModule::
-requestsToCloseFile() const
-{
-  return false;
-}
+  bool
+  OutputModule::requestsToCloseFile() const
+  {
+    return false;
+  }
 
-Granularity
-OutputModule::
-fileGranularity() const
-{
-  return Granularity::Unset;
-}
+  Granularity
+  OutputModule::fileGranularity() const
+  {
+    return Granularity::Unset;
+  }
 
-string const&
-OutputModule::
-lastClosedFileName() const
-{
-  return configuredFileName_;
-}
+  string const&
+  OutputModule::lastClosedFileName() const
+  {
+    return configuredFileName_;
+  }
 
-void
-OutputModule::
-configure(OutputModuleDescription const& desc)
-{
-  remainingEvents_ = maxEvents_ = desc.maxEvents_;
-}
+  void
+  OutputModule::configure(OutputModuleDescription const& desc)
+  {
+    remainingEvents_ = maxEvents_ = desc.maxEvents_;
+  }
 
-void
-art::OutputModule::doSelectProducts(ProductTables const& tables)
-{
-  // Note: The keptProducts_ data member records all of the
-  // BranchDescription objects that may be persisted to disk.  Since
-  // we do not reset it, the list never shrinks.  This behavior should
-  // be reconsidered for future use cases of art.
+  void
+  art::OutputModule::doSelectProducts(ProductTables const& tables)
+  {
+    // Note: The keptProducts_ data member records all of the
+    // BranchDescription objects that may be persisted to disk.  Since
+    // we do not reset it, the list never shrinks.  This behavior should
+    // be reconsidered for future use cases of art.
 
-  auto selectProductForBranchType = [this, &tables](BranchType const bt) {
-    auto const& productList = tables.descriptions(bt);
-    GroupSelector const groupSelector{groupSelectorRules_, productList};
+    auto selectProductForBranchType = [this, &tables](BranchType const bt) {
+      auto const& productList = tables.descriptions(bt);
+      GroupSelector const groupSelector{groupSelectorRules_, productList};
 
-    // TODO: See if we can collapse keptProducts_ and groupSelector into
-    // a single object. See the notes in the header for GroupSelector
-    // for more information.
+      // TODO: See if we can collapse keptProducts_ and groupSelector into
+      // a single object. See the notes in the header for GroupSelector
+      // for more information.
 
-    for (auto const& val : productList) {
-      BranchDescription const& pd = val.second;
-      if (pd.transient()) {
-        // Transient, skip it.
-        continue;
-      }
-      if (groupSelector.selected(pd)) {
-        // Selected, keep it.  Here, we take care to merge the
-        // BranchDescription objects if one was already present in the
-        // keptProducts list.
-        auto& keptProducts = keptProducts_[bt];
-        auto it = keptProducts.find(pd.productID());
-        if (it == end(keptProducts)) {
-          // New product
-          keptProducts.emplace(pd.productID(), pd);
+      for (auto const& val : productList) {
+        BranchDescription const& pd = val.second;
+        if (pd.transient()) {
+          // Transient, skip it.
+          continue;
         }
-        else {
-          auto& found_pd = it->second;
-          assert(combinable(found_pd, pd));
-          found_pd.merge(pd);
+        if (groupSelector.selected(pd)) {
+          // Selected, keep it.  Here, we take care to merge the
+          // BranchDescription objects if one was already present in the
+          // keptProducts list.
+          auto& keptProducts = keptProducts_[bt];
+          auto it = keptProducts.find(pd.productID());
+          if (it == end(keptProducts)) {
+            // New product
+            keptProducts.emplace(pd.productID(), pd);
+          } else {
+            auto& found_pd = it->second;
+            assert(combinable(found_pd, pd));
+            found_pd.merge(pd);
+          }
+          continue;
         }
-        continue;
+        // Newly dropped, skip it.
+        hasNewlyDroppedBranch_[bt] = true;
       }
-      // Newly dropped, skip it.
-      hasNewlyDroppedBranch_[bt] = true;
+    };
+    for_each_branch_type(selectProductForBranchType);
+  }
+
+  void
+  art::OutputModule::selectProducts(ProductTables const& tables)
+  {
+    doSelectProducts(tables);
+    postSelectProducts();
+  }
+
+  void
+  art::OutputModule::postSelectProducts()
+  {}
+
+  void
+  art::OutputModule::registerProducts(ProductDescriptions& producedProducts,
+                                      ModuleDescription const& md)
+  {
+    doRegisterProducts(producedProducts, md);
+  }
+
+  void
+  art::OutputModule::doRegisterProducts(ProductDescriptions&,
+                                        ModuleDescription const&)
+  {}
+
+  void
+  OutputModule::doBeginJob()
+  {
+    uses(SharedResourcesRegistry::kLegacy);
+    vector<string> names;
+    for_each(resourceNames_.cbegin(),
+             resourceNames_.cend(),
+             [&names](string const& s) { names.emplace_back(s); });
+    auto queues = SharedResourcesRegistry::instance()->createQueues(
+      SharedResourcesRegistry::kLegacy);
+    chain_.reset(new SerialTaskQueueChain{queues});
+    beginJob();
+    cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
+  }
+
+  void
+  one::OutputModule::doBeginJob()
+  {
+    vector<string> names;
+    for_each(resourceNames_.cbegin(),
+             resourceNames_.cend(),
+             [&names](string const& s) { names.emplace_back(s); });
+    auto queues = SharedResourcesRegistry::instance()->createQueues(
+      SharedResourcesRegistry::kLegacy);
+    chain_.reset(new SerialTaskQueueChain{queues});
+    beginJob();
+    cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
+  }
+
+  void
+  stream::OutputModule::doBeginJob()
+  {
+    beginJob();
+    cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
+  }
+
+  void
+  global::OutputModule::doBeginJob()
+  {
+    beginJob();
+    cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
+  }
+
+  bool
+  OutputModule::doBeginRun(RunPrincipal& rp,
+                           CurrentProcessingContext const* cpc)
+  {
+    detail::CPCSentry sentry{*cpc};
+    FDEBUG(2) << "beginRun called\n";
+    beginRun(rp);
+    Run const r{rp, moduleDescription()};
+    cet::for_all(plugins_, [&r](auto& p) { p->doBeginRun(r); });
+    return true;
+  }
+
+  bool
+  OutputModule::doBeginSubRun(SubRunPrincipal& srp,
+                              CurrentProcessingContext const* cpc)
+  {
+    detail::CPCSentry sentry{*cpc};
+    FDEBUG(2) << "beginSubRun called\n";
+    beginSubRun(srp);
+    SubRun const sr{srp, moduleDescription()};
+    cet::for_all(plugins_, [&sr](auto& p) { p->doBeginSubRun(sr); });
+    return true;
+  }
+
+  bool
+  OutputModule::doEvent(EventPrincipal& ep,
+                        int /*si*/,
+                        CurrentProcessingContext const* cpc,
+                        std::atomic<std::size_t>& counts_run,
+                        std::atomic<std::size_t>& counts_passed,
+                        std::atomic<std::size_t>& /*counts_failed*/)
+  {
+    detail::CPCSentry sentry{*cpc};
+    FDEBUG(2) << "doEvent called\n";
+    Event const e{ep, moduleDescription()};
+    if (wantAllEvents() || wantEvent(e)) {
+      ++counts_run;
+      event(ep);
+      ++counts_passed;
     }
-  };
-  for_each_branch_type(selectProductForBranchType);
-}
-
-void
-art::OutputModule::selectProducts(ProductTables const& tables)
-{
-  doSelectProducts(tables);
-  postSelectProducts();
-}
-
-void
-art::OutputModule::postSelectProducts()
-{}
-
-void
-art::OutputModule::registerProducts(ProductDescriptions& producedProducts,
-                                    ModuleDescription const& md)
-{
-  doRegisterProducts(producedProducts, md);
-}
-
-void
-art::OutputModule::doRegisterProducts(ProductDescriptions&,
-                                      ModuleDescription const&)
-{}
-
-void
-OutputModule::
-doBeginJob()
-{
-  uses(SharedResourcesRegistry::kLegacy);
-  vector<string> names;
-  for_each(resourceNames_.cbegin(), resourceNames_.cend(), [&names](string const& s){names.emplace_back(s);});
-  auto queues = SharedResourcesRegistry::instance()->createQueues(SharedResourcesRegistry::kLegacy);
-  chain_.reset(new SerialTaskQueueChain{queues});
-  beginJob();
-  cet::for_all(plugins_, [](auto & p) { p->doBeginJob(); });
-}
-
-void
-one::
-OutputModule::
-doBeginJob()
-{
-  vector<string> names;
-  for_each(resourceNames_.cbegin(), resourceNames_.cend(), [&names](string const& s){names.emplace_back(s);});
-  auto queues = SharedResourcesRegistry::instance()->createQueues(SharedResourcesRegistry::kLegacy);
-  chain_.reset(new SerialTaskQueueChain{queues});
-  beginJob();
-  cet::for_all(plugins_, [](auto & p) { p->doBeginJob(); });
-}
-
-void
-stream::
-OutputModule::
-doBeginJob()
-{
-  beginJob();
-  cet::for_all(plugins_, [](auto & p) { p->doBeginJob(); });
-}
-
-void
-global::
-OutputModule::
-doBeginJob()
-{
-  beginJob();
-  cet::for_all(plugins_, [](auto & p) { p->doBeginJob(); });
-}
-
-bool
-OutputModule::
-doBeginRun(RunPrincipal& rp, CurrentProcessingContext const* cpc)
-{
-  detail::CPCSentry sentry{*cpc};
-  FDEBUG(2) << "beginRun called\n";
-  beginRun(rp);
-  Run const r{rp, moduleDescription()};
-  cet::for_all(plugins_, [&r](auto & p) { p->doBeginRun(r); });
-  return true;
-}
-
-bool
-OutputModule::
-doBeginSubRun(SubRunPrincipal& srp, CurrentProcessingContext const* cpc)
-{
-  detail::CPCSentry sentry{*cpc};
-  FDEBUG(2) << "beginSubRun called\n";
-  beginSubRun(srp);
-  SubRun const sr{srp, moduleDescription()};
-  cet::for_all(plugins_, [&sr](auto & p) { p->doBeginSubRun(sr); });
-  return true;
-}
-
-bool
-OutputModule::
-doEvent(EventPrincipal& ep, int /*si*/, CurrentProcessingContext const* cpc,
-        std::atomic<std::size_t>& counts_run,
-        std::atomic<std::size_t>& counts_passed,
-        std::atomic<std::size_t>& /*counts_failed*/)
-{
-  detail::CPCSentry sentry{*cpc};
-  FDEBUG(2) << "doEvent called\n";
-  Event const e{ep, moduleDescription()};
-  if (wantAllEvents() || wantEvent(e)) {
-    ++counts_run;
-    event(ep);
-    ++counts_passed;
+    return true;
   }
-  return true;
-}
 
-void
-OutputModule::
-doWriteEvent(EventPrincipal& ep)
-{
-  detail::PVSentry clearTriggerResults{cachedProducts()};
-  FDEBUG(2) << "writeEvent called\n";
-  Event const e{ep, moduleDescription()};
-  if (wantAllEvents() || wantEvent(e)) {
-    write(ep);
-    // Declare that the event was selected for write to the catalog interface.
-    Handle<TriggerResults> trHandle{getTriggerResults(e)};
-    auto const& trRef(trHandle.isValid() ? static_cast<HLTGlobalStatus>(*trHandle) : HLTGlobalStatus{});
-    ci_->eventSelected(moduleDescription().moduleLabel(), ep.eventID(), trRef);
-    // ... and invoke the plugins:
-    // ... The transactional object presented to the plugins is
-    //     different since the relevant context information is not the
-    //     same for the consumes functionality.
-    Event const we{ep, moduleDescription()};
-    cet::for_all(plugins_, [&we](auto & p) { p->doCollectMetadata(we); });
-    updateBranchParents(ep);
-    if (remainingEvents_ > 0) {
-      --remainingEvents_;
-    }
-  }
-}
-
-void
-OutputModule::
-doSetSubRunAuxiliaryRangeSetID(RangeSet const& ranges)
-{
-  setSubRunAuxiliaryRangeSetID(ranges);
-}
-
-bool
-OutputModule::
-doEndSubRun(SubRunPrincipal& srp, CurrentProcessingContext const* cpc)
-{
-  detail::CPCSentry sentry{*cpc};
-  FDEBUG(2) << "endSubRun called\n";
-  endSubRun(srp);
-  SubRun const sr{srp, moduleDescription()};
-  cet::for_all(plugins_, [&sr](auto & p) { p->doEndSubRun(sr); });
-  return true;
-}
-
-void
-OutputModule::
-doWriteSubRun(SubRunPrincipal& srp)
-{
-  FDEBUG(2) << "writeSubRun called\n";
-  writeSubRun(srp);
-}
-
-void
-OutputModule::
-doSetRunAuxiliaryRangeSetID(RangeSet const& ranges)
-{
-  FDEBUG(2) << "writeAuxiliaryRangeSets(rp) called\n";
-  setRunAuxiliaryRangeSetID(ranges);
-}
-
-bool
-OutputModule::
-doEndRun(RunPrincipal& rp, CurrentProcessingContext const* cpc)
-{
-  detail::CPCSentry sentry{*cpc};
-  FDEBUG(2) << "endRun called\n";
-  endRun(rp);
-  Run const r{rp, moduleDescription()};
-  cet::for_all(plugins_, [&r](auto & p) { p->doEndRun(r); });
-  return true;
-}
-
-void
-OutputModule::
-doWriteRun(RunPrincipal& rp)
-{
-  FDEBUG(2) << "writeRun called\n";
-  writeRun(rp);
-}
-
-void
-OutputModule::
-doEndJob()
-{
-  endJob();
-  cet::for_all(plugins_, [](auto & p) { p->doEndJob(); });
-}
-
-
-void
-OutputModule::doOpenFile(FileBlock const& fb)
-{
-  openFile(fb);
-}
-
-void
-OutputModule::
-doRespondToOpenInputFile(FileBlock const& fb)
-{
-  respondToOpenInputFile(fb);
-  unique_ptr<ResultsPrincipal> respHolder;
-  ResultsPrincipal const* respPtr = fb.resultsPrincipal();
-  if (respPtr == nullptr) {
-    respHolder = make_unique<ResultsPrincipal>(ResultsAuxiliary{},
-                                               moduleDescription().processConfiguration(),
-                                               nullptr);
-    respPtr = respHolder.get();
-  }
-  readResults(*respPtr);
-}
-
-void
-OutputModule::
-doRespondToCloseInputFile(FileBlock const& fb)
-{
-  respondToCloseInputFile(fb);
-}
-
-void
-OutputModule::
-doRespondToOpenOutputFiles(FileBlock const& fb)
-{
-  respondToOpenOutputFiles(fb);
-}
-
-void
-OutputModule::
-doRespondToCloseOutputFiles(FileBlock const& fb)
-{
-  respondToCloseOutputFiles(fb);
-}
-
-void
-OutputModule::
-doCloseFile()
-{
-  if (isFileOpen()) {
-    reallyCloseFile();
-  }
-}
-
-void
-OutputModule::
-reallyCloseFile()
-{
-  fillDependencyGraph();
-  startEndFile();
-  writeFileFormatVersion();
-  writeFileIdentifier();
-  writeFileIndex();
-  writeEventHistory();
-  writeProcessConfigurationRegistry();
-  writeProcessHistoryRegistry();
-  writeParameterSetRegistry();
-  writeProductDescriptionRegistry();
-  writeParentageRegistry();
-  writeFileCatalogMetadata();
-  writeProductDependencies();
-  finishEndFile();
-  branchParents_.clear();
-  branchChildren_.clear();
-}
-
-// Called every event (by doWriteEvent) toupdate branchParents_
-// and branchChildren_.
-void
-OutputModule::
-updateBranchParents(EventPrincipal& ep)
-{
-  // Note: threading: We are implicitly using the Principal
-  //       iterators here which iterate over the groups held
-  //       by the principal, which may be updated by a producer
-  //       task in another stream while we are iterating! But
-  //       only for Run, SubRun, and Results principals, in the
-  //       case of Event principals we arrange that no producer
-  //       or filter tasks are running when we run. So since we
-  //       are only called for event principals we are safe.
-  //
-  // Note: threading: We update branchParents_ and
-  //       branchChildren_ here which must be protected if we
-  //       become a stream or global module.
-  //
-  for (auto const& pid_and_uptr_to_grp : ep) {
-    auto const& group = *pid_and_uptr_to_grp.second;
-    if (group.productProvenance()) {
-      ProductID const pid = pid_and_uptr_to_grp.first;
-      auto iter = branchParents_.find(pid);
-      if (iter == branchParents_.end()) {
-        iter = branchParents_.emplace(pid, set<ParentageID>{}).first;
-      }
-      iter->second.insert(group.productProvenance()->parentageID());
-      branchChildren_.insertEmpty(pid);
-    }
-  }
-}
-
-// Called at file close to update branchChildren_ from the accumulated branchParents_.
-void
-OutputModule::
-fillDependencyGraph()
-{
-  for (auto const& bp : branchParents_) {
-    ProductID const child = bp.first;
-    set<ParentageID> const& eIds = bp.second;
-    for (auto const& eId : eIds) {
-      Parentage par;
-      if (!ParentageRegistry::get(eId, par)) {
-        continue;
-      }
-      for (auto const& p : par.parents()) {
-        branchChildren_.insertChild(p, child);
+  void
+  OutputModule::doWriteEvent(EventPrincipal& ep)
+  {
+    detail::PVSentry clearTriggerResults{cachedProducts()};
+    FDEBUG(2) << "writeEvent called\n";
+    Event const e{ep, moduleDescription()};
+    if (wantAllEvents() || wantEvent(e)) {
+      write(ep);
+      // Declare that the event was selected for write to the catalog interface.
+      Handle<TriggerResults> trHandle{getTriggerResults(e)};
+      auto const& trRef(trHandle.isValid() ?
+                          static_cast<HLTGlobalStatus>(*trHandle) :
+                          HLTGlobalStatus{});
+      ci_->eventSelected(
+        moduleDescription().moduleLabel(), ep.eventID(), trRef);
+      // ... and invoke the plugins:
+      // ... The transactional object presented to the plugins is
+      //     different since the relevant context information is not the
+      //     same for the consumes functionality.
+      Event const we{ep, moduleDescription()};
+      cet::for_all(plugins_, [&we](auto& p) { p->doCollectMetadata(we); });
+      updateBranchParents(ep);
+      if (remainingEvents_ > 0) {
+        --remainingEvents_;
       }
     }
   }
-}
 
-void
-OutputModule::
-beginJob()
-{
-}
+  void
+  OutputModule::doSetSubRunAuxiliaryRangeSetID(RangeSet const& ranges)
+  {
+    setSubRunAuxiliaryRangeSetID(ranges);
+  }
 
-void
-OutputModule::
-endJob()
-{
-}
+  bool
+  OutputModule::doEndSubRun(SubRunPrincipal& srp,
+                            CurrentProcessingContext const* cpc)
+  {
+    detail::CPCSentry sentry{*cpc};
+    FDEBUG(2) << "endSubRun called\n";
+    endSubRun(srp);
+    SubRun const sr{srp, moduleDescription()};
+    cet::for_all(plugins_, [&sr](auto& p) { p->doEndSubRun(sr); });
+    return true;
+  }
 
-void
-OutputModule::
-event(EventPrincipal&)
-{
-}
+  void
+  OutputModule::doWriteSubRun(SubRunPrincipal& srp)
+  {
+    FDEBUG(2) << "writeSubRun called\n";
+    writeSubRun(srp);
+  }
 
-void
-OutputModule::
-event_in_stream(EventPrincipal&, int /*si*/)
-{
-}
+  void
+  OutputModule::doSetRunAuxiliaryRangeSetID(RangeSet const& ranges)
+  {
+    FDEBUG(2) << "writeAuxiliaryRangeSets(rp) called\n";
+    setRunAuxiliaryRangeSetID(ranges);
+  }
 
-void
-OutputModule::
-beginRun(RunPrincipal&)
-{
-}
+  bool
+  OutputModule::doEndRun(RunPrincipal& rp, CurrentProcessingContext const* cpc)
+  {
+    detail::CPCSentry sentry{*cpc};
+    FDEBUG(2) << "endRun called\n";
+    endRun(rp);
+    Run const r{rp, moduleDescription()};
+    cet::for_all(plugins_, [&r](auto& p) { p->doEndRun(r); });
+    return true;
+  }
 
-void
-OutputModule::
-endRun(RunPrincipal&)
-{
-}
+  void
+  OutputModule::doWriteRun(RunPrincipal& rp)
+  {
+    FDEBUG(2) << "writeRun called\n";
+    writeRun(rp);
+  }
 
-void
-OutputModule::
-beginSubRun(SubRunPrincipal&)
-{
-}
+  void
+  OutputModule::doEndJob()
+  {
+    endJob();
+    cet::for_all(plugins_, [](auto& p) { p->doEndJob(); });
+  }
 
-void
-OutputModule::
-endSubRun(SubRunPrincipal&)
-{
-}
+  void
+  OutputModule::doOpenFile(FileBlock const& fb)
+  {
+    openFile(fb);
+  }
 
-void
-OutputModule::
-setRunAuxiliaryRangeSetID(RangeSet const&)
-{
-}
+  void
+  OutputModule::doRespondToOpenInputFile(FileBlock const& fb)
+  {
+    respondToOpenInputFile(fb);
+    unique_ptr<ResultsPrincipal> respHolder;
+    ResultsPrincipal const* respPtr = fb.resultsPrincipal();
+    if (respPtr == nullptr) {
+      respHolder = make_unique<ResultsPrincipal>(
+        ResultsAuxiliary{},
+        moduleDescription().processConfiguration(),
+        nullptr);
+      respPtr = respHolder.get();
+    }
+    readResults(*respPtr);
+  }
 
-void
-OutputModule::
-setSubRunAuxiliaryRangeSetID(RangeSet const&)
-{
-}
+  void
+  OutputModule::doRespondToCloseInputFile(FileBlock const& fb)
+  {
+    respondToCloseInputFile(fb);
+  }
 
-void
-OutputModule::
-openFile(FileBlock const&)
-{
-}
+  void
+  OutputModule::doRespondToOpenOutputFiles(FileBlock const& fb)
+  {
+    respondToOpenOutputFiles(fb);
+  }
 
-void
-OutputModule::
-respondToOpenInputFile(FileBlock const&)
-{
-}
+  void
+  OutputModule::doRespondToCloseOutputFiles(FileBlock const& fb)
+  {
+    respondToCloseOutputFiles(fb);
+  }
 
-void
-OutputModule::
-readResults(ResultsPrincipal const&)
-{
-}
+  void
+  OutputModule::doCloseFile()
+  {
+    if (isFileOpen()) {
+      reallyCloseFile();
+    }
+  }
 
-void
-OutputModule::
-respondToCloseInputFile(FileBlock const&)
-{
-}
+  void
+  OutputModule::reallyCloseFile()
+  {
+    fillDependencyGraph();
+    startEndFile();
+    writeFileFormatVersion();
+    writeFileIdentifier();
+    writeFileIndex();
+    writeEventHistory();
+    writeProcessConfigurationRegistry();
+    writeProcessHistoryRegistry();
+    writeParameterSetRegistry();
+    writeProductDescriptionRegistry();
+    writeParentageRegistry();
+    writeFileCatalogMetadata();
+    writeProductDependencies();
+    finishEndFile();
+    branchParents_.clear();
+    branchChildren_.clear();
+  }
 
-void
-OutputModule::
-respondToOpenOutputFiles(FileBlock const&)
-{
-}
+  // Called every event (by doWriteEvent) toupdate branchParents_
+  // and branchChildren_.
+  void
+  OutputModule::updateBranchParents(EventPrincipal& ep)
+  {
+    // Note: threading: We are implicitly using the Principal
+    //       iterators here which iterate over the groups held
+    //       by the principal, which may be updated by a producer
+    //       task in another stream while we are iterating! But
+    //       only for Run, SubRun, and Results principals, in the
+    //       case of Event principals we arrange that no producer
+    //       or filter tasks are running when we run. So since we
+    //       are only called for event principals we are safe.
+    //
+    // Note: threading: We update branchParents_ and
+    //       branchChildren_ here which must be protected if we
+    //       become a stream or global module.
+    //
+    for (auto const& pid_and_uptr_to_grp : ep) {
+      auto const& group = *pid_and_uptr_to_grp.second;
+      if (group.productProvenance()) {
+        ProductID const pid = pid_and_uptr_to_grp.first;
+        auto iter = branchParents_.find(pid);
+        if (iter == branchParents_.end()) {
+          iter = branchParents_.emplace(pid, set<ParentageID>{}).first;
+        }
+        iter->second.insert(group.productProvenance()->parentageID());
+        branchChildren_.insertEmpty(pid);
+      }
+    }
+  }
 
-void
-OutputModule::
-respondToCloseOutputFiles(FileBlock const&)
-{
-}
-
-bool
-OutputModule::
-isFileOpen() const
-{
-  return true;
-}
-
-void
-OutputModule::setFileStatus(OutputFileStatus const)
-{
-}
-
-void
-OutputModule::
-startEndFile()
-{
-}
-
-void
-OutputModule::
-writeFileFormatVersion()
-{
-}
-
-void
-OutputModule::
-writeFileIdentifier()
-{
-}
-
-void
-OutputModule::
-writeFileIndex()
-{
-}
-
-void
-OutputModule::
-writeEventHistory()
-{
-}
-
-void
-OutputModule::
-writeProcessConfigurationRegistry()
-{
-}
-
-void
-OutputModule::
-writeProcessHistoryRegistry()
-{
-}
-
-void
-OutputModule::
-writeParameterSetRegistry()
-{
-}
-
-void
-OutputModule::
-writeBranchIDListRegistry()
-{
-}
-
-void
-OutputModule::
-writeParentageRegistry()
-{
-}
-
-void
-OutputModule::
-writeProductDescriptionRegistry()
-{
-}
-
-namespace {
-void
-collectStreamSpecificMetadata(vector<unique_ptr<FileCatalogMetadataPlugin>> const& plugins, vector<string> const& pluginNames,
-                              FileCatalogMetadata::collection_type& ssmd)
-{
-  size_t pluginCounter = 0;
-  ostringstream errors;
-  for (auto& plugin : plugins) {
-    FileCatalogMetadata::collection_type tmp = plugin->doProduceMetadata();
-    ssmd.reserve(tmp.size() + ssmd.size());
-    for (auto && entry : tmp) {
-      if (ServiceHandle<FileCatalogMetadata const>{}->wantCheckSyntax()) {
-        rapidjson::Document d;
-        string checkString("{ ");
-        checkString += cet::canonical_string(entry.first) + " : " + entry.second + " }";
-        if (d.Parse(checkString.c_str()).HasParseError()) {
-          auto const nSpaces = d.GetErrorOffset();
-          cerr << "nSpaces = " << nSpaces << ".\n";
-          errors
-              << "OutputModule::writeCatalogMetadata():"
-              << "syntax error in metadata produced by plugin "
-              << pluginNames[pluginCounter]
-              << ":\n"
-              << rapidjson::GetParseError_En(d.GetParseError())
-              << " Faulty key/value clause:\n"
-              << checkString << "\n"
-              << (nSpaces ? string(nSpaces, '-') : "")
-              << "^\n";
+  // Called at file close to update branchChildren_ from the accumulated
+  // branchParents_.
+  void
+  OutputModule::fillDependencyGraph()
+  {
+    for (auto const& bp : branchParents_) {
+      ProductID const child = bp.first;
+      set<ParentageID> const& eIds = bp.second;
+      for (auto const& eId : eIds) {
+        Parentage par;
+        if (!ParentageRegistry::get(eId, par)) {
+          continue;
+        }
+        for (auto const& p : par.parents()) {
+          branchChildren_.insertChild(p, child);
         }
       }
-      ssmd.emplace_back(move(entry));
     }
-    ++pluginCounter;
   }
-  auto const errMsg = errors.str();
-  if (!errMsg.empty()) {
-    throw Exception(errors::DataCorruption) << errMsg;
+
+  void
+  OutputModule::beginJob()
+  {}
+
+  void
+  OutputModule::endJob()
+  {}
+
+  void
+  OutputModule::event(EventPrincipal&)
+  {}
+
+  void
+  OutputModule::event_in_stream(EventPrincipal&, int /*si*/)
+  {}
+
+  void
+  OutputModule::beginRun(RunPrincipal&)
+  {}
+
+  void
+  OutputModule::endRun(RunPrincipal&)
+  {}
+
+  void
+  OutputModule::beginSubRun(SubRunPrincipal&)
+  {}
+
+  void
+  OutputModule::endSubRun(SubRunPrincipal&)
+  {}
+
+  void
+  OutputModule::setRunAuxiliaryRangeSetID(RangeSet const&)
+  {}
+
+  void
+  OutputModule::setSubRunAuxiliaryRangeSetID(RangeSet const&)
+  {}
+
+  void
+  OutputModule::openFile(FileBlock const&)
+  {}
+
+  void
+  OutputModule::respondToOpenInputFile(FileBlock const&)
+  {}
+
+  void
+  OutputModule::readResults(ResultsPrincipal const&)
+  {}
+
+  void
+  OutputModule::respondToCloseInputFile(FileBlock const&)
+  {}
+
+  void
+  OutputModule::respondToOpenOutputFiles(FileBlock const&)
+  {}
+
+  void
+  OutputModule::respondToCloseOutputFiles(FileBlock const&)
+  {}
+
+  bool
+  OutputModule::isFileOpen() const
+  {
+    return true;
   }
-}
-}
 
-void
-OutputModule::
-writeFileCatalogMetadata()
-{
-  // Obtain metadata from service for output.
-  FileCatalogMetadata::collection_type md;
-  ServiceHandle<FileCatalogMetadata const>{}->getMetadata(md);
-  if (!dataTier_.empty()) {
-    md.emplace_back("data_tier", cet::canonical_string(dataTier_));
-  }
-  if (!streamName_.empty()) {
-    md.emplace_back("data_stream", cet::canonical_string(streamName_));
-  }
-  // Ask any plugins for their list of metadata, and put it in a
-  // separate list for the output module. The user stream-specific
-  // metadata should override stream-specific metadata generated by the
-  // output module iself.
-  FileCatalogMetadata::collection_type ssmd;
-  collectStreamSpecificMetadata(plugins_, pluginNames_, ssmd);
-  doWriteFileCatalogMetadata(md, ssmd);
-}
+  void
+  OutputModule::setFileStatus(OutputFileStatus const)
+  {}
 
-void
-OutputModule::
-doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const&, FileCatalogMetadata::collection_type const&)
-{
-}
+  void
+  OutputModule::startEndFile()
+  {}
 
-void
-OutputModule::
-writeProductDependencies()
-{
-}
+  void
+  OutputModule::writeFileFormatVersion()
+  {}
 
-void
-OutputModule::
-finishEndFile()
-{
-}
+  void
+  OutputModule::writeFileIdentifier()
+  {}
 
-OutputModule::PluginCollection_t
-OutputModule::
-makePlugins_(ParameterSet const& top_pset)
-{
-  auto const psets = top_pset.get<vector<ParameterSet>>("FCMDPlugins", {});
-  PluginCollection_t result;
-  result.reserve(psets.size());
-  size_t count{0};
-  try {
-    for (auto const& pset : psets) {
-      pluginNames_.emplace_back(pset.get<string>("plugin_type"));
-      auto const& libspec = pluginNames_.back();
-      auto const pluginType = pluginFactory_.pluginType(libspec);
-      if (pluginType != cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
-        throw Exception(errors::Configuration, "OutputModule: ")
-            << "unrecognized plugin type "
-            << pluginType
-            << ".\n";
+  void
+  OutputModule::writeFileIndex()
+  {}
+
+  void
+  OutputModule::writeEventHistory()
+  {}
+
+  void
+  OutputModule::writeProcessConfigurationRegistry()
+  {}
+
+  void
+  OutputModule::writeProcessHistoryRegistry()
+  {}
+
+  void
+  OutputModule::writeParameterSetRegistry()
+  {}
+
+  void
+  OutputModule::writeBranchIDListRegistry()
+  {}
+
+  void
+  OutputModule::writeParentageRegistry()
+  {}
+
+  void
+  OutputModule::writeProductDescriptionRegistry()
+  {}
+
+  namespace {
+    void
+    collectStreamSpecificMetadata(
+      vector<unique_ptr<FileCatalogMetadataPlugin>> const& plugins,
+      vector<string> const& pluginNames,
+      FileCatalogMetadata::collection_type& ssmd)
+    {
+      size_t pluginCounter = 0;
+      ostringstream errors;
+      for (auto& plugin : plugins) {
+        FileCatalogMetadata::collection_type tmp = plugin->doProduceMetadata();
+        ssmd.reserve(tmp.size() + ssmd.size());
+        for (auto&& entry : tmp) {
+          if (ServiceHandle<FileCatalogMetadata const> {}->wantCheckSyntax()) {
+            rapidjson::Document d;
+            string checkString("{ ");
+            checkString +=
+              cet::canonical_string(entry.first) + " : " + entry.second + " }";
+            if (d.Parse(checkString.c_str()).HasParseError()) {
+              auto const nSpaces = d.GetErrorOffset();
+              cerr << "nSpaces = " << nSpaces << ".\n";
+              errors << "OutputModule::writeCatalogMetadata():"
+                     << "syntax error in metadata produced by plugin "
+                     << pluginNames[pluginCounter] << ":\n"
+                     << rapidjson::GetParseError_En(d.GetParseError())
+                     << " Faulty key/value clause:\n"
+                     << checkString << "\n"
+                     << (nSpaces ? string(nSpaces, '-') : "") << "^\n";
+            }
+          }
+          ssmd.emplace_back(move(entry));
+        }
+        ++pluginCounter;
       }
-      result.emplace_back(pluginFactory_.makePlugin<unique_ptr<FileCatalogMetadataPlugin>>(libspec, pset));
-      ++count;
+      auto const errMsg = errors.str();
+      if (!errMsg.empty()) {
+        throw Exception(errors::DataCorruption) << errMsg;
+      }
     }
+  } // namespace
+
+  void
+  OutputModule::writeFileCatalogMetadata()
+  {
+    // Obtain metadata from service for output.
+    FileCatalogMetadata::collection_type md;
+    ServiceHandle<FileCatalogMetadata const> {}
+    ->getMetadata(md);
+    if (!dataTier_.empty()) {
+      md.emplace_back("data_tier", cet::canonical_string(dataTier_));
+    }
+    if (!streamName_.empty()) {
+      md.emplace_back("data_stream", cet::canonical_string(streamName_));
+    }
+    // Ask any plugins for their list of metadata, and put it in a
+    // separate list for the output module. The user stream-specific
+    // metadata should override stream-specific metadata generated by the
+    // output module iself.
+    FileCatalogMetadata::collection_type ssmd;
+    collectStreamSpecificMetadata(plugins_, pluginNames_, ssmd);
+    doWriteFileCatalogMetadata(md, ssmd);
   }
-  catch (cet::exception& e) {
-    throw Exception(errors::Configuration, "OutputModule: ", e)
-        << "Exception caught while processing FCMDPlugins["
-        << count
-        << "] in module "
-        << moduleDescription().moduleLabel()
-        << ".\n";
+
+  void
+  OutputModule::doWriteFileCatalogMetadata(
+    FileCatalogMetadata::collection_type const&,
+    FileCatalogMetadata::collection_type const&)
+  {}
+
+  void
+  OutputModule::writeProductDependencies()
+  {}
+
+  void
+  OutputModule::finishEndFile()
+  {}
+
+  OutputModule::PluginCollection_t
+  OutputModule::makePlugins_(ParameterSet const& top_pset)
+  {
+    auto const psets = top_pset.get<vector<ParameterSet>>("FCMDPlugins", {});
+    PluginCollection_t result;
+    result.reserve(psets.size());
+    size_t count{0};
+    try {
+      for (auto const& pset : psets) {
+        pluginNames_.emplace_back(pset.get<string>("plugin_type"));
+        auto const& libspec = pluginNames_.back();
+        auto const pluginType = pluginFactory_.pluginType(libspec);
+        if (pluginType !=
+            cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
+          throw Exception(errors::Configuration, "OutputModule: ")
+            << "unrecognized plugin type " << pluginType << ".\n";
+        }
+        result.emplace_back(
+          pluginFactory_.makePlugin<unique_ptr<FileCatalogMetadataPlugin>>(
+            libspec, pset));
+        ++count;
+      }
+    }
+    catch (cet::exception& e) {
+      throw Exception(errors::Configuration, "OutputModule: ", e)
+        << "Exception caught while processing FCMDPlugins[" << count
+        << "] in module " << moduleDescription().moduleLabel() << ".\n";
+    }
+    return result;
   }
-  return result;
-}
 
-int
-OutputModule::
-maxEvents() const
-{
-  return maxEvents_;
-}
+  int
+  OutputModule::maxEvents() const
+  {
+    return maxEvents_;
+  }
 
-int
-OutputModule::
-remainingEvents() const
-{
-  return remainingEvents_;
-}
+  int
+  OutputModule::remainingEvents() const
+  {
+    return remainingEvents_;
+  }
 
-SelectionsArray const&
-OutputModule::
-keptProducts() const
-{
-  return keptProducts_;
-}
+  SelectionsArray const&
+  OutputModule::keptProducts() const
+  {
+    return keptProducts_;
+  }
 
-std::array<bool, NumBranchTypes> const&
-OutputModule::
-hasNewlyDroppedBranch() const
-{
-  return hasNewlyDroppedBranch_;
-}
+  std::array<bool, NumBranchTypes> const&
+  OutputModule::hasNewlyDroppedBranch() const
+  {
+    return hasNewlyDroppedBranch_;
+  }
 
-BranchChildren const&
-OutputModule::
-branchChildren() const
-{
-  return branchChildren_;
-}
+  BranchChildren const&
+  OutputModule::branchChildren() const
+  {
+    return branchChildren_;
+  }
 
-bool
-OutputModule::
-limitReached() const
-{
-  return remainingEvents_ == 0;
-}
+  bool
+  OutputModule::limitReached() const
+  {
+    return remainingEvents_ == 0;
+  }
 
 } // namespace art

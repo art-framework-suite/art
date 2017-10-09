@@ -5,8 +5,8 @@
 //--------------------------------------------------------------------
 
 #include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -20,30 +20,27 @@ namespace arttest {
 
 using arttest::BareStringProducer;
 
-class arttest::BareStringProducer
-  : public art::EDProducer
-{
+class arttest::BareStringProducer : public art::EDProducer {
 public:
-  explicit BareStringProducer( fhicl::ParameterSet const& p )
-    : value_( p.get<std::string>("value") )
+  explicit BareStringProducer(fhicl::ParameterSet const& p)
+    : value_(p.get<std::string>("value"))
   {
     produces<std::string>();
   }
 
-  explicit BareStringProducer( std::string const &s )
-  : value_(s)
+  explicit BareStringProducer(std::string const& s) : value_(s)
   {
     produces<std::string>();
   }
 
-  void produce( art::Event& e ) override;
+  void produce(art::Event& e) override;
 
 private:
   std::string value_;
-};  // BareStringProducer
+}; // BareStringProducer
 
 void
-BareStringProducer::produce( art::Event& e )
+BareStringProducer::produce(art::Event& e)
 {
   std::cerr << "Holy cow, BareStringProducer::produce is running!\n";
   std::unique_ptr<std::string> p(new std::string(value_));

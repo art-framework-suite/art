@@ -77,19 +77,24 @@
 namespace art {
   namespace detail {
 
-    void print_available_plugins(suffix_type st, bool const verbose, std::string const& spec);
+    void print_available_plugins(suffix_type st,
+                                 bool const verbose,
+                                 std::string const& spec);
 
-    inline void print_available_plugins(suffix_type st, bool const verbose)
+    inline void
+    print_available_plugins(suffix_type st, bool const verbose)
     {
       print_available_plugins(st, verbose, dflt_spec_pattern());
     }
 
-    bool supports_key(suffix_type st, std::string const& spec, std::string const& key);
+    bool supports_key(suffix_type st,
+                      std::string const& spec,
+                      std::string const& key);
     void print_description(std::vector<PluginMetadata> const& matches);
     void print_descriptions(std::vector<std::string> const& plugins);
 
-  }
-}
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_Art_detail_AllowedConfiguration_h */
 

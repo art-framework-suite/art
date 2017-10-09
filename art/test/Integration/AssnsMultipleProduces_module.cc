@@ -13,16 +13,15 @@ namespace art {
   namespace test {
     class AssnsMultipleProduces;
   }
-}
+} // namespace art
 
 class art::test::AssnsMultipleProduces : public EDProducer {
 public:
-
-  struct Config {};
+  struct Config {
+  };
   using Parameters = EDProducer::Table<Config>;
   explicit AssnsMultipleProduces(Parameters const&);
-  void produce(art::Event&) override {};
-
+  void produce(art::Event&) override{};
 };
 
 using std::size_t;

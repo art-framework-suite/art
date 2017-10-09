@@ -8,12 +8,17 @@
 
 namespace art {
 
-int run_art(int argc, char** argv, bpo::options_description& all_desc, cet::filepath_maker& lookupPolicy,
-            art::OptionsHandlers&& handlers, art::detail::DebugOutput&& dbg);
+  int run_art(int argc,
+              char** argv,
+              bpo::options_description& all_desc,
+              cet::filepath_maker& lookupPolicy,
+              art::OptionsHandlers&& handlers,
+              art::detail::DebugOutput&& dbg);
 
-int run_art_string_config(std::string const& config_string);
+  int run_art_string_config(std::string const& config_string);
 
-int run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::DebugOutput);
+  int run_art_common_(fhicl::ParameterSet const& main_pset,
+                      art::detail::DebugOutput);
 
 } // namespace art
 

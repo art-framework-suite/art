@@ -7,58 +7,45 @@
 
 namespace art {
 
-template <Level, typename T>
-class MaybeIncrementCounts {
+  template <Level, typename T>
+  class MaybeIncrementCounts {
 
-public:
+  public:
+    MaybeIncrementCounts(T&) {}
 
-  MaybeIncrementCounts(T&)
-  {
-  }
+  public:
+    template <typename... ARGS>
+    void
+    increment()
+    {}
 
-public:
+    void
+    update(bool const)
+    {}
+  };
 
-  template <typename... ARGS>
-  void
-  increment()
-  {
-  }
+  template <typename T>
+  class MaybeIncrementCounts<Level::Event, T> {
 
-  void
-  update(bool const)
-  {
-  }
+  public:
+    MaybeIncrementCounts(T& t) : t_{t} {}
 
-};
+    template <typename... ARGS>
+    void
+    increment()
+    {
+      t_.template increment<ARGS...>();
+    }
 
-template <typename T>
-class MaybeIncrementCounts<Level::Event, T> {
+    void
+    update(bool const rc)
+    {
+      t_.update(rc);
+    }
 
-public:
-
-  MaybeIncrementCounts(T& t)
-    : t_{t}
-  {
-  }
-
-  template <typename... ARGS>
-  void
-  increment()
-  {
-    t_.template increment<ARGS...>();
-  }
-
-  void
-  update(bool const rc)
-  {
-    t_.update(rc);
-  }
-
-private:
-
-  T& t_;
-
-};
+  private:
+    T& t_;
+  };
 
 } // namespace art
 

@@ -11,65 +11,46 @@
 
 namespace art {
 
-class PathsInfo {
+  class PathsInfo {
 
-public:
+  public:
+    ~PathsInfo();
 
-  ~PathsInfo();
+    PathsInfo();
 
-  PathsInfo();
+  public:
+    std::map<std::string, Worker*>& workers();
 
-public:
+    std::map<std::string, Worker*> const& workers() const;
 
-  std::map<std::string, Worker*>&
-  workers();
+    std::vector<Path*>& paths();
 
-  std::map<std::string, Worker*> const&
-  workers() const;
+    std::vector<Path*> const& paths() const;
 
-  std::vector<Path*>&
-  paths();
+    HLTGlobalStatus& pathResults();
 
-  std::vector<Path*> const&
-  paths() const;
+    void incrementTotalEventCount();
 
-  HLTGlobalStatus&
-  pathResults();
+    void incrementPassedEventCount();
 
-  void
-  incrementTotalEventCount();
+    std::size_t passedEvents() const;
 
-  void
-  incrementPassedEventCount();
+    std::size_t failedEvents() const;
 
-  std::size_t
-  passedEvents() const;
+    std::size_t totalEvents() const;
 
-  std::size_t
-  failedEvents() const;
+  private:
+    // Maps module_label to Worker.
+    std::map<std::string, Worker*> workers_{};
 
-  std::size_t
-  totalEvents() const;
+    std::vector<Path*> paths_{};
 
-private:
+    HLTGlobalStatus pathResults_{};
 
-  // Maps module_label to Worker.
-  std::map<std::string, Worker*>
-  workers_{};
+    std::size_t totalEvents_{};
 
-  std::vector<Path*>
-  paths_{};
-
-  HLTGlobalStatus
-  pathResults_{};
-
-  std::size_t
-  totalEvents_{};
-
-  std::size_t
-  passedEvents_{};
-
-};
+    std::size_t passedEvents_{};
+  };
 
 } // namespace art
 

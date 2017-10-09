@@ -18,19 +18,22 @@ namespace fhicl {
 namespace art {
   class DatabaseConnection {
   public:
-
     explicit DatabaseConnection(fhicl::ParameterSet const&) {}
 
-    template <typename DatabaseOpenPolicy = cet::sqlite::detail::DefaultDatabaseOpenPolicy, typename... PolicyArgs>
-    cet::sqlite::Connection get(std::string const& filename, PolicyArgs&&... policyArgs)
+    template <typename DatabaseOpenPolicy =
+                cet::sqlite::detail::DefaultDatabaseOpenPolicy,
+              typename... PolicyArgs>
+    cet::sqlite::Connection
+    get(std::string const& filename, PolicyArgs&&... policyArgs)
     {
-      return factory_.make<DatabaseOpenPolicy>(filename, std::forward<PolicyArgs>(policyArgs)...);
+      return factory_.make<DatabaseOpenPolicy>(
+        filename, std::forward<PolicyArgs>(policyArgs)...);
     }
 
   private:
     cet::sqlite::ConnectionFactory factory_;
   };
-}
+} // namespace art
 
 DECLARE_ART_SERVICE(art::DatabaseConnection, LEGACY)
 #endif /* art_Framework_Services_System_DatabaseConnection_h */

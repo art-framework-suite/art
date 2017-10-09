@@ -24,26 +24,23 @@ namespace arttest {
 
 class arttest::ESAnalyzer : public art::EDProducer {
 public:
-  explicit ESAnalyzer(fhicl::ParameterSet const & p);
+  explicit ESAnalyzer(fhicl::ParameterSet const& p);
 
-  void produce(art::Event & e) override;
-
+  void produce(art::Event& e) override;
 
 private:
-
   // Declare member data here.
-
 };
 
-
-arttest::ESAnalyzer::ESAnalyzer(fhicl::ParameterSet const & p)
+arttest::ESAnalyzer::ESAnalyzer(fhicl::ParameterSet const& p)
 // :
 // Initialize member data here.
 {
   // Call appropriate Produces<>() functions here.
 }
 
-void arttest::ESAnalyzer::produce(art::Event & e)
+void
+arttest::ESAnalyzer::produce(art::Event& e)
 {
   // Implementation of required member function here.
 }

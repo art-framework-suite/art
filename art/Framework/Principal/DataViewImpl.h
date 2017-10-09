@@ -71,8 +71,8 @@
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedTypeID.h"
-#include "cetlib/container_algorithms.h"
 #include "cetlib/HorizontalRule.h"
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>
@@ -89,9 +89,8 @@ namespace art {
 
   class EDProductGetter;
 
-  template<typename PROD>
-  std::ostream&
-  operator<<(std::ostream& os, Handle<PROD> const& h);
+  template <typename PROD>
+  std::ostream& operator<<(std::ostream& os, Handle<PROD> const& h);
 
   class DataViewImpl {
 
@@ -101,342 +100,297 @@ namespace art {
     friend class ResultsProducer;
 
   public: // TYPES
-
     struct PMValue {
 
-      PMValue(std::unique_ptr<EDProduct>&& p, BranchDescription const& b, RangeSet const& r)
+      PMValue(std::unique_ptr<EDProduct>&& p,
+              BranchDescription const& b,
+              RangeSet const& r)
         : prod{std::move(p)}, bd{b}, rs{r}
-      {
-      }
+      {}
 
       std::unique_ptr<EDProduct> prod;
       BranchDescription const& bd;
       RangeSet rs;
-
     };
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-
     ~DataViewImpl();
 
-    explicit
-    DataViewImpl(BranchType bt,
-                 Principal const& p,
-                 ModuleDescription const& md,
-                 bool recordParents,
-                 RangeSet const& rs = RangeSet::invalid());
+    explicit DataViewImpl(BranchType bt,
+                          Principal const& p,
+                          ModuleDescription const& md,
+                          bool recordParents,
+                          RangeSet const& rs = RangeSet::invalid());
 
     DataViewImpl(DataViewImpl const&) = delete;
 
     DataViewImpl(DataViewImpl&&) = delete;
 
-    DataViewImpl&
-    operator=(DataViewImpl const&) = delete;
+    DataViewImpl& operator=(DataViewImpl const&) = delete;
 
-    DataViewImpl&
-    operator=(DataViewImpl&) = delete;
+    DataViewImpl& operator=(DataViewImpl&) = delete;
 
   public: // MEMBER FUNCTIONS -- User-facing API - misc
+    RunID runID() const;
 
-    RunID
-    runID() const;
+    SubRunID subRunID() const;
 
-    SubRunID
-    subRunID() const;
+    EventID eventID() const;
 
-    EventID
-    eventID() const;
+    RunNumber_t run() const;
 
-    RunNumber_t
-    run() const;
+    SubRunNumber_t subRun() const;
 
-    SubRunNumber_t
-    subRun() const;
+    EventNumber_t event() const;
 
-    EventNumber_t
-    event() const;
+    Timestamp const& beginTime() const;
 
-    Timestamp const&
-    beginTime() const;
+    Timestamp const& endTime() const;
 
-    Timestamp const&
-    endTime() const;
+    Timestamp time() const;
 
-    Timestamp
-    time() const;
+    bool isRealData() const;
 
-    bool
-    isRealData() const;
+    EventAuxiliary::ExperimentType experimentType() const;
 
-    EventAuxiliary::ExperimentType
-    experimentType() const;
+    History const& history() const;
 
-    History const&
-    history() const;
+    ProcessHistoryID const& processHistoryID() const;
 
-    ProcessHistoryID const&
-    processHistoryID() const;
+    size_t size() const;
 
-    size_t
-    size() const;
+    ProcessHistory const& processHistory() const;
 
-    ProcessHistory const&
-    processHistory() const;
+    template <typename PROD>
+    bool removeCachedProduct(Handle<PROD>&) const;
 
-    template<typename PROD>
-    bool
-    removeCachedProduct(Handle<PROD>&) const;
+    EDProductGetter const* productGetter(ProductID const pid) const;
 
-    EDProductGetter const*
-    productGetter(ProductID const pid) const;
-
-    bool
-    getProcessParameterSet(std::string const& process, fhicl::ParameterSet&) const;
+    bool getProcessParameterSet(std::string const& process,
+                                fhicl::ParameterSet&) const;
 
   public: // MEMBER FUNCTIONS -- User-facing API -- get*
+    template <typename PROD>
+    bool get(SelectorBase const&, Handle<PROD>& result) const;
 
-    template<typename PROD>
-    bool
-    get(SelectorBase const&, Handle<PROD>& result) const;
+    template <typename PROD>
+    bool get(ProductID const pid, Handle<PROD>& result) const;
 
-    template<typename PROD>
-    bool
-    get(ProductID const pid, Handle<PROD>& result) const;
+    template <typename PROD>
+    bool getByLabel(std::string const& label,
+                    std::string const& instance,
+                    Handle<PROD>& result) const;
 
-    template<typename PROD>
-    bool
-    getByLabel(std::string const& label, std::string const& instance, Handle<PROD>& result) const;
-
-    template<typename PROD>
-    bool
-    getByLabel(std::string const& label, std::string const& instance, std::string const& process, Handle<PROD>& result) const;
+    template <typename PROD>
+    bool getByLabel(std::string const& label,
+                    std::string const& instance,
+                    std::string const& process,
+                    Handle<PROD>& result) const;
 
   public: // MEMBER FUNCTIONS -- User-facing API -- get*, using InputTag
-
-    template<typename PROD>
-    PROD const&
-    getByLabel(InputTag const& tag) const;
-
-    template<typename PROD>
-    bool
-    getByLabel(InputTag const& tag, Handle<PROD>& result) const;
-
-    template<typename PROD>
-    PROD const*
-    getPointerByLabel(InputTag const& tag) const;
-
-    template<typename PROD>
-    ValidHandle<PROD>
-    getValidHandle(InputTag const& tag) const;
+    template <typename PROD>
+    PROD const& getByLabel(InputTag const& tag) const;
 
     template <typename PROD>
-    bool
-    getByToken(ProductToken<PROD> const&, Handle<PROD>& result) const;
+    bool getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
     template <typename PROD>
-    ValidHandle<PROD>
-    getValidHandle(ProductToken<PROD> const&) const;
+    PROD const* getPointerByLabel(InputTag const& tag) const;
+
+    template <typename PROD>
+    ValidHandle<PROD> getValidHandle(InputTag const& tag) const;
+
+    template <typename PROD>
+    bool getByToken(ProductToken<PROD> const&, Handle<PROD>& result) const;
+
+    template <typename PROD>
+    ValidHandle<PROD> getValidHandle(ProductToken<PROD> const&) const;
 
   public: // MEMBER FUNCTIONS -- User-facing API -- getMany*
+    template <typename PROD>
+    void getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
 
-    template<typename PROD>
-    void
-    getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
-
-    template<typename PROD>
-    void
-    getManyByType(std::vector<Handle<PROD>>& results) const;
+    template <typename PROD>
+    void getManyByType(std::vector<Handle<PROD>>& results) const;
 
   public: // MEMBER FUNCTIONS -- User-facing API -- getView
-
-    // If getView returns true, then result.isValid() is true, but the View may still be empty.
-    template<typename ELEMENT>
-    bool
-    getView(std::string const& label, std::string const& instance, View<ELEMENT>& result) const;
-
-    template<typename ELEMENT>
-    std::size_t
-    getView(std::string const& label, std::string const& instance, std::vector<ELEMENT const*>& result) const;
-
-    // If getView returns true, then result.isValid() is true, but the View may still be empty.
-    template<typename ELEMENT>
-    bool
-    getView(InputTag const&, View<ELEMENT>& result) const;
-
-    template<typename ELEMENT>
-    std::size_t
-    getView(InputTag const&, std::vector<ELEMENT const*>& result) const;
-
-    //FIXME: Implementation missing!
+    // If getView returns true, then result.isValid() is true, but the View may
+    // still be empty.
     template <typename ELEMENT>
-    std::size_t
-    getView(ViewToken<ELEMENT> const&, std::vector<ELEMENT const*>& result) const;
+    bool getView(std::string const& label,
+                 std::string const& instance,
+                 View<ELEMENT>& result) const;
 
     template <typename ELEMENT>
-    bool
-    getView(ViewToken<ELEMENT> const& , View<ELEMENT>& result) const;
+    std::size_t getView(std::string const& label,
+                        std::string const& instance,
+                        std::vector<ELEMENT const*>& result) const;
+
+    // If getView returns true, then result.isValid() is true, but the View may
+    // still be empty.
+    template <typename ELEMENT>
+    bool getView(InputTag const&, View<ELEMENT>& result) const;
+
+    template <typename ELEMENT>
+    std::size_t getView(InputTag const&,
+                        std::vector<ELEMENT const*>& result) const;
+
+    // FIXME: Implementation missing!
+    template <typename ELEMENT>
+    std::size_t getView(ViewToken<ELEMENT> const&,
+                        std::vector<ELEMENT const*>& result) const;
+
+    template <typename ELEMENT>
+    bool getView(ViewToken<ELEMENT> const&, View<ELEMENT>& result) const;
 
     template <typename T>
-    ProductID
-    getProductID() const;
+    ProductID getProductID() const;
 
     template <typename T>
-    ProductID
-    getProductID(std::string const& instance_name) const;
+    ProductID getProductID(std::string const& instance_name) const;
 
   public: // MEMBER FUNCTIONS -- User-facing API -- put*
+    template <typename PROD>
+    ProductID put(std::unique_ptr<PROD>&& edp);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp);
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  FullSemantic<Level::Run> const semantic);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, FullSemantic<Level::Run> const semantic);
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  FragmentSemantic<Level::Run> const semantic);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, FragmentSemantic<Level::Run> const semantic);
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  RangedFragmentSemantic<Level::Run> semantic);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, RangedFragmentSemantic<Level::Run> semantic);
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  std::string const& instance,
+                  FullSemantic<Level::Run>);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, std::string const& instance, FullSemantic<Level::Run>);
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  std::string const& instance,
+                  FragmentSemantic<Level::Run>);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, std::string const& instance, FragmentSemantic<Level::Run>);
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  std::string const& instance,
+                  RangedFragmentSemantic<Level::Run> semantic);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, std::string const& instance, RangedFragmentSemantic<Level::Run> semantic);
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  FullSemantic<Level::SubRun> const semantic);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, FullSemantic<Level::SubRun> const semantic);
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  FragmentSemantic<Level::SubRun> const semantic);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, FragmentSemantic<Level::SubRun> const semantic);
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  RangedFragmentSemantic<Level::SubRun> semantic);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, RangedFragmentSemantic<Level::SubRun> semantic);
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  std::string const& instance,
+                  FullSemantic<Level::SubRun>);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, std::string const& instance, FullSemantic<Level::SubRun>);
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  std::string const& instance,
+                  FragmentSemantic<Level::SubRun>);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, std::string const& instance, FragmentSemantic<Level::SubRun>);
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  std::string const& instance,
+                  RangedFragmentSemantic<Level::SubRun> semantic);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, std::string const& instance, RangedFragmentSemantic<Level::SubRun> semantic);
+    ProductID put(std::unique_ptr<PROD>&& edp, std::string const& instance);
 
     template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, std::string const& instance);
-
-    template <typename PROD>
-    ProductID
-    put(std::unique_ptr<PROD>&& edp, std::string const& instance, RangeSet const& rs);
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  std::string const& instance,
+                  RangeSet const& rs);
 
   private: // MEMBER FUNCTIONS -- implementation details
-
     using GroupQueryResultVec = std::vector<GroupQueryResult>;
 
-    void
-    removeNonViewableMatches_(TypeID const& requestedElementType,
-                              GroupQueryResultVec& results) const;
+    void removeNonViewableMatches_(TypeID const& requestedElementType,
+                                   GroupQueryResultVec& results) const;
 
-    void
-    ensureUniqueProduct_(std::size_t nFound,
-                         TypeID const& typeID,
-                         std::string const& moduleLabel,
-                         std::string const& productInstanceName,
-                         std::string const& processName) const;
+    void ensureUniqueProduct_(std::size_t nFound,
+                              TypeID const& typeID,
+                              std::string const& moduleLabel,
+                              std::string const& productInstanceName,
+                              std::string const& processName) const;
 
     // The following 'get' functions serve to isolate the DataViewImpl class
     // from the Principal class.
-    GroupQueryResult
-    get_(WrappedTypeID const& wrapped,
-         SelectorBase const&) const;
+    GroupQueryResult get_(WrappedTypeID const& wrapped,
+                          SelectorBase const&) const;
 
-    GroupQueryResult
-    getByProductID_(ProductID const pid) const;
+    GroupQueryResult getByProductID_(ProductID const pid) const;
 
-    void
-    removeCachedProduct_(ProductID const pid) const;
+    void removeCachedProduct_(ProductID const pid) const;
 
-    template<typename ELEMENT>
-    void
-    fillView_(GroupQueryResult& bh, std::vector<ELEMENT const*>& result) const;
+    template <typename ELEMENT>
+    void fillView_(GroupQueryResult& bh,
+                   std::vector<ELEMENT const*>& result) const;
 
-    void
-    checkPutProducts(std::set<TypeLabel> const& expectedProducts);
+    void checkPutProducts(std::set<TypeLabel> const& expectedProducts);
 
-    BranchDescription const&
-    getProductDescription_(TypeID const& type, std::string const& instance) const;
+    BranchDescription const& getProductDescription_(
+      TypeID const& type,
+      std::string const& instance) const;
 
-    void
-    recordAsParent(Provenance const& prov) const;
+    void recordAsParent(Provenance const& prov) const;
 
-    ProductID
-    getProductID_(TypeID const& type, std::string const& instance) const;
+    ProductID getProductID_(TypeID const& type,
+                            std::string const& instance) const;
 
-    GroupQueryResult
-    getByLabel_(WrappedTypeID const& wrapped,
-                std::string const& label,
-                std::string const& productInstanceName,
-                std::string const& processName) const;
+    GroupQueryResult getByLabel_(WrappedTypeID const& wrapped,
+                                 std::string const& label,
+                                 std::string const& productInstanceName,
+                                 std::string const& processName) const;
 
-    GroupQueryResultVec
-    getMany_(WrappedTypeID const& wrapped,
-             SelectorBase const& sel) const;
+    GroupQueryResultVec getMany_(WrappedTypeID const& wrapped,
+                                 SelectorBase const& sel) const;
 
-    GroupQueryResultVec
-    getMatchingSequenceByLabel_(std::string const& label,
-                                std::string const& productInstanceName,
-                                std::string const& processName) const;
+    GroupQueryResultVec getMatchingSequenceByLabel_(
+      std::string const& label,
+      std::string const& productInstanceName,
+      std::string const& processName) const;
 
     // If getView returns true, then result.isValid() is certain to be
     // true -- but the View may still be empty.
     template <typename ELEMENT>
-    GroupQueryResultVec
-    getView_(std::string const& moduleLabel,
-             std::string const& productInstanceName,
-             std::string const& processName) const;
+    GroupQueryResultVec getView_(std::string const& moduleLabel,
+                                 std::string const& productInstanceName,
+                                 std::string const& processName) const;
 
-    void
-    commit(Principal& principal, bool const checkProducts, std::set<TypeLabel> const* expectedProducts);
+    void commit(Principal& principal,
+                bool const checkProducts,
+                std::set<TypeLabel> const* expectedProducts);
 
-    void
-    commit(Principal& principal);
+    void commit(Principal& principal);
 
   private: // MEMBER DATA -- Mine, all mine!
-
     // Is this an Event, a Run, a SubRun, or a Results.
-    BranchType const
-    branchType_;
+    BranchType const branchType_;
 
     // Each DataViewImpl must have an associated Principal, used as the
     // source of all 'gets' and the target of 'puts'.
-    Principal const&
-    principal_;
+    Principal const& principal_;
 
     // Each DataViewImpl must have a description of the module executing the
     // "transaction" which the DataViewImpl represents.
-    ModuleDescription const&
-    md_;
+    ModuleDescription const& md_;
 
     // Should we record the parents of the products put into the event.
-    bool const
-    recordParents_;
+    bool const recordParents_;
 
     // must be mutable because it records all 'gets',
     // which do not logically modify the DataViewImpl. retrievedProducts_ is
@@ -449,14 +403,11 @@ namespace art {
     // which they point.
     std::map<TypeLabel, PMValue> putProducts_{};
 
-    RangeSet
-    rangeSet_{RangeSet::invalid()};
-
+    RangeSet rangeSet_{RangeSet::invalid()};
   };
 
-  template<typename PROD>
-  inline
-  std::ostream&
+  template <typename PROD>
+  inline std::ostream&
   operator<<(std::ostream& os, Handle<PROD> const& h)
   {
     os << h.product() << " " << h.provenance() << " " << h.id();
@@ -465,9 +416,8 @@ namespace art {
 
 } // namespace art
 
-template<typename PROD>
-inline
-bool
+template <typename PROD>
+inline bool
 art::DataViewImpl::get(SelectorBase const& sel, Handle<PROD>& result) const
 {
   result.clear(); // Is this the correct thing to do if an exception is thrown?
@@ -481,7 +431,7 @@ art::DataViewImpl::get(SelectorBase const& sel, Handle<PROD>& result) const
   return ok;
 }
 
-template<typename PROD>
+template <typename PROD>
 bool
 art::DataViewImpl::get(ProductID const pid, Handle<PROD>& result) const
 {
@@ -496,34 +446,33 @@ art::DataViewImpl::get(ProductID const pid, Handle<PROD>& result) const
   return ok;
 }
 
-template<typename PROD>
-inline
-bool
+template <typename PROD>
+inline bool
 art::DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
 {
   return getByLabel<PROD>(tag.label(), tag.instance(), tag.process(), result);
 }
 
 template <typename PROD>
-inline
-bool
-art::DataViewImpl::getByToken(ProductToken<PROD> const& token, Handle<PROD>& result) const
+inline bool
+art::DataViewImpl::getByToken(ProductToken<PROD> const& token,
+                              Handle<PROD>& result) const
 {
   auto const& tag = token.inputTag_;
   return getByLabel<PROD>(tag.label(), tag.instance(), tag.process(), result);
 }
 
-template<typename PROD>
-inline
-bool
-art::DataViewImpl::getByLabel(std::string const& label, std::string const& instance, Handle<PROD>& result) const
+template <typename PROD>
+inline bool
+art::DataViewImpl::getByLabel(std::string const& label,
+                              std::string const& instance,
+                              Handle<PROD>& result) const
 {
   return getByLabel<PROD>(label, instance, {}, result);
 }
 
-template<typename PROD>
-inline
-bool
+template <typename PROD>
+inline bool
 art::DataViewImpl::getByLabel(std::string const& label,
                               std::string const& productInstanceName,
                               std::string const& processName,
@@ -531,9 +480,14 @@ art::DataViewImpl::getByLabel(std::string const& label,
 {
   result.clear(); // Is this the correct thing to do if an exception is thrown?
   auto const wrapped = WrappedTypeID::make<PROD>();
-  ProductInfo const pinfo{ProductInfo::ConsumableType::Product, wrapped.product_type, label, productInstanceName, processName};
+  ProductInfo const pinfo{ProductInfo::ConsumableType::Product,
+                          wrapped.product_type,
+                          label,
+                          productInstanceName,
+                          processName};
   ConsumesInfo::instance()->validateConsumedProduct(branchType_, md_, pinfo);
-  GroupQueryResult bh = getByLabel_(wrapped, label, productInstanceName, processName);
+  GroupQueryResult bh =
+    getByLabel_(wrapped, label, productInstanceName, processName);
   convert_handle(bh, result);
   bool const ok = bh.succeeded() && !result.failedToGet();
   if (recordParents_ && ok) {
@@ -542,9 +496,8 @@ art::DataViewImpl::getByLabel(std::string const& label,
   return ok;
 }
 
-template<typename PROD>
-inline
-PROD const&
+template <typename PROD>
+inline PROD const&
 art::DataViewImpl::getByLabel(InputTag const& tag) const
 {
   Handle<PROD> h;
@@ -552,9 +505,8 @@ art::DataViewImpl::getByLabel(InputTag const& tag) const
   return *h;
 }
 
-template<typename PROD>
-inline
-PROD const*
+template <typename PROD>
+inline PROD const*
 art::DataViewImpl::getPointerByLabel(InputTag const& tag) const
 {
   Handle<PROD> h;
@@ -562,9 +514,8 @@ art::DataViewImpl::getPointerByLabel(InputTag const& tag) const
   return &(*h);
 }
 
-template<typename PROD>
-inline
-art::ValidHandle<PROD>
+template <typename PROD>
+inline art::ValidHandle<PROD>
 art::DataViewImpl::getValidHandle(InputTag const& tag) const
 {
   Handle<PROD> h;
@@ -573,22 +524,22 @@ art::DataViewImpl::getValidHandle(InputTag const& tag) const
 }
 
 template <typename PROD>
-inline
-art::ValidHandle<PROD>
+inline art::ValidHandle<PROD>
 art::DataViewImpl::getValidHandle(ProductToken<PROD> const& token) const
 {
   return getValidHandle<PROD>(token.inputTag_);
 }
 
-template<typename PROD>
-inline
-void
-art::DataViewImpl::getMany(SelectorBase const& sel, std::vector<Handle<PROD>>& results) const
+template <typename PROD>
+inline void
+art::DataViewImpl::getMany(SelectorBase const& sel,
+                           std::vector<Handle<PROD>>& results) const
 {
   auto const wrapped = WrappedTypeID::make<PROD>();
-  ConsumesInfo::instance()->validateConsumedProduct(branchType_,
-                                                    md_,
-                                                    ProductInfo{ProductInfo::ConsumableType::Many, wrapped.product_type});
+  ConsumesInfo::instance()->validateConsumedProduct(
+    branchType_,
+    md_,
+    ProductInfo{ProductInfo::ConsumableType::Many, wrapped.product_type});
   std::vector<Handle<PROD>> products;
   for (auto const& qr : getMany_(wrapped, sel)) {
     Handle<PROD> result;
@@ -603,9 +554,8 @@ art::DataViewImpl::getMany(SelectorBase const& sel, std::vector<Handle<PROD>>& r
   }
 }
 
-template<typename PROD>
-inline
-void
+template <typename PROD>
+inline void
 art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
 {
   getMany(MatchAllSelector{}, results);
@@ -624,14 +574,13 @@ art::DataViewImpl::getView_(std::string const& moduleLabel,
                           productInstanceName,
                           processName};
   ConsumesInfo::instance()->validateConsumedProduct(branchType_, md_, pinfo);
-  auto bhv = getMatchingSequenceByLabel_(moduleLabel,
-                                         productInstanceName,
-                                         processName);
+  auto bhv =
+    getMatchingSequenceByLabel_(moduleLabel, productInstanceName, processName);
   removeNonViewableMatches_(typeID, bhv);
-  ensureUniqueProduct_(bhv.size(), typeID,
-                       moduleLabel, productInstanceName, processName);
+  ensureUniqueProduct_(
+    bhv.size(), typeID, moduleLabel, productInstanceName, processName);
   return bhv;
-}  // getView_<>()
+} // getView_<>()
 
 template <typename ELEMENT>
 std::size_t
@@ -643,7 +592,7 @@ art::DataViewImpl::getView(std::string const& moduleLabel,
   std::size_t const orig_size = result.size();
   fillView_(bhv[0], result);
   return result.size() - orig_size;
-}  // getView<>()
+} // getView<>()
 
 template <typename ELEMENT>
 std::size_t
@@ -654,7 +603,7 @@ art::DataViewImpl::getView(InputTag const& tag,
   std::size_t const orig_size = result.size();
   fillView_(bhv[0], result);
   return result.size() - orig_size;
-}  // getView<>()
+} // getView<>()
 
 template <typename ELEMENT>
 bool
@@ -664,7 +613,8 @@ art::DataViewImpl::getView(std::string const& moduleLabel,
 {
   auto bhv = getView_<ELEMENT>(moduleLabel, productInstanceName, {});
   fillView_(bhv[0], result.vals());
-  result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
+  result.set_innards(bhv[0].result()->productID(),
+                     bhv[0].result()->uniqueProduct());
   return true;
 }
 
@@ -674,20 +624,23 @@ art::DataViewImpl::getView(InputTag const& tag, View<ELEMENT>& result) const
 {
   auto bhv = getView_<ELEMENT>(tag.label(), tag.instance(), tag.process());
   fillView_(bhv[0], result.vals());
-  result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
+  result.set_innards(bhv[0].result()->productID(),
+                     bhv[0].result()->uniqueProduct());
   return true;
 }
 
 template <typename ELEMENT>
 bool
-art::DataViewImpl::getView(ViewToken<ELEMENT> const& token, View<ELEMENT>& result) const
+art::DataViewImpl::getView(ViewToken<ELEMENT> const& token,
+                           View<ELEMENT>& result) const
 {
   return getView(token.inputTag_, result);
 }
 
 template <typename ELEMENT>
 void
-art::DataViewImpl::fillView_(GroupQueryResult& bh, std::vector<ELEMENT const*>& result) const
+art::DataViewImpl::fillView_(GroupQueryResult& bh,
+                             std::vector<ELEMENT const*>& result) const
 {
   std::vector<void const*> erased_ptrs;
   auto product = bh.result()->uniqueProduct();
@@ -698,7 +651,9 @@ art::DataViewImpl::fillView_(GroupQueryResult& bh, std::vector<ELEMENT const*>& 
   recordAsParent(Provenance{bh.result()});
 
   std::vector<ELEMENT const*> vals;
-  cet::transform_all(erased_ptrs, std::back_inserter(vals), [](auto p) { return static_cast<ELEMENT const*>(p); });
+  cet::transform_all(erased_ptrs, std::back_inserter(vals), [](auto p) {
+    return static_cast<ELEMENT const*>(p);
+  });
   result.swap(vals);
 }
 
@@ -718,7 +673,7 @@ art::DataViewImpl::getProductID(std::string const& instance_name) const
   return getProductID_(type, instance_name);
 }
 
-template<typename PROD>
+template <typename PROD>
 bool
 art::DataViewImpl::removeCachedProduct(Handle<PROD>& h) const
 {
@@ -740,113 +695,132 @@ art::DataViewImpl::put(std::unique_ptr<PROD>&& edp)
 
 template <typename PROD>
 art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, FullSemantic<Level::Run> const semantic)
+art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                       FullSemantic<Level::Run> const semantic)
 {
   return put<PROD>(std::move(edp), "", semantic);
 }
 
 template <typename PROD>
 art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, FragmentSemantic<Level::Run> const semantic)
+art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                       FragmentSemantic<Level::Run> const semantic)
 {
   return put<PROD>(std::move(edp), "", semantic);
 }
 
 template <typename PROD>
 art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, RangedFragmentSemantic<Level::Run> semantic)
+art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                       RangedFragmentSemantic<Level::Run> semantic)
 {
   return put<PROD>(std::move(edp), "", std::move(semantic));
 }
 
 template <typename PROD>
 art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance, FullSemantic<Level::Run>)
+art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                       std::string const& instance,
+                       FullSemantic<Level::Run>)
 {
   return put<PROD>(std::move(edp), instance, RangeSet::forRun(runID()));
 }
 
 template <typename PROD>
 art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance, FragmentSemantic<Level::Run>)
+art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                       std::string const& instance,
+                       FragmentSemantic<Level::Run>)
 {
-  static_assert(detail::CanBeAggregated<PROD>::value,
-                "\n\n"
-                "art error: A Run product put with the semantic 'RunFragment'\n"
-                "           must be able to be aggregated. Please add the appropriate\n"
-                "              void aggregate(T const&)\n"
-                "           function to your class, or contact artists@fnal.gov.\n");
+  static_assert(
+    detail::CanBeAggregated<PROD>::value,
+    "\n\n"
+    "art error: A Run product put with the semantic 'RunFragment'\n"
+    "           must be able to be aggregated. Please add the appropriate\n"
+    "              void aggregate(T const&)\n"
+    "           function to your class, or contact artists@fnal.gov.\n");
   if (rangeSet_.collapse().is_full_run()) {
     throw Exception{errors::ProductPutFailure, "Run::put"}
-    << "\nCannot put a product corresponding to a full Run using\n"
-         << "art::runFragment().  This can happen if you attempted to\n"
-         << "put a product at beginRun using art::runFragment().\n"
-         << "Please use either:\n"
-         << "   art::fullRun(), or\n"
-         << "   art::runFragment(art::RangeSet const&)\n"
-         << "or contact artists@fnal.gov for assistance.\n";
+      << "\nCannot put a product corresponding to a full Run using\n"
+      << "art::runFragment().  This can happen if you attempted to\n"
+      << "put a product at beginRun using art::runFragment().\n"
+      << "Please use either:\n"
+      << "   art::fullRun(), or\n"
+      << "   art::runFragment(art::RangeSet const&)\n"
+      << "or contact artists@fnal.gov for assistance.\n";
   }
   return put<PROD>(std::move(edp), instance, rangeSet_);
 }
 
 template <typename PROD>
 art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance, RangedFragmentSemantic<Level::Run> semantic)
+art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                       std::string const& instance,
+                       RangedFragmentSemantic<Level::Run> semantic)
 {
-  static_assert(detail::CanBeAggregated<PROD>::value,
-                "\n\n"
-                "art error: A Run product put with the semantic 'RunFragment'\n"
-                "           must be able to be aggregated. Please add the appropriate\n"
-                "              void aggregate(T const&)\n"
-                "           function to your class, or contact artists@fnal.gov.\n");
+  static_assert(
+    detail::CanBeAggregated<PROD>::value,
+    "\n\n"
+    "art error: A Run product put with the semantic 'RunFragment'\n"
+    "           must be able to be aggregated. Please add the appropriate\n"
+    "              void aggregate(T const&)\n"
+    "           function to your class, or contact artists@fnal.gov.\n");
   if (semantic.rs.collapse().is_full_run()) {
     throw Exception{errors::ProductPutFailure, "Run::put"}
-    << "\nCannot put a product corresponding to a full Run using\n"
-         << "art::runFragment(art::RangeSet&).  Please use:\n"
-         << "   art::fullRun()\n"
-         << "or contact artists@fnal.gov for assistance.\n";
+      << "\nCannot put a product corresponding to a full Run using\n"
+      << "art::runFragment(art::RangeSet&).  Please use:\n"
+      << "   art::fullRun()\n"
+      << "or contact artists@fnal.gov for assistance.\n";
   }
   return put<PROD>(std::move(edp), instance, semantic.rs);
 }
 
 template <typename PROD>
 art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, FullSemantic<Level::SubRun> const semantic)
+art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                       FullSemantic<Level::SubRun> const semantic)
 {
   return put<PROD>(std::move(edp), "", semantic);
 }
 
 template <typename PROD>
 art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, FragmentSemantic<Level::SubRun> const semantic)
+art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                       FragmentSemantic<Level::SubRun> const semantic)
 {
   return put<PROD>(std::move(edp), "", semantic);
 }
 
 template <typename PROD>
 art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, RangedFragmentSemantic<Level::SubRun> semantic)
+art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                       RangedFragmentSemantic<Level::SubRun> semantic)
 {
   return put<PROD>(std::move(edp), "", std::move(semantic));
 }
 
 template <typename PROD>
 art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance, FullSemantic<Level::SubRun>)
+art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                       std::string const& instance,
+                       FullSemantic<Level::SubRun>)
 {
   return put<PROD>(std::move(edp), instance, RangeSet::forSubRun(subRunID()));
 }
 
 template <typename PROD>
 art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance, FragmentSemantic<Level::SubRun>)
+art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                       std::string const& instance,
+                       FragmentSemantic<Level::SubRun>)
 {
-  static_assert(detail::CanBeAggregated<PROD>::value,
-                "\n\n"
-                "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
-                "           must be able to be aggregated. Please add the appropriate\n"
-                "              void aggregate(T const&)\n"
-                "           function to your class, or contact artists@fnal.gov.\n");
+  static_assert(
+    detail::CanBeAggregated<PROD>::value,
+    "\n\n"
+    "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
+    "           must be able to be aggregated. Please add the appropriate\n"
+    "              void aggregate(T const&)\n"
+    "           function to your class, or contact artists@fnal.gov.\n");
   if (rangeSet_.collapse().is_full_subRun()) {
     throw Exception(errors::ProductPutFailure, "SubRun::put")
       << "\nCannot put a product corresponding to a full SubRun using\n"
@@ -862,20 +836,23 @@ art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance,
 
 template <typename PROD>
 art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance, RangedFragmentSemantic<Level::SubRun> semantic)
+art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                       std::string const& instance,
+                       RangedFragmentSemantic<Level::SubRun> semantic)
 {
-  static_assert(detail::CanBeAggregated<PROD>::value,
-                "\n\n"
-                "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
-                "           must be able to be aggregated. Please add the appropriate\n"
-                "              void aggregate(T const&)\n"
-                "           function to your class, or contact artists@fnal.gov.\n");
+  static_assert(
+    detail::CanBeAggregated<PROD>::value,
+    "\n\n"
+    "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
+    "           must be able to be aggregated. Please add the appropriate\n"
+    "              void aggregate(T const&)\n"
+    "           function to your class, or contact artists@fnal.gov.\n");
   if (semantic.rs.collapse().is_full_subRun()) {
     throw Exception{errors::ProductPutFailure, "Run::put"}
-    << "\nCannot put a product corresponding to a full SubRun using\n"
-         << "art::subRunFragment(art::RangeSet&).  Please use:\n"
-         << "   art::fullSubRun()\n"
-         << "or contact artists@fnal.gov for assistance.\n";
+      << "\nCannot put a product corresponding to a full SubRun using\n"
+      << "art::subRunFragment(art::RangeSet&).  Please use:\n"
+      << "   art::fullSubRun()\n"
+      << "or contact artists@fnal.gov for assistance.\n";
   }
   return put<PROD>(std::move(edp), instance, semantic.rs);
 }
@@ -888,24 +865,23 @@ art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
   if (edp.get() == nullptr) {
     throw Exception(errors::NullPointerError)
       << "Event::put: A null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type "
-      << tid
-      << ".\n"
-      << "The specified productInstanceName was '"
-      << instance
-      << "'.\n";
+      << "The pointer is of type " << tid << ".\n"
+      << "The specified productInstanceName was '" << instance << "'.\n";
   }
   auto const& bd = getProductDescription_(tid, instance);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
   bool result = false;
   if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
     rangeSet_.collapse();
-    result = putProducts_.emplace(TypeLabel{tid, instance, SupportsView<PROD>::value},
-                                  PMValue{std::move(wp), bd, rangeSet_}).second;
-  }
-  else {
-    result = putProducts_.emplace(TypeLabel{tid, instance, SupportsView<PROD>::value},
-                                  PMValue{std::move(wp), bd, RangeSet::invalid()}).second;
+    result = putProducts_
+               .emplace(TypeLabel{tid, instance, SupportsView<PROD>::value},
+                        PMValue{std::move(wp), bd, rangeSet_})
+               .second;
+  } else {
+    result = putProducts_
+               .emplace(TypeLabel{tid, instance, SupportsView<PROD>::value},
+                        PMValue{std::move(wp), bd, RangeSet::invalid()})
+               .second;
   }
   if (!result) {
     cet::HorizontalRule rule{30};
@@ -913,50 +889,43 @@ art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
       << "Event::put: Attempt to put multiple products with the\n"
       << "            following description onto the Event.\n"
       << "            Products must be unique per Event.\n"
-      << rule('=')
-      << '\n'
-      << bd
-      << rule('=')
-      << '\n';
+      << rule('=') << '\n'
+      << bd << rule('=') << '\n';
   }
   return bd.productID();
 }
 
 template <typename PROD>
 art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance, RangeSet const& rs)
+art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                       std::string const& instance,
+                       RangeSet const& rs)
 {
   TypeID const tid{typeid(PROD)};
   if (edp.get() == nullptr) {
     throw Exception(errors::NullPointerError)
       << "Event::put: A null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type "
-      << tid
-      << ".\n"
-      << "The specified productInstanceName was '"
-      << instance
-      << "'.\n";
+      << "The pointer is of type " << tid << ".\n"
+      << "The specified productInstanceName was '" << instance << "'.\n";
   }
   if (!rs.is_valid()) {
     throw Exception{errors::ProductPutFailure, "SubRun::put"}
-    << "\nCannot put a product with an invalid RangeSet.\n"
-         << "Please contact artists@fnal.gov.\n";
+      << "\nCannot put a product with an invalid RangeSet.\n"
+      << "Please contact artists@fnal.gov.\n";
   }
   auto const& bd = getProductDescription_(tid, instance);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
-  auto result = putProducts_.emplace(TypeLabel{tid, instance, SupportsView<PROD>::value},
-                                     PMValue{std::move(wp), bd, rs});
+  auto result =
+    putProducts_.emplace(TypeLabel{tid, instance, SupportsView<PROD>::value},
+                         PMValue{std::move(wp), bd, rs});
   if (!result.second) {
     cet::HorizontalRule rule{30};
     throw Exception(errors::ProductPutFailure)
       << "Event::put: Attempt to put multiple products with the\n"
       << "            following description onto the Event.\n"
       << "            Products must be unique per Event.\n"
-      << rule('=')
-      << '\n'
-      << bd
-      << rule('=')
-      << '\n';
+      << rule('=') << '\n'
+      << bd << rule('=') << '\n';
   }
   return bd.productID();
 }

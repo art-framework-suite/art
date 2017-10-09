@@ -3,9 +3,7 @@
 
 using art::DropMetaData;
 
-DropMetaData::DropMetaData(enum_t const e)
-  : value_{e}
-{}
+DropMetaData::DropMetaData(enum_t const e) : value_{e} {}
 
 DropMetaData::DropMetaData(std::string const& config)
   : value_{strToValue_(config)}
@@ -14,17 +12,14 @@ DropMetaData::DropMetaData(std::string const& config)
 DropMetaData::enum_t
 DropMetaData::strToValue_(std::string const& dropMetaData)
 {
-  enum_t result {DropNone};
+  enum_t result{DropNone};
   if (dropMetaData == "NONE") {
     result = DropNone;
-  }
-  else if (dropMetaData == "PRIOR") {
+  } else if (dropMetaData == "PRIOR") {
     result = DropPrior;
-  }
-  else if (dropMetaData == "ALL") {
+  } else if (dropMetaData == "ALL") {
     result = DropAll;
-  }
-  else {
+  } else {
     throw art::Exception(errors::Configuration,
                          "Illegal dropMetaData parameter value: ")
       << dropMetaData << ".\n"

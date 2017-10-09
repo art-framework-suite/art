@@ -4,10 +4,11 @@
 
 namespace art {
 
-enum class ServiceScope {
+  enum class ServiceScope {
     LEGACY // 0
-  , GLOBAL // 1
-};
+    ,
+    GLOBAL // 1
+  };
 
 } // namespace art
 

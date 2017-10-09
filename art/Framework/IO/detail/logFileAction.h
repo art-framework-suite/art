@@ -7,7 +7,7 @@ namespace art {
   namespace detail {
     void logFileAction(const char* msg, std::string const& file);
   }
-}
+} // namespace art
 
 #endif /* art_Framework_IO_detail_logFileAction_h */
 

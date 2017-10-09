@@ -20,12 +20,11 @@
 class ValidHandleTester : public art::EDAnalyzer {
 
   struct Config {
-    fhicl::Atom<std::string> input_label {fhicl::Name{"input_label"}};
-    fhicl::Atom<std::string> expected_value {fhicl::Name{"expected_value"}};
+    fhicl::Atom<std::string> input_label{fhicl::Name{"input_label"}};
+    fhicl::Atom<std::string> expected_value{fhicl::Name{"expected_value"}};
   };
 
 public:
-
   using Parameters = art::EDAnalyzer::Table<Config>;
   explicit ValidHandleTester(Parameters const& p);
   void analyze(art::Event const& e) override;
@@ -35,16 +34,16 @@ private:
   std::string expected_value_;
 };
 
-
-ValidHandleTester::ValidHandleTester(Parameters const& ps) :
-  art::EDAnalyzer{ps},
-  input_tag_{ps().input_label()},
-  expected_value_{ps().expected_value()}
+ValidHandleTester::ValidHandleTester(Parameters const& ps)
+  : art::EDAnalyzer{ps}
+  , input_tag_{ps().input_label()}
+  , expected_value_{ps().expected_value()}
 {
-  //consumes<std::string>(input_tag_);
+  // consumes<std::string>(input_tag_);
 }
 
-void ValidHandleTester::analyze(art::Event const& e)
+void
+ValidHandleTester::analyze(art::Event const& e)
 {
   // Make sure old-form access works.
   art::Handle<std::string> h;
@@ -65,7 +64,7 @@ void ValidHandleTester::analyze(art::Event const& e)
   assert(tag.process() == prov.processName());
 
   // Make sure conversion-to-pointer works.
-  [&](std::string const* x){ assert(*x == expected_value_); }(p);
+  [&](std::string const* x) { assert(*x == expected_value_); }(p);
 }
 
 DEFINE_ART_MODULE(ValidHandleTester)

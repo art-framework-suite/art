@@ -20,32 +20,21 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-ServiceRegistry::
-~ServiceRegistry()
-{
-  manager_ = nullptr;
-}
+  ServiceRegistry::~ServiceRegistry() { manager_ = nullptr; }
 
-ServiceRegistry::
-ServiceRegistry()
-  : manager_{nullptr}
-{
-}
+  ServiceRegistry::ServiceRegistry() : manager_{nullptr} {}
 
-ServiceRegistry&
-ServiceRegistry::
-instance()
-{
-  static ServiceRegistry me;
-  return me;
-}
+  ServiceRegistry&
+  ServiceRegistry::instance()
+  {
+    static ServiceRegistry me;
+    return me;
+  }
 
-void
-ServiceRegistry::
-setManager(ServicesManager* mgr)
-{
-  manager_ = mgr;
-}
+  void
+  ServiceRegistry::setManager(ServicesManager* mgr)
+  {
+    manager_ = mgr;
+  }
 
 } // namespace art
-

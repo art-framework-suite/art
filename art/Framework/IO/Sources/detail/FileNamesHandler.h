@@ -16,7 +16,7 @@ namespace art {
     template <>
     class FileNamesHandler<true> {
     public:
-      explicit FileNamesHandler(std::vector<std::string> && fileNames,
+      explicit FileNamesHandler(std::vector<std::string>&& fileNames,
                                 size_t attempts = 5,
                                 double waitBetweenAttempts = 5.0);
 
@@ -31,7 +31,7 @@ namespace art {
     template <>
     class FileNamesHandler<false> {
     public:
-      explicit FileNamesHandler(std::vector<std::string> && fileNames,
+      explicit FileNamesHandler(std::vector<std::string>&& fileNames,
                                 size_t = 0);
 
       std::string next();
@@ -42,57 +42,44 @@ namespace art {
       std::vector<std::string>::const_iterator currentFile_;
       std::vector<std::string>::const_iterator end_;
     };
-  } // detail
-} // art
+  } // namespace detail
+} // namespace art
 
-art::detail::FileNamesHandler<true>::
-FileNamesHandler(std::vector<std::string> && fileNames,
-                 size_t attempts,
-                 double waitBetweenAttempts)
-  :
-  fp_(std::move(fileNames),
-      attempts,
-      waitBetweenAttempts)
-{
-}
+art::detail::FileNamesHandler<true>::FileNamesHandler(
+  std::vector<std::string>&& fileNames,
+  size_t attempts,
+  double waitBetweenAttempts)
+  : fp_(std::move(fileNames), attempts, waitBetweenAttempts)
+{}
 
-inline
-std::string
-art::detail::FileNamesHandler<true>::
-next()
+inline std::string
+art::detail::FileNamesHandler<true>::next()
 {
   return fp_.next();
 }
 
-inline
-void
-art::detail::FileNamesHandler<true>::
-finish()
+inline void
+art::detail::FileNamesHandler<true>::finish()
 {
   fp_.finish();
 }
 
-art::detail::FileNamesHandler<false>::
-FileNamesHandler(std::vector<std::string> && fileNames, size_t)
-  :
-  fileNames_(std::move(fileNames)),
-  currentFile_(fileNames_.begin()),
-  end_(fileNames_.end())
-{
-}
+art::detail::FileNamesHandler<false>::FileNamesHandler(
+  std::vector<std::string>&& fileNames,
+  size_t)
+  : fileNames_(std::move(fileNames))
+  , currentFile_(fileNames_.begin())
+  , end_(fileNames_.end())
+{}
 
-inline
-std::string
-art::detail::FileNamesHandler<false>::
-next()
+inline std::string
+art::detail::FileNamesHandler<false>::next()
 {
   return (currentFile_ == end_) ? std::string() : *(currentFile_++);
 }
 
-inline
-void
-art::detail::FileNamesHandler<false>::
-finish()
+inline void
+art::detail::FileNamesHandler<false>::finish()
 {
   currentFile_ = end_;
 }

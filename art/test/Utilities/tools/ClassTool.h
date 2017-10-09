@@ -7,13 +7,14 @@ namespace fhicl {
 
 namespace arttest {
   struct ClassTool {
-    ClassTool(fhicl::ParameterSet const&){}
-    int addOne(int const i)
+    ClassTool(fhicl::ParameterSet const&) {}
+    int
+    addOne(int const i)
     {
-      return i+1;
+      return i + 1;
     }
   };
-}
+} // namespace arttest
 
 #endif /* art_test_Utilities_tools_ClassTool_h */
 

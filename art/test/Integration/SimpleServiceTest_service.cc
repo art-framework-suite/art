@@ -11,9 +11,7 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "fhiclcpp/ParameterSet.h"
 
-arttest::SimpleServiceTest::SimpleServiceTest(fhicl::ParameterSet const &)
-{
-}
+arttest::SimpleServiceTest::SimpleServiceTest(fhicl::ParameterSet const&) {}
 
 bool
 arttest::SimpleServiceTest::verifyStatus() const

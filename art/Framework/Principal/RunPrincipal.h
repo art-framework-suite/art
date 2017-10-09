@@ -12,23 +12,21 @@
 
 namespace art {
 
-class ProcessConfiguration;
+  class ProcessConfiguration;
 
-class RunPrincipal final : public Principal {
+  class RunPrincipal final : public Principal {
 
-public:
+  public:
+    using Auxiliary = RunAuxiliary;
+    static constexpr BranchType branch_type = RunAuxiliary::branch_type;
 
-  using Auxiliary = RunAuxiliary;
-  static constexpr BranchType branch_type = RunAuxiliary::branch_type;
-
-public:
-
-  RunPrincipal(RunAuxiliary const&,
-               ProcessConfiguration const&,
-               cet::exempt_ptr<ProductTable const>,
-               std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
-
-};
+  public:
+    RunPrincipal(
+      RunAuxiliary const&,
+      ProcessConfiguration const&,
+      cet::exempt_ptr<ProductTable const>,
+      std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
+  };
 
 } // namespace art
 

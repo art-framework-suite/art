@@ -4,20 +4,24 @@
 #include "rapidjson/error/en.h"
 
 namespace {
-  std::vector<std::string> maybeTranslate(std::vector<std::string> names)
+  std::vector<std::string>
+  maybeTranslate(std::vector<std::string> names)
   {
     cet::transform_all(names, names.begin(), art::NewToOld{});
     cet::sort_all(names);
     return names;
   }
 
-  bool search_translated_all(std::vector<std::string> const& s, std::string const& md)
+  bool
+  search_translated_all(std::vector<std::string> const& s,
+                        std::string const& md)
   {
     return cet::search_all(s, art::NewToOld{}(md));
   }
-}
+} // namespace
 
-art::FileCatalogMetadata::FileCatalogMetadata(art::FileCatalogMetadata::Parameters const& config)
+art::FileCatalogMetadata::FileCatalogMetadata(
+  art::FileCatalogMetadata::Parameters const& config)
   : checkSyntax_{config().checkSyntax()}
   , mdToInherit_{maybeTranslate(config().metadataFromInput())}
 {
@@ -38,7 +42,8 @@ art::FileCatalogMetadata::FileCatalogMetadata(art::FileCatalogMetadata::Paramete
   }
 
   std::string rt;
-  if (!search_translated_all(mdToInherit_, "run_type") && config().runType(rt)) {
+  if (!search_translated_all(mdToInherit_, "run_type") &&
+      config().runType(rt)) {
     addMetadataString("run_type", rt);
   }
 
@@ -51,11 +56,11 @@ art::FileCatalogMetadata::FileCatalogMetadata(art::FileCatalogMetadata::Paramete
   if (config().processID(pid)) {
     addMetadataString("process_id", pid);
   }
-
 }
 
 void
-art::FileCatalogMetadata::addMetadata(std::string const& key, std::string const& value)
+art::FileCatalogMetadata::addMetadata(std::string const& key,
+                                      std::string const& value)
 {
   if (checkSyntax_) {
     // rapidjson claims to be largely re-entrant, according to
@@ -74,11 +79,10 @@ art::FileCatalogMetadata::addMetadata(std::string const& key, std::string const&
         << rapidjson::GetParseError_En(d.GetParseError())
         << " Faulty key/value clause:\n"
         << checkString << "\n"
-        << (nSpaces ? std::string(nSpaces, '-') : "")
-        << "^\n";
+        << (nSpaces ? std::string(nSpaces, '-') : "") << "^\n";
     }
   }
-  std::lock_guard<std::mutex> lock {service_mutex()};
+  std::lock_guard<std::mutex> lock{service_mutex()};
   md_.emplace_back(key, value);
 }
 

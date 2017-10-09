@@ -19,9 +19,10 @@ art::detail::CachedProducts::setupDefault(vector<string> const& triggernames)
 }
 
 void
-art::detail::CachedProducts::setup(vector<pair<string, string>> const& path_specs,
-                                   vector<string> const& triggernames,
-                                   string const& process_name)
+art::detail::CachedProducts::setup(
+  vector<pair<string, string>> const& path_specs,
+  vector<string> const& triggernames,
+  string const& process_name)
 {
   // Turn the passed path specs into a map of process name to
   // a vector of trigger names.
@@ -38,7 +39,8 @@ art::detail::CachedProducts::setup(vector<pair<string, string>> const& path_spec
     auto const& paths = pr.second;
     if (pname == process_name) {
       // For the passed process name we have been given the trigger names.
-      p_and_e_selectors_.emplace_back(pname, EventSelector{paths, triggernames});
+      p_and_e_selectors_.emplace_back(pname,
+                                      EventSelector{paths, triggernames});
       continue;
     }
     // For other process names we do not know the trigger names.
@@ -59,7 +61,7 @@ art::detail::CachedProducts::wantEvent(Event const& ev)
 
   return any_of(begin(p_and_e_selectors_),
                 end(p_and_e_selectors_),
-                [](auto& s){ return s.match(); });
+                [](auto& s) { return s.match(); });
 }
 
 art::Handle<art::TriggerResults>
@@ -76,15 +78,13 @@ art::detail::CachedProducts::getOneTriggerResults(Event const& ev) const
   }
   throw art::Exception(art::errors::ProductNotFound, "TooManyMatches")
     << "CachedProducts::getOneTriggerResults: "
-    << "too many products found, expected one, got "
-    << numberFound_
-    << '\n';
+    << "too many products found, expected one, got " << numberFound_ << '\n';
 }
 
 void
 art::detail::CachedProducts::clearTriggerResults()
 {
-  for_all(p_and_e_selectors_, [](auto& p){ p.clearTriggerResults(); });
+  for_all(p_and_e_selectors_, [](auto& p) { p.clearTriggerResults(); });
   loadDone_ = false;
   numberFound_ = 0;
 }
@@ -94,10 +94,14 @@ art::detail::CachedProducts::loadTriggerResults(Event const& ev)
 {
   // Get all the TriggerResults objects for the process names we are
   // interested in.
-  if (loadDone_) { return; }
+  if (loadDone_) {
+    return;
+  }
   loadDone_ = true;
   // Note: The loadTriggerResults call might throw, so numberFound_
   // may be less than expected.
-  for_all(p_and_e_selectors_,
-          [&,this](auto& s){ s.loadTriggerResults(ev); ++numberFound_;});
+  for_all(p_and_e_selectors_, [&, this](auto& s) {
+    s.loadTriggerResults(ev);
+    ++numberFound_;
+  });
 }

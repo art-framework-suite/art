@@ -10,7 +10,7 @@
 namespace art {
   using Selections = ProductDescriptionsByID;
   using SelectionsArray = std::array<Selections, NumBranchTypes>;
-}
+} // namespace art
 
 #endif /* art_Persistency_Provenance_Selections_h */
 

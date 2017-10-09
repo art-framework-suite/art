@@ -12,9 +12,9 @@
 
 #include "art/Framework/Core/EventSelector.h"
 #include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/fwd.h"
-#include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Principal/Selector.h"
+#include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
 
 #include <string>
@@ -26,19 +26,34 @@ namespace art {
     // Match events based on the trigger results from a given process name.
     class ProcessAndEventSelector {
     public:
-
       explicit ProcessAndEventSelector(std::string const& process_name,
                                        EventSelector const& event_selector)
         : processNameSelector_{process_name}, eventSelector_{event_selector}
       {}
 
       // Trigger results.
-      void loadTriggerResults(Event const& e) { e.get(/*in=*/processNameSelector_, /*out=*/triggerResults_); }
-      art::Handle<art::TriggerResults> triggerResults() const { return triggerResults_; }
-      void clearTriggerResults() { triggerResults_.clear(); }
+      void
+      loadTriggerResults(Event const& e)
+      {
+        e.get(/*in=*/processNameSelector_, /*out=*/triggerResults_);
+      }
+      art::Handle<art::TriggerResults>
+      triggerResults() const
+      {
+        return triggerResults_;
+      }
+      void
+      clearTriggerResults()
+      {
+        triggerResults_.clear();
+      }
 
       // Event selection.
-      bool match() { return eventSelector_.acceptEvent(*triggerResults_); }
+      bool
+      match()
+      {
+        return eventSelector_.acceptEvent(*triggerResults_);
+      }
 
     private:
       // Select events based on a process name.
@@ -51,13 +66,15 @@ namespace art {
 
     class PVSentry;
 
-    // Handle the SelectEvents configuration parameter of modules on the end path.
+    // Handle the SelectEvents configuration parameter of modules on the end
+    // path.
     class CachedProducts {
     public:
       void setupDefault(std::vector<std::string> const& trigger_names);
-      void setup(std::vector<std::pair<std::string,std::string>> const& path_specs,
-                 std::vector<std::string> const& trigger_names,
-                 std::string const& process_name);
+      void setup(
+        std::vector<std::pair<std::string, std::string>> const& path_specs,
+        std::vector<std::string> const& trigger_names,
+        std::string const& process_name);
       bool wantEvent(Event const&);
       art::Handle<art::TriggerResults> getOneTriggerResults(Event const&) const;
 
@@ -73,15 +90,11 @@ namespace art {
 
     class PVSentry {
     public:
-
       explicit PVSentry(CachedProducts& p_and_e_selectors)
         : p_and_e_selectors_(p_and_e_selectors)
       {}
 
-      ~PVSentry() noexcept(false)
-      {
-        p_and_e_selectors_.clearTriggerResults();
-      }
+      ~PVSentry() noexcept(false) { p_and_e_selectors_.clearTriggerResults(); }
 
       PVSentry(PVSentry const&) = delete;
       PVSentry& operator=(PVSentry const&) = delete;

@@ -21,26 +21,21 @@
 
 namespace art {
 
-class Results final : public DataViewImpl {
+  class Results final : public DataViewImpl {
 
-public:
+  public:
+    ~Results();
 
-  ~Results();
+    explicit Results(ResultsPrincipal const& p, ModuleDescription const& md);
 
-  explicit
-  Results(ResultsPrincipal const& p, ModuleDescription const& md);
+    Results(Results const&) = delete;
 
-  Results(Results const&) = delete;
+    Results(Results&&) = delete;
 
-  Results(Results&&) = delete;
+    Results& operator=(Results const&) = delete;
 
-  Results&
-  operator=(Results const&) = delete;
-
-  Results&
-  operator=(Results&&) = delete;
-
-};
+    Results& operator=(Results&&) = delete;
+  };
 
 } // namespace art
 

@@ -13,30 +13,24 @@ using namespace std;
 
 namespace arttest {
 
-class ClonedProdProducer : public EDProducer {
+  class ClonedProdProducer : public EDProducer {
 
-public:
+  public:
+    explicit ClonedProdProducer(ParameterSet const& /*pset*/)
+    {
+      produces<ClonedProd>();
+    }
 
-  explicit
-  ClonedProdProducer(ParameterSet const& /*pset*/)
-  {
-    produces<ClonedProd>();
-  }
+    void produce(Event&) override;
+  };
 
   void
-  produce(Event&) override;
-
-};
-
-void
-ClonedProdProducer::
-produce(art::Event& e)
-{
-  unique_ptr<ClonedProd> prod(new ClonedProd);
-  e.put(move(prod));
-}
+  ClonedProdProducer::produce(art::Event& e)
+  {
+    unique_ptr<ClonedProd> prod(new ClonedProd);
+    e.put(move(prod));
+  }
 
 } // namespace arttest
 
 DEFINE_ART_MODULE(arttest::ClonedProdProducer)
-

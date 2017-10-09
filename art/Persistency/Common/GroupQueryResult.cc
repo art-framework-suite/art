@@ -14,8 +14,7 @@ using art::GroupQueryResult;
 // ----------------------------------------------------------------------
 // c'tors:
 
-GroupQueryResult::GroupQueryResult(cet::exempt_ptr<Group const> g)
-  : result_{g}
+GroupQueryResult::GroupQueryResult(cet::exempt_ptr<Group const> g) : result_{g}
 {
   assert(invariant());
 }

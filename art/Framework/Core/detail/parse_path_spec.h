@@ -9,8 +9,8 @@ namespace art {
     void remove_whitespace(std::string&);
     void parse_path_spec(std::string path_spec,
                          std::pair<std::string, std::string>& output);
-  }
-}
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_Core_detail_parse_path_spec_h */
 

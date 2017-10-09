@@ -24,247 +24,201 @@
 
 namespace art {
 
-// <<pure virtual abstract base>>
-class EDProducer : public ProducerBase {
+  // <<pure virtual abstract base>>
+  class EDProducer : public ProducerBase {
 
-  // Allow the WorkerT<T> ctor to call setModuleDescription() and workerType().
-  template <typename T> friend class WorkerT;
+    // Allow the WorkerT<T> ctor to call setModuleDescription() and
+    // workerType().
+    template <typename T>
+    friend class WorkerT;
 
-public: // TYPES
+  public: // TYPES
+    // The module macros need these two.
+    using ModuleType = EDProducer;
+    using WorkerType = WorkerT<EDProducer>;
 
-  // The module macros need these two.
-  using ModuleType = EDProducer;
-  using WorkerType = WorkerT<EDProducer>;
+  public: // CONFIGURATION
+    template <typename UserConfig>
+    using Table = ProducerBase::Table<UserConfig>;
 
-public: // CONFIGURATION
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    virtual ~EDProducer();
 
-  template <typename UserConfig>
-  using Table = ProducerBase::Table<UserConfig>;
+    EDProducer();
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+    EDProducer(EDProducer const&) = delete;
 
-  virtual
-  ~EDProducer();
+    EDProducer(EDProducer&&) = delete;
 
-  EDProducer();
+    EDProducer& operator=(EDProducer const&) = delete;
 
-  EDProducer(EDProducer const&) = delete;
+    EDProducer& operator=(EDProducer&&) = delete;
 
-  EDProducer(EDProducer&&) = delete;
+  protected: // MEMBER FUNCTIONS
+    std::string workerType() const;
 
-  EDProducer&
-  operator=(EDProducer const&) = delete;
+  protected
+    : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
+      // EndPathExecutor.
+    virtual void doBeginJob();
 
-  EDProducer&
-  operator=(EDProducer&&) = delete;
+    void doEndJob();
 
-protected: // MEMBER FUNCTIONS
+    void doRespondToOpenInputFile(FileBlock const& fb);
 
-  std::string
-  workerType() const;
+    void doRespondToCloseInputFile(FileBlock const& fb);
 
-protected: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and EndPathExecutor.
+    void doRespondToOpenOutputFiles(FileBlock const& fb);
 
-  virtual
-  void
-  doBeginJob();
+    void doRespondToCloseOutputFiles(FileBlock const& fb);
 
-  void
-  doEndJob();
+    bool doBeginRun(RunPrincipal& rp,
+                    cet::exempt_ptr<CurrentProcessingContext const> cpc);
 
-  void
-  doRespondToOpenInputFile(FileBlock const& fb);
+    bool doEndRun(RunPrincipal& rp,
+                  cet::exempt_ptr<CurrentProcessingContext const> cpc);
 
-  void
-  doRespondToCloseInputFile(FileBlock const& fb);
+    bool doBeginSubRun(SubRunPrincipal& srp,
+                       cet::exempt_ptr<CurrentProcessingContext const> cpc);
 
-  void
-  doRespondToOpenOutputFiles(FileBlock const& fb);
+    bool doEndSubRun(SubRunPrincipal& srp,
+                     cet::exempt_ptr<CurrentProcessingContext const> cpc);
 
-  void
-  doRespondToCloseOutputFiles(FileBlock const& fb);
+    bool doEvent(EventPrincipal& ep,
+                 int streamIndex,
+                 CurrentProcessingContext const* cpc,
+                 std::atomic<std::size_t>& counts_run,
+                 std::atomic<std::size_t>& counts_passed,
+                 std::atomic<std::size_t>& counts_failed);
 
-  bool
-  doBeginRun(RunPrincipal& rp, cet::exempt_ptr<CurrentProcessingContext const> cpc);
+  protected
+    : // MEMBER FUNCTIONS -- Implementation API, intended to be provided by
+      // derived classes.
+    // Not called by framework.
+    virtual void reconfigure(fhicl::ParameterSet const&);
 
-  bool
-  doEndRun(RunPrincipal& rp, cet::exempt_ptr<CurrentProcessingContext const> cpc);
+    virtual void beginJob();
 
-  bool
-  doBeginSubRun(SubRunPrincipal& srp, cet::exempt_ptr<CurrentProcessingContext const> cpc);
+    virtual void endJob();
 
-  bool
-  doEndSubRun(SubRunPrincipal& srp, cet::exempt_ptr<CurrentProcessingContext const> cpc);
+    virtual void respondToOpenInputFile(FileBlock const&);
 
-  bool
-  doEvent(EventPrincipal& ep, int streamIndex, CurrentProcessingContext const* cpc,
-          std::atomic<std::size_t>& counts_run,
-          std::atomic<std::size_t>& counts_passed,
-          std::atomic<std::size_t>& counts_failed);
+    virtual void respondToCloseInputFile(FileBlock const&);
 
-protected: // MEMBER FUNCTIONS -- Implementation API, intended to be provided by derived classes.
+    virtual void respondToOpenOutputFiles(FileBlock const&);
 
-  // Not called by framework.
-  virtual
-  void
-  reconfigure(fhicl::ParameterSet const&);
+    void virtual respondToCloseOutputFiles(FileBlock const&);
 
-  virtual
-  void
-  beginJob();
+    virtual void beginRun(Run&);
 
-  virtual
-  void
-  endJob();
+    virtual void endRun(Run&);
 
-  virtual
-  void
-  respondToOpenInputFile(FileBlock const&);
+    virtual void beginSubRun(SubRun&);
 
-  virtual
-  void
-  respondToCloseInputFile(FileBlock const&);
+    virtual void endSubRun(SubRun&);
 
-  virtual
-  void
-  respondToOpenOutputFiles(FileBlock const&);
+    // We make this pure virtual because a user module that does
+    // not provide one would only have side-effects, and we do
+    // not want people doing that.
+    virtual void produce(Event&) = 0;
 
-  void
-  virtual
-  respondToCloseOutputFiles(FileBlock const&);
+    // virtual
+    // void
+    // produce_in_stream(Event&, int streamIndex);
 
-  virtual
-  void
-  beginRun(Run&);
+  protected: // MEMBER DATA -- For derived classes
+    bool checkPutProducts_{true};
+  };
 
-  virtual
-  void
-  endRun(Run&);
+  namespace one {
 
-  virtual
-  void
-  beginSubRun(SubRun&);
+    class EDProducer : public art::EDProducer {
 
-  virtual
-  void
-  endSubRun(SubRun&);
+      // Allow the WorkerT<T> ctor to call setModuleDescription() and
+      // workerType().
+      template <typename T>
+      friend class WorkerT;
 
-  // We make this pure virtual because a user module that does
-  // not provide one would only have side-effects, and we do
-  // not want people doing that.
-  virtual
-  void
-  produce(Event&) = 0;
+    public: // MEMBER FUNCTIONS -- Special Member Functions
+      virtual ~EDProducer();
 
-  //virtual
-  //void
-  //produce_in_stream(Event&, int streamIndex);
+      EDProducer();
 
-protected: // MEMBER DATA -- For derived classes
+      EDProducer(EDProducer const&) = delete;
 
-  bool
-  checkPutProducts_{true};
+      EDProducer(EDProducer&&) = delete;
 
-};
+      EDProducer& operator=(EDProducer const&) = delete;
 
-namespace one {
+      EDProducer& operator=(EDProducer&&) = delete;
 
-class EDProducer : public art::EDProducer {
+    protected
+      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
+        // EndPathExecutor.
+      void doBeginJob() override;
+    };
 
-  // Allow the WorkerT<T> ctor to call setModuleDescription() and workerType().
-  template <typename T> friend class WorkerT;
+  } // namespace one
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  namespace stream {
 
-  virtual
-  ~EDProducer();
+    class EDProducer : public art::EDProducer {
 
-  EDProducer();
+      // Allow the WorkerT<T> ctor to call setModuleDescription() and
+      // workerType().
+      template <typename T>
+      friend class WorkerT;
 
-  EDProducer(EDProducer const&) = delete;
+    public: // MEMBER FUNCTIONS -- Special Member Functions
+      virtual ~EDProducer();
 
-  EDProducer(EDProducer&&) = delete;
+      EDProducer();
 
-  EDProducer&
-  operator=(EDProducer const&) = delete;
+      EDProducer(EDProducer const&) = delete;
 
-  EDProducer&
-  operator=(EDProducer&&) = delete;
+      EDProducer(EDProducer&&) = delete;
 
-protected: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and EndPathExecutor.
+      EDProducer& operator=(EDProducer const&) = delete;
 
-  void
-  doBeginJob() override;
+      EDProducer& operator=(EDProducer&&) = delete;
 
-};
+    protected
+      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
+        // EndPathExecutor.
+      void doBeginJob() override;
+    };
 
-} // namespace one
+  } // namespace stream
 
-namespace stream {
+  namespace global {
 
-class EDProducer : public art::EDProducer {
+    class EDProducer : public art::EDProducer {
 
-  // Allow the WorkerT<T> ctor to call setModuleDescription() and workerType().
-  template <typename T> friend class WorkerT;
+      // Allow the WorkerT<T> ctor to call setModuleDescription() and
+      // workerType().
+      template <typename T>
+      friend class WorkerT;
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+    public: // MEMBER FUNCTIONS -- Special Member Functions
+      virtual ~EDProducer();
 
-  virtual
-  ~EDProducer();
+      EDProducer();
 
-  EDProducer();
+      EDProducer(EDProducer const&) = delete;
 
-  EDProducer(EDProducer const&) = delete;
+      EDProducer(EDProducer&&) = delete;
 
-  EDProducer(EDProducer&&) = delete;
+      EDProducer& operator=(EDProducer const&) = delete;
 
-  EDProducer&
-  operator=(EDProducer const&) = delete;
+      EDProducer& operator=(EDProducer&&) = delete;
 
-  EDProducer&
-  operator=(EDProducer&&) = delete;
+    protected
+      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
+        // EndPathExecutor.
+      void doBeginJob() override;
+    };
 
-protected: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and EndPathExecutor.
-
-  void
-  doBeginJob() override;
-
-};
-
-} // namespace stream
-
-namespace global {
-
-class EDProducer : public art::EDProducer {
-
-  // Allow the WorkerT<T> ctor to call setModuleDescription() and workerType().
-  template <typename T> friend class WorkerT;
-
-public: // MEMBER FUNCTIONS -- Special Member Functions
-
-  virtual
-  ~EDProducer();
-
-  EDProducer();
-
-  EDProducer(EDProducer const&) = delete;
-
-  EDProducer(EDProducer&&) = delete;
-
-  EDProducer&
-  operator=(EDProducer const&) = delete;
-
-  EDProducer&
-  operator=(EDProducer&&) = delete;
-
-protected: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and EndPathExecutor.
-
-  void
-  doBeginJob() override;
-
-};
-
-} // namespace global
+  } // namespace global
 
 } // namespace art
 

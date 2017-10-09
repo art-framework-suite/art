@@ -15,196 +15,158 @@
 
 namespace art {
 
-class EventProcessor;
+  class EventProcessor;
 
-class ProductInfo {
+  class ProductInfo {
 
-public: // TYPES
-
-  enum class ConsumableType {
+  public: // TYPES
+    enum class ConsumableType {
       Product // 0
-    , ViewElement // 1
-    , Many // 2
+      ,
+      ViewElement // 1
+      ,
+      Many // 2
+    };
+
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~ProductInfo();
+
+    explicit ProductInfo(ConsumableType const, TypeID const&);
+
+    explicit ProductInfo(ConsumableType const,
+                         TypeID const&,
+                         std::string const& label,
+                         std::string const& instance,
+                         std::string const& process);
+
+  public: // MEMBER DATA -- FIXME: Are these supposed to be public?
+    // FIXME: We need a way to tell whether this came from consumes or from may
+    // consume!!!
+
+    // Which kind of the DataViewImpl::get* functions we validate.
+    ConsumableType consumableType_{};
+
+    // Data product class type.
+    // Part 1 of branch name.
+    TypeID typeID_;
+
+    // Note: This part is only provided and used by the DataViewImpl::get*
+    // functions. Data product module label. Part 2 of branch name.
+    std::string label_{};
+
+    // Note: This part is only provided and used by the DataViewImpl::get*
+    // functions. Data product instance name. Part 3 of branch name.
+    std::string instance_{};
+
+    // Note: This part is only provided and used by the DataViewImpl::get*
+    // functions. Data product process name. Part 4 of branch name.
+    std::string process_{};
   };
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  bool operator<(ProductInfo const& a, ProductInfo const& b);
 
-  ~ProductInfo();
+  // using ConsumableProductVectorPerBranch = std::vector<ProductInfo>;
+  // using ConsumableProductSetPerBranch = std::set<ProductInfo>;
+  // using ConsumableProducts = std::array<std::vector<ProductInfo>,
+  // NumBranchTypes>;  using ConsumableProductSets =
+  // std::array<std::set<ProductInfo>, NumBranchTypes>;
 
-  explicit
-  ProductInfo(ConsumableType const, TypeID const&);
+  class ConsumesInfo {
 
-  explicit
-  ProductInfo(ConsumableType const, TypeID const&, std::string const& label, std::string const& instance,
-              std::string const& process);
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~ConsumesInfo();
 
-public: // MEMBER DATA -- FIXME: Are these supposed to be public?
+  private: // MEMBER FUNCTIONS -- Special Member Functions
+    ConsumesInfo();
 
-  //FIXME: We need a way to tell whether this came from consumes or from may consume!!!
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ConsumesInfo(ConsumesInfo const&) = delete;
 
-  // Which kind of the DataViewImpl::get* functions we validate.
-  ConsumableType
-  consumableType_{};
+    ConsumesInfo(ConsumesInfo&&) = delete;
 
-  // Data product class type.
-  // Part 1 of branch name.
-  TypeID
-  typeID_;
+    ConsumesInfo& operator=(ConsumesInfo const&) = delete;
 
-  // Note: This part is only provided and used by the DataViewImpl::get* functions.
-  // Data product module label.
-  // Part 2 of branch name.
-  std::string
-  label_{};
+    ConsumesInfo& operator=(ConsumesInfo&&) = delete;
 
-  // Note: This part is only provided and used by the DataViewImpl::get* functions.
-  // Data product instance name.
-  // Part 3 of branch name.
-  std::string
-  instance_{};
+  public: // MEMBER FUNCTIONS -- Static API
+    static ConsumesInfo* instance();
 
-  // Note: This part is only provided and used by the DataViewImpl::get* functions.
-  // Data product process name.
-  // Part 4 of branch name.
-  std::string
-  process_{};
+    static std::string assemble_consumes_statement(BranchType const,
+                                                   ProductInfo const&);
 
-};
+    static std::string module_context(ModuleDescription const&);
 
-bool
-operator<(ProductInfo const& a, ProductInfo const& b);
+  public: // MEMBER FUNCTIONS -- API for user
+    void setRequireConsumes(bool const);
 
-//using ConsumableProductVectorPerBranch = std::vector<ProductInfo>;
-//using ConsumableProductSetPerBranch = std::set<ProductInfo>;
-//using ConsumableProducts = std::array<std::vector<ProductInfo>, NumBranchTypes>;
-//using ConsumableProductSets = std::array<std::set<ProductInfo>, NumBranchTypes>;
+    void collectConsumes(
+      std::string const& module_label,
+      std::array<std::vector<ProductInfo>, NumBranchTypes> const& consumables);
 
-class ConsumesInfo {
+    // This is used by get*() in DataViewImpl.
+    void validateConsumedProduct(BranchType const,
+                                 ModuleDescription const&,
+                                 ProductInfo const& productInfo);
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+    void showMissingConsumes() const;
 
-  ~ConsumesInfo();
+  private: // MEMBER DATA
+    bool requireConsumes_{};
 
-private: // MEMBER FUNCTIONS -- Special Member Functions
+    // Maps module label to run, per-branch consumes info.
+    std::map<std::string const,
+             std::array<std::vector<ProductInfo>, NumBranchTypes>>
+      consumables_{};
 
-  ConsumesInfo();
+    // Maps module label to run, per-branch missing product consumes info.
+    std::map<std::string const,
+             std::array<std::set<ProductInfo>, NumBranchTypes>>
+      missingConsumes_{};
+  };
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  class Globals {
 
-  ConsumesInfo(ConsumesInfo const&) = delete;
+    friend class EventProcessor;
 
-  ConsumesInfo(ConsumesInfo&&) = delete;
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~Globals();
 
-  ConsumesInfo&
-  operator=(ConsumesInfo const&) = delete;
+  private: // MEMBER FUNCTIONS -- Special Member Functions
+    Globals();
 
-  ConsumesInfo&
-  operator=(ConsumesInfo&&) = delete;
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    Globals(Globals const&) = delete;
 
-public: // MEMBER FUNCTIONS -- Static API
+    Globals(Globals&) = delete;
 
-  static
-  ConsumesInfo*
-  instance();
+    Globals& operator=(Globals const&) = delete;
 
-  static
-  std::string
-  assemble_consumes_statement(BranchType const, ProductInfo const&);
+    Globals& operator=(Globals&) = delete;
 
-  static
-  std::string
-  module_context(ModuleDescription const&);
+  public: // MEMBER FUNCTIONS -- Static API
+    static Globals* instance();
 
-public: // MEMBER FUNCTIONS -- API for user
+  public: // MEMBER FUNCTIONS -- API for getting system-wide settings
+    int threads();
 
-  void
-  setRequireConsumes(bool const);
+    int streams();
 
-  void
-  collectConsumes(std::string const& module_label, std::array<std::vector<ProductInfo>, NumBranchTypes> const& consumables);
+  private: // MEMBER FUNCTIONS -- API for setting system-wide settings, only for
+           // friends
+    void setThreads(int);
 
-  // This is used by get*() in DataViewImpl.
-  void
-  validateConsumedProduct(BranchType const, ModuleDescription const&, ProductInfo const& productInfo);
+    void setStreams(int);
 
-  void
-  showMissingConsumes() const;
+  private: // MEMBER DATA
+    int threads_{1};
 
-private: // MEMBER DATA
-
-  bool
-  requireConsumes_{};
-
-  // Maps module label to run, per-branch consumes info.
-  std::map<std::string const, std::array<std::vector<ProductInfo>, NumBranchTypes>>
-  consumables_{};
-
-  // Maps module label to run, per-branch missing product consumes info.
-  std::map<std::string const, std::array<std::set<ProductInfo>, NumBranchTypes>>
-  missingConsumes_{};
-
-};
-
-class Globals {
-
-  friend class EventProcessor;
-
-public: // MEMBER FUNCTIONS -- Special Member Functions
-
-  ~Globals();
-
-private: // MEMBER FUNCTIONS -- Special Member Functions
-
-  Globals();
-
-public: // MEMBER FUNCTIONS -- Special Member Functions
-
-  Globals(Globals const&) = delete;
-
-  Globals(Globals&) = delete;
-
-  Globals&
-  operator=(Globals const&) = delete;
-
-  Globals&
-  operator=(Globals&) = delete;
-
-public: // MEMBER FUNCTIONS -- Static API
-
-  static
-  Globals*
-  instance();
-
-public: // MEMBER FUNCTIONS -- API for getting system-wide settings
-
-  int
-  threads();
-
-  int
-  streams();
-
-private: // MEMBER FUNCTIONS -- API for setting system-wide settings, only for friends
-
-  void
-  setThreads(int);
-
-  void
-  setStreams(int);
-
-private: // MEMBER DATA
-
-  int
-  threads_{1};
-
-  int
-  streams_{1};
-
-};
+    int streams_{1};
+  };
 
 } // namespace art
 
-// Local Variables:
-// mode: c++
-// End:
+  // Local Variables:
+  // mode: c++
+  // End:
 
 #endif /* art_Utilities_Globals_h */

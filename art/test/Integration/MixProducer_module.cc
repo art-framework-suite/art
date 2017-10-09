@@ -10,16 +10,16 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/test/TestObjects/ProductWithPtrs.h"
+#include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "cetlib/map_vector.h"
-#include "art/test/TestObjects/ProductWithPtrs.h"
-#include "art/test/TestObjects/ToyProducts.h"
 
 #include <iomanip>
 #include <iostream>
-#include <string>
 #include <sstream>
+#include <string>
 #include <vector>
 
 namespace arttest {
@@ -35,7 +35,7 @@ public:
   void endRun(art::Run& r) override;
 
 private:
-  using mv_t  = cet::map_vector<unsigned int>;
+  using mv_t = cet::map_vector<unsigned int>;
   using mvv_t = mv_t::value_type;
   using mvm_t = mv_t::mapped_type;
 
@@ -44,7 +44,6 @@ private:
   size_t subrunCounter_{};
   size_t runCounter_{};
 };
-
 
 arttest::MixProducer::MixProducer(fhicl::ParameterSet const&)
 {
@@ -62,14 +61,17 @@ arttest::MixProducer::MixProducer(fhicl::ParameterSet const&)
   produces<double, art::InRun>("DoubleRLabel");
 }
 
-void arttest::MixProducer::produce(art::Event& e) {
+void
+arttest::MixProducer::produce(art::Event& e)
+{
   ++eventCounter_;
 
   // double
   e.put(std::make_unique<double>(eventCounter_), "doubleLabel");
 
   // IntProduct
-  e.put(std::make_unique<IntProduct>(eventCounter_ + 1000000), "IntProductLabel");
+  e.put(std::make_unique<IntProduct>(eventCounter_ + 1000000),
+        "IntProductLabel");
 
   // SpottyProduct
   if (e.event() % 100) {
@@ -78,7 +80,8 @@ void arttest::MixProducer::produce(art::Event& e) {
 
   // std::string
   std::ostringstream s;
-  s << "string value: " << std::setfill('0') << std::setw(7) << eventCounter_ << "\n";
+  s << "string value: " << std::setfill('0') << std::setw(7) << eventCounter_
+    << "\n";
   e.put(std::make_unique<std::string>(s.str()), "stringLabel");
 
   // 1. std::vector<double>
@@ -98,7 +101,8 @@ void arttest::MixProducer::produce(art::Event& e) {
   vpd->reserve(3);
   auto pvd = std::make_unique<art::PtrVector<double>>();
   pvd->reserve(3);
-  art::ProductID const collID{e.getProductID<std::vector<double>>("doubleCollectionLabel")};
+  art::ProductID const collID{
+    e.getProductID<std::vector<double>>("doubleCollectionLabel")};
   vpd->emplace_back(collID, 0, e.productGetter(collID));
   vpd->emplace_back(collID, 4, e.productGetter(collID));
   vpd->emplace_back(collID, 8, e.productGetter(collID));
@@ -107,19 +111,20 @@ void arttest::MixProducer::produce(art::Event& e) {
   pvd->push_back(art::Ptr<double>(collID, 9, e.productGetter(collID)));
   auto pwp = std::make_unique<ProductWithPtrs>(
 #ifndef ART_NO_MIX_PTRVECTOR
-                                               *pvd.get(),
+    *pvd.get(),
 #endif
-                                               *vpd.get());
-  e.put(move(vpd), "doubleVectorPtrLabel"); // 2.
+    *vpd.get());
+  e.put(move(vpd), "doubleVectorPtrLabel");      // 2.
   e.put(std::move(pvd), "doublePtrVectorLabel"); // 3.
-  e.put(move(pwp), "ProductWithPtrsLabel"); // 4.
+  e.put(move(pwp), "ProductWithPtrsLabel");      // 4.
 
   // map_vector, .
   auto mv = std::make_unique<mv_t>();
   static size_t const mv_size = 5;
   mv->reserve(mv_size);
   for (size_t i = 0; i < mv_size; ++i) {
-    (*mv)[cet::map_vector_key(static_cast<mvm_t>(1 + i * 2 + 10 * (eventCounter_ - 1)))] =
+    (*mv)[cet::map_vector_key(
+      static_cast<mvm_t>(1 + i * 2 + 10 * (eventCounter_ - 1)))] =
       (eventCounter_ - 1) * mv_size + i + 1;
   }
 
@@ -134,16 +139,19 @@ void arttest::MixProducer::produce(art::Event& e) {
   mvvp->emplace_back(mvID, 10 * (eventCounter_ - 1) + 5, e.productGetter(mvID));
 
   e.put(move(mvvp), "intVectorPtrLabel");
-  e.put(move(mv), "mapVectorLabel"); // Note we're putting these into the event in the "wrong" order.
+  e.put(move(mv), "mapVectorLabel"); // Note we're putting these into the event
+                                     // in the "wrong" order.
 }
 
-void arttest::MixProducer::endSubRun(art::SubRun& sr)
+void
+arttest::MixProducer::endSubRun(art::SubRun& sr)
 {
   ++subrunCounter_;
   sr.put(std::make_unique<double>(subrunCounter_), "DoubleSRLabel");
 }
 
-void arttest::MixProducer::endRun(art::Run& r)
+void
+arttest::MixProducer::endRun(art::Run& r)
 {
   ++runCounter_;
   r.put(std::make_unique<double>(runCounter_), "DoubleRLabel");

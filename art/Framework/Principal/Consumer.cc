@@ -14,14 +14,14 @@
 //#include "fhiclcpp/ParameterSet.h"
 //#include "messagefacility/MessageLogger/MessageLogger.h"
 //
-//using namespace std;
+// using namespace std;
 //
-//namespace art {
+// namespace art {
 //
-//namespace {
+// namespace {
 //
-//string
-//assemble_consumes_statement(BranchType const bt, ProductInfo const& pi)
+// string
+// assemble_consumes_statement(BranchType const bt, ProductInfo const& pi)
 //{
 //  using ConsumableType = ProductInfo::ConsumableType;
 //  string result;
@@ -71,8 +71,8 @@
 //  return result;
 //}
 //
-//string
-//module_context(cet::exempt_ptr<ModuleDescription const> md)
+// string
+// module_context(cet::exempt_ptr<ModuleDescription const> md)
 //{
 //  string result{"module label: '"};
 //  result += (md ? md->moduleLabel() : "<invalid>");
@@ -84,23 +84,23 @@
 //
 //} // unnamed namespace
 //
-//cet::exempt_ptr<Consumer>
-//Consumer::
-//non_module_context()
+// cet::exempt_ptr<Consumer>
+// Consumer::
+// non_module_context()
 //{
 //  static Consumer invalid{InvalidTag{}};
 //  return &invalid;
 //}
 //
 //// Note: Cannot be noexcept because of consumables_ and missingConsumes_.
-//Consumer::
+// Consumer::
 //~Consumer()
 //{
 //}
 //
 //// Note: Cannot be noexcept because of consumables_ and missingConsumes_.
-//Consumer::
-//Consumer()
+// Consumer::
+// Consumer()
 //  : moduleContext_{true}
 //  , requireConsumes_{false}
 //  , consumables_{}
@@ -110,8 +110,8 @@
 //}
 //
 //// Note: Cannot be noexcept because of consumables_ and missingConsumes_.
-//Consumer::
-//Consumer(InvalidTag)
+// Consumer::
+// Consumer(InvalidTag)
 //  : moduleContext_{false}
 //  , requireConsumes_{false}
 //  , consumables_{}
@@ -120,16 +120,16 @@
 //{
 //}
 //
-//void
-//Consumer::
-//setModuleDescription(ModuleDescription const& md)
+// void
+// Consumer::
+// setModuleDescription(ModuleDescription const& md)
 //{
 //  moduleDescription_ = &md;
 //}
 //
-//void
-//Consumer::
-//prepareForJob(fhicl::ParameterSet const& pset)
+// void
+// Consumer::
+// prepareForJob(fhicl::ParameterSet const& pset)
 //{
 //  if (!moduleContext_) {
 //    return;
@@ -140,9 +140,9 @@
 //  }
 //}
 //
-//void
-//Consumer::
-//validateConsumedProduct(BranchType const bt, ProductInfo const& pi)
+// void
+// Consumer::
+// validateConsumedProduct(BranchType const bt, ProductInfo const& pi)
 //{
 //  // Early exits if consumes tracking has been disabled or if the
 //  // consumed product is an allowed consumable.
@@ -153,34 +153,40 @@
 //    return;
 //  }
 //  if (requireConsumes_) {
-//    throw Exception(errors::ProductRegistrationFailure, "Consumer: an error occurred during validation of a retrieved product\n\n")
-//        << "The following consumes (or mayConsume) statement is missing from\n"
+//    throw Exception(errors::ProductRegistrationFailure, "Consumer: an error
+//    occurred during validation of a retrieved product\n\n")
+//        << "The following consumes (or mayConsume) statement is missing
+//        from\n"
 //        << module_context(moduleDescription_) << ":\n\n"
 //        << "  " << assemble_consumes_statement(bt, pi) << "\n\n";
 //  }
 //  missingConsumes_[bt].insert(pi);
 //}
 //
-//void
-//Consumer::
-//showMissingConsumes() const
+// void
+// Consumer::
+// showMissingConsumes() const
 //{
 //  if (!moduleContext_) {
 //    return;
 //  }
 //  // If none of the branches have missing consumes statements, exit early.
-//  if (all_of(cbegin(missingConsumes_), cend(missingConsumes_), [](auto const& perBranch) { return perBranch.empty(); })) {
+//  if (all_of(cbegin(missingConsumes_), cend(missingConsumes_), [](auto const&
+//  perBranch) { return perBranch.empty(); })) {
 //    return;
 //  }
 //  constexpr cet::HorizontalRule rule{60};
 //  mf::LogPrint log{"MTdiagnostics"};
 //  log << '\n' << rule('=') << '\n'
-//      << "The following consumes (or mayConsume) statements are missing from\n"
+//      << "The following consumes (or mayConsume) statements are missing
+//      from\n"
 //      << module_context(moduleDescription_)
 //      << rule('-') << '\n';
-//  cet::for_all_with_index(missingConsumes_, [&log](size_t const i, auto const & perBranch) {
+//  cet::for_all_with_index(missingConsumes_, [&log](size_t const i, auto const
+//  & perBranch) {
 //    for (auto const& pi : perBranch) {
-//      log << "  " << assemble_consumes_statement(static_cast<BranchType>(i), pi) << '\n';
+//      log << "  " << assemble_consumes_statement(static_cast<BranchType>(i),
+//      pi) << '\n';
 //    }
 //  });
 //  log << rule('=');

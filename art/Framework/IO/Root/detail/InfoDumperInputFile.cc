@@ -1,10 +1,10 @@
 #include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
-#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
+#include "art/Framework/IO/Root/RootDB/SQLite3Wrapper.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
+#include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/orderedProcessNamesCollection.h"
-#include "art/Framework/IO/Root/RootDB/SQLite3Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
@@ -13,20 +13,25 @@
 
 namespace {
 
-  auto openFile(std::string const& fn)
+  auto
+  openFile(std::string const& fn)
   {
-    std::unique_ptr<TFile> file {TFile::Open(fn.c_str(), "READ")};
+    std::unique_ptr<TFile> file{TFile::Open(fn.c_str(), "READ")};
     if (!file || file->IsZombie()) {
       throw art::Exception{art::errors::FileReadError}
-      << "Unable to open file '" << fn << "' for reading.";
+        << "Unable to open file '" << fn << "' for reading.";
     }
 
     auto* key_ptr = file->GetKey("RootFileDB");
     if (key_ptr == nullptr) {
       throw art::Exception{art::errors::FileReadError}
-      << "Requested DB, \"RootFileDB\" of type, \"tkeyvfs\", not present in file: \"" << fn << "\"\n"
-      << "Either this is not an art/ROOT file, it is a corrupt art/ROOT file,\n"
-      << "or it is an art/ROOT file produced with a version older than v1_00_12.\n";
+        << "Requested DB, \"RootFileDB\" of type, \"tkeyvfs\", not present in "
+           "file: \""
+        << fn << "\"\n"
+        << "Either this is not an art/ROOT file, it is a corrupt art/ROOT "
+           "file,\n"
+        << "or it is an art/ROOT file produced with a version older than "
+           "v1_00_12.\n";
     }
     return std::move(file);
   }
@@ -47,13 +52,15 @@ namespace {
     }
     return entries;
   }
-}
+} // namespace
 
-art::detail::InfoDumperInputFile::InfoDumperInputFile(std::string const& filename)
+art::detail::InfoDumperInputFile::InfoDumperInputFile(
+  std::string const& filename)
   : file_{openFile(filename)}
 {
   using namespace art::rootNames;
-  std::unique_ptr<TTree> md {static_cast<TTree*>(file_->Get(metaDataTreeName().data()))};
+  std::unique_ptr<TTree> md{
+    static_cast<TTree*>(file_->Get(metaDataTreeName().data()))};
 
   fileFormatVersion_ = detail::readMetadata<FileFormatVersion>(md.get());
 
@@ -88,8 +95,7 @@ art::detail::InfoDumperInputFile::print_process_history(std::ostream& os) const
   if (processNamesCollection.empty()) {
     os << "\n No process history was recorded for this file.\n";
     return;
-  }
-  else if (processNamesCollection.size() > 1ull) {
+  } else if (processNamesCollection.size() > 1ull) {
     printHistoryLabel = true;
     os << "\n This file was produced with multiple processing histories.\n";
   }
@@ -106,8 +112,7 @@ art::detail::InfoDumperInputFile::print_process_history(std::ostream& os) const
     if (printHistoryLabel) {
       os << "\n Chronological list of process names for process history: "
          << hl++ << "\n\n";
-    }
-    else {
+    } else {
       os << "\n Chronological list of process names for processes that\n"
          << " produced this file.\n\n";
     }
@@ -124,8 +129,9 @@ art::detail::InfoDumperInputFile::print_branchIDLists(std::ostream& os) const
     std::ostringstream oss;
     oss << "  BranchIDLists are not stored for art/ROOT files with a format\n"
         << "  version of \"" << fileFormatVersion_ << "\".\n";
-    throw Exception{errors::FileReadError, "InfoDumperInputFile::print_branchIDLists:\n"}
-    << oss.str();
+    throw Exception{errors::FileReadError,
+                    "InfoDumperInputFile::print_branchIDLists:\n"}
+      << oss.str();
   }
 
   auto const& processNames = orderedProcessNamesCollection(pHistMap_);
@@ -136,11 +142,12 @@ art::detail::InfoDumperInputFile::print_branchIDLists(std::ostream& os) const
 
   os << "\n List of BranchIDs produced for this file.  The BranchIDs are\n"
      << " grouped according to the process in which they were produced.  The\n"
-     << " processes are presented in chronological order; however within each process,\n"
+     << " processes are presented in chronological order; however within each "
+        "process,\n"
      << " the order of listed BranchIDs is not meaningful.\n";
-  unsigned i {};
+  unsigned i{};
   for (auto const& process : processNames.front()) {
-    os << "\n Process " <<  i+1 << ": " << process << '\n';
+    os << "\n Process " << i + 1 << ": " << process << '\n';
     for (auto const& bid : branchIDLists_[i]) {
       os << "    " << bid << '\n';
     }
@@ -153,14 +160,17 @@ art::detail::InfoDumperInputFile::print_range_sets(std::ostream& os) const
 {
   if (fileFormatVersion_.value_ < 9) {
     std::ostringstream oss;
-    oss << "Range-set information is not available for art/ROOT files with a format\n"
+    oss << "Range-set information is not available for art/ROOT files with a "
+           "format\n"
         << "version of \"" << fileFormatVersion_ << "\".\n";
-    throw Exception{errors::FileReadError, "InfoDumperInputFile::print_range_sets"}
-    << oss.str();
+    throw Exception{errors::FileReadError,
+                    "InfoDumperInputFile::print_range_sets"}
+      << oss.str();
   }
 
-  auto* tree = static_cast<TTree*>(file_->Get(BranchTypeToProductTreeName(InRun).c_str()));
-  SQLite3Wrapper db {file_.get(), "RootFileDB"};
+  auto* tree =
+    static_cast<TTree*>(file_->Get(BranchTypeToProductTreeName(InRun).c_str()));
+  SQLite3Wrapper db{file_.get(), "RootFileDB"};
 
   auto it = fileIndex_.cbegin();
   auto const cend = fileIndex_.cend();
@@ -177,11 +187,13 @@ art::detail::InfoDumperInputFile::print_range_sets(std::ostream& os) const
 }
 
 art::RunAuxiliary
-art::detail::InfoDumperInputFile::getAuxiliary(TTree* tree, EntryNumber const entry) const
+art::detail::InfoDumperInputFile::getAuxiliary(TTree* tree,
+                                               EntryNumber const entry) const
 {
-  auto aux  = std::make_unique<RunAuxiliary>();
+  auto aux = std::make_unique<RunAuxiliary>();
   auto pAux = aux.get();
-  TBranch* auxBranch = tree->GetBranch(BranchTypeToAuxiliaryBranchName(InRun).c_str());
+  TBranch* auxBranch =
+    tree->GetBranch(BranchTypeToAuxiliaryBranchName(InRun).c_str());
   auxBranch->SetAddress(&pAux);
   tree->LoadTree(entry);
   auxBranch->GetEntry(entry);
@@ -194,14 +206,14 @@ art::detail::InfoDumperInputFile::getRangeSet(TTree* tree,
                                               sqlite3* db,
                                               std::string const& filename) const
 {
-  auto resolve_info = [db,&filename](auto const id) {
+  auto resolve_info = [db, &filename](auto const id) {
     return detail::resolveRangeSetInfo(db, filename, InRun, id);
   };
 
   auto auxResult = getAuxiliary(tree, entries[0]);
   auto rangeSetInfo = resolve_info(auxResult.rangeSetID());
 
-  for(auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
+  for (auto i = entries.cbegin() + 1, e = entries.cend(); i != e; ++i) {
     auto const& tmpAux = getAuxiliary(tree, *i);
     auxResult.mergeAuxiliary(tmpAux);
     rangeSetInfo.update(resolve_info(tmpAux.rangeSetID()));

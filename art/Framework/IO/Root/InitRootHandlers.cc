@@ -1,12 +1,12 @@
 #include "art/Framework/IO/Root/InitRootHandlers.h"
 #include "art/Framework/IO/Root/RootDB/tkeyvfs.h"
 #include "canvas/Utilities/Exception.h"
-#include "canvas_root_io/Streamers/CacheStreamers.h"
-#include "canvas_root_io/Streamers/RefCoreStreamer.h"
-#include "canvas_root_io/Streamers/setPtrVectorBaseStreamer.h"
 #include "canvas_root_io/Streamers/BranchDescriptionStreamer.h"
+#include "canvas_root_io/Streamers/CacheStreamers.h"
 #include "canvas_root_io/Streamers/ProductIDStreamer.h"
+#include "canvas_root_io/Streamers/RefCoreStreamer.h"
 #include "canvas_root_io/Streamers/TransientStreamer.h"
+#include "canvas_root_io/Streamers/setPtrVectorBaseStreamer.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "TError.h"
@@ -20,22 +20,19 @@
 
 namespace {
 
-  enum class SeverityLevel {
-    kInfo,
-    kWarning,
-    kError,
-    kSysError,
-    kFatal
-  };
+  enum class SeverityLevel { kInfo, kWarning, kError, kSysError, kFatal };
 
-  void RootErrorHandler(int const level, bool die,
-                        char const* location, char const* message)
+  void
+  RootErrorHandler(int const level,
+                   bool die,
+                   char const* location,
+                   char const* message)
   {
     using mf::ELseverityLevel;
 
     // Translate ROOT severity level to MessageLogger severity level
 
-    SeverityLevel el_severity {SeverityLevel::kInfo};
+    SeverityLevel el_severity{SeverityLevel::kInfo};
     if (level >= kFatal) {
       el_severity = SeverityLevel::kFatal;
     } else if (level >= kSysError) {
@@ -49,36 +46,36 @@ namespace {
     // Adapt C-strings to std::strings
     // Arrange to report the error location as furnished by Root
 
-    std::string el_location {"@SUB=?"};
+    std::string el_location{"@SUB=?"};
     if (location != nullptr) {
-      el_location = "@SUB="+std::string(location);
+      el_location = "@SUB=" + std::string(location);
     }
 
-    std::string el_message {"?"};
+    std::string el_message{"?"};
     if (message != nullptr) {
       el_message = message;
     }
 
-    // Try to create a meaningful id string using knowledge of ROOT error messages
+    // Try to create a meaningful id string using knowledge of ROOT error
+    // messages
     //
     // id ==     "ROOT-ClassName" where ClassName is the affected class
     //      else "ROOT/ClassName" where ClassName is the error-declaring class
     //      else "ROOT"
 
-    std::string el_identifier {"ROOT"};
+    std::string el_identifier{"ROOT"};
 
-    std::string const precursor {"class "};
+    std::string const precursor{"class "};
     size_t index1 = el_message.find(precursor);
     if (index1 != std::string::npos) {
       size_t index2 = index1 + precursor.length();
       size_t index3 = el_message.find_first_of(" :", index2);
       if (index3 != std::string::npos) {
-        size_t substrlen = index3-index2;
+        size_t substrlen = index3 - index2;
         el_identifier += "-";
-        el_identifier += el_message.substr(index2,substrlen);
+        el_identifier += el_message.substr(index2, substrlen);
       }
-    }
-    else {
+    } else {
       index1 = el_location.find("::");
       if (index1 != std::string::npos) {
         el_identifier += "/";
@@ -87,26 +84,30 @@ namespace {
     }
 
     // Intercept one message and ignore:
-    if (el_message == "no dictionary for class art::Transient<art::ProductRegistry::Transients> is available") {
+    if (el_message == "no dictionary for class "
+                      "art::Transient<art::ProductRegistry::Transients> is "
+                      "available") {
       return;
     }
 
     // Intercept some messages and upgrade the severity
-    if ((el_location.find("TBranchElement::Fill") != std::string::npos)
-        && (el_message.find("fill branch") != std::string::npos)
-        && (el_message.find("address") != std::string::npos)
-        && (el_message.find("not set") != std::string::npos)) {
+    if ((el_location.find("TBranchElement::Fill") != std::string::npos) &&
+        (el_message.find("fill branch") != std::string::npos) &&
+        (el_message.find("address") != std::string::npos) &&
+        (el_message.find("not set") != std::string::npos)) {
       el_severity = SeverityLevel::kFatal;
     }
-    if ((el_message.find("Tree branches") != std::string::npos)
-        && (el_message.find("different numbers of entries") != std::string::npos)) {
+    if ((el_message.find("Tree branches") != std::string::npos) &&
+        (el_message.find("different numbers of entries") !=
+         std::string::npos)) {
       el_severity = SeverityLevel::kFatal;
     }
 
     // Intercept some messages and downgrade the severity
     if ((el_message.find("dictionary") != std::string::npos) ||
         (el_message.find("already in TClassTable") != std::string::npos) ||
-        (el_message.find("matrix not positive definite") != std::string::npos) ||
+        (el_message.find("matrix not positive definite") !=
+         std::string::npos) ||
         (el_location.find("Fit") != std::string::npos) ||
         (el_location.find("TDecompChol::Solve") != std::string::npos) ||
         (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
@@ -126,7 +127,8 @@ namespace {
       die = true;
     }
 
-    // Feed the message to the MessageLogger and let it choose to suppress or not.
+    // Feed the message to the MessageLogger and let it choose to suppress or
+    // not.
 
     // Root has declared a fatal error.  Throw an exception unless the
     // message corresponds to a pending signal. In that case, do not
@@ -147,16 +149,17 @@ namespace {
     } else if (el_severity == SeverityLevel::kError) {
       mf::LogError("Root_Error") << el_location << el_message;
     } else if (el_severity == SeverityLevel::kWarning) {
-      mf::LogWarning("Root_Warning") << el_location << el_message ;
+      mf::LogWarning("Root_Warning") << el_location << el_message;
     } else if (el_severity == SeverityLevel::kInfo) {
-      mf::LogInfo("Root_Information") << el_location << el_message ;
+      mf::LogInfo("Root_Information") << el_location << el_message;
     }
   }
-}  // namespace
+} // namespace
 
 namespace art {
 
-  void unloadRootSigHandler()
+  void
+  unloadRootSigHandler()
   {
     // Deactivate all the Root signal handlers and restore the system defaults
     gSystem->ResetSignal(kSigChild);
@@ -171,7 +174,8 @@ namespace art {
     gSystem->ResetSignal(kSigWindowChanged);
   }
 
-  void setRootErrorHandler(bool const want_custom)
+  void
+  setRootErrorHandler(bool const want_custom)
   {
     if (want_custom) {
       SetErrorHandler(RootErrorHandler);
@@ -180,7 +184,8 @@ namespace art {
     }
   }
 
-  void completeRootHandlers()
+  void
+  completeRootHandlers()
   {
     // Set ROOT parameters.
     ROOT::EnableThreadSafety();
@@ -199,4 +204,4 @@ namespace art {
     configureRefCoreStreamer();
   }
 
-}  // art
+} // namespace art

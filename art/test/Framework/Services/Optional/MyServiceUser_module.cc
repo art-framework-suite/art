@@ -19,20 +19,20 @@ namespace arttest {
 
 class arttest::MyServiceUser : public art::EDAnalyzer {
 public:
-  explicit MyServiceUser(fhicl::ParameterSet const & p);
+  explicit MyServiceUser(fhicl::ParameterSet const& p);
 
-  void analyze(art::Event const & e) override;
-
+  void analyze(art::Event const& e) override;
 };
 
-arttest::MyServiceUser::MyServiceUser(fhicl::ParameterSet const &p)
+arttest::MyServiceUser::MyServiceUser(fhicl::ParameterSet const& p)
   : art::EDAnalyzer(p)
 {
   art::ServiceHandle<MyServiceInterface>();
   art::ServiceHandle<MyService>();
 }
 
-void arttest::MyServiceUser::analyze(art::Event const &)
+void
+arttest::MyServiceUser::analyze(art::Event const&)
 {
   // Implementation of required member function here.
 }

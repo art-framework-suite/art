@@ -6,53 +6,39 @@
 
 namespace art {
 
-class PerThread {
+  class PerThread {
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~PerThread();
 
-  ~PerThread();
+  private: // MEMBER FUNCTIONS -- Special Member Functions
+    PerThread();
 
-private: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    PerThread(PerThread const&) = delete;
 
-  PerThread();
+    PerThread(PerThread&) = delete;
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+    PerThread& operator=(PerThread const&) = delete;
 
-  PerThread(PerThread const&) = delete;
+    PerThread& operator=(PerThread&) = delete;
 
-  PerThread(PerThread&) = delete;
+  public: // MEMBER FUNCTIONS -- Static API
+    static PerThread* instance();
 
-  PerThread&
-  operator=(PerThread const&) = delete;
+  public: // MEMBER FUNCTIONS -- API for users
+    CurrentProcessingContext const& getCPC() const;
 
-  PerThread&
-  operator=(PerThread&) = delete;
+    void setCPC(CurrentProcessingContext const&);
 
-public: // MEMBER FUNCTIONS -- Static API
-
-  static
-  PerThread*
-  instance();
-
-public: // MEMBER FUNCTIONS -- API for users
-
-  CurrentProcessingContext const&
-  getCPC() const;
-
-  void
-  setCPC(CurrentProcessingContext const&);
-
-private: // MEMBER DATA
-
-  CurrentProcessingContext
-  cpc_{};
-
-};
+  private: // MEMBER DATA
+    CurrentProcessingContext cpc_{};
+  };
 
 } // namespace art
 
-// Local Variables:
-// mode: c++
-// End:
+  // Local Variables:
+  // mode: c++
+  // End:
 
 #endif /* art_Utilities_PerThread_h */

@@ -13,10 +13,10 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "art/test/TestObjects/ToyProducts.h"
 
 #include <chrono>
 #include <memory>
@@ -35,7 +35,8 @@ public:
   // Plugins should not be copied or assigned.
   FindManySpeedTestProducer(FindManySpeedTestProducer const&) = delete;
   FindManySpeedTestProducer(FindManySpeedTestProducer&&) = delete;
-  FindManySpeedTestProducer& operator=(FindManySpeedTestProducer const&) = delete;
+  FindManySpeedTestProducer& operator=(FindManySpeedTestProducer const&) =
+    delete;
   FindManySpeedTestProducer& operator=(FindManySpeedTestProducer&&) = delete;
 
   // Required functions.
@@ -46,25 +47,24 @@ private:
   size_t const nHits_;
   size_t const pmHitsPerTrack_;
   std::mt19937_64 gen_;
-
 };
 
-
-arttest::FindManySpeedTestProducer::
-FindManySpeedTestProducer(fhicl::ParameterSet const& p)
-  :
-  nTracks_{p.get<size_t>("nTracks")},
-  nHits_{p.get<size_t>("nHits")},
-  pmHitsPerTrack_{p.get<size_t>("pmHitsPerTrack")},
-  gen_{p.get<size_t>("randomSeed",
-                     std::chrono::system_clock::now().time_since_epoch().count())}
+arttest::FindManySpeedTestProducer::FindManySpeedTestProducer(
+  fhicl::ParameterSet const& p)
+  : nTracks_{p.get<size_t>("nTracks")}
+  , nHits_{p.get<size_t>("nHits")}
+  , pmHitsPerTrack_{p.get<size_t>("pmHitsPerTrack")}
+  , gen_{p.get<size_t>(
+      "randomSeed",
+      std::chrono::system_clock::now().time_since_epoch().count())}
 {
   produces<std::vector<arttest::Hit>>();
   produces<std::vector<arttest::Track>>();
   produces<art::Assns<arttest::Track, arttest::Hit>>();
 }
 
-void arttest::FindManySpeedTestProducer::produce(art::Event& e)
+void
+arttest::FindManySpeedTestProducer::produce(art::Event& e)
 {
   auto vh_pid = e.getProductID<std::vector<arttest::Hit>>();
   auto vt_pid = e.getProductID<std::vector<arttest::Track>>();
@@ -91,8 +91,7 @@ void arttest::FindManySpeedTestProducer::produce(art::Event& e)
     art::Ptr<arttest::Track> trackPtr(vt_pid, iTrack, tPG);
 
     for (size_t i = 0, nHitsTrack = pdice(); i != nHitsTrack; ++i) {
-      assns->addSingle(art::Ptr<arttest::Hit>(vh_pid, udice(), hPG),
-                       trackPtr);
+      assns->addSingle(art::Ptr<arttest::Hit>(vh_pid, udice(), hPG), trackPtr);
     }
   }
   e.put(std::move(assns));

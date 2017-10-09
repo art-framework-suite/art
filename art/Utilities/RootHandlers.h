@@ -9,18 +9,19 @@ namespace art {
 
   class RootHandlers {
   public:
-    RootHandlers ();
-    virtual ~RootHandlers ();
+    RootHandlers();
+    virtual ~RootHandlers();
     void disableErrorHandler();
     void enableErrorHandler();
+
   private:
     virtual void disableErrorHandler_() = 0;
     virtual void enableErrorHandler_() = 0;
-  };  // RootHandlers
+  }; // RootHandlers
 
-}  // art
+} // namespace art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Utilities_RootHandlers_h */
 

@@ -17,7 +17,6 @@ namespace art {
 
     class RootDirectorySentry {
     public:
-
       RootDirectorySentry();
       ~RootDirectorySentry() noexcept(false);
 
@@ -27,8 +26,8 @@ namespace art {
       bool status_;
     };
 
-  } // detail
-} //art
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_Services_Optional_detail_RootDirectorySentry_h */
 

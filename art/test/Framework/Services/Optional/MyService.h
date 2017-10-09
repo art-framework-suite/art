@@ -20,20 +20,20 @@ namespace fhicl {
 
 // ----------------------------------------------------------------------
 
-class arttest::MyService : public arttest::MyServiceInterface
-{
+class arttest::MyService : public arttest::MyServiceInterface {
 public:
   MyService(fhicl::ParameterSet const&, art::ActivityRegistry&);
 
   // Use compiler-generated copy c'tor, copy assignment, and d'tor
 
 private:
-
-};  // MyService
+}; // MyService
 
 // ======================================================================
 
-DECLARE_ART_SERVICE_INTERFACE_IMPL(arttest::MyService, arttest::MyServiceInterface, LEGACY)
+DECLARE_ART_SERVICE_INTERFACE_IMPL(arttest::MyService,
+                                   arttest::MyServiceInterface,
+                                   LEGACY)
 #endif /* art_test_Framework_Services_Optional_MyService_h */
 
 // Local Variables:

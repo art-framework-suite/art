@@ -32,57 +32,72 @@ namespace {
   // This function could be made more general, but there is currently
   // no need.
 
-  void fillTable(std::string const& bpo_key,
-                 std::string const& fhicl_key,
-                 bpo::variables_map const& vm,
-                 fhicl::intermediate_table& config,
-                 bool const flag_value)
+  void
+  fillTable(std::string const& bpo_key,
+            std::string const& fhicl_key,
+            bpo::variables_map const& vm,
+            fhicl::intermediate_table& config,
+            bool const flag_value)
   {
     if (vm.count(bpo_key)) {
       config.put(fhicl_key, vm[bpo_key].as<bool>());
-    }
-    else if (!exists_outside_prolog(config, fhicl_key)) {
+    } else if (!exists_outside_prolog(config, fhicl_key)) {
       config.put(fhicl_key, flag_value);
     }
   }
 
-}
+} // namespace
 
-art::ProcessingOptionsHandler::ProcessingOptionsHandler(bpo::options_description& desc,
-                                                        bool const rethrowDefault)
+art::ProcessingOptionsHandler::ProcessingOptionsHandler(
+  bpo::options_description& desc,
+  bool const rethrowDefault)
   : rethrowDefault_{rethrowDefault}
 {
   bpo::options_description processing_options{"Processing options"};
-  processing_options.add_options()
-    ("streams", bpo::value<int>()->default_value(1), "Number of execution engines to use for event processing (default = 1)")
+  processing_options.add_options()(
+    "streams",
+    bpo::value<int>()->default_value(1),
+    "Number of execution engines to use for event processing (default = 1)")
     // Note: tbb wants threads to be an int!
-    ("threads", bpo::value<int>()->default_value(1), "Number of threads to use for event processing (default = 1, 0 = all cores)")
-    ("default-exceptions", "Some exceptions may be handled differently by default (e.g. ProductNotFound).")
-    ("rethrow-default", "All exceptions default to rethrow.")
-    ("rethrow-all", "All exceptions overridden to rethrow (cf rethrow-default).")
-    ("errorOnFailureToPut", bpo::value<bool>()->implicit_value(true,"true"),
-     "Global flag that controls the behavior upon failure to 'put' a product "
-     "(declared by 'produces') onto the Event.  If 'true', per-module flags "
-     "can override the value of the global flag.")
-    ("errorOnMissingConsumes", bpo::value<bool>()->implicit_value(true,"true"),
-     "If 'true', then an exception will be thrown if any module attempts to "
-     "retrieve a product via the 'getBy*' interface without specifying the "
-     "appropriate 'consumes<T>(...)' statement in the module constructor.")
-    ("errorOnSIGINT", bpo::value<bool>()->implicit_value(true,"true"),
-     "If 'true', a signal received from the user yields an art return code "
-     "corresponding to an error; otherwise return 0.")
-    ;
+    ("threads",
+     bpo::value<int>()->default_value(1),
+     "Number of threads to use for event processing (default = 1, 0 = all "
+     "cores)")("default-exceptions",
+               "Some exceptions may be handled differently by default (e.g. "
+               "ProductNotFound).")("rethrow-default",
+                                    "All exceptions default to rethrow.")(
+      "rethrow-all",
+      "All exceptions overridden to rethrow (cf rethrow-default).")(
+      "errorOnFailureToPut",
+      bpo::value<bool>()->implicit_value(true, "true"),
+      "Global flag that controls the behavior upon failure to 'put' a "
+      "product "
+      "(declared by 'produces') onto the Event.  If 'true', per-module "
+      "flags "
+      "can override the value of the global flag.")(
+      "errorOnMissingConsumes",
+      bpo::value<bool>()->implicit_value(true, "true"),
+      "If 'true', then an exception will be thrown if any module attempts "
+      "to "
+      "retrieve a product via the 'getBy*' interface without specifying "
+      "the "
+      "appropriate 'consumes<T>(...)' statement in the module "
+      "constructor.")("errorOnSIGINT",
+                      bpo::value<bool>()->implicit_value(true, "true"),
+                      "If 'true', a signal received from the user yields "
+                      "an art return code "
+                      "corresponding to an error; otherwise return 0.");
   desc.add(processing_options);
 }
 
 int
 art::ProcessingOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
 {
-  if ((vm.count("rethrow-all") +
-       vm.count("rethrow-default") +
+  if ((vm.count("rethrow-all") + vm.count("rethrow-default") +
        vm.count("no-rethrow-default")) > 1) {
     throw Exception(errors::Configuration)
-      << "Options --default-exceptions, --rethrow-all and --rethrow-default \n"
+      << "Options --default-exceptions, --rethrow-all and --rethrow-default "
+         "\n"
       << "are mutually incompatible.\n";
   }
   if (vm.count("threads")) {
@@ -90,9 +105,10 @@ art::ProcessingOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
       throw Exception(errors::Configuration)
         << "Option --threads must greater than or equal to 0.";
     }
-    if (vm["threads"].as<int>() > tbb::task_scheduler_init::default_num_threads()) {
+    if (vm["threads"].as<int>() >
+        tbb::task_scheduler_init::default_num_threads()) {
       throw Exception(errors::Configuration)
-        << tbb::task_scheduler_init::default_num_threads() 
+        << tbb::task_scheduler_init::default_num_threads()
         << " (available machine threads).";
     }
   }
@@ -101,22 +117,24 @@ art::ProcessingOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
       throw Exception(errors::Configuration)
         << "Option --streams must be at least 1.\n";
     }
-    //if (vm.count("threads") && (vm["threads"].as<int>() < vm["streams"].as<int>())) {
+    // if (vm.count("threads") && (vm["threads"].as<int>() <
+    // vm["streams"].as<int>())) {
     //  throw Exception(errors::Configuration)
-    //    << "Option --threads must be at least as large as option --streams.\n";
+    //    << "Option --threads must be at least as large as option
+    //    --streams.\n";
     //}
   }
   return 0;
 }
 
 int
-art::ProcessingOptionsHandler::doProcessOptions(bpo::variables_map const& vm,
-                                                fhicl::intermediate_table& raw_config)
+art::ProcessingOptionsHandler::doProcessOptions(
+  bpo::variables_map const& vm,
+  fhicl::intermediate_table& raw_config)
 {
-  std::string const scheduler_key {"services.scheduler"};
+  std::string const scheduler_key{"services.scheduler"};
 
-  if (vm.count("rethrow-all") == 1 ||
-      vm.count("rethrow-default") == 1 ||
+  if (vm.count("rethrow-all") == 1 || vm.count("rethrow-default") == 1 ||
       (rethrowDefault_ && vm.count("default-exceptions") == 0)) {
     raw_config.put(fhicl_key(scheduler_key, "defaultExceptions"), false);
     if (vm.count("rethrow-all") == 1) {
@@ -127,20 +145,34 @@ art::ProcessingOptionsHandler::doProcessOptions(bpo::variables_map const& vm,
     }
   }
 
-  fillTable("errorOnFailureToPut"   , fhicl_key(scheduler_key, "errorOnFailureToPut"   ), vm, raw_config, true);
-  fillTable("errorOnMissingConsumes", fhicl_key(scheduler_key, "errorOnMissingConsumes"), vm, raw_config, false);
-  fillTable("errorOnSIGINT"         , fhicl_key(scheduler_key, "errorOnSIGINT"         ), vm, raw_config, true);
+  fillTable("errorOnFailureToPut",
+            fhicl_key(scheduler_key, "errorOnFailureToPut"),
+            vm,
+            raw_config,
+            true);
+  fillTable("errorOnMissingConsumes",
+            fhicl_key(scheduler_key, "errorOnMissingConsumes"),
+            vm,
+            raw_config,
+            false);
+  fillTable("errorOnSIGINT",
+            fhicl_key(scheduler_key, "errorOnSIGINT"),
+            vm,
+            raw_config,
+            true);
 
   if (vm.count("streams")) {
-    raw_config.put(fhicl_key(scheduler_key, "streams"), vm["streams"].as<int>());
+    raw_config.put(fhicl_key(scheduler_key, "streams"),
+                   vm["streams"].as<int>());
   }
 
   if (vm.count("threads")) {
     if (vm["threads"].as<int>() == 0) {
-      raw_config.put(fhicl_key(scheduler_key, "threads"), tbb::task_scheduler_init::default_num_threads());
-    }
-    else {
-      raw_config.put(fhicl_key(scheduler_key, "threads"), vm["threads"].as<int>());
+      raw_config.put(fhicl_key(scheduler_key, "threads"),
+                     tbb::task_scheduler_init::default_num_threads());
+    } else {
+      raw_config.put(fhicl_key(scheduler_key, "threads"),
+                     vm["threads"].as<int>());
     }
   }
 

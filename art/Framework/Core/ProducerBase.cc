@@ -5,16 +5,8 @@ using namespace std;
 
 namespace art {
 
-ProducerBase::
-~ProducerBase()
-{
-}
+  ProducerBase::~ProducerBase() {}
 
-ProducerBase::
-ProducerBase()
-  : ModuleBase()
-{
-}
+  ProducerBase::ProducerBase() : ModuleBase() {}
 
 } // namespace art
-

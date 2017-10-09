@@ -11,21 +11,21 @@
 
 namespace art {
 
-  bool
-  is_glob(std::string const& pattern);
+  bool is_glob(std::string const& pattern);
 
-  std::string
-  glob2reg(std::string pattern);
+  std::string glob2reg(std::string pattern);
 
-  std::vector<std::vector<std::string>::const_iterator>
-  regexMatch(std::vector<std::string> const& strings, std::regex const& regexp);
+  std::vector<std::vector<std::string>::const_iterator> regexMatch(
+    std::vector<std::string> const& strings,
+    std::regex const& regexp);
 
-  std::vector<std::vector<std::string>::const_iterator>
-  regexMatch(std::vector<std::string> const& strings, std::string const& pattern);
+  std::vector<std::vector<std::string>::const_iterator> regexMatch(
+    std::vector<std::string> const& strings,
+    std::string const& pattern);
 
-}  // art
+} // namespace art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Utilities_RegexMatch_h */
 

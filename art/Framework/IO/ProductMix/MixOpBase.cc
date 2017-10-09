@@ -1,12 +1,13 @@
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
-#include "canvas_root_io/Streamers/RefCoreStreamer.h"
 #include "canvas_root_io/Streamers/ProductIDStreamer.h"
+#include "canvas_root_io/Streamers/RefCoreStreamer.h"
 
 // Note: This is a separate function so that users can avoid having to
 //       introduce a dependency change from canvas to canvas_root_io.
 
 void
-art::MixOpBase::configureStreamers(cet::exempt_ptr<BranchIDLists const> branchIDLists)
+art::MixOpBase::configureStreamers(
+  cet::exempt_ptr<BranchIDLists const> branchIDLists)
 {
   // Make sure the schema evolution is ready for ProductID
   configureProductIDStreamer(branchIDLists);

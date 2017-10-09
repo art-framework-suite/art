@@ -5,15 +5,16 @@
 
 namespace art {
 
-  inline
-  std::string couldNotFindTree(std::string const& treename) {
+  inline std::string
+  couldNotFindTree(std::string const& treename)
+  {
     std::string message = "Could not find tree ";
     message.append(treename);
     message.append(" in the input file.\n");
     return message;
   }
 
-}
+} // namespace art
 
 #endif /* art_Framework_IO_Root_rootErrMsgs_h */
 

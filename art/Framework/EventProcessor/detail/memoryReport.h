@@ -5,7 +5,7 @@ namespace art {
   namespace detail {
     void memoryReport();
   }
-}
+} // namespace art
 #endif /* art_Framework_EventProcessor_detail_memoryReport_h */
 
 // Local Variables:

@@ -31,7 +31,8 @@
 //     void produce(Run& r) {
 //       auto const& h = r.getValidHandle<POTSummary>(...);
 //       pots_.update(h);
-//       count_.update(h, h->proton_count()); // Ties 'count_' with RangeSet from 'h'
+//       count_.update(h, h->proton_count()); // Ties 'count_' with RangeSet
+//       from 'h'
 //     }
 //   };
 //
@@ -52,19 +53,18 @@ namespace art {
   template <typename T>
   class SummedValue {
   public:
-
-    static_assert(detail::CanBeAggregated<T>::value,
-                  "\n\n"
-                  "art error: SummedValue<T>'s only support types that can be aggregated.\n"
-                  "           Please contact artists@fnal.gov.\n");
-
-    template <typename H>
-    std::enable_if_t<detail::is_handle<H>::value>
-    update(H const& h);
+    static_assert(
+      detail::CanBeAggregated<T>::value,
+      "\n\n"
+      "art error: SummedValue<T>'s only support types that can be aggregated.\n"
+      "           Please contact artists@fnal.gov.\n");
 
     template <typename H>
-    std::enable_if_t<detail::is_handle<H>::value>
-    update(H const& h, T const& t);
+    std::enable_if_t<detail::is_handle<H>::value> update(H const& h);
+
+    template <typename H>
+    std::enable_if_t<detail::is_handle<H>::value> update(H const& h,
+                                                         T const& t);
 
     void clear();
 
@@ -76,7 +76,6 @@ namespace art {
     RangeSet const& rangeOfValidity() const;
 
   private:
-
     template <typename H>
     void
     update_impl(H const& h, T const& t)
@@ -88,12 +87,10 @@ namespace art {
       if (!rangeOfValidity_.is_valid() && newRS.is_valid()) {
         rangeOfValidity_ = newRS;
         value_ = t;
-      }
-      else if (art::disjoint_ranges(rangeOfValidity_, newRS)) {
+      } else if (art::disjoint_ranges(rangeOfValidity_, newRS)) {
         detail::CanBeAggregated<T>::aggregate(value_, t);
         rangeOfValidity_.merge(h.provenance()->rangeOfValidity());
-      }
-      else if (art::same_ranges(rangeOfValidity_, newRS)) {
+      } else if (art::same_ranges(rangeOfValidity_, newRS)) {
         // The ranges are the same, so the behavior is a NOP.
         // However, we will probably never get here because of the
         // seenIDs set, which prevents from duplicate aggregation.
@@ -101,23 +98,20 @@ namespace art {
         // ranges should be checked for equality, then the seenIDs
         // set needs to go away, and an extra condition will be
         // added here.
-      }
-      else if (art::overlapping_ranges(rangeOfValidity_, newRS)) {
-        throw Exception{errors::ProductCannotBeAggregated, "SummedValue<T>::update"}
-             << "\nThe following ranges corresponding to the type:\n"
-             << "   '" << cet::demangle_symbol(typeid(T).name()) << "'"
-             << "\ncannot be aggregated\n"
-             << rangeOfValidity_
-             << " and\n"
-             << newRS
-             << "\nPlease contact artists@fnal.gov.\n";
+      } else if (art::overlapping_ranges(rangeOfValidity_, newRS)) {
+        throw Exception{errors::ProductCannotBeAggregated,
+                        "SummedValue<T>::update"}
+          << "\nThe following ranges corresponding to the type:\n"
+          << "   '" << cet::demangle_symbol(typeid(T).name()) << "'"
+          << "\ncannot be aggregated\n"
+          << rangeOfValidity_ << " and\n"
+          << newRS << "\nPlease contact artists@fnal.gov.\n";
       }
       // NOP when both RangeSets are invalid
     }
 
-    T value_ {};
-    RangeSet rangeOfValidity_ {RangeSet::invalid()};
-
+    T value_{};
+    RangeSet rangeOfValidity_{RangeSet::invalid()};
   };
 
   //===============================================
@@ -128,8 +122,9 @@ namespace art {
   std::enable_if_t<detail::is_handle<H>::value>
   SummedValue<T>::update(H const& h)
   {
-    std::string const& errMsg {"Attempt to update "+
-        cet::demangle_symbol(typeid(*this).name()) + " from an invalid handle."};
+    std::string const& errMsg{"Attempt to update " +
+                              cet::demangle_symbol(typeid(*this).name()) +
+                              " from an invalid handle."};
     detail::throw_if_invalid(errMsg, h);
     update_impl(h, *h);
   }
@@ -139,32 +134,30 @@ namespace art {
   std::enable_if_t<detail::is_handle<H>::value>
   SummedValue<T>::update(H const& h, T const& t)
   {
-    std::string const& errMsg {"Attempt to update "+
-        cet::demangle_symbol(typeid(*this).name()) + " from an invalid handle.\n"};
+    std::string const& errMsg{"Attempt to update " +
+                              cet::demangle_symbol(typeid(*this).name()) +
+                              " from an invalid handle.\n"};
     detail::throw_if_invalid(errMsg, h);
     update_impl(h, t);
   }
 
   template <typename T>
-  inline
-  void
+  inline void
   SummedValue<T>::clear()
   {
-    SummedValue<T> tmp {};
+    SummedValue<T> tmp{};
     std::swap(*this, tmp);
   }
 
   template <typename T>
-  inline
-  bool
+  inline bool
   SummedValue<T>::isValid() const
   {
     return rangeOfValidity_.is_valid();
   }
 
   template <typename T>
-  inline
-  T const&
+  inline T const&
   SummedValue<T>::value() const
   {
     return value_;
@@ -198,7 +191,7 @@ namespace art {
     return overlapping_ranges(a.rangeOfValidity(), b.rangeOfValidity());
   }
 
-}
+} // namespace art
 
 #endif /* art_Framework_Principal_SummedValue_h */
 

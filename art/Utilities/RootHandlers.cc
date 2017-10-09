@@ -1,13 +1,20 @@
 
 #include "art/Utilities/RootHandlers.h"
 
-namespace art
-{
-  RootHandlers::RootHandlers() { }
+namespace art {
+  RootHandlers::RootHandlers() {}
 
-  RootHandlers::~RootHandlers() { }
+  RootHandlers::~RootHandlers() {}
 
-  void RootHandlers::disableErrorHandler() {disableErrorHandler_();}
-  void RootHandlers::enableErrorHandler() {enableErrorHandler_();}
+  void
+  RootHandlers::disableErrorHandler()
+  {
+    disableErrorHandler_();
+  }
+  void
+  RootHandlers::enableErrorHandler()
+  {
+    enableErrorHandler_();
+  }
 
-}
+} // namespace art

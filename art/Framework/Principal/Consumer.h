@@ -76,44 +76,44 @@
 //#include "canvas/Utilities/TypeID.h"
 //#include "cetlib/exempt_ptr.h"
 //
-//namespace fhicl {
-//class ParameterSet;
+// namespace fhicl {
+// class ParameterSet;
 //} // namespace fhicl
 //
-//namespace art {
+// namespace art {
 //
-//class DataViewImpl;
-//class ModuleDescription;
+// class DataViewImpl;
+// class ModuleDescription;
 //
-//class Consumer {
+// class Consumer {
 //
 //  friend class DataViewImpl;
 //
-//private: // TYPES
+// private: // TYPES
 //
 //  struct InvalidTag {};
 //
 //  using ConsumableType = ProductInfo::ConsumableType;
 //
-//public: // MEMBER FUNCTIONS -- Static API for user
+// public: // MEMBER FUNCTIONS -- Static API for user
 //
 //  static
 //  cet::exempt_ptr<Consumer>
 //  non_module_context();
 //
-//public: // MEMBER FUNCTIONS -- Special Member Functions
+// public: // MEMBER FUNCTIONS -- Special Member Functions
 //
 //  ~Consumer();
 //
 //  explicit
 //  Consumer();
 //
-//private: // MEMBER FUNCTIONS -- Special Member Functions
+// private: // MEMBER FUNCTIONS -- Special Member Functions
 //
 //  explicit
 //  Consumer(InvalidTag);
 //
-//public: // MEMBER FUNCTIONS -- API for user
+// public: // MEMBER FUNCTIONS -- API for user
 //
 //  template <typename T, BranchType = InEvent>
 //  ProductToken<T>
@@ -142,7 +142,7 @@
 //  ViewToken<Element>
 //  mayConsumeView(InputTag const&);
 //
-//protected: // MEMBER FUNCTIONS -- API for derived classes
+// protected: // MEMBER FUNCTIONS -- API for derived classes
 //
 //  void
 //  validateConsumedProduct(BranchType const bt, ProductInfo const& pi);
@@ -162,7 +162,7 @@
 //  void
 //  showMissingConsumes() const;
 //
-//private: // MEMBER DATA
+// private: // MEMBER DATA
 //
 //  bool
 //  moduleContext_{true};
@@ -183,22 +183,22 @@
 //
 //};
 //
-//template <typename T, BranchType BT>
-//ProductToken<T>
-//Consumer::
-//consumes(InputTag const& it)
+// template <typename T, BranchType BT>
+// ProductToken<T>
+// Consumer::
+// consumes(InputTag const& it)
 //{
 //  if (!moduleContext_) {
 //    return ProductToken<T>::invalid();
 //  }
-//  consumables_[BT].emplace_back(ConsumableType::Product, TypeID{typeid(T)}, it.label(), it.instance(), it.process());
-//  return ProductToken<T>{it};
+//  consumables_[BT].emplace_back(ConsumableType::Product, TypeID{typeid(T)},
+//  it.label(), it.instance(), it.process()); return ProductToken<T>{it};
 //}
 //
-//template <typename T, BranchType BT>
-//void
-//Consumer::
-//consumesMany()
+// template <typename T, BranchType BT>
+// void
+// Consumer::
+// consumesMany()
 //{
 //  if (!moduleContext_) {
 //    return;
@@ -206,34 +206,35 @@
 //  consumables_[BT].emplace_back(ConsumableType::Many, TypeID{typeid(T)});
 //}
 //
-//template <typename T, BranchType BT>
-//ViewToken<T>
-//Consumer::
-//consumesView(InputTag const& it)
+// template <typename T, BranchType BT>
+// ViewToken<T>
+// Consumer::
+// consumesView(InputTag const& it)
 //{
 //  if (!moduleContext_) {
 //    return ViewToken<T>::invalid();
 //  }
-//  consumables_[BT].emplace_back(ConsumableType::ViewElement, TypeID{typeid(T)}, it.label(), it.instance(), it.process());
-//  return ViewToken<T>{it};
+//  consumables_[BT].emplace_back(ConsumableType::ViewElement,
+//  TypeID{typeid(T)}, it.label(), it.instance(), it.process()); return
+//  ViewToken<T>{it};
 //}
 //
-//template <typename T, BranchType BT>
-//ProductToken<T>
-//Consumer::
-//mayConsume(InputTag const& it)
+// template <typename T, BranchType BT>
+// ProductToken<T>
+// Consumer::
+// mayConsume(InputTag const& it)
 //{
 //  if (!moduleContext_) {
 //    return ProductToken<T>::invalid();
 //  }
-//  consumables_[BT].emplace_back(ConsumableType::Product, TypeID{typeid(T)}, it.label(), it.instance(), it.process());
-//  return ProductToken<T>{it};
+//  consumables_[BT].emplace_back(ConsumableType::Product, TypeID{typeid(T)},
+//  it.label(), it.instance(), it.process()); return ProductToken<T>{it};
 //}
 //
-//template <typename T, BranchType BT>
-//void
-//Consumer::
-//mayConsumeMany()
+// template <typename T, BranchType BT>
+// void
+// Consumer::
+// mayConsumeMany()
 //{
 //  if (!moduleContext_) {
 //    return;
@@ -241,16 +242,17 @@
 //  consumables_[BT].emplace_back(ConsumableType::Many, TypeID{typeid(T)});
 //}
 //
-//template <typename T, BranchType BT>
-//ViewToken<T>
-//Consumer::
-//mayConsumeView(InputTag const& it)
+// template <typename T, BranchType BT>
+// ViewToken<T>
+// Consumer::
+// mayConsumeView(InputTag const& it)
 //{
 //  if (!moduleContext_) {
 //    return ViewToken<T>::invalid();
 //  }
-//  consumables_[BT].emplace_back(ConsumableType::ViewElement, TypeID{typeid(T)}, it.label(), it.instance(), it.process());
-//  return ViewToken<T>{it};
+//  consumables_[BT].emplace_back(ConsumableType::ViewElement,
+//  TypeID{typeid(T)}, it.label(), it.instance(), it.process()); return
+//  ViewToken<T>{it};
 //}
 //
 //} // namespace art

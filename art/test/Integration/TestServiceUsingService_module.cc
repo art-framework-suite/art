@@ -6,73 +6,63 @@
 #include "cetlib/quiet_unit_test.hpp"
 
 namespace art {
-namespace test {
+  namespace test {
 
-class TestServiceUsingService : public EDAnalyzer {
+    class TestServiceUsingService : public EDAnalyzer {
 
-public:
+    public:
+      ~TestServiceUsingService();
 
-  ~TestServiceUsingService();
+      explicit TestServiceUsingService(fhicl::ParameterSet const&);
 
-  explicit
-  TestServiceUsingService(fhicl::ParameterSet const&);
+      void analyze(art::Event const&) override;
 
-  void
-  analyze(art::Event const &) override;
+      void beginJob() override;
 
-  void
-  beginJob() override;
+      void endJob() override;
 
-  void
-  endJob() override;
+    private:
+      int debug_level_;
+    };
 
-private:
+    TestServiceUsingService::~TestServiceUsingService()
+    {
+      // Test that art::ServiceHandle can be dereferenced in a module destructor
+      ServiceHandle<ServiceUsing const> {}
+      ->getCachedValue();
+    }
 
-  int debug_level_;
+    TestServiceUsingService::TestServiceUsingService(
+      fhicl::ParameterSet const& pset)
+      : EDAnalyzer{pset}
+      , debug_level_{ServiceHandle<ServiceUsing const>()->getCachedValue()}
+    {}
 
-};
+    void
+    TestServiceUsingService::analyze(Event const&)
+    {}
 
-TestServiceUsingService::
-~TestServiceUsingService()
-{
-  // Test that art::ServiceHandle can be dereferenced in a module destructor
-  ServiceHandle<ServiceUsing const>{}->getCachedValue();
-}
+    void
+    TestServiceUsingService::beginJob()
+    {
+      ServiceHandle<ServiceUsing const> sus;
+      BOOST_CHECK_EQUAL(debug_level_, sus->getCachedValue());
+      BOOST_CHECK_EQUAL(ServiceHandle<Wanted const> {}->getCachedValue(),
+                        sus->getCachedValue());
+    }
 
-TestServiceUsingService::
-TestServiceUsingService(fhicl::ParameterSet const& pset)
-  : EDAnalyzer{pset}
-  , debug_level_{ServiceHandle<ServiceUsing const>()->getCachedValue()}
-{
-}
+    void
+    TestServiceUsingService::endJob()
+    {
+      ServiceHandle<ServiceUsing const> sus;
+      BOOST_CHECK(sus->postBeginJobCalled());
+      int const current_value = sus->getCachedValue();
+      BOOST_CHECK_NE(debug_level_, current_value);
+      BOOST_CHECK_EQUAL(ServiceHandle<Wanted const> {}->getCachedValue(),
+                        current_value);
+    }
 
-void
-TestServiceUsingService::
-analyze(Event const&)
-{
-}
-
-void
-TestServiceUsingService::
-beginJob()
-{
-  ServiceHandle<ServiceUsing const> sus;
-  BOOST_CHECK_EQUAL(debug_level_, sus->getCachedValue());
-  BOOST_CHECK_EQUAL(ServiceHandle<Wanted const>{}->getCachedValue(), sus->getCachedValue());
-}
-
-void
-TestServiceUsingService::
-endJob()
-{
-  ServiceHandle<ServiceUsing const> sus;
-  BOOST_CHECK(sus->postBeginJobCalled());
-  int const current_value = sus->getCachedValue();
-  BOOST_CHECK_NE(debug_level_, current_value);
-  BOOST_CHECK_EQUAL(ServiceHandle<Wanted const>{}->getCachedValue(), current_value);
-}
-
-} // namespace test
+  } // namespace test
 } // namespace art
 
 DEFINE_ART_MODULE(art::test::TestServiceUsingService)

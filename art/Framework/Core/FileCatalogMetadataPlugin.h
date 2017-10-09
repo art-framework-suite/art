@@ -38,139 +38,117 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"
 
-#define DEFINE_ART_FILECATALOGMETADATA_PLUGIN(klass) \
-  CET_PROVIDE_FILE_PATH() \
-  FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass) \
-  DEFINE_BASIC_PLUGIN(klass,art::FileCatalogMetadataPlugin)
+#define DEFINE_ART_FILECATALOGMETADATA_PLUGIN(klass)                           \
+  CET_PROVIDE_FILE_PATH()                                                      \
+  FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                                   \
+  DEFINE_BASIC_PLUGIN(klass, art::FileCatalogMetadataPlugin)
 
 namespace art {
 
-class Event;
-class FileCatalogMetadataPlugin;
-class Run;
-class SubRun;
+  class Event;
+  class FileCatalogMetadataPlugin;
+  class Run;
+  class SubRun;
 
 } // namespace art
 
 namespace cet {
 
-template <>
-struct PluginTypeDeducer<art::FileCatalogMetadataPlugin> {
-  static std::string const value;
-};
+  template <>
+  struct PluginTypeDeducer<art::FileCatalogMetadataPlugin> {
+    static std::string const value;
+  };
 
 } // namespace cet
 
 namespace art {
 
-class FileCatalogMetadataPlugin {
+  class FileCatalogMetadataPlugin {
 
-public: // TYPES
+  public: // TYPES
+    typedef FileCatalogMetadata::collection_type collection_type;
 
-  typedef FileCatalogMetadata::collection_type collection_type;
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    virtual ~FileCatalogMetadataPlugin() = default;
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+    FileCatalogMetadataPlugin(fhicl::ParameterSet const& pset);
 
-  virtual
-  ~FileCatalogMetadataPlugin() = default;
+  public: // MEMBER FUNCTIONS --
+    void doBeginJob();
+    void doEndJob();
 
-  FileCatalogMetadataPlugin(fhicl::ParameterSet const& pset);
+    void doBeginRun(Run const& r);
+    void doEndRun(Run const& r);
 
-public: // MEMBER FUNCTIONS --
+    void doBeginSubRun(SubRun const& sr);
+    void doEndSubRun(SubRun const& sr);
 
-  void doBeginJob();
-  void doEndJob();
+    void doCollectMetadata(Event const& e);
 
-  void doBeginRun(Run const& r);
-  void doEndRun(Run const& r);
+    collection_type doProduceMetadata();
 
-  void doBeginSubRun(SubRun const& sr);
-  void doEndSubRun(SubRun const& sr);
+  private: // MEMBER FUNCTIONS --
+    virtual void beginJob(){};
+    virtual void endJob(){};
 
-  void doCollectMetadata(Event const& e);
+    virtual void beginRun(Run const&){};
+    virtual void endRun(Run const&){};
 
-  collection_type doProduceMetadata();
+    virtual void beginSubRun(SubRun const&){};
+    virtual void endSubRun(SubRun const&){};
 
-private: // MEMBER FUNCTIONS --
+    virtual void collectMetadata(Event const&){};
 
-  virtual void beginJob() { };
-  virtual void endJob() { };
+    virtual collection_type produceMetadata() = 0;
+  };
 
-  virtual void beginRun(Run const&) { };
-  virtual void endRun(Run const&) { };
+  inline void
+  FileCatalogMetadataPlugin::doBeginJob()
+  {
+    beginJob();
+  }
 
-  virtual void beginSubRun(SubRun const&) { };
-  virtual void endSubRun(SubRun const&) { };
+  inline void
+  FileCatalogMetadataPlugin::doEndJob()
+  {
+    endJob();
+  }
 
-  virtual void collectMetadata(Event const&) { };
+  inline void
+  FileCatalogMetadataPlugin::doCollectMetadata(Event const& e)
+  {
+    collectMetadata(e);
+  }
 
-  virtual collection_type produceMetadata() = 0;
+  inline void
+  FileCatalogMetadataPlugin::doBeginRun(Run const& r)
+  {
+    beginRun(r);
+  }
 
-};
+  inline void
+  FileCatalogMetadataPlugin::doEndRun(Run const& r)
+  {
+    endRun(r);
+  }
 
-inline
-void
-FileCatalogMetadataPlugin::
-doBeginJob()
-{
-  beginJob();
-}
+  inline void
+  FileCatalogMetadataPlugin::doBeginSubRun(SubRun const& r)
+  {
+    beginSubRun(r);
+  }
 
-inline
-void
-FileCatalogMetadataPlugin::
-doEndJob()
-{
-  endJob();
-}
+  inline void
+  FileCatalogMetadataPlugin::doEndSubRun(SubRun const& r)
+  {
+    endSubRun(r);
+  }
 
-inline
-void
-FileCatalogMetadataPlugin::
-doCollectMetadata(Event const& e)
-{
-  collectMetadata(e);
-}
-
-inline
-void
-FileCatalogMetadataPlugin::
-doBeginRun(Run const& r)
-{
-  beginRun(r);
-}
-
-inline
-void
-FileCatalogMetadataPlugin::
-doEndRun(Run const& r)
-{
-  endRun(r);
-}
-
-inline
-void
-FileCatalogMetadataPlugin::
-doBeginSubRun(SubRun const& r)
-{
-  beginSubRun(r);
-}
-
-inline
-void
-FileCatalogMetadataPlugin::
-doEndSubRun(SubRun const& r)
-{
-  endSubRun(r);
-}
-
-inline
-auto
-FileCatalogMetadataPlugin::
-doProduceMetadata()
--> collection_type {
-  return produceMetadata();
-}
+  inline auto
+  FileCatalogMetadataPlugin::doProduceMetadata() -> collection_type
+  {
+    return produceMetadata();
+  }
 
 } // namespace art
 

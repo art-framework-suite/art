@@ -20,110 +20,86 @@
 
 namespace art {
 
-class WorkerInPath {
+  class WorkerInPath {
 
-public: // TYPES
+  public: // TYPES
+    enum FilterAction {
+      Normal = 0,
+      Ignore // 1
+      ,
+      Veto // 2
+    };
 
-  enum FilterAction {
-      Normal = 0
-    , Ignore // 1
-    , Veto // 2
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~WorkerInPath() noexcept;
+
+    explicit WorkerInPath(Worker*) noexcept;
+
+    WorkerInPath(Worker*, FilterAction) noexcept;
+
+    WorkerInPath(WorkerInPath const&) = delete;
+
+    WorkerInPath(WorkerInPath&&) noexcept;
+
+    WorkerInPath& operator=(WorkerInPath const&) = delete;
+
+    WorkerInPath& operator=(WorkerInPath&&) noexcept;
+
+  public: // MEMBER FUNCTIONS -- API for user
+    Worker* getWorker() const;
+
+    FilterAction filterAction() const;
+
+    // Used only by Path
+    bool returnCode(int streamIndex) const;
+
+    std::string const& label() const;
+
+    bool runWorker(Transition, Principal&, CurrentProcessingContext*);
+
+    void runWorker_event_for_endpath(EventPrincipal&,
+                                     int streamIndex,
+                                     CurrentProcessingContext*);
+
+    void runWorker_event(hep::concurrency::WaitingTask* workerDoneTask,
+                         EventPrincipal&,
+                         int streamIndex,
+                         CurrentProcessingContext*);
+
+    // Used only by Path
+    void clearCounters();
+
+    // Used by writeSummary
+    std::size_t timesVisited() const;
+
+    // Used by writeSummary
+    std::size_t timesPassed() const;
+
+    // Used by writeSummary
+    std::size_t timesFailed() const;
+
+    // Used by writeSummary
+    std::size_t timesExcept() const;
+
+  private: // MEMBER DATA
+    Worker* worker_{nullptr};
+
+    FilterAction filterAction_{Normal};
+
+  private: // MEMBER DATA -- Per-stream
+    bool returnCode_{false};
+
+    hep::concurrency::WaitingTaskList waitingTasks_{};
+
+  private: // MEMBER DATA -- Counts
+    std::atomic<std::size_t> counts_visited_;
+
+    std::atomic<std::size_t> counts_passed_;
+
+    std::atomic<std::size_t> counts_failed_;
+
+    std::atomic<std::size_t> counts_thrown_;
   };
-
-public: // MEMBER FUNCTIONS -- Special Member Functions
-
-  ~WorkerInPath() noexcept;
-
-  explicit
-  WorkerInPath(Worker*) noexcept;
-
-  WorkerInPath(Worker*, FilterAction) noexcept;
-
-  WorkerInPath(WorkerInPath const&) = delete;
-
-  WorkerInPath(WorkerInPath&&) noexcept;
-
-  WorkerInPath&
-  operator=(WorkerInPath const&) = delete;
-
-  WorkerInPath&
-  operator=(WorkerInPath&&) noexcept;
-
-public: // MEMBER FUNCTIONS -- API for user
-
-  Worker*
-  getWorker() const;
-
-  FilterAction
-  filterAction() const;
-
-  // Used only by Path
-  bool
-  returnCode(int streamIndex) const;
-
-  std::string const&
-  label() const;
-
-  bool
-  runWorker(Transition, Principal&, CurrentProcessingContext*);
-
-  void
-  runWorker_event_for_endpath(EventPrincipal&, int streamIndex, CurrentProcessingContext*);
-
-  void
-  runWorker_event(hep::concurrency::WaitingTask* workerDoneTask, EventPrincipal&, int streamIndex, CurrentProcessingContext*);
-
-  // Used only by Path
-  void
-  clearCounters();
-
-  // Used by writeSummary
-  std::size_t
-  timesVisited() const;
-
-  // Used by writeSummary
-  std::size_t
-  timesPassed() const;
-
-  // Used by writeSummary
-  std::size_t
-  timesFailed() const;
-
-  // Used by writeSummary
-  std::size_t
-  timesExcept() const;
-
-private: // MEMBER DATA
-
-  Worker*
-  worker_{nullptr};
-
-  FilterAction
-  filterAction_{Normal};
-
-private: // MEMBER DATA -- Per-stream
-
-  bool
-  returnCode_{false};
-
-  hep::concurrency::WaitingTaskList
-  waitingTasks_{};
-
-private: // MEMBER DATA -- Counts
-
-  std::atomic<std::size_t>
-  counts_visited_;
-
-  std::atomic<std::size_t>
-  counts_passed_;
-
-  std::atomic<std::size_t>
-  counts_failed_;
-
-  std::atomic<std::size_t>
-  counts_thrown_;
-
-};
 
 } // namespace art
 

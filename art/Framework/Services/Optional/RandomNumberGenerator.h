@@ -162,214 +162,177 @@
 
 namespace CLHEP {
 
-class HepRandomEngine;
+  class HepRandomEngine;
 
 } // namespace CLHEP
 
 namespace art {
 
-class ActivityRegistry;
-class Event;
-class EventID;
-class Timestamp;
+  class ActivityRegistry;
+  class Event;
+  class EventID;
+  class Timestamp;
 
-class EventProcessor;
-class ModuleBase;
-class RandomNumberSaver;
+  class EventProcessor;
+  class ModuleBase;
+  class RandomNumberSaver;
 
-namespace test {
+  namespace test {
 
-class ConcurrentEngineRetrieval;
+    class ConcurrentEngineRetrieval;
 
-} // namespace test
+  } // namespace test
 
-class RandomNumberGenerator {
+  class RandomNumberGenerator {
 
-  friend class EventProcessor;
-  friend class ModuleBase;
-  friend class RandomNumberSaver;
-  friend class test::ConcurrentEngineRetrieval;
+    friend class EventProcessor;
+    friend class ModuleBase;
+    friend class RandomNumberSaver;
+    friend class test::ConcurrentEngineRetrieval;
 
-public: // TYPES
- 
-  // Used by createEngine.
-  // Used by restoreSnapshot_.
-  // Used by restoreFromFile_.
-  enum class EngineSource {
-      Seed = 1
-    , File
-    , Product
+  public: // TYPES
+    // Used by createEngine.
+    // Used by restoreSnapshot_.
+    // Used by restoreFromFile_.
+    enum class EngineSource { Seed = 1, File, Product };
+
+  public: // CONFIGURATION
+    struct Config {
+      fhicl::Atom<std::string> restoreStateLabel{
+        fhicl::Name{"restoreStateLabel"},
+        ""};
+      fhicl::Atom<std::string> saveTo{fhicl::Name{"saveTo"}, ""};
+      fhicl::Atom<std::string> restoreFrom{fhicl::Name{"restoreFrom"}, ""};
+      fhicl::Atom<unsigned> nPrint{fhicl::Name{"nPrint"}, 10u};
+      fhicl::Atom<bool> debug{fhicl::Name{"debug"}, false};
+    };
+
+    using Parameters = ServiceTable<Config>;
+
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    RandomNumberGenerator(Parameters const&, ActivityRegistry&);
+
+    RandomNumberGenerator(RandomNumberGenerator const&) = delete;
+
+    RandomNumberGenerator(RandomNumberGenerator&&) = delete;
+
+    RandomNumberGenerator& operator=(RandomNumberGenerator const&) = delete;
+
+    RandomNumberGenerator& operator=(RandomNumberGenerator&&) = delete;
+
+  public: // MEMBER FUNCTIONS -- Engine access
+    // TODO: Could remove if we do not need to support access from
+    //       engines restored from file.
+
+    CLHEP::HepRandomEngine& getEngine() const;
+
+    CLHEP::HepRandomEngine& getEngine(std::string const& engine_label) const;
+
+  private: // TYPES
+    // Per-stream data
+    struct ScheduleData {
+
+      // Indexed by engine label.
+      std::map<std::string, std::shared_ptr<CLHEP::HepRandomEngine>> dict_{};
+
+      // Indexed by engine label.
+      // When EngineSource == Seed, this means an engine with the
+      // given label has been created by createEngine(si, seed, ...).
+      // When EngineSource == File, this means the engine was
+      // created by restoring it from a file.
+      // When EngineSource == Product, this means the engine was
+      // created by restoring it from a snapshot data product
+      // with module label "restoreStateLabel".
+      std::map<std::string, EngineSource> tracker_{};
+
+      // Indexed by engine label.
+      std::map<std::string, std::string> kind_{};
+
+      std::vector<RNGsnapshot> snapshot_{};
+    };
+
+  private: // MEMBER FUNCTIONS -- Engine establishment
+    CLHEP::HepRandomEngine& createEngine(int streamIndex, long seed);
+
+    CLHEP::HepRandomEngine& createEngine(
+      int streamIndex,
+      long seed,
+      std::string const& kind_of_engine_to_make);
+
+    CLHEP::HepRandomEngine& createEngine(int streamIndex,
+                                         long seed,
+                                         std::string kind_of_engine_to_make,
+                                         std::string const& engine_label);
+
+    CLHEP::HepRandomEngine& getEngine(
+      int streamIndex,
+      std::string const& engine_label = {}) const;
+
+    // --- MT-TODO: Only for testing
+    //     For testing multi-schedule parallization of this service, the
+    //     requested number of schedules is not expanded UNLESS the
+    //     expandToNSchedules() function is called by a friend.
+    void
+    expandToNSchedules(int const n)
+    {
+      data_.resize(n);
+    }
+
+  private: // MEMBER FUNCTIONS -- Snapshot management helpers
+    void takeSnapshot_(int streamIndex);
+
+    void restoreSnapshot_(int streamIndex, Event const&);
+
+    std::vector<RNGsnapshot> const&
+    accessSnapshot_(int const streamIndex) const
+    {
+      return data_[streamIndex].snapshot_;
+    }
+
+  private: // MEMBER FUNCTIONS -- File management helpers
+    // TODO: Determine if this facility is necessary.
+
+    void saveToFile_();
+
+    void restoreFromFile_();
+
+  private: // MEMBER FUNCTIONS -- Debugging helpers
+    void print_() const;
+
+    bool invariant_holds_(int streamIndex);
+
+  private: // MEMBER FUNCTIONS -- Callbacks
+    void preProcessEvent(Event const&);
+
+    void postProcessEvent(Event const&);
+
+    void postBeginJob();
+
+    void postEndJob();
+
+  private: // MEMBER DATA -- Guard against tardy engine creation
+    bool engine_creation_is_okay_{true};
+
+  private:
+    std::vector<ScheduleData> data_;
+
+    // Product key for restoring from a snapshot
+    std::string const restoreStateLabel_;
+
+    // File name for saving state
+    std::string const saveToFilename_;
+
+    // File name for restoring state
+    std::string const restoreFromFilename_;
+
+    // Tracing and debug controls
+    unsigned const nPrint_;
+
+    // Tracing and debug controls
+    bool const debug_;
   };
 
-public: // CONFIGURATION
-
-  struct Config {
-    fhicl::Atom<std::string> restoreStateLabel {fhicl::Name{"restoreStateLabel"}, ""};
-    fhicl::Atom<std::string> saveTo            {fhicl::Name{"saveTo"}, ""};
-    fhicl::Atom<std::string> restoreFrom       {fhicl::Name{"restoreFrom"}, ""};
-    fhicl::Atom<unsigned> nPrint {fhicl::Name{"nPrint"}, 10u};
-    fhicl::Atom<bool> debug {fhicl::Name{"debug"}, false};
-  };
-
-  using Parameters = ServiceTable<Config>;
-
-public: // MEMBER FUNCTIONS -- Special Member Functions
-
-  RandomNumberGenerator(Parameters const&, ActivityRegistry&);
-
-  RandomNumberGenerator(RandomNumberGenerator const&) = delete;
-
-  RandomNumberGenerator(RandomNumberGenerator&&) = delete;
-
-  RandomNumberGenerator&
-  operator=(RandomNumberGenerator const&) = delete;
-
-  RandomNumberGenerator&
-  operator=(RandomNumberGenerator&&) = delete;
-
-public: // MEMBER FUNCTIONS -- Engine access
-
-  // TODO: Could remove if we do not need to support access from
-  //       engines restored from file.
-
-  CLHEP::HepRandomEngine&
-  getEngine() const;
-
-  CLHEP::HepRandomEngine&
-  getEngine(std::string const& engine_label) const;
-
-private: // TYPES
-
-  // Per-stream data
-  struct ScheduleData {
-
-    // Indexed by engine label.
-    std::map<std::string, std::shared_ptr<CLHEP::HepRandomEngine>>
-    dict_{};
-
-    // Indexed by engine label.
-    // When EngineSource == Seed, this means an engine with the
-    // given label has been created by createEngine(si, seed, ...).
-    // When EngineSource == File, this means the engine was
-    // created by restoring it from a file.
-    // When EngineSource == Product, this means the engine was
-    // created by restoring it from a snapshot data product
-    // with module label "restoreStateLabel".
-    std::map<std::string, EngineSource> 
-    tracker_{};
-
-    // Indexed by engine label.
-    std::map<std::string, std::string>
-    kind_{};
-
-    std::vector<RNGsnapshot>
-    snapshot_{};
-
-  };
-
-private: // MEMBER FUNCTIONS -- Engine establishment
-
-  CLHEP::HepRandomEngine&
-  createEngine(int streamIndex, long seed);
-
-  CLHEP::HepRandomEngine&
-  createEngine(int streamIndex, long seed, std::string const& kind_of_engine_to_make);
-
-  CLHEP::HepRandomEngine&
-  createEngine(int streamIndex, long seed, std::string kind_of_engine_to_make, std::string const& engine_label);
-
-  CLHEP::HepRandomEngine&
-  getEngine(int streamIndex, std::string const& engine_label = {}) const;
-
-  // --- MT-TODO: Only for testing
-  //     For testing multi-schedule parallization of this service, the
-  //     requested number of schedules is not expanded UNLESS the
-  //     expandToNSchedules() function is called by a friend.
-  void
-  expandToNSchedules(int const n)
-  {
-    data_.resize(n);
-  }
-
-private: // MEMBER FUNCTIONS -- Snapshot management helpers
-
-  void
-  takeSnapshot_(int streamIndex);
-
-  void
-  restoreSnapshot_(int streamIndex, Event const&);
-
-  std::vector<RNGsnapshot> const&
-  accessSnapshot_(int const streamIndex) const
-  {
-    return data_[streamIndex].snapshot_;
-  }
-
-private: // MEMBER FUNCTIONS -- File management helpers
-
-  // TODO: Determine if this facility is necessary.
-
-  void
-  saveToFile_();
-
-  void
-  restoreFromFile_();
-
-private: // MEMBER FUNCTIONS -- Debugging helpers
-
-  void
-  print_() const;
-
-  bool
-  invariant_holds_(int streamIndex);
-
-private: // MEMBER FUNCTIONS -- Callbacks
-
-  void
-  preProcessEvent(Event const&);
-
-  void
-  postProcessEvent(Event const&);
-
-  void
-  postBeginJob();
-
-  void
-  postEndJob();
-
-private: // MEMBER DATA -- Guard against tardy engine creation
-
-  bool
-  engine_creation_is_okay_{true};
-
-private:
-
-  std::vector<ScheduleData>
-  data_;
-
-  // Product key for restoring from a snapshot
-  std::string const
-  restoreStateLabel_;
-
-  // File name for saving state
-  std::string const
-  saveToFilename_;
-
-  // File name for restoring state
-  std::string const
-  restoreFromFilename_;
-
-  // Tracing and debug controls
-  unsigned const
-  nPrint_;
-
-  // Tracing and debug controls
-  bool const
-  debug_;
-
-};
-
-} // namesapce art
+} // namespace art
 
 DECLARE_ART_SERVICE(art::RandomNumberGenerator, LEGACY)
 

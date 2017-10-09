@@ -23,8 +23,8 @@
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
-#include "cetlib/container_algorithms.h"
 #include "cetlib/HorizontalRule.h"
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cstdlib>
@@ -34,50 +34,38 @@
 
 namespace art {
 
-class BranchDescription;
-class ProdToProdMapBuilder;
+  class BranchDescription;
+  class ProdToProdMapBuilder;
 
-class Event final : public DataViewImpl {
+  class Event final : public DataViewImpl {
 
-public:
+  public:
+    template <typename T>
+    using HandleT = Handle<T>;
 
-  template <typename T>
-  using HandleT = Handle<T>;
+  public:
+    ~Event();
 
-public:
+    explicit Event(EventPrincipal const& ep, ModuleDescription const& md);
 
-  ~Event();
+    Event(Event const&) = delete;
 
-  explicit
-  Event(EventPrincipal const& ep, ModuleDescription const& md);
+    Event(Event&&) = delete;
 
-  Event(Event const&) = delete;
+    Event& operator=(Event const&) = delete;
 
-  Event(Event&&) = delete;
+    Event& operator=(Event&&) = delete;
 
-  Event&
-  operator=(Event const&) = delete;
+  public:
+    EventID id() const;
 
-  Event&
-  operator=(Event&&) = delete;
+    SubRun const& getSubRun() const;
 
-public:
+    Run const& getRun() const;
 
-  EventID
-  id() const;
-
-  SubRun const&
-  getSubRun() const;
-
-  Run const&
-  getRun() const;
-
-private:
-
-  std::unique_ptr<SubRun const> const
-  subRun_;
-
-};
+  private:
+    std::unique_ptr<SubRun const> const subRun_;
+  };
 
 } // namespace art
 

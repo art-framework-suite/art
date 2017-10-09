@@ -7,43 +7,36 @@
 #include "art/test/Integration/Wanted.h"
 
 namespace art {
-namespace test {
+  namespace test {
 
-class ServiceUsing {
+    class ServiceUsing {
 
-public:
+    public:
+      ServiceUsing(fhicl::ParameterSet const&, art::ActivityRegistry&);
 
-  ServiceUsing(fhicl::ParameterSet const&, art::ActivityRegistry&);
+      int
+      getCachedValue() const
+      {
+        return cached_value_;
+      }
 
-  int
-  getCachedValue() const
-  {
-    return cached_value_;
-  }
+      bool
+      postBeginJobCalled() const
+      {
+        return postBeginJobCalled_;
+      }
 
-  bool
-  postBeginJobCalled() const
-  {
-    return postBeginJobCalled_;
-  }
+    private:
+      void postBeginJob();
 
-private:
+      bool postBeginJobCalled_{false};
 
-  void
-  postBeginJob();
+      int cached_value_{};
 
-  bool
-  postBeginJobCalled_{false};
+      ServiceHandle<Wanted> wanted_{};
+    };
 
-  int
-  cached_value_ {};
-
-  ServiceHandle<Wanted>
-  wanted_{};
-
-};
-
-} // namespace test
+  } // namespace test
 } // namespace art
 
 DECLARE_ART_SERVICE(art::test::ServiceUsing, LEGACY)

@@ -16,60 +16,49 @@ using namespace std;
 
 namespace {
 
-double
-f(int val)
-{
-  return sqrt(val);
-}
-
-void
-use_cpu_time(double& val)
-{
-  for (int i = 0; i < 100'000'000; ++i) {
-    val = f(i);
+  double
+  f(int val)
+  {
+    return sqrt(val);
   }
-}
+
+  void
+  use_cpu_time(double& val)
+  {
+    for (int i = 0; i < 100'000'000; ++i) {
+      val = f(i);
+    }
+  }
 
 } // unnamed namespace
 
 namespace arttest {
 
-class ToyProductFilter : public EDFilter {
+  class ToyProductFilter : public EDFilter {
 
-public:
+  public:
+    explicit ToyProductFilter(fhicl::ParameterSet const& pset);
 
-  explicit
-  ToyProductFilter(fhicl::ParameterSet const& pset);
+  private:
+    bool filter(Event& e) override;
 
-private:
+  private:
+    string inputLabel_{};
+  };
+
+  ToyProductFilter::ToyProductFilter(fhicl::ParameterSet const& pset)
+    : EDFilter(), inputLabel_(pset.get<std::string>("inputLabel"))
+  {}
 
   bool
-  filter(Event& e) override;
-
-private:
-
-  string
-  inputLabel_{};
-
-};
-
-ToyProductFilter::
-ToyProductFilter(fhicl::ParameterSet const& pset)
-  : EDFilter()
-  , inputLabel_(pset.get<std::string>("inputLabel"))
-{
-}
-
-bool
-ToyProductFilter::
-filter(Event& /*e*/)
-{
-  //e.getValidHandle<StringProduct>(inputLabel_);
-  double val = 0.0;
-  use_cpu_time(val);
-  //cout << val << endl;
-  return 1;
-}
+  ToyProductFilter::filter(Event& /*e*/)
+  {
+    // e.getValidHandle<StringProduct>(inputLabel_);
+    double val = 0.0;
+    use_cpu_time(val);
+    // cout << val << endl;
+    return 1;
+  }
 
 } // namespace arttest
 

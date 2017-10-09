@@ -28,35 +28,39 @@ namespace art {
     struct RangeSetInfo {
 
       explicit RangeSetInfo(RunNumber_t const r, std::vector<EventRange>&& ers)
-        : run{r}
-        , ranges{std::move(ers)}
+        : run{r}, ranges{std::move(ers)}
       {}
 
-      RunNumber_t run {IDNumber<Level::Run>::invalid()};
-      std::vector<EventRange> ranges {};
+      RunNumber_t run{IDNumber<Level::Run>::invalid()};
+      std::vector<EventRange> ranges{};
 
-      bool is_invalid() const
+      bool
+      is_invalid() const
       {
         return run == IDNumber<Level::Run>::invalid();
       }
 
-      static RangeSetInfo invalid() { return RangeSetInfo{}; }
+      static RangeSetInfo
+      invalid()
+      {
+        return RangeSetInfo{};
+      }
 
-      void update(RangeSetInfo&& rsi)
+      void
+      update(RangeSetInfo&& rsi)
       {
         if (run != rsi.run) {
           throw art::Exception(art::errors::LogicError)
-            << "Cannot merge two ranges-of-validity with different run numbers: "
+            << "Cannot merge two ranges-of-validity with different run "
+               "numbers: "
             << run << " vs. " << rsi.run << '\n'
             << "Please contact artists@fnal.gov.";
         }
-        std::move(rsi.ranges.begin(),
-                  rsi.ranges.end(),
-                  std::back_inserter(ranges));
+        std::move(
+          rsi.ranges.begin(), rsi.ranges.end(), std::back_inserter(ranges));
       }
 
     private:
-
       RangeSetInfo() = default;
     };
 
@@ -72,8 +76,8 @@ namespace art {
                              BranchType,
                              unsigned rangeSetID);
 
-  }
-}
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_IO_Root_detail_resolveRangeSet_h */
 

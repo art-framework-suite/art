@@ -63,37 +63,49 @@ using product_t = arttest::IntProduct;
 
 namespace {
 
-  art::EventID make_id() { return art::EventID{2112, 47, 25}; }
-  constexpr art::Timestamp make_timestamp() { return art::Timestamp{1}; }
-  std::string module_class_name() { return "IntProducer"; }
+  art::EventID
+  make_id()
+  {
+    return art::EventID{2112, 47, 25};
+  }
+  constexpr art::Timestamp
+  make_timestamp()
+  {
+    return art::Timestamp{1};
+  }
+  std::string
+  module_class_name()
+  {
+    return "IntProducer";
+  }
 
-}
+} // namespace
 
 // This is a gross hack, to allow us to test the event
 namespace art {
 
   class EDProducer {
   public:
-    static void commitEvent(EventPrincipal& ep, Event& e)
+    static void
+    commitEvent(EventPrincipal& ep, Event& e)
     {
       set<TypeLabel> tlset{};
       e.commit(ep, false, &tlset);
     }
-
   };
 
 } // namespace art
 
 class ProductTablesFixture {
 public:
-
   ProductTablesFixture();
 
   ModuleDescription currentModuleDescription_{};
   // The moduleConfigurations_ data member is a map that with the
   // following semantics:
   //   process_name <-> (module_name <-> module_configuration)
-  std::map<std::string, std::map<std::string, ParameterSet>> moduleConfigurations_{};
+  std::map<std::string, std::map<std::string, ParameterSet>>
+    moduleConfigurations_{};
   std::map<std::string, ModuleDescription> moduleDescriptions_{};
 
   // The descriptions_ data member is used only to create the product
@@ -103,16 +115,15 @@ public:
   ProductTable presentProducts_{};
 
 private:
-
   // The 'Present' non-type parameter refers to if the product is
   // present from the source (true) or if the product is produced
   // (false).
   template <typename T, bool Present>
-  ModuleDescription const&
-  registerProduct(std::string const& tag,
-                  std::string const& moduleLabel,
-                  std::string const& processName,
-                  std::string const& productInstanceName = {});
+  ModuleDescription const& registerProduct(
+    std::string const& tag,
+    std::string const& moduleLabel,
+    std::string const& processName,
+    std::string const& productInstanceName = {});
 };
 
 ProductTablesFixture::ProductTablesFixture()
@@ -122,13 +133,18 @@ ProductTablesFixture::ProductTablesFixture()
   constexpr bool produced{false};
 
   // Register products for "EARLY" process
-  registerProduct<product_t, presentFromSource>("nolabel_tag", "modOne", "EARLY");
-  registerProduct<product_t, presentFromSource>("int1_tag", "modMulti", "EARLY", "int1");
-  registerProduct<product_t, presentFromSource>("int2_tag", "modMulti", "EARLY", "int2");
-  registerProduct<product_t, presentFromSource>("int3_tag", "modMulti", "EARLY");
+  registerProduct<product_t, presentFromSource>(
+    "nolabel_tag", "modOne", "EARLY");
+  registerProduct<product_t, presentFromSource>(
+    "int1_tag", "modMulti", "EARLY", "int1");
+  registerProduct<product_t, presentFromSource>(
+    "int2_tag", "modMulti", "EARLY", "int2");
+  registerProduct<product_t, presentFromSource>(
+    "int3_tag", "modMulti", "EARLY");
 
   // Register products for "LATE" process
-  registerProduct<product_t, presentFromSource>("int1_tag_late", "modMulti", "LATE", "int1");
+  registerProduct<product_t, presentFromSource>(
+    "int1_tag_late", "modMulti", "LATE", "int1");
 
   // Fill the lookups for "source-like" products
   {
@@ -137,7 +153,8 @@ ProductTablesFixture::ProductTablesFixture()
   }
 
   // Register single IntProduct for the "CURRENT" process
-  currentModuleDescription_ = registerProduct<product_t, produced>("current_tag", "modMulti", "CURRENT", "int1");
+  currentModuleDescription_ = registerProduct<product_t, produced>(
+    "current_tag", "modMulti", "CURRENT", "int1");
 
   // Create the lookup that we will use for the current-process module
   {
@@ -163,19 +180,23 @@ ProductTablesFixture::registerProduct(std::string const& tag,
   processParams.put("process_name", processName);
   processParams.put(moduleLabel, moduleParams);
 
-  ProcessConfiguration const process{processName, processParams.id(), getReleaseVersion()};
-  ModuleDescription const localModuleDescription{moduleParams.id(),
-                                                 module_class_name(),
-                                                 moduleLabel,
-                                                 static_cast<int>(ModuleThreadingType::LEGACY),
-                                                 process};
+  ProcessConfiguration const process{
+    processName, processParams.id(), getReleaseVersion()};
+  ModuleDescription const localModuleDescription{
+    moduleParams.id(),
+    module_class_name(),
+    moduleLabel,
+    static_cast<int>(ModuleThreadingType::LEGACY),
+    process};
 
   TypeID const product_type{typeid(T)};
 
   moduleDescriptions_[tag] = localModuleDescription;
-  TypeLabel typeLabel{product_type, productInstanceName, SupportsView<T>::value};
+  TypeLabel typeLabel{
+    product_type, productInstanceName, SupportsView<T>::value};
   if (Present) {
-    typeLabel = TypeLabel{product_type, productInstanceName, SupportsView<T>::value, moduleLabel};
+    typeLabel = TypeLabel{
+      product_type, productInstanceName, SupportsView<T>::value, moduleLabel};
   }
   BranchDescription pd{InEvent, typeLabel, localModuleDescription};
   descriptions_.push_back(pd);
@@ -184,7 +205,6 @@ ProductTablesFixture::registerProduct(std::string const& tag,
 
 struct EventTestFixture {
 public:
-
   EventTestFixture();
 
   template <class T>
@@ -218,7 +238,8 @@ EventTestFixture::EventTestFixture()
       processParameterSet.put(modConfig.first, modConfig.second);
     }
 
-    ProcessConfiguration const processConfiguration{process.first, processParameterSet.id(), getReleaseVersion()};
+    ProcessConfiguration const processConfiguration{
+      process.first, processParameterSet.id(), getReleaseVersion()};
     processHistory.push_back(processConfiguration);
   }
 
@@ -235,7 +256,8 @@ EventTestFixture::EventTestFixture()
 
   constexpr auto time = make_timestamp();
   EventID const id{make_id()};
-  ProcessConfiguration const& pc = ptf().currentModuleDescription_.processConfiguration();
+  ProcessConfiguration const& pc =
+    ptf().currentModuleDescription_.processConfiguration();
 
   RunAuxiliary const runAux{id.run(), time, time};
   auto rp = std::make_unique<RunPrincipal>(runAux, pc, nullptr);
@@ -247,14 +269,13 @@ EventTestFixture::EventTestFixture()
   EventAuxiliary const eventAux{id, time, true};
   auto history = std::make_unique<History>();
   const_cast<ProcessHistoryID&>(history->processHistoryID()) = processHistoryID;
-  principal_ = std::make_unique<EventPrincipal>(eventAux,
-                                                pc,
-                                                &ptf().presentProducts_,
-                                                std::move(history));
+  principal_ = std::make_unique<EventPrincipal>(
+    eventAux, pc, &ptf().presentProducts_, std::move(history));
   principal_->setSubRunPrincipal(srp.get());
   principal_->setProducedProducts(ptf().producedProducts_);
 
-  currentEvent_ = std::make_unique<Event>(*principal_, ptf().currentModuleDescription_);
+  currentEvent_ =
+    std::make_unique<Event>(*principal_, ptf().currentModuleDescription_);
 }
 
 // Add the given product, of type T, to the current event, as if it
@@ -268,8 +289,7 @@ EventTestFixture::addSourceProduct(std::unique_ptr<T>&& product,
   auto description = ptf().moduleDescriptions_.find(tag);
   if (description == ptf().moduleDescriptions_.end())
     throw art::Exception(errors::LogicError)
-      << "Failed to find a module description for tag: "
-      << tag << '\n';
+      << "Failed to find a module description for tag: " << tag << '\n';
 
   Event temporaryEvent{*principal_, description->second};
   ProductID const id{temporaryEvent.put(std::move(product), instanceName)};
@@ -343,7 +363,7 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 BOOST_AUTO_TEST_CASE(getByProductID)
 {
   using product_t = arttest::IntProduct;
-  using handle_t  = Handle<product_t>;
+  using handle_t = Handle<product_t>;
 
   ProductID wanted;
   {
@@ -391,18 +411,18 @@ BOOST_AUTO_TEST_CASE(transaction)
 
 BOOST_AUTO_TEST_CASE(getByInstanceName)
 {
-  using product_t  = arttest::IntProduct;
-  using handle_t   = Handle<product_t>;
+  using product_t = arttest::IntProduct;
+  using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
-  auto one   = std::make_unique<product_t>(1);
-  auto two   = std::make_unique<product_t>(2);
+  auto one = std::make_unique<product_t>(1);
+  auto two = std::make_unique<product_t>(2);
   auto three = std::make_unique<product_t>(3);
-  auto four  = std::make_unique<product_t>(4);
-  addSourceProduct(std::move(one),   "int1_tag", "int1");
-  addSourceProduct(std::move(two),   "int2_tag", "int2");
+  auto four = std::make_unique<product_t>(4);
+  addSourceProduct(std::move(one), "int1_tag", "int1");
+  addSourceProduct(std::move(two), "int2_tag", "int2");
   addSourceProduct(std::move(three), "int3_tag");
-  addSourceProduct(std::move(four),  "nolabel_tag");
+  addSourceProduct(std::move(four), "nolabel_tag");
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u); // Used to be 4u
 
@@ -439,18 +459,18 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
 
 BOOST_AUTO_TEST_CASE(getBySelector)
 {
-  using product_t  = arttest::IntProduct;
-  using handle_t   = Handle<product_t>;
+  using product_t = arttest::IntProduct;
+  using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
-  auto one   = std::make_unique<product_t>(1);
-  auto two   = std::make_unique<product_t>(2);
+  auto one = std::make_unique<product_t>(1);
+  auto two = std::make_unique<product_t>(2);
   auto three = std::make_unique<product_t>(3);
-  auto four  = std::make_unique<product_t>(4);
-  addSourceProduct(std::move(one),   "int1_tag", "int1");
-  addSourceProduct(std::move(two),   "int2_tag", "int2");
+  auto four = std::make_unique<product_t>(4);
+  addSourceProduct(std::move(one), "int1_tag", "int1");
+  addSourceProduct(std::move(two), "int2_tag", "int2");
   addSourceProduct(std::move(three), "int3_tag");
-  addSourceProduct(std::move(four),  "nolabel_tag");
+  addSourceProduct(std::move(four), "nolabel_tag");
 
   auto oneHundred = std::make_unique<product_t>(100);
   addSourceProduct(std::move(oneHundred), "int1_tag_late", "int1");
@@ -490,7 +510,7 @@ BOOST_AUTO_TEST_CASE(getBySelector)
 
   Selector const sel4{ModuleLabelSelector{"modMulti"} &&
                       ProcessNameSelector{"EARLY"}};
-  //multiple selections throw
+  // multiple selections throw
   BOOST_REQUIRE_THROW(currentEvent_->get(sel4, h), cet::exception);
 
   Selector const sel5{ModuleLabelSelector{"modMulti"} &&
@@ -518,18 +538,18 @@ BOOST_AUTO_TEST_CASE(getBySelector)
 
 BOOST_AUTO_TEST_CASE(getByLabel)
 {
-  using product_t  = arttest::IntProduct;
-  using handle_t   = Handle<product_t>;
+  using product_t = arttest::IntProduct;
+  using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
-  auto one   = std::make_unique<product_t>(1);
-  auto two   = std::make_unique<product_t>(2);
+  auto one = std::make_unique<product_t>(1);
+  auto two = std::make_unique<product_t>(2);
   auto three = std::make_unique<product_t>(3);
-  auto four  = std::make_unique<product_t>(4);
-  addSourceProduct(std::move(one),   "int1_tag", "int1");
-  addSourceProduct(std::move(two),   "int2_tag", "int2");
+  auto four = std::make_unique<product_t>(4);
+  addSourceProduct(std::move(one), "int1_tag", "int1");
+  addSourceProduct(std::move(two), "int2_tag", "int2");
   addSourceProduct(std::move(three), "int3_tag");
-  addSourceProduct(std::move(four),  "nolabel_tag");
+  addSourceProduct(std::move(four), "nolabel_tag");
 
   auto oneHundred = std::make_unique<product_t>(100);
   addSourceProduct(std::move(oneHundred), "int1_tag_late", "int1");
@@ -552,28 +572,30 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   BOOST_REQUIRE(currentEvent_->getByLabel(inputTag, h));
   BOOST_REQUIRE_EQUAL(h->value, 200);
 
-  GroupQueryResult bh{principal_->getByLabel(WrappedTypeID::make<product_t>(), "modMulti", "int1", "LATE")};
+  GroupQueryResult bh{principal_->getByLabel(
+    WrappedTypeID::make<product_t>(), "modMulti", "int1", "LATE")};
   convert_handle(bh, h);
   BOOST_REQUIRE_EQUAL(h->value, 100);
 
-  GroupQueryResult bh2{principal_->getByLabel(WrappedTypeID::make<product_t>(), "modMulti", "int1", "nomatch")};
+  GroupQueryResult bh2{principal_->getByLabel(
+    WrappedTypeID::make<product_t>(), "modMulti", "int1", "nomatch")};
   BOOST_REQUIRE(!bh2.succeeded());
 }
 
 BOOST_AUTO_TEST_CASE(getManyByType)
 {
-  using product_t  = arttest::IntProduct;
-  using handle_t   = Handle<product_t>;
+  using product_t = arttest::IntProduct;
+  using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
-  auto one   = std::make_unique<product_t>(1);
-  auto two   = std::make_unique<product_t>(2);
+  auto one = std::make_unique<product_t>(1);
+  auto two = std::make_unique<product_t>(2);
   auto three = std::make_unique<product_t>(3);
-  auto four  = std::make_unique<product_t>(4);
-  addSourceProduct(std::move(one),   "int1_tag", "int1");
-  addSourceProduct(std::move(two),   "int2_tag", "int2");
+  auto four = std::make_unique<product_t>(4);
+  addSourceProduct(std::move(one), "int1_tag", "int1");
+  addSourceProduct(std::move(two), "int2_tag", "int2");
   addSourceProduct(std::move(three), "int3_tag");
-  addSourceProduct(std::move(four),  "nolabel_tag");
+  addSourceProduct(std::move(four), "nolabel_tag");
 
   auto oneHundred = std::make_unique<product_t>(100);
   addSourceProduct(std::move(oneHundred), "int1_tag_late", "int1");
@@ -598,7 +620,10 @@ BOOST_AUTO_TEST_CASE(printHistory)
   auto const& history = currentEvent_->processHistory();
   std::ofstream out{"history.log"};
 
-  cet::copy_all(history, std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out, "\n"));
+  cet::copy_all(
+    history,
+    std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out,
+                                                                      "\n"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

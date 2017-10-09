@@ -24,7 +24,7 @@ namespace arttest {
 namespace {
   typedef cet::map_vector<std::string> mv_t;
   typedef typename mv_t::value_type mvp_t;
-}
+} // namespace
 
 class arttest::PtrmvProducer : public art::EDProducer {
 public:
@@ -36,13 +36,15 @@ public:
 arttest::PtrmvProducer::PtrmvProducer(fhicl::ParameterSet const&)
 {
   produces<mv_t>();
-  produces<art::Ptr<std::string> >();
-  produces<art::PtrVector<std::string> >();
-  produces<art::Ptr<mvp_t> >();
-  produces<art::PtrVector<mvp_t> >();
+  produces<art::Ptr<std::string>>();
+  produces<art::PtrVector<std::string>>();
+  produces<art::Ptr<mvp_t>>();
+  produces<art::PtrVector<mvp_t>>();
 }
 
-void arttest::PtrmvProducer::produce(art::Event& e) {
+void
+arttest::PtrmvProducer::produce(art::Event& e)
+{
   auto mv = std::make_unique<mv_t>();
   mv->reserve(4);
   (*mv)[cet::map_vector_key(0)] = "ONE";
@@ -52,7 +54,8 @@ void arttest::PtrmvProducer::produce(art::Event& e) {
 
   art::ProductID const mvID{e.put(std::move(mv))};
 
-  e.put(std::make_unique<art::Ptr<std::string>>(mvID, 3, e.productGetter(mvID)));
+  e.put(
+    std::make_unique<art::Ptr<std::string>>(mvID, 3, e.productGetter(mvID)));
 
   auto pv = std::make_unique<art::PtrVector<std::string>>();
   pv->reserve(4);

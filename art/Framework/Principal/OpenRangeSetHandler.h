@@ -40,61 +40,43 @@
 
 namespace art {
 
-class OpenRangeSetHandler final : public RangeSetHandler {
+  class OpenRangeSetHandler final : public RangeSetHandler {
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    virtual ~OpenRangeSetHandler();
 
-  virtual
-  ~OpenRangeSetHandler();
+    explicit OpenRangeSetHandler(RunNumber_t r);
 
-  explicit
-  OpenRangeSetHandler(RunNumber_t r);
+    explicit OpenRangeSetHandler(RangeSet const&);
 
-  explicit
-  OpenRangeSetHandler(RangeSet const&);
+    OpenRangeSetHandler(OpenRangeSetHandler const&);
 
-  OpenRangeSetHandler(OpenRangeSetHandler const&);
+    OpenRangeSetHandler(OpenRangeSetHandler&&);
 
-  OpenRangeSetHandler(OpenRangeSetHandler&&);
+    OpenRangeSetHandler& operator=(OpenRangeSetHandler const&);
 
-  OpenRangeSetHandler&
-  operator=(OpenRangeSetHandler const&);
+    OpenRangeSetHandler& operator=(OpenRangeSetHandler&&);
 
-  OpenRangeSetHandler&
-  operator=(OpenRangeSetHandler&&);
+  private: // MEMBER FUNCTIONS -- API required by RangeSetHandler
+    HandlerType do_type() const override;
 
-private: // MEMBER FUNCTIONS -- API required by RangeSetHandler
+    RangeSet do_getSeenRanges() const override;
 
-  HandlerType
-  do_type() const override;
+    void do_update(EventID const&, bool lastInSubRun) override;
 
-  RangeSet
-  do_getSeenRanges() const override;
+    void do_flushRanges() override;
 
-  void
-  do_update(EventID const&, bool lastInSubRun) override;
+    void do_maybeSplitRange() override;
 
-  void
-  do_flushRanges() override;
+    void do_rebase() override;
 
-  void
-  do_maybeSplitRange() override;
+    RangeSetHandler* do_clone() const override;
 
-  void
-  do_rebase() override;
+  private: // MEMBER DATA
+    RangeSet ranges_{RangeSet::invalid()};
 
-  RangeSetHandler*
-  do_clone() const override;
-
-private: // MEMBER DATA
-
-  RangeSet
-  ranges_{RangeSet::invalid()};
-
-  std::size_t
-  idx_{0};
-
-};
+    std::size_t idx_{0};
+  };
 
 } // namespace art
 

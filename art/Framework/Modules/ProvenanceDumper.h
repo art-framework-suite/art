@@ -114,33 +114,36 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "fhiclcpp/types/ConfigurationTable.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/Sequence.h"
 
 #include <algorithm>
 
 namespace art {
-  template <typename DETAIL, typename Enable = void> class ProvenanceDumper;
+  template <typename DETAIL, typename Enable = void>
+  class ProvenanceDumper;
 
   template <typename DETAIL, typename Enable = void>
   struct ProvenanceDumperConfig {
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
-    fhicl::Atom<bool> wantPresentOnly { fhicl::Name("wantPresentOnly"), true };
-    fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
-    fhicl::Atom<bool> wantResolvedOnly { fhicl::Name("wantResolvedOnly"), true };
+    fhicl::Atom<bool> wantPresentOnly{fhicl::Name("wantPresentOnly"), true};
+    fhicl::Atom<bool> resolveProducts{fhicl::Name("resolveProducts"), true};
+    fhicl::Atom<bool> wantResolvedOnly{fhicl::Name("wantResolvedOnly"), true};
   };
 
   template <typename DETAIL>
-  struct ProvenanceDumperConfig<DETAIL, cet::enable_if_type_exists_t<typename DETAIL::Config>> {
+  struct ProvenanceDumperConfig<
+    DETAIL,
+    cet::enable_if_type_exists_t<typename DETAIL::Config>> {
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
-    fhicl::Atom<bool> wantPresentOnly { fhicl::Name("wantPresentOnly"), true };
-    fhicl::Atom<bool> resolveProducts { fhicl::Name("resolveProducts"), true };
-    fhicl::Atom<bool> wantResolvedOnly { fhicl::Name("wantResolvedOnly"), true };
+    fhicl::Atom<bool> wantPresentOnly{fhicl::Name("wantPresentOnly"), true};
+    fhicl::Atom<bool> resolveProducts{fhicl::Name("resolveProducts"), true};
+    fhicl::Atom<bool> wantResolvedOnly{fhicl::Name("wantResolvedOnly"), true};
     fhicl::TableFragment<typename DETAIL::Config> user;
   };
 
@@ -148,71 +151,108 @@ namespace art {
     template <typename DETAIL>
     class PrincipalProcessor;
   }
-}
+} // namespace art
 
 template <typename DETAIL, typename Enable>
 class art::ProvenanceDumper : public OutputModule {
 public:
-
-  explicit ProvenanceDumper(fhicl::ParameterSet const & ps)
-    :
-    OutputModule{ps},
-    detail_{ps},
-    pp_{detail_,
-        ps.get<bool>("wantPresentOnly", true),
-        ps.get<bool>("resolveProducts", true),
-        ps.get<bool>("wantResolvedOnly", false)},
-    impl_{detail_, pp_}
+  explicit ProvenanceDumper(fhicl::ParameterSet const& ps)
+    : OutputModule{ps}
+    , detail_{ps}
+    , pp_{detail_,
+          ps.get<bool>("wantPresentOnly", true),
+          ps.get<bool>("resolveProducts", true),
+          ps.get<bool>("wantResolvedOnly", false)}
+    , impl_{detail_, pp_}
   {}
 
 private:
-  void beginJob() override { impl_.beginJob(); }
-  void endJob()  override { impl_.endJob(); }
+  void
+  beginJob() override
+  {
+    impl_.beginJob();
+  }
+  void
+  endJob() override
+  {
+    impl_.endJob();
+  }
 
-  void write      (EventPrincipal  & e ) override { impl_.write(e); }
-  void writeSubRun(SubRunPrincipal & sr) override { impl_.writeSubRun(sr); }
-  void writeRun   (RunPrincipal    & r ) override { impl_.writeRun(r); }
+  void
+  write(EventPrincipal& e) override
+  {
+    impl_.write(e);
+  }
+  void
+  writeSubRun(SubRunPrincipal& sr) override
+  {
+    impl_.writeSubRun(sr);
+  }
+  void
+  writeRun(RunPrincipal& r) override
+  {
+    impl_.writeRun(r);
+  }
 
   DETAIL detail_;
   detail::PrincipalProcessor<DETAIL> pp_;
   detail::ProvenanceDumperImpl<DETAIL> impl_;
 };
 
-
 namespace art {
 
   template <typename DETAIL>
-  class ProvenanceDumper<DETAIL, cet::enable_if_type_exists_t<typename DETAIL::Config>> :
-    public OutputModule {
+  class ProvenanceDumper<DETAIL,
+                         cet::enable_if_type_exists_t<typename DETAIL::Config>>
+    : public OutputModule {
   public:
+    using Parameters =
+      fhicl::WrappedTable<ProvenanceDumperConfig<DETAIL>,
+                          art::OutputModule::Config::KeysToIgnore>;
 
-    using Parameters = fhicl::WrappedTable<ProvenanceDumperConfig<DETAIL>,
-                                         art::OutputModule::Config::KeysToIgnore>;
-
-    explicit ProvenanceDumper(Parameters const & ps)
-      :
-      OutputModule{ps().omConfig, ps.get_PSet()},
-      detail_{ps().user},
-      pp_{detail_,
-          ps().wantPresentOnly(),
-          ps().resolveProducts(),
-          ps().wantResolvedOnly()},
-      impl_{detail_, pp_}
+    explicit ProvenanceDumper(Parameters const& ps)
+      : OutputModule{ps().omConfig, ps.get_PSet()}
+      , detail_{ps().user}
+      , pp_{detail_,
+            ps().wantPresentOnly(),
+            ps().resolveProducts(),
+            ps().wantResolvedOnly()}
+      , impl_{detail_, pp_}
     {}
 
   private:
-    void beginJob() override { impl_.beginJob(); }
-    void endJob() override { impl_.endJob(); }
+    void
+    beginJob() override
+    {
+      impl_.beginJob();
+    }
+    void
+    endJob() override
+    {
+      impl_.endJob();
+    }
 
-    void write      (EventPrincipal  & e ) override { impl_.write(e); }
-    void writeSubRun(SubRunPrincipal & sr) override { impl_.writeSubRun(sr); }
-    void writeRun   (RunPrincipal    & r ) override { impl_.writeRun(r); }
+    void
+    write(EventPrincipal& e) override
+    {
+      impl_.write(e);
+    }
+    void
+    writeSubRun(SubRunPrincipal& sr) override
+    {
+      impl_.writeSubRun(sr);
+    }
+    void
+    writeRun(RunPrincipal& r) override
+    {
+      impl_.writeRun(r);
+    }
 
     DETAIL detail_;
     detail::PrincipalProcessor<DETAIL> pp_;
     detail::ProvenanceDumperImpl<DETAIL> impl_;
   };
-}
+} // namespace art
 
 #endif /* art_Framework_Modules_ProvenanceDumper_h */
 

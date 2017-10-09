@@ -55,7 +55,6 @@ namespace art {
 
   class UpdateOutputCallbacks {
   public:
-
     explicit UpdateOutputCallbacks() = default;
     UpdateOutputCallbacks(UpdateOutputCallbacks const&) = delete;
 

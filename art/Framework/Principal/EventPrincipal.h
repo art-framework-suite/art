@@ -13,30 +13,29 @@
 
 namespace art {
 
-class ProcessConfiguration;
+  class ProcessConfiguration;
 
-class EventPrincipal final : public Principal {
+  class EventPrincipal final : public Principal {
 
-public:
+  public:
+    using Auxiliary = EventAuxiliary;
+    static constexpr BranchType branch_type = Auxiliary::branch_type;
 
-  using Auxiliary = EventAuxiliary;
-  static constexpr BranchType branch_type = Auxiliary::branch_type;
-
-public:
-
-  EventPrincipal(EventAuxiliary const& aux,
-                 ProcessConfiguration const& pc,
-                 cet::exempt_ptr<ProductTable const> presentProducts,
-                 std::unique_ptr<History>&& history = std::make_unique<History>(),
-                 std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
-                 bool lastInSubRun = false);
-
-};
+  public:
+    EventPrincipal(
+      EventAuxiliary const& aux,
+      ProcessConfiguration const& pc,
+      cet::exempt_ptr<ProductTable const> presentProducts,
+      std::unique_ptr<History>&& history = std::make_unique<History>(),
+      std::unique_ptr<DelayedReader>&& rtrv =
+        std::make_unique<NoDelayedReader>(),
+      bool lastInSubRun = false);
+  };
 
 } // namespace art
 
-// Local Variables:
-// mode: c++
-// End:
+  // Local Variables:
+  // mode: c++
+  // End:
 
 #endif /* art_Framework_Principal_EventPrincipal_h */

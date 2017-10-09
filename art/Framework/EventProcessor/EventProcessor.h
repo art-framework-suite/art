@@ -13,6 +13,7 @@
 #include "art/Framework/Core/MFStatusUpdater.h"
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/Schedule.h"
+#include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Framework/EventProcessor/detail/ExceptionCollector.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -20,12 +21,11 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
-#include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
-#include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
+#include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "cetlib/cpu_timer.h"
 #include "cetlib/exception.h"
 #include "cetlib/trim.h"
@@ -45,336 +45,258 @@
 
 namespace art {
 
-class EventProcessor {
+  class EventProcessor {
 
-public: // TYPES
+  public: // TYPES
+    // Status codes:
+    //   0     successful completion
+    //   3     signal received
+    //  values are for historical reasons.
+    enum Status { epSuccess = 0, epSignal = 3 };
 
-  // Status codes:
-  //   0     successful completion
-  //   3     signal received
-  //  values are for historical reasons.
-  enum Status {epSuccess=0, epSignal=3};
+    using StatusCode = Status;
 
-  using StatusCode = Status;
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~EventProcessor();
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+    explicit EventProcessor(fhicl::ParameterSet const& pset);
 
-  ~EventProcessor();
+    EventProcessor(EventProcessor const&) = delete;
 
-  explicit
-  EventProcessor(fhicl::ParameterSet const& pset);
+    EventProcessor(EventProcessor&&) = delete;
 
-  EventProcessor(EventProcessor const&) = delete;
+    EventProcessor& operator=(EventProcessor const&) = delete;
 
-  EventProcessor(EventProcessor&&) = delete;
+    EventProcessor& operator=(EventProcessor&&) = delete;
 
-  EventProcessor&
-  operator=(EventProcessor const&) = delete;
+  public: // MEMBER FUNCTIONS -- API we provide to run_art
+    //
+    //  Run the job until done, which means:
+    //
+    //    - no more input data, or
+    //    - input maxEvents parameter limit reached, or
+    //    - output maxEvents parameter limit reached, or
+    //    - input maxSubRuns parameter limit reached.
+    //
+    //  Return values:
+    //
+    //     epSignal: processing terminated early, SIGUSR2 encountered
+    //    epSuccess: all other cases
+    //
+    StatusCode runToCompletion();
 
-  EventProcessor&
-  operator=(EventProcessor&&) = delete;
+  private: // MEMBER FUCNTIONS -- Event Loop Infrastructure
+    // Event-loop infrastructure
 
-public: // MEMBER FUNCTIONS -- API we provide to run_art
+    void processAllEventsAsync(int streamIndex);
 
-  //
-  //  Run the job until done, which means:
-  //
-  //    - no more input data, or
-  //    - input maxEvents parameter limit reached, or
-  //    - output maxEvents parameter limit reached, or
-  //    - input maxSubRuns parameter limit reached.
-  //
-  //  Return values:
-  //
-  //     epSignal: processing terminated early, SIGUSR2 encountered
-  //    epSuccess: all other cases
-  //
-  StatusCode
-  runToCompletion();
+    void processAllEventsAsync_readAndProcess(int streamIndex);
 
-private: // MEMBER FUCNTIONS -- Event Loop Infrastructure
+    // void
+    // processAllEventsAsync_readAndProcess_do_file_switch(hep::concurrency::WaitingTask*
+    // resumeStreamTask, int streamIndex);
 
-  // Event-loop infrastructure
+    // void
+    // processAllEventsAsync_readAndProcess_after_output_switch(int
+    // streamIndex);
 
-  void
-  processAllEventsAsync(int streamIndex);
+    void processAllEventsAsync_readAndProcess_after_possible_output_switch(
+      int streamIndex);
 
-  void
-  processAllEventsAsync_readAndProcess(int streamIndex);
+    void processAllEventsAsync_processEvent(int streamIndex);
 
-  //void
-  //processAllEventsAsync_readAndProcess_do_file_switch(hep::concurrency::WaitingTask* resumeStreamTask, int streamIndex);
+    void processAllEventsAsync_processEndPath(int streamIndex);
 
-  //void
-  //processAllEventsAsync_readAndProcess_after_output_switch(int streamIndex);
+    void processAllEventsAsync_finishEvent(int streamIndex);
 
-  void
-  processAllEventsAsync_readAndProcess_after_possible_output_switch(int streamIndex);
+    template <Level L>
+    bool levelsToProcess();
 
-  void
-  processAllEventsAsync_processEvent(int streamIndex);
+    template <Level L>
+    std::enable_if_t<is_above_most_deeply_nested_level(L)> begin();
 
-  void
-  processAllEventsAsync_processEndPath(int streamIndex);
+    template <Level L>
+    void process();
 
-  void
-  processAllEventsAsync_finishEvent(int streamIndex);
+    template <Level L>
+    void finalize();
 
-  template <Level L>
-  bool
-  levelsToProcess();
+    template <Level L>
+    void
+    finalizeContainingLevels()
+    {}
 
-  template <Level L>
-  std::enable_if_t<is_above_most_deeply_nested_level(L)>
-  begin();
+    template <Level L>
+    void
+    recordOutputModuleClosureRequests()
+    {}
 
-  template <Level L>
-  void
-  process();
+    Level advanceItemType();
 
-  template <Level L>
-  void
-  finalize();
+    // Level-specific member functions
+    void beginJob();
 
-  template <Level L>
-  void
-  finalizeContainingLevels() {}
+    void endJob();
 
-  template <Level L>
-  void
-  recordOutputModuleClosureRequests() {}
+    void openInputFile();
 
-  Level
-  advanceItemType();
+    void openSomeOutputFiles();
 
-  // Level-specific member functions
-  void
-  beginJob();
+    void openAllOutputFiles();
 
-  void
-  endJob();
+    void closeInputFile();
 
-  void
-  openInputFile();
+    void closeSomeOutputFiles();
 
-  void
-  openSomeOutputFiles();
+    void closeAllOutputFiles();
 
-  void
-  openAllOutputFiles();
+    void closeAllFiles();
 
-  void
-  closeInputFile();
+    void respondToOpenInputFile();
 
-  void
-  closeSomeOutputFiles();
+    void respondToCloseInputFile();
 
-  void
-  closeAllOutputFiles();
+    void respondToOpenOutputFiles();
 
-  void
-  closeAllFiles();
+    void respondToCloseOutputFiles();
 
-  void
-  respondToOpenInputFile();
+    void readRun();
 
-  void
-  respondToCloseInputFile();
+    void beginRun();
 
-  void
-  respondToOpenOutputFiles();
+    void beginRunIfNotDoneAlready();
 
-  void
-  respondToCloseOutputFiles();
+    void setRunAuxiliaryRangeSetID();
 
-  void
-  readRun();
+    void endRun();
 
-  void
-  beginRun();
+    void writeRun();
 
-  void
-  beginRunIfNotDoneAlready();
+    void readSubRun();
 
-  void
-  setRunAuxiliaryRangeSetID();
+    void beginSubRun();
 
-  void
-  endRun();
+    void beginSubRunIfNotDoneAlready();
 
-  void
-  writeRun();
+    void setSubRunAuxiliaryRangeSetID();
 
-  void
-  readSubRun();
+    void endSubRun();
 
-  void
-  beginSubRun();
+    void writeSubRun();
 
-  void
-  beginSubRunIfNotDoneAlready();
+    void readEvent();
 
-  void
-  setSubRunAuxiliaryRangeSetID();
+    void processEvent();
 
-  void
-  endSubRun();
+    void writeEvent();
 
-  void
-  writeSubRun();
+    void setOutputFileStatus(OutputFileStatus);
 
-  void
-  readEvent();
+    ServicesManager* initServices_(fhicl::ParameterSet const& top_pset,
+                                   ActivityRegistry& areg);
 
-  void
-  processEvent();
+    void invokePostBeginJobWorkers_();
 
-  void
-  writeEvent();
+    void terminateAbnormally_();
 
-  void
-  setOutputFileStatus(OutputFileStatus);
+  private: // MEMBER DATA
+    Level nextLevel_{Level::ReadyToAdvance};
 
-  ServicesManager*
-  initServices_(fhicl::ParameterSet const& top_pset, ActivityRegistry& areg);
+    detail::ExceptionCollector ec_{};
 
-  void
-  invokePostBeginJobWorkers_();
+    cet::cpu_timer timer_{};
 
-  void
-  terminateAbnormally_();
+    bool beginRunCalled_{false};
 
-private: // MEMBER DATA
+    bool beginSubRunCalled_{false};
 
-  Level
-  nextLevel_{Level::ReadyToAdvance};
+    bool finalizeRunEnabled_{true};
 
-  detail::ExceptionCollector
-  ec_{};
+    bool finalizeSubRunEnabled_{true};
 
-  cet::cpu_timer
-  timer_{};
+    tbb::task_scheduler_init tbbManager_{tbb::task_scheduler_init::deferred};
 
-  bool
-  beginRunCalled_{false};
+    // A table of responses to be taken on reception
+    // of thrown exceptions.
+    ActionTable act_table_{};
 
-  bool
-  beginSubRunCalled_{false};
+    // A signal/slot system for registering a callback
+    // to be called when a specific action is taken by
+    // the framework.
+    ActivityRegistry actReg_{};
 
-  bool
-  finalizeRunEnabled_{true};
+    // Access to the MessageFacility (Marc Fischler).
+    MFStatusUpdater mfStatusUpdater_{actReg_};
 
-  bool
-  finalizeSubRunEnabled_{true};
+    // List of callbacks which, when invoked, can update the state of
+    // any output modules.
+    UpdateOutputCallbacks outputCallbacks_{};
 
-  tbb::task_scheduler_init
-  tbbManager_{tbb::task_scheduler_init::deferred};
+    ProductDescriptions productsToProduce_{};
 
-  // A table of responses to be taken on reception
-  // of thrown exceptions.
-  ActionTable
-  act_table_{};
+    // The service subsystem.
+    std::unique_ptr<ServicesManager> servicesManager_{};
 
-  // A signal/slot system for registering a callback
-  // to be called when a specific action is taken by
-  // the framework.
-  ActivityRegistry
-  actReg_{};
+    // Despite the name, this is what parses the paths
+    // and modules in the fcl file and creates and
+    // owns them.
+    PathManager pathManager_;
 
-  // Access to the MessageFacility (Marc Fischler).
-  MFStatusUpdater
-  mfStatusUpdater_{actReg_};
+    // The source of input data.
+    std::unique_ptr<InputSource> input_{};
 
-  // List of callbacks which, when invoked, can update the state of
-  // any output modules.
-  UpdateOutputCallbacks
-  outputCallbacks_{};
+    // Handles trigger paths.
+    std::vector<Schedule> schedule_{};
 
-  ProductDescriptions
-  productsToProduce_{};
+    // Handles the end path.
+    std::unique_ptr<EndPathExecutor> endPathExecutor_{};
 
-  // The service subsystem.
-  std::unique_ptr<ServicesManager>
-  servicesManager_{};
+    std::unique_ptr<FileBlock> fb_{};
 
-  // Despite the name, this is what parses the paths
-  // and modules in the fcl file and creates and
-  // owns them.
-  PathManager
-  pathManager_;
+    // Note: threading: This will need to be a vector when we implement multiple
+    // runs in flight.
+    std::unique_ptr<RunPrincipal> runPrincipal_{};
 
-  // The source of input data.
-  std::unique_ptr<InputSource>
-  input_{};
+    // Note: threading: This will need to be a vector when we implement multiple
+    // subruns in flight.
+    std::unique_ptr<SubRunPrincipal> subRunPrincipal_{};
 
-  // Handles trigger paths.
-  std::vector<Schedule>
-  schedule_{};
+    // Note: threading: This will need to be a vector when we implement streams.
+    std::vector<std::unique_ptr<EventPrincipal>> eventPrincipal_{};
 
-  // Handles the end path.
-  std::unique_ptr<EndPathExecutor>
-  endPathExecutor_{};
+    ProductTables producedProducts_{ProductTables::invalid()};
 
-  std::unique_ptr<FileBlock>
-  fb_{};
+    bool const handleEmptyRuns_;
 
-  // Note: threading: This will need to be a vector when we implement multiple runs in flight.
-  std::unique_ptr<RunPrincipal>
-  runPrincipal_{};
+    bool const handleEmptySubRuns_;
 
-  // Note: threading: This will need to be a vector when we implement multiple subruns in flight.
-  std::unique_ptr<SubRunPrincipal>
-  subRunPrincipal_{};
+    std::atomic<bool> deferredExceptionPtrIsSet_{false};
 
-  // Note: threading: This will need to be a vector when we implement streams.
-  std::vector<std::unique_ptr<EventPrincipal>>
-  eventPrincipal_{};
+    std::exception_ptr deferredExceptionPtr_;
 
-  ProductTables
-  producedProducts_{ProductTables::invalid()};
+    // Set to true for the first event in a subRun to signal
+    // that we should not advance to the next entry.
+    // Note that this is shared in common between all the
+    // streams.
+    // FIXME: Only needed because we cannot peek ahead to see
+    // that the next entry is an event, we actually must advance
+    // to it before we can know.
+    std::atomic<bool> firstEvent_{true};
 
-  bool const
-  handleEmptyRuns_;
+    std::atomic<bool> fileSwitchInProgress_{false};
 
-  bool const
-  handleEmptySubRuns_;
+    // Used to count the number of tasks waiting for an
+    // output file switch to complete.
+    std::atomic<int> waitingTaskCount_{};
 
-  std::atomic<bool>
-  deferredExceptionPtrIsSet_{false};
+    std::mutex mutexForCondFileSwitch_{};
 
-  std::exception_ptr
-  deferredExceptionPtr_;
+    std::condition_variable condFileSwitch_{};
 
-  // Set to true for the first event in a subRun to signal
-  // that we should not advance to the next entry.
-  // Note that this is shared in common between all the
-  // streams.
-  // FIXME: Only needed because we cannot peek ahead to see
-  // that the next entry is an event, we actually must advance
-  // to it before we can know.
-  std::atomic<bool>
-  firstEvent_{true};
-
-  std::atomic<bool>
-  fileSwitchInProgress_{false};
-
-  // Used to count the number of tasks waiting for an
-  // output file switch to complete.
-  std::atomic<int>
-  waitingTaskCount_{};
-
-  std::mutex
-  mutexForCondFileSwitch_{};
-
-  std::condition_variable
-  condFileSwitch_{};
-
-  // Used to hold the tasks that will resume the streams
-  // after an output file switch.
-  hep::concurrency::WaitingTaskList
-  waitingTasks_{};
-
-};
+    // Used to hold the tasks that will resume the streams
+    // after an output file switch.
+    hep::concurrency::WaitingTaskList waitingTasks_{};
+  };
 
 } // namespace art
 

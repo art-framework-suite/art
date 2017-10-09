@@ -20,8 +20,8 @@ namespace art {
   extern std::atomic<int> shutdown_flag;
 
   extern "C" {
-    void ep_sigusr2(int,siginfo_t*,void*);
-    using CFUNC = void(*)(int,siginfo_t*,void*);
+  void ep_sigusr2(int, siginfo_t*, void*);
+  using CFUNC = void (*)(int, siginfo_t*, void*);
   }
 
   int getSigNum();
@@ -36,7 +36,7 @@ namespace art {
 
   void setupSignals(bool want_sigint_enabled);
 
-}  // art
+} // namespace art
 
 #endif /* art_Utilities_UnixSignalHandlers_h */
 

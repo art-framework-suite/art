@@ -29,7 +29,8 @@ art::checkDictionaries(BranchDescription const& productDesc)
   // necessary for top-level checks so appropriate here rather than
   // checkDictionaries itself.
   if (!isTransient) {
-    auto const assnsPartner = name_of_assns_partner(productDesc.producedClassName());
+    auto const assnsPartner =
+      name_of_assns_partner(productDesc.producedClassName());
     if (!assnsPartner.empty()) {
       dictChecker.checkDictionaries(wrappedClassName(assnsPartner), true);
     }
@@ -39,7 +40,8 @@ art::checkDictionaries(BranchDescription const& productDesc)
   // Make sure that the AssnsStreamer is appropropriately setup--must
   // be done after we are sure that there is matching dictionary for
   // the partner.
-  if (!is_assns(productDesc.producedClassName())) return;
+  if (!is_assns(productDesc.producedClassName()))
+    return;
 
   detail::AssnsStreamer::init_streamer(productDesc.producedClassName());
 }

@@ -15,82 +15,75 @@
 
 namespace art {
 
-class ActivityRegistry;
-class EventProcessor;
+  class ActivityRegistry;
+  class EventProcessor;
 
-class ServiceRegistry {
+  class ServiceRegistry {
 
-  // Allow EventProcessor to set the manager.
-  //friend class EventProcessor;
+    // Allow EventProcessor to set the manager.
+    // friend class EventProcessor;
 
-  template <typename T, art::ServiceScope> friend class ServiceHandle;
+    template <typename T, art::ServiceScope>
+    friend class ServiceHandle;
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~ServiceRegistry();
 
-  ~ServiceRegistry();
+  private: // MEMBER FUNCTIONS -- Special Member Functions
+    ServiceRegistry();
 
-private: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ServiceRegistry(ServiceRegistry const&) = delete;
 
-  ServiceRegistry();
+    ServiceRegistry(ServiceRegistry&&) = delete;
 
-public: // MEMBER FUNCTIONS -- Special Member Functions
+    ServiceRegistry& operator=(ServiceRegistry const&) = delete;
 
-  ServiceRegistry(ServiceRegistry const&) = delete;
+    ServiceRegistry& operator=(ServiceRegistry&&) = delete;
 
-  ServiceRegistry(ServiceRegistry&&) = delete;
-
-  ServiceRegistry&
-  operator=(ServiceRegistry const&) = delete;
-
-  ServiceRegistry&
-  operator=(ServiceRegistry&&) = delete;
-
-public: // MEMBER FUNCTIONS
-
-  template <typename T>
-  static
-  bool
-  isAvailable()
-  {
-    if (auto& mgr = instance().manager_) {
-      return mgr->isAvailable<T>();
-    }
-    throw art::Exception(art::errors::ServiceNotFound, "Service")
-        << " no ServiceRegistry has been set for this thread";
-  }
-
-  //FIXME: Cannot be private because of art/test/Framework/Core/EventSelExc_t.cpp
-  //FIXME: Cannot be private because of art/test/Framework/Core/EventSelector_t.cpp
-  //FIXME: Cannot be private because of art/test/Framework/Core/EventSelWildcard_t.cpp
-  static
-  ServiceRegistry&
-  instance();
-
-  //FIXME: Cannot be private because of art/test/Framework/Core/EventSelExc_t.cpp
-  //FIXME: Cannot be private because of art/test/Framework/Core/EventSelector_t.cpp
-  //FIXME: Cannot be private because of art/test/Framework/Core/EventSelWildcard_t.cpp
-  void
-  setManager(ServicesManager*);
-
-private:
-
-  template <typename T>
-  T&
-  get() const
-  {
-    if (!manager_) {
+  public: // MEMBER FUNCTIONS
+    template <typename T>
+    static bool
+    isAvailable()
+    {
+      if (auto& mgr = instance().manager_) {
+        return mgr->isAvailable<T>();
+      }
       throw art::Exception(art::errors::ServiceNotFound, "Service")
-          << " no ServiceRegistry has been set for this thread";
+        << " no ServiceRegistry has been set for this thread";
     }
-    return manager_->get<T>();
-  }
 
-private: // MEMBER DATA
+    // FIXME: Cannot be private because of
+    // art/test/Framework/Core/EventSelExc_t.cpp
+    // FIXME: Cannot be private because of
+    // art/test/Framework/Core/EventSelector_t.cpp
+    // FIXME: Cannot be private because of
+    // art/test/Framework/Core/EventSelWildcard_t.cpp
+    static ServiceRegistry& instance();
 
-  ServicesManager*
-  manager_{nullptr};
+    // FIXME: Cannot be private because of
+    // art/test/Framework/Core/EventSelExc_t.cpp
+    // FIXME: Cannot be private because of
+    // art/test/Framework/Core/EventSelector_t.cpp
+    // FIXME: Cannot be private because of
+    // art/test/Framework/Core/EventSelWildcard_t.cpp
+    void setManager(ServicesManager*);
 
-};
+  private:
+    template <typename T>
+    T&
+    get() const
+    {
+      if (!manager_) {
+        throw art::Exception(art::errors::ServiceNotFound, "Service")
+          << " no ServiceRegistry has been set for this thread";
+      }
+      return manager_->get<T>();
+    }
+
+  private: // MEMBER DATA
+    ServicesManager* manager_{nullptr};
+  };
 
 } // namespace art
 

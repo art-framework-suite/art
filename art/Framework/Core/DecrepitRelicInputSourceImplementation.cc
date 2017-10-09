@@ -46,37 +46,32 @@ namespace art {
 
   } // unnamed namespace
 
-  DecrepitRelicInputSourceImplementation::Config::
-  ~Config()
-  {
-  }
+  DecrepitRelicInputSourceImplementation::Config::~Config() {}
 
-  DecrepitRelicInputSourceImplementation::Config::
-  Config()
+  DecrepitRelicInputSourceImplementation::Config::Config()
     : maxEvents{fhicl::Name("maxEvents"), -1}
     , maxSubRuns{fhicl::Name("maxSubRuns"), -1}
     , reportFrequency{fhicl::Name("reportFrequency"), 1}
-    , errorOnFailureToPut{fhicl::Name("errorOnFailureToPut"), false }
+    , errorOnFailureToPut{fhicl::Name("errorOnFailureToPut"), false}
     , processingMode{fhicl::Name("processingMode"), defaultMode()}
-  {
-  }
+  {}
 
   // Note: static.
   char const*
-  DecrepitRelicInputSourceImplementation::Config::
-  defaultMode()
+  DecrepitRelicInputSourceImplementation::Config::defaultMode()
   {
     return "RunsSubRunsAndEvents";
   }
 
   DecrepitRelicInputSourceImplementation::
-  ~DecrepitRelicInputSourceImplementation() noexcept
-  {
-  }
+    ~DecrepitRelicInputSourceImplementation() noexcept
+  {}
 
   DecrepitRelicInputSourceImplementation::
-  DecrepitRelicInputSourceImplementation(fhicl::TableFragment<DecrepitRelicInputSourceImplementation::Config> const& config,
-                                         ModuleDescription const& desc)
+    DecrepitRelicInputSourceImplementation(
+      fhicl::TableFragment<
+        DecrepitRelicInputSourceImplementation::Config> const& config,
+      ModuleDescription const& desc)
     : InputSource{desc}
     , maxEvents_{config().maxEvents()}
     , maxSubRuns_{config().maxSubRuns()}
@@ -93,24 +88,21 @@ namespace art {
     std::string const processingMode = config().processingMode();
     if (processingMode == runMode) {
       processingMode_ = Runs;
-    }
-    else if (processingMode == "RunsAndSubRuns") {
+    } else if (processingMode == "RunsAndSubRuns") {
       processingMode_ = RunsAndSubRuns;
-    }
-    else if (processingMode != Config::defaultMode()) {
+    } else if (processingMode != Config::defaultMode()) {
       throw art::Exception(art::errors::Configuration)
-        << "DecrepitRelicInputSourceImplementation::DecrepitRelicInputSourceImplementation()\n"
+        << "DecrepitRelicInputSourceImplementation::"
+           "DecrepitRelicInputSourceImplementation()\n"
         << "The 'processingMode' parameter for sources has an illegal value '"
         << processingMode << "'\n"
-        << "Legal values are '" << Config::defaultMode()
-        << "', '" << runSubRunMode
-        << "', or '" << runMode << "'.\n";
+        << "Legal values are '" << Config::defaultMode() << "', '"
+        << runSubRunMode << "', or '" << runMode << "'.\n";
     }
   }
 
   input::ItemType
-  DecrepitRelicInputSourceImplementation::
-  nextItemType()
+  DecrepitRelicInputSourceImplementation::nextItemType()
   {
     auto const oldState = state_;
     if (remainingEvents_ == 0) {
@@ -121,17 +113,16 @@ namespace art {
     if (remainingSubRuns_ == 0) {
       // If the maximum subRun limit has been reached, stop
       // when reaching a new file, run, or subRun.
-      if (oldState == input::IsInvalid ||
-          oldState == input::IsFile ||
-          oldState == input::IsRun ||
-          processingMode_ != RunsSubRunsAndEvents) {
+      if (oldState == input::IsInvalid || oldState == input::IsFile ||
+          oldState == input::IsRun || processingMode_ != RunsSubRunsAndEvents) {
         state_ = input::IsStop;
         return state_;
       }
     }
     auto newState = getNextItemType();
     while (1) {
-      if ((newState == input::IsEvent) && (processingMode_ != RunsSubRunsAndEvents)) {
+      if ((newState == input::IsEvent) &&
+          (processingMode_ != RunsSubRunsAndEvents)) {
         newState = getNextItemType();
         continue;
       }
@@ -154,16 +145,13 @@ namespace art {
       // and whole-file success in particular.
       finish();
       return state_;
-    }
-    else if (newState == input::IsFile || oldState == input::IsInvalid) {
+    } else if (newState == input::IsFile || oldState == input::IsInvalid) {
       state_ = input::IsFile;
       return state_;
-    }
-    else if (newState == input::IsRun || oldState == input::IsFile) {
+    } else if (newState == input::IsRun || oldState == input::IsFile) {
       state_ = input::IsRun;
       return state_;
-    }
-    else if (newState == input::IsSubRun || oldState == input::IsRun) {
+    } else if (newState == input::IsSubRun || oldState == input::IsRun) {
       assert(processingMode_ != Runs);
       state_ = input::IsSubRun;
       return state_;
@@ -184,47 +172,42 @@ namespace art {
 
   // Return a dummy file block.
   // This function must be overridden for any input source that reads a file
-  // containing Products. Such a function should update the UpdateOutputCallbacks
-  // to reflect the products found in this new file.
+  // containing Products. Such a function should update the
+  // UpdateOutputCallbacks to reflect the products found in this new file.
   unique_ptr<FileBlock>
-  DecrepitRelicInputSourceImplementation::
-  readFile_()
+  DecrepitRelicInputSourceImplementation::readFile_()
   {
     return make_unique<FileBlock>();
   }
 
   void
-  DecrepitRelicInputSourceImplementation::
-  closeFile()
+  DecrepitRelicInputSourceImplementation::closeFile()
   {
     return closeFile_();
   }
 
   void
-  DecrepitRelicInputSourceImplementation::
-  closeFile_()
-  {
-  }
+  DecrepitRelicInputSourceImplementation::closeFile_()
+  {}
 
   unique_ptr<RunPrincipal>
-  DecrepitRelicInputSourceImplementation::
-  readRun()
+  DecrepitRelicInputSourceImplementation::readRun()
   {
-    // Note: For the moment, we do not support saving and restoring the state of the
-    // random number generator if random numbers are generated during processing of runs
-    // (e.g. beginRun(), endRun())
+    // Note: For the moment, we do not support saving and restoring the state of
+    // the random number generator if random numbers are generated during
+    // processing of runs (e.g. beginRun(), endRun())
     assert(state_ == input::IsRun);
     assert((remainingEvents_ != 0) && (remainingSubRuns_ != 0));
     return readRun_();
   }
 
   unique_ptr<SubRunPrincipal>
-  DecrepitRelicInputSourceImplementation::
-  readSubRun(cet::exempt_ptr<RunPrincipal const> rp)
+  DecrepitRelicInputSourceImplementation::readSubRun(
+    cet::exempt_ptr<RunPrincipal const> rp)
   {
-    // Note: For the moment, we do not support saving and restoring the state of the
-    // random number generator if random numbers are generated during processing of subRuns
-    // (e.g. beginSubRun(), endSubRun())
+    // Note: For the moment, we do not support saving and restoring the state of
+    // the random number generator if random numbers are generated during
+    // processing of subRuns (e.g. beginSubRun(), endSubRun())
     assert(state_ == input::IsSubRun);
     assert((remainingEvents_ != 0) && (remainingSubRuns_ != 0));
     --remainingSubRuns_;
@@ -234,8 +217,8 @@ namespace art {
   }
 
   unique_ptr<EventPrincipal>
-  DecrepitRelicInputSourceImplementation::
-  readEvent(cet::exempt_ptr<SubRunPrincipal const> srp)
+  DecrepitRelicInputSourceImplementation::readEvent(
+    cet::exempt_ptr<SubRunPrincipal const> srp)
   {
     assert(state_ == input::IsEvent);
     assert(remainingEvents_ != 0);
@@ -256,34 +239,27 @@ namespace art {
   }
 
   void
-  DecrepitRelicInputSourceImplementation::
-  doBeginJob()
+  DecrepitRelicInputSourceImplementation::doBeginJob()
   {
     beginJob();
   }
 
   void
-  DecrepitRelicInputSourceImplementation::
-  beginJob()
-  {
-  }
+  DecrepitRelicInputSourceImplementation::beginJob()
+  {}
 
   void
-  DecrepitRelicInputSourceImplementation::
-  doEndJob()
+  DecrepitRelicInputSourceImplementation::doEndJob()
   {
     endJob();
   }
 
   void
-  DecrepitRelicInputSourceImplementation::
-  endJob()
-  {
-  }
+  DecrepitRelicInputSourceImplementation::endJob()
+  {}
 
   unique_ptr<EventPrincipal>
-  DecrepitRelicInputSourceImplementation::
-  readEvent(EventID const&)
+  DecrepitRelicInputSourceImplementation::readEvent(EventID const&)
   {
     throw art::Exception(art::errors::LogicError)
       << "DecrepitRelicInputSourceImplementation::readEvent()\n"
@@ -292,15 +268,13 @@ namespace art {
   }
 
   void
-  DecrepitRelicInputSourceImplementation::
-  skipEvents(int offset)
+  DecrepitRelicInputSourceImplementation::skipEvents(int offset)
   {
     skip(offset);
   }
 
   void
-  DecrepitRelicInputSourceImplementation::
-  skip(int)
+  DecrepitRelicInputSourceImplementation::skip(int)
   {
     throw art::Exception(art::errors::LogicError)
       << "DecrepitRelicInputSourceImplementation::skip()\n"
@@ -310,8 +284,7 @@ namespace art {
 
   // Begin again at the first event
   void
-  DecrepitRelicInputSourceImplementation::
-  rewind()
+  DecrepitRelicInputSourceImplementation::rewind()
   {
     remainingEvents_ = maxEvents_;
     remainingSubRuns_ = maxSubRuns_;
@@ -320,8 +293,7 @@ namespace art {
   }
 
   void
-  DecrepitRelicInputSourceImplementation::
-  rewind_()
+  DecrepitRelicInputSourceImplementation::rewind_()
   {
     throw art::Exception(art::errors::LogicError)
       << "DecrepitRelicInputSourceImplementation::rewind()\n"
@@ -331,8 +303,7 @@ namespace art {
 
   // RunsSubRunsAndEvents (default), RunsAndSubRuns, or Runs.
   InputSource::ProcessingMode
-  DecrepitRelicInputSourceImplementation::
-  processingMode() const
+  DecrepitRelicInputSourceImplementation::processingMode() const
   {
     return processingMode_;
   }
@@ -340,8 +311,7 @@ namespace art {
   // Accessor for maximum number of events to be read.
   // -1 is used for unlimited.
   int
-  DecrepitRelicInputSourceImplementation::
-  maxEvents() const
+  DecrepitRelicInputSourceImplementation::maxEvents() const
   {
     return maxEvents_;
   }
@@ -349,8 +319,7 @@ namespace art {
   // Accessor for remaining number of events to be read.
   // -1 is used for unlimited.
   int
-  DecrepitRelicInputSourceImplementation::
-  remainingEvents() const
+  DecrepitRelicInputSourceImplementation::remainingEvents() const
   {
     return remainingEvents_;
   }
@@ -358,8 +327,7 @@ namespace art {
   // Accessor for maximum number of subRuns to be read.
   // -1 is used for unlimited.
   int
-  DecrepitRelicInputSourceImplementation::
-  maxSubRuns() const
+  DecrepitRelicInputSourceImplementation::maxSubRuns() const
   {
     return maxSubRuns_;
   }
@@ -367,52 +335,45 @@ namespace art {
   // Accessor for remaining number of subRuns to be read.
   // -1 is used for unlimited.
   int
-  DecrepitRelicInputSourceImplementation::
-  remainingSubRuns() const
+  DecrepitRelicInputSourceImplementation::remainingSubRuns() const
   {
     return remainingSubRuns_;
   }
 
   // Reset the remaining number of events/subRuns to the maximum number.
   void
-  DecrepitRelicInputSourceImplementation::
-  repeat_()
+  DecrepitRelicInputSourceImplementation::repeat_()
   {
     remainingEvents_ = maxEvents_;
     remainingSubRuns_ = maxSubRuns_;
   }
 
   void
-  DecrepitRelicInputSourceImplementation::
-  issueReports(EventID const& eventID)
+  DecrepitRelicInputSourceImplementation::issueReports(EventID const& eventID)
   {
     time_t t = time(0);
     char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
     strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
     mf::LogVerbatim("ArtReport")
       << "Begin processing the " << numberOfEventsRead_
-      << suffix(numberOfEventsRead_) << " record. " << eventID
-      << " at " << ts;
+      << suffix(numberOfEventsRead_) << " record. " << eventID << " at " << ts;
     // At some point we may want to initiate checkpointing here
   }
 
   input::ItemType
-  DecrepitRelicInputSourceImplementation::
-  state() const
+  DecrepitRelicInputSourceImplementation::state() const
   {
     return state_;
   }
 
   void
-  DecrepitRelicInputSourceImplementation::
-  setState(input::ItemType state)
+  DecrepitRelicInputSourceImplementation::setState(input::ItemType state)
   {
     state_ = state;
   }
 
   void
-  DecrepitRelicInputSourceImplementation::
-  reset()
+  DecrepitRelicInputSourceImplementation::reset()
   {
     state_ = input::IsInvalid;
   }
