@@ -37,48 +37,123 @@ namespace art {
 
 class art::Provenance {
 public:
-
   explicit constexpr Provenance() = default;
   explicit Provenance(cet::exempt_ptr<Group const> g) : group_{g} {}
 
   // Full product description
-  BranchDescription const& productDescription() const {return group_->productDescription();}
+  BranchDescription const&
+  productDescription() const
+  {
+    return group_->productDescription();
+  }
 
   // Selected components of the product description
-  std::string const& branchName() const {return productDescription().branchName();}
-  std::string const& producedClassName() const {return productDescription().producedClassName();}
-  std::string const& friendlyClassName() const {return productDescription().friendlyClassName();}
-  std::string const& moduleLabel() const {return productDescription().moduleLabel();}
-  std::string const& productInstanceName() const {return productDescription().productInstanceName();}
-  std::string const& processName() const {return productDescription().processName();}
-  InputTag inputTag() const {return InputTag{moduleLabel(), productInstanceName(), processName()};}
+  std::string const&
+  branchName() const
+  {
+    return productDescription().branchName();
+  }
+  std::string const&
+  producedClassName() const
+  {
+    return productDescription().producedClassName();
+  }
+  std::string const&
+  friendlyClassName() const
+  {
+    return productDescription().friendlyClassName();
+  }
+  std::string const&
+  moduleLabel() const
+  {
+    return productDescription().moduleLabel();
+  }
+  std::string const&
+  productInstanceName() const
+  {
+    return productDescription().productInstanceName();
+  }
+  std::string const&
+  processName() const
+  {
+    return productDescription().processName();
+  }
+  InputTag
+  inputTag() const
+  {
+    return InputTag{moduleLabel(), productInstanceName(), processName()};
+  }
 
   // Metadata about the product's origin
-  RangeSet const& rangeOfValidity() const {return group_->rangeOfValidity();}
-  Parentage const& parentage() const {return productProvenance().parentage();}
-  std::vector<ProductID> const& parents() const {return parentage().parents();}
+  RangeSet const&
+  rangeOfValidity() const
+  {
+    return group_->rangeOfValidity();
+  }
+  Parentage const&
+  parentage() const
+  {
+    return productProvenance().parentage();
+  }
+  std::vector<ProductID> const&
+  parents() const
+  {
+    return parentage().parents();
+  }
   fhicl::ParameterSet const& parameterSet() const;
-  std::set<fhicl::ParameterSetID> const& psetIDs() const {return productDescription().psetIDs();}
+  std::set<fhicl::ParameterSetID> const&
+  psetIDs() const
+  {
+    return productDescription().psetIDs();
+  }
 
   // Identifiers corresponding to this product, necessary for art::Ptr support.
-  ProductID const& productID() const {return group_->productID();}
+  ProductID const&
+  productID() const
+  {
+    return group_->productID();
+  }
 
   // Functions for querying the validity/presence of a product.
-  bool isValid() const { return static_cast<bool>(group_); }
-  bool isPresent() const {return productstatus::present(productStatus());}
-  bool produced() const {return productDescription().produced();}
-  ProductStatus const& productStatus() const {return productProvenance().productStatus();}
+  bool
+  isValid() const
+  {
+    return static_cast<bool>(group_);
+  }
+  bool
+  isPresent() const
+  {
+    return productstatus::present(productStatus());
+  }
+  bool
+  produced() const
+  {
+    return productDescription().produced();
+  }
+  ProductStatus const&
+  productStatus() const
+  {
+    return productProvenance().productStatus();
+  }
 
   // General utilities
   std::ostream& write(std::ostream& os) const;
-  bool equals(Provenance const& other) const { return group_ == other.group_; }
+  bool
+  equals(Provenance const& other) const
+  {
+    return group_ == other.group_;
+  }
 
 private:
-  cet::exempt_ptr<Group const> group_ {nullptr};
+  cet::exempt_ptr<Group const> group_{nullptr};
 
-  ProductProvenance const& productProvenance() const { return *group_->productProvenancePtr(); }
+  ProductProvenance const&
+  productProvenance() const
+  {
+    return *group_->productProvenancePtr();
+  }
 
-};  // Provenance
+}; // Provenance
 
 inline std::ostream&
 art::operator<<(std::ostream& os, Provenance const& p)
@@ -92,7 +167,7 @@ art::operator==(art::Provenance const& a, art::Provenance const& b)
   return a.equals(b);
 }
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_Principal_Provenance_h */
 

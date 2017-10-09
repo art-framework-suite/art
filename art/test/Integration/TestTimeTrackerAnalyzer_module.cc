@@ -11,14 +11,16 @@
 
 namespace arttest {
 
-  class TestTimeTrackerAnalyzer : public art::EDAnalyzer
-  {
+  class TestTimeTrackerAnalyzer : public art::EDAnalyzer {
   public:
-    explicit TestTimeTrackerAnalyzer( fhicl::ParameterSet const& pset ) : art::EDAnalyzer(pset) {}
+    explicit TestTimeTrackerAnalyzer(fhicl::ParameterSet const& pset)
+      : art::EDAnalyzer(pset)
+    {}
 
-    void analyze( art::Event const& ) override {}
-  };  // TestTimeTrackerAnalyzer
-
+    void
+    analyze(art::Event const&) override
+    {}
+  }; // TestTimeTrackerAnalyzer
 }
 
 DEFINE_ART_MODULE(arttest::TestTimeTrackerAnalyzer)

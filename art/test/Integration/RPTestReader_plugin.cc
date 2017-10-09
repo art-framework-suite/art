@@ -12,10 +12,10 @@
 #include "art/Framework/Principal/Results.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "art/test/TestObjects/ToyProducts.h"
 
 namespace arttest {
   class RPTestReader;
@@ -23,26 +23,26 @@ namespace arttest {
 
 class arttest::RPTestReader : public art::ResultsProducer {
 public:
-  explicit RPTestReader(fhicl::ParameterSet const & p);
+  explicit RPTestReader(fhicl::ParameterSet const& p);
   // The compiler-generated destructor is fine for non-base
   // classes without bare pointers or other resource use.
 
   // Plugins should not be copied or assigned.
-  RPTestReader(RPTestReader const &) = delete;
-  RPTestReader(RPTestReader &&) = delete;
-  RPTestReader & operator = (RPTestReader const &) = delete;
-  RPTestReader & operator = (RPTestReader &&) = delete;
+  RPTestReader(RPTestReader const&) = delete;
+  RPTestReader(RPTestReader&&) = delete;
+  RPTestReader& operator=(RPTestReader const&) = delete;
+  RPTestReader& operator=(RPTestReader&&) = delete;
 
   // Required functions.
   void clear() override;
-  void writeResults(art::Results & res) override;
+  void writeResults(art::Results& res) override;
 
   // Selected optional functions.
-  void event(art::Event const & e) override;
-  void readResults(art::Results const & res) override;
+  void event(art::Event const& e) override;
+  void readResults(art::Results const& res) override;
 
 private:
-  bool maybeAccumulateData_(art::Results const & res);
+  bool maybeAccumulateData_(art::Results const& res);
 
   std::string intResultsLabel_;
   std::size_t expectedResultsSeen_;
@@ -50,53 +50,53 @@ private:
   int total_;
 };
 
-arttest::RPTestReader::RPTestReader(fhicl::ParameterSet const & p)
-:
-  intResultsLabel_(p.get<std::string>("intResultsLabel")),
-  expectedResultsSeen_(p.get<std::size_t>("nResultsExpected", 1ul)),
-  resultsSeen_(0ul),
-  total_(0)
-{
-}
+arttest::RPTestReader::RPTestReader(fhicl::ParameterSet const& p)
+  : intResultsLabel_(p.get<std::string>("intResultsLabel"))
+  , expectedResultsSeen_(p.get<std::size_t>("nResultsExpected", 1ul))
+  , resultsSeen_(0ul)
+  , total_(0)
+{}
 
-void arttest::RPTestReader::clear()
+void
+arttest::RPTestReader::clear()
 {
   resultsSeen_ = 0;
   total_ = 0;
 }
 
-void arttest::RPTestReader::writeResults(art::Results & res)
+void
+arttest::RPTestReader::writeResults(art::Results& res)
 {
   maybeAccumulateData_(res);
   if (resultsSeen_ != expectedResultsSeen_) {
     throw art::Exception(art::errors::LogicError)
-      << "Expected to see " << expectedResultsSeen_
-      << ", saw " << resultsSeen_ << ".\n";
+      << "Expected to see " << expectedResultsSeen_ << ", saw " << resultsSeen_
+      << ".\n";
   }
 }
 
-void arttest::RPTestReader::event(art::Event const & e [[gnu::unused]])
+void
+arttest::RPTestReader::event(art::Event const& e[[gnu::unused]])
 {
   // NOP.
 }
 
-void arttest::RPTestReader::readResults(art::Results const & res)
+void
+arttest::RPTestReader::readResults(art::Results const& res)
 {
   maybeAccumulateData_(res);
 }
 
 bool
-arttest::RPTestReader::
-maybeAccumulateData_(art::Results const & res) {
+arttest::RPTestReader::maybeAccumulateData_(art::Results const& res)
+{
   art::Handle<IntProduct> hi;
   bool result = res.getByLabel(intResultsLabel_, hi);
   if (result) {
     ++resultsSeen_;
     if (hi->value != 5.0) {
       throw art::Exception(art::errors::LogicError)
-        << "Unexcepted value in results int product: "
-        << hi->value
-        << ".\n";
+        << "Unexcepted value in results int product: " << hi->value << ".\n";
     }
     total_ += hi->value;
   }

@@ -11,7 +11,8 @@ namespace art {
     }
 
     template <typename T>
-    T getObjectRequireDict() noexcept(false)
+    T
+    getObjectRequireDict() noexcept(false)
     {
       detail::require_dictionary(TypeID{typeid(T)});
       return T{};

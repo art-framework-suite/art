@@ -4,13 +4,16 @@
 #include <ostream>
 #include <string>
 
-namespace fhicl { class ParameterSet; }
+namespace fhicl {
+  class ParameterSet;
+}
 
 namespace arttest {
   class MessagePrinter {
   public:
-    MessagePrinter(fhicl::ParameterSet const&){}
-    void print(std::ostream& os, std::string const& msg)
+    MessagePrinter(fhicl::ParameterSet const&) {}
+    void
+    print(std::ostream& os, std::string const& msg)
     {
       os << msg;
     }

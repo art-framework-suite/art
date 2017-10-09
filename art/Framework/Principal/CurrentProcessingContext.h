@@ -27,14 +27,12 @@ namespace art {
 
 class art::CurrentProcessingContext {
 public:
-
   // Default-constructed objects reflect the inactive state.
   CurrentProcessingContext();
 
   // Create a CurrentProcessingContext ready to handle the Path
   // with given name and bit position (slot in Schedule).
-  CurrentProcessingContext(std::string const* name,
-                           int bitpos, bool isEndPth);
+  CurrentProcessingContext(std::string const* name, int bitpos, bool isEndPth);
 
   // The compiler-generated copy c'tor and d'tor are correct,
   // because all our resources are contained by value. We do not
@@ -43,7 +41,6 @@ public:
   // Return the address of the moduleLabel if the module is active,
   // and null otherwise.
   std::string const* moduleLabel() const;
-
 
   // Return the name of the current path if the module is active,
   // and null otherwise.
@@ -66,23 +63,25 @@ public:
   bool isEndPath() const;
 
   // Set the context to reflect the active state.
-  void activate(std::size_t theSlotInPath,
-                ModuleDescription const* mod);
+  void activate(std::size_t theSlotInPath, ModuleDescription const* mod);
 
   // Set all data to reflect inactive state.
   void deactivate();
 
 private:
-
   // N.B.: We own none of the pointed-to resources!
-  int                      pathInSchedule_;
-  std::size_t              slotInPath_;
+  int pathInSchedule_;
+  std::size_t slotInPath_;
   ModuleDescription const* moduleDescription_;
-  std::string const*       pathName_;
-  bool                     isEndPath_;
+  std::string const* pathName_;
+  bool isEndPath_;
 
-  bool is_active() const { return moduleDescription_ != 0; }
-};  // CurrentProcessingContext
+  bool
+  is_active() const
+  {
+    return moduleDescription_ != 0;
+  }
+}; // CurrentProcessingContext
 
 #endif /* art_Framework_Principal_CurrentProcessingContext_h */
 

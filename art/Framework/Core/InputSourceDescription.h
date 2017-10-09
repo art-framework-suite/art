@@ -13,34 +13,29 @@ so that the non-const reference data members can be used correctly.
 
 ----------------------------------------------------------------------*/
 
-namespace art
-{
+namespace art {
   class ActivityRegistry;
   class MasterProductRegistry;
   class ModuleDescription;
 
-  struct InputSourceDescription
-  {
+  struct InputSourceDescription {
     InputSourceDescription(ModuleDescription const&,
                            MasterProductRegistry&,
                            ActivityRegistry&);
 
-
     ModuleDescription const& moduleDescription;
-    MasterProductRegistry&   productRegistry;
-    ActivityRegistry&        activityRegistry;
+    MasterProductRegistry& productRegistry;
+    ActivityRegistry& activityRegistry;
   };
 
-  inline
-  InputSourceDescription::InputSourceDescription(ModuleDescription const& md,
-                                                MasterProductRegistry& preg,
-                                                ActivityRegistry& areg) :
-    moduleDescription(md),
-    productRegistry(preg),
-    activityRegistry(areg)
+  inline InputSourceDescription::InputSourceDescription(
+    ModuleDescription const& md,
+    MasterProductRegistry& preg,
+    ActivityRegistry& areg)
+    : moduleDescription(md), productRegistry(preg), activityRegistry(areg)
   {}
 
-}  // art
+} // art
 
 #endif /* art_Framework_Core_InputSourceDescription_h */
 

@@ -38,9 +38,9 @@ namespace art {
   struct TriggerReport;
   struct WorkerSummary;
 
-}  // art
+} // art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_Core_Frameworkfwd_h */
 

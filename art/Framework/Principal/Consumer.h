@@ -85,9 +85,10 @@ namespace art {
   class ModuleDescription;
 
   class Consumer {
-    struct InvalidTag{};
-  public:
+    struct InvalidTag {
+    };
 
+  public:
     explicit Consumer() = default;
 
     static cet::exempt_ptr<Consumer> non_module_context();
@@ -114,7 +115,6 @@ namespace art {
     ViewToken<Element> mayConsumeView(InputTag const&);
 
   protected:
-
     friend class DataViewImpl;
     void validateConsumedProduct(BranchType const bt, ProductInfo const& pi);
 
@@ -130,7 +130,6 @@ namespace art {
     void showMissingConsumes() const;
 
   private:
-
     using ConsumableType = ProductInfo::ConsumableType;
     explicit Consumer(InvalidTag) : moduleContext_{false} {}
 
@@ -147,7 +146,8 @@ template <typename T, art::BranchType BT>
 art::ProductToken<T>
 art::Consumer::consumes(InputTag const& it)
 {
-  if (!moduleContext_) return ProductToken<T>::invalid();
+  if (!moduleContext_)
+    return ProductToken<T>::invalid();
 
   consumables_[BT].emplace_back(ConsumableType::Product,
                                 TypeID{typeid(T)},
@@ -158,9 +158,11 @@ art::Consumer::consumes(InputTag const& it)
 }
 
 template <typename T, art::BranchType BT>
-void art::Consumer::consumesMany()
+void
+art::Consumer::consumesMany()
 {
-  if (!moduleContext_) return;
+  if (!moduleContext_)
+    return;
 
   consumables_[BT].emplace_back(ConsumableType::Many, TypeID{typeid(T)});
 }
@@ -169,7 +171,8 @@ template <typename T, art::BranchType BT>
 art::ViewToken<T>
 art::Consumer::consumesView(InputTag const& it)
 {
-  if (!moduleContext_) return ViewToken<T>::invalid();
+  if (!moduleContext_)
+    return ViewToken<T>::invalid();
 
   consumables_[BT].emplace_back(ConsumableType::ViewElement,
                                 TypeID{typeid(T)},
@@ -186,7 +189,8 @@ template <typename T, art::BranchType BT>
 art::ProductToken<T>
 art::Consumer::mayConsume(InputTag const& it)
 {
-  if (!moduleContext_) return ProductToken<T>::invalid();
+  if (!moduleContext_)
+    return ProductToken<T>::invalid();
 
   consumables_[BT].emplace_back(ConsumableType::Product,
                                 TypeID{typeid(T)},
@@ -197,9 +201,11 @@ art::Consumer::mayConsume(InputTag const& it)
 }
 
 template <typename T, art::BranchType BT>
-void art::Consumer::mayConsumeMany()
+void
+art::Consumer::mayConsumeMany()
 {
-  if (!moduleContext_) return;
+  if (!moduleContext_)
+    return;
 
   consumables_[BT].emplace_back(ConsumableType::Many, TypeID{typeid(T)});
 }
@@ -208,7 +214,8 @@ template <typename T, art::BranchType BT>
 art::ViewToken<T>
 art::Consumer::mayConsumeView(InputTag const& it)
 {
-  if (!moduleContext_) return ViewToken<T>::invalid();
+  if (!moduleContext_)
+    return ViewToken<T>::invalid();
 
   consumables_[BT].emplace_back(ConsumableType::ViewElement,
                                 TypeID{typeid(T)},

@@ -1,8 +1,8 @@
 #ifndef art_Framework_Services_System_ScheduleContext_h
 #define art_Framework_Services_System_ScheduleContext_h
 
-#include "art/Utilities/ScheduleID.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Utilities/ScheduleID.h"
 
 #include <atomic>
 
@@ -14,7 +14,7 @@ namespace art {
   }
 }
 
-extern int main(); //Forward declaration for friendship of test.
+extern int main(); // Forward declaration for friendship of test.
 
 class art::ScheduleContext {
 public:
@@ -29,18 +29,16 @@ private:
   bool resetContext();
 
   using flag_type = unsigned char;
-  std::atomic<flag_type> in_context_ {false};
+  std::atomic<flag_type> in_context_{false};
 };
 
-inline
-bool
+inline bool
 art::ScheduleContext::setContext()
 {
   return in_context_.fetch_or(true);
 }
 
-inline
-bool
+inline bool
 art::ScheduleContext::resetContext()
 {
   return in_context_.fetch_and(false);

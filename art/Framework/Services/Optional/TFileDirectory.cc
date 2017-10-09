@@ -1,7 +1,7 @@
 #include <ostream>
 
-#include "TROOT.h"
 #include "TFile.h"
+#include "TROOT.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "cetlib/exception.h"
 
@@ -10,8 +10,8 @@ using namespace std;
 art::TFileDirectory::TFileDirectory(std::string const& dir,
                                     std::string const& descr,
                                     TFile* file,
-                                    std::string const& path) :
-  file_{file}, dir_{dir}, descr_{descr}, path_{path}
+                                    std::string const& path)
+  : file_{file}, dir_{dir}, descr_{descr}, path_{path}
 {}
 
 void
@@ -26,8 +26,7 @@ art::TFileDirectory::cd() const
         throw cet::exception("InvalidDirectory")
           << "Can't change directory to path: " << path_;
       }
-    }
-    else {
+    } else {
       dir = file_;
     }
     dir = dir->mkdir(dir_.c_str(), descr_.c_str());

@@ -13,9 +13,9 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/test/Integration/event-shape/ESPtrSimple.h"
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "art/test/Integration/event-shape/ESPtrSimple.h"
 
 #include <memory>
 
@@ -25,38 +25,33 @@ namespace arttest {
 
 class arttest::ESSecondaryProducer : public art::EDProducer {
 public:
-  explicit ESSecondaryProducer(fhicl::ParameterSet const & p);
+  explicit ESSecondaryProducer(fhicl::ParameterSet const& p);
 
-  void produce(art::Event & e) override;
-
+  void produce(art::Event& e) override;
 
 private:
-
   std::string const label_;
   size_t const index_;
 };
 
-
-arttest::ESSecondaryProducer::ESSecondaryProducer(fhicl::ParameterSet const & p)
- :
-  label_(p.get<std::string>("moduleLabel")),
-  index_(p.get<size_t>("index"))
+arttest::ESSecondaryProducer::ESSecondaryProducer(fhicl::ParameterSet const& p)
+  : label_(p.get<std::string>("moduleLabel")), index_(p.get<size_t>("index"))
 {
   produces<arttest::ESPtrSimple>();
   produces<arttest::IntProduct>();
 }
 
-void arttest::ESSecondaryProducer::produce(art::Event & e)
+void
+arttest::ESSecondaryProducer::produce(art::Event& e)
 {
   auto h = e.getValidHandle<arttest::VSimpleProduct>(label_);
-  if (! (h->size() > index_)) {
+  if (!(h->size() > index_)) {
     throw art::Exception(art::errors::Configuration)
-      << "Specified index "
-      << index_
-      << "is invalid for loaded product.";
+      << "Specified index " << index_ << "is invalid for loaded product.";
   }
-  e.put(std::make_unique<arttest::ESPtrSimple>( arttest::ESPtrSimple{art::Ptr<arttest::Simple>(h, index_)} ));
-  e.put(std::make_unique<arttest::IntProduct>( static_cast<int>(h->size()) ));
+  e.put(std::make_unique<arttest::ESPtrSimple>(
+    arttest::ESPtrSimple{art::Ptr<arttest::Simple>(h, index_)}));
+  e.put(std::make_unique<arttest::IntProduct>(static_cast<int>(h->size())));
 }
 
 DEFINE_ART_MODULE(arttest::ESSecondaryProducer)

@@ -5,10 +5,10 @@
 // ======================================================================
 
 #include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "art/Framework/Principal/Event.h"
 #include "art/test/TestObjects/ToyProducts.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
 #include <vector>
@@ -23,26 +23,24 @@ using arttest::SimpleDerivedProducer;
 //
 // Produces a SimpleProduct product instance.
 //
-class arttest::SimpleDerivedProducer
-  : public art::EDProducer
-{
+class arttest::SimpleDerivedProducer : public art::EDProducer {
 public:
-  typedef  std::vector<arttest::SimpleDerived>  SimpleDerivedProduct;
+  typedef std::vector<arttest::SimpleDerived> SimpleDerivedProduct;
 
-  explicit SimpleDerivedProducer( fhicl::ParameterSet const & p )
-  : size_( p.get<int>("nvalues") )
+  explicit SimpleDerivedProducer(fhicl::ParameterSet const& p)
+    : size_(p.get<int>("nvalues"))
   {
     produces<SimpleDerivedProduct>("derived");
   }
 
-  void produce( art::Event & e ) override;
+  void produce(art::Event& e) override;
 
 private:
-  int size_;  // number of Simples to put in the collection
+  int size_; // number of Simples to put in the collection
 };
 
 void
-  SimpleDerivedProducer::produce( art::Event & e )
+SimpleDerivedProducer::produce(art::Event& e)
 {
   // Fill up a collection of SimpleDerived objects
   std::unique_ptr<SimpleDerivedProduct> prod(new SimpleDerivedProduct);

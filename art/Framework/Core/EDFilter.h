@@ -10,7 +10,6 @@
 //
 // ======================================================================
 
-#include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
@@ -26,38 +25,32 @@
 
 // ----------------------------------------------------------------------
 
-namespace art
-{
+namespace art {
 
-  class EDFilter : public ProducerBase,
-                   public Consumer,
-                   public EngineCreator
-  {
+  class EDFilter : public ProducerBase, public Consumer, public EngineCreator {
   public:
     static constexpr bool Pass{true};
     static constexpr bool Fail{false};
 
-    template <typename T> friend class WorkerT;
+    template <typename T>
+    friend class WorkerT;
     using ModuleType = EDFilter;
     using WorkerType = WorkerT<EDFilter>;
 
     virtual ~EDFilter() = default;
 
     template <typename PROD, BranchType B = InEvent>
-    ProductID
-    getProductID(std::string const& instanceName = {}) const;
+    ProductID getProductID(std::string const& instanceName = {}) const;
 
     template <typename UserConfig>
     using Table = ProducerBase::Table<UserConfig>;
 
   protected:
-
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('filter').
     CurrentProcessingContext const* currentContext() const;
 
   private:
-
     using CPC_exempt_ptr = cet::exempt_ptr<CurrentProcessingContext const>;
 
     bool doEvent(EventPrincipal& ep, CPC_exempt_ptr cpc, CountingStatistics&);
@@ -72,22 +65,58 @@ namespace art
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
 
-    std::string workerType() const {return "WorkerT<EDFilter>";}
+    std::string
+    workerType() const
+    {
+      return "WorkerT<EDFilter>";
+    }
 
     virtual bool filter(Event&) = 0;
-    virtual void beginJob(){}
-    virtual void endJob(){}
-    virtual void reconfigure(fhicl::ParameterSet const&) {} // Not called by framework
-    virtual bool beginRun(Run&){return true;}
-    virtual bool endRun(Run&){return true;}
-    virtual bool beginSubRun(SubRun&){return true;}
-    virtual bool endSubRun(SubRun&){return true;}
-    virtual void respondToOpenInputFile(FileBlock const&) {}
-    virtual void respondToCloseInputFile(FileBlock const&) {}
-    virtual void respondToOpenOutputFiles(FileBlock const&) {}
-    virtual void respondToCloseOutputFiles(FileBlock const&) {}
+    virtual void
+    beginJob()
+    {}
+    virtual void
+    endJob()
+    {}
+    virtual void
+    reconfigure(fhicl::ParameterSet const&)
+    {} // Not called by framework
+    virtual bool
+    beginRun(Run&)
+    {
+      return true;
+    }
+    virtual bool
+    endRun(Run&)
+    {
+      return true;
+    }
+    virtual bool
+    beginSubRun(SubRun&)
+    {
+      return true;
+    }
+    virtual bool
+    endSubRun(SubRun&)
+    {
+      return true;
+    }
+    virtual void
+    respondToOpenInputFile(FileBlock const&)
+    {}
+    virtual void
+    respondToCloseInputFile(FileBlock const&)
+    {}
+    virtual void
+    respondToOpenOutputFiles(FileBlock const&)
+    {}
+    virtual void
+    respondToCloseOutputFiles(FileBlock const&)
+    {}
 
-    void setModuleDescription(ModuleDescription const& md) {
+    void
+    setModuleDescription(ModuleDescription const& md)
+    {
       moduleDescription_ = md;
       // Since the module description in the Consumer base class is
       // owned by pointer, we must give it the owned object of this
@@ -98,20 +127,19 @@ namespace art
     ModuleDescription moduleDescription_{};
     CPC_exempt_ptr current_context_{nullptr};
     bool checkPutProducts_{true};
-  };  // EDFilter
+  }; // EDFilter
 
   template <typename PROD, BranchType B>
-  inline
-  ProductID
+  inline ProductID
   EDFilter::getProductID(std::string const& instanceName) const
   {
     return ProducerBase::getProductID<PROD, B>(moduleDescription_,
                                                instanceName);
   }
 
-}  // art
+} // art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_Core_EDFilter_h */
 

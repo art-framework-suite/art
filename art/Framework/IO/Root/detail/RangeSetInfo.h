@@ -24,17 +24,19 @@ namespace art {
       explicit RangeSetInfo(RunNumber_t const r, std::vector<EventRange>&& ers);
 
       bool is_invalid() const;
-      static RangeSetInfo invalid() { return RangeSetInfo{}; }
+      static RangeSetInfo
+      invalid()
+      {
+        return RangeSetInfo{};
+      }
       void update(RangeSetInfo&& rsi, bool compact);
 
-      RunNumber_t run {IDNumber<Level::Run>::invalid()};
-      std::vector<EventRange> ranges {};
+      RunNumber_t run{IDNumber<Level::Run>::invalid()};
+      std::vector<EventRange> ranges{};
 
     private:
-
       RangeSetInfo() = default;
     };
-
   }
 }
 

@@ -4,20 +4,14 @@ using namespace std;
 
 namespace art {
 
-  DelayedReader::
-  ~DelayedReader()
-  {
-  }
+  DelayedReader::~DelayedReader() {}
 
   void
-  DelayedReader::
-  setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>)
-  {
-  }
+  DelayedReader::setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>)
+  {}
 
   int
-  DelayedReader::
-  openNextSecondaryFile_(int /*idx*/)
+  DelayedReader::openNextSecondaryFile_(int /*idx*/)
   {
     return -2;
   }

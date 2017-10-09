@@ -17,11 +17,13 @@ art::MasterProductRegistry::finalizeForProcessing()
   // Product registration can still happen implicitly whenever an
   // input file is opened--via calls to updateFromInputFile.
   allowExplicitRegistration_ = false;
-  cet::for_all(productListUpdatedCallbacks_, [this](auto const& callback){ callback(productList_); });
+  cet::for_all(productListUpdatedCallbacks_,
+               [this](auto const& callback) { callback(productList_); });
 }
 
 void
-art::MasterProductRegistry::addProductsFromModule(ProductDescriptions&& descriptions)
+art::MasterProductRegistry::addProductsFromModule(
+  ProductDescriptions&& descriptions)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   for (auto&& desc : descriptions) {
@@ -33,7 +35,8 @@ void
 art::MasterProductRegistry::updateFromModule(std::unique_ptr<ProductList>&& pl)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
-  if (!pl) return;
+  if (!pl)
+    return;
   updateProductLists_(*pl);
 }
 
@@ -42,11 +45,13 @@ art::MasterProductRegistry::updateFromInputFile(ProductList const& pl)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   updateProductLists_(pl);
-  cet::for_all(productListUpdatedCallbacks_, [this](auto const& callback){ callback(productList_); });
+  cet::for_all(productListUpdatedCallbacks_,
+               [this](auto const& callback) { callback(productList_); });
 }
 
 void
-art::MasterProductRegistry::registerProductListUpdatedCallback(ProductListUpdatedCallback cb)
+art::MasterProductRegistry::registerProductListUpdatedCallback(
+  ProductListUpdatedCallback cb)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   productListUpdatedCallbacks_.push_back(cb);
@@ -56,7 +61,7 @@ void
 art::MasterProductRegistry::print(std::ostream& os) const
 {
   // TODO: Shouldn't we print the BranchKey too?
-  for (auto const& val: productList_) {
+  for (auto const& val : productList_) {
     os << val.second << "\n-----\n";
   }
 }
@@ -75,8 +80,7 @@ art::MasterProductRegistry::addProduct_(BranchDescription&& bdp)
   if (!allowExplicitRegistration_) {
     throw Exception(errors::ProductRegistrationFailure)
       << "An attempt to register the product\n"
-      << bdp
-      << "was made after the product registry was frozen.\n"
+      << bdp << "was made after the product registry was frozen.\n"
       << "Product registration can be done only in module constructors.\n";
   }
 
@@ -85,8 +89,7 @@ art::MasterProductRegistry::addProduct_(BranchDescription&& bdp)
   auto it = productList_.emplace(BranchKey{bdp}, BranchDescription{});
   if (!it.second) {
     throw Exception(errors::Configuration)
-      << "The process name "
-      << bdp.processName()
+      << "The process name " << bdp.processName()
       << " was previously used on these products.\n"
       << "Please modify the configuration file to use a "
       << "distinct process name.\n";
@@ -100,7 +103,7 @@ art::MasterProductRegistry::addProduct_(BranchDescription&& bdp)
 void
 art::MasterProductRegistry::updateProductLists_(ProductList const& pl)
 {
-  for (auto const& val: pl) {
+  for (auto const& val : pl) {
     auto const& pd = val.second;
     assert(!pd.produced());
     auto bk = BranchKey{pd};

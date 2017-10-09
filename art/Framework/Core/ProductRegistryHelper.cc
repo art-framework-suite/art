@@ -29,30 +29,37 @@ namespace {
   // friendlyClassName, which resolves to the same string for
   // Assns<A,B> and Assns<B,A>.
 
-  void check_for_duplicate_Assns(std::set<art::TypeLabel> const& typeLabels){
+  void
+  check_for_duplicate_Assns(std::set<art::TypeLabel> const& typeLabels)
+  {
     std::map<std::string, std::set<std::string>> instanceToFriendlyNames;
     for (auto const& tl : typeLabels) {
       auto const& productInstanceName = tl.productInstanceName();
-      auto result = instanceToFriendlyNames[productInstanceName].emplace(tl.friendlyClassName());
+      auto result = instanceToFriendlyNames[productInstanceName].emplace(
+        tl.friendlyClassName());
       if (!result.second) {
-        throw art::Exception(art::errors::LogicError, "check_for_duplicate_Assns: ")
+        throw art::Exception(art::errors::LogicError,
+                             "check_for_duplicate_Assns: ")
           << "An attempt has been made to call the equivalent of\n\n"
-          << "   produces<" << tl.className() << ">(\"" << productInstanceName << "\")\n\n"
+          << "   produces<" << tl.className() << ">(\"" << productInstanceName
+          << "\")\n\n"
           << "which results in a prepared (\"friendly\") name of:\n\n"
-          << "   "<< *result.first << "\n\n"
+          << "   " << *result.first << "\n\n"
           << "That friendly name has already been registered for this module.\n"
           << "Please check to make sure that produces<> has not already been\n"
           << "called for an Assns<> with reversed template arguments.  Such\n"
-          << "behavior is not supported.  Contact artists@fnal.gov for guidance.\n";
+          << "behavior is not supported.  Contact artists@fnal.gov for "
+             "guidance.\n";
       }
     }
   }
 }
 
 void
-art::ProductRegistryHelper::registerProducts(MasterProductRegistry& mpr,
-                                             ProductDescriptions& producedProducts,
-                                             ModuleDescription const& md)
+art::ProductRegistryHelper::registerProducts(
+  MasterProductRegistry& mpr,
+  ProductDescriptions& producedProducts,
+  ModuleDescription const& md)
 {
   // First update the MPR with any extant products.
   mpr.updateFromModule(std::move(productList_));

@@ -14,43 +14,43 @@
 #include "fhiclcpp/types/Name.h"
 
 namespace art {
-  class ActivityRegistry;   // declaration only
-  class ModuleDescription;  // declaration only
-  class TFileService;       // defined below
+  class ActivityRegistry;  // declaration only
+  class ModuleDescription; // declaration only
+  class TFileService;      // defined below
 }
 namespace fhicl {
-  class ParameterSet;       // declaration only
+  class ParameterSet; // declaration only
 }
 
 // ----------------------------------------------------------------------
 
-class art::TFileService
-  : public TFileDirectory
-{
+class art::TFileService : public TFileDirectory {
   // non-copyable:
   TFileService(TFileService const&) = delete;
-  TFileService operator = (TFileService const&) = delete;
+  TFileService operator=(TFileService const&) = delete;
 
 public:
-
   static constexpr const char* default_tmpDir = "<parent-path-of-filename>";
 
   struct Config {
-    fhicl::Atom<bool> closeFileFast   { fhicl::Name("closeFileFast"), true };
-    fhicl::Atom<std::string> fileName { fhicl::Name("fileName") };
-    fhicl::Atom<std::string> tmpDir   { fhicl::Name("tmpDir"), default_tmpDir };
+    fhicl::Atom<bool> closeFileFast{fhicl::Name("closeFileFast"), true};
+    fhicl::Atom<std::string> fileName{fhicl::Name("fileName")};
+    fhicl::Atom<std::string> tmpDir{fhicl::Name("tmpDir"), default_tmpDir};
   };
 
   // c'tor:
   using Parameters = ServiceTable<Config>;
-  TFileService(ServiceTable<Config> const& config,
-               art::ActivityRegistry& r);
+  TFileService(ServiceTable<Config> const& config, art::ActivityRegistry& r);
 
   // d'tor:
   ~TFileService();
 
   // accessor:
-  TFile& file() const { return *file_; }
+  TFile&
+  file() const
+  {
+    return *file_;
+  }
 
 private:
   bool const closeFileFast_;
@@ -58,9 +58,10 @@ private:
   std::string filePattern_;
   std::string uniqueFilename_;
 
-  // set current directory according to module name and prepare to create directory
+  // set current directory according to module name and prepare to create
+  // directory
   void setDirectoryName(art::ModuleDescription const& desc);
-};  // TFileService
+}; // TFileService
 
 // ======================================================================
 

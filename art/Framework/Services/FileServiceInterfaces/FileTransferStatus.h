@@ -9,7 +9,7 @@ namespace art {
     namespace FTS {
       enum FileTransferStatus {
         PENDING = -1, // Not attempted yet.
-        SUCCESS = 0, // A normal return from delivery protocol
+        SUCCESS = 0,  // A normal return from delivery protocol
         BAD_REQUEST = 400,
         UNAUTHORIZED = 401,
         PAYMENT_REQUIRED = 402,

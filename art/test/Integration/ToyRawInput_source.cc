@@ -7,8 +7,8 @@
 
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceMacros.h"
-#include "art/Framework/IO/Sources/SourceTraits.h"
 #include "art/Framework/IO/Sources/Source.h"
+#include "art/Framework/IO/Sources/SourceTraits.h"
 #include "art/test/Integration/ToySource.h"
 
 namespace arttest {
@@ -20,7 +20,7 @@ namespace arttest {
 namespace art {
   // We don't want the file services: we must say so by specializing the
   // template *before* specifying the typedef.
-  template<>
+  template <>
   struct Source_wantFileServices<arttest::ToyReader> {
     static constexpr bool value = false;
   };
@@ -37,31 +37,24 @@ public:
             art::ProductRegistryHelper& help,
             art::SourceHelper const& sHelper);
 
-  void readFile(std::string const &name,
-                art::FileBlock*& fb) override;
+  void readFile(std::string const& name, art::FileBlock*& fb) override;
 };
-
 
 arttest::ToyReader::ToyReader(fhicl::ParameterSet const& ps,
                               art::ProductRegistryHelper& help,
                               art::SourceHelper const& sHelper)
-  :
-  ToySource(ps, help, sHelper)
-{
-}
+  : ToySource(ps, help, sHelper)
+{}
 
 void
-arttest::ToyReader::readFile(std::string const &name,
-                             art::FileBlock*& fb)
+arttest::ToyReader::readFile(std::string const& name, art::FileBlock*& fb)
 {
-  if (throw_on_readFile_) throw_exception_from("readFile");
-  if (!data_.get_if_present(name, fileData_))
-  {
+  if (throw_on_readFile_)
+    throw_exception_from("readFile");
+  if (!data_.get_if_present(name, fileData_)) {
     throw art::Exception(art::errors::Configuration)
       << "ToyReader expects to find a parameter representing a file's\n"
-      << "contents whose name is "
-      << name
-      << "\n";
+      << "contents whose name is " << name << "\n";
   }
   currentFilename_ = name;
   current_ = fileData_.begin();
@@ -69,6 +62,5 @@ arttest::ToyReader::readFile(std::string const &name,
   fb = new art::FileBlock(art::FileFormatVersion(1, "ToyReader 2011a"),
                           currentFilename_);
 }
-
 
 DEFINE_ART_INPUT_SOURCE(arttest::ToyRawInput)

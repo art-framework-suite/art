@@ -40,7 +40,6 @@ namespace art {
 
 class art::TriggerNamesService {
 public:
-
   using Strings = std::vector<std::string>;
   using PosMap = std::map<std::string, unsigned int>;
   using size_type = PosMap::size_type;
@@ -49,10 +48,26 @@ public:
                       std::vector<std::string> const& triggerPathNames);
 
   // Trigger path information for the current process
-  size_type size() const { return trignames_.size(); }
-  Strings const& getTrigPaths() const { return trignames_; }
-  std::string const& getTrigPath(size_type const i) const { return trignames_.at(i);}
-  size_type findTrigPath(std::string const& name) const { return find(trigpos_, name);}
+  size_type
+  size() const
+  {
+    return trignames_.size();
+  }
+  Strings const&
+  getTrigPaths() const
+  {
+    return trignames_;
+  }
+  std::string const&
+  getTrigPath(size_type const i) const
+  {
+    return trignames_.at(i);
+  }
+  size_type
+  findTrigPath(std::string const& name) const
+  {
+    return find(trigpos_, name);
+  }
 
   // Get the ordered vector of trigger names that corresponds to the
   // bits in the TriggerResults object.  Unlike the other functions in
@@ -62,72 +77,86 @@ public:
   // because the TriggerResults object is not created until the normal
   // paths complete execution.  Returns false if it fails to find the
   // trigger path names.
-  bool getTrigPaths(TriggerResults const& triggerResults, Strings& trigPaths) const;
+  bool getTrigPaths(TriggerResults const& triggerResults,
+                    Strings& trigPaths) const;
 
   auto getTrigPathModules(std::string const& name) const -> Strings const&;
   auto getTrigPathModules(size_type const i) const -> Strings const&;
-  std::string const& getTrigPathModule(std::string const& name, size_type const j) const;
-  std::string const& getTrigPathModule(size_type const i, size_type const j) const;
+  std::string const& getTrigPathModule(std::string const& name,
+                                       size_type const j) const;
+  std::string const& getTrigPathModule(size_type const i,
+                                       size_type const j) const;
 
-  size_type find(PosMap const& posmap, std::string const& name) const
+  size_type
+  find(PosMap const& posmap, std::string const& name) const
   {
     auto const pos = posmap.find(name);
     if (pos == posmap.cend()) {
       return posmap.size();
-    }
-    else {
+    } else {
       return pos->second;
     }
   }
 
-  std::string const& getProcessName() const { return process_name_; }
-  bool wantSummary() const { return wantSummary_; }
+  std::string const&
+  getProcessName() const
+  {
+    return process_name_;
+  }
+  bool
+  wantSummary() const
+  {
+    return wantSummary_;
+  }
 
   // Parameter set containing the trigger paths
-  fhicl::ParameterSet const& getTriggerPSet() const { return trigger_pset_; }
+  fhicl::ParameterSet const&
+  getTriggerPSet() const
+  {
+    return trigger_pset_;
+  }
 
 private:
-
   Strings trignames_;
-  PosMap  trigpos_ {};
-  Strings end_names_ {};
-  PosMap  end_pos_ {};
+  PosMap trigpos_{};
+  Strings end_names_{};
+  PosMap end_pos_{};
 
-  fhicl::ParameterSet trigger_pset_ {}; // Parameter set of trigger paths
-                                        // (used by TriggerResults
-                                        // objects).
-  std::vector<Strings> modulenames_ {}; // Labels of modules on trigger paths
+  fhicl::ParameterSet trigger_pset_{}; // Parameter set of trigger paths
+                                       // (used by TriggerResults
+                                       // objects).
+  std::vector<Strings> modulenames_{}; // Labels of modules on trigger paths
 
   std::string process_name_;
   bool wantSummary_;
-};  // TriggerNamesService
+}; // TriggerNamesService
 
 // ======================================================================
 // Implementation
-inline
-auto art::TriggerNamesService::getTrigPathModules(std::string const& name) const
+inline auto
+art::TriggerNamesService::getTrigPathModules(std::string const& name) const
   -> Strings const&
 {
   return modulenames_.at(find(trigpos_, name));
 }
 
-inline
-auto art::TriggerNamesService::getTrigPathModules(size_type const i) const
+inline auto
+art::TriggerNamesService::getTrigPathModules(size_type const i) const
   -> Strings const&
 {
   return modulenames_.at(i);
 }
 
-inline
-std::string const&
-art::TriggerNamesService::getTrigPathModule(std::string const& name, size_type const j) const
+inline std::string const&
+art::TriggerNamesService::getTrigPathModule(std::string const& name,
+                                            size_type const j) const
 {
   return modulenames_.at(find(trigpos_, name)).at(j);
 }
 
-inline
-std::string const&
-art::TriggerNamesService::getTrigPathModule(size_type const i, size_type const j) const
+inline std::string const&
+art::TriggerNamesService::getTrigPathModule(size_type const i,
+                                            size_type const j) const
 {
   return modulenames_.at(i).at(j);
 }

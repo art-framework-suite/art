@@ -7,7 +7,7 @@
 
 namespace art {
   namespace detail {
-    typedef  std::stack< WrapperBase_ptr >  ServiceStack;
+    typedef std::stack<WrapperBase_ptr> ServiceStack;
   }
 }
 #endif /* art_Framework_Services_Registry_detail_ServiceStack_h */

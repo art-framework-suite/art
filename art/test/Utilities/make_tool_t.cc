@@ -1,22 +1,23 @@
-#define BOOST_TEST_MODULE ( make_tool_t )
+#define BOOST_TEST_MODULE (make_tool_t)
 #include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Utilities/make_tool.h"
-#include "art/test/Utilities/tools/OperationBase.h"
 #include "art/test/Utilities/tools/ClassTool.h"
 #include "art/test/Utilities/tools/FunctionTool.h"
 #include "art/test/Utilities/tools/NestedClassTool.h"
-#include "art/test/Utilities/tools/NestedFunctionTool.h"
 #include "art/test/Utilities/tools/NestedFunctionInClassTool.h"
+#include "art/test/Utilities/tools/NestedFunctionTool.h"
+#include "art/test/Utilities/tools/OperationBase.h"
 #include "fhiclcpp/make_ParameterSet.h"
 
 #include <string>
 
 namespace {
-  auto pset_from_oss(std::ostringstream const& ss)
+  auto
+  pset_from_oss(std::ostringstream const& ss)
   {
     fhicl::ParameterSet pset;
-    std::string const pstr {ss.str()};
+    std::string const pstr{ss.str()};
     fhicl::make_ParameterSet(pstr, pset);
     return pset;
   }
@@ -38,7 +39,7 @@ BOOST_AUTO_TEST_CASE(tool_function)
 {
   fhicl::ParameterSet ps;
   ps.put("tool_type", "FunctionTool"s);
-  int i {17};
+  int i{17};
   auto addOne1 = art::make_tool<decltype(arttest::addOne)>(ps, "addOne");
   auto addOne2 = art::make_tool<int(int)>(ps, "addOne");
   BOOST_CHECK_EQUAL(addOne1(i), 18);
@@ -53,7 +54,9 @@ BOOST_AUTO_TEST_CASE(nested_function_tools)
      << "  tool_type: FunctionTool"
      << "}";
   auto const& ps = pset_from_oss(ss);
-  auto callThroughToAddOne = art::make_tool<decltype(arttest::callThroughToAddOne)>(ps, "callThroughToAddOne");
+  auto callThroughToAddOne =
+    art::make_tool<decltype(arttest::callThroughToAddOne)>(
+      ps, "callThroughToAddOne");
   auto const& nestedPS = ps.get<fhicl::ParameterSet>("addOneTool");
   BOOST_CHECK_EQUAL(callThroughToAddOne(nestedPS, 17), 18);
 }
@@ -84,7 +87,7 @@ BOOST_AUTO_TEST_CASE(nested_function_in_class_tools)
 
 BOOST_AUTO_TEST_CASE(polymorphic_tools)
 {
-  int i {17};
+  int i{17};
   {
     fhicl::ParameterSet ps;
     ps.put("tool_type", "AddNumber");

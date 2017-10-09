@@ -7,21 +7,21 @@
 // from art v0_07_12.
 ////////////////////////////////////////////////////////////////////////
 
-#include "cetlib/quiet_unit_test.hpp"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/View.h"
 #include "art/test/TestObjects/AssnTestData.h"
+#include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/FindMany.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "canvas/Persistency/Common/FindOne.h"
 #include "canvas/Persistency/Common/FindOneP.h"
-#include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/maybe_ref.h"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "boost/type_traits.hpp"
 
@@ -29,25 +29,24 @@
 #include <type_traits>
 
 namespace arttest {
-   class AssnsReaderTest;
+  class AssnsReaderTest;
 }
 
 #include <initializer_list>
 
 class arttest::AssnsReaderTest : public art::EDAnalyzer {
 public:
-  explicit AssnsReaderTest(fhicl::ParameterSet const & p);
+  explicit AssnsReaderTest(fhicl::ParameterSet const& p);
 
-  void analyze(art::Event const & e) override;
+  void analyze(art::Event const& e) override;
 
 private:
-
   std::string const inputLabel_;
   std::string const process_;
   std::string const wantVoid_; // "ALL," "NONE," or "SOME."
-  bool const wantMV_; // Expect mapvector and derived Assns.
-  bool const wantMany_; // Expect many-to-many associations.
-  bool const wantAmbiguous_; // Expect an extra ABD, causing ambiguity.
+  bool const wantMV_;          // Expect mapvector and derived Assns.
+  bool const wantMany_;        // Expect many-to-many associations.
+  bool const wantAmbiguous_;   // Expect an extra ABD, causing ambiguity.
 };
 
 namespace {
@@ -63,8 +62,7 @@ namespace {
 
 using namespace std::string_literals;
 
-arttest::AssnsReaderTest::
-AssnsReaderTest(fhicl::ParameterSet const & ps)
+arttest::AssnsReaderTest::AssnsReaderTest(fhicl::ParameterSet const& ps)
   : art::EDAnalyzer(ps)
   , inputLabel_(ps.get<std::string>("inputLabel"))
   , process_(ps.get<std::string>("process", {}))
@@ -100,13 +98,14 @@ AssnsReaderTest(fhicl::ParameterSet const & ps)
 namespace {
   template <typename A, typename B, typename D>
   std::size_t
-  expectedSize(std::string const & wantVoid,
+  expectedSize(std::string const& wantVoid,
                bool wantMV,
                bool wantMany,
                bool wantAmbiguous,
-               std::string const & process) {
+               std::string const& process)
+  {
     using namespace std::string_literals;
-    static constexpr bool isVoid [[gnu::unused]] = std::is_same<D, void>::value;
+    static constexpr bool isVoid[[gnu::unused]] = std::is_same<D, void>::value;
     std::size_t wanted = 0ull;
     wanted += 1ull;
     if (isVoid && wantVoid != "ALL"s && wantAmbiguous) {
@@ -133,23 +132,21 @@ namespace {
 
   template <typename A, typename B, typename D>
   void
-  checkExpectedSize(std::vector<art::Handle<art::Assns<A, B, D> > > const &v,
-                    std::string const & wantVoid,
+  checkExpectedSize(std::vector<art::Handle<art::Assns<A, B, D>>> const& v,
+                    std::string const& wantVoid,
                     bool wantMV,
                     bool wantMany,
                     bool wantAmbiguous,
-                    std::string const & process) {
+                    std::string const& process)
+  {
     BOOST_CHECK_EQUAL(v.size(),
-                      (expectedSize<A, B, D>(wantVoid,
-                                             wantMV,
-                                             wantMany,
-                                             wantAmbiguous,
-                                             process)));
+                      (expectedSize<A, B, D>(
+                        wantVoid, wantMV, wantMany, wantAmbiguous, process)));
   }
 }
 
 void
-arttest::AssnsReaderTest::analyze(art::Event const & e)
+arttest::AssnsReaderTest::analyze(art::Event const& e)
 {
   std::size_t const vSize = (wantVoid_ == "ALL"s) ? 4ull : 3ull;
   std::size_t const mvVSize = (wantVoid_ != "NONE"s) ? 4ull : 3ull;
@@ -165,13 +162,15 @@ arttest::AssnsReaderTest::analyze(art::Event const & e)
     if (!process_.empty()) {
       BOOST_CHECK_EQUAL(hABV.provenance()->processName(), process_);
     }
-  } catch (art::Exception const & e) {
+  }
+  catch (art::Exception const& e) {
     if (!wantAmbiguous_ || wantVoid_ == "ALL") {
       throw; // Shouldn't have gotten here.
     } else { // Expected exception.
       BOOST_REQUIRE(e.categoryCode() == art::errors::ProductNotFound);
-      BOOST_CHECK_EQUAL(std::string(e.what()).substr(29,69), \
-                        "getByLabel: Found 2 products rather than one which match all criteria"s);
+      BOOST_CHECK_EQUAL(
+        std::string(e.what()).substr(29, 69),
+        "getByLabel: Found 2 products rather than one which match all criteria"s);
     }
   }
 
@@ -182,13 +181,15 @@ arttest::AssnsReaderTest::analyze(art::Event const & e)
     if (!process_.empty()) {
       BOOST_CHECK_EQUAL(hBAV.provenance()->processName(), process_);
     }
-  } catch (art::Exception const & e) {
+  }
+  catch (art::Exception const& e) {
     if (!wantAmbiguous_ || wantVoid_ == "ALL") {
       throw; // Shouldn't have gotten here.
     } else { // Expected exception.
       BOOST_REQUIRE(e.categoryCode() == art::errors::ProductNotFound);
-      BOOST_CHECK_EQUAL(std::string(e.what()).substr(29,69),             \
-                        "getByLabel: Found 2 products rather than one which match all criteria"s);
+      BOOST_CHECK_EQUAL(
+        std::string(e.what()).substr(29, 69),
+        "getByLabel: Found 2 products rather than one which match all criteria"s);
     }
   }
 
@@ -212,9 +213,11 @@ arttest::AssnsReaderTest::analyze(art::Event const & e)
       BOOST_CHECK_EQUAL(hmvBAV.provenance()->processName(), process_);
     }
     if (wantMany_) {
-      auto const hmvABVM = e.getValidHandle<AssnsABV_t>({inputLabel_, "manymapvec"s});
+      auto const hmvABVM =
+        e.getValidHandle<AssnsABV_t>({inputLabel_, "manymapvec"s});
       BOOST_CHECK_EQUAL(hmvABVM->size(), mvVSizeM);
-      auto const hmvBAVM = e.getValidHandle<AssnsBAV_t>({inputLabel_, "manymapvec"s});
+      auto const hmvBAVM =
+        e.getValidHandle<AssnsBAV_t>({inputLabel_, "manymapvec"s});
       BOOST_CHECK_EQUAL(hmvBAVM->size(), mvVSizeM);
       if (!process_.empty()) {
         BOOST_CHECK_EQUAL(hmvABVM.provenance()->processName(), process_);
@@ -227,31 +230,43 @@ arttest::AssnsReaderTest::analyze(art::Event const & e)
   BOOST_CHECK_EQUAL(e.getValidHandle<AssnsABX_t>(inputLabel_)->size(), 3ull);
   BOOST_CHECK_EQUAL(e.getValidHandle<AssnsBAX_t>(inputLabel_)->size(), 3ull);
   if (wantMany_) {
-    BOOST_CHECK_EQUAL(e.getValidHandle<AssnsABX_t>({inputLabel_, "many"s})->size(), 4ull);
-    BOOST_CHECK_EQUAL(e.getValidHandle<AssnsBAX_t>({inputLabel_, "many"s})->size(), 4ull);
+    BOOST_CHECK_EQUAL(
+      e.getValidHandle<AssnsABX_t>({inputLabel_, "many"s})->size(), 4ull);
+    BOOST_CHECK_EQUAL(
+      e.getValidHandle<AssnsBAX_t>({inputLabel_, "many"s})->size(), 4ull);
   }
   if (wantMV_) {
-    BOOST_CHECK_EQUAL(e.getValidHandle<AssnsABX_t>({inputLabel_, "mapvec"s})->size(), 3ull);
-    BOOST_CHECK_EQUAL(e.getValidHandle<AssnsBAX_t>({inputLabel_, "mapvec"s})->size(), 3ull);
+    BOOST_CHECK_EQUAL(
+      e.getValidHandle<AssnsABX_t>({inputLabel_, "mapvec"s})->size(), 3ull);
+    BOOST_CHECK_EQUAL(
+      e.getValidHandle<AssnsBAX_t>({inputLabel_, "mapvec"s})->size(), 3ull);
     if (wantMany_) {
-      BOOST_CHECK_EQUAL(e.getValidHandle<AssnsABX_t>({inputLabel_, "manymapvec"s})->size(), 4ull);
-      BOOST_CHECK_EQUAL(e.getValidHandle<AssnsBAX_t>({inputLabel_, "manymapvec"s})->size(), 4ull);
+      BOOST_CHECK_EQUAL(
+        e.getValidHandle<AssnsABX_t>({inputLabel_, "manymapvec"s})->size(),
+        4ull);
+      BOOST_CHECK_EQUAL(
+        e.getValidHandle<AssnsBAX_t>({inputLabel_, "manymapvec"s})->size(),
+        4ull);
     }
   }
 
   // Check expected behavior of getManyByType().
   std::vector<art::Handle<AssnsABV_t>> hSet1;
   e.getManyByType(hSet1);
-  checkExpectedSize(hSet1, wantVoid_, wantMV_, wantMany_, wantAmbiguous_, process_);
+  checkExpectedSize(
+    hSet1, wantVoid_, wantMV_, wantMany_, wantAmbiguous_, process_);
   std::vector<art::Handle<AssnsBAV_t>> hSet2;
   e.getManyByType(hSet2);
-  checkExpectedSize(hSet2, wantVoid_, wantMV_, wantMany_, wantAmbiguous_, process_);
+  checkExpectedSize(
+    hSet2, wantVoid_, wantMV_, wantMany_, wantAmbiguous_, process_);
   std::vector<art::Handle<AssnsABX_t>> hSet3;
   e.getManyByType(hSet3);
-  checkExpectedSize(hSet3, wantVoid_, wantMV_, wantMany_, wantAmbiguous_, process_);
+  checkExpectedSize(
+    hSet3, wantVoid_, wantMV_, wantMany_, wantAmbiguous_, process_);
   std::vector<art::Handle<AssnsBAX_t>> hSet4;
   e.getManyByType(hSet4);
-  checkExpectedSize(hSet4, wantVoid_, wantMV_, wantMany_, wantAmbiguous_, process_);
+  checkExpectedSize(
+    hSet4, wantVoid_, wantMV_, wantMany_, wantAmbiguous_, process_);
 }
 
 DEFINE_ART_MODULE(arttest::AssnsReaderTest)

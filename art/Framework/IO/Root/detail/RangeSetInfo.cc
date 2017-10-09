@@ -1,9 +1,9 @@
 #include "art/Framework/IO/Root/detail/RangeSetInfo.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 
-art::detail::RangeSetInfo::RangeSetInfo(RunNumber_t const r, std::vector<EventRange>&& ers)
-  : run{r}
-  , ranges{std::move(ers)}
+art::detail::RangeSetInfo::RangeSetInfo(RunNumber_t const r,
+                                        std::vector<EventRange>&& ers)
+  : run{r}, ranges{std::move(ers)}
 {}
 
 bool
@@ -26,9 +26,7 @@ art::detail::RangeSetInfo::update(RangeSetInfo&& rsi, bool compact)
   // default), then append the accumulated ranges into the
   // already-existing container.  Bail out early.
   if (!compact) {
-    std::move(rsi.ranges.begin(),
-              rsi.ranges.end(),
-              std::back_inserter(ranges));
+    std::move(rsi.ranges.begin(), rsi.ranges.end(), std::back_inserter(ranges));
     return;
   }
 
@@ -38,8 +36,10 @@ art::detail::RangeSetInfo::update(RangeSetInfo&& rsi, bool compact)
     // If compact option is chosen, there will be *at most*
     // one entry in the 'ranges' container that corresponds to
     // this subrun.
-    auto found = std::find_if(begin(ranges), end(ranges),
-                              [subRunN](auto const& er){ return er.subRun() == subRunN; });
+    auto found =
+      std::find_if(begin(ranges), end(ranges), [subRunN](auto const& er) {
+        return er.subRun() == subRunN;
+      });
     if (found == end(ranges)) {
       ranges.push_back(std::move(range));
       continue;

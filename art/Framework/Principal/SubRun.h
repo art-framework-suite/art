@@ -31,7 +31,6 @@ namespace art {
 
 class art::SubRun final : private art::DataViewImpl {
 public:
-
   using Base = DataViewImpl;
 
   SubRun(SubRunPrincipal const& srp,
@@ -39,12 +38,32 @@ public:
          cet::exempt_ptr<Consumer> consumer,
          RangeSet const& rsForPuttingProducts = RangeSet::invalid());
 
-  SubRunNumber_t subRun() const {return aux_.subRun();}
-  RunNumber_t run() const {return aux_.run();}
-  SubRunID id() const { return aux_.id(); }
+  SubRunNumber_t
+  subRun() const
+  {
+    return aux_.subRun();
+  }
+  RunNumber_t
+  run() const
+  {
+    return aux_.run();
+  }
+  SubRunID
+  id() const
+  {
+    return aux_.id();
+  }
 
-  Timestamp const& beginTime() const {return aux_.beginTime();}
-  Timestamp const& endTime() const {return aux_.endTime();}
+  Timestamp const&
+  beginTime() const
+  {
+    return aux_.beginTime();
+  }
+  Timestamp const&
+  endTime() const
+  {
+    return aux_.endTime();
+  }
 
   // Retrieve a product
   using Base::get;
@@ -61,29 +80,41 @@ public:
   Run const& getRun() const;
 
   // Put a new product
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&);
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, FullSemantic<Level::SubRun>);
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, FragmentSemantic<Level::SubRun>);
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, RangedFragmentSemantic<Level::SubRun>);
+  template <typename PROD>
+  ProductID put(std::unique_ptr<PROD>&&);
+  template <typename PROD>
+  ProductID put(std::unique_ptr<PROD>&&, FullSemantic<Level::SubRun>);
+  template <typename PROD>
+  ProductID put(std::unique_ptr<PROD>&&, FragmentSemantic<Level::SubRun>);
+  template <typename PROD>
+  ProductID put(std::unique_ptr<PROD>&&, RangedFragmentSemantic<Level::SubRun>);
 
   // Put a new product with an instance name
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName);
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName, FullSemantic<Level::SubRun>);
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName, FragmentSemantic<Level::SubRun>);
-  template <typename PROD> ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName, RangedFragmentSemantic<Level::SubRun>);
+  template <typename PROD>
+  ProductID put(std::unique_ptr<PROD>&&, std::string const& instanceName);
+  template <typename PROD>
+  ProductID put(std::unique_ptr<PROD>&&,
+                std::string const& instanceName,
+                FullSemantic<Level::SubRun>);
+  template <typename PROD>
+  ProductID put(std::unique_ptr<PROD>&&,
+                std::string const& instanceName,
+                FragmentSemantic<Level::SubRun>);
+  template <typename PROD>
+  ProductID put(std::unique_ptr<PROD>&&,
+                std::string const& instanceName,
+                RangedFragmentSemantic<Level::SubRun>);
 
   // Expert-level
-  using Base::removeCachedProduct;
   using Base::processHistory;
+  using Base::removeCachedProduct;
 
-  EDProductGetter const*
-  productGetter(ProductID const pid) const;
+  EDProductGetter const* productGetter(ProductID const pid) const;
 
   template <typename T>
   using HandleT = Handle<T>;
 
 private:
-
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any
   // alternative is not great either.  Putting it into the
@@ -95,12 +126,11 @@ private:
 
   void commit_(SubRunPrincipal&);
 
-  ///Put a new product with a 'product instance name' and a 'range set'
+  /// Put a new product with a 'product instance name' and a 'range set'
   template <typename PROD>
-  art::ProductID
-  put_(std::unique_ptr<PROD>&& product,
-       std::string const& productInstanceName,
-       RangeSet const& rs);
+  art::ProductID put_(std::unique_ptr<PROD>&& product,
+                      std::string const& productInstanceName,
+                      RangeSet const& rs);
 
   Principal const& principal_;
   SubRunAuxiliary const& aux_;
@@ -163,7 +193,8 @@ art::SubRun::put(std::unique_ptr<PROD>&& product,
                  std::string const& productInstanceName,
                  FullSemantic<Level::SubRun>)
 {
-  return put_<PROD>(std::move(product), productInstanceName, RangeSet::forSubRun(id()));
+  return put_<PROD>(
+    std::move(product), productInstanceName, RangeSet::forSubRun(id()));
 }
 
 template <typename PROD>
@@ -172,12 +203,13 @@ art::SubRun::put(std::unique_ptr<PROD>&& product,
                  std::string const& productInstanceName,
                  FragmentSemantic<Level::SubRun>)
 {
-  static_assert(detail::CanBeAggregated<PROD>::value,
-                "\n\n"
-                "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
-                "           must be able to be aggregated. Please add the appropriate\n"
-                "              void aggregate(T const&)\n"
-                "           function to your class, or contact artists@fnal.gov.\n");
+  static_assert(
+    detail::CanBeAggregated<PROD>::value,
+    "\n\n"
+    "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
+    "           must be able to be aggregated. Please add the appropriate\n"
+    "              void aggregate(T const&)\n"
+    "           function to your class, or contact artists@fnal.gov.\n");
 
   if (productRangeSet_.collapse().is_full_subRun()) {
     throw art::Exception(art::errors::ProductPutFailure, "SubRun::put")
@@ -198,12 +230,13 @@ art::SubRun::put(std::unique_ptr<PROD>&& product,
                  std::string const& productInstanceName,
                  RangedFragmentSemantic<Level::SubRun> semantic)
 {
-  static_assert(detail::CanBeAggregated<PROD>::value,
-                "\n\n"
-                "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
-                "           must be able to be aggregated. Please add the appropriate\n"
-                "              void aggregate(T const&)\n"
-                "           function to your class, or contact artists@fnal.gov.\n");
+  static_assert(
+    detail::CanBeAggregated<PROD>::value,
+    "\n\n"
+    "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
+    "           must be able to be aggregated. Please add the appropriate\n"
+    "              void aggregate(T const&)\n"
+    "           function to your class, or contact artists@fnal.gov.\n");
   if (semantic.rs.collapse().is_full_subRun()) {
     throw Exception{errors::ProductPutFailure, "Run::put"}
       << "\nCannot put a product corresponding to a full SubRun using\n"
@@ -213,7 +246,6 @@ art::SubRun::put(std::unique_ptr<PROD>&& product,
   }
   return put_<PROD>(std::move(product), productInstanceName, semantic.rs);
 }
-
 
 template <typename PROD>
 art::ProductID
@@ -226,7 +258,8 @@ art::SubRun::put_(std::unique_ptr<PROD>&& product,
     throw art::Exception{art::errors::NullPointerError, "SubRun::put"}
       << "\nA null unique_ptr was passed to 'put'.\n"
       << "The pointer is of type " << tid << ".\n"
-      << "The specified productInstanceName was '" << productInstanceName << "'.\n";
+      << "The specified productInstanceName was '" << productInstanceName
+      << "'.\n";
   }
 
   if (!rs.is_valid()) {
@@ -238,16 +271,16 @@ art::SubRun::put_(std::unique_ptr<PROD>&& product,
   auto const& pd = getProductDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName, SupportsView<PROD>::value},
-                                      PMValue{std::move(wp), pd, rs});
+  auto result = putProducts().emplace(
+    TypeLabel{tid, productInstanceName, SupportsView<PROD>::value},
+    PMValue{std::move(wp), pd, rs});
   if (!result.second) {
     throw art::Exception{art::errors::ProductPutFailure, "SubRun::put"}
       << "\nAttempt to put multiple products with the\n"
       << "following description onto the SubRun.\n"
       << "Products must be unique per SubRun.\n"
       << "=================================\n"
-      << pd
-      << "=================================\n";
+      << pd << "=================================\n";
   }
 
   return pd.productID();

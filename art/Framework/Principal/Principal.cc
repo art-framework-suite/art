@@ -34,17 +34,26 @@ namespace {
     friend ReverseIteration reverse_iteration<>(T const&);
     T const& t_;
     ReverseIteration(T const& t) : t_{t} {};
+
   public:
-    auto begin() const { return crbegin(t_); }
-    auto end() const { return crend(t_); }
+    auto
+    begin() const
+    {
+      return crbegin(t_);
+    }
+    auto
+    end() const
+    {
+      return crend(t_);
+    }
   };
 
   template <typename T>
-  ReverseIteration<T> reverse_iteration(T const& t)
+  ReverseIteration<T>
+  reverse_iteration(T const& t)
   {
     return ReverseIteration<T>{t};
   }
-
 }
 
 Principal::Principal(ProcessConfiguration const& pc,
@@ -62,9 +71,9 @@ Principal::Principal(ProcessConfiguration const& pc,
   }
   assert(!ProcessHistoryRegistry::empty());
   ProcessHistory ph;
-  bool const found [[gnu::unused]] {ProcessHistoryRegistry::get(hist, ph)};
+  bool const found[[gnu::unused]]{ProcessHistoryRegistry::get(hist, ph)};
   assert(found);
-  std::swap(processHistory_ , ph);
+  std::swap(processHistory_, ph);
 }
 
 void
@@ -77,8 +86,7 @@ Principal::addToProcessHistory()
   for (auto const& val : processHistory_) {
     if (processName == val.processName()) {
       throw art::Exception(errors::Configuration)
-        << "The process name "
-        << processName
+        << "The process name " << processName
         << " was previously used on these products.\n"
         << "Please modify the configuration file to use a "
         << "distinct process name.\n";
@@ -104,21 +112,17 @@ Principal::getBySelector(WrappedTypeID const& wrapped,
 {
   auto const& results = findGroupsForProduct(wrapped, sel, true);
   if (results.empty()) {
-    auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound);
+    auto whyFailed =
+      std::make_shared<art::Exception>(art::errors::ProductNotFound);
     *whyFailed << "getBySelector: Found zero products matching all criteria\n"
-               << "Looking for type: "
-               << wrapped.product_type
-               << "\n";
+               << "Looking for type: " << wrapped.product_type << "\n";
     return GroupQueryResult{whyFailed};
   }
   if (results.size() > 1) {
     throw art::Exception(art::errors::ProductNotFound)
-      << "getBySelector: Found "
-      << results.size()
+      << "getBySelector: Found " << results.size()
       << " products rather than one which match all criteria\n"
-      << "Looking for type: "
-      << wrapped.product_type
-      << "\n";
+      << "Looking for type: " << wrapped.product_type << "\n";
   }
   return results[0];
 }
@@ -129,7 +133,8 @@ Principal::getByProductID(ProductID const pid) const
   if (auto const g = getGroupForPtr(pid)) {
     return GroupQueryResult{g};
   }
-  auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound, "InvalidID");
+  auto whyFailed =
+    std::make_shared<art::Exception>(art::errors::ProductNotFound, "InvalidID");
   *whyFailed << "getGroup: no product with given product id: " << pid << "\n";
   return GroupQueryResult{whyFailed};
 }
@@ -145,16 +150,12 @@ Principal::getByLabel(WrappedTypeID const& wrapped,
                      ProcessNameSelector{processName}};
   auto const& results = findGroupsForProduct(wrapped, sel, true);
   if (results.empty()) {
-    auto whyFailed = std::make_shared<art::Exception>(art::errors::ProductNotFound);
+    auto whyFailed =
+      std::make_shared<art::Exception>(art::errors::ProductNotFound);
     *whyFailed << "getByLabel: Found zero products matching all criteria\n"
-               << "Looking for type: "
-               << wrapped.product_type
-               << "\n"
-               << "Looking for module label: "
-               << label
-               << "\n"
-               << "Looking for productInstanceName: "
-               << productInstanceName
+               << "Looking for type: " << wrapped.product_type << "\n"
+               << "Looking for module label: " << label << "\n"
+               << "Looking for productInstanceName: " << productInstanceName
                << "\n"
                << (processName.empty() ? "" : "Looking for process: ")
                << processName;
@@ -162,28 +163,19 @@ Principal::getByLabel(WrappedTypeID const& wrapped,
   }
   if (results.size() > 1) {
     throw art::Exception(art::errors::ProductNotFound)
-      << "getByLabel: Found "
-      << results.size()
+      << "getByLabel: Found " << results.size()
       << " products rather than one which match all criteria\n"
-      << "Looking for type: "
-      << wrapped.product_type
-      << "\n"
-      << "Looking for module label: "
-      << label
-      << "\n"
-      << "Looking for productInstanceName: "
-      << productInstanceName
-      << "\n"
-      << (processName.empty() ? "" : "Looking for process: ")
-      << processName
+      << "Looking for type: " << wrapped.product_type << "\n"
+      << "Looking for module label: " << label << "\n"
+      << "Looking for productInstanceName: " << productInstanceName << "\n"
+      << (processName.empty() ? "" : "Looking for process: ") << processName
       << "\n";
   }
   return results[0];
 }
 
 Principal::GroupQueryResultVec
-Principal::getMany(WrappedTypeID const& wrapped,
-                   SelectorBase const& sel) const
+Principal::getMany(WrappedTypeID const& wrapped, SelectorBase const& sel) const
 {
   return findGroupsForProduct(wrapped, sel, false);
 }
@@ -206,7 +198,8 @@ Principal::getMatchingSequence(SelectorBase const& selector) const
 
   // Find groups from current process
   if (producedProducts_) {
-    if (findGroups(producedProducts_->viewLookup, selector, results, true) != 0) {
+    if (findGroups(producedProducts_->viewLookup, selector, results, true) !=
+        0) {
       return results;
     }
   }
@@ -276,7 +269,8 @@ Principal::removeCachedProduct(ProductID const pid) const
     }
   }
   throw Exception(errors::ProductNotFound, "removeCachedProduct")
-    << "Attempt to remove unknown product corresponding to ProductID: " << pid << '\n'
+    << "Attempt to remove unknown product corresponding to ProductID: " << pid
+    << '\n'
     << "Please contact artists@fnal.gov\n";
 }
 
@@ -293,18 +287,24 @@ Principal::findGroupsForProduct(WrappedTypeID const& wrapped,
     auto const& lookup = producedProducts_->productLookup;
     auto it = lookup.find(wrapped.product_type.friendlyClassName());
     if (it != lookup.end()) {
-      ret += findGroups(it->second, selector, results, stopIfProcessHasMatch, wrapped.wrapped_product_type);
+      ret += findGroups(it->second,
+                        selector,
+                        results,
+                        stopIfProcessHasMatch,
+                        wrapped.wrapped_product_type);
     }
   }
 
   // Look through currently opened input files
-  ret += findGroupsFromInputFile(wrapped, selector, results, stopIfProcessHasMatch);
+  ret +=
+    findGroupsFromInputFile(wrapped, selector, results, stopIfProcessHasMatch);
   if (ret) {
     return results;
   }
 
   for (auto const& sp : secondaryPrincipals_) {
-    if (sp->findGroupsFromInputFile(wrapped, selector, results, stopIfProcessHasMatch)) {
+    if (sp->findGroupsFromInputFile(
+          wrapped, selector, results, stopIfProcessHasMatch)) {
       return results;
     }
   }
@@ -322,7 +322,8 @@ Principal::findGroupsForProduct(WrappedTypeID const& wrapped,
     }
     assert(!secondaryPrincipals_.empty());
     auto& new_sp = secondaryPrincipals_.back();
-    if (new_sp->findGroupsFromInputFile(wrapped, selector, results, stopIfProcessHasMatch)) {
+    if (new_sp->findGroupsFromInputFile(
+          wrapped, selector, results, stopIfProcessHasMatch)) {
       return results;
     }
   }
@@ -343,7 +344,11 @@ Principal::findGroupsFromInputFile(WrappedTypeID const& wrapped,
   if (it == lookup.end()) {
     return 0;
   }
-  return findGroups(it->second, selector, results, stopIfProcessHasMatch, wrapped.wrapped_product_type);
+  return findGroups(it->second,
+                    selector,
+                    results,
+                    stopIfProcessHasMatch,
+                    wrapped.wrapped_product_type);
 }
 
 std::size_t
@@ -351,7 +356,7 @@ Principal::findGroups(ProcessLookup const& pl,
                       SelectorBase const& sel,
                       GroupQueryResultVec& res,
                       bool const stopIfProcessHasMatch,
-                      TypeID const wanted_wrapper/*=TypeID()*/) const
+                      TypeID const wanted_wrapper /*=TypeID()*/) const
 {
   // Loop over processes in reverse time order.  Sometimes we want to
   // stop after we find a process with matches so check for that at
@@ -362,7 +367,8 @@ Principal::findGroups(ProcessLookup const& pl,
     if (it != pl.end()) {
       found += findGroupsForProcess(it->second, sel, res, wanted_wrapper);
     }
-    if (stopIfProcessHasMatch && !res.empty())  break;
+    if (stopIfProcessHasMatch && !res.empty())
+      break;
   }
   return found;
 }
@@ -387,8 +393,7 @@ Principal::findGroupsForProcess(std::vector<ProductID> const& vpid,
     }
     if (wanted_wrapper) {
       group->resolveProduct(wanted_wrapper);
-    }
-    else {
+    } else {
       group->resolveProduct(group->producedWrapperType());
     }
     // If the product is a dummy filler, group will now be marked unavailable.
@@ -410,7 +415,8 @@ Principal::deferredGetter_(ProductID const pid) const
   if (it != deferredGetters_.end()) {
     return it->second.get();
   }
-  deferredGetters_[pid] = std::make_shared<DeferredProductGetter>(cet::exempt_ptr<Principal const>{this}, pid);
+  deferredGetters_[pid] = std::make_shared<DeferredProductGetter>(
+    cet::exempt_ptr<Principal const>{this}, pid);
   return deferredGetters_[pid].get();
 }
 
@@ -423,28 +429,26 @@ Principal::getForOutput(ProductID const pid, bool const resolveProd) const
   }
 
   auto const& pd = g->productDescription();
-  if (resolveProd
-      &&
-      ((g->anyProduct() == nullptr) || !g->anyProduct()->isPresent())
-      &&
-      (presentFromSource(pid) || pd.produced())
-      &&
+  if (resolveProd &&
+      ((g->anyProduct() == nullptr) || !g->anyProduct()->isPresent()) &&
+      (presentFromSource(pid) || pd.produced()) &&
       productstatus::present(g->productProvenancePtr()->productStatus())) {
     throw Exception(errors::LogicError, "Principal::getForOutput\n")
       << "A product with a status of 'present' is not actually present.\n"
-      << "The branch name is "
-      << g->productDescription().branchName()
+      << "The branch name is " << g->productDescription().branchName()
       << "\nContact a framework developer.\n";
   }
   if (!g->anyProduct() && !g->productProvenancePtr()) {
     return OutputHandle{g->rangeOfValidity()};
   }
-  return OutputHandle{g->anyProduct(), &g->productDescription(), g->productProvenancePtr(), g->rangeOfValidity()};
+  return OutputHandle{g->anyProduct(),
+                      &g->productDescription(),
+                      g->productProvenancePtr(),
+                      g->rangeOfValidity()};
 }
 
 cet::exempt_ptr<Group const>
-Principal::getResolvedGroup(ProductID const pid,
-                            bool const resolveProd) const
+Principal::getResolvedGroup(ProductID const pid, bool const resolveProd) const
 {
   // FIXME: This reproduces the behavior of the original getGroup with
   // resolveProv == false but I am not sure this is correct in the

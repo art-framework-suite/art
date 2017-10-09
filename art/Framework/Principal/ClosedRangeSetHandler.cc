@@ -13,13 +13,13 @@ namespace {
 
 namespace art {
 
-  ClosedRangeSetHandler::ClosedRangeSetHandler(RangeSet const& rs)
-    : ranges_{rs}
+  ClosedRangeSetHandler::ClosedRangeSetHandler(RangeSet const& rs) : ranges_{rs}
   {}
 
   RangeSet
-  ClosedRangeSetHandler::do_getSeenRanges() const {
-    RangeSet tmp {ranges_.run()};
+  ClosedRangeSetHandler::do_getSeenRanges() const
+  {
+    RangeSet tmp{ranges_.run()};
     tmp.assign_ranges(begin(), rsIter_);
     return tmp;
   }
@@ -59,9 +59,9 @@ namespace art {
   void
   ClosedRangeSetHandler::do_rebase()
   {
-    std::vector<EventRange> rebasedRanges (rsIter_, end());
-    RangeSet tmpRS {ranges_.run(), rebasedRanges};
-    ClosedRangeSetHandler tmp {tmpRS};
+    std::vector<EventRange> rebasedRanges(rsIter_, end());
+    RangeSet tmpRS{ranges_.run(), rebasedRanges};
+    ClosedRangeSetHandler tmp{tmpRS};
     std::swap(*this, tmp);
   }
 
@@ -72,8 +72,8 @@ namespace art {
       return end();
 
     auto const sr = rsIter_->subRun();
-    auto pos = std::find_if(rsIter_, end(), [sr](auto const& range){ return range.subRun() != sr; } );
+    auto pos = std::find_if(
+      rsIter_, end(), [sr](auto const& range) { return range.subRun() != sr; });
     return pos;
   }
-
 }

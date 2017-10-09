@@ -7,11 +7,13 @@
 
 namespace art {
   namespace detail {
-    RangeSet
-    rangeSetFromFileIndex(FileIndex const& fileIndex, RunID runID, bool compactRanges);
+    RangeSet rangeSetFromFileIndex(FileIndex const& fileIndex,
+                                   RunID runID,
+                                   bool compactRanges);
 
-    RangeSet
-    rangeSetFromFileIndex(FileIndex const& fileIndex, SubRunID subRunID, bool compactRanges);
+    RangeSet rangeSetFromFileIndex(FileIndex const& fileIndex,
+                                   SubRunID subRunID,
+                                   bool compactRanges);
   }
 }
 

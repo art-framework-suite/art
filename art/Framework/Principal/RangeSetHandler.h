@@ -13,16 +13,33 @@ namespace art {
   public:
     virtual ~RangeSetHandler() noexcept = default;
 
-    RangeSet seenRanges() const { return do_getSeenRanges(); }
+    RangeSet
+    seenRanges() const
+    {
+      return do_getSeenRanges();
+    }
 
-    void update(EventID const& id, bool const lastInSubRun)
+    void
+    update(EventID const& id, bool const lastInSubRun)
     {
       do_update(id, lastInSubRun);
     }
 
-    void flushRanges() { do_flushRanges(); }
-    void maybeSplitRange() { do_maybeSplitRange(); }
-    void rebase() { do_rebase(); }
+    void
+    flushRanges()
+    {
+      do_flushRanges();
+    }
+    void
+    maybeSplitRange()
+    {
+      do_maybeSplitRange();
+    }
+    void
+    rebase()
+    {
+      do_rebase();
+    }
 
   private:
     virtual RangeSet do_getSeenRanges() const = 0;
@@ -32,7 +49,6 @@ namespace art {
     virtual void do_maybeSplitRange() = 0;
     virtual void do_rebase() = 0;
   };
-
 }
 
 #endif /* art_Framework_Principal_RangeSetHandler_h */

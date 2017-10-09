@@ -30,13 +30,19 @@ public:
   using Auxiliary = ResultsAuxiliary;
   static constexpr BranchType branch_type = ResultsAuxiliary::branch_type;
 
-  ResultsPrincipal(ResultsAuxiliary const&,
-                   ProcessConfiguration const&,
-                   cet::exempt_ptr<ProductTable const> presentProducts,
-                   std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
-                   std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>());
+  ResultsPrincipal(
+    ResultsAuxiliary const&,
+    ProcessConfiguration const&,
+    cet::exempt_ptr<ProductTable const> presentProducts,
+    std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
+    std::unique_ptr<DelayedReader>&& rtrv =
+      std::make_unique<NoDelayedReader>());
 
-  ResultsAuxiliary const& aux() const { return aux_; }
+  ResultsAuxiliary const&
+  aux() const
+  {
+    return aux_;
+  }
 
   void put(std::unique_ptr<EDProduct>&&,
            BranchDescription const&,
@@ -45,10 +51,13 @@ public:
   void fillGroup(BranchDescription const&) override;
 
   BranchType branchType() const override;
-  RangeSet seenRanges() const override { return RangeSet::invalid(); }
+  RangeSet
+  seenRanges() const override
+  {
+    return RangeSet::invalid();
+  }
 
 private:
-
   ProcessHistoryID const& processHistoryID() const override;
 
   void setProcessHistoryID(ProcessHistoryID const& phid) override;

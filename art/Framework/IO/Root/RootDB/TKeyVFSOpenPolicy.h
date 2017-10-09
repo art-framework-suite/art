@@ -10,7 +10,6 @@ namespace art {
 
   class TKeyVFSOpenPolicy {
   public:
-
     explicit TKeyVFSOpenPolicy(TFile* const tfile,
                                int const flags = SQLITE_OPEN_READONLY);
 

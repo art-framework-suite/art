@@ -49,14 +49,13 @@ namespace art {
 
 class art::Worker {
 public:
-  enum State {Ready, Pass, Fail, Working, Exception};
+  enum State { Ready, Pass, Fail, Working, Exception };
 
   Worker(ModuleDescription const& iMD, WorkerParams const& iWP);
   virtual ~Worker() noexcept = default;
 
   template <typename T>
-  bool doWork(typename T::MyPrincipal&,
-              CurrentProcessingContext const* cpc);
+  bool doWork(typename T::MyPrincipal&, CurrentProcessingContext const* cpc);
   void beginJob();
   void endJob();
   void respondToOpenInputFile(FileBlock const& fb);
@@ -64,29 +63,70 @@ public:
   void respondToOpenOutputFiles(FileBlock const& fb);
   void respondToCloseOutputFiles(FileBlock const& fb);
 
-  void reset() { state_ = Ready; }
+  void
+  reset()
+  {
+    state_ = Ready;
+  }
 
-  ModuleDescription const& description() const {return md_;}
-  ModuleDescription const* descPtr() const {return &md_; }
-  ///The signals are required to live longer than the last call to 'doWork'
+  ModuleDescription const&
+  description() const
+  {
+    return md_;
+  }
+  ModuleDescription const*
+  descPtr() const
+  {
+    return &md_;
+  }
+  /// The signals are required to live longer than the last call to 'doWork'
   /// this was done to improve performance based on profiling
   void setActivityRegistry(cet::exempt_ptr<ActivityRegistry> areg);
 
-  void clearCounters()
+  void
+  clearCounters()
   {
     counts_ = CountingStatistics{};
   }
 
-  std::size_t timesRun() const { return counts_.times<stats::Run>(); }
-  std::size_t timesVisited() const { return counts_.times<stats::Visited>(); }
-  std::size_t timesPassed() const { return counts_.times<stats::Passed>(); }
-  std::size_t timesFailed() const { return counts_.times<stats::Failed>(); }
-  std::size_t timesExcept() const { return counts_.times<stats::ExceptionThrown>(); }
-  State state() const { return state_; }
+  std::size_t
+  timesRun() const
+  {
+    return counts_.times<stats::Run>();
+  }
+  std::size_t
+  timesVisited() const
+  {
+    return counts_.times<stats::Visited>();
+  }
+  std::size_t
+  timesPassed() const
+  {
+    return counts_.times<stats::Passed>();
+  }
+  std::size_t
+  timesFailed() const
+  {
+    return counts_.times<stats::Failed>();
+  }
+  std::size_t
+  timesExcept() const
+  {
+    return counts_.times<stats::ExceptionThrown>();
+  }
+  State
+  state() const
+  {
+    return state_;
+  }
 
   virtual bool modifiesEvent() const = 0;
 
-  std::string const& label() const { return md_.moduleLabel(); }
+  std::string const&
+  label() const
+  {
+    return md_.moduleLabel();
+  }
 
 protected:
   virtual std::string workerType() const = 0;
@@ -105,7 +145,6 @@ protected:
   virtual void implEndJob() = 0;
 
 private:
-
   template <BranchActionType>
   struct ImplDoWork;
 
@@ -119,25 +158,24 @@ private:
 
   ModuleDescription md_;
   ActionTable const& actions_;
-  std::shared_ptr<art::Exception> cached_exception_{nullptr}; // if state is 'exception'
+  std::shared_ptr<art::Exception> cached_exception_{
+    nullptr}; // if state is 'exception'
   cet::exempt_ptr<ActivityRegistry> actReg_{nullptr};
 };
 
 namespace art {
   namespace detail {
     template <typename T>
-    cet::exception&
-    exceptionContext(ModuleDescription const& md,
-                     T const& ip,
-                     cet::exception& ex);
+    cet::exception& exceptionContext(ModuleDescription const& md,
+                                     T const& ip,
+                                     cet::exception& ex);
   }
 
   template <>
   struct Worker::ImplDoWork<BranchActionBegin> {
     template <typename PRINCIPAL>
-    static bool invoke(Worker* const w,
-                       PRINCIPAL& p,
-                       CurrentProcessingContext const* cpc)
+    static bool
+    invoke(Worker* const w, PRINCIPAL& p, CurrentProcessingContext const* cpc)
     {
       return w->implDoBegin(p, cpc);
     }
@@ -146,9 +184,8 @@ namespace art {
   template <>
   struct Worker::ImplDoWork<BranchActionEnd> {
     template <typename PRINCIPAL>
-    static bool invoke(Worker* const w,
-                       PRINCIPAL& p,
-                       CurrentProcessingContext const* cpc)
+    static bool
+    invoke(Worker* const w, PRINCIPAL& p, CurrentProcessingContext const* cpc)
     {
       return w->implDoEnd(p, cpc);
     }
@@ -157,14 +194,12 @@ namespace art {
   template <>
   struct Worker::ImplDoWork<BranchActionProcess> {
     template <typename PRINCIPAL>
-    static bool invoke(Worker* const w,
-                       PRINCIPAL& p,
-                       CurrentProcessingContext const* cpc)
+    static bool
+    invoke(Worker* const w, PRINCIPAL& p, CurrentProcessingContext const* cpc)
     {
       return w->implDoProcess(p, cpc, w->counts_);
     }
   };
-
 }
 
 template <typename T>
@@ -173,37 +208,40 @@ art::detail::exceptionContext(ModuleDescription const& iMD,
                               T const& ip,
                               cet::exception& iEx)
 {
-  iEx << iMD.moduleName() << "/" << iMD.moduleLabel()
-      << " " << ip.id() << "\n";
+  iEx << iMD.moduleName() << "/" << iMD.moduleLabel() << " " << ip.id() << "\n";
   return iEx;
 }
 
 template <typename T>
-bool art::Worker::doWork(typename T::MyPrincipal& p,
-                         CurrentProcessingContext const* cpc)
+bool
+art::Worker::doWork(typename T::MyPrincipal& p,
+                    CurrentProcessingContext const* cpc)
 {
   MaybeIncrementCounts<T::level, decltype(counts_)> counts{counts_};
   counts.template increment<stats::Visited>();
 
-  switch(state_) {
-  case Ready: break;
-  case Pass: return true;
-  case Fail: return false;
-  case Exception:
-    {
+  switch (state_) {
+    case Ready:
+      break;
+    case Pass:
+      return true;
+    case Fail:
+      return false;
+    case Exception: {
       // Rethrow the cached exception again. It seems impossible to
       // get here a second time unless a cet::exception has been
       // thrown previously.
       mf::LogWarning("repeat")
         << "A module has been invoked a second time even though"
-        " it caught an exception during the previous invocation."
-        "\nThis may be an indication of a configuration problem.\n";
+           " it caught an exception during the previous invocation."
+           "\nThis may be an indication of a configuration problem.\n";
       throw *cached_exception_;
     }
-  case Working: break; // See below.
+    case Working:
+      break; // See below.
   }
 
-  bool rc {false};
+  bool rc{false};
   try {
     if (state_ == Working) {
       // Not part of the switch statement above because we want the
@@ -234,54 +272,55 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     // Get the action corresponding to this exception.  However, if
     // processing something other than an event (e.g. run, subRun)
     // always rethrow.
-    actions::ActionCodes action {T::level == Level::Event ? actions_.find(e.root_cause()) : actions::Rethrow};
+    actions::ActionCodes action{T::level == Level::Event ?
+                                  actions_.find(e.root_cause()) :
+                                  actions::Rethrow};
 
     // If we are processing an endPath, treat SkipEvent or FailPath as
     // FailModule, so any subsequent OutputModules are still run.
     if (cpc && cpc->isEndPath()) {
-      if (action == actions::SkipEvent || action == actions::FailPath) action = actions::FailModule;
+      if (action == actions::SkipEvent || action == actions::FailPath)
+        action = actions::FailModule;
     }
 
-    switch(action) {
-    case actions::IgnoreCompletely: {
-      rc=true;
-      counts.template increment<stats::Passed>();
-      state_ = Pass;
-      mf::LogWarning("IgnoreCompletely")
-        << "Module ignored an exception\n"
-        << e.what();
-      break;
-    }
-    case actions::FailModule: {
-      rc=true;
-      mf::LogWarning("FailModule")
-        << "Module failed due to an exception\n"
-        << e.what();
-      counts.template increment<stats::Failed>();
-      state_ = Fail;
-      break;
-    }
-    default: {
-      // We should not need to include the event/run/module names in
-      // the exception because the error logger will pick this up
-      // automatically.  I'm leaving it in until this is verified.
+    switch (action) {
+      case actions::IgnoreCompletely: {
+        rc = true;
+        counts.template increment<stats::Passed>();
+        state_ = Pass;
+        mf::LogWarning("IgnoreCompletely") << "Module ignored an exception\n"
+                                           << e.what();
+        break;
+      }
+      case actions::FailModule: {
+        rc = true;
+        mf::LogWarning("FailModule") << "Module failed due to an exception\n"
+                                     << e.what();
+        counts.template increment<stats::Failed>();
+        state_ = Fail;
+        break;
+      }
+      default: {
+        // We should not need to include the event/run/module names in
+        // the exception because the error logger will pick this up
+        // automatically.  I'm leaving it in until this is verified.
 
-      // here we simply add a small amount of data to the exception to
-      // add some context, we could have rethrown it as something else
-      // and embedded with this exception as an argument to the
-      // constructor.
-      counts.template increment<stats::ExceptionThrown>();
-      state_ = Exception;
-      e << "cet::exception going through module ";
-      detail::exceptionContext(md_, p, e);
-      if (auto edmEx = dynamic_cast<art::Exception*>(&e)) {
-        cached_exception_ = std::make_shared<art::Exception>(*edmEx);
+        // here we simply add a small amount of data to the exception to
+        // add some context, we could have rethrown it as something else
+        // and embedded with this exception as an argument to the
+        // constructor.
+        counts.template increment<stats::ExceptionThrown>();
+        state_ = Exception;
+        e << "cet::exception going through module ";
+        detail::exceptionContext(md_, p, e);
+        if (auto edmEx = dynamic_cast<art::Exception*>(&e)) {
+          cached_exception_ = std::make_shared<art::Exception>(*edmEx);
+        } else {
+          cached_exception_ = std::make_shared<art::Exception>(
+            errors::OtherArt, std::string(), e);
+        }
+        throw;
       }
-      else {
-        cached_exception_ = std::make_shared<art::Exception>(errors::OtherArt, std::string(), e);
-      }
-      throw;
-    }
     }
   }
   catch (std::bad_alloc const& bda) {
@@ -291,7 +330,8 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     *cached_exception_
       << "A std::bad_alloc exception occurred during a call to the module ";
     detail::exceptionContext(md_, p, *cached_exception_)
-      << "The job has probably exhausted the virtual memory available to the process.\n";
+      << "The job has probably exhausted the virtual memory available to the "
+         "process.\n";
     throw *cached_exception_;
   }
   catch (std::exception const& e) {
@@ -300,37 +340,45 @@ bool art::Worker::doWork(typename T::MyPrincipal& p,
     cached_exception_ = std::make_shared<art::Exception>(errors::StdException);
     *cached_exception_
       << "A std::exception occurred during a call to the module ";
-    detail::exceptionContext(md_, p, *cached_exception_) << "and cannot be repropagated.\n"
-                                                         << "Previous information:\n" << e.what();
+    detail::exceptionContext(md_, p, *cached_exception_)
+      << "and cannot be repropagated.\n"
+      << "Previous information:\n"
+      << e.what();
     throw *cached_exception_;
   }
   catch (std::string const& s) {
     counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;
-    cached_exception_ = std::make_shared<art::Exception>(errors::BadExceptionType, "std::string");
-    *cached_exception_
-      << "A std::string thrown as an exception occurred during a call to the module ";
-    detail::exceptionContext(md_, p, *cached_exception_) << "and cannot be repropagated.\n"
-                                                         << "Previous information:\n string = " << s;
+    cached_exception_ =
+      std::make_shared<art::Exception>(errors::BadExceptionType, "std::string");
+    *cached_exception_ << "A std::string thrown as an exception occurred "
+                          "during a call to the module ";
+    detail::exceptionContext(md_, p, *cached_exception_)
+      << "and cannot be repropagated.\n"
+      << "Previous information:\n string = " << s;
     throw *cached_exception_;
   }
   catch (char const* c) {
     counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;
-    cached_exception_ = std::make_shared<art::Exception>(errors::BadExceptionType, "const char *");
-    *cached_exception_
-      << "A const char* thrown as an exception occurred during a call to the module ";
-    detail::exceptionContext(md_, p, *cached_exception_) << "and cannot be repropagated.\n"
-                                                         << "Previous information:\n const char* = " << c << "\n";
+    cached_exception_ = std::make_shared<art::Exception>(
+      errors::BadExceptionType, "const char *");
+    *cached_exception_ << "A const char* thrown as an exception occurred "
+                          "during a call to the module ";
+    detail::exceptionContext(md_, p, *cached_exception_)
+      << "and cannot be repropagated.\n"
+      << "Previous information:\n const char* = " << c << "\n";
     throw *cached_exception_;
   }
   catch (...) {
     counts.template increment<stats::ExceptionThrown>();
     state_ = Exception;
-    cached_exception_ = std::make_shared<art::Exception>(errors::Unknown, "repeated");
+    cached_exception_ =
+      std::make_shared<art::Exception>(errors::Unknown, "repeated");
     *cached_exception_
       << "An unknown occurred during a previous call to the module ";
-    detail::exceptionContext(md_, p, *cached_exception_) << "and cannot be repropagated.\n";
+    detail::exceptionContext(md_, p, *cached_exception_)
+      << "and cannot be repropagated.\n";
     throw *cached_exception_;
   }
 

@@ -8,9 +8,9 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "Rtypes.h"
+#include "TBranch.h"
 #include "TClass.h"
 #include "TClassRef.h"
-#include "TBranch.h"
 #include "TFile.h"
 #include "TTreeCloner.h"
 
@@ -23,21 +23,16 @@ using namespace std;
 namespace art {
 
   TTree*
-  RootOutputTree::
-  makeTTree(TFile* filePtr, string const& name, int splitLevel)
+  RootOutputTree::makeTTree(TFile* filePtr, string const& name, int splitLevel)
   {
     auto tree = new TTree{name.c_str(), "", splitLevel};
     if (!tree) {
       throw art::Exception(art::errors::FatalRootError)
-        << "Failed to create the tree: "
-        << name
-        << "\n";
+        << "Failed to create the tree: " << name << "\n";
     }
     if (tree->IsZombie()) {
       throw art::Exception(art::errors::FatalRootError)
-        << "Tree: "
-        << name
-        << " is a zombie.\n";
+        << "Tree: " << name << " is a zombie.\n";
     }
     tree->SetDirectory(filePtr);
     // Turn off autosave because it leaves too many deleted tree
@@ -47,8 +42,8 @@ namespace art {
   }
 
   bool
-  RootOutputTree::
-  checkSplitLevelAndBasketSize(cet::exempt_ptr<TTree const> inputTree) const
+  RootOutputTree::checkSplitLevelAndBasketSize(
+    cet::exempt_ptr<TTree const> inputTree) const
   {
     // Do the split level and basket size match in the input and output?
     if (inputTree == nullptr) {
@@ -58,7 +53,8 @@ namespace art {
       if (outputBranch == nullptr) {
         continue;
       }
-      TBranch* inputBranch = const_cast<TTree*>(inputTree.get())->GetBranch(outputBranch->GetName());
+      TBranch* inputBranch =
+        const_cast<TTree*>(inputTree.get())->GetBranch(outputBranch->GetName());
       if (inputBranch == nullptr) {
         continue;
       }
@@ -66,7 +62,7 @@ namespace art {
           (inputBranch->GetBasketSize() != outputBranch->GetBasketSize())) {
         mf::LogInfo("FastCloning")
           << "Fast Cloning disabled because split level or basket size "
-          "do not match";
+             "do not match";
         return false;
       }
     }
@@ -74,8 +70,7 @@ namespace art {
   }
 
   void
-  RootOutputTree::
-  writeTTree(TTree* tree) noexcept(false)
+  RootOutputTree::writeTTree(TTree* tree) noexcept(false)
   {
     // Update the tree-level entry count because we have been
     // using branch fill instead of tree fill.
@@ -89,16 +84,14 @@ namespace art {
   }
 
   void
-  RootOutputTree::
-  writeTree() const
+  RootOutputTree::writeTree() const
   {
     writeTTree(tree_);
     writeTTree(metaTree_);
   }
 
   bool
-  RootOutputTree::
-  fastCloneTree(cet::exempt_ptr<TTree const> intree)
+  RootOutputTree::fastCloneTree(cet::exempt_ptr<TTree const> intree)
   {
     unclonedReadBranches_.clear();
     unclonedReadBranchNames_.clear();
@@ -106,25 +99,24 @@ namespace art {
       return false;
     }
 
-    bool cloned {false};
+    bool cloned{false};
     if (intree->GetEntries() != 0) {
-      TTreeCloner cloner(const_cast<TTree*>(intree.get()), tree_, "", TTreeCloner::kIgnoreMissingTopLevel |
-                         TTreeCloner::kNoWarnings | TTreeCloner::kNoFileCache);
+      TTreeCloner cloner(const_cast<TTree*>(intree.get()),
+                         tree_,
+                         "",
+                         TTreeCloner::kIgnoreMissingTopLevel |
+                           TTreeCloner::kNoWarnings |
+                           TTreeCloner::kNoFileCache);
       if (cloner.IsValid()) {
         tree_->SetEntries(tree_->GetEntries() + intree->GetEntries());
         cloner.Exec();
         cloned = true;
-      }
-      else {
+      } else {
         fastCloningEnabled_ = false;
         mf::LogInfo("fastCloneTree")
-          << "INFO: Unable to fast clone tree "
-          << intree->GetName()
-          << '\n'
+          << "INFO: Unable to fast clone tree " << intree->GetName() << '\n'
           << "INFO: ROOT reason is:\n"
-          << "INFO: "
-          << cloner.GetWarning()
-          << '\n'
+          << "INFO: " << cloner.GetWarning() << '\n'
           << "INFO: Processing will continue, tree will be slow cloned.";
       }
     }
@@ -137,10 +129,11 @@ namespace art {
     return cloned;
   }
 
-  static
-  void
-  fillTreeBranches(TTree*, vector<TBranch*> const& branches,
-                   bool saveMemory, int64_t threshold)
+  static void
+  fillTreeBranches(TTree*,
+                   vector<TBranch*> const& branches,
+                   bool saveMemory,
+                   int64_t threshold)
   {
     for (auto const b : branches) {
       auto bytesWritten = b->Fill();
@@ -152,28 +145,25 @@ namespace art {
   }
 
   void
-  RootOutputTree::
-  fillTree()
+  RootOutputTree::fillTree()
   {
-    fillTreeBranches(metaTree_, metaBranches_, false,
-                     saveMemoryObjectThreshold_);
+    fillTreeBranches(
+      metaTree_, metaBranches_, false, saveMemoryObjectThreshold_);
     bool saveMemory = (saveMemoryObjectThreshold_ > -1);
-    fillTreeBranches(tree_, producedBranches_, saveMemory,
-                     saveMemoryObjectThreshold_);
+    fillTreeBranches(
+      tree_, producedBranches_, saveMemory, saveMemoryObjectThreshold_);
     if (fastCloningEnabled_) {
-      fillTreeBranches(tree_, unclonedReadBranches_, saveMemory,
-                       saveMemoryObjectThreshold_);
-    }
-    else {
-      fillTreeBranches(tree_, readBranches_, saveMemory,
-                       saveMemoryObjectThreshold_);
+      fillTreeBranches(
+        tree_, unclonedReadBranches_, saveMemory, saveMemoryObjectThreshold_);
+    } else {
+      fillTreeBranches(
+        tree_, readBranches_, saveMemory, saveMemoryObjectThreshold_);
     }
     ++nEntries_;
   }
 
   void
-  RootOutputTree::
-  resetOutputBranchAddress(BranchDescription const& pd)
+  RootOutputTree::resetOutputBranchAddress(BranchDescription const& pd)
   {
     TBranch* br = tree_->GetBranch(pd.branchName().c_str());
     if (br == nullptr) {
@@ -183,8 +173,8 @@ namespace art {
   }
 
   void
-  RootOutputTree::
-  setOutputBranchAddress(BranchDescription const& pd, void const*& pProd)
+  RootOutputTree::setOutputBranchAddress(BranchDescription const& pd,
+                                         void const*& pProd)
   {
     if (TBranch* br = tree_->GetBranch(pd.branchName().c_str())) {
       br->SetAddress(&pProd);
@@ -192,8 +182,8 @@ namespace art {
   }
 
   void
-  RootOutputTree::
-  addOutputBranch(BranchDescription const& pd, void const*& pProd)
+  RootOutputTree::addOutputBranch(BranchDescription const& pd,
+                                  void const*& pProd)
   {
     TClassRef cls = TClass::GetClass(pd.wrappedName().c_str());
     if (auto br = tree_->GetBranch(pd.branchName().c_str())) {
@@ -229,7 +219,9 @@ namespace art {
     pProd = prod;
     TBranch* branch = tree_->Branch(pd.branchName().c_str(),
                                     pd.wrappedName().c_str(),
-                                    &pProd, bsize, splitlvl);
+                                    &pProd,
+                                    bsize,
+                                    splitlvl);
 
     // Note that root will have just allocated a dummy product as the
     // I/O buffer for the branch we have created.  We will replace
@@ -248,7 +240,7 @@ namespace art {
       // of entries already written to the data tree.
       std::unique_ptr<EDProduct> dummy(static_cast<EDProduct*>(cls->New()));
       pProd = dummy.get();
-      int bytesWritten {};
+      int bytesWritten{};
       for (auto i = nEntries_; i > 0; --i) {
         auto cnt = branch->Fill();
         if (cnt <= 0) {
@@ -264,8 +256,7 @@ namespace art {
     }
     if (pd.produced()) {
       producedBranches_.push_back(branch);
-    }
-    else {
+    } else {
       readBranches_.push_back(branch);
     }
   }

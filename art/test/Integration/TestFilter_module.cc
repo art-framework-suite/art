@@ -8,8 +8,8 @@
 namespace {
   using namespace fhicl;
   struct Config {
-    Atom<int>  acceptValue { Name("acceptValue"), 1 };
-    Atom<bool> onlyOne { Name("onlyOne"), false };
+    Atom<int> acceptValue{Name("acceptValue"), 1};
+    Atom<bool> onlyOne{Name("onlyOne"), false};
   };
 }
 
@@ -19,7 +19,6 @@ namespace arttest {
 
 class arttest::TestFilter : public art::EDFilter {
 public:
-
   using Parameters = EDFilter::Table<Config>;
   explicit TestFilter(EDFilter::Table<Config> const&);
 
@@ -36,24 +35,23 @@ private:
 
 // -----------------------------------------------------------------
 
-arttest::TestFilter::TestFilter(EDFilter::Table<Config> const& ps):
-  count_(),
-  accept_rate_( ps().acceptValue() ),
-  onlyOne_(     ps().onlyOne() )
-{
-}
+arttest::TestFilter::TestFilter(EDFilter::Table<Config> const& ps)
+  : count_(), accept_rate_(ps().acceptValue()), onlyOne_(ps().onlyOne())
+{}
 
-bool arttest::TestFilter::filter(art::Event&)
+bool
+arttest::TestFilter::filter(art::Event&)
 {
   ++count_;
-  assert( currentContext() != 0 );
-  if(onlyOne_)
-    return count_ % accept_rate_ ==0;
+  assert(currentContext() != 0);
+  if (onlyOne_)
+    return count_ % accept_rate_ == 0;
   else
     return count_ % 100 <= accept_rate_;
 }
 
-void arttest::TestFilter::endJob()
+void
+arttest::TestFilter::endJob()
 {
   assert(currentContext() == 0);
 }

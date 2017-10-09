@@ -3,13 +3,13 @@
 
 namespace art {
 
-   void unloadRootSigHandler();
-   void setRootErrorHandler(bool want_custom);
-   void completeRootHandlers();
+  void unloadRootSigHandler();
+  void setRootErrorHandler(bool want_custom);
+  void completeRootHandlers();
 
-}  // art
+} // art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_Art_InitRootHandlers_h */
 

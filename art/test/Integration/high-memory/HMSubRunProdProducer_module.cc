@@ -13,9 +13,9 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/test/Integration/high-memory/HMLargeData.h"
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "art/test/Integration/high-memory/HMLargeData.h"
 
 #include <memory>
 
@@ -25,27 +25,30 @@ namespace arttest {
 
 class arttest::HMSubRunProdProducer : public art::EDProducer {
 public:
-  explicit HMSubRunProdProducer(fhicl::ParameterSet const &);
-  void produce(art::Event &) override { };
-  void endSubRun(art::SubRun & sr) override;
+  explicit HMSubRunProdProducer(fhicl::ParameterSet const&);
+  void produce(art::Event&) override{};
+  void endSubRun(art::SubRun& sr) override;
 };
 
-
-arttest::HMSubRunProdProducer::HMSubRunProdProducer(fhicl::ParameterSet const &)
+arttest::HMSubRunProdProducer::HMSubRunProdProducer(fhicl::ParameterSet const&)
 {
   for (unsigned short i = 0; i < N_BLOCKS; ++i) {
-    produces<HMLargeData, art::InSubRun>(std::string("block") + std::to_string(i));
+    produces<HMLargeData, art::InSubRun>(std::string("block") +
+                                         std::to_string(i));
   }
 }
 
-void arttest::HMSubRunProdProducer::endSubRun(art::SubRun & sr)
+void
+arttest::HMSubRunProdProducer::endSubRun(art::SubRun& sr)
 {
   auto stencil = std::make_unique<HMLargeData>();
   std::iota(stencil->data(), stencil->data() + stencil->size(), 0);
 
   for (unsigned short i = 0; i < N_BLOCKS; ++i) {
     auto prod = std::make_unique<HMLargeData>(*stencil);
-    sr.put(std::move(prod), std::string("block") + std::to_string(i), art::subRunFragment());
+    sr.put(std::move(prod),
+           std::string("block") + std::to_string(i),
+           art::subRunFragment());
   }
 }
 

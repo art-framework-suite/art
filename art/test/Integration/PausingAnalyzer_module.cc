@@ -16,8 +16,8 @@
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #include <thread>
 
 namespace art {
@@ -28,9 +28,10 @@ namespace art {
 
 class art::test::PausingAnalyzer : public EDAnalyzer {
 public:
-
   struct Config {
-    fhicl::Atom<unsigned> pauseTime {fhicl::Name{"pauseTime"}, fhicl::Comment{"Pause time is in seconds."}, 5u};
+    fhicl::Atom<unsigned> pauseTime{fhicl::Name{"pauseTime"},
+                                    fhicl::Comment{"Pause time is in seconds."},
+                                    5u};
   };
   using Parameters = EDAnalyzer::Table<Config>;
 
@@ -42,16 +43,14 @@ private:
   std::chrono::seconds pauseTime_;
 };
 
-art::test::PausingAnalyzer::PausingAnalyzer(Parameters const & p)
-  : EDAnalyzer{p},
-    pauseTime_{p().pauseTime()}
-{
-}
+art::test::PausingAnalyzer::PausingAnalyzer(Parameters const& p)
+  : EDAnalyzer{p}, pauseTime_{p().pauseTime()}
+{}
 
-void art::test::PausingAnalyzer::analyze(Event const&)
+void
+art::test::PausingAnalyzer::analyze(Event const&)
 {
-  std::cerr << ">> Pausing for " << pauseTime_.count()
-            << " seconds.\n";
+  std::cerr << ">> Pausing for " << pauseTime_.count() << " seconds.\n";
   std::this_thread::sleep_for(pauseTime_);
   std::cerr << ">> Pause complete.\n";
 }

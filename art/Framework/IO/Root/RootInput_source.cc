@@ -20,79 +20,67 @@
 
 using namespace art;
 
-RootInput::
-AccessState::
-AccessState() :
-  state_(SEQUENTIAL),
-  lastReadEventID_(),
-  rootFileForLastReadEvent_(),
-  wantedEventID_()
-{
-}
+RootInput::AccessState::AccessState()
+  : state_(SEQUENTIAL)
+  , lastReadEventID_()
+  , rootFileForLastReadEvent_()
+  , wantedEventID_()
+{}
 
 void
-RootInput::
-AccessState::
-setState(State state)
+RootInput::AccessState::setState(State state)
 {
   state_ = state;
 }
 
 void
-RootInput::
-AccessState::
-setLastReadEventID(EventID const& eid)
+RootInput::AccessState::setLastReadEventID(EventID const& eid)
 {
   lastReadEventID_ = eid;
 }
 
 void
-RootInput::
-AccessState::
-setWantedEventID(EventID const& eid)
+RootInput::AccessState::setWantedEventID(EventID const& eid)
 {
   wantedEventID_ = eid;
 }
 
 void
-RootInput::
-AccessState::
-setRootFileForLastReadEvent(std::shared_ptr<RootInputFile> const& ptr)
+RootInput::AccessState::setRootFileForLastReadEvent(
+  std::shared_ptr<RootInputFile> const& ptr)
 {
   rootFileForLastReadEvent_ = ptr;
 }
 
-RootInput::
-RootInput(RootInput::Parameters const& config, InputSourceDescription& desc)
-  : DecrepitRelicInputSourceImplementation{config().drisi_config, desc.moduleDescription}
+RootInput::RootInput(RootInput::Parameters const& config,
+                     InputSourceDescription& desc)
+  : DecrepitRelicInputSourceImplementation{config().drisi_config,
+                                           desc.moduleDescription}
   , catalog_{config().ifc_config}
-  , primaryFileSequence_{std::make_unique<RootInputFileSequence>(config().rifs_config,
-                                                                 catalog_,
-                                                                 FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
-                                                                 processingMode(),
-                                                                 desc.productRegistry,
-                                                                 processConfiguration())}
+  , primaryFileSequence_{std::make_unique<RootInputFileSequence>(
+      config().rifs_config,
+      catalog_,
+      FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
+      processingMode(),
+      desc.productRegistry,
+      processConfiguration())}
   , accessState_{}
-{
-}
+{}
 
 void
-RootInput::
-endJob()
+RootInput::endJob()
 {
   primaryFileSequence_->endJob();
 }
 
 void
-RootInput::
-closeFile_()
+RootInput::closeFile_()
 {
   primaryFileSequence_->closeFile_();
 }
 
 void
-RootInput::
-rewind_()
+RootInput::rewind_()
 {
   // Rewind to before the first event that was read.
   accessState_.resetState();
@@ -100,22 +88,19 @@ rewind_()
 }
 
 input::ItemType
-RootInput::
-getNextItemType()
+RootInput::getNextItemType()
 {
   return primaryFileSequence_->getNextItemType();
 }
 
 void
-RootInput::
-finish()
+RootInput::finish()
 {
   primaryFileSequence_->finish();
 }
 
 input::ItemType
-RootInput::
-nextItemType()
+RootInput::nextItemType()
 {
   switch (accessState_.state()) {
     case AccessState::SEQUENTIAL:
@@ -123,29 +108,32 @@ nextItemType()
     case AccessState::SEEKING_FILE:
       return input::IsFile;
     case AccessState::SEEKING_RUN:
-      setRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().runID()));
+      setRunPrincipal(
+        primaryFileSequence_->readIt(accessState_.wantedEventID().runID()));
       return input::IsRun;
     case AccessState::SEEKING_SUBRUN:
-      // RunPrincipal has been handed off to the EventProcessor by this point.  Used the cached pointer.
-      setSubRunPrincipal(primaryFileSequence_->readIt(accessState_.wantedEventID().subRunID(), runPrincipalExemptPtr()));
+      // RunPrincipal has been handed off to the EventProcessor by this point.
+      // Used the cached pointer.
+      setSubRunPrincipal(primaryFileSequence_->readIt(
+        accessState_.wantedEventID().subRunID(), runPrincipalExemptPtr()));
       return input::IsSubRun;
     case AccessState::SEEKING_EVENT: {
       auto const wantedEventID = accessState_.wantedEventID();
       setEventPrincipal(primaryFileSequence_->readIt(wantedEventID, true));
       accessState_.setLastReadEventID(wantedEventID);
-      accessState_.setRootFileForLastReadEvent(primaryFileSequence_->rootFileForLastReadEvent());
+      accessState_.setRootFileForLastReadEvent(
+        primaryFileSequence_->rootFileForLastReadEvent());
       return input::IsEvent;
     }
     default:
       throw Exception(errors::LogicError)
         << "RootInputSource::nextItemType encountered an "
-        "unknown AccessState.\n";
+           "unknown AccessState.\n";
   }
 }
 
 std::unique_ptr<FileBlock>
-RootInput::
-readFile()
+RootInput::readFile()
 {
   switch (accessState_.state()) {
     case AccessState::SEQUENTIAL:
@@ -155,38 +143,35 @@ readFile()
       return readFile_();
     default:
       throw Exception(errors::LogicError)
-          << "RootInputSource::readFile encountered an "
-             "unknown or inappropriate AccessState.\n";
+        << "RootInputSource::readFile encountered an "
+           "unknown or inappropriate AccessState.\n";
   }
 }
 
 std::unique_ptr<FileBlock>
-RootInput::
-readFile_()
+RootInput::readFile_()
 {
   return primaryFileSequence_->readFile_();
 }
 
 std::unique_ptr<RunPrincipal>
-RootInput::
-readRun()
+RootInput::readRun()
 {
   switch (accessState_.state()) {
-  case AccessState::SEQUENTIAL:
-    return DecrepitRelicInputSourceImplementation::readRun();
-  case AccessState::SEEKING_RUN:
-    accessState_.setState(AccessState::SEEKING_SUBRUN);
-    return runPrincipal();
-  default:
-    throw Exception(errors::LogicError)
-      << "RootInputSource::readRun encountered an "
-         "unknown or inappropriate AccessState.\n";
+    case AccessState::SEQUENTIAL:
+      return DecrepitRelicInputSourceImplementation::readRun();
+    case AccessState::SEEKING_RUN:
+      accessState_.setState(AccessState::SEEKING_SUBRUN);
+      return runPrincipal();
+    default:
+      throw Exception(errors::LogicError)
+        << "RootInputSource::readRun encountered an "
+           "unknown or inappropriate AccessState.\n";
   }
 }
 
 std::unique_ptr<RunPrincipal>
-RootInput::
-readRun_()
+RootInput::readRun_()
 {
   return primaryFileSequence_->readRun_();
 }
@@ -198,25 +183,23 @@ RootInput::runRangeSetHandler()
 }
 
 std::unique_ptr<SubRunPrincipal>
-RootInput::
-readSubRun(cet::exempt_ptr<RunPrincipal const> rp)
+RootInput::readSubRun(cet::exempt_ptr<RunPrincipal const> rp)
 {
   switch (accessState_.state()) {
-  case AccessState::SEQUENTIAL:
-    return DecrepitRelicInputSourceImplementation::readSubRun(rp);
-  case AccessState::SEEKING_SUBRUN:
-    accessState_.setState(AccessState::SEEKING_EVENT);
-    return subRunPrincipal();
-  default:
-    throw Exception(errors::LogicError)
-      << "RootInputSource::readSubRun encountered an "
-         "unknown or inappropriate AccessState.\n";
+    case AccessState::SEQUENTIAL:
+      return DecrepitRelicInputSourceImplementation::readSubRun(rp);
+    case AccessState::SEEKING_SUBRUN:
+      accessState_.setState(AccessState::SEEKING_EVENT);
+      return subRunPrincipal();
+    default:
+      throw Exception(errors::LogicError)
+        << "RootInputSource::readSubRun encountered an "
+           "unknown or inappropriate AccessState.\n";
   }
 }
 
 std::unique_ptr<SubRunPrincipal>
-RootInput::
-readSubRun_()
+RootInput::readSubRun_()
 {
   return primaryFileSequence_->readSubRun_(runPrincipalExemptPtr());
 }
@@ -228,15 +211,13 @@ RootInput::subRunRangeSetHandler()
 }
 
 std::unique_ptr<EventPrincipal>
-RootInput::
-readEvent(cet::exempt_ptr<SubRunPrincipal const> srp)
+RootInput::readEvent(cet::exempt_ptr<SubRunPrincipal const> srp)
 {
   return readEvent_(srp);
 }
 
 std::unique_ptr<EventPrincipal>
-RootInput::
-readEvent_(cet::exempt_ptr<SubRunPrincipal const> srp)
+RootInput::readEvent_(cet::exempt_ptr<SubRunPrincipal const> srp)
 {
   switch (accessState_.state()) {
     case AccessState::SEQUENTIAL:
@@ -246,14 +227,13 @@ readEvent_(cet::exempt_ptr<SubRunPrincipal const> srp)
       return eventPrincipal();
     default:
       throw Exception(errors::LogicError)
-          << "RootInputSource::readEvent encountered an "
-             "unknown or inappropriate AccessState.\n";
+        << "RootInputSource::readEvent encountered an "
+           "unknown or inappropriate AccessState.\n";
   }
 }
 
 std::unique_ptr<EventPrincipal>
-RootInput::
-readEvent_()
+RootInput::readEvent_()
 {
   std::unique_ptr<EventPrincipal> result;
   if (!result.get()) {

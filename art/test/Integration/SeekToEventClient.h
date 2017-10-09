@@ -29,28 +29,27 @@ namespace arttest {
 
 class arttest::SeekToEventClient {
 public:
-
   struct Config {
     using to_EventID_t = art::EventID(art::RunNumber_t,
                                       art::SubRunNumber_t,
                                       art::EventNumber_t);
-    fhicl::Sequence<fhicl::TupleAs<to_EventID_t>> nextEventsToProcess { fhicl::Name("nextEventsToProcess"),
-        fhicl::Comment("Specify list of events to process AFTER the first event\n"
-                       "in the file has been processed.\n") };
+    fhicl::Sequence<fhicl::TupleAs<to_EventID_t>> nextEventsToProcess{
+      fhicl::Name("nextEventsToProcess"),
+      fhicl::Comment("Specify list of events to process AFTER the first event\n"
+                     "in the file has been processed.\n")};
   };
 
   using Parameters = art::ServiceTable<Config>;
   SeekToEventClient(Parameters const&, art::ActivityRegistry&);
 
 private:
-
-  void postBeginJobWorkers(art::InputSource* input_source, std::vector<art::Worker*> const&);
+  void postBeginJobWorkers(art::InputSource* input_source,
+                           std::vector<art::Worker*> const&);
   void preProcessEvent(art::Event const&);
   void postProcessEvent(art::Event const&);
 
   std::vector<art::EventID> nextEventsToProcess_;
-  cet::exempt_ptr<art::RootInput> input_ {nullptr};
-
+  cet::exempt_ptr<art::RootInput> input_{nullptr};
 };
 
 DECLARE_ART_SERVICE(arttest::SeekToEventClient, LEGACY)

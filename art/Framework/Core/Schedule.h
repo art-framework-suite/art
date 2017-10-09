@@ -54,134 +54,133 @@
 
 namespace art {
 
-class ActivityRegistry;
-class MasterProductRegistry;
-class TriggerNamesService;
-class Schedule;
+  class ActivityRegistry;
+  class MasterProductRegistry;
+  class TriggerNamesService;
+  class Schedule;
 
-class Schedule {
-public:
-  Schedule(ScheduleID, PathManager&, fhicl::ParameterSet const&,
-           TriggerNamesService const&, MasterProductRegistry&, ProductDescriptions&,
-           ActionTable&, ActivityRegistry&);
+  class Schedule {
+  public:
+    Schedule(ScheduleID,
+             PathManager&,
+             fhicl::ParameterSet const&,
+             TriggerNamesService const&,
+             MasterProductRegistry&,
+             ProductDescriptions&,
+             ActionTable&,
+             ActivityRegistry&);
 
-  template<typename T>
-  void process(typename T::MyPrincipal&);
+    template <typename T>
+    void process(typename T::MyPrincipal&);
 
-  void beginJob();
-  void endJob();
+    void beginJob();
+    void endJob();
 
-  // Call respondToOpenInputFile() on all Modules
-  void respondToOpenInputFile(FileBlock const&);
+    // Call respondToOpenInputFile() on all Modules
+    void respondToOpenInputFile(FileBlock const&);
 
-  // Call respondToCloseInputFile() on all Modules
-  void respondToCloseInputFile(FileBlock const&);
+    // Call respondToCloseInputFile() on all Modules
+    void respondToCloseInputFile(FileBlock const&);
 
-  // Call respondToOpenOutputFiles() on all Modules
-  void respondToOpenOutputFiles(FileBlock const&);
+    // Call respondToOpenOutputFiles() on all Modules
+    void respondToOpenOutputFiles(FileBlock const&);
 
-  // Call respondToCloseOutputFiles() on all Modules
-  void respondToCloseOutputFiles(FileBlock const&);
+    // Call respondToCloseOutputFiles() on all Modules
+    void respondToCloseOutputFiles(FileBlock const&);
 
-private:
+  private:
+    // Private initialization helpers.
+    void makeTriggerResultsInserter_(fhicl::ParameterSet const& trig_pset,
+                                     MasterProductRegistry& mpr,
+                                     ProductDescriptions& productsToProduce,
+                                     ActivityRegistry& areg);
 
-  // Private initialization helpers.
+    template <typename T>
+    bool runTriggerPaths_(typename T::MyPrincipal&);
+
+    template <class F>
+    void doForAllWorkers_(F functor);
+
+    template <class F>
+    void doForAllEnabledPaths_(F functor);
+
+    // Data members.
+    ScheduleID const sID_;
+    fhicl::ParameterSet process_pset_;
+    ActionTable* act_table_;
+    std::string processName_;
+    PathsInfo& triggerPathsInfo_;
+    std::vector<unsigned char> pathsEnabled_;
+    std::unique_ptr<Worker> results_inserter_{nullptr};
+  };
+
+  template <typename T>
   void
-  makeTriggerResultsInserter_(fhicl::ParameterSet const& trig_pset,
-                              MasterProductRegistry& mpr,
-                              ProductDescriptions& productsToProduce,
-                              ActivityRegistry& areg);
-
-  template<typename T>
-  bool runTriggerPaths_(typename T::MyPrincipal&);
-
-  template<class F> void doForAllWorkers_(F functor);
-
-  template<class F> void doForAllEnabledPaths_(F functor);
-
-  // Data members.
-  ScheduleID const sID_;
-  fhicl::ParameterSet process_pset_;
-  ActionTable* act_table_;
-  std::string processName_;
-  PathsInfo& triggerPathsInfo_;
-  std::vector<unsigned char> pathsEnabled_;
-  std::unique_ptr<Worker> results_inserter_ {nullptr};
-};
-
-template<typename T>
-void
-Schedule::process(typename T::MyPrincipal& principal)
-{
-  doForAllWorkers_([](auto w) {
-    w->reset();
-  });
-  triggerPathsInfo_.pathResults().reset();
-  if (T::level == Level::Event) {
-    triggerPathsInfo_.addEvent();
-  }
-  try {
-    if (runTriggerPaths_<T>(principal) && T::level == Level::Event) {
-      triggerPathsInfo_.addPass();
+  Schedule::process(typename T::MyPrincipal& principal)
+  {
+    doForAllWorkers_([](auto w) { w->reset(); });
+    triggerPathsInfo_.pathResults().reset();
+    if (T::level == Level::Event) {
+      triggerPathsInfo_.addEvent();
     }
-    if (results_inserter_.get()) {
-      results_inserter_->doWork<T>(principal, 0);
+    try {
+      if (runTriggerPaths_<T>(principal) && T::level == Level::Event) {
+        triggerPathsInfo_.addPass();
+      }
+      if (results_inserter_.get()) {
+        results_inserter_->doWork<T>(principal, 0);
+      }
     }
-  }
-  catch (cet::exception& e) {
-    actions::ActionCodes const action = {T::level == Level::Event ? act_table_->find(e.root_cause()) : actions::Rethrow};
-    assert(action != actions::IgnoreCompletely);
-    assert(action != actions::FailPath);
-    assert(action != actions::FailModule);
-    if (action == actions::SkipEvent) {
-      mf::LogWarning(e.category())
+    catch (cet::exception& e) {
+      actions::ActionCodes const action = {T::level == Level::Event ?
+                                             act_table_->find(e.root_cause()) :
+                                             actions::Rethrow};
+      assert(action != actions::IgnoreCompletely);
+      assert(action != actions::FailPath);
+      assert(action != actions::FailModule);
+      if (action == actions::SkipEvent) {
+        mf::LogWarning(e.category())
           << "an exception occurred and all paths for "
              "the event are being skipped: \n"
           << cet::trim_right_copy(e.what(), " \n");
-    }
-    else {
-      throw;
-    }
-  }
-}
-
-template<typename T>
-inline
-bool
-Schedule::runTriggerPaths_(typename T::MyPrincipal& ep)
-{
-  doForAllEnabledPaths_([&ep](auto p) {
-    p->process<T>(ep);
-  });
-  return triggerPathsInfo_.pathResults().accept();
-}
-
-template<class F>
-void
-Schedule::
-doForAllWorkers_(F functor)
-{
-  for (auto const& val : triggerPathsInfo_.workers()) {
-    functor(val.second.get());
-  }
-  if (results_inserter_) {
-    // Do this last -- not part of main list.
-    functor(results_inserter_.get());
-  }
-}
-
-template<class F>
-void
-Schedule::
-doForAllEnabledPaths_(F functor)
-{
-  size_t path_index = 0;
-  for (auto const& path : triggerPathsInfo_.pathPtrs()) {
-    if (pathsEnabled_[path_index++]) {
-      functor(path.get());
+      } else {
+        throw;
+      }
     }
   }
-}
+
+  template <typename T>
+  inline bool
+  Schedule::runTriggerPaths_(typename T::MyPrincipal& ep)
+  {
+    doForAllEnabledPaths_([&ep](auto p) { p->process<T>(ep); });
+    return triggerPathsInfo_.pathResults().accept();
+  }
+
+  template <class F>
+  void
+  Schedule::doForAllWorkers_(F functor)
+  {
+    for (auto const& val : triggerPathsInfo_.workers()) {
+      functor(val.second.get());
+    }
+    if (results_inserter_) {
+      // Do this last -- not part of main list.
+      functor(results_inserter_.get());
+    }
+  }
+
+  template <class F>
+  void
+  Schedule::doForAllEnabledPaths_(F functor)
+  {
+    size_t path_index = 0;
+    for (auto const& path : triggerPathsInfo_.pathPtrs()) {
+      if (pathsEnabled_[path_index++]) {
+        functor(path.get());
+      }
+    }
+  }
 
 } // namespace art
 

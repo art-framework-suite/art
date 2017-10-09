@@ -22,12 +22,12 @@ namespace art {
                              ModuleDescription const& md,
                              BranchType const branchType,
                              bool const recordParents,
-                             cet::exempt_ptr<Consumer> consumer) :
-    principal_{pcpl},
-    md_{md},
-    branchType_{branchType},
-    recordParents_{recordParents},
-    consumer_{consumer}
+                             cet::exempt_ptr<Consumer> consumer)
+    : principal_{pcpl}
+    , md_{md}
+    , branchType_{branchType}
+    , recordParents_{recordParents}
+    , consumer_{consumer}
   {}
 
   size_t
@@ -37,7 +37,8 @@ namespace art {
   }
 
   GroupQueryResult
-  DataViewImpl::get_(WrappedTypeID const& wrapped, SelectorBase const& sel) const
+  DataViewImpl::get_(WrappedTypeID const& wrapped,
+                     SelectorBase const& sel) const
   {
     return principal_.getBySelector(wrapped, sel);
   }
@@ -61,7 +62,8 @@ namespace art {
                             string const& productInstanceName,
                             string const& processName) const
   {
-    return principal_.getByLabel(wrapped, label, productInstanceName, processName);
+    return principal_.getByLabel(
+      wrapped, label, productInstanceName, processName);
   }
 
   DataViewImpl::GroupQueryResultVec
@@ -89,8 +91,7 @@ namespace art {
       // ProductID; use the ProductID's of its parents.
       auto const& parents = prov.parents();
       retrievedProducts_.insert(cbegin(parents), cend(parents));
-    }
-    else {
+    } else {
       retrievedProducts_.insert(prov.productID());
     }
   }
@@ -109,14 +110,17 @@ namespace art {
                                  std::set<TypeLabel> const& expectedProducts,
                                  TypeLabelMap const& putProducts)
   {
-    if (!checkProducts) return;
+    if (!checkProducts)
+      return;
 
     std::vector<std::string> missing;
     for (auto const& typeLabel : expectedProducts) {
-      if (putProducts.find(typeLabel) != putProducts.cend()) continue;
+      if (putProducts.find(typeLabel) != putProducts.cend())
+        continue;
 
       std::ostringstream desc;
-      desc << getProductDescription(typeLabel.typeID(), typeLabel.productInstanceName());
+      desc << getProductDescription(typeLabel.typeID(),
+                                    typeLabel.productInstanceName());
       missing.emplace_back(desc.str());
     }
 
@@ -127,10 +131,10 @@ namespace art {
              << "but they have not been placed onto the event:\n"
              << rule('=') << '\n';
       for (auto const& desc : missing) {
-        errmsg << desc
-               << rule('=') << '\n';
+        errmsg << desc << rule('=') << '\n';
       }
-      throw Exception{errors::LogicError, "DataViewImpl::checkPutProducts"} << errmsg.str();
+      throw Exception{errors::LogicError, "DataViewImpl::checkPutProducts"}
+        << errmsg.str();
     }
   }
 
@@ -159,32 +163,32 @@ namespace art {
       auto group = query_result.result();
       assert(group->productDescription().supportsView());
       auto p = group->uniqueProduct();
-      return !detail::upcastAllowed(*p->typeInfo(), requestedElementType.typeInfo());
+      return !detail::upcastAllowed(*p->typeInfo(),
+                                    requestedElementType.typeInfo());
     };
     results.erase(std::remove_if(begin(results), end(results), not_convertible),
                   end(results));
   }
 
   void
-  DataViewImpl::ensureUniqueProduct_(std::size_t const  nFound,
-                                     TypeID      const& typeID,
+  DataViewImpl::ensureUniqueProduct_(std::size_t const nFound,
+                                     TypeID const& typeID,
                                      std::string const& moduleLabel,
                                      std::string const& productInstanceName,
                                      std::string const& processName) const
   {
-    if (nFound == 1) return;
+    if (nFound == 1)
+      return;
 
     Exception e{errors::ProductNotFound};
     e << "getView: Found "
-      << (nFound == 0 ? "no products"
-          : "more than one product"
-          )
+      << (nFound == 0 ? "no products" : "more than one product")
       << " matching all criteria\n"
       << "Looking for sequence of type: " << typeID << "\n"
       << "Looking for module label: " << moduleLabel << "\n"
       << "Looking for productInstanceName: " << productInstanceName << "\n";
     if (!processName.empty())
-      e << "Looking for processName: "<< processName <<"\n";
+      e << "Looking for processName: " << processName << "\n";
     throw e;
   }
 
@@ -194,4 +198,4 @@ namespace art {
     principal_.removeCachedProduct(pid);
   }
 
-}  // art
+} // art

@@ -9,10 +9,10 @@
   can be kept for each worker.
 */
 
+#include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Principal/CurrentProcessingContext.h"
 #include "art/Framework/Principal/PrincipalPackages.h"
 #include "art/Framework/Principal/Worker.h"
-#include "art/Framework/Core/WorkerInPath.h"
 #include "canvas/Persistency/Common/HLTenums.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -48,31 +48,63 @@ public:
   template <typename T>
   void process(typename T::MyPrincipal&);
 
-  int bitPosition() const { return bitpos_; }
-  std::string const& name() const { return name_; }
+  int
+  bitPosition() const
+  {
+    return bitpos_;
+  }
+  std::string const&
+  name() const
+  {
+    return name_;
+  }
 
   void clearCounters();
 
-  std::size_t timesRun() const { return timesRun_; }
-  std::size_t timesPassed() const { return timesPassed_; }
-  std::size_t timesFailed() const { return timesFailed_; }
-  std::size_t timesExcept() const { return timesExcept_; }
-  State state() const { return state_; }
+  std::size_t
+  timesRun() const
+  {
+    return timesRun_;
+  }
+  std::size_t
+  timesPassed() const
+  {
+    return timesPassed_;
+  }
+  std::size_t
+  timesFailed() const
+  {
+    return timesFailed_;
+  }
+  std::size_t
+  timesExcept() const
+  {
+    return timesExcept_;
+  }
+  State
+  state() const
+  {
+    return state_;
+  }
 
-  auto const& workersInPath() const { return workers_; }
+  auto const&
+  workersInPath() const
+  {
+    return workers_;
+  }
 
   void findEventModifiers(std::vector<std::string>& foundLabels) const;
   void findEventObservers(std::vector<std::string>& foundLabels) const;
 
 private:
+  void findByModifiesEvent(bool modifies,
+                           std::vector<std::string>& foundLabels) const;
 
-  void findByModifiesEvent(bool modifies, std::vector<std::string>& foundLabels) const;
-
-  std::size_t timesRun_ {};
-  std::size_t timesPassed_ {};
-  std::size_t timesFailed_ {};
-  std::size_t timesExcept_ {};
-  State state_ {hlt::Ready};
+  std::size_t timesRun_{};
+  std::size_t timesPassed_{};
+  std::size_t timesFailed_{};
+  std::size_t timesExcept_{};
+  State state_{hlt::Ready};
 
   int bitpos_;
   std::string name_;
@@ -93,9 +125,10 @@ private:
 };
 
 template <typename T>
-void art::Path::process(typename T::MyPrincipal& ep)
+void
+art::Path::process(typename T::MyPrincipal& ep)
 {
-  int nwrwue {-1}; // numWorkersRunWithoutUnhandledException
+  int nwrwue{-1}; // numWorkersRunWithoutUnhandledException
   T::prePathSignal(actReg_, name_);
 
   if (T::level == Level::Event) {
@@ -103,10 +136,12 @@ void art::Path::process(typename T::MyPrincipal& ep)
   }
   state_ = hlt::Ready;
 
-  bool should_continue {true};
-  CurrentProcessingContext cpc {&name_, bitPosition(), isEndPath_};
+  bool should_continue{true};
+  CurrentProcessingContext cpc{&name_, bitPosition(), isEndPath_};
 
-  for (auto it = workers_.begin(), end = workers_.end(); it != end && should_continue; ++it) {
+  for (auto it = workers_.begin(), end = workers_.end();
+       it != end && should_continue;
+       ++it) {
     ++nwrwue;
     try {
       cpc.activate(nwrwue, it->getWorker()->descPtr());
@@ -114,7 +149,8 @@ void art::Path::process(typename T::MyPrincipal& ep)
     }
     catch (cet::exception& e) {
       // handleWorkerFailure may throw a new exception.
-      should_continue = handleWorkerFailure(e, nwrwue, T::level == Level::Event);
+      should_continue =
+        handleWorkerFailure(e, nwrwue, T::level == Level::Event);
     }
     catch (...) {
       recordUnknownException(nwrwue, T::level == Level::Event);
@@ -127,7 +163,7 @@ void art::Path::process(typename T::MyPrincipal& ep)
   T::postPathSignal(actReg_, name_, status);
 }
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_Core_Path_h */
 

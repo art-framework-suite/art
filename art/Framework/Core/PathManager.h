@@ -56,7 +56,6 @@ public:
   void resetAll(); // Reset trigger results ready for next event.
 
 private:
-
   using ModInfos = PathsInfo::ModInfos;
 
   detail::ModuleConfigInfoMap fillAllModules_();
@@ -88,8 +87,7 @@ private:
   std::map<ScheduleID, PathsInfo> triggerPathsInfo_{}; // Per-schedule.
 };
 
-inline
-art::PathManager::vstring const&
+inline art::PathManager::vstring const&
 art::PathManager::triggerPathNames() const
 {
   return triggerPathNames_;

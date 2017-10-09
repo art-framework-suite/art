@@ -13,12 +13,13 @@
 
 namespace art {
 
-  using ProcessConfigurationRegistry = thread_safe_registry_via_id<ProcessConfigurationID,ProcessConfiguration>;
+  using ProcessConfigurationRegistry =
+    thread_safe_registry_via_id<ProcessConfigurationID, ProcessConfiguration>;
   using ProcessConfigurationMap = ProcessConfigurationRegistry::collection_type;
 
-}  // art
+} // art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Persistency_Provenance_ProcessConfigurationRegistry_h */
 

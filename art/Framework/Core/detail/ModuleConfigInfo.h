@@ -22,23 +22,21 @@ namespace art {
 
     typedef std::map<std::string, ModuleConfigInfo> ModuleConfigInfoMap;
   }
-
 }
 
 class art::detail::ModuleConfigInfo {
 public:
-  ModuleConfigInfo(fhicl::ParameterSet const & procPS,
-                   std::string const & label,
-                   std::string const & configPath);
+  ModuleConfigInfo(fhicl::ParameterSet const& procPS,
+                   std::string const& label,
+                   std::string const& configPath);
 
-  std::string const & label() const;
-  std::string const & configPath() const;
+  std::string const& label() const;
+  std::string const& configPath() const;
   ModuleType moduleType() const;
-  fhicl::ParameterSet const & modPS() const;
-  std::string const & libSpec() const;
+  fhicl::ParameterSet const& modPS() const;
+  std::string const& libSpec() const;
 
-  static
-  std::vector<std::string> const & allModulePathRoots();
+  static std::vector<std::string> const& allModulePathRoots();
 
 private:
   ModuleType calcConfigType_() const;
@@ -50,42 +48,32 @@ private:
   std::string const libSpec_;
 };
 
-inline
-std::string const &
-art::detail::ModuleConfigInfo::
-configPath() const
+inline std::string const&
+art::detail::ModuleConfigInfo::configPath() const
 {
   return configPath_;
 }
 
-inline
-std::string const &
-art::detail::ModuleConfigInfo::
-label() const
+inline std::string const&
+art::detail::ModuleConfigInfo::label() const
 {
   return label_;
 }
 
-inline
-art::ModuleType
-art::detail::ModuleConfigInfo::
-moduleType() const
+inline art::ModuleType
+art::detail::ModuleConfigInfo::moduleType() const
 {
   return moduleType_;
 }
 
-inline
-fhicl::ParameterSet const &
-art::detail::ModuleConfigInfo::
-modPS() const
+inline fhicl::ParameterSet const&
+art::detail::ModuleConfigInfo::modPS() const
 {
   return modPS_;
 }
 
-inline
-std::string const &
-art::detail::ModuleConfigInfo::
-libSpec() const
+inline std::string const&
+art::detail::ModuleConfigInfo::libSpec() const
 {
   return libSpec_;
 }

@@ -46,13 +46,12 @@ to sets or ranges of numbers.  For example:
 Specifying multiple patterns in the sequence corresponds to a
 logical OR of the patterns.  In other words, if the event in question
 matches any (not all) of the patterns, the event is accepted.
-)" };
+)"};
 }
 
 // ==============================================
 class art::EventIDFilter final : public EDFilter {
 public:
-
   struct Config {
     Sequence<string> idsToMatch{Name{"idsToMatch"}, Comment{parameter_comment}};
   };
@@ -66,9 +65,8 @@ private:
   EventIDMatcher matcher_;
 };
 
-
-art::EventIDFilter::EventIDFilter(Parameters const& p) :
-  matcher_{p().idsToMatch()}
+art::EventIDFilter::EventIDFilter(Parameters const& p)
+  : matcher_{p().idsToMatch()}
 {}
 
 bool

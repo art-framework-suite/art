@@ -16,7 +16,6 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "cetlib/HorizontalRule.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
@@ -26,6 +25,7 @@
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
+#include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -36,27 +36,54 @@
 
 namespace art {
   class BranchDescription;
-  class ProdToProdMapBuilder;  // fwd declaration to avoid circularity
+  class ProdToProdMapBuilder; // fwd declaration to avoid circularity
 }
 
 class art::Event final : private art::DataViewImpl {
 public:
-
   using Base = DataViewImpl;
   explicit Event(EventPrincipal const& ep,
                  ModuleDescription const& md,
                  cet::exempt_ptr<Consumer> consumer);
 
   // AUX functions.
-  EventID   id() const {return aux_.id();}
-  Timestamp time() const {return aux_.time();}
+  EventID
+  id() const
+  {
+    return aux_.id();
+  }
+  Timestamp
+  time() const
+  {
+    return aux_.time();
+  }
 
-  EventNumber_t  event()  const {return aux_.event(); }
-  SubRunNumber_t subRun() const {return aux_.subRun();}
-  RunNumber_t    run()    const {return id().run();   }
+  EventNumber_t
+  event() const
+  {
+    return aux_.event();
+  }
+  SubRunNumber_t
+  subRun() const
+  {
+    return aux_.subRun();
+  }
+  RunNumber_t
+  run() const
+  {
+    return id().run();
+  }
 
-  bool isRealData() const {return aux_.isRealData();}
-  EventAuxiliary::ExperimentType experimentType() const {return aux_.experimentType();}
+  bool
+  isRealData() const
+  {
+    return aux_.isRealData();
+  }
+  EventAuxiliary::ExperimentType
+  experimentType() const
+  {
+    return aux_.experimentType();
+  }
 
   SubRun const& getSubRun() const;
   Run const& getRun() const;
@@ -66,11 +93,16 @@ public:
 
   // Put a new product.
   template <typename PROD>
-  ProductID put(std::unique_ptr<PROD>&& product) {return put<PROD>(std::move(product), std::string());}
+  ProductID
+  put(std::unique_ptr<PROD>&& product)
+  {
+    return put<PROD>(std::move(product), std::string());
+  }
 
   // Put a new product with a 'product instance name'
   template <typename PROD>
-  ProductID put(std::unique_ptr<PROD>&& product, std::string const& productInstanceName);
+  ProductID put(std::unique_ptr<PROD>&& product,
+                std::string const& productInstanceName);
 
   // Retrieve a product
   using Base::get;
@@ -85,17 +117,16 @@ public:
   using Base::getView;
 
   // Expert-level
-  using Base::removeCachedProduct;
   using Base::processHistory;
+  using Base::removeCachedProduct;
   using Base::size;
 
   // Return true if this Event has been subjected to a process with
   // the given processName, and false otherwise.
   // If true is returned, then ps is filled with the ParameterSet
   // used to configure the identified process.
-  bool
-  getProcessParameterSet(std::string const& processName,
-                         fhicl::ParameterSet& ps) const;
+  bool getProcessParameterSet(std::string const& processName,
+                              fhicl::ParameterSet& ps) const;
 
   EDProductGetter const* productGetter(ProductID const) const;
 
@@ -103,7 +134,6 @@ public:
   using HandleT = Handle<T>;
 
 private:
-
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any
   // alternative is not great either.  Putting it into the public
@@ -120,7 +150,7 @@ private:
   EventAuxiliary const& aux_;
   std::unique_ptr<SubRun const> const subRun_;
   EventPrincipal const& eventPrincipal_;
-};  // Event
+}; // Event
 
 // ----------------------------------------------------------------------
 
@@ -134,14 +164,16 @@ art::Event::put(std::unique_ptr<PROD>&& product,
     throw art::Exception(art::errors::NullPointerError)
       << "Event::put: A null unique_ptr was passed to 'put'.\n"
       << "The pointer is of type " << tid << ".\n"
-      << "The specified productInstanceName was '" << productInstanceName << "'.\n";
+      << "The specified productInstanceName was '" << productInstanceName
+      << "'.\n";
   }
 
   auto const& pd = getProductDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName, SupportsView<PROD>::value},
-                                      DataViewImpl::PMValue{std::move(wp), pd, RangeSet::invalid()});
+  auto result = putProducts().emplace(
+    TypeLabel{tid, productInstanceName, SupportsView<PROD>::value},
+    DataViewImpl::PMValue{std::move(wp), pd, RangeSet::invalid()});
   if (!result.second) {
     cet::HorizontalRule rule{30};
     throw art::Exception(art::errors::ProductPutFailure)
@@ -149,12 +181,11 @@ art::Event::put(std::unique_ptr<PROD>&& product,
       << "            following description onto the Event.\n"
       << "            Products must be unique per Event.\n"
       << rule('=') << '\n'
-      << pd
-      << rule('=') << '\n';
+      << pd << rule('=') << '\n';
   }
 
   return pd.productID();
-}  // put<>()
+} // put<>()
 
 // ----------------------------------------------------------------------
 #endif /* art_Framework_Principal_Event_h */

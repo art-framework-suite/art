@@ -1,24 +1,27 @@
 #include "art/Framework/Services/FileServiceInterfaces/FileTransferStatus.h"
 #include "art/Framework/Services/Optional/TrivialFileTransfer.h"
 
+#include <algorithm>
 #include <cerrno>
 #include <cstdlib>
 #include <fstream>
 #include <iterator>
-#include <algorithm>
 
 using namespace art;
 using namespace std;
 using fhicl::ParameterSet;
 
 namespace {
-  std::string const fileURI {"file://"};
+  std::string const fileURI{"file://"};
 }
 
-art::TrivialFileTransfer::TrivialFileTransfer(TrivialFileTransfer::Parameters const&)
+art::TrivialFileTransfer::TrivialFileTransfer(
+  TrivialFileTransfer::Parameters const&)
 {}
 
-int art::TrivialFileTransfer::doTranslateToLocalFilename(std::string const& uri, std::string& fileFQname)
+int
+art::TrivialFileTransfer::doTranslateToLocalFilename(std::string const& uri,
+                                                     std::string& fileFQname)
 {
   if (uri.substr(0, 7) != fileURI) {
     fileFQname = uri; // Unexpected protocol: pass through.
@@ -33,7 +36,7 @@ int art::TrivialFileTransfer::doTranslateToLocalFilename(std::string const& uri,
     return stat;
   }
 
-  ifstream infile {inFileName.c_str()};
+  ifstream infile{inFileName.c_str()};
   if (!infile) {
     stat = FileTransferStatus::NOT_FOUND;
     return stat;
@@ -43,16 +46,19 @@ int art::TrivialFileTransfer::doTranslateToLocalFilename(std::string const& uri,
   return stat;
   // Implementation plan details -- alternatives not chosen:
   // x We could merely return the file name (the URI with file:// stripped off).
-  //   Since the SAM developers may look at this file as a template for their real
-  //   GeneralFileTransfer service, it is perhaps better to do the work of making
-  //   a copy into a designated area.
+  //   Since the SAM developers may look at this file as a template for their
+  //   real GeneralFileTransfer service, it is perhaps better to do the work of
+  //   making a copy into a designated area.
   // x We  merely strip the file:// from the URI; this adhoc class is not beefed
   //   up to deal with genuine web access.
-  // x An alternative would be to embed the last part of the file FQname into the
+  // x An alternative would be to embed the last part of the file FQname into
+  // the
   //   scratch file name, to try to maintain traceability in case things break.
 }
 
-int art::TrivialFileTransfer::stripURI(std::string const& uri, std::string& inFileName) const
+int
+art::TrivialFileTransfer::stripURI(std::string const& uri,
+                                   std::string& inFileName) const
 {
   if (uri.substr(0, 7) != fileURI) {
     inFileName = "";
@@ -62,7 +68,8 @@ int art::TrivialFileTransfer::stripURI(std::string const& uri, std::string& inFi
   return 0;
 }
 
-int art::TrivialFileTransfer::copyFile(std::ifstream& in, std::ofstream& out) const
+int
+art::TrivialFileTransfer::copyFile(std::ifstream& in, std::ofstream& out) const
 {
   std::copy(std::istream_iterator<char>{in},
             std::istream_iterator<char>{},

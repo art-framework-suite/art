@@ -18,21 +18,23 @@
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/canonical_string.h"
-#include "cetlib_except/demangle.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib_except/demangle.h"
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
 
 #include <utility>
 
 using fhicl::ParameterSet;
-using std::vector;
 using std::string;
+using std::vector;
 
 art::OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
                                 ParameterSet const& containing_pset)
   : EventObserverBase{config().eoFragment().selectEvents(), containing_pset}
-  , groupSelectorRules_{config().outputCommands(), "outputCommands", "OutputModule"}
+  , groupSelectorRules_{config().outputCommands(),
+                        "outputCommands",
+                        "OutputModule"}
   , configuredFileName_{config().fileName()}
   , dataTier_{config().dataTier()}
   , streamName_{config().streamName()}
@@ -44,9 +46,9 @@ art::OutputModule::OutputModule(ParameterSet const& pset)
   , groupSelectorRules_{pset.get<vector<string>>("outputCommands", {"keep *"}),
                         "outputCommands",
                         "OutputModule"}
-  , configuredFileName_{pset.get<string>("fileName","")}
-  , dataTier_{pset.get<string>("dataTier","")}
-  , streamName_{pset.get<string>("streamName","")}
+  , configuredFileName_{pset.get<string>("fileName", "")}
+  , dataTier_{pset.get<string>("dataTier", "")}
+  , streamName_{pset.get<string>("streamName", "")}
   , plugins_{makePlugins_(pset)}
 {}
 
@@ -118,7 +120,7 @@ void
 art::OutputModule::doBeginJob()
 {
   beginJob();
-  cet::for_all(plugins_, [](auto& p){ p->doBeginJob(); });
+  cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
 }
 
 bool
@@ -129,7 +131,7 @@ art::OutputModule::doBeginRun(RunPrincipal const& rp,
   FDEBUG(2) << "beginRun called\n";
   beginRun(rp);
   Run const r{rp, moduleDescription_, Consumer::non_module_context()};
-  cet::for_all(plugins_, [&r](auto& p){ p->doBeginRun(r); });
+  cet::for_all(plugins_, [&r](auto& p) { p->doBeginRun(r); });
   return true;
 }
 
@@ -141,12 +143,14 @@ art::OutputModule::doBeginSubRun(SubRunPrincipal const& srp,
   FDEBUG(2) << "beginSubRun called\n";
   beginSubRun(srp);
   SubRun const sr{srp, moduleDescription_, Consumer::non_module_context()};
-  cet::for_all(plugins_, [&sr](auto& p){ p->doBeginSubRun(sr); });
+  cet::for_all(plugins_, [&sr](auto& p) { p->doBeginSubRun(sr); });
   return true;
 }
 
 bool
-art::OutputModule::doEvent(EventPrincipal const& ep, CurrentProcessingContext const* cpc, CountingStatistics& counts)
+art::OutputModule::doEvent(EventPrincipal const& ep,
+                           CurrentProcessingContext const* cpc,
+                           CountingStatistics& counts)
 {
   detail::CPCSentry sentry{current_context_, cpc};
   FDEBUG(2) << "doEvent called\n";
@@ -172,14 +176,16 @@ art::OutputModule::doWriteEvent(EventPrincipal& ep)
     // Declare that the event was selected for write to the catalog
     // interface
     art::Handle<art::TriggerResults> trHandle{getTriggerResults(e)};
-    auto const& trRef ( trHandle.isValid() ? static_cast<HLTGlobalStatus>(*trHandle) : HLTGlobalStatus{} );
+    auto const& trRef(trHandle.isValid() ?
+                        static_cast<HLTGlobalStatus>(*trHandle) :
+                        HLTGlobalStatus{});
     ci_->eventSelected(moduleDescription_.moduleLabel(), ep.id(), trRef);
     // ... and invoke the plugins:
     // ... The transactional object presented to the plugins is
     //     different since the relevant context information is not the
     //     same for the consumes functionality.
     Event const we{ep, moduleDescription_, Consumer::non_module_context()};
-    cet::for_all(plugins_, [&we](auto& p){ p->doCollectMetadata(we); });
+    cet::for_all(plugins_, [&we](auto& p) { p->doCollectMetadata(we); });
     // Finish.
     updateBranchParents(ep);
     if (remainingEvents_ > 0) {
@@ -202,7 +208,7 @@ art::OutputModule::doEndSubRun(SubRunPrincipal const& srp,
   FDEBUG(2) << "endSubRun called\n";
   endSubRun(srp);
   SubRun const sr{srp, moduleDescription_, Consumer::non_module_context()};
-  cet::for_all(plugins_, [&sr](auto& p){ p->doEndSubRun(sr); });
+  cet::for_all(plugins_, [&sr](auto& p) { p->doEndSubRun(sr); });
   return true;
 }
 
@@ -228,7 +234,7 @@ art::OutputModule::doEndRun(RunPrincipal const& rp,
   FDEBUG(2) << "endRun called\n";
   endRun(rp);
   Run const r{rp, moduleDescription_, Consumer::non_module_context()};
-  cet::for_all(plugins_, [&r](auto& p){ p->doEndRun(r); });
+  cet::for_all(plugins_, [&r](auto& p) { p->doEndRun(r); });
   return true;
 }
 
@@ -243,9 +249,8 @@ void
 art::OutputModule::doEndJob()
 {
   endJob();
-  cet::for_all(plugins_, [](auto& p){ p->doEndJob(); });
+  cet::for_all(plugins_, [](auto& p) { p->doEndJob(); });
 }
-
 
 void
 art::OutputModule::doOpenFile(FileBlock const& fb)
@@ -260,9 +265,8 @@ art::OutputModule::doRespondToOpenInputFile(FileBlock const& fb)
   std::unique_ptr<ResultsPrincipal> respHolder;
   art::ResultsPrincipal const* respPtr = fb.resultsPrincipal();
   if (respPtr == nullptr) {
-    respHolder = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
-                                                    description().processConfiguration(),
-                                                    nullptr);
+    respHolder = std::make_unique<ResultsPrincipal>(
+      ResultsAuxiliary{}, description().processConfiguration(), nullptr);
     respPtr = respHolder.get();
   }
   readResults(*respPtr);
@@ -289,7 +293,9 @@ art::OutputModule::doRespondToCloseOutputFiles(FileBlock const& fb)
 void
 art::OutputModule::doCloseFile()
 {
-  if (isFileOpen()) { reallyCloseFile(); }
+  if (isFileOpen()) {
+    reallyCloseFile();
+  }
 }
 
 void
@@ -460,36 +466,34 @@ art::OutputModule::writeProductDescriptionRegistry()
 
 namespace {
   void
-  collectStreamSpecificMetadata(vector<std::unique_ptr<art::FileCatalogMetadataPlugin>> const& plugins,
-                                vector<string> const& pluginNames,
-                                art::FileCatalogMetadata::collection_type& ssmd)
+  collectStreamSpecificMetadata(
+    vector<std::unique_ptr<art::FileCatalogMetadataPlugin>> const& plugins,
+    vector<string> const& pluginNames,
+    art::FileCatalogMetadata::collection_type& ssmd)
   {
-    std::size_t pluginCounter {0};
-    std::ostringstream errors;  // Collect errors from all plugins.
+    std::size_t pluginCounter{0};
+    std::ostringstream errors; // Collect errors from all plugins.
     for (auto& plugin : plugins) {
-      art::FileCatalogMetadata::collection_type tmp = plugin->doProduceMetadata();
+      art::FileCatalogMetadata::collection_type tmp =
+        plugin->doProduceMetadata();
       ssmd.reserve(tmp.size() + ssmd.size());
       for (auto&& entry : tmp) {
-        if (art::ServiceHandle<art::FileCatalogMetadata const>{}->wantCheckSyntax()) {
+        if (art::ServiceHandle<art::FileCatalogMetadata const> {}
+              ->wantCheckSyntax()) {
           rapidjson::Document d;
           string checkString("{ ");
-          checkString += cet::canonical_string(entry.first) +
-                         " : " +
-                         entry.second +
-                         " }";
+          checkString +=
+            cet::canonical_string(entry.first) + " : " + entry.second + " }";
           if (d.Parse(checkString.c_str()).HasParseError()) {
             auto const nSpaces = d.GetErrorOffset();
             std::cerr << "nSpaces = " << nSpaces << ".\n";
-            errors
-              << "art::OutputModule::writeCatalogMetadata():"
-              << "syntax error in metadata produced by plugin "
-              << pluginNames[pluginCounter]
-              << ":\n"
-              << rapidjson::GetParseError_En(d.GetParseError())
-              << " Faulty key/value clause:\n"
-              << checkString << "\n"
-              << (nSpaces ? string(nSpaces, '-') : "")
-              << "^\n";
+            errors << "art::OutputModule::writeCatalogMetadata():"
+                   << "syntax error in metadata produced by plugin "
+                   << pluginNames[pluginCounter] << ":\n"
+                   << rapidjson::GetParseError_En(d.GetParseError())
+                   << " Faulty key/value clause:\n"
+                   << checkString << "\n"
+                   << (nSpaces ? string(nSpaces, '-') : "") << "^\n";
           }
         }
         ssmd.emplace_back(std::move(entry));
@@ -508,7 +512,8 @@ art::OutputModule::writeFileCatalogMetadata()
 {
   // Obtain metadata from service for output.
   FileCatalogMetadata::collection_type md, ssmd;
-  ServiceHandle<FileCatalogMetadata const>{}->getMetadata(md);
+  ServiceHandle<FileCatalogMetadata const> {}
+  ->getMetadata(md);
   if (!dataTier_.empty()) {
     md.emplace_back("data_tier", cet::canonical_string(dataTier_));
   }
@@ -524,8 +529,9 @@ art::OutputModule::writeFileCatalogMetadata()
 }
 
 void
-art::OutputModule::doWriteFileCatalogMetadata(FileCatalogMetadata::collection_type const&,
-                                              FileCatalogMetadata::collection_type const&)
+art::OutputModule::doWriteFileCatalogMetadata(
+  FileCatalogMetadata::collection_type const&,
+  FileCatalogMetadata::collection_type const&)
 {}
 
 void
@@ -553,24 +559,22 @@ art::OutputModule::makePlugins_(ParameterSet const& top_pset)
       pluginNames_.emplace_back(pset.get<string>("plugin_type"));
       auto const& libspec = pluginNames_.back();
       auto const pluginType = pluginFactory_.pluginType(libspec);
-      if (pluginType == cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
-        result.emplace_back(pluginFactory_.makePlugin<std::unique_ptr<FileCatalogMetadataPlugin>>(libspec, pset));
+      if (pluginType ==
+          cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
+        result.emplace_back(
+          pluginFactory_.makePlugin<std::unique_ptr<FileCatalogMetadataPlugin>>(
+            libspec, pset));
       } else {
         throw Exception(errors::Configuration, "OutputModule: ")
-          << "unrecognized plugin type "
-          << pluginType
-          << ".\n";
+          << "unrecognized plugin type " << pluginType << ".\n";
       }
       ++count;
     }
   }
   catch (cet::exception& e) {
     throw Exception(errors::Configuration, "OutputModule: ", e)
-      << "Exception caught while processing FCMDPlugins["
-      << count
-      << "] in module "
-      << description().moduleLabel()
-      << ".\n";
+      << "Exception caught while processing FCMDPlugins[" << count
+      << "] in module " << description().moduleLabel() << ".\n";
   }
   return result;
 }

@@ -12,8 +12,7 @@
 #include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
-namespace art
-{
+namespace art {
 
   bool
   EDProducer::doEvent(EventPrincipal& ep,
@@ -35,22 +34,26 @@ namespace art
     // 'checkPutProducts_' cannot be set during the c'tor
     // initialization list since 'moduleDescription_' is empty there.
     auto const& mainID = moduleDescription_.mainParameterSetID();
-    auto const& scheduler_pset = fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>("services.scheduler");
-    auto const& module_pset = fhicl::ParameterSetRegistry::get(moduleDescription_.parameterSetID());
-    checkPutProducts_ = detail::get_failureToPut_flag(scheduler_pset, module_pset);
+    auto const& scheduler_pset =
+      fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
+        "services.scheduler");
+    auto const& module_pset =
+      fhicl::ParameterSetRegistry::get(moduleDescription_.parameterSetID());
+    checkPutProducts_ =
+      detail::get_failureToPut_flag(scheduler_pset, module_pset);
     prepareForJob(scheduler_pset);
     beginJob();
   }
 
   void
-  EDProducer::doEndJob() {
+  EDProducer::doEndJob()
+  {
     endJob();
     showMissingConsumes();
   }
 
   bool
-  EDProducer::doBeginRun(RunPrincipal& rp,
-                         CPC_exempt_ptr cpc)
+  EDProducer::doBeginRun(RunPrincipal& rp, CPC_exempt_ptr cpc)
   {
     detail::CPCSentry sentry{current_context_, cpc};
     Run r{rp, moduleDescription_, this, RangeSet::forRun(rp.id())};
@@ -60,8 +63,7 @@ namespace art
   }
 
   bool
-  EDProducer::doEndRun(RunPrincipal& rp,
-                       CPC_exempt_ptr cpc)
+  EDProducer::doEndRun(RunPrincipal& rp, CPC_exempt_ptr cpc)
   {
     detail::CPCSentry sentry{current_context_, cpc};
     Run r{rp, moduleDescription_, this, rp.seenRanges()};
@@ -71,8 +73,7 @@ namespace art
   }
 
   bool
-  EDProducer::doBeginSubRun(SubRunPrincipal& srp,
-                            CPC_exempt_ptr cpc)
+  EDProducer::doBeginSubRun(SubRunPrincipal& srp, CPC_exempt_ptr cpc)
   {
     detail::CPCSentry sentry{current_context_, cpc};
     SubRun sr{srp, moduleDescription_, this, RangeSet::forSubRun(srp.id())};
@@ -82,8 +83,7 @@ namespace art
   }
 
   bool
-  EDProducer::doEndSubRun(SubRunPrincipal& srp,
-                          CPC_exempt_ptr cpc)
+  EDProducer::doEndSubRun(SubRunPrincipal& srp, CPC_exempt_ptr cpc)
   {
     detail::CPCSentry sentry{current_context_, cpc};
     SubRun sr{srp, moduleDescription_, this, srp.seenRanges()};
@@ -93,28 +93,33 @@ namespace art
   }
 
   void
-  EDProducer::doRespondToOpenInputFile(FileBlock const& fb) {
+  EDProducer::doRespondToOpenInputFile(FileBlock const& fb)
+  {
     respondToOpenInputFile(fb);
   }
 
   void
-  EDProducer::doRespondToCloseInputFile(FileBlock const& fb) {
+  EDProducer::doRespondToCloseInputFile(FileBlock const& fb)
+  {
     respondToCloseInputFile(fb);
   }
 
   void
-  EDProducer::doRespondToOpenOutputFiles(FileBlock const& fb) {
+  EDProducer::doRespondToOpenOutputFiles(FileBlock const& fb)
+  {
     respondToOpenOutputFiles(fb);
   }
 
   void
-  EDProducer::doRespondToCloseOutputFiles(FileBlock const& fb) {
+  EDProducer::doRespondToCloseOutputFiles(FileBlock const& fb)
+  {
     respondToCloseOutputFiles(fb);
   }
 
   CurrentProcessingContext const*
-  EDProducer::currentContext() const {
+  EDProducer::currentContext() const
+  {
     return current_context_.get();
   }
 
-}  // art
+} // art

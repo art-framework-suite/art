@@ -9,9 +9,11 @@
 art::ScheduleID
 art::ScheduleContext::currentScheduleID() const
 {
-  if (!in_context_.load()) { return ScheduleID{}; } // Not in schedule-running context.
+  if (!in_context_.load()) {
+    return ScheduleID{};
+  } // Not in schedule-running context.
   tbb::task* ct = &tbb::task::self();
-  detail::ScheduleTask* st {nullptr};
+  detail::ScheduleTask* st{nullptr};
   while (ct != nullptr &&
          (st = dynamic_cast<detail::ScheduleTask*>(ct)) == nullptr) {
     ct = ct->parent();

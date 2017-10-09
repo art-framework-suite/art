@@ -16,8 +16,8 @@ namespace art {
 class art::RootBranchInfoList {
 public:
   RootBranchInfoList();
-  explicit RootBranchInfoList(TTree *tree);
-  void reset(TTree *tree);
+  explicit RootBranchInfoList(TTree* tree);
+  void reset(TTree* tree);
 
   template <class PROD>
   bool findBranchInfo(InputTag const& tag, RootBranchInfo& rbInfo) const;
@@ -25,6 +25,7 @@ public:
   bool findBranchInfo(TypeID const& type,
                       InputTag const& tag,
                       RootBranchInfo& rbInfo) const;
+
 private:
   std::vector<RootBranchInfo> data_;
 };
@@ -32,10 +33,9 @@ private:
 template <class PROD>
 bool
 art::RootBranchInfoList::findBranchInfo(InputTag const& tag,
-                                        RootBranchInfo& rbInfo) const {
-  return findBranchInfo(TypeID{typeid(PROD)},
-                        tag,
-                        rbInfo);
+                                        RootBranchInfo& rbInfo) const
+{
+  return findBranchInfo(TypeID{typeid(PROD)}, tag, rbInfo);
 }
 
 #endif /* art_Framework_IO_Root_RootBranchInfoList_h */

@@ -4,30 +4,28 @@
 #include <cassert>
 
 namespace art {
-  CurrentProcessingContext::CurrentProcessingContext() :
-    pathInSchedule_(0),
-    slotInPath_(0),
-    moduleDescription_(0),
-    pathName_(0),
-    isEndPath_(false)
-  { }
+  CurrentProcessingContext::CurrentProcessingContext()
+    : pathInSchedule_(0)
+    , slotInPath_(0)
+    , moduleDescription_(0)
+    , pathName_(0)
+    , isEndPath_(false)
+  {}
 
   CurrentProcessingContext::CurrentProcessingContext(std::string const* name,
                                                      int bitpos,
-                                                     bool isEndPth) :
-    pathInSchedule_(bitpos),
-    slotInPath_(0),
-    moduleDescription_(0),
-    pathName_(name),
-    isEndPath_(isEndPth)
-  { }
+                                                     bool isEndPth)
+    : pathInSchedule_(bitpos)
+    , slotInPath_(0)
+    , moduleDescription_(0)
+    , pathName_(name)
+    , isEndPath_(isEndPth)
+  {}
 
   std::string const*
   CurrentProcessingContext::moduleLabel() const
   {
-    return is_active()
-      ? &(moduleDescription_->moduleLabel())
-      : 0;
+    return is_active() ? &(moduleDescription_->moduleLabel()) : 0;
   }
 
   std::string const*
@@ -45,18 +43,13 @@ namespace art {
   int
   CurrentProcessingContext::pathInSchedule() const
   {
-    return is_active()
-      ? pathInSchedule_
-      : -1;
+    return is_active() ? pathInSchedule_ : -1;
   }
-
 
   int
   CurrentProcessingContext::slotInPath() const
   {
-    return is_active()
-      ? static_cast<int>(slotInPath_)
-      : -1;
+    return is_active() ? static_cast<int>(slotInPath_) : -1;
   }
 
   bool
@@ -69,18 +62,18 @@ namespace art {
   CurrentProcessingContext::activate(size_t theSlotInPath,
                                      ModuleDescription const* mod)
   {
-    assert( mod );
-    slotInPath_     = theSlotInPath;
+    assert(mod);
+    slotInPath_ = theSlotInPath;
     moduleDescription_ = mod;
   }
 
   void
   CurrentProcessingContext::deactivate()
   {
-    pathInSchedule_    = 0;
-    slotInPath_        = 0;
+    pathInSchedule_ = 0;
+    slotInPath_ = 0;
     moduleDescription_ = 0;
-    pathName_          = 0;
+    pathName_ = 0;
   }
 
-}  // art
+} // art

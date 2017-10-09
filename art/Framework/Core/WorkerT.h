@@ -7,11 +7,10 @@ WorkerT: Code common to all workers.
 
 ----------------------------------------------------------------------*/
 
-
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
+#include "art/Framework/Principal/fwd.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <iosfwd>
@@ -29,14 +28,25 @@ namespace art {
             ModuleDescription const&,
             WorkerParams const&);
 
-    bool modifiesEvent() const override { return module_->modifiesEvent(); }
+    bool
+    modifiesEvent() const override
+    {
+      return module_->modifiesEvent();
+    }
 
   protected:
-    T& module() {return *module_;}
-    T const& module() const {return *module_;}
+    T&
+    module()
+    {
+      return *module_;
+    }
+    T const&
+    module() const
+    {
+      return *module_;
+    }
 
   private:
-
     bool implDoProcess(EventPrincipal& ep,
                        CurrentProcessingContext const* cpc,
                        CountingStatistics&) override;
@@ -60,12 +70,10 @@ namespace art {
   };
 
   template <typename T>
-  inline
-  WorkerT<T>::WorkerT(std::unique_ptr<T>&& module,
-                      ModuleDescription const& md,
-                      WorkerParams const& wp) :
-    Worker{md, wp},
-    module_{std::move(module)}
+  inline WorkerT<T>::WorkerT(std::unique_ptr<T>&& module,
+                             ModuleDescription const& md,
+                             WorkerParams const& wp)
+    : Worker{md, wp}, module_{std::move(module)}
   {
     module_->setModuleDescription(md);
     module_->registerProducts(wp.reg_, wp.producedProducts_, md);
@@ -82,16 +90,14 @@ namespace art {
 
   template <typename T>
   bool
-  WorkerT<T>::implDoBegin(RunPrincipal& rp,
-                          CurrentProcessingContext const* cpc)
+  WorkerT<T>::implDoBegin(RunPrincipal& rp, CurrentProcessingContext const* cpc)
   {
     return module_->doBeginRun(rp, cpc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoEnd(RunPrincipal& rp,
-                        CurrentProcessingContext const* cpc)
+  WorkerT<T>::implDoEnd(RunPrincipal& rp, CurrentProcessingContext const* cpc)
   {
     return module_->doEndRun(rp, cpc);
   }

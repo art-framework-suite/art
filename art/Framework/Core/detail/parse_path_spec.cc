@@ -14,7 +14,7 @@ art::detail::remove_whitespace(string& s)
 }
 
 void
-art::detail::parse_path_spec(string path, pair<string,string>& pname_path)
+art::detail::parse_path_spec(string path, pair<string, string>& pname_path)
 {
   detail::remove_whitespace(path);
   auto const pos = path.find(":");
@@ -22,5 +22,5 @@ art::detail::parse_path_spec(string path, pair<string,string>& pname_path)
     pname_path = std::make_pair("", path);
     return;
   }
-  pname_path = make_pair(path.substr(0, pos), path.substr(pos+1));
+  pname_path = make_pair(path.substr(0, pos), path.substr(pos + 1));
 }

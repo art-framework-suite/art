@@ -41,19 +41,19 @@
 //
 // ======================================================================
 
-#include "art/Framework/Principal/fwd.h"
-#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Consumer.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/ProductInfo.h"
 #include "art/Framework/Principal/Selector.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Common/fwd.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Common/detail/maybeCastObj.h"
 #include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/type_aliases.h"
 #include "canvas/Utilities/InputTag.h"
@@ -61,8 +61,8 @@
 #include "canvas/Utilities/WrappedTypeID.h"
 
 #include <cassert>
-#include <ostream>
 #include <memory>
+#include <ostream>
 #include <set>
 #include <string>
 #include <utility>
@@ -70,13 +70,11 @@
 
 namespace art {
   template <typename PROD>
-  std::ostream&
-  operator<<(std::ostream& os, Handle<PROD> const& h);
+  std::ostream& operator<<(std::ostream& os, Handle<PROD> const& h);
 }
 
 class art::DataViewImpl {
 public:
-
   DataViewImpl(DataViewImpl const&) = delete;
   DataViewImpl& operator=(DataViewImpl const&) = delete;
 
@@ -89,97 +87,77 @@ public:
   size_t size() const;
 
   template <typename PROD>
-  bool
-  get(SelectorBase const&, Handle<PROD>& result) const;
+  bool get(SelectorBase const&, Handle<PROD>& result) const;
 
   template <typename PROD>
-  bool
-  get(ProductID const pid, Handle<PROD>& result) const;
+  bool get(ProductID const pid, Handle<PROD>& result) const;
 
   template <typename PROD>
-  bool
-  getByLabel(std::string const& label,
-             std::string const& productInstanceName,
-             Handle<PROD>& result) const;
+  bool getByLabel(std::string const& label,
+                  std::string const& productInstanceName,
+                  Handle<PROD>& result) const;
 
   template <typename PROD>
-  bool
-  getByLabel(std::string const& label,
-             std::string const& productInstanceName,
-             std::string const& processName,
-             Handle<PROD>& result) const;
+  bool getByLabel(std::string const& label,
+                  std::string const& productInstanceName,
+                  std::string const& processName,
+                  Handle<PROD>& result) const;
 
   /// same as above, but using the InputTag class
   template <typename PROD>
-  PROD const&
-  getByLabel(InputTag const& tag) const;
+  PROD const& getByLabel(InputTag const& tag) const;
 
   template <typename PROD>
-  bool
-  getByLabel(InputTag const& tag, Handle<PROD>& result) const;
+  bool getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
   template <typename PROD>
-  PROD const*
-  getPointerByLabel(InputTag const& tag) const;
+  PROD const* getPointerByLabel(InputTag const& tag) const;
 
   template <typename PROD>
-  bool
-  getByToken(ProductToken<PROD> const& token, Handle<PROD>& result) const;
+  bool getByToken(ProductToken<PROD> const& token, Handle<PROD>& result) const;
 
   template <typename PROD>
-  ValidHandle<PROD>
-  getValidHandle(InputTag const& tag) const;
+  ValidHandle<PROD> getValidHandle(InputTag const& tag) const;
 
   template <typename PROD>
-  ValidHandle<PROD>
-  getValidHandle(ProductToken<PROD> const& token) const;
+  ValidHandle<PROD> getValidHandle(ProductToken<PROD> const& token) const;
 
   template <typename PROD>
-  void
-  getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
+  void getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
 
   template <typename PROD>
-  void
-  getManyByType(std::vector<Handle<PROD>>& results) const;
+  void getManyByType(std::vector<Handle<PROD>>& results) const;
 
   // If getView returns true, then result.isValid() is certain to be
   // true -- but the View may still be empty.
   template <typename ELEMENT>
-  std::size_t
-  getView(std::string const& moduleLabel,
-          std::string const& productInstanceName,
-          std::vector<ELEMENT const*>& result) const;
+  std::size_t getView(std::string const& moduleLabel,
+                      std::string const& productInstanceName,
+                      std::vector<ELEMENT const*>& result) const;
 
   template <typename ELEMENT>
-  std::size_t
-  getView(InputTag const& tag,
-          std::vector<ELEMENT const*>& result) const;
+  std::size_t getView(InputTag const& tag,
+                      std::vector<ELEMENT const*>& result) const;
 
   template <typename ELEMENT>
-  std::size_t
-  getView(ViewToken<ELEMENT> const& token,
-          std::vector<ELEMENT const*>& result) const;
+  std::size_t getView(ViewToken<ELEMENT> const& token,
+                      std::vector<ELEMENT const*>& result) const;
 
   template <typename ELEMENT>
-  bool
-  getView(std::string const& moduleLabel,
-          std::string const& instanceName,
-          View<ELEMENT>& result) const;
+  bool getView(std::string const& moduleLabel,
+               std::string const& instanceName,
+               View<ELEMENT>& result) const;
 
   template <typename ELEMENT>
-  bool
-  getView(InputTag const& tag, View<ELEMENT>& result) const;
+  bool getView(InputTag const& tag, View<ELEMENT>& result) const;
 
   template <typename ELEMENT>
-  bool
-  getView(ViewToken<ELEMENT> const& tag, View<ELEMENT>& result) const;
+  bool getView(ViewToken<ELEMENT> const& tag, View<ELEMENT>& result) const;
 
   template <typename PROD>
-  bool
-  removeCachedProduct(Handle<PROD>& h) const;
+  bool removeCachedProduct(Handle<PROD>& h) const;
 
-  ProcessHistory const&
-  processHistory() const;
+  ProcessHistory const& processHistory() const;
 
   struct PMValue {
 
@@ -199,80 +177,82 @@ public:
   using TypeLabelMap = std::map<TypeLabel, PMValue>;
 
 protected:
-
   void recordAsParent(Provenance const& prov) const;
 
-  TypeLabelMap&       putProducts()       {return putProducts_;}
-  TypeLabelMap const& putProducts() const {return putProducts_;}
+  TypeLabelMap&
+  putProducts()
+  {
+    return putProducts_;
+  }
+  TypeLabelMap const&
+  putProducts() const
+  {
+    return putProducts_;
+  }
 
   // Return the map of products that was retrieved via get*.  The
   // retrievedProducts_ member is used to form the sequence of
   // ProductIDs that serve as the "parents" to any put products.
-  RetrievedProductSet const& retrievedProducts() const {return retrievedProducts_;}
+  RetrievedProductSet const&
+  retrievedProducts() const
+  {
+    return retrievedProducts_;
+  }
 
   // Convert the retrievedProducts_ member to just the sequence of
   // ProductIDs corresponding to product parents.
   RetrievedProductIDs retrievedProductIDs() const;
 
-  void
-  checkPutProducts(bool checkProducts,
-                   std::set<TypeLabel> const& expectedProducts,
-                   TypeLabelMap const& putProducts);
+  void checkPutProducts(bool checkProducts,
+                        std::set<TypeLabel> const& expectedProducts,
+                        TypeLabelMap const& putProducts);
 
-  BranchDescription const&
-  getProductDescription(TypeID const& type, std::string const& productInstanceName) const;
+  BranchDescription const& getProductDescription(
+    TypeID const& type,
+    std::string const& productInstanceName) const;
 
   using GroupQueryResultVec = std::vector<GroupQueryResult>;
 
 private:
+  void removeNonViewableMatches_(TypeID const& requestedElementType,
+                                 GroupQueryResultVec& results) const;
 
-  void
-  removeNonViewableMatches_(TypeID const& requestedElementType,
-                            GroupQueryResultVec& results) const;
-
-  void
-  ensureUniqueProduct_(std::size_t nFound,
-                       TypeID const& typeID,
-                       std::string const& moduleLabel,
-                       std::string const& productInstanceName,
-                       std::string const& processName) const;
+  void ensureUniqueProduct_(std::size_t nFound,
+                            TypeID const& typeID,
+                            std::string const& moduleLabel,
+                            std::string const& productInstanceName,
+                            std::string const& processName) const;
 
   // The following 'get' functions serve to isolate the DataViewImpl class
   // from the Principal class.
-  GroupQueryResult
-  get_(WrappedTypeID const& wrapped,
-       SelectorBase const&) const;
+  GroupQueryResult get_(WrappedTypeID const& wrapped,
+                        SelectorBase const&) const;
 
-  GroupQueryResult
-  getByProductID_(ProductID const pid) const;
+  GroupQueryResult getByProductID_(ProductID const pid) const;
 
-  GroupQueryResult
-  getByLabel_(WrappedTypeID const& wrapped,
-              std::string const& label,
-              std::string const& productInstanceName,
-              std::string const& processName) const;
+  GroupQueryResult getByLabel_(WrappedTypeID const& wrapped,
+                               std::string const& label,
+                               std::string const& productInstanceName,
+                               std::string const& processName) const;
 
-  GroupQueryResultVec
-  getMany_(WrappedTypeID const& wrapped,
-           SelectorBase const& sel) const;
+  GroupQueryResultVec getMany_(WrappedTypeID const& wrapped,
+                               SelectorBase const& sel) const;
 
-  GroupQueryResultVec
-  getMatchingSequenceByLabel_(std::string const& label,
-                              std::string const& productInstanceName,
-                              std::string const& processName) const;
+  GroupQueryResultVec getMatchingSequenceByLabel_(
+    std::string const& label,
+    std::string const& productInstanceName,
+    std::string const& processName) const;
 
   // If getView returns true, then result.isValid() is certain to be
   // true -- but the View may still be empty.
   template <typename ELEMENT>
-  GroupQueryResultVec
-  getView_(std::string const& moduleLabel,
-           std::string const& productInstanceName,
-           std::string const& processName) const;
+  GroupQueryResultVec getView_(std::string const& moduleLabel,
+                               std::string const& productInstanceName,
+                               std::string const& processName) const;
 
   template <typename ELEMENT>
-  void
-  fillView_(GroupQueryResult& bh,
-            std::vector<ELEMENT const*>& result) const;
+  void fillView_(GroupQueryResult& bh,
+                 std::vector<ELEMENT const*>& result) const;
 
   void removeCachedProduct_(ProductID const pid) const;
 
@@ -312,8 +292,7 @@ private:
 };
 
 template <typename PROD>
-inline
-std::ostream&
+inline std::ostream&
 art::operator<<(std::ostream& os, Handle<PROD> const& h)
 {
   os << h.product() << " " << h.provenance() << " " << h.id();
@@ -324,10 +303,8 @@ art::operator<<(std::ostream& os, Handle<PROD> const& h)
 // DataViewImpl.cc for the implementation of non-template members.
 
 template <typename PROD>
-inline
-bool
-art::DataViewImpl::get(SelectorBase const& sel,
-                       Handle<PROD>& result) const
+inline bool
+art::DataViewImpl::get(SelectorBase const& sel, Handle<PROD>& result) const
 {
   result.clear(); // Is this the correct thing to do if an exception is thrown?
   // We do *not* track whether consumes was called for a SelectorBase.
@@ -356,16 +333,14 @@ art::DataViewImpl::get(ProductID const pid, Handle<PROD>& result) const
 }
 
 template <typename PROD>
-inline
-bool
+inline bool
 art::DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
 {
   return getByLabel<PROD>(tag.label(), tag.instance(), tag.process(), result);
 }
 
 template <typename PROD>
-inline
-bool
+inline bool
 art::DataViewImpl::getByLabel(std::string const& label,
                               std::string const& productInstanceName,
                               Handle<PROD>& result) const
@@ -374,8 +349,7 @@ art::DataViewImpl::getByLabel(std::string const& label,
 }
 
 template <typename PROD>
-inline
-bool
+inline bool
 art::DataViewImpl::getByLabel(std::string const& label,
                               std::string const& productInstanceName,
                               std::string const& processName,
@@ -383,9 +357,14 @@ art::DataViewImpl::getByLabel(std::string const& label,
 {
   result.clear(); // Is this the correct thing to do if an exception is thrown?
   auto const wrapped = WrappedTypeID::make<PROD>();
-  ProductInfo const pinfo{ProductInfo::ConsumableType::Product, wrapped.product_type, label, productInstanceName, processName};
+  ProductInfo const pinfo{ProductInfo::ConsumableType::Product,
+                          wrapped.product_type,
+                          label,
+                          productInstanceName,
+                          processName};
   consumer_->validateConsumedProduct(branchType_, pinfo);
-  GroupQueryResult bh = getByLabel_(wrapped, label, productInstanceName, processName);
+  GroupQueryResult bh =
+    getByLabel_(wrapped, label, productInstanceName, processName);
   convert_handle(bh, result);
   bool const ok{bh.succeeded() && !result.failedToGet()};
   if (recordParents_ && ok) {
@@ -394,10 +373,8 @@ art::DataViewImpl::getByLabel(std::string const& label,
   return ok;
 }
 
-
 template <typename PROD>
-inline
-PROD const&
+inline PROD const&
 art::DataViewImpl::getByLabel(InputTag const& tag) const
 {
   Handle<PROD> h;
@@ -406,17 +383,16 @@ art::DataViewImpl::getByLabel(InputTag const& tag) const
 }
 
 template <typename PROD>
-inline
-bool
-art::DataViewImpl::getByToken(ProductToken<PROD> const& token, Handle<PROD>& result) const
+inline bool
+art::DataViewImpl::getByToken(ProductToken<PROD> const& token,
+                              Handle<PROD>& result) const
 {
   auto const& tag = token.inputTag_;
   return getByLabel(tag.label(), tag.instance(), tag.process(), result);
 }
 
 template <typename PROD>
-inline
-PROD const*
+inline PROD const*
 art::DataViewImpl::getPointerByLabel(InputTag const& tag) const
 {
   Handle<PROD> h;
@@ -425,8 +401,7 @@ art::DataViewImpl::getPointerByLabel(InputTag const& tag) const
 }
 
 template <typename PROD>
-inline
-art::ValidHandle<PROD>
+inline art::ValidHandle<PROD>
 art::DataViewImpl::getValidHandle(InputTag const& tag) const
 {
   Handle<PROD> h;
@@ -435,21 +410,21 @@ art::DataViewImpl::getValidHandle(InputTag const& tag) const
 }
 
 template <typename PROD>
-inline
-art::ValidHandle<PROD>
+inline art::ValidHandle<PROD>
 art::DataViewImpl::getValidHandle(ProductToken<PROD> const& token) const
 {
   return getValidHandle<PROD>(token.inputTag_);
 }
 
 template <typename PROD>
-inline
-void
+inline void
 art::DataViewImpl::getMany(SelectorBase const& sel,
                            std::vector<Handle<PROD>>& results) const
 {
   auto const wrapped = WrappedTypeID::make<PROD>();
-  consumer_->validateConsumedProduct(branchType_, ProductInfo{ProductInfo::ConsumableType::Many, wrapped.product_type});
+  consumer_->validateConsumedProduct(
+    branchType_,
+    ProductInfo{ProductInfo::ConsumableType::Many, wrapped.product_type});
 
   std::vector<Handle<PROD>> products;
   for (auto const& qr : getMany_(wrapped, sel)) {
@@ -459,15 +434,15 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
   }
   results.swap(products);
 
-  if (!recordParents_) return;
+  if (!recordParents_)
+    return;
 
   for (auto const& h : results)
     recordAsParent(*h.provenance());
 }
 
 template <typename PROD>
-inline
-void
+inline void
 art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
 {
   getMany(MatchAllSelector{}, results);
@@ -486,14 +461,13 @@ art::DataViewImpl::getView_(std::string const& moduleLabel,
                           productInstanceName,
                           processName};
   consumer_->validateConsumedProduct(branchType_, pinfo);
-  auto bhv = getMatchingSequenceByLabel_(moduleLabel,
-                                         productInstanceName,
-                                         processName);
+  auto bhv =
+    getMatchingSequenceByLabel_(moduleLabel, productInstanceName, processName);
   removeNonViewableMatches_(typeID, bhv);
-  ensureUniqueProduct_(bhv.size(), typeID,
-                       moduleLabel, productInstanceName, processName);
+  ensureUniqueProduct_(
+    bhv.size(), typeID, moduleLabel, productInstanceName, processName);
   return bhv;
-}  // getView_<>()
+} // getView_<>()
 
 template <typename ELEMENT>
 std::size_t
@@ -505,7 +479,7 @@ art::DataViewImpl::getView(std::string const& moduleLabel,
   std::size_t const orig_size = result.size();
   fillView_(bhv[0], result);
   return result.size() - orig_size;
-}  // getView<>()
+} // getView<>()
 
 template <typename ELEMENT>
 std::size_t
@@ -516,7 +490,7 @@ art::DataViewImpl::getView(InputTag const& tag,
   std::size_t const orig_size = result.size();
   fillView_(bhv[0], result);
   return result.size() - orig_size;
-}  // getView<>()
+} // getView<>()
 
 template <typename ELEMENT>
 bool
@@ -526,7 +500,8 @@ art::DataViewImpl::getView(std::string const& moduleLabel,
 {
   auto bhv = getView_<ELEMENT>(moduleLabel, productInstanceName, {});
   fillView_(bhv[0], result.vals());
-  result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
+  result.set_innards(bhv[0].result()->productID(),
+                     bhv[0].result()->uniqueProduct());
   return true;
 }
 
@@ -536,13 +511,15 @@ art::DataViewImpl::getView(InputTag const& tag, View<ELEMENT>& result) const
 {
   auto bhv = getView_<ELEMENT>(tag.label(), tag.instance(), tag.process());
   fillView_(bhv[0], result.vals());
-  result.set_innards(bhv[0].result()->productID(), bhv[0].result()->uniqueProduct());
+  result.set_innards(bhv[0].result()->productID(),
+                     bhv[0].result()->uniqueProduct());
   return true;
 }
 
 template <typename ELEMENT>
 bool
-art::DataViewImpl::getView(ViewToken<ELEMENT> const& token, View<ELEMENT>& result) const
+art::DataViewImpl::getView(ViewToken<ELEMENT> const& token,
+                           View<ELEMENT>& result) const
 {
   return getView(token.inputTag_, result);
 }
@@ -563,11 +540,9 @@ art::DataViewImpl::fillView_(GroupQueryResult& bh,
   recordAsParent(Provenance{bh.result()});
 
   std::vector<ELEMENT const*> vals;
-  cet::transform_all(erased_ptrs,
-                     std::back_inserter(vals),
-                     [](auto p) {
-                       return static_cast<ELEMENT const*>(p);
-                     });
+  cet::transform_all(erased_ptrs, std::back_inserter(vals), [](auto p) {
+    return static_cast<ELEMENT const*>(p);
+  });
   result.swap(vals);
 }
 

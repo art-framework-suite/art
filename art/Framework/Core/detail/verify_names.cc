@@ -6,8 +6,7 @@ art::detail::verifyInstanceName(std::string const& instanceName)
 {
   if (instanceName.find('_') != std::string::npos) {
     throw art::Exception(art::errors::Configuration)
-      << "Instance name \""
-      << instanceName
+      << "Instance name \"" << instanceName
       << "\" is illegal: underscores are not permitted in instance names."
       << '\n';
   }
@@ -18,8 +17,7 @@ art::detail::verifyFriendlyClassName(std::string const& fcn)
 {
   if (fcn.find('_') != std::string::npos) {
     throw art::Exception(art::errors::LogicError)
-      << "Class \""
-      << fcn
+      << "Class \"" << fcn
       << "\" is not suitable for use as a product due to the presence of "
       << "underscores which are not allowed anywhere in the class name "
       << "(including namespace and enclosing classes).\n";

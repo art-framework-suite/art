@@ -9,38 +9,28 @@ namespace art {
 
 class art::OutputFileInfo {
 public:
-  OutputFileInfo(std::string const & moduleLabel,
-                 std::string const & fileName);
-  std::string const & moduleLabel() const;
-  std::string const & fileName() const;
+  OutputFileInfo(std::string const& moduleLabel, std::string const& fileName);
+  std::string const& moduleLabel() const;
+  std::string const& fileName() const;
 
 private:
-  std::string const & moduleLabel_;
-  std::string const & fileName_;
+  std::string const& moduleLabel_;
+  std::string const& fileName_;
 };
 
-inline
-art::OutputFileInfo::
-OutputFileInfo(std::string const & moduleLabel,
-               std::string const & fileName)
-  :
-  moduleLabel_(moduleLabel),
-  fileName_(fileName)
-{
-}
+inline art::OutputFileInfo::OutputFileInfo(std::string const& moduleLabel,
+                                           std::string const& fileName)
+  : moduleLabel_(moduleLabel), fileName_(fileName)
+{}
 
-inline
-std::string const &
-art::OutputFileInfo::
-moduleLabel() const
+inline std::string const&
+art::OutputFileInfo::moduleLabel() const
 {
   return moduleLabel_;
 }
 
-inline
-std::string const &
-art::OutputFileInfo::
-fileName() const
+inline std::string const&
+art::OutputFileInfo::fileName() const
 {
   return fileName_;
 }

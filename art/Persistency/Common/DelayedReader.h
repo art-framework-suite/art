@@ -24,7 +24,6 @@ namespace art {
   class DelayedReader {
 
   public:
-
     virtual ~DelayedReader();
 
     std::unique_ptr<EDProduct>
@@ -48,21 +47,13 @@ namespace art {
     }
 
   private:
+    virtual std::unique_ptr<EDProduct> getProduct_(BranchKey const&,
+                                                   TypeID const&,
+                                                   RangeSet&) const = 0;
 
-    virtual
-    std::unique_ptr<EDProduct>
-    getProduct_(BranchKey const&,
-                TypeID const&,
-                RangeSet&) const = 0;
+    virtual void setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>);
 
-    virtual
-    void
-    setGroupFinder_(cet::exempt_ptr<EDProductGetterFinder const>);
-
-    virtual
-    int
-    openNextSecondaryFile_(int idx);
-
+    virtual int openNextSecondaryFile_(int idx);
   };
 
 } // namespace art

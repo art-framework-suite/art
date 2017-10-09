@@ -32,33 +32,42 @@ TFileService::TFileService(ServiceTable<Config> const& config,
                            ActivityRegistry& r)
   : TFileDirectory{"", "", nullptr, ""}
   , closeFileFast_{config().closeFileFast()}
-  , fstats_{config.get_PSet().get<std::string>("service_type"), ServiceHandle<TriggerNamesService const>{}->getProcessName()}
+  , fstats_{config.get_PSet().get<std::string>("service_type"),
+            ServiceHandle<TriggerNamesService const>{}->getProcessName()}
   , filePattern_{config().fileName()}
   , uniqueFilename_{unique_filename((config().tmpDir() == default_tmpDir ?
-                                     parent_path(filePattern_) :
-                                     config().tmpDir()) + "/TFileService")}
+                                       parent_path(filePattern_) :
+                                       config().tmpDir()) +
+                                    "/TFileService")}
 {
   assert(file_ == nullptr && "TFile pointer should always be zero here!");
   file_ = new TFile{uniqueFilename_.c_str(), "RECREATE"};
   fstats_.recordFileOpen();
   // Activities to monitor in order to set the proper directory.
-  r.sPostOpenFile.watch([this](std::string const& fileName){ fstats_.recordInputFile(fileName); });
-  r.sPreModuleRespondToOpenInputFile.watch   (this, &TFileService::setDirectoryName);
-  r.sPreModuleRespondToCloseInputFile.watch  (this, &TFileService::setDirectoryName);
-  r.sPreModuleRespondToOpenOutputFiles.watch (this, &TFileService::setDirectoryName);
-  r.sPreModuleRespondToCloseOutputFiles.watch(this, &TFileService::setDirectoryName);
-  r.sPreModuleConstruction.watch      (this, &TFileService::setDirectoryName);
-  r.sPreModule.watch                  (this, &TFileService::setDirectoryName);
-  r.sPreModuleBeginJob.watch          (this, &TFileService::setDirectoryName);
-  r.sPreModuleEndJob.watch            (this, &TFileService::setDirectoryName);
-  r.sPreModuleBeginRun.watch          (this, &TFileService::setDirectoryName);
-  r.sPreModuleEndRun.watch            (this, &TFileService::setDirectoryName);
-  r.sPreModuleBeginSubRun.watch       (this, &TFileService::setDirectoryName);
-  r.sPreModuleEndSubRun.watch         (this, &TFileService::setDirectoryName);
+  r.sPostOpenFile.watch(
+    [this](std::string const& fileName) { fstats_.recordInputFile(fileName); });
+  r.sPreModuleRespondToOpenInputFile.watch(this,
+                                           &TFileService::setDirectoryName);
+  r.sPreModuleRespondToCloseInputFile.watch(this,
+                                            &TFileService::setDirectoryName);
+  r.sPreModuleRespondToOpenOutputFiles.watch(this,
+                                             &TFileService::setDirectoryName);
+  r.sPreModuleRespondToCloseOutputFiles.watch(this,
+                                              &TFileService::setDirectoryName);
+  r.sPreModuleConstruction.watch(this, &TFileService::setDirectoryName);
+  r.sPreModule.watch(this, &TFileService::setDirectoryName);
+  r.sPreModuleBeginJob.watch(this, &TFileService::setDirectoryName);
+  r.sPreModuleEndJob.watch(this, &TFileService::setDirectoryName);
+  r.sPreModuleBeginRun.watch(this, &TFileService::setDirectoryName);
+  r.sPreModuleEndRun.watch(this, &TFileService::setDirectoryName);
+  r.sPreModuleBeginSubRun.watch(this, &TFileService::setDirectoryName);
+  r.sPreModuleEndSubRun.watch(this, &TFileService::setDirectoryName);
   // Activities to monitor to keep track of events, subruns and runs seen.
-  r.sPostProcessEvent.watch([this](Event  const& e ){ fstats_.recordEvent (e .id()); });
-  r.sPostEndSubRun.watch   ([this](SubRun const& sr){ fstats_.recordSubRun(sr.id()); });
-  r.sPostEndRun.watch      ([this](Run    const& r ){ fstats_.recordRun   (r .id()); });
+  r.sPostProcessEvent.watch(
+    [this](Event const& e) { fstats_.recordEvent(e.id()); });
+  r.sPostEndSubRun.watch(
+    [this](SubRun const& sr) { fstats_.recordSubRun(sr.id()); });
+  r.sPostEndRun.watch([this](Run const& r) { fstats_.recordRun(r.id()); });
 }
 
 // ----------------------------------------------------------------------
@@ -81,7 +90,7 @@ TFileService::setDirectoryName(ModuleDescription const& desc)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   dir_ = desc.moduleLabel();
-  descr_ = dir_ ;
+  descr_ = dir_;
   descr_ += " (";
   descr_ += desc.moduleName();
   descr_ += ") folder";

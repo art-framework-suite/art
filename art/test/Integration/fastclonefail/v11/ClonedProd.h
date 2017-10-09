@@ -5,13 +5,14 @@
 
 namespace arttest {
 
-class ClonedProd {
-public:
-  ~ClonedProd();
-  ClonedProd();
-private:
-  double dp1_;
-};
+  class ClonedProd {
+  public:
+    ~ClonedProd();
+    ClonedProd();
+
+  private:
+    double dp1_;
+  };
 
 } // namespace arttest
 

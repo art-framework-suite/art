@@ -15,8 +15,8 @@
 // corresponding to multiple (Sub)Run fragments are aggregated on
 // input.
 // ======================================================================
-#include "art/Framework/Core/OutputFileStatus.h"
 #include "art/Framework/Core/OutputFileGranularity.h"
+#include "art/Framework/Core/OutputFileStatus.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/PathsInfo.h"
@@ -62,7 +62,7 @@ public:
   void setAuxiliaryRangeSetID(RunPrincipal& rp);
 
   void closeAllOutputFiles();
-  void openAllOutputFiles(FileBlock & fb);
+  void openAllOutputFiles(FileBlock& fb);
 
   void closeSomeOutputFiles();
   void openSomeOutputFiles(FileBlock const& fb);
@@ -95,26 +95,27 @@ private:
   template <typename T>
   void runEndPaths(typename T::MyPrincipal&);
 
-  template <class F> void doForAllEnabledWorkers_(F f);
-  template <class F> void doForAllEnabledOutputWorkers_(F f);
+  template <class F>
+  void doForAllEnabledWorkers_(F f);
+  template <class F>
+  void doForAllEnabledOutputWorkers_(F f);
 
   PathsInfo& endPathInfo_;
   ActionTable* act_table_;
   ActivityRegistry& actReg_;
-  OutputWorkers  outputWorkers_;
+  OutputWorkers outputWorkers_;
   OutputWorkerSet outputWorkersToOpen_;
-  OutputWorkerSet outputWorkersToClose_ {};
+  OutputWorkerSet outputWorkersToClose_{};
   std::vector<unsigned char> workersEnabled_;
   std::vector<unsigned char> outputWorkersEnabled_;
-  OutputFileStatus fileStatus_ {OutputFileStatus::Closed};
-  std::unique_ptr<RangeSetHandler> runRangeSetHandler_ {nullptr};
-  std::unique_ptr<RangeSetHandler> subRunRangeSetHandler_ {nullptr};
+  OutputFileStatus fileStatus_{OutputFileStatus::Closed};
+  std::unique_ptr<RangeSetHandler> runRangeSetHandler_{nullptr};
+  std::unique_ptr<RangeSetHandler> subRunRangeSetHandler_{nullptr};
 };
 
 template <typename T>
 void
-art::EndPathExecutor::
-process(typename T::MyPrincipal & ep)
+art::EndPathExecutor::process(typename T::MyPrincipal& ep)
 {
   this->resetAll();
 
@@ -126,20 +127,22 @@ process(typename T::MyPrincipal & ep)
       endPathInfo_.pathPtrs().front()->process<T>(ep);
     }
   }
-  catch (cet::exception & ex) {
-    actions::ActionCodes const action {T::level == Level::Event ? act_table_->find(ex.root_cause()) : actions::Rethrow};
+  catch (cet::exception& ex) {
+    actions::ActionCodes const action{T::level == Level::Event ?
+                                        act_table_->find(ex.root_cause()) :
+                                        actions::Rethrow};
     switch (action) {
-    case actions::IgnoreCompletely: {
-      mf::LogWarning(ex.category())
-        << "exception being ignored for current event:\n"
-        << cet::trim_right_copy(ex.what(), " \n");
-      break;
-    }
-    default: {
-      throw art::Exception(errors::EventProcessorFailure, "EndPathExecutor:")
-        << "an exception occurred during current event processing\n"
-        << ex;
-    }
+      case actions::IgnoreCompletely: {
+        mf::LogWarning(ex.category())
+          << "exception being ignored for current event:\n"
+          << cet::trim_right_copy(ex.what(), " \n");
+        break;
+      }
+      default: {
+        throw art::Exception(errors::EventProcessorFailure, "EndPathExecutor:")
+          << "an exception occurred during current event processing\n"
+          << ex;
+      }
     }
   }
   catch (...) {
@@ -154,9 +157,11 @@ template <class F>
 void
 art::EndPathExecutor::doForAllEnabledWorkers_(F fcn)
 {
-  size_t index {0};
+  size_t index{0};
   for (auto const& val : endPathInfo_.workers()) {
-    if (workersEnabled_[index++]) { fcn(val.second.get()); }
+    if (workersEnabled_[index++]) {
+      fcn(val.second.get());
+    }
   }
 }
 
@@ -164,14 +169,16 @@ template <class F>
 void
 art::EndPathExecutor::doForAllEnabledOutputWorkers_(F fcn)
 {
-  size_t index {0};
-  for (auto ow : outputWorkers_ ) {
-    if (outputWorkersEnabled_[index++]) { fcn(ow); }
+  size_t index{0};
+  for (auto ow : outputWorkers_) {
+    if (outputWorkersEnabled_[index++]) {
+      fcn(ow);
+    }
   }
 }
 
-// Local Variables:
-// mode: c++
-// End:
+  // Local Variables:
+  // mode: c++
+  // End:
 
 #endif /* art_Framework_Core_EndPathExecutor_h */

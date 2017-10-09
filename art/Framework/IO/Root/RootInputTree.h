@@ -39,27 +39,30 @@ namespace art {
   namespace detail {
 
     template <typename AUX>
-    void mergeAuxiliary(AUX& left, AUX const& right)
+    void
+    mergeAuxiliary(AUX& left, AUX const& right)
     {
       left.mergeAuxiliary(right);
     }
 
     template <>
-    inline void mergeAuxiliary(EventAuxiliary&,
-                               EventAuxiliary const&)
+    inline void
+    mergeAuxiliary(EventAuxiliary&, EventAuxiliary const&)
     {}
 
     template <BranchType, typename ID>
     RangeSet makeFullRangeSet(ID const&);
 
     template <>
-    inline RangeSet makeFullRangeSet<InSubRun,SubRunID>(SubRunID const& id)
+    inline RangeSet
+    makeFullRangeSet<InSubRun, SubRunID>(SubRunID const& id)
     {
       return RangeSet::forSubRun(id);
     }
 
     template <>
-    inline RangeSet makeFullRangeSet<InRun,RunID>(RunID const& id)
+    inline RangeSet
+    makeFullRangeSet<InRun, RunID>(RunID const& id)
     {
       return RangeSet::forRun(id);
     }
@@ -87,26 +90,44 @@ namespace art {
 
     bool isValid() const;
     bool hasBranch(std::string const& branchName) const;
-    void addBranch(BranchKey const&,
-                   BranchDescription const&);
+    void addBranch(BranchKey const&, BranchDescription const&);
     void dropBranch(std::string const& branchName);
 
-    bool next() { return ++entryNumber_ < entries_; }
-    bool previous() { return --entryNumber_ >= 0; }
-
-    bool current(EntryNumbers const& numbers)
+    bool
+    next()
     {
-      assert(!numbers.empty());
-      return std::all_of(numbers.cbegin(),
-                         numbers.cend(),
-                         [this](auto entry){
-                           return (entry < entries_) && (entry >= 0);
-                         });
+      return ++entryNumber_ < entries_;
+    }
+    bool
+    previous()
+    {
+      return --entryNumber_ >= 0;
     }
 
-    void rewind() { entryNumber_ = 0; }
-    EntryNumber entryNumber() const { return entryNumber_; }
-    EntryNumber entries() const { return entries_; }
+    bool
+    current(EntryNumbers const& numbers)
+    {
+      assert(!numbers.empty());
+      return std::all_of(numbers.cbegin(), numbers.cend(), [this](auto entry) {
+        return (entry < entries_) && (entry >= 0);
+      });
+    }
+
+    void
+    rewind()
+    {
+      entryNumber_ = 0;
+    }
+    EntryNumber
+    entryNumber() const
+    {
+      return entryNumber_;
+    }
+    EntryNumber
+    entries() const
+    {
+      return entries_;
+    }
 
     void setEntryNumber(EntryNumber theEntryNumber);
 
@@ -131,28 +152,28 @@ namespace art {
     // should not need to worry about passing the BranchIDLists in the
     // SQLite-based makeDelayedReader overload used for (Sub)Runs.
 
-    std::unique_ptr<DelayedReader>
-    makeDelayedReader(FileFormatVersion,
-                      cet::exempt_ptr<BranchIDLists const> branchIDLists,
-                      BranchType,
-                      std::vector<EntryNumber> const& entrySet,
-                      EventID);
+    std::unique_ptr<DelayedReader> makeDelayedReader(
+      FileFormatVersion,
+      cet::exempt_ptr<BranchIDLists const> branchIDLists,
+      BranchType,
+      std::vector<EntryNumber> const& entrySet,
+      EventID);
 
-    std::unique_ptr<DelayedReader>
-    makeDelayedReader(FileFormatVersion,
-                      sqlite3* inputDB,
-                      cet::exempt_ptr<BranchIDLists const> branchIDLists,
-                      BranchType,
-                      std::vector<EntryNumber> const& entrySet,
-                      EventID);
+    std::unique_ptr<DelayedReader> makeDelayedReader(
+      FileFormatVersion,
+      sqlite3* inputDB,
+      cet::exempt_ptr<BranchIDLists const> branchIDLists,
+      BranchType,
+      std::vector<EntryNumber> const& entrySet,
+      EventID);
 
-    std::unique_ptr<BranchMapper>
-    makeBranchMapper() const;
+    std::unique_ptr<BranchMapper> makeBranchMapper() const;
 
-    template<typename AUX>
-    AUX getAux(EntryNumber const entry)
+    template <typename AUX>
+    AUX
+    getAux(EntryNumber const entry)
     {
-      auto aux  = std::make_unique<AUX>();
+      auto aux = std::make_unique<AUX>();
       auto pAux = aux.get();
       auxBranch_->SetAddress(&pAux);
       setEntryNumber(entry);
@@ -160,57 +181,77 @@ namespace art {
       return *aux;
     }
 
-    template<typename AUX>
-    std::unique_ptr<RangeSetHandler> fillAux(FileFormatVersion const fileFormatVersion,
-                                             EntryNumbers const& entries,
-                                             FileIndex const& fileIndex,
-                                             sqlite3* db,
-                                             std::string const& filename,
-                                             AUX& aux)
+    template <typename AUX>
+    std::unique_ptr<RangeSetHandler>
+    fillAux(FileFormatVersion const fileFormatVersion,
+            EntryNumbers const& entries,
+            FileIndex const& fileIndex,
+            sqlite3* db,
+            std::string const& filename,
+            AUX& aux)
     {
       auto auxResult = getAux<AUX>(entries[0]);
       if (fileFormatVersion.value_ < 9) {
-        auto const& rs = detail::rangeSetFromFileIndex(fileIndex, auxResult.id(), compactSubRunRanges_);
+        auto const& rs = detail::rangeSetFromFileIndex(
+          fileIndex, auxResult.id(), compactSubRunRanges_);
         return std::make_unique<ClosedRangeSetHandler>(rs);
       }
 
-      auto resolve_info = [db, &filename](auto const id, bool const compactSubRunRanges) {
-        return detail::resolveRangeSetInfo(db, filename, AUX::branch_type, id, compactSubRunRanges);
+      auto resolve_info = [db, &filename](auto const id,
+                                          bool const compactSubRunRanges) {
+        return detail::resolveRangeSetInfo(
+          db, filename, AUX::branch_type, id, compactSubRunRanges);
       };
 
-      auto rangeSetInfo = resolve_info(auxResult.rangeSetID(), compactSubRunRanges_);
-      for (auto i = entries.cbegin()+1, e = entries.cend(); i!=e; ++i) {
+      auto rangeSetInfo =
+        resolve_info(auxResult.rangeSetID(), compactSubRunRanges_);
+      for (auto i = entries.cbegin() + 1, e = entries.cend(); i != e; ++i) {
         auto const& tmpAux = getAux<AUX>(*i);
         detail::mergeAuxiliary(auxResult, tmpAux);
-        rangeSetInfo.update(resolve_info(tmpAux.rangeSetID(), compactSubRunRanges_), compactSubRunRanges_);
+        rangeSetInfo.update(
+          resolve_info(tmpAux.rangeSetID(), compactSubRunRanges_),
+          compactSubRunRanges_);
       }
 
       auxResult.setRangeSetID(-1u); // Range set of new auxiliary is invalid
       std::swap(aux, auxResult);
-      return std::make_unique<ClosedRangeSetHandler>(resolveRangeSet(rangeSetInfo));
+      return std::make_unique<ClosedRangeSetHandler>(
+        resolveRangeSet(rangeSetInfo));
     }
 
-    TTree const* tree() const { return tree_; }
-    TTree const* metaTree() const { return metaTree_; }
+    TTree const*
+    tree() const
+    {
+      return tree_;
+    }
+    TTree const*
+    metaTree() const
+    {
+      return metaTree_;
+    }
 
     void setCacheSize(unsigned int cacheSize) const;
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
 
-    TBranch* productProvenanceBranch() const { return productProvenanceBranch_; }
+    TBranch*
+    productProvenanceBranch() const
+    {
+      return productProvenanceBranch_;
+    }
 
   private:
     cet::exempt_ptr<TFile> filePtr_;
     // We use bare pointers for pointers to some ROOT entities.
     // Root owns them and uses bare pointers internally,
     // therefore, using smart pointers here will do no good.
-    TTree* tree_ {nullptr};
-    TTree* metaTree_ {nullptr};
+    TTree* tree_{nullptr};
+    TTree* metaTree_{nullptr};
     BranchType branchType_;
     int64_t const saveMemoryObjectThreshold_;
-    TBranch* auxBranch_ {nullptr};
-    TBranch* productProvenanceBranch_ {nullptr};
-    EntryNumber entries_ {0};
-    EntryNumber entryNumber_ {-1};
+    TBranch* auxBranch_{nullptr};
+    TBranch* productProvenanceBranch_{nullptr};
+    EntryNumber entries_{0};
+    EntryNumber entryNumber_{-1};
     BranchMap branches_{};
     cet::exempt_ptr<RootInputFile> primaryFile_;
     bool const compactSubRunRanges_;

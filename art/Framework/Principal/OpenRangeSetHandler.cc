@@ -1,7 +1,7 @@
+#include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Utilities/Exception.h"
 
@@ -9,14 +9,12 @@
 
 namespace art {
 
-  OpenRangeSetHandler::OpenRangeSetHandler(RunNumber_t const r)
-    : ranges_{r}
-  {}
+  OpenRangeSetHandler::OpenRangeSetHandler(RunNumber_t const r) : ranges_{r} {}
 
   RangeSet
   OpenRangeSetHandler::do_getSeenRanges() const
   {
-    RangeSet tmp {ranges_.run()};
+    RangeSet tmp{ranges_.run()};
     tmp.assign_ranges(ranges_.begin(), rsIter_);
     return tmp;
   }
@@ -34,5 +32,4 @@ namespace art {
     ranges_.clear();
     rsIter_ = ranges_.end();
   }
-
 }

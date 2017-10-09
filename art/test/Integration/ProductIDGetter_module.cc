@@ -24,15 +24,17 @@ namespace art {
 }
 
 class art::test::ProductIDGetter : public EDProducer {
-  struct Config {};
+  struct Config {
+  };
+
 public:
   using Parameters = Table<Config>;
   explicit ProductIDGetter(Parameters const&);
+
 private:
   void beginSubRun(art::SubRun&) override;
   void produce(art::Event&) override;
 };
-
 
 art::test::ProductIDGetter::ProductIDGetter(Parameters const&)
 {
@@ -42,7 +44,8 @@ art::test::ProductIDGetter::ProductIDGetter(Parameters const&)
   produces<art::Ptr<int>>();
 }
 
-void art::test::ProductIDGetter::beginSubRun(art::SubRun& sr)
+void
+art::test::ProductIDGetter::beginSubRun(art::SubRun& sr)
 {
   auto vip = std::make_unique<std::vector<int>>();
   vip->push_back(1);
@@ -64,14 +67,15 @@ void art::test::ProductIDGetter::beginSubRun(art::SubRun& sr)
   sr.put(std::move(ptr), art::fullSubRun());
 }
 
-void art::test::ProductIDGetter::produce(art::Event& e)
+void
+art::test::ProductIDGetter::produce(art::Event& e)
 {
-  // Test that getting a ProductID for an unregistered product yields an exception.
-  BOOST_REQUIRE_EXCEPTION(getProductID<int>(),
-                          art::Exception,
-                          [](art::Exception const& e) {
-                            return e.categoryCode() == art::errors::ProductRegistrationFailure;
-                          });
+  // Test that getting a ProductID for an unregistered product yields an
+  // exception.
+  BOOST_REQUIRE_EXCEPTION(
+    getProductID<int>(), art::Exception, [](art::Exception const& e) {
+      return e.categoryCode() == art::errors::ProductRegistrationFailure;
+    });
 
   auto vip = std::make_unique<std::vector<int>>();
   vip->push_back(0);

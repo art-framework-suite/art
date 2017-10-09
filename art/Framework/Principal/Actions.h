@@ -6,17 +6,18 @@
 #include <map>
 #include <string>
 
-namespace fhicl { class ParameterSet; }
+namespace fhicl {
+  class ParameterSet;
+}
 
 namespace art {
   namespace actions {
     char const* actionName(ActionCodes code);
-  }  // actions
+  } // actions
 }
 
 class art::ActionTable {
 public:
-
   ActionTable();
   explicit ActionTable(fhicl::ParameterSet const&);
 
@@ -27,7 +28,8 @@ private:
   using ActionMap = std::map<std::string, actions::ActionCodes>;
 
   void addDefaults_();
-  void install_(actions::ActionCodes code, fhicl::ParameterSet const& scheduler);
+  void install_(actions::ActionCodes code,
+                fhicl::ParameterSet const& scheduler);
 
   ActionMap map_;
 };

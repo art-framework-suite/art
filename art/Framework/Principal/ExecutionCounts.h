@@ -9,18 +9,27 @@ namespace art {
   // Counting-statistics fields
 
   namespace stats {
-    struct Visited { std::size_t value{}; };
-    struct Run     { std::size_t value{}; };
-    struct Passed  { std::size_t value{}; };
-    struct Failed  { std::size_t value{}; };
-    struct ExceptionThrown { std::size_t value{}; };
+    struct Visited {
+      std::size_t value{};
+    };
+    struct Run {
+      std::size_t value{};
+    };
+    struct Passed {
+      std::size_t value{};
+    };
+    struct Failed {
+      std::size_t value{};
+    };
+    struct ExceptionThrown {
+      std::size_t value{};
+    };
   }
 
   // ==============================================
-  template <typename ... ARGS>
+  template <typename... ARGS>
   class ExecutionCounts {
   public:
-
     template <typename FIELD>
     std::size_t times() const;
 
@@ -28,13 +37,12 @@ namespace art {
     void increment();
 
     template <typename HEAD_FIELD, typename... TAIL_FIELDS>
-    std::enable_if_t<(sizeof...(TAIL_FIELDS)>0)> increment();
+    std::enable_if_t<(sizeof...(TAIL_FIELDS) > 0)> increment();
 
     void update(bool const rc);
     void reset();
 
   private:
-
     std::tuple<ARGS...> counts_; // Value-initialized
   };
 
@@ -46,7 +54,6 @@ namespace art {
                                              stats::Passed,
                                              stats::Failed,
                                              stats::ExceptionThrown>;
-
 
   // ==============================================
   // IMPLEMENTATION for ExecutionCounts
@@ -69,33 +76,30 @@ namespace art {
 
   template <typename... ARGS>
   template <typename HEAD_FIELD, typename... TAIL_FIELDS>
-  std::enable_if_t<(sizeof...(TAIL_FIELDS)>0)>
+  std::enable_if_t<(sizeof...(TAIL_FIELDS) > 0)>
   ExecutionCounts<ARGS...>::increment()
   {
     increment<HEAD_FIELD>();
     increment<TAIL_FIELDS...>();
   }
 
-
-  template <typename ... ARGS>
+  template <typename... ARGS>
   void
   ExecutionCounts<ARGS...>::update(bool const rc)
   {
     if (rc) {
       increment<stats::Passed>();
-    }
-    else {
+    } else {
       increment<stats::Failed>();
     }
   }
 
-  template <typename ... ARGS>
+  template <typename... ARGS>
   void
   ExecutionCounts<ARGS...>::reset()
   {
     counts_ = std::tuple<ARGS...>();
   }
-
 }
 
 #endif /* art_Framework_Principal_ExecutionCounts_h */

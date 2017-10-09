@@ -10,9 +10,10 @@ namespace fhicl {
 namespace art {
   namespace test {
     struct DummyClassTool {
-      struct Config {};
+      struct Config {
+      };
       using Parameters = ToolConfigTable<Config>;
-      DummyClassTool(Parameters const&){}
+      DummyClassTool(Parameters const&) {}
     };
   }
 }

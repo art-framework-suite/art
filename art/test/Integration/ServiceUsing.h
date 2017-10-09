@@ -16,15 +16,22 @@ class art::test::ServiceUsing {
 public:
   ServiceUsing(fhicl::ParameterSet const&, art::ActivityRegistry&);
 
-  int getCachedValue() const { return cached_value_; }
-  bool postBeginJobCalled() const { return postBeginJobCalled_; }
+  int
+  getCachedValue() const
+  {
+    return cached_value_;
+  }
+  bool
+  postBeginJobCalled() const
+  {
+    return postBeginJobCalled_;
+  }
 
 private:
-
   void postBeginJob();
-  bool postBeginJobCalled_ {false};
-  int cached_value_ {};
-  ServiceHandle<Wanted> wanted_ {};
+  bool postBeginJobCalled_{false};
+  int cached_value_{};
+  ServiceHandle<Wanted> wanted_{};
 };
 
 DECLARE_ART_SERVICE(art::test::ServiceUsing, LEGACY)

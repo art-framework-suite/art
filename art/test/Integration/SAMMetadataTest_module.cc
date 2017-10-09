@@ -24,30 +24,28 @@ namespace arttest {
 
 class arttest::SAMMetadataTest : public art::EDAnalyzer {
 public:
-  explicit SAMMetadataTest(fhicl::ParameterSet const & p);
+  explicit SAMMetadataTest(fhicl::ParameterSet const& p);
 
-  void analyze(art::Event const & e) override;
+  void analyze(art::Event const& e) override;
 
   void beginJob() override;
 
 private:
-
 };
 
-
-arttest::SAMMetadataTest::SAMMetadataTest(fhicl::ParameterSet const &p)
+arttest::SAMMetadataTest::SAMMetadataTest(fhicl::ParameterSet const& p)
   : art::EDAnalyzer(p)
-{
-}
+{}
 
-void arttest::SAMMetadataTest::analyze(art::Event const &)
-{
-}
+void
+arttest::SAMMetadataTest::analyze(art::Event const&)
+{}
 
-void arttest::SAMMetadataTest::beginJob()
+void
+arttest::SAMMetadataTest::beginJob()
 {
-  art::ServiceHandle< art::FileCatalogMetadata > metadata;
-  metadata->addMetadataString( "testMetadata", "success!" );
+  art::ServiceHandle<art::FileCatalogMetadata> metadata;
+  metadata->addMetadataString("testMetadata", "success!");
 }
 
 DEFINE_ART_MODULE(arttest::SAMMetadataTest)

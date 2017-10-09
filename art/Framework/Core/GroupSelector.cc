@@ -1,9 +1,9 @@
 #include "art/Framework/Core/GroupSelector.h"
 
 #include "art/Framework/Core/GroupSelectorRules.h"
+#include "boost/algorithm/string.hpp"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Utilities/Exception.h"
-#include "boost/algorithm/string.hpp"
 #include "cetlib/container_algorithms.h"
 
 #include <algorithm>
@@ -51,11 +51,8 @@ GroupSelector::selected(BranchDescription const& desc) const
 void
 GroupSelector::print(ostream& os) const
 {
-  os << "GroupSelector at: "
-     << static_cast<void const*>(this)
-     << " has "
-     << groupsToSelect_.size()
-     << " groups to select:\n";
+  os << "GroupSelector at: " << static_cast<void const*>(this) << " has "
+     << groupsToSelect_.size() << " groups to select:\n";
   for (auto const& bd_ptr : groupsToSelect_) {
     os << bd_ptr->branchName() << '\n';
   }
@@ -65,7 +62,7 @@ GroupSelector::print(ostream& os) const
 // Associated free function
 
 ostream&
-art::operator<< (ostream& os, const GroupSelector& gs)
+art::operator<<(ostream& os, const GroupSelector& gs)
 {
   gs.print(os);
   return os;

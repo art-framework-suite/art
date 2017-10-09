@@ -21,8 +21,8 @@
 
 #include <functional>
 #include <memory>
-#include <string>
 #include <sstream>
+#include <string>
 
 namespace art {
 
@@ -31,12 +31,15 @@ namespace art {
 
   class ProducerBase : private ProductRegistryHelper {
   public:
-
-    using ProductRegistryHelper::registerProducts;
-    using ProductRegistryHelper::produces;
     using ProductRegistryHelper::expectedProducts;
+    using ProductRegistryHelper::produces;
+    using ProductRegistryHelper::registerProducts;
 
-    bool modifiesEvent() const { return true; }
+    bool
+    modifiesEvent() const
+    {
+      return true;
+    }
 
     template <typename PROD, BranchType B>
     ProductID getProductID(ModuleDescription const& moduleDescription,
@@ -48,34 +51,48 @@ namespace art {
 
       template <typename T>
       struct FullConfig {
-        fhicl::Atom<std::string>  module_type { fhicl::Name("module_type") };
-        fhicl::Atom<bool> errorOnFailureToPut { fhicl::Name("errorOnFailureToPut"), true };
+        fhicl::Atom<std::string> module_type{fhicl::Name("module_type")};
+        fhicl::Atom<bool> errorOnFailureToPut{
+          fhicl::Name("errorOnFailureToPut"),
+          true};
         fhicl::TableFragment<T> user;
       };
 
-      using KeysToIgnore_t = std::conditional_t<std::is_void<UserKeysToIgnore>::value,
-                                                detail::IgnoreModuleLabel,
-                                                fhicl::KeysToIgnore<detail::IgnoreModuleLabel, UserKeysToIgnore>>;
+      using KeysToIgnore_t = std::conditional_t<
+        std::is_void<UserKeysToIgnore>::value,
+        detail::IgnoreModuleLabel,
+        fhicl::KeysToIgnore<detail::IgnoreModuleLabel, UserKeysToIgnore>>;
 
       fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t> fullConfig_;
 
-      cet::exempt_ptr<fhicl::detail::ParameterBase const> get_parameter_base() const override { return &fullConfig_; }
+      cet::exempt_ptr<fhicl::detail::ParameterBase const>
+      get_parameter_base() const override
+      {
+        return &fullConfig_;
+      }
 
     public:
-
       explicit Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
       Table(fhicl::ParameterSet const& pset) : fullConfig_{pset} {}
 
-      auto const& operator()() const { return fullConfig_().user(); }
-      auto const& get_PSet() const { return fullConfig_.get_PSet(); }
+      auto const&
+      operator()() const
+      {
+        return fullConfig_().user();
+      }
+      auto const&
+      get_PSet() const
+      {
+        return fullConfig_.get_PSet();
+      }
 
-      void print_allowed_configuration(std::ostream& os, std::string const& prefix) const
+      void
+      print_allowed_configuration(std::ostream& os,
+                                  std::string const& prefix) const
       {
         fullConfig_.print_allowed_configuration(os, prefix);
       }
-
     };
-
   };
 
   template <typename PROD, BranchType B>
@@ -83,21 +100,21 @@ namespace art {
   ProducerBase::getProductID(ModuleDescription const& md,
                              std::string const& instanceName) const
   {
-    auto const& pd = get_ProductDescription<PROD>(B,
-                                                 md.moduleLabel(),
-                                                 instanceName);
+    auto const& pd =
+      get_ProductDescription<PROD>(B, md.moduleLabel(), instanceName);
     return pd.productID();
   }
 
   template <typename T>
-  inline std::ostream& operator<<(std::ostream& os, ProducerBase::Table<T> const& t)
+  inline std::ostream&
+  operator<<(std::ostream& os, ProducerBase::Table<T> const& t)
   {
     std::ostringstream config;
-    t.print_allowed_configuration(config, std::string(3,' '));
+    t.print_allowed_configuration(config, std::string(3, ' '));
     return os << config.str();
   }
 
-}  // art
+} // art
 
 #endif /* art_Framework_Core_ProducerBase_h */
 

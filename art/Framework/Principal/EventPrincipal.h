@@ -29,37 +29,82 @@ namespace art {
 
   class EventPrincipal final : public Principal {
   public:
-
     using Auxiliary = EventAuxiliary;
     static constexpr BranchType branch_type = Auxiliary::branch_type;
 
-    EventPrincipal(EventAuxiliary const& aux,
-                   ProcessConfiguration const& pc,
-                   cet::exempt_ptr<ProductTable const> presentProducts,
-                   std::shared_ptr<History> history = std::make_shared<History>(),
-                   std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
-                   std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
-                   bool lastInSubRun = false);
+    EventPrincipal(
+      EventAuxiliary const& aux,
+      ProcessConfiguration const& pc,
+      cet::exempt_ptr<ProductTable const> presentProducts,
+      std::shared_ptr<History> history = std::make_shared<History>(),
+      std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
+      std::unique_ptr<DelayedReader>&& rtrv =
+        std::make_unique<NoDelayedReader>(),
+      bool lastInSubRun = false);
 
     SubRunPrincipal const& subRunPrincipal() const;
 
-    cet::exempt_ptr<SubRunPrincipal const> subRunPrincipalExemptPtr() const { return subRunPrincipal_; }
-    void setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal const> srp) { subRunPrincipal_ = srp;  }
+    cet::exempt_ptr<SubRunPrincipal const>
+    subRunPrincipalExemptPtr() const
+    {
+      return subRunPrincipal_;
+    }
+    void
+    setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal const> srp)
+    {
+      subRunPrincipal_ = srp;
+    }
 
-    EventID const& id() const { return aux().id(); }
-    Timestamp const& time() const { return aux().time(); }
-    bool isReal() const { return aux().isRealData(); }
+    EventID const&
+    id() const
+    {
+      return aux().id();
+    }
+    Timestamp const&
+    time() const
+    {
+      return aux().time();
+    }
+    bool
+    isReal() const
+    {
+      return aux().isRealData();
+    }
 
-    EventAuxiliary::ExperimentType ExperimentType() const { return aux().experimentType(); }
+    EventAuxiliary::ExperimentType
+    ExperimentType() const
+    {
+      return aux().experimentType();
+    }
 
-    EventAuxiliary const& aux() const { return aux_; }
-    SubRunNumber_t subRun() const { return id().subRun(); }
-    RunNumber_t run() const { return id().run(); }
-    EventNumber_t event() const { return id().event(); }
+    EventAuxiliary const&
+    aux() const
+    {
+      return aux_;
+    }
+    SubRunNumber_t
+    subRun() const
+    {
+      return id().subRun();
+    }
+    RunNumber_t
+    run() const
+    {
+      return id().run();
+    }
+    EventNumber_t
+    event() const
+    {
+      return id().event();
+    }
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 
-    History const& history() const { return *history_; }
+    History const&
+    history() const
+    {
+      return *history_;
+    }
 
     using Principal::getGroup;
 
@@ -69,13 +114,24 @@ namespace art {
 
     void fillGroup(BranchDescription const&) override;
 
-    BranchType branchType() const override { return branch_type; }
+    BranchType
+    branchType() const override
+    {
+      return branch_type;
+    }
 
-    bool isLastInSubRun() const { return lastInSubRun_; }
-    RangeSet seenRanges() const override { return RangeSet::invalid(); }
+    bool
+    isLastInSubRun() const
+    {
+      return lastInSubRun_;
+    }
+    RangeSet
+    seenRanges() const override
+    {
+      return RangeSet::invalid();
+    }
 
   private:
-
     void throwIfExistingGroup(BranchDescription const& pd) const;
 
     ProcessHistoryID const&
@@ -91,12 +147,11 @@ namespace art {
     }
 
   private:
-
     EventAuxiliary aux_;
 
-    cet::exempt_ptr<SubRunPrincipal const> subRunPrincipal_ {nullptr};
+    cet::exempt_ptr<SubRunPrincipal const> subRunPrincipal_{nullptr};
     std::shared_ptr<History> history_;
-    bool lastInSubRun_ {false};
+    bool lastInSubRun_{false};
   };
 
 } // namespace art

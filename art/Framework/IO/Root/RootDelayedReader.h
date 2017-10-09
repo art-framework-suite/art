@@ -29,7 +29,6 @@ namespace art {
   class RootDelayedReader final : public DelayedReader {
 
   public: // MEMBER FUNCTIONS
-
     ~RootDelayedReader() = default;
 
     RootDelayedReader(RootDelayedReader const&) = delete;
@@ -47,9 +46,7 @@ namespace art {
                       EventID,
                       bool compactSubRunRanges);
 
-
   private: // MEMBER FUNCTIONS
-
     std::unique_ptr<EDProduct> getProduct_(BranchKey const&,
                                            TypeID const&,
                                            RangeSet&) const override;
@@ -57,7 +54,6 @@ namespace art {
     int openNextSecondaryFile_(int idx) override;
 
   private: // MEMBER DATA
-
     FileFormatVersion fileFormatVersion_;
     sqlite3* db_;
     std::vector<input::EntryNumber> const entrySet_;
@@ -66,11 +62,11 @@ namespace art {
     int64_t saveMemoryObjectThreshold_;
     cet::exempt_ptr<EDProductGetterFinder const> groupFinder_;
     cet::exempt_ptr<RootInputFile> primaryFile_;
-    cet::exempt_ptr<BranchIDLists const> branchIDLists_; // Only for backwards compatibility
+    cet::exempt_ptr<BranchIDLists const>
+      branchIDLists_; // Only for backwards compatibility
     BranchType branchType_;
     EventID eventID_;
     bool const compactSubRunRanges_;
-
   };
 
 } // namespace art

@@ -15,40 +15,30 @@ class art::RPWorkerT : public art::RPWorker {
 public:
   using RPType = RP;
 
-  RPWorkerT(RPParams const & p, fhicl::ParameterSet const & ps);
+  RPWorkerT(RPParams const& p, fhicl::ParameterSet const& ps);
 
 private:
-  RP & rp_() override;
-  RP const & rp_() const override;
+  RP& rp_() override;
+  RP const& rp_() const override;
 
   RP rpPlugin_;
 };
 
 template <typename RP>
-art::RPWorkerT<RP>::
-RPWorkerT(RPParams const & p, fhicl::ParameterSet const & ps)
-:
-  RPWorker(p),
-  rpPlugin_(ps)
-{
-}
+art::RPWorkerT<RP>::RPWorkerT(RPParams const& p, fhicl::ParameterSet const& ps)
+  : RPWorker(p), rpPlugin_(ps)
+{}
 
 template <typename RP>
-inline
-auto
-art::RPWorkerT<RP>::
-rp_() ->
-RPType &
+inline auto
+art::RPWorkerT<RP>::rp_() -> RPType&
 {
   return rpPlugin_;
 }
 
 template <typename RP>
-inline
-auto
-art::RPWorkerT<RP>::
-rp_() const ->
-RPType const &
+inline auto
+art::RPWorkerT<RP>::rp_() const -> RPType const&
 {
   return rpPlugin_;
 }

@@ -1,11 +1,9 @@
 #include "art/Framework/Principal/AssnsGroupWithData.h"
 
-
 art::EDProduct const*
-art::AssnsGroupWithData::
-anyProduct() const
+art::AssnsGroupWithData::anyProduct() const
 {
-  art::EDProduct const * result = AssnsGroup::anyProduct();
+  art::EDProduct const* result = AssnsGroup::anyProduct();
   if (result == nullptr) {
     if ((result = baseProduct_.get()) == nullptr) {
       result = partnerBaseProduct_.get();
@@ -15,8 +13,7 @@ anyProduct() const
 }
 
 art::EDProduct const*
-art::AssnsGroupWithData::
-uniqueProduct(TypeID const& wanted_wrapper_type) const
+art::AssnsGroupWithData::uniqueProduct(TypeID const& wanted_wrapper_type) const
 {
   EDProduct const* retval = nullptr;
   if (wanted_wrapper_type == partnerBaseWrapperType_) {
@@ -30,24 +27,23 @@ uniqueProduct(TypeID const& wanted_wrapper_type) const
 }
 
 bool
-art::AssnsGroupWithData::
-resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
+art::AssnsGroupWithData::resolveProductIfAvailable(
+  TypeID const& wanted_wrapper_type) const
 {
   // Prerequisite: ask us for something we can do.
-  if(!(wanted_wrapper_type == producedWrapperType() ||
-       wanted_wrapper_type == partnerWrapperType() ||
-       wanted_wrapper_type == baseWrapperType_ ||
-       wanted_wrapper_type == partnerBaseWrapperType_)) {
+  if (!(wanted_wrapper_type == producedWrapperType() ||
+        wanted_wrapper_type == partnerWrapperType() ||
+        wanted_wrapper_type == baseWrapperType_ ||
+        wanted_wrapper_type == partnerBaseWrapperType_)) {
     throwResolveLogicError(wanted_wrapper_type);
   }
 
-  TypeID const & upstream_wrapper_type =
+  TypeID const& upstream_wrapper_type =
     (wanted_wrapper_type == partnerBaseWrapperType_ ||
      wanted_wrapper_type == partnerWrapperType()) ?
-    partnerWrapperType() :
-    producedWrapperType();
-  bool result =
-    AssnsGroup::resolveProductIfAvailable(upstream_wrapper_type);
+      partnerWrapperType() :
+      producedWrapperType();
+  bool result = AssnsGroup::resolveProductIfAvailable(upstream_wrapper_type);
   if (!(productUnavailable() ||
         (result = uniqueProduct(wanted_wrapper_type))) &&
       AssnsGroup::uniqueProduct(upstream_wrapper_type)) {
@@ -61,8 +57,7 @@ resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
 }
 
 void
-art::AssnsGroupWithData::
-removeCachedProduct() const
+art::AssnsGroupWithData::removeCachedProduct() const
 {
   AssnsGroup::removeCachedProduct();
   baseProduct_.reset();

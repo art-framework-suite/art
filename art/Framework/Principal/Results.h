@@ -27,7 +27,6 @@ namespace art {
 
 class art::Results final : private art::DataViewImpl {
 public:
-
   explicit Results(Principal const& p,
                    ModuleDescription const& md,
                    cet::exempt_ptr<Consumer> consumer);
@@ -47,26 +46,23 @@ public:
 
   // Put a new product.
   template <typename PROD>
-  art::ProductID
-  put(std::unique_ptr<PROD>&& product);
+  art::ProductID put(std::unique_ptr<PROD>&& product);
 
   // Put a new product with a 'product instance name'
   template <typename PROD>
-  art::ProductID
-  put(std::unique_ptr<PROD>&& product, std::string const& productInstanceName);
+  art::ProductID put(std::unique_ptr<PROD>&& product,
+                     std::string const& productInstanceName);
 
   // Expert-level
-  using Base::removeCachedProduct;
   using Base::processHistory;
+  using Base::removeCachedProduct;
 
-  EDProductGetter const*
-  productGetter(ProductID const pid) const;
+  EDProductGetter const* productGetter(ProductID const pid) const;
 
   template <typename T>
   using HandleT = Handle<T>;
 
 private:
-
   // commit_() is called to complete the transaction represented by
   // this DataViewImpl. The friendships required are gross, but any
   // alternative is not great either.  Putting it into the public
@@ -89,29 +85,31 @@ art::Results::put(std::unique_ptr<PROD>&& product)
 
 template <typename PROD>
 art::ProductID
-art::Results::put(std::unique_ptr<PROD>&& product, std::string const& productInstanceName)
+art::Results::put(std::unique_ptr<PROD>&& product,
+                  std::string const& productInstanceName)
 {
   TypeID const tid{typeid(PROD)};
   if (!product) { // Null pointer is illegal.
     throw art::Exception(art::errors::NullPointerError)
       << "Results::put: A null unique_ptr was passed to 'put'.\n"
       << "The pointer is of type " << tid << ".\n"
-      << "The specified productInstanceName was '" << productInstanceName << "'.\n";
+      << "The specified productInstanceName was '" << productInstanceName
+      << "'.\n";
   }
 
   auto const& pd = getProductDescription(tid, productInstanceName);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
 
-  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName, SupportsView<PROD>::value},
-                                      PMValue{std::move(wp), pd, RangeSet::invalid()});
+  auto result = putProducts().emplace(
+    TypeLabel{tid, productInstanceName, SupportsView<PROD>::value},
+    PMValue{std::move(wp), pd, RangeSet::invalid()});
   if (!result.second) {
     throw art::Exception(art::errors::ProductPutFailure)
       << "Results::put: Attempt to put multiple products with the\n"
       << "              following description onto the Results.\n"
       << "              Products must be unique per Results.\n"
       << "=================================\n"
-      << pd
-      << "=================================\n";
+      << pd << "=================================\n";
   }
 
   return pd.productID();

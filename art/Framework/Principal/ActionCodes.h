@@ -3,7 +3,7 @@
 namespace art {
   namespace actions {
     enum ActionCodes {
-      IgnoreCompletely=0,
+      IgnoreCompletely = 0,
       Rethrow,
       SkipEvent,
       FailModule,

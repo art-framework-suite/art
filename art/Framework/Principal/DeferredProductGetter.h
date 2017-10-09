@@ -1,10 +1,10 @@
 #ifndef art_Framework_Principal_DeferredProductGetter_h
 #define art_Framework_Principal_DeferredProductGetter_h
 
-#include "canvas/Persistency/Common/EDProductGetter.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/fwd.h"
+#include "canvas/Persistency/Common/EDProductGetter.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 #include "cetlib/exempt_ptr.h"
 
 class art::DeferredProductGetter : public EDProductGetter {
@@ -27,13 +27,10 @@ private:
   cet::exempt_ptr<Principal const> groupFinder_;
   ProductID const pid_;
   mutable cet::exempt_ptr<EDProductGetter const> realGetter_;
-};  // EDProductGetter
+}; // EDProductGetter
 
-inline
-bool
-art::DeferredProductGetter::
-isReady()
-const
+inline bool
+art::DeferredProductGetter::isReady() const
 {
   return (maybeResolveGetter_() != nullptr) && realGetter_->isReady();
 }

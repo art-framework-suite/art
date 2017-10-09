@@ -7,9 +7,9 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Principal/Handle.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -24,52 +24,48 @@ namespace arttest {
 
 using arttest::CompressedIntProducer;
 
-class arttest::CompressedIntProducer
-  : public art::EDProducer
-{
+class arttest::CompressedIntProducer : public art::EDProducer {
 public:
-  explicit CompressedIntProducer( fhicl::ParameterSet const& p )
-    : value_( p.get<int>("ivalue") ),
-      // enums don't usually have a conversion from string
-      branchType_( art::BranchType(p.get<unsigned long>("branchType", art::InEvent)) )
+  explicit CompressedIntProducer(fhicl::ParameterSet const& p)
+    : value_(p.get<int>("ivalue"))
+    ,
+    // enums don't usually have a conversion from string
+    branchType_(
+      art::BranchType(p.get<unsigned long>("branchType", art::InEvent)))
   {
     switch (branchType_) {
-    case art::InEvent:
-      produces<CompressedIntProduct>();
-      break;
-    case art::InSubRun:
-      produces<CompressedIntProduct, art::InSubRun>();
-      break;
-    case art::InRun:
-      produces<CompressedIntProduct, art::InRun>();
-      break;
-    default:
-      throw art::Exception(art::errors::LogicError)
-        << "Unknown branch type "
-        << branchType_
-        << ".\n";
+      case art::InEvent:
+        produces<CompressedIntProduct>();
+        break;
+      case art::InSubRun:
+        produces<CompressedIntProduct, art::InSubRun>();
+        break;
+      case art::InRun:
+        produces<CompressedIntProduct, art::InRun>();
+        break;
+      default:
+        throw art::Exception(art::errors::LogicError)
+          << "Unknown branch type " << branchType_ << ".\n";
     }
   }
 
-  explicit CompressedIntProducer( int i )
-  : value_(i)
+  explicit CompressedIntProducer(int i) : value_(i)
   {
     produces<CompressedIntProduct>();
   }
 
-  void produce( art::Event& e ) override;
-  void endSubRun( art::SubRun & sr ) override;
-  void endRun( art::Run& r ) override;
+  void produce(art::Event& e) override;
+  void endSubRun(art::SubRun& sr) override;
+  void endRun(art::Run& r) override;
 
 private:
-
   int value_;
   art::BranchType branchType_;
 
-};  // CompressedIntProducer
+}; // CompressedIntProducer
 
 void
-CompressedIntProducer::produce( art::Event& e )
+CompressedIntProducer::produce(art::Event& e)
 {
   std::cerr << "Holy cow, CompressedIntProducer::produce is running!\n";
   if (branchType_ == art::InEvent)
@@ -81,7 +77,8 @@ CompressedIntProducer::endSubRun(art::SubRun& sr)
 {
   std::cerr << "Holy cow, CompressedIntProducer::endSubRun is running!\n";
   if (branchType_ == art::InSubRun)
-    sr.put(std::make_unique<CompressedIntProduct>(value_), art::subRunFragment());
+    sr.put(std::make_unique<CompressedIntProduct>(value_),
+           art::subRunFragment());
 }
 
 void

@@ -14,7 +14,6 @@ namespace art {
 
 class art::PathsInfo {
 public:
-
   explicit PathsInfo(std::size_t const numPaths,
                      detail::ModuleFactory& factory,
                      fhicl::ParameterSet const& procPS,
@@ -39,13 +38,10 @@ public:
   size_t totalEvents() const;
 
 private:
+  void makeWorker_(detail::ModuleInPathInfo const& mipi,
+                   std::vector<WorkerInPath>& pathWorkers);
 
-  void
-  makeWorker_(detail::ModuleInPathInfo const& mipi,
-              std::vector<WorkerInPath>& pathWorkers);
-
-  cet::exempt_ptr<Worker>
-  makeWorker_(detail::ModuleConfigInfo const& mci);
+  cet::exempt_ptr<Worker> makeWorker_(detail::ModuleConfigInfo const& mci);
 
   WorkerMap workers_{};
   PathPtrs pathPtrs_{};
@@ -63,57 +59,49 @@ private:
   std::vector<std::string> configErrMsgs_;
 };
 
-inline
-art::HLTGlobalStatus&
+inline art::HLTGlobalStatus&
 art::PathsInfo::pathResults()
 {
   return pathResults_;
 }
 
-inline
-void
+inline void
 art::PathsInfo::addEvent()
 {
   ++totalEvents_;
 }
 
-inline
-void
+inline void
 art::PathsInfo::addPass()
 {
   ++passedEvents_;
 }
 
-inline
-art::WorkerMap const&
+inline art::WorkerMap const&
 art::PathsInfo::workers() const
 {
   return workers_;
 }
 
-inline
-art::PathPtrs const&
+inline art::PathPtrs const&
 art::PathsInfo::pathPtrs() const
 {
   return pathPtrs_;
 }
 
-inline
-size_t
+inline size_t
 art::PathsInfo::passedEvents() const
 {
   return passedEvents_;
 }
 
-inline
-size_t
+inline size_t
 art::PathsInfo::failedEvents() const
 {
   return totalEvents_ - passedEvents_;
 }
 
-inline
-size_t
+inline size_t
 art::PathsInfo::totalEvents() const
 {
   return totalEvents_;

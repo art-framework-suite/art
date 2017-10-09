@@ -8,38 +8,38 @@
 //
 //----------------------------------------------------------------------
 
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
 #include <ostream>
 
-namespace art
-{
+namespace art {
   namespace input {
-    enum ItemType {IsInvalid, IsStop, IsFile, IsRun, IsSubRun, IsEvent};
-    inline std::ostream& operator<<(std::ostream& os, ItemType const it)
+    enum ItemType { IsInvalid, IsStop, IsFile, IsRun, IsSubRun, IsEvent };
+    inline std::ostream&
+    operator<<(std::ostream& os, ItemType const it)
     {
-      switch(it) {
-      case IsInvalid:
-        os << "Invalid";
-        break;
-      case IsStop:
-        os << "Stop";
-        break;
-      case IsFile:
-        os << "InputFile";
-        break;
-      case IsRun:
-        os << "Run";
-        break;
-      case IsSubRun:
-        os << "SubRun";
-        break;
-      case IsEvent:
-        os << "Event";
+      switch (it) {
+        case IsInvalid:
+          os << "Invalid";
+          break;
+        case IsStop:
+          os << "Stop";
+          break;
+        case IsFile:
+          os << "InputFile";
+          break;
+        case IsRun:
+          os << "Run";
+          break;
+        case IsSubRun:
+          os << "SubRun";
+          break;
+        case IsEvent:
+          os << "Event";
       }
       return os;
     }
@@ -47,16 +47,24 @@ namespace art
 
   class InputSource {
   public:
-
     // TODO:
     // This enum should probably be moved outside of InputSource.
-    enum ProcessingMode {Runs, RunsAndSubRuns, RunsSubRunsAndEvents};
+    enum ProcessingMode { Runs, RunsAndSubRuns, RunsSubRunsAndEvents };
 
-    explicit InputSource(ModuleDescription const& md) : moduleDescription_{md} {}
+    explicit InputSource(ModuleDescription const& md) : moduleDescription_{md}
+    {}
     virtual ~InputSource() noexcept = default;
 
-    auto const& moduleDescription() const { return moduleDescription_; }
-    auto const& processConfiguration() const { return moduleDescription_.processConfiguration(); }
+    auto const&
+    moduleDescription() const
+    {
+      return moduleDescription_;
+    }
+    auto const&
+    processConfiguration() const
+    {
+      return moduleDescription_.processConfiguration();
+    }
 
     // Return the Event specified by the given EventID, or the next
     // one in the input sequence after the given EventID if one with
@@ -81,8 +89,10 @@ namespace art
     virtual std::unique_ptr<FileBlock> readFile() = 0;
     virtual void closeFile() = 0;
     virtual std::unique_ptr<RunPrincipal> readRun() = 0;
-    virtual std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal const> rp) = 0;
-    virtual std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) = 0;
+    virtual std::unique_ptr<SubRunPrincipal> readSubRun(
+      cet::exempt_ptr<RunPrincipal const> rp) = 0;
+    virtual std::unique_ptr<EventPrincipal> readEvent(
+      cet::exempt_ptr<SubRunPrincipal const> srp) = 0;
     virtual std::unique_ptr<RangeSetHandler> runRangeSetHandler() = 0;
     virtual std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() = 0;
 

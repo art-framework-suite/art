@@ -49,17 +49,15 @@ namespace art {
   class RootInputFile {
 
   public: // TYPES
-
-    using RootInputTreePtrArray = std::array<std::unique_ptr<RootInputTree>, NumBranchTypes>;
+    using RootInputTreePtrArray =
+      std::array<std::unique_ptr<RootInputTree>, NumBranchTypes>;
     using EntryNumber = RootInputTree::EntryNumber;
     using EntryNumbers = RootInputTree::EntryNumbers;
 
   public: // MEMBER FUNCTIONS
-
     RootInputFile(RootInputFile const&) = delete;
 
-    RootInputFile&
-    operator=(RootInputFile const&) = delete;
+    RootInputFile& operator=(RootInputFile const&) = delete;
 
     RootInputFile(std::string const& fileName,
                   std::string const& catalogName,
@@ -101,27 +99,57 @@ namespace art {
     bool readSubRunForSecondaryFile(SubRunID);
     bool readEventForSecondaryFile(EventID eID);
 
-    std::string const& fileName() const { return fileName_; }
+    std::string const&
+    fileName() const
+    {
+      return fileName_;
+    }
 
-    RunAuxiliary& runAux() { return std::get<RunAuxiliary>(auxiliaries_); }
-    ResultsAuxiliary& resultsAux() { return std::get<ResultsAuxiliary>(auxiliaries_); }
-    SubRunAuxiliary& subRunAux() { return std::get<SubRunAuxiliary>(auxiliaries_); }
-    EventAuxiliary& eventAux() { return std::get<EventAuxiliary>(auxiliaries_); }
+    RunAuxiliary&
+    runAux()
+    {
+      return std::get<RunAuxiliary>(auxiliaries_);
+    }
+    ResultsAuxiliary&
+    resultsAux()
+    {
+      return std::get<ResultsAuxiliary>(auxiliaries_);
+    }
+    SubRunAuxiliary&
+    subRunAux()
+    {
+      return std::get<SubRunAuxiliary>(auxiliaries_);
+    }
+    EventAuxiliary&
+    eventAux()
+    {
+      return std::get<EventAuxiliary>(auxiliaries_);
+    }
 
-    FileFormatVersion fileFormatVersion() const { return fileFormatVersion_; }
+    FileFormatVersion
+    fileFormatVersion() const
+    {
+      return fileFormatVersion_;
+    }
 
-    bool fastClonable() const { return fastClonable_; }
+    bool
+    fastClonable() const
+    {
+      return fastClonable_;
+    }
 
     std::unique_ptr<FileBlock> createFileBlock();
 
     template <BranchType BT>
-    void setEntry(FileIndex::EntryNumber_t entry)
+    void
+    setEntry(FileIndex::EntryNumber_t entry)
     {
       treePointers_[BT]->setEntryNumber(entry);
     }
 
     template <BranchType BT, typename ID>
-    bool setEntry(ID const& id, bool exact = true)
+    bool
+    setEntry(ID const& id, bool exact = true)
     {
       fiIter_ = fileIndex_.findPosition(id, exact);
       if (fiIter_ == fiEnd_) {
@@ -131,7 +159,8 @@ namespace art {
       return true;
     }
 
-    void rewind()
+    void
+    rewind()
     {
       fiIter_ = fiBegin_;
       // FIXME: Rewinding the trees is suspicious!
@@ -141,29 +170,63 @@ namespace art {
       runTree().rewind();
     }
 
-    void setToLastEntry() { fiIter_ = fiEnd_; }
-    void nextEntry() { ++fiIter_; }
-    void previousEntry() { --fiIter_; }
-    void advanceEntry(std::size_t n) { while (n-- != 0) nextEntry(); }
+    void
+    setToLastEntry()
+    {
+      fiIter_ = fiEnd_;
+    }
+    void
+    nextEntry()
+    {
+      ++fiIter_;
+    }
+    void
+    previousEntry()
+    {
+      --fiIter_;
+    }
+    void
+    advanceEntry(std::size_t n)
+    {
+      while (n-- != 0)
+        nextEntry();
+    }
 
-    unsigned int eventsToSkip() const { return eventsToSkip_; }
+    unsigned int
+    eventsToSkip() const
+    {
+      return eventsToSkip_;
+    }
     int skipEvents(int offset);
     int setForcedRunOffset(RunNumber_t const& forcedRunNumber);
 
-    bool nextEventEntry() { return eventTree().next(); }
+    bool
+    nextEventEntry()
+    {
+      return eventTree().next();
+    }
 
     FileIndex::EntryType getEntryType() const;
     FileIndex::EntryType getNextEntryTypeWanted();
 
-    std::shared_ptr<FileIndex> fileIndexSharedPtr() const
+    std::shared_ptr<FileIndex>
+    fileIndexSharedPtr() const
     {
       return fileIndexSharedPtr_;
     }
 
     EventID eventIDForFileIndexPosition() const;
 
-    auto const& secondaryFileNames() const { return secondaryFileNames_; }
-    auto const& secondaryFiles() const { return secondaryFiles_; }
+    auto const&
+    secondaryFileNames() const
+    {
+      return secondaryFileNames_;
+    }
+    auto const&
+    secondaryFiles() const
+    {
+      return secondaryFiles_;
+    }
 
     void openSecondaryFile(int const idx);
 
@@ -171,45 +234,75 @@ namespace art {
     std::unique_ptr<RangeSetHandler> subRunRangeSetHandler();
 
   private:
-
     // const versions
-    RootInputTree const& eventTree() const { return *treePointers_[InEvent]; }
-    RootInputTree const& subRunTree() const { return *treePointers_[InSubRun]; }
-    RootInputTree const& runTree() const { return *treePointers_[InRun]; }
-    RootInputTree const& resultsTree() const { return *treePointers_[InResults]; }
+    RootInputTree const&
+    eventTree() const
+    {
+      return *treePointers_[InEvent];
+    }
+    RootInputTree const&
+    subRunTree() const
+    {
+      return *treePointers_[InSubRun];
+    }
+    RootInputTree const&
+    runTree() const
+    {
+      return *treePointers_[InRun];
+    }
+    RootInputTree const&
+    resultsTree() const
+    {
+      return *treePointers_[InResults];
+    }
 
     // non-const versions
-    RootInputTree& eventTree() { return *treePointers_[InEvent]; }
-    RootInputTree& subRunTree() { return *treePointers_[InSubRun]; }
-    RootInputTree& runTree() { return *treePointers_[InRun]; }
-    RootInputTree& resultsTree() { return *treePointers_[InResults]; }
+    RootInputTree&
+    eventTree()
+    {
+      return *treePointers_[InEvent];
+    }
+    RootInputTree&
+    subRunTree()
+    {
+      return *treePointers_[InSubRun];
+    }
+    RootInputTree&
+    runTree()
+    {
+      return *treePointers_[InRun];
+    }
+    RootInputTree&
+    resultsTree()
+    {
+      return *treePointers_[InResults];
+    }
 
     bool setIfFastClonable(FastCloningInfoProvider const& fcip) const;
 
     void validateFile();
 
     void fillHistory();
-    std::array<AvailableProducts_t, NumBranchTypes> fillPerBranchTypePresenceFlags(ProductList const&);
+    std::array<AvailableProducts_t, NumBranchTypes>
+    fillPerBranchTypePresenceFlags(ProductList const&);
 
     template <BranchType BT>
-    void fillAuxiliary(EntryNumber const entry)
+    void
+    fillAuxiliary(EntryNumber const entry)
     {
-      using AUX = std::tuple_element_t<BT,decltype(auxiliaries_)>;
+      using AUX = std::tuple_element_t<BT, decltype(auxiliaries_)>;
       auto& aux = std::get<BT>(auxiliaries_);
       aux = treePointers_[BT]->getAux<AUX>(entry);
     }
 
     template <BranchType BT>
-    std::unique_ptr<RangeSetHandler> fillAuxiliary(EntryNumbers const& entries)
+    std::unique_ptr<RangeSetHandler>
+    fillAuxiliary(EntryNumbers const& entries)
     {
-      using AUX = std::tuple_element_t<BT,decltype(auxiliaries_)>;
+      using AUX = std::tuple_element_t<BT, decltype(auxiliaries_)>;
       auto& aux = std::get<BT>(auxiliaries_);
-      return treePointers_[BT]->fillAux<AUX>(fileFormatVersion_,
-                                             entries,
-                                             fileIndex_,
-                                             sqliteDB_,
-                                             fileName_,
-                                             aux);
+      return treePointers_[BT]->fillAux<AUX>(
+        fileFormatVersion_, entries, fileIndex_, sqliteDB_, fileName_, aux);
     }
 
     void overrideRunNumber(RunID& id);
@@ -225,12 +318,14 @@ namespace art {
 
     void initializeDuplicateChecker();
 
-    std::pair<EntryNumbers,bool> getEntryNumbers(BranchType);
+    std::pair<EntryNumbers, bool> getEntryNumbers(BranchType);
 
     std::unique_ptr<RunPrincipal> readCurrentRun(EntryNumbers const&);
-    std::unique_ptr<SubRunPrincipal> readCurrentSubRun(EntryNumbers const&,
-                                                       cet::exempt_ptr<RunPrincipal>);
-    std::unique_ptr<EventPrincipal> readCurrentEvent(std::pair<EntryNumbers,bool> const&);
+    std::unique_ptr<SubRunPrincipal> readCurrentSubRun(
+      EntryNumbers const&,
+      cet::exempt_ptr<RunPrincipal>);
+    std::unique_ptr<EventPrincipal> readCurrentEvent(
+      std::pair<EntryNumbers, bool> const&);
 
     std::string const fileName_;
     std::string const catalog_;
@@ -253,23 +348,22 @@ namespace art {
     std::vector<std::string> secondaryFileNames_;
     cet::exempt_ptr<RootInputFileSequence> rifSequence_;
 
-    FileFormatVersion fileFormatVersion_ {};
-    std::shared_ptr<FileIndex> fileIndexSharedPtr_ { new FileIndex };
-    FileIndex& fileIndex_ { *fileIndexSharedPtr_ };
-    FileIndex::const_iterator fiBegin_ {fileIndex_.begin()};
-    FileIndex::const_iterator fiEnd_ {fileIndex_.end()};
-    FileIndex::const_iterator fiIter_ {fiBegin_};
-    bool fastClonable_ {false};
-    std::tuple<EventAuxiliary,
-               SubRunAuxiliary,
-               RunAuxiliary,
-               ResultsAuxiliary> auxiliaries_{};   // Must be in same order as treePointers_ !
+    FileFormatVersion fileFormatVersion_{};
+    std::shared_ptr<FileIndex> fileIndexSharedPtr_{new FileIndex};
+    FileIndex& fileIndex_{*fileIndexSharedPtr_};
+    FileIndex::const_iterator fiBegin_{fileIndex_.begin()};
+    FileIndex::const_iterator fiEnd_{fileIndex_.end()};
+    FileIndex::const_iterator fiIter_{fiBegin_};
+    bool fastClonable_{false};
+    std::tuple<EventAuxiliary, SubRunAuxiliary, RunAuxiliary, ResultsAuxiliary>
+      auxiliaries_{}; // Must be in same order as treePointers_ !
 
     // The holder is necessary since references of its contents are
     // passed to the RootDelayedReader.
     ProductRegistry productListHolder_{};
     ProductTables presentProducts_{ProductTables::invalid()};
-    std::unique_ptr<BranchIDLists> branchIDLists_{nullptr}; // Only used for maintaining backwards compatibility
+    std::unique_ptr<BranchIDLists> branchIDLists_{
+      nullptr}; // Only used for maintaining backwards compatibility
 
     TTree* eventHistoryTree_{nullptr};
     std::shared_ptr<History> history_{std::make_shared<History>()};
@@ -283,7 +377,6 @@ namespace art {
     cet::exempt_ptr<SubRunPrincipal> primarySRP_{};
     std::unique_ptr<RangeSetHandler> subRunRangeSetHandler_{nullptr};
     std::unique_ptr<RangeSetHandler> runRangeSetHandler_{nullptr};
-
   };
 
 } // namespace art

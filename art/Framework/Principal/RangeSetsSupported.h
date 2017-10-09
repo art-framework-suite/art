@@ -5,10 +5,16 @@
 
 namespace art {
   namespace detail {
-    template <BranchType> struct RangeSetsSupported : std::false_type {};
+    template <BranchType>
+    struct RangeSetsSupported : std::false_type {
+    };
 
-    template <> struct RangeSetsSupported<InRun> : std::true_type {};
-    template <> struct RangeSetsSupported<InSubRun> : std::true_type {};
+    template <>
+    struct RangeSetsSupported<InRun> : std::true_type {
+    };
+    template <>
+    struct RangeSetsSupported<InSubRun> : std::true_type {
+    };
   }
 }
 

@@ -16,7 +16,7 @@ using fhicl::ParameterSet;
 namespace art {
 
   EventObserverBase::EventObserverBase(vector<string> const& paths,
-                               fhicl::ParameterSet const& pset)
+                                       fhicl::ParameterSet const& pset)
     : selector_config_id_{pset.id()}
   {
     init_(paths);
@@ -25,11 +25,12 @@ namespace art {
   EventObserverBase::EventObserverBase(ParameterSet const& pset)
     : selector_config_id_{pset.id()}
   {
-    auto const& paths = pset.get<vector<string>>("SelectEvents",{});
+    auto const& paths = pset.get<vector<string>>("SelectEvents", {});
     init_(paths);
   }
 
-  void EventObserverBase::init_(vector<string> const& paths)
+  void
+  EventObserverBase::init_(vector<string> const& paths)
   {
     ServiceHandle<TriggerNamesService const> TNS;
     process_name_ = TNS->getProcessName();

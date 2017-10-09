@@ -2,16 +2,8 @@
 
 namespace arttest {
 
-ClonedProd::
-~ClonedProd()
-{
-}
+  ClonedProd::~ClonedProd() {}
 
-ClonedProd::
-ClonedProd()
-  : dp1_(3)
-{
-}
+  ClonedProd::ClonedProd() : dp1_(3) {}
 
 } // namespace arttest
-

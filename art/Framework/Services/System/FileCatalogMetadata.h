@@ -42,37 +42,40 @@ public:
   using value_type = typename collection_type::value_type;
 
   struct Config {
-    fhicl::Atom<bool> checkSyntax { fhicl::Name("checkSyntax"), false };
-    fhicl::OptionalAtom<std::string> applicationFamily  { fhicl::Name("applicationFamily" ) };
-    fhicl::OptionalAtom<std::string> applicationVersion { fhicl::Name("applicationVersion") };
-    fhicl::OptionalAtom<std::string> group     { fhicl::Name("group") };
-    fhicl::OptionalAtom<std::string> processID { fhicl::Name("processID") };
+    fhicl::Atom<bool> checkSyntax{fhicl::Name("checkSyntax"), false};
+    fhicl::OptionalAtom<std::string> applicationFamily{
+      fhicl::Name("applicationFamily")};
+    fhicl::OptionalAtom<std::string> applicationVersion{
+      fhicl::Name("applicationVersion")};
+    fhicl::OptionalAtom<std::string> group{fhicl::Name("group")};
+    fhicl::OptionalAtom<std::string> processID{fhicl::Name("processID")};
 
-    fhicl::Sequence<std::string> metadataFromInput {
+    fhicl::Sequence<std::string> metadataFromInput{
       fhicl::Name("metadataFromInput"),
-      fhicl::Comment("This list specifies the metadata that is inherited\n"
-                     "from the input file.  Currently only the run type and\n"
-                     "file type metadata can be inherited.  The default list is empty."),
-      std::vector<std::string>{}
-    };
+      fhicl::Comment(
+        "This list specifies the metadata that is inherited\n"
+        "from the input file.  Currently only the run type and\n"
+        "file type metadata can be inherited.  The default list is empty."),
+      std::vector<std::string>{}};
 
-    bool inMetadataList(std::string const& name) const
+    bool
+    inMetadataList(std::string const& name) const
     {
       return cet::search_all(metadataFromInput(), name);
     }
 
-    fhicl::Atom<std::string> fileType  { fhicl::Name("fileType"),
-        fhicl::Comment("Can specify 'fileType' only if it is not specified\n"
-                       "in the 'metadataFromInput' list."),
-        [this]{ return !inMetadataList("fileType"); },
-        "unknown"
-    };
+    fhicl::Atom<std::string> fileType{
+      fhicl::Name("fileType"),
+      fhicl::Comment("Can specify 'fileType' only if it is not specified\n"
+                     "in the 'metadataFromInput' list."),
+      [this] { return !inMetadataList("fileType"); },
+      "unknown"};
 
-    fhicl::OptionalAtom<std::string> runType   { fhicl::Name("runType"),
-        fhicl::Comment("Can specify 'runType' only if it is not specified\n"
-                       "in the 'metadataFromInput' list."),
-        [this]{ return !inMetadataList("runType"); }
-    };
+    fhicl::OptionalAtom<std::string> runType{
+      fhicl::Name("runType"),
+      fhicl::Comment("Can specify 'runType' only if it is not specified\n"
+                     "in the 'metadataFromInput' list."),
+      [this] { return !inMetadataList("runType"); }};
   };
 
   using Parameters = ServiceTable<Config>;
@@ -83,27 +86,30 @@ public:
   // Ensure the value is a canonical string representation.
   void addMetadataString(std::string const& key, std::string const& value);
 
-  void getMetadata(collection_type& coll) const; // Dump stored metadata into the provided container.
+  void getMetadata(collection_type& coll)
+    const; // Dump stored metadata into the provided container.
 
   // RootInput can set the run-type and file-type parameters
   void setMetadataFromInput(collection_type const& coll);
 
   // Ascertain whether JSON syntax checking is desired.
-  bool wantCheckSyntax() const { return checkSyntax_; }
+  bool
+  wantCheckSyntax() const
+  {
+    return checkSyntax_;
+  }
 
 private:
-
   bool const checkSyntax_;
-  collection_type md_ {};
+  collection_type md_{};
 
   class InheritedMetadata {
   public:
-
     InheritedMetadata(std::vector<std::string> const& sortedMdToInherit,
                       collection_type const& coll)
     {
       NewToOld const translator;
-      for(auto const& pr : coll) {
+      for (auto const& pr : coll) {
         if (cet::search_all(sortedMdToInherit, translator(pr.first))) {
           inputmd_.insert(pr);
           orderedmd_.emplace_back(pr);
@@ -111,9 +117,14 @@ private:
       }
     }
 
-    auto const& entries() const { return orderedmd_; }
+    auto const&
+    entries() const
+    {
+      return orderedmd_;
+    }
 
-    void check_values(collection_type const& fromInput) const
+    void
+    check_values(collection_type const& fromInput) const
     {
       for (auto const& pr : fromInput) {
         CET_USE_FREE_CBEGIN_CEND();
@@ -122,10 +133,10 @@ private:
           throw Exception(errors::LogicError)
             << "Metadata key " << pr.first
             << " missing from list of metadata to inherit from input files.\n";
-        }
-        else if (it->second != pr.second) {
+        } else if (it->second != pr.second) {
           throw Exception(errors::MismatchedInputFiles)
-            << "The value for '" << pr.first << "' for the current file is: " << pr.second
+            << "The value for '" << pr.first
+            << "' for the current file is: " << pr.second
             << ", which conflicts with the value from the first input file (\""
             << it->second << "\").\n";
         }
@@ -137,30 +148,31 @@ private:
     std::unordered_map<std::string, std::string> inputmd_;
   };
 
-  std::unique_ptr<InheritedMetadata> imd_ {};
+  std::unique_ptr<InheritedMetadata> imd_{};
   std::vector<std::string> mdToInherit_;
 
   // To lock via a static mutex, we must wrap it in an inline function
   // so it can be used in contexts where users don't link against the
   // library associated with this class.
-  static std::mutex& service_mutex() {
+  static std::mutex&
+  service_mutex()
+  {
     static std::mutex m;
     return m;
   };
-
 };
 
-inline
-void
-art::FileCatalogMetadata::addMetadataString(std::string const& key, std::string const& value)
+inline void
+art::FileCatalogMetadata::addMetadataString(std::string const& key,
+                                            std::string const& value)
 {
   // No lock here -- it is held by addMetadata
   addMetadata(key, cet::canonical_string(value));
 }
 
-inline
-void
-art::FileCatalogMetadata::setMetadataFromInput(collection_type const& mdFromInput)
+inline void
+art::FileCatalogMetadata::setMetadataFromInput(
+  collection_type const& mdFromInput)
 {
   CET_ASSERT_ONLY_ONE_THREAD();
   if (mdToInherit_.empty()) {
@@ -169,8 +181,7 @@ art::FileCatalogMetadata::setMetadataFromInput(collection_type const& mdFromInpu
 
   if (!imd_) {
     imd_ = std::make_unique<InheritedMetadata>(mdToInherit_, mdFromInput);
-  }
-  else {
+  } else {
     imd_->check_values(mdFromInput);
   }
 
@@ -180,11 +191,10 @@ art::FileCatalogMetadata::setMetadataFromInput(collection_type const& mdFromInpu
   }
 }
 
-inline
-void
+inline void
 art::FileCatalogMetadata::getMetadata(collection_type& coll) const
 {
-  std::lock_guard<std::mutex> lock {service_mutex()};
+  std::lock_guard<std::mutex> lock{service_mutex()};
   cet::copy_all(md_, std::back_inserter(coll));
 }
 

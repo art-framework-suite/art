@@ -5,7 +5,7 @@
 #include <vector>
 
 namespace arttest {
-   class UnputtingProducer;
+  class UnputtingProducer;
 }
 
 //--------------------------------------------------------------------
@@ -19,9 +19,8 @@ public:
   void produce(art::Event& e) override;
 };
 
-
-arttest::UnputtingProducer::UnputtingProducer(fhicl::ParameterSet const& ) :
-  art::EDProducer()
+arttest::UnputtingProducer::UnputtingProducer(fhicl::ParameterSet const&)
+  : art::EDProducer()
 {
   produces<std::string>();
 }

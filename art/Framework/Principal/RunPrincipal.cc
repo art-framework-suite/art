@@ -8,58 +8,56 @@
 
 namespace art {
 
-  RunPrincipal::
-  RunPrincipal(RunAuxiliary const& aux,
-               ProcessConfiguration const& pc,
-               cet::exempt_ptr<ProductTable const> presentProducts,
-               std::unique_ptr<BranchMapper>&& mapper,
-               std::unique_ptr<DelayedReader>&& rtrv)
-    : Principal{pc, aux.processHistoryID_, presentProducts, std::move(mapper), std::move(rtrv)}
+  RunPrincipal::RunPrincipal(
+    RunAuxiliary const& aux,
+    ProcessConfiguration const& pc,
+    cet::exempt_ptr<ProductTable const> presentProducts,
+    std::unique_ptr<BranchMapper>&& mapper,
+    std::unique_ptr<DelayedReader>&& rtrv)
+    : Principal{pc,
+                aux.processHistoryID_,
+                presentProducts,
+                std::move(mapper),
+                std::move(rtrv)}
     , aux_{aux}
   {
-    productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>{this});
+    productReader().setGroupFinder(
+      cet::exempt_ptr<EDProductGetterFinder const>{this});
     if (ProductMetaData::instance().productProduced(InRun)) {
       addToProcessHistory();
     }
   }
 
   ProcessHistoryID const&
-  RunPrincipal::
-  processHistoryID() const
+  RunPrincipal::processHistoryID() const
   {
     return aux().processHistoryID_;
   }
 
   void
-  RunPrincipal::
-  setProcessHistoryID(ProcessHistoryID const& phid)
+  RunPrincipal::setProcessHistoryID(ProcessHistoryID const& phid)
   {
     return aux().setProcessHistoryID(phid);
   }
 
   void
-  RunPrincipal::
-  fillGroup(BranchDescription const& pd)
+  RunPrincipal::fillGroup(BranchDescription const& pd)
   {
-    Principal::fillGroup(gfactory::make_group(pd,
-                                              pd.productID(),
-                                              RangeSet::invalid()));
+    Principal::fillGroup(
+      gfactory::make_group(pd, pd.productID(), RangeSet::invalid()));
   }
 
   void
-  RunPrincipal::
-  put(std::unique_ptr<EDProduct>&& edp,
-      BranchDescription const& pd,
-      std::unique_ptr<ProductProvenance const>&& productProvenance,
-      RangeSet&& rs)
+  RunPrincipal::put(
+    std::unique_ptr<EDProduct>&& edp,
+    BranchDescription const& pd,
+    std::unique_ptr<ProductProvenance const>&& productProvenance,
+    RangeSet&& rs)
   {
     assert(edp);
     branchMapper().insert(std::move(productProvenance));
-    Principal::fillGroup(gfactory::make_group(pd,
-                                              pd.productID(),
-                                              std::move(rs),
-                                              std::move(edp)));
-
+    Principal::fillGroup(
+      gfactory::make_group(pd, pd.productID(), std::move(rs), std::move(edp)));
   }
 
 } // namespace art

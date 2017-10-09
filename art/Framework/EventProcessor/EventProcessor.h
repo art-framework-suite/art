@@ -24,8 +24,8 @@
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
-#include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
+#include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "cetlib/cpu_timer.h"
 #include "cetlib/exception.h"
 #include "cetlib/trim.h"
@@ -44,19 +44,18 @@ namespace art {
 
 class art::EventProcessor {
 public:
-
   // Status codes:
   //   0     successful completion
   //   3     signal received
   //  values are for historical reasons.
-  enum Status {epSuccess=0, epSignal=3};
+  enum Status { epSuccess = 0, epSignal = 3 };
 
   // Eventually, we might replace StatusCode with a class. This
   // class should have an automatic conversion to 'int'.
 
   using StatusCode = Status;
 
-  EventProcessor (EventProcessor const&) = delete;
+  EventProcessor(EventProcessor const&) = delete;
   EventProcessor& operator=(EventProcessor const&) = delete;
 
   explicit EventProcessor(fhicl::ParameterSet const& pset);
@@ -77,15 +76,24 @@ public:
   StatusCode runToCompletion();
 
 private:
-
   // Event-loop infrastructure
-  template <Level L> bool levelsToProcess();
+  template <Level L>
+  bool levelsToProcess();
 
-  template <Level L> std::enable_if_t<is_above_most_deeply_nested_level(L)> begin();
-  template <Level L> void process();
-  template <Level L> void finalize();
-  template <Level L> void finalizeContainingLevels() {}
-  template <Level L> void recordOutputModuleClosureRequests() {}
+  template <Level L>
+  std::enable_if_t<is_above_most_deeply_nested_level(L)> begin();
+  template <Level L>
+  void process();
+  template <Level L>
+  void finalize();
+  template <Level L>
+  void
+  finalizeContainingLevels()
+  {}
+  template <Level L>
+  void
+  recordOutputModuleClosureRequests()
+  {}
 
   void markLevelAsProcessed();
   Level advanceItemType();
@@ -130,16 +138,17 @@ private:
 
   void setOutputFileStatus(OutputFileStatus);
 
-  Level nextLevel_ {Level::ReadyToAdvance};
-  std::vector<Level> activeLevels_ {highest_level()};
-  detail::ExceptionCollector ec_ {};
+  Level nextLevel_{Level::ReadyToAdvance};
+  std::vector<Level> activeLevels_{highest_level()};
+  detail::ExceptionCollector ec_{};
   cet::cpu_timer timer_{};
 
-  bool beginRunCalled_ {false};    // Should be stack variable local to run loop
-  bool beginSubRunCalled_ {false}; // Should be stack variable local to subrun loop
+  bool beginRunCalled_{false}; // Should be stack variable local to run loop
+  bool beginSubRunCalled_{
+    false}; // Should be stack variable local to subrun loop
 
-  bool finalizeRunEnabled_ {true};
-  bool finalizeSubRunEnabled_ {true};
+  bool finalizeRunEnabled_{true};
+  bool finalizeSubRunEnabled_{true};
 
   ServiceDirector initServices_(fhicl::ParameterSet const& top_pset,
                                 ActivityRegistry& areg,
@@ -147,7 +156,8 @@ private:
   void initSchedules_(fhicl::ParameterSet const& pset);
   void invokePostBeginJobWorkers_();
 
-  template <typename T> void process_(typename T::MyPrincipal& p);
+  template <typename T>
+  void process_(typename T::MyPrincipal& p);
 
   void servicesActivate_(ServiceToken st);
   void servicesDeactivate_();
@@ -183,36 +193,36 @@ private:
   bool const handleEmptyRuns_;
   bool const handleEmptySubRuns_;
 
-};  // EventProcessor
+}; // EventProcessor
 
 ////////////////////////////////////
 template <typename T>
 void
-art::EventProcessor::process_(typename T::MyPrincipal& p)
-try {
+art::EventProcessor::process_(typename T::MyPrincipal& p) try {
   T::preScheduleSignal(actReg_, p);
   schedule_->process<T>(p);
   endPathExecutor_->process<T>(p);
   T::postScheduleSignal(actReg_, p);
 }
 catch (cet::exception const& ex) {
-  actions::ActionCodes const action {
-    T::level == Level::Event ? act_table_.find(ex.root_cause()) : actions::Rethrow
-  };
+  actions::ActionCodes const action{T::level == Level::Event ?
+                                      act_table_.find(ex.root_cause()) :
+                                      actions::Rethrow};
   switch (action) {
-  case actions::IgnoreCompletely: {
-    mf::LogWarning(ex.category())
-      << "exception being ignored for current event:\n"
-      << cet::trim_right_copy(ex.what(), " \n");
-    break;
+    case actions::IgnoreCompletely: {
+      mf::LogWarning(ex.category())
+        << "exception being ignored for current event:\n"
+        << cet::trim_right_copy(ex.what(), " \n");
+      break;
+    }
+    default: {
+      throw art::Exception{
+        errors::EventProcessorFailure,
+        "EventProcessor: an exception occurred during current event processing",
+        ex};
+    }
   }
-  default: {
-    throw art::Exception{errors::EventProcessorFailure,
-                         "EventProcessor: an exception occurred during current event processing",
-                         ex};
-  }
-  }
- }
+}
 catch (...) {
   mf::LogError("PassingThrough")
     << "an exception occurred during current event processing\n";

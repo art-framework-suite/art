@@ -8,8 +8,8 @@
 namespace art {
   namespace detail {
 
-    void fillSourceList(std::istream& ifs, std::vector<std::string> & source_list);
-
+    void fillSourceList(std::istream& ifs,
+                        std::vector<std::string>& source_list);
   }
 }
 

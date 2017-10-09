@@ -13,13 +13,14 @@ namespace art {
 
 class art::FileCatalogOptionsHandler : public art::OptionsHandler {
 public:
-  explicit FileCatalogOptionsHandler(bpo::options_description & desc);
+  explicit FileCatalogOptionsHandler(bpo::options_description& desc);
+
 private:
   // Check selected options for consistency.
-  int doCheckOptions(bpo::variables_map const & vm) override;
+  int doCheckOptions(bpo::variables_map const& vm) override;
   // Act on selected options.
-  int doProcessOptions(bpo::variables_map const & vm,
-                       fhicl::intermediate_table & raw_config) override;
+  int doProcessOptions(bpo::variables_map const& vm,
+                       fhicl::intermediate_table& raw_config) override;
 
   // Data.
   std::string appFamily_;

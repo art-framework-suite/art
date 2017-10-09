@@ -93,7 +93,8 @@ namespace art {
 #include <string>
 
 namespace cet {
-  template <> struct PluginTypeDeducer<art::ResultsProducer> {
+  template <>
+  struct PluginTypeDeducer<art::ResultsProducer> {
     static std::string const value;
   };
 }
@@ -101,8 +102,7 @@ namespace cet {
 class art::ResultsProducer : ProductRegistryHelper, public Consumer {
 protected:
   template <class P>
-  void
-  produces(std::string const& instanceName = {});
+  void produces(std::string const& instanceName = {});
 
 public:
   virtual ~ResultsProducer() = default;
@@ -118,9 +118,10 @@ public:
   void doWriteResults(ResultsPrincipal&);
   void doClear();
 
-  void registerProducts(MasterProductRegistry& mpr,
-                        ProductDescriptions& producedProducts,
-                        ModuleDescription const& md)
+  void
+  registerProducts(MasterProductRegistry& mpr,
+                   ProductDescriptions& producedProducts,
+                   ModuleDescription const& md)
   {
     ProductRegistryHelper::registerProducts(mpr, producedProducts, md);
     moduleDescription_ = &md;
@@ -147,115 +148,94 @@ private:
   virtual void clear() = 0;
 };
 
-template<class P>
-inline
-void
-art::ResultsProducer::
-produces(std::string const& instanceName)
+template <class P>
+inline void
+art::ResultsProducer::produces(std::string const& instanceName)
 {
   ProductRegistryHelper::produces<P, InResults>(instanceName);
 }
 
-inline
-void
-art::ResultsProducer::
-doBeginJob()
+inline void
+art::ResultsProducer::doBeginJob()
 {
   assert(moduleDescription_);
   // Preparing the consumer for the job must be done after the
   // constructer has been called.
   auto const& mainID = moduleDescription_->mainParameterSetID();
-  auto const& scheduler_pset = fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>("services.scheduler");
+  auto const& scheduler_pset =
+    fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
+      "services.scheduler");
   Consumer::setModuleDescription(*moduleDescription_);
   prepareForJob(scheduler_pset);
   beginJob();
 }
 
-inline
-void
-art::ResultsProducer::
-doEndJob()
+inline void
+art::ResultsProducer::doEndJob()
 {
   endJob();
   showMissingConsumes();
 }
 
-inline
-void
-art::ResultsProducer::
-doBeginSubRun(SubRunPrincipal const& srp)
+inline void
+art::ResultsProducer::doBeginSubRun(SubRunPrincipal const& srp)
 {
-  SubRun const sr {srp, *moduleDescription_, this};
+  SubRun const sr{srp, *moduleDescription_, this};
   beginSubRun(sr);
 }
 
-inline
-void
-art::ResultsProducer::
-doEndSubRun(SubRunPrincipal const& srp)
+inline void
+art::ResultsProducer::doEndSubRun(SubRunPrincipal const& srp)
 {
-  SubRun const sr {srp, *moduleDescription_, this};
+  SubRun const sr{srp, *moduleDescription_, this};
   endSubRun(sr);
 }
 
-inline
-void
-art::ResultsProducer::
-doBeginRun(RunPrincipal const& rp)
+inline void
+art::ResultsProducer::doBeginRun(RunPrincipal const& rp)
 {
-  Run const r {rp, *moduleDescription_, this};
+  Run const r{rp, *moduleDescription_, this};
   beginRun(r);
 }
 
-inline
-void
-art::ResultsProducer::
-doEndRun(RunPrincipal const& rp)
+inline void
+art::ResultsProducer::doEndRun(RunPrincipal const& rp)
 {
-  Run const r {rp, *moduleDescription_, this};
+  Run const r{rp, *moduleDescription_, this};
   endRun(r);
 }
 
-inline
-void
-art::ResultsProducer::
-doEvent(EventPrincipal const& ep)
+inline void
+art::ResultsProducer::doEvent(EventPrincipal const& ep)
 {
-  Event const e {ep, *moduleDescription_, this};
+  Event const e{ep, *moduleDescription_, this};
   event(e);
 }
 
-inline
-void
-art::ResultsProducer::
-doReadResults(ResultsPrincipal const& resp)
+inline void
+art::ResultsProducer::doReadResults(ResultsPrincipal const& resp)
 {
-  Results const res {resp, *moduleDescription_, this};
+  Results const res{resp, *moduleDescription_, this};
   readResults(res);
 }
 
-inline
-void
-art::ResultsProducer::
-doClear()
+inline void
+art::ResultsProducer::doClear()
 {
   clear();
 }
 
-#define DEFINE_ART_RESULTS_PLUGIN(klass)                                \
-  extern "C" {                                                          \
-    CET_PROVIDE_FILE_PATH()                                             \
-    FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                          \
-    DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)                  \
-    std::unique_ptr<art::RPWorker>                                      \
-    makeRP(art::RPParams const& rpParams,                               \
-           fhicl::ParameterSet const& ps)                               \
-    {                                                                   \
-      return                                                            \
-        std::make_unique<art::RPWorkerT<klass>>(rpParams, ps);          \
-    }                                                                   \
+#define DEFINE_ART_RESULTS_PLUGIN(klass)                                       \
+  extern "C" {                                                                 \
+  CET_PROVIDE_FILE_PATH()                                                      \
+  FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                                   \
+  DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)                           \
+  std::unique_ptr<art::RPWorker>                                               \
+  makeRP(art::RPParams const& rpParams, fhicl::ParameterSet const& ps)         \
+  {                                                                            \
+    return std::make_unique<art::RPWorkerT<klass>>(rpParams, ps);              \
+  }                                                                            \
   }
-
 
 #endif /* art_Framework_Core_ResultsProducer_h */
 

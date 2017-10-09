@@ -66,7 +66,6 @@ namespace art {
     // standard file services.
     static constexpr bool value = !Source_generator<DETAIL>::value;
   };
-
 }
 #endif /* art_Framework_IO_Sources_SourceTraits_h */
 

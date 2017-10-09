@@ -9,62 +9,60 @@
 
 namespace art {
 
-  SubRunPrincipal::
-  SubRunPrincipal(SubRunAuxiliary const& aux,
-                  ProcessConfiguration const& pc,
-                  cet::exempt_ptr<ProductTable const> presentProducts,
-                  std::unique_ptr<BranchMapper>&& mapper,
-                  std::unique_ptr<DelayedReader>&& rtrv)
-    : Principal{pc, aux.processHistoryID_, presentProducts, std::move(mapper), std::move(rtrv)}
+  SubRunPrincipal::SubRunPrincipal(
+    SubRunAuxiliary const& aux,
+    ProcessConfiguration const& pc,
+    cet::exempt_ptr<ProductTable const> presentProducts,
+    std::unique_ptr<BranchMapper>&& mapper,
+    std::unique_ptr<DelayedReader>&& rtrv)
+    : Principal{pc,
+                aux.processHistoryID_,
+                presentProducts,
+                std::move(mapper),
+                std::move(rtrv)}
     , aux_{aux}
   {
-    productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>{this});
+    productReader().setGroupFinder(
+      cet::exempt_ptr<EDProductGetterFinder const>{this});
     if (ProductMetaData::instance().productProduced(InSubRun)) {
       addToProcessHistory();
     }
   }
 
   ProcessHistoryID const&
-  SubRunPrincipal::
-  processHistoryID() const
+  SubRunPrincipal::processHistoryID() const
   {
     return aux().processHistoryID_;
   }
 
   void
-  SubRunPrincipal::
-  setProcessHistoryID(ProcessHistoryID const& phid)
+  SubRunPrincipal::setProcessHistoryID(ProcessHistoryID const& phid)
   {
     return aux().setProcessHistoryID(phid);
   }
 
   void
-  SubRunPrincipal::
-  fillGroup(BranchDescription const& pd)
+  SubRunPrincipal::fillGroup(BranchDescription const& pd)
   {
-    Principal::fillGroup(gfactory::make_group(pd,
-                                              pd.productID(),
-                                              RangeSet::invalid()));
+    Principal::fillGroup(
+      gfactory::make_group(pd, pd.productID(), RangeSet::invalid()));
   }
 
   void
-  SubRunPrincipal::
-  put(std::unique_ptr<EDProduct>&& edp,
-      BranchDescription const& pd,
-      std::unique_ptr<ProductProvenance const>&& productProvenance,
-      RangeSet&& rs)
+  SubRunPrincipal::put(
+    std::unique_ptr<EDProduct>&& edp,
+    BranchDescription const& pd,
+    std::unique_ptr<ProductProvenance const>&& productProvenance,
+    RangeSet&& rs)
   {
     assert(edp);
     branchMapper().insert(std::move(productProvenance));
-    Principal::fillGroup(gfactory::make_group(pd,
-                                              pd.productID(),
-                                              std::move(rs),
-                                              std::move(edp)));
+    Principal::fillGroup(
+      gfactory::make_group(pd, pd.productID(), std::move(rs), std::move(edp)));
   }
 
   RunPrincipal const&
-  SubRunPrincipal::
-  runPrincipal() const
+  SubRunPrincipal::runPrincipal() const
   {
     if (!runPrincipal_) {
       throw Exception(errors::NullPointerError)

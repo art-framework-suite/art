@@ -9,8 +9,8 @@
 namespace art {
   namespace detail {
 
-    std::vector<std::vector<std::string>> orderedProcessNamesCollection(ProcessHistoryMap const& pHistMap);
-
+    std::vector<std::vector<std::string>> orderedProcessNamesCollection(
+      ProcessHistoryMap const& pHistMap);
   }
 }
 

@@ -4,35 +4,44 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 
-#include "messagefacility/MessageService/MessageDrop.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "messagefacility/MessageService/MessageDrop.h"
 
 #include <string>
 
-#define MFSU_0_ARG_UPDATER_DECL(stateTag)                       \
-  typename decltype(ActivityRegistry::s##stateTag)::result_type \
-  updateStatusTo##stateTag()
-#define MFSU_0_ARG_UPDATER_DEFN(stateTag)                             \
-  typename decltype(art::ActivityRegistry::s##stateTag)::result_type  \
-  art::MFStatusUpdater::updateStatusTo##stateTag()
+#define MFSU_0_ARG_UPDATER_DECL(stateTag)                                      \
+  typename decltype(                                                           \
+    ActivityRegistry::s##stateTag)::result_type updateStatusTo##stateTag()
+#define MFSU_0_ARG_UPDATER_DEFN(stateTag)                                      \
+  typename decltype(art::ActivityRegistry::s##stateTag)::result_type           \
+    art::MFStatusUpdater::updateStatusTo##stateTag()
 
-#define MFSU_1_ARG_UPDATER_DECL(stateTag)                               \
-  typename decltype(ActivityRegistry::s##stateTag)::result_type         \
-  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::argument_type)
-#define MFSU_1_ARG_UPDATER_DEFN(stateTag)                               \
-  typename decltype(art::ActivityRegistry::s##stateTag)::result_type    \
-  art::MFStatusUpdater::                                                \
-  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::argument_type arg1 [[gnu::unused]])
+#define MFSU_1_ARG_UPDATER_DECL(stateTag)                                      \
+  typename decltype(ActivityRegistry::s##stateTag)::result_type                \
+    updateStatusTo##stateTag(typename decltype(                                \
+      ActivityRegistry::s##stateTag)::slot_type::argument_type)
+#define MFSU_1_ARG_UPDATER_DEFN(stateTag)                                      \
+  typename decltype(art::ActivityRegistry::s##stateTag)::result_type           \
+    art::MFStatusUpdater::updateStatusTo##stateTag(typename decltype(          \
+      ActivityRegistry::s##stateTag)::slot_type::argument_type                 \
+                                                     arg1[[gnu::unused]])
 
-#define MFSU_2_ARG_UPDATER_DECL(stateTag)                               \
-  typename decltype(ActivityRegistry::s##stateTag)::result_type         \
-  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::first_argument_type, \
-                           typename decltype(ActivityRegistry::s##stateTag)::slot_type::second_argument_type)
-#define MFSU_2_ARG_UPDATER_DEFN(stateTag)                               \
-  typename decltype(art::ActivityRegistry::s##stateTag)::result_type    \
-  art::MFStatusUpdater::                                                \
-  updateStatusTo##stateTag(typename decltype(ActivityRegistry::s##stateTag)::slot_type::first_argument_type arg1 [[gnu::unused]], \
-                           typename decltype(ActivityRegistry::s##stateTag)::slot_type::second_argument_type arg2 [[gnu::unused]])
+#define MFSU_2_ARG_UPDATER_DECL(stateTag)                                      \
+  typename decltype(ActivityRegistry::s##stateTag)::result_type                \
+    updateStatusTo##stateTag(                                                  \
+      typename decltype(                                                       \
+        ActivityRegistry::s##stateTag)::slot_type::first_argument_type,        \
+      typename decltype(                                                       \
+        ActivityRegistry::s##stateTag)::slot_type::second_argument_type)
+#define MFSU_2_ARG_UPDATER_DEFN(stateTag)                                      \
+  typename decltype(art::ActivityRegistry::s##stateTag)::result_type           \
+    art::MFStatusUpdater::updateStatusTo##stateTag(                            \
+      typename decltype(                                                       \
+        ActivityRegistry::s##stateTag)::slot_type::first_argument_type         \
+        arg1[[gnu::unused]],                                                   \
+      typename decltype(                                                       \
+        ActivityRegistry::s##stateTag)::slot_type::second_argument_type        \
+        arg2[[gnu::unused]])
 
 namespace art {
   class MFStatusUpdater;
@@ -43,7 +52,7 @@ public:
   MFStatusUpdater(MFStatusUpdater const&) = delete;
   MFStatusUpdater operator=(MFStatusUpdater const&) = delete;
 
-  MFStatusUpdater(ActivityRegistry &areg);
+  MFStatusUpdater(ActivityRegistry& areg);
 
 private:
   MFSU_0_ARG_UPDATER_DECL(PostBeginJob);
@@ -98,66 +107,54 @@ private:
   MFSU_1_ARG_UPDATER_DECL(PreModuleEndSubRun);
   MFSU_1_ARG_UPDATER_DECL(PostModuleEndSubRun);
 
-  void moduleWithPhase(art::ModuleDescription const & desc,
-                       std::string const & phase);
-  void preModuleWithPhase(art::ModuleDescription const & desc,
-                          std::string const & phase = {});
-  void postModuleWithPhase(art::ModuleDescription const & desc,
-                           std::string const & phase = {});
-  void saveEnabledState(art::ModuleDescription const & desc);
-  void saveEnabledState(std::string const & moduleLabel);
+  void moduleWithPhase(art::ModuleDescription const& desc,
+                       std::string const& phase);
+  void preModuleWithPhase(art::ModuleDescription const& desc,
+                          std::string const& phase = {});
+  void postModuleWithPhase(art::ModuleDescription const& desc,
+                           std::string const& phase = {});
+  void saveEnabledState(art::ModuleDescription const& desc);
+  void saveEnabledState(std::string const& moduleLabel);
   void restoreEnabledState();
 
-  ActivityRegistry &areg_;
+  ActivityRegistry& areg_;
 
   mf::MessageDrop& md_;
   mf::EnabledState savedEnabledState_;
 };
 
-inline
-void
-art::MFStatusUpdater::
-moduleWithPhase(art::ModuleDescription const & desc,
-                std::string const & phase)
+inline void
+art::MFStatusUpdater::moduleWithPhase(art::ModuleDescription const& desc,
+                                      std::string const& phase)
 {
-  md_.setModuleWithPhase(desc.moduleName(),
-                         desc.moduleLabel(),
-                         desc.id(),
-                         phase);
+  md_.setModuleWithPhase(
+    desc.moduleName(), desc.moduleLabel(), desc.id(), phase);
 }
 
-inline
-void
-art::MFStatusUpdater::
-preModuleWithPhase(art::ModuleDescription const & desc,
-                   std::string const & phase)
+inline void
+art::MFStatusUpdater::preModuleWithPhase(art::ModuleDescription const& desc,
+                                         std::string const& phase)
 {
   moduleWithPhase(desc, phase);
   saveEnabledState(desc);
 }
 
-inline
-void
-art::MFStatusUpdater::
-postModuleWithPhase(art::ModuleDescription const & desc,
-                    std::string const & phase)
+inline void
+art::MFStatusUpdater::postModuleWithPhase(art::ModuleDescription const& desc,
+                                          std::string const& phase)
 {
   moduleWithPhase(desc, phase);
   restoreEnabledState();
 }
 
-inline
-void
-art::MFStatusUpdater::
-saveEnabledState(art::ModuleDescription const & desc)
+inline void
+art::MFStatusUpdater::saveEnabledState(art::ModuleDescription const& desc)
 {
   saveEnabledState(desc.moduleLabel());
 }
 
-inline
-void
-art::MFStatusUpdater::
-saveEnabledState(std::string const & moduleLabel)
+inline void
+art::MFStatusUpdater::saveEnabledState(std::string const& moduleLabel)
 {
   savedEnabledState_ = mf::setEnabledState(moduleLabel);
 }
@@ -173,9 +170,7 @@ saveEnabledState(std::string const & moduleLabel)
 #undef MFSU_2_ARG_UPDATER_DEFN
 #endif
 
-
 #endif /* art_Framework_Core_MFStatusUpdater_h */
-
 
 // Local Variables:
 // mode: c++

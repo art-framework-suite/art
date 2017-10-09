@@ -18,15 +18,14 @@ namespace arttest {
 
   class ToyProductAnalyzer : public art::EDAnalyzer {
     struct Config {
-      fhicl::Atom<std::string> inputLabel {fhicl::Name{"inputLabel"}};
+      fhicl::Atom<std::string> inputLabel{fhicl::Name{"inputLabel"}};
     };
-  public:
 
+  public:
     using Parameters = art::EDAnalyzer::Table<Config>;
     explicit ToyProductAnalyzer(Parameters const& pset);
 
   private:
-
     void beginRun(art::Run const& r) override;
     void endRun(art::Run const& r) override;
     void beginSubRun(art::SubRun const& sr) override;
@@ -47,19 +46,19 @@ namespace arttest {
   };
 }
 
-arttest::ToyProductAnalyzer::ToyProductAnalyzer(Parameters const& pset) :
-  art::EDAnalyzer{pset},
-  inputLabel_{pset().inputLabel()},
-  eToken_{consumes<StringProduct>(inputLabel_)},
-  srToken_{consumes<StringProduct, art::InSubRun>(inputLabel_)},
-  bsrToken_{consumes<StringProduct, art::InSubRun>({inputLabel_, "bgnSubRun"})},
-  esrToken_{consumes<StringProduct, art::InSubRun>({inputLabel_, "endSubRun"})},
-  rToken_{consumes<StringProduct, art::InRun>(inputLabel_)},
-  brToken_{consumes<StringProduct, art::InRun>({inputLabel_, "bgnRun"})},
-  erToken_{consumes<StringProduct, art::InRun>({inputLabel_, "endRun"})}
-{
-}
-
+arttest::ToyProductAnalyzer::ToyProductAnalyzer(Parameters const& pset)
+  : art::EDAnalyzer{pset}
+  , inputLabel_{pset().inputLabel()}
+  , eToken_{consumes<StringProduct>(inputLabel_)}
+  , srToken_{consumes<StringProduct, art::InSubRun>(inputLabel_)}
+  , bsrToken_{consumes<StringProduct, art::InSubRun>(
+      {inputLabel_, "bgnSubRun"})}
+  , esrToken_{consumes<StringProduct, art::InSubRun>(
+      {inputLabel_, "endSubRun"})}
+  , rToken_{consumes<StringProduct, art::InRun>(inputLabel_)}
+  , brToken_{consumes<StringProduct, art::InRun>({inputLabel_, "bgnRun"})}
+  , erToken_{consumes<StringProduct, art::InRun>({inputLabel_, "endRun"})}
+{}
 
 void
 arttest::ToyProductAnalyzer::beginRun(art::Run const& r)

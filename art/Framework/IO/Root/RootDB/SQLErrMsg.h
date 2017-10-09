@@ -14,15 +14,18 @@ namespace art {
 
 class art::SQLErrMsg {
 public:
-  SQLErrMsg() : errMsg_(nullptr) { }
+  SQLErrMsg() : errMsg_(nullptr) {}
   ~SQLErrMsg();
 
   // Return the stored message.
-  std::string msg() const { return errMsg_; }
+  std::string
+  msg() const
+  {
+    return errMsg_;
+  }
 
   // Throw a suitable message if an error occurred.
-  void
-  throwIfError();
+  void throwIfError();
 
   // Reset and release memory. This will be done automatically in the
   // destructor anyway.
@@ -30,13 +33,15 @@ public:
 
   // Enable an object of this class to be passed to functions expecting
   // char **.
-  operator char ** () { reset(); return &errMsg_; }
+  operator char**()
+  {
+    reset();
+    return &errMsg_;
+  }
 
 private:
-
-  char * errMsg_;
+  char* errMsg_;
 };
-
 
 #endif /* art_Persistency_RootDB_SQLErrMsg_h */
 

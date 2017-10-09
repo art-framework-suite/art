@@ -1,8 +1,8 @@
 #ifndef art_Framework_IO_FileStatsCollector_h
 #define art_Framework_IO_FileStatsCollector_h
 
-#include "canvas/Persistency/Provenance/EventID.h"
 #include "boost/date_time/posix_time/posix_time_types.hpp"
+#include "canvas/Persistency/Provenance/EventID.h"
 
 #include <cstddef> // For std::size_t.
 #include <set>
@@ -44,98 +44,86 @@ private:
 
   std::string const moduleLabel_;
   std::string const processName_;
-  SubRunID lowestSubRun_ {};
-  SubRunID highestSubRun_ {};
-  EventID lowestEventIDSeen_ {};
-  EventID highestEventIDSeen_ {};
-  boost::posix_time::ptime fo_ {};
-  boost::posix_time::ptime fc_ {};
-  std::size_t seqNo_ {};
-  std::string lastOpenedInputFile_ {};
-  std::vector<std::string> inputFilesSeen_ {};
-  std::size_t nEvents_ {};
-  std::set<SubRunID> subRunsSeen_ {};
+  SubRunID lowestSubRun_{};
+  SubRunID highestSubRun_{};
+  EventID lowestEventIDSeen_{};
+  EventID highestEventIDSeen_{};
+  boost::posix_time::ptime fo_{};
+  boost::posix_time::ptime fc_{};
+  std::size_t seqNo_{};
+  std::string lastOpenedInputFile_{};
+  std::vector<std::string> inputFilesSeen_{};
+  std::size_t nEvents_{};
+  std::set<SubRunID> subRunsSeen_{};
 };
 
-inline
-std::string const&
+inline std::string const&
 art::FileStatsCollector::moduleLabel() const
 {
   return moduleLabel_;
 }
 
-inline
-std::string const&
+inline std::string const&
 art::FileStatsCollector::processName() const
 {
   return processName_;
 }
 
-inline
-boost::posix_time::ptime
+inline boost::posix_time::ptime
 art::FileStatsCollector::outputFileOpenTime() const
 {
   return fo_;
 }
 
-inline
-boost::posix_time::ptime
+inline boost::posix_time::ptime
 art::FileStatsCollector::outputFileCloseTime() const
 {
   return fc_;
 }
 
-inline
-art::SubRunID const&
+inline art::SubRunID const&
 art::FileStatsCollector::lowestSubRunID() const
 {
   return lowestSubRun_;
 }
 
-inline
-art::SubRunID const&
+inline art::SubRunID const&
 art::FileStatsCollector::highestSubRunID() const
 {
   return highestSubRun_;
 }
 
-inline
-art::EventID const&
+inline art::EventID const&
 art::FileStatsCollector::lowestEventID() const
 {
   return lowestEventIDSeen_;
 }
 
-inline
-art::EventID const&
+inline art::EventID const&
 art::FileStatsCollector::highestEventID() const
 {
   return highestEventIDSeen_;
 }
 
-inline
-std::string const&
+inline std::string const&
 art::FileStatsCollector::lastOpenedInputFile() const
 {
   return lastOpenedInputFile_;
 }
 
-inline
-std::size_t
+inline std::size_t
 art::FileStatsCollector::sequenceNum() const
 {
   return seqNo_;
 }
 
-inline
-std::size_t
+inline std::size_t
 art::FileStatsCollector::eventsThisFile() const
 {
   return nEvents_;
 }
 
-inline
-std::set<art::SubRunID> const&
+inline std::set<art::SubRunID> const&
 art::FileStatsCollector::seenSubRuns() const
 {
   return subRunsSeen_;

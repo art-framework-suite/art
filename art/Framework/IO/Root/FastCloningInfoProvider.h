@@ -10,22 +10,23 @@ namespace art {
 }
 
 class art::FastCloningInfoProvider {
- public:
+public:
   FastCloningInfoProvider() : input_() {}
-  explicit FastCloningInfoProvider(cet::exempt_ptr<DecrepitRelicInputSourceImplementation> input);
+  explicit FastCloningInfoProvider(
+    cet::exempt_ptr<DecrepitRelicInputSourceImplementation> input);
 
   bool fastCloningPermitted() const;
 
   off_t remainingEvents() const;
   off_t remainingSubRuns() const;
 
- private:
+private:
   cet::exempt_ptr<DecrepitRelicInputSourceImplementation> input_;
 };
 
 inline bool
-art::FastCloningInfoProvider::
-fastCloningPermitted() const {
+art::FastCloningInfoProvider::fastCloningPermitted() const
+{
   return !input_.empty();
 }
 

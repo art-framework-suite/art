@@ -38,7 +38,10 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-namespace art
-{
-  int getFileFormatVersion() { return 11; }
+namespace art {
+  int
+  getFileFormatVersion()
+  {
+    return 11;
+  }
 }

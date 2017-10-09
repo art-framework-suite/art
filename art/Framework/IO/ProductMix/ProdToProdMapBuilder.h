@@ -24,7 +24,6 @@ public:
   void populateRemapper(PtrRemapper& mapper, Event& e) const;
 
 private:
-
   ProductIDTransMap productIDTransMap_{};
 };
 #endif /* art_Framework_IO_ProductMix_ProdToProdMapBuilder_h */

@@ -16,10 +16,10 @@
 
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Principal/Handle.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
@@ -57,18 +57,29 @@ using fhicl::ParameterSet;
 
 namespace {
 
-  art::EventID make_id() { return art::EventID{2112, 47, 25}; }
-  constexpr art::Timestamp make_timestamp() { return art::Timestamp{1}; }
-  std::string module_class_name() { return "IntProducer"; }
-
+  art::EventID
+  make_id()
+  {
+    return art::EventID{2112, 47, 25};
+  }
+  constexpr art::Timestamp
+  make_timestamp()
+  {
+    return art::Timestamp{1};
+  }
+  std::string
+  module_class_name()
+  {
+    return "IntProducer";
+  }
 }
 
 // This is a gross hack, to allow us to test the event
 namespace art {
   class EDProducer {
   public:
-    static void commitEvent(EventPrincipal& ep,
-                            Event& e)
+    static void
+    commitEvent(EventPrincipal& ep, Event& e)
     {
       e.commit_(ep, false, std::set<TypeLabel>{});
     }
@@ -83,7 +94,8 @@ public:
   // The moduleConfigurations_ data member is a map that with the
   // following semantics:
   //   process_name <-> (module_name <-> module_configuration)
-  std::map<std::string, std::map<std::string, ParameterSet>> moduleConfigurations_{};
+  std::map<std::string, std::map<std::string, ParameterSet>>
+    moduleConfigurations_{};
   std::map<std::string, ModuleDescription> moduleDescriptions_{};
   // The descriptions_ data member is used only to create the product
   // lookup tables.
@@ -92,13 +104,12 @@ public:
   ProductTable producedProducts_{};
 
 private:
-
   template <typename T>
-  ModuleDescription const&
-  registerProduct(std::string const& tag,
-                  std::string const& moduleLabel,
-                  std::string const& processName,
-                  std::string const& productInstanceName = {});
+  ModuleDescription const& registerProduct(
+    std::string const& tag,
+    std::string const& moduleLabel,
+    std::string const& processName,
+    std::string const& productInstanceName = {});
 
   MasterProductRegistry availableProducts_{};
 };
@@ -124,7 +135,8 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   }
 
   // Register single IntProduct for the "CURRENT" process
-  currentModuleDescription_ = registerProduct<prod_t>("current_tag", "modMulti", "CURRENT", "int1");
+  currentModuleDescription_ =
+    registerProduct<prod_t>("current_tag", "modMulti", "CURRENT", "int1");
 
   // Create the lookup that we will use for the current-process module
   {
@@ -154,21 +166,20 @@ MPRGlobalTestFixture::registerProduct(std::string const& tag,
   processParams.put(moduleLabel, moduleParams);
 
   ProcessConfiguration process;
-  process.processName_    = processName;
+  process.processName_ = processName;
   process.releaseVersion_ = getReleaseVersion();
   process.parameterSetID_ = processParams.id();
 
-  ModuleDescription const localModuleDescription{moduleParams.id(),
-                                                 module_class_name(),
-                                                 moduleLabel,
-                                                 process};
+  ModuleDescription const localModuleDescription{
+    moduleParams.id(), module_class_name(), moduleLabel, process};
 
   TypeID const product_type{typeid(T)};
 
   moduleDescriptions_[tag] = localModuleDescription;
-  BranchDescription pd{InEvent,
-                       TypeLabel{product_type, productInstanceName, SupportsView<T>::value},
-                       localModuleDescription};
+  BranchDescription pd{
+    InEvent,
+    TypeLabel{product_type, productInstanceName, SupportsView<T>::value},
+    localModuleDescription};
   descriptions_.emplace_back(pd);
   availableProducts_.addProductsFromModule({std::move(pd)});
   return moduleDescriptions_[tag];
@@ -209,7 +220,7 @@ EventTestFixture::EventTestFixture()
     }
 
     ProcessConfiguration processConfiguration;
-    processConfiguration.processName_    = process.first;
+    processConfiguration.processName_ = process.first;
     processConfiguration.releaseVersion_ = getReleaseVersion();
     processConfiguration.parameterSetID_ = processParameterSet.id();
     processHistory.push_back(processConfiguration);
@@ -228,7 +239,8 @@ EventTestFixture::EventTestFixture()
 
   constexpr auto time = make_timestamp();
   EventID const id{make_id()};
-  ProcessConfiguration const& pc = gf().currentModuleDescription_.processConfiguration();
+  ProcessConfiguration const& pc =
+    gf().currentModuleDescription_.processConfiguration();
 
   RunAuxiliary const runAux{id.run(), time, time};
   auto rp = std::make_unique<RunPrincipal>(runAux, pc, nullptr);
@@ -240,11 +252,14 @@ EventTestFixture::EventTestFixture()
   EventAuxiliary const eventAux{id, time, true};
   auto history = std::make_shared<History>();
   const_cast<ProcessHistoryID&>(history->processHistoryID()) = processHistoryID;
-  principal_ = std::make_unique<EventPrincipal>(eventAux, pc, &gf().presentProducts_, history);
+  principal_ = std::make_unique<EventPrincipal>(
+    eventAux, pc, &gf().presentProducts_, history);
   principal_->setSubRunPrincipal(srp.get());
   principal_->setProducedProducts(gf().producedProducts_);
 
-  currentEvent_ = std::make_unique<Event>(*principal_, gf().currentModuleDescription_, Consumer::non_module_context());
+  currentEvent_ = std::make_unique<Event>(*principal_,
+                                          gf().currentModuleDescription_,
+                                          Consumer::non_module_context());
 }
 
 // Add the given product, of type T, to the current event, as if it
@@ -258,10 +273,10 @@ EventTestFixture::addSourceProduct(std::unique_ptr<T>&& product,
   auto description = gf().moduleDescriptions_.find(tag);
   if (description == gf().moduleDescriptions_.end())
     throw art::Exception(errors::LogicError)
-      << "Failed to find a module description for tag: "
-      << tag << '\n';
+      << "Failed to find a module description for tag: " << tag << '\n';
 
-  Event temporaryEvent{*principal_, description->second, Consumer::non_module_context()};
+  Event temporaryEvent{
+    *principal_, description->second, Consumer::non_module_context()};
   ProductID const id{temporaryEvent.put(std::move(product), instanceName)};
 
   // The lookup tables have already been provided for source products;
@@ -271,7 +286,8 @@ EventTestFixture::addSourceProduct(std::unique_ptr<T>&& product,
 }
 
 MPRGlobalTestFixture&
-EventTestFixture::gf() {
+EventTestFixture::gf()
+{
   static MPRGlobalTestFixture gf_s;
   return gf_s;
 }
@@ -294,15 +310,14 @@ BOOST_AUTO_TEST_CASE(getBySelectorFromEmpty)
   BOOST_REQUIRE(!currentEvent_->get(byModuleLabel, nonesuch));
   BOOST_REQUIRE(!nonesuch.isValid());
   BOOST_REQUIRE(nonesuch.failedToGet());
-  BOOST_REQUIRE_THROW(*nonesuch,
-                      cet::exception);
+  BOOST_REQUIRE_THROW(*nonesuch, cet::exception);
 }
 
 BOOST_AUTO_TEST_CASE(dereferenceDfltHandle)
 {
   Handle<int> nonesuch;
   BOOST_REQUIRE_THROW(*nonesuch, cet::exception);
-  BOOST_REQUIRE_THROW( nonesuch.product(), cet::exception);
+  BOOST_REQUIRE_THROW(nonesuch.product(), cet::exception);
 }
 
 BOOST_AUTO_TEST_CASE(putAnIntProduct)
@@ -335,7 +350,7 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 BOOST_AUTO_TEST_CASE(getByProductID)
 {
   using product_t = arttest::IntProduct;
-  using handle_t  = Handle<product_t>;
+  using handle_t = Handle<product_t>;
 
   ProductID wanted;
   {
@@ -385,18 +400,18 @@ BOOST_AUTO_TEST_CASE(transaction)
 
 BOOST_AUTO_TEST_CASE(getByInstanceName)
 {
-  using product_t  = arttest::IntProduct;
-  using handle_t   = Handle<product_t>;
+  using product_t = arttest::IntProduct;
+  using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
-  auto one   = std::make_unique<product_t>(1);
-  auto two   = std::make_unique<product_t>(2);
+  auto one = std::make_unique<product_t>(1);
+  auto two = std::make_unique<product_t>(2);
   auto three = std::make_unique<product_t>(3);
-  auto four  = std::make_unique<product_t>(4);
-  addSourceProduct(std::move(one),   "int1_tag", "int1");
-  addSourceProduct(std::move(two),   "int2_tag", "int2");
+  auto four = std::make_unique<product_t>(4);
+  addSourceProduct(std::move(one), "int1_tag", "int1");
+  addSourceProduct(std::move(two), "int2_tag", "int2");
   addSourceProduct(std::move(three), "int3_tag");
-  addSourceProduct(std::move(four),  "nolabel_tag");
+  addSourceProduct(std::move(four), "nolabel_tag");
 
   BOOST_REQUIRE_EQUAL(currentEvent_->size(), 4u);
 
@@ -433,18 +448,18 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
 
 BOOST_AUTO_TEST_CASE(getBySelector)
 {
-  using product_t  = arttest::IntProduct;
-  using handle_t   = Handle<product_t>;
+  using product_t = arttest::IntProduct;
+  using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
-  auto one   = std::make_unique<product_t>(1);
-  auto two   = std::make_unique<product_t>(2);
+  auto one = std::make_unique<product_t>(1);
+  auto two = std::make_unique<product_t>(2);
   auto three = std::make_unique<product_t>(3);
-  auto four  = std::make_unique<product_t>(4);
-  addSourceProduct(std::move(one),   "int1_tag", "int1");
-  addSourceProduct(std::move(two),   "int2_tag", "int2");
+  auto four = std::make_unique<product_t>(4);
+  addSourceProduct(std::move(one), "int1_tag", "int1");
+  addSourceProduct(std::move(two), "int2_tag", "int2");
   addSourceProduct(std::move(three), "int3_tag");
-  addSourceProduct(std::move(four),  "nolabel_tag");
+  addSourceProduct(std::move(four), "nolabel_tag");
 
   auto oneHundred = std::make_unique<product_t>(100);
   addSourceProduct(std::move(oneHundred), "int1_tag_late", "int1");
@@ -485,7 +500,7 @@ BOOST_AUTO_TEST_CASE(getBySelector)
 
   Selector const sel4{ModuleLabelSelector{"modMulti"} &&
                       ProcessNameSelector{"EARLY"}};
-  //multiple selections throw
+  // multiple selections throw
   BOOST_REQUIRE_THROW(currentEvent_->get(sel4, h), cet::exception);
 
   Selector const sel5{ModuleLabelSelector{"modMulti"} &&
@@ -506,24 +521,25 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   currentEvent_->getMany(ModuleLabelSelector{"modMulti"}, handles);
   BOOST_REQUIRE_EQUAL(handles.size(), 5u);
   int sum = 0;
-  for (int k = 0; k < 5; ++k) sum += handles[k]->value;
+  for (int k = 0; k < 5; ++k)
+    sum += handles[k]->value;
   BOOST_REQUIRE_EQUAL(sum, 306);
 }
 
 BOOST_AUTO_TEST_CASE(getByLabel)
 {
-  using product_t  = arttest::IntProduct;
-  using handle_t   = Handle<product_t>;
+  using product_t = arttest::IntProduct;
+  using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
-  auto one   = std::make_unique<product_t>(1);
-  auto two   = std::make_unique<product_t>(2);
+  auto one = std::make_unique<product_t>(1);
+  auto two = std::make_unique<product_t>(2);
   auto three = std::make_unique<product_t>(3);
-  auto four  = std::make_unique<product_t>(4);
-  addSourceProduct(std::move(one),   "int1_tag", "int1");
-  addSourceProduct(std::move(two),   "int2_tag", "int2");
+  auto four = std::make_unique<product_t>(4);
+  addSourceProduct(std::move(one), "int1_tag", "int1");
+  addSourceProduct(std::move(two), "int2_tag", "int2");
   addSourceProduct(std::move(three), "int3_tag");
-  addSourceProduct(std::move(four),  "nolabel_tag");
+  addSourceProduct(std::move(four), "nolabel_tag");
 
   auto oneHundred = std::make_unique<product_t>(100);
   addSourceProduct(std::move(oneHundred), "int1_tag_late", "int1");
@@ -549,28 +565,30 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   BOOST_REQUIRE(currentEvent_->getByLabel(inputTag, h));
   BOOST_REQUIRE_EQUAL(h->value, 200);
 
-  GroupQueryResult bh{principal_->getByLabel(WrappedTypeID::make<product_t>(), "modMulti", "int1", "LATE")};
+  GroupQueryResult bh{principal_->getByLabel(
+    WrappedTypeID::make<product_t>(), "modMulti", "int1", "LATE")};
   convert_handle(bh, h);
   BOOST_REQUIRE_EQUAL(h->value, 100);
 
-  GroupQueryResult bh2{principal_->getByLabel(WrappedTypeID::make<product_t>(), "modMulti", "int1", "nomatch")};
+  GroupQueryResult bh2{principal_->getByLabel(
+    WrappedTypeID::make<product_t>(), "modMulti", "int1", "nomatch")};
   BOOST_REQUIRE(!bh2.succeeded());
 }
 
 BOOST_AUTO_TEST_CASE(getManyByType)
 {
-  using product_t  = arttest::IntProduct;
-  using handle_t   = Handle<product_t>;
+  using product_t = arttest::IntProduct;
+  using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
-  auto one   = std::make_unique<product_t>(1);
-  auto two   = std::make_unique<product_t>(2);
+  auto one = std::make_unique<product_t>(1);
+  auto two = std::make_unique<product_t>(2);
   auto three = std::make_unique<product_t>(3);
-  auto four  = std::make_unique<product_t>(4);
-  addSourceProduct(std::move(one),   "int1_tag", "int1");
-  addSourceProduct(std::move(two),   "int2_tag", "int2");
+  auto four = std::make_unique<product_t>(4);
+  addSourceProduct(std::move(one), "int1_tag", "int1");
+  addSourceProduct(std::move(two), "int2_tag", "int2");
   addSourceProduct(std::move(three), "int3_tag");
-  addSourceProduct(std::move(four),  "nolabel_tag");
+  addSourceProduct(std::move(four), "nolabel_tag");
 
   auto oneHundred = std::make_unique<product_t>(100);
   addSourceProduct(std::move(oneHundred), "int1_tag_late", "int1");
@@ -585,7 +603,8 @@ BOOST_AUTO_TEST_CASE(getManyByType)
   currentEvent_->getManyByType(handles);
   BOOST_REQUIRE_EQUAL(handles.size(), 6u);
   int sum = 0;
-  for (int k = 0; k < 6; ++k) sum += handles[k]->value;
+  for (int k = 0; k < 6; ++k)
+    sum += handles[k]->value;
   BOOST_REQUIRE_EQUAL(sum, 310);
 }
 
@@ -594,7 +613,10 @@ BOOST_AUTO_TEST_CASE(printHistory)
   auto const& history = currentEvent_->processHistory();
   std::ofstream out{"history.log"};
 
-  cet::copy_all(history, std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out, "\n"));
+  cet::copy_all(
+    history,
+    std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out,
+                                                                      "\n"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

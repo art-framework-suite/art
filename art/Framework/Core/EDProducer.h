@@ -8,7 +8,6 @@
 //
 // ======================================================================
 
-#include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Core/EngineCreator.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
@@ -28,30 +27,27 @@ namespace art {
 
   class EDProducer : public ProducerBase,
                      public Consumer,
-                     public EngineCreator
-  {
+                     public EngineCreator {
   public:
-    template <typename T> friend class WorkerT;
+    template <typename T>
+    friend class WorkerT;
     using ModuleType = EDProducer;
     using WorkerType = WorkerT<EDProducer>;
 
     virtual ~EDProducer() = default;
 
     template <typename PROD, BranchType B = InEvent>
-    ProductID
-    getProductID(std::string const& instanceName = {}) const;
+    ProductID getProductID(std::string const& instanceName = {}) const;
 
     template <typename UserConfig>
     using Table = ProducerBase::Table<UserConfig>;
 
   protected:
-
     // The returned pointer will be null unless the this is currently
     // executing its event loop function ('produce').
     CurrentProcessingContext const* currentContext() const;
 
   private:
-
     using CPC_exempt_ptr = cet::exempt_ptr<CurrentProcessingContext const>;
 
     bool doEvent(EventPrincipal& ep, CPC_exempt_ptr cpcp, CountingStatistics&);
@@ -66,24 +62,52 @@ namespace art {
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
 
-    std::string workerType() const {return "WorkerT<EDProducer>";}
+    std::string
+    workerType() const
+    {
+      return "WorkerT<EDProducer>";
+    }
 
     virtual void produce(Event&) = 0;
-    virtual void beginJob(){}
-    virtual void endJob(){}
-    virtual void reconfigure(fhicl::ParameterSet const&) {} // Not called by framework
+    virtual void
+    beginJob()
+    {}
+    virtual void
+    endJob()
+    {}
+    virtual void
+    reconfigure(fhicl::ParameterSet const&)
+    {} // Not called by framework
 
-    virtual void beginRun(Run&){}
-    virtual void beginSubRun(SubRun&){}
-    virtual void endRun(Run&){}
-    virtual void endSubRun(SubRun&){}
+    virtual void
+    beginRun(Run&)
+    {}
+    virtual void
+    beginSubRun(SubRun&)
+    {}
+    virtual void
+    endRun(Run&)
+    {}
+    virtual void
+    endSubRun(SubRun&)
+    {}
 
-    virtual void respondToOpenInputFile(FileBlock const&) {}
-    virtual void respondToCloseInputFile(FileBlock const&) {}
-    virtual void respondToOpenOutputFiles(FileBlock const&) {}
-    virtual void respondToCloseOutputFiles(FileBlock const&) {}
+    virtual void
+    respondToOpenInputFile(FileBlock const&)
+    {}
+    virtual void
+    respondToCloseInputFile(FileBlock const&)
+    {}
+    virtual void
+    respondToOpenOutputFiles(FileBlock const&)
+    {}
+    virtual void
+    respondToCloseOutputFiles(FileBlock const&)
+    {}
 
-    void setModuleDescription(ModuleDescription const& md) {
+    void
+    setModuleDescription(ModuleDescription const& md)
+    {
       moduleDescription_ = md;
       // Since the module description in the Consumer base class is
       // owned by pointer, we must give it the owned object of this
@@ -95,19 +119,18 @@ namespace art {
     CPC_exempt_ptr current_context_{nullptr};
     bool checkPutProducts_{true};
     std::set<TypeLabel> missingConsumes_{};
-  };  // EDProducer
+  }; // EDProducer
 
   template <typename PROD, BranchType B>
-  inline
-  ProductID
+  inline ProductID
   EDProducer::getProductID(std::string const& instanceName) const
   {
     return ProducerBase::getProductID<PROD, B>(moduleDescription_,
                                                instanceName);
   }
-}  // art
+} // art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_Core_EDProducer_h */
 

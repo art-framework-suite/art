@@ -33,8 +33,7 @@ art::Group::status() const
     // FIXME: Old CMS note said backward compatibility only?
     if (product_->isPresent()) {
       pp->setPresent();
-    }
-    else {
+    } else {
       pp->setNotPresent();
     }
   }
@@ -48,10 +47,9 @@ art::Group::resolveProduct(TypeID const& wanted_wrapper_type) const
   if (!productUnavailable()) {
     return resolveProductIfAvailable(wanted_wrapper_type);
   }
-  art::Exception e {errors::ProductNotFound, "InaccessibleProduct"};
+  art::Exception e{errors::ProductNotFound, "InaccessibleProduct"};
   e << "resolveProduct: product is not accessible\n"
-    << productDescription()
-    << '\n';
+    << productDescription() << '\n';
   if (productProvenancePtr()) {
     e << *productProvenancePtr() << '\n';
   }
@@ -66,7 +64,7 @@ art::Group::resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
   }
   bool result = product_.get();
   if (!(result || productUnavailable())) {
-    std::unique_ptr<EDProduct> edp {obtainDesiredProduct(wanted_wrapper_type)};
+    std::unique_ptr<EDProduct> edp{obtainDesiredProduct(wanted_wrapper_type)};
     if ((result = edp.get())) {
       setProduct(std::move(edp));
     }
@@ -77,10 +75,9 @@ art::Group::resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
 std::unique_ptr<art::EDProduct>
 art::Group::obtainDesiredProduct(TypeID const& wanted_wrapper_type) const
 {
-  BranchKey const bk {productDescription()};
-  return productResolver_->getProduct(bk,
-                                      wanted_wrapper_type,
-                                      rangeOfValidity_);
+  BranchKey const bk{productDescription()};
+  return productResolver_->getProduct(
+    bk, wanted_wrapper_type, rangeOfValidity_);
 }
 
 bool
@@ -101,7 +98,8 @@ art::Group::productProvenancePtr() const
   if (!ppResolver_) {
     return cet::exempt_ptr<ProductProvenance const>{};
   }
-  return ppResolver_->branchToProductProvenance(branchDescription_->productID());
+  return ppResolver_->branchToProductProvenance(
+    branchDescription_->productID());
 }
 
 void
@@ -122,13 +120,12 @@ art::Group::setProduct(std::unique_ptr<EDProduct>&& prod) const
 }
 
 void
-art::Group::throwResolveLogicError(TypeID const & wanted_wrapper_type) const
+art::Group::throwResolveLogicError(TypeID const& wanted_wrapper_type) const
 {
   throw Exception(errors::LogicError, "INTERNAL ERROR: ")
     << cet::demangle_symbol(typeid(*this).name())
     << " cannot resolve wanted product of type "
-    << wanted_wrapper_type.className()
-    << ".\n";
+    << wanted_wrapper_type.className() << ".\n";
 }
 
 bool

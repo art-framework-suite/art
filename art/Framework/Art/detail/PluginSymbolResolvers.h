@@ -16,12 +16,13 @@ namespace art {
   namespace detail {
 
     template <typename F, typename RT = decltype(std::declval<F>()())>
-    RT resolve_if_present(F f, std::string const& caller, RT result)
+    RT
+    resolve_if_present(F f, std::string const& caller, RT result)
     {
       try {
         result = f();
       }
-      catch(cet::exception const& e) {
+      catch (cet::exception const& e) {
         std::cout << "In: " << caller << std::endl;
         std::cout << e.what() << std::endl;
       }
@@ -29,19 +30,20 @@ namespace art {
     }
 
     template <art::suffix_type st>
-    std::string getFilePath(cet::LibraryManager const& lm,
-                            std::string const& fullspec)
+    std::string
+    getFilePath(cet::LibraryManager const& lm, std::string const& fullspec)
     {
       using GetSourceLoc_t = std::string();
 
       using namespace std::string_literals;
-      auto path = [&lm,&fullspec] {
+      auto path = [&lm, &fullspec] {
         GetSourceLoc_t* symbolLoc{};
         lm.getSymbolByLibspec(fullspec, "get_source_location", symbolLoc);
-        std::string source {symbolLoc()};
-        boost::filesystem::path const p {source};
+        std::string source{symbolLoc()};
+        boost::filesystem::path const p{source};
         if (!boost::filesystem::exists(p)) {
-          source = "/ [ external source ] /"+fullspec+"_"+Suffixes::get(st)+".cc";
+          source = "/ [ external source ] /" + fullspec + "_" +
+                   Suffixes::get(st) + ".cc";
         }
         return source;
       };
@@ -50,22 +52,30 @@ namespace art {
     }
 
     template <art::suffix_type>
-    std::string getType(cet::LibraryManager const&,
-                        std::string const& /*fullSpec*/)
+    std::string
+    getType(cet::LibraryManager const&, std::string const& /*fullSpec*/)
     {
       return {};
     }
 
-    template <> std::string getType<suffix_type::module>(cet::LibraryManager const& lm, std::string const& fullSpec);
-    template <> std::string getType<suffix_type::plugin>(cet::LibraryManager const& lm, std::string const& fullSpec);
-    template <> std::string getType<suffix_type::tool>(cet::LibraryManager const& lm, std::string const& fullSpec);
+    template <>
+    std::string getType<suffix_type::module>(cet::LibraryManager const& lm,
+                                             std::string const& fullSpec);
+    template <>
+    std::string getType<suffix_type::plugin>(cet::LibraryManager const& lm,
+                                             std::string const& fullSpec);
+    template <>
+    std::string getType<suffix_type::tool>(cet::LibraryManager const& lm,
+                                           std::string const& fullSpec);
 
     template <art::suffix_type>
-    std::unique_ptr<fhicl::ConfigurationTable> getAllowedConfiguration(cet::LibraryManager const& lm,
-                                                                       std::string const& fullSpec,
-                                                                       std::string const& name)
+    std::unique_ptr<fhicl::ConfigurationTable>
+    getAllowedConfiguration(cet::LibraryManager const& lm,
+                            std::string const& fullSpec,
+                            std::string const& name)
     {
-      using GetAllowedConfiguration_t = std::unique_ptr<fhicl::ConfigurationTable>(std::string const&);
+      using GetAllowedConfiguration_t =
+        std::unique_ptr<fhicl::ConfigurationTable>(std::string const&);
 
       auto description = [&lm, &fullSpec, &name] {
         GetAllowedConfiguration_t* symbolType{};
@@ -73,9 +83,11 @@ namespace art {
         return symbolType(name);
       };
 
-      return resolve_if_present(description, __func__, std::unique_ptr<fhicl::ConfigurationTable>{nullptr});
+      return resolve_if_present(
+        description,
+        __func__,
+        std::unique_ptr<fhicl::ConfigurationTable>{nullptr});
     }
-
   }
 }
 

@@ -1,8 +1,8 @@
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceMacros.h"
-#include "art/Framework/IO/Sources/SourceHelper.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/IO/Sources/Source.h"
+#include "art/Framework/IO/Sources/SourceHelper.h"
 #include "art/Framework/IO/Sources/SourceTraits.h"
 
 #include <cassert>
@@ -14,16 +14,16 @@ namespace arttest {
 
 class arttest::FlushingGeneratorDetail {
 public:
-  FlushingGeneratorDetail(FlushingGeneratorDetail const &) = delete;
-  FlushingGeneratorDetail & operator =(FlushingGeneratorDetail const &) = delete;
+  FlushingGeneratorDetail(FlushingGeneratorDetail const&) = delete;
+  FlushingGeneratorDetail& operator=(FlushingGeneratorDetail const&) = delete;
 
-  FlushingGeneratorDetail(fhicl::ParameterSet const & ps,
-                          art::ProductRegistryHelper & help,
-                          art::SourceHelper const & sHelper);
+  FlushingGeneratorDetail(fhicl::ParameterSet const& ps,
+                          art::ProductRegistryHelper& help,
+                          art::SourceHelper const& sHelper);
 
   void closeCurrentFile();
 
-  void readFile(std::string const & name, art::FileBlock *& fb);
+  void readFile(std::string const& name, art::FileBlock*& fb);
 
   bool readNext(art::RunPrincipal const* const inR,
                 art::SubRunPrincipal const* const inSR,
@@ -33,71 +33,63 @@ public:
 
 private:
   bool readFileCalled_;
-  art::SourceHelper const & sHelper_;
+  art::SourceHelper const& sHelper_;
   size_t ev_num_;
   art::EventID curr_evid_;
 };
 
-arttest::FlushingGeneratorDetail::
-FlushingGeneratorDetail(fhicl::ParameterSet const&,
-                        art::ProductRegistryHelper&,
-                        art::SourceHelper const& sHelper)
-  :
-  readFileCalled_(false),
-  sHelper_(sHelper),
-  ev_num_(0),
-  curr_evid_(1, 0, 1)
-{
-}
+arttest::FlushingGeneratorDetail::FlushingGeneratorDetail(
+  fhicl::ParameterSet const&,
+  art::ProductRegistryHelper&,
+  art::SourceHelper const& sHelper)
+  : readFileCalled_(false), sHelper_(sHelper), ev_num_(0), curr_evid_(1, 0, 1)
+{}
 
 void
-arttest::FlushingGeneratorDetail::
-closeCurrentFile()
-{
-}
+arttest::FlushingGeneratorDetail::closeCurrentFile()
+{}
 
 void
-arttest::FlushingGeneratorDetail::
-readFile(std::string const & name, art::FileBlock *& fb)
+arttest::FlushingGeneratorDetail::readFile(std::string const& name,
+                                           art::FileBlock*& fb)
 {
   assert(!readFileCalled_);
   assert(name.empty());
   readFileCalled_ = true;
-  fb = new art::FileBlock(art::FileFormatVersion(1, "FlushingGenerator2012"), "nothing");
+  fb = new art::FileBlock(art::FileFormatVersion(1, "FlushingGenerator2012"),
+                          "nothing");
 }
 
 bool
-arttest::FlushingGeneratorDetail::
-readNext(art::RunPrincipal const* const inR,
-         art::SubRunPrincipal const* const inSR,
-         art::RunPrincipal *& outR,
-         art::SubRunPrincipal *& outSR,
-         art::EventPrincipal *& outE)
+arttest::FlushingGeneratorDetail::readNext(
+  art::RunPrincipal const* const inR,
+  art::SubRunPrincipal const* const inSR,
+  art::RunPrincipal*& outR,
+  art::SubRunPrincipal*& outSR,
+  art::EventPrincipal*& outE)
 {
   art::Timestamp runstart;
   if (++ev_num_ > 17) { // Done.
     return false;
-  }
-  else if (ev_num_ == 3) { // Flush subrun, current run.
+  } else if (ev_num_ == 3) { // Flush subrun, current run.
     art::EventID const evid(art::EventID::flushEvent(inR->id()));
     outSR = sHelper_.makeSubRunPrincipal(evid.subRunID(), runstart);
     outE = sHelper_.makeEventPrincipal(evid, runstart);
     curr_evid_ = curr_evid_.nextSubRun();
-  }
-  else if (ev_num_ == 6) { // Flush run.
-    art::EventID const evid {art::EventID::flushEvent()};
+  } else if (ev_num_ == 6) { // Flush run.
+    art::EventID const evid{art::EventID::flushEvent()};
     outR = sHelper_.makeRunPrincipal(evid.runID(), runstart);
     outSR = sHelper_.makeSubRunPrincipal(evid.subRunID(), runstart);
     outE = sHelper_.makeEventPrincipal(evid, runstart);
     curr_evid_ = curr_evid_.nextRun();
-  }
-  else if (ev_num_ == 11 || ev_num_ == 12 || ev_num_ == 16) { // Flush event. current run, next subrun
-    outSR = sHelper_.makeSubRunPrincipal(curr_evid_.nextSubRun().subRunID(), runstart);
+  } else if (ev_num_ == 11 || ev_num_ == 12 ||
+             ev_num_ == 16) { // Flush event. current run, next subrun
+    outSR = sHelper_.makeSubRunPrincipal(curr_evid_.nextSubRun().subRunID(),
+                                         runstart);
     art::EventID const evid(art::EventID::flushEvent(outSR->id()));
     outE = sHelper_.makeEventPrincipal(evid, runstart);
     curr_evid_ = curr_evid_.nextSubRun();
-  }
-  else {
+  } else {
     if (inR == nullptr || inR->id() != curr_evid_.runID()) {
       outR = sHelper_.makeRunPrincipal(curr_evid_.runID(), runstart);
     }
@@ -114,7 +106,7 @@ readNext(art::RunPrincipal const* const inR,
 // Trait definition (must precede source typedef).
 namespace art {
   template <>
-    struct Source_generator<arttest::FlushingGeneratorDetail> {
+  struct Source_generator<arttest::FlushingGeneratorDetail> {
     static constexpr bool value = true;
   };
 }

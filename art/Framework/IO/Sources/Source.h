@@ -89,9 +89,9 @@
 #include "art/Framework/IO/Sources/SourceTraits.h"
 #include "art/Framework/IO/Sources/detail/FileNamesHandler.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
@@ -117,17 +117,27 @@ namespace art {
     using cet::enable_if_function_exists_t;
 
     template <typename T, typename = void>
-    struct has_hasMoreData : std::false_type {};
+    struct has_hasMoreData : std::false_type {
+    };
 
     template <typename T>
-    struct has_hasMoreData<T, enable_if_function_exists_t<bool(T::*)(), &T::hasMoreData>> : std::true_type {};
+    struct has_hasMoreData<
+      T,
+      enable_if_function_exists_t<bool (T::*)(), &T::hasMoreData>>
+      : std::true_type {
+    };
 
     template <typename T>
-    struct has_hasMoreData<T, enable_if_function_exists_t<bool(T::*)() const, &T::hasMoreData>> : std::true_type {};
+    struct has_hasMoreData<
+      T,
+      enable_if_function_exists_t<bool (T::*)() const, &T::hasMoreData>>
+      : std::true_type {
+    };
 
     template <typename T>
     struct do_call_hasMoreData {
-      bool operator()(T& t)
+      bool
+      operator()(T& t)
       {
         return t.hasMoreData();
       }
@@ -135,7 +145,8 @@ namespace art {
 
     template <typename T>
     struct do_not_call_hasMoreData {
-      bool operator()(T&)
+      bool
+      operator()(T&)
       {
         return false;
       }
@@ -147,7 +158,6 @@ namespace art {
 template <class T>
 class art::Source final : public art::InputSource {
 public:
-
   Source(Source<T> const&) = delete;
   Source<T>& operator=(Source<T> const&) = delete;
 
@@ -162,14 +172,15 @@ public:
 
   using InputSource::readEvent;
   std::unique_ptr<RunPrincipal> readRun() override;
-  std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal const> rp) override;
-  std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) override;
+  std::unique_ptr<SubRunPrincipal> readSubRun(
+    cet::exempt_ptr<RunPrincipal const> rp) override;
+  std::unique_ptr<EventPrincipal> readEvent(
+    cet::exempt_ptr<SubRunPrincipal const> srp) override;
 
   std::unique_ptr<art::RangeSetHandler> runRangeSetHandler() override;
   std::unique_ptr<art::RangeSetHandler> subRunRangeSetHandler() override;
 
 private:
-
   cet::exempt_ptr<ActivityRegistry> act_;
 
   ProductRegistryHelper h_{};
@@ -232,13 +243,13 @@ private:
 };
 
 template <class T>
-art::Source<T>::Source(fhicl::ParameterSet const& p,
-                       InputSourceDescription& d) :
-  InputSource{d.moduleDescription},
-  act_{&d.activityRegistry},
-  sourceHelper_{d.moduleDescription},
-  detail_{p, h_, sourceHelper_},
-  fh_{p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())}
+art::Source<T>::Source(fhicl::ParameterSet const& p, InputSourceDescription& d)
+  : InputSource{d.moduleDescription}
+  , act_{&d.activityRegistry}
+  , sourceHelper_{d.moduleDescription}
+  , detail_{p, h_, sourceHelper_}
+  , fh_{
+      p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())}
 {
   // Handle maxSubRuns parameter.
   int64_t maxSubRuns_par = p.get<int64_t>("maxSubRuns", -1);
@@ -253,14 +264,16 @@ art::Source<T>::Source(fhicl::ParameterSet const& p,
     haveEventLimit_ = true;
   }
   // Verify we got a real ActivityRegistry.
-  if (!act_) { throw Exception(errors::LogicError) << "no ActivityRegistry\n"; }
+  if (!act_) {
+    throw Exception(errors::LogicError) << "no ActivityRegistry\n";
+  }
   // Finish product registration.
   finishProductRegistration_(d);
 }
 
 template <class T>
 void
-art::Source<T>::throwDataCorruption_(const char * msg)
+art::Source<T>::throwDataCorruption_(const char* msg)
 {
   throw Exception(errors::DataCorruption) << msg;
 }
@@ -281,31 +294,34 @@ art::Source<T>::throwIfInsane_(bool const result,
 
     if (!cachedRP_ && !newR) {
       throw Exception(errors::LogicError)
-        << "readNext returned true but no RunPrincipal has been set, and no cached RunPrincipal exists.\n"
-        "This can happen if a new input file has been opened and the RunPrincipal has not been appropriately assigned.";
+        << "readNext returned true but no RunPrincipal has been set, and no "
+           "cached RunPrincipal exists.\n"
+           "This can happen if a new input file has been opened and the "
+           "RunPrincipal has not been appropriately assigned.";
     }
 
     if (!cachedSRP_ && !newSR) {
       throw Exception(errors::LogicError)
-        << "readNext returned true but no SubRunPrincipal has been set, and no cached SubRunPrincipal exists.\n"
-        "This can happen if a new input file has been opened and the SubRunPrincipal has not been appropriately assigned.";
+        << "readNext returned true but no SubRunPrincipal has been set, and no "
+           "cached SubRunPrincipal exists.\n"
+           "This can happen if a new input file has been opened and the "
+           "SubRunPrincipal has not been appropriately assigned.";
     }
 
     if (cachedRP_ && newR && cachedRP_.get() == newR) {
-      errMsg
-        << "readNext returned a new Run which is the old Run for "
-        << cachedRP_->id() << ".\nIf you don't have a new run, don't return one!\n";
+      errMsg << "readNext returned a new Run which is the old Run for "
+             << cachedRP_->id()
+             << ".\nIf you don't have a new run, don't return one!\n";
     }
     if (cachedSRP_ && newSR && cachedSRP_.get() == newSR) {
-      errMsg
-        << "readNext returned a new SubRun which is the old SubRun for "
-        << cachedSRP_->id() << ".\nIf you don't have a new subRun, don't return one!\n";
+      errMsg << "readNext returned a new SubRun which is the old SubRun for "
+             << cachedSRP_->id()
+             << ".\nIf you don't have a new subRun, don't return one!\n";
     }
     // Either or both of the above cases could be true and we need
     // to make both of them safe before we throw:
     if (!errMsg.str().empty())
-      throw Exception(errors::LogicError)
-        << errMsg.str();
+      throw Exception(errors::LogicError) << errMsg.str();
     if (cachedRP_ && cachedSRP_) {
       if (!newR && newSR && newSR->id() == cachedSRP_->id())
         throwDataCorruption_("readNext returned a 'new' SubRun "
@@ -328,48 +344,50 @@ art::Source<T>::throwIfInsane_(bool const result,
     if (newR) {
       rID = newR->id();
       if (!rID.isValid()) {
-        throwDataCorruption_("readNext returned a Run with an invalid RunID.\n");
+        throwDataCorruption_(
+          "readNext returned a Run with an invalid RunID.\n");
       }
+    } else if (cachedRP_) {
+      rID = cachedRP_->id();
     }
-    else if (cachedRP_) { rID = cachedRP_->id(); }
     if (newSR) {
       srID = newSR->id();
       if (rID != srID.runID()) {
-        errMsg << "readNext returned a SubRun "
-               << srID
-               << " which is a mismatch to "
-               << rID << "\n";
+        errMsg << "readNext returned a SubRun " << srID
+               << " which is a mismatch to " << rID << "\n";
         throwDataCorruption_(errMsg.str().c_str());
       }
       if (!srID.isValid()) {
-        throwDataCorruption_("readNext returned a SubRun with an invalid SubRunID.\n");
+        throwDataCorruption_(
+          "readNext returned a SubRun with an invalid SubRunID.\n");
       }
       if (newSR->runPrincipalExemptPtr()) {
-        throwDataCorruption_("readNext returned a SubRun with a non-null embedded Run.\n");
+        throwDataCorruption_(
+          "readNext returned a SubRun with a non-null embedded Run.\n");
       }
+    } else if (cachedSRP_) {
+      srID = cachedSRP_->id();
     }
-    else if (cachedSRP_) { srID = cachedSRP_->id(); }
     if (newE) {
       eID = newE->id();
       if (srID != eID.subRunID()) {
-        errMsg << "readNext returned an Event "
-               << eID
-               << " which is a mismatch to "
-               << srID << "\n";
+        errMsg << "readNext returned an Event " << eID
+               << " which is a mismatch to " << srID << "\n";
         throwDataCorruption_(errMsg.str().c_str());
       }
       if (!eID.isValid()) {
-        throwDataCorruption_("readNext returned an Event with an invalid EventID.\n");
+        throwDataCorruption_(
+          "readNext returned an Event with an invalid EventID.\n");
       }
       if (newE->subRunPrincipalExemptPtr()) {
-        throwDataCorruption_("readNext returned an Event with a non-null embedded SubRun.\n");
+        throwDataCorruption_(
+          "readNext returned an Event with a non-null embedded SubRun.\n");
       }
     }
-  }
-  else {
+  } else {
     if (newR || newSR || newE)
       throw Exception(errors::LogicError)
-          << "readNext returned false but created new data\n";
+        << "readNext returned false but created new data\n";
   }
 }
 
@@ -377,15 +395,15 @@ template <class T>
 bool
 art::Source<T>::readNext_()
 {
-  std::unique_ptr<RunPrincipal> newR {nullptr};
-  std::unique_ptr<SubRunPrincipal> newSR {nullptr};
-  std::unique_ptr<EventPrincipal> newE {nullptr};
+  std::unique_ptr<RunPrincipal> newR{nullptr};
+  std::unique_ptr<SubRunPrincipal> newSR{nullptr};
+  std::unique_ptr<EventPrincipal> newE{nullptr};
 
-  bool result {false};
+  bool result{false};
   {
-    RunPrincipal* nR {nullptr};
-    SubRunPrincipal* nSR {nullptr};
-    EventPrincipal* nE {nullptr};
+    RunPrincipal* nR{nullptr};
+    SubRunPrincipal* nSR{nullptr};
+    EventPrincipal* nE{nullptr};
     result = detail_.readNext(cachedRP_.get(), cachedSRP_.get(), nR, nSR, nE);
     newR.reset(nR);
     newSR.reset(nSR);
@@ -394,10 +412,9 @@ art::Source<T>::readNext_()
   }
 
   if (result) {
-    subRunIsNew_ = newSR &&
-      ((!cachedSRP_) || newSR->id() != cachedSRP_->id());
+    subRunIsNew_ = newSR && ((!cachedSRP_) || newSR->id() != cachedSRP_->id());
     pendingSubRun_ = newSR.get() != nullptr;
-    pendingEvent_  = newE.get() != nullptr;
+    pendingEvent_ = newE.get() != nullptr;
     if (newR) {
       newRP_ = std::move(newR);
     }
@@ -411,12 +428,13 @@ art::Source<T>::readNext_()
       newE->setSubRunPrincipal(srp);
       newE_ = std::move(newE);
     }
-    if (newRP_)
-    { state_ = input::IsRun; }
-    else if (newSRP_)
-    { state_ = input::IsSubRun; }
-    else if (newE_)
-    { state_ = input::IsEvent; }
+    if (newRP_) {
+      state_ = input::IsRun;
+    } else if (newSRP_) {
+      state_ = input::IsSubRun;
+    } else if (newE_) {
+      state_ = input::IsEvent;
+    }
   }
   return result;
 }
@@ -427,13 +445,14 @@ art::Source<T>::checkForNextFile_()
 {
   state_ = input::IsStop; // Default -- may change below.
   if (Source_generator<T>::value) {
-    std::conditional_t<detail::has_hasMoreData<T>::value, detail::do_call_hasMoreData<T>, detail::do_not_call_hasMoreData<T>>
+    std::conditional_t<detail::has_hasMoreData<T>::value,
+                       detail::do_call_hasMoreData<T>,
+                       detail::do_not_call_hasMoreData<T>>
       generatorHasMoreData;
     if (generatorHasMoreData(detail_)) {
       state_ = input::IsFile;
     }
-  }
-  else {
+  } else {
     currentFileName_ = fh_.next();
     if (!currentFileName_.empty()) {
       state_ = input::IsFile;
@@ -445,13 +464,14 @@ template <class T>
 art::input::ItemType
 art::Source<T>::nextItemType()
 {
-  if (remainingEvents_ == 0) { state_ = input::IsStop; }
+  if (remainingEvents_ == 0) {
+    state_ = input::IsStop;
+  }
   switch (state_) {
     case input::IsInvalid:
       if (Source_generator<T>::value) {
         state_ = input::IsFile; // Once.
-      }
-      else {
+      } else {
         checkForNextFile_();
       }
       break;
@@ -462,24 +482,21 @@ art::Source<T>::nextItemType()
       if (pendingSubRun_ || (pendingEvent_ && cachedSRP_)) {
         state_ = input::IsSubRun;
         pendingSubRun_ = false;
-      }
-      else if (pendingEvent_)
+      } else if (pendingEvent_)
         throw Exception(errors::DataCorruption)
-            << "Input file '"
-            << currentFileName_
-            << "' contains an Event "
-            << newE_->id()
-            << " that belongs to no SubRun\n";
-      else
-      { readNextAndRequireRun_(); }
+          << "Input file '" << currentFileName_ << "' contains an Event "
+          << newE_->id() << " that belongs to no SubRun\n";
+      else {
+        readNextAndRequireRun_();
+      }
       break;
     case input::IsSubRun:
       if (pendingEvent_) {
         state_ = input::IsEvent;
         pendingEvent_ = false;
+      } else {
+        readNextAndRefuseEvent_();
       }
-      else
-      { readNextAndRefuseEvent_(); }
       break;
     case input::IsEvent:
       if (!readNext_()) {
@@ -489,10 +506,10 @@ art::Source<T>::nextItemType()
     case input::IsStop:
       break;
   }
-  if ((state_ == input::IsRun ||
-       state_ == input::IsSubRun) &&
-      remainingSubRuns_ == 0)
-  { state_ = input::IsStop; }
+  if ((state_ == input::IsRun || state_ == input::IsSubRun) &&
+      remainingSubRuns_ == 0) {
+    state_ = input::IsStop;
+  }
   if (state_ == input::IsStop) {
     // FIXME: upon the advent of a catalog system which can do something
     // intelligent with the difference between whole-file success,
@@ -516,18 +533,14 @@ art::Source<T>::readNextAndRequireRun_()
     if (state_ != input::IsRun) {
       if (cachedRP_) {
         state_ = input::IsRun; // Regurgitate existing cached run.
-      }
-      else {
+      } else {
         throw Exception(errors::DataCorruption)
-            << "Input file '"
-            << currentFileName_
-            << "' has a"
-            << (state_ == input::IsSubRun ? " SubRun" : "n Event")
-            << " where a Run is expected\n";
+          << "Input file '" << currentFileName_ << "' has a"
+          << (state_ == input::IsSubRun ? " SubRun" : "n Event")
+          << " where a Run is expected\n";
       }
     }
-  }
-  else {
+  } else {
     checkForNextFile_();
   }
 }
@@ -539,12 +552,10 @@ art::Source<T>::readNextAndRefuseEvent_()
   if (readNext_()) {
     if (state_ == input::IsEvent) {
       throw Exception(errors::DataCorruption)
-          << "Input file '"
-          << currentFileName_
-          << "' has an Event where a Run or SubRun is expected\n";
+        << "Input file '" << currentFileName_
+        << "' has an Event where a Run or SubRun is expected\n";
     }
-  }
-  else {
+  } else {
     checkForNextFile_();
   }
 }
@@ -567,11 +578,11 @@ template <class T>
 std::unique_ptr<art::FileBlock>
 art::Source<T>::readFile()
 {
-  FileBlock* newF {nullptr};
+  FileBlock* newF{nullptr};
   detail_.readFile(currentFileName_, newF);
   if (!newF) {
     throw Exception(errors::LogicError)
-        << "detail_::readFile() failed to return a valid FileBlock object\n";
+      << "detail_::readFile() failed to return a valid FileBlock object\n";
   }
   return std::unique_ptr<FileBlock>(newF);
 }
@@ -591,10 +602,11 @@ template <class T>
 std::unique_ptr<art::RunPrincipal>
 art::Source<T>::readRun()
 {
-  if (!newRP_) throw Exception(errors::LogicError)
-        << "Error in Source<T>\n"
-        << "readRun() called when no RunPrincipal exists\n"
-        << "Please report this to the art developers\n";
+  if (!newRP_)
+    throw Exception(errors::LogicError)
+      << "Error in Source<T>\n"
+      << "readRun() called when no RunPrincipal exists\n"
+      << "Please report this to the art developers\n";
   cachedRP_ = newRP_.get();
   return std::move(newRP_);
 }
@@ -603,12 +615,15 @@ template <class T>
 std::unique_ptr<art::SubRunPrincipal>
 art::Source<T>::readSubRun(cet::exempt_ptr<RunPrincipal const>)
 {
-  if (!newSRP_) throw Exception(errors::LogicError)
-        << "Error in Source<T>\n"
-        << "readSubRun() called when no SubRunPrincipal exists\n"
-        << "Please report this to the art developers\n";
+  if (!newSRP_)
+    throw Exception(errors::LogicError)
+      << "Error in Source<T>\n"
+      << "readSubRun() called when no SubRunPrincipal exists\n"
+      << "Please report this to the art developers\n";
   if (subRunIsNew_) {
-    if (haveSRLimit_) { --remainingSubRuns_; }
+    if (haveSRLimit_) {
+      --remainingSubRuns_;
+    }
     subRunIsNew_ = false;
   }
   cachedSRP_ = newSRP_.get();
@@ -619,7 +634,9 @@ template <class T>
 std::unique_ptr<art::EventPrincipal>
 art::Source<T>::readEvent(cet::exempt_ptr<SubRunPrincipal const>)
 {
-  if (haveEventLimit_) { --remainingEvents_; }
+  if (haveEventLimit_) {
+    --remainingEvents_;
+  }
   return std::move(newE_);
 }
 
@@ -630,19 +647,19 @@ art::Source<T>::finishProductRegistration_(InputSourceDescription& d)
   // These _xERROR_ strings should never appear in branch names; they
   // are here as tracers to help identify any failures in coding.
   ProductDescriptions descriptions{};
-  h_.registerProducts(d.productRegistry,
-                      descriptions,
-                      ModuleDescription{fhicl::ParameterSet{}.id(), // Dummy
-                                        "_NAMEERROR_",
-                                        "_LABELERROR_",
-                                        d.moduleDescription.processConfiguration(),
-                                        ModuleDescription::invalidID()});
+  h_.registerProducts(
+    d.productRegistry,
+    descriptions,
+    ModuleDescription{fhicl::ParameterSet{}.id(), // Dummy
+                      "_NAMEERROR_",
+                      "_LABELERROR_",
+                      d.moduleDescription.processConfiguration(),
+                      ModuleDescription::invalidID()});
   presentProducts_ = ProductTables{descriptions};
   sourceHelper_.setPresentProducts(cet::make_exempt_ptr(&presentProducts_));
 }
 
 #endif /* art_Framework_IO_Sources_Source_h */
-
 
 // Local Variables:
 // mode: c++

@@ -24,20 +24,17 @@ class art::InputSourceFactory {
   InputSourceFactory(InputSourceFactory const&) = delete;
   InputSourceFactory& operator=(InputSourceFactory const&) = delete;
 
- public:
-
+public:
   static std::unique_ptr<InputSource> make(fhicl::ParameterSet const&,
                                            InputSourceDescription&);
 
 private:
-
   explicit InputSourceFactory() = default;
   static InputSourceFactory& instance();
 
-  cet::LibraryManager lm_ {Suffixes::source()};
+  cet::LibraryManager lm_{Suffixes::source()};
 
-};  // InputSourceFactory
-
+}; // InputSourceFactory
 
 // ======================================================================
 

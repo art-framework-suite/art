@@ -9,11 +9,9 @@
 
 using art::WorkerInPath;
 
-WorkerInPath::WorkerInPath(cet::exempt_ptr<Worker> w, FilterAction const theFilterAction)
-  : filterAction_{theFilterAction}
-  , worker_{w}
-{ }
+WorkerInPath::WorkerInPath(cet::exempt_ptr<Worker> w,
+                           FilterAction const theFilterAction)
+  : filterAction_{theFilterAction}, worker_{w}
+{}
 
-WorkerInPath::WorkerInPath(cet::exempt_ptr<Worker> w)
-  : worker_{w}
-{ }
+WorkerInPath::WorkerInPath(cet::exempt_ptr<Worker> w) : worker_{w} {}

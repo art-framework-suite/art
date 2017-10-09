@@ -14,14 +14,14 @@ art::PathsInfo::PathsInfo(std::size_t const numPaths,
                           MasterProductRegistry& preg,
                           ProductDescriptions& productsToProduce,
                           ActionTable& actions,
-                          ActivityRegistry& areg) :
-  pathResults_{numPaths},
-  fact_{factory},
-  procPS_{procPS},
-  preg_{preg},
-  productsToProduce_{productsToProduce},
-  exceptActions_{actions},
-  areg_{areg}
+                          ActivityRegistry& areg)
+  : pathResults_{numPaths}
+  , fact_{factory}
+  , procPS_{procPS}
+  , preg_{preg}
+  , productsToProduce_{productsToProduce}
+  , exceptActions_{actions}
+  , areg_{areg}
 {}
 
 // Precondition: !modInfos.empty();
@@ -40,32 +40,28 @@ art::PathsInfo::makeAndAppendPath(std::string const& pathName,
     constexpr cet::HorizontalRule rule{100};
     std::ostringstream err_msg;
     err_msg << "\n"
-            << rule('=')
-            << "\n\n"
+            << rule('=') << "\n\n"
             << "!! The following modules have been misconfigured: !!"
             << "\n";
     for (auto const& err : configErrMsgs_) {
-      err_msg << "\n"
-              << rule('-')
-              << "\n"
-              << err;
+      err_msg << "\n" << rule('-') << "\n" << err;
     }
-    err_msg << "\n"
-            << rule('=')
-            << "\n\n";
+    err_msg << "\n" << rule('=') << "\n\n";
 
     throw art::Exception(art::errors::Configuration) << err_msg.str();
   }
 
-  cet::exempt_ptr<HLTGlobalStatus> pathResults {trigResultsNeeded ? &pathResults_ : nullptr};
+  cet::exempt_ptr<HLTGlobalStatus> pathResults{
+    trigResultsNeeded ? &pathResults_ : nullptr};
   auto const bit_position_for_new_path = pathPtrs_.size();
-  auto path = std::make_unique<art::Path>(bit_position_for_new_path,
-                                          pathName,
-                                          std::move(pathWorkers),
-                                          std::move(pathResults),
-                                          exceptActions_,
-                                          areg_,
-                                          is_observer(modInfos.front().moduleConfigInfo().moduleType()));
+  auto path = std::make_unique<art::Path>(
+    bit_position_for_new_path,
+    pathName,
+    std::move(pathWorkers),
+    std::move(pathResults),
+    exceptActions_,
+    areg_,
+    is_observer(modInfos.front().moduleConfigInfo().moduleType()));
   pathPtrs_.push_back(std::move(path));
 }
 
@@ -82,19 +78,20 @@ art::PathsInfo::makeWorker_(detail::ModuleConfigInfo const& mci)
 {
   auto it = workers_.find(mci.label());
   if (it == workers_.end()) { // Need worker.
-    auto moduleConfig = procPS_.get<fhicl::ParameterSet>(mci.configPath() + '.' + mci.label());
-    WorkerParams const p{procPS_,
-                         moduleConfig,
-                         preg_,
-                         productsToProduce_,
-                         exceptActions_,
-                         ServiceHandle<TriggerNamesService const>{}->getProcessName()};
-    ModuleDescription const md{moduleConfig.id(),
-                               p.pset_.get<std::string>("module_type"),
-                               p.pset_.get<std::string>("module_label"),
-                               ProcessConfiguration{p.processName_,
-                                                    procPS_.id(),
-                                                    getReleaseVersion()}};
+    auto moduleConfig =
+      procPS_.get<fhicl::ParameterSet>(mci.configPath() + '.' + mci.label());
+    WorkerParams const p{
+      procPS_,
+      moduleConfig,
+      preg_,
+      productsToProduce_,
+      exceptActions_,
+      ServiceHandle<TriggerNamesService const>{}->getProcessName()};
+    ModuleDescription const md{
+      moduleConfig.id(),
+      p.pset_.get<std::string>("module_type"),
+      p.pset_.get<std::string>("module_label"),
+      ProcessConfiguration{p.processName_, procPS_.id(), getReleaseVersion()}};
     areg_.sPreModuleConstruction.invoke(md);
     try {
       auto worker = fact_.makeWorker(p, md);
@@ -104,9 +101,11 @@ art::PathsInfo::makeWorker_(detail::ModuleConfigInfo const& mci)
     }
     catch (fhicl::detail::validationException const& e) {
       std::ostringstream err_stream;
-      err_stream << "\n\nModule label: " << detail::bold_fontify(md.moduleLabel())
-                 <<   "\nmodule_type : " << detail::bold_fontify(md.moduleName())
-                 << "\n\n" << e.what();
+      err_stream << "\n\nModule label: "
+                 << detail::bold_fontify(md.moduleLabel())
+                 << "\nmodule_type : " << detail::bold_fontify(md.moduleName())
+                 << "\n\n"
+                 << e.what();
       configErrMsgs_.push_back(err_stream.str());
     }
   }

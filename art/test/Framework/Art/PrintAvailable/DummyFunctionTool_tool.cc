@@ -2,7 +2,11 @@
 
 namespace art {
   namespace test {
-    int num(int) { return 1; }
+    int
+    num(int)
+    {
+      return 1;
+    }
   }
 }
 

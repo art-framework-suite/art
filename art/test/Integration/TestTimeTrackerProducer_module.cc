@@ -11,14 +11,14 @@
 
 namespace arttest {
 
-  class TestTimeTrackerProducer : public art::EDProducer
-  {
+  class TestTimeTrackerProducer : public art::EDProducer {
   public:
-    explicit TestTimeTrackerProducer( fhicl::ParameterSet const& ) {}
+    explicit TestTimeTrackerProducer(fhicl::ParameterSet const&) {}
 
-    void produce( art::Event& ) override {}
-  };  // TestTimeTrackerProducer
-
+    void
+    produce(art::Event&) override
+    {}
+  }; // TestTimeTrackerProducer
 }
 
 DEFINE_ART_MODULE(arttest::TestTimeTrackerProducer)

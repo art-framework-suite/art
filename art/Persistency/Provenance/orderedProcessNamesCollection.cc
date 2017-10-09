@@ -1,5 +1,5 @@
-#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Persistency/Provenance/orderedProcessNamesCollection.h"
+#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProcessHistoryID.h"
 #include "cetlib/container_algorithms.h"
@@ -46,9 +46,7 @@ art::detail::orderedProcessNamesCollection(ProcessHistoryMap const& histories)
     std::vector<std::string> process_names;
     cet::transform_all(*history,
                        std::back_inserter(process_names),
-                       [](auto const& config) {
-                         return config.processName();
-                       });
+                       [](auto const& config) { return config.processName(); });
     result.push_back(std::move(process_names));
   }
 

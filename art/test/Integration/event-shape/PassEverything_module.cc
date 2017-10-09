@@ -7,20 +7,23 @@
 
 namespace {
   using namespace fhicl;
-  struct Config {};
+  struct Config {
+  };
 }
 
 namespace arttest {
 
   class PassEverything : public art::EDFilter {
   public:
-
     using Parameters = EDFilter::Table<Config>;
-    explicit PassEverything(EDFilter::Table<Config> const&){}
+    explicit PassEverything(EDFilter::Table<Config> const&) {}
 
-    bool filter(art::Event&) override { return EDFilter::Pass; }
+    bool
+    filter(art::Event&) override
+    {
+      return EDFilter::Pass;
+    }
   };
-
 }
 
 DEFINE_ART_MODULE(arttest::PassEverything)

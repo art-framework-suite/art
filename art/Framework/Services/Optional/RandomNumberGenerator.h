@@ -178,12 +178,13 @@ namespace art {
   class EventID;
   class Timestamp;
 
-  class EngineCreator;      // to be granted friendship
-  class EventProcessor;     // to be granted friendship
-  class RandomNumberSaver;  // to be granted friendship
+  class EngineCreator;     // to be granted friendship
+  class EventProcessor;    // to be granted friendship
+  class RandomNumberSaver; // to be granted friendship
 
   namespace test {
-    class ConcurrentEngineRetrieval; // to be granted friendship only for testing
+    class ConcurrentEngineRetrieval; // to be granted friendship only for
+                                     // testing
   }
 
   class RandomNumberGenerator;
@@ -207,26 +208,27 @@ class art::RandomNumberGenerator {
 
 public:
   // --- CLHEP engine characteristics:
-  using base_engine_t  = CLHEP::HepRandomEngine;
-  using seed_t         = long;
+  using base_engine_t = CLHEP::HepRandomEngine;
+  using seed_t = long;
   using engine_state_t = RNGsnapshot::engine_state_t;
 
   // --- Internal state characteristics:
-  enum init_t {VIA_SEED=1, VIA_FILE, VIA_PRODUCT};
-  using label_t    = RNGsnapshot::label_t;
-  using eptr_t     = std::shared_ptr<base_engine_t>;
-  using dict_t     = std::map<label_t,eptr_t>;
-  using tracker_t  = std::map<label_t,init_t>;
-  using kind_t     = std::map<label_t,std::string>;
+  enum init_t { VIA_SEED = 1, VIA_FILE, VIA_PRODUCT };
+  using label_t = RNGsnapshot::label_t;
+  using eptr_t = std::shared_ptr<base_engine_t>;
+  using dict_t = std::map<label_t, eptr_t>;
+  using tracker_t = std::map<label_t, init_t>;
+  using kind_t = std::map<label_t, std::string>;
   using snapshot_t = std::vector<RNGsnapshot>;
 
   // --- Allowed configuration
   struct Config {
-    fhicl::Atom<std::string> restoreStateLabel {fhicl::Name{"restoreStateLabel"}, ""};
-    fhicl::Atom<std::string> saveTo            {fhicl::Name{"saveTo"}, ""};
-    fhicl::Atom<std::string> restoreFrom       {fhicl::Name{"restoreFrom"}, ""};
-    fhicl::Atom<unsigned> nPrint {fhicl::Name{"nPrint"}, 10u};
-    fhicl::Atom<bool> debug {fhicl::Name{"debug"}, false};
+    fhicl::Atom<std::string> restoreStateLabel{fhicl::Name{"restoreStateLabel"},
+                                               ""};
+    fhicl::Atom<std::string> saveTo{fhicl::Name{"saveTo"}, ""};
+    fhicl::Atom<std::string> restoreFrom{fhicl::Name{"restoreFrom"}, ""};
+    fhicl::Atom<unsigned> nPrint{fhicl::Name{"nPrint"}, 10u};
+    fhicl::Atom<bool> debug{fhicl::Name{"debug"}, false};
   };
 
   using Parameters = ServiceTable<Config>;
@@ -240,24 +242,34 @@ public:
   base_engine_t& getEngine(label_t const& engine_label) const;
 
 private:
-
   // --- Engine establishment:
   base_engine_t& createEngine(ScheduleID schedule_id, seed_t seed);
-  base_engine_t& createEngine(ScheduleID schedule_id, seed_t seed, std::string const& kind_of_engine_to_make);
-  base_engine_t& createEngine(ScheduleID schedule_id, seed_t seed, std::string kind_of_engine_to_make, label_t const& engine_label);
+  base_engine_t& createEngine(ScheduleID schedule_id,
+                              seed_t seed,
+                              std::string const& kind_of_engine_to_make);
+  base_engine_t& createEngine(ScheduleID schedule_id,
+                              seed_t seed,
+                              std::string kind_of_engine_to_make,
+                              label_t const& engine_label);
 
-  base_engine_t& getEngine(ScheduleID schedule_id, label_t const& engine_label = {}) const;
+  base_engine_t& getEngine(ScheduleID schedule_id,
+                           label_t const& engine_label = {}) const;
 
   // --- MT-TODO: Only for testing
   //     For testing multi-schedule parallization of this service, the
   //     requested number of schedules is not expanded UNLESS the
   //     expandToNSchedules() function is called by a friend.
-  void expandToNSchedules(std::size_t const n) { data_.resize(n); }
+  void
+  expandToNSchedules(std::size_t const n)
+  {
+    data_.resize(n);
+  }
 
   // --- Snapshot management helpers:
   void takeSnapshot_(ScheduleID scheduleID);
   void restoreSnapshot_(ScheduleID scheduleID, art::Event const&);
-  snapshot_t const& accessSnapshot_(ScheduleID const schedule_id) const
+  snapshot_t const&
+  accessSnapshot_(ScheduleID const schedule_id) const
   {
     return data_[schedule_id.id()].snapshot_;
   }
@@ -278,17 +290,17 @@ private:
   void postEndJob();
 
   // --- Guard against tardy engine creation:
-  bool engine_creation_is_okay_ {true};
+  bool engine_creation_is_okay_{true};
 
   // Per-schedule information
   struct ScheduleData {
     // --- Per-module-instance information:
-    dict_t    dict_ {};
-    tracker_t tracker_ {};
-    kind_t    kind_ {};
+    dict_t dict_{};
+    tracker_t tracker_{};
+    kind_t kind_{};
 
     // --- Snapshot information:
-    snapshot_t snapshot_ {};
+    snapshot_t snapshot_{};
   };
   std::vector<ScheduleData> data_;
 
@@ -303,7 +315,7 @@ private:
   unsigned const nPrint_;
   bool const debug_;
 
-};  // RandomNumberGenerator
+}; // RandomNumberGenerator
 
 // ======================================================================
 

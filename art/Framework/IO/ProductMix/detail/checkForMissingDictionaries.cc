@@ -2,7 +2,8 @@
 #include "canvas_root_io/Utilities/DictionaryChecker.h"
 
 void
-art::detail::checkForMissingDictionaries(std::vector<TypeID> const& types) noexcept(false)
+art::detail::checkForMissingDictionaries(
+  std::vector<TypeID> const& types) noexcept(false)
 {
   root::DictionaryChecker checker;
   for (auto const& tid : types) {

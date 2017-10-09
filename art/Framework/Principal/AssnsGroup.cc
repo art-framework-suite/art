@@ -4,17 +4,15 @@
 #include "cetlib_except/demangle.h"
 
 art::EDProduct const*
-art::AssnsGroup::
-getIt() const
+art::AssnsGroup::getIt() const
 {
   return uniqueProduct();
 }
 
 art::EDProduct const*
-art::AssnsGroup::
-anyProduct() const
+art::AssnsGroup::anyProduct() const
 {
-  art::EDProduct const * result = Group::anyProduct();
+  art::EDProduct const* result = Group::anyProduct();
   if (result == nullptr) {
     result = partnerProduct_.get();
   }
@@ -22,8 +20,7 @@ anyProduct() const
 }
 
 art::EDProduct const*
-art::AssnsGroup::
-uniqueProduct() const
+art::AssnsGroup::uniqueProduct() const
 {
   throw Exception(errors::LogicError, "AmbiguousProduct")
     << cet::demangle_symbol(typeid(*this).name())
@@ -32,30 +29,27 @@ uniqueProduct() const
 }
 
 art::EDProduct const*
-art::AssnsGroup::
-uniqueProduct(TypeID const& wanted_wrapper_type) const
+art::AssnsGroup::uniqueProduct(TypeID const& wanted_wrapper_type) const
 {
   EDProduct const* retval = nullptr;
   if (wanted_wrapper_type == partnerWrapperType_) {
     retval = partnerProduct_.get();
-  }
-  else {
+  } else {
     retval = Group::uniqueProduct();
   }
   return retval;
 }
 
 bool
-art::AssnsGroup::
-resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
+art::AssnsGroup::resolveProductIfAvailable(
+  TypeID const& wanted_wrapper_type) const
 {
   // Ask us for something we can do.
   if (!(wanted_wrapper_type == producedWrapperType() ||
         wanted_wrapper_type == partnerWrapperType_)) {
     throwResolveLogicError(wanted_wrapper_type);
   }
-  bool result =
-    Group::resolveProductIfAvailable(producedWrapperType());
+  bool result = Group::resolveProductIfAvailable(producedWrapperType());
   if (!(productUnavailable() ||
         (result = uniqueProduct(wanted_wrapper_type))) &&
       Group::uniqueProduct() != nullptr) {
@@ -69,8 +63,7 @@ resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
 }
 
 void
-art::AssnsGroup::
-removeCachedProduct() const
+art::AssnsGroup::removeCachedProduct() const
 {
   Group::removeCachedProduct();
   partnerProduct_.reset();

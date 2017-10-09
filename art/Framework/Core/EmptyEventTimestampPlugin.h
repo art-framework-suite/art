@@ -44,11 +44,10 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"
 
-#define DEFINE_ART_EMPTYEVENTTIMESTAMP_PLUGIN(klass)            \
-  CET_PROVIDE_FILE_PATH()                                       \
-  FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                    \
-  DEFINE_BASIC_PLUGIN(klass,                                    \
-                      art::EmptyEventTimestampPlugin)
+#define DEFINE_ART_EMPTYEVENTTIMESTAMP_PLUGIN(klass)                           \
+  CET_PROVIDE_FILE_PATH()                                                      \
+  FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                                   \
+  DEFINE_BASIC_PLUGIN(klass, art::EmptyEventTimestampPlugin)
 
 namespace art {
   class EmptyEventTimestampPlugin;
@@ -63,23 +62,24 @@ namespace art {
 }
 
 namespace cet {
-  template <> struct PluginTypeDeducer<art::EmptyEventTimestampPlugin> {
+  template <>
+  struct PluginTypeDeducer<art::EmptyEventTimestampPlugin> {
     static std::string const value;
   };
 }
 
 class art::EmptyEventTimestampPlugin {
 public:
-  EmptyEventTimestampPlugin(fhicl::ParameterSet const & pset);
+  EmptyEventTimestampPlugin(fhicl::ParameterSet const& pset);
 
   void doBeginJob();
   void doEndJob();
-  void doBeginRun(Run const & r);
-  Timestamp doBeginRunTimestamp(RunID const & rid);
-  void doBeginSubRun(SubRun const & sr);
-  Timestamp doBeginSubRunTimestamp(SubRunID const & srid);
+  void doBeginRun(Run const& r);
+  Timestamp doBeginRunTimestamp(RunID const& rid);
+  void doBeginSubRun(SubRun const& sr);
+  Timestamp doBeginSubRunTimestamp(SubRunID const& srid);
 
-  Timestamp doEventTimestamp(EventID const & e);
+  Timestamp doEventTimestamp(EventID const& e);
 
   void doRewind();
 
@@ -88,80 +88,72 @@ public:
 private:
   Timestamp lastEventTimestamp_;
 
-  virtual void beginJob() { };
-  virtual void endJob() { };
-  virtual void beginRun(Run const &) { };
-  virtual Timestamp beginRunTimestamp(RunID const &) { return lastEventTimestamp_; };
-  virtual void beginSubRun(SubRun const &) { };
-  virtual Timestamp beginSubRunTimestamp(SubRunID const &) { return lastEventTimestamp_; };
+  virtual void beginJob(){};
+  virtual void endJob(){};
+  virtual void beginRun(Run const&){};
+  virtual Timestamp
+  beginRunTimestamp(RunID const&)
+  {
+    return lastEventTimestamp_;
+  };
+  virtual void beginSubRun(SubRun const&){};
+  virtual Timestamp
+  beginSubRunTimestamp(SubRunID const&)
+  {
+    return lastEventTimestamp_;
+  };
 
-  virtual Timestamp eventTimestamp(EventID const &) = 0;
+  virtual Timestamp eventTimestamp(EventID const&) = 0;
 
   virtual void rewind() = 0;
 };
 #endif /* art_Framework_Core_EmptyEventTimestampPlugin_h */
 
-inline
-void
-art::EmptyEventTimestampPlugin::
-doBeginJob()
+inline void
+art::EmptyEventTimestampPlugin::doBeginJob()
 {
   beginJob();
 }
 
-inline
-void
-art::EmptyEventTimestampPlugin::
-doEndJob()
+inline void
+art::EmptyEventTimestampPlugin::doEndJob()
 {
   endJob();
 }
 
-inline
-void
-art::EmptyEventTimestampPlugin::
-doBeginRun(Run const & r)
+inline void
+art::EmptyEventTimestampPlugin::doBeginRun(Run const& r)
 {
   beginRun(r);
 }
 
-inline
-art::Timestamp
-art::EmptyEventTimestampPlugin::
-doBeginRunTimestamp(RunID const & rid)
+inline art::Timestamp
+art::EmptyEventTimestampPlugin::doBeginRunTimestamp(RunID const& rid)
 {
   return beginRunTimestamp(rid);
 }
 
-inline
-void
-art::EmptyEventTimestampPlugin::
-doBeginSubRun(SubRun const & sr)
+inline void
+art::EmptyEventTimestampPlugin::doBeginSubRun(SubRun const& sr)
 {
   beginSubRun(sr);
 }
 
-inline
-art::Timestamp
-art::EmptyEventTimestampPlugin::
-doBeginSubRunTimestamp(SubRunID const & srid)
+inline art::Timestamp
+art::EmptyEventTimestampPlugin::doBeginSubRunTimestamp(SubRunID const& srid)
 {
   return beginSubRunTimestamp(srid);
 }
 
-inline
-art::Timestamp
-art::EmptyEventTimestampPlugin::
-doEventTimestamp(EventID const & eid)
+inline art::Timestamp
+art::EmptyEventTimestampPlugin::doEventTimestamp(EventID const& eid)
 {
   lastEventTimestamp_ = eventTimestamp(eid);
   return lastEventTimestamp_;
 }
 
-inline
-void
-art::EmptyEventTimestampPlugin::
-doRewind()
+inline void
+art::EmptyEventTimestampPlugin::doRewind()
 {
   rewind();
 }

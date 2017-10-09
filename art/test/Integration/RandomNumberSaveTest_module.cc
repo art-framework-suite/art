@@ -40,51 +40,51 @@ public:
   void produce(art::Event& e) override;
 
 private:
-
   std::string myLabel_;
   CLHEP::RandFlat dist_;
   size_t dieOnNthEvent_;
-  size_t eventN_ {};
+  size_t eventN_{};
   bool genUnsaved_;
 };
 
-std::ostream& operator<<(std::ostream& os,
-                         arttest::RandomNumberSaveTest::prod_t const& v)
+std::ostream&
+operator<<(std::ostream& os, arttest::RandomNumberSaveTest::prod_t const& v)
 {
-  cet::copy_all(v,
-                std::ostream_iterator<arttest::RandomNumberSaveTest::prod_t::value_type>
-                (os, ", "));
+  cet::copy_all(
+    v,
+    std::ostream_iterator<arttest::RandomNumberSaveTest::prod_t::value_type>(
+      os, ", "));
   return os;
 }
 
 #include "cetlib/quiet_unit_test.hpp"
 
-arttest::RandomNumberSaveTest::RandomNumberSaveTest(fhicl::ParameterSet const& p)
-  :
-  myLabel_{p.get<std::string>("module_label")},
-  dist_{createEngine(get_seed_value(p))},
-  dieOnNthEvent_{p.get<size_t>("dieOnNthEvent", 0)},
-  genUnsaved_{p.get<bool>("genUnsaved", true)}
+arttest::RandomNumberSaveTest::RandomNumberSaveTest(
+  fhicl::ParameterSet const& p)
+  : myLabel_{p.get<std::string>("module_label")}
+  , dist_{createEngine(get_seed_value(p))}
+  , dieOnNthEvent_{p.get<size_t>("dieOnNthEvent", 0)}
+  , genUnsaved_{p.get<bool>("genUnsaved", true)}
 {
   produces<prod_t>();
 }
 
-void arttest::RandomNumberSaveTest::produce(art::Event& e)
+void
+arttest::RandomNumberSaveTest::produce(art::Event& e)
 {
   if (++eventN_ == dieOnNthEvent_) {
     throw art::Exception(art::errors::Configuration)
-      << "Throwing while processing ordinal event "
-      << eventN_
+      << "Throwing while processing ordinal event " << eventN_
       << " as requested.\n";
   }
   art::Handle<prod_t> hp;
   prod_t nums;
-  static size_t constexpr nums_size {5};
-  static size_t constexpr random_range {1000};
+  static size_t constexpr nums_size{5};
+  static size_t constexpr random_range{1000};
   nums.reserve(nums_size);
-  generate_n(std::back_inserter(nums),
-             nums_size,
-             [this]{ return dist_.fireInt(random_range);});
+  generate_n(std::back_inserter(nums), nums_size, [this] {
+    return dist_.fireInt(random_range);
+  });
   std::cerr << "nums: " << nums << "\n";
   if (e.getByLabel(myLabel_, hp)) {
     std::cerr << "(*hp): " << *hp << "\n";

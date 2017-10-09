@@ -46,7 +46,6 @@ namespace art {
 
   class ClosedRangeSetHandler : public RangeSetHandler {
   public:
-
     explicit ClosedRangeSetHandler(RangeSet const& inputRangeSet);
 
     // This class contains an iterator as a member.
@@ -58,9 +57,16 @@ namespace art {
     ClosedRangeSetHandler& operator=(ClosedRangeSetHandler&&) = default;
 
   private:
-
-    auto begin() const { return ranges_.begin(); }
-    auto end() const { return ranges_.end(); }
+    auto
+    begin() const
+    {
+      return ranges_.begin();
+    }
+    auto
+    end() const
+    {
+      return ranges_.end();
+    }
     RangeSet::const_iterator next_subrun_or_end() const;
 
     RangeSet do_getSeenRanges() const override;
@@ -72,20 +78,20 @@ namespace art {
     void do_rebase() override;
 
     struct EventInfo {
-      void set(EventID const& eid, bool const last)
+      void
+      set(EventID const& eid, bool const last)
       {
         id = eid;
         lastInSubRun = last;
       }
-      EventID id {EventID::invalidEvent()};
-      bool lastInSubRun {false};
+      EventID id{EventID::invalidEvent()};
+      bool lastInSubRun{false};
     };
 
-    RangeSet ranges_ {RangeSet::invalid()};
-    RangeSet::const_iterator rsIter_ {ranges_.begin()};
-    EventInfo eventInfo_ {};
+    RangeSet ranges_{RangeSet::invalid()};
+    RangeSet::const_iterator rsIter_{ranges_.begin()};
+    EventInfo eventInfo_{};
   };
-
 }
 #endif /* art_Framework_Principal_ClosedRangeSetHandler_h */
 

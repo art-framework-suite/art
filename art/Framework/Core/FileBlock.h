@@ -16,29 +16,31 @@ namespace art {
 
   class FileBlock {
   public:
-
     FileBlock() = default;
     virtual ~FileBlock() noexcept = default;
 
-    FileBlock(FileFormatVersion const& version,
-              std::string const& fileName) :
-      fileFormatVersion_{version},
-      fileName_{fileName}
+    FileBlock(FileFormatVersion const& version, std::string const& fileName)
+      : fileFormatVersion_{version}, fileName_{fileName}
     {}
 
     FileBlock(FileFormatVersion const& version,
               std::string const& fileName,
-              std::unique_ptr<ResultsPrincipal>&& resp) :
-      fileFormatVersion_{version},
-      fileName_{fileName},
-      resp_{std::move(resp)}
+              std::unique_ptr<ResultsPrincipal>&& resp)
+      : fileFormatVersion_{version}, fileName_{fileName}, resp_{std::move(resp)}
     {}
 
-    FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}
-    std::string const& fileName() const {return fileName_;}
+    FileFormatVersion const&
+    fileFormatVersion() const
+    {
+      return fileFormatVersion_;
+    }
+    std::string const&
+    fileName() const
+    {
+      return fileName_;
+    }
 
   private:
-
     // Friends only.
     friend class OutputModule;
     ResultsPrincipal const* resultsPrincipal() const;
@@ -49,10 +51,8 @@ namespace art {
   };
 }
 
-inline
-art::ResultsPrincipal const *
-art::FileBlock::
-resultsPrincipal() const
+inline art::ResultsPrincipal const*
+art::FileBlock::resultsPrincipal() const
 {
   return resp_.get();
 }

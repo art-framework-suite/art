@@ -32,48 +32,65 @@ namespace art {
 
   class InputFileCatalog : public FileCatalog {
   public:
-
     struct Config {
-      fhicl::Sequence<std::string> namesParameter { fhicl::Name("fileNames") };
+      fhicl::Sequence<std::string> namesParameter{fhicl::Name("fileNames")};
     };
 
     explicit InputFileCatalog(fhicl::TableFragment<Config> const& config);
     virtual ~InputFileCatalog() = default;
-    std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
+    std::vector<FileCatalogItem> const&
+    fileCatalogItems() const
+    {
+      return fileCatalogItems_;
+    }
     FileCatalogItem const& currentFile() const;
     size_t currentIndex() const;
-    bool   getNextFile(int attempts=5);
-    bool   hasNextFile(int attempts=5);
-    void   rewind();
-    void   rewindTo(size_t index);
-    bool   isSearchable()       {return searchable_;}
-    bool   empty() const        {return fileCatalogItems_.empty();}
+    bool getNextFile(int attempts = 5);
+    bool hasNextFile(int attempts = 5);
+    void rewind();
+    void rewindTo(size_t index);
+    bool
+    isSearchable()
+    {
+      return searchable_;
+    }
+    bool
+    empty() const
+    {
+      return fileCatalogItems_.empty();
+    }
     void finish(); // Dispose of the current file.
-    std::vector<std::string> const& fileSources() const { return fileSources_; }
+    std::vector<std::string> const&
+    fileSources() const
+    {
+      return fileSources_;
+    }
 
-    static constexpr size_t indexEnd {std::numeric_limits<size_t>::max()};
+    static constexpr size_t indexEnd{std::numeric_limits<size_t>::max()};
 
   private:
-    bool retrieveNextFile(FileCatalogItem & item, int attempts, bool transferOnly = false);
-    FileCatalogStatus retrieveNextFileFromCacheOrService(FileCatalogItem & item);
-    FileCatalogStatus transferNextFile(FileCatalogItem & item);
+    bool retrieveNextFile(FileCatalogItem& item,
+                          int attempts,
+                          bool transferOnly = false);
+    FileCatalogStatus retrieveNextFileFromCacheOrService(FileCatalogItem& item);
+    FileCatalogStatus transferNextFile(FileCatalogItem& item);
 
     std::vector<std::string> fileSources_;
-    std::vector<FileCatalogItem> fileCatalogItems_ {{}}; // seed with one item
-    FileCatalogItem nextItem_ {};
-    size_t fileIdx_ {indexEnd};
-    size_t maxIdx_ {};
-    bool searchable_ {false}; // update value after the service gets configured
-    bool nextFileProbed_ {false};
-    bool hasNextFile_ {false};
+    std::vector<FileCatalogItem> fileCatalogItems_{{}}; // seed with one item
+    FileCatalogItem nextItem_{};
+    size_t fileIdx_{indexEnd};
+    size_t maxIdx_{};
+    bool searchable_{false}; // update value after the service gets configured
+    bool nextFileProbed_{false};
+    bool hasNextFile_{false};
 
     ServiceHandle<CatalogInterface> ci_;
     ServiceHandle<FileTransfer> ft_;
-  };  // InputFileCatalog
+  }; // InputFileCatalog
 
-}  // art
+} // art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_IO_Catalog_InputFileCatalog_h */
 

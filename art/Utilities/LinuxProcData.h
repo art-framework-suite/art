@@ -71,10 +71,11 @@ namespace art {
   struct LinuxProcData {
 
     // supported procfs types
-    enum procfs_type{VSIZE, RSS, ntypes};
+    enum procfs_type { VSIZE, RSS, ntypes };
 
     // aliases
-    struct proc_type {};
+    struct proc_type {
+    };
     struct vsize_t : proc_type {
       using value_type = unsigned long;
       explicit vsize_t(value_type const v) : value{v} {}
@@ -87,29 +88,29 @@ namespace art {
       value_type value;
     };
 
-    using proc_tuple = std::tuple<vsize_t,rss_t>;
+    using proc_tuple = std::tuple<vsize_t, rss_t>;
 
-    static auto make_proc_tuple(vsize_t::value_type const vsize = {}, rss_t::value_type const rss = {})
+    static auto
+    make_proc_tuple(vsize_t::value_type const vsize = {},
+                    rss_t::value_type const rss = {})
     {
       return proc_tuple{vsize_t{vsize}, rss_t{rss}};
     }
 
     template <typename T>
-    static
-    std::enable_if_t<std::is_base_of<proc_type,T>::value, double>
+    static std::enable_if_t<std::is_base_of<proc_type, T>::value, double>
     getValueInMB(proc_tuple const& t)
     {
       // Info from proc is in bytes; convert to base-10 MB.
-      return std::get<T>(t).value/MB;
+      return std::get<T>(t).value / MB;
     }
 
     // constants
-    static constexpr double KB {1000.};
-    static constexpr double KiB {1.024*KB};
-    static constexpr double MB {KB*KB};
-    static constexpr double MiB {KiB*KiB};
+    static constexpr double KB{1000.};
+    static constexpr double KiB{1.024 * KB};
+    static constexpr double MB{KB * KB};
+    static constexpr double MiB{KiB * KiB};
   };
-
 }
 #endif /* art_Utilities_LinuxProcData_h */
 

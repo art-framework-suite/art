@@ -30,12 +30,9 @@ namespace art {
 
   namespace input {
 
-    struct BranchInfo
-    {
-      BranchInfo(BranchDescription const& prod,
-                 TBranch* const branch)
-        : branchDescription_{prod}
-        , productBranch_{branch}
+    struct BranchInfo {
+      BranchInfo(BranchDescription const& prod, TBranch* const branch)
+        : branchDescription_{prod}, productBranch_{branch}
       {}
 
       // Ideally, a reference to the branch-description does not need
@@ -43,7 +40,7 @@ namespace art {
       // principal.
       BranchDescription const& branchDescription_;
       TBranch* productBranch_;
-    };  // BranchInfo
+    }; // BranchInfo
 
     using BranchMap = std::map<BranchKey const, BranchInfo>;
     using EntryNumber = Long64_t;
@@ -51,10 +48,10 @@ namespace art {
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
     Int_t getEntry(TTree* tree, EntryNumber entryNumber);
 
-  }  // input
-}  // art
+  } // input
+} // art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_IO_Root_Inputfwd_h */
 

@@ -19,14 +19,14 @@ InputSourceFactory::instance()
 }
 
 std::unique_ptr<InputSource>
-InputSourceFactory::make(ParameterSet const& conf,
-                         InputSourceDescription& desc)
+InputSourceFactory::make(ParameterSet const& conf, InputSourceDescription& desc)
 {
   auto const& libspec = conf.get<std::string>("module_type");
 
   FDEBUG(1) << "InputSourceFactory: module_type = " << libspec << std::endl;
 
-  using make_t = std::unique_ptr<InputSource>(fhicl::ParameterSet const&, InputSourceDescription&);
+  using make_t = std::unique_ptr<InputSource>(fhicl::ParameterSet const&,
+                                              InputSourceDescription&);
 
   make_t* symbol = nullptr;
 
@@ -34,7 +34,8 @@ InputSourceFactory::make(ParameterSet const& conf,
     instance().lm_.getSymbolByLibspec(libspec, "make", symbol);
   }
   catch (art::Exception const& e) {
-    cet::detail::wrapLibraryManagerException(e, "InputSource", libspec, getReleaseVersion());
+    cet::detail::wrapLibraryManagerException(
+      e, "InputSource", libspec, getReleaseVersion());
   }
   if (symbol == nullptr) {
     throw art::Exception(errors::Configuration, "BadPluginLibrary")
@@ -42,8 +43,7 @@ InputSourceFactory::make(ParameterSet const& conf,
       << " has internal symbol definition problems: consult an expert.";
   }
   auto wm = symbol(conf, desc);
-  FDEBUG(1) << "InputSourceFactory: created input source "
-            << libspec
+  FDEBUG(1) << "InputSourceFactory: created input source " << libspec
             << std::endl;
   return wm;
 }

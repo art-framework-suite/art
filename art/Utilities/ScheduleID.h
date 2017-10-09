@@ -11,10 +11,10 @@
 namespace art {
   class ScheduleID;
 
-  bool operator != (ScheduleID left, ScheduleID right);
-  bool operator <= (ScheduleID left, ScheduleID right);
-  bool operator > (ScheduleID left, ScheduleID right);
-  bool operator >= (ScheduleID left, ScheduleID right);
+  bool operator!=(ScheduleID left, ScheduleID right);
+  bool operator<=(ScheduleID left, ScheduleID right);
+  bool operator>(ScheduleID left, ScheduleID right);
+  bool operator>=(ScheduleID left, ScheduleID right);
 }
 
 class art::ScheduleID {
@@ -43,130 +43,106 @@ public:
   static ScheduleID last();
 
   // Comparison operators.
-  bool operator == (ScheduleID const & other) const;
-  bool operator < (ScheduleID const & other) const;
+  bool operator==(ScheduleID const& other) const;
+  bool operator<(ScheduleID const& other) const;
 
 private:
   static constexpr id_type min_id_();
   static constexpr id_type max_id_();
   static constexpr id_type invalid_id_();
 
-  id_type id_ {invalid_id_()};
+  id_type id_{invalid_id_()};
 };
 
-inline
-art::ScheduleID::ScheduleID(id_type const id) :
-  id_{(id < min_id_() || id > max_id_())
-    ? throw std::out_of_range("art::ScheduleID: Invalid initializer.")
-    : id}
-{
-}
+inline art::ScheduleID::ScheduleID(id_type const id)
+  : id_{(id < min_id_() || id > max_id_()) ?
+          throw std::out_of_range("art::ScheduleID: Invalid initializer.") :
+          id}
+{}
 
-inline
-constexpr bool
+inline constexpr bool
 art::ScheduleID::isValid() const
 {
   return !(id_ == invalid_id_());
 }
 
-inline
-constexpr art::ScheduleID::id_type
+inline constexpr art::ScheduleID::id_type
 art::ScheduleID::id() const
 {
   return id_;
 }
 
-inline
-art::ScheduleID
+inline art::ScheduleID
 art::ScheduleID::next() const
 {
-  return ScheduleID(id_+1);
+  return ScheduleID(id_ + 1);
 }
 
-inline
-art::ScheduleID
+inline art::ScheduleID
 art::ScheduleID::first()
 {
   return ScheduleID{min_id_()};
 }
 
-inline
-art::ScheduleID
+inline art::ScheduleID
 art::ScheduleID::last()
 {
   return ScheduleID{max_id_()};
 }
 
-inline
-bool
-art::ScheduleID::operator == (ScheduleID const & other) const
+inline bool
+art::ScheduleID::operator==(ScheduleID const& other) const
 {
   return id_ == other.id_;
 }
 
-inline
-bool
-art::ScheduleID::operator < (ScheduleID const & other) const
+inline bool
+art::ScheduleID::operator<(ScheduleID const& other) const
 {
   return id_ < other.id_;
 }
 
-inline
-constexpr
-art::ScheduleID::id_type
+inline constexpr art::ScheduleID::id_type
 art::ScheduleID::min_id_()
 {
   return std::numeric_limits<id_type>::min();
 }
 
-inline
-constexpr
-art::ScheduleID::id_type
+inline constexpr art::ScheduleID::id_type
 art::ScheduleID::max_id_()
 {
   return invalid_id_() - 1;
 }
 
-inline
-constexpr
-art::ScheduleID::id_type
+inline constexpr art::ScheduleID::id_type
 art::ScheduleID::invalid_id_()
 {
   return std::numeric_limits<id_type>::max();
 }
 
-inline
-bool
-art::operator != (art::ScheduleID const left,
-                  art::ScheduleID const right)
+inline bool
+art::operator!=(art::ScheduleID const left, art::ScheduleID const right)
 {
   return !(left == right);
 }
 
-inline
-bool
-art::operator <= (art::ScheduleID const left,
-                  art::ScheduleID const right)
+inline bool
+art::operator<=(art::ScheduleID const left, art::ScheduleID const right)
 {
   return (left < right || left == right);
 }
 
-inline
-bool
-art::operator > (art::ScheduleID const left,
-                 art::ScheduleID const right)
+inline bool
+art::operator>(art::ScheduleID const left, art::ScheduleID const right)
 {
   return !(left <= right);
 }
 
-inline
-bool
-art::operator >= (art::ScheduleID const left,
-                  art::ScheduleID const right)
+inline bool
+art::operator>=(art::ScheduleID const left, art::ScheduleID const right)
 {
   return !(left < right);
 }
-
 
 #endif /* art_Utilities_ScheduleID_h */
 

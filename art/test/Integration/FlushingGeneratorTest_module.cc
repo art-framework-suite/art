@@ -7,8 +7,8 @@
 // from cetpkgsupport v1_01_00.
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -23,64 +23,69 @@ namespace arttest {
 
 class arttest::FlushingGeneratorTest : public art::OutputModule {
 public:
-
   struct Config {
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
   };
 
-  using Parameters = fhicl::WrappedTable<Config, art::OutputModule::Config::KeysToIgnore>;
-  explicit FlushingGeneratorTest(Parameters const & p);
+  using Parameters =
+    fhicl::WrappedTable<Config, art::OutputModule::Config::KeysToIgnore>;
+  explicit FlushingGeneratorTest(Parameters const& p);
 
-  void write(art::EventPrincipal & e) override;
-  void writeSubRun(art::SubRunPrincipal & sr) override;
-  void writeRun(art::RunPrincipal & r) override;
+  void write(art::EventPrincipal& e) override;
+  void writeSubRun(art::SubRunPrincipal& sr) override;
+  void writeRun(art::RunPrincipal& r) override;
 
-  void beginRun(art::RunPrincipal const & r) override;
-  void beginSubRun(art::SubRunPrincipal const & sr) override;
-  void endRun(art::RunPrincipal const & r) override;
-  void endSubRun(art::SubRunPrincipal const & sr) override;
+  void beginRun(art::RunPrincipal const& r) override;
+  void beginSubRun(art::SubRunPrincipal const& sr) override;
+  void endRun(art::RunPrincipal const& r) override;
+  void endSubRun(art::SubRunPrincipal const& sr) override;
 
 private:
 };
 
+arttest::FlushingGeneratorTest::FlushingGeneratorTest(
+  arttest::FlushingGeneratorTest::Parameters const& p)
+  : OutputModule(p().omConfig, p.get_PSet())
+{}
 
-arttest::FlushingGeneratorTest::FlushingGeneratorTest(arttest::FlushingGeneratorTest::Parameters const & p)
-  :
-  OutputModule(p().omConfig, p.get_PSet())
-{
-}
-
-void arttest::FlushingGeneratorTest::write(art::EventPrincipal & e)
+void
+arttest::FlushingGeneratorTest::write(art::EventPrincipal& e)
 {
   assert(!e.id().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::writeSubRun(art::SubRunPrincipal & sr)
+void
+arttest::FlushingGeneratorTest::writeSubRun(art::SubRunPrincipal& sr)
 {
   assert(!sr.id().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::writeRun(art::RunPrincipal & r)
+void
+arttest::FlushingGeneratorTest::writeRun(art::RunPrincipal& r)
 {
   assert(!r.id().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::beginRun(art::RunPrincipal const & r)
+void
+arttest::FlushingGeneratorTest::beginRun(art::RunPrincipal const& r)
 {
   assert(!r.id().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::beginSubRun(art::SubRunPrincipal const & sr)
+void
+arttest::FlushingGeneratorTest::beginSubRun(art::SubRunPrincipal const& sr)
 {
   assert(!sr.id().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::endRun(art::RunPrincipal const & r)
+void
+arttest::FlushingGeneratorTest::endRun(art::RunPrincipal const& r)
 {
   assert(!r.id().isFlush());
 }
 
-void arttest::FlushingGeneratorTest::endSubRun(art::SubRunPrincipal const & sr)
+void
+arttest::FlushingGeneratorTest::endSubRun(art::SubRunPrincipal const& sr)
 {
   assert(!sr.id().isFlush());
 }

@@ -13,9 +13,9 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/test/TestObjects/TH1Data.h"
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "art/test/TestObjects/TH1Data.h"
 
 #include <memory>
 
@@ -25,39 +25,39 @@ namespace arttest {
 
 class arttest::TH1DataProducer : public art::EDProducer {
 public:
-  explicit TH1DataProducer(fhicl::ParameterSet const & p);
+  explicit TH1DataProducer(fhicl::ParameterSet const& p);
 
-  void produce(art::Event & e) override;
+  void produce(art::Event& e) override;
 
-  void beginRun(art::Run & r) override;
-  void endRun(art::Run & r) override;
+  void beginRun(art::Run& r) override;
+  void endRun(art::Run& r) override;
 
 private:
-
   // Declare member data here.
   std::unique_ptr<arttest::TH1Data> data_;
 };
 
-
-arttest::TH1DataProducer::TH1DataProducer(fhicl::ParameterSet const &)
- :
-  data_(new arttest::TH1Data)
+arttest::TH1DataProducer::TH1DataProducer(fhicl::ParameterSet const&)
+  : data_(new arttest::TH1Data)
 {
   data_->data = TH1D("name", "title", 101, -.5, 100.5);
   produces<arttest::TH1Data, art::InRun>();
 }
 
-void arttest::TH1DataProducer::produce(art::Event & e)
+void
+arttest::TH1DataProducer::produce(art::Event& e)
 {
   data_->data.Fill(e.event() % 100, 1.);
 }
 
-void arttest::TH1DataProducer::beginRun(art::Run &)
+void
+arttest::TH1DataProducer::beginRun(art::Run&)
 {
   // Implementation of optional member function here.
 }
 
-void arttest::TH1DataProducer::endRun(art::Run & r)
+void
+arttest::TH1DataProducer::endRun(art::Run& r)
 {
   r.put(std::move(data_), art::runFragment());
   // Implementation of optional member function here.

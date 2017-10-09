@@ -41,7 +41,6 @@ namespace art {
 
   class OpenRangeSetHandler : public RangeSetHandler {
   public:
-
     explicit OpenRangeSetHandler(RunNumber_t r);
 
     // This class contains an iterator as a member.  It should not be
@@ -53,18 +52,20 @@ namespace art {
     OpenRangeSetHandler& operator=(OpenRangeSetHandler&&) = default;
 
   private:
-
     RangeSet do_getSeenRanges() const override;
 
     void do_update(EventID const&, bool lastInSubRun) override;
-    void do_flushRanges() override {}
-    void do_maybeSplitRange() override {}
+    void
+    do_flushRanges() override
+    {}
+    void
+    do_maybeSplitRange() override
+    {}
     void do_rebase() override;
 
     RangeSet ranges_{RangeSet::invalid()};
     RangeSet::const_iterator rsIter_{ranges_.begin()};
   };
-
 }
 #endif /* art_Framework_Principal_OpenRangeSetHandler_h */
 

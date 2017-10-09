@@ -24,7 +24,8 @@
 #include <functional>
 
 namespace art {
-  template <typename PROD, typename OPROD> class MixOp;
+  template <typename PROD, typename OPROD>
+  class MixOp;
 }
 
 template <typename PROD, typename OPROD>
@@ -44,27 +45,22 @@ public:
 
   std::string const& outputInstanceLabel() const override;
 
-  void
-  mixAndPut(Event& e,
-            PtrRemapper const& remap) const override;
+  void mixAndPut(Event& e, PtrRemapper const& remap) const override;
 
-  void
-  initializeBranchInfo(RootBranchInfoList const& rbiList) override;
+  void initializeBranchInfo(RootBranchInfoList const& rbiList) override;
 
-  ProductID
-  incomingProductID() const override;
+  ProductID incomingProductID() const override;
 
-  ProductID
-  outgoingProductID() const override;
+  ProductID outgoingProductID() const override;
 
-  void
-  readFromFile(EntryNumberSequence const& seq, cet::exempt_ptr<BranchIDLists const> branchIDLists) override;
+  void readFromFile(
+    EntryNumberSequence const& seq,
+    cet::exempt_ptr<BranchIDLists const> branchIDLists) override;
 
-  BranchType
-  branchType() const override;
+  BranchType branchType() const override;
 
 private:
-  using SpecProdList = std::vector<std::shared_ptr<Wrapper<PROD> > >;
+  using SpecProdList = std::vector<std::shared_ptr<Wrapper<PROD>>>;
 
   InputTag const inputTag_;
   TypeID const inputType_;
@@ -87,16 +83,15 @@ art::MixOp<PROD, OPROD>::MixOp(InputTag const& inputTag,
                                bool const outputProduct,
                                bool const compactMissingProducts,
                                BranchType const bt)
-  :
-  inputTag_{inputTag},
-  inputType_{typeid(PROD)},
-  outputInstanceLabel_(outputInstanceLabel),
-  mixFunc_{mixFunc},
-  processName_{ServiceHandle<TriggerNamesService const>{}->getProcessName()},
-  moduleLabel_{ServiceHandle<CurrentModule const>{}->label()},
-  outputProduct_{outputProduct},
-  compactMissingProducts_{compactMissingProducts},
-  branchType_{bt}
+  : inputTag_{inputTag}
+  , inputType_{typeid(PROD)}
+  , outputInstanceLabel_(outputInstanceLabel)
+  , mixFunc_{mixFunc}
+  , processName_{ServiceHandle<TriggerNamesService const>{}->getProcessName()}
+  , moduleLabel_{ServiceHandle<CurrentModule const>{}->label()}
+  , outputProduct_{outputProduct}
+  , compactMissingProducts_{compactMissingProducts}
+  , branchType_{bt}
 {}
 
 template <typename PROD, typename OPROD>
@@ -122,8 +117,7 @@ art::MixOp<PROD, OPROD>::outputInstanceLabel() const
 
 template <typename PROD, typename OPROD>
 void
-art::MixOp<PROD, OPROD>::mixAndPut(Event& e,
-                                   PtrRemapper const& remap) const
+art::MixOp<PROD, OPROD>::mixAndPut(Event& e, PtrRemapper const& remap) const
 {
   auto rProd = std::make_unique<OPROD>();
   std::vector<PROD const*> inConverted;
@@ -132,25 +126,25 @@ art::MixOp<PROD, OPROD>::mixAndPut(Event& e,
     auto const endIter = cend(inProducts_);
     for (auto i = cbegin(inProducts_); i != endIter; ++i) {
       auto const prod = (*i)->product();
-      if (prod || ! compactMissingProducts_) {
+      if (prod || !compactMissingProducts_) {
         inConverted.emplace_back(prod);
       }
     }
   }
   catch (std::bad_cast const&) {
     throw Exception(errors::DataCorruption)
-        << "Unable to obtain correctly-typed product from wrapper.\n";
+      << "Unable to obtain correctly-typed product from wrapper.\n";
   }
   if (mixFunc_(inConverted, *rProd, remap)) {
     if (!outputProduct_) {
       throw Exception(errors::LogicError)
-          << "Returned true (output product to be put in event) from a mix function\n"
-          << "declared with outputProduct=false.\n";
+        << "Returned true (output product to be put in event) from a mix "
+           "function\n"
+        << "declared with outputProduct=false.\n";
     }
     if (outputInstanceLabel_.empty()) {
       e.put(std::move(rProd));
-    }
-    else {
+    } else {
       e.put(std::move(rProd), outputInstanceLabel_);
     }
   } // False means don't want this in the event.
@@ -158,15 +152,13 @@ art::MixOp<PROD, OPROD>::mixAndPut(Event& e,
 
 template <typename PROD, typename OPROD>
 void
-art::MixOp<PROD, OPROD>::initializeBranchInfo(RootBranchInfoList const& branchInfo_List)
+art::MixOp<PROD, OPROD>::initializeBranchInfo(
+  RootBranchInfoList const& branchInfo_List)
 {
   if (!branchInfo_List.findBranchInfo(inputType_, inputTag_, branchInfo_)) {
     throw Exception(errors::ProductNotFound)
-        << "Unable to find requested product "
-        << inputTag_
-        << " of type "
-        << inputType_.friendlyClassName()
-        << " in secondary input stream.\n";
+      << "Unable to find requested product " << inputTag_ << " of type "
+      << inputType_.friendlyClassName() << " in secondary input stream.\n";
   }
   // Check dictionaries for input product, not output product: let
   // output modules take care of that.
@@ -196,9 +188,8 @@ art::MixOp<PROD, OPROD>::outgoingProductID() const
     auto I = ProductMetaData::instance().productList().find(key);
     if (I == ProductMetaData::instance().productList().end()) {
       throw Exception(errors::LogicError)
-          << "MixOp unable to find branch id for a product ("
-          << outputType.className()
-          << ") that should have been registered!\n";
+        << "MixOp unable to find branch id for a product ("
+        << outputType.className() << ") that should have been registered!\n";
     }
     result = I->second.productID();
   }
@@ -207,14 +198,14 @@ art::MixOp<PROD, OPROD>::outgoingProductID() const
 
 template <typename PROD, typename OPROD>
 void
-art::MixOp<PROD, OPROD>::readFromFile(EntryNumberSequence const& seq,
-                                      cet::exempt_ptr<BranchIDLists const> branchIDLists)
+art::MixOp<PROD, OPROD>::readFromFile(
+  EntryNumberSequence const& seq,
+  cet::exempt_ptr<BranchIDLists const> branchIDLists)
 {
   inProducts_.clear();
   inProducts_.reserve(seq.size());
   if (branchInfo_.branch() == nullptr) {
-    throw Exception(errors::LogicError)
-        << "Branch not initialized for read.\n";
+    throw Exception(errors::LogicError) << "Branch not initialized for read.\n";
   }
   configureStreamers(branchIDLists);
 
@@ -237,8 +228,7 @@ art::MixOp<PROD, OPROD>::readFromFile(EntryNumberSequence const& seq,
 }
 
 template <typename PROD, typename OPROD>
-inline
-art::BranchType
+inline art::BranchType
 art::MixOp<PROD, OPROD>::branchType() const
 {
   return branchType_;

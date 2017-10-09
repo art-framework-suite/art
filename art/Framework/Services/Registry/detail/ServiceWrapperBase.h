@@ -23,16 +23,15 @@ namespace art {
 
 class art::detail::ServiceWrapperBase {
 public:
-
   explicit ServiceWrapperBase() = default;
 
   // Noncopyable
   ServiceWrapperBase(ServiceWrapperBase const&) = delete;
-  ServiceWrapperBase& operator = (ServiceWrapperBase const&) = delete;
+  ServiceWrapperBase& operator=(ServiceWrapperBase const&) = delete;
 
   virtual ~ServiceWrapperBase() = default;
 
-};  // ServiceWrapperBase
+}; // ServiceWrapperBase
 
 #endif /* art_Framework_Services_Registry_detail_ServiceWrapperBase_h */
 

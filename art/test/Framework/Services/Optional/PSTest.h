@@ -14,11 +14,14 @@ class arttest::PSTest {
 public:
   PSTest(art::ScheduleID); // For system service tests.
 
-  PSTest(fhicl::ParameterSet const &,
-         art::ActivityRegistry &,
-         art::ScheduleID);
+  PSTest(fhicl::ParameterSet const&, art::ActivityRegistry&, art::ScheduleID);
 
-  art::ScheduleID schedule() const { return sID_; }
+  art::ScheduleID
+  schedule() const
+  {
+    return sID_;
+  }
+
 private:
   art::ScheduleID sID_;
 };

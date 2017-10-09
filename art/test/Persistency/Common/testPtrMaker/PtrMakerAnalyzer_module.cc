@@ -19,56 +19,53 @@
 
 class PtrMakerAnalyzer;
 
-
 class PtrMakerAnalyzer : public art::EDAnalyzer {
 public:
   typedef art::PtrVector<int> intptrvector_t;
- 
-  explicit PtrMakerAnalyzer(fhicl::ParameterSet const & p);
+
+  explicit PtrMakerAnalyzer(fhicl::ParameterSet const& p);
   // The compiler-generated destructor is fine for non-base
   // classes without bare pointers or other resource use.
 
   // Plugins should not be copied or assigned.
-  PtrMakerAnalyzer(PtrMakerAnalyzer const &) = delete;
-  PtrMakerAnalyzer(PtrMakerAnalyzer &&) = delete;
-  PtrMakerAnalyzer & operator = (PtrMakerAnalyzer const &) = delete;
-  PtrMakerAnalyzer & operator = (PtrMakerAnalyzer &&) = delete;
+  PtrMakerAnalyzer(PtrMakerAnalyzer const&) = delete;
+  PtrMakerAnalyzer(PtrMakerAnalyzer&&) = delete;
+  PtrMakerAnalyzer& operator=(PtrMakerAnalyzer const&) = delete;
+  PtrMakerAnalyzer& operator=(PtrMakerAnalyzer&&) = delete;
 
   // Required functions.
-  void analyze(art::Event const & e) override;
+  void analyze(art::Event const& e) override;
 
 private:
   std::string fInputLabel;
   int nvalues;
-
 };
 
-
-PtrMakerAnalyzer::PtrMakerAnalyzer(fhicl::ParameterSet const & p)
+PtrMakerAnalyzer::PtrMakerAnalyzer(fhicl::ParameterSet const& p)
   : EDAnalyzer(p)
   , fInputLabel(p.get<std::string>("input_label"))
-  , nvalues    (p.get<int> ("nvalues")) 
+  , nvalues(p.get<int>("nvalues"))
 {}
 
-void PtrMakerAnalyzer::analyze(art::Event const & e)
+void
+PtrMakerAnalyzer::analyze(art::Event const& e)
 {
   std::cerr << "PtrMakerAnalyzer is running\n";
   art::Handle<intptrvector_t> h;
   e.getByLabel(fInputLabel, h);
   size_t sz = h->size();
-    if( sz != (size_t)nvalues ) {
-      throw cet::exception("SizeMismatch")
-        << "Expected a PtrVector of size " << nvalues
-        << " but the obtained size is " << sz
-        << '\n';
-    }
+  if (sz != (size_t)nvalues) {
+    throw cet::exception("SizeMismatch")
+      << "Expected a PtrVector of size " << nvalues
+      << " but the obtained size is " << sz << '\n';
+  }
 
   int eid = e.id().event();
 
-  //now check the values
+  // now check the values
   intptrvector_t local(*h);
   for (int i = 0; i < nvalues; ++i) {
-    assert(*local[i] == eid+i);
+    assert(*local[i] == eid + i);
   }
 }
 

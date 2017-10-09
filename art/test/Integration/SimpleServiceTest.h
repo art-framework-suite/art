@@ -19,14 +19,14 @@ namespace arttest {
   class SimpleServiceTest;
 }
 
-
 class arttest::SimpleServiceTest {
 public:
-  explicit SimpleServiceTest(fhicl::ParameterSet const &);
+  explicit SimpleServiceTest(fhicl::ParameterSet const&);
   // The compiler-generated destructor is fine for non-base
   // classes without bare pointers or other resource use.
 
   bool verifyStatus() const;
+
 private:
 };
 

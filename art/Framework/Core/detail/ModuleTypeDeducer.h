@@ -15,10 +15,14 @@ namespace art {
     // ModuleTypeDeducer.
     template <typename T>
     struct ModuleTypeDeducer;
-    template <> struct ModuleTypeDeducer<art::EDAnalyzer>;
-    template <> struct ModuleTypeDeducer<art::EDFilter>;
-    template <> struct ModuleTypeDeducer<art::OutputModule>;
-    template <> struct ModuleTypeDeducer<art::EDProducer>;
+    template <>
+    struct ModuleTypeDeducer<art::EDAnalyzer>;
+    template <>
+    struct ModuleTypeDeducer<art::EDFilter>;
+    template <>
+    struct ModuleTypeDeducer<art::OutputModule>;
+    template <>
+    struct ModuleTypeDeducer<art::EDProducer>;
   }
 }
 

@@ -4,75 +4,63 @@
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 
-art::DeferredProductGetter::
-DeferredProductGetter(cet::exempt_ptr<Principal const> groupFinder,
-                      ProductID pid)
-  :
-  groupFinder_(groupFinder),
-  pid_(pid),
-  realGetter_()
-{
-}
+art::DeferredProductGetter::DeferredProductGetter(
+  cet::exempt_ptr<Principal const> groupFinder,
+  ProductID pid)
+  : groupFinder_(groupFinder), pid_(pid), realGetter_()
+{}
 
-art::EDProduct const *
-art::DeferredProductGetter::
-getIt() const
+art::EDProduct const*
+art::DeferredProductGetter::getIt() const
 {
   return resolveGetter_()->getIt();
 }
 
-art::EDProduct const *
-art::DeferredProductGetter::
-anyProduct() const
+art::EDProduct const*
+art::DeferredProductGetter::anyProduct() const
 {
   return resolveGetter_()->anyProduct();
 }
 
-art::EDProduct const *
-art::DeferredProductGetter::
-uniqueProduct() const
+art::EDProduct const*
+art::DeferredProductGetter::uniqueProduct() const
 {
   return resolveGetter_()->uniqueProduct();
 }
 
-art::EDProduct const *
-art::DeferredProductGetter::
-uniqueProduct(TypeID const &tid) const
+art::EDProduct const*
+art::DeferredProductGetter::uniqueProduct(TypeID const& tid) const
 {
   return resolveGetter_()->uniqueProduct(tid);
 }
 
 bool
-art::DeferredProductGetter::
-resolveProduct(TypeID const &tid) const
+art::DeferredProductGetter::resolveProduct(TypeID const& tid) const
 {
   return resolveGetter_()->resolveProduct(tid);
 }
 
 bool
-art::DeferredProductGetter::
-resolveProductIfAvailable(TypeID const &tid) const
+art::DeferredProductGetter::resolveProductIfAvailable(TypeID const& tid) const
 {
   return resolveGetter_()->resolveProductIfAvailable(tid);
 }
 
 cet::exempt_ptr<art::EDProductGetter const>
-art::DeferredProductGetter::
-resolveGetter_() const
+art::DeferredProductGetter::resolveGetter_() const
 {
   auto result = maybeResolveGetter_();
   if (!result) {
     throw Exception(errors::ProductNotFound)
-      << "Product corresponding to ProductID "
-      << pid_
-      << " not found: possible attempt to resolve a Ptr before its product has been committed.\n";
+      << "Product corresponding to ProductID " << pid_
+      << " not found: possible attempt to resolve a Ptr before its product has "
+         "been committed.\n";
   }
   return std::move(result);
 }
 
 cet::exempt_ptr<art::EDProductGetter const>
-art::DeferredProductGetter::
-maybeResolveGetter_() const
+art::DeferredProductGetter::maybeResolveGetter_() const
 {
   if (realGetter_) {
     return realGetter_;

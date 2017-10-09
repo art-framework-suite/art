@@ -4,7 +4,7 @@
 
   ----------------------------------------------------------------------*/
 
-#define BOOST_TEST_MODULE ( eventprincipal_t )
+#define BOOST_TEST_MODULE (eventprincipal_t)
 #include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -13,8 +13,8 @@
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
+#include "art/Persistency/Provenance/ProductMetaData.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/Wrapper.h"
@@ -45,33 +45,31 @@ using namespace std::string_literals;
 
 class MPRGlobalTestFixture {
 public:
-
   MPRGlobalTestFixture();
 
   std::map<std::string, art::BranchKey> branchKeys_{};
   std::map<std::string, art::ProcessConfiguration*> processConfigurations_{};
 
 private:
-  art::ProcessConfiguration*
-  fake_single_module_process(std::string const& tag,
-                             std::string const& processName,
-                             fhicl::ParameterSet const& moduleParams,
-                             std::string const& release = art::getReleaseVersion());
+  art::ProcessConfiguration* fake_single_module_process(
+    std::string const& tag,
+    std::string const& processName,
+    fhicl::ParameterSet const& moduleParams,
+    std::string const& release = art::getReleaseVersion());
 
-  art::BranchDescription
-  fake_single_process_branch(std::string const& tag,
-                             std::string const& processName,
-                             std::string const& productInstanceName = {});
+  art::BranchDescription fake_single_process_branch(
+    std::string const& tag,
+    std::string const& processName,
+    std::string const& productInstanceName = {});
 
-  art::MasterProductRegistry  productRegistry_{};
+  art::MasterProductRegistry productRegistry_{};
 };
-
 
 MPRGlobalTestFixture::MPRGlobalTestFixture()
 {
   // We can only insert products registered in the MasterProductRegistry.
   std::vector<art::BranchDescription> descriptions;
-  descriptions.push_back(fake_single_process_branch("hlt",  "HLT"));
+  descriptions.push_back(fake_single_process_branch("hlt", "HLT"));
   descriptions.push_back(fake_single_process_branch("prod", "PROD"));
   descriptions.push_back(fake_single_process_branch("test", "TEST"));
   descriptions.push_back(fake_single_process_branch("user", "USER"));
@@ -82,24 +80,27 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
 }
 
 art::ProcessConfiguration*
-MPRGlobalTestFixture::fake_single_module_process(std::string const& tag,
-                                                 std::string const& processName,
-                                                 fhicl::ParameterSet const& moduleParams,
-                                                 std::string const& release)
+MPRGlobalTestFixture::fake_single_module_process(
+  std::string const& tag,
+  std::string const& processName,
+  fhicl::ParameterSet const& moduleParams,
+  std::string const& release)
 {
   fhicl::ParameterSet processParams;
   processParams.put(processName, moduleParams);
   processParams.put("process_name", processName);
 
-  auto* result = new art::ProcessConfiguration(processName, processParams.id(), release);
+  auto* result =
+    new art::ProcessConfiguration(processName, processParams.id(), release);
   processConfigurations_[tag] = result;
   return result;
 }
 
 art::BranchDescription
-MPRGlobalTestFixture::fake_single_process_branch(std::string const& tag,
-                                                 std::string const& processName,
-                                                 std::string const& productInstanceName)
+MPRGlobalTestFixture::fake_single_process_branch(
+  std::string const& tag,
+  std::string const& processName,
+  std::string const& productInstanceName)
 {
   std::string const moduleLabel{processName + "dummyMod"};
   std::string const moduleClass{"DummyModule"};
@@ -107,14 +108,18 @@ MPRGlobalTestFixture::fake_single_process_branch(std::string const& tag,
   fhicl::ParameterSet modParams;
   modParams.put("module_type", moduleClass);
   modParams.put("module_label", moduleLabel);
-  art::ModuleDescription const mod{modParams.id(),
-                                   moduleClass,
-                                   moduleLabel,
-                                   *fake_single_module_process(tag, processName, modParams)};
+  art::ModuleDescription const mod{
+    modParams.id(),
+    moduleClass,
+    moduleLabel,
+    *fake_single_module_process(tag, processName, modParams)};
 
-  art::BranchDescription const result{art::InEvent,
-                                      art::TypeLabel{dummyType, productInstanceName, art::SupportsView<arttest::DummyProduct>::value},
-                                      mod};
+  art::BranchDescription const result{
+    art::InEvent,
+    art::TypeLabel{dummyType,
+                   productInstanceName,
+                   art::SupportsView<arttest::DummyProduct>::value},
+    mod};
   branchKeys_.emplace(tag, art::BranchKey{result});
   return result;
 }
@@ -127,7 +132,7 @@ struct EventPrincipalTestFixture {
 
 EventPrincipalTestFixture::EventPrincipalTestFixture()
 {
-  (void) gf(); // Bootstrap MasterProductRegistry creation first time out.
+  (void)gf(); // Bootstrap MasterProductRegistry creation first time out.
 
   art::EventID eventID(101, 87, 20);
 
@@ -135,7 +140,8 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   // all here.
 
   // Put products we'll look for into the EventPrincipal.
-  std::unique_ptr<art::EDProduct> product = std::make_unique<art::Wrapper<arttest::DummyProduct>>();
+  std::unique_ptr<art::EDProduct> product =
+    std::make_unique<art::Wrapper<arttest::DummyProduct>>();
 
   std::string tag("rick");
   auto i = gf().branchKeys_.find(tag);
@@ -146,28 +152,32 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   art::BranchDescription const& branchFromRegistry(it->second);
 
   auto entryDescriptionPtr = std::make_shared<art::Parentage>();
-  auto productProvenancePtr = std::make_unique<art::ProductProvenance const>(branchFromRegistry.productID(),
-                                                                             art::productstatus::present(),
-                                                                             entryDescriptionPtr);
+  auto productProvenancePtr = std::make_unique<art::ProductProvenance const>(
+    branchFromRegistry.productID(),
+    art::productstatus::present(),
+    entryDescriptionPtr);
 
   art::ProcessConfiguration* process = gf().processConfigurations_[tag];
   BOOST_REQUIRE(process);
   art::Timestamp now(1234567UL);
-  art::RunAuxiliary runAux {eventID.run(), now, now};
+  art::RunAuxiliary runAux{eventID.run(), now, now};
   auto rp = std::make_unique<art::RunPrincipal>(runAux, *process, nullptr);
-  art::SubRunAuxiliary subRunAux {rp->run(), eventID.subRun(), now, now};
-  auto srp = std::make_unique<art::SubRunPrincipal>(subRunAux, *process, nullptr);
+  art::SubRunAuxiliary subRunAux{rp->run(), eventID.subRun(), now, now};
+  auto srp =
+    std::make_unique<art::SubRunPrincipal>(subRunAux, *process, nullptr);
   srp->setRunPrincipal(rp.get());
   art::EventAuxiliary eventAux(eventID, now, true);
   pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process, nullptr);
   pEvent_->setSubRunPrincipal(srp.get());
-  pEvent_->put(std::move(product), branchFromRegistry, std::move(productProvenancePtr));
+  pEvent_->put(
+    std::move(product), branchFromRegistry, std::move(productProvenancePtr));
 
   BOOST_REQUIRE_EQUAL(pEvent_->size(), 1u);
 }
 
 MPRGlobalTestFixture&
-EventPrincipalTestFixture::gf() {
+EventPrincipalTestFixture::gf()
+{
   static MPRGlobalTestFixture gf_s;
   return gf_s;
 }
@@ -223,7 +233,8 @@ BOOST_AUTO_TEST_CASE(failgetManybyTypeTest)
 
   // getManyByType is achieved by providing a selector that matches
   // everything.
-  auto const& query_results = pEvent_->getMany(wrapped, art::MatchAllSelector{});
+  auto const& query_results =
+    pEvent_->getMany(wrapped, art::MatchAllSelector{});
   BOOST_CHECK(query_results.empty());
 }
 

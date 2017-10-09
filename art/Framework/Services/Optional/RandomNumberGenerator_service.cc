@@ -42,10 +42,10 @@
 #include "CLHEP/Random/RanshiEngine.h"
 #include "CLHEP/Random/TripleRand.h"
 #include "art/Framework/Principal/Event.h"
-#include "art/Framework/Services/System/CurrentModule.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Services/System/CurrentModule.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/assert_only_one_thread.h"
 #include "cetlib/container_algorithms.h"
@@ -78,12 +78,13 @@ namespace {
   using seed_t = RNGservice::seed_t;
   using base_engine_t = RNGservice::base_engine_t;
 
-  string const DEFAULT_ENGINE_KIND {"HepJamesRandom"};
-  seed_t constexpr MAXIMUM_CLHEP_SEED {900000000};
-  seed_t constexpr USE_DEFAULT_SEED {-1};
+  string const DEFAULT_ENGINE_KIND{"HepJamesRandom"};
+  seed_t constexpr MAXIMUM_CLHEP_SEED{900000000};
+  seed_t constexpr USE_DEFAULT_SEED{-1};
   RNGsnapshot const EMPTY_SNAPSHOT;
 
-  struct G4Engine {};
+  struct G4Engine {
+  };
 
   void
   throw_if_invalid_seed(seed_t const seed)
@@ -93,19 +94,21 @@ namespace {
     if (seed > MAXIMUM_CLHEP_SEED)
       throw cet::exception("RANGE")
         << "RNGservice::throw_if_invalid_seed():\n"
-        "Seed " << seed << " exceeds permitted maximum "
-        << MAXIMUM_CLHEP_SEED << ".\n";
-    if (seed < 0)  // too small for CLHEP
+           "Seed "
+        << seed << " exceeds permitted maximum " << MAXIMUM_CLHEP_SEED << ".\n";
+    if (seed < 0) // too small for CLHEP
       throw cet::exception("RANGE")
         << "RNGservice::throw_if_invalid_seed():\n"
-        "Seed " << seed << " is not permitted to be negative.\n";
+           "Seed "
+        << seed << " is not permitted to be negative.\n";
   }
 
   inline label_t
-  qualify_engine_label(ScheduleID::size_type const schedule_id, label_t const& engine_label)
+  qualify_engine_label(ScheduleID::size_type const schedule_id,
+                       label_t const& engine_label)
   {
     // ModuleLabel:ScheduleID:EngineLabel
-    std::string label {art::ServiceHandle<art::CurrentModule const>{}->label()};
+    std::string label{art::ServiceHandle<art::CurrentModule const>{}->label()};
     label += ':';
     label += std::to_string(schedule_id);
     label += ':';
@@ -117,18 +120,19 @@ namespace {
   inline eptr_t
   manufacture_an_engine(seed_t const seed)
   {
-    return eptr_t{seed == USE_DEFAULT_SEED ? new DesiredEngineType : new DesiredEngineType(seed)};
+    return eptr_t{seed == USE_DEFAULT_SEED ? new DesiredEngineType :
+                                             new DesiredEngineType(seed)};
   }
 
   template <>
-  inline eptr_t
-  manufacture_an_engine<CLHEP::NonRandomEngine>(seed_t /* unused */)
+  inline eptr_t manufacture_an_engine<CLHEP::NonRandomEngine>(
+    seed_t /* unused */)
   {
     // no engine c'tor takes a seed:
     return std::make_shared<CLHEP::NonRandomEngine>();
   }
 
-  template<>
+  template <>
   inline eptr_t
   manufacture_an_engine<G4Engine>(seed_t const seed)
   {
@@ -141,31 +145,32 @@ namespace {
   eptr_t
   engine_factory(string const& kind_of_engine_to_make, seed_t const seed)
   {
-#define MANUFACTURE_EXPLICIT(KIND,TYPE)                 \
-    if (kind_of_engine_to_make == string{KIND})         \
-      return manufacture_an_engine<TYPE>(seed);
+#define MANUFACTURE_EXPLICIT(KIND, TYPE)                                       \
+  if (kind_of_engine_to_make == string{KIND})                                  \
+    return manufacture_an_engine<TYPE>(seed);
     MANUFACTURE_EXPLICIT("G4Engine", G4Engine)
-#define MANUFACTURE_IMPLICIT(ENGINE) MANUFACTURE_EXPLICIT(#ENGINE,CLHEP::ENGINE)
-      MANUFACTURE_IMPLICIT(DRand48Engine)
-      MANUFACTURE_IMPLICIT(DualRand)
-      MANUFACTURE_IMPLICIT(Hurd160Engine)
-      MANUFACTURE_IMPLICIT(Hurd288Engine)
-      MANUFACTURE_IMPLICIT(HepJamesRandom)
-      MANUFACTURE_IMPLICIT(MTwistEngine)
-      MANUFACTURE_IMPLICIT(NonRandomEngine)
-      MANUFACTURE_IMPLICIT(RanecuEngine)
-      MANUFACTURE_IMPLICIT(Ranlux64Engine)
-      MANUFACTURE_IMPLICIT(RanluxEngine)
-      MANUFACTURE_IMPLICIT(RanshiEngine)
-      MANUFACTURE_IMPLICIT(TripleRand)
+#define MANUFACTURE_IMPLICIT(ENGINE)                                           \
+  MANUFACTURE_EXPLICIT(#ENGINE, CLHEP::ENGINE)
+    MANUFACTURE_IMPLICIT(DRand48Engine)
+    MANUFACTURE_IMPLICIT(DualRand)
+    MANUFACTURE_IMPLICIT(Hurd160Engine)
+    MANUFACTURE_IMPLICIT(Hurd288Engine)
+    MANUFACTURE_IMPLICIT(HepJamesRandom)
+    MANUFACTURE_IMPLICIT(MTwistEngine)
+    MANUFACTURE_IMPLICIT(NonRandomEngine)
+    MANUFACTURE_IMPLICIT(RanecuEngine)
+    MANUFACTURE_IMPLICIT(Ranlux64Engine)
+    MANUFACTURE_IMPLICIT(RanluxEngine)
+    MANUFACTURE_IMPLICIT(RanshiEngine)
+    MANUFACTURE_IMPLICIT(TripleRand)
 #undef MANUFACTURE_IMPLICIT
 #undef MANUFACTURE_EXPLICIT
 
-      throw cet::exception("RANDOM")
+    throw cet::exception("RANDOM")
       << "engine_factory():\n"
-      "Attempt to create engine of unknown kind \""
+         "Attempt to create engine of unknown kind \""
       << kind_of_engine_to_make << "\".\n";
-  }  // engine_factory()
+  } // engine_factory()
 
   void
   expand_if_abbrev_kind(string& requested_engine_kind)
@@ -177,7 +182,7 @@ namespace {
     }
   }
 
-}  // namespace
+} // namespace
 
 // ======================================================================
 
@@ -189,12 +194,12 @@ RNGservice::RandomNumberGenerator(Parameters const& config,
   , nPrint_{config().nPrint()}
   , debug_{config().debug()}
 {
-  reg.sPostBeginJob.watch   (this, &RNGservice::postBeginJob);
-  reg.sPostEndJob.watch     (this, &RNGservice::postEndJob);
+  reg.sPostBeginJob.watch(this, &RNGservice::postBeginJob);
+  reg.sPostEndJob.watch(this, &RNGservice::postEndJob);
   reg.sPreProcessEvent.watch(this, &RNGservice::preProcessEvent);
 
   // MT-TODO: Placeholder until we can query number of schedules.
-  unsigned const nSchedules {1u};
+  unsigned const nSchedules{1u};
   data_.resize(nSchedules);
 }
 
@@ -215,7 +220,8 @@ RNGservice::getEngine(label_t const& engine_label) const
 }
 
 base_engine_t&
-RNGservice::getEngine(ScheduleID const schedule_id, label_t const& engine_label) const
+RNGservice::getEngine(ScheduleID const schedule_id,
+                      label_t const& engine_label) const
 {
   // Place holder until we can use a system that provides the right context.
   auto const sid = schedule_id.id();
@@ -223,9 +229,9 @@ RNGservice::getEngine(ScheduleID const schedule_id, label_t const& engine_label)
 
   auto d = data_[sid].dict_.find(label);
   if (d == data_[sid].dict_.end()) {
-    throw cet::exception("RANDOM")
-      << "RNGservice::getEngine():\n"
-      "The requested engine \"" << label << "\" has not been established.\n";
+    throw cet::exception("RANDOM") << "RNGservice::getEngine():\n"
+                                      "The requested engine \""
+                                   << label << "\" has not been established.\n";
   }
   assert(d->second && "RNGservice::getEngine()");
 
@@ -239,18 +245,16 @@ RNGservice::invariant_holds_(ScheduleID::size_type const schedule_id)
 {
   auto const& d = data_[schedule_id];
   return d.dict_.size() == d.tracker_.size() &&
-    d.dict_.size() == d.kind_.size();
+         d.dict_.size() == d.kind_.size();
 }
 
 // ----------------------------------------------------------------------
 
 base_engine_t&
-RNGservice::createEngine(ScheduleID const schedule_id,
-                         seed_t const seed)
+RNGservice::createEngine(ScheduleID const schedule_id, seed_t const seed)
 {
   return createEngine(schedule_id, seed, DEFAULT_ENGINE_KIND);
 }
-
 
 base_engine_t&
 RNGservice::createEngine(ScheduleID const schedule_id,
@@ -259,7 +263,6 @@ RNGservice::createEngine(ScheduleID const schedule_id,
 {
   return createEngine(schedule_id, seed, requested_engine_kind, label_t{});
 }
-
 
 base_engine_t&
 RNGservice::createEngine(ScheduleID const schedule_id,
@@ -277,38 +280,39 @@ RNGservice::createEngine(ScheduleID const schedule_id,
   label_t const& label = qualify_engine_label(sid, engine_label);
 
   if (!engine_creation_is_okay_) {
-    throw cet::exception("RANDOM")
-      << "RNGservice::createEngine():\n"
-      "Attempt to create engine \"" << label << "\" is too late.\n";
+    throw cet::exception("RANDOM") << "RNGservice::createEngine():\n"
+                                      "Attempt to create engine \""
+                                   << label << "\" is too late.\n";
   }
 
   auto& d = data_[sid];
   if (d.tracker_.find(label) != d.tracker_.cend()) {
-    throw cet::exception("RANDOM")
-      << "RNGservice::createEngine():\n"
-      "Engine \"" << label << "\" has already been created.\n";
+    throw cet::exception("RANDOM") << "RNGservice::createEngine():\n"
+                                      "Engine \""
+                                   << label << "\" has already been created.\n";
   }
 
   throw_if_invalid_seed(seed);
   expand_if_abbrev_kind(requested_engine_kind);
-  eptr_t eptr {engine_factory(requested_engine_kind, seed)};
+  eptr_t eptr{engine_factory(requested_engine_kind, seed)};
   assert(eptr && "RNGservice::createEngine()");
-  d.dict_   [label] = eptr;
+  d.dict_[label] = eptr;
   d.tracker_[label] = VIA_SEED;
-  d.kind_   [label] = requested_engine_kind;
+  d.kind_[label] = requested_engine_kind;
 
-  mf::LogInfo log {"RANDOM"};
-  log << "Instantiated " << requested_engine_kind
-      << " engine \"" << label
+  mf::LogInfo log{"RANDOM"};
+  log << "Instantiated " << requested_engine_kind << " engine \"" << label
       << "\" with ";
-  if (seed == USE_DEFAULT_SEED) log << "default seed " << seed;
-  else                          log << "seed " << seed;
+  if (seed == USE_DEFAULT_SEED)
+    log << "default seed " << seed;
+  else
+    log << "seed " << seed;
   log << ".\n";
 
   assert(invariant_holds_(sid) && "RNGservice::createEngine()");
   return *eptr;
 
-}  // createEngine<>()
+} // createEngine<>()
 
 // ----------------------------------------------------------------------
 // The 'print_()' does not receive a schedule ID as an argument since
@@ -322,13 +326,13 @@ RNGservice::print_() const
 {
   CET_ASSERT_ONLY_ONE_THREAD();
 
-  static unsigned ncalls {};
+  static unsigned ncalls{};
 
   if (!debug_ || ++ncalls > nPrint_)
     return;
 
   auto print_per_stream = [](std::size_t const i, auto const& d) {
-    mf::LogInfo log {"RANDOM"};
+    mf::LogInfo log{"RANDOM"};
     if (d.snapshot_.empty()) {
       log << "No snapshot has yet been made.\n";
       return;
@@ -336,10 +340,8 @@ RNGservice::print_() const
 
     log << "Snapshot information:";
     for (auto const& ss : d.snapshot_) {
-      log << "\nEngine: " << ss.label()
-          << "  Kind: " << ss.ekind()
-          << "  Schedule ID: " << i
-          << "  State size: " << ss.state().size();
+      log << "\nEngine: " << ss.label() << "  Kind: " << ss.ekind()
+          << "  Schedule ID: " << i << "  State size: " << ss.state().size();
     }
     log << "\n";
   };
@@ -352,7 +354,7 @@ RNGservice::print_() const
 void
 RNGservice::takeSnapshot_(ScheduleID const schedule_id)
 {
-  mf::LogDebug log {"RANDOM"};
+  mf::LogDebug log{"RANDOM"};
   log << "RNGservice::takeSnapshot_() of the following engine labels:\n";
 
   auto& d = data_[schedule_id.id()];
@@ -371,7 +373,8 @@ RNGservice::takeSnapshot_(ScheduleID const schedule_id)
 // ----------------------------------------------------------------------
 
 void
-RNGservice::restoreSnapshot_(ScheduleID const schedule_id, art::Event const& event)
+RNGservice::restoreSnapshot_(ScheduleID const schedule_id,
+                             art::Event const& event)
 {
   if (restoreStateLabel_.empty())
     return;
@@ -391,35 +394,37 @@ RNGservice::restoreSnapshot_(ScheduleID const schedule_id, art::Event const& eve
     auto t = d.tracker_.find(label);
     if (t == d.tracker_.end()) {
       log << " could not be restored;\n"
-        "no established engine bears this label.\n";
+             "no established engine bears this label.\n";
       continue;
     }
 
     if (t->second == VIA_FILE) {
       throw cet::exception("RANDOM")
         << "RNGservice::restoreSnapshot_():\n"
-        "The state of engine \"" << label
+           "The state of engine \""
+        << label
         << "\" has been previously read from a file;\n"
-        "it is therefore not restorable from a snapshot product.\n";
+           "it is therefore not restorable from a snapshot product.\n";
     }
 
-    eptr_t ep {d.dict_[label]};
+    eptr_t ep{d.dict_[label]};
     assert(ep && "RNGservice::restoreSnapshot_()");
 
     d.tracker_[label] = VIA_PRODUCT;
     auto const& est = snapshot.restoreState();
     if (ep->get(est)) {
       log << " successfully restored.\n";
-    }
-    else {
+    } else {
       throw cet::exception("RANDOM")
         << "RNGservice::restoreSnapshot_():\n"
-        "Failed during restore of state of engine for \"" << label << "\"\n";
+           "Failed during restore of state of engine for \""
+        << label << "\"\n";
     }
-  }  // for
+  } // for
 
-  assert(invariant_holds_(schedule_id.id()) && "RNGsnapshot::restoreSnapshot_()");
-}  // restoreSnapshot_()
+  assert(invariant_holds_(schedule_id.id()) &&
+         "RNGsnapshot::restoreSnapshot_()");
+} // restoreSnapshot_()
 
 // ----------------------------------------------------------------------
 void
@@ -431,7 +436,7 @@ RNGservice::saveToFile_()
   CET_ASSERT_ONLY_ONE_THREAD();
 
   // access the file:
-  ofstream outfile {saveToFilename_.c_str()};
+  ofstream outfile{saveToFilename_.c_str()};
   if (!outfile)
     mf::LogWarning("RANDOM")
       << "Can't create/access file \"" << saveToFilename_ << "\"\n";
@@ -447,10 +452,11 @@ RNGservice::saveToFile_()
       if (!outfile)
         mf::LogWarning("RANDOM")
           << "This module's engine has not been saved;\n"
-          "file \"" << saveToFilename_ << "\" is likely now corrupted.\n";
+             "file \""
+          << saveToFilename_ << "\" is likely now corrupted.\n";
     }
   }
-}  // saveToFile_()
+} // saveToFile_()
 
 // ----------------------------------------------------------------------
 void
@@ -462,12 +468,12 @@ RNGservice::restoreFromFile_()
   CET_ASSERT_ONLY_ONE_THREAD();
 
   // access the file:
-  ifstream infile {restoreFromFilename_.c_str()};
+  ifstream infile{restoreFromFilename_.c_str()};
   if (!infile)
     throw cet::exception("RANDOM")
       << "RNGservice::restoreFromFile_():\n"
-      "Can't open file \"" << restoreFromFilename_
-      << "\" to initialize engines\n";
+         "Can't open file \""
+      << restoreFromFilename_ << "\" to initialize engines\n";
 
   // restore engines:
   for (label_t label{}; infile >> label;) {
@@ -475,51 +481,47 @@ RNGservice::restoreFromFile_()
     assert(std::count(label.cbegin(), label.cend(), ':') == 2u);
     auto const p1 = label.find_first_of(':');
     auto const p2 = label.find_last_of(':');
-    ScheduleID const schedule_id (std::stoul(label.substr(p1+1,p2)));
+    ScheduleID const schedule_id(std::stoul(label.substr(p1 + 1, p2)));
     auto& data = data_[schedule_id.id()];
 
     auto d = data.dict_.find(label);
     if (d == data.dict_.end()) {
       throw Exception(errors::Configuration, "RANDOM")
-        << "Attempt to restore an engine with label "
-        << label
+        << "Attempt to restore an engine with label " << label
         << " not configured in this job.\n";
     }
 
-    assert(data.tracker_.find(label) != data.tracker_.cend() && "RNGservice::restoreFromFile_()");
-    init_t& how {data.tracker_[label]};
+    assert(data.tracker_.find(label) != data.tracker_.cend() &&
+           "RNGservice::restoreFromFile_()");
+    init_t& how{data.tracker_[label]};
     if (how == VIA_SEED) { // OK
       auto& eptr = d->second;
-      assert(eptr && "RNGservice::restoreFromFile_()" );
+      assert(eptr && "RNGservice::restoreFromFile_()");
       if (!eptr->get(infile)) {
         throw cet::exception("RANDOM")
           << "RNGservice::restoreFromFile_():\n"
-          << "Failed during restore of state of engine for label "
-          << label
+          << "Failed during restore of state of engine for label " << label
           << "from file \"" << restoreFromFilename_ << "\"\n";
       }
       how = VIA_FILE;
     } else if (how == VIA_FILE) {
       throw Exception(errors::Configuration, "RANDOM")
         << "Engine state file contains two engine states with the "
-        << "same label: "
-        << label
-        << "\n.";
+        << "same label: " << label << "\n.";
     } else {
       throw Exception(errors::LogicError, "RANDOM")
-        << "Internal error: attempt to restore an engine state "
-        << label
+        << "Internal error: attempt to restore an engine state " << label
         << " from file\nwhich was originally initialized via an "
         << " unknown or impossible method.\n";
     }
-    assert(invariant_holds_(schedule_id.id()) && "RNGservice::restoreFromFile_()");
+    assert(invariant_holds_(schedule_id.id()) &&
+           "RNGservice::restoreFromFile_()");
   }
-}  // restoreFromFile_()
+} // restoreFromFile_()
 
 // ----------------------------------------------------------------------
 
-void
-RNGservice::postBeginJob() // Consider changing this to preBeginJob
+void RNGservice::postBeginJob() // Consider changing this to preBeginJob
 {
   restoreFromFile_();
   engine_creation_is_okay_ = false;
@@ -542,7 +544,7 @@ RNGservice::postEndJob()
   // MT-TODO: Adjust so that the loop does not require creating
   // temporary schedule IDs, but instead uses a system-provided
   // looping mechanism.
-  for (ScheduleID::size_type i {}; i < data_.size() ; ++i) {
+  for (ScheduleID::size_type i{}; i < data_.size(); ++i) {
     takeSnapshot_(ScheduleID{i});
   }
   saveToFile_();

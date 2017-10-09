@@ -25,26 +25,25 @@ namespace arttest {
 
 class arttest::DropTestParentageFaker : public art::EDProducer {
 public:
-  explicit DropTestParentageFaker(fhicl::ParameterSet const & p);
+  explicit DropTestParentageFaker(fhicl::ParameterSet const& p);
 
-  void produce(art::Event & e) override;
-
+  void produce(art::Event& e) override;
 
 private:
   std::string inputLabel_;
 };
 
-
-arttest::DropTestParentageFaker::DropTestParentageFaker(fhicl::ParameterSet const & p)
-  :
-  inputLabel_(p.get<std::string>("input_label"))
+arttest::DropTestParentageFaker::DropTestParentageFaker(
+  fhicl::ParameterSet const& p)
+  : inputLabel_(p.get<std::string>("input_label"))
 {
   produces<std::string>();
 }
 
-void arttest::DropTestParentageFaker::produce(art::Event & e)
+void
+arttest::DropTestParentageFaker::produce(art::Event& e)
 {
-  art::Handle<art::Ptr<std::string> > sh;
+  art::Handle<art::Ptr<std::string>> sh;
   // Force this product to be a parent of our child.
   e.getByLabel(inputLabel_, sh);
   e.put(std::make_unique<std::string>("Child"));

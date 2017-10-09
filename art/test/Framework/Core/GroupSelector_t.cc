@@ -1,10 +1,11 @@
-#define BOOST_TEST_MODULE ( GroupSelector_t )
+#define BOOST_TEST_MODULE (GroupSelector_t)
 #include "cetlib/quiet_unit_test.hpp"
 
 #include "art/test/Framework/Core/GroupSelector_t.h"
 
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
+#include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
@@ -12,7 +13,6 @@
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/Exception.h"
-#include "art/Version/GetReleaseVersion.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>
@@ -31,58 +31,70 @@ namespace {
                         fhicl::ParameterSet const& pset)
   {
     art::TypeID const producedType{typeid(PROD)};
-    return art::BranchDescription(bt,
-                                  art::TypeLabel{producedType, instanceName, art::SupportsView<PROD>::value},
-                                  art::ModuleDescription(pset.id(),
-                                                         "arttest::NOMOD",
-                                                         moduleLabel,
-                                                         art::ProcessConfiguration(processName,
-                                                                                   fhicl::ParameterSet{}.id(),
-                                                                                   art::getReleaseVersion())));
+    return art::BranchDescription(
+      bt,
+      art::TypeLabel{
+        producedType, instanceName, art::SupportsView<PROD>::value},
+      art::ModuleDescription(
+        pset.id(),
+        "arttest::NOMOD",
+        moduleLabel,
+        art::ProcessConfiguration(
+          processName, fhicl::ParameterSet{}.id(), art::getReleaseVersion())));
   }
 
-  void apply_gs(art::GroupSelector const& gs,
-                art::ProductList const& pList,
-                std::vector<bool>& results)
+  void
+  apply_gs(art::GroupSelector const& gs,
+           art::ProductList const& pList,
+           std::vector<bool>& results)
   {
     for (auto const& p : pList) {
       results.push_back(gs.selected(p.second));
     }
   }
 
-  void doTest(fhicl::ParameterSet const& params,
-              std::string const& testname,
-              art::ProductList const& pList,
-              std::vector<bool> const& expected)
+  void
+  doTest(fhicl::ParameterSet const& params,
+         std::string const& testname,
+         art::ProductList const& pList,
+         std::vector<bool> const& expected)
   {
     std::string const parameterName{"outputCommands"};
-    art::GroupSelectorRules gsr(params.get<std::vector<std::string>>(parameterName, {"keep *"}),
-                                parameterName, testname);
+    art::GroupSelectorRules gsr(
+      params.get<std::vector<std::string>>(parameterName, {"keep *"}),
+      parameterName,
+      testname);
     art::GroupSelector const gs{gsr, pList};
 
     std::vector<bool> results;
     apply_gs(gs, pList, results);
 
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(expected.cbegin(), expected.cend(),
-                                    results.cbegin(), results.cend());
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(
+      expected.cbegin(), expected.cend(), results.cbegin(), results.cend());
   }
 
   class GlobalSetup {
   public:
-    static GlobalSetup& instance() {
+    static GlobalSetup&
+    instance()
+    {
       static GlobalSetup s_gs;
       return s_gs;
     }
 
-    art::ProductList& pList() { return pList_; }
+    art::ProductList&
+    pList()
+    {
+      return pList_;
+    }
 
   private:
-    GlobalSetup(): pList_{initProductList()}
-    {}
+    GlobalSetup() : pList_{initProductList()} {}
 
     art::ProductList pList_;
 
-    art::ProductList initProductList()
+    art::ProductList
+    initProductList()
     {
       // We pretend to have one module, with two products. The products
       // are of the same and, type differ in instance name.
@@ -90,69 +102,74 @@ namespace {
       modAparams.put<int>("i", 2112);
       modAparams.put<std::string>("s", "hi");
 
-      auto b1 = makeBranchDescription<arttest::ProdTypeA<std::string>>(art::InEvent, "modA", "PROD", "i1", modAparams);
-      auto b2 = makeBranchDescription<arttest::ProdTypeA<std::string>>(art::InEvent, "modA", "PROD", "i2", modAparams);
+      auto b1 = makeBranchDescription<arttest::ProdTypeA<std::string>>(
+        art::InEvent, "modA", "PROD", "i1", modAparams);
+      auto b2 = makeBranchDescription<arttest::ProdTypeA<std::string>>(
+        art::InEvent, "modA", "PROD", "i2", modAparams);
 
       // Our second pretend module has only one product, and gives it no
       // instance name.
       fhicl::ParameterSet modBparams;
       modBparams.put<double>("d", 2.5);
 
-      auto b3 = makeBranchDescription<arttest::ProdTypeB<std::string>>(art::InRun, "modB", "HLT", "", modBparams);
+      auto b3 = makeBranchDescription<arttest::ProdTypeB<std::string>>(
+        art::InRun, "modB", "HLT", "", modBparams);
 
       // Our third pretend is like modA, except it has a processName_ of
       // "USER"
-      auto b4 = makeBranchDescription<arttest::ProdTypeA<std::string>>(art::InSubRun, "modA", "USER", "i1", modAparams);
-      auto b5 = makeBranchDescription<arttest::ProdTypeA<std::string>>(art::InResults, "modA", "USER", "i2", modAparams);
+      auto b4 = makeBranchDescription<arttest::ProdTypeA<std::string>>(
+        art::InSubRun, "modA", "USER", "i1", modAparams);
+      auto b5 = makeBranchDescription<arttest::ProdTypeA<std::string>>(
+        art::InResults, "modA", "USER", "i2", modAparams);
 
       // Extra tests.
-      auto b6 = makeBranchDescription<art::Ptr<std::string>>(art::InRun, "ptrmvWriter", "PtrmvW", "", modAparams);
+      auto b6 = makeBranchDescription<art::Ptr<std::string>>(
+        art::InRun, "ptrmvWriter", "PtrmvW", "", modAparams);
 
-      art::ProductList const result {
+      art::ProductList const result{
         // Ordered correctly for ease of deducing expected results.
-        { art::BranchKey{b6}, b6 }, // Stringart::Ptr_ptrmvWriter__PtrmvW, InRun.
-        { art::BranchKey{b1}, b1 }, // ProdTypeA_modA_i1_PROD, InEvent.
-        { art::BranchKey{b4}, b4 }, // ProdTypeA_modA_i1_USER, InSubRun.
-        { art::BranchKey{b2}, b2 }, // ProdTypeA_modA_i2_PROD, InEvent.
-        { art::BranchKey{b5}, b5 }, // ProdTypeA_modA_i2_USER, InResults.
-        { art::BranchKey{b3}, b3 }  // ProdTypeB_modB__HLT, InRun.
+        {art::BranchKey{b6}, b6}, // Stringart::Ptr_ptrmvWriter__PtrmvW, InRun.
+        {art::BranchKey{b1}, b1}, // ProdTypeA_modA_i1_PROD, InEvent.
+        {art::BranchKey{b4}, b4}, // ProdTypeA_modA_i1_USER, InSubRun.
+        {art::BranchKey{b2}, b2}, // ProdTypeA_modA_i2_PROD, InEvent.
+        {art::BranchKey{b5}, b5}, // ProdTypeA_modA_i2_USER, InResults.
+        {art::BranchKey{b3}, b3}  // ProdTypeB_modB__HLT, InRun.
       };
       return result;
     }
   };
 
   struct ProductListAccessor {
-    ProductListAccessor() : pList(GlobalSetup::instance().pList()) { }
+    ProductListAccessor() : pList(GlobalSetup::instance().pList()) {}
     art::ProductList& pList;
   };
-
 }
 
 BOOST_FIXTURE_TEST_SUITE(Tests, ProductListAccessor)
 
 BOOST_AUTO_TEST_CASE(Test_default_parameters)
 {
-  std::vector<bool> const expected { true, true, true, true, true, true };
+  std::vector<bool> const expected{true, true, true, true, true, true};
   fhicl::ParameterSet noparams;
   doTest(noparams, "default parameters", pList, expected);
 }
 
 BOOST_AUTO_TEST_CASE(Keep_all_branches_with_instance_name_i2)
 {
-  std::vector<bool> const expected { false, false, false, true, true, false };
+  std::vector<bool> const expected{false, false, false, true, true, false};
 
   fhicl::ParameterSet keep_i2;
   std::string const keep_i2_rule = "keep *_*_i2_*";
   std::vector<std::string> cmds;
   cmds.push_back(keep_i2_rule);
-  keep_i2.put<std::vector<std::string> >("outputCommands", cmds);
+  keep_i2.put<std::vector<std::string>>("outputCommands", cmds);
 
   doTest(keep_i2, "keep i2 parameters", pList, expected);
 }
 
 BOOST_AUTO_TEST_CASE(Drop_all_branches_with_instance_name_i2)
 {
-  std::vector<bool> const expected { true, true, true, false, false, true };
+  std::vector<bool> const expected{true, true, true, false, false, true};
 
   fhicl::ParameterSet drop_i2;
   std::string const drop_i2_rule1 = "keep *";
@@ -160,14 +177,14 @@ BOOST_AUTO_TEST_CASE(Drop_all_branches_with_instance_name_i2)
   std::vector<std::string> cmds;
   cmds.push_back(drop_i2_rule1);
   cmds.push_back(drop_i2_rule2);
-  drop_i2.put<std::vector<std::string> >("outputCommands", cmds);
+  drop_i2.put<std::vector<std::string>>("outputCommands", cmds);
 
   doTest(drop_i2, "drop i2 parameters", pList, expected);
 }
 
 BOOST_AUTO_TEST_CASE(Drop_all_branches_with_product_type_foo)
 {
-  std::vector<bool> const expected { true, true, true, true, true, true };
+  std::vector<bool> const expected{true, true, true, true, true, true};
 
   fhicl::ParameterSet drop_foo;
   std::string const drop_foo_rule1 = "keep *_*_*_*"; // same as "keep *"
@@ -175,14 +192,14 @@ BOOST_AUTO_TEST_CASE(Drop_all_branches_with_product_type_foo)
   std::vector<std::string> cmds;
   cmds.push_back(drop_foo_rule1);
   cmds.push_back(drop_foo_rule2);
-  drop_foo.put<std::vector<std::string> >("outputCommands", cmds);
+  drop_foo.put<std::vector<std::string>>("outputCommands", cmds);
 
   doTest(drop_foo, "drop_foo parameters", pList, expected);
 }
 
 BOOST_AUTO_TEST_CASE(Drop_all_branches_with_product_type_ProdTypeA)
 {
-  std::vector<bool> const expected { true, false, false, false, false, true };
+  std::vector<bool> const expected{true, false, false, false, false, true};
 
   fhicl::ParameterSet drop_ProdTypeA;
   std::string const drop_ProdTypeA_rule1 = "keep *";
@@ -190,27 +207,27 @@ BOOST_AUTO_TEST_CASE(Drop_all_branches_with_product_type_ProdTypeA)
   std::vector<std::string> cmds;
   cmds.push_back(drop_ProdTypeA_rule1);
   cmds.push_back(drop_ProdTypeA_rule2);
-  drop_ProdTypeA.put<std::vector<std::string> >("outputCommands", cmds);
+  drop_ProdTypeA.put<std::vector<std::string>>("outputCommands", cmds);
 
   doTest(drop_ProdTypeA, "drop_ProdTypeA", pList, expected);
 }
 
 BOOST_AUTO_TEST_CASE(Keep_only_production_branches_with_instance_name_i1)
 {
-  std::vector<bool> const expected { false, true, false, false, false, false };
+  std::vector<bool> const expected{false, true, false, false, false, false};
 
   fhicl::ParameterSet keep_i1prod;
   std::string const keep_i1prod_rule = "keep *_*_i1_PROD";
   std::vector<std::string> cmds;
   cmds.push_back(keep_i1prod_rule);
-  keep_i1prod.put<std::vector<std::string> >("outputCommands", cmds);
+  keep_i1prod.put<std::vector<std::string>>("outputCommands", cmds);
 
   doTest(keep_i1prod, "keep_i1prod", pList, expected);
 }
 
 BOOST_AUTO_TEST_CASE(Keep_drop_keep)
 {
-  std::vector<bool> const expected { true, true, true, true, true, true };
+  std::vector<bool> const expected{true, true, true, true, true, true};
 
   fhicl::ParameterSet indecisive;
   std::string const indecisive_rule1 = "keep *";
@@ -220,14 +237,14 @@ BOOST_AUTO_TEST_CASE(Keep_drop_keep)
   cmds.push_back(indecisive_rule1);
   cmds.push_back(indecisive_rule2);
   cmds.push_back(indecisive_rule3);
-  indecisive.put<std::vector<std::string> >("outputCommands", cmds);
+  indecisive.put<std::vector<std::string>>("outputCommands", cmds);
 
   doTest(indecisive, "indecisive", pList, expected);
 }
 
 BOOST_AUTO_TEST_CASE(Keep_all_drop_from_modA_keep_USER)
 {
-  std::vector<bool> const expected { true, false, true, false, true, true };
+  std::vector<bool> const expected{true, false, true, false, true, true};
 
   fhicl::ParameterSet params;
   std::string const rule1 = "keep *";
@@ -237,14 +254,14 @@ BOOST_AUTO_TEST_CASE(Keep_all_drop_from_modA_keep_USER)
   cmds.push_back(rule1);
   cmds.push_back(rule2);
   cmds.push_back(rule3);
-  params.put<std::vector<std::string> >("outputCommands", cmds);
+  params.put<std::vector<std::string>>("outputCommands", cmds);
 
   doTest(params, "drop_modA_keep_user", pList, expected);
 }
 
 BOOST_AUTO_TEST_CASE(Exercise_wildcards)
 {
-  std::vector<bool> const expected { false, true, false, true, false, true };
+  std::vector<bool> const expected{false, true, false, true, false, true};
 
   fhicl::ParameterSet params;
   std::string const rule1 = "drop *";
@@ -254,14 +271,14 @@ BOOST_AUTO_TEST_CASE(Exercise_wildcards)
   cmds.push_back(rule1);
   cmds.push_back(rule2);
   cmds.push_back(rule3);
-  params.put<std::vector<std::string> >("outputCommands", cmds);
+  params.put<std::vector<std::string>>("outputCommands", cmds);
 
   doTest(params, "exercise wildcards1", pList, expected);
 }
 
 BOOST_AUTO_TEST_CASE(Drop_by_full_spec)
 {
-  std::vector<bool> const expected { false, true, true, true, true, true };
+  std::vector<bool> const expected{false, true, true, true, true, true};
 
   fhicl::ParameterSet params;
   std::string const rule1 = "keep *";
@@ -269,7 +286,7 @@ BOOST_AUTO_TEST_CASE(Drop_by_full_spec)
   std::vector<std::string> cmds;
   cmds.push_back(rule1);
   cmds.push_back(rule2);
-  params.put<std::vector<std::string> >("outputCommands", cmds);
+  params.put<std::vector<std::string>>("outputCommands", cmds);
 
   doTest(params, "drop product by full spec.", pList, expected);
 }
@@ -281,18 +298,20 @@ BOOST_AUTO_TEST_CASE(Illegal_spec)
   std::vector<std::string> cmds;
   cmds.push_back(bad_rule);
   std::string const parameterName = "outputCommands";
-  bad.put<std::vector<std::string> >(parameterName, cmds);
-  BOOST_REQUIRE_EXCEPTION(art::GroupSelectorRules(bad.get<std::vector<std::string>>(parameterName),
-                                                  parameterName, "GroupSelectorTest"),
-                          art::Exception,
-                          [](auto const& e) {
-                            return e.categoryCode() == art::errors::Configuration;
-                          });
+  bad.put<std::vector<std::string>>(parameterName, cmds);
+  BOOST_REQUIRE_EXCEPTION(
+    art::GroupSelectorRules(bad.get<std::vector<std::string>>(parameterName),
+                            parameterName,
+                            "GroupSelectorTest"),
+    art::Exception,
+    [](auto const& e) {
+      return e.categoryCode() == art::errors::Configuration;
+    });
 }
 
 BOOST_AUTO_TEST_CASE(Drop_by_type_event)
 {
-  std::vector<bool> const expected { true, false, true, false, true, true };
+  std::vector<bool> const expected{true, false, true, false, true, true};
 
   fhicl::ParameterSet params;
   std::string const rule1 = "keep *";
@@ -300,14 +319,14 @@ BOOST_AUTO_TEST_CASE(Drop_by_type_event)
   std::vector<std::string> cmds;
   cmds.push_back(rule1);
   cmds.push_back(rule2);
-  params.put<std::vector<std::string> >("outputCommands", cmds);
+  params.put<std::vector<std::string>>("outputCommands", cmds);
 
   doTest(params, "drop product by full spec.", pList, expected);
 }
 
 BOOST_AUTO_TEST_CASE(Drop_by_type_results)
 {
-  std::vector<bool> const expected { true, true, true, true, false, true };
+  std::vector<bool> const expected{true, true, true, true, false, true};
 
   fhicl::ParameterSet params;
   std::string const rule1 = "keep *";
@@ -315,14 +334,14 @@ BOOST_AUTO_TEST_CASE(Drop_by_type_results)
   std::vector<std::string> cmds;
   cmds.push_back(rule1);
   cmds.push_back(rule2);
-  params.put<std::vector<std::string> >("outputCommands", cmds);
+  params.put<std::vector<std::string>>("outputCommands", cmds);
 
   doTest(params, "drop product by full spec.", pList, expected);
 }
 
 BOOST_AUTO_TEST_CASE(Keep_by_type_results)
 {
-  std::vector<bool> const expected { false, false, false, false, true, false };
+  std::vector<bool> const expected{false, false, false, false, true, false};
 
   fhicl::ParameterSet params;
   std::string const rule1 = "drop *";
@@ -330,7 +349,7 @@ BOOST_AUTO_TEST_CASE(Keep_by_type_results)
   std::vector<std::string> cmds;
   cmds.push_back(rule1);
   cmds.push_back(rule2);
-  params.put<std::vector<std::string> >("outputCommands", cmds);
+  params.put<std::vector<std::string>>("outputCommands", cmds);
 
   doTest(params, "drop product by full spec.", pList, expected);
 }
@@ -342,13 +361,15 @@ BOOST_AUTO_TEST_CASE(Bad_type)
   std::vector<std::string> cmds;
   cmds.push_back(bad_rule);
   std::string const parameterName = "outputCommands";
-  bad.put<std::vector<std::string> >(parameterName, cmds);
-  BOOST_REQUIRE_EXCEPTION(art::GroupSelectorRules(bad.get<std::vector<std::string>>(parameterName),
-                                                  parameterName, "GroupSelectorTest"),
-                          art::Exception,
-                          [](auto const& e) {
-                            return e.categoryCode() == art::errors::Configuration;
-                          });
+  bad.put<std::vector<std::string>>(parameterName, cmds);
+  BOOST_REQUIRE_EXCEPTION(
+    art::GroupSelectorRules(bad.get<std::vector<std::string>>(parameterName),
+                            parameterName,
+                            "GroupSelectorTest"),
+    art::Exception,
+    [](auto const& e) {
+      return e.categoryCode() == art::errors::Configuration;
+    });
 }
 
 BOOST_AUTO_TEST_SUITE_END()

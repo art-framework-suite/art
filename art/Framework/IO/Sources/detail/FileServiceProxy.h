@@ -2,9 +2,9 @@
 #define art_Framework_IO_Sources_detail_FileServiceProxy_h
 
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
-#include "art/Framework/Services/FileServiceInterfaces/FileTransfer.h"
-#include "art/Framework/Services/FileServiceInterfaces/FileDisposition.h"
 #include "art/Framework/Services/FileServiceInterfaces/FileDeliveryStatus.h"
+#include "art/Framework/Services/FileServiceInterfaces/FileDisposition.h"
+#include "art/Framework/Services/FileServiceInterfaces/FileTransfer.h"
 #include "art/Framework/Services/FileServiceInterfaces/FileTransferStatus.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 
@@ -19,7 +19,7 @@ namespace art {
 
 class art::detail::FileServiceProxy {
 public:
-  explicit FileServiceProxy(std::vector<std::string> && fileNames,
+  explicit FileServiceProxy(std::vector<std::string>&& fileNames,
                             size_t attempts = 5,
                             double waitBetweenAttempts = 5.0);
   ~FileServiceProxy();
@@ -35,14 +35,12 @@ private:
   ServiceHandle<FileTransfer> ft_;
   struct FileEntity {
     explicit FileEntity(size_t attempts)
-    :
-      uri(),
-      pfn(),
-      uriStatus(FileDeliveryStatus::PENDING),
-      ftStatus(FileTransferStatus::PENDING),
-      attemptsRemaining(attempts)
-      {
-      }
+      : uri()
+      , pfn()
+      , uriStatus(FileDeliveryStatus::PENDING)
+      , ftStatus(FileTransferStatus::PENDING)
+      , attemptsRemaining(attempts)
+    {}
     std::string uri;
     std::string pfn;
     FileDeliveryStatus uriStatus;
@@ -53,10 +51,8 @@ private:
   double const waitBetweenAttempts_;
 };
 
-inline
-std::string
-art::detail::FileServiceProxy::
-next()
+inline std::string
+art::detail::FileServiceProxy::next()
 {
   finish();
   return obtainURI_();

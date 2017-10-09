@@ -20,10 +20,11 @@
 // ART_2011_a     Initial ART-only format.
 //
 ////////////////////////////////////////////////////////////////////////
-namespace art
-{
-   std::string const &getFileFormatEra() {
-      static std::string const era = "ART_2011a";
-      return era;
-   }
+namespace art {
+  std::string const&
+  getFileFormatEra()
+  {
+    static std::string const era = "ART_2011a";
+    return era;
+  }
 }

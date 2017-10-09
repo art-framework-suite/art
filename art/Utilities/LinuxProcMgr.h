@@ -21,14 +21,21 @@ namespace art {
 
   class LinuxProcMgr {
   public:
-
     using sid_size_type = ScheduleID::size_type;
     explicit LinuxProcMgr(sid_size_type nSchedules);
     ~LinuxProcMgr() noexcept;
 
     LinuxProcData::proc_tuple getCurrentData(sid_size_type) const;
-    double getVmPeak() const { return getStatusData_("VmPeak"); }
-    double getVmHWM() const { return getStatusData_("VmHWM"); }
+    double
+    getVmPeak() const
+    {
+      return getStatusData_("VmPeak");
+    }
+    double
+    getVmHWM() const
+    {
+      return getStatusData_("VmHWM");
+    }
 
     // Disable copy/move
     LinuxProcMgr(LinuxProcMgr const&) = delete;
@@ -43,7 +50,6 @@ namespace art {
     long pgSize_;
     std::vector<int> fileDescriptors_{};
   };
-
 }
 
 #endif /* art_Utilities_LinuxProcMgr_h */

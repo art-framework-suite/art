@@ -13,11 +13,10 @@ art::ProdToProdMapBuilder::prepareTranslationTables(ProductIDTransMap& transMap)
 {
   if (productIDTransMap_.empty()) {
     transMap.swap(productIDTransMap_);
-  }
-  else if (productIDTransMap_ != transMap) {
+  } else if (productIDTransMap_ != transMap) {
     throw Exception(errors::DataCorruption)
       << "Secondary input file "
-      " has ProductIDs inconsistent with previous files.\n";
+         " has ProductIDs inconsistent with previous files.\n";
   }
 }
 
@@ -29,11 +28,7 @@ art::ProdToProdMapBuilder::populateRemapper(PtrRemapper& mapper, Event& e) const
 #if ART_DEBUG_PTRREMAPPER
   for (auto const& pr : mapper.prodTransMap_) {
     std::cerr << "ProdTransMap_t: "
-              << "("
-              << pr.first
-              << ") -> ("
-              << pr.second
-              << ").\n";
+              << "(" << pr.first << ") -> (" << pr.second << ").\n";
   }
 #endif
 }

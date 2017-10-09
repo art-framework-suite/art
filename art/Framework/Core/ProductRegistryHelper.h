@@ -44,38 +44,34 @@ namespace art {
 
 namespace {
 
-  inline
-  void
+  inline void
   verifyFriendlyClassName(std::string const& fcn)
   {
     std::string errMsg;
     if (!art::detail::checkFriendlyName(fcn, errMsg)) {
       throw art::Exception(art::errors::Configuration)
         << errMsg
-        << "In particular, underscores are not permissible anywhere in the fully-scoped\n"
-        "class name, including namespaces.\n";
+        << "In particular, underscores are not permissible anywhere in the "
+           "fully-scoped\n"
+           "class name, including namespaces.\n";
     }
   }
 
-  inline
-  void
+  inline void
   verifyModuleLabel(std::string const& ml)
   {
     std::string errMsg;
     if (!art::detail::checkModuleLabel(ml, errMsg)) {
-      throw art::Exception(art::errors::Configuration)
-        << errMsg;
+      throw art::Exception(art::errors::Configuration) << errMsg;
     }
   }
 
-  inline
-  void
+  inline void
   verifyInstanceName(std::string const& instanceName)
   {
     std::string errMsg;
     if (!art::detail::checkInstanceName(instanceName, errMsg)) {
-      throw art::Exception(art::errors::Configuration)
-        << errMsg;
+      throw art::Exception(art::errors::Configuration) << errMsg;
     }
   }
 
@@ -83,10 +79,13 @@ namespace {
 
 class art::ProductRegistryHelper {
 public:
-
   // Used by an input source to provide a product list to be merged
   // into the master product registry later by registerProducts().
-  void productList(ProductList* p) { productList_.reset(p); }
+  void
+  productList(ProductList* p)
+  {
+    productList_.reset(p);
+  }
 
   void registerProducts(MasterProductRegistry& mpr,
                         ProductDescriptions& producedProducts,
@@ -102,9 +101,8 @@ public:
   // originally created by a module with label modLabel, and with an
   // optional instance name.
   template <typename P, BranchType B>
-  TypeLabel const&
-  reconstitutes(std::string const& modLabel,
-                std::string const& instanceName = {});
+  TypeLabel const& reconstitutes(std::string const& modLabel,
+                                 std::string const& instanceName = {});
 
   template <BranchType B = InEvent>
   std::set<TypeLabel> const&
@@ -114,7 +112,6 @@ public:
   }
 
 private:
-
   TypeLabel const&
   insertOrThrow(BranchType const bt, TypeLabel const& tl)
   {
@@ -123,11 +120,8 @@ private:
       throw Exception(errors::LogicError, "RegistrationFailure")
         << "The module being constructed attempted to "
         << "register conflicting products with:\n"
-        << "friendlyClassName: "
-        << tl.friendlyClassName()
-        << " and instanceName: "
-        << tl.productInstanceName()
-        << ".\n";
+        << "friendlyClassName: " << tl.friendlyClassName()
+        << " and instanceName: " << tl.productInstanceName() << ".\n";
     }
     return *result.first;
   }
@@ -140,18 +134,18 @@ private:
   std::unique_ptr<ProductList> productList_;
 };
 
-template<typename P, art::BranchType B>
-inline
-void
+template <typename P, art::BranchType B>
+inline void
 art::ProductRegistryHelper::produces(std::string const& instanceName)
 {
   verifyInstanceName(instanceName);
   TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  insertOrThrow(B, TypeLabel{productType, instanceName, SupportsView<P>::value});
+  insertOrThrow(B,
+                TypeLabel{productType, instanceName, SupportsView<P>::value});
 }
 
-template<typename P, art::BranchType B>
+template <typename P, art::BranchType B>
 art::TypeLabel const&
 art::ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
                                           std::string const& instanceName)
@@ -160,7 +154,10 @@ art::ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
   verifyInstanceName(instanceName);
   TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  return insertOrThrow(B, TypeLabel{productType, instanceName, SupportsView<P>::value, emulatedModule});
+  return insertOrThrow(
+    B,
+    TypeLabel{
+      productType, instanceName, SupportsView<P>::value, emulatedModule});
 }
 
 #endif /* art_Framework_Core_ProductRegistryHelper_h */

@@ -7,8 +7,8 @@
 //
 // ======================================================================
 
-#include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 
 #include <string>
 #include <vector>
@@ -24,8 +24,7 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-class art::GroupSelectorRules
-{
+class art::GroupSelectorRules {
 public:
   GroupSelectorRules(std::vector<std::string> const& commands,
                      std::string const& parameterName,
@@ -35,24 +34,24 @@ public:
   // BranchSelectState associates a BranchDescription
   // (*desc) with a bool indicating whether or not the branch with
   // that name is to be selected.  Note that parameter pd may not be null.
-  struct BranchSelectState
-  {
+  struct BranchSelectState {
     BranchDescription const* desc;
     bool selectMe{false};
 
     // N.B.: We assume pd is not null.
-    explicit BranchSelectState (BranchDescription const* pd) :
-      desc{pd}
-    {}
-  };  // BranchSelectState
+    explicit BranchSelectState(BranchDescription const* pd) : desc{pd} {}
+  }; // BranchSelectState
 
   void applyToAll(std::vector<BranchSelectState>& branchstates) const;
 
-  bool keepAll() const {return keepAll_;}
+  bool
+  keepAll() const
+  {
+    return keepAll_;
+  }
 
 private:
-  class Rule
-  {
+  class Rule {
   public:
     Rule(std::string const& s,
          std::string const& parameterName,
@@ -76,12 +75,12 @@ private:
     // bit' if this rule matches.
     bool selectflag_{false};
     BranchKey components_;
-  };  // Rule
+  }; // Rule
 
 private:
   std::vector<Rule> rules_{};
   bool keepAll_;
-};  // GroupSelectorRules
+}; // GroupSelectorRules
 
 // ======================================================================
 

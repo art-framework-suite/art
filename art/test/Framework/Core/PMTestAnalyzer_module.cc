@@ -16,37 +16,32 @@
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 
-
 namespace arttest {
   class PMTestAnalyzer;
 }
 
 class arttest::PMTestAnalyzer : public art::EDAnalyzer {
 public:
-  explicit PMTestAnalyzer(fhicl::ParameterSet const & p);
+  explicit PMTestAnalyzer(fhicl::ParameterSet const& p);
   virtual ~PMTestAnalyzer();
 
-  void analyze(art::Event const & e) override;
-
+  void analyze(art::Event const& e) override;
 
 private:
-
   // Declare member data here.
-
 };
 
-
-arttest::PMTestAnalyzer::PMTestAnalyzer(fhicl::ParameterSet const & p)
+arttest::PMTestAnalyzer::PMTestAnalyzer(fhicl::ParameterSet const& p)
   : art::EDAnalyzer(p)
-{
-}
+{}
 
 arttest::PMTestAnalyzer::~PMTestAnalyzer()
 {
   // Clean up dynamic memory and other resources here.
 }
 
-void arttest::PMTestAnalyzer::analyze(art::Event const & e)
+void
+arttest::PMTestAnalyzer::analyze(art::Event const& e)
 {
   // Implementation of required member function here.
 }

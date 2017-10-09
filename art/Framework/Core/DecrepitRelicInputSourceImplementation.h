@@ -43,12 +43,12 @@ Some examples of InputSource subclasses may be:
 
 ----------------------------------------------------------------------*/
 
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
@@ -61,26 +61,31 @@ Some examples of InputSource subclasses may be:
 
 // ----------------------------------------------------------------------
 
-namespace art
-{
+namespace art {
   class ActivityRegistry;
 
   class DecrepitRelicInputSourceImplementation : public InputSource {
   public:
-
-
-    DecrepitRelicInputSourceImplementation(DecrepitRelicInputSourceImplementation const&) = delete;
-    DecrepitRelicInputSourceImplementation& operator=(DecrepitRelicInputSourceImplementation const&) = delete;
+    DecrepitRelicInputSourceImplementation(
+      DecrepitRelicInputSourceImplementation const&) = delete;
+    DecrepitRelicInputSourceImplementation& operator=(
+      DecrepitRelicInputSourceImplementation const&) = delete;
 
     struct Config {
 
-      static constexpr char const* defaultMode() { return "RunsSubRunsAndEvents"; }
+      static constexpr char const*
+      defaultMode()
+      {
+        return "RunsSubRunsAndEvents";
+      }
 
-      fhicl::Atom<int> maxEvents  { fhicl::Name("maxEvents"), -1 };
-      fhicl::Atom<int> maxSubRuns { fhicl::Name("maxSubRuns"), -1 };
-      fhicl::Atom<int> reportFrequency { fhicl::Name("reportFrequency"), 1 };
-      fhicl::Atom<bool> errorOnFailureToPut { fhicl::Name("errorOnFailureToPut"), false };
-      fhicl::Atom<std::string> processingMode { fhicl::Name("processingMode"), defaultMode() };
+      fhicl::Atom<int> maxEvents{fhicl::Name("maxEvents"), -1};
+      fhicl::Atom<int> maxSubRuns{fhicl::Name("maxSubRuns"), -1};
+      fhicl::Atom<int> reportFrequency{fhicl::Name("reportFrequency"), 1};
+      fhicl::Atom<bool> errorOnFailureToPut{fhicl::Name("errorOnFailureToPut"),
+                                            false};
+      fhicl::Atom<std::string> processingMode{fhicl::Name("processingMode"),
+                                              defaultMode()};
     };
 
     DecrepitRelicInputSourceImplementation(fhicl::TableFragment<Config> const&,
@@ -95,13 +100,15 @@ namespace art
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null unique_ptr.
-    std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) override;
+    std::unique_ptr<EventPrincipal> readEvent(
+      cet::exempt_ptr<SubRunPrincipal const> srp) override;
 
     /// Read a specific event
     std::unique_ptr<EventPrincipal> readEvent(EventID const&) override;
 
     /// Read next subRun
-    std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal const> rp) override;
+    std::unique_ptr<SubRunPrincipal> readSubRun(
+      cet::exempt_ptr<RunPrincipal const> rp) override;
 
     /// Read next run.
     std::unique_ptr<RunPrincipal> readRun() override;
@@ -117,7 +124,9 @@ namespace art
     void skipEvents(int offset) override;
 
     /// Begin again at the first event
-    void rewind() override {
+    void
+    rewind() override
+    {
       repeat_();
       doneReadAhead_ = false;
       state_ = input::IsInvalid;
@@ -128,7 +137,9 @@ namespace art
     void issueReports(EventID const& eventID);
 
     /// Reset the remaining number of events/subRuns to the maximum number.
-    void repeat_() {
+    void
+    repeat_()
+    {
       remainingEvents_ = maxEvents_;
       remainingSubRuns_ = maxSubRuns_;
       doneReadAhead_ = false;
@@ -136,19 +147,35 @@ namespace art
 
     /// Accessor for maximum number of events to be read.
     /// -1 is used for unlimited.
-    int maxEvents() const {return maxEvents_;}
+    int
+    maxEvents() const
+    {
+      return maxEvents_;
+    }
 
     /// Accessor for remaining number of events to be read.
     /// -1 is used for unlimited.
-    int remainingEvents() const {return remainingEvents_;}
+    int
+    remainingEvents() const
+    {
+      return remainingEvents_;
+    }
 
     /// Accessor for maximum number of subRuns to be read.
     /// -1 is used for unlimited.
-    int maxSubRuns() const {return maxSubRuns_;}
+    int
+    maxSubRuns() const
+    {
+      return maxSubRuns_;
+    }
 
     /// Accessor for remaining number of subRuns to be read.
     /// -1 is used for unlimited.
-    int remainingSubRuns() const {return remainingSubRuns_;}
+    int
+    remainingSubRuns() const
+    {
+      return remainingSubRuns_;
+    }
 
     /// Called by framework at beginning of job
     void doBeginJob() override;
@@ -157,37 +184,66 @@ namespace art
     void doEndJob() override;
 
     /// Accessor for the current time, as seen by the input source
-    Timestamp const& timestamp() const {return time_;}
+    Timestamp const&
+    timestamp() const
+    {
+      return time_;
+    }
 
     /// RunsSubRunsAndEvents (default), RunsAndSubRuns, or Runs.
-    ProcessingMode processingMode() const {return processingMode_;}
+    ProcessingMode
+    processingMode() const
+    {
+      return processingMode_;
+    }
 
   protected:
     /// To set the current time, as seen by the input source
-    void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
+    void
+    setTimestamp(Timestamp const& theTime)
+    {
+      time_ = theTime;
+    }
 
-    input::ItemType state() const {return state_;}
+    input::ItemType
+    state() const
+    {
+      return state_;
+    }
 
     // Inform subclasses that they're going to be told to close the file
     // for non-exceptional reasons (such as hitting the event limit).
-    virtual void finish() {}
+    virtual void
+    finish()
+    {}
 
-    cet::exempt_ptr<RunPrincipal> runPrincipalExemptPtr() { return cachedRunPrincipal_; }
-    cet::exempt_ptr<SubRunPrincipal> subRunPrincipalExemptPtr() { return cachedSubRunPrincipal_; }
+    cet::exempt_ptr<RunPrincipal>
+    runPrincipalExemptPtr()
+    {
+      return cachedRunPrincipal_;
+    }
+    cet::exempt_ptr<SubRunPrincipal>
+    subRunPrincipalExemptPtr()
+    {
+      return cachedSubRunPrincipal_;
+    }
 
-    std::unique_ptr<RunPrincipal> runPrincipal()
+    std::unique_ptr<RunPrincipal>
+    runPrincipal()
     {
       cachedRunPrincipal_ = runPrincipal_.get();
       return std::move(runPrincipal_);
     }
 
-    std::unique_ptr<SubRunPrincipal> subRunPrincipal()
+    std::unique_ptr<SubRunPrincipal>
+    subRunPrincipal()
     {
       cachedSubRunPrincipal_ = subRunPrincipal_.get();
       return std::move(subRunPrincipal_);
     }
 
-    std::unique_ptr<EventPrincipal> eventPrincipal()
+    std::unique_ptr<EventPrincipal>
+    eventPrincipal()
     {
       return std::move(eventPrincipal_);
     }
@@ -195,25 +251,53 @@ namespace art
     void setRunPrincipal(std::unique_ptr<RunPrincipal>&& rp);
     void setSubRunPrincipal(std::unique_ptr<SubRunPrincipal>&& srp);
     void setEventPrincipal(std::unique_ptr<EventPrincipal>&& ep);
-    void resetRunPrincipal() {runPrincipal_.reset();}
-    void resetSubRunPrincipal() {subRunPrincipal_.reset();}
-    void resetEventPrincipal() {eventPrincipal_.reset();}
-    void reset() {
+    void
+    resetRunPrincipal()
+    {
+      runPrincipal_.reset();
+    }
+    void
+    resetSubRunPrincipal()
+    {
+      subRunPrincipal_.reset();
+    }
+    void
+    resetEventPrincipal()
+    {
+      eventPrincipal_.reset();
+    }
+    void
+    reset()
+    {
       doneReadAhead_ = false;
       state_ = input::IsInvalid;
     }
 
   private:
-    bool eventLimitReached() const {return remainingEvents_ == 0;}
-    bool subRunLimitReached() const {return remainingSubRuns_ == 0;}
-    bool limitReached() const {return eventLimitReached() || subRunLimitReached();}
+    bool
+    eventLimitReached() const
+    {
+      return remainingEvents_ == 0;
+    }
+    bool
+    subRunLimitReached() const
+    {
+      return remainingSubRuns_ == 0;
+    }
+    bool
+    limitReached() const
+    {
+      return eventLimitReached() || subRunLimitReached();
+    }
     virtual input::ItemType getNextItemType() = 0;
     input::ItemType nextItemType_();
     virtual std::unique_ptr<RunPrincipal> readRun_() = 0;
     virtual std::unique_ptr<SubRunPrincipal> readSubRun_() = 0;
     virtual std::unique_ptr<EventPrincipal> readEvent_() = 0;
     virtual std::unique_ptr<FileBlock> readFile_();
-    virtual void closeFile_() {}
+    virtual void
+    closeFile_()
+    {}
     virtual void skip(int);
     virtual void rewind_();
     virtual void beginJob();
@@ -224,23 +308,23 @@ namespace art
     int maxSubRuns_;
     int const reportFrequency_;
 
-    int remainingEvents_ {maxEvents_};
-    int remainingSubRuns_ {maxSubRuns_};
-    int readCount_ {};
-    ProcessingMode processingMode_ {RunsSubRunsAndEvents};
-    Timestamp time_ {Timestamp::invalidTimestamp()};
-    bool doneReadAhead_ {false};
-    input::ItemType state_ {input::IsInvalid};
-    std::unique_ptr<RunPrincipal> runPrincipal_ {nullptr};
-    std::unique_ptr<SubRunPrincipal> subRunPrincipal_ {nullptr};
-    std::unique_ptr<EventPrincipal> eventPrincipal_ {nullptr};
-    cet::exempt_ptr<RunPrincipal> cachedRunPrincipal_ {nullptr};
-    cet::exempt_ptr<SubRunPrincipal> cachedSubRunPrincipal_ {nullptr};
-  };  // DecrepitRelicInputSourceImplementation
+    int remainingEvents_{maxEvents_};
+    int remainingSubRuns_{maxSubRuns_};
+    int readCount_{};
+    ProcessingMode processingMode_{RunsSubRunsAndEvents};
+    Timestamp time_{Timestamp::invalidTimestamp()};
+    bool doneReadAhead_{false};
+    input::ItemType state_{input::IsInvalid};
+    std::unique_ptr<RunPrincipal> runPrincipal_{nullptr};
+    std::unique_ptr<SubRunPrincipal> subRunPrincipal_{nullptr};
+    std::unique_ptr<EventPrincipal> eventPrincipal_{nullptr};
+    cet::exempt_ptr<RunPrincipal> cachedRunPrincipal_{nullptr};
+    cet::exempt_ptr<SubRunPrincipal> cachedSubRunPrincipal_{nullptr};
+  }; // DecrepitRelicInputSourceImplementation
 
-}  // art
+} // art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_Core_DecrepitRelicInputSourceImplementation_h */
 

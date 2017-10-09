@@ -1,13 +1,13 @@
 #include "art/Framework/IO/Root/RootInputTree.h"
 // vim: set sw=2:
 
-#include "art/Framework/IO/Root/RootDelayedReader.h"
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
 #include "TBranch.h"
 #include "TFile.h"
 #include "TLeaf.h"
 #include "TTree.h"
+#include "art/Framework/IO/Root/RootDelayedReader.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include <cstdint>
 #include <string>
 #include <utility>
@@ -27,20 +27,23 @@ namespace art {
     , compactSubRunRanges_{compactSubRunRanges}
   {
     if (filePtr_) {
-      tree_ = static_cast<TTree*>(filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()));
-      metaTree_ = static_cast<TTree*>(filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()));
+      tree_ = static_cast<TTree*>(
+        filePtr->Get(BranchTypeToProductTreeName(branchType).c_str()));
+      metaTree_ = static_cast<TTree*>(
+        filePtr->Get(BranchTypeToMetaDataTreeName(branchType).c_str()));
     }
     if (tree_) {
-      auxBranch_ = tree_->GetBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str());
+      auxBranch_ =
+        tree_->GetBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str());
       entries_ = tree_->GetEntries();
     }
     if (metaTree_) {
-      productProvenanceBranch_ = metaTree_->GetBranch(productProvenanceBranchName(branchType_).c_str());
+      productProvenanceBranch_ =
+        metaTree_->GetBranch(productProvenanceBranchName(branchType_).c_str());
     }
     if (!(missingOK || isValid())) {
       throw Exception(errors::FileReadError)
-        << "RootInputTree for branch type "
-        << BranchTypeToString(branchType)
+        << "RootInputTree for branch type " << BranchTypeToString(branchType)
         << " could not be initialized correctly from input file.\n";
     }
   }
@@ -61,8 +64,7 @@ namespace art {
   }
 
   void
-  RootInputTree::addBranch(BranchKey const& key,
-                           BranchDescription const& pd)
+  RootInputTree::addBranch(BranchKey const& key, BranchDescription const& pd)
   {
     assert(isValid());
     TBranch* branch = tree_->GetBranch(pd.branchName().c_str());
@@ -100,22 +102,25 @@ namespace art {
   }
 
   std::unique_ptr<DelayedReader>
-  RootInputTree::makeDelayedReader(FileFormatVersion const fileFormatVersion,
-                                   cet::exempt_ptr<BranchIDLists const> branchIDLists,
-                                   BranchType const branchType,
-                                   EntryNumbers const& entrySet,
-                                   EventID const eID)
+  RootInputTree::makeDelayedReader(
+    FileFormatVersion const fileFormatVersion,
+    cet::exempt_ptr<BranchIDLists const> branchIDLists,
+    BranchType const branchType,
+    EntryNumbers const& entrySet,
+    EventID const eID)
   {
-    return makeDelayedReader(fileFormatVersion, nullptr, branchIDLists, branchType, entrySet, eID);
+    return makeDelayedReader(
+      fileFormatVersion, nullptr, branchIDLists, branchType, entrySet, eID);
   }
 
   std::unique_ptr<DelayedReader>
-  RootInputTree::makeDelayedReader(FileFormatVersion const fileFormatVersion,
-                                   sqlite3* inputDB,
-                                   cet::exempt_ptr<BranchIDLists const> branchIDLists,
-                                   BranchType const branchType,
-                                   EntryNumbers const& entrySet,
-                                   EventID const eID)
+  RootInputTree::makeDelayedReader(
+    FileFormatVersion const fileFormatVersion,
+    sqlite3* inputDB,
+    cet::exempt_ptr<BranchIDLists const> branchIDLists,
+    BranchType const branchType,
+    EntryNumbers const& entrySet,
+    EventID const eID)
   {
     return std::make_unique<RootDelayedReader>(fileFormatVersion,
                                                inputDB,
@@ -160,7 +165,8 @@ namespace art {
   std::unique_ptr<BranchMapper>
   RootInputTree::makeBranchMapper() const
   {
-    return std::make_unique<BranchMapperWithReader>(productProvenanceBranch_, entryNumber_);
+    return std::make_unique<BranchMapperWithReader>(productProvenanceBranch_,
+                                                    entryNumber_);
   }
 
 } // namespace art

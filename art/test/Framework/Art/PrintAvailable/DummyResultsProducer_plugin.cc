@@ -20,12 +20,15 @@ namespace art {
   }
 }
 
-
 class art::test::DummyResultsProducer : public ResultsProducer {
 public:
   explicit DummyResultsProducer(fhicl::ParameterSet const&) {}
-  void clear() override {}
-  void writeResults(Results&) override {}
+  void
+  clear() override
+  {}
+  void
+  writeResults(Results&) override
+  {}
 };
 
 DEFINE_ART_RESULTS_PLUGIN(art::test::DummyResultsProducer)

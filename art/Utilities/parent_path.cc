@@ -12,11 +12,11 @@
 #include "boost/filesystem.hpp"
 
 std::string
-art::
-parent_path(std::string const & in_path)
+art::parent_path(std::string const& in_path)
 {
   std::string result;
-  boost::filesystem::path parent_path(boost::filesystem::path(in_path).parent_path());
+  boost::filesystem::path parent_path(
+    boost::filesystem::path(in_path).parent_path());
   if (parent_path.empty()) {
     result = ".";
   } else {

@@ -12,11 +12,8 @@ art::SQLErrMsg::throwIfError()
   if (errMsg_) {
     std::string msg(errMsg_);
     reset();
-    throw Exception(errors::SQLExecutionError,
-                    "SQLite3Wrapper::exec")
-        << "Error executing SQL: "
-        << msg
-        << "\n";
+    throw Exception(errors::SQLExecutionError, "SQLite3Wrapper::exec")
+      << "Error executing SQL: " << msg << "\n";
   }
 }
 

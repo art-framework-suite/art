@@ -28,20 +28,27 @@ namespace art {
       ProductProvenance const& emplace(ProductID, ProductStatus);
       void setStatus(ProductProvenance const&, ProductStatus);
 
-      auto begin() const { return provenance_.begin(); }
-      auto end() const { return provenance_.end(); }
+      auto
+      begin() const
+      {
+        return provenance_.begin();
+      }
+      auto
+      end() const
+      {
+        return provenance_.end();
+      }
 
       void insertAncestors(ProductProvenance const& iGetParents,
                            Principal const& principal);
 
     private:
-      bool const keepProvenance_ {true};
+      bool const keepProvenance_{true};
       DropMetaData const dropMetaData_;
       bool const dropMetaDataForDroppedData_;
       std::set<ProductID>& branchesWithStoredHistory_;
-      std::set<ProductProvenance> provenance_ {};
+      std::set<ProductProvenance> provenance_{};
     };
-
   }
 }
 

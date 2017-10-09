@@ -9,71 +9,71 @@
 #include <float.h>
 #include <iostream>
 #include <memory.h>
-#include <string>
 #include <stdexcept>
+#include <string>
 
-extern "C"
+extern "C" {
+void
+ep_sigfpu(int, siginfo_t*, void*)
 {
-  void ep_sigfpu(int ,siginfo_t*, void*)
-  {
-    std::cerr << "Worked!\n";
-    exit(0);
-  }
+  std::cerr << "Worked!\n";
+  exit(0);
+}
 }
 
 namespace arttest {
 
   class FPCTest : public art::EDAnalyzer {
   public:
-
-    explicit FPCTest(fhicl::ParameterSet const& p): art::EDAnalyzer{p}
+    explicit FPCTest(fhicl::ParameterSet const& p) : art::EDAnalyzer{p}
     {
       struct sigaction act;
-      memset(&act,0,sizeof(act));
+      memset(&act, 0, sizeof(act));
       act.sa_sigaction = ep_sigfpu;
       act.sa_flags = SA_RESTART;
 
-      if (sigaction(SIGFPE,&act,0) !=0) {
+      if (sigaction(SIGFPE, &act, 0) != 0) {
         perror("sigaction failed");
         throw std::runtime_error("cannot install sigaction signal handler");
       }
 
       sigset_t newset;
       sigemptyset(&newset);
-      sigaddset(&newset,SIGFPE);
-      pthread_sigmask(SIG_UNBLOCK, &newset,0);
+      sigaddset(&newset, SIGFPE);
+      pthread_sigmask(SIG_UNBLOCK, &newset, 0);
     }
 
   private:
-
-    void analyze(art::Event const& e) override
+    void
+    analyze(art::Event const& e) override
     {
-      double const x {1.0};
-      double const y {DBL_MAX};
+      double const x{1.0};
+      double const y{DBL_MAX};
 
-      if(e.id().event() == 2) {
+      if (e.id().event() == 2) {
         mf::LogVerbatim("FPExceptions") << "\n\t\tx = " << x;
         mf::LogVerbatim("FPExceptions") << "\t\ty = " << y << " (DBL_MAX)";
 
         // DivideByZero
         mf::LogVerbatim("FPExceptions") << "\t\tForce DivideByZero: a = x/zero";
-        double const zero {};
-        double const a {x/zero};
+        double const zero{};
+        double const a{x / zero};
         mf::LogVerbatim("FPExceptions") << "\t\ta = " << a;
 
         // Invalid
-        mf::LogVerbatim("FPExceptions") << "\t\tForce Invalid: b = std::log(-1.0)";
-        double const b {std::log(-1.0)};
+        mf::LogVerbatim("FPExceptions")
+          << "\t\tForce Invalid: b = std::log(-1.0)";
+        double const b{std::log(-1.0)};
         mf::LogVerbatim("FPExceptions") << "\t\tb = " << b;
 
         // Overflow (actually precision)
         mf::LogVerbatim("FPExceptions") << "\t\tForce Overflow: c = y*y";
-        double const c {y*y};
+        double const c{y * y};
         mf::LogVerbatim("FPExceptions") << "\t\tc = " << c;
 
         // Underflow (actually precision)
         mf::LogVerbatim("FPExceptions") << "\t\tForce Underflow: d = x/y";
-        double const d {x/y};
+        double const d{x / y};
         mf::LogVerbatim("FPExceptions") << "\t\td = " << d;
 
         abort();
@@ -81,7 +81,6 @@ namespace arttest {
     }
   };
 
-}  // arttest
-
+} // arttest
 
 DEFINE_ART_MODULE(arttest::FPCTest)

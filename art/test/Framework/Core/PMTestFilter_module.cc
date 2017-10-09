@@ -24,20 +24,16 @@ namespace arttest {
 
 class arttest::PMTestFilter : public art::EDFilter {
 public:
-  explicit PMTestFilter(fhicl::ParameterSet const & p);
+  explicit PMTestFilter(fhicl::ParameterSet const& p);
   virtual ~PMTestFilter();
 
-  bool filter(art::Event & e) override;
-
+  bool filter(art::Event& e) override;
 
 private:
-
   // Declare member data here.
-
 };
 
-
-arttest::PMTestFilter::PMTestFilter(fhicl::ParameterSet const & p)
+arttest::PMTestFilter::PMTestFilter(fhicl::ParameterSet const& p)
 // :
 // Initialize member data here.
 {
@@ -49,7 +45,8 @@ arttest::PMTestFilter::~PMTestFilter()
   // Clean up dynamic memory and other resources here.
 }
 
-bool arttest::PMTestFilter::filter(art::Event & e)
+bool
+arttest::PMTestFilter::filter(art::Event& e)
 {
   // Implementation of required member function here.
 }

@@ -25,18 +25,21 @@ namespace art {
 
 class art::detail::ExceptionCollector {
 public:
-
-  bool empty() const noexcept { return exceptions_.empty(); }
+  bool
+  empty() const noexcept
+  {
+    return exceptions_.empty();
+  }
   [[noreturn]] void rethrow();
 
   template <typename F>
-  void call(F f)
-    try {
-      f();
-    }
-    catch(...) {
-      exceptions_.push_back(std::current_exception());
-    }
+  void
+  call(F f) try {
+    f();
+  }
+  catch (...) {
+    exceptions_.push_back(std::current_exception());
+  }
 
 private:
   std::vector<std::exception_ptr> exceptions_{};

@@ -1,9 +1,9 @@
 #include "art/Framework/Core/EDAnalyzer.h"
+#include "art/Framework/Core/FileBlock.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Core/ModuleMacros.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
@@ -19,114 +19,111 @@ namespace arttest {
 }
 
 typedef std::vector<std::string> strings;
-using std::string;
 using std::ostringstream;
-typedef std::vector<std::vector<int> > vv_t;
+using std::string;
+typedef std::vector<std::vector<int>> vv_t;
 
 using namespace art;
 
-class arttest::ToyRawInputTester :
-  public art::EDAnalyzer
-{
+class arttest::ToyRawInputTester : public art::EDAnalyzer {
 public:
-
-  ToyRawInputTester( fhicl::ParameterSet const & p ) :
-    art::EDAnalyzer(p),
-    numEventsSeen_(0),
-    numEventsExpected_(0),
-    numSubRunsSeen_(0),
-    numSubRunsExpected_(0),
-    numRunsSeen_(0),
-    numRunsExpected_(0),
-    numFilesSeen_(0),
-    numFilesExpected_(0),
-    fileNames_(p.get<strings>("fileNames")),
-    pset_(p),
-    messages_()
+  ToyRawInputTester(fhicl::ParameterSet const& p)
+    : art::EDAnalyzer(p)
+    , numEventsSeen_(0)
+    , numEventsExpected_(0)
+    , numSubRunsSeen_(0)
+    , numSubRunsExpected_(0)
+    , numRunsSeen_(0)
+    , numRunsExpected_(0)
+    , numFilesSeen_(0)
+    , numFilesExpected_(0)
+    , fileNames_(p.get<strings>("fileNames"))
+    , pset_(p)
+    , messages_()
   {
     numFilesExpected_ = fileNames_.size();
     ostringstream expected;
-    for (size_t i=0; i != numFilesExpected_; ++i)
-      {
-        expected << "open " << fileNames_[i] << '\n';
+    for (size_t i = 0; i != numFilesExpected_; ++i) {
+      expected << "open " << fileNames_[i] << '\n';
 
-        vv_t tokens;
-        try { // Assume it's a real filename
-          fhicl::intermediate_table raw_config;
-          cet::filepath_lookup_after1 lookupPolicy(".:");
-          fhicl::parse_document(fileNames_[i], lookupPolicy, raw_config);
-          fhicl::ParameterSet file_pset;
-          make_ParameterSet(raw_config, file_pset);
-          assert(file_pset.get_if_present("data", tokens));
-        }
-        catch (...) { // Attempt to read the parameter set by that name instead.
-          assert (p.get_if_present(fileNames_[i], tokens));
-        }
-        RunNumber_t currentRun = -1;
-        SubRunNumber_t currentSubRun = -1;
-        for (vv_t::const_iterator
-               it = tokens.begin(),
-               itend = tokens.end();
-             it != itend; ++it)
-          {
-            if ((*it)[0] != -1)
-              {
-                ++numRunsExpected_;
-                currentRun = (*it)[0];
-                expected << "begin " << RunID(currentRun) << '\n';
-              }
-            if ((*it)[1] != -1)
-              {
-                ++numSubRunsExpected_;
-                currentSubRun = (*it)[1];
-                expected << "begin "
-                         << SubRunID(currentRun, currentSubRun) << '\n';
-
-              }
-            if ((*it)[2] != -1)
-              {
-                ++numEventsExpected_;
-                expected << "event "
-                         << EventID(currentRun, currentSubRun, (*it)[2])
-                         << '\n';
-              }
-          }
+      vv_t tokens;
+      try { // Assume it's a real filename
+        fhicl::intermediate_table raw_config;
+        cet::filepath_lookup_after1 lookupPolicy(".:");
+        fhicl::parse_document(fileNames_[i], lookupPolicy, raw_config);
+        fhicl::ParameterSet file_pset;
+        make_ParameterSet(raw_config, file_pset);
+        assert(file_pset.get_if_present("data", tokens));
       }
+      catch (...) { // Attempt to read the parameter set by that name instead.
+        assert(p.get_if_present(fileNames_[i], tokens));
+      }
+      RunNumber_t currentRun = -1;
+      SubRunNumber_t currentSubRun = -1;
+      for (vv_t::const_iterator it = tokens.begin(), itend = tokens.end();
+           it != itend;
+           ++it) {
+        if ((*it)[0] != -1) {
+          ++numRunsExpected_;
+          currentRun = (*it)[0];
+          expected << "begin " << RunID(currentRun) << '\n';
+        }
+        if ((*it)[1] != -1) {
+          ++numSubRunsExpected_;
+          currentSubRun = (*it)[1];
+          expected << "begin " << SubRunID(currentRun, currentSubRun) << '\n';
+        }
+        if ((*it)[2] != -1) {
+          ++numEventsExpected_;
+          expected << "event " << EventID(currentRun, currentSubRun, (*it)[2])
+                   << '\n';
+        }
+      }
+    }
     expectedMessage_ = expected.str();
   }
 
-  void respondToOpenInputFile(art::FileBlock const& fb) override
+  void
+  respondToOpenInputFile(art::FileBlock const& fb) override
   {
     ++numFilesSeen_;
-    messages_ << "open " <<  fb.fileName() << '\n';
+    messages_ << "open " << fb.fileName() << '\n';
   }
 
-  void beginRun(art::Run const& r) override
+  void
+  beginRun(art::Run const& r) override
   {
     ++numRunsSeen_;
     messages_ << "begin " << r.id() << '\n';
   }
 
-  void beginSubRun(art::SubRun const& sr) override
+  void
+  beginSubRun(art::SubRun const& sr) override
   {
     ++numSubRunsSeen_;
     messages_ << "begin " << sr.id() << '\n';
   }
 
-  void analyze(art::Event const& e) override
+  void
+  analyze(art::Event const& e) override
   {
     ++numEventsSeen_;
     messages_ << "event " << e.id() << '\n';
   }
 
-  void endJob() override
+  void
+  endJob() override
   {
-    std::cerr << "------------------------------------------------------------------------\n"
+    std::cerr << "-------------------------------------------------------------"
+                 "-----------\n"
               << expectedMessage_
-              << "------------------------------------------------------------------------\n"
-              << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+              << "-------------------------------------------------------------"
+                 "-----------\n"
+              << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+                 "+++++++++++\n"
               << messages_.str()
-              << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+              << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+                 "+++++++++++\n";
     assert(numFilesSeen_ == numFilesExpected_);
     assert(numRunsSeen_ == numRunsExpected_);
     assert(numSubRunsSeen_ == numSubRunsExpected_);

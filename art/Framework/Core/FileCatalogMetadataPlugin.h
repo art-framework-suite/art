@@ -33,18 +33,17 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Utilities/BasicPluginMacros.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
+#include "art/Utilities/BasicPluginMacros.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "cetlib/ProvideFilePathMacro.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"
 
-#define DEFINE_ART_FILECATALOGMETADATA_PLUGIN(klass)        \
-  CET_PROVIDE_FILE_PATH()                                   \
-  FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                \
-  DEFINE_BASIC_PLUGIN(klass,                                \
-                      art::FileCatalogMetadataPlugin)
+#define DEFINE_ART_FILECATALOGMETADATA_PLUGIN(klass)                           \
+  CET_PROVIDE_FILE_PATH()                                                      \
+  FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                                   \
+  DEFINE_BASIC_PLUGIN(klass, art::FileCatalogMetadataPlugin)
 
 namespace art {
   class FileCatalogMetadataPlugin;
@@ -56,7 +55,8 @@ namespace art {
 }
 
 namespace cet {
-  template <> struct PluginTypeDeducer<art::FileCatalogMetadataPlugin> {
+  template <>
+  struct PluginTypeDeducer<art::FileCatalogMetadataPlugin> {
     static std::string const value;
   };
 }
@@ -65,92 +65,75 @@ class art::FileCatalogMetadataPlugin {
 public:
   typedef art::FileCatalogMetadata::collection_type collection_type;
 
-  FileCatalogMetadataPlugin(fhicl::ParameterSet const & pset);
+  FileCatalogMetadataPlugin(fhicl::ParameterSet const& pset);
 
   void doBeginJob();
   void doEndJob();
-  void doCollectMetadata(Event const & e);
-  void doBeginRun(Run const & r);
-  void doEndRun(Run const & r);
-  void doBeginSubRun(SubRun const & sr);
-  void doEndSubRun(SubRun const & sr);
+  void doCollectMetadata(Event const& e);
+  void doBeginRun(Run const& r);
+  void doEndRun(Run const& r);
+  void doBeginSubRun(SubRun const& sr);
+  void doEndSubRun(SubRun const& sr);
   collection_type doProduceMetadata();
 
   virtual ~FileCatalogMetadataPlugin() = default;
 
 private:
-  virtual void beginJob() { };
-  virtual void endJob() { };
-  virtual void collectMetadata(Event const &) { };
-  virtual void beginRun(Run const &) { };
-  virtual void endRun(Run const &) { };
-  virtual void beginSubRun(SubRun const &) { };
-  virtual void endSubRun(SubRun const &) { };
+  virtual void beginJob(){};
+  virtual void endJob(){};
+  virtual void collectMetadata(Event const&){};
+  virtual void beginRun(Run const&){};
+  virtual void endRun(Run const&){};
+  virtual void beginSubRun(SubRun const&){};
+  virtual void endSubRun(SubRun const&){};
   virtual collection_type produceMetadata() = 0;
 };
 #endif /* art_Framework_Core_FileCatalogMetadataPlugin_h */
 
-inline
-void
-art::FileCatalogMetadataPlugin::
-doBeginJob()
+inline void
+art::FileCatalogMetadataPlugin::doBeginJob()
 {
   beginJob();
 }
 
-inline
-void
-art::FileCatalogMetadataPlugin::
-doEndJob()
+inline void
+art::FileCatalogMetadataPlugin::doEndJob()
 {
   endJob();
 }
 
-inline
-void
-art::FileCatalogMetadataPlugin::
-doCollectMetadata(Event const & e)
+inline void
+art::FileCatalogMetadataPlugin::doCollectMetadata(Event const& e)
 {
   collectMetadata(e);
 }
 
-inline
-void
-art::FileCatalogMetadataPlugin::
-doBeginRun(Run const & r)
+inline void
+art::FileCatalogMetadataPlugin::doBeginRun(Run const& r)
 {
   beginRun(r);
 }
 
-inline
-void
-art::FileCatalogMetadataPlugin::
-doEndRun(Run const & r)
+inline void
+art::FileCatalogMetadataPlugin::doEndRun(Run const& r)
 {
   endRun(r);
 }
 
-inline
-void
-art::FileCatalogMetadataPlugin::
-doBeginSubRun(SubRun const & r)
+inline void
+art::FileCatalogMetadataPlugin::doBeginSubRun(SubRun const& r)
 {
   beginSubRun(r);
 }
 
-inline
-void
-art::FileCatalogMetadataPlugin::
-doEndSubRun(SubRun const & r)
+inline void
+art::FileCatalogMetadataPlugin::doEndSubRun(SubRun const& r)
 {
   endSubRun(r);
 }
 
-inline
-auto
-art::FileCatalogMetadataPlugin::
-doProduceMetadata()
--> collection_type
+inline auto
+art::FileCatalogMetadataPlugin::doProduceMetadata() -> collection_type
 {
   return produceMetadata();
 }

@@ -22,9 +22,7 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-class art::BranchMapperWithReader
-  : public BranchMapper
-{
+class art::BranchMapperWithReader : public BranchMapper {
 public:
   BranchMapperWithReader(TBranch* branch, input::EntryNumber entryNumber);
 
@@ -34,17 +32,15 @@ private:
   TBranch* branchPtr_;
   input::EntryNumber entryNumber_;
 
-};  // BranchMapperWithReader
+}; // BranchMapperWithReader
 
-inline
-art::BranchMapperWithReader::BranchMapperWithReader(TBranch* branch, input::EntryNumber entryNumber) :
-  BranchMapper(true),
-  branchPtr_  (branch),
-  entryNumber_(entryNumber)
-{ }
+inline art::BranchMapperWithReader::BranchMapperWithReader(
+  TBranch* branch,
+  input::EntryNumber entryNumber)
+  : BranchMapper(true), branchPtr_(branch), entryNumber_(entryNumber)
+{}
 
-inline
-void
+inline void
 art::BranchMapperWithReader::readProvenance_() const
 {
   typedef std::vector<ProductProvenance> ppVec;
@@ -61,7 +57,7 @@ art::BranchMapperWithReader::readProvenance_() const
   }
 }
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_IO_Root_BranchMapperWithReader_h */
 

@@ -8,11 +8,15 @@ namespace art {
   template <Level, typename T>
   class MaybeIncrementCounts {
   public:
-    MaybeIncrementCounts(T&){}
+    MaybeIncrementCounts(T&) {}
 
     template <typename... ARGS>
-    void increment() {}
-    void update(bool const) {}
+    void
+    increment()
+    {}
+    void
+    update(bool const)
+    {}
   };
 
   template <typename T>
@@ -21,8 +25,17 @@ namespace art {
     MaybeIncrementCounts(T& t) : t_{t} {}
 
     template <typename... ARGS>
-    void increment() { t_.template increment<ARGS...>(); }
-    void update(bool const rc) { t_.update(rc); }
+    void
+    increment()
+    {
+      t_.template increment<ARGS...>();
+    }
+    void
+    update(bool const rc)
+    {
+      t_.update(rc);
+    }
+
   private:
     T& t_;
   };

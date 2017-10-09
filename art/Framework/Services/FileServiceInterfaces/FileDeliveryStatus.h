@@ -8,10 +8,10 @@ namespace art {
   namespace detail {
     namespace FDS {
       enum FileDeliveryStatus {
-        PENDING = -1, // Not attempted yet.
-        SUCCESS = 0, // A normal return from delivery protocol.
+        PENDING = -1,          // Not attempted yet.
+        SUCCESS = 0,           // A normal return from delivery protocol.
         TRY_AGAIN_LATER = 202, // A normal return from delivery protocol.
-        NO_MORE_FILES = 204, // A normal return from delivery protocol.
+        NO_MORE_FILES = 204,   // A normal return from delivery protocol.
         BAD_REQUEST = 400,
         FORBIDDEN = 403,
         NOT_FOUND = 404,

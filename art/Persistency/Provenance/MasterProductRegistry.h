@@ -46,7 +46,6 @@ namespace art {
 
 class art::MasterProductRegistry {
 public:
-
   explicit MasterProductRegistry() = default;
 
   MasterProductRegistry(MasterProductRegistry const&) = delete;
@@ -59,16 +58,26 @@ public:
   void updateFromModule(std::unique_ptr<ProductList>&&);
   void updateFromInputFile(ProductList const&);
 
-  auto const& productList() const { return productList_; }
-  auto size() const { return productList_.size(); }
+  auto const&
+  productList() const
+  {
+    return productList_;
+  }
+  auto
+  size() const
+  {
+    return productList_.size();
+  }
 
   void print(std::ostream&) const;
 
-  bool productProduced(BranchType branchType) const {
+  bool
+  productProduced(BranchType branchType) const
+  {
     return productProduced_[branchType];
   }
-private:
 
+private:
   void addProduct_(BranchDescription&&);
   void updateProductLists_(ProductList const& pl);
 
@@ -76,7 +85,8 @@ private:
 
   // Data members initialized once per process:
   ProductList productList_{};
-  std::array<bool, NumBranchTypes> productProduced_{{false}}; //filled by aggregation
+  std::array<bool, NumBranchTypes> productProduced_{
+    {false}}; // filled by aggregation
   std::vector<ProductListUpdatedCallback> productListUpdatedCallbacks_{};
 };
 

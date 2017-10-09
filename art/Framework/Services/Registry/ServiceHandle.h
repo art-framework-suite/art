@@ -31,30 +31,40 @@
 #include <type_traits>
 
 namespace art {
-  template <typename T, ServiceScope SCOPE = art::detail::ServiceHelper<std::remove_const_t<T>>::scope_val> class ServiceHandle;
-  template <typename T> class ServiceHandle<T, art::ServiceScope::PER_SCHEDULE>;
+  template <typename T,
+            ServiceScope SCOPE =
+              art::detail::ServiceHelper<std::remove_const_t<T>>::scope_val>
+  class ServiceHandle;
+  template <typename T>
+  class ServiceHandle<T, art::ServiceScope::PER_SCHEDULE>;
 }
 
 // General template.
 template <typename T, art::ServiceScope SCOPE>
 class art::ServiceHandle {
 public:
-
-  ServiceHandle() try
-    : instance{&ServiceRegistry::instance().get<std::remove_const_t<T>>()}
-    {}
-  catch ( art::Exception const& x )
-    {
-      throw art::Exception(art::errors::ServiceNotFound)
-	<< "Unable to create ServiceHandle.\n"
-	<< "Perhaps the FHiCL configuration does not specify the necessary service?\n"
-	<< "The class of the service is noted below...\n"
-	<< x;
-    }
+  ServiceHandle() try : instance {
+    &ServiceRegistry::instance().get<std::remove_const_t<T>>()
+  }
+  {
+  }
+  catch (art::Exception const& x)
+  {
+    throw art::Exception(art::errors::ServiceNotFound)
+      << "Unable to create ServiceHandle.\n"
+      << "Perhaps the FHiCL configuration does not specify the necessary "
+         "service?\n"
+      << "The class of the service is noted below...\n"
+      << x;
+  }
 
   T* operator->() const { return instance; }
   T& operator*() const { return *instance; }
-  T* get() const { return instance; }
+  T*
+  get() const
+  {
+    return instance;
+  }
 
 private:
   T* instance;
@@ -64,22 +74,28 @@ private:
 template <typename T>
 class art::ServiceHandle<T, art::ServiceScope::PER_SCHEDULE> {
 public:
-
-  explicit ServiceHandle(ScheduleID const sID) try
-    : instance{&ServiceRegistry::instance().get<std::remove_const_t<T>>(sID)}
-  {}
-  catch ( art::Exception const& x )
-    {
-      throw art::Exception(art::errors::ServiceNotFound)
-	<< "Unable to create ServiceHandle.\n"
-	<< "Perhaps the FHiCL configuration does not specify the necessary service?\n"
-	<< "The class of the service is noted below...\n"
-	<< x;
-    }
+  explicit ServiceHandle(ScheduleID const sID) try : instance {
+    &ServiceRegistry::instance().get<std::remove_const_t<T>>(sID)
+  }
+  {
+  }
+  catch (art::Exception const& x)
+  {
+    throw art::Exception(art::errors::ServiceNotFound)
+      << "Unable to create ServiceHandle.\n"
+      << "Perhaps the FHiCL configuration does not specify the necessary "
+         "service?\n"
+      << "The class of the service is noted below...\n"
+      << x;
+  }
 
   T* operator->() const { return instance; }
   T& operator*() const { return *instance; }
-  T* get() const { return instance; }
+  T*
+  get() const
+  {
+    return instance;
+  }
 
 private:
   T* instance;

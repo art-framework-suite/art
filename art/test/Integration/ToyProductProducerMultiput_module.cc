@@ -15,15 +15,16 @@
 
 #include "art/test/TestObjects/ToyProducts.h"
 
-namespace fhicl { class ParameterSet; }
+namespace fhicl {
+  class ParameterSet;
+}
 
 namespace {
 
   using namespace fhicl;
   struct Config {
-    Atom<unsigned long> branchType { Name("branchType") };
+    Atom<unsigned long> branchType{Name("branchType")};
   };
-
 }
 
 namespace art {
@@ -36,53 +37,55 @@ using arttest::IntProduct;
 
 class art::test::ToyProductProducerMultiput : public EDProducer {
   BranchType const branchType_;
-public:
 
+public:
   using Parameters = EDProducer::Table<Config>;
   explicit ToyProductProducerMultiput(Parameters const& p)
     : branchType_{BranchType(p().branchType())}
   {
     switch (branchType_) {
-    case InEvent:
-      produces<IntProduct>();
-      break;
-    case InSubRun:
-      produces<IntProduct, InSubRun>();
-      break;
-    case InRun:
-      produces<IntProduct, InRun>();
-      break;
-    default:
-      throw Exception(errors::LogicError)
-        << "Unknown branch type "
-        << branchType_
-        << ".\n";
+      case InEvent:
+        produces<IntProduct>();
+        break;
+      case InSubRun:
+        produces<IntProduct, InSubRun>();
+        break;
+      case InRun:
+        produces<IntProduct, InRun>();
+        break;
+      default:
+        throw Exception(errors::LogicError)
+          << "Unknown branch type " << branchType_ << ".\n";
     }
   }
 
 private:
-
-  void produce(Event &e) override
+  void
+  produce(Event& e) override
   {
-    if (branchType_ != InEvent) return;
+    if (branchType_ != InEvent)
+      return;
     e.put(std::make_unique<IntProduct>(1));
     e.put(std::make_unique<IntProduct>(2));
   }
 
-  void endSubRun(SubRun &sr) override
+  void
+  endSubRun(SubRun& sr) override
   {
-    if (branchType_ != InSubRun) return;
+    if (branchType_ != InSubRun)
+      return;
     sr.put(std::make_unique<IntProduct>(3), subRunFragment());
     sr.put(std::make_unique<IntProduct>(4), subRunFragment());
   }
 
-  void endRun(Run &r) override
+  void
+  endRun(Run& r) override
   {
-    if (branchType_ != InRun) return;
+    if (branchType_ != InRun)
+      return;
     r.put(std::make_unique<IntProduct>(5), runFragment());
     r.put(std::make_unique<IntProduct>(6), runFragment());
   }
-
 };
 
 DEFINE_ART_MODULE(art::test::ToyProductProducerMultiput)

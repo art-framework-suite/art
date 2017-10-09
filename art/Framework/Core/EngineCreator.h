@@ -39,24 +39,26 @@ namespace art {
     using base_engine_t = RNGservice::base_engine_t;
 
   public:
-
     base_engine_t& createEngine(seed_t seed);
-    base_engine_t& createEngine(seed_t seed, std::string const& kind_of_engine_to_make);
-    base_engine_t& createEngine(seed_t seed, std::string const& kind_of_engine_to_make, label_t const& engine_label);
+    base_engine_t& createEngine(seed_t seed,
+                                std::string const& kind_of_engine_to_make);
+    base_engine_t& createEngine(seed_t seed,
+                                std::string const& kind_of_engine_to_make,
+                                label_t const& engine_label);
 
     // --- seed access
     seed_t get_seed_value(fhicl::ParameterSet const& pset,
-                          char const key [] = "seed",
+                          char const key[] = "seed",
                           seed_t const implicit_seed = -1);
 
   private:
     static art::ServiceHandle<art::RandomNumberGenerator>& rng();
 
-  };  // EngineCreator
+  }; // EngineCreator
 
-}  // art
+} // art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_Core_EngineCreator_h */
 

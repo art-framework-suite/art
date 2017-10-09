@@ -6,12 +6,12 @@
 namespace art {
   namespace detail {
 
-    inline bool exists_outside_prolog (fhicl::intermediate_table const& config,
-                                       std::string const& key)
+    inline bool
+    exists_outside_prolog(fhicl::intermediate_table const& config,
+                          std::string const& key)
     {
       return config.exists(key) && !config.find(key).in_prolog;
     }
-
   }
 }
 

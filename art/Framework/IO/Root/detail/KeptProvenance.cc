@@ -4,9 +4,10 @@
 
 using namespace art;
 
-detail::KeptProvenance::KeptProvenance(DropMetaData const dropMetaData,
-                                       bool const dropMetaDataForDroppedData,
-                                       std::set<ProductID>& branchesWithStoredHistory)
+detail::KeptProvenance::KeptProvenance(
+  DropMetaData const dropMetaData,
+  bool const dropMetaDataForDroppedData,
+  std::set<ProductID>& branchesWithStoredHistory)
   : dropMetaData_{dropMetaData}
   , dropMetaDataForDroppedData_{dropMetaDataForDroppedData}
   , branchesWithStoredHistory_{branchesWithStoredHistory}
@@ -23,7 +24,6 @@ detail::KeptProvenance::emplace(ProductID const pid, ProductStatus const status)
 {
   return *provenance_.emplace(pid, status).first;
 }
-
 
 void
 detail::KeptProvenance::insertAncestors(ProductProvenance const& iGetParents,
@@ -56,6 +56,7 @@ detail::KeptProvenance::setStatus(ProductProvenance const& key,
 {
   if (provenance_.erase(key) != 1ull)
     throw Exception(errors::LogicError, "detail::KeptProvenance::setStatus")
-      << "Attempt to set product status for product whose provenance is not being recorded.\n";
+      << "Attempt to set product status for product whose provenance is not "
+         "being recorded.\n";
   provenance_.emplace(key.productID(), status);
 }

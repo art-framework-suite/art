@@ -11,13 +11,13 @@ appear in one worker.
 
 ----------------------------------------------------------------------*/
 
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/OutputFileStatus.h"
 #include "art/Framework/Core/OutputFileGranularity.h"
+#include "art/Framework/Core/OutputFileStatus.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 
 #include <memory>
@@ -28,13 +28,13 @@ namespace art {
 
   class OutputWorker : public WorkerT<OutputModule> {
   public:
-    OutputWorker(std::unique_ptr<OutputModule> && mod,
+    OutputWorker(std::unique_ptr<OutputModule>&& mod,
                  ModuleDescription const&,
                  WorkerParams const&);
 
     virtual ~OutputWorker();
 
-    std::string const & lastClosedFileName() const;
+    std::string const& lastClosedFileName() const;
 
     void closeFile();
 
@@ -62,7 +62,7 @@ namespace art {
 
     virtual void selectProducts(ProductList const&);
 
-private:
+  private:
     ServiceHandle<CatalogInterface> ci_;
     Granularity fileGranularity_{Granularity::Unset};
   };

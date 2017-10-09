@@ -12,9 +12,7 @@ namespace art {
 
   struct OutputModuleDescription {
     OutputModuleDescription() : maxEvents_(-1) {}
-    OutputModuleDescription(int maxEvents) :
-      maxEvents_(maxEvents)
-    {}
+    OutputModuleDescription(int maxEvents) : maxEvents_(maxEvents) {}
     int maxEvents_;
   };
 }

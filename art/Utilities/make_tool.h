@@ -18,8 +18,8 @@ namespace art {
   std::enable_if_t<std::is_class<T>::value, tool_return_type<T>>
   make_tool(fhicl::ParameterSet const& pset)
   {
-    cet::BasicPluginFactory factory {Suffixes::tool(), "makeTool"};
-    std::string const libspec {pset.get<std::string>("tool_type")};
+    cet::BasicPluginFactory factory{Suffixes::tool(), "makeTool"};
+    std::string const libspec{pset.get<std::string>("tool_type")};
     tool_return_type<T> result;
     try {
       result = detail::tool_type<T>::make_plugin(factory, libspec, pset);
@@ -33,13 +33,16 @@ namespace art {
 
   template <typename T>
   std::enable_if_t<std::is_function<T>::value, tool_return_type<T>>
-  make_tool(fhicl::ParameterSet const& pset, std::string const& function_tool_type)
+  make_tool(fhicl::ParameterSet const& pset,
+            std::string const& function_tool_type)
   {
-    cet::BasicPluginFactory factory {Suffixes::tool(), "toolFunction", "toolType"};
-    std::string const libspec {pset.get<std::string>("tool_type")};
+    cet::BasicPluginFactory factory{
+      Suffixes::tool(), "toolFunction", "toolType"};
+    std::string const libspec{pset.get<std::string>("tool_type")};
     tool_return_type<T> result;
     try {
-      result = detail::tool_type<T>::make_plugin(factory, libspec, pset, function_tool_type);
+      result = detail::tool_type<T>::make_plugin(
+        factory, libspec, pset, function_tool_type);
     }
     catch (cet::exception const& e) {
       throw Exception(errors::Configuration, "make_tool: ", e)
@@ -49,21 +52,18 @@ namespace art {
   }
 
   template <typename T, typename TableConfig>
-  inline
-  std::enable_if_t<std::is_class<T>::value, tool_return_type<T>>
+  inline std::enable_if_t<std::is_class<T>::value, tool_return_type<T>>
   make_tool(TableConfig const& tc)
   {
     return make_tool<T>(tc.get_PSet());
   }
 
   template <typename T, typename TableConfig>
-  inline
-  std::enable_if_t<std::is_function<T>::value, tool_return_type<T>>
+  inline std::enable_if_t<std::is_function<T>::value, tool_return_type<T>>
   make_tool(TableConfig const& tc, std::string const& function_tool_type)
   {
     return make_tool<T>(tc.get_PSet(), function_tool_type);
   }
-
 }
 
 #endif /* art_Utilities_make_tool_h */

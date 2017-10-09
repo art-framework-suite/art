@@ -23,24 +23,16 @@ public:
 
   ScheduleID scheduleID() const;
 
-  tbb::task * execute() override;
+  tbb::task* execute() override;
 
 private:
   ScheduleID id_;
 };
 
-inline
-art::detail::ScheduleTask::
-ScheduleTask(ScheduleID sid)
-    :
-    id_(sid)
-{
-}
+inline art::detail::ScheduleTask::ScheduleTask(ScheduleID sid) : id_(sid) {}
 
-inline
-art::ScheduleID
-art::detail::ScheduleTask::
-scheduleID() const
+inline art::ScheduleID
+art::detail::ScheduleTask::scheduleID() const
 {
   return id_;
 }

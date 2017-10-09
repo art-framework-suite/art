@@ -18,9 +18,9 @@
 #include "fhiclcpp/parse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "TError.h"
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
-#include "TError.h"
 
 #include <exception>
 #include <iostream>
@@ -33,31 +33,33 @@ namespace bpo = boost::program_options;
 // -----------------------------------------------
 namespace {
   struct RootErrorHandlerSentry {
-    RootErrorHandlerSentry(bool const reset) {
+    RootErrorHandlerSentry(bool const reset)
+    {
       art::setRootErrorHandler(reset);
     }
-    ~RootErrorHandlerSentry() {
-      SetErrorHandler(DefaultErrorHandler);
-    }
+    ~RootErrorHandlerSentry() { SetErrorHandler(DefaultErrorHandler); }
   };
 } // namespace
 
-int art::run_art(int argc,
-                 char** argv,
-                 bpo::options_description& in_desc,
-                 cet::filepath_maker& lookupPolicy,
-                 art::OptionsHandlers&& handlers,
-                 art::detail::DebugOutput&& dbg)
+int
+art::run_art(int argc,
+             char** argv,
+             bpo::options_description& in_desc,
+             cet::filepath_maker& lookupPolicy,
+             art::OptionsHandlers&& handlers,
+             art::detail::DebugOutput&& dbg)
 {
   std::ostringstream descstr;
-  descstr << '\n' << "Usage" << ": "
-          << boost::filesystem::path(argv[0]).filename().native()
+  descstr << '\n'
+          << "Usage"
+          << ": " << boost::filesystem::path(argv[0]).filename().native()
           << " <-c <config-file>> <other-options> [<source-file>]+\n\n"
           << "Basic options";
   bpo::options_description all_desc{descstr.str()};
   all_desc.add(in_desc);
   // BasicOptionsHandler should always be first in the list!
-  handlers.emplace(handlers.begin(), new BasicOptionsHandler{all_desc, lookupPolicy});
+  handlers.emplace(handlers.begin(),
+                   new BasicOptionsHandler{all_desc, lookupPolicy});
   // BasicPostProcessor should be last.
   handlers.emplace_back(new BasicPostProcessor);
   // This must be added separately: how to deal with any non-option arguments.
@@ -67,12 +69,16 @@ int art::run_art(int argc,
   // Parse the command line.
   bpo::variables_map vm;
   try {
-    bpo::store(bpo::command_line_parser(argc, argv).options(all_desc).positional(pd).run(), vm);
+    bpo::store(bpo::command_line_parser(argc, argv)
+                 .options(all_desc)
+                 .positional(pd)
+                 .run(),
+               vm);
     bpo::notify(vm);
   }
   catch (bpo::error const& e) {
-    std::cerr << "Exception from command line processing in " << argv[0]
-              << ": " << e.what() << "\n";
+    std::cerr << "Exception from command line processing in " << argv[0] << ": "
+              << e.what() << "\n";
     return 88;
   }
   // Preliminary argument checking.
@@ -91,7 +97,6 @@ int art::run_art(int argc,
     }
   }
 
-
   // Make the parameter set from the intermediate table.
   fhicl::ParameterSet main_pset;
   try {
@@ -99,16 +104,16 @@ int art::run_art(int argc,
   }
   catch (cet::exception const& e) {
     constexpr cet::HorizontalRule rule{36};
-    std::cerr << "ERROR: Failed to create a parameter set from parsed configuration with exception "
-              << e.what()  << ".\n";
+    std::cerr << "ERROR: Failed to create a parameter set from parsed "
+                 "configuration with exception "
+              << e.what() << ".\n";
     std::cerr << "       Intermediate configuration state follows:\n"
               << rule('-') << '\n'
               << rule('-') << '\n';
     for (auto const& item : raw_config) {
       std::cerr << item.first << ": " << item.second.to_string() << '\n';
     }
-    std::cerr << rule('-') << '\n'
-              << rule('-') << '\n';
+    std::cerr << rule('-') << '\n' << rule('-') << '\n';
     return 91;
   }
 
@@ -117,13 +122,15 @@ int art::run_art(int argc,
     fhicl::ParameterSetRegistry::put(main_pset);
   }
   catch (...) {
-    std::cerr << "Uncaught exception while inserting main parameter set into registry.\n";
+    std::cerr << "Uncaught exception while inserting main parameter set into "
+                 "registry.\n";
     throw;
   }
   return run_art_common_(main_pset, std::move(dbg));
 }
 
-int art::run_art_string_config(std::string const& config_string)
+int
+art::run_art_string_config(std::string const& config_string)
 {
   //
   // Make the parameter set from the configuration string:
@@ -144,17 +151,13 @@ int art::run_art_string_config(std::string const& config_string)
   }
   catch (cet::exception& e) {
     constexpr cet::HorizontalRule rule{36};
-    std::cerr << "ERROR: Failed to create a parameter set from an input configuration string with exception "
-              << e.what()
-              << ".\n";
+    std::cerr << "ERROR: Failed to create a parameter set from an input "
+                 "configuration string with exception "
+              << e.what() << ".\n";
     std::cerr << "       Input configuration string follows:\n"
-              << rule('-')
-              << rule('-')
-              << "\n";
+              << rule('-') << rule('-') << "\n";
     std::cerr << config_string << "\n";
-    std::cerr << rule('-')
-              << rule('-')
-              << '\n';
+    std::cerr << rule('-') << rule('-') << '\n';
     return 91;
   }
   // Main parameter set must be placed in registry manually.
@@ -162,16 +165,21 @@ int art::run_art_string_config(std::string const& config_string)
     fhicl::ParameterSetRegistry::put(main_pset);
   }
   catch (...) {
-    std::cerr << "Uncaught exception while inserting main parameter set into registry.\n";
+    std::cerr << "Uncaught exception while inserting main parameter set into "
+                 "registry.\n";
     throw;
   }
   return run_art_common_(main_pset, art::detail::DebugOutput{});
 }
 
-int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::DebugOutput debug)
+int
+art::run_art_common_(fhicl::ParameterSet const& main_pset,
+                     art::detail::DebugOutput debug)
 {
-  auto const& services_pset = main_pset.get<fhicl::ParameterSet>("services",{});
-  auto const& scheduler_pset = services_pset.get<fhicl::ParameterSet>("scheduler",{});
+  auto const& services_pset =
+    main_pset.get<fhicl::ParameterSet>("services", {});
+  auto const& scheduler_pset =
+    services_pset.get<fhicl::ParameterSet>("scheduler", {});
 
   if (debug && debug.preempting()) {
     std::cerr << debug.banner();
@@ -184,7 +192,8 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
   mf::MessageDrop::jobMode = std::string("analysis");
   mf::MessageDrop::instance()->iteration = std::string("JobSetup");
   try {
-    mf::StartMessageFacility(services_pset.get<fhicl::ParameterSet>("message",{}));
+    mf::StartMessageFacility(
+      services_pset.get<fhicl::ParameterSet>("message", {}));
   }
   catch (cet::exception const& e) {
     std::cerr << e.what() << '\n';
@@ -195,10 +204,10 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
     return 70;
   }
   catch (...) {
-    std::cerr << "Caught unknown exception while initializing the message facility.\n";
+    std::cerr
+      << "Caught unknown exception while initializing the message facility.\n";
     return 71;
   }
-
 
   mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
   //
@@ -208,14 +217,11 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
     if (debug.stream_is_valid()) {
       debug.stream() << main_pset.to_indented_string(0, debug.mode());
       mf::LogInfo("ConfigOut") << "Post-processed configuration written to "
-                               << debug.filename()
-                               << ".\n";
-    }
-    else { // Error!
+                               << debug.filename() << ".\n";
+    } else { // Error!
       throw Exception(errors::Configuration)
         << "Unable to write post-processed configuration to specified file "
-        << debug.filename()
-        << ".\n";
+        << debug.filename() << ".\n";
     }
   }
   //
@@ -226,7 +232,8 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
   if (scheduler_pset.get<bool>("unloadRootSigHandler", true)) {
     art::unloadRootSigHandler();
   }
-  RootErrorHandlerSentry re_sentry {scheduler_pset.get<bool>("resetRootErrHandler", true)};
+  RootErrorHandlerSentry re_sentry{
+    scheduler_pset.get<bool>("resetRootErrHandler", true)};
   // Load all dictionaries.
   if (scheduler_pset.get<bool>("debugDictionaries", false)) {
     throw Exception(errors::UnimplementedFeature)
@@ -234,13 +241,11 @@ int art::run_art_common_(fhicl::ParameterSet const& main_pset, art::detail::Debu
   }
   art::completeRootHandlers();
 
-  int rc {0};
+  int rc{0};
   try {
-    EventProcessor ep {main_pset};
+    EventProcessor ep{main_pset};
     if (ep.runToCompletion() == EventProcessor::epSignal) {
-      std::cerr << "Art has handled signal "
-                << art::shutdown_flag
-                << ".\n";
+      std::cerr << "Art has handled signal " << art::shutdown_flag << ".\n";
       if (scheduler_pset.get<bool>("errorOnSIGINT"))
         rc = 128 + art::shutdown_flag;
     }

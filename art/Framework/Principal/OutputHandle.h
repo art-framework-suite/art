@@ -37,7 +37,6 @@ namespace art {
   class EDProduct;
   class OutputHandle {
   public:
-
     OutputHandle(EDProduct const* prod,
                  BranchDescription const* desc,
                  cet::exempt_ptr<ProductProvenance const> productProvenance,
@@ -48,41 +47,61 @@ namespace art {
       , rangeOfValidity_{rs}
     {}
 
-    ///Used when the attempt to get the data failed
-    OutputHandle(RangeSet const& rs)
-      : rangeOfValidity_{rs}
-    {}
+    /// Used when the attempt to get the data failed
+    OutputHandle(RangeSet const& rs) : rangeOfValidity_{rs} {}
 
     // use compiler-generated copy c'tor, copy assignment, and d'tor
 
-    void swap(OutputHandle& other) {
+    void
+    swap(OutputHandle& other)
+    {
       using std::swap;
       swap(wrap_, other.wrap_);
       swap(desc_, other.desc_);
       swap(productProvenance_, other.productProvenance_);
     }
 
-    bool isValid() const { return wrap_ && desc_ && productProvenance_; }
+    bool
+    isValid() const
+    {
+      return wrap_ && desc_ && productProvenance_;
+    }
 
-    RangeSet const& rangeOfValidity() const { return rangeOfValidity_; }
+    RangeSet const&
+    rangeOfValidity() const
+    {
+      return rangeOfValidity_;
+    }
 
-    EDProduct const* wrapper() const { return wrap_; }
+    EDProduct const*
+    wrapper() const
+    {
+      return wrap_;
+    }
 
-    ProductProvenance const* productProvenance() const { return productProvenance_.get(); }
+    ProductProvenance const*
+    productProvenance() const
+    {
+      return productProvenance_.get();
+    }
 
-    BranchDescription const* desc() const { return desc_; }
+    BranchDescription const*
+    desc() const
+    {
+      return desc_;
+    }
 
   private:
-    EDProduct const* wrap_ {nullptr};
-    BranchDescription const* desc_ {nullptr};
-    cet::exempt_ptr<ProductProvenance const> productProvenance_ {nullptr};
+    EDProduct const* wrap_{nullptr};
+    BranchDescription const* desc_{nullptr};
+    cet::exempt_ptr<ProductProvenance const> productProvenance_{nullptr};
     RangeSet const& rangeOfValidity_;
   };
 
   // Free swap function
-  inline
-  void
-  swap(OutputHandle& a, OutputHandle& b) {
+  inline void
+  swap(OutputHandle& a, OutputHandle& b)
+  {
     a.swap(b);
   }
 }

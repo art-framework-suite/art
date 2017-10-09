@@ -13,8 +13,8 @@
 #include <string>
 
 namespace art {
-  class ActivityRegistry;  // declaration only
-  class CurrentModule;     // defined below
+  class ActivityRegistry; // declaration only
+  class CurrentModule;    // defined below
 }
 
 // ----------------------------------------------------------------------
@@ -25,17 +25,20 @@ class art::CurrentModule {
   CurrentModule operator=(CurrentModule const&) = delete;
 
 public:
-
   CurrentModule(art::ActivityRegistry& r);
 
-  std::string const& label() const { return desc_.moduleLabel(); }
+  std::string const&
+  label() const
+  {
+    return desc_.moduleLabel();
+  }
 
 private:
   art::ModuleDescription desc_;
 
   void track_module(art::ModuleDescription const& desc);
 
-};  // CurrentModule
+}; // CurrentModule
 
 // ======================================================================
 

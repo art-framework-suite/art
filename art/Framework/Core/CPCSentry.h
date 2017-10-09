@@ -17,12 +17,11 @@ namespace art {
 
   namespace detail {
 
-    class CPCSentry
-    {
+    class CPCSentry {
     public:
       CPCSentry(cet::exempt_ptr<CurrentProcessingContext const>& c,
-                cet::exempt_ptr<CurrentProcessingContext const> value) :
-        referenced_{&c}
+                cet::exempt_ptr<CurrentProcessingContext const> value)
+        : referenced_{&c}
       {
         c = value;
       }
@@ -31,12 +30,12 @@ namespace art {
 
     private:
       cet::exempt_ptr<CurrentProcessingContext const>* referenced_;
-    };  // CPCSentry
+    }; // CPCSentry
 
-  }  // detail
-}  // art
+  } // detail
+} // art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_Core_CPCSentry_h */
 

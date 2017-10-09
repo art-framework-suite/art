@@ -17,19 +17,25 @@ using namespace std;
 
 namespace art {
 
-  EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
-                                 ProcessConfiguration const& pc,
-                                 cet::exempt_ptr<ProductTable const> presentProducts,
-                                 std::shared_ptr<History> history,
-                                 std::unique_ptr<BranchMapper>&& mapper,
-                                 std::unique_ptr<DelayedReader>&& rtrv,
-                                 bool const lastInSubRun)
-    : Principal{pc, history->processHistoryID(), presentProducts, std::move(mapper), std::move(rtrv)}
+  EventPrincipal::EventPrincipal(
+    EventAuxiliary const& aux,
+    ProcessConfiguration const& pc,
+    cet::exempt_ptr<ProductTable const> presentProducts,
+    std::shared_ptr<History> history,
+    std::unique_ptr<BranchMapper>&& mapper,
+    std::unique_ptr<DelayedReader>&& rtrv,
+    bool const lastInSubRun)
+    : Principal{pc,
+                history->processHistoryID(),
+                presentProducts,
+                std::move(mapper),
+                std::move(rtrv)}
     , aux_{aux}
     , history_{history}
     , lastInSubRun_{lastInSubRun}
   {
-    productReader().setGroupFinder(cet::exempt_ptr<EDProductGetterFinder const>{this});
+    productReader().setGroupFinder(
+      cet::exempt_ptr<EDProductGetterFinder const>{this});
     if (ProductMetaData::instance().productProduced(InEvent)) {
       addToProcessHistory();
     }
@@ -49,19 +55,12 @@ namespace art {
   EventPrincipal::throwIfExistingGroup(BranchDescription const& pd) const
   {
     if (getGroup(pd.productID()) != nullptr) {
-      throw art::Exception(art::errors::ProductRegistrationFailure, "EventPrincipal::throwIfExistingGroup")
+      throw art::Exception(art::errors::ProductRegistrationFailure,
+                           "EventPrincipal::throwIfExistingGroup")
         << "Problem found while adding product provenance: "
-        << "product already exists for ("
-        << pd.friendlyClassName()
-        << ","
-        << pd.moduleLabel()
-        << ","
-        << pd.productInstanceName()
-        << ","
-        << pd.processName()
-        << ","
-        << pd.branchType()
-        << ")\n";
+        << "product already exists for (" << pd.friendlyClassName() << ","
+        << pd.moduleLabel() << "," << pd.productInstanceName() << ","
+        << pd.processName() << "," << pd.branchType() << ")\n";
     }
   }
 
@@ -69,23 +68,21 @@ namespace art {
   EventPrincipal::fillGroup(BranchDescription const& pd)
   {
     throwIfExistingGroup(pd);
-    Principal::fillGroup(gfactory::make_group(pd,
-                                              pd.productID(),
-                                              RangeSet::invalid()));
+    Principal::fillGroup(
+      gfactory::make_group(pd, pd.productID(), RangeSet::invalid()));
   }
 
   void
-  EventPrincipal::put(std::unique_ptr<EDProduct>&& edp,
-                      BranchDescription const& pd,
-                      std::unique_ptr<ProductProvenance const>&& productProvenance)
+  EventPrincipal::put(
+    std::unique_ptr<EDProduct>&& edp,
+    BranchDescription const& pd,
+    std::unique_ptr<ProductProvenance const>&& productProvenance)
   {
     assert(edp);
     branchMapper().insert(std::move(productProvenance));
     throwIfExistingGroup(pd);
-    Principal::fillGroup(gfactory::make_group(pd,
-                                              pd.productID(),
-                                              RangeSet::invalid(),
-                                              std::move(edp)));
+    Principal::fillGroup(gfactory::make_group(
+      pd, pd.productID(), RangeSet::invalid(), std::move(edp)));
   }
 
   EventSelectionIDVector const&

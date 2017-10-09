@@ -7,12 +7,12 @@
 // Manage the creation of workers.
 //
 ////////////////////////////////////////////////////////////////////////
-#include "cetlib/LibraryManager.h"
 #include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "cetlib/LibraryManager.h"
 
 #include <memory>
 #include <string>
@@ -25,7 +25,6 @@ namespace art {
 
 class art::detail::ModuleFactory {
 public:
-
   ModuleFactory() = default;
 
   ModuleFactory(ModuleFactory const&) = delete;
@@ -33,13 +32,11 @@ public:
 
   ModuleType moduleType(std::string const& libspec);
 
-  std::unique_ptr<Worker>
-  makeWorker(WorkerParams const& wp,
-             ModuleDescription const& md);
+  std::unique_ptr<Worker> makeWorker(WorkerParams const& wp,
+                                     ModuleDescription const& md);
 
 private:
   cet::LibraryManager lm_{Suffixes::module()};
-
 };
 #endif /* art_Framework_Core_detail_ModuleFactory_h */
 

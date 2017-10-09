@@ -29,8 +29,8 @@ art::InputSource::rewind()
 
 void
 art::InputSource::doBeginJob()
-{ }
+{}
 
 void
 art::InputSource::doEndJob()
-{ }
+{}

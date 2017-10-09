@@ -7,19 +7,22 @@
 #include <string>
 #include <vector>
 
-namespace cet { class LibraryManager; }
+namespace cet {
+  class LibraryManager;
+}
 
 namespace art {
   namespace detail {
 
-    constexpr const char* dflt_spec_pattern() {
+    constexpr const char*
+    dflt_spec_pattern()
+    {
       return "[A-Za-z0-9]+";
     }
 
-    LibraryInfoCollection
-    get_LibraryInfoCollection(suffix_type suffix,
-                              std::string const& pattern,
-                              bool const verbose = false);
+    LibraryInfoCollection get_LibraryInfoCollection(suffix_type suffix,
+                                                    std::string const& pattern,
+                                                    bool const verbose = false);
 
   } // detail
 } // art

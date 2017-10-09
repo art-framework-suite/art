@@ -23,48 +23,52 @@ namespace arttest {
 
 class arttest::FlushingGeneratorTestFilter : public art::EDFilter {
 public:
-  explicit FlushingGeneratorTestFilter(fhicl::ParameterSet const & p);
+  explicit FlushingGeneratorTestFilter(fhicl::ParameterSet const& p);
 
-  bool filter(art::Event &) override;
+  bool filter(art::Event&) override;
 
-  bool beginRun(art::Run & r) override;
-  bool beginSubRun(art::SubRun & sr) override;
-  bool endRun(art::Run & r) override;
-  bool endSubRun(art::SubRun & sr) override;
+  bool beginRun(art::Run& r) override;
+  bool beginSubRun(art::SubRun& sr) override;
+  bool endRun(art::Run& r) override;
+  bool endSubRun(art::SubRun& sr) override;
 
 private:
 };
 
+arttest::FlushingGeneratorTestFilter::FlushingGeneratorTestFilter(
+  fhicl::ParameterSet const&)
+{}
 
-arttest::FlushingGeneratorTestFilter::FlushingGeneratorTestFilter(fhicl::ParameterSet const &)
-{
-}
-
-bool arttest::FlushingGeneratorTestFilter::filter(art::Event & e)
+bool
+arttest::FlushingGeneratorTestFilter::filter(art::Event& e)
 {
   assert(!e.id().isFlush());
   return true;
 }
 
-bool arttest::FlushingGeneratorTestFilter::beginRun(art::Run & r)
+bool
+arttest::FlushingGeneratorTestFilter::beginRun(art::Run& r)
 {
   assert(!r.id().isFlush());
   return true;
 }
 
-bool arttest::FlushingGeneratorTestFilter::beginSubRun(art::SubRun & sr)
+bool
+arttest::FlushingGeneratorTestFilter::beginSubRun(art::SubRun& sr)
 {
   assert(!sr.id().isFlush());
   return true;
 }
 
-bool arttest::FlushingGeneratorTestFilter::endRun(art::Run & r)
+bool
+arttest::FlushingGeneratorTestFilter::endRun(art::Run& r)
 {
   assert(!r.id().isFlush());
   return true;
 }
 
-bool arttest::FlushingGeneratorTestFilter::endSubRun(art::SubRun & sr)
+bool
+arttest::FlushingGeneratorTestFilter::endSubRun(art::SubRun& sr)
 {
   assert(!sr.id().isFlush());
   return true;

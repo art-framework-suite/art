@@ -6,7 +6,11 @@ namespace arttest {
   public:
     virtual ~OperationBase() noexcept = default;
 
-    void adjustNumber(int& i) const { do_adjustNumber(i); }
+    void
+    adjustNumber(int& i) const
+    {
+      do_adjustNumber(i);
+    }
 
   private:
     virtual void do_adjustNumber(int&) const = 0;

@@ -8,12 +8,12 @@ namespace art {
   namespace detail {
 
     struct IgnoreModuleLabel {
-      std::set<std::string> operator()()
+      std::set<std::string>
+      operator()()
       {
         return {"module_label"};
       }
     };
-
   }
 }
 

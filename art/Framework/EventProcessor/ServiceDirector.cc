@@ -36,7 +36,7 @@ namespace {
   extractServices(ParameterSet&& services)
   {
     ParameterSets service_set;
-    bool const wantTracer {services.get<bool>("scheduler.wantTracer", false)};
+    bool const wantTracer{services.get<bool>("scheduler.wantTracer", false)};
     services.erase("scheduler");
 
     // If we want the tracer and it's not explicitly configured, insert
@@ -61,11 +61,11 @@ namespace {
   }
 }
 
-art::ServiceDirector::
-ServiceDirector(fhicl::ParameterSet&& services,
-                ActivityRegistry& areg,
-                ServiceToken& serviceToken):
-  serviceToken_{serviceToken}
+art::ServiceDirector::ServiceDirector(fhicl::ParameterSet&& services,
+                                      ActivityRegistry& areg,
+                                      ServiceToken& serviceToken)
+  : serviceToken_{serviceToken}
 {
-  serviceToken_ = ServiceRegistry::createSet(extractServices(std::move(services)), areg);
+  serviceToken_ =
+    ServiceRegistry::createSet(extractServices(std::move(services)), areg);
 }

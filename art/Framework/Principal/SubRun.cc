@@ -1,6 +1,6 @@
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 
 namespace art {
@@ -11,23 +11,26 @@ namespace art {
            ModuleDescription const& md,
            cet::exempt_ptr<Consumer> consumer)
     {
-      return srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), md, consumer} : nullptr;
+      return srp.runPrincipalExemptPtr() ?
+               new Run{srp.runPrincipal(), md, consumer} :
+               nullptr;
     }
   }
 
   SubRun::SubRun(SubRunPrincipal const& srp,
                  ModuleDescription const& md,
                  cet::exempt_ptr<Consumer> consumer,
-                 RangeSet const& rs) :
-    DataViewImpl{srp, md, InSubRun, false, consumer},
-    principal_{srp},
-    aux_{srp.aux()},
-    run_{newRun(srp, md, consumer)},
-    productRangeSet_{rs}
+                 RangeSet const& rs)
+    : DataViewImpl{srp, md, InSubRun, false, consumer}
+    , principal_{srp}
+    , aux_{srp.aux()}
+    , run_{newRun(srp, md, consumer)}
+    , productRangeSet_{rs}
   {}
 
   Run const&
-  SubRun::getRun() const {
+  SubRun::getRun() const
+  {
     if (!run_) {
       throw Exception(errors::NullPointerError)
         << "Tried to obtain a NULL run.\n";
@@ -46,8 +49,8 @@ namespace art {
   {
     for (auto& elem : putProducts()) {
       auto const& pd = elem.second.pd;
-      auto productProvenancePtr = std::make_unique<ProductProvenance const>(pd.productID(),
-                                                                            productstatus::present());
+      auto productProvenancePtr = std::make_unique<ProductProvenance const>(
+        pd.productID(), productstatus::present());
 
       srp.put(std::move(elem.second.prod),
               pd,
@@ -58,5 +61,4 @@ namespace art {
     // the cleanup is all or none
     putProducts().clear();
   }
-
 }

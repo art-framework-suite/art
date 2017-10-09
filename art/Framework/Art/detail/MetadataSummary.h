@@ -25,20 +25,29 @@ namespace art {
 
     class MetadataSummary {
     public:
-
-      std::string header() const { return doHeader(); }
-      Summary summary(LibraryInfo const& li, std::size_t const entry) const { return doSummary(li, entry); }
-      std::vector<std::size_t> const& widths() const { return doWidths(); }
+      std::string
+      header() const
+      {
+        return doHeader();
+      }
+      Summary
+      summary(LibraryInfo const& li, std::size_t const entry) const
+      {
+        return doSummary(li, entry);
+      }
+      std::vector<std::size_t> const&
+      widths() const
+      {
+        return doWidths();
+      }
       virtual ~MetadataSummary() = default;
 
     private:
-
       virtual std::string doHeader() const = 0;
-      virtual Summary doSummary(LibraryInfo const& li, std::size_t entry) const = 0;
+      virtual Summary doSummary(LibraryInfo const& li,
+                                std::size_t entry) const = 0;
       virtual std::vector<std::size_t> const& doWidths() const = 0;
-
     };
-
   }
 }
 

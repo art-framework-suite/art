@@ -1,8 +1,8 @@
 #ifndef art_Framework_Core_detail_ModuleInPathInfo_h
 #define art_Framework_Core_detail_ModuleInPathInfo_h
 
-#include "art/Framework/Core/detail/ModuleConfigInfo.h"
 #include "art/Framework/Core/WorkerInPath.h"
+#include "art/Framework/Core/detail/ModuleConfigInfo.h"
 #include "cetlib/exempt_ptr.h"
 
 namespace art {
@@ -13,10 +13,10 @@ namespace art {
 
 class art::detail::ModuleInPathInfo {
 public:
-  ModuleInPathInfo(ModuleConfigInfo const & mci,
+  ModuleInPathInfo(ModuleConfigInfo const& mci,
                    WorkerInPath::FilterAction filterAction);
 
-  ModuleConfigInfo const & moduleConfigInfo() const;
+  ModuleConfigInfo const& moduleConfigInfo() const;
   WorkerInPath::FilterAction filterAction() const;
 
 private:
@@ -24,28 +24,20 @@ private:
   WorkerInPath::FilterAction filterAction_;
 };
 
-inline
-art::detail::ModuleInPathInfo::
-ModuleInPathInfo(ModuleConfigInfo const & mci,
-                 WorkerInPath::FilterAction filterAction)
-    :
-    mci_(&mci),
-    filterAction_(filterAction)
-{
-}
+inline art::detail::ModuleInPathInfo::ModuleInPathInfo(
+  ModuleConfigInfo const& mci,
+  WorkerInPath::FilterAction filterAction)
+  : mci_(&mci), filterAction_(filterAction)
+{}
 
-inline
-art::detail::ModuleConfigInfo const &
-art::detail::ModuleInPathInfo::
-moduleConfigInfo() const
+inline art::detail::ModuleConfigInfo const&
+art::detail::ModuleInPathInfo::moduleConfigInfo() const
 {
   return *mci_;
 }
 
-inline
-art::WorkerInPath::FilterAction
-art::detail::ModuleInPathInfo::
-filterAction() const
+inline art::WorkerInPath::FilterAction
+art::detail::ModuleInPathInfo::filterAction() const
 {
   return filterAction_;
 }

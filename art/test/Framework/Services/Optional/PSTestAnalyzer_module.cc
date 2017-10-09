@@ -19,25 +19,24 @@ namespace arttest {
 
 class arttest::PSTestAnalyzer final : public art::EDAnalyzer {
 public:
-  explicit PSTestAnalyzer(fhicl::ParameterSet const & p);
+  explicit PSTestAnalyzer(fhicl::ParameterSet const& p);
 
-  void analyze(art::Event const & e) override;
+  void analyze(art::Event const& e) override;
 
 private:
-
 };
-
 
 arttest::PSTestAnalyzer::PSTestAnalyzer(fhicl::ParameterSet const& pset)
   : art::EDAnalyzer(pset)
 {
   art::ScheduleID const id(art::ScheduleID::first());
-  (void) art::ServiceHandle<arttest::PSTest>(id)->schedule();
-  (void) art::ServiceHandle<arttest::PSTestInterface>(id)->schedule();
-  (void) art::ServiceHandle<arttest::PSTestInterfaceImpl>(id)->schedule();
+  (void)art::ServiceHandle<arttest::PSTest>(id)->schedule();
+  (void)art::ServiceHandle<arttest::PSTestInterface>(id)->schedule();
+  (void)art::ServiceHandle<arttest::PSTestInterfaceImpl>(id)->schedule();
 }
 
-void arttest::PSTestAnalyzer::analyze(art::Event const &)
+void
+arttest::PSTestAnalyzer::analyze(art::Event const&)
 {
   // Implementation of required member function here.
 }

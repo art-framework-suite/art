@@ -11,11 +11,11 @@ using fhicl::ParameterSetRegistry;
 art::Run::Run(RunPrincipal const& rp,
               ModuleDescription const& md,
               cet::exempt_ptr<Consumer> consumer,
-              RangeSet const& rs) :
-  DataViewImpl{rp, md, InRun, false, consumer},
-  principal_{rp},
-  aux_{rp.aux()},
-  productRangeSet_{rs}
+              RangeSet const& rs)
+  : DataViewImpl{rp, md, InRun, false, consumer}
+  , principal_{rp}
+  , aux_{rp.aux()}
+  , productRangeSet_{rs}
 {}
 
 art::EDProductGetter const*
@@ -37,8 +37,8 @@ art::Run::commit_(RunPrincipal& rp)
 {
   for (auto& elem : putProducts()) {
     auto const& pd = elem.second.pd;
-    auto productProvenancePtr = std::make_unique<ProductProvenance const>(pd.productID(),
-                                                                          productstatus::present());
+    auto productProvenancePtr = std::make_unique<ProductProvenance const>(
+      pd.productID(), productstatus::present());
     rp.put(std::move(elem.second.prod),
            pd,
            std::move(productProvenancePtr),

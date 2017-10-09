@@ -25,40 +25,38 @@ namespace arttest {
   class SimpleServiceTestAnalyzer;
 }
 
-
 class arttest::SimpleServiceTestAnalyzer : public art::EDAnalyzer {
 public:
-  explicit SimpleServiceTestAnalyzer(fhicl::ParameterSet const & p);
+  explicit SimpleServiceTestAnalyzer(fhicl::ParameterSet const& p);
   // The compiler-generated destructor is fine for non-base
   // classes without bare pointers or other resource use.
 
   // Plugins should not be copied or assigned.
-  SimpleServiceTestAnalyzer(SimpleServiceTestAnalyzer const &) = delete;
-  SimpleServiceTestAnalyzer(SimpleServiceTestAnalyzer &&) = delete;
-  SimpleServiceTestAnalyzer & operator = (SimpleServiceTestAnalyzer const &) = delete;
-  SimpleServiceTestAnalyzer & operator = (SimpleServiceTestAnalyzer &&) = delete;
+  SimpleServiceTestAnalyzer(SimpleServiceTestAnalyzer const&) = delete;
+  SimpleServiceTestAnalyzer(SimpleServiceTestAnalyzer&&) = delete;
+  SimpleServiceTestAnalyzer& operator=(SimpleServiceTestAnalyzer const&) =
+    delete;
+  SimpleServiceTestAnalyzer& operator=(SimpleServiceTestAnalyzer&&) = delete;
 
   // Required functions.
-  void analyze(art::Event const & e) override;
+  void analyze(art::Event const& e) override;
 
 private:
-
   // Declare member data here.
-
 };
 
-
-arttest::SimpleServiceTestAnalyzer::SimpleServiceTestAnalyzer(fhicl::ParameterSet const & p)
-  :
-  EDAnalyzer(p)
+arttest::SimpleServiceTestAnalyzer::SimpleServiceTestAnalyzer(
+  fhicl::ParameterSet const& p)
+  : EDAnalyzer(p)
 {
   assert(art::ServiceHandle<arttest::SimpleServiceTest>()->verifyStatus());
   assert((*art::ServiceHandle<arttest::SimpleServiceTest>()).verifyStatus());
-  assert(art::ServiceHandle<arttest::SimpleServiceTest>().get()->verifyStatus());
+  assert(
+    art::ServiceHandle<arttest::SimpleServiceTest>().get()->verifyStatus());
 }
 
-void arttest::SimpleServiceTestAnalyzer::analyze(art::Event const &)
-{
-}
+void
+arttest::SimpleServiceTestAnalyzer::analyze(art::Event const&)
+{}
 
 DEFINE_ART_MODULE(arttest::SimpleServiceTestAnalyzer)

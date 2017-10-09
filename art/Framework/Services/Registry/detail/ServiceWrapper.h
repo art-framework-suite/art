@@ -26,7 +26,7 @@ namespace art {
     using cet::enable_if_function_exists_t;
 
     // General template.
-    template<typename T, ServiceScope SCOPE>
+    template <typename T, ServiceScope SCOPE>
     class ServiceWrapper;
 
     // Partial specialization.
@@ -37,21 +37,21 @@ namespace art {
     // ActivityRegistry&, use it. Otherwise, call a one-argument
     // constructor taking fhicl::ParameterSet const& only.
     template <typename T>
-    std::enable_if_t<std::is_constructible<T, fhicl::ParameterSet const&,
+    std::enable_if_t<std::is_constructible<T,
+                                           fhicl::ParameterSet const&,
                                            ActivityRegistry&>::value,
                      std::shared_ptr<T>>
-    makeServiceFrom(fhicl::ParameterSet const& ps,
-                    ActivityRegistry& areg)
+    makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
     {
       return std::make_shared<T>(ps, areg);
     }
 
     template <typename T>
-    std::enable_if_t<!std::is_constructible<T, fhicl::ParameterSet const&,
+    std::enable_if_t<!std::is_constructible<T,
+                                            fhicl::ParameterSet const&,
                                             ActivityRegistry&>::value,
                      std::shared_ptr<T>>
-    makeServiceFrom(fhicl::ParameterSet const& ps,
-                    ActivityRegistry&)
+    makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry&)
     {
       return std::make_shared<T>(ps);
     }
@@ -59,14 +59,14 @@ namespace art {
   } // namespace detail
 } // namespace art
 
-
 // ----------------------------------------------------------------------
 
 // declare the linkage before the friend declaration
-extern "C" std::unique_ptr<art::detail::ServiceWrapperBase> converter(std::shared_ptr<art::detail::ServiceWrapperBase> const&);
+extern "C" std::unique_ptr<art::detail::ServiceWrapperBase> converter(
+  std::shared_ptr<art::detail::ServiceWrapperBase> const&);
 
 // General template.
-template<typename T, art::ServiceScope SCOPE>
+template <typename T, art::ServiceScope SCOPE>
 class art::detail::ServiceWrapper : public ServiceWrapperBase {
 public:
   // Non-copyable.
@@ -74,35 +74,39 @@ public:
   ServiceWrapper& operator=(ServiceWrapper const&) = delete;
 
   // C'tor from ParameterSet, ActivityRegistry.
-  ServiceWrapper(fhicl::ParameterSet const& ps,
-                 ActivityRegistry& areg)
+  ServiceWrapper(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
     : service_ptr_{makeServiceFrom<T>(ps, areg)}
   {}
 
   // C'tor from shared_ptr.
-  explicit ServiceWrapper(std::shared_ptr<T>&& p)
-    : service_ptr_{std::move(p)}
+  explicit ServiceWrapper(std::shared_ptr<T>&& p) : service_ptr_{std::move(p)}
   {}
 
-  T& get() { return *service_ptr_; }
-
-  template<typename U, typename = std::enable_if_t<std::is_base_of<U, T>::value>>
-  ServiceWrapper<U, SCOPE>* getAs() const
+  T&
+  get()
   {
-    return new ServiceWrapper<U, SCOPE>{std::static_pointer_cast<U>(service_ptr_)};
+    return *service_ptr_;
+  }
+
+  template <typename U,
+            typename = std::enable_if_t<std::is_base_of<U, T>::value>>
+  ServiceWrapper<U, SCOPE>*
+  getAs() const
+  {
+    return new ServiceWrapper<U, SCOPE>{
+      std::static_pointer_cast<U>(service_ptr_)};
   }
 
 private:
-
   std::shared_ptr<T> service_ptr_;
 
 }; // ServiceWrapper<T, ServiceScope>
 
 // Partially-specialized template.
 template <typename T>
-class art::detail::ServiceWrapper<T, art::ServiceScope::PER_SCHEDULE> : public ServiceWrapperBase {
+class art::detail::ServiceWrapper<T, art::ServiceScope::PER_SCHEDULE>
+  : public ServiceWrapperBase {
 public:
-
   // Non-copyable.
   ServiceWrapper(ServiceWrapper const&) = delete;
   void operator=(ServiceWrapper const&) = delete;
@@ -128,16 +132,22 @@ public:
                  size_t const nSchedules)
   {
     service_ptrs_.reserve(nSchedules);
-    ScheduleID id {ScheduleID::first()};
+    ScheduleID id{ScheduleID::first()};
     for (size_t iSched{}; iSched < nSchedules; ++iSched, id = id.next()) {
       service_ptrs_.emplace_back(new T{ps, areg, id});
     }
   }
 
-  T& get(ScheduleID sID) { return *service_ptrs_.at(sID.id()); }
+  T&
+  get(ScheduleID sID)
+  {
+    return *service_ptrs_.at(sID.id());
+  }
 
-  template<typename U, typename = std::enable_if_t<std::is_base_of<U, T>::value>>
-  ServiceWrapper<U, art::ServiceScope::PER_SCHEDULE> * getAs() const
+  template <typename U,
+            typename = std::enable_if_t<std::is_base_of<U, T>::value>>
+  ServiceWrapper<U, art::ServiceScope::PER_SCHEDULE>*
+  getAs() const
   {
     std::vector<std::shared_ptr<U>> converted_ptrs(service_ptrs_.size());
     cet::transform_all(service_ptrs_,
@@ -145,13 +155,12 @@ public:
                        [](std::shared_ptr<T> const& ptr_in) {
                          return std::static_pointer_cast<U>(ptr_in);
                        });
-    return new ServiceWrapper<U, art::ServiceScope::PER_SCHEDULE>(std::move(converted_ptrs));
+    return new ServiceWrapper<U, art::ServiceScope::PER_SCHEDULE>(
+      std::move(converted_ptrs));
   }
 
 private:
-
-  std::vector<std::shared_ptr<T>> service_ptrs_ {};
-
+  std::vector<std::shared_ptr<T>> service_ptrs_{};
 };
 
 // ======================================================================

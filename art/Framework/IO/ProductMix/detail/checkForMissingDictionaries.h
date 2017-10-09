@@ -6,8 +6,8 @@
 
 namespace art {
   namespace detail {
-    void
-    checkForMissingDictionaries(std::vector<TypeID> const& types) noexcept(false);
+    void checkForMissingDictionaries(std::vector<TypeID> const& types) noexcept(
+      false);
   }
 }
 

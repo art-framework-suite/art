@@ -5,43 +5,47 @@
 #include "fhiclcpp/types/TupleAs.h"
 
 using art::InputTag;
-using fhicl::TupleAs;
 using fhicl::Name;
+using fhicl::TupleAs;
 using std::string;
 
 namespace {
 
   struct Config {
-    TupleAs<InputTag(string)> particlesTag { Name("particlesTag") };
+    TupleAs<InputTag(string)> particlesTag{Name("particlesTag")};
   };
 
   class AssembleProducts : public art::EDProducer {
   public:
-
     using Parameters = EDProducer::Table<Config>;
     explicit AssembleProducts(Parameters const& config)
       : particlesTag_{config().particlesTag()}
     {
-      produces<unsigned,art::InSubRun>("seenParticles");
+      produces<unsigned, art::InSubRun>("seenParticles");
     }
 
-    void produce(art::Event& e) override
+    void
+    produce(art::Event& e) override
     {
-      auto const& particles = e.getValidHandle<std::vector<double>>(particlesTag_);
+      auto const& particles =
+        e.getValidHandle<std::vector<double>>(particlesTag_);
       seenParticles_ += particles->size();
     }
 
-    void endSubRun(art::SubRun& sr) override
+    void
+    endSubRun(art::SubRun& sr) override
     {
-      sr.put(std::make_unique<unsigned>(seenParticles_), "seenParticles", art::subRunFragment());
+      sr.put(std::make_unique<unsigned>(seenParticles_),
+             "seenParticles",
+             art::subRunFragment());
       seenParticles_ = 0u;
     }
 
   private:
     InputTag particlesTag_;
-    unsigned seenParticles_ {};
+    unsigned seenParticles_{};
 
-  };  // AssembleProducts
+  }; // AssembleProducts
 }
 
 DEFINE_ART_MODULE(AssembleProducts)

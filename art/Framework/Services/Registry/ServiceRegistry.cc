@@ -4,19 +4,19 @@
 //
 // ======================================================================
 
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 
 #include "boost/thread/tss.hpp"
 
-using fhicl::ParameterSet;
 using art::ServiceRegistry;
 using art::ServiceToken;
+using fhicl::ParameterSet;
 
 ServiceToken
 ServiceRegistry::setContext(ServiceToken const& iNewToken)
 {
-  ServiceToken result {manager_};
+  ServiceToken result{manager_};
   manager_ = iNewToken.manager_;
   return result;
 }
@@ -36,9 +36,8 @@ ServiceRegistry::presentToken() const
 ServiceToken
 ServiceRegistry::createSet(ParameterSets const& iPS, ActivityRegistry& reg)
 {
-  auto result = std::make_shared<ServicesManager>(iPS,
-                                                  ServiceRegistry::instance().lm_,
-                                                  reg);
+  auto result = std::make_shared<ServicesManager>(
+    iPS, ServiceRegistry::instance().lm_, reg);
   return ServiceToken{result};
 }
 

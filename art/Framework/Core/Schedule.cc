@@ -42,7 +42,8 @@ art::Schedule::Schedule(ScheduleID const sID,
   , pathsEnabled_(triggerPathsInfo_.pathPtrs().size(), true)
 {
   if (!triggerPathsInfo_.pathPtrs().empty()) {
-    makeTriggerResultsInserter_(tns.getTriggerPSet(), mpr, productsToProduce, areg);
+    makeTriggerResultsInserter_(
+      tns.getTriggerPSet(), mpr, productsToProduce, areg);
   }
 }
 
@@ -51,26 +52,25 @@ art::Schedule::endJob()
 {
   bool failure = false;
   Exception error(errors::EndJobFailure);
-  doForAllWorkers_
-    ([&failure, &error](Worker * w) {
-      try {
-        w->endJob();
-      }
-      catch (cet::exception& e) {
-        error << "cet::exception caught in Schedule::endJob\n"
-              << e.explain_self();
-        failure = true;
-      }
-      catch (std::exception& e) {
-        error << "Standard library exception caught in Schedule::endJob\n"
-              << e.what();
-        failure = true;
-      }
-      catch (...) {
-        error << "Unknown exception caught in Schedule::endJob\n";
-        failure = true;
-      }
-    });
+  doForAllWorkers_([&failure, &error](Worker* w) {
+    try {
+      w->endJob();
+    }
+    catch (cet::exception& e) {
+      error << "cet::exception caught in Schedule::endJob\n"
+            << e.explain_self();
+      failure = true;
+    }
+    catch (std::exception& e) {
+      error << "Standard library exception caught in Schedule::endJob\n"
+            << e.what();
+      failure = true;
+    }
+    catch (...) {
+      error << "Unknown exception caught in Schedule::endJob\n";
+      failure = true;
+    }
+  });
   if (failure) {
     throw error;
   }
@@ -107,12 +107,18 @@ art::Schedule::beginJob()
 }
 
 void
-art::Schedule::makeTriggerResultsInserter_(fhicl::ParameterSet const& trig_pset,
-                                           MasterProductRegistry& mpr,
-                                           ProductDescriptions& productsToProduce,
-                                           ActivityRegistry& areg)
+art::Schedule::makeTriggerResultsInserter_(
+  fhicl::ParameterSet const& trig_pset,
+  MasterProductRegistry& mpr,
+  ProductDescriptions& productsToProduce,
+  ActivityRegistry& areg)
 {
-  WorkerParams const work_args{process_pset_, trig_pset, mpr, productsToProduce, *act_table_, processName_};
+  WorkerParams const work_args{process_pset_,
+                               trig_pset,
+                               mpr,
+                               productsToProduce,
+                               *act_table_,
+                               processName_};
   ModuleDescription md(trig_pset.id(),
                        "TriggerResultInserter",
                        "TriggerResults",
@@ -120,8 +126,10 @@ art::Schedule::makeTriggerResultsInserter_(fhicl::ParameterSet const& trig_pset,
                                             process_pset_.id(),
                                             getReleaseVersion()));
   areg.sPreModuleConstruction.invoke(md);
-  auto producer = std::make_unique<TriggerResultInserter>(trig_pset, triggerPathsInfo_.pathResults());
-  results_inserter_ = std::make_unique<WorkerT<EDProducer>>(std::move(producer), md, work_args);
+  auto producer = std::make_unique<TriggerResultInserter>(
+    trig_pset, triggerPathsInfo_.pathResults());
+  results_inserter_ =
+    std::make_unique<WorkerT<EDProducer>>(std::move(producer), md, work_args);
   areg.sPostModuleConstruction.invoke(md);
   results_inserter_->setActivityRegistry(cet::make_exempt_ptr(&areg));
 }

@@ -30,35 +30,33 @@ namespace art {
 
     class DoNothingInput {
     public:
-
       DoNothingInput(fhicl::ParameterSet const&,
                      ProductRegistryHelper&,
                      SourceHelper const&)
       {}
 
-      ~DoNothingInput()
-      {
-        ServiceHandle<Wanted> shouldNotThrow [[gnu::unused]];
-      }
+      ~DoNothingInput() { ServiceHandle<Wanted> shouldNotThrow[[gnu::unused]]; }
 
-      void readFile(std::string const &, art::FileBlock*&)
+      void
+      readFile(std::string const&, art::FileBlock*&)
       {}
 
-      void closeCurrentFile()
+      void
+      closeCurrentFile()
       {}
 
-      bool readNext(RunPrincipal const* const,
-                    SubRunPrincipal const* const,
-                    RunPrincipal*&,
-                    SubRunPrincipal*&,
-                    EventPrincipal*&)
+      bool
+      readNext(RunPrincipal const* const,
+               SubRunPrincipal const* const,
+               RunPrincipal*&,
+               SubRunPrincipal*&,
+               EventPrincipal*&)
       {
         return false;
       }
-
     };
 
   } // test
-} //art
+} // art
 
 DEFINE_ART_INPUT_SOURCE(art::Source<art::test::DoNothingInput>)

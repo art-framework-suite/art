@@ -8,23 +8,23 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SummedValue.h"
-#include "canvas/Persistency/Provenance/RangeSet.h"
-#include "cetlib/quiet_unit_test.hpp"
-#include "fhiclcpp/types/Sequence.h"
-#include "fhiclcpp/types/TupleAs.h"
 #include "art/test/Integration/product-aggregation/CalibConstants.h"
 #include "art/test/Integration/product-aggregation/Fraction.h"
 #include "art/test/Integration/product-aggregation/Geometry.h"
 #include "art/test/Integration/product-aggregation/TrackEfficiency.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
+#include "cetlib/quiet_unit_test.hpp"
+#include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/TupleAs.h"
 
 #include <map>
 #include <vector>
 
 using art::EventRange;
 using art::InputTag;
+using art::RangeSet;
 using art::SubRunNumber_t;
 using art::SummedValue;
-using art::RangeSet;
 using arttest::Fraction;
 using arttest::TrackEfficiency;
 using fhicl::Name;
@@ -35,45 +35,48 @@ using std::vector;
 
 namespace {
 
-  double constexpr tolerance  = std::numeric_limits<double>::epsilon();
+  double constexpr tolerance = std::numeric_limits<double>::epsilon();
 
   struct Config {
-    TupleAs<InputTag(string)> trkEffTag { Name("trkEffTag") };
-    TupleAs<InputTag(string)> nParticlesTag { Name("nParticlesTag") };
-    TupleAs<InputTag(string)> seenParticlesTag { Name("seenParticlesTag") };
-    Sequence<TupleAs<Fraction(Sequence<unsigned>,Sequence<unsigned>)>> fracs { Name("trkEffs") };
-    Sequence<unsigned> reorderedExpectedNums { Name("reorderedTrkEffNums") };
-    Sequence<unsigned> reorderedExpectedDenoms { Name("reorderedTrkEffDenoms") };
-    Sequence<double> particleRatios { Name("particleRatios") };
+    TupleAs<InputTag(string)> trkEffTag{Name("trkEffTag")};
+    TupleAs<InputTag(string)> nParticlesTag{Name("nParticlesTag")};
+    TupleAs<InputTag(string)> seenParticlesTag{Name("seenParticlesTag")};
+    Sequence<TupleAs<Fraction(Sequence<unsigned>, Sequence<unsigned>)>> fracs{
+      Name("trkEffs")};
+    Sequence<unsigned> reorderedExpectedNums{Name("reorderedTrkEffNums")};
+    Sequence<unsigned> reorderedExpectedDenoms{Name("reorderedTrkEffDenoms")};
+    Sequence<double> particleRatios{Name("particleRatios")};
   };
 
   class AssembleMoreProductsRobust : public art::EDProducer {
   public:
-
     using Parameters = EDProducer::Table<Config>;
     explicit AssembleMoreProductsRobust(Parameters const& config);
 
     void beginSubRun(art::SubRun& sr) override;
     void endSubRun(art::SubRun& sr) override;
-    void produce(art::Event&) override {}
+    void
+    produce(art::Event&) override
+    {}
 
   private:
     art::InputTag trkEffTag_;
     art::InputTag nParticlesTag_;
     art::InputTag seenParticlesTag_;
-    std::map<SubRunNumber_t,SummedValue<unsigned>> trkEffNum_{};
-    std::map<SubRunNumber_t,SummedValue<unsigned>> trkEffDenom_{};
-    std::map<SubRunNumber_t,SummedValue<unsigned>> nParticles_ {};
-    std::map<SubRunNumber_t,SummedValue<unsigned>> seenParticles_ {};
+    std::map<SubRunNumber_t, SummedValue<unsigned>> trkEffNum_{};
+    std::map<SubRunNumber_t, SummedValue<unsigned>> trkEffDenom_{};
+    std::map<SubRunNumber_t, SummedValue<unsigned>> nParticles_{};
+    std::map<SubRunNumber_t, SummedValue<unsigned>> seenParticles_{};
     vector<double> seenParticleRatios_;
     vector<Fraction> expectedEffs_;
     vector<double> fullExpTrkEffs_;
     vector<unsigned> reorderedExpectedNums_;
     vector<unsigned> reorderedExpectedDenoms_;
 
-  };  // AssembleMoreProductsRobust
+  }; // AssembleMoreProductsRobust
 
-  AssembleMoreProductsRobust::AssembleMoreProductsRobust(Parameters const& config)
+  AssembleMoreProductsRobust::AssembleMoreProductsRobust(
+    Parameters const& config)
     : trkEffTag_{config().trkEffTag()}
     , nParticlesTag_{config().nParticlesTag()}
     , seenParticlesTag_{config().seenParticlesTag()}
@@ -83,16 +86,16 @@ namespace {
     , reorderedExpectedNums_{config().reorderedExpectedNums()}
     , reorderedExpectedDenoms_{config().reorderedExpectedDenoms()}
   {
-    produces<double,art::InSubRun>("TrkEffValue");
-    produces<double,art::InSubRun>("ParticleRatio");
+    produces<double, art::InSubRun>("TrkEffValue");
+    produces<double, art::InSubRun>("ParticleRatio");
   }
 
   void
   AssembleMoreProductsRobust::beginSubRun(art::SubRun& sr)
   {
     // TrackEfficiency check
-    RangeSet trkEffRef {sr.run()};
-    trkEffRef.emplace_range(sr.subRun(),1,101);
+    RangeSet trkEffRef{sr.run()};
+    trkEffRef.emplace_range(sr.subRun(), 1, 101);
 
     auto const srn = sr.subRun();
 
@@ -114,9 +117,12 @@ namespace {
         art::same_ranges(trkEffRef, trkEffNum.rangeOfValidity())) {
       BOOST_CHECK(!art::disjoint_ranges(trkEffNum, trkEffDenom));
       BOOST_CHECK(!art::overlapping_ranges(trkEffNum, trkEffDenom));
-      auto const eff = static_cast<double>(trkEffNum.value())/trkEffDenom.value();
+      auto const eff =
+        static_cast<double>(trkEffNum.value()) / trkEffDenom.value();
       BOOST_CHECK_CLOSE_FRACTION(fullExpTrkEffs_.at(srn), eff, tolerance);
-      sr.put(std::make_unique<double>(eff), "TrkEffValue", art::subRunFragment(trkEffRef));
+      sr.put(std::make_unique<double>(eff),
+             "TrkEffValue",
+             art::subRunFragment(trkEffRef));
       trkEffNum.clear();
       trkEffDenom.clear();
     }
@@ -125,13 +131,13 @@ namespace {
   void
   AssembleMoreProductsRobust::endSubRun(art::SubRun& sr)
   {
-    SubRunNumber_t const srn {sr.subRun()};
+    SubRunNumber_t const srn{sr.subRun()};
     auto& nParticles = nParticles_[srn];
     auto& seenParticles = seenParticles_[srn];
     // nParticles produced at first stage 'eventGen'. Use getByLabel
     // because the product is likely split across multiple files.
     art::Handle<unsigned> nParticlesH;
-    if(sr.getByLabel(nParticlesTag_, nParticlesH)) {
+    if (sr.getByLabel(nParticlesTag_, nParticlesH)) {
       nParticles.update(nParticlesH);
     }
 
@@ -140,14 +146,17 @@ namespace {
     seenParticles.update(seenParticlesH);
 
     if (art::same_ranges(nParticles, seenParticles)) {
-      auto const ratio = static_cast<double>(seenParticles.value())/nParticles.value();
-      BOOST_CHECK_CLOSE_FRACTION(seenParticleRatios_.at(sr.subRun()), ratio, 0.01); // 1%
-      sr.put(std::make_unique<double>(ratio), "ParticleRatio", art::subRunFragment(nParticles.rangeOfValidity()));
+      auto const ratio =
+        static_cast<double>(seenParticles.value()) / nParticles.value();
+      BOOST_CHECK_CLOSE_FRACTION(
+        seenParticleRatios_.at(sr.subRun()), ratio, 0.01); // 1%
+      sr.put(std::make_unique<double>(ratio),
+             "ParticleRatio",
+             art::subRunFragment(nParticles.rangeOfValidity()));
       nParticles.clear();
       seenParticles.clear();
     }
   }
-
 }
 
 DEFINE_ART_MODULE(AssembleMoreProductsRobust)

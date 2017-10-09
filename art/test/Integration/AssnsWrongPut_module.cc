@@ -17,12 +17,11 @@ namespace art {
 
 class art::test::AssnsWrongPut : public EDProducer {
 public:
-
-  struct Config {};
+  struct Config {
+  };
   using Parameters = EDProducer::Table<Config>;
   explicit AssnsWrongPut(Parameters const&);
   void produce(art::Event&) override;
-
 };
 
 using std::size_t;

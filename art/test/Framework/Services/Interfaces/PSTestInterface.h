@@ -8,13 +8,13 @@
 
 namespace arttest {
   class PSTestInterface {
-public:
+  public:
     virtual ~PSTestInterface() = default;
     virtual art::ScheduleID schedule() const = 0;
   };
 }
 
-DECLARE_ART_SERVICE_INTERFACE(arttest::PSTestInterface,PER_SCHEDULE)
+DECLARE_ART_SERVICE_INTERFACE(arttest::PSTestInterface, PER_SCHEDULE)
 #endif /* art_test_Framework_Services_Interfaces_PSTestInterface_h */
 
 // Local Variables:

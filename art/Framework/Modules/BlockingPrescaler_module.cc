@@ -25,11 +25,10 @@ namespace art {
 
 class art::BlockingPrescaler : public EDFilter {
 public:
-
   struct Config {
-    Atom<size_t> blockSize { Name("blockSize"), 1 };
-    Atom<size_t> stepSize  { Name("stepSize") };
-    Atom<size_t> offset    { Name("offset"), 0 };
+    Atom<size_t> blockSize{Name("blockSize"), 1};
+    Atom<size_t> stepSize{Name("stepSize")};
+    Atom<size_t> offset{Name("offset"), 0};
   };
 
   using Parameters = EDFilter::Table<Config>;
@@ -38,28 +37,25 @@ public:
   virtual bool filter(Event&) override;
 
 private:
-  size_t count_ {};
-  size_t const m_;      // accept m in n (sequentially).
+  size_t count_{};
+  size_t const m_; // accept m in n (sequentially).
   size_t const n_;
   size_t const offset_; // First accepted event is 1 + offset.
 
-};  // BlockingPrescaler
+}; // BlockingPrescaler
 
 // ======================================================================
 
-art::BlockingPrescaler::
-BlockingPrescaler(Parameters const & config)
-  :
-  m_{config().blockSize()},
-  n_{config().stepSize()},
-  offset_{config().offset()}
-{
-}
+art::BlockingPrescaler::BlockingPrescaler(Parameters const& config)
+  : m_{config().blockSize()}
+  , n_{config().stepSize()}
+  , offset_{config().offset()}
+{}
 
 bool
 art::BlockingPrescaler::filter(Event&)
 {
-  bool const result {(count_ >= offset_) && ((count_ - offset_) % n_) < m_};
+  bool const result{(count_ >= offset_) && ((count_ - offset_) % n_) < m_};
   ++count_;
   return result;
 }

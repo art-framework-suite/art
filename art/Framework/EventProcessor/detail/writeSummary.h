@@ -9,8 +9,12 @@ namespace art {
   class PathsInfo;
 
   namespace detail {
-    void writeSummary(PathManager& pm, bool wantSummary, cet::cpu_timer const& timer);
-    void triggerReport(PathsInfo const& endPathsInfo, PathsInfo const& triggerPathsInfo, bool wantSummary);
+    void writeSummary(PathManager& pm,
+                      bool wantSummary,
+                      cet::cpu_timer const& timer);
+    void triggerReport(PathsInfo const& endPathsInfo,
+                       PathsInfo const& triggerPathsInfo,
+                       bool wantSummary);
     void timeReport(cet::cpu_timer const& timer);
   }
 }

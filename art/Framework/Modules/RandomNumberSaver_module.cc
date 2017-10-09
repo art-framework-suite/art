@@ -30,12 +30,12 @@ class art::RandomNumberSaver : public EDProducer {
 
 public:
   // --- Characteristics:
-  using label_t    = RNGservice::label_t;
+  using label_t = RNGservice::label_t;
   using snapshot_t = RNGservice::snapshot_t;
 
   // --- Configuration
   struct Config {
-    Atom<bool> debug {Name{"debug"}, false};
+    Atom<bool> debug{Name{"debug"}, false};
   };
 
   using Parameters = EDProducer::Table<Config>;
@@ -45,13 +45,12 @@ public:
 
 private:
   bool debug_;
-  std::mutex m_ {};
-};  // RandomNumberSaver
+  std::mutex m_{};
+}; // RandomNumberSaver
 
 // ======================================================================
 
-RandomNumberSaver::
-RandomNumberSaver(Parameters const& config)
+RandomNumberSaver::RandomNumberSaver(Parameters const& config)
   : debug_{config().debug()}
 {
   produces<snapshot_t>();
@@ -69,7 +68,7 @@ RandomNumberSaver::produce(Event& e)
 
   if (debug_) {
     // Only take out the lock if running in debug mode.
-    std::lock_guard<std::mutex> hold {m_};
+    std::lock_guard<std::mutex> hold{m_};
     rng->print_();
   }
 }

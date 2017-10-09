@@ -26,14 +26,15 @@ public:
   void produce(art::Event&) override;
 };
 
-
-art::test::ProductIDGetterNoPut::ProductIDGetterNoPut(fhicl::ParameterSet const&)
+art::test::ProductIDGetterNoPut::ProductIDGetterNoPut(
+  fhicl::ParameterSet const&)
 {
   produces<int>();
   produces<int>("i1");
 }
 
-void art::test::ProductIDGetterNoPut::produce(Event&)
+void
+art::test::ProductIDGetterNoPut::produce(Event&)
 {
   ProductID const p1{getProductID<int>()};
   BOOST_REQUIRE(p1.isValid());

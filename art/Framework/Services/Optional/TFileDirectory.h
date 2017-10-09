@@ -10,8 +10,8 @@
 #include <string>
 #include <utility>
 
-#include "art/Framework/Services/Optional/detail/RootDirectorySentry.h"
 #include "TDirectory.h"
+#include "art/Framework/Services/Optional/detail/RootDirectorySentry.h"
 
 class TFile;
 class TGraph;
@@ -20,7 +20,6 @@ namespace art {
 
   class TFileDirectory {
   public:
-
     virtual ~TFileDirectory() = default;
 
     /// make new ROOT object of type T, using constructor parameters
@@ -37,7 +36,9 @@ namespace art {
     T* makeAndRegister(char const* name, char const* title, ARGS... args) const;
 
     template <typename T, typename... ARGS>
-    T* makeAndRegister(std::string const& name, std::string const& title, ARGS... args) const;
+    T* makeAndRegister(std::string const& name,
+                       std::string const& title,
+                       ARGS... args) const;
 
     /// Create a new TFileDirectory, sharing the same TFile as this
     /// one, but with an additional 'dir', and with 'path' being the
@@ -96,11 +97,8 @@ namespace art {
                                   std::string const& title,
                                   ARGS... args) const
   {
-    return makeAndRegister(name.c_str(),
-                           title.c_str(),
-                           args...);
+    return makeAndRegister(name.c_str(), title.c_str(), args...);
   }
-
 }
 
 #endif /* art_Framework_Services_Optional_TFileDirectory_h */

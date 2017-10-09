@@ -22,9 +22,7 @@ namespace art {
   class Event;
   class HLTGlobalStatus;
 
-  class TriggerResultInserter
-    : public art::EDProducer
-  {
+  class TriggerResultInserter : public art::EDProducer {
   public:
     typedef cet::exempt_ptr<HLTGlobalStatus> TrigResPtr;
 
@@ -32,18 +30,19 @@ namespace art {
     explicit TriggerResultInserter(fhicl::ParameterSet const& ps) = delete;
 
     // the pset needed here is the one that defines the trigger path names
-    TriggerResultInserter(fhicl::ParameterSet const& ps, HLTGlobalStatus & pathResults);
+    TriggerResultInserter(fhicl::ParameterSet const& ps,
+                          HLTGlobalStatus& pathResults);
 
     void produce(art::Event& e) override;
 
   private:
     TrigResPtr trptr_;
     fhicl::ParameterSetID pset_id_;
-  };  // TriggerResultInserter
+  }; // TriggerResultInserter
 
-}  // art
+} // art
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_Framework_Core_TriggerResultInserter_h */
 

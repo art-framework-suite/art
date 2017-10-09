@@ -8,7 +8,7 @@
 
 namespace art {
   class BranchDescription;
-  using Selections = std::vector<BranchDescription const *>;
+  using Selections = std::vector<BranchDescription const*>;
   using SelectionsArray = std::array<Selections, NumBranchTypes>;
 }
 

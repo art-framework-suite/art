@@ -18,14 +18,14 @@ namespace art {
              TrigResPtr pathResults,
              ActionTable const& actions,
              ActivityRegistry& areg,
-             bool const isEndPath):
-    bitpos_{bitpos},
-    name_{path_name},
-    trptr_{pathResults},
-    actReg_{areg},
-    act_table_{actions},
-    workers_{std::move(workers)},
-    isEndPath_{isEndPath}
+             bool const isEndPath)
+    : bitpos_{bitpos}
+    , name_{path_name}
+    , trptr_{pathResults}
+    , actReg_{areg}
+    , act_table_{actions}
+    , workers_{std::move(workers)}
+    , isEndPath_{isEndPath}
   {}
 
   bool
@@ -33,27 +33,30 @@ namespace art {
                             int const nwrwue,
                             bool const isEvent)
   {
-    bool should_continue {true};
+    bool should_continue{true};
 
     // there is no support as of yet for specific paths having
     // different exception behavior
 
     // If not processing an event, always rethrow.
-    actions::ActionCodes action = (isEvent ? act_table_.find(e.root_cause()) : actions::Rethrow);
+    actions::ActionCodes action =
+      (isEvent ? act_table_.find(e.root_cause()) : actions::Rethrow);
     assert(action != actions::FailModule);
-    switch(action) {
+    switch (action) {
       case actions::FailPath: {
-          should_continue = false;
-          mf::LogWarning(e.category())
-            << "Failing path " << name_ << ", due to exception, message:\n"
-            << e.what() << "\n";
-          break;
+        should_continue = false;
+        mf::LogWarning(e.category())
+          << "Failing path " << name_ << ", due to exception, message:\n"
+          << e.what() << "\n";
+        break;
       }
       default: {
-          if (isEvent) ++timesExcept_;
-          state_ = art::hlt::Exception;
-          recordStatus(nwrwue, isEvent);
-          throw art::Exception{errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
+        if (isEvent)
+          ++timesExcept_;
+        state_ = art::hlt::Exception;
+        recordStatus(nwrwue, isEvent);
+        throw art::Exception{
+          errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
           << "Exception going through path " << name_ << "\n";
       }
     }
@@ -66,7 +69,8 @@ namespace art {
   {
     mf::LogError("PassingThrough")
       << "Exception passing through path " << name_ << "\n";
-    if (isEvent) ++timesExcept_;
+    if (isEvent)
+      ++timesExcept_;
     state_ = art::hlt::Exception;
     recordStatus(nwrwue, isEvent);
   }
@@ -75,7 +79,7 @@ namespace art {
   Path::recordStatus(int const nwrwue, bool const isEvent)
   {
     if (isEvent && trptr_) {
-      (*trptr_)[bitpos_]=HLTPathStatus(state_, nwrwue);
+      (*trptr_)[bitpos_] = HLTPathStatus(state_, nwrwue);
     }
   }
 
@@ -83,10 +87,12 @@ namespace art {
   Path::updateCounters(bool const success, bool const isEvent)
   {
     if (success) {
-      if (isEvent) ++timesPassed_;
+      if (isEvent)
+        ++timesPassed_;
       state_ = art::hlt::Pass;
     } else {
-      if (isEvent) ++timesFailed_;
+      if (isEvent)
+        ++timesFailed_;
       state_ = art::hlt::Fail;
     }
   }
@@ -98,24 +104,26 @@ namespace art {
     for_all(workers_, [](auto& w) { w.clearCounters(); });
   }
 
-   void Path::findEventModifiers(std::vector<std::string>& foundLabels) const
-   {
-      findByModifiesEvent(true, foundLabels);
-   }
+  void
+  Path::findEventModifiers(std::vector<std::string>& foundLabels) const
+  {
+    findByModifiesEvent(true, foundLabels);
+  }
 
-   void Path::findEventObservers(std::vector<std::string>& foundLabels) const
-   {
-      findByModifiesEvent(false, foundLabels);
-   }
+  void
+  Path::findEventObservers(std::vector<std::string>& foundLabels) const
+  {
+    findByModifiesEvent(false, foundLabels);
+  }
 
-   void Path::findByModifiesEvent(bool const modifies,
-                                  std::vector<std::string>& foundLabels) const
-   {
-     for (auto const& w : workers_) {
-       if (w.modifiesEvent() == modifies) {
-         foundLabels.push_back(w.label());
-       }
-     }
-   }
-
+  void
+  Path::findByModifiesEvent(bool const modifies,
+                            std::vector<std::string>& foundLabels) const
+  {
+    for (auto const& w : workers_) {
+      if (w.modifiesEvent() == modifies) {
+        foundLabels.push_back(w.label());
+      }
+    }
+  }
 }

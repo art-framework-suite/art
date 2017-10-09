@@ -27,39 +27,47 @@ namespace art {
 class art::test::DifferentHistoriesAnalyzer : public EDAnalyzer {
   struct Config {
     fhicl::Atom<std::string> input_label{fhicl::Name{"input_label"}};
-    fhicl::Sequence<std::string> process_names {fhicl::Name{"process_names"}};
+    fhicl::Sequence<std::string> process_names{fhicl::Name{"process_names"}};
   };
+
 public:
   using Parameters = Table<Config>;
   explicit DifferentHistoriesAnalyzer(Parameters const& p);
-private:
 
+private:
   void beginSubRun(SubRun const& sr) override;
   void analyze(Event const& e) override;
 
   using ProductTokens_t = std::vector<ProductToken<Ptr<int>>>;
 
   template <typename T>
-  void expected_value_in_ptr(T const& t, ProductTokens_t const&, int expected_value);
+  void expected_value_in_ptr(T const& t,
+                             ProductTokens_t const&,
+                             int expected_value);
 
   ProductTokens_t srPtrTokens_;
   ProductTokens_t ePtrTokens_;
 };
 
-
-art::test::DifferentHistoriesAnalyzer::DifferentHistoriesAnalyzer(Parameters const& p)
+art::test::DifferentHistoriesAnalyzer::DifferentHistoriesAnalyzer(
+  Parameters const& p)
   : EDAnalyzer{p}
 {
   auto const& input_label = p().input_label();
   for (auto const& process_name : p().process_names()) {
-    srPtrTokens_.push_back(mayConsume<Ptr<int>, InSubRun>(InputTag{input_label, "", process_name}));
-    ePtrTokens_.push_back(mayConsume<Ptr<int>, InEvent>(InputTag{input_label, "", process_name}));
+    srPtrTokens_.push_back(
+      mayConsume<Ptr<int>, InSubRun>(InputTag{input_label, "", process_name}));
+    ePtrTokens_.push_back(
+      mayConsume<Ptr<int>, InEvent>(InputTag{input_label, "", process_name}));
   }
 }
 
 template <typename T>
 void
-art::test::DifferentHistoriesAnalyzer::expected_value_in_ptr(T const& t, ProductTokens_t const& tokens, int const expected_value)
+art::test::DifferentHistoriesAnalyzer::expected_value_in_ptr(
+  T const& t,
+  ProductTokens_t const& tokens,
+  int const expected_value)
 {
   unsigned present{}, not_present{};
 
@@ -68,8 +76,7 @@ art::test::DifferentHistoriesAnalyzer::expected_value_in_ptr(T const& t, Product
     if (t.getByToken(token, h)) {
       ++present;
       BOOST_REQUIRE_EQUAL(**h, expected_value);
-    }
-    else {
+    } else {
       ++not_present;
     }
   }
@@ -78,11 +85,15 @@ art::test::DifferentHistoriesAnalyzer::expected_value_in_ptr(T const& t, Product
   BOOST_REQUIRE_EQUAL(not_present, 1u);
 }
 
-void art::test::DifferentHistoriesAnalyzer::beginSubRun(SubRun const& sr) {
+void
+art::test::DifferentHistoriesAnalyzer::beginSubRun(SubRun const& sr)
+{
   expected_value_in_ptr(sr, srPtrTokens_, 5);
 }
 
-void art::test::DifferentHistoriesAnalyzer::analyze(Event const& e) {
+void
+art::test::DifferentHistoriesAnalyzer::analyze(Event const& e)
+{
   expected_value_in_ptr(e, ePtrTokens_, 4);
 }
 

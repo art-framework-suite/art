@@ -27,7 +27,6 @@ namespace art {
                              BranchType,
                              unsigned rangeSetID,
                              bool compact);
-
   }
 }
 

@@ -16,8 +16,16 @@ class art::test::Wanted {
 public:
   explicit Wanted(fhicl::ParameterSet const&) {}
 
-  int getCachedValue() const { return cached_value_; }
-  void setValue(int const value) { cached_value_ = value; }
+  int
+  getCachedValue() const
+  {
+    return cached_value_;
+  }
+  void
+  setValue(int const value)
+  {
+    cached_value_ = value;
+  }
 
 private:
   int cached_value_;

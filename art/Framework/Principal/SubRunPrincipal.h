@@ -27,29 +27,65 @@ namespace art {
 
   class SubRunPrincipal final : public Principal {
   public:
-
     using Auxiliary = SubRunAuxiliary;
     static constexpr BranchType branch_type = Auxiliary::branch_type;
 
-    SubRunPrincipal(SubRunAuxiliary const&,
-                    ProcessConfiguration const&,
-                    cet::exempt_ptr<ProductTable const> presentProducts,
-                    std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
-                    std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
+    SubRunPrincipal(
+      SubRunAuxiliary const&,
+      ProcessConfiguration const&,
+      cet::exempt_ptr<ProductTable const> presentProducts,
+      std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
+      std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
 
     RunPrincipal const& runPrincipal() const;
 
-    cet::exempt_ptr<RunPrincipal const> runPrincipalExemptPtr() const { return runPrincipal_; }
-    void setRunPrincipal(cet::exempt_ptr<RunPrincipal const> rp) { runPrincipal_ = rp; }
+    cet::exempt_ptr<RunPrincipal const>
+    runPrincipalExemptPtr() const
+    {
+      return runPrincipal_;
+    }
+    void
+    setRunPrincipal(cet::exempt_ptr<RunPrincipal const> rp)
+    {
+      runPrincipal_ = rp;
+    }
 
-    SubRunAuxiliary const& aux() const { return aux_; }
-    SubRunID id() const { return aux().id(); }
-    RunNumber_t run() const { return aux().run(); }
-    SubRunNumber_t subRun() const { return aux().subRun(); }
-    Timestamp const& beginTime() const { return aux().beginTime(); }
-    Timestamp const& endTime() const { return aux().endTime(); }
+    SubRunAuxiliary const&
+    aux() const
+    {
+      return aux_;
+    }
+    SubRunID
+    id() const
+    {
+      return aux().id();
+    }
+    RunNumber_t
+    run() const
+    {
+      return aux().run();
+    }
+    SubRunNumber_t
+    subRun() const
+    {
+      return aux().subRun();
+    }
+    Timestamp const&
+    beginTime() const
+    {
+      return aux().beginTime();
+    }
+    Timestamp const&
+    endTime() const
+    {
+      return aux().endTime();
+    }
 
-    void setEndTime(Timestamp const& time) { aux_.setEndTime(time); }
+    void
+    setEndTime(Timestamp const& time)
+    {
+      aux_.setEndTime(time);
+    }
 
     void put(std::unique_ptr<EDProduct>&&,
              BranchDescription const&,
@@ -58,19 +94,30 @@ namespace art {
 
     void fillGroup(BranchDescription const&) override;
 
-    RangeSet seenRanges() const override { return rangeSet_; }
-    void updateSeenRanges(RangeSet const& rs) { rangeSet_ = rs; }
+    RangeSet
+    seenRanges() const override
+    {
+      return rangeSet_;
+    }
+    void
+    updateSeenRanges(RangeSet const& rs)
+    {
+      rangeSet_ = rs;
+    }
 
-    BranchType branchType() const override { return branch_type; }
+    BranchType
+    branchType() const override
+    {
+      return branch_type;
+    }
 
   private:
-
     ProcessHistoryID const& processHistoryID() const override;
     void setProcessHistoryID(ProcessHistoryID const& phid) override;
 
     SubRunAuxiliary aux_;
-    cet::exempt_ptr<RunPrincipal const> runPrincipal_ {nullptr};
-    RangeSet rangeSet_ {RangeSet::invalid()};
+    cet::exempt_ptr<RunPrincipal const> runPrincipal_{nullptr};
+    RangeSet rangeSet_{RangeSet::invalid()};
   };
 
 } // namespace art
