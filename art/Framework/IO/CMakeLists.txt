@@ -1,5 +1,6 @@
 art_make(LIB_LIBRARIES
   canvas
+  cetlib_except
   ${Boost_DATE_TIME_LIBRARY}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_REGEX_LIBRARY}
