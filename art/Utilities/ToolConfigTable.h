@@ -2,6 +2,7 @@
 #define art_Utilities_ToolConfigTable_h
 
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/KeysToIgnore.h"
 #include "fhiclcpp/types/Table.h"

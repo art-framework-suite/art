@@ -5,6 +5,7 @@
 #include "art/Framework/Art/detail/MetadataRegexHelpers.h"
 #include "art/Framework/Art/detail/PrintFormatting.h"
 #include "art/Framework/Art/detail/PluginMetadata.h"
+#include "art/Framework/Art/detail/describe.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/bold_fontify.h"
 
