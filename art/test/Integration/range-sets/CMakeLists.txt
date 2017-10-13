@@ -270,7 +270,7 @@ SET_TESTS_PROPERTIES(RangeSetAggregation_p3b_w PROPERTIES
 cet_test(RangeSetAggregation_p3b_r1 HANDBUILT
   TEST_EXEC file_info_dumper
   TEST_ARGS
-  --range-of-validity
+  --range-of-validity -s
   "../RangeSetAggregation_p3b_w.d/r.root"
   TEST_PROPERTIES
   DEPENDS RangeSetAggregation_p3b_w
