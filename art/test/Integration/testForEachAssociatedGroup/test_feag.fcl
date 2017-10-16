@@ -1,0 +1,50 @@
+physics:
+{
+  producers:
+  {
+    pm1:
+    {
+      module_type: AssnProducer1
+    }
+    pm2:
+    {
+      module_type: AssnProducer2
+      input_label: pm1
+    }
+  }
+
+  analyzers:
+  {
+    am: 
+    {
+      module_type: AssnAnalyzer
+      input_label: pm2
+      
+      enableTests: [ "forEachAssociatedGroup" ]
+    }
+  }
+
+   p1: [ pm1, pm2 ]
+   e1: [ am, out1 ]
+
+   trigger_paths: [ p1 ]
+   end_paths: [ e1 ]
+}
+
+outputs:
+{
+  out1:
+  {
+    module_type: RootOutput
+    fileName: "out.root"
+  }
+}
+
+source:
+{
+  module_type: EmptyEvent
+  # were in the global area before
+  maxEvents: 3
+}
+
+process_name: DEVEL

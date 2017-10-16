@@ -11,7 +11,7 @@ simple_plugin( ConstAssnsIterAnalyzer           "module"  NO_INSTALL )
 #)
 
 cet_test(test_constiter HANDBUILT
-  TEST_EXEC lar 
+  TEST_EXEC art
   TEST_ARGS --rethrow-all --config test_constiter.fcl
   DATAFILES test_constiter.fcl
 )

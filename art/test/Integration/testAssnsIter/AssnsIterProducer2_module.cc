@@ -14,17 +14,17 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "canvas/Utilities/InputTag.h"
-#include "canvas/Utilities/PtrMaker.h"
+#include "art/Persistency/Common/PtrMaker.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-namespace lartest {
+namespace arttest {
   class AssnsIterProducer2;
 }
 
-using lartest::AssnsIterProducer2;
+using arttest::AssnsIterProducer2;
 
-class lartest::AssnsIterProducer2 : public art::EDProducer {
+class arttest::AssnsIterProducer2 : public art::EDProducer {
 public:
   explicit AssnsIterProducer2(fhicl::ParameterSet const& p);
   // The compiler-generated destructor is fine for non-base
@@ -62,8 +62,8 @@ AssnsIterProducer2::produce(art::Event& e)
   art::Handle<std::vector<float>> fh;
   e.getByLabel(fInputLabel, fh);
 
-  PtrMaker<int> make_intptr(e, ih.id());
-  PtrMaker<float> make_floatptr(e, fh.id());
+  art::PtrMaker<int> make_intptr(e, ih.id());
+  art::PtrMaker<float> make_floatptr(e, fh.id());
 
   auto assns = std::make_unique<art::Assns<int, float, std::string>>();
   for (size_t i = 0; i < 3; ++i) {
