@@ -61,8 +61,8 @@ art_make(EXCLUDE
   art_Framework_IO_Root_detail_sources
   cetlib
   canvas
-  root_Hist
-  root_Tree
+  ${ROOT_HIST}
+  ${ROOT_TREE}
 )
 
 simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Catalog)
@@ -71,8 +71,8 @@ simple_plugin(RootOutput "module" art_Framework_IO_Root)
 art_make_exec( NAME product_sizes_dumper
   LIBRARIES
   art_Framework_IO_Root
+  cetlib
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${CETLIB}
   )
 
 art_make_exec( NAME config_dumper
