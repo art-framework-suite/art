@@ -99,7 +99,7 @@ simple_plugin(TestSimpleMemoryCheckProducer "module"  NO_INSTALL)
 simple_plugin(TestTimeTrackerProducer     "module"  NO_INSTALL)
 simple_plugin(TestTimeTrackerFilter       "module"  NO_INSTALL)
 simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL)
-simple_plugin(Throwing                    "service" NO_INSTALL root_Core) # dependency on ROOT Core because of TVersionCheck
+simple_plugin(Throwing                    "service" NO_INSTALL ${ROOT_CORE}) # dependency on ROOT Core because of TVersionCheck
 simple_plugin(ToyProductAnalyzer          "module"  NO_INSTALL)
 simple_plugin(ToyProductFilter            "module"  NO_INSTALL)
 simple_plugin(ToyProductFilterStream      "module"  NO_INSTALL)
