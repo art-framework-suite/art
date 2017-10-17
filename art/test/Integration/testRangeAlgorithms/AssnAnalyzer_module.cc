@@ -52,7 +52,7 @@ private:
    
    std::set<std::string> fEnabledTests;
    
-   void for_each_associated_group_test(art::Event const & e) const;
+   void for_each_group_test(art::Event const & e) const;
    
 };
 
@@ -75,13 +75,10 @@ AssnAnalyzer::AssnAnalyzer(fhicl::ParameterSet const & p)
 
 void AssnAnalyzer::analyze(art::Event const & e)
 {
-   if (fEnabledTests.count("forEachAssociatedGroup"))
-     AssnAnalyzer::for_each_associated_group_test(e);
-   if (fEnabledTests.count("associatedGroups"))
-     AssnAnalyzer::associated_groups_test(e);
+     AssnAnalyzer::for_each_group_test(e);
 }
 
-void AssnAnalyzer::for_each_associated_group_test(art::Event const & e) const
+void AssnAnalyzer::for_each_group_test(art::Event const & e) const
 {
    typedef typename art::Assns<int, std::string> istr_assns;
    auto const & int_to_str_assns = *e.getValidHandle<istr_assns> (fInputLabel);
@@ -95,7 +92,7 @@ void AssnAnalyzer::for_each_associated_group_test(art::Event const & e) const
       }
    };
    
-   util::for_each_associated_group(int_to_str_assns,
+   util::for_each_group(int_to_str_assns,
                                    strings);
    
    //strings should be same as vs
@@ -107,6 +104,6 @@ void AssnAnalyzer::for_each_associated_group_test(art::Event const & e) const
       }
    }
    
-} // for_each_associated_group_test()
+} // for_each_group_test()
 
 DEFINE_ART_MODULE(AssnAnalyzer)

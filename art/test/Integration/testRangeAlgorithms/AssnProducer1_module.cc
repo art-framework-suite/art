@@ -49,7 +49,7 @@ private:
 };
 
 
-AssnProducer1::AssnProducer1(fhicl::ParameterSet const & p)
+AssnProducer1::AssnProducer1(fhicl::ParameterSet const &)
 {
    produces<intvec_t>();
    produces<strvec_t>();
