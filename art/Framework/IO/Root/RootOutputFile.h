@@ -211,12 +211,15 @@ namespace art {
     RootOutputTreePtrArray treePointers_;
     bool dataTypeReported_{false};
 
-    // The descriptions are owned by the OutputModule base class, so we
-    // are guaranteed that the pointers will remain valid for the
-    // lifetime of the RootOutputFile.
-    std::array<std::map<ProductID, cet::exempt_ptr<BranchDescription const>>,
-               NumBranchTypes>
-      descriptionsToPersist_{{}};
+    // Descriptions are, again, owned by the RootOutputFile.  This is
+    // an additional overhead that could be mitigated by replacing the
+    // ProductDescriptionsByID type with a std::map<ProductID,
+    // std::shared_ptr<BranchDescription>>.  The reason the product
+    // descriptions must be owned is that whenever retrieving the
+    // description for a parent, we get it from the principal...whose
+    // lifetime is temporary wrt. that of the output file.
+    std::array<ProductDescriptionsByID, NumBranchTypes> descriptionsToPersist_{
+      {}};
 
     // Connection closed when d'tor called.  DB written to file when
     // sqlite3_close is called.

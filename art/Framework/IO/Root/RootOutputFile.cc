@@ -787,8 +787,7 @@ namespace art {
     ProductRegistry reg;
     auto productDescriptionsToWrite = [this, &reg](BranchType const bt) {
       for (auto const& pr : descriptionsToPersist_[bt]) {
-        assert(pr.second);
-        auto const& desc = *pr.second;
+        auto const& desc = pr.second;
         reg.productList_.emplace(BranchKey{desc}, desc);
       }
     };
@@ -884,7 +883,7 @@ namespace art {
     for (auto const& val : selectedOutputItemList_[BT]) {
       auto const& bd = val.branchDescription_;
       auto const pid = bd.productID();
-      descriptionsToPersist_[BT].emplace(pid, cet::make_exempt_ptr(&bd));
+      descriptionsToPersist_[BT].emplace(pid, bd);
       bool const produced = bd.produced();
       bool const resolveProd = (produced || !fastCloning ||
                                 treePointers_[BT]->uncloned(bd.branchName()));
@@ -927,7 +926,7 @@ namespace art {
                     // FIXME: Is this an error condition?
                     continue;
                   }
-                  descriptionsToPersist_[BT].emplace(parent_bid, parent_bd);
+                  descriptionsToPersist_[BT].emplace(parent_bid, *parent_bd);
 
                   if (!parent_bd->produced()) {
                     // We got it from the input, nothing to do.
