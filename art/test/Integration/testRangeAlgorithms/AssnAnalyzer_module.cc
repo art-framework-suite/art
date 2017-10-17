@@ -16,10 +16,10 @@
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Utilities/InputTag.h"
+#include "canvas/Utilities/RangeAlgorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "canvas/Utilities/ForEachAssociatedGroup.h"
 
 #include <set>
 #include <algorithm> // std::copy()
@@ -92,7 +92,7 @@ void AssnAnalyzer::for_each_group_test(art::Event const & e) const
       }
    };
    
-   util::for_each_group(int_to_str_assns,
+   art::for_each_group(int_to_str_assns,
                                    strings);
    
    //strings should be same as vs
