@@ -47,6 +47,7 @@ namespace art {
     struct Config {
 
       using Name = fhicl::Name;
+      using Comment = fhicl::Comment;
       template <typename T>
       using Atom = fhicl::Atom<T>;
       template <typename T>
@@ -92,6 +93,18 @@ namespace art {
       OptionalAtom<SubRunNumber_t> hasFirstSubRun{Name("firstSubRun")};
       OptionalAtom<EventNumber_t> hasFirstEvent{Name("firstEvent")};
       OptionalAtom<RunNumber_t> setRunNumber{Name("setRunNumber")};
+      Atom<bool> compactSubRunRanges{
+        Name("compactEventRanges"),
+        Comment(
+          "If users can guarantee that SubRuns do not span multiple input\n"
+          "files, the 'compactEventRanges' parameter can be set to 'true'\n"
+          "to ensure the most compact representation of event-ranges "
+          "associated\n"
+          "with all Runs and SubRuns stored in the input file.\n\n"
+          "WARNING: Enabling compact event ranges creates a history that can\n"
+          "         cause file concatenation problems if a given SubRun spans\n"
+          "         multiple input files.  Use with care."),
+        false};
     };
 
     RootInputFileSequence(fhicl::TableFragment<Config> const&,
@@ -240,6 +253,7 @@ namespace art {
     int eventsRemainingInFile_{};
     EventID origEventID_{};
     EventNumber_t eventsToSkip_;
+    bool const compactSubRunRanges_;
     bool const noEventSort_;
     bool const skipBadFiles_;
     unsigned int const treeCacheSize_;

@@ -4,8 +4,10 @@ art_make_library(
   LIBRARY_NAME art_Framework_IO_Root_detail_sources
   SOURCE
   detail/DummyProductCache.cc
+  detail/RangeSetInfo.cc
   detail/getEntry.cc
   detail/getObjectRequireDict.cc
+  detail/rangeSetFromFileIndex.cc
   detail/resolveRangeSet.cc
   detail/rootFileSizeTools.cc
   detail/rootOutputConfigurationTools.cc

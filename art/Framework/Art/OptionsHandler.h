@@ -27,6 +27,7 @@ namespace art {
   };
 
 } // namespace art
+
 #endif /* art_Framework_Art_OptionsHandler_h */
 
 // Local Variables:

@@ -1,0 +1,7 @@
+source: {
+  module_type: RootInput
+  fileNames: @nil
+  compactEventRanges: true
+}
+
+process_name: test3

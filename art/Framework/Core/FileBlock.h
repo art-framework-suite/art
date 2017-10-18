@@ -37,6 +37,7 @@ namespace art {
     std::string fileName_{};
     std::unique_ptr<ResultsPrincipal> resp_{};
   };
+
 } // namespace art
 
 #endif /* art_Framework_Core_FileBlock_h */

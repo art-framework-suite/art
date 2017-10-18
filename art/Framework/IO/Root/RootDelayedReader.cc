@@ -39,7 +39,8 @@ namespace art {
     cet::exempt_ptr<RootInputFile> primaryFile,
     cet::exempt_ptr<BranchIDLists const> bidLists,
     BranchType const branchType,
-    EventID const eID)
+    EventID const eID,
+    bool const compactSubRunRanges)
     : DelayedReader()
     , fileFormatVersion_{version}
     , db_{db}
@@ -51,6 +52,7 @@ namespace art {
     , branchIDLists_{bidLists}
     , branchType_{branchType}
     , eventID_{eID}
+    , compactSubRunRanges_{compactSubRunRanges}
   {}
 
   void
@@ -211,8 +213,11 @@ namespace art {
     // this case because products that represent a full (Sub)Run are
     // allowed to be duplicated in an input file.  The behavior in
     // such a case is a NOP.
-    RangeSet mergedRangeSet = detail::resolveRangeSet(
-      db_, "SomeInput"s, branchType_, result->getRangeSetID());
+    RangeSet mergedRangeSet = detail::resolveRangeSet(db_,
+                                                      "SomeInput"s,
+                                                      branchType_,
+                                                      result->getRangeSetID(),
+                                                      compactSubRunRanges_);
     // Note: If the mergedRangeSet is invalid here that means the first product
     // was a dummy created
     //       by RootOutputFile to prevent double-counting when combining
@@ -238,8 +243,11 @@ namespace art {
       }
       // assert((new_prov.get() != nullptr) && "Could not find provenance for
       // this Run/SubRun product!");  auto const id = p->getRangeSetID();
-      RangeSet const& newRS = detail::resolveRangeSet(
-        db_, "SomeInput"s, branchType_, p->getRangeSetID());
+      RangeSet const& newRS = detail::resolveRangeSet(db_,
+                                                      "SomeInput"s,
+                                                      branchType_,
+                                                      p->getRangeSetID(),
+                                                      compactSubRunRanges_);
       if (!mergedRangeSet.is_valid() && !newRS.is_valid()) {
         // Both range sets are invalid, do nothing.
         // RootOutputFile creates this situation to prevent double-counting when

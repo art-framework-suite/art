@@ -21,9 +21,16 @@
 #
 # Process 2c: q_1.root [19,21), [11,16) & [1,6) FileIndex: [2-4,12,14-15]
 #             q_2.root [6,11) & [16,19)         FileIndex: [6,9-10,16-18]  # Don't create this one
-
-# Process 3: r_1.root [1,21)     FileIndex: [2-4,6,10,12,14-18]
-
+#
+# Process 3a: r_1.root [1,21)     FileIndex: [2-4,6,10,12,14-18]
+#
+# Process 3b: The purpose of this test is to verify that enabling
+#             compact range sets when reading the output of 2b results
+#             in an output file with the range sets:
+#
+#               r.root [1,21) & [6,19)  FileIndex: [2-4,6,10,12,14-18]
+#
+#             Reading "r.root" will then yield an error.
 
 cet_test(RangeSetAggregation_p1_w HANDBUILT
   TEST_EXEC art
@@ -178,7 +185,7 @@ cet_test(RangeSetAggregation_p2c_r HANDBUILT
   )
 
 # Process 3
-cet_test(RangeSetAggregation_p3_w1 HANDBUILT
+cet_test(RangeSetAggregation_p3a_w1 HANDBUILT
   TEST_EXEC art
   TEST_ARGS
   --rethrow-all
@@ -191,7 +198,7 @@ cet_test(RangeSetAggregation_p3_w1 HANDBUILT
   TEST_PROPERTIES
   )
 
-cet_test(RangeSetAggregation_p3_w2 HANDBUILT
+cet_test(RangeSetAggregation_p3a_w2 HANDBUILT
   TEST_EXEC art
   TEST_ARGS
   --rethrow-all
@@ -204,36 +211,76 @@ cet_test(RangeSetAggregation_p3_w2 HANDBUILT
   TEST_PROPERTIES
   )
 
-SET_TESTS_PROPERTIES(RangeSetAggregation_p3_w1 PROPERTIES
+SET_TESTS_PROPERTIES(RangeSetAggregation_p3a_w1 PROPERTIES
   DEPENDS "RangeSetAggregation_p2a_w1;RangeSetAggregation_p2a_w2"
 )
 
-SET_TESTS_PROPERTIES(RangeSetAggregation_p3_w2 PROPERTIES
+SET_TESTS_PROPERTIES(RangeSetAggregation_p3a_w2 PROPERTIES
   DEPENDS "RangeSetAggregation_p2b_w1;RangeSetAggregation_p2b_w2"
 )
 
 # Check range sets/file indexes from process 3
 foreach(i RANGE 1 2)
-  cet_test(RangeSetAggregation_p3_r${i} HANDBUILT
+  cet_test(RangeSetAggregation_p3a_r${i} HANDBUILT
     TEST_EXEC file_info_dumper
     TEST_ARGS
     --range-of-validity
     --file-index
-    -s "../RangeSetAggregation_p3_w${i}.d/r_${i}.root"
-    REF "${CMAKE_CURRENT_SOURCE_DIR}/ref/RangeSetAggregation_p3_r${i}-ref.txt"
+    -s "../RangeSetAggregation_p3a_w${i}.d/r_${i}.root"
+    REF "${CMAKE_CURRENT_SOURCE_DIR}/ref/RangeSetAggregation_p3a_r${i}-ref.txt"
     TEST_PROPERTIES
-    DEPENDS RangeSetAggregation_p3_w${i}
+    DEPENDS RangeSetAggregation_p3a_w${i}
     )
 endforeach()
 
-cet_test(RangeSetAggregation_p3_w3 HANDBUILT
+cet_test(RangeSetAggregation_p3a_w3 HANDBUILT
   TEST_EXEC art
   TEST_ARGS
   --rethrow-all
-  -c rangeSetAggregation_p3_w3.fcl
+  -c rangeSetAggregation_p3a_w3.fcl
   -s "../RangeSetAggregation_p2b_w1.d/q_1.root"
   DATAFILES
-  fcl/rangeSetAggregation_p3_w3.fcl
+  fcl/rangeSetAggregation_p3a_w3.fcl
   TEST_PROPERTIES
   DEPENDS RangeSetAggregation_p2b_w1
   )
+
+cet_test(RangeSetAggregation_p3b_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  --rethrow-all
+  -c rangeSetAggregation_p3b_w.fcl
+  -o "r.root"
+  -s "../RangeSetAggregation_p2b_w1.d/q_1.root"
+  -s "../RangeSetAggregation_p2b_w2.d/q_2.root"
+  DATAFILES
+  fcl/rangeSetAggregation_p3b_w.fcl)
+
+SET_TESTS_PROPERTIES(RangeSetAggregation_p3b_w PROPERTIES
+  DEPENDS "RangeSetAggregation_p2a_w1;RangeSetAggregation_p2a_w2")
+
+# ====================================================================
+# The next two tests demonstrate that an attempt to read the
+# 'compactified' range sets from 'r.root' will result in an exception
+# throw since the on-disk range sets overlap.  The *_r2* test below
+# shows that trying to read overlapping range sets due to
+# compactification cannot be circumvented just by attempting to read
+# them in a 'compact' form.
+
+cet_test(RangeSetAggregation_p3b_r1 HANDBUILT
+  TEST_EXEC file_info_dumper
+  TEST_ARGS
+  --range-of-validity -s
+  "../RangeSetAggregation_p3b_w.d/r.root"
+  TEST_PROPERTIES
+  DEPENDS RangeSetAggregation_p3b_w
+  PASS_REGULAR_EXPRESSION "Attempt to merge event ranges that both contain one or more of the same events")
+
+cet_test(RangeSetAggregation_p3b_r2 HANDBUILT
+  TEST_EXEC file_info_dumper
+  TEST_ARGS
+  --range-of-validity=compact
+  "../RangeSetAggregation_p3b_w.d/r.root"
+  TEST_PROPERTIES
+  DEPENDS RangeSetAggregation_p3b_w
+  PASS_REGULAR_EXPRESSION "Attempt to merge event ranges that both contain one or more of the same events")

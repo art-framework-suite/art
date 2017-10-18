@@ -133,7 +133,7 @@ namespace art {
   }
 
   static void
-  fillTreeBranches(TTree* /*tree*/,
+  fillTreeBranches(TTree*,
                    vector<TBranch*> const& branches,
                    bool saveMemory,
                    int64_t threshold)

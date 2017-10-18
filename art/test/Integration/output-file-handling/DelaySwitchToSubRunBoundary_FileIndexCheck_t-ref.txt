@@ -1,5 +1,7 @@
 <separator (=)>
 File: out_1.root
+Representation: full (default)
+<separator (-)>
  Run: 1
   SubRun: 0 Event range: [1,6)
   SubRun: 1 Event range: [1,6)
@@ -24,6 +26,8 @@ and Events stored in the root file.
 
 <separator (=)>
 File: out_2.root
+Representation: full (default)
+<separator (-)>
  Run: 1
   SubRun: 2 Event range: [1,6)
   SubRun: 3 Event range: [1,6)

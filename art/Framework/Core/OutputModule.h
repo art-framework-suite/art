@@ -167,16 +167,18 @@ namespace art {
 
     void doRespondToCloseOutputFiles(FileBlock const& fb);
 
-    bool doBeginRun(RunPrincipal& rp, CurrentProcessingContext const* cpc);
+    bool doBeginRun(RunPrincipal const& rp,
+                    CurrentProcessingContext const* cpc);
 
-    bool doEndRun(RunPrincipal& rp, CurrentProcessingContext const* cpc);
+    bool doEndRun(RunPrincipal const& rp, CurrentProcessingContext const* cpc);
 
-    bool doBeginSubRun(SubRunPrincipal& srp,
+    bool doBeginSubRun(SubRunPrincipal const& srp,
                        CurrentProcessingContext const* cpc);
 
-    bool doEndSubRun(SubRunPrincipal& srp, CurrentProcessingContext const* cpc);
+    bool doEndSubRun(SubRunPrincipal const& srp,
+                     CurrentProcessingContext const* cpc);
 
-    bool doEvent(EventPrincipal& ep,
+    bool doEvent(EventPrincipal const& ep,
                  int streamIndex,
                  CurrentProcessingContext const* cpc,
                  std::atomic<std::size_t>& counts_run,
@@ -230,25 +232,25 @@ namespace art {
 
     virtual void endJob();
 
-    virtual void beginRun(RunPrincipal&);
+    virtual void beginRun(RunPrincipal const&);
 
-    virtual void endRun(RunPrincipal&);
+    virtual void endRun(RunPrincipal const&);
 
     virtual void writeRun(RunPrincipal& r) = 0;
 
     virtual void setRunAuxiliaryRangeSetID(RangeSet const&);
 
-    virtual void beginSubRun(SubRunPrincipal&);
+    virtual void beginSubRun(SubRunPrincipal const&);
 
-    virtual void endSubRun(SubRunPrincipal&);
+    virtual void endSubRun(SubRunPrincipal const&);
 
     virtual void writeSubRun(SubRunPrincipal& sr) = 0;
 
     virtual void setSubRunAuxiliaryRangeSetID(RangeSet const&);
 
-    virtual void event(EventPrincipal&);
+    virtual void event(EventPrincipal const&);
 
-    virtual void event_in_stream(EventPrincipal&, int streamIndex);
+    virtual void event_in_stream(EventPrincipal const&, int streamIndex);
 
     virtual void write(EventPrincipal& e) = 0;
 

@@ -35,10 +35,10 @@ public:
   void writeSubRun(art::SubRunPrincipal& sr) override;
   void writeRun(art::RunPrincipal& r) override;
 
-  void beginRun(art::RunPrincipal& r) override;
-  void beginSubRun(art::SubRunPrincipal& sr) override;
-  void endRun(art::RunPrincipal& r) override;
-  void endSubRun(art::SubRunPrincipal& sr) override;
+  void beginRun(art::RunPrincipal const& r) override;
+  void beginSubRun(art::SubRunPrincipal const& sr) override;
+  void endRun(art::RunPrincipal const& r) override;
+  void endSubRun(art::SubRunPrincipal const& sr) override;
 
 private:
 };
@@ -67,25 +67,25 @@ arttest::FlushingGeneratorTest::writeRun(art::RunPrincipal& r)
 }
 
 void
-arttest::FlushingGeneratorTest::beginRun(art::RunPrincipal& r)
+arttest::FlushingGeneratorTest::beginRun(art::RunPrincipal const& r)
 {
   assert(!r.runID().isFlush());
 }
 
 void
-arttest::FlushingGeneratorTest::beginSubRun(art::SubRunPrincipal& sr)
+arttest::FlushingGeneratorTest::beginSubRun(art::SubRunPrincipal const& sr)
 {
   assert(!sr.subRunID().isFlush());
 }
 
 void
-arttest::FlushingGeneratorTest::endRun(art::RunPrincipal& r)
+arttest::FlushingGeneratorTest::endRun(art::RunPrincipal const& r)
 {
   assert(!r.runID().isFlush());
 }
 
 void
-arttest::FlushingGeneratorTest::endSubRun(art::SubRunPrincipal& sr)
+arttest::FlushingGeneratorTest::endSubRun(art::SubRunPrincipal const& sr)
 {
   assert(!sr.subRunID().isFlush());
 }

@@ -163,7 +163,7 @@ namespace art {
   }
 
   void
-  art::OutputModule::doSelectProducts(ProductTables const& tables)
+  OutputModule::doSelectProducts(ProductTables const& tables)
   {
     // Note: The keptProducts_ data member records all of the
     // BranchDescription objects that may be persisted to disk.  Since
@@ -208,26 +208,26 @@ namespace art {
   }
 
   void
-  art::OutputModule::selectProducts(ProductTables const& tables)
+  OutputModule::selectProducts(ProductTables const& tables)
   {
     doSelectProducts(tables);
     postSelectProducts();
   }
 
   void
-  art::OutputModule::postSelectProducts()
+  OutputModule::postSelectProducts()
   {}
 
   void
-  art::OutputModule::registerProducts(ProductDescriptions& producedProducts,
-                                      ModuleDescription const& md)
+  OutputModule::registerProducts(ProductDescriptions& producedProducts,
+                                 ModuleDescription const& md)
   {
     doRegisterProducts(producedProducts, md);
   }
 
   void
-  art::OutputModule::doRegisterProducts(ProductDescriptions&,
-                                        ModuleDescription const&)
+  OutputModule::doRegisterProducts(ProductDescriptions&,
+                                   ModuleDescription const&)
   {}
 
   void
@@ -274,7 +274,7 @@ namespace art {
   }
 
   bool
-  OutputModule::doBeginRun(RunPrincipal& rp,
+  OutputModule::doBeginRun(RunPrincipal const& rp,
                            CurrentProcessingContext const* cpc)
   {
     detail::CPCSentry sentry{*cpc};
@@ -286,7 +286,7 @@ namespace art {
   }
 
   bool
-  OutputModule::doBeginSubRun(SubRunPrincipal& srp,
+  OutputModule::doBeginSubRun(SubRunPrincipal const& srp,
                               CurrentProcessingContext const* cpc)
   {
     detail::CPCSentry sentry{*cpc};
@@ -298,7 +298,7 @@ namespace art {
   }
 
   bool
-  OutputModule::doEvent(EventPrincipal& ep,
+  OutputModule::doEvent(EventPrincipal const& ep,
                         int /*si*/,
                         CurrentProcessingContext const* cpc,
                         std::atomic<std::size_t>& counts_run,
@@ -351,7 +351,7 @@ namespace art {
   }
 
   bool
-  OutputModule::doEndSubRun(SubRunPrincipal& srp,
+  OutputModule::doEndSubRun(SubRunPrincipal const& srp,
                             CurrentProcessingContext const* cpc)
   {
     detail::CPCSentry sentry{*cpc};
@@ -377,7 +377,8 @@ namespace art {
   }
 
   bool
-  OutputModule::doEndRun(RunPrincipal& rp, CurrentProcessingContext const* cpc)
+  OutputModule::doEndRun(RunPrincipal const& rp,
+                         CurrentProcessingContext const* cpc)
   {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "endRun called\n";
@@ -531,27 +532,27 @@ namespace art {
   {}
 
   void
-  OutputModule::event(EventPrincipal&)
+  OutputModule::event(EventPrincipal const&)
   {}
 
   void
-  OutputModule::event_in_stream(EventPrincipal&, int /*si*/)
+  OutputModule::event_in_stream(EventPrincipal const&, int /*si*/)
   {}
 
   void
-  OutputModule::beginRun(RunPrincipal&)
+  OutputModule::beginRun(RunPrincipal const&)
   {}
 
   void
-  OutputModule::endRun(RunPrincipal&)
+  OutputModule::endRun(RunPrincipal const&)
   {}
 
   void
-  OutputModule::beginSubRun(SubRunPrincipal&)
+  OutputModule::beginSubRun(SubRunPrincipal const&)
   {}
 
   void
-  OutputModule::endSubRun(SubRunPrincipal&)
+  OutputModule::endSubRun(SubRunPrincipal const&)
   {}
 
   void

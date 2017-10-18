@@ -78,7 +78,6 @@ private:
   writeRun(art::RunPrincipal&) override
   {}
 
-  void event(art::EventPrincipal&) override;
   void endJob() override;
 
   std::string name_{};
@@ -95,10 +94,6 @@ arttest::TestBitsOutput::TestBitsOutput(
   : art::OutputModule{ps().omConfig, ps.get_PSet()}
   , bitMask_{ps().bitMask()}
   , expectTriggerResults_{ps().expectTriggerResults()}
-{}
-
-void
-arttest::TestBitsOutput::event(art::EventPrincipal&)
 {}
 
 void

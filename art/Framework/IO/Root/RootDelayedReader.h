@@ -34,6 +34,8 @@ namespace art {
   class RootDelayedReader final : public DelayedReader {
 
   public: // MEMBER FUNCTIONS
+    ~RootDelayedReader() = default;
+
     RootDelayedReader(RootDelayedReader const&) = delete;
     RootDelayedReader& operator=(RootDelayedReader const&) = delete;
     RootDelayedReader(RootDelayedReader&&) = delete;
@@ -48,7 +50,8 @@ namespace art {
                       cet::exempt_ptr<RootInputFile> primaryFile,
                       cet::exempt_ptr<BranchIDLists const> branchIDLists,
                       BranchType branchType,
-                      EventID);
+                      EventID,
+                      bool compactSubRunRanges);
 
   private: // MEMBER FUNCTIONS
     std::unique_ptr<EDProduct> getProduct_(ProductID,
@@ -76,6 +79,7 @@ namespace art {
     cet::exempt_ptr<BranchIDLists const> branchIDLists_;
     BranchType branchType_;
     EventID eventID_;
+    bool const compactSubRunRanges_;
   };
 
 } // namespace art

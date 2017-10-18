@@ -18,6 +18,7 @@ namespace art {
   class ModuleDescription; // declaration only
   class TFileService;      // defined below
 } // namespace art
+
 namespace fhicl {
   class ParameterSet; // declaration only
 }

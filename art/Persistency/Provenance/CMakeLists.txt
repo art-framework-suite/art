@@ -2,7 +2,7 @@ art_make(SUBDIRS detail
   LIB_LIBRARIES
   art_Utilities
   canvas
-  tbb # Required from thread_safe_registry_via_id
+  ${TBB}
   )
 
 install_headers(SUBDIRS detail)

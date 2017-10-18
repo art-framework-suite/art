@@ -27,8 +27,7 @@ public:
                       RootBranchInfo& rbInfo) const;
 
 private:
-  typedef std::vector<RootBranchInfo> Data_t;
-  Data_t data_;
+  std::vector<RootBranchInfo> data_;
 };
 
 template <class PROD>
@@ -36,7 +35,7 @@ bool
 art::RootBranchInfoList::findBranchInfo(InputTag const& tag,
                                         RootBranchInfo& rbInfo) const
 {
-  return findBranchInfo(TypeID(typeid(PROD)), tag, rbInfo);
+  return findBranchInfo(TypeID{typeid(PROD)}, tag, rbInfo);
 }
 
 #endif /* art_Framework_IO_Root_RootBranchInfoList_h */

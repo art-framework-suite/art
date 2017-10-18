@@ -83,6 +83,7 @@ BOOST_AUTO_TEST_CASE(concurrent_insertion_reading)
         });
       });
     cet::SimultaneousFunctionSpawner sfs{tasks};
+    // FIXME: Why is the following check commented out?
     // CET_CHECK_EQUAL_COLLECTIONS(histories, retrievedHistories);
   }
 }

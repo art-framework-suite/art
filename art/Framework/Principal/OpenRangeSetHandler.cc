@@ -98,18 +98,7 @@ namespace art {
   void
   OpenRangeSetHandler::do_update(EventID const& id, bool const /*lastInSubRun*/)
   {
-    if (ranges_.empty()) {
-      ranges_.set_run(id.run());
-      ranges_.emplace_range(id.subRun(), id.event(), id.next().event());
-      idx_ = ranges_.end_idx();
-      return;
-    }
-    auto& back = ranges_.back();
-    if ((back.subRun() == id.subRun()) && (back.end() == id.event())) {
-      back.set_end(id.next().event());
-      return;
-    }
-    ranges_.emplace_range(id.subRun(), id.event(), id.next().event());
+    ranges_.update(id);
     idx_ = ranges_.end_idx();
   }
 

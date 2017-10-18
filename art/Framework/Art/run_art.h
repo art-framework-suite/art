@@ -19,7 +19,6 @@ namespace art {
 
   int run_art_common_(fhicl::ParameterSet const& main_pset,
                       art::detail::DebugOutput);
-
 } // namespace art
 
 #endif /* art_Framework_Art_run_art_h */

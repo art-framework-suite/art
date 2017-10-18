@@ -679,7 +679,7 @@ art::MixFilter<T>::respondToOpenInputFile(FileBlock const& fb)
 {
   std::conditional_t<detail::has_respondToOpenInputFile<T>::value,
                      detail::call_respondToOpenInputFile<T>,
-                     detail::do_not_call_respondToXXX<T>>{detail_, fb};
+                     detail::do_not_call_respondToXXX<T>>(detail_, fb);
 }
 
 template <class T>
@@ -688,7 +688,7 @@ art::MixFilter<T>::respondToCloseInputFile(FileBlock const& fb)
 {
   std::conditional_t<detail::has_respondToCloseInputFile<T>::value,
                      detail::call_respondToCloseInputFile<T>,
-                     detail::do_not_call_respondToXXX<T>>{detail_, fb};
+                     detail::do_not_call_respondToXXX<T>>(detail_, fb);
 }
 
 template <class T>
@@ -697,7 +697,7 @@ art::MixFilter<T>::respondToOpenOutputFiles(FileBlock const& fb)
 {
   std::conditional_t<detail::has_respondToOpenOutputFiles<T>::value,
                      detail::call_respondToOpenOutputFiles<T>,
-                     detail::do_not_call_respondToXXX<T>>{detail_, fb};
+                     detail::do_not_call_respondToXXX<T>>(detail_, fb);
 }
 
 template <class T>

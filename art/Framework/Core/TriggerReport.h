@@ -60,6 +60,7 @@ namespace art {
   };
 
 } // namespace art
+
 #endif /* art_Framework_Core_TriggerReport_h */
 
 // Local Variables:

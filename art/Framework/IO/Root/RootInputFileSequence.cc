@@ -39,6 +39,7 @@ namespace art {
     , seekingFile_{false}
     , fileIndexes_(fileCatalogItems().size())
     , eventsToSkip_{config().skipEvents()}
+    , compactSubRunRanges_{config().compactSubRunRanges()}
     , noEventSort_{config().noEventSort()}
     , skipBadFiles_{config().skipBadFiles()}
     , treeCacheSize_{config().cacheSize()}
@@ -204,6 +205,14 @@ namespace art {
            "problems\n"
         << "with analysis reproducibility.\n";
     }
+    if (compactSubRunRanges_) {
+      mf::LogWarning("PROVENANCE")
+        << "Source parameter compactEventRanges was set to true: enabling "
+           "compact event ranges\n"
+        << "creates a history that can cause file concatenation problems if a "
+           "given SubRun spans\n"
+        << "multiple input files.  Use with care.\n";
+    }
   }
 
   EventID
@@ -234,7 +243,6 @@ namespace art {
         found = rootFile_->setEntry_Event(eID, exact);
         assert(found);
         seekingFile_ = true;
-        return rootFile_->eventIDForFileIndexPosition();
       }
     }
     // Look for event in files not yet opened.
@@ -351,7 +359,7 @@ namespace art {
   }
 
   void
-  RootInputFileSequence::initFile(bool skipBadFiles)
+  RootInputFileSequence::initFile(bool const skipBadFiles)
   {
     // close the currently open file, any, and delete the RootInputFile object.
     closeFile_();
@@ -393,6 +401,7 @@ namespace art {
       std::move(filePtr),
       origEventID_,
       eventsToSkip_,
+      compactSubRunRanges_,
       fastCloningInfo_,
       treeCacheSize_,
       treeMaxVirtualSize_,
@@ -451,6 +460,7 @@ namespace art {
                                            std::move(filePtr),
                                            origEventID_,
                                            eventsToSkip_,
+                                           compactSubRunRanges_,
                                            fastCloningInfo_,
                                            treeCacheSize_,
                                            treeMaxVirtualSize_,

@@ -1,5 +1,6 @@
 #include "art/Framework/IO/Root/detail/InfoDumperInputFile.h"
 #include "art/Framework/IO/Root/RootDB/SQLite3Wrapper.h"
+#include "art/Framework/IO/Root/detail/rangeSetFromFileIndex.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
@@ -8,8 +9,11 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
+#include "cetlib/HorizontalRule.h"
 
+#include <algorithm>
 #include <iomanip>
+#include <iostream>
 
 namespace {
 
@@ -156,32 +160,48 @@ art::detail::InfoDumperInputFile::print_branchIDLists(std::ostream& os) const
 }
 
 void
-art::detail::InfoDumperInputFile::print_range_sets(std::ostream& os) const
+art::detail::InfoDumperInputFile::print_range_sets(
+  std::ostream& os,
+  bool const compactRanges) const
 {
+  auto it = fileIndex_.cbegin();
+  auto const cend = fileIndex_.cend();
+  constexpr cet::HorizontalRule rule{30};
+  std::string const rep{compactRanges ? "compact" : "full (default)"};
+
   if (fileFormatVersion_.value_ < 9) {
-    std::ostringstream oss;
-    oss << "Range-set information is not available for art/ROOT files with a "
-           "format\n"
-        << "version of \"" << fileFormatVersion_ << "\".\n";
-    throw Exception{errors::FileReadError,
-                    "InfoDumperInputFile::print_range_sets"}
-      << oss.str();
+    os << '\n'
+       << "*** This file has a format version of \"" << fileFormatVersion_
+       << "\" and therefore\n"
+       << "*** does not contain range-set information.  The printout below is\n"
+       << "*** the range set art would assign to this file.\n\n"
+       << "Representation: " << rep << '\n'
+       << rule('-') << '\n';
+
+    for (auto const& element : fileIndex_) {
+      if (element.getEntryType() != art::FileIndex::kRun)
+        continue;
+      auto const& rs = rangeSetFromFileIndex(
+        fileIndex_, element.eventID_.runID(), compactRanges);
+      os << rs << '\n';
+    }
+    return;
   }
 
   auto* tree =
     static_cast<TTree*>(file_->Get(BranchTypeToProductTreeName(InRun).c_str()));
   SQLite3Wrapper db{file_.get(), "RootFileDB"};
 
-  auto it = fileIndex_.cbegin();
-  auto const cend = fileIndex_.cend();
-
+  os << "Representation: " << rep << '\n' << rule('-') << '\n';
   while (it != cend) {
     if (it->getEntryType() != art::FileIndex::kRun) {
       ++it;
       continue;
     }
+    // getEntryNumbers increments iterator!
     auto const& entries = getEntryNumbers(it, cend);
-    auto const& rs = getRangeSet(tree, entries, db, file_->GetName());
+    auto const& rs =
+      getRangeSet(tree, entries, db, file_->GetName(), compactRanges);
     os << rs << '\n';
   }
 }
@@ -204,19 +224,20 @@ art::RangeSet
 art::detail::InfoDumperInputFile::getRangeSet(TTree* tree,
                                               EntryNumbers const& entries,
                                               sqlite3* db,
-                                              std::string const& filename) const
+                                              std::string const& filename,
+                                              bool const compactRanges) const
 {
-  auto resolve_info = [db, &filename](auto const id) {
-    return detail::resolveRangeSetInfo(db, filename, InRun, id);
+  auto resolve_info = [db, &filename](auto const id, bool const compact) {
+    return detail::resolveRangeSetInfo(db, filename, InRun, id, compact);
   };
 
   auto auxResult = getAuxiliary(tree, entries[0]);
-  auto rangeSetInfo = resolve_info(auxResult.rangeSetID());
+  auto rangeSetInfo = resolve_info(auxResult.rangeSetID(), compactRanges);
 
   for (auto i = entries.cbegin() + 1, e = entries.cend(); i != e; ++i) {
     auto const& tmpAux = getAuxiliary(tree, *i);
-    auxResult.mergeAuxiliary(tmpAux);
-    rangeSetInfo.update(resolve_info(tmpAux.rangeSetID()));
+    rangeSetInfo.update(resolve_info(tmpAux.rangeSetID(), compactRanges),
+                        compactRanges);
   }
 
   return resolveRangeSet(rangeSetInfo);

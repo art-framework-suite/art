@@ -6,6 +6,7 @@
 // product mixing operation.
 
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
+#include "art/Framework/IO/ProductMix/detail/checkForMissingDictionaries.h"
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"

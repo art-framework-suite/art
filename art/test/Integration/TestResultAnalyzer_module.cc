@@ -24,18 +24,16 @@ public:
   void endJob() override;
 
 private:
-  int passed_;
-  int failed_;
+  int passed_{};
+  int failed_{};
   bool dump_;
   int numbits_;
 };
 
 arttest::TestResultAnalyzer::TestResultAnalyzer(fhicl::ParameterSet const& ps)
-  : art::EDAnalyzer(ps)
-  , passed_()
-  , failed_()
-  , dump_(ps.get<bool>("dump", false))
-  , numbits_(ps.get<int>("numbits", -1))
+  : art::EDAnalyzer{ps}
+  , dump_{ps.get<bool>("dump", false)}
+  , numbits_{ps.get<int>("numbits", -1)}
 {
   consumesMany<art::TriggerResults>();
 }

@@ -244,12 +244,12 @@ namespace art {
     ProcessConfiguration const &processConfiguration,
     string const &logicalFileName, unique_ptr<TFile> &&filePtr,
     EventID const &origEventID, unsigned int eventsToSkip,
-    FastCloningInfoProvider const &fcip, unsigned int treeCacheSize,
-    int64_t treeMaxVirtualSize, int64_t saveMemoryObjectThreshold,
-    bool delayedReadEventProducts, bool delayedReadSubRunProducts,
-    bool delayedReadRunProducts, InputSource::ProcessingMode processingMode,
-    int forcedRunOffset, bool noEventSort,
-    GroupSelectorRules const &groupSelectorRules,
+    bool const compactSubRunRanges, FastCloningInfoProvider const &fcip,
+    unsigned int treeCacheSize, int64_t treeMaxVirtualSize,
+    int64_t saveMemoryObjectThreshold, bool delayedReadEventProducts,
+    bool delayedReadSubRunProducts, bool delayedReadRunProducts,
+    InputSource::ProcessingMode processingMode, int forcedRunOffset,
+    bool noEventSort, GroupSelectorRules const &groupSelectorRules,
     shared_ptr<DuplicateChecker> duplicateChecker, bool dropDescendants,
     bool const readIncomingParameterSets, exempt_ptr<RootInputFile> primaryFile,
     vector<string> const &secondaryFileNames,
@@ -258,6 +258,7 @@ namespace art {
       processConfiguration_{processConfiguration},
       logicalFileName_{logicalFileName}, filePtr_{move(filePtr)},
       origEventID_{origEventID}, eventsToSkip_{eventsToSkip},
+      compactSubRunRanges_{compactSubRunRanges},
       treePointers_{
           // Indexed by BranchTypes.h!
           make_unique<RootInputTree>(filePtr_.get(), InEvent,
@@ -586,8 +587,11 @@ namespace art {
       return make_unique<OpenRangeSetHandler>(subRunAux_.run());
     }
     auto resolve_info = [this](auto const id) {
-      return detail::resolveRangeSetInfo(
-        this->sqliteDB_, this->fileName_, SubRunAuxiliary::branch_type, id);
+      return detail::resolveRangeSetInfo(this->sqliteDB_,
+                                         this->fileName_,
+                                         SubRunAuxiliary::branch_type,
+                                         id,
+                                         compactSubRunRanges_);
     };
     auto rangeSetInfo = resolve_info(auxResult.rangeSetID());
     for (auto i = entries.cbegin() + 1, e = entries.cend(); i != e; ++i) {
@@ -599,7 +603,8 @@ namespace art {
         input::getEntry(auxbr, *i);
       }
       detail::mergeAuxiliary(auxResult, tmpAux);
-      rangeSetInfo.update(resolve_info(tmpAux.rangeSetID()));
+      rangeSetInfo.update(resolve_info(tmpAux.rangeSetID()),
+                          compactSubRunRanges_);
     }
     auxResult.setRangeSetID(-1u); // Range set of new auxiliary is invalid
     swap(subRunAux_, auxResult);
@@ -621,8 +626,11 @@ namespace art {
       return make_unique<OpenRangeSetHandler>(runAux_.run());
     }
     auto resolve_info = [this](auto const id) {
-      return detail::resolveRangeSetInfo(
-        this->sqliteDB_, this->fileName_, RunAuxiliary::branch_type, id);
+      return detail::resolveRangeSetInfo(this->sqliteDB_,
+                                         this->fileName_,
+                                         RunAuxiliary::branch_type,
+                                         id,
+                                         compactSubRunRanges_);
     };
     auto rangeSetInfo = resolve_info(auxResult.rangeSetID());
     for (auto i = entries.cbegin() + 1, e = entries.cend(); i != e; ++i) {
@@ -634,7 +642,8 @@ namespace art {
         input::getEntry(auxbr, *i);
       }
       detail::mergeAuxiliary(auxResult, tmpAux);
-      rangeSetInfo.update(resolve_info(tmpAux.rangeSetID()));
+      rangeSetInfo.update(resolve_info(tmpAux.rangeSetID()),
+                          compactSubRunRanges_);
     }
     auxResult.setRangeSetID(-1u); // Range set of new auxiliary is invalid
     swap(runAux_, auxResult);
@@ -748,6 +757,7 @@ namespace art {
     auto pParentageBuffer = &parentageBuffer;
     parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(),
                                     &pParentageBuffer);
+
     // Fill the registry
     for (EntryNumber i = 0, numEntries = parentageTree->GetEntries();
          i < numEntries;
@@ -759,6 +769,7 @@ namespace art {
       }
       ParentageRegistry::emplace(parentageBuffer.id(), parentageBuffer);
     }
+
     parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(),
                                     nullptr);
     parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(),
@@ -1056,7 +1067,8 @@ namespace art {
                                      this,
                                      branchIDLists_.get(),
                                      InEvent,
-                                     eventAux_.eventID()),
+                                     eventAux_.eventID(),
+                                     compactSubRunRanges_),
       entryNumbers.second);
     if (!delayedReadEventProducts_) {
       ep->readImmediate();
@@ -1096,7 +1108,8 @@ namespace art {
                                      this,
                                      branchIDLists_.get(),
                                      InEvent,
-                                     eventAux_.eventID()),
+                                     eventAux_.eventID(),
+                                     compactSubRunRanges_),
       entryNumbers.second);
     primaryFile_->primaryEP_->addSecondaryPrincipal(move(ep));
     return true;
@@ -1143,7 +1156,8 @@ namespace art {
                                      this,
                                      nullptr,
                                      InRun,
-                                     fiIter_->eventID_));
+                                     fiIter_->eventID_,
+                                     compactSubRunRanges_));
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
     }
@@ -1185,7 +1199,8 @@ namespace art {
                                      this,
                                      nullptr,
                                      InRun,
-                                     fiIter_->eventID_));
+                                     fiIter_->eventID_,
+                                     compactSubRunRanges_));
     if (!delayedReadRunProducts_) {
       rp->readImmediate();
     }
@@ -1236,7 +1251,8 @@ namespace art {
                                      this,
                                      nullptr,
                                      InSubRun,
-                                     fiIter_->eventID_));
+                                     fiIter_->eventID_,
+                                     compactSubRunRanges_));
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
     }
@@ -1277,7 +1293,8 @@ namespace art {
                                      this,
                                      nullptr,
                                      InSubRun,
-                                     fiIter_->eventID_));
+                                     fiIter_->eventID_,
+                                     compactSubRunRanges_));
     if (!delayedReadSubRunProducts_) {
       srp->readImmediate();
     }
@@ -1455,7 +1472,8 @@ namespace art {
                                      this,
                                      nullptr,
                                      InResults,
-                                     EventID{}));
+                                     EventID{},
+                                     compactSubRunRanges_));
     return move(resp);
   }
 

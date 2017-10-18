@@ -124,13 +124,13 @@ namespace art {
     void beginJob() override;
     void endJob() override;
 
-    void event(EventPrincipal&) override;
+    void event(EventPrincipal const&) override;
 
-    void beginSubRun(SubRunPrincipal&) override;
-    void endSubRun(SubRunPrincipal&) override;
+    void beginSubRun(SubRunPrincipal const&) override;
+    void endSubRun(SubRunPrincipal const&) override;
 
-    void beginRun(RunPrincipal&) override;
-    void endRun(RunPrincipal&) override;
+    void beginRun(RunPrincipal const&) override;
+    void endRun(RunPrincipal const&) override;
 
   private:
     string const& lastClosedFileName() const override;
@@ -569,31 +569,31 @@ namespace art {
   }
 
   void
-  RootOutput::event(EventPrincipal& ep)
+  RootOutput::event(EventPrincipal const& ep)
   {
     rpm_.for_each_RPWorker([&ep](RPWorker& w) { w.rp().doEvent(ep); });
   }
 
   void
-  RootOutput::beginSubRun(SubRunPrincipal& srp)
+  RootOutput::beginSubRun(SubRunPrincipal const& srp)
   {
     rpm_.for_each_RPWorker([&srp](RPWorker& w) { w.rp().doBeginSubRun(srp); });
   }
 
   void
-  RootOutput::endSubRun(SubRunPrincipal& srp)
+  RootOutput::endSubRun(SubRunPrincipal const& srp)
   {
     rpm_.for_each_RPWorker([&srp](RPWorker& w) { w.rp().doEndSubRun(srp); });
   }
 
   void
-  RootOutput::beginRun(RunPrincipal& rp)
+  RootOutput::beginRun(RunPrincipal const& rp)
   {
     rpm_.for_each_RPWorker([&rp](RPWorker& w) { w.rp().doBeginRun(rp); });
   }
 
   void
-  RootOutput::endRun(RunPrincipal& rp)
+  RootOutput::endRun(RunPrincipal const& rp)
   {
     rpm_.for_each_RPWorker([&rp](RPWorker& w) { w.rp().doEndRun(rp); });
   }

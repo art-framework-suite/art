@@ -127,6 +127,7 @@ namespace art {
           << "to request a trigger name starting with exception@ "
           << "and also demanding &noexception.\n"
           << "The improper trigger name is: " << pathSpecifier << "\n";
+
       // instead of "see if the name can be found in the full list of
       // paths" we want to find all paths that match this name.
       //
@@ -135,6 +136,7 @@ namespace art {
       string const& realname{specifier};
       vector<vector<string>::const_iterator> matches =
         regexMatch(triggernames, realname);
+
       if (matches.empty()) {
         if (is_glob(realname)) {
           mf::LogWarning("Configuration")
@@ -173,6 +175,7 @@ namespace art {
                "to request all fails on a set of trigger names that do not "
                "exist\n"
             << "The problematic name is: " << pathSpecifier << "\n";
+
         } else if (matches.size() == 1) {
           BitInfo bi(distance(triggernames.begin(), matches[0]), false);
           absolute_acceptors_.push_back(bi);
@@ -210,6 +213,7 @@ namespace art {
     if (accept_all_) {
       return true;
     }
+
     // For the current process we already initialized in the constructor,
     // The trigger names will not change so we can skip initialization.
     if (!results_from_current_process_) {
@@ -392,6 +396,7 @@ namespace art {
     vector<bool> aFailCon =
       expandDecisionList(conditional_acceptors_, false, N);
     vector<bool> aExc = expandDecisionList(exception_acceptors_, true, N);
+
     for (unsigned int ipath = 0; ipath < N; ++ipath) {
       hlt::HLTState s = inputResults[ipath].state();
       if (((aPassAbs[ipath]) && (s == hlt::Pass)) ||
@@ -565,6 +570,7 @@ namespace art {
     if (aSubset) {
       return true;
     }
+
     // Now test whether b is a non-empty subset of a
     bool bPresent = false;
     bool bSubset = true;
@@ -583,6 +589,7 @@ namespace art {
     if (bSubset) {
       return true;
     }
+
     return false;
   }
 

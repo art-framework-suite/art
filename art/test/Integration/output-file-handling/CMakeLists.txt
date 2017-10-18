@@ -275,7 +275,7 @@ cet_test(SwitchOnFileSizeMax_w HANDBUILT
 
 cet_test(SwitchOnFileSizeMax_r HANDBUILT
   TEST_EXEC file_info_dumper
-  TEST_ARGS --range-of-validity
+  TEST_ARGS --range-of-validity -s
   "../SwitchOnFileSizeMax_w.d/out_1.root"
   "../SwitchOnFileSizeMax_w.d/out_2.root"
   "../SwitchOnFileSizeMax_w.d/out_3.root"

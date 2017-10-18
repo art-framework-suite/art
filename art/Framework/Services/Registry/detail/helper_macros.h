@@ -6,7 +6,6 @@
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
-
 // Define a member function returning the typeid of the service.
 #define DEFINE_ART_SERVICE_TYPEID(svc)                                         \
   art::TypeID get_typeid() const override { return TypeID{typeid(svc)}; }

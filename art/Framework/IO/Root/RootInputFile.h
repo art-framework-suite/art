@@ -142,6 +142,7 @@ namespace art {
                   std::unique_ptr<TFile>&& filePtr,
                   EventID const& origEventID,
                   unsigned int eventsToSkip,
+                  bool compactSubRunRanges,
                   FastCloningInfoProvider const& fcip,
                   unsigned int treeCacheSize,
                   int64_t treeMaxVirtualSize,
@@ -327,6 +328,8 @@ namespace art {
     EventID origEventID_;
 
     EventNumber_t eventsToSkip_;
+
+    bool const compactSubRunRanges_;
 
     RootInputTreePtrArray treePointers_;
 

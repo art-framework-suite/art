@@ -79,6 +79,7 @@ namespace {
       throw art::Exception(art::errors::LogicError)
         << "Number of sqlite columns specified for table: " << name << '\n'
         << "is zero.\n";
+
     std::string ddl = "DROP TABLE IF EXISTS " + name +
                       "; "
                       "CREATE TABLE " +
