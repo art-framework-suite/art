@@ -49,11 +49,7 @@ public:
 
 private:
    art::InputTag fInputLabel;
-   
-   std::set<std::string> fEnabledTests;
-   
    void for_each_group_test(art::Event const & e) const;
-   
 };
 
 
@@ -63,13 +59,6 @@ AssnAnalyzer::AssnAnalyzer(fhicl::ParameterSet const & p)
   , fInputLabel(p.get<art::InputTag>("input_label"))
  // More initializers here.
 {
-  auto enableTests = p.get<std::vector<std::string>>("enableTests");
-  if (enableTests.empty())
-    fEnabledTests = { "forEachAssociatedGroup", "associatedGroups" };
-  else {
-    std::copy(enableTests.begin(), enableTests.end(),
-      std::inserter(fEnabledTests, fEnabledTests.begin()));
-  }
 }
 
 

@@ -19,8 +19,6 @@ physics:
     {
       module_type: AssnAnalyzer
       input_label: pm2
-      
-      enableTests: [ "forEachAssociatedGroup" ]
     }
   }
 

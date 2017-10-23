@@ -1469,7 +1469,7 @@ add_subdirectory(product-aggregation)
 add_subdirectory(range-sets)
 add_subdirectory(BadAssns)
 add_subdirectory(testAssnsIter)
-add_subdirectory(testForEachAssociatedGroup)
+add_subdirectory(testRangeAlgorithms)
 
 cet_test(FastCloningInitMessage_01_t HANDBUILT
   TEST_EXEC art
