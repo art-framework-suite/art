@@ -180,12 +180,16 @@ namespace art {
   run_art_common_(fhicl::ParameterSet const& main_pset,
                   detail::DebugOutput debug)
   {
-    // The the system memory allocator to only use one arena,
-    // they are 64 MiB in size, and the default is 8 * num_of_cores.
-    // Using the default means that when using 40 threads we get 40 arenas,
-    // which means we have 40 * 64 MiB = 2560 MiB of virtual address space
-    // devoted to per-thread heaps!!!
+#ifdef __linux__
+    // FIXME: Figure out is we should do something similar for Darwin
+
+    // Tell the system memory allocator to only use one arena: they
+    // are 64 MiB in size, and the default is 8 * num_of_cores.  Using
+    // the default means that when using 40 threads we get 40 arenas,
+    // which means we have 40 * 64 MiB = 2560 MiB of virtual address
+    // space devoted to per-thread heaps!!!
     mallopt(M_ARENA_MAX, 1);
+#endif
     auto const& services_pset =
       main_pset.get<fhicl::ParameterSet>("services", {});
     auto const& scheduler_pset =
