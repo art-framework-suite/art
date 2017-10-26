@@ -20,9 +20,10 @@
 # cetbuildtools/Modules/BasicPlugin.cmake
 # (https://cdcvs.fnal.gov/redmine/projects/cetbuildtools/repository/revisions/master/entry/Modules/BasicPlugin.cmake).
 ########################################################################
-cmake_policy(VERSION 3.3.2)
-
 include(BasicPlugin)
+
+cmake_policy(PUSH)
+cmake_policy(VERSION 3.3)
 
 macro (_sp_debug_message)
   string(TOUPPER ${CMAKE_BUILD_TYPE} BTYPE_UC)
@@ -102,3 +103,5 @@ function(simple_plugin name type)
   endif()
   basic_plugin(${name} ${type} ${NOP_ARG} ${simple_plugin_liblist} ${ARGN} ${SP_SOURCE})
 endfunction(simple_plugin name type)
+
+cmake_policy(POP)
