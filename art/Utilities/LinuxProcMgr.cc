@@ -13,7 +13,6 @@
 #include <sstream>
 
 extern "C" {
-#include <fcntl.h>
 #include <unistd.h>
 }
 
@@ -47,20 +46,20 @@ namespace art {
     ost << "/proc/" << pid_ << "/stat";
 
     for (sid_size_type i{}; i < nSchedules; ++i) {
-      auto fd = open(ost.str().c_str(), O_RDONLY);
-      if (fd < 0) {
+      auto file = fopen(ost.str().c_str(), "r");
+      if (file == nullptr) {
         throw Exception{errors::Configuration}
           << " Failed to open: " << ost.str() << " for schedule: " << i << '\n';
       }
-      fileDescriptors_.push_back(fd);
+      files_.push_back(file);
     }
   }
 
   //=======================================================
   LinuxProcMgr::~LinuxProcMgr() noexcept
   {
-    for (auto const fd : fileDescriptors_) {
-      close(fd);
+    for (auto const file : files_) {
+      fclose(file);
     }
   }
 
@@ -68,28 +67,36 @@ namespace art {
   LinuxProcData::proc_tuple
   LinuxProcMgr::getCurrentData(sid_size_type const sid) const
   {
-    auto& fd = fileDescriptors_[sid];
+    auto file = files_[sid];
 
-    lseek(fd, 0, SEEK_SET);
+    int const seek_result{fseek(file, 0, SEEK_SET)};
+    if (seek_result != 0) {
+      throw Exception{errors::FileReadError,
+                      "Error while retrieving Linux proc data."}
+        << "\nCould not reset position indicator for while retrieving proc "
+           "stat information.\n";
+    }
 
     char buf[400];
-    ssize_t const cnt{read(fd, buf, sizeof(buf))};
+    size_t const cnt{fread(buf, 1, sizeof(buf), file)};
 
     auto data = LinuxProcData::make_proc_tuple();
 
-    if (cnt < 0) {
-      perror("Read of Proc file failed:");
-    } else if (cnt > 0) {
-      buf[cnt] = '\0';
-
-      LinuxProcData::vsize_t::value_type vsize;
-      LinuxProcData::rss_t::value_type rss;
-
-      std::istringstream iss{buf};
-      iss >> token_ignore(22) >> vsize >> rss;
-
-      data = LinuxProcData::make_proc_tuple(vsize, rss * pgSize_);
+    if (cnt == 0) {
+      throw Exception{errors::FileReadError,
+                      "Error while retrieving Linux proc data."}
+        << "\nCould not read proc stat information.\n";
     }
+
+    buf[cnt] = '\0';
+
+    LinuxProcData::vsize_t::value_type vsize;
+    LinuxProcData::rss_t::value_type rss;
+
+    std::istringstream iss{buf};
+    iss >> token_ignore(22) >> vsize >> rss;
+
+    data = LinuxProcData::make_proc_tuple(vsize, rss * pgSize_);
     return data;
   }
 
@@ -100,9 +107,9 @@ namespace art {
     CET_ASSERT_ONLY_ONE_THREAD();
 
     std::ostringstream ost;
-    ost << "cat /proc/" << pid_ << "/status";
+    ost << "/proc/" << pid_ << "/status";
 
-    FILE* file = popen(ost.str().c_str(), "r");
+    auto file = fopen(ost.str().c_str(), "r");
     if (file == nullptr) {
       throw Exception{errors::Configuration} << " Failed to open: " << ost.str()
                                              << std::endl;
@@ -122,6 +129,7 @@ namespace art {
         }
       }
     }
+    fclose(file);
     return value;
   }
 
