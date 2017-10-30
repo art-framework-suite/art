@@ -73,7 +73,7 @@ namespace art {
     if (seek_result != 0) {
       throw Exception{errors::FileReadError,
                       "Error while retrieving Linux proc data."}
-        << "\nCould not reset position indicator for while retrieving proc "
+        << "\nCould not reset position indicator while retrieving proc "
            "stat information.\n";
     }
 
