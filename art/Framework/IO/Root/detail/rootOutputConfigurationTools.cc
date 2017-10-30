@@ -1,6 +1,6 @@
-#include "art/Framework/IO/Root/detail/rootOutputConfigurationTools.h"
 #include "art/Framework/Core/OutputFileGranularity.h"
-#include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
+#include "art/Framework/IO/ClosingCriteria.h"
+#include "art/Framework/IO/Root/detail/rootOutputConfigurationTools.h"
 #include "canvas/Utilities/Exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -66,22 +66,4 @@ art::detail::shouldDropEvents(bool const dropAllEventsSet,
       << "is allowed.\n\n";
   }
   return true;
-}
-
-void
-art::detail::validateFileNamePattern(bool const do_check,
-                                     std::string const& pattern)
-{
-  if (!do_check)
-    return;
-
-  if (pattern.find("%#") == std::string::npos)
-    throw Exception(errors::Configuration)
-      << "If you have specified the 'fileProperties' table in a RootOutput "
-         "module configuration,\n"
-      << "then the file pattern '%#' MUST be present in the file name.  For "
-         "example:\n"
-      << "    " << pattern.substr(0, pattern.find(".root")) << "_%#.root\n"
-      << "is a supported file name.  Please change your file name to include "
-         "the '%#' pattern.";
 }

@@ -13,40 +13,46 @@
 using namespace art;
 using namespace std;
 
-class TestTFileServiceAnalyzer : public art::EDAnalyzer {
+class TestTFileService : public art::EDAnalyzer {
 public:
-  // constructor
-  explicit TestTFileServiceAnalyzer(const fhicl::ParameterSet&);
+
+  struct Config {};
+  using Parameters = Table<Config>;
+  explicit TestTFileService(Parameters const&);
 
 private:
-  void analyze(const art::Event& e) override;
+  void analyze(Event const& e) override;
   void respondToOpenInputFile(FileBlock const&) override;
+  void setRootObjects();
 
   // histograms
-  TH1F* h_test1 = nullptr;
-  TH2F* h_test2 = nullptr;
-  TH1F* h_test3 = nullptr;
+  TH1F* h_test1{nullptr};
+  TH2F* h_test2{nullptr};
+  TH1F* h_test3{nullptr};
 
   // graphs
-  TGraph* g1 = nullptr;
-  TGraphPolar* g2 = nullptr;
+  TGraph* g1{nullptr};
+  TGraphPolar* g2{nullptr};
 
   // sub-directory name
-  std::string dir1_;
-  std::string dir2_;
-  std::string dir3_;
+  std::string dir1_{"a"};
+  std::string dir2_{"b"};
+  std::string dir3_{"respondToOpenInputFile"};
 
-}; // TestTFileServiceAnalyzer
+}; // TestTFileService
 
-TestTFileServiceAnalyzer::TestTFileServiceAnalyzer(
-  fhicl::ParameterSet const& cfg)
-  : EDAnalyzer(cfg), dir1_("a"), dir2_("b"), dir3_("respondToOpenInputFile")
+TestTFileService::TestTFileService(Parameters const& p)
+  : EDAnalyzer{p}
 {
-  assert(!dir1_.empty());
-  assert(!dir2_.empty());
-
   ServiceHandle<TFileService> fs;
+  fs->registerFileSwitchCallback(this, &TestTFileService::setRootObjects);
+  setRootObjects();
+}
 
+void
+TestTFileService::setRootObjects()
+{
+  ServiceHandle<TFileService> fs;
   TFileDirectory dir1 = fs->mkdir(dir1_);
   h_test1 = dir1.make<TH1F>("test1", "test histogram #1", 100, 0., 100.);
 
@@ -63,16 +69,16 @@ TestTFileServiceAnalyzer::TestTFileServiceAnalyzer(
 }
 
 void
-TestTFileServiceAnalyzer::respondToOpenInputFile(FileBlock const&)
+TestTFileService::respondToOpenInputFile(FileBlock const&)
 {
   h_test3->Fill(3.);
 }
 
 void
-TestTFileServiceAnalyzer::analyze(const Event&)
+TestTFileService::analyze(Event const&)
 {
   h_test1->Fill(50.);
   h_test2->Fill(60., 3.);
 }
 
-DEFINE_ART_MODULE(TestTFileServiceAnalyzer)
+DEFINE_ART_MODULE(TestTFileService)

@@ -1,5 +1,5 @@
-#ifndef art_Persistency_RootDB_TKeyVFSOpenPolicy_h
-#define art_Persistency_RootDB_TKeyVFSOpenPolicy_h
+#ifndef art_Framework_IO_Root_RootDB_TKeyVFSOpenPolicy_h
+#define art_Framework_IO_Root_RootDB_TKeyVFSOpenPolicy_h
 
 #include "TFile.h"
 #include "sqlite3.h"
@@ -21,7 +21,7 @@ namespace art {
   };
 }
 
-#endif /* art_Persistency_RootDB_TKeyVFSOpenPolicy_h */
+#endif /* art_Framework_IO_Root_RootDB_TKeyVFSOpenPolicy_h */
 
 // Local Variables:
 // mode: c++

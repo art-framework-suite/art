@@ -1,5 +1,5 @@
-#ifndef art_Framework_IO_Root_RootOutputClosingCriteria_h
-#define art_Framework_IO_Root_RootOutputClosingCriteria_h
+#ifndef art_Framework_IO_ClosingCriteria_h
+#define art_Framework_IO_ClosingCriteria_h
 // vim: set sw=2:
 
 #include "art/Framework/Core/OutputFileGranularity.h"
@@ -11,6 +11,8 @@
 
 #include <chrono>
 #include <type_traits>
+
+// FIXME: Adjust comment below so that it is not RootOutput module specific.
 
 #define GRANULARITY_COMMENT                                                    \
   "The 'granularity' parameter specifies the level at which\n"                 \
@@ -200,7 +202,7 @@ namespace art {
 }
 
 #undef GRANULARITY_COMMENT
-#endif /* art_Framework_IO_Root_RootOutputClosingCriteria_h */
+#endif /* art_Framework_IO_ClosingCriteria_h */
 
 // Local variables:
 // mode: c++

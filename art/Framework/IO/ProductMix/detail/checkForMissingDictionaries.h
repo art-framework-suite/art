@@ -11,4 +11,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_IO_ProductMix_detail_checkForMissingDictionaries_h */
+
+// Local Variables:
+// mode: c++
+// End:

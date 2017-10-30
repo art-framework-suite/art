@@ -1,5 +1,5 @@
-#ifndef art_Persistency_RootDB_SQLite3Wrapper_h
-#define art_Persistency_RootDB_SQLite3Wrapper_h
+#ifndef art_Framework_IO_Root_RootDB_SQLite3Wrapper_h
+#define art_Framework_IO_Root_RootDB_SQLite3Wrapper_h
 
 // Sentry-like entity to manage the lifetime of an SQL database handle.
 #include <string>
@@ -64,7 +64,7 @@ private:
   sqlite3* db_;
   std::string key_;
 };
-#endif /* art_Persistency_RootDB_SQLite3Wrapper_h */
+#endif /* art_Framework_IO_Root_RootDB_SQLite3Wrapper_h */
 
 // Local Variables:
 // mode: c++

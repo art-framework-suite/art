@@ -4,9 +4,9 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputModule.h"
+#include "art/Framework/IO/ClosingCriteria.h"
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/Root/DropMetaData.h"
-#include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
 #include "art/Framework/IO/Root/RootOutputTree.h"
 #include "art/Framework/IO/Root/detail/DummyProductCache.h"
 #include "art/Framework/Principal/RangeSetsSupported.h"

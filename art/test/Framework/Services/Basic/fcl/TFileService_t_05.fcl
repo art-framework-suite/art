@@ -1,0 +1,22 @@
+source: {
+  module_type: EmptyEvent
+  maxEvents: 9
+  numberEventsInSubRun: 6
+}
+
+services.TFileService: {
+  fileName: "out_%#.root"
+  fileProperties: {
+    maxEvents: 5
+    granularity: SubRun
+  }
+}
+
+physics: {
+  analyzers: {
+    a1: {
+      module_type: TestTFileService
+    }
+  }
+  e1: [a1]
+}

@@ -1,4 +1,4 @@
-#include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
+#include "art/Framework/IO/ClosingCriteria.h"
 #include "canvas/Utilities/Exception.h"
 
 using EntryNumber_t = art::FileIndex::EntryNumber_t;

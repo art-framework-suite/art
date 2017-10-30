@@ -1,5 +1,5 @@
-#ifndef art_Framework_Art_InitRootHandlers_h
-#define art_Framework_Art_InitRootHandlers_h
+#ifndef art_Framework_IO_Root_InitRootHandlers_h
+#define art_Framework_IO_Root_InitRootHandlers_h
 
 namespace art {
 
@@ -11,7 +11,7 @@ namespace art {
 
   // ======================================================================
 
-#endif /* art_Framework_Art_InitRootHandlers_h */
+#endif /* art_Framework_IO_Root_InitRootHandlers_h */
 
 // Local Variables:
 // mode: c++
