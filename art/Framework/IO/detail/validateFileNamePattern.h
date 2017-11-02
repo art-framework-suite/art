@@ -5,8 +5,7 @@
 
 namespace art {
   namespace detail {
-    void validateFileNamePattern(bool do_check,
-                                 std::string const& pattern);
+    void validateFileNamePattern(bool do_check, std::string const& pattern);
   }
 }
 

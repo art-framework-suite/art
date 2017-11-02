@@ -17,7 +17,6 @@ namespace art {
     bool shouldDropEvents(bool dropAllEventsSet,
                           bool dropAllEvents,
                           bool dropAllSubRuns);
-
   }
 }
 

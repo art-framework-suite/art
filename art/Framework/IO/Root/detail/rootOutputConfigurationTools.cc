@@ -1,6 +1,6 @@
+#include "art/Framework/IO/Root/detail/rootOutputConfigurationTools.h"
 #include "art/Framework/Core/OutputFileGranularity.h"
 #include "art/Framework/IO/ClosingCriteria.h"
-#include "art/Framework/IO/Root/detail/rootOutputConfigurationTools.h"
 #include "canvas/Utilities/Exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

@@ -10,7 +10,8 @@ art::detail::validateFileNamePattern(bool const do_check,
 
   if (pattern.find("%#") == std::string::npos)
     throw Exception(errors::Configuration)
-      << "If you have specified the 'fileProperties' table in your configuration,\n"
+      << "If you have specified the 'fileProperties' table in your "
+         "configuration,\n"
       << "then the file pattern '%#' MUST be present in the file name.  For "
          "example:\n"
       << "    " << pattern.substr(0, pattern.find(".root")) << "_%#.root\n"

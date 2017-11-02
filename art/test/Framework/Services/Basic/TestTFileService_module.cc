@@ -15,8 +15,8 @@ using namespace std;
 
 class TestTFileService : public art::EDAnalyzer {
 public:
-
-  struct Config {};
+  struct Config {
+  };
   using Parameters = Table<Config>;
   explicit TestTFileService(Parameters const&);
 
@@ -41,8 +41,7 @@ private:
 
 }; // TestTFileService
 
-TestTFileService::TestTFileService(Parameters const& p)
-  : EDAnalyzer{p}
+TestTFileService::TestTFileService(Parameters const& p) : EDAnalyzer{p}
 {
   ServiceHandle<TFileService> fs;
   fs->registerFileSwitchCallback(this, &TestTFileService::setRootObjects);

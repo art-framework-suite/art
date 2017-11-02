@@ -48,7 +48,8 @@ TFileService::TFileService(ServiceTable<Config> const& config,
   openFile_();
 
   // Activities to monitor in order to set the proper directory.
-  r.sPostOpenFile.watch([this](std::string const& fileName) { fstats_.recordInputFile(fileName); });
+  r.sPostOpenFile.watch(
+    [this](std::string const& fileName) { fstats_.recordInputFile(fileName); });
 
   r.sPreModuleBeginJob.watch(this, &TFileService::setDirectoryName_);
   r.sPreModuleEndJob.watch(this, &TFileService::setDirectoryName_);
@@ -72,41 +73,38 @@ TFileService::TFileService(ServiceTable<Config> const& config,
   r.sPreModule.watch(this, &TFileService::setDirectoryName_);
 
   // Activities to monitor to keep track of events, subruns and runs seen.
-  r.sPostProcessEvent.watch(
-    [this](Event const& e) {
-      currentGranularity_ = Granularity::Event;
-      fp_.update<Granularity::Event>(status_);
-      fstats_.recordEvent(e.id());
-      if (requestsToCloseFile_()) {
-        maybeSwitchFiles_();
-      }
-    });
-  r.sPostEndSubRun.watch(
-    [this](SubRun const& sr) {
-      currentGranularity_ = Granularity::SubRun;
-      fp_.update<Granularity::SubRun>(status_);
-      fstats_.recordSubRun(sr.id());
-      if (requestsToCloseFile_()) {
-        maybeSwitchFiles_();
-      }
-    });
+  r.sPostProcessEvent.watch([this](Event const& e) {
+    currentGranularity_ = Granularity::Event;
+    fp_.update<Granularity::Event>(status_);
+    fstats_.recordEvent(e.id());
+    if (requestsToCloseFile_()) {
+      maybeSwitchFiles_();
+    }
+  });
+  r.sPostEndSubRun.watch([this](SubRun const& sr) {
+    currentGranularity_ = Granularity::SubRun;
+    fp_.update<Granularity::SubRun>(status_);
+    fstats_.recordSubRun(sr.id());
+    if (requestsToCloseFile_()) {
+      maybeSwitchFiles_();
+    }
+  });
   r.sPostEndRun.watch([this](Run const& r) {
-      currentGranularity_ = Granularity::Run;
-      fp_.update<Granularity::Run>(status_);
-      fstats_.recordRun(r.id());
-      if (requestsToCloseFile_()) {
-        maybeSwitchFiles_();
-      }
-    });
-  r.sPostCloseFile.watch([this]{
-      currentGranularity_ = Granularity::InputFile;
-      fp_.update<Granularity::InputFile>();
-      if (requestsToCloseFile_()) {
-        maybeSwitchFiles_();
-      }
-    });
+    currentGranularity_ = Granularity::Run;
+    fp_.update<Granularity::Run>(status_);
+    fstats_.recordRun(r.id());
+    if (requestsToCloseFile_()) {
+      maybeSwitchFiles_();
+    }
+  });
+  r.sPostCloseFile.watch([this] {
+    currentGranularity_ = Granularity::InputFile;
+    fp_.update<Granularity::InputFile>();
+    if (requestsToCloseFile_()) {
+      maybeSwitchFiles_();
+    }
+  });
 }
-
 
 TFileService::~TFileService()
 {
@@ -133,10 +131,9 @@ TFileService::setDirectoryName_(ModuleDescription const& desc)
 void
 TFileService::openFile_()
 {
-  uniqueFilename_ = unique_filename((tmpDir_ == default_tmpDir ?
-                                     parent_path(filePattern_) :
-                                     tmpDir_) +
-                                    "/TFileService");
+  uniqueFilename_ = unique_filename(
+    (tmpDir_ == default_tmpDir ? parent_path(filePattern_) : tmpDir_) +
+    "/TFileService");
   assert(file_ == nullptr && "TFile pointer should always be zero here!");
   beginTime_ = std::chrono::steady_clock::now();
   file_ = new TFile{uniqueFilename_.c_str(), "RECREATE"};
@@ -156,7 +153,8 @@ TFileService::closeFile_()
   file_ = nullptr;
   status_ = OutputFileStatus::Closed;
   fstats_.recordFileClose();
-  lastClosedFile_ = PostCloseFileRenamer{fstats_}.maybeRenameFile(uniqueFilename_, filePattern_);
+  lastClosedFile_ = PostCloseFileRenamer{fstats_}.maybeRenameFile(
+    uniqueFilename_, filePattern_);
 }
 
 void
@@ -164,12 +162,14 @@ TFileService::maybeSwitchFiles_()
 {
   // FIXME: Should maybe include the granularity check in
   // requestsToCloseFile_().
-  if (fileSwitchCriteria_.granularity() > currentGranularity_) return;
+  if (fileSwitchCriteria_.granularity() > currentGranularity_)
+    return;
 
   status_ = OutputFileStatus::Switching;
   closeFile_();
   detail::logFileAction("Closed TFileService file ", lastClosedFile_);
-  detail::logFileAction("Switching to new TFileService file with pattern ", filePattern_);
+  detail::logFileAction("Switching to new TFileService file with pattern ",
+                        filePattern_);
   fp_ = FileProperties{};
   openFile_();
   invokeCallbacks();
