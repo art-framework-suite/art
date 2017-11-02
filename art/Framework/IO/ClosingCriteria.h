@@ -1,5 +1,5 @@
-#ifndef art_Framework_IO_Root_RootOutputClosingCriteria_h
-#define art_Framework_IO_Root_RootOutputClosingCriteria_h
+#ifndef art_Framework_IO_ClosingCriteria_h
+#define art_Framework_IO_ClosingCriteria_h
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/OutputFileGranularity.h"
@@ -199,7 +199,7 @@ namespace art {
 
 } // namespace art
 
-#endif /* art_Framework_IO_Root_RootOutputClosingCriteria_h */
+#endif /* art_Framework_IO_ClosingCriteria_h */
 
 // Local variables:
 // mode: c++

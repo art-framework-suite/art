@@ -47,9 +47,12 @@ simple_plugin(TFileService "service"
   art_Framework_Services_System_TriggerNamesService_service
   art_Framework_Services_Optional
   art_Framework_IO
+  art_Framework_IO_detail
   art_Framework_Principal
+  MF_MessageLogger
   ${ROOT_RIO}
-  ${ROOT_THREAD})
+  ${ROOT_THREAD}
+  ${ROOT_TREE})
 
 simple_plugin(TimeTracker "service"
   art_Framework_Principal

@@ -1,7 +1,6 @@
-#include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
-// vim: set sw=2 expandtab :
-
+#include "art/Framework/IO/ClosingCriteria.h"
 #include "canvas/Utilities/Exception.h"
+// vim: set sw=2 expandtab :
 
 using EntryNumber_t = art::FileIndex::EntryNumber_t;
 using seconds_t = std::chrono::seconds;

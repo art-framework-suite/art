@@ -1,0 +1,21 @@
+physics:
+{
+  analyzers:
+  {
+    am:
+    {
+      module_type: AssnAnalyzer
+      input_label: pm2
+    }
+  }
+  e1: [ am ]
+  end_paths: [ e1 ]
+}
+
+source:
+{
+  module_type: RootInput
+  fileNames: [ "../test_feag.d/out.root" ]
+}
+
+process_name: DEVEL3

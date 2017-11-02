@@ -40,7 +40,7 @@ namespace art {
   }
 }
 
-#endif /* art_Framework_IO_Root_detail_resolveRangeSet_h */
+#endif /* art_Framework_IO_Root_detail_RangeSetInfo_h */
 
 // Local variables:
 // mode: c++

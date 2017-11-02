@@ -1,0 +1,15 @@
+services.TFileService: {
+  fileName: "out_%#.root"
+  fileProperties: {
+  }
+}
+
+physics: {
+  analyzers: {
+    a1: {
+      module_type: TestTFileServiceNoRegister
+      expectThrow: true
+    }
+  }
+  e1: [a1]
+}

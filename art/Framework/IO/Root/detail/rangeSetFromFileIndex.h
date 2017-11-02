@@ -1,5 +1,5 @@
-#ifndef canvas_Persistency_Provenance_rangeSetFromFileIndex_h
-#define canvas_Persistency_Provenance_rangeSetFromFileIndex_h
+#ifndef art_Framework_IO_Root_detail_rangeSetFromFileIndex_h
+#define art_Framework_IO_Root_detail_rangeSetFromFileIndex_h
 
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
@@ -17,4 +17,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_IO_Root_detail_rangeSetFromFileIndex_h */
+
+// Local Variables:
+// mode: c++
+// End:

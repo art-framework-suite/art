@@ -10,4 +10,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_IO_ProductMix_detail_checkDictionaries_h */
+
+// Local Variables:
+// mode: c++
+// End:

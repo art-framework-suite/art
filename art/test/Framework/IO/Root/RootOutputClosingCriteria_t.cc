@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE (RootOutputClosingCriteria_t)
 #include "cetlib/quiet_unit_test.hpp"
 
-#include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
+#include "art/Framework/IO/ClosingCriteria.h"
 
 #include <thread>
 

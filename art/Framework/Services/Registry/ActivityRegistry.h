@@ -101,7 +101,7 @@ public:
   // Signal is emitted before the source closes a file.
   GlobalSignal<detail::SignalResponseType::FIFO, void()> sPreCloseFile;
 
-  // Signal is emitted after the source opens a file
+  // Signal is emitted after the source closes a file
   GlobalSignal<detail::SignalResponseType::LIFO, void()> sPostCloseFile;
 
   // Signal is emitted just after the output opens a file (provides

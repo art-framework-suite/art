@@ -83,6 +83,8 @@ macro(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
     art_Framework_Art
     MF_MessageLogger
     )
+  # Enable plugins to access symbols exported by the exec (CMake policy CMP0065).
+  set_property(TARGET ${TARGET_STEM} PROPERTY ENABLE_EXPORTS TRUE)
 endmacro()
 
 # Standard execs

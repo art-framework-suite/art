@@ -6,7 +6,7 @@
 //
 // Responsible for retrieving procfs information.
 //
-// MT-TODO: Once we decide to allow multiple modules to process the
+// MT-FIXME: Once we decide to allow multiple modules to process the
 // same event concurrently, we'll need to adjust how memory
 // information is retrieved--it may need to be per-thread instead of
 // per-schedule.
@@ -15,6 +15,7 @@
 #include "art/Utilities/LinuxProcData.h"
 #include "art/Utilities/ScheduleID.h"
 
+#include <cstdio>
 #include <vector>
 
 namespace art {
@@ -48,7 +49,7 @@ namespace art {
 
     pid_t pid_;
     long pgSize_;
-    std::vector<int> fileDescriptors_{};
+    std::vector<FILE*> files_{};
   };
 
 } // namespace art

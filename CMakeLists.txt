@@ -53,6 +53,7 @@ find_ups_product(cppunit)
 find_ups_product(cetbuildtools)
 find_ups_product(hep_concurrency)
 find_ups_product(sqlite)
+find_ups_product(range)
 find_ups_boost()
 find_ups_root()
 

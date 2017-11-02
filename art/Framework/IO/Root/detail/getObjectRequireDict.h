@@ -21,4 +21,8 @@ namespace art {
   } // namespace root
 } // namespace art
 
-#endif
+#endif /* art_Framework_IO_Root_detail_getObjectRequireDict_h */
+
+// Local Variables:
+// mode: c++
+// End:

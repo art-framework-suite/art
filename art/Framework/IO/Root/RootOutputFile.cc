@@ -2,6 +2,7 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/OutputFileGranularity.h"
+#include "art/Framework/IO/ClosingCriteria.h"
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/Root/DropMetaData.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
@@ -9,7 +10,6 @@
 #include "art/Framework/IO/Root/RootDB/SQLErrMsg.h"
 #include "art/Framework/IO/Root/RootDB/TKeyVFSOpenPolicy.h"
 #include "art/Framework/IO/Root/RootFileBlock.h"
-#include "art/Framework/IO/Root/RootOutputClosingCriteria.h"
 #include "art/Framework/IO/Root/checkDictionaries.h"
 #include "art/Framework/IO/Root/detail/KeptProvenance.h"
 #include "art/Framework/IO/Root/detail/getObjectRequireDict.h"

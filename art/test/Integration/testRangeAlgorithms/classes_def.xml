@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="art::Assns<string, int, void>"/>
+  <class name="art::Assns<int, string, void>"/>
+  <class name="art::Wrapper<art::Assns<string, int, void> >"/>
+  <class name="art::Wrapper<art::Assns<int, string, void> >"/>
+</lcgdict>

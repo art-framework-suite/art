@@ -1,0 +1,20 @@
+source: {
+  module_type: EmptyEvent
+  maxEvents: 9
+}
+
+services.TFileService: {
+  fileName: "out_%#.root"
+  fileProperties: {
+    maxEvents: 5
+  }
+}
+
+physics: {
+  analyzers: {
+    a1: {
+      module_type: TestTFileService
+    }
+  }
+  e1: [a1]
+}

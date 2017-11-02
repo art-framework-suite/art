@@ -7,6 +7,7 @@
  *
  */
 
+#include <map>
 #include <string>
 #include <utility>
 
@@ -46,11 +47,16 @@ namespace art {
     TFileDirectory mkdir(std::string const& dir, std::string const& descr = "");
 
   protected:
+    using Callback_t = std::function<void()>;
+
     /// Create a new TFileDirectory object.
     TFileDirectory(std::string const& dir,
                    std::string const& descr,
                    TFile* file,
                    std::string const& path);
+
+    void invokeCallbacks();
+    void registerCallback(Callback_t);
 
     /// Return the full pathname of the current directory, formed from
     /// appending 'dir' to the end of 'path'.
@@ -60,11 +66,13 @@ namespace art {
     std::string dir_;
     std::string descr_;
     std::string path_;
+    bool requireCallback_{false};
 
   private:
     /// Make the current directory be the one implied by the state of
     /// this TFileDirectory.
     void cd() const;
+    std::map<std::string, std::vector<Callback_t>> callbacks_{};
   };
 
   template <typename T, typename... ARGS>
