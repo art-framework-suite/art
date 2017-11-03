@@ -1,0 +1,10 @@
+process_name: CREATE
+
+physics: {
+  producers: {
+    makeArray: {
+      module_type: IntArrayProducer
+    }
+  }
+  p1: [makeArray]
+}

@@ -10,6 +10,7 @@
 #include "canvas/Persistency/Common/traits.h"
 #include "cetlib/container_algorithms.h"
 
+#include <array>
 #include <cstdint>
 #include <stdexcept>
 #include <string>
@@ -24,7 +25,8 @@ namespace arttest {
   };
 
   struct IntProduct {
-    explicit IntProduct(int i = 0) : value(i) {}
+    IntProduct() = default;
+    explicit IntProduct(int i) : value(i) {}
 
     IntProduct&
     operator+=(IntProduct const& other)
@@ -39,11 +41,12 @@ namespace arttest {
       (void)operator+=(other);
     }
 
-    int value;
+    int value{};
   };
 
   struct CompressedIntProduct {
-    explicit CompressedIntProduct(int i = 0) : value(i) {}
+    CompressedIntProduct() = default;
+    explicit CompressedIntProduct(int i) : value(i) {}
 
     CompressedIntProduct&
     operator+=(CompressedIntProduct const& other)
@@ -58,15 +61,16 @@ namespace arttest {
       (void)operator+=(other);
     }
 
-    int value;
+    int value{};
   };
 
   struct Int16_tProduct {
-    explicit Int16_tProduct(int16_t i = 0, uint16_t j = 1) : value(i), uvalue(j)
+    Int16_tProduct() = default;
+    explicit Int16_tProduct(int16_t i, uint16_t j) : value(i), uvalue(j)
     {}
 
-    int16_t value;
-    uint16_t uvalue;
+    int16_t value{};
+    uint16_t uvalue{1};
 
     void
     aggregate(Int16_tProduct const& other)
@@ -77,7 +81,8 @@ namespace arttest {
   };
 
   struct DoubleProduct {
-    explicit DoubleProduct(double d = 2.2) : value(d) {}
+    DoubleProduct() = default;
+    explicit DoubleProduct(double d) : value(d) {}
 
     void
     aggregate(DoubleProduct const& d)
@@ -85,7 +90,7 @@ namespace arttest {
       value += d.value;
     }
 
-    double value;
+    double value{2.2};
   };
 
   inline DoubleProduct
@@ -109,12 +114,12 @@ namespace arttest {
   }
 
   struct StringProduct {
-    StringProduct() : name_() {}
+    StringProduct() = default;
     explicit StringProduct(const std::string& s) : name_(s) {}
     void
     aggregate(StringProduct const&)
     {}
-    std::string name_;
+    std::string name_{};
   };
 
   inline bool
@@ -130,12 +135,13 @@ namespace arttest {
   }
 
   struct Simple {
-    Simple() : key(0), value(0.0) {}
+    Simple() = default;
+
     virtual ~Simple() noexcept = default;
     typedef int key_type;
 
-    key_type key;
-    double value;
+    key_type key{};
+    double value{};
 
     key_type
     id() const
@@ -167,13 +173,13 @@ namespace arttest {
   }
 
   struct SimpleDerived : public Simple {
-    SimpleDerived() : Simple(), dummy_(16.25) {}
+    SimpleDerived() = default;
 
     SimpleDerived(SimpleDerived const& other)
       : Simple(other), dummy_(other.dummy_)
     {}
 
-    double dummy_;
+    double dummy_{16.25};
     double
     dummy() const override
     {
@@ -187,8 +193,8 @@ namespace arttest {
   };
 
   struct Sortable {
-    int data;
-    Sortable() : data(0) {}
+    int data{};
+    Sortable() = default;
     explicit Sortable(int i) : data(i) {}
     void
     aggregate(Sortable const&) const
@@ -226,9 +232,21 @@ namespace arttest {
     aggregate(Track const&) const
     {}
   };
+
+  template <std::size_t N>
+  struct IntArray {
+    IntArray() = default;
+    std::array<int,N> arr{{}};
+    void aggregate(IntArray const& right)
+    {
+      for (std::size_t i{}; i < N; ++i) {
+        arr[i] += right.arr[i];
+      }
+    }
+  };
 }
 
-  // ======================================================================
+// ======================================================================
 
 #endif /* art_test_TestObjects_ToyProducts_h */
 
