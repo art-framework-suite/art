@@ -50,7 +50,7 @@ find_ups_product(cetlib v2_01_00)
 find_ups_product(cetlib_except v1_01_00)
 find_ups_product(clhep)
 find_ups_product(cppunit)
-find_ups_product(cetbuildtools)
+find_ups_product(cetbuildtools v6_00_00) # LIBRARY_OUTPUT_DIRECTORY, etc.
 find_ups_product(sqlite)
 find_ups_product(range)
 find_ups_boost()
