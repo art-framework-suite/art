@@ -32,8 +32,8 @@ add_library(TestHistProducer SHARED ${TestHistProducer_sources} )
 
 foreach(ename ${exe_list} )
   add_executable( ${ename} TestIntegration.cpp  )
-  add_test( ${ename} ${EXECUTABLE_OUTPUT_PATH}/${ename} )
+  add_test( NAME ${ename} COMMAND ${ename} )
 endforeach(file ${cpp_files} )
 
 add_executable( TestFWCoreIntegrationStandalone testRunner.cpp standalone_t.cppunit.cc )
-add_test( TestFWCoreIntegrationStandalone ${EXECUTABLE_OUTPUT_PATH}/TestFWCoreIntegrationStandalone )
+add_test( NAME TestFWCoreIntegrationStandalone COMMAND TestFWCoreIntegrationStandalone )
