@@ -9,8 +9,8 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SummedValue.h"
 #include "art/test/Integration/product-aggregation/CalibConstants.h"
-#include "art/test/Integration/product-aggregation/Fraction.h"
 #include "art/test/Integration/product-aggregation/Geometry.h"
+#include "art/test/Integration/product-aggregation/TaggedValue.h"
 #include "art/test/Integration/product-aggregation/TrackEfficiency.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "cetlib/quiet_unit_test.hpp"
@@ -25,8 +25,9 @@ using art::InputTag;
 using art::RangeSet;
 using art::SubRunNumber_t;
 using art::SummedValue;
-using arttest::Fraction;
+using arttest::TaggedValue;
 using arttest::TrackEfficiency;
+using fhicl::Atom;
 using fhicl::Name;
 using fhicl::Sequence;
 using fhicl::TupleAs;
@@ -39,13 +40,9 @@ namespace {
 
   struct Config {
     TupleAs<InputTag(string)> trkEffTag{Name("trkEffTag")};
-    TupleAs<InputTag(string)> nParticlesTag{Name("nParticlesTag")};
-    TupleAs<InputTag(string)> seenParticlesTag{Name("seenParticlesTag")};
-    Sequence<TupleAs<Fraction(Sequence<unsigned>, Sequence<unsigned>)>> fracs{
-      Name("trkEffs")};
-    Sequence<unsigned> reorderedExpectedNums{Name("reorderedTrkEffNums")};
-    Sequence<unsigned> reorderedExpectedDenoms{Name("reorderedTrkEffDenoms")};
-    Sequence<double> particleRatios{Name("particleRatios")};
+    TupleAs<TaggedValue<unsigned>(string, unsigned)> nParticlesRef{Name("nParticlesRef")};
+    TupleAs<TaggedValue<unsigned>(string, unsigned)> seenParticlesRef{Name("seenParticlesRef")};
+    Atom<double> trkEff{Name("trkEffPerSubRun")};
   };
 
   class AssembleMoreProductsRobust : public art::EDProducer {
@@ -60,31 +57,24 @@ namespace {
     {}
 
   private:
-    art::InputTag trkEffTag_;
-    art::InputTag nParticlesTag_;
-    art::InputTag seenParticlesTag_;
+
+    art::InputTag const trkEffTag_;
+    double const expTrkEff_;
+    TaggedValue<unsigned> const nParticlesRef_;
+    TaggedValue<unsigned> const seenParticlesRef_;
     std::map<SubRunNumber_t, SummedValue<unsigned>> trkEffNum_{};
     std::map<SubRunNumber_t, SummedValue<unsigned>> trkEffDenom_{};
     std::map<SubRunNumber_t, SummedValue<unsigned>> nParticles_{};
     std::map<SubRunNumber_t, SummedValue<unsigned>> seenParticles_{};
-    vector<double> seenParticleRatios_;
-    vector<Fraction> expectedEffs_;
-    vector<double> fullExpTrkEffs_;
-    vector<unsigned> reorderedExpectedNums_;
-    vector<unsigned> reorderedExpectedDenoms_;
 
   }; // AssembleMoreProductsRobust
 
   AssembleMoreProductsRobust::AssembleMoreProductsRobust(
     Parameters const& config)
     : trkEffTag_{config().trkEffTag()}
-    , nParticlesTag_{config().nParticlesTag()}
-    , seenParticlesTag_{config().seenParticlesTag()}
-    , seenParticleRatios_{config().particleRatios()}
-    , expectedEffs_{config().fracs()}
-    , fullExpTrkEffs_{expectedEffs_.at(0).value(), expectedEffs_.at(1).value()}
-    , reorderedExpectedNums_{config().reorderedExpectedNums()}
-    , reorderedExpectedDenoms_{config().reorderedExpectedDenoms()}
+    , expTrkEff_{config().trkEff()}
+    , nParticlesRef_{config().nParticlesRef()}
+    , seenParticlesRef_{config().seenParticlesRef()}
   {
     produces<double, art::InSubRun>("TrkEffValue");
     produces<double, art::InSubRun>("ParticleRatio");
@@ -105,21 +95,13 @@ namespace {
     trkEffNum.update(h, h->num());
     trkEffDenom.update(h, h->denom());
 
-    // Check individual numerators/denominatos
-    auto& nums = reorderedExpectedNums_;
-    auto& denoms = reorderedExpectedDenoms_;
-    BOOST_CHECK_EQUAL(nums.front(), h->num());
-    BOOST_CHECK_EQUAL(denoms.front(), h->denom());
-    nums.erase(nums.cbegin());
-    denoms.erase(denoms.cbegin());
-
     if (art::same_ranges(trkEffNum, trkEffDenom) &&
         art::same_ranges(trkEffRef, trkEffNum.rangeOfValidity())) {
       BOOST_CHECK(!art::disjoint_ranges(trkEffNum, trkEffDenom));
       BOOST_CHECK(!art::overlapping_ranges(trkEffNum, trkEffDenom));
       auto const eff =
         static_cast<double>(trkEffNum.value()) / trkEffDenom.value();
-      BOOST_CHECK_CLOSE_FRACTION(fullExpTrkEffs_.at(srn), eff, tolerance);
+      BOOST_CHECK_CLOSE_FRACTION(expTrkEff_, eff, tolerance);
       sr.put(std::make_unique<double>(eff),
              "TrkEffValue",
              art::subRunFragment(trkEffRef));
@@ -137,20 +119,19 @@ namespace {
     // nParticles produced at first stage 'eventGen'. Use getByLabel
     // because the product is likely split across multiple files.
     art::Handle<unsigned> nParticlesH;
-    if (sr.getByLabel(nParticlesTag_, nParticlesH)) {
+    if (sr.getByLabel(nParticlesRef_.tag_, nParticlesH)) {
       nParticles.update(nParticlesH);
     }
 
     // seenParticles produced in this process
-    auto const& seenParticlesH = sr.getValidHandle<unsigned>(seenParticlesTag_);
+    auto const& seenParticlesH = sr.getValidHandle<unsigned>(seenParticlesRef_.tag_);
     seenParticles.update(seenParticlesH);
 
     if (art::same_ranges(nParticles, seenParticles)) {
+      BOOST_CHECK_EQUAL(seenParticles.value(), seenParticlesRef_.value_);
+      BOOST_CHECK_EQUAL(nParticles.value(), nParticlesRef_.value_);
       auto const ratio =
         static_cast<double>(seenParticles.value()) / nParticles.value();
-      BOOST_CHECK_CLOSE_FRACTION(seenParticleRatios_.at(sr.subRun()),
-                                 ratio,
-                                 0.01); // 1%
       sr.put(std::make_unique<double>(ratio),
              "ParticleRatio",
              art::subRunFragment(nParticles.rangeOfValidity()));

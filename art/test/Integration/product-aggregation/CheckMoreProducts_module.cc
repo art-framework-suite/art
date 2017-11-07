@@ -1,11 +1,8 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/test/Integration/product-aggregation/CalibConstants.h"
-#include "art/test/Integration/product-aggregation/Fraction.h"
-#include "art/test/Integration/product-aggregation/Geometry.h"
+#include "art/test/Integration/product-aggregation/TaggedValue.h"
 #include "art/test/Integration/product-aggregation/TrackEfficiency.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "cetlib/quiet_unit_test.hpp"
@@ -14,7 +11,7 @@
 using art::EventRange;
 using art::InputTag;
 using art::RangeSet;
-using arttest::Fraction;
+using arttest::TaggedValue;
 using fhicl::Name;
 using fhicl::Sequence;
 using fhicl::TupleAs;
@@ -28,8 +25,7 @@ namespace {
   struct Config {
     TupleAs<InputTag(string)> trkEffTag{Name("trkEffTag")};
     TupleAs<InputTag(string)> trkEffValueTag{Name("trkEffValueTag")};
-    TupleAs<InputTag(string)> particleRatioTag{Name("particleRatioTag")};
-    Sequence<double> expParticleRatios{Name("expParticleRatios")};
+    TupleAs<TaggedValue<double>(string, double)> particleRatioRef{Name("particleRatioRef")};
   };
 
   class CheckMoreProducts : public art::EDAnalyzer {
@@ -43,10 +39,10 @@ namespace {
     {}
 
   private:
-    art::InputTag trkEffTag_;
-    art::InputTag trkEffValueTag_;
-    art::InputTag particleRatioTag_;
-    vector<double> expParticleRatios_;
+    art::InputTag const trkEffTag_;
+    art::InputTag const trkEffValueTag_;
+    art::InputTag const particleRatioTag_;
+    TaggedValue<double> const particleRatioRef_;
 
   }; // CheckMoreProducts
 
@@ -54,8 +50,7 @@ namespace {
     : EDAnalyzer{config}
     , trkEffTag_{config().trkEffTag()}
     , trkEffValueTag_{config().trkEffValueTag()}
-    , particleRatioTag_{config().particleRatioTag()}
-    , expParticleRatios_{config().expParticleRatios()}
+    , particleRatioRef_{config().particleRatioRef()}
   {}
 
   void
@@ -69,9 +64,9 @@ namespace {
     BOOST_CHECK_CLOSE_FRACTION(trkEffH->efficiency(), *trkEffValueH, tolerance);
 
     // User-assembled ParticleRatio check
-    auto const& particleRatioH = sr.getValidHandle<double>(particleRatioTag_);
+    auto const& particleRatioH = sr.getValidHandle<double>(particleRatioRef_.tag_);
     BOOST_CHECK_CLOSE_FRACTION(*particleRatioH,
-                               expParticleRatios_.at(sr.subRun()),
+                               particleRatioRef_.value_,
                                0.01); // 1% tolerance
     BOOST_CHECK(art::same_ranges(particleRatioH, trkEffValueH));
     BOOST_CHECK(!art::disjoint_ranges(particleRatioH, trkEffValueH));

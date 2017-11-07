@@ -1,20 +1,10 @@
-source: {
-  module_type: RootInput
-  fileNames: [
-    "../Stage2_ParticleSimulation_w.d/sim_1.root",
-    "../Stage2_ParticleSimulation_w.d/sim_2.root",
-    "../Stage2_ParticleSimulation_w.d/sim_3.root",
-    "../Stage2_ParticleSimulation_w.d/sim_4.root"
-  ]
-}
-
 physics: {
 
   filters: {
     reco: {
       module_type: Reconstruction
       inputTag: ["sim:particleEnergies:particleSim"]
-      energyThreshold: 50
+      energyThreshold: 10  # Max energy is 18 [=abs(-9)+9]
     }
   }
 

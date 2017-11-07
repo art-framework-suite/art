@@ -1,36 +1,21 @@
-#include "trackEfficiency.fcl"
-
-source: {
-   module_type: RootInput
-   fileNames: [ "../Stage4_Assemble_w.d/userAssembled.root" ]
-}
-
 physics: {
 
    analyzers: {
 
       a1: {
          module_type: CheckProducts
-
          npotsTag: ["prod:nPOTs:eventGen"]
          nParticlesTag: ["prod:nParticles:eventGen"]
          geomTag: ["sim:Geometry:particleSim"]
          calibTag: ["reco:CalibConstants:reco"]
-         trkEffTag: ["reco:TrackEfficiency:reco"]
-
-         trkEffs: @local::expectedEfficiencies
+         trkEffRef: ["reco:TrackEfficiency:reco", 0.5]
       }
 
       a2: {
          module_type: CheckMoreProducts
          trkEffTag: ["reco:TrackEfficiency:reco"]
          trkEffValueTag: ["prod2:TrkEffValue:userAssembled"]
-         particleRatioTag: ["prod2:ParticleRatio:userAssembled"]
-
-         expParticleRatios: [
-            0.953, #SubRun 0
-            0.959  #SubRun 1
-         ]
+         particleRatioRef: ["prod2:ParticleRatio:userAssembled", 0.7778]
       }
    }
 

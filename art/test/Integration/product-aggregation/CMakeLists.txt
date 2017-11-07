@@ -105,96 +105,139 @@ simple_plugin(AssembleMoreProductsRobust "module" NO_INSTALL USE_BOOST_UNIT)
 #              |                                                     ParticleRatio---------->
 # endRun       | nPOTs---------------------------------------------------------------------->
 
+set(NUM_THREADS 1 2 4 8)
+# Need something more complicated if the number of elements in
+# NUM_THREADS exceeds 10.
+set(INDEX 0)
+foreach(ITHREAD ${NUM_THREADS})
+  list(APPEND PARG_SUFFIXES ${INDEX})
+  math(EXPR INDEX "${INDEX}+1")
+endforeach()
 
 cet_test(Stage1_EventGeneration_w HANDBUILT
   TEST_EXEC art
+  PARG_THREADS --threads ${NUM_THREADS}
+  PARG_STREAMS --streams ${NUM_THREADS}
   TEST_ARGS --rethrow-all -c eventGeneration_w.fcl
   DATAFILES
   fcl/eventGeneration_w.fcl
   )
 
-cet_test(Stage2_ParticleSimulation_w HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --rethrow-all -c particleSimulation_w.fcl
-  DATAFILES
-  fcl/particleSimulation_w.fcl
-  TEST_PROPERTIES
-  DEPENDS Stage1_EventGeneration_w
-  )
+foreach(PINDEX ${PARG_SUFFIXES})
+  cet_test(Stage2_ParticleSimulation_w_${PINDEX} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS --rethrow-all -c particleSimulation_w.fcl
+    -s ../Stage1_EventGeneration_w_${PINDEX}.d/evtGen_1.root
+    -s ../Stage1_EventGeneration_w_${PINDEX}.d/evtGen_2.root
+    -s ../Stage1_EventGeneration_w_${PINDEX}.d/evtGen_3.root
+    -s ../Stage1_EventGeneration_w_${PINDEX}.d/evtGen_4.root
+    DATAFILES
+    fcl/particleSimulation_w.fcl
+    TEST_PROPERTIES
+    DEPENDS Stage1_EventGeneration_w_${PINDEX})
+endforeach()
 
-cet_test(Stage3_Reconstruction_w HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --rethrow-all -c reconstruction_w.fcl
-  DATAFILES
-  fcl/reconstruction_w.fcl
-  TEST_PROPERTIES
-  DEPENDS Stage2_ParticleSimulation_w
-  )
+foreach(PINDEX ${PARG_SUFFIXES})
+  cet_test(Stage3_Reconstruction_w_${PINDEX} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS --rethrow-all -c reconstruction_w.fcl
+    -s "../Stage2_ParticleSimulation_w_${PINDEX}.d/sim_1.root"
+    -s "../Stage2_ParticleSimulation_w_${PINDEX}.d/sim_2.root"
+    -s "../Stage2_ParticleSimulation_w_${PINDEX}.d/sim_3.root"
+    -s "../Stage2_ParticleSimulation_w_${PINDEX}.d/sim_4.root"
+    DATAFILES
+    fcl/reconstruction_w.fcl
+    TEST_PROPERTIES
+    DEPENDS Stage2_ParticleSimulation_w_${PINDEX})
+endforeach()
 
 # TEST PATH 1
 
-cet_test(Stage4_Concatenation_w HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --rethrow-all -c concatenate_w.fcl
-  DATAFILES
-  fcl/concatenate_w.fcl
-  TEST_PROPERTIES
-  DEPENDS Stage3_Reconstruction_w
-  )
+foreach(PINDEX ${PARG_SUFFIXES})
+  cet_test(Stage4_Concatenation_w_${PINDEX} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS --rethrow-all -c concatenate_w.fcl
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_1.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_2.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_3.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_4.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_5.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_6.root"
+    DATAFILES
+    fcl/concatenate_w.fcl
+    TEST_PROPERTIES
+    DEPENDS Stage3_Reconstruction_w_${PINDEX})
+endforeach()
 
-cet_test(Stage5_Analysis_r HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS
-  -- -c checkProducts_r.fcl
-  DATAFILES
-  fcl/checkProducts_r.fcl
-  fcl/trackEfficiency.fcl
-  TEST_PROPERTIES
-  DEPENDS Stage4_Concatenation_w
-  )
+foreach(PINDEX ${PARG_SUFFIXES})
+  cet_test(Stage5_Analysis_r_${PINDEX} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS
+    -- -c checkProducts_r.fcl
+    -s "../Stage4_Concatenation_w_${PINDEX}.d/concatenation.root"
+    DATAFILES
+    fcl/checkProducts_r.fcl
+    TEST_PROPERTIES
+    DEPENDS Stage4_Concatenation_w_${PINDEX})
+endforeach()
 
 # TEST PATH 2
 
-cet_test(Stage4_Assemble_w HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS -- -c assemble_w.fcl
-  DATAFILES
-  fcl/assemble_w.fcl
-  fcl/trackEfficiency.fcl
-  TEST_PROPERTIES
-  DEPENDS Stage3_Reconstruction_w
-  )
+foreach(PINDEX ${PARG_SUFFIXES})
+  cet_test(Stage4_Assemble_w_${PINDEX} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS -- -c assemble_w.fcl
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_1.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_2.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_3.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_4.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_5.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_6.root"
+    DATAFILES
+    fcl/assemble_w.fcl
+    TEST_PROPERTIES
+    DEPENDS Stage3_Reconstruction_w_${PINDEX})
+endforeach()
 
-cet_test(Stage5_MoreAnalysis_r HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS
-  -- -c checkMoreProducts_r.fcl
-  DATAFILES
-  fcl/checkMoreProducts_r.fcl
-  fcl/trackEfficiency.fcl
-  TEST_PROPERTIES
-  DEPENDS Stage4_Assemble_w
-  )
+foreach(PINDEX ${PARG_SUFFIXES})
+  cet_test(Stage5_MoreAnalysis_r_${PINDEX} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS
+    -- -c checkMoreProducts_r.fcl
+    -s "../Stage4_Assemble_w_${PINDEX}.d/userAssembled.root"
+    DATAFILES
+    fcl/checkMoreProducts_r.fcl
+    TEST_PROPERTIES
+    DEPENDS Stage4_Assemble_w_${PINDEX})
+endforeach()
 
-cet_test(Stage4_Assemble_reordered_w HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS -- -c assemble_reordered_files_w.fcl
-  DATAFILES
-  fcl/assemble_reordered_files_w.fcl
-  fcl/assemble_w.fcl
-  fcl/trackEfficiency.fcl
-  TEST_PROPERTIES
-  DEPENDS Stage3_Reconstruction_w
-  )
+foreach(PINDEX ${PARG_SUFFIXES})
+  cet_test(Stage4_Assemble_reordered_w_${PINDEX} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS -- -c assemble_reordered_files_w.fcl
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_5.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_6.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_1.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_2.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_3.root"
+    -s "../Stage3_Reconstruction_w_${PINDEX}.d/reco_4.root"
+    DATAFILES
+    fcl/assemble_reordered_files_w.fcl
+    fcl/assemble_w.fcl
+    TEST_PROPERTIES
+    DEPENDS Stage3_Reconstruction_w_${PINDEX})
+endforeach()
 
-cet_test(Stage5_MoreAnalysis_reordered_r HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS
-  -- -c checkMoreProducts_reordered_files_r.fcl
-  DATAFILES
-  fcl/checkMoreProducts_reordered_files_r.fcl
-  fcl/checkMoreProducts_r.fcl
-  fcl/trackEfficiency.fcl
-  TEST_PROPERTIES
-  DEPENDS Stage4_Assemble_reordered_w
-  )
+foreach(PINDEX ${PARG_SUFFIXES})
+  cet_test(Stage5_MoreAnalysis_reordered_r_${PINDEX} HANDBUILT
+    TEST_EXEC art_ut
+    TEST_ARGS
+    -- -c checkMoreProducts_r.fcl
+    -s "../Stage4_Assemble_reordered_w_${PINDEX}.d/userAssembled.root"
+    --process-name checkMoreProductsReordered
+    DATAFILES
+    fcl/checkMoreProducts_reordered_files_r.fcl
+    fcl/checkMoreProducts_r.fcl
+    TEST_PROPERTIES
+    DEPENDS Stage4_Assemble_reordered_w_${PINDEX})
+endforeach()

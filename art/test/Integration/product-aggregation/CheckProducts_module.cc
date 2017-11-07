@@ -4,8 +4,8 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/test/Integration/product-aggregation/CalibConstants.h"
-#include "art/test/Integration/product-aggregation/Fraction.h"
 #include "art/test/Integration/product-aggregation/Geometry.h"
+#include "art/test/Integration/product-aggregation/TaggedValue.h"
 #include "art/test/Integration/product-aggregation/TrackEfficiency.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "cetlib/quiet_unit_test.hpp"
@@ -14,7 +14,7 @@
 using art::EventRange;
 using art::InputTag;
 using art::RangeSet;
-using arttest::Fraction;
+using arttest::TaggedValue;
 using fhicl::Name;
 using fhicl::Sequence;
 using fhicl::TupleAs;
@@ -30,9 +30,7 @@ namespace {
     TupleAs<InputTag(string)> nParticlesTag{Name("nParticlesTag")};
     TupleAs<InputTag(string)> geomTag{Name("geomTag")};
     TupleAs<InputTag(string)> calibTag{Name("calibTag")};
-    TupleAs<InputTag(string)> trkEffTag{Name("trkEffTag")};
-    Sequence<TupleAs<Fraction(Sequence<unsigned>, Sequence<unsigned>)>> fracs{
-      Name("trkEffs")};
+    TupleAs<TaggedValue<double>(string, double)> trkEffRef{Name("trkEffRef")};
   };
 
   class CheckProducts : public art::EDAnalyzer {
@@ -47,12 +45,11 @@ namespace {
     {}
 
   private:
-    art::InputTag potsTag_;
-    art::InputTag nParticlesTag_;
-    art::InputTag geomTag_;
-    art::InputTag calibTag_;
-    art::InputTag trkEffTag_;
-    vector<Fraction> trkFracs_;
+    art::InputTag const potsTag_;
+    art::InputTag const nParticlesTag_;
+    art::InputTag const geomTag_;
+    art::InputTag const calibTag_;
+    TaggedValue<double> const trkEffRef_;
 
   }; // CheckProducts
 
@@ -62,8 +59,7 @@ namespace {
     , nParticlesTag_{config().nParticlesTag()}
     , geomTag_{config().geomTag()}
     , calibTag_{config().calibTag()}
-    , trkEffTag_{config().trkEffTag()}
-    , trkFracs_{config().fracs()}
+    , trkEffRef_{config().trkEffRef()}
   {}
 
   void
@@ -99,12 +95,11 @@ namespace {
     RangeSet trkEffRef{sr.run()};
     trkEffRef.emplace_range(sr.subRun(), 1, 101);
     auto const& trkEffH =
-      sr.getValidHandle<arttest::TrackEfficiency>(trkEffTag_);
+      sr.getValidHandle<arttest::TrackEfficiency>(trkEffRef_.tag_);
     BOOST_CHECK(
       art::same_ranges(trkEffH.provenance()->rangeOfValidity(), trkEffRef));
 
-    double const expected{trkFracs_.at(sr.subRun()).value()};
-    BOOST_CHECK_CLOSE_FRACTION(trkEffH->efficiency(), expected, tolerance);
+    BOOST_CHECK_CLOSE_FRACTION(trkEffH->efficiency(), trkEffRef_.value_, tolerance);
 
     // nParticles and TrackEfficiency RangeSet check
     auto const& nParticlesH = sr.getValidHandle<unsigned>(nParticlesTag_);

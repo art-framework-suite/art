@@ -9,8 +9,6 @@ physics: {
   producers: {
     prod: {
       module_type: "art/test/Integration/product-aggregation/EventGenerator"
-      lower: -13 # PDG IDs
-      upper: +13
     }
   }
 
