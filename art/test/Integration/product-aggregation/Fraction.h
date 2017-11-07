@@ -5,63 +5,39 @@ namespace arttest {
 
   class Fraction {
   public:
-    Fraction(std::vector<unsigned> const& nums,
-             std::vector<unsigned> const& denoms)
-      : nums_{nums}, denoms_{denoms}
-    {}
 
-    double
-    front() const
-    {
-      if (denoms_.empty() || nums_.empty())
-        throw art::Exception(art::errors::LogicError,
-                             "arttest::Fraction::front")
-          << "Attempt to access front when numerator or denominator vectors "
-             "were empty\n.";
-      double const num = nums_[0];
-      double const denom = denoms_[0];
-      return denom == 0. ? 0. : num / denom;
-    }
+    Fraction() = default;
+
+    Fraction(unsigned const num,
+             unsigned const denom)
+      : num_{num}, denom_{denom}
+    {}
 
     double
     value() const
     {
-      if (denoms_.size() == 0)
-        return 0.;
-      double const num = numerator();
-      double const denom = denominator();
-      return denom == 0. ? 0. : num / denom;
+      return denom_ == 0. ? 0. : static_cast<double>(num_) / denom_;
     }
 
     double
     numerator() const
     {
-      return std::accumulate(nums_.begin(), nums_.end(), 0);
-    }
-
-    double
-    denominator() const
-    {
-      return std::accumulate(denoms_.begin(), denoms_.end(), 0);
+      return num_;
     }
 
     void
-    pop_front()
+    aggregate(Fraction const& f)
     {
-      if (denoms_.empty() || nums_.empty())
-        throw art::Exception(art::errors::LogicError,
-                             "arttest::Fraction::pop_front")
-          << "Attempt to pop front when numerator or denominator vectors were "
-             "empty\n.";
-      nums_.erase(nums_.begin());
-      denoms_.erase(denoms_.begin());
+      num_ += f.num_;
+      denom_ += f.denom_;
     }
 
   private:
-    std::vector<unsigned> nums_;
-    std::vector<unsigned> denoms_;
+    unsigned num_{-1u};
+    unsigned denom_{-1u};
   };
-}
+
+} // namespace arttest
 
 #endif /* art_test_Integration_product_aggregation_Fraction_h */
 

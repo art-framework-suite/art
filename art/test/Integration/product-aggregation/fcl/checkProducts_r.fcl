@@ -1,23 +1,13 @@
-#include "trackEfficiency.fcl"
-
-source: {
-   module_type: RootInput
-   fileNames: [ "../Stage4_Concatenation_w.d/concatenation.root" ]
-}
-
 physics: {
 
    analyzers: {
       a1: {
          module_type: CheckProducts
-
          npotsTag: ["prod:nPOTs:eventGen"]
          nParticlesTag: ["prod:nParticles:eventGen"]
          geomTag: ["sim:Geometry:particleSim"]
          calibTag: ["reco:CalibConstants:reco"]
-         trkEffTag: ["reco:TrackEfficiency:reco"]
-
-         trkEffs: @local::expectedEfficiencies
+         trkEffRef: ["reco:TrackEfficiency:reco", 0.5]
       }
    }
 

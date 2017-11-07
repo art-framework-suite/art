@@ -12,40 +12,28 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "fhiclcpp/types/Atom.h"
 
-#include <random>
+#include <atomic>
 
 namespace {
 
-  struct Config {
-    fhicl::Atom<int> lower{fhicl::Name("lower")};
-    fhicl::Atom<int> upper{fhicl::Name("upper")};
-  };
-
-  using engine_t = std::default_random_engine;
-  using sizeDist_t = std::uniform_int_distribution<unsigned>;
-  using pdgDist_t = std::uniform_int_distribution<int>;
-
   auto
-  produce_particles(engine_t& gen, sizeDist_t& sizeDist, pdgDist_t& pdgDist)
+  produce_particle_ids(std::size_t const nParticles)
   {
-    std::vector<int> particles(sizeDist(gen));
-    std::generate(particles.begin(), particles.end(), [&gen, &pdgDist] {
-      return pdgDist(gen);
-    });
-    return std::make_unique<decltype(particles)>(particles);
+    auto particle_ids = std::make_unique<std::vector<int>>(nParticles);
+    auto i = static_cast<int>(-nParticles);
+    std::generate(begin(*particle_ids), end(*particle_ids), [&i]{ auto const value = i; i += 2; return value;});
+    return particle_ids;
   }
 
   class EventGenerator : public art::EDProducer {
-    engine_t gen_{};
-    sizeDist_t sizeDist_{0, 10};
-    pdgDist_t pdgDist_;
-    unsigned nPOTs_{};
-    unsigned nParticles_{};
+    static constexpr unsigned maxParticleSize_{10u};
+    std::atomic<unsigned> nPOTs_{};
+    std::atomic<unsigned> nParticles_{};
 
   public:
+    struct Config {};
     using Parameters = EDProducer::Table<Config>;
-    explicit EventGenerator(Parameters const& config)
-      : pdgDist_{config().lower(), config().upper()}
+    explicit EventGenerator(Parameters const&)
     {
       produces<std::vector<int>>("GenParticles");
       produces<unsigned, art::InSubRun>("nParticles");
@@ -55,9 +43,9 @@ namespace {
     void
     produce(art::Event& e) override
     {
-      auto particles = produce_particles(gen_, sizeDist_, pdgDist_);
-      nParticles_ += particles->size();
-      e.put(std::move(particles), "GenParticles");
+      auto const n = (e.id().event() % maxParticleSize_);
+      nParticles_ += n;
+      e.put(produce_particle_ids(n), "GenParticles");
       ++nPOTs_;
     }
 

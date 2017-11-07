@@ -12,45 +12,35 @@
 #include "art/test/Integration/product-aggregation/Geometry.h"
 #include "fhiclcpp/types/TupleAs.h"
 
-#include <random>
+#include <cmath>
 
 namespace {
 
   struct Config {
     fhicl::TupleAs<art::InputTag(std::string)> inputTag{
       fhicl::Name("inputTag")};
-    struct Energies {
-      fhicl::Atom<double> lower{fhicl::Name("lower")};
-      fhicl::Atom<double> upper{fhicl::Name("upper")};
-    };
-    fhicl::Table<Energies> energies{fhicl::Name("energyRange")};
   };
 
-  using engine_t = std::default_random_engine;
-  using energyDist_t = std::uniform_real_distribution<double>;
-
   auto
-  get_energies(std::vector<int> const& particles,
-               engine_t& gen,
-               energyDist_t& energyDist)
+  get_energies(std::vector<int> const& particle_ids)
   {
-    std::vector<double> energies(particles.size());
-    std::generate(energies.begin(), energies.end(), [&gen, &energyDist] {
-      return energyDist(gen);
-    });
-    return std::make_unique<decltype(energies)>(energies);
+    // The energy is arbitrarily calculated to be:
+    //   abs(pdg_id) + particle_ids.size();
+    auto energies = std::make_unique<std::vector<double>>();
+    auto const energy_offset = static_cast<double>(particle_ids.size());
+    cet::transform_all(particle_ids,
+                       back_inserter(*energies),
+                       [&energy_offset] (auto const pid) { return std::abs(pid) + energy_offset; });
+    return energies;
   }
 
   class ParticleSimulator : public art::EDProducer {
-    engine_t gen_{};
-    energyDist_t energyDist_;
     art::ProductToken<std::vector<int>> genParticlesTkn_;
 
   public:
     using Parameters = EDProducer::Table<Config>;
     explicit ParticleSimulator(Parameters const& config)
-      : energyDist_{config().energies().lower(), config().energies().upper()}
-      , genParticlesTkn_{consumes<std::vector<int>>(config().inputTag())}
+      : genParticlesTkn_{consumes<std::vector<int>>(config().inputTag())}
     {
       produces<std::vector<double>>("particleEnergies");
       produces<arttest::Geometry, art::InRun>("Geometry");
@@ -68,7 +58,7 @@ namespace {
     produce(art::Event& e) override
     {
       auto const& genParticles = e.getValidHandle(genParticlesTkn_);
-      e.put(get_energies(*genParticles, gen_, energyDist_), "particleEnergies");
+      e.put(get_energies(*genParticles), "particleEnergies");
     }
 
   }; // ParticleSimulator

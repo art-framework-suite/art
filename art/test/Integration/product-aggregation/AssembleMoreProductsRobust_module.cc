@@ -27,6 +27,7 @@ using art::SubRunNumber_t;
 using art::SummedValue;
 using arttest::Fraction;
 using arttest::TrackEfficiency;
+using fhicl::Atom;
 using fhicl::Name;
 using fhicl::Sequence;
 using fhicl::TupleAs;
@@ -41,11 +42,7 @@ namespace {
     TupleAs<InputTag(string)> trkEffTag{Name("trkEffTag")};
     TupleAs<InputTag(string)> nParticlesTag{Name("nParticlesTag")};
     TupleAs<InputTag(string)> seenParticlesTag{Name("seenParticlesTag")};
-    Sequence<TupleAs<Fraction(Sequence<unsigned>, Sequence<unsigned>)>> fracs{
-      Name("trkEffs")};
-    Sequence<unsigned> reorderedExpectedNums{Name("reorderedTrkEffNums")};
-    Sequence<unsigned> reorderedExpectedDenoms{Name("reorderedTrkEffDenoms")};
-    Sequence<double> particleRatios{Name("particleRatios")};
+    Atom<double> trkEff{Name("trkEffPerSubRun")};
   };
 
   class AssembleMoreProductsRobust : public art::EDProducer {
@@ -60,34 +57,27 @@ namespace {
     {}
 
   private:
-    art::InputTag trkEffTag_;
-    art::InputTag nParticlesTag_;
-    art::InputTag seenParticlesTag_;
+
+    art::InputTag const trkEffTag_;
+    double const expTrkEff_;
+    art::InputTag const nParticlesTag_;
+    art::InputTag const seenParticlesTag_;
     std::map<SubRunNumber_t, SummedValue<unsigned>> trkEffNum_{};
     std::map<SubRunNumber_t, SummedValue<unsigned>> trkEffDenom_{};
     std::map<SubRunNumber_t, SummedValue<unsigned>> nParticles_{};
     std::map<SubRunNumber_t, SummedValue<unsigned>> seenParticles_{};
-    vector<double> seenParticleRatios_;
-    vector<Fraction> expectedEffs_;
-    vector<double> fullExpTrkEffs_;
-    vector<unsigned> reorderedExpectedNums_;
-    vector<unsigned> reorderedExpectedDenoms_;
 
   }; // AssembleMoreProductsRobust
 
   AssembleMoreProductsRobust::AssembleMoreProductsRobust(
     Parameters const& config)
     : trkEffTag_{config().trkEffTag()}
+    , expTrkEff_{config().trkEff()}
     , nParticlesTag_{config().nParticlesTag()}
     , seenParticlesTag_{config().seenParticlesTag()}
-    , seenParticleRatios_{config().particleRatios()}
-    , expectedEffs_{config().fracs()}
-    , fullExpTrkEffs_{expectedEffs_.at(0).value(), expectedEffs_.at(1).value()}
-    , reorderedExpectedNums_{config().reorderedExpectedNums()}
-    , reorderedExpectedDenoms_{config().reorderedExpectedDenoms()}
   {
-    produces<double, art::InSubRun>("TrkEffValue");
-    produces<double, art::InSubRun>("ParticleRatio");
+    produces<Fraction, art::InSubRun>("TrkEffValue");
+    produces<Fraction, art::InSubRun>("ParticleRatio");
   }
 
   void
@@ -105,22 +95,13 @@ namespace {
     trkEffNum.update(h, h->num());
     trkEffDenom.update(h, h->denom());
 
-    // Check individual numerators/denominatos
-    auto& nums = reorderedExpectedNums_;
-    auto& denoms = reorderedExpectedDenoms_;
-    BOOST_CHECK_EQUAL(nums.front(), h->num());
-    BOOST_CHECK_EQUAL(denoms.front(), h->denom());
-    nums.erase(nums.cbegin());
-    denoms.erase(denoms.cbegin());
-
     if (art::same_ranges(trkEffNum, trkEffDenom) &&
         art::same_ranges(trkEffRef, trkEffNum.rangeOfValidity())) {
       BOOST_CHECK(!art::disjoint_ranges(trkEffNum, trkEffDenom));
       BOOST_CHECK(!art::overlapping_ranges(trkEffNum, trkEffDenom));
-      auto const eff =
-        static_cast<double>(trkEffNum.value()) / trkEffDenom.value();
-      BOOST_CHECK_CLOSE_FRACTION(fullExpTrkEffs_.at(srn), eff, tolerance);
-      sr.put(std::make_unique<double>(eff),
+      auto trkEff = std::make_unique<Fraction>(trkEffNum.value(), trkEffDenom.value());
+      BOOST_CHECK_CLOSE_FRACTION(expTrkEff_, trkEff->value(), tolerance);
+      sr.put(move(trkEff),
              "TrkEffValue",
              art::subRunFragment(trkEffRef));
       trkEffNum.clear();
@@ -146,11 +127,7 @@ namespace {
     seenParticles.update(seenParticlesH);
 
     if (art::same_ranges(nParticles, seenParticles)) {
-      auto const ratio =
-        static_cast<double>(seenParticles.value()) / nParticles.value();
-      BOOST_CHECK_CLOSE_FRACTION(
-        seenParticleRatios_.at(sr.subRun()), ratio, 0.01); // 1%
-      sr.put(std::make_unique<double>(ratio),
+      sr.put(std::make_unique<Fraction>(seenParticles.value(), nParticles.value()),
              "ParticleRatio",
              art::subRunFragment(nParticles.rangeOfValidity()));
       nParticles.clear();

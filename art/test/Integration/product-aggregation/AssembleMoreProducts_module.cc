@@ -5,6 +5,7 @@
 #include "art/test/Integration/product-aggregation/CalibConstants.h"
 #include "art/test/Integration/product-aggregation/Fraction.h"
 #include "art/test/Integration/product-aggregation/Geometry.h"
+#include "art/test/Integration/product-aggregation/TaggedValue.h"
 #include "art/test/Integration/product-aggregation/TrackEfficiency.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "cetlib/quiet_unit_test.hpp"
@@ -16,7 +17,9 @@ using art::InputTag;
 using art::RangeSet;
 using art::SummedValue;
 using arttest::Fraction;
+using arttest::TaggedValue;
 using arttest::TrackEfficiency;
+using fhicl::Atom;
 using fhicl::Name;
 using fhicl::Sequence;
 using fhicl::TupleAs;
@@ -31,9 +34,7 @@ namespace {
     TupleAs<InputTag(string)> trkEffTag{Name("trkEffTag")};
     TupleAs<InputTag(string)> nParticlesTag{Name("nParticlesTag")};
     TupleAs<InputTag(string)> seenParticlesTag{Name("seenParticlesTag")};
-    Sequence<TupleAs<Fraction(Sequence<unsigned>, Sequence<unsigned>)>> fracs{
-      Name("trkEffs")};
-    Sequence<double> particleRatios{Name("particleRatios")};
+    Atom<double> trkEff{Name("trkEffPerSubRun")};
   };
 
   class AssembleMoreProducts : public art::EDProducer {
@@ -48,16 +49,14 @@ namespace {
     produce(art::Event&) override
     {}
 
-    art::InputTag trkEffTag_;
-    art::InputTag nParticlesTag_;
-    art::InputTag seenParticlesTag_;
+    art::InputTag const trkEffTag_;
+    InputTag const nParticlesTag_;
+    InputTag const seenParticlesTag_;
     SummedValue<unsigned> trkEffNum_{};
     SummedValue<unsigned> trkEffDenom_{};
     SummedValue<unsigned> nParticles_{};
     SummedValue<unsigned> seenParticles_{};
-    vector<double> seenParticleRatios_;
-    vector<Fraction> expectedEffs_;
-    vector<double> fullExpTrkEffs_;
+    double const expectedEff_;
 
   }; // AssembleMoreProducts
 
@@ -65,15 +64,13 @@ namespace {
     : trkEffTag_{config().trkEffTag()}
     , nParticlesTag_{config().nParticlesTag()}
     , seenParticlesTag_{config().seenParticlesTag()}
-    , seenParticleRatios_{config().particleRatios()}
-    , expectedEffs_{config().fracs()}
-    , fullExpTrkEffs_{expectedEffs_.at(0).value(), expectedEffs_.at(1).value()}
+    , expectedEff_{config().trkEff()}
   {
     consumes<arttest::TrackEfficiency, art::InSubRun>(trkEffTag_);
     consumes<unsigned, art::InSubRun>(nParticlesTag_);
     consumes<unsigned, art::InSubRun>(seenParticlesTag_);
-    produces<double, art::InSubRun>("TrkEffValue");
-    produces<double, art::InSubRun>("ParticleRatio");
+    produces<Fraction, art::InSubRun>("TrkEffValue");
+    produces<Fraction, art::InSubRun>("ParticleRatio");
   }
 
   void
@@ -83,13 +80,7 @@ namespace {
     RangeSet trkEffRef{sr.run()};
     trkEffRef.emplace_range(sr.subRun(), 1, 101);
 
-    auto const srn = sr.subRun();
-
     auto const& h = sr.getValidHandle<arttest::TrackEfficiency>(trkEffTag_);
-    auto& frac = expectedEffs_.at(srn);
-    BOOST_CHECK_CLOSE_FRACTION(frac.front(), h->efficiency(), tolerance);
-    frac.pop_front();
-
     trkEffNum_.update(h, h->num());
     trkEffDenom_.update(h, h->denom());
 
@@ -97,10 +88,9 @@ namespace {
         art::same_ranges(trkEffRef, trkEffNum_.rangeOfValidity())) {
       BOOST_CHECK(!art::disjoint_ranges(trkEffNum_, trkEffDenom_));
       BOOST_CHECK(!art::overlapping_ranges(trkEffNum_, trkEffDenom_));
-      auto const eff =
-        static_cast<double>(trkEffNum_.value()) / trkEffDenom_.value();
-      BOOST_CHECK_CLOSE_FRACTION(fullExpTrkEffs_.at(srn), eff, tolerance);
-      sr.put(std::make_unique<double>(eff),
+      auto trkEff = std::make_unique<Fraction>(trkEffNum_.value(), trkEffDenom_.value());
+      BOOST_CHECK_CLOSE_FRACTION(expectedEff_, trkEff->value(), tolerance);
+      sr.put(move(trkEff),
              "TrkEffValue",
              art::subRunFragment(trkEffRef));
       trkEffNum_.clear();
@@ -123,11 +113,7 @@ namespace {
     seenParticles_.update(seenParticlesH);
 
     if (art::same_ranges(nParticles_, seenParticles_)) {
-      auto const ratio =
-        static_cast<double>(seenParticles_.value()) / nParticles_.value();
-      BOOST_CHECK_CLOSE_FRACTION(
-        seenParticleRatios_.at(sr.subRun()), ratio, 0.01); // 1%
-      sr.put(std::make_unique<double>(ratio),
+      sr.put(std::make_unique<Fraction>(seenParticles_.value(), nParticles_.value()),
              "ParticleRatio",
              art::subRunFragment(nParticles_.rangeOfValidity()));
       nParticles_.clear();

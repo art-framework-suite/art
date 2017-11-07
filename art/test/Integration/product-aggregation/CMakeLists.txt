@@ -116,85 +116,102 @@ cet_test(Stage1_EventGeneration_w HANDBUILT
 cet_test(Stage2_ParticleSimulation_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c particleSimulation_w.fcl
+  -s ../Stage1_EventGeneration_w.d/evtGen_1.root
+  -s ../Stage1_EventGeneration_w.d/evtGen_2.root
+  -s ../Stage1_EventGeneration_w.d/evtGen_3.root
+  -s ../Stage1_EventGeneration_w.d/evtGen_4.root
   DATAFILES
   fcl/particleSimulation_w.fcl
   TEST_PROPERTIES
-  DEPENDS Stage1_EventGeneration_w
-  )
+  DEPENDS Stage1_EventGeneration_w)
 
 cet_test(Stage3_Reconstruction_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c reconstruction_w.fcl
+  -s "../Stage2_ParticleSimulation_w.d/sim_1.root"
+  -s "../Stage2_ParticleSimulation_w.d/sim_2.root"
+  -s "../Stage2_ParticleSimulation_w.d/sim_3.root"
+  -s "../Stage2_ParticleSimulation_w.d/sim_4.root"
   DATAFILES
   fcl/reconstruction_w.fcl
   TEST_PROPERTIES
-  DEPENDS Stage2_ParticleSimulation_w
-  )
+  DEPENDS Stage2_ParticleSimulation_w)
 
 # TEST PATH 1
 
 cet_test(Stage4_Concatenation_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c concatenate_w.fcl
+  -s "../Stage3_Reconstruction_w.d/reco_1.root"
+  -s "../Stage3_Reconstruction_w.d/reco_2.root"
+  -s "../Stage3_Reconstruction_w.d/reco_3.root"
+  -s "../Stage3_Reconstruction_w.d/reco_4.root"
+  -s "../Stage3_Reconstruction_w.d/reco_5.root"
+  -s "../Stage3_Reconstruction_w.d/reco_6.root"
   DATAFILES
   fcl/concatenate_w.fcl
   TEST_PROPERTIES
-  DEPENDS Stage3_Reconstruction_w
-  )
+  DEPENDS Stage3_Reconstruction_w)
 
 cet_test(Stage5_Analysis_r HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS
   -- -c checkProducts_r.fcl
+  -s "../Stage4_Concatenation_w.d/concatenation.root"
   DATAFILES
   fcl/checkProducts_r.fcl
-  fcl/trackEfficiency.fcl
   TEST_PROPERTIES
-  DEPENDS Stage4_Concatenation_w
-  )
+  DEPENDS Stage4_Concatenation_w)
 
 # TEST PATH 2
 
 cet_test(Stage4_Assemble_w HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- -c assemble_w.fcl
+  -s "../Stage3_Reconstruction_w.d/reco_1.root"
+  -s "../Stage3_Reconstruction_w.d/reco_2.root"
+  -s "../Stage3_Reconstruction_w.d/reco_3.root"
+  -s "../Stage3_Reconstruction_w.d/reco_4.root"
+  -s "../Stage3_Reconstruction_w.d/reco_5.root"
+  -s "../Stage3_Reconstruction_w.d/reco_6.root"
   DATAFILES
   fcl/assemble_w.fcl
-  fcl/trackEfficiency.fcl
   TEST_PROPERTIES
-  DEPENDS Stage3_Reconstruction_w
-  )
+  DEPENDS Stage3_Reconstruction_w)
 
 cet_test(Stage5_MoreAnalysis_r HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS
   -- -c checkMoreProducts_r.fcl
+  -s "../Stage4_Assemble_w.d/userAssembled.root"
   DATAFILES
   fcl/checkMoreProducts_r.fcl
-  fcl/trackEfficiency.fcl
   TEST_PROPERTIES
-  DEPENDS Stage4_Assemble_w
-  )
+  DEPENDS Stage4_Assemble_w)
 
 cet_test(Stage4_Assemble_reordered_w HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- -c assemble_reordered_files_w.fcl
+  -s "../Stage3_Reconstruction_w.d/reco_5.root"
+  -s "../Stage3_Reconstruction_w.d/reco_6.root"
+  -s "../Stage3_Reconstruction_w.d/reco_1.root"
+  -s "../Stage3_Reconstruction_w.d/reco_2.root"
+  -s "../Stage3_Reconstruction_w.d/reco_3.root"
+  -s "../Stage3_Reconstruction_w.d/reco_4.root"
   DATAFILES
   fcl/assemble_reordered_files_w.fcl
   fcl/assemble_w.fcl
-  fcl/trackEfficiency.fcl
   TEST_PROPERTIES
-  DEPENDS Stage3_Reconstruction_w
-  )
+  DEPENDS Stage3_Reconstruction_w)
 
 cet_test(Stage5_MoreAnalysis_reordered_r HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS
-  -- -c checkMoreProducts_reordered_files_r.fcl
+  -- -c checkMoreProducts_r.fcl
+  -s "../Stage4_Assemble_reordered_w.d/userAssembled.root"
+  --process-name checkMoreProductsReordered
   DATAFILES
   fcl/checkMoreProducts_reordered_files_r.fcl
   fcl/checkMoreProducts_r.fcl
-  fcl/trackEfficiency.fcl
   TEST_PROPERTIES
-  DEPENDS Stage4_Assemble_reordered_w
-  )
+  DEPENDS Stage4_Assemble_reordered_w)

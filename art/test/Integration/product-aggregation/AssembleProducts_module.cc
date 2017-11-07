@@ -4,6 +4,8 @@
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/types/TupleAs.h"
 
+#include <atomic>
+
 using art::InputTag;
 using fhicl::Name;
 using fhicl::TupleAs;
@@ -42,8 +44,8 @@ namespace {
     }
 
   private:
-    InputTag particlesTag_;
-    unsigned seenParticles_{};
+    InputTag const particlesTag_;
+    std::atomic<unsigned> seenParticles_{};
 
   }; // AssembleProducts
 }

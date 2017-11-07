@@ -1,40 +1,27 @@
-#include "trackEfficiency.fcl"
-
-source: {
-   module_type: RootInput
-   fileNames: [ "../Stage4_Assemble_w.d/userAssembled.root" ]
-}
-
 physics: {
 
-   analyzers: {
+  analyzers: {
 
-      a1: {
-         module_type: CheckProducts
+    a1: {
+      module_type: CheckProducts
+      npotsTag: ["prod:nPOTs:eventGen"]
+      nParticlesTag: ["prod:nParticles:eventGen"]
+      geomTag: ["sim:Geometry:particleSim"]
+      calibTag: ["reco:CalibConstants:reco"]
+      trkEffRef: ["reco:TrackEfficiency:reco", 0.5]
+    }
 
-         npotsTag: ["prod:nPOTs:eventGen"]
-         nParticlesTag: ["prod:nParticles:eventGen"]
-         geomTag: ["sim:Geometry:particleSim"]
-         calibTag: ["reco:CalibConstants:reco"]
-         trkEffTag: ["reco:TrackEfficiency:reco"]
+    a2: {
+      module_type: CheckMoreProducts
+      trkEffTag: ["reco:TrackEfficiency:reco"]
+      trkEffValueTag: ["prod2:TrkEffValue:userAssembled"]
+      nParticlesRef: ["prod:nParticles:eventGen", 450]
+      seenParticlesRef: ["prod1:seenParticles:userAssembled", 350]
+      particleRatioRef: ["prod2:ParticleRatio:userAssembled", 0.7778]
+    }
+  }
 
-         trkEffs: @local::expectedEfficiencies
-      }
-
-      a2: {
-         module_type: CheckMoreProducts
-         trkEffTag: ["reco:TrackEfficiency:reco"]
-         trkEffValueTag: ["prod2:TrkEffValue:userAssembled"]
-         particleRatioTag: ["prod2:ParticleRatio:userAssembled"]
-
-         expParticleRatios: [
-            0.953, #SubRun 0
-            0.959  #SubRun 1
-         ]
-      }
-   }
-
-   e1: [a1, a2]
+  e1: [a1, a2]
 }
 
 process_name: checkMoreProducts
