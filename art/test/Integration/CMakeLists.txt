@@ -58,6 +58,8 @@ simple_plugin(IntProducer                 "module"  NO_INSTALL)
 simple_plugin(IntTestAnalyzer             "module"  NO_INSTALL)
 simple_plugin(IntVectorAnalyzer           "module"  NO_INSTALL)
 simple_plugin(IntVectorProducer           "module"  NO_INSTALL)
+simple_plugin(IntArrayAnalyzer            "module"  NO_INSTALL)
+simple_plugin(IntArrayProducer            "module"  NO_INSTALL)
 simple_plugin(MessagePrinter              "tool"    NO_INSTALL)
 simple_plugin(MixAnalyzer                 "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(MixFilterTest               "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
@@ -217,6 +219,19 @@ cet_test(test_view_01_t.sh PREBUILT
   fcl/test_simple_01r.fcl
   fcl/messageDefaults.fcl
 )
+
+cet_test(PersistStdArrays_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c persistStdArrays_w.fcl -o out.root
+  DATAFILES
+  fcl/persistStdArrays_w.fcl)
+
+cet_test(PersistStdArrays_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c persistStdArrays_r.fcl -s ../PersistStdArrays_w.d/out.root
+  DATAFILES
+  fcl/persistStdArrays_r.fcl
+  TEST_PROPERTIES DEPENDS PersistStdArrays_w)
 
 # Test missing consumes
 cet_test(SimpleDerived_MissingConsumes_t HANDBUILT
