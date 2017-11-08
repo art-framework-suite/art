@@ -65,10 +65,11 @@ namespace art {
     TFile* file_;
     std::string dir_;
     std::string descr_;
-    std::string path_;
     bool requireCallback_{false};
 
   private:
+
+    std::string path_;
     /// Make the current directory be the one implied by the state of
     /// this TFileDirectory.
     void cd() const;
