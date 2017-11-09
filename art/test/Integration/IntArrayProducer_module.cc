@@ -20,13 +20,10 @@ namespace arttest {
 
 class arttest::IntArrayProducer : public art::EDProducer {
 public:
-
-  struct Config{};
+  struct Config {
+  };
   using Parameters = Table<Config>;
-  explicit IntArrayProducer(Parameters const&)
-  {
-    produces<IntArray<sz>>();
-  }
+  explicit IntArrayProducer(Parameters const&) { produces<IntArray<sz>>(); }
 
   void
   produce(art::Event& e) override
@@ -34,7 +31,7 @@ public:
     int const value = e.id().event();
     auto p = std::make_unique<IntArray<sz>>();
     for (int k = 0; k != sz; ++k) {
-      p->arr[k] = value+k;
+      p->arr[k] = value + k;
     }
     e.put(move(p));
   }
