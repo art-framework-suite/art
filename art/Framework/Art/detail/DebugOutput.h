@@ -19,6 +19,12 @@ namespace art {
 
 class art::detail::DebugOutput {
 public:
+  enum class processing_mode {
+    none,
+    config_out,
+    debug_config,
+    validate_config
+  };
   enum class destination { none, cerr, file };
 
   std::string const&
@@ -28,7 +34,7 @@ public:
   }
 
   fhicl::detail::print_mode
-  mode() const
+  print_mode() const
   {
     return mode_;
   }
@@ -62,9 +68,9 @@ public:
   }
 
   void
-  set_preempting(bool const p)
+  set_processing_mode(processing_mode const mode)
   {
-    preempting_ = p;
+    processing_mode_ = mode;
   }
 
   void
@@ -75,15 +81,27 @@ public:
   }
 
   void
-  set_mode(fhicl::detail::print_mode const pm)
+  set_print_mode(fhicl::detail::print_mode const pm)
   {
     mode_ = pm;
   }
 
   bool
-  preempting() const
+  validate_config() const
   {
-    return preempting_;
+    return processing_mode_ == processing_mode::validate_config;
+  }
+
+  bool
+  debug_config() const
+  {
+    return processing_mode_ == processing_mode::debug_config;
+  }
+
+  bool
+  config_out() const
+  {
+    return processing_mode_ == processing_mode::config_out;
   }
 
   explicit operator bool() { return maybe_initialize_(); }
@@ -113,7 +131,7 @@ public:
 
 private:
   destination dest_{destination::none};
-  bool preempting_{true};
+  processing_mode processing_mode_{processing_mode::none};
   fhicl::detail::print_mode mode_{fhicl::detail::print_mode::raw};
   std::string filename_{};
   std::unique_ptr<cet::ostream_handle> osp_{nullptr};
