@@ -194,11 +194,25 @@ namespace art {
       main_pset.get<fhicl::ParameterSet>("services", {});
     auto const& scheduler_pset =
       services_pset.get<fhicl::ParameterSet>("scheduler", {});
-    if (debug && debug.preempting()) {
-      std::cerr << debug.banner();
-      debug.stream() << main_pset.to_indented_string(0, debug.mode());
-      return 1;
+
+    // Handle early configuration-debugging
+    if (debug) {
+      if (!debug.stream_is_valid()) {
+        throw Exception(errors::Configuration)
+          << "Unable to write post-processed configuration to specified file "
+          << debug.filename() << ".\n";
+      }
+      if (debug.debug_config()) {
+        std::cerr << debug.banner();
+        debug.stream() << main_pset.to_indented_string(0, debug.print_mode());
+        return 1; // Bail out early
+      } else if (debug.config_out()) {
+        debug.stream() << main_pset.to_indented_string(0, debug.print_mode());
+        mf::LogInfo("ConfigOut") << "Post-processed configuration written to "
+                                 << debug.filename() << ".\n";
+      }
     }
+
     //
     // Start the messagefacility
     //
@@ -221,28 +235,15 @@ namespace art {
                    "facility.\n";
       return 71;
     }
+
     mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
-    //
-    // Configuration output (non-preempting)
-    //
-    if (debug && !debug.preempting()) {
-      if (debug.stream_is_valid()) {
-        debug.stream() << main_pset.to_indented_string(0, debug.mode());
-        mf::LogInfo("ConfigOut") << "Post-processed configuration written to "
-                                 << debug.filename() << ".\n";
-      } else { // Error!
-        throw Exception(errors::Configuration)
-          << "Unable to write post-processed configuration to specified file "
-          << debug.filename() << ".\n";
-      }
-    }
     //
     // Initialize:
     //   unix signal facility
-    setupSignals(scheduler_pset.get<bool>("enableSigInt", true));
+    art::setupSignals(scheduler_pset.get<bool>("enableSigInt", true));
     //   init root handlers facility
     if (scheduler_pset.get<bool>("unloadRootSigHandler", true)) {
-      unloadRootSigHandler();
+      art::unloadRootSigHandler();
     }
     RootErrorHandlerSentry re_sentry{
       scheduler_pset.get<bool>("resetRootErrHandler", true)};
@@ -251,14 +252,25 @@ namespace art {
       throw Exception(errors::UnimplementedFeature)
         << "debugDictionaries not yet implemented for ROOT 6.\n";
     }
-    completeRootHandlers();
-    int rc = 0;
+    art::completeRootHandlers();
+
+    int rc{0};
     try {
       EventProcessor ep{main_pset};
+      // Behavior of validate_config is to validate FHiCL syntax *and*
+      // user-specified configurations of paths, modules, services, etc.
+      // It is thus possible that an exception thrown during
+      // construction of the EventProcessor object can have nothing to
+      // do with a configuration error.
+      if (debug && debug.validate_config()) {
+        std::cerr << debug.banner();
+        debug.stream() << main_pset.to_indented_string(0, debug.print_mode());
+        return 1; // Bail out early
+      }
       if (ep.runToCompletion() == EventProcessor::epSignal) {
-        std::cerr << "Art has handled signal " << shutdown_flag << ".\n";
+        std::cerr << "Art has handled signal " << art::shutdown_flag << ".\n";
         if (scheduler_pset.get<bool>("errorOnSIGINT")) {
-          rc = 128 + shutdown_flag;
+          rc = 128 + art::shutdown_flag;
         }
       }
     }
@@ -284,5 +296,4 @@ namespace art {
     }
     return rc;
   }
-
-} // namespace art
+}

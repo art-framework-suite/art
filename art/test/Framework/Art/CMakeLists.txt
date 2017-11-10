@@ -370,6 +370,12 @@ config_test_debug_pass(DebugOptions_01_w)
 # Compare output from DebugOptions_01_w against reference.
 config_ref_test(DebugOptions_01)
 
+cet_test(DebugOptions_02_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --validate-config=/dev/null -c opt-validate-config.fcl
+  DATAFILES fcl/opt-validate-config.fcl
+  TEST_PROPERTIES WILL_FAIL TRUE)
+
 # TimeTracker enabling
 cet_test(DebugOptionsTimeTracker_01 HANDBUILT
   TEST_EXEC art

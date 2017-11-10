@@ -38,6 +38,11 @@ art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc,
     bpo::value<std::string>(),
     "Output memory use data to SQLite3 database with name <db-file>.")(
     "nomemcheck", "Deactivate monitoring of memory use.")(
+    "validate-config",
+    bpo::value<std::string>(),
+    "Output post-processed configuration to <file>; call constructors of all "
+    "sources, modules and services, performing extra configuration "
+    "verification.  Exit just before processing the event loop.")(
     "debug-config",
     bpo::value<std::string>(),
     ("Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> "s +
@@ -76,9 +81,12 @@ art::DebugOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
     throw Exception(errors::Configuration)
       << "Options --memcheck-db and --nomemcheck are incompatible.\n";
   }
-  if (vm.count("debug-config") + vm.count("config-out") > 1) {
+  if (vm.count("validate-config") + vm.count("debug-config") +
+        vm.count("config-out") >
+      1) {
     throw Exception(errors::Configuration)
-      << "Options --debug-config and --config-out are incompatible.\n";
+      << "Options --validate-config, --debug-config, and --config-out are "
+         "incompatible.\n";
   }
   if (vm.count("annotate") + vm.count("prefix-annotate") > 1) {
     throw Exception(errors::Configuration)
@@ -108,29 +116,35 @@ art::DebugOptionsHandler::doProcessOptions(
   switch (DebugOutput::destination_via_env(fn)) {
     case dest_t::cerr:
       dbg_.to_cerr();
+      dbg_.set_processing_mode(DebugOutput::processing_mode::debug_config);
       break;
     case dest_t::file:
       dbg_.set_filename(fn);
+      dbg_.set_processing_mode(DebugOutput::processing_mode::debug_config);
       break;
     case dest_t::none: {
     }
   }
 
   // "debug-config" wins over ART_DEBUG_CONFIG
-  if (vm.count("debug-config")) {
+  if (vm.count("validate-config")) {
+    dbg_.set_filename(vm["validate-config"].as<std::string>());
+    dbg_.set_processing_mode(DebugOutput::processing_mode::validate_config);
+  } else if (vm.count("debug-config")) {
     dbg_.set_filename(vm["debug-config"].as<std::string>());
+    dbg_.set_processing_mode(DebugOutput::processing_mode::debug_config);
   } else if (vm.count("config-out")) {
     auto fn = vm["config-out"].as<std::string>();
     raw_config.put("services.scheduler.configOut", fn);
     dbg_.set_filename(fn);
-    dbg_.set_preempting(false);
+    dbg_.set_processing_mode(DebugOutput::processing_mode::config_out);
   }
   using namespace fhicl::detail;
   if (vm.count("annotate")) {
-    dbg_.set_mode(print_mode::annotated);
+    dbg_.set_print_mode(print_mode::annotated);
   }
   if (vm.count("prefix-annotate")) {
-    dbg_.set_mode(print_mode::prefix_annotated);
+    dbg_.set_print_mode(print_mode::prefix_annotated);
   }
   if (vm.count("trace")) {
     raw_config.put("services.scheduler.wantTracer", true);

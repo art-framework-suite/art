@@ -19,6 +19,7 @@ void
 art::TFileDirectory::invokeCallbacks()
 {
   for (auto const& pr : callbacks_) {
+    dir_ = pr.first;
     for (auto f : pr.second) {
       f();
     }
@@ -28,7 +29,7 @@ art::TFileDirectory::invokeCallbacks()
 void
 art::TFileDirectory::registerCallback(Callback_t cb)
 {
-  callbacks_[fullPath()].push_back(cb);
+  callbacks_[dir_].push_back(cb);
 }
 
 void
@@ -36,7 +37,7 @@ art::TFileDirectory::cd() const
 {
   auto const& fpath = fullPath();
   if (requireCallback_) {
-    auto it = callbacks_.find(fpath);
+    auto it = callbacks_.find(dir_);
     if (it == cend(callbacks_)) {
       throw Exception{errors::Configuration,
                       "A TFileService error occured while attempting to make a "

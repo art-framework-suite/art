@@ -158,21 +158,22 @@ namespace art {
 
       fhicl::Atom<std::string> granularity{
         fhicl::Name("granularity"),
-          Comment("The 'granularity' parameter specifies the level at which\n"
-                  "a file may be closed, and thereby the granularity of the file.\n"
-                  "The following values are possible:\n\n"
-                  "    Value        Meaning\n"
-                  "   =======================================================\n"
-                  "   \"Event\"       Allow file switch at next Event\n"
-                  "   \"SubRun\"      Allow file switch at next SubRun\n"
-                  "   \"Run\"         Allow file switch at next Run\n"
-                  "   \"InputFile\"   Allow file switch at next InputFile\n"
-                  "   \"Job\"         File closes at the end of Job\n\n"
-                  "For example, if a granularity of \"SubRun\" is specified, but the\n"
-                  "file has reached the maximum events written to disk (as specified\n"
-                  "by the 'maxEvents' parameter), switching to a new file will NOT\n"
-                  "happen until a new SubRun has been reached (or there are no more\n"
-                  "Events/SubRuns/Runs to process)."),
+        Comment(
+          "The 'granularity' parameter specifies the level at which\n"
+          "a file may be closed, and thereby the granularity of the file.\n"
+          "The following values are possible:\n\n"
+          "    Value        Meaning\n"
+          "   =======================================================\n"
+          "   \"Event\"       Allow file switch at next Event\n"
+          "   \"SubRun\"      Allow file switch at next SubRun\n"
+          "   \"Run\"         Allow file switch at next Run\n"
+          "   \"InputFile\"   Allow file switch at next InputFile\n"
+          "   \"Job\"         File closes at the end of Job\n\n"
+          "For example, if a granularity of \"SubRun\" is specified, but the\n"
+          "file has reached the maximum events written to disk (as specified\n"
+          "by the 'maxEvents' parameter), switching to a new file will NOT\n"
+          "happen until a new SubRun has been reached (or there are no more\n"
+          "Events/SubRuns/Runs to process)."),
         granularity_default()};
     };
 
