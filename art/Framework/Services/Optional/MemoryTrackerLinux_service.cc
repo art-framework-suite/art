@@ -28,8 +28,10 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
+#include "art/Utilities/Globals.h"
 #include "art/Utilities/LinuxProcData.h"
 #include "art/Utilities/LinuxProcMgr.h"
+#include "art/Utilities/PerThread.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Utilities/Exception.h"
@@ -196,11 +198,6 @@ namespace art {
 using namespace std::string_literals;
 using namespace cet;
 
-namespace {
-  // MT-TODO: Placeholder until we are multi-threaded
-  unsigned const nSchedules{1u};
-} // namespace
-
 //======================================================================================
 using art::detail::LinuxMallInfo;
 using vsize_t = art::LinuxProcData::vsize_t;
@@ -208,7 +205,7 @@ using rss_t = art::LinuxProcData::rss_t;
 
 art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
                                   ActivityRegistry& iReg)
-  : procInfo_{nSchedules}
+  : procInfo_{static_cast<unsigned short>(Globals::instance()->streams())}
   , fileName_{config().dbOutput().filename()}
   , db_{ServiceHandle<DatabaseConnection>{}->get(fileName_)}
   , overwriteContents_{config().dbOutput().overwrite()}
@@ -232,7 +229,7 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
                                                          moduleHeapColumns_) :
                        nullptr}
 {
-  data_.resize(nSchedules);
+  data_.resize(Globals::instance()->streams());
 
   iReg.sPostEndJob.watch(this, &MemoryTracker::postEndJob);
 
@@ -289,8 +286,7 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
 void
 art::MemoryTracker::prePathProcessing(std::string const& pathname)
 {
-  // MT-TODO: Placeholder until we're multi-threaded
-  auto const sid = ScheduleID::first().id();
+  auto const sid = PerThread::instance()->getCPC().streamIndex();
   data_[sid].pathName = pathname;
 }
 
@@ -299,8 +295,7 @@ void
 art::MemoryTracker::recordOtherData(ModuleDescription const& md,
                                     std::string const& step)
 {
-  // MT-TODO: Placeholder until we're multi-threaded
-  auto const sid = ScheduleID::first().id();
+  auto const sid = PerThread::instance()->getCPC().streamIndex();
   auto const data = procInfo_.getCurrentData(sid);
   otherInfoTable_.insert(step,
                          md.moduleLabel(),
@@ -313,8 +308,7 @@ art::MemoryTracker::recordOtherData(ModuleDescription const& md,
 void
 art::MemoryTracker::recordEventData(Event const& e, std::string const& step)
 {
-  // MT-TODO: Placeholder until we're multi-threaded
-  auto const sid = ScheduleID::first().id();
+  auto const sid = PerThread::instance()->getCPC().streamIndex();
   auto& d = data_[sid];
   d.eventID = e.id();
 
@@ -348,8 +342,7 @@ void
 art::MemoryTracker::recordModuleData(ModuleDescription const& md,
                                      std::string const& step)
 {
-  // MT-TODO: Placeholder until we're multi-threaded
-  auto const sid = ScheduleID::first().id();
+  auto const sid = PerThread::instance()->getCPC().streamIndex();
   auto& d = data_[sid];
 
   auto const currentMemory = procInfo_.getCurrentData(sid);
