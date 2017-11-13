@@ -1,36 +1,30 @@
 services.scheduler.wantSummary: true
 
-physics:
-{
-  analyzers:
-  {
-    r1a:
-    {
+physics: {
+  analyzers: {
+    r1a: {
       module_type: IntTestAnalyzer
       input_label: m1a
       require_presence: false
     }
-    r1b:
-    {
+    r1b: {
       module_type: IntTestAnalyzer
       input_label: m1b
       expected_value: 7
     }
-    r2a:
-    {
+    r2a: {
       module_type: DoubleTestAnalyzer
       input_label: m2a
       expected_value: -0.125
     }
   }
 
-  e1: [ r1a, r1b, r2a ]
+  e1: [r1a, r1b, r2a]
 }
 
-source:
-{
+source: {
   module_type: RootInput
-  fileNames: [ "../EventSelectorFromFile_w.d/out2.root" ]
+  fileNames: ["../EventSelectorFromFile_w.d/out2.root"]
 }
 
 process_name: DEVELr

@@ -139,6 +139,8 @@ cet_test(EventSelectorFromFile_w HANDBUILT
 
 cet_test(EventSelectorFromFile_r1 HANDBUILT
   TEST_EXEC art
+  PARG_THREADS --threads ${NUM_THREADS}
+  PARG_STREAMS --streams ${NUM_THREADS}
   TEST_ARGS --rethrow-all --config EventSelectorFromFile_r1.fcl
   DATAFILES
   fcl/EventSelectorFromFile_r1.fcl
@@ -147,6 +149,8 @@ cet_test(EventSelectorFromFile_r1 HANDBUILT
 
 cet_test(EventSelectorFromFile_r2 HANDBUILT
   TEST_EXEC art
+  PARG_THREADS --threads ${NUM_THREADS}
+  PARG_STREAMS --streams ${NUM_THREADS}
   TEST_ARGS --rethrow-all --config EventSelectorFromFile_r2.fcl
   DATAFILES
   fcl/EventSelectorFromFile_r2.fcl
