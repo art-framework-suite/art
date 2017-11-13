@@ -45,6 +45,7 @@ simple_plugin(DoubleProducer              "module"  NO_INSTALL)
 simple_plugin(DoubleTestAnalyzer          "module"  NO_INSTALL)
 simple_plugin(DropTestAnalyzer            "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(DropTestParentageFaker      "module"  NO_INSTALL)
+simple_plugin(EventIDFilterChecker        "module"  NO_INSTALL)
 simple_plugin(FailingAnalyzer             "module"  NO_INSTALL)
 simple_plugin(FailingProducer             "module"  NO_INSTALL)
 simple_plugin(UnputtingProducer           "module"  NO_INSTALL)
@@ -101,7 +102,7 @@ simple_plugin(TestSimpleMemoryCheckProducer "module"  NO_INSTALL)
 simple_plugin(TestTimeTrackerProducer     "module"  NO_INSTALL)
 simple_plugin(TestTimeTrackerFilter       "module"  NO_INSTALL)
 simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL)
-simple_plugin(Throwing                    "service" NO_INSTALL ${ROOT_CORE}) # dependency on ROOT Core because of TVersionCheck
+simple_plugin(Throwing                    "service" NO_INSTALL)
 simple_plugin(ToyProductAnalyzer          "module"  NO_INSTALL)
 simple_plugin(ToyProductFilter            "module"  NO_INSTALL)
 simple_plugin(ToyProductFilterStream      "module"  NO_INSTALL)
@@ -119,13 +120,15 @@ simple_plugin(addInts                     "tool"    NO_INSTALL)
 
 art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL)
 
+set(NUM_THREADS 1 2 4 8)
+
 cet_test(EventIDFilter_t HANDBUILT
   TEST_EXEC art
+  PARG_THREADS --threads ${NUM_THREADS}
+  PARG_STREAMS --streams ${NUM_THREADS}
   TEST_ARGS --rethrow-all --config EventIDFilter_t.fcl -n 10
   DATAFILES
-  fcl/EventIDFilter_t.fcl
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/EventIDFilter_t-ref.txt"
-)
+  fcl/EventIDFilter_t.fcl)
 
 cet_test(EventSelectorFromFile_w HANDBUILT
   TEST_EXEC art
