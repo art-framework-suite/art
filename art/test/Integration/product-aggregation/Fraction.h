@@ -5,11 +5,9 @@ namespace arttest {
 
   class Fraction {
   public:
-
     Fraction() = default;
 
-    Fraction(unsigned const num,
-             unsigned const denom)
+    Fraction(unsigned const num, unsigned const denom)
       : num_{num}, denom_{denom}
     {}
 

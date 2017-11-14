@@ -99,7 +99,8 @@ namespace {
     BOOST_CHECK(
       art::same_ranges(trkEffH.provenance()->rangeOfValidity(), trkEffRef));
 
-    BOOST_CHECK_CLOSE_FRACTION(trkEffH->efficiency(), trkEffRef_.value_, tolerance);
+    BOOST_CHECK_CLOSE_FRACTION(
+      trkEffH->efficiency(), trkEffRef_.value_, tolerance);
 
     // nParticles and TrackEfficiency RangeSet check
     auto const& nParticlesH = sr.getValidHandle<unsigned>(nParticlesTag_);

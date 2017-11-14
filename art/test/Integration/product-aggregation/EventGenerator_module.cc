@@ -21,7 +21,11 @@ namespace {
   {
     auto particle_ids = std::make_unique<std::vector<int>>(nParticles);
     auto i = static_cast<int>(-nParticles);
-    std::generate(begin(*particle_ids), end(*particle_ids), [&i]{ auto const value = i; i += 2; return value;});
+    std::generate(begin(*particle_ids), end(*particle_ids), [&i] {
+      auto const value = i;
+      i += 2;
+      return value;
+    });
     return particle_ids;
   }
 
@@ -31,7 +35,8 @@ namespace {
     std::atomic<unsigned> nParticles_{};
 
   public:
-    struct Config {};
+    struct Config {
+    };
     using Parameters = EDProducer::Table<Config>;
     explicit EventGenerator(Parameters const&)
     {

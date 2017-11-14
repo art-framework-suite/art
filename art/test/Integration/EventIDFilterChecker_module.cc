@@ -15,8 +15,7 @@ namespace {
 
     using Parameters = Table<Config>;
     explicit EventIDFilterChecker(Parameters const& p)
-      : art::EDAnalyzer{p}
-      , expPassedEvents_{p().expPassedEvents()}
+      : art::EDAnalyzer{p}, expPassedEvents_{p().expPassedEvents()}
     {}
 
   private:
@@ -34,7 +33,6 @@ namespace {
     {
       assert(nPassedEvents_ == expPassedEvents_);
     }
-
   };
 }
 
