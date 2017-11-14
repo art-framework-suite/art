@@ -9,9 +9,8 @@ physics: {
 
     prod2: {
       module_type: AssembleMoreProducts
-
-      nParticlesRef: ["prod:nParticles:eventGen", 450]
-      seenParticlesRef: ["prod1:seenParticles:userAssembled", 350]
+      nParticlesTag: ["prod:nParticles:eventGen"]
+      seenParticlesTag: ["prod1:seenParticles:userAssembled"]
       trkEffTag: ["reco:TrackEfficiency:reco"]
       trkEffPerSubRun: 0.5
     }

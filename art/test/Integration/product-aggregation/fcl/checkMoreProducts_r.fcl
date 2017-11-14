@@ -1,25 +1,27 @@
 physics: {
 
-   analyzers: {
+  analyzers: {
 
-      a1: {
-         module_type: CheckProducts
-         npotsTag: ["prod:nPOTs:eventGen"]
-         nParticlesTag: ["prod:nParticles:eventGen"]
-         geomTag: ["sim:Geometry:particleSim"]
-         calibTag: ["reco:CalibConstants:reco"]
-         trkEffRef: ["reco:TrackEfficiency:reco", 0.5]
-      }
+    a1: {
+      module_type: CheckProducts
+      npotsTag: ["prod:nPOTs:eventGen"]
+      nParticlesTag: ["prod:nParticles:eventGen"]
+      geomTag: ["sim:Geometry:particleSim"]
+      calibTag: ["reco:CalibConstants:reco"]
+      trkEffRef: ["reco:TrackEfficiency:reco", 0.5]
+    }
 
-      a2: {
-         module_type: CheckMoreProducts
-         trkEffTag: ["reco:TrackEfficiency:reco"]
-         trkEffValueTag: ["prod2:TrkEffValue:userAssembled"]
-         particleRatioRef: ["prod2:ParticleRatio:userAssembled", 0.7778]
-      }
-   }
+    a2: {
+      module_type: CheckMoreProducts
+      trkEffTag: ["reco:TrackEfficiency:reco"]
+      trkEffValueTag: ["prod2:TrkEffValue:userAssembled"]
+      nParticlesRef: ["prod:nParticles:eventGen", 450]
+      seenParticlesRef: ["prod1:seenParticles:userAssembled", 350]
+      particleRatioRef: ["prod2:ParticleRatio:userAssembled", 0.7778]
+    }
+  }
 
-   e1: [a1, a2]
+  e1: [a1, a2]
 }
 
 process_name: checkMoreProducts

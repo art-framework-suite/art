@@ -9,8 +9,8 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SummedValue.h"
 #include "art/test/Integration/product-aggregation/CalibConstants.h"
+#include "art/test/Integration/product-aggregation/Fraction.h"
 #include "art/test/Integration/product-aggregation/Geometry.h"
-#include "art/test/Integration/product-aggregation/TaggedValue.h"
 #include "art/test/Integration/product-aggregation/TrackEfficiency.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "cetlib/quiet_unit_test.hpp"
@@ -25,7 +25,7 @@ using art::InputTag;
 using art::RangeSet;
 using art::SubRunNumber_t;
 using art::SummedValue;
-using arttest::TaggedValue;
+using arttest::Fraction;
 using arttest::TrackEfficiency;
 using fhicl::Atom;
 using fhicl::Name;
@@ -40,8 +40,8 @@ namespace {
 
   struct Config {
     TupleAs<InputTag(string)> trkEffTag{Name("trkEffTag")};
-    TupleAs<TaggedValue<unsigned>(string, unsigned)> nParticlesRef{Name("nParticlesRef")};
-    TupleAs<TaggedValue<unsigned>(string, unsigned)> seenParticlesRef{Name("seenParticlesRef")};
+    TupleAs<InputTag(string)> nParticlesTag{Name("nParticlesTag")};
+    TupleAs<InputTag(string)> seenParticlesTag{Name("seenParticlesTag")};
     Atom<double> trkEff{Name("trkEffPerSubRun")};
   };
 
@@ -60,8 +60,8 @@ namespace {
 
     art::InputTag const trkEffTag_;
     double const expTrkEff_;
-    TaggedValue<unsigned> const nParticlesRef_;
-    TaggedValue<unsigned> const seenParticlesRef_;
+    art::InputTag const nParticlesTag_;
+    art::InputTag const seenParticlesTag_;
     std::map<SubRunNumber_t, SummedValue<unsigned>> trkEffNum_{};
     std::map<SubRunNumber_t, SummedValue<unsigned>> trkEffDenom_{};
     std::map<SubRunNumber_t, SummedValue<unsigned>> nParticles_{};
@@ -73,11 +73,11 @@ namespace {
     Parameters const& config)
     : trkEffTag_{config().trkEffTag()}
     , expTrkEff_{config().trkEff()}
-    , nParticlesRef_{config().nParticlesRef()}
-    , seenParticlesRef_{config().seenParticlesRef()}
+    , nParticlesTag_{config().nParticlesTag()}
+    , seenParticlesTag_{config().seenParticlesTag()}
   {
-    produces<double, art::InSubRun>("TrkEffValue");
-    produces<double, art::InSubRun>("ParticleRatio");
+    produces<Fraction, art::InSubRun>("TrkEffValue");
+    produces<Fraction, art::InSubRun>("ParticleRatio");
   }
 
   void
@@ -99,10 +99,9 @@ namespace {
         art::same_ranges(trkEffRef, trkEffNum.rangeOfValidity())) {
       BOOST_CHECK(!art::disjoint_ranges(trkEffNum, trkEffDenom));
       BOOST_CHECK(!art::overlapping_ranges(trkEffNum, trkEffDenom));
-      auto const eff =
-        static_cast<double>(trkEffNum.value()) / trkEffDenom.value();
-      BOOST_CHECK_CLOSE_FRACTION(expTrkEff_, eff, tolerance);
-      sr.put(std::make_unique<double>(eff),
+      auto trkEff = std::make_unique<Fraction>(trkEffNum.value(), trkEffDenom.value());
+      BOOST_CHECK_CLOSE_FRACTION(expTrkEff_, trkEff->value(), tolerance);
+      sr.put(move(trkEff),
              "TrkEffValue",
              art::subRunFragment(trkEffRef));
       trkEffNum.clear();
@@ -119,20 +118,16 @@ namespace {
     // nParticles produced at first stage 'eventGen'. Use getByLabel
     // because the product is likely split across multiple files.
     art::Handle<unsigned> nParticlesH;
-    if (sr.getByLabel(nParticlesRef_.tag_, nParticlesH)) {
+    if (sr.getByLabel(nParticlesTag_, nParticlesH)) {
       nParticles.update(nParticlesH);
     }
 
     // seenParticles produced in this process
-    auto const& seenParticlesH = sr.getValidHandle<unsigned>(seenParticlesRef_.tag_);
+    auto const& seenParticlesH = sr.getValidHandle<unsigned>(seenParticlesTag_);
     seenParticles.update(seenParticlesH);
 
     if (art::same_ranges(nParticles, seenParticles)) {
-      BOOST_CHECK_EQUAL(seenParticles.value(), seenParticlesRef_.value_);
-      BOOST_CHECK_EQUAL(nParticles.value(), nParticlesRef_.value_);
-      auto const ratio =
-        static_cast<double>(seenParticles.value()) / nParticles.value();
-      sr.put(std::make_unique<double>(ratio),
+      sr.put(std::make_unique<Fraction>(seenParticles.value(), nParticles.value()),
              "ParticleRatio",
              art::subRunFragment(nParticles.rangeOfValidity()));
       nParticles.clear();
