@@ -5,6 +5,7 @@
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
@@ -188,6 +189,7 @@ namespace art {
   {
     TDEBUG(4) << "-----> Begin Path::process_event_for_endpath (" << si
               << ") ...\n";
+    detail::CPCSentry sentry{cpc_};
     actReg_.sPreProcessPath.invoke(name_);
     ++timesRun_;
     state_ = hlt::Ready;
@@ -292,6 +294,7 @@ namespace art {
     waitingTasks_.reset();
     // Note: This task list will never have more than one entry.
     waitingTasks_.add(pathsDoneTask);
+    detail::CPCSentry sentry{cpc_};
     actReg_.sPreProcessPath.invoke(name_);
     ++timesRun_;
     state_ = hlt::Ready;

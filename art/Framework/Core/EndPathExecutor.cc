@@ -651,11 +651,6 @@ namespace art {
       buf << "\n";
       TDEBUG(5) << buf.str();
     }
-    //{
-    // ostringstream buf;
-    // buf << "EndPathExecutor::writeEvent: " << si << ": " << eid.run() << ", "
-    // << eid.subRun() << ", " << eid.event() << "\n";  cerr << buf.str();
-    //}
     runRangeSetHandler_.at(si)->update(eid, lastInSubRun);
     subRunRangeSetHandler_.at(si)->update(eid, lastInSubRun);
   }

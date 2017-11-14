@@ -22,6 +22,8 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/CPCSentry.h"
+#include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
@@ -1035,6 +1037,8 @@ EventProcessor::processAllEventsAsync_processEvent(int si)
           tbb::task::self().allocate_continuation(), endPathFunctor);
         {
           Event const ev{*eventPrincipal_[si], ModuleDescription{}};
+          CurrentProcessingContext cpc{si, nullptr, -1, false};
+          detail::CPCSentry sentry{cpc};
           actReg_.sPreProcessEvent.invoke(ev);
         }
         // Start the trigger paths running.  When they finish
@@ -1201,6 +1205,8 @@ EventProcessor::processAllEventsAsync_processEndPath(int si)
     }
     {
       Event const ev{*eventPrincipal_[si], ModuleDescription{}};
+      CurrentProcessingContext cpc{si, nullptr, -1, false};
+      detail::CPCSentry sentry{cpc};
       actReg_.sPostProcessEvent.invoke(ev);
     }
     processAllEventsAsync_finishEvent(si);

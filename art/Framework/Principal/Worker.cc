@@ -11,6 +11,7 @@
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -361,6 +362,7 @@ namespace art {
           << "Product dependencies have invoked a module execution cycle.\n";
       }
       state_ = Working;
+      detail::CPCSentry sentry{*cpc};
       if (trans == Transition::BeginRun) {
         actReg_.sPreModuleBeginRun.invoke(md_);
         rc = implDoBegin(dynamic_cast<RunPrincipal&>(principal), cpc);
@@ -459,6 +461,7 @@ namespace art {
     try {
       // Transition from Ready state to Working state.
       state_ = Working;
+      detail::CPCSentry sentry{*cpc};
       actReg_.sPreModule.invoke(md_);
       // Note: Only filters ever return false, and when they do it means they
       // have rejected.

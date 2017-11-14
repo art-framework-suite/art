@@ -1110,6 +1110,8 @@ cet_test(ServiceUsingService_t HANDBUILT
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   cet_test(MemoryTracker_t HANDBUILT
     TEST_EXEC art
+    PARG_THREADS --threads ${NUM_THREADS}
+    PARG_STREAMS --streams ${NUM_THREADS}
     TEST_ARGS -c memoryTracker.fcl
     DATAFILES
     fcl/memoryTracker.fcl
