@@ -189,7 +189,10 @@ namespace art {
   {
     TDEBUG(4) << "-----> Begin Path::process_event_for_endpath (" << si
               << ") ...\n";
-    detail::CPCSentry sentry{cpc_};
+    // FIXME: *Do not use* cpc_ since for end-paths the CPC stream
+    //        index is always 0.
+    CurrentProcessingContext cpc{si, nullptr, -1, false};
+    detail::CPCSentry sentry{cpc};
     actReg_.sPreProcessPath.invoke(name_);
     ++timesRun_;
     state_ = hlt::Ready;

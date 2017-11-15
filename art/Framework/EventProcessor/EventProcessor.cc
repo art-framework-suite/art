@@ -911,6 +911,8 @@ EventProcessor::
       assert(subRunPrincipal_);
       assert(subRunPrincipal_->subRunID().isValid());
       {
+        CurrentProcessingContext cpc{si, nullptr, -1, false};
+        detail::CPCSentry sentry{cpc};
         actReg_.sPreSourceEvent.invoke();
         TDEBUG(5)
           << "-----> "

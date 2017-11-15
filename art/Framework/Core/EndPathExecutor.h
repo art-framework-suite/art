@@ -135,14 +135,6 @@ namespace art {
     // EventProcessor::processAllEventsAsync_processEndPath::endPathFunctor()
     void process_event(EventPrincipal&, int streamIndex);
 
-    // FIXME: This is the old system that treated the end path
-    // FIXME: in the same way as the trigger path.
-    // FIXME: UNUSED, REMOVE!
-    // Called by EventProcessor::readAndProcessEventFunctor(...)
-    void process_event(hep::concurrency::WaitingTask* finishEventTask,
-                       EventPrincipal&,
-                       int streamIndex);
-
     // Called by EventProcessor::readAndProcessEventFunctor()
     void writeEvent(int streamIndex, EventPrincipal& ep);
 
@@ -205,14 +197,6 @@ namespace art {
     // Return whether or not all of the output workers have
     // reached their maximum limit of work to do.
     bool allAtLimit() const;
-
-  private: // MEMBER FUNCTIONS -- Implementation details.
-    // FIXME: This is the old system that treated the end path
-    // FIXME: in the same way as the trigger path.
-    // FIXME: UNUSED, REMOVE!
-    void process_event_pathsDone(hep::concurrency::WaitingTask* finishEventTask,
-                                 EventPrincipal&,
-                                 int streamIndex);
 
   private: // MEMBER DATA
     // Filled by ctor, const after that.

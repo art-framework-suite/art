@@ -15,6 +15,8 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/Worker.h"
+#include "art/Utilities/CPCSentry.h"
+#include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/OutputFileInfo.h"
 #include "art/Utilities/Transition.h"
@@ -464,174 +466,16 @@ namespace art {
               << ") ...\n";
   }
 
-  // FIXME: This is the old system that treated the end path
-  // FIXME: in the same way as the trigger path.
-  // FIXME: UNUSED, REMOVE!
-  // Note: We come here as part of the endPath task, our
-  // parent task is the nullptr and the parent task of
-  // the finishEventTask is the eventLoop task.
-  void
-  EndPathExecutor::process_event(WaitingTask* finishEventTask,
-                                 EventPrincipal& ep,
-                                 int si)
-  {
-    TDEBUG(4) << "-----> Begin EndPathExecutor::process_event (" << si
-              << ") ...\n";
-    auto eventLoopTask = finishEventTask->parent();
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = label_and_worker.second;
-      w->reset(si);
-    }
-    endPathInfo_.incrementTotalEventCount();
-    auto pathsDoneFunctor =
-      [this, finishEventTask, &ep, si](exception_ptr const* ex) mutable {
-        // When we start our parent task is the eventLoopTask.
-        TDEBUG(4) << "=====> Begin pathsDoneTask (" << si << ") ... end path\n";
-        if (ex != nullptr) {
-          try {
-            rethrow_exception(*ex);
-          }
-          catch (cet::exception& ex) {
-            auto const action{actionTable_.find(ex.root_cause())};
-            if (action != actions::IgnoreCompletely) {
-              auto ex_art =
-                Exception(errors::EventProcessorFailure, "EndPathExecutor:")
-                << "an exception occurred during current event processing\n"
-                << ex;
-              WaitingTaskHolder wth(finishEventTask);
-              wth.doneWaiting(make_exception_ptr(ex_art));
-              // And end this task without terminating event processing.
-              tbb::task::self().set_parent(nullptr);
-              TDEBUG(4) << "=====> End   pathsDoneTask (" << si
-                        << ") ... end path because of exception\n";
-              return;
-            }
-            // FIXME: We should not be able to get here because the only
-            // exceptions
-            // FIXME: passed to the pathsDone task should be ones that terminate
-            // the path.
-            mf::LogWarning(ex.category())
-              << "exception being ignored for current event:\n"
-              << cet::trim_right_copy(ex.what(), " \n");
-            // WARNING: Processing continues below!!!
-          }
-          catch (...) {
-            mf::LogError("PassingThrough")
-              << "an exception occurred during current event processing\n";
-            WaitingTaskHolder wth(finishEventTask);
-            wth.doneWaiting(current_exception());
-            // And end this task without terminating event processing.
-            tbb::task::self().set_parent(nullptr);
-            TDEBUG(4) << "=====> End   pathsDoneTask (" << si
-                      << ") ... end path because of exception\n";
-            return;
-          }
-          // FIXME: We should not be able to get here because the only
-          // exceptions
-          // FIXME: passed to the pathsDone task should be ones that terminate
-          // the path. WARNING: We only get here if end path processing threw
-          // and we are ignoring the exception because of
-          // actions::IgnoreCompletely.
-        }
-        process_event_pathsDone(finishEventTask, ep, si);
-        // And end this task without terminating event processing
-        // because pathsDone set our parent to the nullptr.
-        TDEBUG(4) << "=====> End   pathsDoneTask (" << si << ") ... end path\n";
-        return;
-      };
-    auto pathsDoneTask =
-      make_waiting_task(tbb::task::allocate_root(), pathsDoneFunctor);
-    pathsDoneTask->set_parent(eventLoopTask);
-    try {
-      // If the end path is empty, this makes sure the pathsDoneTask gets run.
-      WaitingTaskHolder wth(pathsDoneTask);
-      if (!endPathInfo_.paths().empty()) {
-        // Start the end path running.  The path will start a spawn
-        // chain going to run each worker in the order specified
-        // on the path, and when they have all been run, it will
-        // spawn the pathsDoneTask.
-        endPathInfo_.paths().front()->process_event(pathsDoneTask, ep, si);
-      }
-      // And end this task without terminating event processing
-      // because our parent is the nullptr.
-      TDEBUG(4) << "-----> End   EndPathExecutor::process_event (" << si
-                << ") ...\n";
-      return;
-    }
-    catch (cet::exception& ex) {
-      auto const action{actionTable_.find(ex.root_cause())};
-      if (action != actions::IgnoreCompletely) {
-        auto ex_art =
-          Exception(errors::EventProcessorFailure, "EndPathExecutor:")
-          << "an exception occurred during current event processing\n"
-          << ex;
-        WaitingTaskHolder wth(finishEventTask);
-        wth.doneWaiting(make_exception_ptr(ex_art));
-        // And end this task without terminating event processing
-        // because our parent is the nullptr.
-        TDEBUG(4) << "-----> End   EndPathExecutor::process_event (" << si
-                  << ") ... becasue of exception\n";
-        return;
-      }
-      mf::LogWarning(ex.category())
-        << "exception being ignored for current event:\n"
-        << cet::trim_right_copy(ex.what(), " \n");
-      // WARNING: Processing continues below!!!
-    }
-    catch (...) {
-      mf::LogError("PassingThrough")
-        << "an exception occurred during current event processing\n";
-      WaitingTaskHolder wth(finishEventTask);
-      wth.doneWaiting(current_exception());
-      // And end this task without terminating event processing
-      // because our parent is the nullptr.
-      TDEBUG(4) << "-----> End   EndPathExecutor::process_event (" << si
-                << ") ... because of exception \n";
-      return;
-    }
-    // WARNING: We can only get here if an exception in end path
-    // processing is being ignored for the current event because
-    // the action is actions::IgnoreCompletely.
-    process_event_pathsDone(finishEventTask, ep, si);
-    // And end this task without terminating event processing
-    // because our parent is the nullptr.
-    TDEBUG(4) << "-----> End   EndPathExecutor::process_event (" << si
-              << ") ...\n";
-  }
-
-  // FIXME: This is the old system that treated the end path
-  // FIXME: in the same way as the trigger path.
-  // FIXME: UNUSED, REMOVE!
-  // Note: We come here as part of the pathsDone task, with our
-  // parent set to the eventLoop task, or as part of end path
-  // error handling when the error is ignored because of the
-  // action setting, in which case our parent is the nullptr.
-  void
-  EndPathExecutor::process_event_pathsDone(WaitingTask* finishEventTask,
-                                           EventPrincipal& /*ep*/,
-                                           int /*si*/)
-  {
-    try {
-      endPathInfo_.incrementPassedEventCount();
-    }
-    catch (...) {
-      WaitingTaskHolder wth(finishEventTask);
-      wth.doneWaiting(current_exception());
-      // And end this task without terminating event processing.
-      tbb::task::self().set_parent(nullptr);
-      return;
-    }
-    WaitingTaskHolder wth(finishEventTask);
-    wth.doneWaiting(exception_ptr{});
-    // And end this task without terminating event processing.
-    tbb::task::self().set_parent(nullptr);
-  }
-
   void
   EndPathExecutor::writeEvent(int si, EventPrincipal& ep)
   {
     for (auto ow : outputWorkers_) {
       auto const& md = ow->description();
+      // FIXME: this is overkill.  Users just need to be able to
+      // access the correct stream index within the service.  They do
+      // not need a full-fledged context.
+      CurrentProcessingContext cpc{si, nullptr, -1, false};
+      detail::CPCSentry sentry{cpc};
       actReg_.sPreWriteEvent.invoke(md);
       ow->writeEvent(ep);
       actReg_.sPostWriteEvent.invoke(md);

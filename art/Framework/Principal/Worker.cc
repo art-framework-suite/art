@@ -466,6 +466,10 @@ namespace art {
       // Note: Only filters ever return false, and when they do it means they
       // have rejected.
       returnCode_ = implDoProcess(p, si, cpc);
+      // FIXME: We construct the following context only so the correct
+      // streamIndex is provided within services.
+      CurrentProcessingContext cpc{si, nullptr, -1, false};
+      detail::CPCSentry sentry2{cpc};
       actReg_.sPostModule.invoke(md_);
       if (returnCode_) {
         state_ = Pass;
@@ -617,6 +621,7 @@ namespace art {
         try {
           // Transition from Ready state to Working state.
           This->state_ = Working;
+          detail::CPCSentry sentry{*cpc};
           actReg_.sPreModule.invoke(md_);
           // Note: Only filters ever return false, and when they do it means
           // they have rejected.
