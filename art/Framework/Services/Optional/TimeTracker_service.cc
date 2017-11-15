@@ -10,6 +10,8 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
+#include "art/Utilities/Globals.h"
+#include "art/Utilities/PerThread.h"
 #include "art/Utilities/ScheduleID.h"
 #include "boost/format.hpp"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -186,9 +188,8 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const& config,
   , timeEventTable_{db_, "TimeEvent", timeEventTuple_, overwriteContents_}
   , timeModuleTable_{db_, "TimeModule", timeModuleTuple_, overwriteContents_}
 {
-  // MT-TODO: Placeholder until we are multi-threaded
-  unsigned const nSchedules{1u};
-  data_.resize(nSchedules);
+
+  data_.resize(Globals::instance()->streams());
 
   iRegistry.sPostSourceConstruction.watch(this,
                                           &TimeTracker::postSourceConstruction);
@@ -216,8 +217,7 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const& config,
 void
 art::TimeTracker::prePathProcessing(string const& pathname)
 {
-  // MT-TODO: Placeholder until we're multi-threaded
-  auto const sid = ScheduleID::first().id();
+  auto const sid = PerThread::instance()->getCPC().streamIndex();
   data_[sid].pathName = pathname;
 }
 
@@ -317,8 +317,7 @@ art::TimeTracker::postSourceConstruction(ModuleDescription const& md)
 void
 art::TimeTracker::preEventReading()
 {
-  // MT-TODO: Placeholder until we're multi-threaded
-  auto const sid = ScheduleID::first().id();
+  auto const sid = PerThread::instance()->getCPC().streamIndex();
   auto& d = data_[sid];
   d.eventID = EventID::invalidEvent();
   d.eventStart = now();
@@ -327,10 +326,10 @@ art::TimeTracker::preEventReading()
 void
 art::TimeTracker::postEventReading(Event const& e)
 {
-  // MT-TODO: Placeholder until we're multi-threaded
-  auto const sid = ScheduleID::first().id();
+  auto const sid = PerThread::instance()->getCPC().streamIndex();
   auto& d = data_[sid];
   d.eventID = e.id();
+
   auto const t = std::chrono::duration<double>{now() - d.eventStart}.count();
   timeSourceTable_.insert(
     d.eventID.run(), d.eventID.subRun(), d.eventID.event(), sourceType_, t);
@@ -340,8 +339,7 @@ art::TimeTracker::postEventReading(Event const& e)
 void
 art::TimeTracker::preEventProcessing(Event const& e[[gnu::unused]])
 {
-  // MT-TODO: Placeholder until we're multi-threaded
-  auto const sid = ScheduleID::first().id();
+  auto const sid = PerThread::instance()->getCPC().streamIndex();
   auto& d = data_[sid];
   assert(d.eventID == e.id());
   d.eventStart = now();
@@ -350,8 +348,7 @@ art::TimeTracker::preEventProcessing(Event const& e[[gnu::unused]])
 void
 art::TimeTracker::postEventProcessing(Event const&)
 {
-  // MT-TODO: Placeholder until we're multi-threaded
-  auto const sid = ScheduleID::first().id();
+  auto const sid = PerThread::instance()->getCPC().streamIndex();
   auto const& d = data_[sid];
   auto const t = std::chrono::duration<double>{now() - d.eventStart}.count();
   timeEventTable_.insert(
@@ -362,8 +359,7 @@ art::TimeTracker::postEventProcessing(Event const&)
 void
 art::TimeTracker::startTime(ModuleDescription const&)
 {
-  // MT-TODO: Placeholder until we're multi-threaded
-  auto const sid = ScheduleID::first().id();
+  auto const sid = PerThread::instance()->getCPC().streamIndex();
   auto& d = data_[sid];
   d.moduleStart = now();
 }
@@ -372,8 +368,7 @@ void
 art::TimeTracker::recordTime(ModuleDescription const& desc,
                              string const& suffix)
 {
-  // MT-TODO: Placeholder until we're multi-threaded
-  auto const sid = ScheduleID::first().id();
+  auto const sid = PerThread::instance()->getCPC().streamIndex();
   auto const& d = data_[sid];
   auto const t = std::chrono::duration<double>{now() - d.moduleStart}.count();
   timeModuleTable_.insert(d.eventID.run(),

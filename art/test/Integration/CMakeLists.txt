@@ -1132,7 +1132,9 @@ cet_test(TimeTracker_t1 HANDBUILT
 cet_test(TimeTracker_t2 HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c TimeTracker_t2.fcl
-  DATAFILES fcl/TimeTracker_t2.fcl
+  DATAFILES
+  fcl/TimeTracker_t2.fcl
+  fcl/TimeTracker_t1.fcl
   )
 
 cet_test(TimeTracker_t3 HANDBUILT
