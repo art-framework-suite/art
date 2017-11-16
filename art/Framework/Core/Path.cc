@@ -369,7 +369,7 @@ namespace art {
               << " idx: " << idx << " max_idx: " << max_idx << " ...\n";
     auto workerDoneFunctor =
       [this, idx, max_idx, &ep, si, should_continue, cpc](
-        exception_ptr const* ex) mutable {
+        exception_ptr const* ex) {
         TDEBUG(4) << "=====> Begin workerDoneTask (" << si << ") ...\n";
         auto& workerInPath = workers_[idx];
         // Note: This will only be set false by a filter which has rejected.

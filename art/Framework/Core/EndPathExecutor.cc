@@ -207,18 +207,8 @@ namespace art {
       // We are using EmptyEvent source, need to merge
       // what the streams have seen.
       RangeSet mergedSeenRanges;
-      // int idx = 0;
       for (auto& uptr_rsh : runRangeSetHandler_) {
-        // ostringstream buf;
-        // buf << "-----> EndPathExecutor::setAuxiliaryRangeSetID(rp): " << idx
-        // << " " << uptr_rsh->seenRanges() << "\n";  try {
         mergedSeenRanges.merge(uptr_rsh->seenRanges());
-        //}
-        // catch (...) {
-        // cerr << "-----> EndPathExecutor::setAuxiliaryRangeSetID(rp):
-        // EXCEPTION\n";  TDEBUG(5) << buf.str();  cerr << buf.str();  throw;
-        //}
-        //++idx;
       }
       rp.updateSeenRanges(mergedSeenRanges);
       for (auto ow : outputWorkers_) {
@@ -278,18 +268,8 @@ namespace art {
       // We are using EmptyEvent source, need to merge
       // what the streams have seen.
       RangeSet mergedRS;
-      // int idx = 0;
       for (auto& uptr_rsh : subRunRangeSetHandler_) {
-        // ostringstream buf;
-        // buf << "-----> EndPathExecutor::setAuxiliaryRangeSetID(srp): " << idx
-        // << " " << uptr_rsh->seenRanges() << "\n";  try {
         mergedRS.merge(uptr_rsh->seenRanges());
-        //}
-        // catch (...) {
-        // cerr << "-----> EndPathExecutor::setAuxiliaryRangeSetID(srp):
-        // EXCEPTION\n";  TDEBUG(5) << buf.str();  cerr << buf.str();  throw;
-        //}
-        //++idx;
       }
       srp.updateSeenRanges(mergedRS);
       for (auto ow : outputWorkers_) {

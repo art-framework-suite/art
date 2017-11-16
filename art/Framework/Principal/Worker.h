@@ -72,7 +72,7 @@ namespace art {
     };
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-    virtual ~Worker() noexcept;
+    virtual ~Worker() noexcept = default;
 
     Worker(ModuleDescription const&, WorkerParams const&);
 
@@ -181,7 +181,7 @@ namespace art {
 
     ActivityRegistry& actReg_;
 
-    ModuleThreadingType moduleThreadingType_{};
+    ModuleThreadingType moduleThreadingType_;
 
     std::atomic<int> state_{Ready};
 

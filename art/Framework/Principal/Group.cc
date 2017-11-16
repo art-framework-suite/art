@@ -382,7 +382,7 @@ namespace art {
     TypeID wanted_wrapper_type /*= TypeID{}*/) const
   {
     // Validate wanted_wrapper_type.
-    auto throwResolveLogicError = [this, &wanted_wrapper_type]() {
+    auto throwResolveLogicError = [this, &wanted_wrapper_type] {
       throw Exception(errors::LogicError, "INTERNAL ERROR: ")
         << cet::demangle_symbol(typeid(*this).name())
         << " cannot resolve wanted product of type "

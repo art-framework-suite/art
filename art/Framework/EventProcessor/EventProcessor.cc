@@ -446,10 +446,9 @@ namespace art {
       int si = 0;
       tbb::task_list stream_heads;
       for (; si < streams; ++si) {
-        auto processAllEventsFunctor =
-          [this, si](exception_ptr const* /*unused*/) mutable {
-            processAllEventsAsync(si);
-          };
+        auto processAllEventsFunctor = [this, si](exception_ptr const*) {
+          processAllEventsAsync(si);
+        };
         stream_heads.push_back(*make_waiting_task(
           EventLoopTask->allocate_child(), processAllEventsFunctor));
       }
@@ -493,8 +492,7 @@ EventProcessor::processAllEventsAsync(int si)
 {
   TDEBUG(4) << "-----> Begin EventProcessor::processAllEventsAsync (" << si
             << ") ...\n";
-  auto readAndProcessEventFunctor = [this, si](
-                                      exception_ptr const* /*unused*/) mutable {
+  auto readAndProcessEventFunctor = [this, si](exception_ptr const*) {
     // Note: When we come here our parent is the eventLoop task.
     TDEBUG(4) << "=====> Begin readAndProcessEventTask (" << si << ") ...\n";
     try {
@@ -554,240 +552,11 @@ EventProcessor::processAllEventsAsync_readAndProcess(int si)
       << si << ") ... CLEAN SHUTDOWN\n";
     return;
   }
-  // Note: This is a change, we have moved the possible file switch
-  // to before the file index iterator advance because once we have
-  // advanced the iterator we must immediately do the read with the
-  // input source still locked otherwise we will get double-advances
-  // due to the other streams.  And we cannot hold the input source
-  // lock while we are waiting for all the streams to end to do the
-  // file switch.
-  // TDEBUG(5) << "-----> EventProcessor::processAllEventsAsync_readAndProcess
-  // (" << si << ") ... Calling endPathExecutor_->outputsToClose()\n";  if
-  // (endPathExecutor_->outputsToClose()) {
-  //////////////////////////////TDEBUG(5) << "----->
-  /// EventProcessor::processAllEventsAsync_readAndProcess (" << si << ") ...
-  /// there are outputs to close\n";
-  // auto lock = unique_lock<mutex>{mutexForCondFileSwitch_};
-  // if (waitingTaskCount_ != 0) {
-  // TDEBUG(5) << "-----> EventProcessor::processAllEventsAsync_readAndProcess
-  // (" << si << ") ... there are already waiting tasks, checking
-  // fileSwitchInProgress_\n";  if (!fileSwitchInProgress_) {
-  //  // Previous output file switch has not yet completed,
-  //  // wait until we are notified it is ok to proceed.
-  //  TDEBUG(5) << "-----> EventProcessor::processAllEventsAsync_readAndProcess
-  //  (" << si << ") ... previous output file switch not finished yet,
-  //  waiting\n"; try {
-  //    condFileSwitch_.wait(lock);
-  //  }
-  //  catch (...) {
-  //    lock.unlock();
-  //    throw;
-  //  }
-  //  TDEBUG(5) << "-----> EventProcessor::processAllEventsAsync_readAndProcess
-  //  (" << si << ") ... previous output file switch has now completed\n";
-  //}
-  //}
-  // TDEBUG(5) << "-----> EventProcessor::processAllEventsAsync_readAndProcess
-  // (" << si << ") ... setting fileSwitchInProgress_ = true\n";
-  //////////////////////////////fileSwitchInProgress_ = true;
-  // lock.unlock();
-  // auto resumeStreamFunctor = [this, si](exception_ptr const* ex) mutable {
-  // TDEBUG(4) << "=====> Begin
-  // EventProcessor::processAllEventsAsync_readAndProcess::resumeStreamTask ("
-  // << si << ") ...\n";  if (ex != nullptr) {  try {
-  //  rethrow_exception(*ex);
-  //}
-  // catch (cet::exception& e) {
-  //  if (act_table_.find(e.root_cause()) != actions::IgnoreCompletely) {
-  //    auto ex_ptr =
-  //    make_exception_ptr(Exception{errors::EventProcessorFailure,
-  //                                               "EventProcessor: an exception
-  //                                               occurred during current event
-  //                                               processing", e});
-  //    // Use a thread-safe, one-way trapdoor pattern to notify the main thread
-  //    // of the exception.
-  //    bool expected = false;
-  //    if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true))
-  //    {
-  //      // Put the exception where the main thread can get at it.
-  //      deferredExceptionPtr_ = ex_ptr;
-  //    }
-  //    // And then end this task, terminating event processing.
-  //    TDEBUG(4) << "=====> End
-  //    EventProcessor::processAllEventsAsync_readAndProcess::resumeStreamTask
-  //    (" << si << ") ... terminate event loop because of EXCEPTION\n"; return;
-  //  }
-  //  mf::LogWarning(e.category())
-  //      << "exception being ignored for current event:\n"
-  //      << cet::trim_right_copy(e.what(), " \n");
-  //  // WARNING: We continue processing after the catch blocks!!!
-  //}
-  // catch (...) {
-  //  mf::LogError("PassingThrough")
-  //      << "an exception occurred during current event processing\n";
-  //  // Use a thread-safe, one-way trapdoor pattern to notify the main thread
-  //  // of the exception.
-  //  bool expected = false;
-  //  if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
-  //    // Put the exception where the main thread can get at it.
-  //    deferredExceptionPtr_ = current_exception();
-  //  }
-  //  // And then end this task, terminating event processing.
-  //  TDEBUG(4) << "=====> End
-  //  EventProcessor::processAllEventsAsync_readAndProcess::resumeStreamTask ("
-  //  << si << ") ... terminate event loop because of EXCEPTION\n"; return;
-  //}
-  //}
-  // processAllEventsAsync_readAndProcess_after_output_switch(si);
-  // TDEBUG(4) << "=====> End
-  // EventProcessor::processAllEventsAsync_readAndProcess::resumeStreamTask ("
-  // << si << ") ...\n";
-  //};
-  // auto resumeStreamTask =
-  // make_waiting_task(tbb::task::self().allocate_continuation(),
-  // resumeStreamFunctor);
-  // processAllEventsAsync_readAndProcess_do_file_switch(resumeStreamTask, si);
-  /////////////////////////TDEBUG(4) << "-----> End
-  /// EventProcessor::processAllEventsAsync_readAndProcess (" << si << ")
-  /// ...\n";
-  /////////////////////////return;
-  //}
   processAllEventsAsync_readAndProcess_after_possible_output_switch(si);
   TDEBUG(4)
     << "-----> End   EventProcessor::processAllEventsAsync_readAndProcess ("
     << si << ") ...\n";
 }
-
-// void
-// EventProcessor::
-// processAllEventsAsync_readAndProcess_do_file_switch(WaitingTask*
-// resumeStreamTask, int si)
-//{
-// TDEBUG(4) << "-----> Begin
-// EventProcessor::processAllEventsAsync_readAndProcess_do_file_switch (" << si
-// << ") ...\n";  lock_guard<mutex> lock{mutexForCondFileSwitch_};  TDEBUG(5) <<
-// "-----> EventProcessor::processAllEventsAsync_readAndProcess_do_file_switch
-// ("
-// << si << ") ... adding resumeStreamTask to waitingTasks_\n";
-// waitingTasks_.add(resumeStreamTask);
-// TDEBUG(5) << "----->
-// EventProcessor::processAllEventsAsync_readAndProcess_do_file_switch (" << si
-// << ") ... incrementing waitingTaskCount_\n";
-//++waitingTaskCount_;
-// if (waitingTaskCount_ == Globals::instance()->streams()) {
-//  // All of the other streams have now ended, we are the last
-//  // one.  The fileSwitchInProgress_ flag is already set
-//  // to tell the main thread to do a file switch and restart
-//  // the streams.  Terminate event processing now, so that
-//  // the main thread can do the switch.
-//  return;
-//  TDEBUG(5) << "----->
-//  EventProcessor::processAllEventsAsync_readAndProcess_do_file_switch (" << si
-//  << ") ... all streams have finished, setting status Switching\n";
-//  setOutputFileStatus(OutputFileStatus::Switching);
-//  TDEBUG(5) << "----->
-//  EventProcessor::processAllEventsAsync_readAndProcess_do_file_switch (" << si
-//  << ") ... calling
-//  finalizeContainingLevels<most_deeply_nested_level()/*Event*/>()\n";
-//  finalizeContainingLevels<most_deeply_nested_level()/*Event*/>();
-//  // FIXME: Need to notify all streams!
-//  respondToCloseOutputFiles();
-//  {
-//    TDEBUG(5) << "----->
-//    EventProcessor::processAllEventsAsync_readAndProcess_do_file_switch (" <<
-//    si << ") ... calling endPathExecutor_->closeSomeOutputFiles()\n";
-//    endPathExecutor_->closeSomeOutputFiles();
-//    FDEBUG(1) << spaces(8) << "closeSomeOutputFiles\n";
-//    TDEBUG(5) << "----->
-//    EventProcessor::processAllEventsAsync_readAndProcess_do_file_switch (" <<
-//    si << ") ... calling endPathExecutor_->openSomeOutputFiles()\n";
-//    endPathExecutor_->openSomeOutputFiles(*fb_);
-//    FDEBUG(1) << spaces(8) << "openSomeOutputFiles\n";
-//  }
-//  // FIXME: Need to notify all streams!
-//  respondToOpenOutputFiles();
-//  TDEBUG(5) << "----->
-//  EventProcessor::processAllEventsAsync_readAndProcess_do_file_switch (" << si
-//  << ") ... calling beginRunIfNotDoneAlready()\n"; beginRunIfNotDoneAlready();
-//  TDEBUG(5) << "----->
-//  EventProcessor::processAllEventsAsync_readAndProcess_do_file_switch (" << si
-//  << ") ... calling beginSubRunIfNotDoneAlready()\n";
-//  beginSubRunIfNotDoneAlready();
-//  TDEBUG(5) << "----->
-//  EventProcessor::processAllEventsAsync_readAndProcess_do_file_switch (" << si
-//  << ") ... setting fileSwitchInProgress_ = false\n"; fileSwitchInProgress_ =
-//  false; TDEBUG(5) << "----->
-//  EventProcessor::processAllEventsAsync_readAndProcess_do_file_switch (" << si
-//  << ") ... calling waitingTasks_.doneWaiting(exception_ptr{})\n";
-//  waitingTasks_.doneWaiting(exception_ptr{});
-//}
-// TDEBUG(4) << "-----> End
-// EventProcessor::processAllEventsAsync_readAndProcess_do_file_switch (" << si
-// << ") ...\n";
-//}
-
-// This function is the main body of the resumeStreamTask.
-// void
-// EventProcessor::
-// processAllEventsAsync_readAndProcess_after_output_switch(int si)
-//{
-// TDEBUG(4) << "-----> Begin
-// EventProcessor::processAllEventsAsync_readAndProcess_after_file_switch (" <<
-// si << ") ...\n";  try {
-//  lock_guard<mutex> lock{mutexForCondFileSwitch_};
-//  --waitingTaskCount_;
-//  if (waitingTaskCount_ == 0) {
-//    // All streams have now resumed, make the
-//    // waiting task list hold tasks again.
-//    waitingTasks_.reset();
-//    // Let all other streams begin a file
-//    // switch now if they want.
-//    condFileSwitch_.notify_all();
-//  }
-//}
-// catch (cet::exception& e) {
-//  if (act_table_.find(e.root_cause()) != actions::IgnoreCompletely) {
-//    auto ex_ptr = make_exception_ptr(Exception{errors::EventProcessorFailure,
-//                                               "EventProcessor: an exception
-//                                               occurred during current event
-//                                               processing", e});
-//    // Use a thread-safe, one-way trapdoor pattern to notify the main thread
-//    // of the exception.
-//    bool expected = false;
-//    if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
-//      // Put the exception where the main thread can get at it.
-//      deferredExceptionPtr_ = ex_ptr;
-//    }
-//    // And then end this task, terminating event processing.
-//    TDEBUG(4) << "-----> End
-//    EventProcessor::processAllEventsAsync_readAndProcess_after_file_switch ("
-//    << si << ") ... terminate event loop because of EXCEPTION\n"; return;
-//  }
-//  mf::LogWarning(e.category())
-//      << "exception being ignored for current event:\n"
-//      << cet::trim_right_copy(e.what(), " \n");
-//  // WARNING: We continue processing after the catch blocks!!!
-//}
-// catch (...) {
-//  mf::LogError("PassingThrough")
-//      << "an exception occurred during current event processing\n";
-//  // Use a thread-safe, one-way trapdoor pattern to notify the main thread
-//  // of the exception.
-//  bool expected = false;
-//  if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
-//    // Put the exception where the main thread can get at it.
-//    deferredExceptionPtr_ = current_exception();
-//  }
-//  // And then end this task, terminating event processing.
-//  TDEBUG(4) << "-----> End
-//  EventProcessor::processAllEventsAsync_readAndProcess_after_file_switch (" <<
-//  si << ") ... terminate event loop because of EXCEPTION\n"; return;
-//}
-// processAllEventsAsync_readAndProcess_after_possible_output_switch(si);
-// TDEBUG(4) << "-----> End
-// EventProcessor::processAllEventsAsync_readAndProcess_after_file_switch (" <<
-// si << ") ...\n";
-//}
 
 // This function is a continuation of the body of the readAndProcessEvent task.
 void
@@ -948,7 +717,7 @@ EventProcessor::processAllEventsAsync_processEvent(int si)
     assert(!eventPrincipal_[si]->eventID().isFlush());
     {
       try {
-        auto endPathFunctor = [this, si](exception_ptr const* ex) mutable {
+        auto endPathFunctor = [this, si](exception_ptr const* ex) {
           // Note: When we start our parent is the eventLoopTask.
           TDEBUG(4) << "=====> Begin endPathTask (" << si << ") ...\n";
           if (ex != nullptr) {
@@ -1119,7 +888,7 @@ EventProcessor::processAllEventsAsync_processEndPath(int si)
   // Arrange it so that we can end the task without
   // terminating event processing.
   tbb::task::self().set_parent(nullptr);
-  auto endPathFunctor = [this, si, eventLoopTask]() mutable {
+  auto endPathFunctor = [this, si, eventLoopTask] {
     TDEBUG(4) << "=====> Begin "
                  "EventProcessor::processAllEventsAsync_processEndPath::"
                  "endPathFunctor ("

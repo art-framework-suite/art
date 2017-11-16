@@ -227,7 +227,7 @@ namespace art {
     triggerPathsInfo_.pathResults().reset();
     triggerPathsInfo_.incrementTotalEventCount();
     auto pathsDoneFunctor = [this, endPathTask, &principal, si](
-                              exception_ptr const* ex) mutable {
+                              exception_ptr const* ex) {
       // Note: When we start our parent task is the eventLoop task.
       TDEBUG(4) << "=====> Begin pathsDoneTask (" << si << ") ...\n";
       if (ex != nullptr) {

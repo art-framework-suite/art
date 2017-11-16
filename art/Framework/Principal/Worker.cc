@@ -63,27 +63,11 @@ namespace art {
 
   } // namespace detail
 
-  Worker::~Worker() noexcept
-  {
-    // TDEBUG(5) << "Worker dtor: 0x" << hex << ((unsigned long)this) << dec <<
-    // "\n";
-  }
-
   Worker::Worker(ModuleDescription const& md, WorkerParams const& wp)
     : md_{md}
     , actions_{wp.actions_}
     , actReg_{wp.actReg_}
     , moduleThreadingType_{wp.moduleThreadingType_}
-    , state_{Ready}
-    , cached_exception_{}
-    , workStarted_{false}
-    , returnCode_{false}
-    , waitingTasks_{}
-    , counts_visited_{}
-    , counts_run_{}
-    , counts_passed_{}
-    , counts_failed_{}
-    , counts_thrown_{}
   {
     TDEBUG(5) << "Worker ctor: 0x" << hex << ((unsigned long)this) << dec
               << " (" << wp.streamIndex_ << ")"
@@ -145,7 +129,6 @@ namespace art {
   size_t
   Worker::timesVisited() const
   {
-    // return counts_.times<stats::Visited>();
     return counts_visited_;
   }
 
@@ -153,7 +136,6 @@ namespace art {
   size_t
   Worker::timesRun() const
   {
-    // return counts_.times<stats::Run>();
     return counts_run_;
   }
 
@@ -161,7 +143,6 @@ namespace art {
   size_t
   Worker::timesPassed() const
   {
-    // return counts_.times<stats::Passed>();
     return counts_passed_;
   }
 
@@ -169,7 +150,6 @@ namespace art {
   size_t
   Worker::timesFailed() const
   {
-    // return counts_.times<stats::Failed>();
     return counts_failed_;
   }
 
@@ -177,7 +157,6 @@ namespace art {
   size_t
   Worker::timesExcept() const
   {
-    // return counts_.times<stats::ExceptionThrown>();
     return counts_thrown_;
   }
 
@@ -571,39 +550,22 @@ namespace art {
     ++counts_visited_;
     bool expected = false;
     if (workStarted_.compare_exchange_strong(expected, true)) {
-      // There is a hilarious bug in gcc 6.3 that allows a non-mutable
-      // lambda expression to modify the class captured by this.  It
-      // declares the this pointer inside the lambda as:
-      //      T* const
-      // instead of:
-      //      T const*
-      // like it should!!!
-      // The SerialTaskQueueChain gets mad if the lambda is mutable
-      // because it declares the functor argument to push() as
-      // T const& and gcc 6.3 does get that part right.
-      // So to work around the const in the SerialTaskQueueChain
-      // declaration we make the lambda not mutable, and to allow
-      // future compilers which fix the misdeclaration of the this
-      // pointer to work, we use the sledgehammer and const_cast
-      // the this pointer so we can modify returnCode_ from the
-      // non-mutable lambda.  Jeesh.
-      auto runWorkerFunctor = [this, &p, si, cpc]() {
+      auto runWorkerFunctor = [this, &p, si, cpc] {
         TDEBUG(4) << "=====> Begin runWorkerFunctor (" << si << ") ...\n";
-        auto This = const_cast<Worker*>(this);
-        This->returnCode_ = false;
+        returnCode_ = false;
         try {
           // Transition from Ready state to Working state.
-          This->state_ = Working;
+          state_ = Working;
           detail::CPCSentry sentry{*cpc};
           actReg_.sPreModule.invoke(md_);
           // Note: Only filters ever return false, and when they do it means
           // they have rejected.
-          This->returnCode_ = implDoProcess(p, si, cpc);
+          returnCode_ = implDoProcess(p, si, cpc);
           actReg_.sPostModule.invoke(md_);
           if (returnCode_) {
-            This->state_ = Pass;
+            state_ = Pass;
           } else {
-            This->state_ = Fail;
+            state_ = Fail;
           }
         }
         catch (cet::exception& e) {
@@ -617,113 +579,113 @@ namespace art {
             }
           }
           if (action == actions::IgnoreCompletely) {
-            This->state_ = Pass;
-            This->returnCode_ = true;
-            ++This->counts_passed_;
+            state_ = Pass;
+            returnCode_ = true;
+            ++counts_passed_;
             mf::LogWarning("IgnoreCompletely")
               << "Module ignored an exception\n"
               << e.what() << "\n";
             // WARNING: We will continue execution below!!!
           } else if (action == actions::FailModule) {
-            This->state_ = Fail;
-            This->returnCode_ = true;
-            ++This->counts_failed_;
+            state_ = Fail;
+            returnCode_ = true;
+            ++counts_failed_;
             mf::LogWarning("FailModule")
               << "Module failed due to an exception\n"
               << e.what() << "\n";
             // WARNING: We will continue execution below!!!
           } else {
-            This->state_ = ExceptionThrown;
-            ++This->counts_thrown_;
+            state_ = ExceptionThrown;
+            ++counts_thrown_;
             e << "cet::exception going through module ";
             if (auto edmEx = dynamic_cast<Exception*>(&e)) {
-              This->cached_exception_ = make_exception_ptr(*edmEx);
+              cached_exception_ = make_exception_ptr(*edmEx);
             } else {
-              This->cached_exception_ =
+              cached_exception_ =
                 make_exception_ptr(Exception{errors::OtherArt, string(), e});
             }
-            This->waitingTasks_.doneWaiting(cached_exception_);
+            waitingTasks_.doneWaiting(cached_exception_);
             TDEBUG(4) << "=====> End   runWorkerFunctor (" << si
                       << ") ... because of exception\n";
             return;
           }
         }
         catch (bad_alloc const& bda) {
-          This->state_ = ExceptionThrown;
-          ++This->counts_thrown_;
+          state_ = ExceptionThrown;
+          ++counts_thrown_;
           auto art_ex =
             Exception{errors::BadAlloc}
             << "A bad_alloc exception occurred during a call to the module ";
-          This->cached_exception_ = make_exception_ptr(art_ex);
+          cached_exception_ = make_exception_ptr(art_ex);
           detail::exceptionContext(md_, p, art_ex)
             << "The job has probably exhausted the virtual memory available to "
                "the process.\n";
-          This->waitingTasks_.doneWaiting(cached_exception_);
+          waitingTasks_.doneWaiting(cached_exception_);
           TDEBUG(4) << "=====> End   runWorkerFunctor (" << si
                     << ") ... because of exception\n";
           return;
         }
         catch (exception const& e) {
-          This->state_ = ExceptionThrown;
-          ++This->counts_thrown_;
+          state_ = ExceptionThrown;
+          ++counts_thrown_;
           auto art_ex = Exception{errors::StdException}
                         << "A exception occurred during a call to the module ";
-          This->cached_exception_ = make_exception_ptr(art_ex);
+          cached_exception_ = make_exception_ptr(art_ex);
           detail::exceptionContext(md_, p, art_ex)
             << "and cannot be repropagated.\n"
             << "Previous information:\n"
             << e.what();
-          This->waitingTasks_.doneWaiting(cached_exception_);
+          waitingTasks_.doneWaiting(cached_exception_);
           TDEBUG(4) << "=====> End   runWorkerFunctor (" << si
                     << ") ... because of exception\n";
           return;
         }
         catch (string const& s) {
-          This->state_ = ExceptionThrown;
-          ++This->counts_thrown_;
+          state_ = ExceptionThrown;
+          ++counts_thrown_;
           auto art_ex = Exception{errors::BadExceptionType, "string"}
                         << "A string thrown as an exception occurred during a "
                            "call to the module ";
-          This->cached_exception_ = make_exception_ptr(art_ex);
+          cached_exception_ = make_exception_ptr(art_ex);
           detail::exceptionContext(md_, p, art_ex)
             << "and cannot be repropagated.\n"
             << "Previous information:\n string = " << s;
-          This->waitingTasks_.doneWaiting(cached_exception_);
+          waitingTasks_.doneWaiting(cached_exception_);
           TDEBUG(4) << "=====> End   runWorkerFunctor (" << si
                     << ") ... because of exception\n";
           return;
         }
         catch (char const* c) {
-          This->state_ = ExceptionThrown;
-          ++This->counts_thrown_;
+          state_ = ExceptionThrown;
+          ++counts_thrown_;
           auto art_ex =
             Exception{errors::BadExceptionType, "const char *"}
             << "A const char* thrown as an exception occurred during "
                "a call to the module ";
-          This->cached_exception_ = make_exception_ptr(art_ex);
+          cached_exception_ = make_exception_ptr(art_ex);
           detail::exceptionContext(md_, p, art_ex)
             << "and cannot be repropagated.\n"
             << "Previous information:\n const char* = " << c << "\n";
-          This->waitingTasks_.doneWaiting(cached_exception_);
+          waitingTasks_.doneWaiting(cached_exception_);
           TDEBUG(4) << "=====> End   runWorkerFunctor (" << si
                     << ") ... because of exception\n";
           return;
         }
         catch (...) {
-          ++This->counts_thrown_;
-          This->state_ = ExceptionThrown;
+          ++counts_thrown_;
+          state_ = ExceptionThrown;
           auto art_ex =
             Exception{errors::Unknown, "repeated"}
             << "An unknown occurred during a previous call to the module ";
-          This->cached_exception_ = make_exception_ptr(art_ex);
+          cached_exception_ = make_exception_ptr(art_ex);
           detail::exceptionContext(md_, p, art_ex)
             << "and cannot be repropagated.\n";
-          This->waitingTasks_.doneWaiting(cached_exception_);
+          waitingTasks_.doneWaiting(cached_exception_);
           TDEBUG(4) << "=====> End   runWorkerFunctor (" << si
                     << ") ... because of exception\n";
           return;
         }
-        This->waitingTasks_.doneWaiting(exception_ptr{});
+        waitingTasks_.doneWaiting(exception_ptr{});
         TDEBUG(4) << "=====> End   runWorkerFunctor (" << si << ") ...\n";
         return;
       };
