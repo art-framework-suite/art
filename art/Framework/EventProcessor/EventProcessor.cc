@@ -139,42 +139,18 @@ EventProcessor::~EventProcessor()
 }
 
 EventProcessor::EventProcessor(ParameterSet const& pset)
-  : nextLevel_{Level::ReadyToAdvance}
-  , ec_{}
-  , timer_{}
-  , beginRunCalled_{false}
-  , beginSubRunCalled_{false}
-  , finalizeRunEnabled_{true}
-  , finalizeSubRunEnabled_{true}
-  , tbbManager_{tbb::task_scheduler_init::deferred}
-  , act_table_{pset.get<ParameterSet>("services.scheduler")}
+  : act_table_{pset.get<ParameterSet>("services.scheduler")}
   , actReg_()
   , mfStatusUpdater_{actReg_}
-  , outputCallbacks_{}
   , servicesManager_{initServices_(pset, actReg_)}
   , pathManager_{pset,
                  outputCallbacks_,
                  productsToProduce_,
                  act_table_,
                  actReg_}
-  , input_{}
-  , schedule_{}
-  , endPathExecutor_{}
-  , fb_{}
-  , runPrincipal_{}
-  , subRunPrincipal_{}
-  , eventPrincipal_{}
   , handleEmptyRuns_{pset.get<bool>("services.scheduler.handleEmptyRuns", true)}
   , handleEmptySubRuns_{pset.get<bool>("services.scheduler.handleEmptySubRuns",
                                        true)}
-  , deferredExceptionPtrIsSet_{false}
-  , deferredExceptionPtr_{}
-  , firstEvent_{true}
-  , fileSwitchInProgress_{false}
-  , waitingTaskCount_{}
-  , mutexForCondFileSwitch_{}
-  , condFileSwitch_{}
-  , waitingTasks_{}
 {
   // Initialize TBB with desired number of threads.
   // FIXME: Option processing already defaults this to 1.

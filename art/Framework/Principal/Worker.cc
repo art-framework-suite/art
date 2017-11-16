@@ -109,26 +109,11 @@ namespace art {
     return md_.moduleLabel();
   }
 
-  //// Unused by the framework.
-  // Worker::State
-  // Worker::
-  // state(int si) const
-  //{
-  //  return static_cast<State>(state_.load());
-  //}
-
   // Used only by WorkerInPath.
   bool
   Worker::returnCode(int /*si*/) const
   {
     return returnCode_;
-  }
-
-  // FIXME: Unused, remove!
-  ModuleThreadingType
-  Worker::moduleThreadingType() const
-  {
-    return moduleThreadingType_;
   }
 
   SerialTaskQueueChain*
@@ -155,18 +140,6 @@ namespace art {
     workStarted_ = false;
     returnCode_ = false;
   }
-
-  // void
-  // Worker::
-  // clearCounters()
-  //{
-  //  //counts_ = CountingStatistics{};
-  //  counts_visited_ = 0;
-  //  counts_run_ = 0;
-  //  counts_passed_ = 0;
-  //  counts_failed_ = 0;
-  //  counts_thrown_ = 0;
-  //}
 
   // Used only by writeSummary
   size_t

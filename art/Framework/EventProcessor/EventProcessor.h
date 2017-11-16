@@ -207,11 +207,8 @@ namespace art {
     cet::cpu_timer timer_{};
 
     bool beginRunCalled_{false};
-
     bool beginSubRunCalled_{false};
-
     bool finalizeRunEnabled_{true};
-
     bool finalizeSubRunEnabled_{true};
 
     tbb::task_scheduler_init tbbManager_{tbb::task_scheduler_init::deferred};
@@ -237,9 +234,8 @@ namespace art {
     // The service subsystem.
     std::unique_ptr<ServicesManager> servicesManager_{};
 
-    // Despite the name, this is what parses the paths
-    // and modules in the fcl file and creates and
-    // owns them.
+    // Despite the name, this is what parses the paths and modules in
+    // the fcl file and creates and owns them.
     PathManager pathManager_;
 
     // The source of input data.
@@ -272,7 +268,7 @@ namespace art {
 
     std::atomic<bool> deferredExceptionPtrIsSet_{false};
 
-    std::exception_ptr deferredExceptionPtr_;
+    std::exception_ptr deferredExceptionPtr_{};
 
     // Set to true for the first event in a subRun to signal
     // that we should not advance to the next entry.

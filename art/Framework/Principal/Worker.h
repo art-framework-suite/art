@@ -113,15 +113,8 @@ namespace art {
 
     std::string const& label() const;
 
-    // Unused by the framework.
-    // State
-    // state(int streamIndex) const;
-
     // Used only by WorkerInPath.
     bool returnCode(int streamIndex) const;
-
-    // FIXME: Unused, remove!
-    ModuleThreadingType moduleThreadingType() const;
 
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
 
@@ -129,9 +122,6 @@ namespace art {
     // Used by Schedule
     // Used by EndPathExecutor
     void reset(int streamIndex);
-
-    // void
-    // clearCounters();
 
     // Used only by writeSummary
     std::size_t timesVisited() const;

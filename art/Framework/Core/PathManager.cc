@@ -628,30 +628,29 @@ art::PathManager::createModulesAndWorkers()
       }
     }
   }
-  //
+
+  if (protoEndPathInfo_.empty()) return;
+
   //  Create the end path and the workers on it.
-  //
   {
-    if (!protoEndPathInfo_.empty()) {
-      map<string, Worker*> allStreamWorkers;
-      vector<WorkerInPath> wips;
-      fillWorkers_(0, // stream index
-                   0, // bit position
-                   protoEndPathInfo_,
-                   allStreamWorkers,
-                   wips,
-                   endPathInfo_.workers());
-      endPathInfo_.paths().push_back(new Path{exceptActions_,
-                                              actReg_,
-                                              0,    // stream index
-                                              0,    // bit position
-                                              true, // is_end_path
-                                              "end_path",
-                                              move(wips),
-                                              nullptr}); // HLTGlobalStatus*
-      TDEBUG(5) << "Made end path 0x" << hex
-                << ((unsigned long)endPathInfo_.paths().back()) << dec << "\n";
-    }
+    map<string, Worker*> allStreamWorkers;
+    vector<WorkerInPath> wips;
+    fillWorkers_(0, // stream index
+                 0, // bit position
+                 protoEndPathInfo_,
+                 allStreamWorkers,
+                 wips,
+                 endPathInfo_.workers());
+    endPathInfo_.paths().push_back(new Path{exceptActions_,
+                                            actReg_,
+                                            0,    // stream index
+                                            0,    // bit position
+                                            true, // is_end_path
+                                            "end_path",
+                                            move(wips),
+                                            nullptr}); // HLTGlobalStatus*
+    TDEBUG(5) << "Made end path 0x" << hex
+              << ((unsigned long)endPathInfo_.paths().back()) << dec << "\n";
   }
 }
 
