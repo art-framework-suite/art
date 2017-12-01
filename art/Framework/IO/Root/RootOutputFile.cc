@@ -184,17 +184,13 @@ namespace {
                           art::RangeSet const& principalRS,
                           art::RangeSet& productRS)
   {
-    if (!productRS.is_valid())
-      return;
-
     assert(principalRS.is_sorted());
     assert(productRS.is_sorted());
 
-    if (bt == art::InRun && productRS.is_full_run())
-      return;
-    if (bt == art::InSubRun && productRS.is_full_subRun())
-      return;
-    assert(!productRS.ranges().empty());
+    if (!productRS.is_valid()) return;
+    if (bt == art::InRun && productRS.is_full_run()) return;
+    if (bt == art::InSubRun && productRS.is_full_subRun()) return;
+    if (productRS.ranges().empty()) return;
 
     auto const r = productRS.run();
     auto const& productFront = productRS.ranges().front();
