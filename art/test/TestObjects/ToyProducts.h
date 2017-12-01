@@ -66,8 +66,7 @@ namespace arttest {
 
   struct Int16_tProduct {
     Int16_tProduct() = default;
-    explicit Int16_tProduct(int16_t i, uint16_t j) : value(i), uvalue(j)
-    {}
+    explicit Int16_tProduct(int16_t i, uint16_t j) : value(i), uvalue(j) {}
 
     int16_t value{};
     uint16_t uvalue{1};
@@ -236,8 +235,9 @@ namespace arttest {
   template <std::size_t N>
   struct IntArray {
     IntArray() = default;
-    std::array<int,N> arr{{}};
-    void aggregate(IntArray const& right)
+    std::array<int, N> arr{{}};
+    void
+    aggregate(IntArray const& right)
     {
       for (std::size_t i{}; i < N; ++i) {
         arr[i] += right.arr[i];
@@ -246,7 +246,7 @@ namespace arttest {
   };
 }
 
-// ======================================================================
+  // ======================================================================
 
 #endif /* art_test_TestObjects_ToyProducts_h */
 

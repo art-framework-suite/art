@@ -187,10 +187,14 @@ namespace {
     assert(principalRS.is_sorted());
     assert(productRS.is_sorted());
 
-    if (!productRS.is_valid()) return;
-    if (bt == art::InRun && productRS.is_full_run()) return;
-    if (bt == art::InSubRun && productRS.is_full_subRun()) return;
-    if (productRS.ranges().empty()) return;
+    if (!productRS.is_valid())
+      return;
+    if (bt == art::InRun && productRS.is_full_run())
+      return;
+    if (bt == art::InSubRun && productRS.is_full_subRun())
+      return;
+    if (productRS.ranges().empty())
+      return;
 
     auto const r = productRS.run();
     auto const& productFront = productRS.ranges().front();

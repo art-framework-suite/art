@@ -20,16 +20,15 @@ namespace arttest {
 
 class arttest::IntArrayAnalyzer : public art::EDAnalyzer {
   art::ProductToken<IntArray<sz>> arrayToken_;
-public:
 
-  struct Config{
+public:
+  struct Config {
     fhicl::Atom<std::string> moduleLabel{fhicl::Name{"moduleLabel"}};
   };
   using Parameters = Table<Config>;
 
-  explicit IntArrayAnalyzer(Parameters const& p) :
-    art::EDAnalyzer{p},
-    arrayToken_{consumes<IntArray<sz>>(p().moduleLabel())}
+  explicit IntArrayAnalyzer(Parameters const& p)
+    : art::EDAnalyzer{p}, arrayToken_{consumes<IntArray<sz>>(p().moduleLabel())}
   {}
 
   void
@@ -40,7 +39,7 @@ public:
     std::array<int, sz> ref{{}};
     auto p = std::make_unique<IntArray<sz>>();
     for (int k = 0; k != sz; ++k) {
-      ref[k] = value+k;
+      ref[k] = value + k;
     }
 
     auto const& prod = *e.getValidHandle(arrayToken_);
