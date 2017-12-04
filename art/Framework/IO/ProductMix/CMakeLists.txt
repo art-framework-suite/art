@@ -23,5 +23,5 @@ art_make_library(LIBRARY_NAME art_Framework_IO_ProductMix
 
 art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Provenance canvas)
 
-install_headers()
-install_source()
+install_headers(SUBDIRS detail)
+install_source(SUBDIRS detail)
