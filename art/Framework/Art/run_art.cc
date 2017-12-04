@@ -29,7 +29,9 @@
 #include <string>
 #include <vector>
 
+#ifdef __linux__
 #include <malloc.h>
+#endif
 
 namespace bpo = boost::program_options;
 
