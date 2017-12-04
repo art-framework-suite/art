@@ -7,7 +7,7 @@ fcldir -
 perllib  product_dir
 #
 product		version
-canvas_root_io	v1_00_02
+canvas_root_io	v1_00_03
 hep_concurrency v0_01_00
 cetbuildtools	v6_00_02	-	only_for_build
 catch		v1_11_0		-nq-	only_for_build
