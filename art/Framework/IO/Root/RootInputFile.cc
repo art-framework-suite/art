@@ -367,9 +367,6 @@ namespace art {
     if (!fcip.fastCloningPermitted()) {
       return false;
     }
-    if (!fileFormatVersion_.fastCopyPossible()) {
-      return false;
-    }
     if (secondaryFileNames_.size() != 0) {
       return false;
     }
