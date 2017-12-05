@@ -3,9 +3,9 @@
 // vim: set sw=2 expandtab :
 
 //
-//  This is an unusual module in that it is always
-//  present in the schedule and it is not configurable.  The ownership of
-//  the bitmask is shared with the scheduler.  Its purpose is to create a
+//  This is an unusual module in that it is always present in the
+//  schedule and it is not configurable.  The ownership of the bitmask
+//  is shared with the scheduler.  Its purpose is to create a
 //  TriggerResults instance and insert it into the event.
 //
 
@@ -37,9 +37,6 @@ namespace art {
 
   public: // MEMBER FUNCTIONS -- EDProducer API
     void produce(Event&) override;
-
-    // void
-    // produce_in_stream(Event&, int streamIndex) override;
 
   private: // MEMBER DATA
     fhicl::ParameterSetID pset_id_;

@@ -45,7 +45,7 @@ namespace art {
   } // namespace detail
 } // namespace art
 
-#define DEFINE_ART_MODULE_NEW(klass)                                           \
+#define DEFINE_ART_MODULE(klass)                                               \
   extern "C" {                                                                 \
   CET_PROVIDE_FILE_PATH()                                                      \
   FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                                   \
@@ -70,49 +70,12 @@ namespace art {
   {                                                                            \
     return art::detail::ModuleTypeDeducer<klass::ModuleType>::value;           \
   }                                                                            \
-  }
-
-#define DEFINE_ART_LEGACY_MODULE(klass)                                        \
-  DEFINE_ART_MODULE_NEW(klass)                                                 \
-  extern "C" {                                                                 \
   art::ModuleThreadingType                                                     \
   moduleThreadingType()                                                        \
   {                                                                            \
-    return art::ModuleThreadingType::LEGACY;                                   \
+    return klass::moduleThreadingType();                                       \
   }                                                                            \
   }
-
-#define DEFINE_ART_ONE_MODULE(klass)                                           \
-  DEFINE_ART_MODULE_NEW(klass)                                                 \
-  extern "C" {                                                                 \
-  art::ModuleThreadingType                                                     \
-  moduleThreadingType()                                                        \
-  {                                                                            \
-    return art::ModuleThreadingType::ONE;                                      \
-  }                                                                            \
-  }
-
-#define DEFINE_ART_STREAM_MODULE(klass)                                        \
-  DEFINE_ART_MODULE_NEW(klass)                                                 \
-  extern "C" {                                                                 \
-  art::ModuleThreadingType                                                     \
-  moduleThreadingType()                                                        \
-  {                                                                            \
-    return art::ModuleThreadingType::STREAM;                                   \
-  }                                                                            \
-  }
-
-#define DEFINE_ART_GLOBAL_MODULE(klass)                                        \
-  DEFINE_ART_MODULE_NEW(klass)                                                 \
-  extern "C" {                                                                 \
-  art::ModuleThreadingType                                                     \
-  moduleThreadingType()                                                        \
-  {                                                                            \
-    return art::ModuleThreadingType::GLOBAL;                                   \
-  }                                                                            \
-  }
-
-#define DEFINE_ART_MODULE(klass) DEFINE_ART_LEGACY_MODULE(klass)
 
 #endif /* art_Framework_Core_ModuleMacros_h */
 

@@ -105,8 +105,8 @@ simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL)
 simple_plugin(Throwing                    "service" NO_INSTALL)
 simple_plugin(ToyProductAnalyzer          "module"  NO_INSTALL)
 simple_plugin(ToyProductFilter            "module"  NO_INSTALL)
-simple_plugin(ToyProductFilterStream      "module"  NO_INSTALL)
-simple_plugin(ToyProductFilterGlobal      "module"  NO_INSTALL)
+simple_plugin(ToyProductFilterReplicated  "module"  NO_INSTALL)
+simple_plugin(ToyProductFilterAsync       "module"  NO_INSTALL)
 simple_plugin(ToyProductProducer          "module"  NO_INSTALL)
 simple_plugin(ToyProductProducerMultiput  "module"  NO_INSTALL)
 simple_plugin(ToyRawFileInput             "source"  NO_INSTALL USE_BOOST_UNIT art_test_Integration)
@@ -391,18 +391,18 @@ cet_test(ToyProductProducerFilter_t HANDBUILT
   fcl/toyProductProducerFilter_t.fcl
   )
 
-cet_test(ToyProductProducerFilterStream_t HANDBUILT
+cet_test(ToyProductProducerFilterReplicated_t HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --rethrow-all -c toyProductProducerFilterStream_t.fcl
+  TEST_ARGS --rethrow-all -c ToyProductProducerFilterReplicated_t.fcl
   DATAFILES
-  fcl/toyProductProducerFilterStream_t.fcl
+  fcl/ToyProductProducerFilterReplicated_t.fcl
   )
 
-cet_test(ToyProductProducerFilterGlobal_t HANDBUILT
+cet_test(ToyProductProducerFilterAsync_t HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --rethrow-all -c toyProductProducerFilterGlobal_t.fcl
+  TEST_ARGS --rethrow-all -c ToyProductProducerFilterAsync_t.fcl
   DATAFILES
-  fcl/toyProductProducerFilterGlobal_t.fcl
+  fcl/ToyProductProducerFilterAsync_t.fcl
   )
 
 cet_test(ToyProductProducerAnalyzer_t HANDBUILT

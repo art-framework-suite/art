@@ -67,4 +67,4 @@ namespace art {
 
 } // namespace art
 
-DEFINE_ART_STREAM_MODULE(art::RandomNumberSaver)
+DEFINE_ART_MODULE(art::RandomNumberSaver)

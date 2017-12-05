@@ -1,4 +1,4 @@
-process_name: ToyProductFilterStreamTest
+process_name: ToyProductFilterReplicatedTest
 
 source: {
    module_type: EmptyEvent
@@ -15,7 +15,7 @@ physics: {
 
    filters: {
       f1: {
-         module_type: ToyProductFilterStream
+         module_type: ToyProductFilterReplicated
          inputLabel: "prod"
       }
    }
@@ -32,4 +32,3 @@ outputs: {
    #}
 
 }
-

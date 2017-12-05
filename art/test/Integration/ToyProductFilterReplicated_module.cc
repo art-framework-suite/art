@@ -33,10 +33,9 @@ namespace {
 
 namespace arttest {
 
-  class ToyProductFilterGlobal : public global::EDFilter {
-
+  class ToyProductFilterReplicated : public replicated::Filter {
   public:
-    explicit ToyProductFilterGlobal(fhicl::ParameterSet const& pset);
+    explicit ToyProductFilterReplicated(fhicl::ParameterSet const& pset);
 
   private:
     bool filter(Event& e) override;
@@ -45,21 +44,19 @@ namespace arttest {
     string inputLabel_{};
   };
 
-  ToyProductFilterGlobal::ToyProductFilterGlobal(
+  ToyProductFilterReplicated::ToyProductFilterReplicated(
     fhicl::ParameterSet const& pset)
-    : global::EDFilter(), inputLabel_(pset.get<std::string>("inputLabel"))
+    : inputLabel_(pset.get<std::string>("inputLabel"))
   {}
 
   bool
-  ToyProductFilterGlobal::filter(Event& /*e*/)
+  ToyProductFilterReplicated::filter(Event& /*e*/)
   {
-    // e.getValidHandle<StringProduct>(inputLabel_);
     double val = 0.0;
     use_cpu_time(val);
-    // cout << val << endl;
-    return 1;
+    return true;
   }
 
 } // namespace arttest
 
-DEFINE_ART_GLOBAL_MODULE(arttest::ToyProductFilterGlobal)
+DEFINE_ART_MODULE(arttest::ToyProductFilterReplicated)

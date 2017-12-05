@@ -63,13 +63,9 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  OutputModule::~OutputModule() noexcept {}
-
-  one::OutputModule::~OutputModule() noexcept {}
-
-  stream::OutputModule::~OutputModule() noexcept {}
-
-  global::OutputModule::~OutputModule() noexcept {}
+  OutputModule::~OutputModule() noexcept = default;
+  shared::OutputModule::~OutputModule() noexcept = default;
+  replicated::OutputModule::~OutputModule() noexcept = default;
 
   OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
                              ParameterSet const& containing_pset)
@@ -83,18 +79,14 @@ namespace art {
     , plugins_{makePlugins_(containing_pset)}
   {}
 
-  one::OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
-                                  ParameterSet const& containing_pset)
-    : art::OutputModule{config, containing_pset}
-  {}
-
-  stream::OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
+  shared::OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
                                      ParameterSet const& containing_pset)
     : art::OutputModule{config, containing_pset}
   {}
 
-  global::OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
-                                     ParameterSet const& containing_pset)
+  replicated::OutputModule::OutputModule(
+    fhicl::TableFragment<Config> const& config,
+    ParameterSet const& containing_pset)
     : art::OutputModule{config, containing_pset}
   {}
 
@@ -110,15 +102,11 @@ namespace art {
     , plugins_{makePlugins_(pset)}
   {}
 
-  one::OutputModule::OutputModule(ParameterSet const& pset)
+  shared::OutputModule::OutputModule(ParameterSet const& pset)
     : art::OutputModule{pset}
   {}
 
-  stream::OutputModule::OutputModule(ParameterSet const& pset)
-    : art::OutputModule{pset}
-  {}
-
-  global::OutputModule::OutputModule(ParameterSet const& pset)
+  replicated::OutputModule::OutputModule(ParameterSet const& pset)
     : art::OutputModule{pset}
   {}
 
@@ -246,28 +234,23 @@ namespace art {
   }
 
   void
-  one::OutputModule::doBeginJob()
+  shared::OutputModule::doBeginJob()
   {
     vector<string> names;
     for_each(resourceNames_.cbegin(),
              resourceNames_.cend(),
              [&names](string const& s) { names.emplace_back(s); });
-    auto queues = SharedResourcesRegistry::instance()->createQueues(
-      SharedResourcesRegistry::kLegacy);
-    chain_.reset(new SerialTaskQueueChain{queues});
+    if (!names.empty()) {
+      auto queues = SharedResourcesRegistry::instance()->createQueues(
+        SharedResourcesRegistry::kLegacy);
+      chain_.reset(new SerialTaskQueueChain{queues});
+    }
     beginJob();
     cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
   }
 
   void
-  stream::OutputModule::doBeginJob()
-  {
-    beginJob();
-    cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
-  }
-
-  void
-  global::OutputModule::doBeginJob()
+  replicated::OutputModule::doBeginJob()
   {
     beginJob();
     cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
@@ -533,10 +516,6 @@ namespace art {
 
   void
   OutputModule::event(EventPrincipal const&)
-  {}
-
-  void
-  OutputModule::event_in_stream(EventPrincipal const&, int /*si*/)
   {}
 
   void

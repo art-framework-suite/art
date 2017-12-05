@@ -461,7 +461,7 @@ art::PathManager::createModulesAndWorkers()
       ModuleBase* module = nullptr;
       // All modules are singletons except for stream modules,
       // enforce that.
-      if (module_threading_type != ModuleThreadingType::STREAM) {
+      if (module_threading_type != ModuleThreadingType::REPLICATED) {
         auto iter = moduleSet_.find(module_label);
         if (iter != moduleSet_.end()) {
           // We have already constructed this module, reuse it.
@@ -629,7 +629,8 @@ art::PathManager::createModulesAndWorkers()
     }
   }
 
-  if (protoEndPathInfo_.empty()) return;
+  if (protoEndPathInfo_.empty())
+    return;
 
   //  Create the end path and the workers on it.
   {

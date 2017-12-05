@@ -27,21 +27,13 @@ using namespace std;
 
 namespace art {
 
-  EDProducer::~EDProducer() {}
+  EDProducer::~EDProducer() noexcept = default;
+  shared::Producer::~Producer() noexcept = default;
+  replicated::Producer::~Producer() noexcept = default;
 
-  one::EDProducer::~EDProducer() {}
-
-  stream::EDProducer::~EDProducer() {}
-
-  global::EDProducer::~EDProducer() {}
-
-  EDProducer::EDProducer() : ProducerBase(), checkPutProducts_{true} {}
-
-  one::EDProducer::EDProducer() : art::EDProducer() {}
-
-  stream::EDProducer::EDProducer() : art::EDProducer() {}
-
-  global::EDProducer::EDProducer() : art::EDProducer() {}
+  EDProducer::EDProducer() = default;
+  shared::Producer::Producer() = default;
+  replicated::Producer::Producer() = default;
 
   string
   EDProducer::workerType() const
@@ -101,14 +93,8 @@ namespace art {
     for_each(resourceNames_.cbegin(),
              resourceNames_.cend(),
              [&names](string const& s) { names.emplace_back(s); });
-    // auto queues =
-    // SharedResourcesRegistry::instance()->createQueues(SharedResourcesRegistry::kLegacy);
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     chain_.reset(new SerialTaskQueueChain{queues});
-    // cerr << "EDProducer::doBeginJob: chain_: " << hex << ((unsigned
-    // long*)chain_.get()) << dec << "\n";
-    // Note: checkPutProducts cannot be set by the ctor
-    // initialization list since moduleDescription is empty then.
     auto const& mainID = moduleDescription().mainParameterSetID();
     auto const& scheduler_pset =
       fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
@@ -117,55 +103,34 @@ namespace art {
       fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
     checkPutProducts_ =
       detail::get_failureToPut_flag(scheduler_pset, module_pset);
-    // module_pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
-    //// Now that we know we have seen all the consumes declarations,
-    //// sort the results for fast lookup later.
-    // for (auto& vecPI : consumables_) {
-    //  sort(vecPI.begin(), vecPI.end());
-    //}
     beginJob();
   }
 
   void
-  one::EDProducer::doBeginJob()
+  shared::Producer::doBeginJob()
   {
-    // uses(SharedResourcesRegistry::kLegacy);
     vector<string> names;
     for_each(resourceNames_.cbegin(),
              resourceNames_.cend(),
              [&names](string const& s) { names.emplace_back(s); });
-    // auto queues =
-    // SharedResourcesRegistry::instance()->createQueues(SharedResourcesRegistry::kLegacy);
-    auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-    chain_.reset(new SerialTaskQueueChain{queues});
-    // cerr << "one::EDProducer::doBeginJob: chain_: " << hex << ((unsigned
-    // long*)chain_.get()) << dec << "\n";
-    // Note: checkPutProducts cannot be set by the ctor
-    // initialization list since moduleDescription is empty then.
+    if (!names.empty()) {
+      auto queues = SharedResourcesRegistry::instance()->createQueues(names);
+      chain_.reset(new SerialTaskQueueChain{queues});
+    }
     auto const& mainID = moduleDescription().mainParameterSetID();
     auto const& scheduler_pset =
       fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
         "services.scheduler");
     auto const& module_pset =
       fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
-    // module_pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
-    //// Now that we know we have seen all the consumes declarations,
-    //// sort the results for fast lookup later.
-    // for (auto& vecPI : consumables_) {
-    //  sort(vecPI.begin(), vecPI.end());
-    //}
     checkPutProducts_ =
       detail::get_failureToPut_flag(scheduler_pset, module_pset);
     beginJob();
   }
 
   void
-  stream::EDProducer::doBeginJob()
+  replicated::Producer::doBeginJob()
   {
-    // cerr << "stream::EDProducer::doBeginJob: chain_: " << hex << ((unsigned
-    // long*)chain_.get()) << dec << "\n";
-    // Note: checkPutProducts cannot be set by the ctor
-    // initialization list since moduleDescription is empty then.
     auto const& mainID = moduleDescription().mainParameterSetID();
     auto const& scheduler_pset =
       fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
@@ -174,36 +139,6 @@ namespace art {
       fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
     checkPutProducts_ =
       detail::get_failureToPut_flag(scheduler_pset, module_pset);
-    // module_pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
-    //// Now that we know we have seen all the consumes declarations,
-    //// sort the results for fast lookup later.
-    // for (auto& vecPI : consumables_) {
-    //  sort(vecPI.begin(), vecPI.end());
-    //}
-    beginJob();
-  }
-
-  void
-  global::EDProducer::doBeginJob()
-  {
-    // cerr << "global::EDProducer::doBeginJob: chain_: " << hex << ((unsigned
-    // long*)chain_.get()) << dec << "\n";
-    // Note: checkPutProducts cannot be set by the ctor
-    // initialization list since moduleDescription is empty then.
-    auto const& mainID = moduleDescription().mainParameterSetID();
-    auto const& scheduler_pset =
-      fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
-        "services.scheduler");
-    auto const& module_pset =
-      fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
-    checkPutProducts_ =
-      detail::get_failureToPut_flag(scheduler_pset, module_pset);
-    // module_pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
-    //// Now that we know we have seen all the consumes declarations,
-    //// sort the results for fast lookup later.
-    // for (auto& vecPI : consumables_) {
-    //  sort(vecPI.begin(), vecPI.end());
-    //}
     beginJob();
   }
 

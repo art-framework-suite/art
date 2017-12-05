@@ -37,21 +37,13 @@ namespace art {
   constexpr bool EDFilter::Pass;
   constexpr bool EDFilter::Fail;
 
-  EDFilter::~EDFilter() {}
+  EDFilter::EDFilter() = default;
+  shared::Filter::Filter() = default;
+  replicated::Filter::Filter() = default;
 
-  one::EDFilter::~EDFilter() {}
-
-  stream::EDFilter::~EDFilter() {}
-
-  global::EDFilter::~EDFilter() {}
-
-  EDFilter::EDFilter() : ProducerBase(), checkPutProducts_{true} {}
-
-  one::EDFilter::EDFilter() : art::EDFilter() {}
-
-  stream::EDFilter::EDFilter() : art::EDFilter() {}
-
-  global::EDFilter::EDFilter() : art::EDFilter() {}
+  EDFilter::~EDFilter() noexcept = default;
+  shared::Filter::~Filter() noexcept = default;
+  replicated::Filter::~Filter() noexcept = default;
 
   string
   EDFilter::workerType() const
@@ -73,10 +65,6 @@ namespace art {
              [&names](string const& s) { names.emplace_back(s); });
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     chain_.reset(new SerialTaskQueueChain{queues});
-    // cerr << "EDFilter::doBeginJob: chain_: " << hex << ((unsigned
-    // long*)chain_.get()) << dec << "\n";
-    // Note: checkPutProducts_ cannot be set by the ctor
-    // mbr init list since moduleDescription_ is empty there.
     auto const& mainID = moduleDescription().mainParameterSetID();
     auto const& scheduler_pset =
       fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
@@ -85,29 +73,20 @@ namespace art {
       fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
     checkPutProducts_ =
       detail::get_failureToPut_flag(scheduler_pset, module_pset);
-    // module_pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
-    //// Now that we know we have seen all the consumes declarations,
-    //// sort the results for fast lookup later.
-    // for (auto& vecPI : consumables_) {
-    //  sort(vecPI.begin(), vecPI.end());
-    //}
     beginJob();
   }
 
   void
-  one::EDFilter::doBeginJob()
+  shared::Filter::doBeginJob()
   {
-    // uses(SharedResourcesRegistry::kLegacy);
     vector<string> names;
     for_each(resourceNames_.cbegin(),
              resourceNames_.cend(),
              [&names](string const& s) { names.emplace_back(s); });
-    auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-    chain_.reset(new SerialTaskQueueChain{queues});
-    // cerr << "one::EDFilter::doBeginJob: chain_: " << hex << ((unsigned
-    // long*)chain_.get()) << dec << "\n";
-    // Note: checkPutProducts_ cannot be set by the ctor
-    // mbr init list since moduleDescription_ is empty there.
+    if (!names.empty()) {
+      auto queues = SharedResourcesRegistry::instance()->createQueues(names);
+      chain_.reset(new SerialTaskQueueChain{queues});
+    }
     auto const& mainID = moduleDescription().mainParameterSetID();
     auto const& scheduler_pset =
       fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
@@ -116,22 +95,12 @@ namespace art {
       fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
     checkPutProducts_ =
       detail::get_failureToPut_flag(scheduler_pset, module_pset);
-    // module_pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
-    //// Now that we know we have seen all the consumes declarations,
-    //// sort the results for fast lookup later.
-    // for (auto& vecPI : consumables_) {
-    //  sort(vecPI.begin(), vecPI.end());
-    //}
     beginJob();
   }
 
   void
-  stream::EDFilter::doBeginJob()
+  replicated::Filter::doBeginJob()
   {
-    // cerr << "stream::EDFilter::doBeginJob: chain_: " << hex << ((unsigned
-    // long*)chain_.get()) << dec << "\n";
-    // Note: checkPutProducts_ cannot be set by the ctor
-    // mbr init list since moduleDescription_ is empty there.
     auto const& mainID = moduleDescription().mainParameterSetID();
     auto const& scheduler_pset =
       fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
@@ -140,36 +109,6 @@ namespace art {
       fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
     checkPutProducts_ =
       detail::get_failureToPut_flag(scheduler_pset, module_pset);
-    // module_pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
-    //// Now that we know we have seen all the consumes declarations,
-    //// sort the results for fast lookup later.
-    // for (auto& vecPI : consumables_) {
-    //  sort(vecPI.begin(), vecPI.end());
-    //}
-    beginJob();
-  }
-
-  void
-  global::EDFilter::doBeginJob()
-  {
-    // cerr << "global::EDFilter::doBeginJob: chain_: " << hex << ((unsigned
-    // long*)chain_.get()) << dec << "\n";
-    // Note: checkPutProducts_ cannot be set by the ctor
-    // mbr init list since moduleDescription_ is empty there.
-    auto const& mainID = moduleDescription().mainParameterSetID();
-    auto const& scheduler_pset =
-      fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
-        "services.scheduler");
-    auto const& module_pset =
-      fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
-    checkPutProducts_ =
-      detail::get_failureToPut_flag(scheduler_pset, module_pset);
-    // module_pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
-    //// Now that we know we have seen all the consumes declarations,
-    //// sort the results for fast lookup later.
-    // for (auto& vecPI : consumables_) {
-    //  sort(vecPI.begin(), vecPI.end());
-    //}
     beginJob();
   }
 

@@ -1,4 +1,4 @@
-process_name: ToyProductFilterGlobalTest
+process_name: ToyProductFilterAsyncTest
 
 source: {
    module_type: EmptyEvent
@@ -15,7 +15,7 @@ physics: {
 
    filters: {
       f1: {
-         module_type: ToyProductFilterGlobal
+         module_type: ToyProductFilterAsync
          inputLabel: "prod"
       }
    }
@@ -32,4 +32,3 @@ outputs: {
    #}
 
 }
-

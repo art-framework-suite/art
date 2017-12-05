@@ -149,8 +149,8 @@ EventProcessor::EventProcessor(ParameterSet const& pset)
                  act_table_,
                  actReg_}
   , handleEmptyRuns_{pset.get<bool>("services.scheduler.handleEmptyRuns", true)}
-  , handleEmptySubRuns_{pset.get<bool>("services.scheduler.handleEmptySubRuns",
-                                       true)}
+  , handleEmptySubRuns_{
+      pset.get<bool>("services.scheduler.handleEmptySubRuns", true)}
 {
   // Initialize TBB with desired number of threads.
   // FIXME: Option processing already defaults this to 1.

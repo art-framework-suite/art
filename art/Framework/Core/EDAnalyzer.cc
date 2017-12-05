@@ -33,27 +33,19 @@ using namespace std;
 
 namespace art {
 
-  EDAnalyzer::~EDAnalyzer() {}
-
-  one::EDAnalyzer::~EDAnalyzer() {}
-
-  stream::EDAnalyzer::~EDAnalyzer() {}
-
-  global::EDAnalyzer::~EDAnalyzer() {}
+  EDAnalyzer::~EDAnalyzer() noexcept = default;
+  shared::Analyzer::~Analyzer() noexcept = default;
+  replicated::Analyzer::~Analyzer() noexcept = default;
 
   EDAnalyzer::EDAnalyzer(fhicl::ParameterSet const& pset)
     : EventObserverBase{pset}
   {}
 
-  one::EDAnalyzer::EDAnalyzer(fhicl::ParameterSet const& pset)
+  shared::Analyzer::Analyzer(fhicl::ParameterSet const& pset)
     : art::EDAnalyzer{pset}
   {}
 
-  stream::EDAnalyzer::EDAnalyzer(fhicl::ParameterSet const& pset)
-    : art::EDAnalyzer{pset}
-  {}
-
-  global::EDAnalyzer::EDAnalyzer(fhicl::ParameterSet const& pset)
+  replicated::Analyzer::Analyzer(fhicl::ParameterSet const& pset)
     : art::EDAnalyzer{pset}
   {}
 
@@ -78,59 +70,26 @@ namespace art {
              [&names](string const& s) { names.emplace_back(s); });
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     chain_.reset(new SerialTaskQueueChain{queues});
-    // cerr << "EDAnalyzer::doBeginJob: chain_: " << hex << ((unsigned
-    // long*)chain_.get()) << dec << "\n";
-    //// Now that we know we have seen all the consumes declarations,
-    //// sort the results for fast lookup later.
-    // for (auto& vecPI : consumables_) {
-    //  sort(vecPI.begin(), vecPI.end());
-    //}
     beginJob();
   }
 
   void
-  one::EDAnalyzer::doBeginJob()
+  shared::Analyzer::doBeginJob()
   {
-    // uses(SharedResourcesRegistry::kLegacy);
     vector<string> names;
     for_each(resourceNames_.cbegin(),
              resourceNames_.cend(),
              [&names](string const& s) { names.emplace_back(s); });
-    auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-    chain_.reset(new SerialTaskQueueChain{queues});
-    // cerr << "one::EDAnalyzer::doBeginJob: chain_: " << hex << ((unsigned
-    // long*)chain_.get()) << dec << "\n";
-    //// Now that we know we have seen all the consumes declarations,
-    //// sort the results for fast lookup later.
-    // for (auto& vecPI : consumables_) {
-    //  sort(vecPI.begin(), vecPI.end());
-    //}
+    if (!names.empty()) {
+      auto queues = SharedResourcesRegistry::instance()->createQueues(names);
+      chain_.reset(new SerialTaskQueueChain{queues});
+    }
     beginJob();
   }
 
   void
-  stream::EDAnalyzer::doBeginJob()
+  replicated::Analyzer::doBeginJob()
   {
-    // cerr << "stream::EDAnalyzer::doBeginJob: chain_: " << hex << ((unsigned
-    // long*)chain_.get()) << dec << "\n";
-    //// Now that we know we have seen all the consumes declarations,
-    //// sort the results for fast lookup later.
-    // for (auto& vecPI : consumables_) {
-    //  sort(vecPI.begin(), vecPI.end());
-    //}
-    beginJob();
-  }
-
-  void
-  global::EDAnalyzer::doBeginJob()
-  {
-    // cerr << "global::EDAnalyzer::doBeginJob: chain_: " << hex << ((unsigned
-    // long*)chain_.get()) << dec << "\n";
-    //// Now that we know we have seen all the consumes declarations,
-    //// sort the results for fast lookup later.
-    // for (auto& vecPI : consumables_) {
-    //  sort(vecPI.begin(), vecPI.end());
-    //}
     beginJob();
   }
 
@@ -257,22 +216,10 @@ namespace art {
     Event const e{ep, moduleDescription()};
     if (wantAllEvents() || wantEvent(e)) {
       ++counts_run;
-      // if
-      // (static_cast<ModuleThreadingType>(moduleDescription().moduleThreadingType())
-      // == ModuleThreadingType::STREAM) {  analyze_in_stream(e, si);
-      //}
-      // else {
       analyze(e);
-      //}
       ++counts_passed;
     }
     return true;
   }
-
-  // void
-  // EDAnalyzer::
-  // analyze_in_stream(Event const&, int /*si*/)
-  //{
-  //}
 
 } // namespace art

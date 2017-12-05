@@ -40,22 +40,23 @@ namespace art {
 
     static constexpr bool Pass{true};
     static constexpr bool Fail{false};
+    static constexpr ModuleThreadingType
+    moduleThreadingType()
+    {
+      return ModuleThreadingType::LEGACY;
+    }
 
   public: // CONFIGURATION
     template <typename UserConfig>
     using Table = ProducerBase::Table<UserConfig>;
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-    virtual ~EDFilter();
+    virtual ~EDFilter() noexcept;
 
     EDFilter();
-
     EDFilter(EDFilter const&) = delete;
-
     EDFilter(EDFilter&&) = delete;
-
     EDFilter& operator=(EDFilter const&) = delete;
-
     EDFilter& operator=(EDFilter&&) = delete;
 
   private: // MEMBER FUNCTIONS
@@ -68,11 +69,8 @@ namespace art {
     void doEndJob();
 
     void doRespondToOpenInputFile(FileBlock const& fb);
-
     void doRespondToCloseInputFile(FileBlock const& fb);
-
     void doRespondToOpenOutputFiles(FileBlock const& fb);
-
     void doRespondToCloseOutputFiles(FileBlock const& fb);
 
     bool doBeginRun(RunPrincipal& rp,
@@ -94,77 +92,29 @@ namespace art {
                  std::atomic<std::size_t>& counts_passed,
                  std::atomic<std::size_t>& counts_failed);
 
-  protected
-    : // MEMBER FUNCTIONS -- Implementation API, intended to be provided by
-      // derived classes.
+  protected:
     // Not called by framework
+
     virtual void reconfigure(fhicl::ParameterSet const&);
-
     virtual void beginJob();
-
     virtual void endJob();
-
     virtual void respondToOpenInputFile(FileBlock const&);
-
     virtual void respondToCloseInputFile(FileBlock const&);
-
     virtual void respondToOpenOutputFiles(FileBlock const&);
-
     virtual void respondToCloseOutputFiles(FileBlock const&);
-
     virtual bool beginRun(Run&);
-
     virtual bool endRun(Run&);
-
     virtual bool beginSubRun(SubRun&);
-
     virtual bool endSubRun(SubRun&);
-
     virtual bool filter(Event&) = 0;
 
-    // virtual
-    // bool
-    // filter_in_stream(Event&, int streamIndex);
-
-  protected: // MEMBER DATA -- For derived classes
+  protected: // FIXME!!!!!
     bool checkPutProducts_{true};
   };
 
-  namespace one {
+  namespace shared {
 
-    // <<pure virtual abstract base>>
-    class EDFilter : public art::EDFilter {
-
-      // Allow the WorkerT<T> ctor to call setModuleDescription() and
-      // workerType().
-      template <typename T>
-      friend class WorkerT;
-
-    public: // MEMBER FUNCTIONS -- Special Member Functions
-      virtual ~EDFilter();
-
-      EDFilter();
-
-      EDFilter(EDFilter const&) = delete;
-
-      EDFilter(EDFilter&&) = delete;
-
-      EDFilter& operator=(EDFilter const&) = delete;
-
-      EDFilter& operator=(EDFilter&&) = delete;
-
-    protected
-      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-        // EndPathExecutor.
-      void doBeginJob() override;
-    };
-
-  } // namespace one
-
-  namespace stream {
-
-    // <<pure virtual abstract base>>
-    class EDFilter : public art::EDFilter {
+    class Filter : public art::EDFilter {
 
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
@@ -172,30 +122,27 @@ namespace art {
       friend class WorkerT;
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
-      virtual ~EDFilter();
+      static constexpr ModuleThreadingType
+      moduleThreadingType()
+      {
+        return ModuleThreadingType::SHARED;
+      }
+      virtual ~Filter() noexcept;
+      Filter();
+      Filter(Filter const&) = delete;
+      Filter(Filter&&) = delete;
+      Filter& operator=(Filter const&) = delete;
+      Filter& operator=(Filter&&) = delete;
 
-      EDFilter();
-
-      EDFilter(EDFilter const&) = delete;
-
-      EDFilter(EDFilter&&) = delete;
-
-      EDFilter& operator=(EDFilter const&) = delete;
-
-      EDFilter& operator=(EDFilter&&) = delete;
-
-    protected
-      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-        // EndPathExecutor.
+    private:
       void doBeginJob() override;
     };
 
-  } // namespace stream
+  } // namespace shared
 
-  namespace global {
+  namespace replicated {
 
-    // <<pure virtual abstract base>>
-    class EDFilter : public art::EDFilter {
+    class Filter : public art::EDFilter {
 
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
@@ -203,29 +150,28 @@ namespace art {
       friend class WorkerT;
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
-      virtual ~EDFilter();
+      static constexpr ModuleThreadingType
+      moduleThreadingType()
+      {
+        return ModuleThreadingType::REPLICATED;
+      }
 
-      EDFilter();
+      virtual ~Filter() noexcept;
+      Filter();
+      Filter(Filter const&) = delete;
+      Filter(Filter&&) = delete;
+      Filter& operator=(Filter const&) = delete;
+      Filter& operator=(Filter&&) = delete;
 
-      EDFilter(EDFilter const&) = delete;
-
-      EDFilter(EDFilter&&) = delete;
-
-      EDFilter& operator=(EDFilter const&) = delete;
-
-      EDFilter& operator=(EDFilter&&) = delete;
-
-    protected
-      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-        // EndPathExecutor.
+    private:
       void doBeginJob() override;
     };
 
-  } // namespace global
+  } // namespace replicated
 
 } // namespace art
 
-#endif /* art_Framework_Core_EDFilter_h */
+#endif /* art_Framework_Core_Filter_h */
 
 // Local Variables:
 // mode: c++

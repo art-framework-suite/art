@@ -67,12 +67,12 @@ namespace art {
                               actReg_,
                               actionTable_,
                               processName_,
-                              ModuleThreadingType::STREAM,
+                              ModuleThreadingType::REPLICATED,
                               stream};
         ModuleDescription md{trig_pset.id(),
                              "TriggerResultInserter",
                              "TriggerResults",
-                             static_cast<int>(ModuleThreadingType::STREAM),
+                             static_cast<int>(ModuleThreadingType::REPLICATED),
                              ProcessConfiguration{processName_,
                                                   process_pset_.id(),
                                                   getReleaseVersion()}};

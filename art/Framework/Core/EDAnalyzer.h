@@ -39,6 +39,11 @@ namespace art {
     // These two are needed by the module macros.
     using WorkerType = WorkerT<EDAnalyzer>;
     using ModuleType = EDAnalyzer;
+    static constexpr ModuleThreadingType
+    moduleThreadingType()
+    {
+      return ModuleThreadingType::LEGACY;
+    }
 
   public: // CONFIGURATION
     template <typename UserConfig, typename UserKeysToIgnore = void>
@@ -103,7 +108,7 @@ namespace art {
     };
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-    virtual ~EDAnalyzer();
+    virtual ~EDAnalyzer() noexcept;
 
     explicit EDAnalyzer(fhicl::ParameterSet const& pset);
 
@@ -174,41 +179,11 @@ namespace art {
     virtual void endSubRun(SubRun const&);
 
     virtual void analyze(Event const&) = 0;
-
-    // virtual
-    // void
-    // analyze_in_stream(Event const&, int streamIndex);
   };
 
-  namespace one {
+  namespace shared {
 
-    class EDAnalyzer : public art::EDAnalyzer {
-
-      // Allow the WorkerT<T> ctor to call setModuleDescription() and
-      // workerType().
-      template <typename T>
-      friend class WorkerT;
-
-    public: // MEMBER FUNCTIONS -- Special Member Functions
-      virtual ~EDAnalyzer();
-
-      explicit EDAnalyzer(fhicl::ParameterSet const&);
-
-      template <typename Config>
-      explicit EDAnalyzer(Table<Config> const& config) : art::EDAnalyzer(config)
-      {}
-
-    private
-      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-        // EndPathExecutor
-      void doBeginJob() override;
-    };
-
-  } // namespace one
-
-  namespace stream {
-
-    class EDAnalyzer : public art::EDAnalyzer {
+    class Analyzer : public art::EDAnalyzer {
 
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
@@ -216,25 +191,28 @@ namespace art {
       friend class WorkerT;
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
-      virtual ~EDAnalyzer();
+      virtual ~Analyzer() noexcept;
 
-      explicit EDAnalyzer(fhicl::ParameterSet const&);
+      static constexpr ModuleThreadingType
+      moduleThreadingType()
+      {
+        return ModuleThreadingType::SHARED;
+      }
+      explicit Analyzer(fhicl::ParameterSet const&);
 
       template <typename Config>
-      explicit EDAnalyzer(Table<Config> const& config) : art::EDAnalyzer(config)
+      explicit Analyzer(Table<Config> const& config) : art::EDAnalyzer{config}
       {}
 
-    private
-      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-        // EndPathExecutor
+    private:
       void doBeginJob() override;
     };
 
-  } // namespace stream
+  } // namespace shared
 
-  namespace global {
+  namespace replicated {
 
-    class EDAnalyzer : public art::EDAnalyzer {
+    class Analyzer : public art::EDAnalyzer {
 
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
@@ -242,21 +220,24 @@ namespace art {
       friend class WorkerT;
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
-      virtual ~EDAnalyzer();
+      static constexpr ModuleThreadingType
+      moduleThreadingType()
+      {
+        return ModuleThreadingType::REPLICATED;
+      }
+      virtual ~Analyzer() noexcept;
 
-      explicit EDAnalyzer(fhicl::ParameterSet const&);
+      explicit Analyzer(fhicl::ParameterSet const&);
 
       template <typename Config>
-      explicit EDAnalyzer(Table<Config> const& config) : art::EDAnalyzer(config)
+      explicit Analyzer(Table<Config> const& config) : art::EDAnalyzer{config}
       {}
 
-    private
-      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-        // EndPathExecutor
+    private:
       void doBeginJob() override;
     };
 
-  } // namespace global
+  } // namespace replciated
 
   template <typename T>
   inline std::ostream&

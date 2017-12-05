@@ -36,40 +36,35 @@ namespace art {
     // The module macros need these two.
     using ModuleType = EDProducer;
     using WorkerType = WorkerT<EDProducer>;
+    static constexpr ModuleThreadingType
+    moduleThreadingType()
+    {
+      return ModuleThreadingType::LEGACY;
+    }
 
   public: // CONFIGURATION
     template <typename UserConfig>
     using Table = ProducerBase::Table<UserConfig>;
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-    virtual ~EDProducer();
+    virtual ~EDProducer() noexcept;
 
     EDProducer();
-
     EDProducer(EDProducer const&) = delete;
-
     EDProducer(EDProducer&&) = delete;
-
     EDProducer& operator=(EDProducer const&) = delete;
-
     EDProducer& operator=(EDProducer&&) = delete;
 
   protected: // MEMBER FUNCTIONS
     std::string workerType() const;
 
-  protected
-    : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-      // EndPathExecutor.
+  protected:
     virtual void doBeginJob();
 
     void doEndJob();
-
     void doRespondToOpenInputFile(FileBlock const& fb);
-
     void doRespondToCloseInputFile(FileBlock const& fb);
-
     void doRespondToOpenOutputFiles(FileBlock const& fb);
-
     void doRespondToCloseOutputFiles(FileBlock const& fb);
 
     bool doBeginRun(RunPrincipal& rp,
@@ -91,30 +86,19 @@ namespace art {
                  std::atomic<std::size_t>& counts_passed,
                  std::atomic<std::size_t>& counts_failed);
 
-  protected
-    : // MEMBER FUNCTIONS -- Implementation API, intended to be provided by
-      // derived classes.
+  protected:
     // Not called by framework.
     virtual void reconfigure(fhicl::ParameterSet const&);
 
     virtual void beginJob();
-
     virtual void endJob();
-
     virtual void respondToOpenInputFile(FileBlock const&);
-
     virtual void respondToCloseInputFile(FileBlock const&);
-
     virtual void respondToOpenOutputFiles(FileBlock const&);
-
-    void virtual respondToCloseOutputFiles(FileBlock const&);
-
+    virtual void respondToCloseOutputFiles(FileBlock const&);
     virtual void beginRun(Run&);
-
     virtual void endRun(Run&);
-
     virtual void beginSubRun(SubRun&);
-
     virtual void endSubRun(SubRun&);
 
     // We make this pure virtual because a user module that does
@@ -122,47 +106,13 @@ namespace art {
     // not want people doing that.
     virtual void produce(Event&) = 0;
 
-    // virtual
-    // void
-    // produce_in_stream(Event&, int streamIndex);
-
   protected: // MEMBER DATA -- For derived classes
     bool checkPutProducts_{true};
   };
 
-  namespace one {
+  namespace shared {
 
-    class EDProducer : public art::EDProducer {
-
-      // Allow the WorkerT<T> ctor to call setModuleDescription() and
-      // workerType().
-      template <typename T>
-      friend class WorkerT;
-
-    public: // MEMBER FUNCTIONS -- Special Member Functions
-      virtual ~EDProducer();
-
-      EDProducer();
-
-      EDProducer(EDProducer const&) = delete;
-
-      EDProducer(EDProducer&&) = delete;
-
-      EDProducer& operator=(EDProducer const&) = delete;
-
-      EDProducer& operator=(EDProducer&&) = delete;
-
-    protected
-      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-        // EndPathExecutor.
-      void doBeginJob() override;
-    };
-
-  } // namespace one
-
-  namespace stream {
-
-    class EDProducer : public art::EDProducer {
+    class Producer : public art::EDProducer {
 
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
@@ -170,29 +120,28 @@ namespace art {
       friend class WorkerT;
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
-      virtual ~EDProducer();
+      static constexpr ModuleThreadingType
+      moduleThreadingType()
+      {
+        return ModuleThreadingType::SHARED;
+      }
+      virtual ~Producer() noexcept;
 
-      EDProducer();
+      Producer();
+      Producer(Producer const&) = delete;
+      Producer(Producer&&) = delete;
+      Producer& operator=(Producer const&) = delete;
+      Producer& operator=(Producer&&) = delete;
 
-      EDProducer(EDProducer const&) = delete;
-
-      EDProducer(EDProducer&&) = delete;
-
-      EDProducer& operator=(EDProducer const&) = delete;
-
-      EDProducer& operator=(EDProducer&&) = delete;
-
-    protected
-      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-        // EndPathExecutor.
+    protected:
       void doBeginJob() override;
     };
 
-  } // namespace stream
+  } // namespace shared
 
-  namespace global {
+  namespace replicated {
 
-    class EDProducer : public art::EDProducer {
+    class Producer : public art::EDProducer {
 
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
@@ -200,25 +149,24 @@ namespace art {
       friend class WorkerT;
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
-      virtual ~EDProducer();
+      static constexpr ModuleThreadingType
+      moduleThreadingType()
+      {
+        return ModuleThreadingType::REPLICATED;
+      }
 
-      EDProducer();
+      virtual ~Producer();
+      Producer();
+      Producer(Producer const&) = delete;
+      Producer(Producer&&) = delete;
+      Producer& operator=(Producer const&) = delete;
+      Producer& operator=(Producer&&) = delete;
 
-      EDProducer(EDProducer const&) = delete;
-
-      EDProducer(EDProducer&&) = delete;
-
-      EDProducer& operator=(EDProducer const&) = delete;
-
-      EDProducer& operator=(EDProducer&&) = delete;
-
-    protected
-      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-        // EndPathExecutor.
+    protected:
       void doBeginJob() override;
     };
 
-  } // namespace global
+  } // namespace replicated
 
 } // namespace art
 

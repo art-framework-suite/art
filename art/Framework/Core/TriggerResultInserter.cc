@@ -35,14 +35,4 @@ namespace art {
     e.put(make_unique<TriggerResults>(*trptr_, pset_id_));
   }
 
-  // void
-  // TriggerResultInserter::
-  // produce_in_stream(Event& e, int /*si*/)
-  //{
-  //  // No Event::get* calls should be made here!  The TriggerResults
-  //  // object is self-contained, and it should have no parentage, which
-  //  // an Event::get* call will introduce.
-  //  e.put(make_unique<TriggerResults>(*trptr_, pset_id_));
-  //}
-
 } // namespace art

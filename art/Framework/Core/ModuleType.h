@@ -20,11 +20,9 @@ namespace art {
     ,
     LEGACY // 1
     ,
-    ONE // 2
+    SHARED // 2
     ,
-    STREAM // 3
-    ,
-    GLOBAL // 4
+    REPLICATED // 3
   };
 
   inline bool
@@ -59,31 +57,6 @@ namespace art {
           << static_cast<int>(mt) << ".\n";
     }
   }
-
-  // inline
-  // std::string
-  // to_string(ModuleThreadingType mt)
-  //{
-  //  switch (mt) {
-  //    case ModuleThreadingType::ILLEGAL:
-  //      return "illegal";
-  //    case ModuleThreadingType::LEGACY:
-  //      return "legacy";
-  //    case ModuleThreadingType::ONE:
-  //      return "one";
-  //    case ModuleThreadingType::STREAM:
-  //      return "stream";
-  //    case ModuleThreadingType::GLOBAL:
-  //      return "global";
-  //    default:
-  //      throw Exception(errors::LogicError)
-  //          << "Unable to find string for unrecognized ModuleThreadingType
-  //          value
-  //          "
-  //          << static_cast<int>(mt)
-  //          << ".\n";
-  //  }
-  //}
 
 } // namespace art
 

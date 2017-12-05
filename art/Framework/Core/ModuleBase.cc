@@ -36,16 +36,8 @@ using namespace std;
 
 namespace art {
 
-  ModuleBase::~ModuleBase() {}
-
-  ModuleBase::ModuleBase()
-    : md_{}
-    , streamIndex_{}
-    , moduleThreadingType_{}
-    , resourceNames_{}
-    , chain_{}       //, requireConsumes_{false}
-    , consumables_{} //, missingConsumes_{}
-  {}
+  ModuleBase::~ModuleBase() noexcept = default;
+  ModuleBase::ModuleBase() = default;
 
   ModuleDescription const&
   ModuleBase::moduleDescription() const
@@ -66,7 +58,7 @@ namespace art {
   }
 
   void
-  ModuleBase::setStreamIndex(int si)
+  ModuleBase::setStreamIndex(int const si)
   {
     streamIndex_ = si;
   }
@@ -132,52 +124,6 @@ namespace art {
     return explicit_seeds.empty() ? implicit_seed : explicit_seeds.front();
   }
 
-  // ModuleBase::ProductInfo::
-  // ProductInfo(ConsumableType const consumableType, TypeID const& tid)
-  // : consumableType_{consumableType}
-  // , typeID_{tid}
-  // , label_{}
-  // , instance_{}
-  // , process_{}
-  //{
-  //}
-
-  // ModuleBase::ProductInfo::
-  // ProductInfo(ConsumableType const consumableType, TypeID const& tid,
-  // std::string const& label, std::string const& instance,
-  //            std::string const& process)
-  // : consumableType_{consumableType}
-  // , typeID_{tid}
-  // , label_{label}
-  // , instance_{instance}
-  // , process_{process}
-  //{
-  //}
-
-  // bool
-  // operator<(ProductInfo const& a, ProductInfo const& b)
-  //{
-  //  return tie(a.consumableType_, a.typeID_, a.label_, a.instance_,
-  //  a.process_)
-  //  <
-  //         tie(b.consumableType_, b.typeID_, b.label_, b.instance_,
-  //         b.process_);
-  //}
-
-  // bool
-  // ModuleBase::
-  // getRequireConsumes() const
-  //{
-  //  return requireConsumes_;
-  //}
-
-  // void
-  // ModuleBase::
-  // setRequireConsumes(bool val) const
-  //{
-  //  requireConsumes_ = val;
-  //}
-
   array<vector<ProductInfo>, NumBranchTypes> const&
   ModuleBase::getConsumables() const
   {
@@ -193,47 +139,5 @@ namespace art {
       sort(vecPI.begin(), vecPI.end());
     }
   }
-
-  // std::array<std::set<ProductInfo>, NumBranchTypes>&
-  // ModuleBase::
-  // getMissingConsumes();
-  //{
-  //  return missingConsumes_
-  //}
-
-  // void
-  // ModuleBase::
-  // prepareForJob(fhicl::ParameterSet const& pset)
-  //{
-  //  pset.get_if_present("errorOnMissingConsumes", requireConsumes_);
-  //}
-
-  // void
-  // ModuleBase::
-  // showMissingConsumes() const
-  //{
-  //  if (all_of(missingConsumes_.cbegin(), missingConsumes_.cend(), [](auto
-  //  const& perBranch) { return perBranch.empty(); })) {
-  //    // Nothing was missing, all done.
-  //    return;
-  //  }
-  //  constexpr cet::HorizontalRule rule{60};
-  //  mf::LogPrint log{"MTdiagnostics"};
-  //  log << '\n' << rule('=') << '\n'
-  //      << "The following consumes (or mayConsume) statements are missing
-  //      from\n"
-  //      << "module label: '"
-  //      << module_context(md_)
-  //      << rule('-') << '\n';
-  //  size_t i = 0;
-  //  for (auto const& perBT : missingConsumes_) {
-  //    for (auto const& pi : perBT) {
-  //      log << "  " << assemble_consumes_statement(static_cast<BranchType>(i),
-  //      pi) << '\n';
-  //    }
-  //    ++i;
-  //  }
-  //  log << rule('=');
-  //}
 
 } // namespace art

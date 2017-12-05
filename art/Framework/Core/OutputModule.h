@@ -61,6 +61,11 @@ namespace art {
     // The module macros need these two.
     using ModuleType = OutputModule;
     using WorkerType = OutputWorker;
+    static constexpr ModuleThreadingType
+    moduleThreadingType()
+    {
+      return ModuleThreadingType::LEGACY;
+    }
 
   private: // TYPES
     using PluginCollection_t =
@@ -158,13 +163,9 @@ namespace art {
     virtual void postSelectProducts();
 
     void doEndJob();
-
     void doRespondToOpenInputFile(FileBlock const& fb);
-
     void doRespondToCloseInputFile(FileBlock const& fb);
-
     void doRespondToOpenOutputFiles(FileBlock const& fb);
-
     void doRespondToCloseOutputFiles(FileBlock const& fb);
 
     bool doBeginRun(RunPrincipal const& rp,
@@ -188,20 +189,15 @@ namespace art {
   private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
            // EndPathExecutor
     void doWriteRun(RunPrincipal& rp);
-
     void doWriteSubRun(SubRunPrincipal& srp);
-
     void doWriteEvent(EventPrincipal& ep);
-
     void doSetRunAuxiliaryRangeSetID(RangeSet const&);
-
     void doSetSubRunAuxiliaryRangeSetID(RangeSet const&);
-
     void doOpenFile(FileBlock const& fb);
 
   protected
     : // MEMBER FUNCTIONS -- Implementation API, intended to be provided by
-      // derived classes.
+    // derived classes.
     std::string workerType() const;
 
     // Tell the OutputModule that it must end the current file.
@@ -225,51 +221,31 @@ namespace art {
     virtual bool requestsToCloseFile() const;
 
     virtual Granularity fileGranularity() const;
-
     virtual void setFileStatus(OutputFileStatus);
-
     virtual void beginJob();
-
     virtual void endJob();
-
     virtual void beginRun(RunPrincipal const&);
-
     virtual void endRun(RunPrincipal const&);
-
     virtual void writeRun(RunPrincipal& r) = 0;
-
     virtual void setRunAuxiliaryRangeSetID(RangeSet const&);
 
     virtual void beginSubRun(SubRunPrincipal const&);
-
     virtual void endSubRun(SubRunPrincipal const&);
-
     virtual void writeSubRun(SubRunPrincipal& sr) = 0;
-
     virtual void setSubRunAuxiliaryRangeSetID(RangeSet const&);
 
     virtual void event(EventPrincipal const&);
-
-    virtual void event_in_stream(EventPrincipal const&, int streamIndex);
-
     virtual void write(EventPrincipal& e) = 0;
 
     virtual void openFile(FileBlock const&);
-
     virtual void respondToOpenInputFile(FileBlock const&);
-
     virtual void readResults(ResultsPrincipal const& resp);
-
     virtual void respondToCloseInputFile(FileBlock const&);
-
     virtual void respondToOpenOutputFiles(FileBlock const&);
-
     virtual void respondToCloseOutputFiles(FileBlock const&);
-
     virtual bool isFileOpen() const;
 
     void updateBranchParents(EventPrincipal& ep);
-
     void fillDependencyGraph();
 
     bool limitReached() const;
@@ -278,25 +254,15 @@ namespace art {
     // pattern, used for implementing doCloseFile() and maybeEndFile().
 
     virtual void startEndFile();
-
     virtual void writeFileFormatVersion();
-
     virtual void writeFileIdentifier();
-
     virtual void writeFileIndex();
-
     virtual void writeEventHistory();
-
     virtual void writeProcessConfigurationRegistry();
-
     virtual void writeProcessHistoryRegistry();
-
     virtual void writeParameterSetRegistry();
-
     virtual void writeBranchIDListRegistry();
-
     virtual void writeParentageRegistry();
-
     virtual void writeProductDescriptionRegistry();
 
     void writeFileCatalogMetadata();
@@ -306,7 +272,6 @@ namespace art {
       FileCatalogMetadata::collection_type const& ssmd);
 
     virtual void writeProductDependencies();
-
     virtual void finishEndFile();
 
     PluginCollection_t makePlugins_(fhicl::ParameterSet const& top_pset);
@@ -359,7 +324,7 @@ namespace art {
     PluginCollection_t plugins_;
   };
 
-  namespace one {
+  namespace shared {
 
     class OutputModule : public art::OutputModule {
 
@@ -373,6 +338,11 @@ namespace art {
       // The module macros need these two.
       using ModuleType = OutputModule;
       using WorkerType = OutputWorker;
+      static constexpr ModuleThreadingType
+      moduleThreadingType()
+      {
+        return ModuleThreadingType::SHARED;
+      }
 
     private: // TYPES
       using PluginCollection_t =
@@ -387,11 +357,8 @@ namespace art {
                             fhicl::ParameterSet const& containing_pset);
 
       OutputModule(OutputModule const&) = delete;
-
       OutputModule(OutputModule&&) = delete;
-
       OutputModule& operator=(OutputModule const&) = delete;
-
       OutputModule& operator=(OutputModule&&) = delete;
 
     private
@@ -400,9 +367,9 @@ namespace art {
       void doBeginJob() override;
     };
 
-  } // namespace one
+  } // namespace shared
 
-  namespace stream {
+  namespace replicated {
 
     class OutputModule : public art::OutputModule {
 
@@ -416,6 +383,11 @@ namespace art {
       // The module macros need these two.
       using ModuleType = OutputModule;
       using WorkerType = OutputWorker;
+      static constexpr ModuleThreadingType
+      moduleThreadingType()
+      {
+        return ModuleThreadingType::REPLICATED;
+      }
 
     private: // TYPES
       using PluginCollection_t =
@@ -430,11 +402,8 @@ namespace art {
                             fhicl::ParameterSet const& containing_pset);
 
       OutputModule(OutputModule const&) = delete;
-
       OutputModule(OutputModule&&) = delete;
-
       OutputModule& operator=(OutputModule const&) = delete;
-
       OutputModule& operator=(OutputModule&&) = delete;
 
     private
@@ -443,50 +412,7 @@ namespace art {
       void doBeginJob() override;
     };
 
-  } // namespace stream
-
-  namespace global {
-
-    class OutputModule : public art::OutputModule {
-
-      // Allow the WorkerT<T> ctor to call setModuleDescription() and
-      // workerType().
-      template <typename T>
-      friend class WorkerT;
-      friend class OutputWorker;
-
-    public: // TYPES
-      // The module macros need these two.
-      using ModuleType = OutputModule;
-      using WorkerType = OutputWorker;
-
-    private: // TYPES
-      using PluginCollection_t =
-        std::vector<std::unique_ptr<FileCatalogMetadataPlugin>>;
-
-    public: // MEMBER FUNCTIONS -- Special Member Functions
-      virtual ~OutputModule() noexcept;
-
-      explicit OutputModule(fhicl::ParameterSet const& pset);
-
-      explicit OutputModule(fhicl::TableFragment<Config> const& pset,
-                            fhicl::ParameterSet const& containing_pset);
-
-      OutputModule(OutputModule const&) = delete;
-
-      OutputModule(OutputModule&&) = delete;
-
-      OutputModule& operator=(OutputModule const&) = delete;
-
-      OutputModule& operator=(OutputModule&&) = delete;
-
-    private
-      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-        // EndPathExecutor
-      void doBeginJob() override;
-    };
-
-  } // namespace global
+  } // namespace replicated
 
 } // namespace art
 

@@ -33,10 +33,10 @@ namespace {
 
 namespace arttest {
 
-  class ToyProductFilterStream : public stream::EDFilter {
+  class ToyProductFilterAsync : public shared::Filter {
 
   public:
-    explicit ToyProductFilterStream(fhicl::ParameterSet const& pset);
+    explicit ToyProductFilterAsync(fhicl::ParameterSet const& pset);
 
   private:
     bool filter(Event& e) override;
@@ -45,21 +45,21 @@ namespace arttest {
     string inputLabel_{};
   };
 
-  ToyProductFilterStream::ToyProductFilterStream(
+  ToyProductFilterAsync::ToyProductFilterAsync(
     fhicl::ParameterSet const& pset)
-    : stream::EDFilter(), inputLabel_(pset.get<std::string>("inputLabel"))
-  {}
+    : inputLabel_(pset.get<std::string>("inputLabel"))
+  {
+    // FIXME: Will end up calling async<Event>();
+  }
 
   bool
-  ToyProductFilterStream::filter(Event& /*e*/)
+  ToyProductFilterAsync::filter(Event& /*e*/)
   {
-    // e.getValidHandle<StringProduct>(inputLabel_);
     double val = 0.0;
     use_cpu_time(val);
-    // cout << val << endl;
-    return 1;
+    return true;
   }
 
 } // namespace arttest
 
-DEFINE_ART_STREAM_MODULE(arttest::ToyProductFilterStream)
+DEFINE_ART_MODULE(arttest::ToyProductFilterAsync)
