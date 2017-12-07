@@ -88,7 +88,7 @@ namespace art {
   void
   EDProducer::doBeginJob()
   {
-    uses(SharedResourcesRegistry::kLegacy);
+    serialize(SharedResourcesRegistry::kLegacy);
     vector<string> names;
     for_each(resourceNames_.cbegin(),
              resourceNames_.cend(),

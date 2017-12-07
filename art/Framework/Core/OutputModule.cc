@@ -221,7 +221,7 @@ namespace art {
   void
   OutputModule::doBeginJob()
   {
-    uses(SharedResourcesRegistry::kLegacy);
+    serialize(SharedResourcesRegistry::kLegacy);
     vector<string> names;
     for_each(resourceNames_.cbegin(),
              resourceNames_.cend(),

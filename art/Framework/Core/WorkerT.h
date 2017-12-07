@@ -31,14 +31,6 @@ namespace art {
     // Note: OutputWorker overrides this.
     WorkerT(T*, ModuleDescription const&, WorkerParams const&);
 
-    // public: // MEMBER FUNCTIONS -- Public API
-
-    // bool
-    // modifiesEvent() const override
-    //{
-    //  return module_->modifiesEvent();
-    //}
-
   protected: // MEMBER FUNCTIONS -- API for implementation classes
     T&
     module()
@@ -89,8 +81,8 @@ namespace art {
     T* module_;
   };
 
-  // This is called directly by the make_worker function created
-  // by the DEFINE_ART_MODULE macro.
+  // This is called directly by the make_worker function created by
+  // the DEFINE_ART_MODULE macro.
   // Note: OutputWorker overrides this.
   template <typename T>
   WorkerT<T>::WorkerT(T* module,
@@ -98,10 +90,9 @@ namespace art {
                       WorkerParams const& wp)
     : Worker{md, wp}, module_{module}
   {
-    // module_->setModuleDescription(md);
     if (wp.streamIndex_ == 0) {
-      // We only want to register the products once,
-      // not once for every stream!
+      // We only want to register the products once, not once for
+      // every stream!
       module_->registerProducts(wp.producedProducts_, md);
     }
   }

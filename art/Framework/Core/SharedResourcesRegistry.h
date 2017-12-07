@@ -16,26 +16,21 @@ namespace art {
 
   // <Singleton>
   class SharedResourcesRegistry {
-
   private: // TYPES
+
     class QueueAndCounter {
 
     public:
+
       ~QueueAndCounter();
-
       QueueAndCounter();
-
       QueueAndCounter(QueueAndCounter const&) = delete;
-
       QueueAndCounter(QueueAndCounter&&) = delete;
-
       QueueAndCounter& operator=(QueueAndCounter const&) = delete;
-
       QueueAndCounter& operator=(QueueAndCounter&&) = delete;
 
     public:
-      std::shared_ptr<hep::concurrency::SerialTaskQueue> queue_{};
-
+      std::shared_ptr<hep::concurrency::SerialTaskQueue> queue_{std::make_shared<hep::concurrency::SerialTaskQueue>()};
       unsigned long counter_{0UL};
     };
 
@@ -46,16 +41,12 @@ namespace art {
     static std::string const kLegacy;
 
   private: // MEMBER FUNCTIONS -- Special Member Functions
+
     ~SharedResourcesRegistry();
-
     SharedResourcesRegistry();
-
     SharedResourcesRegistry(SharedResourcesRegistry const&) = delete;
-
     SharedResourcesRegistry& operator=(SharedResourcesRegistry const&) = delete;
-
     SharedResourcesRegistry(SharedResourcesRegistry&&) = delete;
-
     SharedResourcesRegistry& operator=(SharedResourcesRegistry&&) = delete;
 
   public: // MEMBER FUNCTIONS
@@ -70,11 +61,9 @@ namespace art {
     std::recursive_mutex* getMutexForSource();
 
   private: // MEMBER DATA
-    std::map<std::string, QueueAndCounter> resourceMap_;
-
-    unsigned nLegacy_;
-
-    std::recursive_mutex mutexForSource_;
+    std::map<std::string, QueueAndCounter> resourceMap_{};
+    unsigned nLegacy_{};
+    std::recursive_mutex mutexForSource_{};
   };
 
 } // namespace art

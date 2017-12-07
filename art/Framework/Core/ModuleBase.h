@@ -51,7 +51,9 @@ namespace art {
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
 
   public: // MEMBER FUNCTIONS -- API for one modules
-    void uses(std::string const& resourceName);
+
+    template <typename... T>
+    void serialize(T const&...);
 
     // FIXME: need "async<Level>()" function for opting in to
     // concurrent event processing for a given module.
@@ -99,18 +101,35 @@ namespace art {
     void sortConsumables();
 
   protected: // MEMBER DATA -- For derived classes.
+
     ModuleDescription md_{};
-
     int streamIndex_{};
-
     ModuleThreadingType moduleThreadingType_{};
-
     std::set<std::string> resourceNames_{};
-
     std::unique_ptr<hep::concurrency::SerialTaskQueueChain> chain_{};
-
     std::array<std::vector<ProductInfo>, NumBranchTypes> consumables_{};
+
+  private:
+
+    void serialize_for_resource();
+    void serialize_for_resource(std::string const&);
+
+    template <typename H, typename... T>
+    std::enable_if_t<std::is_same<std::string,H>::value>
+    serialize_for_resource(H const& head, T const&... tail)
+    {
+      serialize_for_resource(head);
+      serialize_for_resource(tail...);
+    }
+
   };
+
+  template <typename... T>
+  void
+  ModuleBase::serialize(T const&... resources)
+  {
+    serialize_for_resource(resources...);
+  }
 
   template <typename T, BranchType BT>
   ProductToken<T>

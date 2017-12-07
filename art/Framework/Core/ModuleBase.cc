@@ -19,7 +19,7 @@
 
 namespace CLHEP {
   class HepRandomEngine;
-} // namespace CLHEP
+}
 
 using namespace hep::concurrency;
 using namespace std;
@@ -66,7 +66,15 @@ namespace art {
   }
 
   void
-  ModuleBase::uses(std::string const& resourceName)
+  ModuleBase::serialize_for_resource()
+  {
+    // This is the situation where a shared module must be serialized,
+    // but only wrt. itself--only one event call at a time.
+    serialize_for_resource(md_.moduleLabel());
+  }
+
+  void
+  ModuleBase::serialize_for_resource(std::string const& resourceName)
   {
     auto posAndSuccess = resourceNames_.emplace(resourceName);
     auto newName = posAndSuccess.second;
