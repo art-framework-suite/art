@@ -15,20 +15,15 @@
 #include <memory>
 #include <set>
 #include <string>
-#include <tuple>
 #include <vector>
 
 namespace CLHEP {
-
   class HepRandomEngine;
-
-} // namespace CLHEP
+}
 
 namespace fhicl {
-
   class ParameterSet;
-
-} // namespace fhicl
+}
 
 namespace art {
 

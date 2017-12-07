@@ -13,22 +13,12 @@
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/HorizontalRule.h"
-#include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/SerialTaskQueueChain.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <array>
-#include <memory>
-#include <set>
-#include <string>
-#include <tuple>
-#include <vector>
-
 namespace CLHEP {
-
   class HepRandomEngine;
-
 } // namespace CLHEP
 
 using namespace hep::concurrency;
