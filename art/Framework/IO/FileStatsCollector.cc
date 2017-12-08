@@ -12,11 +12,12 @@ art::FileStatsCollector::FileStatsCollector(std::string const& moduleLabel,
 void
 art::FileStatsCollector::recordFileOpen()
 {
-  reset_(); // Reset statistics.
+  resetStatistics_();
   if (!inputFilesSeen_.empty()) {
     inputFilesSeen_.emplace_back(lastOpenedInputFile_);
   }
   fo_ = boost::posix_time::second_clock::universal_time();
+  fileCloseRecorded_ = false;
 }
 
 void
@@ -77,7 +78,7 @@ void
 art::FileStatsCollector::recordFileClose()
 {
   fc_ = boost::posix_time::second_clock::universal_time();
-  ++seqNo_;
+  fileCloseRecorded_ = true;
 }
 
 std::vector<std::string>
@@ -97,7 +98,7 @@ art::FileStatsCollector::parents(bool want_basename) const
 }
 
 void
-art::FileStatsCollector::reset_()
+art::FileStatsCollector::resetStatistics_()
 {
   fo_ = fc_ = boost::posix_time::ptime();
   lowestSubRun_ = highestSubRun_ = SubRunID{};

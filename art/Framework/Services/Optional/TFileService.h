@@ -10,6 +10,7 @@
 #include "art/Framework/Core/OutputFileGranularity.h"
 #include "art/Framework/IO/ClosingCriteria.h"
 #include "art/Framework/IO/FileStatsCollector.h"
+#include "art/Framework/IO/PostCloseFileRenamer.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "fhiclcpp/types/Atom.h"
@@ -67,6 +68,7 @@ public:
 private:
   bool const closeFileFast_;
   FileStatsCollector fstats_;
+  PostCloseFileRenamer fRenamer_{fstats_};
   std::string filePattern_;
   std::string uniqueFilename_;
   std::string tmpDir_;

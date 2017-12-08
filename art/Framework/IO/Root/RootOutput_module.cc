@@ -162,6 +162,7 @@ private:
   int inputFileCount_{0};
   std::unique_ptr<RootOutputFile> rootOutputFile_{nullptr};
   FileStatsCollector fstats_;
+  PostCloseFileRenamer fRenamer_{fstats_};
   std::string const filePattern_;
   std::string tmpDir_;
   std::string lastClosedFileName_{};
@@ -434,8 +435,7 @@ art::RootOutput::finishEndFile()
   rootOutputFile_->writeTTrees();
   rootOutputFile_.reset();
   fstats_.recordFileClose();
-  lastClosedFileName_ = PostCloseFileRenamer{fstats_}.maybeRenameFile(
-    currentFileName, filePattern_);
+  lastClosedFileName_ = fRenamer_.maybeRenameFile(currentFileName, filePattern_);
   detail::logFileAction("Closed output file ", lastClosedFileName_);
   rpm_.invoke(&ResultsProducer::doClear);
 }

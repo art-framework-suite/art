@@ -23,8 +23,8 @@ outputs: {
     //
     //   out_r1_1.root : Run 1  SubRun 0  Events: 1 through 7
     //   out_r1_2.root : Run 1  SubRun 0  Events: 8 through 10
-    //   out_r2_3.root : Run 2  SubRun 0  Events: 1 through 7
-    //   out_r2_4.root : Run 2  SubRun 0  Events: 8 through 10
+    //   out_r2_1.root : Run 2  SubRun 0  Events: 1 through 7
+    //   out_r2_2.root : Run 2  SubRun 0  Events: 8 through 10
 
     fileProperties: {
       maxEvents: 7

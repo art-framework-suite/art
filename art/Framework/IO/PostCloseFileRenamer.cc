@@ -16,24 +16,27 @@ art::PostCloseFileRenamer::PostCloseFileRenamer(FileStatsCollector const& stats)
   : stats_{stats}
 {}
 
+// For sanity.  To avoid unintentionally introducing std overloads, we
+// do not make a using declaration for boost::regex.
+using namespace boost::regex_constants;
+using boost::regex_match;
+using boost::regex_search;
+using boost::smatch;
+
+// Do not substitute for the "%(\\d+)?#" pattern here.
 std::string
-art::PostCloseFileRenamer::applySubstitutions(
+art::PostCloseFileRenamer::applySubstitutionsNoIndex_(
   std::string const& filePattern) const
 {
   std::string result; // Empty
-  using namespace boost::regex_constants;
-  using boost::regex;
-  using boost::regex_match;
-  using boost::regex_search;
-  using boost::smatch;
   smatch match;
-  auto sb = filePattern.cbegin(), si = sb, se = filePattern.cend();
+  auto sb = cbegin(filePattern), si = sb, se = cend(filePattern);
   while (regex_search(si,
                       se,
                       match,
-                      regex("%[lp]|%(\\d+)?([#rRsS])|%t([oc])|%if([bnedp])|%"
-                            "ifs%([^%]*)%([^%]*)%([ig]*)%|%.",
-                            ECMAScript))) {
+                      boost::regex{"%[lp]|%(\\d+)?([#rRsS])|%t([oc])|%if([bnedp])|%"
+                                   "ifs%([^%]*)%([^%]*)%([ig]*)%|%.",
+                                   ECMAScript})) {
     // Precondition: that the regex creates the sub-matches we think it
     // should.
     assert(match.size() == 8);
@@ -71,7 +74,7 @@ art::PostCloseFileRenamer::applySubstitutions(
         break;
       default:
         if (match[2].matched) { // [#rRsS]
-          result += subFilledNumeric_(match);
+          result += subFilledNumericNoIndex_(match);
         } else {
           throw Exception(errors::Configuration)
             << "Unrecognized substitution %" << *(match[0].first + 1)
@@ -89,11 +92,6 @@ art::PostCloseFileRenamer::applySubstitutions(
 std::string
 art::PostCloseFileRenamer::subInputFileName_(boost::smatch const& match) const
 {
-  using namespace boost::regex_constants;
-  using bfs::canonical;
-  using bfs::path;
-  using boost::regex;
-  using boost::regex_replace;
   std::string result;
   // If the filename is empty, substitute "-". If it is merely the
   // required substitution that is empty, substitute "".
@@ -154,7 +152,7 @@ art::PostCloseFileRenamer::subInputFileName_(boost::smatch const& match) const
       if (!global) {
         mflags |= format_first_only;
       }
-      regex const dsub{match[5].str(), sflags};
+      boost::regex const dsub{match[5].str(), sflags};
       result = regex_replace(
         stats_.lastOpenedInputFile(), dsub, match[6].str(), mflags);
     } else { // INTERNAL ERROR.
@@ -191,35 +189,46 @@ art::PostCloseFileRenamer::subTimestamp_(boost::smatch const& match) const
 }
 
 std::string
-art::PostCloseFileRenamer::subFilledNumeric_(boost::smatch const& match) const
+art::PostCloseFileRenamer::subFilledNumericNoIndex_(boost::smatch const& match) const
 {
+  bool const did_match = match[1].matched;
+  std::string const format_string = match[1].str();
+  auto zero_fill = [did_match, &format_string](std::ostringstream& os, auto const& num) {
+    if (did_match) {
+      os << std::setfill('0') << std::setw(std::stoul(format_string));
+    }
+    os << num;
+  };
+
   std::string result;
   std::ostringstream num_str;
-  if (match[1].matched) { // Zero-filling.
-    num_str << std::setfill('0') << std::setw(std::stoul(match[1].str()));
-  }
+
   switch (*(match[2].first)) {
     case '#':
-      num_str << stats_.sequenceNum();
+      // In order to get the indexing correct, we cannot yet
+      // substitute the index.  We must wait until the entire filename
+      // as been assembled, with all other substitutions evaluated.
+      // At this point, we need to restore the original pattern.
+      num_str << "%" << match[1].str() << "#";
       break;
     case 'r':
       if (stats_.lowestSubRunID().runID().isValid()) {
-        num_str << stats_.lowestSubRunID().run();
+        zero_fill(num_str, stats_.lowestSubRunID().run());
       }
       break;
     case 'R':
       if (stats_.highestSubRunID().runID().isValid()) {
-        num_str << stats_.highestSubRunID().run();
+        zero_fill(num_str, stats_.highestSubRunID().run());
       }
       break;
     case 's':
       if (stats_.lowestSubRunID().isValid()) {
-        num_str << stats_.lowestSubRunID().subRun();
+        zero_fill(num_str, stats_.lowestSubRunID().subRun());
       }
       break;
     case 'S':
       if (stats_.highestSubRunID().isValid()) {
-        num_str << stats_.highestSubRunID().subRun();
+        zero_fill(num_str, stats_.highestSubRunID().subRun());
       }
       break;
     default: // INTERNAL ERROR.
@@ -230,6 +239,22 @@ art::PostCloseFileRenamer::subFilledNumeric_(boost::smatch const& match) const
     result = "-";
   }
   return result;
+}
+
+std::string
+art::PostCloseFileRenamer::applySubstitutions(std::string const& toPattern)
+{
+  std::string const finalPattern = applySubstitutionsNoIndex_(toPattern);
+  auto const components = detail::componentsFromPattern(finalPattern);
+
+  // Get index for the processed pattern, incrementing if a file-close
+  // has been recorded.
+  auto& index = indexForProcessedPattern_[components];
+  if (stats_.fileCloseRecorded()) {
+    ++index;
+  }
+
+  return components.fileNameWithIndex(index);
 }
 
 std::string
