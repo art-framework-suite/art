@@ -1,6 +1,8 @@
 #include "art/Framework/IO/detail/validateFileNamePattern.h"
 #include "canvas/Utilities/Exception.h"
 
+#include <regex>
+
 void
 art::detail::validateFileNamePattern(bool const do_check,
                                      std::string const& pattern)
@@ -8,7 +10,7 @@ art::detail::validateFileNamePattern(bool const do_check,
   if (!do_check)
     return;
 
-  if (pattern.find("%#") == std::string::npos)
+  if (!std::regex_search(pattern, std::regex("%(\\d*)#")))
     throw Exception(errors::Configuration)
       << "If you have specified the 'fileProperties' table in your "
          "configuration,\n"
