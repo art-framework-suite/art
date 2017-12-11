@@ -31,12 +31,13 @@ art::PostCloseFileRenamer::applySubstitutionsNoIndex_(
   std::string result; // Empty
   smatch match;
   auto sb = cbegin(filePattern), si = sb, se = cend(filePattern);
-  while (regex_search(si,
-                      se,
-                      match,
-                      boost::regex{"%[lp]|%(\\d+)?([#rRsS])|%t([oc])|%if([bnedp])|%"
-                                   "ifs%([^%]*)%([^%]*)%([ig]*)%|%.",
-                                   ECMAScript})) {
+  while (
+    regex_search(si,
+                 se,
+                 match,
+                 boost::regex{"%[lp]|%(\\d+)?([#rRsS])|%t([oc])|%if([bnedp])|%"
+                              "ifs%([^%]*)%([^%]*)%([ig]*)%|%.",
+                              ECMAScript})) {
     // Precondition: that the regex creates the sub-matches we think it
     // should.
     assert(match.size() == 8);
@@ -189,11 +190,13 @@ art::PostCloseFileRenamer::subTimestamp_(boost::smatch const& match) const
 }
 
 std::string
-art::PostCloseFileRenamer::subFilledNumericNoIndex_(boost::smatch const& match) const
+art::PostCloseFileRenamer::subFilledNumericNoIndex_(
+  boost::smatch const& match) const
 {
   bool const did_match = match[1].matched;
   std::string const format_string = match[1].str();
-  auto zero_fill = [did_match, &format_string](std::ostringstream& os, auto const& num) {
+  auto zero_fill = [did_match, &format_string](std::ostringstream& os,
+                                               auto const& num) {
     if (did_match) {
       os << std::setfill('0') << std::setw(std::stoul(format_string));
     }

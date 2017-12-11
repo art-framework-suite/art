@@ -28,8 +28,7 @@ namespace art {
 
     class FileNameComponents {
     public:
-      void add(std::string const& prefix,
-               std::string const& digitFormat);
+      void add(std::string const& prefix, std::string const& digitFormat);
 
       void setSuffix(std::string suffix);
 
@@ -38,7 +37,7 @@ namespace art {
       bool operator<(FileNameComponents const& fnc) const;
 
     private:
-      std::vector<std::pair<std::string,std::string>> components_;
+      std::vector<std::pair<std::string, std::string>> components_;
       std::string suffix_{};
     };
 

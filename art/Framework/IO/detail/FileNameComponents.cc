@@ -35,7 +35,8 @@ namespace art {
       auto b1 = cbegin(components_), e1 = cend(components_);
       auto b2 = cbegin(fnc.components_);
       for (; b1 != e1; ++b1, ++b2) {
-        if (b1->first < b2->first) return true;
+        if (b1->first < b2->first)
+          return true;
       }
       assert(b2 == cend(fnc.components_));
       return false;
@@ -65,7 +66,11 @@ namespace art {
 
       boost::smatch match;
       auto si = cbegin(pattern), se = cend(pattern);
-      while (boost::regex_search(si, se, match, boost::regex{"%(\\d+)?#", boost::regex_constants::ECMAScript})) {
+      while (boost::regex_search(
+        si,
+        se,
+        match,
+        boost::regex{"%(\\d+)?#", boost::regex_constants::ECMAScript})) {
         assert(match.size() == 2);
         // Subexpressions:
         //   0. Entire matched expression
@@ -77,6 +82,5 @@ namespace art {
       result.setSuffix(std::string(si, se));
       return result;
     }
-
   }
 }

@@ -435,7 +435,8 @@ art::RootOutput::finishEndFile()
   rootOutputFile_->writeTTrees();
   rootOutputFile_.reset();
   fstats_.recordFileClose();
-  lastClosedFileName_ = fRenamer_.maybeRenameFile(currentFileName, filePattern_);
+  lastClosedFileName_ =
+    fRenamer_.maybeRenameFile(currentFileName, filePattern_);
   detail::logFileAction("Closed output file ", lastClosedFileName_);
   rpm_.invoke(&ResultsProducer::doClear);
 }
