@@ -74,7 +74,13 @@ namespace art {
         if (wantResolvedOnly_) {
           wantCallFunc = (g.anyProduct() != nullptr);
         } else if (wantPresentOnly_) {
-          wantCallFunc = prov.isPresent();
+          // Unfortunately, there are files in which the product
+          // provenance has not been appropriately stored for dropped
+          // products.  The first check below on the product
+          // provenance pointer is a precondition to calling
+          // prov.isPresent(), getting around this incorrect
+          // persistency behavior.
+          wantCallFunc = (g.productProvenancePtr() != nullptr) && prov.isPresent();
         }
 
         if (wantCallFunc) {
