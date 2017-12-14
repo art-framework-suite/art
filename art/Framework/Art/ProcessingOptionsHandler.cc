@@ -105,24 +105,12 @@ art::ProcessingOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
       throw Exception(errors::Configuration)
         << "Option --threads must greater than or equal to 0.";
     }
-    if (vm["threads"].as<int>() >
-        tbb::task_scheduler_init::default_num_threads()) {
-      throw Exception(errors::Configuration)
-        << tbb::task_scheduler_init::default_num_threads()
-        << " (available machine threads).";
-    }
   }
   if (vm.count("streams")) {
     if (vm["streams"].as<int>() <= 0) {
       throw Exception(errors::Configuration)
         << "Option --streams must be at least 1.\n";
     }
-    // if (vm.count("threads") && (vm["threads"].as<int>() <
-    // vm["streams"].as<int>())) {
-    //  throw Exception(errors::Configuration)
-    //    << "Option --threads must be at least as large as option
-    //    --streams.\n";
-    //}
   }
   return 0;
 }
