@@ -37,13 +37,16 @@ detail::KeptProvenance::insertAncestors(ProductProvenance const& iGetParents,
   }
   auto const& parents = iGetParents.parentage().parents();
   for (auto const pid : parents) {
-    branchesWithStoredHistory_.insert(pid);
     auto info = principal.branchMapper().branchToProductProvenance(pid);
     if (!info || dropMetaData_ != DropMetaData::DropNone) {
       continue;
     }
+    // These two data structures should be in sync.
+    branchesWithStoredHistory_.insert(pid);
+    provenance_.insert(*info).second;
+
     auto const* pd = principal.getForOutput(info->productID(), false).desc();
-    if (pd && pd->produced() && provenance_.insert(*info).second) {
+    if (pd && pd->produced()) {
       // FIXME: Remove recursion!
       insertAncestors(*info, principal);
     }

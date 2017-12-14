@@ -24,6 +24,7 @@
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSetID.h"
 
+#include <cassert>
 #include <iosfwd>
 
 namespace art {
@@ -150,7 +151,9 @@ private:
   ProductProvenance const&
   productProvenance() const
   {
-    return *group_->productProvenancePtr();
+    auto prov = group_->productProvenancePtr();
+    assert(prov != nullptr);
+    return *prov;
   }
 
 }; // Provenance
