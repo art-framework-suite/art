@@ -12,7 +12,7 @@ using namespace std;
 namespace art {
   namespace detail {
 
-    KeptProvenance::~KeptProvenance() {}
+    KeptProvenance::~KeptProvenance() = default;
 
     KeptProvenance::KeptProvenance(DropMetaData const dropMetaData,
                                    bool const dropMetaDataForDroppedData,
@@ -47,24 +47,25 @@ namespace art {
         ProductProvenance const* current_pp = stacked_pp.back();
         stacked_pp.pop_back();
         for (auto const parent_pid : current_pp->parentage().parents()) {
-          branchesWithStoredHistory_.insert(parent_pid);
           auto parent_pp =
             principal.branchMapper().branchToProductProvenance(parent_pid);
           if (!parent_pp || (dropMetaData_ != DropMetaData::DropNone)) {
             continue;
           }
+
+          // These two data structures should be in sync.
+          branchesWithStoredHistory_.insert(parent_pid);
+          provenance_.insert(*parent_pp);
+
           auto const* parent_bd =
             principal.getForOutput(parent_pp->productID(), false).desc();
+
           if (!parent_bd) {
             // FIXME: Is this an error condition?
             continue;
           }
           if (!parent_bd->produced()) {
             // We got it from the input, nothing to do.
-            continue;
-          }
-          if (!provenance_.insert(*parent_pp).second) {
-            // Already there, done.
             continue;
           }
           if ((dropMetaData_ != DropMetaData::DropAll) &&

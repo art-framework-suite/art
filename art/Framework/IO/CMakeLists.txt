@@ -1,4 +1,5 @@
 art_make(LIB_LIBRARIES
+  art_Framework_IO_detail
   canvas
   cetlib_except
   ${Boost_DATE_TIME_LIBRARY}

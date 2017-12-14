@@ -45,15 +45,15 @@ foreach(source EmptyEvent RootInput)
     ${OutputFilePath}/out_r1_sr0_e3.root
     ${OutputFilePath}/out_r1_sr0_e4.root
     ${OutputFilePath}/out_r1_sr0_e5.root
-    ${OutputFilePath}/out_r1_sr1_e6.root
-    ${OutputFilePath}/out_r1_sr1_e7.root
-    ${OutputFilePath}/out_r1_sr1_e8.root
-    ${OutputFilePath}/out_r1_sr1_e9.root
-    ${OutputFilePath}/out_r1_sr1_e10.root
-    ${OutputFilePath}/out_r2_sr0_e11.root
-    ${OutputFilePath}/out_r2_sr0_e12.root
-    ${OutputFilePath}/out_r2_sr0_e13.root
-    ${OutputFilePath}/out_r2_sr0_e14.root
+    ${OutputFilePath}/out_r1_sr1_e1.root
+    ${OutputFilePath}/out_r1_sr1_e2.root
+    ${OutputFilePath}/out_r1_sr1_e3.root
+    ${OutputFilePath}/out_r1_sr1_e4.root
+    ${OutputFilePath}/out_r1_sr1_e5.root
+    ${OutputFilePath}/out_r2_sr0_e1.root
+    ${OutputFilePath}/out_r2_sr0_e2.root
+    ${OutputFilePath}/out_r2_sr0_e3.root
+    ${OutputFilePath}/out_r2_sr0_e4.root
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_Event_t-ref.txt"
     TEST_PROPERTIES DEPENDS MultiOutputProducer${source}_w
     )
@@ -67,8 +67,8 @@ foreach(source EmptyEvent RootInput)
     --range-of-validity
     --file-index
     ${OutputFilePath}/out_r1_sr0_1.root
-    ${OutputFilePath}/out_r1_sr1_2.root
-    ${OutputFilePath}/out_r2_sr0_3.root
+    ${OutputFilePath}/out_r1_sr1_1.root
+    ${OutputFilePath}/out_r2_sr0_1.root
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_SubRun_t-ref.txt"
     TEST_PROPERTIES DEPENDS MultiOutputProducer${source}_w
     )
@@ -82,7 +82,7 @@ foreach(source EmptyEvent RootInput)
     --range-of-validity
     --file-index
     ${OutputFilePath}/out_r1_1.root
-    ${OutputFilePath}/out_r2_2.root
+    ${OutputFilePath}/out_r2_1.root
     REF "${CMAKE_CURRENT_SOURCE_DIR}/MultiOutput_FileIndexCheck_Run_t-ref.txt"
     TEST_PROPERTIES DEPENDS MultiOutputProducer${source}_w
     )
@@ -112,7 +112,7 @@ cet_test(MultiInput_SwitchOutputOnNewInput_w HANDBUILT
   TEST_ARGS
   -c multiInput_SwitchOutputOnNewInput_w.fcl
   -s ${InputFilePath}/out_r1_1.root
-  -s ${InputFilePath}/out_r2_2.root
+  -s ${InputFilePath}/out_r2_1.root
   DATAFILES
   fcl/multiInput_SwitchOutputOnNewInput_w.fcl
   TEST_PROPERTIES DEPENDS MultiOutputProducerEmptyEvent_w
@@ -145,15 +145,15 @@ cet_test(MultiInput_SwitchOutputOnNewInput_w2 HANDBUILT
   -s ${InputFilePath}/out_r1_sr0_e3.root
   -s ${InputFilePath}/out_r1_sr0_e4.root
   -s ${InputFilePath}/out_r1_sr0_e5.root
-  -s ${InputFilePath}/out_r1_sr1_e6.root
-  -s ${InputFilePath}/out_r1_sr1_e7.root
-  -s ${InputFilePath}/out_r1_sr1_e8.root
-  -s ${InputFilePath}/out_r1_sr1_e9.root
-  -s ${InputFilePath}/out_r1_sr1_e10.root
-  -s ${InputFilePath}/out_r2_sr0_e11.root
-  -s ${InputFilePath}/out_r2_sr0_e12.root
-  -s ${InputFilePath}/out_r2_sr0_e13.root
-  -s ${InputFilePath}/out_r2_sr0_e14.root
+  -s ${InputFilePath}/out_r1_sr1_e1.root
+  -s ${InputFilePath}/out_r1_sr1_e2.root
+  -s ${InputFilePath}/out_r1_sr1_e3.root
+  -s ${InputFilePath}/out_r1_sr1_e4.root
+  -s ${InputFilePath}/out_r1_sr1_e5.root
+  -s ${InputFilePath}/out_r2_sr0_e1.root
+  -s ${InputFilePath}/out_r2_sr0_e2.root
+  -s ${InputFilePath}/out_r2_sr0_e3.root
+  -s ${InputFilePath}/out_r2_sr0_e4.root
   DATAFILES
   fcl/multiInput_SwitchOutputOnNewInput_w2.fcl
   TEST_PROPERTIES DEPENDS MultiOutputProducerEmptyEvent_w
@@ -194,15 +194,15 @@ cet_test(MultiInputConcatenate_t HANDBUILT
   -s ${InputFilePath}/out_r1_sr0_e3.root
   -s ${InputFilePath}/out_r1_sr0_e4.root
   -s ${InputFilePath}/out_r1_sr0_e5.root
-  -s ${InputFilePath}/out_r1_sr1_e6.root
-  -s ${InputFilePath}/out_r1_sr1_e7.root
-  -s ${InputFilePath}/out_r1_sr1_e8.root
-  -s ${InputFilePath}/out_r1_sr1_e9.root
-  -s ${InputFilePath}/out_r1_sr1_e10.root
-  -s ${InputFilePath}/out_r2_sr0_e11.root
-  -s ${InputFilePath}/out_r2_sr0_e12.root
-  -s ${InputFilePath}/out_r2_sr0_e13.root
-  -s ${InputFilePath}/out_r2_sr0_e14.root
+  -s ${InputFilePath}/out_r1_sr1_e1.root
+  -s ${InputFilePath}/out_r1_sr1_e2.root
+  -s ${InputFilePath}/out_r1_sr1_e3.root
+  -s ${InputFilePath}/out_r1_sr1_e4.root
+  -s ${InputFilePath}/out_r1_sr1_e5.root
+  -s ${InputFilePath}/out_r2_sr0_e1.root
+  -s ${InputFilePath}/out_r2_sr0_e2.root
+  -s ${InputFilePath}/out_r2_sr0_e3.root
+  -s ${InputFilePath}/out_r2_sr0_e4.root
   DATAFILES
   fcl/empty.fcl
   TEST_PROPERTIES DEPENDS MultiOutputProducerRootInput_w
@@ -255,8 +255,8 @@ cet_test(SwitchOnTwoConditions_FileIndexCheck_t HANDBUILT
   --file-index
   "../SwitchOnTwoConditions_w.d/out_r1_1.root"
   "../SwitchOnTwoConditions_w.d/out_r1_2.root"
-  "../SwitchOnTwoConditions_w.d/out_r2_3.root"
-  "../SwitchOnTwoConditions_w.d/out_r2_4.root"
+  "../SwitchOnTwoConditions_w.d/out_r2_1.root"
+  "../SwitchOnTwoConditions_w.d/out_r2_2.root"
   REF "${CMAKE_CURRENT_SOURCE_DIR}/SwitchOnTwoConditions-ref.txt"
   TEST_PROPERTIES DEPENDS SwitchOnTwoConditions_w
   )

@@ -1066,6 +1066,14 @@ foreach(num 1 2 3 4)
   )
 endforeach()
 
+# Test ProvenanceDumper for dropped products
+cet_test(ProvenanceDumper_DroppedProducts_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c TestProvenanceDumper.fcl -s ../DropOnOutput_wA_01.d/out.root
+  DATAFILES
+  fcl/TestProvenanceDumper.fcl
+  TEST_PROPERTIES DEPENDS DropOnOutput_wA_01)
+
 cet_test(PtrVectorFastClone_w HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- -c "PtrVectorFastClone_w.fcl"

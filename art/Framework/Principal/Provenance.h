@@ -27,6 +27,7 @@
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSetID.h"
 
+#include <cassert>
 #include <iosfwd>
 
 namespace art {
@@ -34,7 +35,7 @@ namespace art {
   class Provenance {
   public:
     // Special Member Functions
-    explicit Provenance() = default;
+    explicit Provenance();
     explicit Provenance(cet::exempt_ptr<Group const> g);
 
     // Full product description
@@ -71,15 +72,14 @@ namespace art {
     std::ostream& write(std::ostream&) const;
 
   private:
+    ProductProvenance const& productProvenance() const;
+
     cet::exempt_ptr<Group const> group_{nullptr};
   };
 
   bool operator==(Provenance const& a, Provenance const& b);
-
   std::ostream& operator<<(std::ostream& os, Provenance const& p);
-
-} // namespace art
-
+}
 #endif /* art_Framework_Principal_Provenance_h */
 
 // Local Variables:

@@ -17,11 +17,9 @@ namespace art {
   // <Singleton>
   class SharedResourcesRegistry {
   private: // TYPES
-
     class QueueAndCounter {
 
     public:
-
       ~QueueAndCounter();
       QueueAndCounter();
       QueueAndCounter(QueueAndCounter const&) = delete;
@@ -30,7 +28,8 @@ namespace art {
       QueueAndCounter& operator=(QueueAndCounter&&) = delete;
 
     public:
-      std::shared_ptr<hep::concurrency::SerialTaskQueue> queue_{std::make_shared<hep::concurrency::SerialTaskQueue>()};
+      std::shared_ptr<hep::concurrency::SerialTaskQueue> queue_{
+        std::make_shared<hep::concurrency::SerialTaskQueue>()};
       unsigned long counter_{0UL};
     };
 
@@ -41,7 +40,6 @@ namespace art {
     static std::string const kLegacy;
 
   private: // MEMBER FUNCTIONS -- Special Member Functions
-
     ~SharedResourcesRegistry();
     SharedResourcesRegistry();
     SharedResourcesRegistry(SharedResourcesRegistry const&) = delete;

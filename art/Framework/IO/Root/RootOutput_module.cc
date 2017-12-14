@@ -180,6 +180,7 @@ namespace art {
     int inputFileCount_{0};
     unique_ptr<RootOutputFile> rootOutputFile_{nullptr};
     FileStatsCollector fstats_;
+    PostCloseFileRenamer fRenamer_{fstats_};
     string const filePattern_;
     string tmpDir_;
     string lastClosedFileName_{};
@@ -452,12 +453,12 @@ namespace art {
   void
   RootOutput::finishEndFile()
   {
-    string const currentFileName{rootOutputFile_->currentFileName()};
+    std::string const currentFileName{rootOutputFile_->currentFileName()};
     rootOutputFile_->writeTTrees();
     rootOutputFile_.reset();
     fstats_.recordFileClose();
-    lastClosedFileName_ = PostCloseFileRenamer{fstats_}.maybeRenameFile(
-      currentFileName, filePattern_);
+    lastClosedFileName_ =
+      fRenamer_.maybeRenameFile(currentFileName, filePattern_);
     detail::logFileAction("Closed output file ", lastClosedFileName_);
     rpm_.invoke(&ResultsProducer::doClear);
   }
@@ -524,27 +525,24 @@ namespace art {
   RootOutput::doOpenFile()
   {
     if (inputFileCount_ == 0) {
-      throw Exception(errors::LogicError)
+      throw art::Exception(art::errors::LogicError)
         << "Attempt to open output file before input file. "
         << "Please report this to the core framework developers.\n";
     }
-    auto filename = unique_filename(tmpDir_ + "/RootOutput");
-    rootOutputFile_ = make_unique<RootOutputFile>(this,
-                                                  filename,
-                                                  fileProperties_,
-                                                  compressionLevel_,
-                                                  saveMemoryObjectThreshold_,
-                                                  treeMaxVirtualSize_,
-                                                  splitLevel_,
-                                                  basketSize_,
-                                                  dropMetaData_,
-                                                  dropMetaDataForDroppedData_,
-                                                  fastCloningEnabled_);
+    rootOutputFile_ =
+      std::make_unique<RootOutputFile>(this,
+                                       unique_filename(tmpDir_ + "/RootOutput"),
+                                       fileProperties_,
+                                       compressionLevel_,
+                                       saveMemoryObjectThreshold_,
+                                       treeMaxVirtualSize_,
+                                       splitLevel_,
+                                       basketSize_,
+                                       dropMetaData_,
+                                       dropMetaDataForDroppedData_,
+                                       fastCloningEnabled_);
     fstats_.recordFileOpen();
-    string msg = "Opened output file ";
-    // msg += filename;
-    msg += " with pattern ";
-    detail::logFileAction(msg.c_str(), filePattern_);
+    detail::logFileAction("Opened output file with pattern ", filePattern_);
   }
 
   string const&

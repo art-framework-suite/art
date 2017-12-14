@@ -45,8 +45,7 @@ namespace arttest {
     string inputLabel_{};
   };
 
-  ToyProductFilterAsync::ToyProductFilterAsync(
-    fhicl::ParameterSet const& pset)
+  ToyProductFilterAsync::ToyProductFilterAsync(fhicl::ParameterSet const& pset)
     : inputLabel_(pset.get<std::string>("inputLabel"))
   {
     // FIXME: Will end up calling async<Event>();

@@ -100,10 +100,11 @@ art::PathManager::PathManager(ParameterSet const& procPS,
   {
     ostringstream es;
     int idx = 0;
-    for (auto const& path_table_name : std::vector<std::string> {"physics.producers"s,
-          "physics.filters"s,
-          "physics.analyzers"s,
-          "outputs"s}) {
+    for (auto const& path_table_name :
+         std::vector<std::string>{"physics.producers"s,
+                                  "physics.filters"s,
+                                  "physics.analyzers"s,
+                                  "outputs"s}) {
       ++idx;
       auto module_type = static_cast<ModuleType>(idx);
       for (auto const& module_label :

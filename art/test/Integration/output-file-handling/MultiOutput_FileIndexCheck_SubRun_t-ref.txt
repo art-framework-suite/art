@@ -26,7 +26,7 @@ and Events stored in the root file.
               1              0              5              4
 
 <separator (=)>
-File: out_r1_sr1_2.root
+File: out_r1_sr1_1.root
 Representation: full (default)
 <separator (-)>
  Run: 1
@@ -53,7 +53,7 @@ and Events stored in the root file.
               1              1              5              4
 
 <separator (=)>
-File: out_r2_sr0_3.root
+File: out_r2_sr0_1.root
 Representation: full (default)
 <separator (-)>
  Run: 2

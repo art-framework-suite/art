@@ -153,8 +153,7 @@ TFileService::closeFile_()
   file_ = nullptr;
   status_ = OutputFileStatus::Closed;
   fstats_.recordFileClose();
-  lastClosedFile_ = PostCloseFileRenamer{fstats_}.maybeRenameFile(
-    uniqueFilename_, filePattern_);
+  lastClosedFile_ = fRenamer_.maybeRenameFile(uniqueFilename_, filePattern_);
 }
 
 void

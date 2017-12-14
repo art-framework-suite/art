@@ -1,6 +1,12 @@
 #ifndef art_Framework_IO_FileStatsCollector_h
 #define art_Framework_IO_FileStatsCollector_h
 
+//===============================================================
+// The FileStatsCollector stores only the information required to
+// assemble the final name of the file.  It does not assemble the
+// filename itself--that is the role of the PostCloseFileRenamer.
+//===============================================================
+
 #include "boost/date_time/posix_time/posix_time_types.hpp"
 #include "canvas/Persistency/Provenance/EventID.h"
 
@@ -35,12 +41,12 @@ public:
   EventID const& highestEventID() const;
   std::string const& lastOpenedInputFile() const;
   std::vector<std::string> parents(bool want_basename = true) const;
-  std::size_t sequenceNum() const;
+  bool fileCloseRecorded() const;
   std::size_t eventsThisFile() const;
   std::set<SubRunID> const& seenSubRuns() const;
 
 private:
-  void reset_(); // Reset statistics without renaming.
+  void resetStatistics_(); // Does not rename.
 
   std::string const moduleLabel_;
   std::string const processName_;
@@ -50,7 +56,7 @@ private:
   EventID highestEventIDSeen_{};
   boost::posix_time::ptime fo_{};
   boost::posix_time::ptime fc_{};
-  std::size_t seqNo_{};
+  bool fileCloseRecorded_{false};
   std::string lastOpenedInputFile_{};
   std::vector<std::string> inputFilesSeen_{};
   std::size_t nEvents_{};
@@ -111,10 +117,10 @@ art::FileStatsCollector::lastOpenedInputFile() const
   return lastOpenedInputFile_;
 }
 
-inline std::size_t
-art::FileStatsCollector::sequenceNum() const
+inline bool
+art::FileStatsCollector::fileCloseRecorded() const
 {
-  return seqNo_;
+  return fileCloseRecorded_;
 }
 
 inline std::size_t

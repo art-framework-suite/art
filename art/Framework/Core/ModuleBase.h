@@ -51,7 +51,6 @@ namespace art {
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
 
   public: // MEMBER FUNCTIONS -- API for one modules
-
     template <typename... T>
     void serialize(T const&...);
 
@@ -101,7 +100,6 @@ namespace art {
     void sortConsumables();
 
   protected: // MEMBER DATA -- For derived classes.
-
     ModuleDescription md_{};
     int streamIndex_{};
     ModuleThreadingType moduleThreadingType_{};
@@ -110,18 +108,16 @@ namespace art {
     std::array<std::vector<ProductInfo>, NumBranchTypes> consumables_{};
 
   private:
-
     void serialize_for_resource();
     void serialize_for_resource(std::string const&);
 
     template <typename H, typename... T>
-    std::enable_if_t<std::is_same<std::string,H>::value>
+    std::enable_if_t<std::is_same<std::string, H>::value>
     serialize_for_resource(H const& head, T const&... tail)
     {
       serialize_for_resource(head);
       serialize_for_resource(tail...);
     }
-
   };
 
   template <typename... T>
