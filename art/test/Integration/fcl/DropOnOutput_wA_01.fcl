@@ -1,31 +1,23 @@
 process_name: DOO
 
-source:
-{
+source: {
   module_type: RootInput
   fileNames: [ "../Ptrmv_w.d/out.root" ]
 }
 
-physics:
-{
-  producers:
-  {
-    parentageFaker:
-    {
+physics: {
+  producers: {
+    parentageFaker: {
       module_type: DropTestParentageFaker
       input_label: ptrmvWriter
     }
   }
   p1: [ parentageFaker ]
-  trigger_paths: [ p1 ]
   e1: [ o1 ]
-  end_paths: [ e1 ]
 }
 
-outputs:
-{
-  o1:
-  {
+outputs: {
+  o1: {
     module_type: RootOutput
     outputCommands: [ "keep *", "drop Stringart::Ptr_ptrmvWriter__PtrmvW" ]
     fileName: "out.root"

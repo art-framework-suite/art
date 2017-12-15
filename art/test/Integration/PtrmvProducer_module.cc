@@ -22,18 +22,20 @@ namespace arttest {
 }
 
 namespace {
-  typedef cet::map_vector<std::string> mv_t;
-  typedef typename mv_t::value_type mvp_t;
+  using mv_t = cet::map_vector<std::string>;
+  using mvp_t = mv_t::value_type;
 }
 
 class arttest::PtrmvProducer : public art::EDProducer {
 public:
-  explicit PtrmvProducer(fhicl::ParameterSet const& p);
+  struct Config {};
+  using Parameters = Table<Config>;
+  explicit PtrmvProducer(Parameters const&);
 
   void produce(art::Event& e) override;
 };
 
-arttest::PtrmvProducer::PtrmvProducer(fhicl::ParameterSet const&)
+arttest::PtrmvProducer::PtrmvProducer(Parameters const&)
 {
   produces<mv_t>();
   produces<art::Ptr<std::string>>();

@@ -1,19 +1,14 @@
 process_name: PtrmvW
 
-physics:
-{
-  producers:
-  {
-    ptrmvWriter:
-    {
+physics: {
+  producers: {
+    ptrmvWriter: {
       module_type: PtrmvProducer
     }
   }
 
-  analyzers:
-  {
-    ptrmvReader:
-    {
+  analyzers: {
+    ptrmvReader: {
       module_type: PtrmvAnalyzer
       input_label: ptrmvWriter
     }
@@ -23,17 +18,14 @@ physics:
   e1: [ ptrmvReader, o1 ]
 }
 
-outputs:
-{
-  o1:
-  {
+outputs: {
+  o1: {
     module_type: RootOutput
     fileName: "out.root"
   }
 }
 
-source:
-{
+source: {
   module_type: EmptyEvent
   maxEvents: 1
 }

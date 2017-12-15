@@ -55,6 +55,7 @@ simple_plugin(GeneratorTest               "source"  NO_INSTALL)
 simple_plugin(ImplicitRSAssignmentAnalyzer "module" NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(ImplicitRSAssignmentProducer "module" NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(IntProducer                 "module"  NO_INSTALL)
+simple_plugin(IntReaderThenProducer       "module"  NO_INSTALL)
 simple_plugin(IntTestAnalyzer             "module"  NO_INSTALL)
 simple_plugin(IntVectorAnalyzer           "module"  NO_INSTALL)
 simple_plugin(IntVectorProducer           "module"  NO_INSTALL)
@@ -1035,8 +1036,38 @@ foreach(num 1 2 3 4)
   )
 endforeach()
 
+cet_test(IntProducer_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  --rethrow-all
+  -c IntProducer_t.fcl
+  -o out.root
+  --process-name MakeInt
+  DATAFILES
+  fcl/IntProducer_t.fcl)
+
+cet_test(DropOnOutput_IntProduct_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all
+  -c IntReaderThenProducer_t.fcl
+  -s ../IntProducer_t.d/out.root
+  --process-name ReadThenMakeInt
+  DATAFILES
+  fcl/IntReaderThenProducer_t.fcl
+  TEST_PROPERTIES DEPENDS IntProducer_t)
+
 # Test ProvenanceDumper for dropped products
-cet_test(ProvenanceDumper_DroppedProducts_t HANDBUILT
+# Check when an IntProduct has been dropped
+cet_test(ProvenanceDumper_DroppedProducts_t1 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c TestProvenanceDumper.fcl -s ../DropOnOutput_IntProduct_t.d/out.root
+  DATAFILES
+  fcl/TestProvenanceDumper.fcl
+  TEST_PROPERTIES DEPENDS DropOnOutput_IntProduct_t)
+
+# Test ProvenanceDumper for dropped products
+# Check when an art::Ptr has been dropped
+cet_test(ProvenanceDumper_DroppedProducts_t2 HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c TestProvenanceDumper.fcl -s ../DropOnOutput_wA_01.d/out.root
   DATAFILES
