@@ -178,7 +178,7 @@ MPRGlobalTestFixture::registerProduct(std::string const& tag,
   moduleDescriptions_[tag] = localModuleDescription;
   BranchDescription pd{
     InEvent,
-    TypeLabel{product_type, productInstanceName, SupportsView<T>::value},
+    TypeLabel{product_type, productInstanceName, SupportsView<T>::value, false},
     localModuleDescription};
   descriptions_.emplace_back(pd);
   availableProducts_.addProductsFromModule({std::move(pd)});

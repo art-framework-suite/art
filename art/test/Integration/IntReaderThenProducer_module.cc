@@ -21,7 +21,6 @@ namespace arttest {
   class IntReaderThenProducer;
 }
 
-
 class arttest::IntReaderThenProducer : public art::EDProducer {
 public:
   struct Config {
@@ -29,31 +28,31 @@ public:
     fhicl::Atom<int> deltaValue{fhicl::Name{"deltaValue"}};
   };
   using Parameters = Table<Config>;
-  explicit IntReaderThenProducer(Parameters const & p);
+  explicit IntReaderThenProducer(Parameters const& p);
 
   // Plugins should not be copied or assigned.
-  IntReaderThenProducer(IntReaderThenProducer const &) = delete;
-  IntReaderThenProducer(IntReaderThenProducer &&) = delete;
-  IntReaderThenProducer & operator = (IntReaderThenProducer const &) = delete;
-  IntReaderThenProducer & operator = (IntReaderThenProducer &&) = delete;
+  IntReaderThenProducer(IntReaderThenProducer const&) = delete;
+  IntReaderThenProducer(IntReaderThenProducer&&) = delete;
+  IntReaderThenProducer& operator=(IntReaderThenProducer const&) = delete;
+  IntReaderThenProducer& operator=(IntReaderThenProducer&&) = delete;
 
   // Required functions.
-  void produce(art::Event & e) override;
+  void produce(art::Event& e) override;
 
 private:
   art::ProductToken<arttest::IntProduct> const token_;
   int const deltaValue_;
 };
 
-
-arttest::IntReaderThenProducer::IntReaderThenProducer(Parameters const & p)
+arttest::IntReaderThenProducer::IntReaderThenProducer(Parameters const& p)
   : token_{consumes<arttest::IntProduct>(p().inputTag())}
   , deltaValue_{p().deltaValue()}
 {
   produces<arttest::IntProduct>();
 }
 
-void arttest::IntReaderThenProducer::produce(art::Event & e)
+void
+arttest::IntReaderThenProducer::produce(art::Event& e)
 {
   // getValidHandle adds parent for the about-to-be-created IntProduct.
   auto const ivalue = e.getValidHandle(token_)->value;

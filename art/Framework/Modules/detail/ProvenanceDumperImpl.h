@@ -80,7 +80,8 @@ namespace art {
           // provenance pointer is a precondition to calling
           // prov.isPresent(), getting around this incorrect
           // persistency behavior.
-          wantCallFunc = (g.productProvenancePtr() != nullptr) && prov.isPresent();
+          wantCallFunc =
+            (g.productProvenancePtr() != nullptr) && prov.isPresent();
         }
 
         if (wantCallFunc) {

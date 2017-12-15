@@ -118,7 +118,8 @@ MPRGlobalTestFixture::fake_single_process_branch(
     art::InEvent,
     art::TypeLabel{dummyType,
                    productInstanceName,
-                   art::SupportsView<arttest::DummyProduct>::value},
+                   art::SupportsView<arttest::DummyProduct>::value,
+                   false},
     mod};
   branchKeys_.emplace(tag, art::BranchKey{result});
   return result;

@@ -31,6 +31,7 @@ namespace art {
 
   class ProducerBase : private ProductRegistryHelper {
   public:
+    using ProductRegistryHelper::ProductFlavor;
     using ProductRegistryHelper::expectedProducts;
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::registerProducts;

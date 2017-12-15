@@ -87,6 +87,8 @@ public:
     productList_.reset(p);
   }
 
+  enum class ProductFlavor { Persistable, InMemoryOnly };
+
   void registerProducts(MasterProductRegistry& mpr,
                         ProductDescriptions& producedProducts,
                         ModuleDescription const& md);
@@ -94,7 +96,8 @@ public:
   // Record the production of an object of type P, with optional
   // instance name, in the Event (by default), Run, or SubRun.
   template <typename P, BranchType B = InEvent>
-  void produces(std::string const& instanceName = {});
+  void produces(std::string const& instanceName = {},
+                ProductFlavor const flavor = ProductFlavor::Persistable);
 
   // Record the reconstitution of an object of type P, in either the
   // Run, SubRun, or Event, recording that this object was
@@ -136,13 +139,16 @@ private:
 
 template <typename P, art::BranchType B>
 inline void
-art::ProductRegistryHelper::produces(std::string const& instanceName)
+art::ProductRegistryHelper::produces(std::string const& instanceName,
+                                     ProductFlavor const flavor)
 {
   verifyInstanceName(instanceName);
   TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  insertOrThrow(B,
-                TypeLabel{productType, instanceName, SupportsView<P>::value});
+  bool const isTransient = (flavor == ProductFlavor::InMemoryOnly);
+  insertOrThrow(
+    B,
+    TypeLabel{productType, instanceName, SupportsView<P>::value, isTransient});
 }
 
 template <typename P, art::BranchType B>
