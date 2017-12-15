@@ -10,7 +10,7 @@ art::ResultsProducer::doWriteResults(ResultsPrincipal& resp)
 {
   Results res{resp, *moduleDescription_, this};
   writeResults(res);
-  res.commit_(resp);
+  res.commit(resp);
 }
 
 void

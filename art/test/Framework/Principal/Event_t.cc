@@ -81,7 +81,7 @@ namespace art {
     static void
     commitEvent(EventPrincipal& ep, Event& e)
     {
-      e.commit_(ep, false, std::set<TypeLabel>{});
+      e.commit(ep, false, std::set<TypeLabel>{});
     }
   };
 }

@@ -15,7 +15,7 @@ art::Results::productGetter(ProductID const pid) const
 }
 
 void
-art::Results::commit_(ResultsPrincipal& resp)
+art::Results::commit(ResultsPrincipal& resp)
 {
   for (auto& elem : putProducts()) {
     auto const& pd = elem.second.pd;

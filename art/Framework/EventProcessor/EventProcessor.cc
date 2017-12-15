@@ -131,6 +131,8 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
   serviceToken_.forceCreation();
 
   std::string const& processName{pset.get<std::string>("process_name")};
+  ProcessConfiguration const pc{processName, pset.id(), getReleaseVersion()};
+  serviceToken_.registerProducts(preg_, productsToProduce_, psSignals_, pc);
 
   // Services
   // System service FileCatalogMetadata needs to know about the process name.
@@ -704,13 +706,16 @@ art::EventProcessor::readRun()
   {
     actReg_.sPreSourceRun.invoke();
     runPrincipal_ = input_->readRun();
-    runPrincipal_->setProducedProducts(producedProducts_.get(InRun));
-    Run const r{
-      *runPrincipal_, ModuleDescription{}, Consumer::non_module_context()};
-    actReg_.sPostSourceRun.invoke(r);
+    // Seeding the RangeSet is necessary here in case
+    // 'sPostReadRun.invoke()' throws.
+    endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
+    assert(runPrincipal_);
+    psSignals_.sPostReadRun.invoke(*runPrincipal_);
   }
-  endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
-  assert(runPrincipal_);
+  runPrincipal_->setProducedProducts(producedProducts_.get(InRun));
+  Run const r{
+    *runPrincipal_, ModuleDescription{}, Consumer::non_module_context()};
+  actReg_.sPostSourceRun.invoke(r);
   FDEBUG(1) << spaces(8) << "readRun.....................("
             << runPrincipal_->id() << ")\n";
 }
@@ -781,13 +786,16 @@ art::EventProcessor::readSubRun()
   {
     actReg_.sPreSourceSubRun.invoke();
     subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
-    subRunPrincipal_->setProducedProducts(producedProducts_.get(InSubRun));
-    SubRun const sr{
-      *subRunPrincipal_, ModuleDescription{}, Consumer::non_module_context()};
-    actReg_.sPostSourceSubRun.invoke(sr);
+    // Seeding the RangeSet is necessary here in case
+    // 'sPostSubRun.invoke()' throws.
+    endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
+    assert(subRunPrincipal_);
+    psSignals_.sPostReadSubRun.invoke(*subRunPrincipal_);
   }
-  endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
-  assert(subRunPrincipal_);
+  subRunPrincipal_->setProducedProducts(producedProducts_.get(InSubRun));
+  SubRun const sr{
+    *subRunPrincipal_, ModuleDescription{}, Consumer::non_module_context()};
+  actReg_.sPostSourceSubRun.invoke(sr);
   FDEBUG(1) << spaces(8) << "readSubRun..................("
             << subRunPrincipal_->id() << ")\n";
 }
@@ -860,12 +868,13 @@ art::EventProcessor::readEvent()
   {
     actReg_.sPreSourceEvent.invoke();
     eventPrincipal_ = input_->readEvent(subRunPrincipal_.get());
-    eventPrincipal_->setProducedProducts(producedProducts_.get(InEvent));
-    Event const e{
-      *eventPrincipal_, ModuleDescription{}, Consumer::non_module_context()};
-    actReg_.sPostSourceEvent.invoke(e);
+    assert(eventPrincipal_);
+    psSignals_.sPostReadEvent.invoke(*eventPrincipal_);
   }
-  assert(eventPrincipal_);
+  eventPrincipal_->setProducedProducts(producedProducts_.get(InEvent));
+  Event const e{
+    *eventPrincipal_, ModuleDescription{}, Consumer::non_module_context()};
+  actReg_.sPostSourceEvent.invoke(e);
   FDEBUG(1) << spaces(8) << "readEvent...................("
             << eventPrincipal_->id() << ")\n";
 }

@@ -20,6 +20,7 @@
 #include "canvas/Utilities/TypeID.h"
 
 #include <memory>
+#include <set>
 #include <utility>
 
 namespace art {
@@ -110,21 +111,21 @@ public:
 
   EDProductGetter const* productGetter(ProductID const pid) const;
 
+  // In principle, the principal (heh, heh) need not be a function
+  // argument since this class already keeps an internal reference to
+  // it.  However, since the 'commit' function is public, requiring
+  // the principal as an argument prevents a commit from being called
+  // inappropriately.
+  void commit(RunPrincipal& rp,
+              bool const checkProducts,
+              std::set<TypeLabel> const& expectedProducts);
+
+  void commit(RunPrincipal&);
+
   template <typename T>
   using HandleT = Handle<T>;
 
 private:
-  // commit_() is called to complete the transaction represented by
-  // this DataViewImpl. The friendships required are gross, but any
-  // alternative is not great either.  Putting it into the
-  // public interface is asking for trouble
-  friend class InputSource;
-  friend class DecrepitRelicInputSourceImplementation;
-  friend class EDFilter;
-  friend class EDProducer;
-
-  void commit_(RunPrincipal&);
-
   /// Put a new product with a 'product instance name' and a 'range set'
   template <typename PROD>
   art::ProductID put_(std::unique_ptr<PROD>&& product,

@@ -12,6 +12,7 @@
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib_except/demangle.h"
@@ -28,6 +29,9 @@ namespace cet {
 
 namespace art {
   class ActivityRegistry;
+  class MasterProductRegistry;
+  class ProcessConfiguration;
+  class ProducingServiceSignals;
   class ServicesManager;
 }
 
@@ -83,6 +87,11 @@ public:
 
   // using 'reg'.  The order of creation will be the registration order.
   void forceCreation();
+
+  void registerProducts(MasterProductRegistry& mpr,
+                        ProductDescriptions& productsToProduce,
+                        ProducingServiceSignals& signals,
+                        ProcessConfiguration const& pc);
 
   void getParameterSets(ParameterSets& out) const;
 

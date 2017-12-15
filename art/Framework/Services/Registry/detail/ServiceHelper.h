@@ -27,6 +27,10 @@
 
 #include <memory>
 
+namespace fhicl {
+  class ParameterSet;
+}
+
 namespace art {
   namespace detail {
     struct ServiceHelperBase;

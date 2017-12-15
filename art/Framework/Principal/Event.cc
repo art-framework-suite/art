@@ -46,6 +46,13 @@ namespace art {
 
   Event::Event(EventPrincipal const& ep,
                ModuleDescription const& md,
+               cet::exempt_ptr<Consumer> consumer,
+               RangeSet const&)
+    : Event{ep, md, consumer}
+  {}
+
+  Event::Event(EventPrincipal const& ep,
+               ModuleDescription const& md,
                cet::exempt_ptr<Consumer> consumer)
     : DataViewImpl{ep, md, InEvent, record_parents(this), consumer}
     , aux_{ep.aux()}
@@ -111,9 +118,9 @@ namespace art {
   }
 
   void
-  Event::commit_(EventPrincipal& ep,
-                 bool const checkProducts,
-                 std::set<TypeLabel> const& expectedProducts)
+  Event::commit(EventPrincipal& ep,
+                bool const checkProducts,
+                std::set<TypeLabel> const& expectedProducts)
   {
     // Check addresses only since type of 'ep' will hopefully change to
     // Principal&.

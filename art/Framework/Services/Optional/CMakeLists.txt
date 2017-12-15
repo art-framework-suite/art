@@ -1,7 +1,6 @@
 set(art_Framework_Services_Optional_sources
   TFileDirectory.cc
-  detail/RootDirectorySentry.cc
-)
+  detail/RootDirectorySentry.cc)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(MemoryTrackerSource MemoryTrackerLinux_service.cc)
@@ -20,10 +19,9 @@ art_make_library(SOURCE ${art_Framework_Services_Optional_sources}
   ${Boost_REGEX_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   art_Framework_Services_Registry
-  art_Persistency_Provenance canvas
   art_Utilities
-  cetlib
-)
+  canvas
+  cetlib)
 
 simple_plugin(RandomNumberGenerator "service"
   art_Framework_Principal
@@ -31,20 +29,17 @@ simple_plugin(RandomNumberGenerator "service"
   MF_MessageLogger
   MF_Utilities
   cetlib
-  ${CLHEP}
-  )
+  ${CLHEP})
 
 simple_plugin(MemoryAdjuster "service"
-  art_Framework_Services_Optional
-  )
+  art_Framework_Services_Optional)
 
 basic_plugin(MemoryTracker "service"
   art_Framework_Services_Optional
-  art_Persistency_Provenance canvas
+  canvas
   cetlib
   ${SQLITE3}
-  SOURCE ${MemoryTrackerSource}
-  )
+  SOURCE ${MemoryTrackerSource})
 
 simple_plugin(TFileService "service"
   art_Framework_Services_System_TriggerNamesService_service
@@ -58,17 +53,15 @@ simple_plugin(TFileService "service"
   ${ROOT_TREE})
 
 simple_plugin(TimeTracker "service"
-  art_Persistency_Provenance canvas
+  art_Framework_Principal
+  canvas
   cetlib
   ${TBB}
   ${RT}
-  ${SQLITE3}
-  )
+  ${SQLITE3})
 
-simple_plugin(Tracer "service" art_Persistency_Provenance canvas)
-
+simple_plugin(Tracer "service" canvas)
 simple_plugin(TrivialFileDelivery "service")
-
 simple_plugin(TrivialFileTransfer "service")
 
 install_headers(SUBDIRS detail)

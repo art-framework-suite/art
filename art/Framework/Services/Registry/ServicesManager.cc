@@ -6,6 +6,7 @@
 
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/LibraryManager.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/detail/validationException.h"
@@ -50,6 +51,48 @@ art::ServicesManager::forceCreation()
       c->second.forceCreation(registry_);
     }
     // JBK - should an exception be thrown if name not found in map?
+  }
+}
+
+void
+art::ServicesManager::registerProducts(MasterProductRegistry& mpr,
+                                       ProductDescriptions& productsToProduce,
+                                       ProducingServiceSignals& signals,
+                                       ProcessConfiguration const& pc)
+{
+  for (auto& pr : factory_) {
+    auto& serviceEntry = pr.second;
+
+    // Per-schedule services cannot register products
+    if (serviceEntry.serviceScope() == ServiceScope::PER_SCHEDULE)
+      continue;
+
+    // Service interfaces cannot be used for product insertion.
+    if (serviceEntry.is_interface())
+      continue;
+
+    // Check if a service_provider parameter exists--this will become
+    // the "module name/label" for the ModuleDescription object.
+    auto const& pset = serviceEntry.getParameterSet();
+    std::string moduleLabel{};
+    if (pset.has_key("service_provider")) {
+      moduleLabel = pset.get<std::string>("service_provider");
+    } else if (pset.has_key("service_type")) {
+      moduleLabel = pset.get<std::string>("service_type");
+    } else {
+      // System services have no "service_provider" or "service_type"
+      // configuration parameters.  They also cannot be used for
+      // product insertion.
+      //
+      // Remove "art::" namespace.
+      auto const className = pr.first.className();
+      auto pos = className.find_last_of(":");
+      moduleLabel = className.substr(pos + 1);
+      continue;
+    }
+
+    ModuleDescription const md{pset.id(), moduleLabel, moduleLabel, pc};
+    serviceEntry.registerProducts(mpr, productsToProduce, signals, md);
   }
 }
 

@@ -59,20 +59,17 @@ public:
 
   EDProductGetter const* productGetter(ProductID const pid) const;
 
+  // In principle, the principal (heh, heh) need not be a function
+  // argument since this class already keeps an internal reference to
+  // it.  However, since the 'commit' function is public, requiring
+  // the principal as an argument prevents a commit from being called
+  // inappropriately.
+  void commit(ResultsPrincipal&);
+
   template <typename T>
   using HandleT = Handle<T>;
 
 private:
-  // commit_() is called to complete the transaction represented by
-  // this DataViewImpl. The friendships required are gross, but any
-  // alternative is not great either.  Putting it into the public
-  // interface is asking for trouble
-  friend class InputSource;
-  friend class DecrepitRelicInputSourceImplementation;
-  friend class ResultsProducer;
-
-  void commit_(ResultsPrincipal&);
-
   Principal const& principal_;
 };
 

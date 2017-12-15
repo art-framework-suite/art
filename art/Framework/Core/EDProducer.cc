@@ -23,7 +23,7 @@ namespace art {
     Event e{ep, moduleDescription_, this};
     counts.increment<stats::Run>();
     produce(e);
-    e.commit_(ep, checkPutProducts_, expectedProducts());
+    e.commit(ep, checkPutProducts_, expectedProducts());
     counts.increment<stats::Passed>();
     return true;
   }
@@ -58,7 +58,7 @@ namespace art {
     detail::CPCSentry sentry{current_context_, cpc};
     Run r{rp, moduleDescription_, this, RangeSet::forRun(rp.id())};
     beginRun(r);
-    r.commit_(rp);
+    r.commit(rp);
     return true;
   }
 
@@ -68,7 +68,7 @@ namespace art {
     detail::CPCSentry sentry{current_context_, cpc};
     Run r{rp, moduleDescription_, this, rp.seenRanges()};
     endRun(r);
-    r.commit_(rp);
+    r.commit(rp);
     return true;
   }
 
@@ -78,7 +78,7 @@ namespace art {
     detail::CPCSentry sentry{current_context_, cpc};
     SubRun sr{srp, moduleDescription_, this, RangeSet::forSubRun(srp.id())};
     beginSubRun(sr);
-    sr.commit_(srp);
+    sr.commit(srp);
     return true;
   }
 
@@ -88,7 +88,7 @@ namespace art {
     detail::CPCSentry sentry{current_context_, cpc};
     SubRun sr{srp, moduleDescription_, this, srp.seenRanges()};
     endSubRun(sr);
-    sr.commit_(srp);
+    sr.commit(srp);
     return true;
   }
 

@@ -20,6 +20,8 @@
 namespace art {
   // Forward declaration
   class ActivityRegistry;
+  class ModuleDescription;
+  class ProducingService;
 
   namespace detail {
 
@@ -43,6 +45,11 @@ namespace art {
                      std::shared_ptr<T>>
     makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
     {
+      static_assert(
+        !std::is_base_of<ProducingService, T>::value,
+        "\n\nart-error: A service that inherits from art::ProducingService\n"
+        "           cannot have a constructor that takes an ActivityRegistry&\n"
+        "           argument.  Contact artists@fnal.gov for guidance.\n");
       return std::make_shared<T>(ps, areg);
     }
 
@@ -98,6 +105,35 @@ public:
   }
 
 private:
+  template <typename U = T>
+  std::enable_if_t<std::is_base_of<ProducingService, U>::value>
+  doRegisterProducts(MasterProductRegistry& mpr,
+                     ProductDescriptions& productsToProduce,
+                     ProducingServiceSignals& signals,
+                     ModuleDescription const& md)
+  {
+    service_ptr_->registerCallbacks(signals);
+    service_ptr_->setModuleDescription(md);
+    service_ptr_->registerProducts(mpr, productsToProduce, md);
+  }
+
+  template <typename U = T>
+  std::enable_if_t<!std::is_base_of<ProducingService, U>::value>
+  doRegisterProducts(MasterProductRegistry&,
+                     ProductDescriptions&,
+                     ProducingServiceSignals&,
+                     ModuleDescription const&)
+  {}
+
+  void
+  registerProducts(MasterProductRegistry& mpr,
+                   ProductDescriptions& productsToProduce,
+                   ProducingServiceSignals& signals,
+                   ModuleDescription const& md) override
+  {
+    doRegisterProducts(mpr, productsToProduce, signals, md);
+  }
+
   std::shared_ptr<T> service_ptr_;
 
 }; // ServiceWrapper<T, ServiceScope>
@@ -160,6 +196,14 @@ public:
   }
 
 private:
+  // No products can be registered for per-schedule services.
+  void
+  registerProducts(MasterProductRegistry&,
+                   ProductDescriptions&,
+                   ProducingServiceSignals&,
+                   ModuleDescription const&) override
+  {}
+
   std::vector<std::shared_ptr<T>> service_ptrs_{};
 };
 

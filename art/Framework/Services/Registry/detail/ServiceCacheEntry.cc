@@ -120,3 +120,13 @@ art::detail::ServiceCacheEntry::makeAndCacheService(ActivityRegistry& reg) const
       << cet::demangle_symbol(helper_->get_typeid().name()) << ":\n";
   }
 }
+
+void
+art::detail::ServiceCacheEntry::registerProducts(
+  MasterProductRegistry& mpr,
+  ProductDescriptions& productsToProduce,
+  ProducingServiceSignals& signals,
+  ModuleDescription const& md)
+{
+  service_->registerProducts(mpr, productsToProduce, signals, md);
+}

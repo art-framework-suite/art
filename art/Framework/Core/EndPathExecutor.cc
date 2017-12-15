@@ -154,6 +154,8 @@ art::EndPathExecutor::seedSubRunRangeSet(std::unique_ptr<RangeSetHandler> rsh)
 void
 art::EndPathExecutor::setAuxiliaryRangeSetID(SubRunPrincipal& srp)
 {
+  assert(subRunRangeSetHandler_);
+  assert(runRangeSetHandler_);
   // Ranges are split/flushed only for a RangeSetHandler whose dynamic
   // type is 'ClosedRangeSetHandler'.  The implementations for the
   // 'OpenRangeSetHandler' are nops.
@@ -189,6 +191,7 @@ art::EndPathExecutor::setAuxiliaryRangeSetID(SubRunPrincipal& srp)
 void
 art::EndPathExecutor::setAuxiliaryRangeSetID(RunPrincipal& rp)
 {
+  assert(runRangeSetHandler_);
   if (fileStatus_ != OutputFileStatus::Switching) {
     runRangeSetHandler_->flushRanges();
   }

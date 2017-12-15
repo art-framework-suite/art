@@ -18,8 +18,10 @@
 #include <memory>
 
 namespace art {
-  class ServiceRegistry;
   class ActivityRegistry;
+  class ProcessConfiguration;
+  class ProducingServiceSignals;
+  class ServiceRegistry;
 
   class ServiceToken;
 }
@@ -59,6 +61,15 @@ public:
   forceCreation()
   {
     manager_->forceCreation();
+  }
+
+  void
+  registerProducts(MasterProductRegistry& mpr,
+                   ProductDescriptions& productsToProduce,
+                   ProducingServiceSignals& signals,
+                   ProcessConfiguration const& pc)
+  {
+    manager_->registerProducts(mpr, productsToProduce, signals, pc);
   }
 
   void

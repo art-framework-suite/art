@@ -33,7 +33,19 @@ art::Run::getProcessParameterSet(std::string const& /*processName*/,
 }
 
 void
-art::Run::commit_(RunPrincipal& rp)
+art::Run::commit(RunPrincipal& rp,
+                 bool const checkProducts,
+                 std::set<TypeLabel> const& expectedProducts)
+{
+  // Check addresses only since type of 'rp' will hopefully change to
+  // Principal&.
+  assert(&rp == &principal_);
+  checkPutProducts(checkProducts, expectedProducts, putProducts());
+  commit(rp);
+}
+
+void
+art::Run::commit(RunPrincipal& rp)
 {
   for (auto& elem : putProducts()) {
     auto const& pd = elem.second.pd;

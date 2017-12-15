@@ -14,6 +14,7 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/MFStatusUpdater.h"
 #include "art/Framework/Core/PathManager.h"
+#include "art/Framework/Core/ProducingServiceSignals.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/EventProcessor/ServiceDirector.h"
 #include "art/Framework/EventProcessor/detail/ExceptionCollector.h"
@@ -175,6 +176,7 @@ private:
   MFStatusUpdater mfStatusUpdater_;
   MasterProductRegistry preg_{};
   ProductDescriptions productsToProduce_{};
+  ProducingServiceSignals psSignals_{};
   ServiceToken serviceToken_{ServiceToken::createInvalid()};
   tbb::task_scheduler_init tbbManager_{tbb::task_scheduler_init::deferred};
   std::unique_ptr<ServiceRegistry::Operate> servicesSentry_{};

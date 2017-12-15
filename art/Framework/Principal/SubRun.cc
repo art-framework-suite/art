@@ -45,7 +45,19 @@ namespace art {
   }
 
   void
-  SubRun::commit_(SubRunPrincipal& srp)
+  SubRun::commit(SubRunPrincipal& srp,
+                 bool const checkProducts,
+                 std::set<TypeLabel> const& expectedProducts)
+  {
+    // Check addresses only since type of 'srp' will hopefully change to
+    // Principal&.
+    assert(&srp == &principal_);
+    checkPutProducts(checkProducts, expectedProducts, putProducts());
+    commit(srp);
+  }
+
+  void
+  SubRun::commit(SubRunPrincipal& srp)
   {
     for (auto& elem : putProducts()) {
       auto const& pd = elem.second.pd;

@@ -9,8 +9,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Services/Registry/ServiceScope.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 
 #include <memory>
 
@@ -19,6 +18,9 @@ namespace art {
     class ServiceWrapperBase;
     using WrapperBase_ptr = std::shared_ptr<detail::ServiceWrapperBase>;
   }
+  class MasterProductRegistry;
+  class ModuleDescription;
+  class ProducingServiceSignals;
 }
 
 class art::detail::ServiceWrapperBase {
@@ -28,6 +30,11 @@ public:
   // Noncopyable
   ServiceWrapperBase(ServiceWrapperBase const&) = delete;
   ServiceWrapperBase& operator=(ServiceWrapperBase const&) = delete;
+
+  virtual void registerProducts(MasterProductRegistry&,
+                                ProductDescriptions&,
+                                ProducingServiceSignals&,
+                                ModuleDescription const&) = 0;
 
   virtual ~ServiceWrapperBase() = default;
 

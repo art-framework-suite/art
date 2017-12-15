@@ -8,6 +8,7 @@
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>
@@ -20,6 +21,9 @@ namespace art {
 
   // Forward declarations.
   class ActivityRegistry;
+  class MasterProductRegistry;
+  class ModuleDescription;
+  class ProducingServiceSignals;
 }
 
 // A ServiceCacheEntry object encapsulates the (possibly delayed)
@@ -60,7 +64,17 @@ public:
          detail::ServiceStack& creationOrder,
          ScheduleID sID) const;
 
+  void registerProducts(MasterProductRegistry& mpr,
+                        ProductDescriptions& productsToProduce,
+                        ProducingServiceSignals& signals,
+                        ModuleDescription const& md);
+
   static void setNSchedules(size_t nSched);
+
+  bool is_impl() const;
+  bool is_interface() const;
+
+  ServiceScope serviceScope() const;
 
 private:
   void makeAndCacheService(ActivityRegistry& reg) const;
@@ -70,12 +84,7 @@ private:
 
   void convertService(WrapperBase_ptr& swb) const;
 
-  ServiceScope serviceScope() const;
-
   static size_t& nSchedules();
-
-  bool is_impl() const;
-  bool is_interface() const;
 
   fhicl::ParameterSet config_{};
   std::unique_ptr<detail::ServiceHelperBase> helper_;
