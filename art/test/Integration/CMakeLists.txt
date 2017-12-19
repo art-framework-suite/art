@@ -71,7 +71,6 @@ simple_plugin(MixFilterTestOldStartEvent  "module"  NO_INSTALL USE_BOOST_UNIT ar
 simple_plugin(MixProducer                 "module"  NO_INSTALL)
 simple_plugin(MockClusterListAnalyzer     "module"  NO_INSTALL)
 simple_plugin(MockClusterListProducer     "module"  NO_INSTALL)
-simple_plugin(PausingAnalyzer             "module"  NO_INSTALL)
 simple_plugin(ProductIDGetter             "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(ProductIDGetterNoPut        "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(ProductIDGetterAnalyzer     "module"  NO_INSTALL USE_BOOST_UNIT)
@@ -86,6 +85,7 @@ simple_plugin(SAMMetadataConcurrentTest   "module"  NO_INSTALL USE_BOOST_UNIT ar
 simple_plugin(SAMMetadataTest             "module"  NO_INSTALL art_Framework_Services_System_FileCatalogMetadata_service)
 simple_plugin(SeekToEventClient           "service" NO_INSTALL art_Framework_IO_Root_RootInput_source)
 simple_plugin(ServiceUsing                "service" NO_INSTALL)
+simple_plugin(SigIntAnalyzer              "module"  NO_INSTALL)
 simple_plugin(SimpleDerivedAnalyzer       "module"  NO_INSTALL)
 simple_plugin(SimpleDerivedProducer       "module"  NO_INSTALL)
 simple_plugin(SimpleSource                "source"  NO_INSTALL)
@@ -1347,49 +1347,27 @@ cet_test(test_compressed_simple_01_t.sh PREBUILT
   fcl/messageDefaults.fcl
 )
 
-# Test signal handling.
-
-cet_script(signal_handling_t.sh NO_INSTALL)
-
-cet_test(signal_handling_01_t HANDBUILT
-  TEST_EXEC signal_handling_t.sh
-  TEST_ARGS -c signal_sigint.fcl SIGINT
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/signal_handling_01_t-ref.txt"
-  DATAFILES
-  fcl/signal_sigint.fcl
-  )
-
-cet_test(signal_handling_02_t HANDBUILT
-  TEST_EXEC signal_handling_t.sh
-  TEST_ARGS -c signal_sigint.fcl SIGQUIT
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/signal_handling_02_t-ref.txt"
-  DATAFILES
-  fcl/signal_sigint.fcl
-  )
-
-cet_test(signal_handling_03_t HANDBUILT
-  TEST_EXEC signal_handling_t.sh
-  TEST_ARGS -c signal_sigint.fcl SIGTERM
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/signal_handling_03_t-ref.txt"
-  DATAFILES
-  fcl/signal_sigint.fcl
-  )
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(sigusr_two_signal 31)
-else()
-  set(sigusr_two_signal 12)
-endif()
-
-cet_test(signal_handling_04_t HANDBUILT
-  TEST_EXEC signal_handling_t.sh
-  TEST_ARGS -c signal_sigint.fcl SIGUSR2
-  TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION
-  "Art has handled signal ${sigusr_two_signal}\\."
-  DATAFILES
-  fcl/signal_sigint.fcl
-  )
+# Test signal handling: specifically, check that whenever a signal is
+# received, the art framework appropriately backs out of the event
+# processing level.  We set errorOnSIGINT to false so that we need
+# only one STDOUT reference file (i.e. return code is 0).
+foreach(SIGNAL sigint sigquit sigterm sigusr2)
+  # The SIGUSR2 return code differs between Linux and Darwin, so we
+  # must have separate references.
+  if (${SIGNAL} MATCHES "sigusr2")
+    set(SIGNAL_PLATFORM "sigusr2_${CMAKE_SYSTEM_NAME}")
+  else ()
+    set(SIGNAL_PLATFORM ${SIGNAL})
+  endif()
+  cet_test(signal_handling_${SIGNAL}_t HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c signal_${SIGNAL}.fcl --errorOnSIGINT=false --process-name="Test${SIGNAL}"
+    REF "${CMAKE_CURRENT_SOURCE_DIR}/signal_handling_t-ref.txt"
+    "${CMAKE_CURRENT_SOURCE_DIR}/signal_handling_${SIGNAL_PLATFORM}_rc-ref.txt"
+    DATAFILES
+    fcl/signal_base.fcl
+    fcl/signal_${SIGNAL}.fcl)
+endforeach()
 
 cet_test(ImplicitRSAssignment_t HANDBUILT
   TEST_EXEC art_ut

@@ -30,7 +30,6 @@ Begin processing the 1st record. run: 1 subRun: 0 event: 1 at <date-time>
 ++++ processing event:run: 1 subRun: 0 event: 1 time:0
 ++++++ processing path for event:end_path
 ++++++++ module for event:pa
->> Pausing for 5 seconds.
 ++++++++ finished for event:pa
 ++++++ finished path for event:
 ++++ finished event:
@@ -62,7 +61,4 @@ TrigReport     0    0          1          1          0 pa
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>
 
-Art has completed and will exit with status 130.
->> Pausing for 5 seconds.
->> Pause complete.
-Art has handled signal 2.
+Art has completed and will exit with status 0.

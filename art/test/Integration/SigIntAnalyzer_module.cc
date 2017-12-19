@@ -15,6 +15,7 @@
 
 #include <signal.h>
 #include <string>
+#include <unistd.h>
 
 namespace art {
   namespace test {
@@ -60,7 +61,7 @@ art::test::SigIntAnalyzer::SigIntAnalyzer(Parameters const& p)
 void
 art::test::SigIntAnalyzer::analyze(Event const&)
 {
-  kill(0, signal_);
+  kill(getpid(), signal_);
 }
 
 DEFINE_ART_MODULE(art::test::SigIntAnalyzer)
