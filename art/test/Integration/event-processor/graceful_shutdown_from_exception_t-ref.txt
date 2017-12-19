@@ -7,7 +7,7 @@ Messagelogger initialization complete.
 ++ beginJob finished:a1
 ++ Job started
 ++++open input file
-++++finished: open input file 
+++++finished: open input file
 ++++source run
 ++++finished: source run
 ++++ processing begin run:run: 1 time:0
