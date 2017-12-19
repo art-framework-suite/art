@@ -276,7 +276,7 @@ Tracer::preOpenFile()
 void
 Tracer::postOpenFile(std::string const& fn)
 {
-  indent(2) << "finished: open input file " << fn << std::endl;
+  indent(2) << "finished: open input file" << fn << std::endl;
 }
 
 void
