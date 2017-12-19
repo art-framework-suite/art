@@ -7,7 +7,7 @@ Messagelogger initialization complete.
 ++ beginJob finished:pa
 ++ Job started
 ++++open input file
-++++finished: open input file 
+++++finished: open input file
 ++++source run
 ++++finished: source run
 ++++ processing begin run:run: 1 time:0
@@ -30,7 +30,6 @@ Begin processing the 1st record. run: 1 subRun: 0 event: 1 at <date-time>
 ++++ processing event:run: 1 subRun: 0 event: 1 time:0
 ++++++ processing path for event:end_path
 ++++++++ module for event:pa
->> Pausing for 1 seconds.
 ++++++++ finished for event:pa
 ++++++ finished path for event:
 ++++ finished event:
@@ -62,7 +61,4 @@ TrigReport     0    0          1          1          0 pa
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>
 
-Art has completed and will exit with status 131.
->> Pausing for 1 seconds.
->> Pause complete.
-Art has handled signal 3.
+Art has completed and will exit with status 0.

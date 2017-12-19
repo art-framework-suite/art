@@ -1,14 +1,2 @@
-process_name: DEVEL
-
-source:
-{
-  module_type: EmptyEvent
-  maxEvents: 2
-}
-
-physics.analyzers.pa:
-{
-  module_type: PausingAnalyzer
-}
-
-physics.p1: [ pa ]
+#include "signal_base.fcl"
+physics.analyzers.pa.signal: SIGINT
