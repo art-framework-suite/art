@@ -9,4 +9,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_IO_detail_validateFileNamePattern_h */
+
+// Local Variables:
+// mode: c++
+// End:
