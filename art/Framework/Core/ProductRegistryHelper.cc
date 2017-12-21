@@ -40,10 +40,11 @@ namespace art {
     // friendlyClassName, which resolves to the same string for
     // Assns<A,B> and Assns<B,A>.
     void
-    check_for_duplicate_Assns(set<TypeLabel> const& typeLabels)
+    check_for_duplicate_Assns(TypeLabelLookup_t const& typeLabels)
     {
       map<string, set<string>> instanceToFriendlyNames;
-      for (auto const& tl : typeLabels) {
+      for (auto const& pr : typeLabels) {
+        auto const& tl = pr.first;
         auto result = instanceToFriendlyNames[tl.productInstanceName()].emplace(
           tl.typeID().friendlyClassName());
         if (!result.second) {
@@ -66,33 +67,60 @@ namespace art {
 
   } // unnamed namespace
 
-  ProductRegistryHelper::~ProductRegistryHelper() {}
-
-  ProductRegistryHelper::ProductRegistryHelper() {}
+  ProductRegistryHelper::~ProductRegistryHelper() = default;
+  ProductRegistryHelper::ProductRegistryHelper() = default;
 
   void
   ProductRegistryHelper::registerProducts(ProductDescriptions& producedProducts,
                                           ModuleDescription const& md)
   {
-    // Go through products that will be produced in the current process.
-    check_for_duplicate_Assns(typeLabelList_[InEvent]);
-
-    ProductDescriptions descriptions;
-    for (std::size_t ibt{}; ibt != NumBranchTypes; ++ibt) {
-      auto const bt = static_cast<BranchType>(ibt);
-      for (auto const& val : typeLabelList_[bt]) {
-        BranchDescription pd{bt, val, md};
-        producedProducts.push_back(pd);
-        descriptions.push_back(std::move(pd));
+    fillDescriptions(md);
+    auto registerProductsPerBT = [this,
+                                  &producedProducts](BranchType const bt) {
+      auto const& expectedProducts = typeLabelList_[bt];
+      for (auto const& pr : expectedProducts) {
+        producedProducts.push_back(pr.second);
       }
-    }
+    };
+    for_each_branch_type(registerProductsPerBT);
+  }
+
+  void
+  ProductRegistryHelper::fillDescriptions(ModuleDescription const& md)
+  {
+    auto fillDescriptionsPerBT = [this, &md](BranchType const bt) {
+      // Go through products that will be produced in the current process.
+      check_for_duplicate_Assns(typeLabelList_[bt]);
+
+      auto& expectedProducts = typeLabelList_[bt];
+      for (auto& pr : expectedProducts) {
+        auto const& typeLabel = pr.first;
+        BranchDescription pd{bt, typeLabel, md};
+        auto it = expectedProducts.find(typeLabel);
+        assert(it != end(expectedProducts));
+        it->second = pd;
+      }
+    };
+    for_each_branch_type(fillDescriptionsPerBT);
   }
 
   TypeLabel const&
   ProductRegistryHelper::insertOrThrow(BranchType const bt, TypeLabel const& tl)
   {
-    auto result = typeLabelList_[bt].insert(tl);
-    return *result.first;
+    auto result = typeLabelList_[bt].emplace(tl, BranchDescription{});
+    if (!result.second) {
+      std::ostringstream oss;
+      oss << "An attempt was made to declare the following product in the same "
+             "module:\n"
+          << "Branch type: " << bt << '\n'
+          << "Class name: " << tl.className() << '\n'
+          << "Product instance name: " << tl.productInstanceName() << '\n';
+      throw Exception{
+        errors::ProductRegistrationFailure,
+        "An error occurred during a call to 'produces' or 'reconstitutes'."}
+        << oss.str();
+    }
+    return result.first->first;
   }
 
 } // namespace art

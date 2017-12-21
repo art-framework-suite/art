@@ -105,7 +105,9 @@ namespace art {
     ProducerBase& operator=(ProducerBase&&) = delete;
 
   public: // MEMBER FUNCTIONS -- Product Registry Helper API
+    using ProductRegistryHelper::ProductFlavor;
     using ProductRegistryHelper::expectedProducts;
+    using ProductRegistryHelper::fillDescriptions;
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::registerProducts;
   };

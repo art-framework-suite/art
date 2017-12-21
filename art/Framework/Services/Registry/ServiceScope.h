@@ -8,6 +8,8 @@ namespace art {
     LEGACY // 0
     ,
     GLOBAL // 1
+    ,
+    PER_SCHEDULE // 2
   };
 
 } // namespace art

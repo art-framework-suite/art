@@ -69,6 +69,10 @@ namespace art {
                                       ModuleDescription const&)
   {}
 
+  void
+  EventObserverBase::fillDescriptions(ModuleDescription const&)
+  {}
+
   string const&
   EventObserverBase::processName() const
   {

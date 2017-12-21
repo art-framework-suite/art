@@ -56,6 +56,7 @@ simple_plugin(GeneratorTest               "source"  NO_INSTALL)
 simple_plugin(ImplicitRSAssignmentAnalyzer "module" NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(ImplicitRSAssignmentProducer "module" NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(IntProducer                 "module"  NO_INSTALL)
+simple_plugin(IntProducingService         "service" NO_INSTALL art_Framework_Principal art_Framework_Core)
 simple_plugin(IntReaderThenProducer       "module"  NO_INSTALL)
 simple_plugin(IntTestAnalyzer             "module"  NO_INSTALL)
 simple_plugin(IntVectorAnalyzer           "module"  NO_INSTALL)
@@ -1105,6 +1106,25 @@ cet_test(ProvenanceDumper_DroppedProducts_t2 HANDBUILT
   fcl/TestProvenanceDumper.fcl
   TEST_PROPERTIES DEPENDS DropOnOutput_wA_01)
 
+# Test product insertion via a service.  In addition, the product
+# inserted is declared to be "InMemoryOnly" and is not persisted to an
+# output file.
+cet_test(IntProducingService_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c IntProducingService_w.fcl
+  DATAFILES fcl/IntProducingService_w.fcl)
+
+# Now verify that the "InMemoryOnly" product created above is not
+# present in the input file.
+cet_test(IntProducingService_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS
+  --rethrow-all
+  -c IntProducingService_r.fcl
+  -s ../IntProducingService_w.d/out.root
+  DATAFILES fcl/IntProducingService_r.fcl
+  TEST_PROPERTIES DEPENDS IntProducingService_w)
+
 cet_test(PtrVectorFastClone_w HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- -c "PtrVectorFastClone_w.fcl"
@@ -1127,7 +1147,10 @@ cet_test(AssnsWrongPut_t HANDBUILT
   DATAFILES
   fcl/AssnsWrongPut_t.fcl
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "but they have not been placed onto the event"
+  # std::size_t may have different representations on different
+  # platforms.  Therefore we just require that it be unsigned, and
+  # wildcard ('.*') the rest of it.
+  PASS_REGULAR_EXPRESSION "No product is registered for.*art::Assns<std::string,unsigned.*,void>"
 )
 
 cet_test(AssnsMultipleProduces_t HANDBUILT

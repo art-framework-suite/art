@@ -47,11 +47,13 @@ namespace art {
                              Principal const& principal,
                              ModuleDescription const& md,
                              bool const recordParents,
+                             TypeLabelLookup_t const& productsToPut,
                              RangeSet const& rs /* = RangeSet::invalid() */)
     : branchType_{bt}
     , principal_{principal}
     , md_{md}
     , recordParents_{recordParents}
+    , expectedProducts_{productsToPut}
     , rangeSet_{rs}
   {}
 
@@ -233,16 +235,17 @@ namespace art {
   }
 
   void
-  DataViewImpl::checkPutProducts(set<TypeLabel> const& expectedProducts)
+  DataViewImpl::checkPutProducts()
   {
     vector<string> missing;
-    for (auto const& typeLabel : expectedProducts) {
+    for (auto const& pr : expectedProducts_) {
+      auto const& typeLabel = pr.first;
+      auto const& pd = pr.second;
       if (putProducts_.find(typeLabel) != putProducts_.cend()) {
         continue;
       }
       ostringstream desc;
-      desc << getProductDescription_(typeLabel.typeID(),
-                                     typeLabel.productInstanceName());
+      desc << pd;
       missing.emplace_back(desc.str());
     }
     if (!missing.empty()) {
@@ -260,12 +263,10 @@ namespace art {
   }
 
   void
-  DataViewImpl::commit(Principal& principal,
-                       bool const checkProducts,
-                       set<TypeLabel> const* expectedProducts)
+  DataViewImpl::commit(Principal& principal, bool const checkProducts)
   {
     if (checkProducts) {
-      checkPutProducts(*expectedProducts);
+      checkPutProducts();
     }
     for (auto& type_label_and_pmvalue : putProducts_) {
       auto& pmvalue = type_label_and_pmvalue.second;
@@ -375,6 +376,7 @@ namespace art {
         << "No product is registered for\n"
         << "  process name:                '" << md_.processName() << "'\n"
         << "  module label:                '" << md_.moduleLabel() << "'\n"
+        << "  product class name:          '" << type.className() << "'\n"
         << "  product friendly class name: '" << type.friendlyClassName()
         << "'\n"
         << "  product instance name:       '" << instance << "'\n"
@@ -387,29 +389,27 @@ namespace art {
   }
 
   BranchDescription const&
-  DataViewImpl::getProductDescription_(TypeID const& type,
-                                       string const& instance) const
+  DataViewImpl::getProductDescription_(TypeLabel const& typeLabel) const
   {
-    auto const& product_name = canonicalProductName(
-      type.friendlyClassName(), md_.moduleLabel(), instance, md_.processName());
-    ProductID const pid{product_name};
-    auto desc = principal_.getProductDescription(pid);
-    if (!desc) {
+    auto it = expectedProducts_.find(typeLabel);
+    if (it == cend(expectedProducts_)) {
       throw art::Exception(art::errors::ProductRegistrationFailure,
                            "DataViewImpl::getProductDescription_: error while "
                            "trying to retrieve product description:\n")
         << "No product is registered for\n"
         << "  process name:                '" << md_.processName() << "'\n"
         << "  module label:                '" << md_.moduleLabel() << "'\n"
-        << "  product friendly class name: '" << type.friendlyClassName()
+        << "  product class name:          '" << typeLabel.className() << "'\n"
+        << "  product friendly class name: '" << typeLabel.friendlyClassName()
         << "'\n"
-        << "  product instance name:       '" << instance << "'\n"
+        << "  product instance name:       '" << typeLabel.productInstanceName()
+        << "'\n"
         << "  branch type:                 '" << branchType_ << "'\n";
     }
-    // The description object is owned by either the source or the
+    // The description object is owned by either the source, module, or the
     // event processor, whose lifetimes exceed that of the
     // DataViewImpl object.  It is therefore safe to dereference.
-    return *desc;
+    return it->second;
   }
 
   void

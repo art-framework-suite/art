@@ -19,6 +19,7 @@
 #include "canvas/Utilities/TypeID.h"
 
 #include <memory>
+#include <set>
 #include <utility>
 
 namespace art {
@@ -30,14 +31,12 @@ namespace art {
 
     SubRun(SubRunPrincipal const& srp,
            ModuleDescription const& md,
+           TypeLabelLookup_t const& expectedProducts,
            RangeSet const& rs = RangeSet::invalid());
 
     SubRun(SubRun const&) = delete;
-
     SubRun(SubRun&&) = delete;
-
     SubRun& operator=(SubRun const&) = delete;
-
     SubRun& operator=(SubRun&&) = delete;
 
   public:

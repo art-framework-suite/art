@@ -6,6 +6,7 @@
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>
@@ -14,6 +15,8 @@
 namespace art {
 
   class ActivityRegistry;
+  class ModuleDescription;
+  class ProducingServiceSignals;
 
   namespace detail {
 
@@ -42,6 +45,16 @@ namespace art {
       template <typename T>
       T& get(art::ActivityRegistry& reg, ServiceStack& creationOrder) const;
 
+      void registerProducts(ProductDescriptions& productsToProduce,
+                            ProducingServiceSignals& signals,
+                            ModuleDescription const& md);
+
+      bool is_impl() const;
+
+      bool is_interface() const;
+
+      ServiceScope serviceScope() const;
+
     private: // MEMBER FUNCTIONS -- Implementation details
       void makeAndCacheService(art::ActivityRegistry& reg) const;
 
@@ -49,12 +62,6 @@ namespace art {
                          ServiceStack& creationOrder) const;
 
       void convertService(std::shared_ptr<ServiceWrapperBase>& swb) const;
-
-      ServiceScope serviceScope() const;
-
-      bool is_impl() const;
-
-      bool is_interface() const;
 
     private: // MEMBER DATA
       fhicl::ParameterSet config_{};

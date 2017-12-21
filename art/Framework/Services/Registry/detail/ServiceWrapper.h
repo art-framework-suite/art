@@ -14,6 +14,8 @@
 namespace art {
 
   class ActivityRegistry;
+  class ModuleDescription;
+  class ProducingService;
 
   namespace detail {
 
@@ -32,6 +34,11 @@ namespace art {
                      std::shared_ptr<T>>
     makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
     {
+      static_assert(
+        !std::is_base_of<ProducingService, T>::value,
+        "\n\nart-error: A service that inherits from art::ProducingService\n"
+        "           cannot have a constructor that takes an ActivityRegistry&\n"
+        "           argument.  Contact artists@fnal.gov for guidance.\n");
       return std::make_shared<T>(ps, areg);
     }
 
@@ -79,6 +86,32 @@ namespace art {
       }
 
     private:
+      template <typename U = T>
+      std::enable_if_t<std::is_base_of<ProducingService, U>::value>
+      doRegisterProducts(ProductDescriptions& productsToProduce,
+                         ProducingServiceSignals& signals,
+                         ModuleDescription const& md)
+      {
+        service_ptr_->registerCallbacks(signals);
+        service_ptr_->setModuleDescription(md);
+        service_ptr_->registerProducts(productsToProduce, md);
+      }
+
+      template <typename U = T>
+      std::enable_if_t<!std::is_base_of<ProducingService, U>::value>
+      doRegisterProducts(ProductDescriptions&,
+                         ProducingServiceSignals&,
+                         ModuleDescription const&)
+      {}
+
+      void
+      registerProducts(ProductDescriptions& productsToProduce,
+                       ProducingServiceSignals& signals,
+                       ModuleDescription const& md) override
+      {
+        doRegisterProducts(productsToProduce, signals, md);
+      }
+
       std::shared_ptr<T> service_ptr_;
     };
 

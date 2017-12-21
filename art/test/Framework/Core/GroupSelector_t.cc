@@ -35,7 +35,7 @@ namespace {
     return art::BranchDescription{
       bt,
       art::TypeLabel{
-        producedType, instanceName, art::SupportsView<PROD>::value},
+        producedType, instanceName, art::SupportsView<PROD>::value, false},
       art::ModuleDescription{
         pset.id(),
         "arttest::NOMOD",

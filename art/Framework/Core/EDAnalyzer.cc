@@ -152,7 +152,7 @@ namespace art {
                          cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    Run const r{rp, moduleDescription()};
+    Run const r{rp, moduleDescription(), TypeLabelLookup_t{}};
     beginRun(r);
     return true;
   }
@@ -166,7 +166,7 @@ namespace art {
                        cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    Run const r{rp, moduleDescription()};
+    Run const r{rp, moduleDescription(), TypeLabelLookup_t{}};
     endRun(r);
     return true;
   }
@@ -180,7 +180,7 @@ namespace art {
                             cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    SubRun const sr{srp, moduleDescription()};
+    SubRun const sr{srp, moduleDescription(), TypeLabelLookup_t{}};
     beginSubRun(sr);
     return true;
   }
@@ -194,7 +194,7 @@ namespace art {
                           cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    SubRun const sr{srp, moduleDescription()};
+    SubRun const sr{srp, moduleDescription(), TypeLabelLookup_t{}};
     endSubRun(sr);
     return true;
   }
@@ -213,7 +213,7 @@ namespace art {
   {
     detail::CPCSentry sentry{*cpc};
     detail::PVSentry pvSentry{cachedProducts()};
-    Event const e{ep, moduleDescription()};
+    Event const e{ep, moduleDescription(), TypeLabelLookup_t{}};
     if (wantAllEvents() || wantEvent(e)) {
       ++counts_run;
       analyze(e);

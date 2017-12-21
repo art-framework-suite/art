@@ -9,6 +9,7 @@
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/bold_fontify.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/HorizontalRule.h"
@@ -73,6 +74,50 @@ namespace art {
     factory_.clear();
     while (!actualCreationOrder_.empty()) {
       actualCreationOrder_.pop();
+    }
+  }
+
+  void
+  ServicesManager::registerProducts(ProductDescriptions& productsToProduce,
+                                    ProducingServiceSignals& signals,
+                                    ProcessConfiguration const& pc)
+  {
+    for (auto& pr : factory_) {
+      auto& serviceEntry = pr.second;
+
+      // Per-schedule services cannot register products
+      if (serviceEntry.serviceScope() == ServiceScope::PER_SCHEDULE)
+        continue;
+
+      // Service interfaces cannot be used for product insertion.
+      if (serviceEntry.is_interface())
+        continue;
+
+      // Check if a service_provider parameter exists--this will become
+      // the "module name/label" for the ModuleDescription object.
+      auto const& pset = serviceEntry.getParameterSet();
+      std::string moduleLabel{};
+      if (pset.has_key("service_provider")) {
+        moduleLabel = pset.get<std::string>("service_provider");
+      } else if (pset.has_key("service_type")) {
+        moduleLabel = pset.get<std::string>("service_type");
+      } else {
+        // System services have no "service_provider" or "service_type"
+        // configuration parameters.  They also cannot be used for
+        // product insertion.
+        //
+        // Remove "art::" namespace.
+        auto const className = pr.first.className();
+        auto pos = className.find_last_of(":");
+        moduleLabel = className.substr(pos + 1);
+        continue;
+      }
+
+      // The enum value SHARED is not used below so as to avoid circular
+      // dependencies.
+      ModuleDescription const md{
+        pset.id(), moduleLabel, moduleLabel, 2 /*==SHARED*/, pc};
+      serviceEntry.registerProducts(productsToProduce, signals, md);
     }
   }
 

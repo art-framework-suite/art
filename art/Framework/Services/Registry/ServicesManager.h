@@ -9,6 +9,7 @@
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/bold_fontify.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/HorizontalRule.h"
@@ -34,6 +35,8 @@ namespace fhicl {
 namespace art {
 
   class ActivityRegistry;
+  class ProcessConfiguration;
+  class ProducingServiceSignals;
 
   class ServicesManager {
 
@@ -62,6 +65,10 @@ namespace art {
     void getParameterSets(std::vector<fhicl::ParameterSet>& out) const;
 
     void forceCreation();
+
+    void registerProducts(ProductDescriptions& productsToProduce,
+                          ProducingServiceSignals& signals,
+                          ProcessConfiguration const& pc);
 
     template <typename T>
     T& get();

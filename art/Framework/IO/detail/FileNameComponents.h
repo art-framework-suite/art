@@ -45,7 +45,7 @@ namespace art {
   }
 }
 
-#endif /* art_Framework_IO_PostCloseFileRenamer_h */
+#endif /* art_Framework_IO_detail_FileNameComponents_h */
 
 // Local Variables:
 // mode: c++

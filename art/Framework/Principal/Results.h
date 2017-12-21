@@ -26,14 +26,13 @@ namespace art {
   public:
     ~Results();
 
-    explicit Results(ResultsPrincipal const& p, ModuleDescription const& md);
+    explicit Results(ResultsPrincipal const& p,
+                     ModuleDescription const& md,
+                     TypeLabelLookup_t const& expectedProducts);
 
     Results(Results const&) = delete;
-
     Results(Results&&) = delete;
-
     Results& operator=(Results const&) = delete;
-
     Results& operator=(Results&&) = delete;
   };
 

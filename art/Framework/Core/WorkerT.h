@@ -92,8 +92,12 @@ namespace art {
   {
     if (wp.streamIndex_ == 0) {
       // We only want to register the products once, not once for
-      // every stream!
+      // every stream...
       module_->registerProducts(wp.producedProducts_, md);
+    } else {
+      // ...but we need to fill product descriptions for each module
+      // copy.
+      module_->fillDescriptions(md);
     }
   }
 

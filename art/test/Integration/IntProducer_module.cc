@@ -58,7 +58,7 @@ public:
     }
   }
 
-  explicit IntProducer(int i) : value_(i) { produces<IntProduct>(); }
+  // explicit IntProducer(int i) : value_(i) { produces<IntProduct>(); }
 
   void produce(art::Event& e) override;
   void endSubRun(art::SubRun& sr) override;
@@ -73,7 +73,6 @@ private:
 void
 IntProducer::produce(art::Event& e)
 {
-  std::cerr << "Holy cow, IntProducer::produce is running!\n";
   if (branchType_ == art::InEvent)
     e.put(std::make_unique<IntProduct>(value_));
 }
@@ -81,7 +80,6 @@ IntProducer::produce(art::Event& e)
 void
 IntProducer::endSubRun(art::SubRun& sr)
 {
-  std::cerr << "Holy cow, IntProducer::endSubRun is running!\n";
   if (branchType_ == art::InSubRun)
     sr.put(std::make_unique<IntProduct>(value_), art::subRunFragment());
 }
@@ -89,7 +87,6 @@ IntProducer::endSubRun(art::SubRun& sr)
 void
 IntProducer::endRun(art::Run& r)
 {
-  std::cerr << "Holy cow, IntProducer::endRun is running!\n";
   if (branchType_ == art::InRun)
     r.put(std::make_unique<IntProduct>(value_), art::runFragment());
 }

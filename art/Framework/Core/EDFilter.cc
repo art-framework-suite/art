@@ -171,7 +171,10 @@ namespace art {
                        cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    Run r{rp, moduleDescription(), RangeSet::forRun(rp.runID())};
+    Run r{rp,
+          moduleDescription(),
+          expectedProducts<InRun>(),
+          RangeSet::forRun(rp.runID())};
     bool const rc = beginRun(r);
     r.DataViewImpl::commit(rp);
     return rc;
@@ -188,7 +191,7 @@ namespace art {
                      cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    Run r{rp, moduleDescription(), rp.seenRanges()};
+    Run r{rp, moduleDescription(), expectedProducts<InRun>(), rp.seenRanges()};
     bool const rc = endRun(r);
     r.DataViewImpl::commit(rp);
     return rc;
@@ -205,7 +208,10 @@ namespace art {
                           cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    SubRun sr{srp, moduleDescription(), RangeSet::forSubRun(srp.subRunID())};
+    SubRun sr{srp,
+              moduleDescription(),
+              expectedProducts<InSubRun>(),
+              RangeSet::forSubRun(srp.subRunID())};
     bool const rc = beginSubRun(sr);
     sr.DataViewImpl::commit(srp);
     return rc;
@@ -222,7 +228,8 @@ namespace art {
                         cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    SubRun sr{srp, moduleDescription(), srp.seenRanges()};
+    SubRun sr{
+      srp, moduleDescription(), expectedProducts<InSubRun>(), srp.seenRanges()};
     bool const rc = endSubRun(sr);
     sr.DataViewImpl::commit(srp);
     return rc;
@@ -243,11 +250,11 @@ namespace art {
                     atomic<size_t>& counts_failed)
   {
     detail::CPCSentry sentry{*cpc};
-    Event e{ep, moduleDescription()};
+    Event e{ep, moduleDescription(), expectedProducts<InEvent>()};
     ++counts_run;
     bool rc = false;
     rc = filter(e);
-    e.DataViewImpl::commit(ep, checkPutProducts_, &expectedProducts());
+    e.DataViewImpl::commit(ep, checkPutProducts_);
     if (rc) {
       ++counts_passed;
     } else {

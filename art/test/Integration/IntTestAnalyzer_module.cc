@@ -3,7 +3,7 @@
 #include "art/test/TestObjects/ToyProducts.h"
 
 namespace arttest {
-  typedef GenericOneSimpleProductAnalyzer<int, IntProduct> IntTestAnalyzer;
+  using IntTestAnalyzer = GenericOneSimpleProductAnalyzer<int, IntProduct>;
 }
 
 DEFINE_ART_MODULE(arttest::IntTestAnalyzer)

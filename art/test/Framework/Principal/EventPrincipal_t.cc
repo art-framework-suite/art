@@ -112,7 +112,8 @@ ProductTablesFixture::fake_single_process_branch(
     art::InEvent,
     art::TypeLabel{dummyType,
                    productInstanceName,
-                   art::SupportsView<arttest::DummyProduct>::value},
+                   art::SupportsView<arttest::DummyProduct>::value,
+                   false},
     mod};
   productIDs_.emplace(tag, result.productID());
   return result;
@@ -163,6 +164,7 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   art::EventAuxiliary eventAux(eventID, now, true);
   pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process, nullptr);
   pEvent_->setSubRunPrincipal(srp.get());
+  pEvent_->enableProductCreation(ptf().producedProducts_);
   pEvent_->setProducedProducts(ptf().producedProducts_);
   pEvent_->put(
     *pd, move(productProvenancePtr), move(product), make_unique<RangeSet>());

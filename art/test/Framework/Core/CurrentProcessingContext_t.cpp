@@ -9,42 +9,43 @@
 #include <iostream>
 #include <string>
 
-//namespace {
+// namespace {
 //
-//art::ModuleDescription
-//makeModuleDescription(std::string const& label)
+// art::ModuleDescription
+// makeModuleDescription(std::string const& label)
 //{
-//  return art::ModuleDescription(fhicl::ParameterSet().id(), "", label, 1, art::ProcessConfiguration());
+//  return art::ModuleDescription(fhicl::ParameterSet().id(), "", label, 1,
+//  art::ProcessConfiguration());
 //}
 //
-//static
-//art::ModuleDescription
-//moduleA = makeModuleDescription("aaa");
+// static
+// art::ModuleDescription
+// moduleA = makeModuleDescription("aaa");
 //
-//static
-//std::string
-//pathName("path_a");
+// static
+// std::string
+// pathName("path_a");
 //
-//static
-//std::size_t
-//pathNumber(21);
+// static
+// std::size_t
+// pathNumber(21);
 //
-//static
-//std::size_t
-//slotInPath(13);
+// static
+// std::size_t
+// slotInPath(13);
 //
-//static
-//art::ModuleDescription const*
-//p_moduleA = &moduleA;
+// static
+// art::ModuleDescription const*
+// p_moduleA = &moduleA;
 //
-//static
-//std::string const*
-//p_pathName = &pathName;
+// static
+// std::string const*
+// p_pathName = &pathName;
 //
 //} // unnamed namespace
 
-//void
-//test_default_ctor()
+// void
+// test_default_ctor()
 //{
 //  art::CurrentProcessingContext ctx;
 //  assert(ctx.moduleLabel() == 0);
@@ -53,8 +54,8 @@
 //  assert(ctx.pathInSchedule() == -1);
 //}
 
-//void
-//test_activate()
+// void
+// test_activate()
 //{
 //  art::CurrentProcessingContext ctx(p_pathName, pathNumber, false);
 //  ctx.activate(slotInPath, p_moduleA);
@@ -65,8 +66,8 @@
 //  assert(ctx.pathInSchedule() == 21);
 //}
 
-//void
-//test_deactivate()
+// void
+// test_deactivate()
 //{
 //  art::CurrentProcessingContext ctx(p_pathName, pathNumber, false);
 //  ctx.activate(slotInPath, p_moduleA);
@@ -78,30 +79,30 @@
 void
 work()
 {
-  //test_default_ctor();
-  //test_deactivate();
+  // test_default_ctor();
+  // test_deactivate();
 }
 
 int
 main()
 {
-  //int rc = 0;
-  //try {
+  // int rc = 0;
+  // try {
   //  work();
   //}
-  //catch (cet::exception& x) {
+  // catch (cet::exception& x) {
   //  std::cerr << "cet::exception caught\n";
   //  std::cerr << x.what() << '\n';
   //  rc = 1;
   //}
-  //catch (std::exception& x) {
+  // catch (std::exception& x) {
   //  std::cerr << "std::exception caught\n";
   //  std::cerr << x.what() << '\n';
   //  rc = 2;
   //}
-  //catch (...) {
+  // catch (...) {
   //  std::cerr << "Unknown exception caught\n";
   //  rc = 3;
   //}
-  //return rc;
+  // return rc;
 }

@@ -10,8 +10,10 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Services/Registry/detail/SignalResponseType.h"
 #include "art/Framework/Services/Registry/detail/makeWatchFunc.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 
 #include <deque>
 #include <functional>

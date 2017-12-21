@@ -16,11 +16,12 @@ namespace art {
 
   Run::Run(RunPrincipal const& rp,
            ModuleDescription const& md,
+           TypeLabelLookup_t const& expectedProducts,
            RangeSet const& rs /*= RangeSet::invalid()*/)
-    : DataViewImpl{InRun, rp, md, false, rs}
+    : DataViewImpl{InRun, rp, md, false, expectedProducts, rs}
   {}
 
-  RunID const
+  RunID
   Run::id() const
   {
     return DataViewImpl::runID();

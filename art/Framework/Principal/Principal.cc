@@ -271,9 +271,9 @@ namespace art {
   {
     auto it = groups_.find(pd.productID());
     if (it != std::cend(groups_)) {
+      auto const& found_pd = it->second->productDescription();
       // The 'combinable' call does not require that the processing
       // history be the same, which is not what we are checking for here.
-      auto const& found_pd = it->second->productDescription();
       if (combinable(found_pd, pd)) {
         throw Exception(errors::Configuration)
           << "The process name " << pd.processName()
@@ -343,7 +343,7 @@ namespace art {
   }
 
   void
-  Principal::setProducedProducts(ProductTables const& producedProducts)
+  Principal::enableProductCreation(ProductTables const& producedProducts)
   {
     auto const& produced = producedProducts.get(branchType_);
     if (produced.descriptions.empty())
@@ -353,12 +353,18 @@ namespace art {
     // produced in this process.
     addToProcessHistory();
 
-    producedProducts_ = cet::make_exempt_ptr(&produced);
     for (auto const& pr : produced.descriptions) {
       auto const& pd = pr.second;
       assert(pd.branchType() == branchType_);
       fillGroup(pd);
     }
+  }
+
+  void
+  Principal::setProducedProducts(ProductTables const& producedProducts)
+  {
+    producedProducts_ =
+      cet::make_exempt_ptr(&producedProducts.get(branchType_));
   }
 
   void

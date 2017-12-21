@@ -16,10 +16,6 @@
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Utilities/TypeID.h"
 
-#include <memory>
-#include <string>
-#include <utility>
-
 namespace art {
 
   class Run final : public DataViewImpl {
@@ -29,18 +25,16 @@ namespace art {
 
     explicit Run(RunPrincipal const&,
                  ModuleDescription const&,
+                 TypeLabelLookup_t const& expectedProducts,
                  RangeSet const& rs = RangeSet::invalid());
 
     Run(Run const&) = delete;
-
     Run(Run&&) = delete;
-
     Run& operator=(Run const&) = delete;
-
     Run& operator=(Run&&) = delete;
 
   public: // MEMBER FUNCTIONS -- User-facing API
-    RunID const id() const;
+    RunID id() const;
   };
 
 } // namespace art

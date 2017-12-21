@@ -161,7 +161,10 @@ namespace art {
                          cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    Run r{rp, moduleDescription(), RangeSet::forRun(rp.runID())};
+    Run r{rp,
+          moduleDescription(),
+          expectedProducts<InRun>(),
+          RangeSet::forRun(rp.runID())};
     beginRun(r);
     r.DataViewImpl::commit(rp);
     return true;
@@ -176,7 +179,7 @@ namespace art {
                        cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    Run r{rp, moduleDescription(), rp.seenRanges()};
+    Run r{rp, moduleDescription(), expectedProducts<InRun>(), rp.seenRanges()};
     endRun(r);
     r.DataViewImpl::commit(rp);
     return true;
@@ -191,7 +194,10 @@ namespace art {
                             cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    SubRun sr{srp, moduleDescription(), RangeSet::forSubRun(srp.subRunID())};
+    SubRun sr{srp,
+              moduleDescription(),
+              expectedProducts<InSubRun>(),
+              RangeSet::forSubRun(srp.subRunID())};
     beginSubRun(sr);
     sr.DataViewImpl::commit(srp);
     return true;
@@ -206,7 +212,8 @@ namespace art {
                           cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    SubRun sr{srp, moduleDescription(), srp.seenRanges()};
+    SubRun sr{
+      srp, moduleDescription(), expectedProducts<InSubRun>(), srp.seenRanges()};
     endSubRun(sr);
     sr.DataViewImpl::commit(srp);
     return true;
@@ -225,10 +232,10 @@ namespace art {
                       atomic<size_t>& /*counts_failed*/)
   {
     detail::CPCSentry sentry{*cpc};
-    Event e{ep, moduleDescription()};
+    Event e{ep, moduleDescription(), expectedProducts<InEvent>()};
     ++counts_run;
     produce(e);
-    e.DataViewImpl::commit(ep, checkPutProducts_, &expectedProducts());
+    e.DataViewImpl::commit(ep, checkPutProducts_);
     ++counts_passed;
     return true;
   }

@@ -164,6 +164,8 @@ namespace art {
     // Used only by RootInputFile::Read(Run,SubRun,Event)ForSecondaryFile
     void addSecondaryPrincipal(std::unique_ptr<Principal>&&);
 
+    void enableProductCreation(ProductTables const& producedProducts);
+
     // The product tables data member for produced products is set by
     // the EventProcessor after the Principal is provided by the input
     // source.

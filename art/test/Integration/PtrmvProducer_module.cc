@@ -28,7 +28,8 @@ namespace {
 
 class arttest::PtrmvProducer : public art::EDProducer {
 public:
-  struct Config {};
+  struct Config {
+  };
   using Parameters = Table<Config>;
   explicit PtrmvProducer(Parameters const&);
 

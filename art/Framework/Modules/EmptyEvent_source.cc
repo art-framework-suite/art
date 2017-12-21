@@ -357,7 +357,7 @@ art::EmptyEvent::readRun_()
   result = make_unique<RunPrincipal>(runAux, processConfiguration(), nullptr);
   assert(result.get() != nullptr);
   if (plugin_) {
-    Run const r{*result, moduleDescription()};
+    Run const r{*result, moduleDescription(), TypeLabelLookup_t{}};
     plugin_->doBeginRun(r);
   }
   return result;
@@ -379,7 +379,7 @@ art::EmptyEvent::readSubRun_(cet::exempt_ptr<RunPrincipal const> rp)
   assert(result.get() != nullptr);
   result->setRunPrincipal(rp);
   if (plugin_) {
-    SubRun const sr{*result, moduleDescription()};
+    SubRun const sr{*result, moduleDescription(), TypeLabelLookup_t{}};
     plugin_->doBeginSubRun(sr);
   }
   return result;

@@ -119,6 +119,14 @@ namespace art {
       }
     }
 
+    void
+    ServiceCacheEntry::registerProducts(ProductDescriptions& productsToProduce,
+                                        ProducingServiceSignals& signals,
+                                        ModuleDescription const& md)
+    {
+      service_->registerProducts(productsToProduce, signals, md);
+    }
+
     fhicl::ParameterSet const&
     ServiceCacheEntry::getParameterSet() const
     {

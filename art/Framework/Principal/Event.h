@@ -46,21 +46,18 @@ namespace art {
   public:
     ~Event();
 
-    explicit Event(EventPrincipal const& ep, ModuleDescription const& md);
+    explicit Event(EventPrincipal const& ep,
+                   ModuleDescription const& md,
+                   TypeLabelLookup_t const& expectedProducts);
 
     Event(Event const&) = delete;
-
     Event(Event&&) = delete;
-
     Event& operator=(Event const&) = delete;
-
     Event& operator=(Event&&) = delete;
 
   public:
     EventID id() const;
-
     SubRun const& getSubRun() const;
-
     Run const& getRun() const;
 
   private:

@@ -99,7 +99,7 @@ arttest::TestBitsOutput::TestBitsOutput(
 void
 arttest::TestBitsOutput::write(art::EventPrincipal& ep)
 {
-  Event const ev{ep, moduleDescription_};
+  Event const ev{ep, moduleDescription_, TypeLabelLookup_t{}};
   // There should not be a TriggerResults object in the event if all
   // three of the following requirements are met:
   //

@@ -263,7 +263,7 @@ namespace art {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp);
-    Run const r{rp, moduleDescription()};
+    Run const r{rp, moduleDescription(), TypeLabelLookup_t{}};
     cet::for_all(plugins_, [&r](auto& p) { p->doBeginRun(r); });
     return true;
   }
@@ -275,7 +275,7 @@ namespace art {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "beginSubRun called\n";
     beginSubRun(srp);
-    SubRun const sr{srp, moduleDescription()};
+    SubRun const sr{srp, moduleDescription(), TypeLabelLookup_t{}};
     cet::for_all(plugins_, [&sr](auto& p) { p->doBeginSubRun(sr); });
     return true;
   }
@@ -290,7 +290,7 @@ namespace art {
   {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "doEvent called\n";
-    Event const e{ep, moduleDescription()};
+    Event const e{ep, moduleDescription(), TypeLabelLookup_t{}};
     if (wantAllEvents() || wantEvent(e)) {
       ++counts_run;
       event(ep);
@@ -304,7 +304,7 @@ namespace art {
   {
     detail::PVSentry clearTriggerResults{cachedProducts()};
     FDEBUG(2) << "writeEvent called\n";
-    Event const e{ep, moduleDescription()};
+    Event const e{ep, moduleDescription(), TypeLabelLookup_t{}};
     if (wantAllEvents() || wantEvent(e)) {
       write(ep);
       // Declare that the event was selected for write to the catalog interface.
@@ -318,7 +318,7 @@ namespace art {
       // ... The transactional object presented to the plugins is
       //     different since the relevant context information is not the
       //     same for the consumes functionality.
-      Event const we{ep, moduleDescription()};
+      Event const we{ep, moduleDescription(), TypeLabelLookup_t{}};
       cet::for_all(plugins_, [&we](auto& p) { p->doCollectMetadata(we); });
       updateBranchParents(ep);
       if (remainingEvents_ > 0) {
@@ -340,7 +340,7 @@ namespace art {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "endSubRun called\n";
     endSubRun(srp);
-    SubRun const sr{srp, moduleDescription()};
+    SubRun const sr{srp, moduleDescription(), TypeLabelLookup_t{}};
     cet::for_all(plugins_, [&sr](auto& p) { p->doEndSubRun(sr); });
     return true;
   }
@@ -366,7 +366,7 @@ namespace art {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "endRun called\n";
     endRun(rp);
-    Run const r{rp, moduleDescription()};
+    Run const r{rp, moduleDescription(), TypeLabelLookup_t{}};
     cet::for_all(plugins_, [&r](auto& p) { p->doEndRun(r); });
     return true;
   }

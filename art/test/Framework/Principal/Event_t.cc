@@ -89,8 +89,7 @@ namespace art {
     static void
     commitEvent(EventPrincipal& ep, Event& e)
     {
-      set<TypeLabel> tlset{};
-      e.commit(ep, false, &tlset);
+      e.commit(ep, false);
     }
   };
 
@@ -113,6 +112,8 @@ public:
   ProductDescriptions descriptions_{};
   ProductTables producedProducts_{ProductTables::invalid()};
   ProductTable presentProducts_{};
+  std::map<std::string, TypeLabelLookup_t> earlyLookup_{};
+  TypeLabelLookup_t currentLookup_{};
 
 private:
   // The 'Present' non-type parameter refers to if the product is
@@ -182,23 +183,30 @@ ProductTablesFixture::registerProduct(std::string const& tag,
 
   ProcessConfiguration const process{
     processName, processParams.id(), getReleaseVersion()};
+
   ModuleDescription const localModuleDescription{
     moduleParams.id(),
     module_class_name(),
     moduleLabel,
     static_cast<int>(ModuleThreadingType::LEGACY),
-    process};
+    process,
+    Present};
 
   TypeID const product_type{typeid(T)};
 
   moduleDescriptions_[tag] = localModuleDescription;
   TypeLabel typeLabel{
-    product_type, productInstanceName, SupportsView<T>::value};
+    product_type, productInstanceName, SupportsView<T>::value, false};
   if (Present) {
     typeLabel = TypeLabel{
       product_type, productInstanceName, SupportsView<T>::value, moduleLabel};
   }
   BranchDescription pd{InEvent, typeLabel, localModuleDescription};
+  if (Present) {
+    earlyLookup_[tag].emplace(typeLabel, pd);
+  } else {
+    currentLookup_.emplace(typeLabel, pd);
+  }
   descriptions_.push_back(pd);
   return moduleDescriptions_[tag];
 }
@@ -272,10 +280,11 @@ EventTestFixture::EventTestFixture()
   principal_ = std::make_unique<EventPrincipal>(
     eventAux, pc, &ptf().presentProducts_, std::move(history));
   principal_->setSubRunPrincipal(srp.get());
+  principal_->enableProductCreation(ptf().producedProducts_);
   principal_->setProducedProducts(ptf().producedProducts_);
 
-  currentEvent_ =
-    std::make_unique<Event>(*principal_, ptf().currentModuleDescription_);
+  currentEvent_ = std::make_unique<Event>(
+    *principal_, ptf().currentModuleDescription_, ptf().currentLookup_);
 }
 
 // Add the given product, of type T, to the current event, as if it
@@ -291,7 +300,12 @@ EventTestFixture::addSourceProduct(std::unique_ptr<T>&& product,
     throw art::Exception(errors::LogicError)
       << "Failed to find a module description for tag: " << tag << '\n';
 
-  Event temporaryEvent{*principal_, description->second};
+  auto lookup = ptf().earlyLookup_.find(tag);
+  if (lookup == ptf().earlyLookup_.end())
+    throw art::Exception(errors::LogicError)
+      << "Failed to find a product lookup for tag: " << tag << '\n';
+
+  Event temporaryEvent{*principal_, description->second, lookup->second};
   ProductID const id{temporaryEvent.put(std::move(product), instanceName)};
 
   EDProducer::commitEvent(*principal_, temporaryEvent);

@@ -65,7 +65,14 @@ public:
     Config()
       : input_label{fhicl::Name{"input_label"}}
       , branch_type{fhicl::Name{"branch_type"}, art::InEvent}
-      , require_presence{fhicl::Name{"require_presence"}, true}
+      , require_presence{fhicl::Name{"require_presence"},
+                         fhicl::Comment{
+                           "If 'require_presence' is true, then the product\n"
+                           "must be successfully retrievable.  If false, then\n"
+                           "the product must NOT be successfully "
+                           "retrievable--i.e.\n"
+                           "a call to 'getByLabel' must return false."},
+                         true}
       , expected_value{
           fhicl::Name{"expected_value"},
           fhicl::Comment{"The value of the following parameter is retrieved\n"

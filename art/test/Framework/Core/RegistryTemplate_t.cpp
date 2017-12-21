@@ -1,7 +1,8 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include <cassert>
 
-int main()
+int
+main()
 {
-  assert( art::ProcessHistoryRegistry::empty() );
+  assert(art::ProcessHistoryRegistry::empty());
 }

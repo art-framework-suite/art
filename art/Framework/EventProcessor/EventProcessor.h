@@ -12,6 +12,7 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/MFStatusUpdater.h"
 #include "art/Framework/Core/PathManager.h"
+#include "art/Framework/Core/ProducingServiceSignals.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Framework/EventProcessor/detail/ExceptionCollector.h"
@@ -230,6 +231,8 @@ namespace art {
     UpdateOutputCallbacks outputCallbacks_{};
 
     ProductDescriptions productsToProduce_{};
+
+    ProducingServiceSignals psSignals_{};
 
     // The service subsystem.
     std::unique_ptr<ServicesManager> servicesManager_{};

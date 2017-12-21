@@ -98,6 +98,7 @@ namespace art {
     friend class EDFilter;
     friend class EDProducer;
     friend class ResultsProducer;
+    friend class ProducingService;
 
   public: // TYPES
     struct PMValue {
@@ -120,14 +121,12 @@ namespace art {
                           Principal const& p,
                           ModuleDescription const& md,
                           bool recordParents,
+                          TypeLabelLookup_t const& expectedProducts,
                           RangeSet const& rs = RangeSet::invalid());
 
     DataViewImpl(DataViewImpl const&) = delete;
-
     DataViewImpl(DataViewImpl&&) = delete;
-
     DataViewImpl& operator=(DataViewImpl const&) = delete;
-
     DataViewImpl& operator=(DataViewImpl&) = delete;
 
   public: // MEMBER FUNCTIONS -- User-facing API - misc
@@ -340,11 +339,10 @@ namespace art {
     void fillView_(GroupQueryResult& bh,
                    std::vector<ELEMENT const*>& result) const;
 
-    void checkPutProducts(std::set<TypeLabel> const& expectedProducts);
+    void checkPutProducts();
 
     BranchDescription const& getProductDescription_(
-      TypeID const& type,
-      std::string const& instance) const;
+      TypeLabel const& typeLabel) const;
 
     void recordAsParent(Provenance const& prov) const;
 
@@ -371,13 +369,11 @@ namespace art {
                                  std::string const& productInstanceName,
                                  std::string const& processName) const;
 
-    void commit(Principal& principal,
-                bool const checkProducts,
-                std::set<TypeLabel> const* expectedProducts);
+    void commit(Principal& principal, bool const checkProducts);
 
     void commit(Principal& principal);
 
-  private: // MEMBER DATA -- Mine, all mine!
+  private: // MEMBER DATA
     // Is this an Event, a Run, a SubRun, or a Results.
     BranchType const branchType_;
 
@@ -397,6 +393,8 @@ namespace art {
     // merely a cache reflecting what has been retrieved from the
     // Principal class.
     mutable std::set<ProductID> retrievedProducts_{};
+
+    TypeLabelLookup_t const& expectedProducts_;
 
     // holding pen for EDProducts inserted into this
     // DataViewImpl. Pointers in these collections own the products to
@@ -868,20 +866,28 @@ art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
       << "The pointer is of type " << tid << ".\n"
       << "The specified productInstanceName was '" << instance << "'.\n";
   }
-  auto const& bd = getProductDescription_(tid, instance);
+  std::unique_ptr<TypeLabel> typeLabel{nullptr};
+  if (md_.isEmulatedModule()) {
+    typeLabel = std::make_unique<TypeLabel>(
+      tid, instance, SupportsView<PROD>::value, md_.moduleLabel());
+  } else {
+    typeLabel = std::make_unique<TypeLabel>(
+      tid, instance, SupportsView<PROD>::value, false /*not used*/);
+  }
+  auto const& bd = getProductDescription_(*typeLabel);
+  assert(bd.productID() != ProductID::invalid());
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
   bool result = false;
   if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
     rangeSet_.collapse();
-    result = putProducts_
-               .emplace(TypeLabel{tid, instance, SupportsView<PROD>::value},
-                        PMValue{std::move(wp), bd, rangeSet_})
-               .second;
+    result =
+      putProducts_.emplace(*typeLabel, PMValue{std::move(wp), bd, rangeSet_})
+        .second;
   } else {
-    result = putProducts_
-               .emplace(TypeLabel{tid, instance, SupportsView<PROD>::value},
-                        PMValue{std::move(wp), bd, RangeSet::invalid()})
-               .second;
+    result =
+      putProducts_
+        .emplace(*typeLabel, PMValue{std::move(wp), bd, RangeSet::invalid()})
+        .second;
   }
   if (!result) {
     cet::HorizontalRule rule{30};
@@ -913,11 +919,19 @@ art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
       << "\nCannot put a product with an invalid RangeSet.\n"
       << "Please contact artists@fnal.gov.\n";
   }
-  auto const& bd = getProductDescription_(tid, instance);
+
+  std::unique_ptr<TypeLabel> typeLabel{nullptr};
+  if (md_.isEmulatedModule()) {
+    typeLabel = std::make_unique<TypeLabel>(
+      tid, instance, SupportsView<PROD>::value, md_.moduleLabel());
+  } else {
+    typeLabel = std::make_unique<TypeLabel>(
+      tid, instance, SupportsView<PROD>::value, false /*not used*/);
+  }
+  auto const& bd = getProductDescription_(*typeLabel);
   auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
   auto result =
-    putProducts_.emplace(TypeLabel{tid, instance, SupportsView<PROD>::value},
-                         PMValue{std::move(wp), bd, rs});
+    putProducts_.emplace(*typeLabel, PMValue{std::move(wp), bd, rs});
   if (!result.second) {
     cet::HorizontalRule rule{30};
     throw Exception(errors::ProductPutFailure)

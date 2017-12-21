@@ -99,7 +99,6 @@ namespace art {
   class SubRun;
 
   class ResultsProducer : public ModuleBase, private ProductRegistryHelper {
-
   public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~ResultsProducer() noexcept = default;
 

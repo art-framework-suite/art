@@ -17,6 +17,10 @@
 
 #include <memory>
 
+namespace fhicl {
+  class ParameterSet;
+}
+
 namespace art {
 
   class ActivityRegistry;

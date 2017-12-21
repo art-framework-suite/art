@@ -184,6 +184,9 @@ EventProcessor::EventProcessor(ParameterSet const& pset)
   // We have delayed creating the service module instances until
   // now.  Now actually create them.
   servicesManager_->forceCreation();
+  ProcessConfiguration const pc{processName, pset.id(), getReleaseVersion()};
+  servicesManager_->registerProducts(productsToProduce_, psSignals_, pc);
+
   ServiceHandle<FileCatalogMetadata> {}
   ->addMetadataString("process_name", processName);
 
@@ -665,8 +668,13 @@ EventProcessor::
              "possible_output_switch ("
           << si << ") ... Calling input_->readEvent(subRunPrincipal_.get())\n";
         eventPrincipal_[si] = input_->readEvent(subRunPrincipal_.get());
+        assert(eventPrincipal_[si]);
+        eventPrincipal_[si]->enableProductCreation(producedProducts_);
+        psSignals_.sPostReadEvent.invoke(*eventPrincipal_[si]);
+
         eventPrincipal_[si]->setProducedProducts(producedProducts_);
-        Event const e{*eventPrincipal_[si], ModuleDescription{}};
+        Event const e{
+          *eventPrincipal_[si], ModuleDescription{}, TypeLabelLookup_t{}};
         actReg_.sPostSourceEvent.invoke(e);
       }
       assert(eventPrincipal_[si]);
@@ -783,7 +791,8 @@ EventProcessor::processAllEventsAsync_processEvent(int si)
         auto endPathTask = make_waiting_task(
           tbb::task::self().allocate_continuation(), endPathFunctor);
         {
-          Event const ev{*eventPrincipal_[si], ModuleDescription{}};
+          Event const ev{
+            *eventPrincipal_[si], ModuleDescription{}, TypeLabelLookup_t{}};
           CurrentProcessingContext cpc{si, nullptr, -1, false};
           detail::CPCSentry sentry{cpc};
           actReg_.sPreProcessEvent.invoke(ev);
@@ -951,7 +960,8 @@ EventProcessor::processAllEventsAsync_processEndPath(int si)
       return;
     }
     {
-      Event const ev{*eventPrincipal_[si], ModuleDescription{}};
+      Event const ev{
+        *eventPrincipal_[si], ModuleDescription{}, TypeLabelLookup_t{}};
       CurrentProcessingContext cpc{si, nullptr, -1, false};
       detail::CPCSentry sentry{cpc};
       actReg_.sPostProcessEvent.invoke(ev);
@@ -1351,12 +1361,16 @@ EventProcessor::readRun()
   {
     actReg_.sPreSourceRun.invoke();
     runPrincipal_ = input_->readRun();
-    runPrincipal_->setProducedProducts(producedProducts_);
-    Run const r{*runPrincipal_, ModuleDescription{}};
-    actReg_.sPostSourceRun.invoke(r);
+    // Seeding the RangeSet is necessary here in case
+    // 'sPostReadRun.invoke()' throws.
+    endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
+    assert(runPrincipal_);
+    runPrincipal_->enableProductCreation(producedProducts_);
+    psSignals_.sPostReadRun.invoke(*runPrincipal_);
   }
-  endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
-  assert(runPrincipal_);
+  runPrincipal_->setProducedProducts(producedProducts_);
+  Run const r{*runPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
+  actReg_.sPostSourceRun.invoke(r);
   FDEBUG(1) << spaces(8) << "readRun.....................("
             << runPrincipal_->runID() << ")\n";
 }
@@ -1372,13 +1386,13 @@ EventProcessor::beginRun()
   finalizeRunEnabled_ = true;
   try {
     {
-      Run const run{*runPrincipal_, ModuleDescription{}};
+      Run const run{*runPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
       actReg_.sPreBeginRun.invoke(run);
     }
     schedule_[0].process(Transition::BeginRun, *runPrincipal_);
     endPathExecutor_->process(Transition::BeginRun, *runPrincipal_);
     {
-      Run const run{*runPrincipal_, ModuleDescription{}};
+      Run const run{*runPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
       actReg_.sPostBeginRun.invoke(run);
     }
   }
@@ -1432,7 +1446,7 @@ EventProcessor::endRun()
     schedule_[0].process(Transition::EndRun, *runPrincipal_);
     endPathExecutor_->process(Transition::EndRun, *runPrincipal_);
     {
-      Run const r{*runPrincipal_, ModuleDescription{}};
+      Run const r{*runPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
       actReg_.sPostEndRun.invoke(r);
     }
   }
@@ -1471,12 +1485,16 @@ EventProcessor::readSubRun()
   {
     actReg_.sPreSourceSubRun.invoke();
     subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
-    subRunPrincipal_->setProducedProducts(producedProducts_);
-    SubRun const sr{*subRunPrincipal_, ModuleDescription{}};
-    actReg_.sPostSourceSubRun.invoke(sr);
+    // Seeding the RangeSet is necessary here in case
+    // 'sPostSubRun.invoke()' throws.
+    endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
+    assert(subRunPrincipal_);
+    subRunPrincipal_->enableProductCreation(producedProducts_);
+    psSignals_.sPostReadSubRun.invoke(*subRunPrincipal_);
   }
-  endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
-  assert(subRunPrincipal_);
+  subRunPrincipal_->setProducedProducts(producedProducts_);
+  SubRun const sr{*subRunPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
+  actReg_.sPostSourceSubRun.invoke(sr);
   FDEBUG(1) << spaces(8) << "readSubRun..................("
             << subRunPrincipal_->subRunID() << ")\n";
 }
@@ -1492,13 +1510,15 @@ EventProcessor::beginSubRun()
   finalizeSubRunEnabled_ = true;
   try {
     {
-      SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
+      SubRun const srun{
+        *subRunPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
       actReg_.sPreBeginSubRun.invoke(srun);
     }
     schedule_[0].process(Transition::BeginSubRun, *subRunPrincipal_);
     endPathExecutor_->process(Transition::BeginSubRun, *subRunPrincipal_);
     {
-      SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
+      SubRun const srun{
+        *subRunPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
       actReg_.sPostBeginSubRun.invoke(srun);
     }
   }
@@ -1552,7 +1572,8 @@ EventProcessor::endSubRun()
     schedule_[0].process(Transition::EndSubRun, *subRunPrincipal_);
     endPathExecutor_->process(Transition::EndSubRun, *subRunPrincipal_);
     {
-      SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
+      SubRun const srun{
+        *subRunPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
       actReg_.sPostEndSubRun.invoke(srun);
     }
   }

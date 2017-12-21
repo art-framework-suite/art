@@ -6,10 +6,17 @@
 
 namespace art {
 
-  Results::~Results() {}
+  Results::~Results() = default;
 
-  Results::Results(ResultsPrincipal const& p, ModuleDescription const& md)
-    : DataViewImpl{InResults, p, md, false, RangeSet::invalid()}
+  Results::Results(ResultsPrincipal const& p,
+                   ModuleDescription const& md,
+                   TypeLabelLookup_t const& expectedProducts)
+    : DataViewImpl{InResults,
+                   p,
+                   md,
+                   false,
+                   expectedProducts,
+                   RangeSet::invalid()}
   {}
 
 } // namespace art

@@ -57,6 +57,7 @@ namespace art {
     // FIXME: One could obviate the need for this trivial implementation
     // by putting some type logic in WorkerT.
     void registerProducts(ProductDescriptions&, ModuleDescription const&);
+    void fillDescriptions(ModuleDescription const&);
 
     std::string const& processName() const;
 

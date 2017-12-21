@@ -26,9 +26,10 @@ namespace art {
 class art::test::SigIntAnalyzer : public EDAnalyzer {
 public:
   struct Config {
-    fhicl::Atom<std::string> signal{fhicl::Name{"signal"},
-                                    fhicl::Comment{"Job-ending signal to be emitted.  Can choose from\n"
-                                                   "SIGUSR2, SIGTERM, SIGQUIT, or SIGINT."}};
+    fhicl::Atom<std::string> signal{
+      fhicl::Name{"signal"},
+      fhicl::Comment{"Job-ending signal to be emitted.  Can choose from\n"
+                     "SIGUSR2, SIGTERM, SIGQUIT, or SIGINT."}};
   };
   using Parameters = EDAnalyzer::Table<Config>;
 
@@ -40,15 +41,18 @@ private:
   int signal_;
 };
 
-art::test::SigIntAnalyzer::SigIntAnalyzer(Parameters const& p)
-  : EDAnalyzer{p}
+art::test::SigIntAnalyzer::SigIntAnalyzer(Parameters const& p) : EDAnalyzer{p}
 {
   auto const signal = p().signal();
-  if (signal == "SIGUSR2") { signal_ = SIGUSR2; }
-  else if (signal == "SIGTERM") { signal_ = SIGTERM; }
-  else if (signal == "SIGQUIT") { signal_ = SIGQUIT; }
-  else if (signal == "SIGINT") { signal_ = SIGINT; }
-  else {
+  if (signal == "SIGUSR2") {
+    signal_ = SIGUSR2;
+  } else if (signal == "SIGTERM") {
+    signal_ = SIGTERM;
+  } else if (signal == "SIGQUIT") {
+    signal_ = SIGQUIT;
+  } else if (signal == "SIGINT") {
+    signal_ = SIGINT;
+  } else {
     throw art::Exception{art::errors::Configuration}
       << "Incorrect signal string specified.  Please select from:\n"
       << "  SIGUSR2,\n"

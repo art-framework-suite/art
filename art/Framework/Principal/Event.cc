@@ -31,12 +31,19 @@ namespace art {
 
   } // unnamed namespace
 
-  Event::~Event() {}
+  Event::~Event() = default;
 
-  Event::Event(EventPrincipal const& ep, ModuleDescription const& md)
-    : DataViewImpl{InEvent, ep, md, record_parents(this), RangeSet::invalid()}
+  Event::Event(EventPrincipal const& ep,
+               ModuleDescription const& md,
+               TypeLabelLookup_t const& expectedProducts)
+    : DataViewImpl{InEvent,
+                   ep,
+                   md,
+                   record_parents(this),
+                   expectedProducts,
+                   RangeSet::invalid()}
     , subRun_{ep.subRunPrincipalExemptPtr() ?
-                new SubRun{ep.subRunPrincipal(), md} :
+                new SubRun{ep.subRunPrincipal(), md, TypeLabelLookup_t{}} :
                 nullptr}
   {}
 

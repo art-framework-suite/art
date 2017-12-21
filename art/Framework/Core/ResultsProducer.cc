@@ -52,49 +52,49 @@ namespace art {
   void
   ResultsProducer::doBeginRun(RunPrincipal const& rp)
   {
-    Run const r{rp, moduleDescription()};
+    Run const r{rp, moduleDescription(), TypeLabelLookup_t{}};
     beginRun(r);
   }
 
   void
   ResultsProducer::doEndRun(RunPrincipal const& rp)
   {
-    Run const r{rp, moduleDescription()};
+    Run const r{rp, moduleDescription(), TypeLabelLookup_t{}};
     endRun(r);
   }
 
   void
   ResultsProducer::doBeginSubRun(SubRunPrincipal const& srp)
   {
-    SubRun const sr{srp, moduleDescription()};
+    SubRun const sr{srp, moduleDescription(), TypeLabelLookup_t{}};
     beginSubRun(sr);
   }
 
   void
   ResultsProducer::doEndSubRun(SubRunPrincipal const& srp)
   {
-    SubRun const sr{srp, moduleDescription()};
+    SubRun const sr{srp, moduleDescription(), TypeLabelLookup_t{}};
     endSubRun(sr);
   }
 
   void
   ResultsProducer::doEvent(EventPrincipal const& ep)
   {
-    Event const e{ep, moduleDescription()};
+    Event const e{ep, moduleDescription(), TypeLabelLookup_t{}};
     event(e);
   }
 
   void
   ResultsProducer::doReadResults(ResultsPrincipal const& resp)
   {
-    Results const res{resp, moduleDescription()};
+    Results const res{resp, moduleDescription(), TypeLabelLookup_t{}};
     readResults(res);
   }
 
   void
   ResultsProducer::doWriteResults(ResultsPrincipal& resp)
   {
-    Results res{resp, moduleDescription()};
+    Results res{resp, moduleDescription(), expectedProducts<InResults>()};
     writeResults(res);
     res.DataViewImpl::commit(resp);
   }
@@ -106,6 +106,9 @@ namespace art {
   }
 
   // Virtual functions to be overridden by users
+  void
+  ResultsProducer::readResults(Results const&)
+  {}
 
   void
   ResultsProducer::beginJob()
@@ -133,10 +136,6 @@ namespace art {
 
   void
   ResultsProducer::event(Event const&)
-  {}
-
-  void
-  ResultsProducer::readResults(Results const&)
   {}
 
 } // namespace art

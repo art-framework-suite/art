@@ -40,8 +40,7 @@ basic_plugin(MemoryTracker "service"
   canvas
   cetlib
   ${SQLITE3}
-  SOURCE ${MemoryTrackerSource}
-  )
+  SOURCE ${MemoryTrackerSource})
 
 simple_plugin(TFileService "service"
   art_Framework_Services_System_TriggerNamesService_service
@@ -60,13 +59,10 @@ simple_plugin(TimeTracker "service"
   cetlib
   ${TBB}
   ${RT}
-  ${SQLITE3}
-  )
+  ${SQLITE3})
 
 simple_plugin(Tracer "service" art_Framework_Principal canvas)
-
 simple_plugin(TrivialFileDelivery "service")
-
 simple_plugin(TrivialFileTransfer "service")
 
 install_headers(SUBDIRS detail)

@@ -376,6 +376,7 @@ namespace art {
   {
     auto resp = std::make_unique<ResultsPrincipal>(
       ResultsAuxiliary{}, moduleDescription().processConfiguration(), nullptr);
+    resp->enableProductCreation(producedResultsProducts_);
     resp->setProducedProducts(producedResultsProducts_);
     if (!producedResultsProducts_.descriptions(InResults).empty() ||
         hasNewlyDroppedBranch()[InResults]) {
@@ -476,6 +477,7 @@ namespace art {
                           md.moduleLabel() + '#' + params.rpLabel,
                           static_cast<int>(ModuleThreadingType::LEGACY),
                           md.processConfiguration(),
+                          false, // not emulated module
                           ModuleDescription::invalidID()});
       w.rp().registerProducts(producedProducts, w.moduleDescription());
     });
