@@ -1,0 +1,18 @@
+source: {
+  module_type: RootInput
+  fileNames: @nil
+}
+
+physics: {
+  analyzers: {
+    a1: {
+      module_type: IntTestAnalyzer
+      input_label: "IntProducingService"
+      branch_type: 2 # Run
+
+      # The product should not be present!
+      require_presence: false
+    }
+  }
+  checkForAbsence: [a1]
+}

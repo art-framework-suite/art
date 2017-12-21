@@ -17,11 +17,13 @@
 
 #include <memory>
 
-namespace arttest {
-  class IntReaderThenProducer;
+namespace art {
+  namespace test {
+    class IntReaderThenProducer;
+  }
 }
 
-class arttest::IntReaderThenProducer : public art::EDProducer {
+class art::test::IntReaderThenProducer : public EDProducer {
 public:
   struct Config {
     fhicl::Atom<std::string> inputTag{fhicl::Name{"inputTag"}};
@@ -37,14 +39,14 @@ public:
   IntReaderThenProducer& operator=(IntReaderThenProducer&&) = delete;
 
   // Required functions.
-  void produce(art::Event& e) override;
+  void produce(Event& e) override;
 
 private:
-  art::ProductToken<arttest::IntProduct> const token_;
+  ProductToken<arttest::IntProduct> const token_;
   int const deltaValue_;
 };
 
-arttest::IntReaderThenProducer::IntReaderThenProducer(Parameters const& p)
+art::test::IntReaderThenProducer::IntReaderThenProducer(Parameters const& p)
   : token_{consumes<arttest::IntProduct>(p().inputTag())}
   , deltaValue_{p().deltaValue()}
 {
@@ -52,11 +54,11 @@ arttest::IntReaderThenProducer::IntReaderThenProducer(Parameters const& p)
 }
 
 void
-arttest::IntReaderThenProducer::produce(art::Event& e)
+art::test::IntReaderThenProducer::produce(Event& e)
 {
   // getValidHandle adds parent for the about-to-be-created IntProduct.
   auto const ivalue = e.getValidHandle(token_)->value;
   e.put(std::make_unique<arttest::IntProduct>(ivalue + deltaValue_));
 }
 
-DEFINE_ART_MODULE(arttest::IntReaderThenProducer)
+DEFINE_ART_MODULE(art::test::IntReaderThenProducer)

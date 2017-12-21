@@ -1,12 +1,3 @@
-simple_plugin(IntProducingService "service" NO_INSTALL
-  art_Framework_Principal
-  art_Framework_Core)
-
-cet_test(IntProducingService_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --rethrow-all -c IntProducingService_t.fcl
-  DATAFILES fcl/IntProducingService_t.fcl)
-
 simple_plugin(MyService "service" NO_INSTALL)
 
 simple_plugin(MyServiceUsingIface "service" NO_INSTALL

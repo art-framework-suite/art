@@ -9,6 +9,8 @@
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
 
+art::ProducingService::~ProducingService() noexcept = default;
+
 void
 art::ProducingService::registerCallbacks(ProducingServiceSignals& signals)
 {
@@ -22,7 +24,7 @@ art::ProducingService::doPostReadRun(RunPrincipal& rp)
 {
   Run r{rp, md_, Consumer::non_module_context(), RangeSet::forRun(rp.id())};
   postReadRun(r);
-  r.commit(rp, false, std::set<TypeLabel>{});
+  r.commit(rp, true, expectedProducts());
 }
 
 void
@@ -31,7 +33,7 @@ art::ProducingService::doPostReadSubRun(SubRunPrincipal& srp)
   SubRun sr{
     srp, md_, Consumer::non_module_context(), RangeSet::forSubRun(srp.id())};
   postReadSubRun(sr);
-  sr.commit(srp, false, std::set<TypeLabel>{});
+  sr.commit(srp, true, expectedProducts());
 }
 
 void
@@ -39,7 +41,7 @@ art::ProducingService::doPostReadEvent(EventPrincipal& ep)
 {
   Event e{ep, md_, Consumer::non_module_context()};
   postReadEvent(e);
-  e.commit(ep, false, std::set<TypeLabel>{});
+  e.commit(ep, true, expectedProducts());
 }
 
 void

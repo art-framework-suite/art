@@ -6,20 +6,15 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 
-namespace fhicl {
-  class ParameterSet;
-}
-
 namespace art {
 
   class ProducingServiceSignals;
 
   class ProducingService : private ProductRegistryHelper {
   public:
-    virtual ~ProducingService() noexcept = default;
+    virtual ~ProducingService() noexcept;
 
     using ProductRegistryHelper::ProductFlavor;
-    using ProductRegistryHelper::expectedProducts;
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::registerProducts;
 
@@ -40,10 +35,9 @@ namespace art {
   };
 }
 
-#define DEFINE_ART_PRODUCING_SERVICE(klass)             \
-  DECLARE_ART_SERVICE(klass, LEGACY)                    \
+#define DEFINE_ART_PRODUCING_SERVICE(klass)                                    \
+  DECLARE_ART_SERVICE(klass, LEGACY)                                           \
   DEFINE_ART_SERVICE(klass)
-
 
 #endif /* art_Framework_Core_ProducingService_h */
 
