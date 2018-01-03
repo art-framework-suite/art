@@ -12,6 +12,7 @@
 
 #include <array>
 #include <cstdint>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -243,6 +244,52 @@ namespace arttest {
         arr[i] += right.arr[i];
       }
     }
+  };
+
+  // Test making a data product that has no default constructor and is
+  // marked persistent="false" in the selection XML file.  We do not
+  // create a class that explicitly deletes the default constructor
+  // because ROOT's introspection mechanisms have a way of determining
+  // this at compile time.
+  struct NonPersistable {
+    explicit NonPersistable(std::string const& n) : name{n} {}
+    StringProduct name;
+  };
+
+  // Create type that encapsulates a pointer to NonPersistable--this
+  // type *can* have a default constructor.
+  struct PtrToNonPersistable {
+
+    explicit PtrToNonPersistable() = default;
+    explicit PtrToNonPersistable(std::string const& n)
+      : np{new NonPersistable{n}}
+    {}
+
+    // Copying disabled
+    PtrToNonPersistable(PtrToNonPersistable const&) = delete;
+    PtrToNonPersistable& operator=(PtrToNonPersistable const&) = delete;
+
+    // Move allowed
+    PtrToNonPersistable(PtrToNonPersistable&& rhs) : np{rhs.np}
+    {
+      rhs.np = nullptr;
+    }
+
+    PtrToNonPersistable&
+    operator=(PtrToNonPersistable&& rhs)
+    {
+      np = rhs.np;
+      rhs.np = nullptr;
+      return *this;
+    }
+
+    ~PtrToNonPersistable() noexcept
+    {
+      delete np;
+      np = nullptr;
+    }
+
+    NonPersistable const* np{nullptr};
   };
 }
 

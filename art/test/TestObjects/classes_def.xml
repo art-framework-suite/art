@@ -62,7 +62,9 @@
  <class name="std::vector<art::Ptr<arttest::Simple> >"/>
  <class name="art::PtrVector<arttest::Simple>"/><!-- For view<Simple> -->
  <class name="art::Wrapper<art::PtrVector<arttest::Simple> >"/>
-
+ <class name="arttest::NonPersistable" persistent="false"/>
+ <class name="arttest::PtrToNonPersistable" persistent="false"/>
+ <class name="art::Wrapper<arttest::PtrToNonPersistable>"/>
  <class name="arttest::ProductWithPtrs"/>
  <class name="art::Ptr<double>"/>
  <class name="art::Wrapper<art::Ptr<double> >"/>
