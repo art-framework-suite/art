@@ -73,6 +73,7 @@ simple_plugin(MixFilterTestOldStartEvent  "module"  NO_INSTALL USE_BOOST_UNIT ar
 simple_plugin(MixProducer                 "module"  NO_INSTALL)
 simple_plugin(MockClusterListAnalyzer     "module"  NO_INSTALL)
 simple_plugin(MockClusterListProducer     "module"  NO_INSTALL)
+simple_plugin(NonPersistableProducer      "module"  NO_INSTALL)
 simple_plugin(ProductIDGetter             "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(ProductIDGetterNoPut        "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(ProductIDGetterAnalyzer     "module"  NO_INSTALL USE_BOOST_UNIT)
@@ -1735,3 +1736,9 @@ cet_test(DataFlowDumper_t HANDBUILT
   fcl/data_flow_dumper_t.fcl
   TEST_PROPERTIES DEPENDS test_tiered_input_05d_t
  )
+
+cet_test(NonPersistableProducts_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c non_persistable_products_t.fcl -n 1
+  DATAFILES
+  fcl/non_persistable_products_t.fcl)

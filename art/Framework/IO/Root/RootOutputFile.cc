@@ -473,6 +473,15 @@ namespace art {
         if (bt == InResults && !pd.produced())
           continue;
         checkDictionaries(pd);
+
+        // Although the transient flag is already checked when
+        // OutputModule::doSelectProducts is called, it can be flipped
+        // to 'true' after the BranchDescription transients have been
+        // fluffed, which happens during the checkDictionaries call.
+        if (pd.transient()) {
+          continue;
+        }
+
         items.emplace(pd);
       }
 
