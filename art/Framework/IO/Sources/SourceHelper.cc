@@ -18,9 +18,10 @@ art::SourceHelper::throwIfProductsNotRegistered_() const
       "Error while attempting to create principal from SourceHelper.\n")
       << "Principals cannot be created until product registration is "
          "complete.\n"
-      << "Perhaps you have attempted to create a Principal outside of your "
-         "'readNext'\n"
-      << "function.  Please contact artists@fnal.gov for guidance.";
+      << "This can happen if you are attempting to create a Principal\n"
+         "outside of your 'readNext' function, or if you are using a\n"
+         "different SourceHelper object than the one provided by art.\n"
+         "Please contact artists@fnal.gov for guidance.";
   }
 }
 
