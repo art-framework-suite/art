@@ -1,7 +1,6 @@
 set(art_Utilities_sources
   ensureTable.cc
   ExceptionMessages.cc
-  FirstAbsoluteOrLookupWithDotPolicy.cc
   LinuxProcMgr.cc
   MallocOpts.cc
   parent_path.cc
