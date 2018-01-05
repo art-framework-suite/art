@@ -29,12 +29,12 @@ int @ART_MAIN_FUNC@(int argc, char* argv[])
   if (fhicl_env == nullptr) {
     std::cerr << "Expected environment variable FHICL_FILE_PATH is "
               << "missing or empty: using \".\"\n";
-    search_path = ".:";
+    search_path = ".";
   }
   else {
-    search_path = std::string{fhicl_env} + ":";
+    search_path = std::string{fhicl_env};
   }
-  cet::filepath_first_absolute_or_lookup_with_dot lookupPolicy(search_path);
+  cet::filepath_first_absolute_or_lookup_with_dot lookupPolicy{search_path};
   // Empty options_description.
   bpo::options_description all_desc;
   // Create and store options handlers.
