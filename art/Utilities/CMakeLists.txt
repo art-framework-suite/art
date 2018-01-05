@@ -3,7 +3,6 @@ set(art_Utilities_sources
   CPCSentry.cc
   CurrentProcessingContext.cc
   ExceptionMessages.cc
-  FirstAbsoluteOrLookupWithDotPolicy.cc
   Globals.cc
   LinuxProcMgr.cc
   MallocOpts.cc

@@ -10,8 +10,6 @@
 #include "canvas/Utilities/Exception.h"
 
 namespace art {
-  class debugavlue; // DebugMacros.h
-  class FirstAbsoluteOrLookupWithDotPolicy;
   class InputTag;
   class MallocOpts;
   class MallocOptionsSetter; // MallocOpts.h

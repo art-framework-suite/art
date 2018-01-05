@@ -39,6 +39,18 @@ class art::SourceHelper {
 public:
   explicit SourceHelper(ModuleDescription const& md);
 
+  // Copying/moving is disallowed--the helper object that art creates
+  // is intended to be passed to the user by reference for their use.
+  // If the detail class uses a copy of the SourceHelper object
+  // instead of a reference to the art-provided object, then the
+  // 'setPresentProducts' function will not be called on the detail
+  // class's object.  This will induce an exception throw when calling
+  // 'make*Principal'.
+  SourceHelper(SourceHelper const&) = delete;
+  SourceHelper(SourceHelper&&) = delete;
+  SourceHelper& operator=(SourceHelper const&) = delete;
+  SourceHelper& operator=(SourceHelper&&) = delete;
+
   template <typename T>
   Ptr<T> makePtr(TypeLabel const& t,
                  Principal const& p,
