@@ -66,7 +66,6 @@ sub optionalEntries {
      finishEndFile => "void finishEndFile() override",
      isFileOpen => "bool isFileOpen() const override",
      openFile => "void openFile(art::FileBlock const & fb) override",
-     reconfigure => "void reconfigure(fhicl::ParameterSet const & p) override",
      respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const & fb) override",
      respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const & fb) override",
      respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const & fb) override",

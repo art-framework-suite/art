@@ -66,7 +66,7 @@ Processing-related
 
 * **Process Name**: User-assigned name representing the kind of processing that a job is affiliated
   with, such as reconstruction, testing, filtering.
-  
+
 EDM: the Event Data Model
 =========================
 
@@ -135,7 +135,6 @@ Filter Interface
       // explicit EDFilter(ParameterSet const&)
 
       virtual bool filter(Event&) = 0
-      virtual void reconfigure(ParameterSet const&)
 
       virtual void beginJob()
       virtual void endJob()
@@ -158,7 +157,6 @@ Analyzer Interface
       // explicit EDAnalyzer(ParameterSet const&)
 
       virtual void analyze(Event const&) = 0
-      virtual void reconfigure(ParameterSet const&)
 
       virtual void beginJob()
       virtual void endJob()
@@ -246,7 +244,7 @@ FHiCL Job Configuration
             photrans:  @local::standard_photrans
             daq:       @local::standard_rsim
 
-	  } # things will be added here
+          } # things will be added here
 
           simulate: [ generator, geantgen, photrans, daq ]
           stream1:  [ out1 ]
@@ -377,22 +375,22 @@ nova Command Line Arguments
         $> nova -h
 
         Usage: nova <-c <config-file>> <other-options> [<source-file>]+
-        
+
         Allowed options:
           -c [ --config ] arg           Configuration file.
           -h [ --help ]                 produce help message
-          --process-name arg            art process name.   
+          --process-name arg            art process name.
 
           -s [ --source ] arg           Source data file (multiple OK).
           -S [ --source-list ] arg      file containing a list of source files to read,
-                                        one per line.                                  
-          -e [ --estart ] arg           Event # of first event to process.             
-          -n [ --nevts ] arg            Number of events to process.                   
-          --nskip arg                   Number of events to skip.                      
-          -T [ --TFileName ] arg        File name for TFileService.                    
-          -o [ --output ] arg           Event output stream file.                      
-          --trace                       Activate tracing.                              
-          --notrace                     Deactivate tracing.                            
+                                        one per line.
+          -e [ --estart ] arg           Event # of first event to process.
+          -n [ --nevts ] arg            Number of events to process.
+          --nskip arg                   Number of events to skip.
+          -T [ --TFileName ] arg        File name for TFileService.
+          -o [ --output ] arg           Event output stream file.
+          --trace                       Activate tracing.
+          --notrace                     Deactivate tracing.
           --memcheck                    Activate monitoring of memory use.
           --nomemcheck                  Deactivate monitoring of memory use.
           --default-exceptions          some exceptions may be handled differently by

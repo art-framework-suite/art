@@ -75,9 +75,6 @@ namespace art {
     virtual void
     endJob()
     {}
-    virtual void
-    reconfigure(fhicl::ParameterSet const&)
-    {} // Not called by framework
 
     virtual void
     beginRun(Run&)
