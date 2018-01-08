@@ -139,7 +139,6 @@ namespace arttest {
             << "Test pattern \"" << action << "\" not recognized.";
         }
       } else if (!fileNames_.empty()) {
-        CET_USE_FREE_CBEGIN_CEND();
         currentName_ = fileNames_.front();
         fileNames_.erase(cbegin(fileNames_));
         return art::input::IsFile;
