@@ -20,7 +20,7 @@ namespace art {
   namespace detail {
     class ModuleConfigInfo;
 
-    typedef std::map<std::string, ModuleConfigInfo> ModuleConfigInfoMap;
+    using ModuleConfigInfoMap = std::map<std::string, ModuleConfigInfo>;
   }
 }
 

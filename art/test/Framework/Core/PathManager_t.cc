@@ -174,6 +174,26 @@ BOOST_AUTO_TEST_CASE(Construct)
     "trigger path.\n"
     "---- Configuration END\n"); // Incorrectly included trigger path as end
                                  // path
+  test_sets.emplace_back(
+    "process_name: MisspecifiedModuleLabel\n"
+    "physics.producers.d1: {\n"
+    "   module_type: \"art/test/Framework/Art/PrintAvailable/DummyProducer\"\n"
+    "}\n"
+    "physics.analyzers.d2: {\n"
+    "   module_type: \"art/test/Framework/Art/PrintAvailable/DummyAnalyzer\"\n"
+    "}\n"
+    "physics.p1: [\"!d1\"]\n"
+    "physics.e1: [\"-d2\"]\n",
+    art::errors::Configuration,
+    "---- Configuration BEGIN\n"
+    "  Path configuration: The following were encountered while processing "
+    "path configurations:\n"
+    "    ERROR: Module d2 in path e1 is an analyzer and cannot have a '!' or "
+    "'-' prefix.\n"
+    "    ERROR: Module d1 in path p1 is a producer and cannot have a '!' or "
+    "'-' prefix.\n"
+    "---- Configuration END\n"); // Incorrectly applied '!' and '-' characters
+                                 // to modules that are not filters.
 
   for (auto const& test : test_sets) {
     fhicl::ParameterSet ps;

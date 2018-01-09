@@ -24,8 +24,8 @@ namespace art {
   std::string to_string(ModuleType mt);
 
   // Useful functions.
-  bool is_observer(ModuleType const& mt);
-  bool is_modifier(ModuleType const& mt);
+  bool is_observer(ModuleType mt);
+  bool is_modifier(ModuleType mt);
 }
 
 inline std::string
@@ -41,7 +41,7 @@ art::to_string(ModuleType mt)
     case ModuleType::PRODUCER:
       return "producer";
     case ModuleType::OUTPUT:
-      return "output";
+      return "output module";
     default:
       throw Exception(errors::LogicError)
         << "Unable to find string for unrecognized ModuleType value "
@@ -50,13 +50,13 @@ art::to_string(ModuleType mt)
 }
 
 inline bool
-art::is_observer(ModuleType const& mt)
+art::is_observer(ModuleType const mt)
 {
   return mt == ModuleType::ANALYZER || mt == ModuleType::OUTPUT;
 }
 
 inline bool
-art::is_modifier(ModuleType const& mt)
+art::is_modifier(ModuleType const mt)
 {
   return mt == ModuleType::FILTER || mt == ModuleType::PRODUCER;
 }

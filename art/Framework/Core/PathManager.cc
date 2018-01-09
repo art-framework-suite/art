@@ -309,14 +309,15 @@ art::PathManager::processOnePathConfig_(std::string const& path_name,
   for (auto const& modname : path_seq) {
     auto const label = stripLabel(modname);
     auto const it = allModules_.find(label);
-    if (it == allModules_.end()) {
+    if (it == cend(allModules_)) {
       error_stream << "  ERROR: Entry " << modname << " in path " << path_name
                    << " refers to a module label " << label
                    << " which is not configured.\n";
       continue;
     }
-    auto mtype = is_observer(it->second.moduleType()) ? mod_cat_t::OBSERVER :
-                                                        mod_cat_t::MODIFIER;
+    auto const& mci = it->second;
+    auto mtype =
+      is_observer(mci.moduleType()) ? mod_cat_t::OBSERVER : mod_cat_t::MODIFIER;
     if (cat == mod_cat_t::UNSET) {
       cat = mtype;
       // Efficiency.
@@ -369,11 +370,21 @@ art::PathManager::processOnePathConfig_(std::string const& path_name,
                    << (cat == mod_cat_t::OBSERVER ? "observers" : "modifiers")
                    << ".\n";
     }
+
+    auto const filtAction = filterAction(modname);
+    if (mci.moduleType() != ModuleType::FILTER &&
+        filtAction != WorkerInPath::Normal) {
+      error_stream << "  ERROR: Module " << stripLabel(modname) << " in path "
+                   << path_name << " is"
+                   << (cat == mod_cat_t::OBSERVER ? " an " : " a ")
+                   << to_string(mci.moduleType())
+                   << " and cannot have a '!' or '-' prefix.\n";
+    }
+
     if (cat == mod_cat_t::MODIFIER) {
-      protoTrigPathMap_[path_name].emplace_back(it->second,
-                                                filterAction(modname));
+      protoTrigPathMap_[path_name].emplace_back(mci, filtAction);
     } else { // Only one end path.
-      protoEndPathInfo_.emplace_back(it->second, filterAction(modname));
+      protoEndPathInfo_.emplace_back(mci, filtAction);
     }
   }
   return (cat == mod_cat_t::OBSERVER);
