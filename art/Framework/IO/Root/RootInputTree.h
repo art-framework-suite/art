@@ -192,8 +192,10 @@ namespace art {
     {
       auto auxResult = getAux<AUX>(entries[0]);
       if (fileFormatVersion.value_ < 9) {
+        auxResult.setRangeSetID(-1u);
         auto const& rs = detail::rangeSetFromFileIndex(
           fileIndex, auxResult.id(), compactSubRunRanges_);
+        std::swap(aux, auxResult);
         return std::make_unique<ClosedRangeSetHandler>(rs);
       }
 
