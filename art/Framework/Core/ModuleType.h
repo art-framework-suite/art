@@ -50,7 +50,7 @@ namespace art {
       case ModuleType::ANALYZER:
         return "analyzer";
       case ModuleType::OUTPUT:
-        return "output";
+        return "output module";
       default:
         throw Exception(errors::LogicError)
           << "Unable to find string for unrecognized ModuleType value "

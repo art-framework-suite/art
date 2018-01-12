@@ -376,13 +376,20 @@ art::PathManager::PathManager(ParameterSet const& procPS,
           } else if (modname_filterAction[0] == '-') {
             filteract = WorkerInPath::FilterAction::Ignore;
           }
+
+          if (mci.moduleType_ != ModuleType::FILTER &&
+              filteract != WorkerInPath::Normal) {
+            es << "  ERROR: Module " << label << " in path " << path_name
+               << " is" << (cat == mod_cat_t::OBSERVER ? " an " : " a ")
+               << ModuleType_to_string(mci.moduleType_)
+               << " and cannot have a '!' or '-' prefix.\n";
+          }
+
+          mci.filterAction_ = filteract;
           if (cat == mod_cat_t::MODIFIER) {
             // Trigger path.
-            mci.filterAction_ = filteract;
             protoTrigPathMap_[path_name].emplace_back(mci);
           } else {
-            // End path.
-            mci.filterAction_ = filteract;
             protoEndPathInfo_.emplace_back(mci);
           }
         }

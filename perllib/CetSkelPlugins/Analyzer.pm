@@ -56,7 +56,6 @@ sub optionalEntries {
      endJob => "void endJob() override",
      endRun => "void endRun(art::Run const & r) override",
      endSubRun => "void endSubRun(art::SubRun const & sr) override",
-     reconfigure => "void reconfigure(fhicl::ParameterSet const & p) override",
      respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const & fb) override",
      respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const & fb) override",
      respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const & fb) override",

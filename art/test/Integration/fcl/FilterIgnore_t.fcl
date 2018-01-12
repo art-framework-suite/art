@@ -65,7 +65,7 @@ physics:
   p1a: [ f1, m1a ]
   p2a: [ "-f1", m1a ]
   p3a: [ f2, m2a, "!f3", m3a, "-f4" ]
-  p4a: [ f2, m2a, "!f3", "-m3a", f4 ]
+  p4a: [ f2, m2a, "!f3", m3a, f4 ]
   p5a: [ m4a, f2, m2a, "!f3", m3a, "-f4", m4a ]
 
   e: [ outp1, outp2, outp3, outp4, outp5 ]

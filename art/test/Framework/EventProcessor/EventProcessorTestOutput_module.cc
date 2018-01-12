@@ -135,14 +135,12 @@ namespace arttest {
     void
     respondToOpenInputFile(FileBlock const& fb)
     {
-      //      std::cout << __func__ << '\n';
       currentInputFileName_ = fb.fileName();
     }
 
     void
     write(EventPrincipal& ep) override
     {
-      //      std::cout << __func__ << '\n';
       requestsFileClose_ =
         activeSwitchPoint_.matches(currentInputFileName_, ep.eventID());
       if (requestsFileClose_) {
@@ -153,7 +151,6 @@ namespace arttest {
     void
     writeSubRun(SubRunPrincipal& srp) override
     {
-      //      std::cout << __func__ << '\n';
       requestsFileClose_ =
         activeSwitchPoint_.matches(currentInputFileName_, srp.subRunID());
       if (requestsFileClose_) {
@@ -164,7 +161,6 @@ namespace arttest {
     void
     writeRun(RunPrincipal& rp) override
     {
-      //      std::cout << __func__ << '\n';
       requestsFileClose_ =
         activeSwitchPoint_.matches(currentInputFileName_, rp.runID());
       if (requestsFileClose_) {
@@ -175,7 +171,6 @@ namespace arttest {
     void
     incrementInputFileNumber() override
     {
-      //      std::cout << __func__ << '\n';
       requestsFileClose_ = activeSwitchPoint_.matches(currentInputFileName_);
       if (requestsFileClose_) {
         updateSwitchPoints();
@@ -185,8 +180,6 @@ namespace arttest {
     bool
     requestsToCloseFile() const override
     {
-      //      std::cout << __func__ << ": " << std::boolalpha <<
-      //      requestsFileClose_ << '\n';
       return requestsFileClose_;
     }
 
@@ -199,14 +192,12 @@ namespace arttest {
     void
     updateSwitchPoints()
     {
-      //      std::cout << __func__ << '\n';
       assert(activeSwitchPoint_.valid());
       if (switchPoints_.empty()) {
         // Invalidate the next switch point--matching against a
         // default-constructed SwitchPoint will always return false.
         activeSwitchPoint_ = SwitchPoint{};
       } else {
-        CET_USE_FREE_CBEGIN_CEND();
         // Pop the front
         switchPoints_.erase(cbegin(switchPoints_));
         activeSwitchPoint_ = switchPoints_.front();
