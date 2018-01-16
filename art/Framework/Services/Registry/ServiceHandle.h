@@ -31,6 +31,18 @@
 #include <type_traits>
 
 namespace art {
+
+  template <typename T, typename = void>
+  struct handle_allowed : std::true_type {
+  };
+
+  template <typename T>
+  struct handle_allowed<T, std::enable_if_t<!T::service_handle_allowed>> : std::false_type {
+  };
+
+  template <typename T>
+  bool constexpr handle_allowed_v{handle_allowed<T>::value};
+
   template <typename T,
             ServiceScope SCOPE =
               art::detail::ServiceHelper<std::remove_const_t<T>>::scope_val>
@@ -43,6 +55,11 @@ namespace art {
 template <typename T, art::ServiceScope SCOPE>
 class art::ServiceHandle {
 public:
+
+  static_assert(handle_allowed_v<T>,
+                "\n\nart-error: You cannot create a ServiceHandle for this type.\n"
+                "           Please contact artists@fnal.gov for guidance.\n");
+
   ServiceHandle() try : instance {
     &ServiceRegistry::instance().get<std::remove_const_t<T>>()
   }
