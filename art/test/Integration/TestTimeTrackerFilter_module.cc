@@ -1,33 +1,29 @@
 //--------------------------------------------------------------------
 //
-// Empty module just to test timeTracker stuff
+// Empty module just to test TimeTracker stuff
 //
 //--------------------------------------------------------------------
 
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
-#include "fhiclcpp/ParameterSet.h"
-
-#include <random>
 
 namespace arttest {
 
   class TestTimeTrackerFilter : public art::EDFilter {
   public:
-    explicit TestTimeTrackerFilter(fhicl::ParameterSet const&) {}
-
-    bool
-    filter(art::Event&) override
-    {
-      bool const passesCuts = rand_(dre_) < 0.3;
-
-      return passesCuts ? EDFilter::Pass : EDFilter::Fail;
-    }
+    struct Config {
+    };
+    using Parameters = art::EDFilter::Table<Config>;
+    explicit TestTimeTrackerFilter(Parameters const&) {}
 
   private:
-    std::default_random_engine dre_;
-    std::uniform_real_distribution<> rand_;
+    bool
+    filter(art::Event& e) override
+    {
+      bool const passesCuts = (e.event() % 10) < 3;
+      return passesCuts;
+    }
   }; // TestTimeTrackerFilter
 
 } // namespace arttest
