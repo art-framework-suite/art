@@ -119,11 +119,11 @@ end_path:mod1:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration
 end_path:mod2:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 1000    
 
 TrigReport ---------- Event  Summary ------------
-TrigReport Events total = 1000 passed = 310 failed = 690
+TrigReport Events total = 1000 passed = 300 failed = 700
 
 TrigReport ---------- Path   Summary ------------
 TrigReport  Trig Bit#        Run     Passed     Failed      Error Name
-TrigReport     1    0       1000        310        690          0 p1
+TrigReport     1    0       1000        300        700          0 p1
 
 TrigReport -------End-Path   Summary ------------
 TrigReport  Trig Bit#        Run    Success      Error Name
@@ -132,18 +132,18 @@ TrigReport     0    0       1000       1000          0 end_path
 TrigReport ---------- Modules in Path: p1 ------------
 TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
 TrigReport     1    0       1000       1000          0          0 prod
-TrigReport     1    0       1000        310        690          0 filt
+TrigReport     1    0       1000        300        700          0 filt
 
 TrigReport ------ Modules in End-Path: end_path ------------
 TrigReport  Trig Bit#        Run    Success      Error Name
-TrigReport     0    0        310        310          0 mod1
+TrigReport     0    0        300        300          0 mod1
 TrigReport     0    0       1000       1000          0 mod2
 
 TrigReport ---------- Module Summary ------------
 TrigReport    Visited        Run     Passed     Failed      Error Name
-TrigReport       1000       1000        310        690          0 filt
+TrigReport       1000       1000        300        700          0 filt
 TrigReport       1000       1000       1000          0          0 prod
-TrigReport       1000        310        310          0          0 mod1
+TrigReport       1000        300        300          0          0 mod1
 TrigReport       1000       1000       1000          0          0 mod2
 
 TimeReport ---------- Time  Summary ---[sec]----
