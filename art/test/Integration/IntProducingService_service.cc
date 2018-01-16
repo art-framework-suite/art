@@ -2,7 +2,6 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/test/TestObjects/ToyProducts.h"
 #include "fhiclcpp/types/Atom.h"
 
