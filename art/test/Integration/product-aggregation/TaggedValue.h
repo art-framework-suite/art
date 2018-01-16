@@ -7,14 +7,12 @@ namespace arttest {
 
   template <typename T>
   struct TaggedValue {
-    explicit TaggedValue(std::string const& tag, T const value) :
-      tag_{tag},
-      value_{value}
+    explicit TaggedValue(std::string const& tag, T const value)
+      : tag_{tag}, value_{value}
     {}
     art::InputTag const tag_;
     T const value_;
   };
-
 }
 
 #endif

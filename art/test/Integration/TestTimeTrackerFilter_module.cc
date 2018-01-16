@@ -12,7 +12,8 @@ namespace arttest {
 
   class TestTimeTrackerFilter : public art::EDFilter {
   public:
-    struct Config {};
+    struct Config {
+    };
     using Parameters = art::EDFilter::Table<Config>;
     explicit TestTimeTrackerFilter(Parameters const&) {}
 

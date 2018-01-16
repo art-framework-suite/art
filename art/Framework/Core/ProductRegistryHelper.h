@@ -24,6 +24,7 @@
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/Persistable.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
@@ -87,8 +88,6 @@ public:
     productList_.reset(p);
   }
 
-  enum class ProductFlavor { Persistable, InMemoryOnly };
-
   void registerProducts(MasterProductRegistry& mpr,
                         ProductDescriptions& producedProducts,
                         ModuleDescription const& md);
@@ -97,7 +96,7 @@ public:
   // instance name, in the Event (by default), Run, or SubRun.
   template <typename P, BranchType B = InEvent>
   void produces(std::string const& instanceName = {},
-                ProductFlavor const flavor = ProductFlavor::Persistable);
+                Persistable const persistable = Persistable::Yes);
 
   // Record the reconstitution of an object of type P, in either the
   // Run, SubRun, or Event, recording that this object was
@@ -140,12 +139,12 @@ private:
 template <typename P, art::BranchType B>
 inline void
 art::ProductRegistryHelper::produces(std::string const& instanceName,
-                                     ProductFlavor const flavor)
+                                     Persistable const persistable)
 {
   verifyInstanceName(instanceName);
   TypeID const productType{typeid(P)};
   verifyFriendlyClassName(productType.friendlyClassName());
-  bool const isTransient = (flavor == ProductFlavor::InMemoryOnly);
+  bool const isTransient = (persistable == Persistable::No);
   insertOrThrow(
     B,
     TypeLabel{productType, instanceName, SupportsView<P>::value, isTransient});

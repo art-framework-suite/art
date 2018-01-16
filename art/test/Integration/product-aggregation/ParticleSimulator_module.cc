@@ -28,9 +28,10 @@ namespace {
     //   abs(pdg_id) + particle_ids.size();
     auto energies = std::make_unique<std::vector<double>>();
     auto const energy_offset = static_cast<double>(particle_ids.size());
-    cet::transform_all(particle_ids,
-                       back_inserter(*energies),
-                       [&energy_offset] (auto const pid) { return std::abs(pid) + energy_offset; });
+    cet::transform_all(
+      particle_ids, back_inserter(*energies), [&energy_offset](auto const pid) {
+        return std::abs(pid) + energy_offset;
+      });
     return energies;
   }
 

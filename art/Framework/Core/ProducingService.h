@@ -15,7 +15,6 @@ namespace art {
   public:
     virtual ~ProducingService() noexcept;
 
-    using ProductRegistryHelper::ProductFlavor;
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::registerProducts;
 

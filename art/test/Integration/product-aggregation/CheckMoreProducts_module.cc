@@ -27,9 +27,12 @@ namespace {
   struct Config {
     TupleAs<InputTag(string)> trkEffTag{Name("trkEffTag")};
     TupleAs<InputTag(string)> trkEffValueTag{Name("trkEffValueTag")};
-    TupleAs<TaggedValue<unsigned>(string, unsigned)> nParticlesRef{Name("nParticlesRef")};
-    TupleAs<TaggedValue<unsigned>(string, unsigned)> seenParticlesRef{Name("seenParticlesRef")};
-    TupleAs<TaggedValue<double>(string, double)> particleRatioRef{Name("particleRatioRef")};
+    TupleAs<TaggedValue<unsigned>(string, unsigned)> nParticlesRef{
+      Name("nParticlesRef")};
+    TupleAs<TaggedValue<unsigned>(string, unsigned)> seenParticlesRef{
+      Name("seenParticlesRef")};
+    TupleAs<TaggedValue<double>(string, double)> particleRatioRef{
+      Name("particleRatioRef")};
   };
 
   class CheckMoreProducts : public art::EDAnalyzer {
@@ -68,12 +71,14 @@ namespace {
       sr.getValidHandle<arttest::TrackEfficiency>(trkEffTag_);
     auto const& trkEffValueH = sr.getValidHandle<Fraction>(trkEffValueTag_);
     BOOST_CHECK(art::same_ranges(trkEffH, trkEffValueH));
-    BOOST_CHECK_CLOSE_FRACTION(trkEffH->efficiency(), trkEffValueH->value(), tolerance);
+    BOOST_CHECK_CLOSE_FRACTION(
+      trkEffH->efficiency(), trkEffValueH->value(), tolerance);
 
     // User-assembled ParticleRatio check
     auto const seenParticles = sr.getByLabel<unsigned>(seenParticlesRef_.tag_);
     auto const nParticles = sr.getByLabel<unsigned>(nParticlesRef_.tag_);
-    auto const& particleRatioH = sr.getValidHandle<Fraction>(particleRatioRef_.tag_);
+    auto const& particleRatioH =
+      sr.getValidHandle<Fraction>(particleRatioRef_.tag_);
     BOOST_CHECK_EQUAL(seenParticles, seenParticlesRef_.value_);
     BOOST_CHECK_EQUAL(nParticles, nParticlesRef_.value_);
     BOOST_CHECK_CLOSE_FRACTION(particleRatioH->value(),

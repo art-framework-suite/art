@@ -6,6 +6,7 @@
 #include "fhiclcpp/types/Atom.h"
 
 namespace {
+
   class IntProducingService : public art::ProducingService {
   public:
     struct Config {
@@ -30,15 +31,13 @@ namespace {
   {
     switch (branchType_) {
       case art::InEvent:
-        produces<arttest::IntProduct>("", ProductFlavor::InMemoryOnly);
+        produces<arttest::IntProduct>("", art::Persistable::No);
         break;
       case art::InSubRun:
-        produces<arttest::IntProduct, art::InSubRun>(
-          "", ProductFlavor::InMemoryOnly);
+        produces<arttest::IntProduct, art::InSubRun>("", art::Persistable::No);
         break;
       case art::InRun:
-        produces<arttest::IntProduct, art::InRun>("",
-                                                  ProductFlavor::InMemoryOnly);
+        produces<arttest::IntProduct, art::InRun>("", art::Persistable::No);
         break;
       default:
         throw art::Exception(art::errors::LogicError)

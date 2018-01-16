@@ -88,11 +88,10 @@ namespace {
         art::same_ranges(trkEffRef, trkEffNum_.rangeOfValidity())) {
       BOOST_CHECK(!art::disjoint_ranges(trkEffNum_, trkEffDenom_));
       BOOST_CHECK(!art::overlapping_ranges(trkEffNum_, trkEffDenom_));
-      auto trkEff = std::make_unique<Fraction>(trkEffNum_.value(), trkEffDenom_.value());
+      auto trkEff =
+        std::make_unique<Fraction>(trkEffNum_.value(), trkEffDenom_.value());
       BOOST_CHECK_CLOSE_FRACTION(expectedEff_, trkEff->value(), tolerance);
-      sr.put(move(trkEff),
-             "TrkEffValue",
-             art::subRunFragment(trkEffRef));
+      sr.put(move(trkEff), "TrkEffValue", art::subRunFragment(trkEffRef));
       trkEffNum_.clear();
       trkEffDenom_.clear();
     }
@@ -113,9 +112,10 @@ namespace {
     seenParticles_.update(seenParticlesH);
 
     if (art::same_ranges(nParticles_, seenParticles_)) {
-      sr.put(std::make_unique<Fraction>(seenParticles_.value(), nParticles_.value()),
-             "ParticleRatio",
-             art::subRunFragment(nParticles_.rangeOfValidity()));
+      sr.put(
+        std::make_unique<Fraction>(seenParticles_.value(), nParticles_.value()),
+        "ParticleRatio",
+        art::subRunFragment(nParticles_.rangeOfValidity()));
       nParticles_.clear();
       seenParticles_.clear();
     }
