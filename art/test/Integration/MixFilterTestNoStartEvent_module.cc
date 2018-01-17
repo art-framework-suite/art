@@ -185,9 +185,9 @@ private:
   std::unique_ptr<art::EventIDSequence> eIDs_;
   bool startEvent_called_
 #ifdef __clang__
- [[gnu::unused]]
+    [[gnu::unused]]
 #endif
-;
+    ;
   bool processEventIDs_called_;
   int currentEvent_;
   bool const testZeroSecondaries_;

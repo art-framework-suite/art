@@ -332,22 +332,47 @@ art::RootOutputFile::RootOutputFile(OutputModule* om,
   , dropMetaDataForDroppedData_{dropMetaDataForDroppedData}
   , fastCloningEnabledAtConstruction_{fastCloningRequested}
   , filePtr_{TFile::Open(file_.c_str(), "recreate", "", compressionLevel)}
-  , treePointers_ {{ // Order (and number) must match BranchTypes.h!
-    std::make_unique<RootOutputTree>(filePtr_.get(), InEvent, pEventAux_,
-                                     pEventProductProvenanceVector_, basketSize, splitLevel,
-                                     treeMaxVirtualSize, saveMemoryObjectThreshold),
-    std::make_unique<RootOutputTree>(filePtr_.get(), InSubRun, pSubRunAux_,
-                                     pSubRunProductProvenanceVector_, basketSize, splitLevel,
-                                     treeMaxVirtualSize, saveMemoryObjectThreshold),
-    std::make_unique<RootOutputTree>(filePtr_.get(), InRun, pRunAux_,
-                                     pRunProductProvenanceVector_, basketSize, splitLevel,
-                                     treeMaxVirtualSize, saveMemoryObjectThreshold),
-    std::make_unique<RootOutputTree>(filePtr_.get(), InResults, pResultsAux_,
-                                     pResultsProductProvenanceVector_, basketSize, splitLevel,
-                                     treeMaxVirtualSize, saveMemoryObjectThreshold) }}
-  , rootFileDB_{ServiceHandle<DatabaseConnection>{}->get<TKeyVFSOpenPolicy>("RootFileDB",
-                                                                            filePtr_.get(),
-                                                                            SQLITE_OPEN_CREATE|SQLITE_OPEN_READWRITE)}
+  , treePointers_{{// Order (and number) must match BranchTypes.h!
+                   std::make_unique<RootOutputTree>(
+                     filePtr_.get(),
+                     InEvent,
+                     pEventAux_,
+                     pEventProductProvenanceVector_,
+                     basketSize,
+                     splitLevel,
+                     treeMaxVirtualSize,
+                     saveMemoryObjectThreshold),
+                   std::make_unique<RootOutputTree>(
+                     filePtr_.get(),
+                     InSubRun,
+                     pSubRunAux_,
+                     pSubRunProductProvenanceVector_,
+                     basketSize,
+                     splitLevel,
+                     treeMaxVirtualSize,
+                     saveMemoryObjectThreshold),
+                   std::make_unique<RootOutputTree>(
+                     filePtr_.get(),
+                     InRun,
+                     pRunAux_,
+                     pRunProductProvenanceVector_,
+                     basketSize,
+                     splitLevel,
+                     treeMaxVirtualSize,
+                     saveMemoryObjectThreshold),
+                   std::make_unique<RootOutputTree>(
+                     filePtr_.get(),
+                     InResults,
+                     pResultsAux_,
+                     pResultsProductProvenanceVector_,
+                     basketSize,
+                     splitLevel,
+                     treeMaxVirtualSize,
+                     saveMemoryObjectThreshold)}}
+  , rootFileDB_{ServiceHandle<DatabaseConnection>{}->get<TKeyVFSOpenPolicy>(
+      "RootFileDB",
+      filePtr_.get(),
+      SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)}
 {
   // Don't split metadata tree or event description tree
   metaDataTree_ =

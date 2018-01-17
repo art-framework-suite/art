@@ -133,7 +133,8 @@ private:
 // ======================================================================
 // constructors and destructor
 
-art::Tracer::Tracer(ServiceTable<Config> const& config, ActivityRegistry& iRegistry)
+art::Tracer::Tracer(ServiceTable<Config> const& config,
+                    ActivityRegistry& iRegistry)
   : indentation_{config().indentation()}
 {
   iRegistry.sPostBeginJob.watch(this, &Tracer::postBeginJob);
@@ -372,7 +373,8 @@ art::Tracer::prePathBeginRun(std::string const& iName)
 }
 
 void
-art::Tracer::postPathBeginRun(std::string const& /*iName*/, HLTPathStatus const&)
+art::Tracer::postPathBeginRun(std::string const& /*iName*/,
+                              HLTPathStatus const&)
 {
   indent(3) << " finished path for begin run:" << std::endl;
 }
@@ -456,7 +458,8 @@ art::Tracer::prePathBeginSubRun(std::string const& iName)
 }
 
 void
-art::Tracer::postPathBeginSubRun(std::string const& /*iName*/, HLTPathStatus const&)
+art::Tracer::postPathBeginSubRun(std::string const& /*iName*/,
+                                 HLTPathStatus const&)
 {
   indent(3) << " finished path for begin subRun:" << std::endl;
 }
@@ -496,7 +499,8 @@ art::Tracer::prePathEndSubRun(std::string const& iName)
 }
 
 void
-art::Tracer::postPathEndSubRun(std::string const& /*iName*/, HLTPathStatus const&)
+art::Tracer::postPathEndSubRun(std::string const& /*iName*/,
+                               HLTPathStatus const&)
 {
   indent(3) << " finished path for end subRun:" << std::endl;
 }

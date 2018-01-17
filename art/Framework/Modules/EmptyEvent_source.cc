@@ -244,7 +244,8 @@ art::EmptyEvent::reallyReadEvent(bool const lastEventInSubRun)
     return;
   auto timestamp = plugin_ ? plugin_->doEventTimestamp(eventID_) :
                              Timestamp::invalidTimestamp();
-  EventAuxiliary const eventAux{eventID_, timestamp, false, EventAuxiliary::Any};
+  EventAuxiliary const eventAux{
+    eventID_, timestamp, false, EventAuxiliary::Any};
 
   ep_ = std::make_unique<EventPrincipal>(eventAux,
                                          processConfiguration(),

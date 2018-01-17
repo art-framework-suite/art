@@ -13,9 +13,9 @@ namespace arttest {
   private:
     int dp1_
 #ifdef __clang__
-[[gnu::unused]]
+      [[gnu::unused]]
 #endif
-;
+      ;
   };
 
 } // namespace arttest

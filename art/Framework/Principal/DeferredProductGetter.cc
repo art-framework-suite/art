@@ -64,7 +64,8 @@ art::DeferredProductGetter::maybeResolveGetter_() const
 {
   if (realGetter_) {
     return realGetter_;
-  } else if ((realGetter_ = groupFinder_->getByProductID(pid_).result().get())) {
+  } else if ((realGetter_ =
+                groupFinder_->getByProductID(pid_).result().get())) {
     return realGetter_;
   } else {
     return cet::exempt_ptr<EDProductGetter const>();

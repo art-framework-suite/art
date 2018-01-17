@@ -58,7 +58,7 @@ namespace arttest {
 
         // DivideByZero
         mf::LogVerbatim("FPExceptions") << "\t\tForce DivideByZero: a = x/zero";
-        double const a {divit(x, 0)};
+        double const a{divit(x, 0)};
         mf::LogVerbatim("FPExceptions") << "\t\ta = " << a;
 
         // Invalid
@@ -74,7 +74,7 @@ namespace arttest {
 
         // Underflow (actually precision)
         mf::LogVerbatim("FPExceptions") << "\t\tForce Underflow: d = x/y";
-        double const d{divit(x,y)};
+        double const d{divit(x, y)};
         mf::LogVerbatim("FPExceptions") << "\t\td = " << d;
 
         abort();
