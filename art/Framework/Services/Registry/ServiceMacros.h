@@ -18,8 +18,8 @@
 //     configuration of such a service precludes multi-schedule
 //     operation. Such services must have a constructor:
 //
-//       MyService(fhicl::ParameterSet const &,
-//                 art::ActivityRegistry &);
+//       MyService(fhicl::ParameterSet const&,
+//                 art::ActivityRegistry&);
 //
 //   * GLOBAL services are expected to have the same signature as LEGACY
 //     services, but warrant additionally that it is safe to call their
@@ -30,8 +30,8 @@
 //
 //   * PER_SCHEDULE services must provide a signature:
 //
-//       MyService(fhicl::ParameterSet const &,
-//                 art::ActivityRegistry &,
+//       MyService(fhicl::ParameterSet const&,
+//                 art::ActivityRegistry&,
 //                 art::ScheduleID);
 //
 //     Note that Per-schedule services may register for global callbacks,
@@ -41,7 +41,7 @@
 //
 // User-callable macros:
 //
-// DECLARE_ART_SERVICE(svc,scope)
+// DECLARE_ART_SERVICE(svc, scope)
 //   Declare (in the header) an art service of type <svc> with scope
 //   (see above).
 //
@@ -50,23 +50,23 @@
 //   DECLARE_ART_SERVICE.
 //
 ////////////////////////////////////
-// DECLARE_ART_SERVICE_INTERFACE(iface,scope)
+// DECLARE_ART_SERVICE_INTERFACE(iface, scope)
 //   Declare an interface to be used by services (must be invoked in the
 //   header for the interface, *not* any implementations thereof).
 //
 ////////////////////////////////////
-// DECLARE_ART_SERVICE_INTERFACE_IMPL(svc,iface,scope)
+// DECLARE_ART_SERVICE_INTERFACE_IMPL(svc, iface, scope)
 //   Declare (in the header) an art service of type <svc> implementing
 //   (inheriting from) interface <iface>, with scope <scope>.
 //
-// DEFINE_ART_SERVICE_INTERFACE_IMPL(svc,iface)
+// DEFINE_ART_SERVICE_INTERFACE_IMPL(svc, iface)
 //   Define an art service of type <svc> implementing (inheriting from)
 //   interface <iface>, with scope <scope>.
 //
 ////////////////////////////////////
 // Some services closely integrated with art may call:
 //
-// DECLARE_ART_SYSTEM_SERVICE(svc,scope);
+// DECLARE_ART_SYSTEM_SERVICE(svc, scope);
 //
 // and must be constructed by the art system rather than automatically
 // as part of the service initialization process. A DEFINE... macro call
