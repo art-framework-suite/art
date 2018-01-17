@@ -1,0 +1,10 @@
+physics: {
+  producers: {
+    makeInt: {
+      module_type: IntProducer
+      ivalue: 3
+      branchType: 2 # Run
+    }
+  }
+  p1: [makeInt]
+}

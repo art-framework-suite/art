@@ -24,7 +24,10 @@ namespace {
   class LastDoubleProducingService : public art::ProducingService {
   public:
     struct Config {
-      fhicl::Atom<std::string> input_label{fhicl::Name{"input_label"}};
+      fhicl::Atom<std::string> source_input_label{
+        fhicl::Name{"source_input_label"}};
+      fhicl::Atom<std::string> service_input_label{
+        fhicl::Name{"service_input_label"}};
       fhicl::Atom<double> value{fhicl::Name("value")};
       fhicl::Atom<unsigned> branchType{fhicl::Name("branchType"), art::InEvent};
     };
@@ -36,13 +39,15 @@ namespace {
     void postReadSubRun(art::SubRun&) override;
     void postReadEvent(art::Event&) override;
 
-    art::InputTag const tag_;
+    art::InputTag const sourceTag_;
+    art::InputTag const serviceTag_;
     double const value_;
     art::BranchType const branchType_;
   };
 
   LastDoubleProducingService::LastDoubleProducingService(Parameters const& p)
-    : tag_{p().input_label()}
+    : sourceTag_{p().source_input_label()}
+    , serviceTag_{p().service_input_label()}
     , value_{p().value()} // enums don't usually have a conversion from string
     , branchType_{art::BranchType(p().branchType())}
   {
@@ -66,35 +71,51 @@ namespace {
   void
   LastDoubleProducingService::postReadRun(art::Run& r)
   {
-    if (branchType_ != art::InRun) return;
+    if (branchType_ != art::InRun)
+      return;
 
     // Cannot access produced products from other producing services
     art::Handle<arttest::IntProduct> h;
-    assert(!r.getByLabel(tag_, h));
-    r.put(std::make_unique<arttest::DoubleProduct>(value_), art::fullRun());
+    assert(!r.getByLabel(serviceTag_, h));
+    assert(!h.isValid());
+
+    // Can access present products from the source
+    auto const& vh = r.getValidHandle<arttest::IntProduct>(sourceTag_);
+    r.put(std::make_unique<arttest::DoubleProduct>(value_ + vh->value),
+          art::fullRun());
   }
 
   void
   LastDoubleProducingService::postReadSubRun(art::SubRun& sr)
   {
-    if (branchType_ != art::InSubRun) return;
+    if (branchType_ != art::InSubRun)
+      return;
 
     // Cannot access produced products from other producing services
     art::Handle<arttest::IntProduct> h;
-    assert(!sr.getByLabel(tag_, h));
-    sr.put(std::make_unique<arttest::DoubleProduct>(value_),
+    assert(!sr.getByLabel(serviceTag_, h));
+    assert(!h.isValid());
+
+    // Can access present products from the source
+    auto const& vh = sr.getValidHandle<arttest::IntProduct>(sourceTag_);
+    sr.put(std::make_unique<arttest::DoubleProduct>(value_ + vh->value),
            art::fullSubRun());
   }
 
   void
   LastDoubleProducingService::postReadEvent(art::Event& e)
   {
-    if (branchType_ != art::InEvent) return;
+    if (branchType_ != art::InEvent)
+      return;
 
     // Cannot access produced products from other producing services
     art::Handle<arttest::IntProduct> h;
-    assert(!e.getByLabel(tag_, h));
-    e.put(std::make_unique<arttest::DoubleProduct>(value_));
+    assert(!e.getByLabel(serviceTag_, h));
+    assert(!h.isValid());
+
+    // Can access present products from the source
+    auto const& vh = e.getValidHandle<arttest::IntProduct>(sourceTag_);
+    e.put(std::make_unique<arttest::DoubleProduct>(value_ + vh->value));
   }
 }
 

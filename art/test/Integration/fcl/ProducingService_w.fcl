@@ -4,14 +4,23 @@ double_value: 2.5
 branch_type: 2 # Run
 END_PROLOG
 
+source: {
+  module_type: RootInput
+  fileNames: @nil
+}
+
 services: {
   IntProducingService: {
     ivalue: @local::int_value
     branchType: @local::branch_type
   }
+
+  # Test that products from the source can be looked up, but products
+  # from another service cannot be looked up.
   LastDoubleProducingService: {
     value: @local::double_value
-    input_label: "IntProducingService"
+    source_input_label: "makeInt"
+    service_input_label: "IntProducingService"
     branchType: @local::branch_type
   }
 }
