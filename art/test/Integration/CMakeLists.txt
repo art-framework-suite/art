@@ -62,6 +62,7 @@ simple_plugin(IntVectorAnalyzer           "module"  NO_INSTALL)
 simple_plugin(IntVectorProducer           "module"  NO_INSTALL)
 simple_plugin(IntArrayAnalyzer            "module"  NO_INSTALL)
 simple_plugin(IntArrayProducer            "module"  NO_INSTALL)
+simple_plugin(LastDoubleProducingService  "service" NO_INSTALL art_Framework_Principal art_Framework_Core)
 simple_plugin(MessagePrinter              "tool"    NO_INSTALL)
 simple_plugin(MixAnalyzer                 "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(MixFilterTest               "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
@@ -1079,21 +1080,21 @@ cet_test(ProvenanceDumper_DroppedProducts_t2 HANDBUILT
 # Test product insertion via a service.  In addition, the product
 # inserted is declared to be "Persistable::No" and is not persisted to
 # an output file.
-cet_test(IntProducingService_w HANDBUILT
+cet_test(ProducingService_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --rethrow-all -c IntProducingService_w.fcl
-  DATAFILES fcl/IntProducingService_w.fcl)
+  TEST_ARGS --rethrow-all -c ProducingService_w.fcl
+  DATAFILES fcl/ProducingService_w.fcl)
 
 # Now verify that the "Persistable::No" product created above is not
 # present in the input file.
-cet_test(IntProducingService_r HANDBUILT
+cet_test(ProducingService_r HANDBUILT
   TEST_EXEC art
   TEST_ARGS
   --rethrow-all
-  -c IntProducingService_r.fcl
-  -s ../IntProducingService_w.d/out.root
-  DATAFILES fcl/IntProducingService_r.fcl
-  TEST_PROPERTIES DEPENDS IntProducingService_w)
+  -c ProducingService_r.fcl
+  -s ../ProducingService_w.d/out.root
+  DATAFILES fcl/ProducingService_r.fcl
+  TEST_PROPERTIES DEPENDS ProducingService_w)
 
 cet_test(PtrVectorFastClone_w HANDBUILT
   TEST_EXEC art_ut

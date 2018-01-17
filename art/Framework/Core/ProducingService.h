@@ -13,7 +13,6 @@ namespace art {
 
   class ProducingService : private ProductRegistryHelper {
   public:
-
     static constexpr bool service_handle_allowed{false};
 
     virtual ~ProducingService() noexcept;
