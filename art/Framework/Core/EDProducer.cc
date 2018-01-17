@@ -23,7 +23,7 @@ namespace art {
     Event e{ep, moduleDescription_, this};
     counts.increment<stats::Run>();
     produce(e);
-    e.commit(ep, checkPutProducts_, expectedProducts());
+    e.commit(ep, checkPutProducts_, expectedProducts<InEvent>());
     counts.increment<stats::Passed>();
     return true;
   }

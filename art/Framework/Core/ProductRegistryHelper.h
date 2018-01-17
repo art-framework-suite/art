@@ -106,7 +106,7 @@ public:
   TypeLabel const& reconstitutes(std::string const& modLabel,
                                  std::string const& instanceName = {});
 
-  template <BranchType B = InEvent>
+  template <BranchType B>
   std::set<TypeLabel> const&
   expectedProducts() const
   {

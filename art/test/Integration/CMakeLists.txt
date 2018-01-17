@@ -1077,14 +1077,14 @@ cet_test(ProvenanceDumper_DroppedProducts_t2 HANDBUILT
   TEST_PROPERTIES DEPENDS DropOnOutput_wA_01)
 
 # Test product insertion via a service.  In addition, the product
-# inserted is declared to be "InMemoryOnly" and is not persisted to an
-# output file.
+# inserted is declared to be "Persistable::No" and is not persisted to
+# an output file.
 cet_test(IntProducingService_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c IntProducingService_w.fcl
   DATAFILES fcl/IntProducingService_w.fcl)
 
-# Now verify that the "InMemoryOnly" product created above is not
+# Now verify that the "Persistable::No" product created above is not
 # present in the input file.
 cet_test(IntProducingService_r HANDBUILT
   TEST_EXEC art

@@ -24,7 +24,7 @@ art::ProducingService::doPostReadRun(RunPrincipal& rp)
 {
   Run r{rp, md_, Consumer::non_module_context(), RangeSet::forRun(rp.id())};
   postReadRun(r);
-  r.commit(rp, true, expectedProducts());
+  r.commit(rp, true, expectedProducts<InRun>());
 }
 
 void
@@ -33,7 +33,7 @@ art::ProducingService::doPostReadSubRun(SubRunPrincipal& srp)
   SubRun sr{
     srp, md_, Consumer::non_module_context(), RangeSet::forSubRun(srp.id())};
   postReadSubRun(sr);
-  sr.commit(srp, true, expectedProducts());
+  sr.commit(srp, true, expectedProducts<InSubRun>());
 }
 
 void
@@ -41,15 +41,17 @@ art::ProducingService::doPostReadEvent(EventPrincipal& ep)
 {
   Event e{ep, md_, Consumer::non_module_context()};
   postReadEvent(e);
-  e.commit(ep, true, expectedProducts());
+  e.commit(ep, true, expectedProducts<InEvent>());
 }
 
 void
 art::ProducingService::postReadRun(Run&)
 {}
+
 void
 art::ProducingService::postReadSubRun(SubRun&)
 {}
+
 void
 art::ProducingService::postReadEvent(Event&)
 {}
