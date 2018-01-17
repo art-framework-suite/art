@@ -27,7 +27,7 @@ namespace art {
   class InputSource;
   struct InputSourceDescription;
   class OutputModule;
-  class OutputModuleDescription;
+  struct OutputModuleDescription;
   class ProcessNameSelector;
   class ProductRegistryHelper;
   class Schedule;

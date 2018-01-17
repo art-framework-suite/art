@@ -43,7 +43,7 @@ detail::KeptProvenance::insertAncestors(ProductProvenance const& iGetParents,
     }
     // These two data structures should be in sync.
     branchesWithStoredHistory_.insert(pid);
-    provenance_.insert(*info).second;
+    (void)provenance_.insert(*info).second;
 
     auto const* pd = principal.getForOutput(info->productID(), false).desc();
     if (pd && pd->produced()) {

@@ -17,7 +17,7 @@
 
 namespace art {
 
-  class BranchKey;
+  struct BranchKey;
   class EDProductGetterFinder;
   class RangeSet;
 

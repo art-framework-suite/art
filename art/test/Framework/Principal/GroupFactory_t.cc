@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(Group)
     art::ProductID{},
     art::RangeSet::invalid()));
   std::cerr << "Group: type of group = "
-            << cet::demangle_symbol(typeid(*g.get()).name()) << "\n";
+            << cet::demangle_symbol(typeid(decltype(*g.get())).name()) << "\n";
   BOOST_REQUIRE((!dynamic_cast<art::AssnsGroup*>(g.get())));
 }
 
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(AssnsGroup)
     art::ProductID{},
     art::RangeSet::invalid()));
   std::cerr << "AssnsGroup: type of group = "
-            << cet::demangle_symbol(typeid(*g.get()).name()) << "\n";
+            << cet::demangle_symbol(typeid(decltype(*g.get())).name()) << "\n";
   BOOST_REQUIRE((dynamic_cast<art::AssnsGroup*>(g.get())));
 }
 

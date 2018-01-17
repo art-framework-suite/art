@@ -4,10 +4,16 @@
 // file and the VFS template from which it was taken.
 #pragma GCC diagnostic ignored "-Wcast-qual"
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunused-variable"
+
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wunused-value"
+#pragma clang diagnostic ignored "-Wc++11-narrowing"
+#else
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 
 extern "C" {
 #include <sqlite3.h>

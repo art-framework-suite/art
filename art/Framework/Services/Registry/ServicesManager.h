@@ -30,7 +30,7 @@ namespace cet {
 namespace art {
   class ActivityRegistry;
   class MasterProductRegistry;
-  class ProcessConfiguration;
+  struct ProcessConfiguration;
   class ProducingServiceSignals;
   class ServicesManager;
 }

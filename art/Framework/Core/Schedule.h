@@ -153,7 +153,7 @@ namespace art {
   inline bool
   Schedule::runTriggerPaths_(typename T::MyPrincipal& ep)
   {
-    doForAllEnabledPaths_([&ep](auto p) { p->process<T>(ep); });
+    doForAllEnabledPaths_([&ep](auto p) { p->template process<T>(ep); });
     return triggerPathsInfo_.pathResults().accept();
   }
 

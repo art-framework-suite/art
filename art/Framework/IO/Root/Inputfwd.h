@@ -18,8 +18,8 @@ class TTree;
 
 namespace art {
   class BranchDescription;
-  class BranchKey;
-  class FileFormatVersion;
+  struct BranchKey;
+  struct FileFormatVersion;
   class FastCloningInfoProvider;
   class RootInputFile;
   class RootDelayedReader;

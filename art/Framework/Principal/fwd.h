@@ -46,7 +46,7 @@ namespace art {
   template <class T>
   class View;
   class Worker;
-  class WorkerParams;
+  struct WorkerParams;
   class BranchDescription;
 
   namespace gfactory {

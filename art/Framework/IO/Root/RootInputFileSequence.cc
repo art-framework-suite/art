@@ -497,8 +497,8 @@ namespace art {
         found = rootFile_->setEntry<InEvent>(id, exact);
         assert(found);
         rootFileForLastReadEvent_ = rootFile_;
-        unique_ptr<EventPrincipal> ep = readEvent_();
-        return std::move(ep);
+        unique_ptr<EventPrincipal> ep(readEvent_());
+        return ep;
       }
     }
     // Look for event in files not yet opened.
@@ -508,7 +508,7 @@ namespace art {
       if (found) {
         rootFileForLastReadEvent_ = rootFile_;
         unique_ptr<EventPrincipal> ep(readEvent_());
-        return std::move(ep);
+        return ep;
       }
     }
     // Not found

@@ -1,7 +1,10 @@
 services: {
   # Always-present services; configuration optional.
   floating_point_control: {
-    enableDivByZeroEx: true
+#    enableDivByZeroEx: true
+    enableInvalidEx: true
+#    enableUnderFlowEx: true
+#    enableOverFlowEx: true
   }
 }
 

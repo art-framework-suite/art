@@ -32,7 +32,7 @@
 #include <vector>
 
 class TFile;
-class sqlite3;
+struct sqlite3;
 
 namespace art {
 

@@ -19,7 +19,7 @@ art::FileProperties::FileProperties(unsigned const events,
                                     unsigned const inputFiles,
                                     unsigned const the_size,
                                     seconds_t const the_age)
-  : counts_{events, subRuns, runs, inputFiles}, age_{the_age}, size_{the_size}
+  : counts_{{events, subRuns, runs, inputFiles}}, age_{the_age}, size_{the_size}
 {}
 
 std::ostream&

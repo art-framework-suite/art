@@ -57,16 +57,21 @@ using fhicl::ParameterSet;
 
 namespace {
 
+  [[gnu::unused]]
   art::EventID
   make_id()
   {
     return art::EventID{2112, 47, 25};
   }
+
+  [[gnu::unused]]
   constexpr art::Timestamp
   make_timestamp()
   {
     return art::Timestamp{1};
   }
+
+  [[gnu::unused]]
   std::string
   module_class_name()
   {
@@ -147,6 +152,7 @@ MPRGlobalTestFixture::MPRGlobalTestFixture()
   availableProducts_.finalizeForProcessing();
   ProductMetaData::create_instance(availableProducts_);
 }
+
 
 template <class T>
 ModuleDescription const&

@@ -49,7 +49,7 @@ namespace art {
   // ----------------------------------------------------------------------
 
   DecrepitRelicInputSourceImplementation::
-    ~DecrepitRelicInputSourceImplementation()
+    ~DecrepitRelicInputSourceImplementation() noexcept
   {}
 
   using DRISI = DecrepitRelicInputSourceImplementation;

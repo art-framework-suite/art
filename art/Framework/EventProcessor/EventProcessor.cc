@@ -185,7 +185,7 @@ art::EventProcessor::initServices_(ParameterSet const& top_pset,
     top_pset, pathManager_.triggerPathNames());
   director.addSystemService<FloatingPointControl>(fpc_pset, areg);
   director.addSystemService<ScheduleContext>();
-  return std::move(director);
+  return director;
 }
 
 void

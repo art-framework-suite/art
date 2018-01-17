@@ -14,6 +14,7 @@
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
+#include "cetlib/compiler_macros.h"
 
 ////////////////////////////////////////////////////////////////////////
 // Describe the correct inheritance based on scope.
@@ -65,7 +66,7 @@ public                                                                         \
 // class instead of a base.
 #define DEFINE_ART_SERVICE_SCOPE(scopeArg)                                     \
   ServiceScope scope() const override { return ServiceScope::scopeArg; }       \
-  static constexpr ServiceScope scope_val{ServiceScope::scopeArg};
+  static constexpr ServiceScope scope_val [[gnu::unused]] {ServiceScope::scopeArg};
 
 ////////////////////////////////////////////////////////////////////////
 // Define a member function to retrieve the desired service.
@@ -239,13 +240,13 @@ public                                                                         \
 
 #define DEFINE_ART_SIH_CREATE(svc) DEFINE_ART_SH_CREATE_DETAIL(svc, iface)
 
-#define DEFINE_ART_SH_CREATE_DETAIL(svc, type)                                 \
-  extern "C" {                                                                 \
-  std::unique_ptr<art::detail::ServiceHelperBase> create_##type##_helper()     \
-  {                                                                            \
-    return std::make_unique<art::detail::ServiceHelper<svc>>();                \
-  }                                                                            \
-  }
+#define DEFINE_ART_SH_CREATE_DETAIL(svc, type)                          \
+  EXTERN_C_FUNC_DECLARE_START                                           \
+  std::unique_ptr<art::detail::ServiceHelperBase> create_##type##_helper() \
+  {                                                                     \
+    return std::make_unique<art::detail::ServiceHelper<svc>>();         \
+  }                                                                     \
+  EXTERN_C_FUNC_DECLARE_END
 
 #endif /* art_Framework_Services_Registry_detail_helper_macros_h */
 

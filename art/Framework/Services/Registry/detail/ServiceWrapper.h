@@ -68,10 +68,6 @@ namespace art {
 
 // ----------------------------------------------------------------------
 
-// declare the linkage before the friend declaration
-extern "C" std::unique_ptr<art::detail::ServiceWrapperBase> converter(
-  std::shared_ptr<art::detail::ServiceWrapperBase> const&);
-
 // General template.
 template <typename T, art::ServiceScope SCOPE>
 class art::detail::ServiceWrapper : public ServiceWrapperBase {

@@ -126,7 +126,6 @@ private:
   bool skipEventIncrement_{true};
   bool resetEventOnSubRun_;
   std::unique_ptr<EventPrincipal> ep_{};
-  EventAuxiliary::ExperimentType eType_{EventAuxiliary::Any};
 
   cet::BasicPluginFactory pluginFactory_{};
   std::unique_ptr<EmptyEventTimestampPlugin> plugin_;
@@ -245,7 +244,8 @@ art::EmptyEvent::reallyReadEvent(bool const lastEventInSubRun)
     return;
   auto timestamp = plugin_ ? plugin_->doEventTimestamp(eventID_) :
                              Timestamp::invalidTimestamp();
-  EventAuxiliary const eventAux{eventID_, timestamp, eType_};
+  EventAuxiliary const eventAux{eventID_, timestamp, false, EventAuxiliary::Any};
+
   ep_ = std::make_unique<EventPrincipal>(eventAux,
                                          processConfiguration(),
                                          nullptr,

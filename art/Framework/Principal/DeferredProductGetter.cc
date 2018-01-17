@@ -56,7 +56,7 @@ art::DeferredProductGetter::resolveGetter_() const
       << " not found: possible attempt to resolve a Ptr before its product has "
          "been committed.\n";
   }
-  return std::move(result);
+  return result;
 }
 
 cet::exempt_ptr<art::EDProductGetter const>
@@ -64,7 +64,7 @@ art::DeferredProductGetter::maybeResolveGetter_() const
 {
   if (realGetter_) {
     return realGetter_;
-  } else if (realGetter_ = groupFinder_->getByProductID(pid_).result().get()) {
+  } else if ((realGetter_ = groupFinder_->getByProductID(pid_).result().get())) {
     return realGetter_;
   } else {
     return cet::exempt_ptr<EDProductGetter const>();

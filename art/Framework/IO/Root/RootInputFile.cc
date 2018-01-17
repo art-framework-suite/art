@@ -128,11 +128,11 @@ namespace art {
   , origEventID_{origEventID}
   , eventsToSkip_{eventsToSkip}
   , compactSubRunRanges_{compactSubRunRanges}
-  , treePointers_ { // Order (and number) must match BranchTypes.h!
+  , treePointers_ {{ // Order (and number) must match BranchTypes.h!
       std::make_unique<RootInputTree>(filePtr_.get(), InEvent, saveMemoryObjectThreshold, this, compactSubRunRanges_, false),
       std::make_unique<RootInputTree>(filePtr_.get(), InSubRun, saveMemoryObjectThreshold, this, compactSubRunRanges_, false),
       std::make_unique<RootInputTree>(filePtr_.get(), InRun, saveMemoryObjectThreshold, this, compactSubRunRanges_, false),
-      std::make_unique<RootInputTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, compactSubRunRanges_, true /* missingOK */)}
+      std::make_unique<RootInputTree>(filePtr_.get(), InResults, saveMemoryObjectThreshold, this, compactSubRunRanges_, true /* missingOK */)}}
   , delayedReadEventProducts_{delayedReadEventProducts}
   , delayedReadSubRunProducts_{delayedReadSubRunProducts}
   , delayedReadRunProducts_{delayedReadRunProducts}
@@ -708,7 +708,7 @@ namespace art {
 
     auto rp = readCurrentRun(entryNumbers);
     advanceEntry(entryNumbers.size());
-    return move(rp);
+    return rp;
   }
 
   unique_ptr<RunPrincipal>
@@ -814,7 +814,7 @@ namespace art {
 
     auto srp = readCurrentSubRun(entryNumbers, rp);
     advanceEntry(entryNumbers.size());
-    return move(srp);
+    return srp;
   }
 
   unique_ptr<SubRunPrincipal>

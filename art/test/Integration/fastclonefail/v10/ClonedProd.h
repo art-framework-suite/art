@@ -11,7 +11,11 @@ namespace arttest {
     ClonedProd();
 
   private:
-    int dp1_;
+    int dp1_
+#ifdef __clang__
+[[gnu::unused]]
+#endif
+;
   };
 
 } // namespace arttest

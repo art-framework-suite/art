@@ -21,7 +21,7 @@ using namespace std::string_literals;
   areg.s##stateTag.watch(this, &art::MFStatusUpdater::updateStatusTo##stateTag)
 
 art::MFStatusUpdater::MFStatusUpdater(ActivityRegistry& areg)
-  : areg_(areg), md_(*mf::MessageDrop::instance())
+  : md_(*mf::MessageDrop::instance())
 {
   MFSU_WATCH_UPDATER(PostBeginJob);
   MFSU_WATCH_UPDATER(PostEndJob);

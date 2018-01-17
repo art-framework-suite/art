@@ -117,8 +117,6 @@ private:
   void saveEnabledState(std::string const& moduleLabel);
   void restoreEnabledState();
 
-  ActivityRegistry& areg_;
-
   mf::MessageDrop& md_;
   mf::EnabledState savedEnabledState_;
 };

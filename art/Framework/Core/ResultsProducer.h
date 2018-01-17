@@ -80,6 +80,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "cetlib/ProvideFilePathMacro.h"
+#include "cetlib/compiler_macros.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"
@@ -226,7 +227,7 @@ art::ResultsProducer::doClear()
 }
 
 #define DEFINE_ART_RESULTS_PLUGIN(klass)                                       \
-  extern "C" {                                                                 \
+  EXTERN_C_FUNC_DECLARE_START \
   CET_PROVIDE_FILE_PATH()                                                      \
   FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                                   \
   DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)                           \
@@ -235,7 +236,7 @@ art::ResultsProducer::doClear()
   {                                                                            \
     return std::make_unique<art::RPWorkerT<klass>>(rpParams, ps);              \
   }                                                                            \
-  }
+  EXTERN_C_FUNC_DECLARE_END
 
 #endif /* art_Framework_Core_ResultsProducer_h */
 

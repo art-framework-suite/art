@@ -132,7 +132,6 @@ namespace art {
       static size_t (C::*offset)() const;
     };
 
-    template <>
     template <typename P>
     struct mix_offset<cet::map_vector<P>> {
       static size_t (cet::map_vector<P>::*offset)() const;

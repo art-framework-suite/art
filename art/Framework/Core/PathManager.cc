@@ -20,7 +20,7 @@ namespace {
       result.reset(new std::set<std::string>);
       result->insert(tmp.cbegin(), tmp.cend());
     }
-    return std::move(result);
+    return result;
   }
 
   std::string
@@ -206,7 +206,7 @@ art::PathManager::fillAllModules_()
          "configurations:\n"
       << error_messages;
   }
-  return std::move(all_modules);
+  return all_modules;
 }
 
 art::PathManager::vstring
@@ -295,7 +295,7 @@ art::PathManager::processPathConfigs_()
          "configurations:\n"
       << error_messages;
   }
-  return std::move(trigger_path_names);
+  return trigger_path_names;
 }
 
 bool // Is wanted end path.

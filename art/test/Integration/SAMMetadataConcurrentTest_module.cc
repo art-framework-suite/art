@@ -64,19 +64,20 @@ namespace {
       // inserted.  Then remove so that we can check the pairs that
       // were inserted by us.
       using value_type = decltype(coll)::value_type;
-      auto file_type_it = cet::find_in_all(
-        coll, value_type{"file_type", cet::canonical_string("unknown")});
 
       auto const& process_name =
         art::ServiceHandle<art::TriggerNamesService const>
       {}
       ->getProcessName();
+
+      auto file_type_it = cet::find_in_all(
+        coll, value_type{"file_type", cet::canonical_string("unknown")});
+      BOOST_REQUIRE(file_type_it != coll.cend());
+      coll.erase(file_type_it);
+
       auto process_name_it = cet::find_in_all(
         coll, value_type{"process_name", cet::canonical_string(process_name)});
-
-      BOOST_REQUIRE(file_type_it != coll.cend());
       BOOST_REQUIRE(process_name_it != coll.cend());
-      coll.erase(file_type_it);
       coll.erase(process_name_it);
 
       auto const& mockMD = mockMetadata();

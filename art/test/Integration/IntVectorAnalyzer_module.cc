@@ -89,7 +89,6 @@ public:
 
 private:
   std::string moduleLabel_;
-  int value_;
   size_t nvalues_;
   art::ViewToken<int> viewToken_;
 

@@ -37,7 +37,7 @@ namespace {
         << "or it is an art/ROOT file produced with a version older than "
            "v1_00_12.\n";
     }
-    return std::move(file);
+    return file;
   }
 
   using EntryNumbers = art::detail::InfoDumperInputFile::EntryNumbers;

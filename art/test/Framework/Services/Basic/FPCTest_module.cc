@@ -3,6 +3,8 @@
 #include "art/Framework/Principal/Event.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "fpc_utils.h"
+
 #include <cmath>
 #include <csignal>
 #include <cstdlib>
@@ -56,8 +58,7 @@ namespace arttest {
 
         // DivideByZero
         mf::LogVerbatim("FPExceptions") << "\t\tForce DivideByZero: a = x/zero";
-        double const zero{};
-        double const a{x / zero};
+        double const a {divit(x, 0)};
         mf::LogVerbatim("FPExceptions") << "\t\ta = " << a;
 
         // Invalid
@@ -68,12 +69,12 @@ namespace arttest {
 
         // Overflow (actually precision)
         mf::LogVerbatim("FPExceptions") << "\t\tForce Overflow: c = y*y";
-        double const c{y * y};
+        double const c{multit(y, y)};
         mf::LogVerbatim("FPExceptions") << "\t\tc = " << c;
 
         // Underflow (actually precision)
         mf::LogVerbatim("FPExceptions") << "\t\tForce Underflow: d = x/y";
-        double const d{x / y};
+        double const d{divit(x,y)};
         mf::LogVerbatim("FPExceptions") << "\t\td = " << d;
 
         abort();

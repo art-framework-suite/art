@@ -11,7 +11,7 @@
 
 namespace art {
   class InputTag;
-  class MallocOpts;
+  struct MallocOpts;
   class MallocOptionsSetter; // MallocOpts.h
   class RootHandlers;
   class TypeID;

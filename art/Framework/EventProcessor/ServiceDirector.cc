@@ -57,7 +57,7 @@ namespace {
     for (auto const& key : services.get_pset_names()) {
       addService(key, services, service_set);
     }
-    return std::move(service_set);
+    return service_set;
   }
 }
 

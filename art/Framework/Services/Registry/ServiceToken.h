@@ -19,7 +19,7 @@
 
 namespace art {
   class ActivityRegistry;
-  class ProcessConfiguration;
+  struct ProcessConfiguration;
   class ProducingServiceSignals;
   class ServiceRegistry;
 
