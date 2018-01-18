@@ -75,6 +75,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Services/Registry/ServiceTable.h"
+#include "art/Framework/Services/Registry/detail/ServiceHandleAllowed.h"
 #include "art/Framework/Services/Registry/detail/helper_macros.h"
 #include "cetlib/ProvideFilePathMacro.h"
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"
@@ -96,10 +97,30 @@
 
 // Declare an interface.
 #define DECLARE_ART_SERVICE_INTERFACE(svc, scope)                              \
+  static_assert(                                                               \
+    art::detail::handle_allowed_v<svc>,                                        \
+    "\n\nart-error: You cannot create a service interface for type "           \
+    "'" ART_DETAIL_STRINGIZED_TYPE(svc) "'.\n"                                 \
+                                        "           There is a base class of " \
+                                        "this type for which a ServiceHandle " \
+                                        "cannot\n"                             \
+                                        "           be constructed.  Please "  \
+                                        "contact artists@fnal.gov for "        \
+                                        "guidance.\n");                        \
   DECLARE_ART_SERVICE_INTERFACE_DETAIL(svc, scope)
 
 // Declare and define a service implementing an interface.
 #define DECLARE_ART_SERVICE_INTERFACE_IMPL(svc, iface, scope)                  \
+  static_assert(                                                               \
+    art::detail::handle_allowed_v<svc>,                                        \
+    "\n\nart-error: You cannot create a service implementation for type "      \
+    "'" ART_DETAIL_STRINGIZED_TYPE(svc) "'.\n"                                 \
+                                        "           There is a base class of " \
+                                        "this type for which a ServiceHandle " \
+                                        "cannot\n"                             \
+                                        "           be constructed.  Please "  \
+                                        "contact artists@fnal.gov for "        \
+                                        "guidance.\n");                        \
   DECLARE_ART_SERVICE_INTERFACE_IMPL_DETAIL(svc, iface, scope)
 
 #define DEFINE_ART_SERVICE_INTERFACE_IMPL(svc, iface)                          \

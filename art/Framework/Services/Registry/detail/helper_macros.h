@@ -17,6 +17,11 @@
 #include "cetlib/compiler_macros.h"
 
 ////////////////////////////////////////////////////////////////////////
+// Utility for including the service type in a static_assert
+#define ART_DETAIL_STRINGIZED_VALUE(value) #value
+#define ART_DETAIL_STRINGIZED_TYPE(svc) ART_DETAIL_STRINGIZED_VALUE(svc)
+
+////////////////////////////////////////////////////////////////////////
 // Describe the correct inheritance based on scope.
 
 // Maker.

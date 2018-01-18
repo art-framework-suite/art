@@ -25,24 +25,13 @@
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/ServiceToken.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
+#include "art/Framework/Services/Registry/detail/ServiceHandleAllowed.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Utilities/ScheduleID.h"
 
 #include <type_traits>
 
 namespace art {
-
-  template <typename T, typename = void>
-  struct handle_allowed : std::true_type {
-  };
-
-  template <typename T>
-  struct handle_allowed<T, std::enable_if_t<!T::service_handle_allowed>>
-    : std::false_type {
-  };
-
-  template <typename T>
-  bool constexpr handle_allowed_v{handle_allowed<T>::value};
 
   template <typename T,
             ServiceScope SCOPE =
@@ -57,7 +46,7 @@ template <typename T, art::ServiceScope SCOPE>
 class art::ServiceHandle {
 public:
   static_assert(
-    handle_allowed_v<T>,
+    detail::handle_allowed_v<T>,
     "\n\nart-error: You cannot create a ServiceHandle for this type.\n"
     "           Please contact artists@fnal.gov for guidance.\n");
 
@@ -92,6 +81,11 @@ private:
 template <typename T>
 class art::ServiceHandle<T, art::ServiceScope::PER_SCHEDULE> {
 public:
+  static_assert(
+    detail::handle_allowed_v<T>,
+    "\n\nart-error: You cannot create a ServiceHandle for this type.\n"
+    "           Please contact artists@fnal.gov for guidance.\n");
+
   explicit ServiceHandle(ScheduleID const sID) try : instance {
     &ServiceRegistry::instance().get<std::remove_const_t<T>>(sID)
   }
