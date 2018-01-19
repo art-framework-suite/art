@@ -4,6 +4,7 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 
 namespace art {
@@ -12,9 +13,11 @@ namespace art {
 
   class ProducingService : private ProductRegistryHelper {
   public:
+
+    static constexpr bool service_handle_allowed{false};
+
     virtual ~ProducingService() noexcept;
 
-    using ProductRegistryHelper::ProductFlavor;
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::registerProducts;
 
