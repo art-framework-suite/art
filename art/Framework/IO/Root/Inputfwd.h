@@ -18,7 +18,7 @@ class TTree;
 
 namespace art {
   class BranchDescription;
-  class FileFormatVersion;
+  struct FileFormatVersion;
   class FastCloningInfoProvider;
   class ProductID;
   class RootInputFile;

@@ -83,8 +83,6 @@ namespace art {
     };
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-    virtual ~DecrepitRelicInputSourceImplementation() noexcept;
-
     DecrepitRelicInputSourceImplementation(fhicl::TableFragment<Config> const&,
                                            ModuleDescription const&);
 

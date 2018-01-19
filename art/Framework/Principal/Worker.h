@@ -181,8 +181,6 @@ namespace art {
 
     ActivityRegistry& actReg_;
 
-    ModuleThreadingType moduleThreadingType_;
-
     std::atomic<int> state_{Ready};
 
     // if state is 'exception'

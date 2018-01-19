@@ -35,7 +35,7 @@ namespace fhicl {
 namespace art {
 
   class ActivityRegistry;
-  struct ProcessConfiguration;
+  class ProcessConfiguration;
   class ProducingServiceSignals;
 
   class ServicesManager {

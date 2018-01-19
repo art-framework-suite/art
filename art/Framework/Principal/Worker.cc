@@ -67,7 +67,6 @@ namespace art {
     : md_{md}
     , actions_{wp.actions_}
     , actReg_{wp.actReg_}
-    , moduleThreadingType_{wp.moduleThreadingType_}
   {
     TDEBUG(5) << "Worker ctor: 0x" << hex << ((unsigned long)this) << dec
               << " (" << wp.streamIndex_ << ")"

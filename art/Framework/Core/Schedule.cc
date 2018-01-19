@@ -45,8 +45,7 @@ namespace art {
                      ProductDescriptions& productsToProduce,
                      ActionTable& actions,
                      ActivityRegistry& actReg)
-    : stream_{stream}
-    , process_pset_{proc_pset}
+    : process_pset_{proc_pset}
     , outputCallbacks_{outputCallbacks}
     , actionTable_{actions}
     , actReg_{actReg}

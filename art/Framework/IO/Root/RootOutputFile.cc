@@ -374,7 +374,7 @@ namespace art {
       dropMetaDataForDroppedData_{dropMetaDataForDroppedData},
       fastCloningEnabledAtConstruction_{fastCloningRequested},
       filePtr_{TFile::Open(file_.c_str(), "recreate", "", compressionLevel)},
-      treePointers_{
+           treePointers_{{
           // Order (and number) must match BranchTypes.h!
           std::make_unique<RootOutputTree>(
               filePtr_.get(), InEvent, pEventAux_,
@@ -391,7 +391,7 @@ namespace art {
           std::make_unique<RootOutputTree>(
               filePtr_.get(), InResults, pResultsAux_,
               pResultsProductProvenanceVector_, basketSize, splitLevel,
-              treeMaxVirtualSize, saveMemoryObjectThreshold)},
+              treeMaxVirtualSize, saveMemoryObjectThreshold)}},
       rootFileDB_{ServiceHandle<DatabaseConnection>{}->get<TKeyVFSOpenPolicy>(
           "RootFileDB", filePtr_.get(),
           SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE)}
@@ -714,7 +714,7 @@ namespace art {
   {
     using namespace cet::sqlite;
     Ntuple<std::string, std::string> fileCatalogMetadata{
-      rootFileDB_, "FileCatalog_metadata", {"Name", "Value"}, true};
+      rootFileDB_, "FileCatalog_metadata", {{"Name", "Value"}}, true};
     Transaction txn{rootFileDB_};
     for (auto const& kv : md) {
       fileCatalogMetadata.insert(kv.first, kv.second);

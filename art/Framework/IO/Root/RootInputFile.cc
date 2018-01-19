@@ -259,7 +259,7 @@ namespace art {
       logicalFileName_{logicalFileName}, filePtr_{move(filePtr)},
       origEventID_{origEventID}, eventsToSkip_{eventsToSkip},
       compactSubRunRanges_{compactSubRunRanges},
-      treePointers_{
+    treePointers_{{
           // Indexed by BranchTypes.h!
           make_unique<RootInputTree>(filePtr_.get(), InEvent,
                                      saveMemoryObjectThreshold, this, false),
@@ -268,7 +268,7 @@ namespace art {
           make_unique<RootInputTree>(filePtr_.get(), InRun,
                                      saveMemoryObjectThreshold, this, false),
           make_unique<RootInputTree>(filePtr_.get(), InResults,
-                                     saveMemoryObjectThreshold, this, true)},
+                                     saveMemoryObjectThreshold, this, true)}},
       delayedReadEventProducts_{delayedReadEventProducts},
       delayedReadSubRunProducts_{delayedReadSubRunProducts},
       delayedReadRunProducts_{delayedReadRunProducts},

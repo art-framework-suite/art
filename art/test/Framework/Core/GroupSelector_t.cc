@@ -59,7 +59,7 @@ namespace {
   doTest(fhicl::ParameterSet const& params,
          std::string const& testname,
          art::ProductTables const& pTables,
-         std::initializer_list<bool const> const& expected)
+         std::initializer_list<bool> const& expected)
   {
     std::string const parameterName{"outputCommands"};
     art::GroupSelectorRules gsr(

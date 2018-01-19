@@ -96,8 +96,6 @@ namespace art {
                                  int streamIndex);
 
   private:
-    int const stream_;
-
     fhicl::ParameterSet process_pset_;
 
     UpdateOutputCallbacks& outputCallbacks_;

@@ -1215,7 +1215,7 @@ EventProcessor::endJob()
   FDEBUG(1) << spaces(8) << "endJob\n";
   ec_.call([this] { schedule_[0].endJob(); });
   ec_.call([this] { endPathExecutor_->endJob(); });
-  ec_.call([this] { ConsumesInfo::instance()->showMissingConsumes(); });
+  ec_.call([] { ConsumesInfo::instance()->showMissingConsumes(); });
   ec_.call([this] { input_->doEndJob(); });
   ec_.call([this] { actReg_.sPostEndJob.invoke(); });
   ec_.call([this] {

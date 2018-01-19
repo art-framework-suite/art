@@ -53,7 +53,6 @@ namespace art {
     , actReg_{actReg}
     , streamIndex_{si}
     , bitpos_{bitpos}
-    , isEndPath_{isEndPath}
     , name_{path_name}
     , workers_{move(workers)}
     , trptr_{pathResults}
@@ -303,11 +302,10 @@ namespace art {
     state_ = hlt::Ready;
     size_t idx = 0;
     auto max_idx = workers_.size();
-    bool should_continue = true;
     // Start the task spawn chain going with the first worker on the
     // path.  Each worker will spawn the next worker in order, until
     // all the workers have run.
-    process_event_idx_asynch(idx, max_idx, ep, si, should_continue, &cpc_);
+    process_event_idx_asynch(idx, max_idx, ep, si, &cpc_);
     TDEBUG(4) << "-----> End   Path::process_event (" << si << ") ...\n";
   }
 
@@ -320,22 +318,20 @@ namespace art {
                                  size_t const max_idx,
                                  EventPrincipal& ep,
                                  int si,
-                                 bool should_continue,
                                  CurrentProcessingContext* cpc)
   {
     TDEBUG(4) << "-----> Begin Path::process_event_idx_asynch: si: " << si
               << " idx: " << idx << " max_idx: " << max_idx << " ...\n";
     auto runWorkerTaskFunctor =
-      [this, idx, max_idx, &ep, si, should_continue, cpc](
+      [this, idx, max_idx, &ep, si, cpc](
         std::exception_ptr const* /*unused*/) {
         // Note: When we start here our parent task is the nullptr.
         TDEBUG(4) << "=====> Begin runWorkerTask (" << si << ") ...\n";
         auto new_idx = idx;
-        auto new_should_continue = should_continue;
         auto new_cpc = cpc;
         try {
           process_event_idx(
-            new_idx, max_idx, ep, si, new_should_continue, new_cpc);
+            new_idx, max_idx, ep, si, new_cpc);
         }
         catch (...) {
           waitingTasks_.doneWaiting(current_exception());
@@ -362,13 +358,12 @@ namespace art {
                           size_t const max_idx,
                           EventPrincipal& ep,
                           int si,
-                          bool const should_continue,
                           CurrentProcessingContext* cpc)
   {
     TDEBUG(4) << "-----> Begin Path::process_event_idx: si: " << si
               << " idx: " << idx << " max_idx: " << max_idx << " ...\n";
     auto workerDoneFunctor =
-      [this, idx, max_idx, &ep, si, should_continue, cpc](
+      [this, idx, max_idx, &ep, si, cpc](
         exception_ptr const* ex) {
         TDEBUG(4) << "=====> Begin workerDoneTask (" << si << ") ...\n";
         auto& workerInPath = workers_[idx];
@@ -454,7 +449,7 @@ namespace art {
     ++new_idx;
     if (should_continue && (new_idx < max_idx)) {
       // Spawn the next worker.
-      process_event_idx_asynch(new_idx, max_idx, ep, si, should_continue, cpc);
+      process_event_idx_asynch(new_idx, max_idx, ep, si, cpc);
       // And end this one.
       TDEBUG(4) << "-----> End   Path::process_event_workerFinished: si: " << si
                 << " new_idx: " << new_idx << " max_idx: " << max_idx << "\n";

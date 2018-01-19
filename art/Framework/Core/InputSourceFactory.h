@@ -11,7 +11,7 @@ namespace fhicl {
 namespace art {
 
   class InputSource;
-  class InputSourceDescription;
+  struct InputSourceDescription;
 
   namespace InputSourceFactory {
 

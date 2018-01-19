@@ -674,6 +674,7 @@ namespace art {
                         "_LABELERROR_",
                         1,
                         d.moduleDescription.processConfiguration(),
+                        true, // isEmulaed
                         ModuleDescription::invalidID()});
     presentProducts_ = ProductTables{descriptions};
     sourceHelper_.setPresentProducts(cet::make_exempt_ptr(&presentProducts_));

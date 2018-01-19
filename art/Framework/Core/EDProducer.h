@@ -47,7 +47,7 @@ namespace art {
     using Table = ProducerBase::Table<UserConfig>;
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-    virtual ~EDProducer() noexcept;
+    virtual ~EDProducer() noexcept = 0;
 
     EDProducer();
     EDProducer(EDProducer const&) = delete;
@@ -155,7 +155,7 @@ namespace art {
         return ModuleThreadingType::REPLICATED;
       }
 
-      virtual ~Producer();
+      virtual ~Producer() noexcept;
       Producer();
       Producer(Producer const&) = delete;
       Producer(Producer&&) = delete;

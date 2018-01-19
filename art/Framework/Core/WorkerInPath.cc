@@ -212,7 +212,7 @@ namespace art {
     waitingTasks_.add(workerDoneTask);
     ++counts_visited_;
     auto workerInPathDoneFunctor =
-      [this, workerDoneTask, &ep, si, cpc](exception_ptr const* ex) {
+      [this, si](exception_ptr const* ex) {
         TDEBUG(4) << "=====> Begin workerInPathDoneTask (" << si << ") ...\n";
         if (ex != nullptr) {
           ++counts_thrown_;

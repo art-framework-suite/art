@@ -83,14 +83,12 @@ namespace art {
                                   size_t const max_idx,
                                   EventPrincipal&,
                                   int si,
-                                  bool should_continue,
                                   CurrentProcessingContext*);
 
     void process_event_idx(size_t const idx,
                            size_t const max_idx,
                            EventPrincipal&,
                            int si,
-                           bool const should_continue,
                            CurrentProcessingContext*);
 
     void process_event_workerFinished(size_t const idx,
@@ -114,8 +112,6 @@ namespace art {
     int streamIndex_;
 
     int bitpos_;
-
-    bool isEndPath_;
 
     std::string name_;
 
