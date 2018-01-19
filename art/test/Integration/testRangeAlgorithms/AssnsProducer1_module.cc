@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
-// Class:       AssnProducer1
+// Class:       AssnsProducer1
 // Plugin Type: producer (art v2_05_00)
-// File:        AssnProducer1_module.cc
+// File:        AssnsProducer1_module.cc
 //
 // Generated at Thu Dec  8 12:20:56 2016 by Saba Sehrish using cetskelgen
 // from cetlib version v1_21_00.
@@ -20,40 +20,36 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace arttest {
-  class AssnProducer1;
+  class AssnsProducer1;
 }
 
-using arttest::AssnProducer1;
+using arttest::AssnsProducer1;
 
-class arttest::AssnProducer1 : public art::EDProducer {
+class arttest::AssnsProducer1 : public art::EDProducer {
 public:
   typedef std::vector<int> intvec_t;
   typedef std::vector<std::string> strvec_t;
 
-  explicit AssnProducer1(fhicl::ParameterSet const& p);
-  // The compiler-generated destructor is fine for non-base
-  // classes without bare pointers or other resource use.
+  explicit AssnsProducer1(fhicl::ParameterSet const& p);
 
   // Plugins should not be copied or assigned.
-  AssnProducer1(AssnProducer1 const&) = delete;
-  AssnProducer1(AssnProducer1&&) = delete;
-  AssnProducer1& operator=(AssnProducer1 const&) = delete;
-  AssnProducer1& operator=(AssnProducer1&&) = delete;
-
-  // Required functions.
-  void produce(art::Event& e) override;
+  AssnsProducer1(AssnsProducer1 const&) = delete;
+  AssnsProducer1(AssnsProducer1&&) = delete;
+  AssnsProducer1& operator=(AssnsProducer1 const&) = delete;
+  AssnsProducer1& operator=(AssnsProducer1&&) = delete;
 
 private:
+  void produce(art::Event& e) override;
 };
 
-AssnProducer1::AssnProducer1(fhicl::ParameterSet const&)
+AssnsProducer1::AssnsProducer1(fhicl::ParameterSet const&)
 {
   produces<intvec_t>();
   produces<strvec_t>();
 }
 
 void
-AssnProducer1::produce(art::Event& e)
+AssnsProducer1::produce(art::Event& e)
 {
   auto vs = std::make_unique<strvec_t>(
     strvec_t{"one", "one-a", "two", "two-a", "three", "three-a"});
@@ -63,4 +59,4 @@ AssnProducer1::produce(art::Event& e)
   e.put(std::move(vi));
 }
 
-DEFINE_ART_MODULE(AssnProducer1)
+DEFINE_ART_MODULE(AssnsProducer1)

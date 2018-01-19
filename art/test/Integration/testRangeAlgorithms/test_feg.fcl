@@ -4,29 +4,26 @@ physics:
   {
     pm1:
     {
-      module_type: AssnProducer1
+      module_type: AssnsProducer1
     }
     pm2:
     {
-      module_type: AssnProducer2
+      module_type: AssnsProducer2
       input_label: pm1
     }
   }
 
   analyzers:
   {
-    am: 
+    am:
     {
-      module_type: AssnAnalyzer
+      module_type: AssnsAnalyzerFEG
       input_label: pm2
     }
   }
 
    p1: [ pm1, pm2 ]
    e1: [ am, out1 ]
-
-   trigger_paths: [ p1 ]
-   end_paths: [ e1 ]
 }
 
 outputs:
