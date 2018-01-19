@@ -32,7 +32,7 @@ namespace art {
                                  unsigned const inputFiles,
                                  unsigned const the_size,
                                  seconds_t const the_age)
-    : counts_{events, subRuns, runs, inputFiles}
+    : counts_{{events, subRuns, runs, inputFiles}}
     , treeEntryNumbers_{{}}
     , age_{the_age}
     , size_{the_size}

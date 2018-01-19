@@ -9,7 +9,7 @@
 
 #include <string>
 
-class sqlite3;
+struct sqlite3;
 
 namespace art {
   namespace detail {

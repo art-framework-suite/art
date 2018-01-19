@@ -147,8 +147,6 @@ namespace art {
     // void restoreEnabledState();
 
   private:
-    ActivityRegistry& areg_;
-
     mf::MessageDrop& md_;
 
     // mf::EnabledState

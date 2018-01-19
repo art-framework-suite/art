@@ -14,19 +14,20 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "cetlib/PluginTypeDeducer.h"
+#include "cetlib/compiler_macros.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
 #include <string>
 
 #define DEFINE_BASIC_PLUGIN_MAKER(klass, base)                                 \
-  extern "C" {                                                                 \
+  EXTERN_C_FUNC_DECLARE_START \
   std::unique_ptr<base>                                                        \
   makePlugin(fhicl::ParameterSet const& pset)                                  \
   {                                                                            \
     return std::make_unique<klass>(pset);                                      \
   }                                                                            \
-  }
+  EXTERN_C_FUNC_DECLARE_END
 
 #define DEFINE_BASIC_PLUGIN(klass, base)                                       \
   DEFINE_BASIC_PLUGIN_MAKER(klass, base)                                       \

@@ -26,7 +26,7 @@ namespace art {
   MFStatusUpdater::~MFStatusUpdater() {}
 
   MFStatusUpdater::MFStatusUpdater(ActivityRegistry& areg)
-    : areg_(areg), md_(*mf::MessageDrop::instance())
+    : md_(*mf::MessageDrop::instance())
   //, savedEnabledState_()
   {
     MFSU_WATCH_UPDATER(PostBeginJob);

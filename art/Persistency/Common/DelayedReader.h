@@ -20,6 +20,7 @@ namespace art {
 
   class Principal;
   class ProductProvenance;
+  struct BranchKey;
   class RangeSet;
 
   class DelayedReader {

@@ -1035,7 +1035,7 @@ namespace art {
     assert(eventAux_.run() == fiIter_->eventID_.run() + forcedRunOffset_);
     assert(eventAux_.subRunID() == fiIter_->eventID_.subRunID());
     nextEntry();
-    return move(ep);
+    return ep;
   }
 
   // Reads event at the current entry in the tree.
@@ -1071,7 +1071,7 @@ namespace art {
       ep->readImmediate();
     }
     primaryEP_ = make_exempt_ptr(ep.get());
-    return move(ep);
+    return ep;
   }
 
   bool
@@ -1127,7 +1127,7 @@ namespace art {
     auto const& entryNumbers = getEntryNumbers(InRun).first;
     auto rp = readCurrentRun(entryNumbers);
     advanceEntry(entryNumbers.size());
-    return move(rp);
+    return rp;
   }
 
   unique_ptr<RunPrincipal>
@@ -1159,7 +1159,7 @@ namespace art {
       rp->readImmediate();
     }
     primaryRP_ = make_exempt_ptr(rp.get());
-    return move(rp);
+    return rp;
   }
 
   bool
@@ -1219,7 +1219,7 @@ namespace art {
     auto const& entryNumbers = getEntryNumbers(InSubRun).first;
     auto srp = readCurrentSubRun(entryNumbers, rp);
     advanceEntry(entryNumbers.size());
-    return move(srp);
+    return srp;
   }
 
   unique_ptr<SubRunPrincipal>
@@ -1254,7 +1254,7 @@ namespace art {
       srp->readImmediate();
     }
     primarySRP_ = make_exempt_ptr(srp.get());
-    return move(srp);
+    return srp;
   }
 
   bool
@@ -1471,7 +1471,7 @@ namespace art {
                                      InResults,
                                      EventID{},
                                      compactSubRunRanges_));
-    return move(resp);
+    return resp;
   }
 
 } // namespace art

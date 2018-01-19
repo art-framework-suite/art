@@ -88,8 +88,9 @@ namespace art {
     DecrepitRelicInputSourceImplementation(fhicl::TableFragment<Config> const&,
                                            ModuleDescription const&);
 
-    DecrepitRelicInputSourceImplementation(
-      DecrepitRelicInputSourceImplementation const&) = delete;
+    // Prevent concrete instances of this class even though we don't
+    // have any (other) pure virtual functions.
+    virtual ~DecrepitRelicInputSourceImplementation() noexcept = 0;
 
     DecrepitRelicInputSourceImplementation(
       DecrepitRelicInputSourceImplementation&&) = delete;

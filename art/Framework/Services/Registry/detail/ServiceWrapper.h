@@ -52,9 +52,6 @@ namespace art {
       return std::make_shared<T>(ps);
     }
 
-    extern "C" std::unique_ptr<ServiceWrapperBase> converter(
-      std::shared_ptr<ServiceWrapperBase> const&);
-
     template <typename T, art::ServiceScope SCOPE>
     class ServiceWrapper : public ServiceWrapperBase {
 

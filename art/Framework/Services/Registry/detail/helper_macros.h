@@ -6,6 +6,8 @@
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
+#include "cetlib/compiler_macros.h"
+
 // Define a member function returning the typeid of the service.
 #define DEFINE_ART_SERVICE_TYPEID(svc)                                         \
   art::TypeID get_typeid() const override { return TypeID{typeid(svc)}; }
@@ -15,7 +17,7 @@
 // class instead of a base.
 #define DEFINE_ART_SERVICE_SCOPE(scopeArg)                                     \
   ServiceScope scope() const override { return ServiceScope::scopeArg; }       \
-  static constexpr ServiceScope scope_val{ServiceScope::scopeArg};
+  static constexpr ServiceScope scope_val [[gnu::unused]] {ServiceScope::scopeArg};
 
 // Legacy service.
 #define DEFINE_ART_LEGACY_SERVICE_RETRIEVER(svc)                               \
@@ -153,23 +155,17 @@
   }
 
 // Define the C-linkage function to  create the helper.
-#define DEFINE_ART_SH_CREATE(svc)                                              \
-  extern "C" {                                                                 \
-  std::unique_ptr<art::detail::ServiceHelperBase>                              \
-  create_service_helper()                                                      \
-  {                                                                            \
-    return std::make_unique<art::detail::ServiceHelper<svc>>();                \
-  }                                                                            \
-  }
+#define DEFINE_ART_SH_CREATE(svc) DEFINE_ART_SH_CREATE_DETAIL(svc, service)
 
-#define DEFINE_ART_SIH_CREATE(iface)                                           \
-  extern "C" {                                                                 \
-  std::unique_ptr<art::detail::ServiceHelperBase>                              \
-  create_iface_helper()                                                        \
-  {                                                                            \
-    return std::make_unique<art::detail::ServiceHelper<iface>>();              \
-  }                                                                            \
-  }
+#define DEFINE_ART_SIH_CREATE(svc) DEFINE_ART_SH_CREATE_DETAIL(svc, iface)
+
+#define DEFINE_ART_SH_CREATE_DETAIL(svc, type)                          \
+  EXTERN_C_FUNC_DECLARE_START                                           \
+  std::unique_ptr<art::detail::ServiceHelperBase> create_##type##_helper() \
+  {                                                                     \
+    return std::make_unique<art::detail::ServiceHelper<svc>>();         \
+  }                                                                     \
+  EXTERN_C_FUNC_DECLARE_END
 
 #endif /* art_Framework_Services_Registry_detail_helper_macros_h */
 

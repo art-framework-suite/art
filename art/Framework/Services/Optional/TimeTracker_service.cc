@@ -175,15 +175,15 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const& config,
   , db_{ServiceHandle<DatabaseConnection>{}->get(
       config().dbOutput().filename())}
   , overwriteContents_{config().dbOutput().overwrite()} // table headers
-  , timeSourceTuple_{"Run", "SubRun", "Event", "Source", "Time"}
-  , timeEventTuple_{"Run", "SubRun", "Event", "Time"}
-  , timeModuleTuple_{"Run",
+  , timeSourceTuple_{{"Run", "SubRun", "Event", "Source", "Time"}}
+  , timeEventTuple_{{"Run", "SubRun", "Event", "Time"}}
+  , timeModuleTuple_{{"Run",
                      "SubRun",
                      "Event",
                      "Path",
                      "ModuleLabel",
                      "ModuleType",
-                     "Time"} // tables
+                     "Time"}} // tables
   , timeSourceTable_{db_, "TimeSource", timeSourceTuple_, overwriteContents_}
   , timeEventTable_{db_, "TimeEvent", timeEventTuple_, overwriteContents_}
   , timeModuleTable_{db_, "TimeModule", timeModuleTuple_, overwriteContents_}

@@ -48,7 +48,6 @@ namespace art {
                            Principal const& principal);
 
     private:
-      bool const keepProvenance_{true};
       DropMetaData const dropMetaData_;
       bool const dropMetaDataForDroppedData_;
       std::set<ProductID>& branchesWithStoredHistory_;

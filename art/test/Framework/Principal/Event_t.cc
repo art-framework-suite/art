@@ -63,16 +63,21 @@ using product_t = arttest::IntProduct;
 
 namespace {
 
+  [[gnu::unused]]
   art::EventID
   make_id()
   {
     return art::EventID{2112, 47, 25};
   }
+
+  [[gnu::unused]]
   constexpr art::Timestamp
   make_timestamp()
   {
     return art::Timestamp{1};
   }
+
+  [[gnu::unused]]
   std::string
   module_class_name()
   {

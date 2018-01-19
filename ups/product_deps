@@ -9,19 +9,17 @@ perllib  product_dir
 product		version
 canvas_root_io	v1_00_05
 hep_concurrency v0_01_00
-cetbuildtools	v6_00_02	-	only_for_build
+cetbuildtools	v7_00_02	-	only_for_build
 catch		v1_11_0		-nq-	only_for_build
 end_product_list
 
 qualifier	canvas_root_io	hep_concurrency	notes
 e14:debug	e14:debug       e14:debug
 e14:prof	e14:prof        e14:prof
-nu:e14:debug	e14:nu:debug    e14:nu:debug
-nu:e14:prof	e14:nu:prof     e14:nu:prof
 e15:debug	e15:debug       e15:debug
 e15:prof	e15:prof        e15:prof
-nu:e15:debug	e15:nu:debug    e15:nu:debug
-nu:e15:prof	e15:nu:prof     e15:nu:prof
+c2:debug	c2:debug        c2:debug
+c2:prof		c2:prof		c2:prof
 end_qualifier_list
 
 # Local Variables:

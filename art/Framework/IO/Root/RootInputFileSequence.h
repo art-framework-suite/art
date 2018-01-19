@@ -250,7 +250,6 @@ namespace art {
     bool seekingFile_{false};
     RootInputFileSharedPtr rootFile_{nullptr};
     std::vector<std::shared_ptr<FileIndex>> fileIndexes_;
-    int eventsRemainingInFile_{};
     EventID origEventID_{};
     EventNumber_t eventsToSkip_;
     bool const compactSubRunRanges_;

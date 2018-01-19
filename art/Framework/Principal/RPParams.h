@@ -12,7 +12,7 @@
 #include <string>
 
 namespace art {
-  class RPParams;
+  struct RPParams;
 }
 
 struct art::RPParams {

@@ -20,7 +20,7 @@ using namespace std;
 const size_t numBits = 5;
 const int numPatterns = 11;
 const int numMasks = 9;
-const int numAns = numPatterns * numMasks;
+const int numAns [[gnu::unused]] = numPatterns * numMasks;
 
 typedef bool Answers[numPatterns][numMasks];
 typedef std::vector<std::string> Strings;

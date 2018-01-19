@@ -230,7 +230,6 @@ namespace art {
     bool newRun_{true};
     bool newSubRun_{true};
     bool const resetEventOnSubRun_;
-    EventAuxiliary::ExperimentType eType_{EventAuxiliary::Any};
     cet::BasicPluginFactory pluginFactory_{};
     unique_ptr<EmptyEventTimestampPlugin> plugin_;
   };
@@ -394,7 +393,7 @@ art::EmptyEvent::readEvent_()
   }
   auto timestamp = plugin_ ? plugin_->doEventTimestamp(eventID_) :
                              Timestamp::invalidTimestamp();
-  EventAuxiliary const eventAux{eventID_, timestamp, eType_};
+  EventAuxiliary const eventAux{eventID_, timestamp, false, EventAuxiliary::Any};
   result = make_unique<EventPrincipal>(eventAux,
                                        processConfiguration(),
                                        nullptr,

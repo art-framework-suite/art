@@ -23,6 +23,7 @@ namespace art {
       return true;
     }
 
+    [[gnu::unused]]
     constexpr bool
     record_parents(Event const*)
     {

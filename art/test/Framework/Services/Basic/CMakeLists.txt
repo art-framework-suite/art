@@ -1,16 +1,20 @@
+art_make_library(SOURCE fpc_utils.cc)
+
 simple_plugin(TestTFileService "module" NO_INSTALL
   art_Framework_Services_Optional_TFileService_service ${ROOT_HIST} ${ROOT_GRAF})
 
 simple_plugin(TestTFileServiceNoRegister "module" NO_INSTALL
   art_Framework_Services_Optional_TFileService_service)
 
-simple_plugin(FPCTest "module" NO_INSTALL)
+simple_plugin(FPCTest "module" NO_INSTALL art_test_Framework_Services_Basic)
 
-cet_test(FPCTest HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --rethrow-all --config test_fpc.fcl
-  DATAFILES
-  fcl/test_fpc.fcl)
+foreach(FPEX DivByZero Invalid UnderFlow OverFlow)
+  cet_test(FPCTest_${FPEX} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS --rethrow-all --config test_fpc_${FPEX}_t.fcl
+    DATAFILES
+    fcl/test_fpc_${FPEX}_t.fcl)
+endforeach()
 
 foreach(NUM RANGE 1 5)
   cet_test(TFileService_t_0${NUM} HANDBUILT

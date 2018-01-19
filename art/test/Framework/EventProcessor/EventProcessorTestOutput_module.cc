@@ -133,7 +133,7 @@ namespace arttest {
 
   private:
     void
-    respondToOpenInputFile(FileBlock const& fb)
+    respondToOpenInputFile(FileBlock const& fb) override
     {
       currentInputFileName_ = fb.fileName();
     }
@@ -184,7 +184,7 @@ namespace arttest {
     }
 
     Granularity
-    fileGranularity() const
+    fileGranularity() const override
     {
       return Granularity::Event;
     }

@@ -20,6 +20,12 @@ art_make_library(LIBRARY_NAME art_Framework_IO_ProductMix
   canvas_root_io
   cetlib)
 
+if (CMAKE_CXX_COMPILER_ID MATCHES Clang)
+  set_property(SOURCE MixHelper.cc APPEND
+    PROPERTY COMPILE_DEFINITIONS _LIBCPP_ENABLE_CXX17_REMOVED_FEATURES=1
+    )
+endif()
+
 art_dictionary(DICTIONARY_LIBRARIES art_Persistency_Provenance canvas)
 
 install_headers(SUBDIRS detail)
