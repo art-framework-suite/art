@@ -432,9 +432,12 @@ arttest::MixFilterTestDetail::processEventIDs(art::EventIDSequence const& seq)
       break;
     case art::MixHelper::Mode::RANDOM_NO_REPLACE: {
       auto checkpoint(allEvents_.size());
-      cet::transform_all(seq,
-                         std::back_inserter(allEvents_),
-                         [](art::EventID const& eid) { return eid.event(); });
+      cet::transform_all(
+        seq,
+        std::back_inserter(allEvents_),
+        [](art::EventID const& eid) {
+          return eid.event() + eid.subRun() * 100 + (eid.run() - 1) * 500;
+        });
       uniqueEvents_.insert(allEvents_.cbegin() + checkpoint, allEvents_.cend());
       // Test at end job for no duplicates.
     } break;
