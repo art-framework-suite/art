@@ -156,8 +156,13 @@ art::ServicesManager::fillCache_(ParameterSets const& psets,
           << "Contact the art developers <artists@fnal.gov>.\n";
       }
       if (service_provider == service_name) {
-        std::string const iface_name{
+        std::string iface_name{
           cet::demangle_symbol(iface_helper->get_typeid().name())};
+        // Remove any namespace qualification if necessary
+        auto const colon_pos = iface_name.find_last_of(":");
+        if (colon_pos != std::string::npos) {
+          iface_name.erase(0, colon_pos + 1);
+        }
         throw Exception(errors::Configuration)
           << "Illegal use of service interface implementation as service name "
              "in configuration.\n"
