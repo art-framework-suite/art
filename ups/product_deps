@@ -13,10 +13,6 @@ catch		v1_11_0		-nq-	only_for_build
 end_product_list
 
 qualifier	canvas_root_io		notes
-e14:debug	e14:debug
-e14:prof	e14:prof
-nu:e14:debug	e14:nu:debug
-nu:e14:prof	e14:nu:prof
 e15:debug	e15:debug
 e15:prof	e15:prof
 nu:e15:debug	e15:nu:debug
