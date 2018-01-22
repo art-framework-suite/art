@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
-// Class:       AssnProducer2
+// Class:       AssnsProducer2
 // Plugin Type: producer (art v2_05_00)
-// File:        AssnProducer2_module.cc
+// File:        AssnsProducer2_module.cc
 //
 // Generated at Tue Dec 13 14:04:05 2016 by Saba Sehrish using cetskelgen
 // from cetlib version v1_21_00.
@@ -19,41 +19,35 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace arttest {
-  class AssnProducer2;
+  class AssnsProducer2;
 }
 
-using arttest::AssnProducer2;
+using arttest::AssnsProducer2;
 
-class arttest::AssnProducer2 : public art::EDProducer {
+class arttest::AssnsProducer2 : public art::EDProducer {
 public:
-  explicit AssnProducer2(fhicl::ParameterSet const& p);
-  // The compiler-generated destructor is fine for non-base
-  // classes without bare pointers or other resource use.
+  explicit AssnsProducer2(fhicl::ParameterSet const& p);
 
   // Plugins should not be copied or assigned.
-  AssnProducer2(AssnProducer2 const&) = delete;
-  AssnProducer2(AssnProducer2&&) = delete;
-  AssnProducer2& operator=(AssnProducer2 const&) = delete;
-  AssnProducer2& operator=(AssnProducer2&&) = delete;
-
-  // Required functions.
-  void produce(art::Event& e) override;
+  AssnsProducer2(AssnsProducer2 const&) = delete;
+  AssnsProducer2(AssnsProducer2&&) = delete;
+  AssnsProducer2& operator=(AssnsProducer2 const&) = delete;
+  AssnsProducer2& operator=(AssnsProducer2&&) = delete;
 
 private:
+  void produce(art::Event& e) override;
+
   std::string fInputLabel;
-  // Declare member data here.
 };
 
-AssnProducer2::AssnProducer2(fhicl::ParameterSet const& p)
+AssnsProducer2::AssnsProducer2(fhicl::ParameterSet const& p)
   : fInputLabel(p.get<std::string>("input_label"))
-// Initialize member data here.
 {
-  // Call appropriate produces<>() functions here.
   produces<art::Assns<int, std::string>>();
 }
 
 void
-AssnProducer2::produce(art::Event& e)
+AssnsProducer2::produce(art::Event& e)
 {
   art::Handle<std::vector<int>> ih;
   e.getByLabel(fInputLabel, ih);
@@ -74,4 +68,4 @@ AssnProducer2::produce(art::Event& e)
   e.put(std::move(assns));
 }
 
-DEFINE_ART_MODULE(AssnProducer2)
+DEFINE_ART_MODULE(AssnsProducer2)

@@ -14,7 +14,7 @@ namespace {
       fhicl::Atom<unsigned> branchType{fhicl::Name("branchType"), art::InEvent};
     };
     using Parameters = art::ServiceTable<Config>;
-    IntProducingService(Parameters const&);
+    explicit IntProducingService(Parameters const&);
 
   private:
     void postReadRun(art::Run&) override;

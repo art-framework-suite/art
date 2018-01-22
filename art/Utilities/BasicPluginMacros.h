@@ -21,9 +21,8 @@
 #include <string>
 
 #define DEFINE_BASIC_PLUGIN_MAKER(klass, base)                                 \
-  EXTERN_C_FUNC_DECLARE_START \
-  std::unique_ptr<base>                                                        \
-  makePlugin(fhicl::ParameterSet const& pset)                                  \
+  EXTERN_C_FUNC_DECLARE_START                                                  \
+  std::unique_ptr<base> makePlugin(fhicl::ParameterSet const& pset)            \
   {                                                                            \
     return std::make_unique<klass>(pset);                                      \
   }                                                                            \

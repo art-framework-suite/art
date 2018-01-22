@@ -239,44 +239,72 @@ namespace art {
 
   RootInputFile::~RootInputFile() {}
 
-  RootInputFile::RootInputFile(
-    string const &fileName, string const &catalogName,
-    ProcessConfiguration const &processConfiguration,
-    string const &logicalFileName, unique_ptr<TFile> &&filePtr,
-    EventID const &origEventID, unsigned int eventsToSkip,
-    bool const compactSubRunRanges, FastCloningInfoProvider const &fcip,
-    unsigned int treeCacheSize, int64_t treeMaxVirtualSize,
-    int64_t saveMemoryObjectThreshold, bool delayedReadEventProducts,
-    bool delayedReadSubRunProducts, bool delayedReadRunProducts,
-    InputSource::ProcessingMode processingMode, int forcedRunOffset,
-    bool noEventSort, GroupSelectorRules const &groupSelectorRules,
-    shared_ptr<DuplicateChecker> duplicateChecker, bool dropDescendants,
-    bool const readIncomingParameterSets, exempt_ptr<RootInputFile> primaryFile,
-    vector<string> const &secondaryFileNames,
-    RootInputFileSequence *rifSequence, UpdateOutputCallbacks &outputCallbacks)
-    : fileName_{fileName}, catalog_{catalogName},
-      processConfiguration_{processConfiguration},
-      logicalFileName_{logicalFileName}, filePtr_{move(filePtr)},
-      origEventID_{origEventID}, eventsToSkip_{eventsToSkip},
-      compactSubRunRanges_{compactSubRunRanges},
-    treePointers_{{
-          // Indexed by BranchTypes.h!
-          make_unique<RootInputTree>(filePtr_.get(), InEvent,
-                                     saveMemoryObjectThreshold, this, false),
-          make_unique<RootInputTree>(filePtr_.get(), InSubRun,
-                                     saveMemoryObjectThreshold, this, false),
-          make_unique<RootInputTree>(filePtr_.get(), InRun,
-                                     saveMemoryObjectThreshold, this, false),
-          make_unique<RootInputTree>(filePtr_.get(), InResults,
-                                     saveMemoryObjectThreshold, this, true)}},
-      delayedReadEventProducts_{delayedReadEventProducts},
-      delayedReadSubRunProducts_{delayedReadSubRunProducts},
-      delayedReadRunProducts_{delayedReadRunProducts},
-      processingMode_{processingMode}, forcedRunOffset_{forcedRunOffset},
-      noEventSort_{noEventSort}, duplicateChecker_{duplicateChecker},
-      primaryFile_{primaryFile ? primaryFile : this},
-      secondaryFileNames_{secondaryFileNames}, rifSequence_{rifSequence},
-      saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
+  RootInputFile::RootInputFile(string const& fileName,
+                               string const& catalogName,
+                               ProcessConfiguration const& processConfiguration,
+                               string const& logicalFileName,
+                               unique_ptr<TFile>&& filePtr,
+                               EventID const& origEventID,
+                               unsigned int eventsToSkip,
+                               bool const compactSubRunRanges,
+                               FastCloningInfoProvider const& fcip,
+                               unsigned int treeCacheSize,
+                               int64_t treeMaxVirtualSize,
+                               int64_t saveMemoryObjectThreshold,
+                               bool delayedReadEventProducts,
+                               bool delayedReadSubRunProducts,
+                               bool delayedReadRunProducts,
+                               InputSource::ProcessingMode processingMode,
+                               int forcedRunOffset,
+                               bool noEventSort,
+                               GroupSelectorRules const& groupSelectorRules,
+                               shared_ptr<DuplicateChecker> duplicateChecker,
+                               bool dropDescendants,
+                               bool const readIncomingParameterSets,
+                               exempt_ptr<RootInputFile> primaryFile,
+                               vector<string> const& secondaryFileNames,
+                               RootInputFileSequence* rifSequence,
+                               UpdateOutputCallbacks& outputCallbacks)
+    : fileName_{fileName}
+    , catalog_{catalogName}
+    , processConfiguration_{processConfiguration}
+    , logicalFileName_{logicalFileName}
+    , filePtr_{move(filePtr)}
+    , origEventID_{origEventID}
+    , eventsToSkip_{eventsToSkip}
+    , compactSubRunRanges_{compactSubRunRanges}
+    , treePointers_{{// Indexed by BranchTypes.h!
+                     make_unique<RootInputTree>(filePtr_.get(),
+                                                InEvent,
+                                                saveMemoryObjectThreshold,
+                                                this,
+                                                false),
+                     make_unique<RootInputTree>(filePtr_.get(),
+                                                InSubRun,
+                                                saveMemoryObjectThreshold,
+                                                this,
+                                                false),
+                     make_unique<RootInputTree>(filePtr_.get(),
+                                                InRun,
+                                                saveMemoryObjectThreshold,
+                                                this,
+                                                false),
+                     make_unique<RootInputTree>(filePtr_.get(),
+                                                InResults,
+                                                saveMemoryObjectThreshold,
+                                                this,
+                                                true)}}
+    , delayedReadEventProducts_{delayedReadEventProducts}
+    , delayedReadSubRunProducts_{delayedReadSubRunProducts}
+    , delayedReadRunProducts_{delayedReadRunProducts}
+    , processingMode_{processingMode}
+    , forcedRunOffset_{forcedRunOffset}
+    , noEventSort_{noEventSort}
+    , duplicateChecker_{duplicateChecker}
+    , primaryFile_{primaryFile ? primaryFile : this}
+    , secondaryFileNames_{secondaryFileNames}
+    , rifSequence_{rifSequence}
+    , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
   {
     secondaryFiles_.resize(secondaryFileNames_.size());
     if (treeMaxVirtualSize >= 0) {

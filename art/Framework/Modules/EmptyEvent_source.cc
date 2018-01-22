@@ -393,7 +393,8 @@ art::EmptyEvent::readEvent_()
   }
   auto timestamp = plugin_ ? plugin_->doEventTimestamp(eventID_) :
                              Timestamp::invalidTimestamp();
-  EventAuxiliary const eventAux{eventID_, timestamp, false, EventAuxiliary::Any};
+  EventAuxiliary const eventAux{
+    eventID_, timestamp, false, EventAuxiliary::Any};
   result = make_unique<EventPrincipal>(eventAux,
                                        processConfiguration(),
                                        nullptr,

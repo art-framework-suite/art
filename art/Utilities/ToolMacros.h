@@ -43,32 +43,24 @@ namespace art {
   }
 
 // Produce the injected functions
-#define DEFINE_ART_CLASS_TOOL(tool)                                   \
-  EXTERN_C_FUNC_DECLARE_START                                         \
-  CET_PROVIDE_FILE_PATH()                                             \
-  FHICL_PROVIDE_ALLOWED_CONFIGURATION(tool)                           \
-  std::string                                                         \
-  toolType()                                                          \
-  {                                                                   \
-    return "class";                                                   \
-  }                                                                   \
-  std::enable_if_t<std::is_class<tool>::value, std::unique_ptr<tool>> \
-    makeTool(fhicl::ParameterSet const& pset)                         \
-  {                                                                   \
-    return std::make_unique<tool>(pset);                              \
-  }                                                                   \
+#define DEFINE_ART_CLASS_TOOL(tool)                                            \
+  EXTERN_C_FUNC_DECLARE_START                                                  \
+  CET_PROVIDE_FILE_PATH()                                                      \
+  FHICL_PROVIDE_ALLOWED_CONFIGURATION(tool)                                    \
+  std::string toolType() { return "class"; }                                   \
+  std::enable_if_t<std::is_class<tool>::value, std::unique_ptr<tool>>          \
+  makeTool(fhicl::ParameterSet const& pset)                                    \
+  {                                                                            \
+    return std::make_unique<tool>(pset);                                       \
+  }                                                                            \
   EXTERN_C_FUNC_DECLARE_END
 
-#define DEFINE_ART_FUNCTION_TOOL(tool, type)        \
-  EXTERN_C_FUNC_DECLARE_START                       \
-  CET_PROVIDE_FILE_PATH()                           \
-  ART_PROVIDE_ALLOWED_CONFIGURATION_FUNCTION_TOOL() \
-  std::string                                       \
-  toolType()                                        \
-  {                                                 \
-    return type;                                    \
-  }                                                 \
-  auto toolFunction = tool;                         \
+#define DEFINE_ART_FUNCTION_TOOL(tool, type)                                   \
+  EXTERN_C_FUNC_DECLARE_START                                                  \
+  CET_PROVIDE_FILE_PATH()                                                      \
+  ART_PROVIDE_ALLOWED_CONFIGURATION_FUNCTION_TOOL()                            \
+  std::string toolType() { return type; }                                      \
+  auto toolFunction = tool;                                                    \
   EXTERN_C_FUNC_DECLARE_END
 
 #endif /* art_Utilities_ToolMacros_h */

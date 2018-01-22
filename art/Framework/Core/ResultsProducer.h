@@ -161,12 +161,12 @@ namespace cet {
 } // namespace cet
 
 #define DEFINE_ART_RESULTS_PLUGIN(klass)                                       \
-  EXTERN_C_FUNC_DECLARE_START \
+  EXTERN_C_FUNC_DECLARE_START                                                  \
   CET_PROVIDE_FILE_PATH()                                                      \
   FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                                   \
   DEFINE_BASIC_PLUGINTYPE_FUNC(art::ResultsProducer)                           \
-  std::unique_ptr<art::RPWorker>                                               \
-  makeRP(art::RPParams const& rpParams, fhicl::ParameterSet const& ps)         \
+  std::unique_ptr<art::RPWorker> makeRP(art::RPParams const& rpParams,         \
+                                        fhicl::ParameterSet const& ps)         \
   {                                                                            \
     return std::make_unique<art::RPWorkerT<klass>>(rpParams, ps);              \
   }                                                                            \

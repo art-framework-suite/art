@@ -1,0 +1,43 @@
+BEGIN_PROLOG
+int_value: 14
+double_value: 2.5
+branch_type: 2 # Run
+END_PROLOG
+
+source: {
+  module_type: RootInput
+  fileNames: @nil
+}
+
+services: {
+  IntProducingService: {
+    ivalue: @local::int_value
+    branchType: @local::branch_type
+  }
+
+  # Test that products from the source can be looked up, but products
+  # from another service cannot be looked up.
+  LastDoubleProducingService: {
+    value: @local::double_value
+    source_input_label: "makeInt"
+    service_input_label: "IntProducingService"
+    branchType: @local::branch_type
+  }
+}
+
+physics: {
+  analyzers: {
+    a1: {
+      module_type: IntTestAnalyzer
+      input_label: "IntProducingService"
+      branch_type: @local::branch_type
+      expected_value: @local::int_value
+    }
+  }
+  e1: [a1, o1]
+}
+
+outputs.o1: {
+  module_type: RootOutput
+  fileName: "out.root"
+}

@@ -15,47 +15,27 @@
 #include <utility>
 #include <vector>
 
-using namespace std;
-
 namespace art {
 
   namespace {
-
-    constexpr auto invalid_eid [[gnu::unused]] = IDNumber<Level::Event>::invalid();
-
+    constexpr auto invalid_eid[[gnu::unused]] =
+      IDNumber<Level::Event>::invalid();
   } // unnamed namespace
 
-  ClosedRangeSetHandler::EventInfo::~EventInfo() noexcept {}
+  ClosedRangeSetHandler::EventInfo::~EventInfo() noexcept = default;
 
-  ClosedRangeSetHandler::EventInfo::EventInfo() noexcept
-    : id_{}, lastInSubRun_{false}
-  {}
+  ClosedRangeSetHandler::EventInfo::EventInfo() noexcept = default;
+  ClosedRangeSetHandler::EventInfo::EventInfo(EventInfo const& rhs) noexcept =
+    default;
 
-  ClosedRangeSetHandler::EventInfo::EventInfo(EventInfo const& rhs) noexcept
-    : id_{rhs.id_}, lastInSubRun_{rhs.lastInSubRun_}
-  {}
+  ClosedRangeSetHandler::EventInfo::EventInfo(EventInfo&& rhs) noexcept =
+    default;
 
-  ClosedRangeSetHandler::EventInfo::EventInfo(EventInfo&& rhs) noexcept
-    : id_{move(rhs.id_)}, lastInSubRun_{move(rhs.lastInSubRun_)}
-  {}
+  ClosedRangeSetHandler::EventInfo& ClosedRangeSetHandler::EventInfo::operator=(
+    EventInfo const& rhs) noexcept = default;
 
-  ClosedRangeSetHandler::EventInfo&
-  ClosedRangeSetHandler::EventInfo::operator=(EventInfo const& rhs) noexcept
-  {
-    if (this != &rhs) {
-      id_ = rhs.id_;
-      lastInSubRun_ = rhs.lastInSubRun_;
-    }
-    return *this;
-  }
-
-  ClosedRangeSetHandler::EventInfo&
-  ClosedRangeSetHandler::EventInfo::operator=(EventInfo&& rhs) noexcept
-  {
-    id_ = move(rhs.id_);
-    lastInSubRun_ = move(rhs.lastInSubRun_);
-    return *this;
-  }
+  ClosedRangeSetHandler::EventInfo& ClosedRangeSetHandler::EventInfo::operator=(
+    EventInfo&& rhs) noexcept = default;
 
   EventID const&
   ClosedRangeSetHandler::EventInfo::id() const
@@ -76,65 +56,36 @@ namespace art {
     lastInSubRun_ = last;
   }
 
-  // Note: RangeSet has a data member that is
-  // a vector, and the vector dtor is not
-  // noexcept, so we cannot be noexcept
-  // either!
-  ClosedRangeSetHandler::~ClosedRangeSetHandler() {}
+  // Note: RangeSet has a data member that is a vector, and the vector
+  // dtor is not noexcept, so we cannot be noexcept either!
+  ClosedRangeSetHandler::~ClosedRangeSetHandler() = default;
 
-  // Note: RangeSet has a data member that is
-  // a vector, and the vector ctor is not
-  // noexcept, so we cannot be noexcept
-  // either!
+  // Note: RangeSet has a data member that is a vector, and the vector
+  // ctor is not noexcept, so we cannot be noexcept either!
   ClosedRangeSetHandler::ClosedRangeSetHandler(RangeSet const& rs)
     : ranges_{rs}, idx_{0}, eventInfo_{}
   {}
 
-  // Note: RangeSet has a data member that is
-  // a vector, and the vector copy ctor is not
-  // noexcept, so we cannot be noexcept
-  // either!
-  ClosedRangeSetHandler::ClosedRangeSetHandler(ClosedRangeSetHandler const& rhs)
-    : ranges_{rhs.ranges_}, idx_{rhs.idx_}, eventInfo_{rhs.eventInfo_}
-  {}
+  // Note: RangeSet has a data member that is a vector, and the vector
+  // copy ctor is not noexcept, so we cannot be noexcept either!
+  ClosedRangeSetHandler::ClosedRangeSetHandler(
+    ClosedRangeSetHandler const& rhs) = default;
 
-  // Note: RangeSet has a data member that is
-  // a vector, and a vector move constructor
-  // is not noexcept, so we cannot be noexcept
+  // Note: RangeSet has a data member that is a vector, and a vector
+  // move constructor is not noexcept, so we cannot be noexcept
   // either!
-  ClosedRangeSetHandler::ClosedRangeSetHandler(ClosedRangeSetHandler&& rhs)
-    : ranges_{move(rhs.ranges_)}
-    , idx_{move(rhs.idx_)}
-    , eventInfo_{move(rhs.eventInfo_)}
-  {}
+  ClosedRangeSetHandler::ClosedRangeSetHandler(ClosedRangeSetHandler&& rhs) =
+    default;
 
-  // Note: RangeSet has a data member that is
-  // a vector, and the vector copy assignment
-  // is not noexcept, so we cannot be noexcept
-  // either!
-  ClosedRangeSetHandler&
-  ClosedRangeSetHandler::operator=(ClosedRangeSetHandler const& rhs)
-  {
-    if (this != &rhs) {
-      ranges_ = rhs.ranges_;
-      idx_ = rhs.idx_;
-      eventInfo_ = rhs.eventInfo_;
-    }
-    return *this;
-  }
+  // Note: RangeSet has a data member that is a vector, and the vector
+  // copy assignment is not noexcept, so we cannot be noexcept either!
+  ClosedRangeSetHandler& ClosedRangeSetHandler::operator=(
+    ClosedRangeSetHandler const& rhs) = default;
 
-  // Note: RangeSet has a data member that is
-  // a vector, and a vector move assignment
-  // is not noexcept, so we cannot be noexcept
-  // either!
-  ClosedRangeSetHandler&
-  ClosedRangeSetHandler::operator=(ClosedRangeSetHandler&& rhs)
-  {
-    ranges_ = move(rhs.ranges_);
-    idx_ = move(rhs.idx_);
-    eventInfo_ = move(rhs.eventInfo_);
-    return *this;
-  }
+  // Note: RangeSet has a data member that is a vector, and a vector
+  // move assignment is not noexcept, so we cannot be noexcept either!
+  ClosedRangeSetHandler& ClosedRangeSetHandler::operator=(
+    ClosedRangeSetHandler&& rhs) = default;
 
   ClosedRangeSetHandler::EventInfo const&
   ClosedRangeSetHandler::eventInfo() const
@@ -203,7 +154,7 @@ namespace art {
   void
   ClosedRangeSetHandler::do_rebase()
   {
-    vector<EventRange> rebasedRanges = ranges_.extract_ranges(idx_, end_idx());
+    auto rebasedRanges = ranges_.extract_ranges(idx_, end_idx());
     RangeSet tmpRS{ranges_.run(), rebasedRanges};
     ClosedRangeSetHandler tmp{tmpRS};
     std::swap(*this, tmp);

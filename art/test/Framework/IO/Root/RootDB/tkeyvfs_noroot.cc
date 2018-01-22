@@ -15,7 +15,6 @@
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 
-
 extern "C" {
 #include <sqlite3.h>
 }

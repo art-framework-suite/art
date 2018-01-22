@@ -93,23 +93,12 @@ namespace art {
       if (serviceEntry.is_interface())
         continue;
 
-      // Check if a service_provider parameter exists--this will become
-      // the "module name/label" for the ModuleDescription object.
+      // The value of service_type becomes the "module name/label" for
+      // the ModuleDescription object.
       auto const& pset = serviceEntry.getParameterSet();
       std::string moduleLabel{};
-      if (pset.has_key("service_provider")) {
-        moduleLabel = pset.get<std::string>("service_provider");
-      } else if (pset.has_key("service_type")) {
-        moduleLabel = pset.get<std::string>("service_type");
-      } else {
-        // System services have no "service_provider" or "service_type"
-        // configuration parameters.  They also cannot be used for
-        // product insertion.
-        //
-        // Remove "art::" namespace.
-        auto const className = pr.first.className();
-        auto pos = className.find_last_of(":");
-        moduleLabel = className.substr(pos + 1);
+      if (!pset.get_if_present("service_type", moduleLabel)) {
+        // System services do not insert products.
         continue;
       }
 
@@ -196,8 +185,13 @@ namespace art {
             << "Contact the art developers <artists@fnal.gov>.\n";
         }
         if (service_provider == service_name) {
-          string const iface_name{
+          string iface_name{
             cet::demangle_symbol(iface_helper->get_typeid().name())};
+          // Remove any namespace qualification if necessary
+          auto const colon_pos = iface_name.find_last_of(":");
+          if (colon_pos != std::string::npos) {
+            iface_name.erase(0, colon_pos + 1);
+          }
           throw Exception(errors::Configuration)
             << "Illegal use of service interface implementation as service "
                "name in configuration.\n"

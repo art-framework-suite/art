@@ -211,35 +211,34 @@ namespace art {
     waitingTasks_.reset();
     waitingTasks_.add(workerDoneTask);
     ++counts_visited_;
-    auto workerInPathDoneFunctor =
-      [this, si](exception_ptr const* ex) {
-        TDEBUG(4) << "=====> Begin workerInPathDoneTask (" << si << ") ...\n";
-        if (ex != nullptr) {
-          ++counts_thrown_;
-          waitingTasks_.doneWaiting(*ex);
-          TDEBUG(4) << "=====> End   workerInPathDoneTask (" << si
-                    << ") ... because of exception\n";
-          return;
-        }
-        returnCode_ = worker_->returnCode(si);
-        TDEBUG(5) << "=====> workerInPathDoneTask: si: " << si
-                  << " raw returnCode_: " << returnCode_ << "\n";
-        if (filterAction_ == Veto) {
-          returnCode_ = !returnCode_;
-        } else if (filterAction_ == Ignore) {
-          returnCode_ = true;
-        }
-        TDEBUG(5) << "=====> workerInPathDoneTask: si: " << si
-                  << " final returnCode_: " << returnCode_ << "\n";
-        if (returnCode_) {
-          ++counts_passed_;
-        } else {
-          ++counts_failed_;
-        }
-        waitingTasks_.doneWaiting(exception_ptr{});
+    auto workerInPathDoneFunctor = [this, si](exception_ptr const* ex) {
+      TDEBUG(4) << "=====> Begin workerInPathDoneTask (" << si << ") ...\n";
+      if (ex != nullptr) {
+        ++counts_thrown_;
+        waitingTasks_.doneWaiting(*ex);
         TDEBUG(4) << "=====> End   workerInPathDoneTask (" << si
-                  << ") ... returnCode_: " << returnCode_ << "\n";
-      };
+                  << ") ... because of exception\n";
+        return;
+      }
+      returnCode_ = worker_->returnCode(si);
+      TDEBUG(5) << "=====> workerInPathDoneTask: si: " << si
+                << " raw returnCode_: " << returnCode_ << "\n";
+      if (filterAction_ == Veto) {
+        returnCode_ = !returnCode_;
+      } else if (filterAction_ == Ignore) {
+        returnCode_ = true;
+      }
+      TDEBUG(5) << "=====> workerInPathDoneTask: si: " << si
+                << " final returnCode_: " << returnCode_ << "\n";
+      if (returnCode_) {
+        ++counts_passed_;
+      } else {
+        ++counts_failed_;
+      }
+      waitingTasks_.doneWaiting(exception_ptr{});
+      TDEBUG(4) << "=====> End   workerInPathDoneTask (" << si
+                << ") ... returnCode_: " << returnCode_ << "\n";
+    };
     auto workerInPathDoneTask =
       make_waiting_task(tbb::task::allocate_root(), workerInPathDoneFunctor);
     try {

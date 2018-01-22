@@ -64,7 +64,7 @@ namespace art {
   }
 
   DecrepitRelicInputSourceImplementation::
-  ~DecrepitRelicInputSourceImplementation() noexcept = default;
+    ~DecrepitRelicInputSourceImplementation() noexcept = default;
 
   DecrepitRelicInputSourceImplementation::
     DecrepitRelicInputSourceImplementation(

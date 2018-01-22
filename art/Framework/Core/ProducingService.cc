@@ -49,9 +49,11 @@ art::ProducingService::doPostReadEvent(EventPrincipal& ep)
 void
 art::ProducingService::postReadRun(Run&)
 {}
+
 void
 art::ProducingService::postReadSubRun(SubRun&)
 {}
+
 void
 art::ProducingService::postReadEvent(Event&)
 {}

@@ -178,12 +178,12 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const& config,
   , timeSourceTuple_{{"Run", "SubRun", "Event", "Source", "Time"}}
   , timeEventTuple_{{"Run", "SubRun", "Event", "Time"}}
   , timeModuleTuple_{{"Run",
-                     "SubRun",
-                     "Event",
-                     "Path",
-                     "ModuleLabel",
-                     "ModuleType",
-                     "Time"}} // tables
+                      "SubRun",
+                      "Event",
+                      "Path",
+                      "ModuleLabel",
+                      "ModuleType",
+                      "Time"}} // tables
   , timeSourceTable_{db_, "TimeSource", timeSourceTuple_, overwriteContents_}
   , timeEventTable_{db_, "TimeEvent", timeEventTuple_, overwriteContents_}
   , timeModuleTable_{db_, "TimeModule", timeModuleTuple_, overwriteContents_}

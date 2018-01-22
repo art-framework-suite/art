@@ -21,11 +21,14 @@ class PtrMakerAnalyzer;
 
 class PtrMakerAnalyzer : public art::EDAnalyzer {
 public:
-  typedef art::PtrVector<int> intptrvector_t;
+  using intptrvector_t = art::PtrVector<int>;
 
-  explicit PtrMakerAnalyzer(fhicl::ParameterSet const& p);
-  // The compiler-generated destructor is fine for non-base
-  // classes without bare pointers or other resource use.
+  struct Config {
+    fhicl::Atom<std::string> input_label{fhicl::Name{"input_label"}};
+    fhicl::Atom<int> nvalues{fhicl::Name{"nvalues"}};
+  };
+  using Parameters = art::EDAnalyzer::Table<Config>;
+  explicit PtrMakerAnalyzer(Parameters const& p);
 
   // Plugins should not be copied or assigned.
   PtrMakerAnalyzer(PtrMakerAnalyzer const&) = delete;
@@ -37,14 +40,12 @@ public:
   void analyze(art::Event const& e) override;
 
 private:
-  std::string fInputLabel;
-  int nvalues;
+  std::string const fInputLabel;
+  int const nvalues;
 };
 
-PtrMakerAnalyzer::PtrMakerAnalyzer(fhicl::ParameterSet const& p)
-  : EDAnalyzer(p)
-  , fInputLabel(p.get<std::string>("input_label"))
-  , nvalues(p.get<int>("nvalues"))
+PtrMakerAnalyzer::PtrMakerAnalyzer(Parameters const& p)
+  : EDAnalyzer{p}, fInputLabel{p().input_label()}, nvalues{p().nvalues()}
 {}
 
 void
@@ -63,7 +64,7 @@ PtrMakerAnalyzer::analyze(art::Event const& e)
   int eid = e.id().event();
 
   // now check the values
-  intptrvector_t local(*h);
+  intptrvector_t local{*h};
   for (int i = 0; i < nvalues; ++i) {
     assert(*local[i] == eid + i);
   }

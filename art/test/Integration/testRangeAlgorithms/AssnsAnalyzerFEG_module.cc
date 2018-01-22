@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
-// Class:       AssnAnalyzer
+// Class:       AssnsAnalyzerFEG
 // Plugin Type: analyzer (art v2_05_00)
-// File:        AssnAnalyzer_module.cc
+// File:        AssnsAnalyzerFEG_module.cc
 //
 // Generated at Fri Dec  9 00:12:59 2016 by Saba Sehrish using cetskelgen
 // from cetlib version v1_21_00.
@@ -14,9 +14,9 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "canvas/Persistency/Common/Assns.h"
+#include "canvas/Persistency/Common/AssnsAlgorithms.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Utilities/InputTag.h"
-#include "canvas/Utilities/RangeAlgorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -24,47 +24,43 @@
 #include <iterator>  // std::inserter()
 #include <set>
 
-class AssnAnalyzer;
+class AssnsAnalyzerFEG;
 
-class AssnAnalyzer : public art::EDAnalyzer {
+class AssnsAnalyzerFEG : public art::EDAnalyzer {
 public:
   typedef std::vector<int> intvec_t;
   typedef std::vector<std::string> strvec_t;
   typedef art::Assns<std::string, int> strintAssns_t;
 
-  explicit AssnAnalyzer(fhicl::ParameterSet const& p);
-  // The compiler-generated destructor is fine for non-base
-  // classes without bare pointers or other resource use.
+  explicit AssnsAnalyzerFEG(fhicl::ParameterSet const& p);
 
   // Plugins should not be copied or assigned.
-  AssnAnalyzer(AssnAnalyzer const&) = delete;
-  AssnAnalyzer(AssnAnalyzer&&) = delete;
-  AssnAnalyzer& operator=(AssnAnalyzer const&) = delete;
-  AssnAnalyzer& operator=(AssnAnalyzer&&) = delete;
-
-  // Required functions.
-  void analyze(art::Event const& e) override;
+  AssnsAnalyzerFEG(AssnsAnalyzerFEG const&) = delete;
+  AssnsAnalyzerFEG(AssnsAnalyzerFEG&&) = delete;
+  AssnsAnalyzerFEG& operator=(AssnsAnalyzerFEG const&) = delete;
+  AssnsAnalyzerFEG& operator=(AssnsAnalyzerFEG&&) = delete;
 
 private:
-  art::InputTag fInputLabel;
+  void analyze(art::Event const& e) override;
   void for_each_group_test(art::Event const& e) const;
+  art::InputTag fInputLabel;
 };
 
-AssnAnalyzer::AssnAnalyzer(fhicl::ParameterSet const& p)
+AssnsAnalyzerFEG::AssnsAnalyzerFEG(fhicl::ParameterSet const& p)
   : EDAnalyzer(p), fInputLabel(p.get<art::InputTag>("input_label"))
 // More initializers here.
 {}
 
 void
-AssnAnalyzer::analyze(art::Event const& e)
+AssnsAnalyzerFEG::analyze(art::Event const& e)
 {
-  AssnAnalyzer::for_each_group_test(e);
+  AssnsAnalyzerFEG::for_each_group_test(e);
 }
 
 void
-AssnAnalyzer::for_each_group_test(art::Event const& e) const
+AssnsAnalyzerFEG::for_each_group_test(art::Event const& e) const
 {
-  typedef typename art::Assns<int, std::string> istr_assns;
+  typedef art::Assns<int, std::string> istr_assns;
   auto const& int_to_str_assns = *e.getValidHandle<istr_assns>(fInputLabel);
   auto vs = strvec_t{"one", "one-a", "two", "two-a", "three", "three-a"};
 
@@ -89,4 +85,4 @@ AssnAnalyzer::for_each_group_test(art::Event const& e) const
 
 } // for_each_group_test()
 
-DEFINE_ART_MODULE(AssnAnalyzer)
+DEFINE_ART_MODULE(AssnsAnalyzerFEG)

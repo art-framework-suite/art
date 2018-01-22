@@ -64,9 +64,7 @@ namespace art {
   } // namespace detail
 
   Worker::Worker(ModuleDescription const& md, WorkerParams const& wp)
-    : md_{md}
-    , actions_{wp.actions_}
-    , actReg_{wp.actReg_}
+    : md_{md}, actions_{wp.actions_}, actReg_{wp.actReg_}
   {
     TDEBUG(5) << "Worker ctor: 0x" << hex << ((unsigned long)this) << dec
               << " (" << wp.streamIndex_ << ")"

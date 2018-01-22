@@ -323,15 +323,13 @@ namespace art {
     TDEBUG(4) << "-----> Begin Path::process_event_idx_asynch: si: " << si
               << " idx: " << idx << " max_idx: " << max_idx << " ...\n";
     auto runWorkerTaskFunctor =
-      [this, idx, max_idx, &ep, si, cpc](
-        std::exception_ptr const* /*unused*/) {
+      [this, idx, max_idx, &ep, si, cpc](std::exception_ptr const* /*unused*/) {
         // Note: When we start here our parent task is the nullptr.
         TDEBUG(4) << "=====> Begin runWorkerTask (" << si << ") ...\n";
         auto new_idx = idx;
         auto new_cpc = cpc;
         try {
-          process_event_idx(
-            new_idx, max_idx, ep, si, new_cpc);
+          process_event_idx(new_idx, max_idx, ep, si, new_cpc);
         }
         catch (...) {
           waitingTasks_.doneWaiting(current_exception());
@@ -363,8 +361,7 @@ namespace art {
     TDEBUG(4) << "-----> Begin Path::process_event_idx: si: " << si
               << " idx: " << idx << " max_idx: " << max_idx << " ...\n";
     auto workerDoneFunctor =
-      [this, idx, max_idx, &ep, si, cpc](
-        exception_ptr const* ex) {
+      [this, idx, max_idx, &ep, si, cpc](exception_ptr const* ex) {
         TDEBUG(4) << "=====> Begin workerDoneTask (" << si << ") ...\n";
         auto& workerInPath = workers_[idx];
         // Note: This will only be set false by a filter which has rejected.

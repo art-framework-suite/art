@@ -165,14 +165,14 @@ BOOST_FIXTURE_TEST_SUITE(Tests, ProductListAccessor)
 
 BOOST_AUTO_TEST_CASE(Test_default_parameters)
 {
-  auto const expected = {true, true, true, true, true, true};
+  auto expected = {true, true, true, true, true, true};
   fhicl::ParameterSet noparams;
   doTest(noparams, "default parameters", pTables, expected);
 }
 
 BOOST_AUTO_TEST_CASE(Keep_all_branches_with_instance_name_i2)
 {
-  auto const expected = {true, false, false, false, false, true};
+  auto expected = {true, false, false, false, false, true};
 
   fhicl::ParameterSet keep_i2;
   std::string const keep_i2_rule = "keep *_*_i2_*";
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(Keep_all_branches_with_instance_name_i2)
 
 BOOST_AUTO_TEST_CASE(Drop_all_branches_with_instance_name_i2)
 {
-  auto const expected = {false, true, true, true, true, false};
+  auto expected = {false, true, true, true, true, false};
 
   fhicl::ParameterSet drop_i2;
   std::string const drop_i2_rule1 = "keep *";
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(Drop_all_branches_with_instance_name_i2)
 
 BOOST_AUTO_TEST_CASE(Drop_all_branches_with_product_type_foo)
 {
-  auto const expected = {true, true, true, true, true, true};
+  auto expected = {true, true, true, true, true, true};
 
   fhicl::ParameterSet drop_foo;
   std::string const drop_foo_rule1 = "keep *_*_*_*"; // same as "keep *"
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(Drop_all_branches_with_product_type_foo)
 
 BOOST_AUTO_TEST_CASE(Drop_all_branches_with_product_type_ProdTypeA)
 {
-  auto const expected = {false, false, false, true, true, false};
+  auto expected = {false, false, false, true, true, false};
 
   fhicl::ParameterSet drop_ProdTypeA;
   std::string const drop_ProdTypeA_rule1 = "keep *";
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE(Drop_all_branches_with_product_type_ProdTypeA)
 
 BOOST_AUTO_TEST_CASE(Keep_only_production_branches_with_instance_name_i1)
 {
-  auto const expected = {false, true, false, false, false, false};
+  auto expected = {false, true, false, false, false, false};
 
   fhicl::ParameterSet keep_i1prod;
   std::string const keep_i1prod_rule = "keep *_*_i1_PROD";
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE(Keep_only_production_branches_with_instance_name_i1)
 
 BOOST_AUTO_TEST_CASE(Keep_drop_keep)
 {
-  auto const expected = {true, true, true, true, true, true};
+  auto expected = {true, true, true, true, true, true};
 
   fhicl::ParameterSet indecisive;
   std::string const indecisive_rule1 = "keep *";
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(Keep_drop_keep)
 
 BOOST_AUTO_TEST_CASE(Keep_all_drop_from_modA_keep_USER)
 {
-  auto const expected = {false, false, true, true, true, true};
+  auto expected = {false, false, true, true, true, true};
 
   fhicl::ParameterSet params;
   std::string const rule1 = "keep *";
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE(Keep_all_drop_from_modA_keep_USER)
 
 BOOST_AUTO_TEST_CASE(Exercise_wildcards)
 {
-  auto const expected = {true, true, false, false, true, false};
+  auto expected = {true, true, false, false, true, false};
 
   fhicl::ParameterSet params;
   std::string const rule1 = "drop *";
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(Exercise_wildcards)
 
 BOOST_AUTO_TEST_CASE(Drop_by_full_spec)
 {
-  auto const expected = {true, true, true, false, true, true};
+  auto expected = {true, true, true, false, true, true};
 
   fhicl::ParameterSet params;
   std::string const rule1 = "keep *";
@@ -327,7 +327,7 @@ BOOST_AUTO_TEST_CASE(Illegal_spec)
 
 BOOST_AUTO_TEST_CASE(Drop_by_type_event)
 {
-  auto const expected = {false, false, true, true, true, true};
+  auto expected = {false, false, true, true, true, true};
 
   fhicl::ParameterSet params;
   std::string const rule1 = "keep *";
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE(Drop_by_type_event)
 
 BOOST_AUTO_TEST_CASE(Drop_by_type_results)
 {
-  auto const expected = {true, true, true, true, true, false};
+  auto expected = {true, true, true, true, true, false};
 
   fhicl::ParameterSet params;
   std::string const rule1 = "keep *";
@@ -357,7 +357,7 @@ BOOST_AUTO_TEST_CASE(Drop_by_type_results)
 
 BOOST_AUTO_TEST_CASE(Keep_by_type_results)
 {
-  auto const expected = {false, false, false, false, false, true};
+  auto expected = {false, false, false, false, false, true};
 
   fhicl::ParameterSet params;
   std::string const rule1 = "drop *";
