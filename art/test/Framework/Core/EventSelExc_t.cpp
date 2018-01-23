@@ -260,16 +260,13 @@ main()
   }
   proc_pset.put("physics", physics_pset);
 
-  // Now create and setup the service
-  typedef art::TriggerNamesService TNS;
-
   art::ActivityRegistry aReg;
 
   auto servicesManager_ = make_unique<ServicesManager>(ParameterSet{}, aReg);
   ServiceRegistry::instance().setManager(servicesManager_.get());
 
   servicesManager_->put(
-    std::unique_ptr<TNS>(new TNS(proc_pset, trigger_path_names)));
+                        std::make_unique<art::TriggerNamesService>(proc_pset, trigger_path_names));
 
   // We are ready to run some tests
 

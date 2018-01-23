@@ -17,10 +17,10 @@ using namespace art;
 using namespace fhicl;
 using namespace std;
 
-const size_t numBits = 5;
-const int numPatterns = 11;
-const int numMasks = 9;
-const int numAns[[gnu::unused]] = numPatterns * numMasks;
+constexpr size_t numBits = 5;
+constexpr int numPatterns = 11;
+constexpr int numMasks = 9;
+constexpr int numAns[[gnu::unused]] = numPatterns * numMasks;
 
 typedef bool Answers[numPatterns][numMasks];
 typedef std::vector<std::string> Strings;
@@ -31,8 +31,8 @@ typedef std::vector<Bools> VBools;
 std::ostream&
 operator<<(std::ostream& ost, const Strings& s)
 {
-  for (Strings::const_iterator i(s.begin()), e(s.end()); i != e; ++i) {
-    ost << *i << " ";
+  for (auto const& str : s) {
+    ost << str << " ";
   }
   return ost;
 }
@@ -143,8 +143,6 @@ main()
   std::array<char const*, numBits> cpaths = {{"a1", "a2", "a3", "a4", "a5"}};
   Strings paths(cpaths.begin(), cpaths.end());
 
-  //
-
   std::array<char const*, 2> cw1 = {{"a1", "a2"}};
   std::array<char const*, 2> cw2 = {{"!a1", "!a2"}};
   std::array<char const*, 2> cw3 = {{"a1", "!a2"}};
@@ -229,32 +227,30 @@ main()
   ParameterSet physics_pset;
 
   std::string processName("HLT");
-  proc_pset.put<std::string>("process_name", processName);
+  proc_pset.put("process_name", processName);
 
   ParameterSet trigPaths;
-  trigPaths.put<Strings>("trigger_paths", paths);
-  proc_pset.put<ParameterSet>("trigger_paths", trigPaths);
+  trigPaths.put("trigger_paths", paths);
+  proc_pset.put("trigger_paths", trigPaths);
 
   Strings endPaths;
-  proc_pset.put<Strings>("end_paths", endPaths);
+  proc_pset.put("end_paths", endPaths);
 
   // We do not care what is in these parameters for the test, they
   // just need to exist.
   Strings dummy;
   for (size_t i = 0; i < numBits; ++i) {
-    physics_pset.put<Strings>(paths[i], dummy);
+    physics_pset.put(paths[i], dummy);
   }
   proc_pset.put("physics", physics_pset);
 
   // Now create and setup the service
-  typedef art::TriggerNamesService TNS;
-
   art::ActivityRegistry aReg;
 
   auto servicesManager_ = make_unique<ServicesManager>(ParameterSet{}, aReg);
   ServiceRegistry::instance().setManager(servicesManager_.get());
 
-  servicesManager_->put(std::unique_ptr<TNS>(new TNS(proc_pset, paths)));
+  servicesManager_->put(std::make_unique<art::TriggerNamesService>(proc_pset, paths));
 
   // We are ready to run some tests
   testall(paths, patterns, testmasks, ans);
