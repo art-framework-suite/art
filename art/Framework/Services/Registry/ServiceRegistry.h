@@ -13,6 +13,8 @@
 #include <memory>
 #include <vector>
 
+int main();
+
 namespace art {
 
   class ActivityRegistry;
@@ -20,26 +22,23 @@ namespace art {
 
   class ServiceRegistry {
 
-    // Allow EventProcessor to set the manager.
-    // friend class EventProcessor;
+    // Allow EventProcessor to set the manager.  Also, allow 'main' to
+    // set it for testing reasons.
+    friend class EventProcessor;
+    friend int ::main();
 
     template <typename T, art::ServiceScope>
     friend class ServiceHandle;
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~ServiceRegistry();
+    ServiceRegistry(ServiceRegistry const&) = delete;
+    ServiceRegistry(ServiceRegistry&&) = delete;
+    ServiceRegistry& operator=(ServiceRegistry const&) = delete;
+    ServiceRegistry& operator=(ServiceRegistry&&) = delete;
 
   private: // MEMBER FUNCTIONS -- Special Member Functions
     ServiceRegistry();
-
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    ServiceRegistry(ServiceRegistry const&) = delete;
-
-    ServiceRegistry(ServiceRegistry&&) = delete;
-
-    ServiceRegistry& operator=(ServiceRegistry const&) = delete;
-
-    ServiceRegistry& operator=(ServiceRegistry&&) = delete;
 
   public: // MEMBER FUNCTIONS
     template <typename T>
@@ -53,23 +52,12 @@ namespace art {
         << " no ServiceRegistry has been set for this thread";
     }
 
-    // FIXME: Cannot be private because of
-    // art/test/Framework/Core/EventSelExc_t.cpp
-    // FIXME: Cannot be private because of
-    // art/test/Framework/Core/EventSelector_t.cpp
-    // FIXME: Cannot be private because of
-    // art/test/Framework/Core/EventSelWildcard_t.cpp
-    static ServiceRegistry& instance();
-
-    // FIXME: Cannot be private because of
-    // art/test/Framework/Core/EventSelExc_t.cpp
-    // FIXME: Cannot be private because of
-    // art/test/Framework/Core/EventSelector_t.cpp
-    // FIXME: Cannot be private because of
-    // art/test/Framework/Core/EventSelWildcard_t.cpp
-    void setManager(ServicesManager*);
 
   private:
+    static ServiceRegistry& instance();
+
+    void setManager(ServicesManager*);
+
     template <typename T>
     T&
     get() const

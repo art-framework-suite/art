@@ -1605,7 +1605,7 @@ EventProcessor::writeSubRun()
 
 void
 EventProcessor::terminateAbnormally_() try {
-  if (ServiceRegistry::instance().isAvailable<RandomNumberGenerator>()) {
+  if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
     ServiceHandle<RandomNumberGenerator> {}
     ->saveToFile_();
   }

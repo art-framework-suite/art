@@ -395,7 +395,7 @@ namespace art {
           have_table(sqliteDB_, "ParameterSets", fileName_)) {
         fhicl::ParameterSetRegistry::importFrom(sqliteDB_);
       }
-      if (ServiceRegistry::instance().isAvailable<art::FileCatalogMetadata>() &&
+      if (ServiceRegistry::isAvailable<art::FileCatalogMetadata>() &&
           have_table(sqliteDB_, "FileCatalog_metadata", fileName_)) {
         sqlite3_stmt* stmt{nullptr};
         sqlite3_prepare_v2(sqliteDB_,
