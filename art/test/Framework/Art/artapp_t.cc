@@ -1,8 +1,7 @@
-#include "art/Framework/Art/artapp.h"
-
 #define BOOST_TEST_MODULE (artapp test)
 #include "cetlib/quiet_unit_test.hpp"
 
+#include "art/Framework/Art/artapp.h"
 #include "cetlib/exception.h"
 
 BOOST_AUTO_TEST_SUITE(artappTests)
@@ -35,6 +34,48 @@ BOOST_AUTO_TEST_CASE(testNonesuchConfig)
 {
   char const* strings[] = {"artapp_t", "--config", "no_such_config.fcl"};
   BOOST_REQUIRE(artapp(3, const_cast<char**>(strings)) == 90);
+}
+
+// Processing options
+BOOST_AUTO_TEST_CASE(testParallelism1)
+{
+  char const* strings[] = {"artapp_t", "--config", "opt-empty.fcl", "-j4"};
+  BOOST_REQUIRE(artapp(4, const_cast<char**>(strings)) == 0);
+}
+
+BOOST_AUTO_TEST_CASE(testParallelism2)
+{
+  char const* strings[] = {
+    "artapp_t", "--config", "opt-empty.fcl", "--nthreads=1"};
+  BOOST_REQUIRE(artapp(4, const_cast<char**>(strings)) == 0);
+}
+
+BOOST_AUTO_TEST_CASE(testParallelism3)
+{
+  char const* strings[] = {
+    "artapp_t", "--config", "opt-empty.fcl", "--nschedules=1"};
+  BOOST_REQUIRE(artapp(4, const_cast<char**>(strings)) == 0);
+}
+
+BOOST_AUTO_TEST_CASE(testParallelism4)
+{
+  char const* strings[] = {
+    "artapp_t", "--config", "opt-empty.fcl", "--nschedules=1", "--nthreads=1"};
+  BOOST_REQUIRE(artapp(5, const_cast<char**>(strings)) == 0);
+}
+
+BOOST_AUTO_TEST_CASE(testParallelism5)
+{
+  char const* strings[] = {
+    "artapp_t", "--config", "opt-empty.fcl", "-j1", "--nschedules=1"};
+  BOOST_REQUIRE(artapp(5, const_cast<char**>(strings)) == 89);
+}
+
+BOOST_AUTO_TEST_CASE(testParallelism6)
+{
+  char const* strings[] = {
+    "artapp_t", "--config", "opt-empty.fcl", "-j1", "--nthreads=1"};
+  BOOST_REQUIRE(artapp(5, const_cast<char**>(strings)) == 89);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

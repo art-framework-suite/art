@@ -107,8 +107,6 @@ art::PathManager::PathManager(ParameterSet const& procPS,
       for (auto const& module_label :
            procPS_.get<ParameterSet>(path_table_name, {}).get_names()) {
         try {
-          // detail::ModuleConfigInfo const mci{procPS_, module_label,
-          // path_table_name};
           ModuleConfigInfo mci;
           mci.label_ = module_label;
           mci.configPath_ = path_table_name;

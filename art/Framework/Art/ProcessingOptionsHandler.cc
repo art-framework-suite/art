@@ -56,11 +56,15 @@ art::ProcessingOptionsHandler::ProcessingOptionsHandler(
 
   bpo::options_description processing_options{"Processing options"};
   auto options = processing_options.add_options();
-  add_opt(
-    options,
-    "nschedules",
-    bpo::value<int>()->default_value(1),
-    "Number of execution engines to use for event processing (default = 1)");
+  add_opt(options,
+          "parallelism,j",
+          bpo::value<int>()->default_value(1),
+          "Number of threads AND schedules to use for event processing "
+          "(default = 1, 0 = all cores).");
+  add_opt(options,
+          "nschedules",
+          bpo::value<int>()->default_value(1),
+          "Number of schedules to use for event processing (default = 1)");
   // Note: tbb wants nthreads to be an int!
   add_opt(options,
           "nthreads",
@@ -104,21 +108,35 @@ art::ProcessingOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
   if ((vm.count("rethrow-all") + vm.count("rethrow-default") +
        vm.count("no-rethrow-default")) > 1) {
     throw Exception(errors::Configuration)
-      << "Options --default-exceptions, --rethrow-all and --rethrow-default "
+      << "Options --default-exceptions, --rethrow-all, and --rethrow-default "
          "\n"
       << "are mutually incompatible.\n";
   }
-  if (vm.count("nthreads")) {
-    if (vm["nthreads"].as<int>() < 0) {
-      throw Exception(errors::Configuration)
-        << "Option --nthreads must greater than or equal to 0.";
+
+  // Since 'parallelism', 'nschedules', and 'nthreads' have default
+  // values, the 'count()' value will be 1 for each option.  We
+  // therefore use the 'defaulted()' function, which returns 'true' if
+  // the user has not explicitly specified the option.
+  //
+  // 'parallelism' is incompatible with either 'nthreads' or
+  // 'nschedules'.
+  if (!vm["parallelism"].defaulted()) {
+    if (!(vm["nthreads"].defaulted() && vm["nschedules"].defaulted())) {
+      throw Exception(errors::Configuration) << "The -j/--parallelism option "
+                                                "cannot be used with either "
+                                                "--nthreads or --nschedules.\n";
     }
   }
-  if (vm.count("nschedules")) {
-    if (vm["nschedules"].as<int>() <= 0) {
-      throw Exception(errors::Configuration)
-        << "Option --nschedules must be at least 1.\n";
-    }
+
+  // No need to check for presence of 'nthreads' or 'nschedules' since
+  // they have default values.
+  if (vm["nthreads"].as<int>() < 0) {
+    throw Exception(errors::Configuration)
+      << "Option --nthreads must greater than or equal to 0.";
+  }
+  if (vm["nschedules"].as<int>() <= 0) {
+    throw Exception(errors::Configuration)
+      << "Option --nschedules must be at least 1.\n";
   }
   return 0;
 }
@@ -157,12 +175,16 @@ art::ProcessingOptionsHandler::doProcessOptions(
             raw_config,
             true);
 
-  if (vm.count("nschedules")) {
+  if (!vm["parallelism"].defaulted()) {
+    // 'nthreads' and 'nschedules' are set to the same value.
+    auto const j = vm["parallelism"].as<int>();
+    auto const nthreads =
+      (j == 0) ? tbb::task_scheduler_init::default_num_threads() : j;
+    raw_config.put(fhicl_key(scheduler_key, "nschedules"), nthreads);
+    raw_config.put(fhicl_key(scheduler_key, "nthreads"), nthreads);
+  } else {
     raw_config.put(fhicl_key(scheduler_key, "nschedules"),
                    vm["nschedules"].as<int>());
-  }
-
-  if (vm.count("nthreads")) {
     auto const nt = vm["nthreads"].as<int>();
     auto const nthreads =
       (nt == 0) ? tbb::task_scheduler_init::default_num_threads() : nt;

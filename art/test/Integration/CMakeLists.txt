@@ -126,8 +126,7 @@ set(NUM_THREADS 1 2 4 8)
 
 cet_test(EventIDFilter_t HANDBUILT
   TEST_EXEC art
-  PARG_THREADS --nthreads ${NUM_THREADS}
-  PARG_STREAMS --nschedules ${NUM_THREADS}
+  PARGS_J -j ${NUM_THREADS}
   TEST_ARGS --rethrow-all --config EventIDFilter_t.fcl -n 10
   DATAFILES
   fcl/EventIDFilter_t.fcl)
@@ -141,8 +140,7 @@ cet_test(EventSelectorFromFile_w HANDBUILT
 
 cet_test(EventSelectorFromFile_r1 HANDBUILT
   TEST_EXEC art
-  PARG_THREADS --nthreads ${NUM_THREADS}
-  PARG_STREAMS --nschedules ${NUM_THREADS}
+  PARGS_J -j ${NUM_THREADS}
   TEST_ARGS --rethrow-all --config EventSelectorFromFile_r1.fcl
   DATAFILES
   fcl/EventSelectorFromFile_r1.fcl
@@ -151,8 +149,7 @@ cet_test(EventSelectorFromFile_r1 HANDBUILT
 
 cet_test(EventSelectorFromFile_r2 HANDBUILT
   TEST_EXEC art
-  PARG_THREADS --nthreads ${NUM_THREADS}
-  PARG_STREAMS --nschedules ${NUM_THREADS}
+  PARGS_J -j ${NUM_THREADS}
   TEST_ARGS --rethrow-all --config EventSelectorFromFile_r2.fcl
   DATAFILES
   fcl/EventSelectorFromFile_r2.fcl
@@ -1153,8 +1150,7 @@ cet_test(ServiceUsingService_t HANDBUILT
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   cet_test(MemoryTracker_t HANDBUILT
     TEST_EXEC art
-    PARG_THREADS --nthreads ${NUM_THREADS}
-    PARG_STREAMS --nschedules ${NUM_THREADS}
+    PARGS_J -j ${NUM_THREADS}
     TEST_ARGS -c memoryTracker.fcl
     DATAFILES
     fcl/memoryTracker.fcl
