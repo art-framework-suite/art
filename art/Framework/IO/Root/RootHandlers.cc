@@ -1,9 +1,9 @@
-#include "art/Utilities/RootHandlers.h"
+#include "art/Framework/IO/Root/RootHandlers.h"
 
 namespace art {
-  RootHandlers::RootHandlers() {}
 
-  RootHandlers::~RootHandlers() {}
+  RootHandlers::RootHandlers() = default;
+  RootHandlers::~RootHandlers() = default;
 
   void
   RootHandlers::disableErrorHandler()

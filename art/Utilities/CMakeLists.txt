@@ -10,7 +10,6 @@ set(art_Utilities_sources
   PerThread.cc
   PluginSuffixes.cc
   RegexMatch.cc
-  RootHandlers.cc
   unique_filename.cc
   UnixSignalHandlers.cc)
 

@@ -1,9 +1,5 @@
-#ifndef art_Utilities_RootHandlers_h
-#define art_Utilities_RootHandlers_h
-
-// ----------------------------------------------------------------------
-
-#include "art/Utilities/fwd.h"
+#ifndef art_Framework_IO_Root_RootHandlers_h
+#define art_Framework_IO_Root_RootHandlers_h
 
 namespace art {
 
@@ -21,9 +17,7 @@ namespace art {
 
 } // namespace art
 
-  // ======================================================================
-
-#endif /* art_Utilities_RootHandlers_h */
+#endif /* art_Framework_IO_Root_RootHandlers_h */
 
 // Local Variables:
 // mode: c++

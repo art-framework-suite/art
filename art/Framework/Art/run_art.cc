@@ -4,9 +4,7 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
-#include "art/Framework/IO/Root/InitRootHandlers.h"
 #include "art/Utilities/ExceptionMessages.h"
-#include "art/Utilities/RootHandlers.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
@@ -21,8 +19,6 @@
 #include "fhiclcpp/parse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "TError.h"
-
 #include <exception>
 #include <iostream>
 #include <sstream>
@@ -34,18 +30,6 @@
 #endif
 
 namespace bpo = boost::program_options;
-
-namespace {
-
-  struct RootErrorHandlerSentry {
-    RootErrorHandlerSentry(bool const reset)
-    {
-      art::setRootErrorHandler(reset);
-    }
-    ~RootErrorHandlerSentry() { SetErrorHandler(DefaultErrorHandler); }
-  };
-
-} // unnamed namespace
 
 namespace art {
 
@@ -183,7 +167,7 @@ namespace art {
                   detail::DebugOutput debug)
   {
 #ifdef __linux__
-    // FIXME: Figure out is we should do something similar for Darwin
+    // FIXME: Figure out if we should do something similar for Darwin
 
     // Tell the system memory allocator to only use one arena: they
     // are 64 MiB in size, and the default is 8 * num_of_cores.  Using
@@ -243,13 +227,6 @@ namespace art {
     // Initialize:
     //   unix signal facility
     art::setupSignals(scheduler_pset.get<bool>("enableSigInt", true));
-    //   init root handlers facility
-    if (scheduler_pset.get<bool>("unloadRootSigHandler", true)) {
-      art::unloadRootSigHandler();
-    }
-    RootErrorHandlerSentry re_sentry{
-      scheduler_pset.get<bool>("resetRootErrHandler", true)};
-    art::completeRootHandlers();
 
     int rc{0};
     try {
