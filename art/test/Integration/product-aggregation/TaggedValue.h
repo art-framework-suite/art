@@ -15,4 +15,8 @@ namespace arttest {
   };
 }
 
-#endif
+#endif /* art_test_Integration_product_aggregation_TaggedValue_h */
+
+// Local Variables:
+// mode: c++
+// End:

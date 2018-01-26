@@ -171,7 +171,7 @@ namespace art {
 
 } // namespace art
 
-#endif /* art_Framework_Core_Filter_h */
+#endif /* art_Framework_Core_EDFilter_h */
 
 // Local Variables:
 // mode: c++
