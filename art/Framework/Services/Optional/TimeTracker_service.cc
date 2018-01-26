@@ -189,7 +189,7 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const& config,
   , timeModuleTable_{db_, "TimeModule", timeModuleTuple_, overwriteContents_}
 {
 
-  data_.resize(Globals::instance()->streams());
+  data_.resize(Globals::instance()->nschedules());
 
   iRegistry.sPostSourceConstruction.watch(this,
                                           &TimeTracker::postSourceConstruction);

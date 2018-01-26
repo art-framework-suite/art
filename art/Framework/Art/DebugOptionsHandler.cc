@@ -21,40 +21,55 @@ art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc,
   : dbg_{dbg}
 {
   bpo::options_description debug_options{"Debugging options"};
-  debug_options.add_options()("mt-diagnostics,M",
-                              bpo::value<std::string>(),
-                              "Log art-specific multi-threading diagnostics to "
-                              "the provided destination.")(
-    "trace", "Activate tracing.")("notrace", "Deactivate tracing.")(
-    "timing", "Activate monitoring of time spent per event/module.")(
-    "timing-db",
-    bpo::value<std::string>(),
-    "Output time-tracking data to SQLite3 database with name <db-file>.")(
-    "notiming", "Deactivate time tracking.")(
-    "memcheck",
-    "Activate monitoring of memory use (deprecated--per-job "
-    "memory information printed in job summary).")(
-    "memcheck-db",
-    bpo::value<std::string>(),
-    "Output memory use data to SQLite3 database with name <db-file>.")(
-    "nomemcheck", "Deactivate monitoring of memory use.")(
+  auto options = debug_options.add_options();
+  add_opt(options,
+          "mt-diagnostics,M",
+          bpo::value<std::string>(),
+          "Log art-specific multi-threading diagnostics to "
+          "the provided destination.");
+  add_opt(options, "trace", "Activate tracing.");
+  add_opt(options, "notrace", "Deactivate tracing.");
+  add_opt(
+    options, "timing", "Activate monitoring of time spent per event/module.");
+  add_opt(options,
+          "timing-db",
+          bpo::value<std::string>(),
+          "Output time-tracking data to SQLite3 database with name <db-file>.");
+  add_opt(options, "notiming", "Deactivate time tracking.");
+  add_opt(options,
+          "memcheck",
+          "Activate monitoring of memory use (deprecated--per-job "
+          "memory information printed in job summary).");
+  add_opt(options,
+          "memcheck-db",
+          bpo::value<std::string>(),
+          "Output memory use data to SQLite3 database with name <db-file>.");
+  add_opt(options, "nomemcheck", "Deactivate monitoring of memory use.");
+  add_opt(
+    options,
     "validate-config",
     bpo::value<std::string>(),
     "Output post-processed configuration to <file>; call constructors of all "
     "sources, modules and services, performing extra configuration "
-    "verification.  Exit just before processing the event loop.")(
+    "verification.  Exit just before processing the event loop.");
+  add_opt(
+    options,
     "debug-config",
     bpo::value<std::string>(),
     ("Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> "s +
      basename + " ...")
-      .c_str())(
+      .c_str());
+  add_opt(
+    options,
     "config-out",
     bpo::value<std::string>(),
-    "Output post-processed configuration to <file> and continue with job.")(
-    "annotate", "Include configuration parameter source information.")(
-    "prefix-annotate",
-    "Include configuration parameter source information "
-    "on line preceding parameter declaration.");
+    "Output post-processed configuration to <file> and continue with job.");
+  add_opt(
+    options, "annotate", "Include configuration parameter source information.");
+  add_opt(options,
+          "prefix-annotate",
+          "Include configuration parameter source information "
+          "on line preceding parameter declaration.");
   desc.add(debug_options);
 }
 

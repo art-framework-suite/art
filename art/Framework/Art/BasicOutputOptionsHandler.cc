@@ -29,18 +29,27 @@ art::BasicOutputOptionsHandler::BasicOutputOptionsHandler(
   bpo::options_description& desc)
 {
   bpo::options_description output_options{"Output options"};
-  output_options.add_options()(
-    "TFileName,T", bpo::value<std::string>(), "File name for TFileService.")(
+  auto options = output_options.add_options();
+  add_opt(options,
+          "TFileName,T",
+          bpo::value<std::string>(),
+          "File name for TFileService.");
+  add_opt(
+    options,
     "tmpdir",
     bpo::value<std::string>(&tmpDir_),
     "Temporary directory for in-progress output files (defaults to directory "
-    "of specified output file names).")(
-    "tmpDir", bpo::value<std::string>(&tmpDir_), "Synonym for --tmpdir.")(
-    "output,o",
-    bpo::value<stringvec>()->composing(),
-    "Event output stream file (optionally specify stream with "
-    "stream-label:fileName in which case multiples are OK).")(
-    "no-output", "Disable all output streams.");
+    "of specified output file names).");
+  add_opt(options,
+          "tmpDir",
+          bpo::value<std::string>(&tmpDir_),
+          "Synonym for --tmpdir.");
+  add_opt(options,
+          "output,o",
+          bpo::value<stringvec>()->composing(),
+          "Event output stream file (optionally specify stream with "
+          "stream-label:fileName in which case multiples are OK).");
+  add_opt(options, "no-output", "Disable all output streams.");
   desc.add(output_options);
 }
 

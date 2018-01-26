@@ -205,7 +205,7 @@ using rss_t = art::LinuxProcData::rss_t;
 
 art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
                                   ActivityRegistry& iReg)
-  : procInfo_{static_cast<unsigned short>(Globals::instance()->streams())}
+  : procInfo_{static_cast<unsigned short>(Globals::instance()->nschedules())}
   , fileName_{config().dbOutput().filename()}
   , db_{ServiceHandle<DatabaseConnection>{}->get(fileName_)}
   , overwriteContents_{config().dbOutput().overwrite()}
@@ -229,7 +229,7 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
                                                          moduleHeapColumns_) :
                        nullptr}
 {
-  data_.resize(Globals::instance()->streams());
+  data_.resize(Globals::instance()->nschedules());
 
   iReg.sPostEndJob.watch(this, &MemoryTracker::postEndJob);
 

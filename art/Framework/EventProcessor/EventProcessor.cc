@@ -153,26 +153,17 @@ EventProcessor::EventProcessor(ParameterSet const& pset)
       pset.get<bool>("services.scheduler.handleEmptySubRuns", true)}
 {
   // Initialize TBB with desired number of threads.
-  // FIXME: Option processing already defaults this to 1.
-  auto threads = pset.get<int>("services.scheduler.threads", 1);
-  // FIXME: This currently cannot ever happen because we set
-  // FIXME: threads to tbb::task_scheduler_init::default_num_threads()
-  // FIXME: during option processing when the user uses 0.
-  // if (threads == 0) {
-  //  threads = tbb::task_scheduler_init::default_num_threads();
-  //}
-  tbbManager_.initialize(threads);
-  Globals::instance()->setThreads(threads);
-  // FIXME: Option processing already defaults this to 1.
-  // FIXME: Option processing already checks to make sure
-  // FIXME: that threads >= streams.
-  auto streams = pset.get<int>("services.scheduler.streams", 1);
-  Globals::instance()->setStreams(streams);
-  eventPrincipal_.resize(streams);
+  auto nthreads = pset.get<int>("services.scheduler.nthreads");
+  tbbManager_.initialize(nthreads);
+  Globals::instance()->setNThreads(nthreads);
+
+  auto const nschedules = pset.get<int>("services.scheduler.nschedules");
+  Globals::instance()->setNSchedules(nschedules);
+  eventPrincipal_.resize(nschedules);
   {
     ostringstream buf;
-    buf << "-----> EventProcessor::EventProcessor: streams: " << streams
-        << " threads: " << threads << "\n";
+    buf << "-----> EventProcessor::EventProcessor: nschedules: " << nschedules
+        << " nthreads: " << nthreads << "\n";
     TDEBUG(5) << buf.str();
   }
   auto errorOnMissingConsumes =
@@ -193,7 +184,7 @@ EventProcessor::EventProcessor(ParameterSet const& pset)
   pathManager_.createModulesAndWorkers();
   endPathExecutor_ = make_unique<EndPathExecutor>(
     pathManager_, act_table_, actReg_, outputCallbacks_);
-  for (auto I = 0; I < streams; ++I) {
+  for (auto I = 0; I < nschedules; ++I) {
     schedule_.emplace_back(I,
                            pathManager_,
                            processName,
@@ -426,7 +417,7 @@ namespace art {
   void
   EventProcessor::process<most_deeply_nested_level()>()
   {
-    auto const streams = Globals::instance()->streams();
+    auto const nschedules = Globals::instance()->nschedules();
     if ((shutdown_flag > 0) || !ec_.empty()) {
       return;
     }
@@ -445,10 +436,10 @@ namespace art {
       // a custom destructor that destroys the task.
       auto EventLoopTask = make_empty_waiting_task();
       EventLoopTask->change_group(tgc);
-      EventLoopTask->set_ref_count(streams + 1);
+      EventLoopTask->set_ref_count(nschedules + 1);
       int si = 0;
       tbb::task_list stream_heads;
-      for (; si < streams; ++si) {
+      for (; si < nschedules; ++si) {
         auto processAllEventsFunctor = [this, si](exception_ptr const*) {
           processAllEventsAsync(si);
         };
@@ -470,13 +461,13 @@ namespace art {
       }
       setOutputFileStatus(OutputFileStatus::Switching);
       finalizeContainingLevels<most_deeply_nested_level() /*Event*/>();
-      // FIXME: Need to notify all streams!
+      // FIXME: Need to notify all schedules!
       respondToCloseOutputFiles();
       {
         endPathExecutor_->closeSomeOutputFiles();
         FDEBUG(1) << spaces(8) << "closeSomeOutputFiles\n";
       }
-      // FIXME: Need to notify all streams!
+      // FIXME: Need to notify all schedules!
       // We started the switch after advancing the file index
       // iterator, we must make sure that we read that event
       // before advancing the iterator again.
@@ -575,7 +566,7 @@ EventProcessor::
   // event processing should not be.
   {
     // FIXME: By using a recursive mutex here we are assuming
-    // FIXME: that all the other streams are definitely running
+    // FIXME: that all the other schedules are definitely running
     // FIXME: on other threads!  This can be broken by task
     // FIXME: stealing!!!
     lock_guard<recursive_mutex> lock_input(
@@ -589,8 +580,8 @@ EventProcessor::
       // stream which noticed we needed a switch had advanced
       // the iterator to.
       // Note: We still have the problem that because the
-      // streams do not read events at the same time the file
-      // switch point can be up to #streams-1 ahead of where
+      // schedules do not read events at the same time the file
+      // switch point can be up to #schedules-1 ahead of where
       // it would have been if there was only one stream.
       // If we are switching output files every event in an
       // attempt to create single event files, this really does
@@ -885,7 +876,7 @@ EventProcessor::processAllEventsAsync_processEvent(int si)
 // writing the event into a nice package which we then push onto the
 // EndPathExecutor serial task queue.  This ensures that only one
 // event at a time is being processed by the end path.  Essentially
-// the streams end when we push onto the queue, and are recreated
+// the schedules end when we push onto the queue, and are recreated
 // after the event is written to process the next event.
 void
 EventProcessor::processAllEventsAsync_processEndPath(int si)

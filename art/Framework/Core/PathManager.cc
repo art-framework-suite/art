@@ -75,11 +75,8 @@ art::PathManager::PathManager(ParameterSet const& procPS,
   , productsToProduce_{productsToProduce}
   , processName_{procPS.get<std::string>("process_name"s, ""s)}
 {
-  // FIXME: Option processing already defaults this to 1.
-  // FIXME: Option processing already checks to make sure
-  // FIXME: that threads >= streams.
-  auto const streams = procPS_.get<int>("services.scheduler.streams", 1);
-  triggerResultsInserter_.resize(streams);
+  auto const nschedules = procPS_.get<int>("services.scheduler.nschedules", 1);
+  triggerResultsInserter_.resize(nschedules);
   //
   //  Collect trigger_paths and end_paths.
   {
@@ -452,7 +449,7 @@ art::PathManager::triggerPathNames() const
 void
 art::PathManager::createModulesAndWorkers()
 {
-  auto const streams = Globals::instance()->streams();
+  auto const nschedules = Globals::instance()->nschedules();
   auto fillWorkers_ = [this](int si,
                              int pi,
                              vector<ModuleConfigInfo> const& mci_list,
@@ -604,8 +601,8 @@ art::PathManager::createModulesAndWorkers()
   //        all other module workers are singletons.
   //
   {
-    triggerPathsInfo_.resize(streams);
-    for (auto streamIndex = 0; streamIndex < streams; ++streamIndex) {
+    triggerPathsInfo_.resize(nschedules);
+    for (auto streamIndex = 0; streamIndex < nschedules; ++streamIndex) {
       auto& pinfo = triggerPathsInfo_[streamIndex];
       pinfo.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
       int bitPos = 0;

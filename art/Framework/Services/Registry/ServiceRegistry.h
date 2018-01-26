@@ -52,7 +52,6 @@ namespace art {
         << " no ServiceRegistry has been set for this thread";
     }
 
-
   private:
     static ServiceRegistry& instance();
 

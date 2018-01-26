@@ -56,8 +56,8 @@ namespace art {
     , outputWorkersToOpen_{}
     , outputWorkersToClose_{}
   {
-    runRangeSetHandler_.resize(Globals::instance()->streams());
-    subRunRangeSetHandler_.resize(Globals::instance()->streams());
+    runRangeSetHandler_.resize(Globals::instance()->nschedules());
+    subRunRangeSetHandler_.resize(Globals::instance()->nschedules());
     for (auto const& val : endPathInfo_.workers()) {
       auto w = val.second;
       auto owp = dynamic_cast<OutputWorker*>(w);

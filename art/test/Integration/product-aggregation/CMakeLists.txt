@@ -116,8 +116,8 @@ endforeach()
 
 cet_test(Stage1_EventGeneration_w HANDBUILT
   TEST_EXEC art
-  PARG_THREADS --threads ${NUM_THREADS}
-  PARG_STREAMS --streams ${NUM_THREADS}
+  PARG_THREADS --nthreads ${NUM_THREADS}
+  PARG_STREAMS --nschedules ${NUM_THREADS}
   TEST_ARGS --rethrow-all -c eventGeneration_w.fcl
   DATAFILES
   fcl/eventGeneration_w.fcl

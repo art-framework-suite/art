@@ -49,11 +49,8 @@ namespace art {
            tie(b.consumableType_, b.typeID_, b.label_, b.instance_, b.process_);
   }
 
-  ConsumesInfo::~ConsumesInfo() {}
-
-  ConsumesInfo::ConsumesInfo()
-    : requireConsumes_{}, consumables_{}, missingConsumes_{}
-  {}
+  ConsumesInfo::~ConsumesInfo() = default;
+  ConsumesInfo::ConsumesInfo() = default;
 
   ConsumesInfo*
   ConsumesInfo::instance()
@@ -187,9 +184,8 @@ namespace art {
     }
   }
 
-  Globals::~Globals() {}
-
-  Globals::Globals() : threads_{1}, streams_{1} {}
+  Globals::~Globals() = default;
+  Globals::Globals() = default;
 
   Globals*
   Globals::instance()
@@ -199,27 +195,27 @@ namespace art {
   }
 
   int
-  Globals::threads()
+  Globals::nthreads()
   {
-    return threads_;
+    return nthreads_;
   }
 
   int
-  Globals::streams()
+  Globals::nschedules()
   {
-    return streams_;
+    return nschedules_;
   }
 
   void
-  Globals::setThreads(int threads)
+  Globals::setNThreads(int const nthreads)
   {
-    threads_ = threads;
+    nthreads_ = nthreads;
   }
 
   void
-  Globals::setStreams(int streams)
+  Globals::setNSchedules(int const nschedules)
   {
-    streams_ = streams;
+    nschedules_ = nschedules;
   }
 
 } // namespace art

@@ -75,18 +75,13 @@ namespace art {
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~ConsumesInfo();
+    ConsumesInfo(ConsumesInfo const&) = delete;
+    ConsumesInfo(ConsumesInfo&&) = delete;
+    ConsumesInfo& operator=(ConsumesInfo const&) = delete;
+    ConsumesInfo& operator=(ConsumesInfo&&) = delete;
 
   private: // MEMBER FUNCTIONS -- Special Member Functions
     ConsumesInfo();
-
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    ConsumesInfo(ConsumesInfo const&) = delete;
-
-    ConsumesInfo(ConsumesInfo&&) = delete;
-
-    ConsumesInfo& operator=(ConsumesInfo const&) = delete;
-
-    ConsumesInfo& operator=(ConsumesInfo&&) = delete;
 
   public: // MEMBER FUNCTIONS -- Static API
     static ConsumesInfo* instance();
@@ -130,37 +125,29 @@ namespace art {
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~Globals();
+    Globals(Globals const&) = delete;
+    Globals(Globals&) = delete;
+    Globals& operator=(Globals const&) = delete;
+    Globals& operator=(Globals&) = delete;
 
   private: // MEMBER FUNCTIONS -- Special Member Functions
     Globals();
-
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    Globals(Globals const&) = delete;
-
-    Globals(Globals&) = delete;
-
-    Globals& operator=(Globals const&) = delete;
-
-    Globals& operator=(Globals&) = delete;
 
   public: // MEMBER FUNCTIONS -- Static API
     static Globals* instance();
 
   public: // MEMBER FUNCTIONS -- API for getting system-wide settings
-    int threads();
-
-    int streams();
+    int nthreads();
+    int nschedules();
 
   private: // MEMBER FUNCTIONS -- API for setting system-wide settings, only for
            // friends
-    void setThreads(int);
-
-    void setStreams(int);
+    void setNThreads(int);
+    void setNSchedules(int);
 
   private: // MEMBER DATA
-    int threads_{1};
-
-    int streams_{1};
+    int nthreads_{1};
+    int nschedules_{1};
   };
 
 } // namespace art

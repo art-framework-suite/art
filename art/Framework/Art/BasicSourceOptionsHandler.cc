@@ -16,18 +16,24 @@ art::BasicSourceOptionsHandler::BasicSourceOptionsHandler(
   bpo::options_description& desc)
 {
   bpo::options_description source_options{"Source options"};
-  source_options.add_options()(
-    "source,s",
-    bpo::value<std::vector<std::string>>()->composing(),
-    "Source data file (multiple OK); precludes -S.")(
-    "source-list,S",
-    bpo::value<std::string>(),
-    "file containing a list of source files to read, one per line; "
-    "precludes -s.")("estart,e",
-                     bpo::value<unsigned long>(),
-                     "Event # of first event to process.")(
-    "nevts,n", bpo::value<int>(), "Number of events to process.")(
-    "nskip", bpo::value<unsigned long>(), "Number of events to skip.");
+  auto options = source_options.add_options();
+  add_opt(options,
+          "source,s",
+          bpo::value<std::vector<std::string>>()->composing(),
+          "Source data file (multiple OK); precludes -S.");
+  add_opt(options,
+          "source-list,S",
+          bpo::value<std::string>(),
+          "file containing a list of source files to read, one per line; "
+          "precludes -s.");
+  add_opt(options,
+          "estart,e",
+          bpo::value<unsigned long>(),
+          "Event # of first event to process.");
+  add_opt(
+    options, "nevts,n", bpo::value<int>(), "Number of events to process.");
+  add_opt(
+    options, "nskip", bpo::value<unsigned long>(), "Number of events to skip.");
   desc.add(source_options);
 }
 
