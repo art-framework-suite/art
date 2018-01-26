@@ -249,11 +249,6 @@ namespace art {
     }
     RootErrorHandlerSentry re_sentry{
       scheduler_pset.get<bool>("resetRootErrHandler", true)};
-    // Load all dictionaries.
-    if (scheduler_pset.get<bool>("debugDictionaries", false)) {
-      throw Exception(errors::UnimplementedFeature)
-        << "debugDictionaries not yet implemented for ROOT 6.\n";
-    }
     art::completeRootHandlers();
 
     int rc{0};
