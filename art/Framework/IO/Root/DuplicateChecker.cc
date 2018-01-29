@@ -1,6 +1,6 @@
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <cassert>

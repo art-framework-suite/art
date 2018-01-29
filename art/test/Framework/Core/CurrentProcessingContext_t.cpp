@@ -1,7 +1,7 @@
 // vim: set sw=2 expandtab :
 #include "art/Utilities/CurrentProcessingContext.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>

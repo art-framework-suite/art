@@ -45,8 +45,8 @@
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/assert_only_one_thread.h"
 #include "cetlib/container_algorithms.h"
-#include "cetlib/exception.h"
 #include "cetlib/no_delete.h"
+#include "cetlib_except/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>

@@ -1,7 +1,7 @@
 #ifndef art_Utilities_ExceptionMessages_h
 #define art_Utilities_ExceptionMessages_h
 
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 
 // ----------------------------------------------------------------------
 

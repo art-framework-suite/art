@@ -2,7 +2,7 @@
 #include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Art/artapp.h"
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 
 BOOST_AUTO_TEST_SUITE(artappTests)
 

@@ -29,8 +29,8 @@
 #include "canvas/Persistency/Provenance/type_aliases.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
-#include "cetlib/exception.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib_except/exception.h"
 
 #include <array>
 #include <map>

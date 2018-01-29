@@ -6,8 +6,8 @@
 
 #include "art/Framework/Art/find_config.h"
 
-#include "cetlib/exception.h"
 #include "cetlib/search_path.h"
+#include "cetlib_except/exception.h"
 
 bool
 art::find_config(std::string const& filename,

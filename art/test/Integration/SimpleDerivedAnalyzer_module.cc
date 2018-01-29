@@ -11,7 +11,7 @@
 #include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "canvas/Persistency/Provenance/EventID.h"
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <iostream>

@@ -9,7 +9,7 @@
 #include "art/Framework/Services/FileServiceInterfaces/FileTransfer.h"
 #include "boost/algorithm/string.hpp"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <limits>

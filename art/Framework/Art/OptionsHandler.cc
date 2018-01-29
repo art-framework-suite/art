@@ -1,7 +1,7 @@
 #include "art/Framework/Art/OptionsHandler.h"
 
-#include "cetlib/exception.h"
 #include "cetlib_except/demangle.h"
+#include "cetlib_except/exception.h"
 
 #include <iostream>
 #include <stdexcept>
