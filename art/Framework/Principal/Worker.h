@@ -27,8 +27,9 @@
 #include "art/Framework/Principal/MaybeIncrementCounts.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
-#include "cetlib/exception.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

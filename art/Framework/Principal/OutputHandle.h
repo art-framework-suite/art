@@ -28,8 +28,9 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
-#include "cetlib/exception.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib_except/exception.h"
 
 #include <memory>
 

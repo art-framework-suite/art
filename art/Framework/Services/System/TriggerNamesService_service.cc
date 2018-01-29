@@ -9,7 +9,7 @@
 #include "canvas/Persistency/Common/TriggerResults.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 using art::TriggerNamesService;

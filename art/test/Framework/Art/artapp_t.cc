@@ -5,8 +5,6 @@
 #include "art/Framework/Art/detail/info_success.h"
 #include "cetlib_except/exception.h"
 
-#include <iostream>
-
 BOOST_AUTO_TEST_SUITE(artappTests)
 
 BOOST_AUTO_TEST_CASE(NoConfig)

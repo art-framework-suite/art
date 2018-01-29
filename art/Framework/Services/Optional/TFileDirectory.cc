@@ -4,7 +4,7 @@
 #include "TROOT.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 
 using namespace std;
 

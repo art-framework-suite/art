@@ -9,7 +9,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
 #include "canvas/Persistency/Common/PtrVector.h"
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <string>

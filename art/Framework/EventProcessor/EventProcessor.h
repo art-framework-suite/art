@@ -28,8 +28,8 @@
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "cetlib/cpu_timer.h"
-#include "cetlib/exception.h"
 #include "cetlib/trim.h"
+#include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
