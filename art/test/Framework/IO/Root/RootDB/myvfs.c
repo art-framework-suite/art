@@ -517,7 +517,7 @@ static int fillInUnixFile(
   pNew->h = h;
   pNew->dirfd = dirfd;
   pNew->zPath = zFilename;
-  if (memcmp(pVfs->zName, "unix-excl", 10) == 0) {
+  if (strcmp(pVfs->zName, "unix-excl") == 0) {
     pNew->ctrlFlags = UNIXFILE_EXCL;
   }
   else {
