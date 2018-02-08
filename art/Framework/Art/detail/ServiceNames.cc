@@ -7,9 +7,9 @@ namespace {
   auto
   initializeBimap()
   {
-    using position = typename ServiceNames_bimap_t::value_type;
+    using position = ServiceNames_bimap_t::value_type;
     ServiceNames_bimap_t result;
-    result.insert(position("floating_point_control", "FloatingPointControl"));
+    result.insert(position{"floating_point_control", "FloatingPointControl"});
     return result;
   }
 } // namespace

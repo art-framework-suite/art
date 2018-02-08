@@ -40,7 +40,7 @@ namespace art {
 class art::FileCatalogMetadata {
 public:
   using collection_type = std::vector<std::pair<std::string, std::string>>;
-  using value_type = typename collection_type::value_type;
+  using value_type = collection_type::value_type;
 
   struct Config {
     fhicl::Atom<bool> checkSyntax{fhicl::Name("checkSyntax"), false};

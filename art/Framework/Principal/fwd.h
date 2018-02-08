@@ -13,7 +13,6 @@ namespace art {
   class ConsumesRecorder;
   class CurrentProcessingContext;
   class DataViewImpl;
-  class DeferredProductGetter;
   class Event;
   class EventPrincipal;
   class Group;
