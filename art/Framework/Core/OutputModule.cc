@@ -20,8 +20,10 @@
 #include "cetlib/canonical_string.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib_except/demangle.h"
+IGNORE_FALLTHROUGH_START
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
+IGNORE_FALLTHROUGH_END
 
 #include <utility>
 

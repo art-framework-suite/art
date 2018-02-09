@@ -12,6 +12,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
+#include "cetlib/compiler_macros.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/TupleAs.h"
@@ -40,8 +41,10 @@ namespace {
           // N.B. Rely on fall-through behavior to set all relevant data.
         case 3ull:
           e_ = idNumbers[2];
+          FALLTHROUGH;
         case 2ull:
           sr_ = idNumbers[1];
+          FALLTHROUGH;
         case 1ull:
           r_ = idNumbers[0];
           break;
