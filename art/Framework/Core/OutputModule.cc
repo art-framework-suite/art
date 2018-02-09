@@ -41,8 +41,10 @@
 #include "cetlib/canonical_string.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/SerialTaskQueueChain.h"
+IGNORE_FALLTHROUGH_START
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
+IGNORE_FALLTHROUGH_END
 
 #include <algorithm>
 #include <array>

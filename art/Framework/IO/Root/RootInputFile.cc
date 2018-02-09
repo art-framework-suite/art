@@ -42,6 +42,7 @@
 #include "canvas_root_io/Streamers/ProductIDStreamer.h"
 #include "canvas_root_io/Utilities/DictionaryChecker.h"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/compiler_macros.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -81,6 +82,7 @@ namespace {
       switch (rc = sqlite3_step(stmt)) {
         case SQLITE_ROW:
           result = true; // Found the table.
+          FALLTHROUGH;
         case SQLITE_DONE:
           rc = SQLITE_OK; // No such table.
           break;

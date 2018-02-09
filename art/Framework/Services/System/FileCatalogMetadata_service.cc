@@ -1,7 +1,9 @@
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "canvas/Utilities/Exception.h"
+IGNORE_FALLTHROUGH_START
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
+IGNORE_FALLTHROUGH_END
 
 namespace {
   std::vector<std::string>

@@ -7,15 +7,17 @@
  *
  */
 
-#include <map>
-#include <string>
-#include <utility>
+#include "art/Framework/Services/Optional/detail/RootDirectorySentry.h"
 
 #include "TDirectory.h"
-#include "art/Framework/Services/Optional/detail/RootDirectorySentry.h"
 
 class TFile;
 class TGraph;
+
+#include <functional>
+#include <map>
+#include <string>
+#include <utility>
 
 namespace art {
 
