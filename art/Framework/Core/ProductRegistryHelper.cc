@@ -58,11 +58,16 @@ namespace {
 void
 art::ProductRegistryHelper::registerProducts(
   MasterProductRegistry& mpr,
-  ProductDescriptions& producedProducts,
+  ProductDescriptions& productsToRegister,
   ModuleDescription const& md)
 {
   // First update the MPR with any extant products.
-  mpr.updateFromModule(std::move(productList_));
+  if (productList_) {
+    cet::transform_all(*productList_,
+                       back_inserter(productsToRegister),
+                       [](auto const& pr) { return pr.second; });
+    mpr.updateFromModule(move(productList_));
+  }
 
   // Now go through products that will be produced in the current process.
   check_for_duplicate_Assns(typeLabelList_[InEvent]);
@@ -72,7 +77,7 @@ art::ProductRegistryHelper::registerProducts(
     auto const bt = static_cast<BranchType>(ibt);
     for (auto const& val : typeLabelList_[bt]) {
       BranchDescription pd{bt, val, md};
-      producedProducts.push_back(pd);
+      productsToRegister.push_back(pd);
       descriptions.push_back(std::move(pd));
     }
   }

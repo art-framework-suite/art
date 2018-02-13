@@ -89,7 +89,7 @@ public:
   }
 
   void registerProducts(MasterProductRegistry& mpr,
-                        ProductDescriptions& producedProducts,
+                        ProductDescriptions& productsToRegister,
                         ModuleDescription const& md);
 
   // Record the production of an object of type P, with optional
