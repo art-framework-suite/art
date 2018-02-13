@@ -37,6 +37,7 @@
 #include "fhiclcpp/types/TableFragment.h"
 
 #include <array>
+#include <cassert>
 #include <memory>
 #include <set>
 #include <string>
@@ -110,6 +111,7 @@ public:
   // not appropriate).
   virtual std::string const& lastClosedFileName() const;
 
+  bool selected(BranchDescription const&) const;
   SelectionsArray const& keptProducts() const;
   std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const;
 
@@ -156,6 +158,7 @@ private:
   std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_{
     {false}}; // filled by aggregation
   GroupSelectorRules groupSelectorRules_;
+  std::unique_ptr<GroupSelector const> groupSelector_{nullptr};
   int maxEvents_{-1};
   int remainingEvents_{maxEvents_};
 
@@ -320,6 +323,13 @@ inline int
 art::OutputModule::remainingEvents() const
 {
   return remainingEvents_;
+}
+
+inline bool
+art::OutputModule::selected(BranchDescription const& pd) const
+{
+  assert(groupSelector_);
+  return groupSelector_->selected(pd);
 }
 
 inline auto
