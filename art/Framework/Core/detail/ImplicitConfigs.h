@@ -1,0 +1,47 @@
+#ifndef art_Framework_Core_detail_ImplicitConfigs_h
+#define art_Framework_Core_detail_ImplicitConfigs_h
+
+#include <set>
+#include <string>
+
+namespace art {
+  namespace detail {
+
+    struct ModuleConfig {
+      static fhicl::Name
+      plugin_type()
+      {
+        return fhicl::Name{"module_type"};
+      }
+      struct IgnoreKeys {
+        std::set<std::string>
+        operator()()
+        {
+          return {"module_label"};
+        }
+      };
+    };
+
+    struct PluginConfig {
+      static fhicl::Name
+      plugin_type()
+      {
+        return fhicl::Name{"plugin_type"};
+      }
+      struct IgnoreKeys {
+        std::set<std::string>
+        operator()()
+        {
+          return {"plugin_label"};
+        }
+      };
+    };
+
+  } // namespace detail
+} // namespace art
+
+#endif /* art_Framework_Core_detail_IgnoreModuleLabel_h */
+
+// Local variables:
+// mode: c++
+// End:

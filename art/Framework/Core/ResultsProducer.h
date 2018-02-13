@@ -71,8 +71,10 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "art/Framework/Core/ProducerTable.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/RPWorkerT.h"
+#include "art/Framework/Core/detail/ImplicitConfigs.h"
 #include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Results.h"
@@ -107,6 +109,9 @@ protected:
 
 public:
   virtual ~ResultsProducer() = default;
+
+  template <typename UserConfig, typename KeysToIgnore = void>
+  using Table = ProducerTable<UserConfig, detail::PluginConfig, KeysToIgnore>;
 
   void doBeginJob();
   void doEndJob();

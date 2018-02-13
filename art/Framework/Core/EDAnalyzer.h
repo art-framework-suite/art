@@ -11,7 +11,7 @@
 #include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/Framework/Core/detail/IgnoreModuleLabel.h"
+#include "art/Framework/Core/detail/ImplicitConfigs.h"
 #include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Principal/fwd.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -44,6 +44,21 @@ namespace art {
     template <typename UserConfig, typename UserKeysToIgnore = void>
     class Table : public fhicl::ConfigurationTable {
     public:
+      template <typename T>
+      struct FullConfig {
+        fhicl::Atom<std::string> module_type{
+          detail::ModuleConfig::plugin_type()};
+        fhicl::TableFragment<EventObserverBase::EOConfig> eoConfig;
+        fhicl::TableFragment<T> user;
+      };
+
+      using KeysToIgnore_t =
+        std::conditional_t<std::is_void<UserKeysToIgnore>::value,
+                           detail::ModuleConfig::IgnoreKeys,
+                           fhicl::KeysToIgnore<detail::ModuleConfig::IgnoreKeys,
+                                               UserKeysToIgnore>>;
+
+    public:
       explicit Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
       Table(fhicl::ParameterSet const& pset) : fullConfig_{pset} {}
 
@@ -71,18 +86,6 @@ namespace art {
       }
 
     private:
-      template <typename T>
-      struct FullConfig {
-        fhicl::Atom<std::string> module_type{fhicl::Name("module_type")};
-        fhicl::TableFragment<EventObserverBase::EOConfig> eoConfig;
-        fhicl::TableFragment<T> user;
-      };
-
-      using KeysToIgnore_t = std::conditional_t<
-        std::is_void<UserKeysToIgnore>::value,
-        detail::IgnoreModuleLabel,
-        fhicl::KeysToIgnore<detail::IgnoreModuleLabel, UserKeysToIgnore>>;
-
       fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t> fullConfig_;
       cet::exempt_ptr<fhicl::detail::ParameterBase const>
       get_parameter_base() const override

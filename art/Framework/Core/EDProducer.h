@@ -39,8 +39,8 @@ namespace art {
     template <typename PROD, BranchType B = InEvent>
     ProductID getProductID(std::string const& instanceName = {}) const;
 
-    template <typename UserConfig>
-    using Table = ProducerBase::Table<UserConfig>;
+    template <typename UserConfig, typename KeysToIgnore = void>
+    using Table = ProducerBase::Table<UserConfig, KeysToIgnore>;
 
   protected:
     // The returned pointer will be null unless the this is currently

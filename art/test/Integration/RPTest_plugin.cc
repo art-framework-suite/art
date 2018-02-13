@@ -28,7 +28,10 @@ namespace arttest {
 
 class arttest::RPTest : public art::ResultsProducer {
 public:
-  explicit RPTest(fhicl::ParameterSet const& p);
+  struct Config {
+  };
+  using Parameters = art::ResultsProducer::Table<Config>;
+  explicit RPTest(Parameters const& p);
   // The compiler-generated destructor is fine for non-base
   // classes without bare pointers or other resource use.
 
@@ -56,7 +59,7 @@ private:
   std::set<std::string> seenEntryPoints_;
 };
 
-arttest::RPTest::RPTest(fhicl::ParameterSet const&)
+arttest::RPTest::RPTest(Parameters const&)
   : seenEntryPoints_({"Constructor",
                       "clear",
                       "writeResults",
