@@ -1,9 +1,9 @@
 #ifndef art_Framework_Art_detail_DebugOutput_h
 #define art_Framework_Art_detail_DebugOutput_h
 
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/compiler_macros.h"
 #include "cetlib/ostream_handle.h"
-#include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/detail/print_mode.h"
 
 #include <cstdlib>
@@ -151,7 +151,7 @@ private:
         std::cerr << "Output of config to " << filename_
                   << " failed: fallback to stderr.\n";
       }
-      FALLTHROUGH;
+        FALLTHROUGH;
       case destination::cerr: {
         osp_ = std::make_unique<cet::ostream_handle>(std::cerr);
         break;
