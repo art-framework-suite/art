@@ -69,7 +69,10 @@ art::OutputModule::configure(OutputModuleDescription const& desc)
 void
 art::OutputModule::doSelectProducts(ProductList const& productList)
 {
-  GroupSelector const groupSelector{groupSelectorRules_, productList};
+  // These variables cause problems for MT.  This function must be
+  // called in a single-threaded context.
+  groupSelector_ =
+    std::make_unique<GroupSelector const>(groupSelectorRules_, productList);
   keptProducts_ = {{}};
 
   // TODO: See if we can collapse keptProducts_ and groupSelector into
@@ -83,7 +86,7 @@ art::OutputModule::doSelectProducts(ProductList const& productList)
       // Transient, skip it.
       continue;
     }
-    if (groupSelector.selected(pd)) {
+    if (selected(pd)) {
       // Selected, keep it.
       keptProducts_[bt].push_back(&pd);
       continue;
