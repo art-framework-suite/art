@@ -9,7 +9,7 @@
 #include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/Framework/Core/detail/IgnoreModuleLabel.h"
+#include "art/Framework/Core/detail/ImplicitConfigs.h"
 #include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Principal/fwd.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -52,22 +52,20 @@ namespace art {
     private: // TYPES
       template <typename T>
       struct FullConfig {
-
-        fhicl::Atom<std::string> module_type{fhicl::Name("module_type")};
-
+        fhicl::Atom<std::string> module_type{
+          detail::ModuleConfig::plugin_type()};
         fhicl::TableFragment<EventObserverBase::EOConfig> eoConfig;
-
         fhicl::TableFragment<T> user;
       };
 
-      using KeysToIgnore_t = std::conditional_t<
-        std::is_void<UserKeysToIgnore>::value,
-        detail::IgnoreModuleLabel,
-        fhicl::KeysToIgnore<detail::IgnoreModuleLabel, UserKeysToIgnore>>;
+      using KeysToIgnore_t =
+        std::conditional_t<std::is_void<UserKeysToIgnore>::value,
+                           detail::ModuleConfig::IgnoreKeys,
+                           fhicl::KeysToIgnore<detail::ModuleConfig::IgnoreKeys,
+                                               UserKeysToIgnore>>;
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
       explicit Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
-
       Table(fhicl::ParameterSet const& pset) : fullConfig_{pset} {}
 
     public: // MEMBER FUNCTIONS -- User-facing API

@@ -14,7 +14,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Utilities/Exception.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace arttest {
@@ -23,7 +23,14 @@ namespace arttest {
 
 class arttest::RPTestReader : public art::ResultsProducer {
 public:
-  explicit RPTestReader(fhicl::ParameterSet const& p);
+  struct Config {
+    fhicl::Atom<std::string> intResultsLabel{fhicl::Name{"intResultsLabel"}};
+    fhicl::Atom<std::size_t> nResultsExpected{fhicl::Name{"nResultsExpected"},
+                                              1ul};
+  };
+
+  using Parameters = art::ResultsProducer::Table<Config>;
+  explicit RPTestReader(Parameters const& p);
   // The compiler-generated destructor is fine for non-base
   // classes without bare pointers or other resource use.
 
@@ -46,15 +53,13 @@ private:
 
   std::string intResultsLabel_;
   std::size_t expectedResultsSeen_;
-  std::size_t resultsSeen_;
-  int total_;
+  std::size_t resultsSeen_{};
+  int total_{};
 };
 
-arttest::RPTestReader::RPTestReader(fhicl::ParameterSet const& p)
-  : intResultsLabel_(p.get<std::string>("intResultsLabel"))
-  , expectedResultsSeen_(p.get<std::size_t>("nResultsExpected", 1ul))
-  , resultsSeen_(0ul)
-  , total_(0)
+arttest::RPTestReader::RPTestReader(Parameters const& p)
+  : intResultsLabel_{p().intResultsLabel()}
+  , expectedResultsSeen_{p().nResultsExpected()}
 {}
 
 void

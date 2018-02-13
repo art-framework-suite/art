@@ -43,8 +43,8 @@ namespace art {
     }
 
   public: // CONFIGURATION
-    template <typename UserConfig>
-    using Table = ProducerBase::Table<UserConfig>;
+    template <typename UserConfig, typename KeysToIgnore = void>
+    using Table = ProducerBase::Table<UserConfig, KeysToIgnore>;
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~EDProducer() noexcept = 0;

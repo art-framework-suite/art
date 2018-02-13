@@ -5,7 +5,6 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/Framework/Core/detail/IgnoreModuleLabel.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
@@ -13,12 +12,6 @@
 #include "art/Utilities/CPCSentry.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/types/ConfigurationTable.h"
-#include "fhiclcpp/types/KeysToIgnore.h"
-#include "fhiclcpp/types/OptionalTable.h"
-#include "fhiclcpp/types/Table.h"
-#include "fhiclcpp/types/TableFragment.h"
 #include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <algorithm>

@@ -74,8 +74,10 @@
 
 #include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/ModuleType.h"
+#include "art/Framework/Core/ProducerTable.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/RPWorkerT.h"
+#include "art/Framework/Core/detail/ImplicitConfigs.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "cetlib/ProvideFilePathMacro.h"
 #include "cetlib/compiler_macros.h"
@@ -100,14 +102,12 @@ namespace art {
   class SubRun;
 
   class ResultsProducer : public ModuleBase, private ProductRegistryHelper {
-  public: // MEMBER FUNCTIONS -- Special Member Functions
+  public:
     virtual ~ResultsProducer() noexcept = default;
 
-  protected:
-    template <class P>
-    void produces(std::string const& instanceName = {});
+    template <typename UserConfig, typename KeysToIgnore = void>
+    using Table = ProducerTable<UserConfig, detail::PluginConfig, KeysToIgnore>;
 
-  public:
     void doBeginJob();
     void doEndJob();
 
@@ -126,7 +126,11 @@ namespace art {
     void registerProducts(ProductDescriptions& producedProducts,
                           ModuleDescription const& md);
 
-  private: // MEMBER FUNCTIONS -- API to be provided by derived classes
+  protected:
+    template <class P>
+    void produces(std::string const& instanceName = {});
+
+  private:
     virtual void readResults(Results const&);
     virtual void writeResults(Results&) = 0;
 
