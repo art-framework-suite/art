@@ -9,6 +9,8 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/assert_only_one_thread.h"
 
+#include <cerrno>
+#include <cstring>
 #include <regex>
 #include <sstream>
 
@@ -49,7 +51,8 @@ namespace art {
       auto file = fopen(ost.str().c_str(), "r");
       if (file == nullptr) {
         throw Exception{errors::Configuration}
-          << " Failed to open: " << ost.str() << " for schedule: " << i << '\n';
+          << " Failed to open: " << ost.str() << " for schedule: " << i << '\n'
+          << " errno: " << errno << " (" << std::strerror(errno) << ")\n";
       }
       files_.push_back(file);
     }
