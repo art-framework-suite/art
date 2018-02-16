@@ -39,6 +39,7 @@
 
 #include <array>
 #include <atomic>
+#include <cassert>
 #include <cstddef>
 #include <memory>
 #include <set>
@@ -138,7 +139,7 @@ namespace art {
     virtual std::string const& lastClosedFileName() const;
 
     SelectionsArray const& keptProducts() const;
-
+    bool selected(BranchDescription const&) const;
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const;
 
     void selectProducts(ProductTables const&);
@@ -293,7 +294,7 @@ namespace art {
     // describing the branches we are to write.
 
     SelectionsArray keptProducts_{{}};
-
+    std::array<std::unique_ptr<GroupSelector const>, NumBranchTypes> groupSelector_{{nullptr}};
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_{{false}};
 
     GroupSelectorRules groupSelectorRules_;

@@ -71,15 +71,23 @@ namespace art {
   ProductRegistryHelper::ProductRegistryHelper() = default;
 
   void
-  ProductRegistryHelper::registerProducts(ProductDescriptions& producedProducts,
+  ProductRegistryHelper::registerProducts(ProductDescriptions& productsToRegister,
                                           ModuleDescription const& md)
   {
+    // Possible products from input source
+    if (productList_) {
+      cet::transform_all(*productList_,
+                         back_inserter(productsToRegister),
+                         [](auto const& pr) { return pr.second; });
+    }
+
+    // Now fill the descriptions for products that are to be produced.
     fillDescriptions(md);
     auto registerProductsPerBT = [this,
-                                  &producedProducts](BranchType const bt) {
+                                  &productsToRegister](BranchType const bt) {
       auto const& expectedProducts = typeLabelList_[bt];
       for (auto const& pr : expectedProducts) {
-        producedProducts.push_back(pr.second);
+        productsToRegister.push_back(pr.second);
       }
     };
     for_each_branch_type(registerProductsPerBT);

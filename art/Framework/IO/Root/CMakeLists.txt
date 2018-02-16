@@ -109,5 +109,5 @@ art_make_exec(NAME file_info_dumper
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )
 
-install_headers()
-install_source()
+install_headers(SUBDIRS detail)
+install_source(SUBDIRS detail)

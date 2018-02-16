@@ -49,6 +49,7 @@ IGNORE_FALLTHROUGH_END
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <cassert>
 #include <cstddef>
 #include <iomanip>
 #include <iostream>
@@ -162,7 +163,8 @@ namespace art {
 
     auto selectProductForBranchType = [this, &tables](BranchType const bt) {
       auto const& productList = tables.descriptions(bt);
-      GroupSelector const groupSelector{groupSelectorRules_, productList};
+      groupSelector_[bt] =
+      std::make_unique<GroupSelector const>(groupSelectorRules_, productList);
 
       // TODO: See if we can collapse keptProducts_ and groupSelector into
       // a single object. See the notes in the header for GroupSelector
@@ -174,7 +176,7 @@ namespace art {
           // Transient, skip it.
           continue;
         }
-        if (groupSelector.selected(pd)) {
+        if (selected(pd)) {
           // Selected, keep it.  Here, we take care to merge the
           // BranchDescription objects if one was already present in the
           // keptProducts list.
@@ -746,6 +748,14 @@ namespace art {
   OutputModule::keptProducts() const
   {
     return keptProducts_;
+  }
+
+  bool
+  OutputModule::selected(BranchDescription const& pd) const
+  {
+    auto const bt = pd.branchType();
+    assert(groupSelector_[bt]);
+    return groupSelector_[bt]->selected(pd);
   }
 
   std::array<bool, NumBranchTypes> const&

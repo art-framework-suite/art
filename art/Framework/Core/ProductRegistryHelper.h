@@ -77,7 +77,6 @@ namespace art {
   } // unnamed namespace
 
   class ProductRegistryHelper {
-
   public: // MEMBER FUNCTIONS
     virtual ~ProductRegistryHelper();
 
@@ -89,7 +88,16 @@ namespace art {
     ProductRegistryHelper& operator=(ProductRegistryHelper&&) = delete;
 
   public: // MEMBER FUNCTIONS
-    void registerProducts(ProductDescriptions& producedProducts,
+
+    // Used by an input source to provide a product list to be merged
+    // into the set of products that will be registered.
+    void
+    productList(std::unique_ptr<ProductList> p)
+    {
+      productList_ = move(p);
+    }
+
+    void registerProducts(ProductDescriptions& productsToRegister,
                           ModuleDescription const& md);
 
     void fillDescriptions(ModuleDescription const& md);
@@ -115,6 +123,7 @@ namespace art {
     TypeLabel const& insertOrThrow(BranchType const bt, TypeLabel const& tl);
 
   private: // MEMBER DATA
+    std::unique_ptr<ProductList const> productList_{nullptr};
     std::array<TypeLabelLookup_t, NumBranchTypes> typeLabelList_{{}};
   };
 
