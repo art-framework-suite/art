@@ -8,9 +8,9 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
+#include "art/test/Integration/RunTimeProduces.h"
 #include "fhiclcpp/ParameterSet.h"
 
-#include <iostream>
 #include <memory>
 #include <string>
 
@@ -22,29 +22,30 @@ using arttest::BareStringProducer;
 
 class arttest::BareStringProducer : public art::EDProducer {
 public:
-  explicit BareStringProducer(fhicl::ParameterSet const& p)
-    : value_(p.get<std::string>("value"))
-  {
-    produces<std::string>();
-  }
+  struct Config {
+    fhicl::Atom<std::string> value{fhicl::Name{"value"}};
+    fhicl::Atom<unsigned long> branchType{fhicl::Name("branchType"),
+                                          art::InEvent};
+  };
 
-  explicit BareStringProducer(std::string const& s) : value_(s)
+  using Parameters = art::EDProducer::Table<Config>;
+  explicit BareStringProducer(Parameters const& p)
+    : value_{p().value()}, branchType_{art::BranchType(p().branchType())}
   {
-    produces<std::string>();
+    art::test::run_time_produces<std::string>(this, branchType_);
   }
-
-  void produce(art::Event& e) override;
 
 private:
+  void produce(art::Event& e) override;
   std::string value_;
+  art::BranchType branchType_;
+
 }; // BareStringProducer
 
 void
 BareStringProducer::produce(art::Event& e)
 {
-  std::cerr << "Holy cow, BareStringProducer::produce is running!\n";
-  std::unique_ptr<std::string> p(new std::string(value_));
-  e.put(std::move(p));
+  e.put(std::make_unique<std::string>(value_));
 }
 
 DEFINE_ART_MODULE(BareStringProducer)

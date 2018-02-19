@@ -31,6 +31,7 @@
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/validationException.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "tbb/task_arena.h"
 
 #include <cassert>
 #include <exception>
@@ -192,9 +193,13 @@ void
 art::EventProcessor::initSchedules_(ParameterSet const& pset)
 {
   // Initialize TBB with desired number of threads.
-  int const num_threads = pset.get<int>(
-    "services.num_threads", tbb::task_scheduler_init::default_num_threads());
+  int const num_threads =
+    pset.get<int>("services.scheduler.num_threads",
+                  tbb::task_scheduler_init::default_num_threads());
   tbbManager_.initialize(num_threads);
+  mf::LogInfo("MTdiagnostics")
+    << "TBB has been configured to use a maximum of "
+    << tbb::this_task_arena::max_concurrency() << " threads.";
   schedule_ =
     std::make_unique<Schedule>(ScheduleID::first(),
                                pathManager_,

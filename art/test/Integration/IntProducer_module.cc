@@ -10,6 +10,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/test/Integration/RunTimeProduces.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 
 #include "fhiclcpp/types/Atom.h"
@@ -41,20 +42,7 @@ public:
     : value_{p().ivalue()} // enums don't usually have a conversion from string
     , branchType_{art::BranchType(p().branchType())}
   {
-    switch (branchType_) {
-      case art::InEvent:
-        produces<IntProduct>();
-        break;
-      case art::InSubRun:
-        produces<IntProduct, art::InSubRun>();
-        break;
-      case art::InRun:
-        produces<IntProduct, art::InRun>();
-        break;
-      default:
-        throw art::Exception(art::errors::LogicError)
-          << "Unknown branch type " << branchType_ << ".\n";
-    }
+    art::test::run_time_produces<IntProduct>(this, branchType_);
   }
 
   // explicit IntProducer(int i) : value_(i) { produces<IntProduct>(); }
