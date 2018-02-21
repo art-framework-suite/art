@@ -12,7 +12,7 @@ File catalog metadata from file ../SAM_metadata.d/out.root:
  9: data_stream         "o1"
 10: file_format         "artroot"
 11: file_format_era     "ART_2011a"
-12: file_format_version 11
+12: file_format_version 12
 13: start_time          "<date-time>"
 14: end_time            "<date-time>"
 15: runs                [ [ 1, 0, "MCChallenge" ], [ 1, 1, "MCChallenge" ] ]
