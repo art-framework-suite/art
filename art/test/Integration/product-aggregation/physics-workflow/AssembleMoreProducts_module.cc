@@ -2,11 +2,11 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SummedValue.h"
-#include "art/test/Integration/product-aggregation/CalibConstants.h"
-#include "art/test/Integration/product-aggregation/Fraction.h"
-#include "art/test/Integration/product-aggregation/Geometry.h"
-#include "art/test/Integration/product-aggregation/TaggedValue.h"
-#include "art/test/Integration/product-aggregation/TrackEfficiency.h"
+#include "art/test/Integration/product-aggregation/physics-workflow/CalibConstants.h"
+#include "art/test/Integration/product-aggregation/physics-workflow/Fraction.h"
+#include "art/test/Integration/product-aggregation/physics-workflow/Geometry.h"
+#include "art/test/Integration/product-aggregation/physics-workflow/TaggedValue.h"
+#include "art/test/Integration/product-aggregation/physics-workflow/TrackEfficiency.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "cetlib/quiet_unit_test.hpp"
 #include "fhiclcpp/types/Sequence.h"
@@ -87,7 +87,7 @@ namespace {
     if (art::same_ranges(trkEffNum_, trkEffDenom_) &&
         art::same_ranges(trkEffRef, trkEffNum_.rangeOfValidity())) {
       BOOST_CHECK(!art::disjoint_ranges(trkEffNum_, trkEffDenom_));
-      BOOST_CHECK(!art::overlapping_ranges(trkEffNum_, trkEffDenom_));
+      BOOST_CHECK(art::overlapping_ranges(trkEffNum_, trkEffDenom_));
       auto trkEff =
         std::make_unique<Fraction>(trkEffNum_.value(), trkEffDenom_.value());
       BOOST_CHECK_CLOSE_FRACTION(expectedEff_, trkEff->value(), tolerance);

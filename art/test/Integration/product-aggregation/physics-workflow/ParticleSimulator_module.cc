@@ -9,7 +9,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
-#include "art/test/Integration/product-aggregation/Geometry.h"
+#include "art/test/Integration/product-aggregation/physics-workflow/Geometry.h"
 #include "fhiclcpp/types/TupleAs.h"
 
 #include <cmath>

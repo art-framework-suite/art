@@ -9,8 +9,8 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/test/Integration/product-aggregation/CalibConstants.h"
-#include "art/test/Integration/product-aggregation/TrackEfficiency.h"
+#include "art/test/Integration/product-aggregation/physics-workflow/CalibConstants.h"
+#include "art/test/Integration/product-aggregation/physics-workflow/TrackEfficiency.h"
 #include "fhiclcpp/types/TupleAs.h"
 
 namespace {
