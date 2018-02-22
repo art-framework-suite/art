@@ -2,9 +2,9 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/test/Integration/product-aggregation/Fraction.h"
-#include "art/test/Integration/product-aggregation/TaggedValue.h"
-#include "art/test/Integration/product-aggregation/TrackEfficiency.h"
+#include "art/test/Integration/product-aggregation/physics-workflow/Fraction.h"
+#include "art/test/Integration/product-aggregation/physics-workflow/TaggedValue.h"
+#include "art/test/Integration/product-aggregation/physics-workflow/TrackEfficiency.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "cetlib/quiet_unit_test.hpp"
 #include "fhiclcpp/types/TupleAs.h"
@@ -86,7 +86,7 @@ namespace {
                                0.01); // 1% tolerance
     BOOST_CHECK(art::same_ranges(particleRatioH, trkEffValueH));
     BOOST_CHECK(!art::disjoint_ranges(particleRatioH, trkEffValueH));
-    BOOST_CHECK(!art::overlapping_ranges(particleRatioH, trkEffValueH));
+    BOOST_CHECK(art::overlapping_ranges(particleRatioH, trkEffValueH));
   }
 
 } // namespace

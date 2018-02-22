@@ -10,6 +10,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/test/Integration/RunTimeProduces.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -33,20 +34,7 @@ public:
     branchType_(
       art::BranchType(p.get<unsigned long>("branchType", art::InEvent)))
   {
-    switch (branchType_) {
-      case art::InEvent:
-        produces<CompressedIntProduct>();
-        break;
-      case art::InSubRun:
-        produces<CompressedIntProduct, art::InSubRun>();
-        break;
-      case art::InRun:
-        produces<CompressedIntProduct, art::InRun>();
-        break;
-      default:
-        throw art::Exception(art::errors::LogicError)
-          << "Unknown branch type " << branchType_ << ".\n";
-    }
+    art::test::run_time_produces<CompressedIntProduct>(this, branchType_);
   }
 
   explicit CompressedIntProducer(int i) : value_(i)

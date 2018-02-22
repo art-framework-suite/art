@@ -102,8 +102,7 @@ art::detail::resolveRangeSet(RangeSetInfo const& rsi)
   if (rsi.is_invalid()) {
     return RangeSet::invalid();
   }
-  return rsi.ranges.empty() ? RangeSet::forRun(RunID{rsi.run}) :
-                              RangeSet{rsi.run, rsi.ranges};
+  return RangeSet{rsi.run, rsi.ranges};
 }
 
 art::RangeSet

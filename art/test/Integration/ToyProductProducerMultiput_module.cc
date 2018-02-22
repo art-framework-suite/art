@@ -9,6 +9,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/test/Integration/RunTimeProduces.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 
 #include "fhiclcpp/types/Atom.h"
@@ -44,20 +45,7 @@ public:
   explicit ToyProductProducerMultiput(Parameters const& p)
     : branchType_{BranchType(p().branchType())}
   {
-    switch (branchType_) {
-      case InEvent:
-        produces<IntProduct>();
-        break;
-      case InSubRun:
-        produces<IntProduct, InSubRun>();
-        break;
-      case InRun:
-        produces<IntProduct, InRun>();
-        break;
-      default:
-        throw Exception(errors::LogicError)
-          << "Unknown branch type " << branchType_ << ".\n";
-    }
+    run_time_produces<IntProduct>(this, branchType_);
   }
 
 private:

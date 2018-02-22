@@ -5,6 +5,6 @@
 int
 main(int /*argc*/, char* argv[])
 {
-  assert(art::getFileFormatVersion() == 11);
+  assert(art::getFileFormatVersion() == 12);
   std::cout << "Running " << argv[0] << std::endl;
 }

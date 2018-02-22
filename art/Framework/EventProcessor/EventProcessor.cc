@@ -37,6 +37,7 @@
 #include "hep_concurrency/WaitingTaskList.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "tbb/task.h"
+#include "tbb/task_arena.h"
 
 #include <algorithm>
 #include <atomic>
@@ -155,6 +156,9 @@ EventProcessor::EventProcessor(ParameterSet const& pset)
   // Initialize TBB with desired number of threads.
   auto nthreads = pset.get<int>("services.scheduler.nthreads");
   tbbManager_.initialize(nthreads);
+  mf::LogInfo("MTdiagnostics")
+    << "TBB has been configured to use a maximum of "
+    << tbb::this_task_arena::max_concurrency() << " threads.";
   Globals::instance()->setNThreads(nthreads);
 
   auto const nschedules = pset.get<int>("services.scheduler.nschedules");
