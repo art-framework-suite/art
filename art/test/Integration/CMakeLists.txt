@@ -324,7 +324,6 @@ cet_test(issue_0923_w HANDBUILT
   DATAFILES
   fcl/issue_0923a.fcl
   fcl/issue_0923b.fcl
-  TEST_PROPERTIES WILL_FAIL TRUE
 )
 
 cet_test(issue_0923_r HANDBUILT
@@ -1659,7 +1658,6 @@ cet_test(CmdLineTmpDir_w HANDBUILT
   TEST_ARGS -c cmdLineTmpDir.fcl --tmpDir=tmp --debug-config=CmdLineTmpDir_w.out
   DATAFILES
   fcl/cmdLineTmpDir.fcl
-  TEST_PROPERTIES WILL_FAIL TRUE
   )
 
 cet_test(CmdLineTmpDir_t HANDBUILT

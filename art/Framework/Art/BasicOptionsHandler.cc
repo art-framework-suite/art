@@ -1,6 +1,7 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 
 #include "art/Framework/Art/detail/AllowedConfiguration.h"
+#include "art/Framework/Art/detail/info_success.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Utilities/Exception.h"
@@ -73,21 +74,21 @@ art::BasicOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
     for (std::string s; std::getline(ss, s);)
       std::cout << std::string(2, ' ') << s << '\n';
     std::cout << '\n';
-    return 1;
+    return detail::info_success();
   }
   bool const status_bar = vm.count("status-bar") > 0;
   if (vm.count("print-available")) {
     detail::print_available_plugins(
       Suffixes::get(vm["print-available"].as<std::string>()), status_bar);
-    return 1;
+    return detail::info_success();
   }
   if (vm.count("print-available-modules")) {
     detail::print_available_plugins(suffix_type::module, status_bar);
-    return 1;
+    return detail::info_success();
   }
   if (vm.count("print-available-services")) {
     detail::print_available_plugins(suffix_type::service, status_bar);
-    return 1;
+    return detail::info_success();
   }
   if (status_bar) {
     throw Exception(errors::Configuration)
@@ -98,11 +99,11 @@ art::BasicOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
   if (vm.count("print-description")) {
     detail::print_descriptions(
       vm["print-description"].as<std::vector<std::string>>());
-    return 1;
+    return detail::info_success();
   }
   if (vm.count("version")) {
     std::cout << "art " << pretty_version(getReleaseVersion()) << '\n';
-    return 1;
+    return detail::info_success();
   }
 
   if (!vm.count("config")) {

@@ -2,6 +2,7 @@
 
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
+#include "art/Framework/Art/detail/info_success.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Framework/IO/Root/InitRootHandlers.h"
 #include "art/Utilities/ExceptionMessages.h"
@@ -270,7 +271,7 @@ art::run_art_common_(fhicl::ParameterSet const& main_pset)
   auto const debug_processing_mode =
     maybe_output_config(main_pset, scheduler_pset);
   if (debug_processing_mode == debug_processing::debug_config) {
-    return 1; // Bail out early
+    return detail::info_success(); // Bail out early
   }
 
   //
@@ -323,7 +324,7 @@ art::run_art_common_(fhicl::ParameterSet const& main_pset)
     // construction of the EventProcessor object can have nothing to
     // do with a configuration error.
     if (debug_processing_mode == debug_processing::validate_config) {
-      return 1; // Bail out early
+      return detail::info_success(); // Bail out early
     }
     if (ep.runToCompletion() == EventProcessor::epSignal) {
       std::cerr << "Art has handled signal " << art::shutdown_flag << ".\n";
