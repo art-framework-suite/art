@@ -1,4 +1,5 @@
 #include "art/Framework/Art/@ART_MAIN_FUNC@.h"
+#include "art/Framework/Art/detail/info_success.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -10,6 +11,9 @@ int main( int argc, char* argv[] ) {
   // so our message really is the last one put out.
   mf::EndMessageFacility();
   // End message.
+  if (result == art::detail::info_success()) {
+    return 0;
+  }
   std::cout
     << "Art has completed and will exit with status "
     << result

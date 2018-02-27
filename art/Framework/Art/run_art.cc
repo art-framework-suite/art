@@ -3,6 +3,7 @@
 
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
+#include "art/Framework/Art/detail/info_success.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/UnixSignalHandlers.h"
@@ -191,7 +192,7 @@ namespace art {
       if (debug.debug_config()) {
         std::cerr << debug.banner();
         debug.stream() << main_pset.to_indented_string(0, debug.print_mode());
-        return 1; // Bail out early
+        return detail::info_success(); // Bail out early
       } else if (debug.config_out()) {
         debug.stream() << main_pset.to_indented_string(0, debug.print_mode());
         mf::LogInfo("ConfigOut") << "Post-processed configuration written to "
@@ -239,7 +240,7 @@ namespace art {
       if (debug && debug.validate_config()) {
         std::cerr << debug.banner();
         debug.stream() << main_pset.to_indented_string(0, debug.print_mode());
-        return 1; // Bail out early
+        return detail::info_success(); // Bail out early
       }
       if (ep.runToCompletion() == EventProcessor::epSignal) {
         std::cerr << "Art has handled signal " << art::shutdown_flag << ".\n";
