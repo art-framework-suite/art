@@ -294,7 +294,8 @@ namespace art {
     // describing the branches we are to write.
 
     SelectionsArray keptProducts_{{}};
-    std::array<std::unique_ptr<GroupSelector const>, NumBranchTypes> groupSelector_{{nullptr}};
+    std::array<std::unique_ptr<GroupSelector const>, NumBranchTypes>
+      groupSelector_{{nullptr}};
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_{{false}};
 
     GroupSelectorRules groupSelectorRules_;

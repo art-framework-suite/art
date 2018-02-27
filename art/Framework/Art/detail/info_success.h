@@ -5,7 +5,8 @@
 
 namespace art {
   namespace detail {
-    constexpr int info_success()
+    constexpr int
+    info_success()
     {
       return std::numeric_limits<int>::max();
     }

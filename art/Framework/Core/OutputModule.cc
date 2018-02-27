@@ -164,7 +164,7 @@ namespace art {
     auto selectProductForBranchType = [this, &tables](BranchType const bt) {
       auto const& productList = tables.descriptions(bt);
       groupSelector_[bt] =
-      std::make_unique<GroupSelector const>(groupSelectorRules_, productList);
+        std::make_unique<GroupSelector const>(groupSelectorRules_, productList);
 
       // TODO: See if we can collapse keptProducts_ and groupSelector into
       // a single object. See the notes in the header for GroupSelector

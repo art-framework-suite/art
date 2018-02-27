@@ -88,7 +88,6 @@ namespace art {
     ProductRegistryHelper& operator=(ProductRegistryHelper&&) = delete;
 
   public: // MEMBER FUNCTIONS
-
     // Used by an input source to provide a product list to be merged
     // into the set of products that will be registered.
     void

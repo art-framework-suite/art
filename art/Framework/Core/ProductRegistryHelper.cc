@@ -71,8 +71,9 @@ namespace art {
   ProductRegistryHelper::ProductRegistryHelper() = default;
 
   void
-  ProductRegistryHelper::registerProducts(ProductDescriptions& productsToRegister,
-                                          ModuleDescription const& md)
+  ProductRegistryHelper::registerProducts(
+    ProductDescriptions& productsToRegister,
+    ModuleDescription const& md)
   {
     // Possible products from input source
     if (productList_) {
