@@ -1,5 +1,7 @@
 art_make(
   SUBDIRS detail
+  EXCLUDE
+  check_data_dependencies.cc
   LIB_LIBRARIES
   art_Framework_Services_System_TriggerNamesService_service
   art_Framework_Services_Optional_RandomNumberGenerator_service
@@ -17,6 +19,8 @@ art_make(
   ${CLHEP}
   ${TBB}
   )
+
+cet_make_exec(check_data_dependencies SOURCE check_data_dependencies.cc LIBRARIES canvas cetlib_except art_Framework_Core)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)
