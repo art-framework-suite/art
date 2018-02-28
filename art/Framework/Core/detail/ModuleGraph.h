@@ -10,7 +10,8 @@
 namespace art {
   namespace detail {
     using vertex_property = boost::property<boost::vertex_name_t, std::string>;
-    using edge_property = boost::property<boost::edge_index_t, int>;
+    using edge_property = boost::property<boost::edge_index_t, int,
+                                          boost::property<boost::edge_name_t, std::string>>;
     using graph_property = boost::property<boost::graph_name_t, std::string>;
     using Graph = boost::adjacency_list<boost::vecS,
                                         boost::vecS,
