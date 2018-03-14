@@ -24,6 +24,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/LibraryManager.h"
+#include "cetlib/container_algorithms.h"
 #include "cetlib/detail/wrapLibraryManagerException.h"
 #include "cetlib/ostream_handle.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -111,8 +112,7 @@ art::PathManager::PathManager(ParameterSet const& procPS,
            procPS_.get<ParameterSet>(path_table_name, {}).get_names()) {
         try {
           ModuleConfigInfo mci;
-          mci.label_ = module_label;
-          mci.configPath_ = path_table_name;
+          mci.configTableName_ = path_table_name;
           mci.moduleType_ = module_type;
           mci.modPS_ = procPS_.get<fhicl::ParameterSet>(path_table_name + '.' +
                                                         module_label);
@@ -140,7 +140,7 @@ art::PathManager::PathManager(ParameterSet const& procPS,
           }
           auto actualModType = mod_type_func();
           if (actualModType != mci.moduleType_) {
-            es << "  ERROR: Module with label " << mci.label_ << " of type "
+            es << "  ERROR: Module with label " << module_label << " of type "
                << mci.libSpec_ << " is configured as a "
                << ModuleType_to_string(mci.moduleType_)
                << " but defined in code as a "
@@ -169,10 +169,10 @@ art::PathManager::PathManager(ParameterSet const& procPS,
             }
           }
           mci.moduleThreadingType_ = mod_threading_type_func();
-          auto result = allModules_.emplace(mci.label_, mci);
+          auto result = allModules_.emplace(module_label, mci);
           if (!result.second) {
-            es << "  ERROR: Module label " << mci.label_ << " has been used in "
-               << result.first->second.configPath_ << " and " << path_table_name
+            es << "  ERROR: Module label " << module_label << " has been used in "
+               << result.first->second.configTableName_ << " and " << path_table_name
                << ".\n";
           }
         }
@@ -198,17 +198,16 @@ art::PathManager::PathManager(ParameterSet const& procPS,
     //
     //  Get the physics table.
     //
-    ParameterSet empty;
-    auto const physics = procPS_.get<ParameterSet>("physics", empty);
+    auto const physics = procPS_.get<ParameterSet>("physics", {});
     //
-    //  Get the non-special entries, should be user-specified paths (labeled
-    //  fhicl sequences of module labels).
+    //  Get the non-special entries, should be user-specified paths
+    //  (labeled fhicl sequences of module labels).
     //
-    // Note: The ParameterSet::get_names() routine returns vector<string> by
-    // value, so we cannot
-    //       iterate over it without making a copy.  Nasty.
-    vector<string> physics_names = physics.get_names();
-    set<string> special_parms{
+    // Note: The ParameterSet::get_names() routine returns
+    // vector<string> by value, so we must make sure to iterate over
+    // the same returned object.
+    auto const physics_names = physics.get_names();
+    set<string> const special_parms = {
       "producers"s, "filters"s, "analyzers"s, "trigger_paths"s, "end_paths"s};
     vector<string> path_names;
     set_difference(physics_names.cbegin(),
@@ -220,31 +219,27 @@ art::PathManager::PathManager(ParameterSet const& procPS,
     //  Check that each path in trigger_paths and end_paths actually exists.
     //
     if (trigger_paths_config_) {
-      {
-        vector<string> missing_paths;
-        set_difference(trigger_paths_config_->cbegin(),
-                       trigger_paths_config_->cend(),
-                       path_names.cbegin(),
-                       path_names.cend(),
-                       back_inserter(missing_paths));
-        for (auto const& path : missing_paths) {
-          es << "ERROR: Unknown path " << path
-             << " specified by user in trigger_paths.\n";
-        }
+      vector<string> missing_paths;
+      set_difference(trigger_paths_config_->cbegin(),
+                     trigger_paths_config_->cend(),
+                     path_names.cbegin(),
+                     path_names.cend(),
+                     back_inserter(missing_paths));
+      for (auto const& path : missing_paths) {
+        es << "ERROR: Unknown path " << path
+           << " specified by user in trigger_paths.\n";
       }
     }
     if (end_paths_config_) {
-      {
-        vector<string> missing_paths;
-        set_difference(end_paths_config_->cbegin(),
-                       end_paths_config_->cend(),
-                       path_names.cbegin(),
-                       path_names.cend(),
-                       back_inserter(missing_paths));
-        for (auto const& path : missing_paths) {
-          es << "ERROR: Unknown path " << path
-             << " specified by user in end_paths.\n";
-        }
+      vector<string> missing_paths;
+      set_difference(end_paths_config_->cbegin(),
+                     end_paths_config_->cend(),
+                     path_names.cbegin(),
+                     path_names.cend(),
+                     back_inserter(missing_paths));
+      for (auto const& path : missing_paths) {
+        es << "ERROR: Unknown path " << path
+           << " specified by user in end_paths.\n";
       }
     }
     //
@@ -263,11 +258,11 @@ art::PathManager::PathManager(ParameterSet const& procPS,
         string msg =
           "\nYou have specified the following unsupported parameters in the\n"
           "\"physics\" block of your configuration:\n\n";
-        for_each(
-          bad_names.cbegin(), bad_names.cend(), [&msg](auto const& name) {
-            msg.append("   \"physics." + name.first + "\"   (" + name.second +
-                       ")\n");
-          });
+        cet::for_all(bad_names,
+                     [&msg](auto const& name) {
+                       msg.append("   \"physics." + name.first + "\"   (" + name.second +
+                                  ")\n");
+                     });
         msg.append("\n");
         msg.append("Supported parameters include the following tables:\n");
         msg.append("   \"physics.producers\"\n");
@@ -383,12 +378,11 @@ art::PathManager::PathManager(ParameterSet const& procPS,
                << " and cannot have a '!' or '-' prefix.\n";
           }
 
-          mci.filterAction_ = filteract;
           if (cat == mod_cat_t::MODIFIER) {
             // Trigger path.
-            protoTrigPathMap_[path_name].emplace_back(mci);
+            protoTrigPathLabelMap_[path_name].emplace_back(label, filteract);
           } else {
-            protoEndPathInfo_.emplace_back(mci);
+            protoEndPathLabels_.emplace_back(label, filteract);
           }
         }
         if (cat == mod_cat_t::OBSERVER) {
@@ -467,13 +461,13 @@ art::PathManager::createModulesAndWorkers(std::string const& debug_filename [[gn
       pinfo.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
       int bitPos = 0;
       map<string, Worker*> allStreamWorkers;
-      for (auto const& val : protoTrigPathMap_) {
+      for (auto const& val : protoTrigPathLabelMap_) {
         auto const& path_name = val.first;
-        auto const& module_config_infos = val.second;
+        auto const& worker_config_infos = val.second;
         vector<WorkerInPath> wips;
         fillWorkers_(streamIndex,
                      bitPos,
-                     module_config_infos,
+                     worker_config_infos,
                      allStreamWorkers,
                      wips,
                      pinfo.workers());
@@ -494,14 +488,14 @@ art::PathManager::createModulesAndWorkers(std::string const& debug_filename [[gn
     }
   }
 
-  if (!protoEndPathInfo_.empty()) {
+  if (!protoEndPathLabels_.empty()) {
     //  Create the end path and the workers on it.
-    map<string, Worker*> allStreamWorkers;
+    map<string, Worker*> dummyAllStreamWorkers;
     vector<WorkerInPath> wips;
     fillWorkers_(0, // stream index
                  0, // bit position
-                 protoEndPathInfo_,
-                 allStreamWorkers,
+                 protoEndPathLabels_,
+                 dummyAllStreamWorkers,
                  wips,
                  endPathInfo_.workers());
     endPathInfo_.paths().push_back(new Path{exceptActions_,
@@ -611,18 +605,21 @@ art::PathManager::setTriggerResultsInserter(
 void
 art::PathManager::fillWorkers_(int const si,
                                int const pi,
-                               vector<ModuleConfigInfo> const& mci_list,
+                               vector<WorkerConfigInfo> const& wci_list,
                                map<string, Worker*>& allStreamWorkers,
                                vector<WorkerInPath>& wips,
                                map<string, Worker*>& workers)
 {
   vector<string> configErrMsgs;
-  for (auto const& mci : mci_list) {
+  for (auto const& wci : wci_list) {
+    auto const& module_label = wci.label_;
+    auto const& filterAction = wci.filterAction_;
+
+    auto const& mci = allModules_.at(module_label);
     auto const& modPS = mci.modPS_;
-    auto const& module_label = mci.label_;
     auto const& module_type = mci.libSpec_;
     auto const& module_threading_type = mci.moduleThreadingType_;
-    auto const& filterAction = mci.filterAction_;
+
     ModuleBase* module = nullptr;
     // All modules are singletons except for stream modules,
     // enforce that.

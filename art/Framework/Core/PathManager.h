@@ -55,19 +55,31 @@ namespace art {
   class UpdateOutputCallbacks;
 
   class PathManager {
-
   private:
+
     struct ModuleConfigInfo {
-      std::string configPath_;
+      std::string configTableName_;
       ModuleType moduleType_;
       ModuleThreadingType moduleThreadingType_;
-      std::string label_;
       fhicl::ParameterSet modPS_;
       std::string libSpec_;
+    };
+
+    using module_label_t = std::string;
+
+    struct WorkerConfigInfo {
+      WorkerConfigInfo(module_label_t const& label,
+                       WorkerInPath::FilterAction const filterAction) :
+        label_{label},
+        filterAction_{filterAction}
+      {}
+
+      module_label_t label_; // Used for looking up ModuleConfig
       WorkerInPath::FilterAction filterAction_;
     };
 
   public:
+
     ~PathManager();
 
     PathManager(fhicl::ParameterSet const& procPS,
@@ -94,9 +106,10 @@ namespace art {
                                    std::unique_ptr<WorkerT<EDProducer>>&&);
 
   private:
+
     void fillWorkers_(int si,
                       int pi,
-                      std::vector<ModuleConfigInfo> const& mci_list,
+                      std::vector<WorkerConfigInfo> const& wci_list,
                       std::map<std::string, Worker*>& allStreamWorkers,
                       std::vector<WorkerInPath>& wips,
                       std::map<std::string, Worker*>& workers);
@@ -110,10 +123,10 @@ namespace art {
     std::vector<std::string> triggerPathNames_{};
 
     // All unique module objects from any and all paths.
-    std::multimap<std::string, ModuleBase*> moduleSet_{};
+    std::multimap<module_label_t, ModuleBase*> moduleSet_{};
 
     // All unique worker objects from any and all paths.
-    std::multimap<std::string, Worker*> workerSet_{};
+    std::multimap<module_label_t, Worker*> workerSet_{};
 
     // Key is stream number.
     std::vector<PathsInfo> triggerPathsInfo_{};
@@ -131,8 +144,8 @@ namespace art {
     std::map<std::string, ModuleConfigInfo> allModules_{};
     std::unique_ptr<std::set<std::string>> trigger_paths_config_{};
     std::unique_ptr<std::set<std::string>> end_paths_config_{};
-    std::map<std::string, std::vector<ModuleConfigInfo>> protoTrigPathMap_{};
-    std::vector<ModuleConfigInfo> protoEndPathInfo_{};
+    std::map<std::string, std::vector<WorkerConfigInfo>> protoTrigPathLabelMap_{};
+    std::vector<WorkerConfigInfo> protoEndPathLabels_{};
   };
 
 } // namespace art
