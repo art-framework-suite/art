@@ -22,6 +22,8 @@
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Core/detail/ModuleGraph.h"
+#include "art/Framework/Core/detail/ModuleToPath.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
@@ -34,6 +36,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/LibraryManager.h"
 #include "cetlib/detail/wrapLibraryManagerException.h"
+#include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <iostream>
@@ -42,6 +45,10 @@
 #include <set>
 #include <string>
 #include <vector>
+
+namespace cet {
+  class ostream_handle;
+}
 
 namespace art {
 
@@ -70,38 +77,28 @@ namespace art {
                 ActivityRegistry& areg);
 
     PathManager(PathManager const&) = delete;
-
     PathManager(PathManager&&) = delete;
-
     PathManager& operator=(PathManager const&) = delete;
-
     PathManager& operator=(PathManager&&) = delete;
 
   public:
     std::vector<std::string> const& triggerPathNames() const;
-
-    void createModulesAndWorkers();
+    void createModulesAndWorkers(cet::exempt_ptr<cet::ostream_handle> osh,
+                                 std::string const& debug_filename);
 
     PathsInfo& triggerPathsInfo(int stream);
-
     std::vector<PathsInfo>& triggerPathsInfo();
-
     PathsInfo& endPathInfo();
 
     Worker* triggerResultsInserter(int streamIndex) const;
-
     void setTriggerResultsInserter(int streamIndex,
                                    std::unique_ptr<WorkerT<EDProducer>>&&);
 
   private:
     UpdateOutputCallbacks& outputCallbacks_;
-
     ActionTable& exceptActions_;
-
     ActivityRegistry& actReg_;
-
     cet::LibraryManager lm_{Suffixes::module()};
-
     fhicl::ParameterSet procPS_{};
 
     std::vector<std::string> triggerPathNames_{};
@@ -116,28 +113,19 @@ namespace art {
     std::vector<PathsInfo> triggerPathsInfo_{};
 
     PathsInfo endPathInfo_{};
-
     std::vector<std::unique_ptr<WorkerT<EDProducer>>> triggerResultsInserter_{};
-
     ProductDescriptions& productsToProduce_;
 
-    //
-    //  The following data members are only needed
-    //  to delay the creation of modules until after
-    //  the service system has started.  We can move
-    //  them back to the ctor once that is fixed.
-    //
+    //  The following data members are only needed to delay the
+    //  creation of modules until after the service system has
+    //  started.  We can move them back to the ctor once that is
+    //  fixed.
 
     std::string processName_{};
-
     std::map<std::string, ModuleConfigInfo> allModules_{};
-
     std::unique_ptr<std::set<std::string>> trigger_paths_config_{};
-
     std::unique_ptr<std::set<std::string>> end_paths_config_{};
-
     std::map<std::string, std::vector<ModuleConfigInfo>> protoTrigPathMap_{};
-
     std::vector<ModuleConfigInfo> protoEndPathInfo_{};
   };
 

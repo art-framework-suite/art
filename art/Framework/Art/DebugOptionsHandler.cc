@@ -45,6 +45,12 @@ art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc,
           bpo::value<std::string>(),
           "Output memory use data to SQLite3 database with name <db-file>.");
   add_opt(options, "nomemcheck", "Deactivate monitoring of memory use.");
+  add_opt(options, "data-dependency-graph,g",
+          bpo::value<std::string>(),
+          "Print dot file that shows the dependency graph of "
+          "modules, based on the specified paths and 'consumes' "
+          "statements invoked by users; call constructors of all "
+          "modules and exit just before processing the event loop.");
   add_opt(
     options,
     "validate-config",
@@ -97,10 +103,10 @@ art::DebugOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
       << "Options --memcheck-db and --nomemcheck are incompatible.\n";
   }
   if (vm.count("validate-config") + vm.count("debug-config") +
-        vm.count("config-out") >
+      vm.count("config-out")  + vm.count("data-dependency-graph") >
       1) {
     throw Exception(errors::Configuration)
-      << "Options --validate-config, --debug-config, and --config-out are "
+      << "Options --data-dependency-graph, --validate-config, --debug-config, and --config-out are "
          "incompatible.\n";
   }
   if (vm.count("annotate") + vm.count("prefix-annotate") > 1) {
@@ -142,7 +148,10 @@ art::DebugOptionsHandler::doProcessOptions(
   }
 
   // "debug-config" wins over ART_DEBUG_CONFIG
-  if (vm.count("validate-config")) {
+  if (vm.count("data-dependency-graph")) {
+    dbg_.set_filename(vm["data-dependency-graph"].as<std::string>());
+    dbg_.set_processing_mode(DebugOutput::processing_mode::data_dependency_graph);
+  } else if (vm.count("validate-config")) {
     dbg_.set_filename(vm["validate-config"].as<std::string>());
     dbg_.set_processing_mode(DebugOutput::processing_mode::validate_config);
   } else if (vm.count("debug-config")) {

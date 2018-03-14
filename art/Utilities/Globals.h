@@ -65,6 +65,25 @@ namespace art {
 
   bool operator<(ProductInfo const& a, ProductInfo const& b);
 
+  inline std::ostream&
+  operator<<(std::ostream& os, ProductInfo::ConsumableType const ct)
+  {
+    switch (ct) {
+      case ProductInfo::ConsumableType::Product:
+        os << "Product";
+        break;
+      case ProductInfo::ConsumableType::ViewElement:
+        os << "ViewElement";
+        break;
+      case ProductInfo::ConsumableType::Many:
+        os << "Many";
+        break;
+    }
+    return os;
+  }
+
+  std::ostream& operator<<(std::ostream& os, ProductInfo const& info);
+
   // using ConsumableProductVectorPerBranch = std::vector<ProductInfo>;
   // using ConsumableProductSetPerBranch = std::set<ProductInfo>;
   // using ConsumableProducts = std::array<std::vector<ProductInfo>,
@@ -94,6 +113,16 @@ namespace art {
   public: // MEMBER FUNCTIONS -- API for user
     void setRequireConsumes(bool const);
 
+    // Maps module label to run, per-branch consumes info.
+    using consumables_t =
+      std::map<std::string const,
+               std::array<std::vector<ProductInfo>, NumBranchTypes>>;
+    consumables_t const&
+    consumables() const
+    {
+      return consumables_;
+    }
+
     void collectConsumes(
       std::string const& module_label,
       std::array<std::vector<ProductInfo>, NumBranchTypes> const& consumables);
@@ -108,10 +137,7 @@ namespace art {
   private: // MEMBER DATA
     bool requireConsumes_{};
 
-    // Maps module label to run, per-branch consumes info.
-    std::map<std::string const,
-             std::array<std::vector<ProductInfo>, NumBranchTypes>>
-      consumables_{};
+    consumables_t consumables_{};
 
     // Maps module label to run, per-branch missing product consumes info.
     std::map<std::string const,

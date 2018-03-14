@@ -49,6 +49,17 @@ namespace art {
            tie(b.consumableType_, b.typeID_, b.label_, b.instance_, b.process_);
   }
 
+  std::ostream&
+  operator<<(std::ostream& os, ProductInfo const& info)
+  {
+    os << "Consumable type: " << info.consumableType_ << '\n'
+       << "TypeID: " << info.typeID_ << '\n'
+       << "Module label: " << info.label_ << '\n'
+       << "Instance name: " << info.instance_ << '\n'
+       << "Process name: " << info.process_ << '\n';
+    return os;
+  }
+
   ConsumesInfo::~ConsumesInfo() = default;
   ConsumesInfo::ConsumesInfo() = default;
 

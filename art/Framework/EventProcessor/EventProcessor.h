@@ -28,6 +28,7 @@
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "cetlib/cpu_timer.h"
+#include "cetlib/exempt_ptr.h"
 #include "cetlib/trim.h"
 #include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -39,10 +40,15 @@
 #include <atomic>
 #include <condition_variable>
 #include <exception>
+#include <iosfwd>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
+
+namespace cet {
+  class ostream_handle;
+}
 
 namespace art {
 
@@ -60,14 +66,13 @@ namespace art {
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~EventProcessor();
 
-    explicit EventProcessor(fhicl::ParameterSet const& pset);
+    explicit EventProcessor(fhicl::ParameterSet const& pset,
+                            cet::exempt_ptr<cet::ostream_handle> osh,
+                            std::string const& debug_filename);
 
     EventProcessor(EventProcessor const&) = delete;
-
     EventProcessor(EventProcessor&&) = delete;
-
     EventProcessor& operator=(EventProcessor const&) = delete;
-
     EventProcessor& operator=(EventProcessor&&) = delete;
 
   public: // MEMBER FUNCTIONS -- API we provide to run_art

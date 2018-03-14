@@ -32,6 +32,7 @@
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/ostream_handle.h"
 #include "fhiclcpp/types/detail/validationException.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/WaitingTaskList.h"
@@ -139,7 +140,9 @@ EventProcessor::~EventProcessor()
   // servicesActivate_(serviceToken_);
 }
 
-EventProcessor::EventProcessor(ParameterSet const& pset)
+EventProcessor::EventProcessor(ParameterSet const& pset,
+                               cet::exempt_ptr<cet::ostream_handle> const osh,
+                               std::string const& debug_filename)
   : act_table_{pset.get<ParameterSet>("services.scheduler")}
   , actReg_()
   , mfStatusUpdater_{actReg_}
@@ -185,7 +188,7 @@ EventProcessor::EventProcessor(ParameterSet const& pset)
   ServiceHandle<FileCatalogMetadata> {}
   ->addMetadataString("process_name", processName);
 
-  pathManager_.createModulesAndWorkers();
+  pathManager_.createModulesAndWorkers(osh, debug_filename);
   endPathExecutor_ = make_unique<EndPathExecutor>(
     pathManager_, act_table_, actReg_, outputCallbacks_);
   for (auto I = 0; I < nschedules; ++I) {

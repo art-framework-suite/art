@@ -231,7 +231,9 @@ namespace art {
 
     int rc{0};
     try {
-      EventProcessor ep{main_pset};
+      EventProcessor ep{main_pset,
+          (debug ? cet::make_exempt_ptr(&debug.stream()) : nullptr),
+          (debug ? debug.filename() : "")};
       // Behavior of validate_config is to validate FHiCL syntax *and*
       // user-specified configurations of paths, modules, services, etc.
       // It is thus possible that an exception thrown during
@@ -240,6 +242,9 @@ namespace art {
       if (debug && debug.validate_config()) {
         std::cerr << debug.banner();
         debug.stream() << main_pset.to_indented_string(0, debug.print_mode());
+        return detail::info_success(); // Bail out early
+      }
+      if (debug && debug.data_dependency_graph()) {
         return detail::info_success(); // Bail out early
       }
       if (ep.runToCompletion() == EventProcessor::epSignal) {

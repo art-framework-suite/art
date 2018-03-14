@@ -25,7 +25,8 @@ public:
     none,
     config_out,
     debug_config,
-    validate_config
+    validate_config,
+    data_dependency_graph
   };
   enum class destination { none, cerr, file };
 
@@ -104,6 +105,12 @@ public:
   config_out() const
   {
     return processing_mode_ == processing_mode::config_out;
+  }
+
+  bool
+  data_dependency_graph() const
+  {
+    return processing_mode_ == processing_mode::data_dependency_graph;
   }
 
   explicit operator bool() { return maybe_initialize_(); }

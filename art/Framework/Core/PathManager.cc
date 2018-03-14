@@ -8,6 +8,7 @@
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Framework/Core/WorkerInPath.h"
+#include "art/Framework/Core/detail/graph_algorithms.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
@@ -23,6 +24,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/LibraryManager.h"
+#include "cetlib/ostream_handle.h"
 #include "cetlib/detail/wrapLibraryManagerException.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/detail/validationException.h"
@@ -278,22 +280,24 @@ art::PathManager::PathManager(ParameterSet const& procPS,
     //
     //  Process each path.
     //
+    auto remove_filter_action = [](auto const& spec) {
+      auto pos = spec.find_first_not_of("!-");
+      if (pos > 1) {
+        throw art::Exception(errors::Configuration)
+          << "Module label " << spec << " is illegal.\n";
+      }
+      return spec.substr(pos);
+    };
+
     set<string> specified_modules;
     {
       enum class mod_cat_t { UNSET, OBSERVER, MODIFIER };
-      // size_t num_trig_paths = 0;
       size_t num_end_paths = 0;
       for (auto const& path_name : path_names) {
         mod_cat_t cat = mod_cat_t::UNSET;
-        for (auto const& modname_filterAction :
-             physics.get<vector<string>>(path_name)) {
-          // Strip off veto and ignore flags (filterAction).
-          auto pos = modname_filterAction.find_first_not_of("!-");
-          if (pos > 1) {
-            throw art::Exception(errors::Configuration)
-              << "Module label " << modname_filterAction << " is illegal.\n";
-          }
-          auto const label = modname_filterAction.substr(pos);
+        auto const path =  physics.get<vector<string>>(path_name);
+        for (auto const& modname_filterAction : path) {
+          auto const label = remove_filter_action(modname_filterAction);
           specified_modules.insert(label);
           auto iter = allModules_.find(label);
           if (iter == allModules_.end()) {
@@ -329,12 +333,11 @@ art::PathManager::PathManager(ParameterSet const& procPS,
                   << "\" which was not found in\n"
                   << "parameter \"physics.trigger_paths\". Path will be "
                      "ignored.";
+                for (auto const& mod : path) {
+                  specified_modules.erase(remove_filter_action(mod));
+                }
                 break;
               }
-              // FIXME: The error message here should say something more like
-              // FIXME: "a producer/filter module found on the end path, fatal
-              // error, path skipped".
-              // FIXME: And we should skip the path!
               if (end_paths_config_ && (end_paths_config_->find(path_name) !=
                                         end_paths_config_->cend())) {
                 es << "  ERROR: Path '" << path_name
@@ -350,12 +353,11 @@ art::PathManager::PathManager(ParameterSet const& procPS,
                   << "\" which was not found in\n"
                   << "parameter \"physics.end_paths\". "
                   << "Path will be ignored.";
+                for (auto const& mod : path) {
+                  specified_modules.erase(remove_filter_action(mod));
+                }
                 break;
               }
-              // FIXME: The error message here should say something more like
-              // FIXME: "a producer/filter module found on the end path, fatal
-              // error, path skipped".
-              // FIXME: And we should skip the path!
               if (trigger_paths_config_ &&
                   (trigger_paths_config_->find(path_name) !=
                    trigger_paths_config_->cend())) {
@@ -416,14 +418,16 @@ art::PathManager::PathManager(ParameterSet const& procPS,
         ostringstream us;
         us << "The following module label"
            << ((unused_modules.size() == 1) ? " is" : "s are")
-           << " not assigned to any path:\n"
+           << " either not assigned to any path,\n"
+           << "or " << ((unused_modules.size() == 1ull) ? "it has" : "they have")
+           << " been assigned to ignored path(s):\n"
            << "'" << unused_modules.front() << "'";
         for (auto i = unused_modules.cbegin() + 1, e = unused_modules.cend();
              i != e;
              ++i) {
           us << ", '" << *i << "'";
         }
-        mf::LogInfo("path") << us.str() << "\n";
+        mf::LogInfo("path") << us.str();
       }
     }
     //
@@ -445,7 +449,8 @@ art::PathManager::triggerPathNames() const
 }
 
 void
-art::PathManager::createModulesAndWorkers()
+art::PathManager::createModulesAndWorkers(cet::exempt_ptr<cet::ostream_handle> const osh,
+                                          std::string const& debug_filename)
 {
   auto const nschedules = Globals::instance()->nschedules();
   auto fillWorkers_ = [this](int si,
@@ -632,11 +637,47 @@ art::PathManager::createModulesAndWorkers()
     }
   }
 
-  if (protoEndPathInfo_.empty())
-    return;
+  // Create module graph and test for no data-dependency errors.  This
+  // function could be moved to after the end-path is created.
+  detail::paths_to_modules_t path_map;
+  for (auto const& val : protoTrigPathMap_) {
+    auto const& path_name = val.first;
+    auto const& module_config_infos = val.second;
+    auto& modules = path_map[path_name];
+    modules.push_back("*source*");
+    for (auto const& mci : module_config_infos) {
+      modules.push_back(mci.label_);
+    }
+  }
+  detail::ModuleToPath const module_to_path{path_map};
 
-  //  Create the end path and the workers on it.
-  {
+  // Create data-dependency map from "consumes" statements.
+  using detail::module_name_t;
+  std::map<module_name_t, std::set<module_name_t>> dependencies;
+  for (auto const& per_module : ConsumesInfo::instance()->consumables()) {
+    auto& dep = dependencies[per_module.first];
+    for (auto const& per_branch_type : per_module.second) {
+      for (auto const& prod_info : per_branch_type) {
+        if (prod_info.process_ != processName_ &&
+            prod_info.process_ != "*current_process*") {
+          dep.insert("*source*");
+        } else {
+          dep.insert(prod_info.label_);
+        }
+      }
+    }
+  }
+
+  auto const module_graph =
+    detail::make_module_graph(module_to_path, path_map, dependencies);
+  if (osh) {
+    detail::print_module_graph(*osh, module_to_path, module_graph);
+    std::cerr << "Generated data-dependency graph file: "
+              << debug_filename << '\n';
+  }
+
+  if (!protoEndPathInfo_.empty()) {
+    //  Create the end path and the workers on it.
     map<string, Worker*> allStreamWorkers;
     vector<WorkerInPath> wips;
     fillWorkers_(0, // stream index
@@ -655,6 +696,13 @@ art::PathManager::createModulesAndWorkers()
                                             nullptr}); // HLTGlobalStatus*
     TDEBUG(5) << "Made end path 0x" << hex
               << ((unsigned long)endPathInfo_.paths().back()) << dec << "\n";
+  }
+
+  std::string err;
+  err += detail::verify_no_interpath_dependencies(module_to_path, module_graph);
+  err += detail::verify_no_circular_dependencies(module_to_path, module_graph);
+  if (!err.empty()) {
+    throw Exception{errors::Configuration} << err << '\n';
   }
 }
 
