@@ -7,8 +7,8 @@
 #include "art/Framework/Core/Path.h"
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
-#include "art/Framework/Core/WorkerInPath.h"
-#include "art/Framework/Core/detail/graph_algorithms.h"
+// #include "art/Framework/Core/WorkerInPath.h"
+// #include "art/Framework/Core/detail/graph_algorithms.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
@@ -30,6 +30,7 @@
 #include "fhiclcpp/types/detail/validationException.h"
 
 #include <algorithm>
+#include <fstream>
 #include <map>
 #include <memory>
 #include <string>
@@ -49,13 +50,13 @@ namespace art {
 
 art::PathManager::~PathManager()
 {
-  for (auto& label_And_worker : workerSet_) {
-    delete label_And_worker.second;
-    label_And_worker.second = nullptr;
+  for (auto& label_and_worker : workerSet_) {
+    delete label_and_worker.second;
+    label_and_worker.second = nullptr;
   }
-  for (auto& label_And_module : moduleSet_) {
-    delete label_And_module.second;
-    label_And_module.second = nullptr;
+  for (auto& label_and_module : moduleSet_) {
+    delete label_and_module.second;
+    label_and_module.second = nullptr;
   }
   for (auto& tri : triggerResultsInserter_) {
     if (tri) {
@@ -449,9 +450,7 @@ art::PathManager::triggerPathNames() const
 }
 
 void
-art::PathManager::createModulesAndWorkers(
-  cet::exempt_ptr<cet::ostream_handle> const osh,
-  std::string const& debug_filename)
+art::PathManager::createModulesAndWorkers(std::string const& debug_filename [[gnu::unused]])
 {
   auto const nschedules = Globals::instance()->nschedules();
   //
@@ -495,45 +494,6 @@ art::PathManager::createModulesAndWorkers(
     }
   }
 
-  // Create module graph and test for no data-dependency errors.  This
-  // function could be moved to after the end-path is created.
-  detail::paths_to_modules_t path_map;
-  for (auto const& val : protoTrigPathMap_) {
-    auto const& path_name = val.first;
-    auto const& module_config_infos = val.second;
-    auto& modules = path_map[path_name];
-    modules.push_back("*source*");
-    for (auto const& mci : module_config_infos) {
-      modules.push_back(mci.label_);
-    }
-  }
-  detail::ModuleToPath const module_to_path{path_map};
-
-  // Create data-dependency map from "consumes" statements.
-  using detail::module_name_t;
-  std::map<module_name_t, std::set<module_name_t>> dependencies;
-  for (auto const& per_module : ConsumesInfo::instance()->consumables()) {
-    auto& dep = dependencies[per_module.first];
-    for (auto const& per_branch_type : per_module.second) {
-      for (auto const& prod_info : per_branch_type) {
-        if (prod_info.process_ != processName_ &&
-            prod_info.process_ != "*current_process*") {
-          dep.insert("*source*");
-        } else {
-          dep.insert(prod_info.label_);
-        }
-      }
-    }
-  }
-
-  auto const module_graph =
-    detail::make_module_graph(module_to_path, path_map, dependencies);
-  if (osh) {
-    detail::print_module_graph(*osh, module_to_path, module_graph);
-    std::cerr << "Generated data-dependency graph file: " << debug_filename
-              << '\n';
-  }
-
   if (!protoEndPathInfo_.empty()) {
     //  Create the end path and the workers on it.
     map<string, Worker*> allStreamWorkers;
@@ -556,12 +516,64 @@ art::PathManager::createModulesAndWorkers(
               << ((unsigned long)endPathInfo_.paths().back()) << dec << "\n";
   }
 
-  std::string err;
-  err += detail::verify_no_interpath_dependencies(module_to_path, module_graph);
-  err += detail::verify_no_circular_dependencies(module_to_path, module_graph);
-  if (!err.empty()) {
-    throw Exception{errors::Configuration} << err << '\n';
-  }
+  // // Create module graph and test for no data-dependency errors.  This
+  // // function could be moved to after the end-path is created.
+  // detail::paths_to_modules_t path_map;
+  // std::set<std::string> last_mods;
+  // if (!protoTrigPathMap_.empty()) {
+  //   for (auto const& val : protoTrigPathMap_) {
+  //     auto const& path_name = val.first;
+  //     auto const& module_config_infos = val.second;
+  //     auto& modules = path_map[path_name];
+  //     modules.push_back("*source*");
+  //     for (auto const& mci : module_config_infos) {
+  //       modules.push_back(mci.label_);
+  //     }
+  //     if (!module_config_infos.empty()) {
+  //       last_mods.insert(module_config_infos.back().label_);
+  //     }
+  //   }
+  // }
+  // detail::ModuleToPath const module_to_path{path_map};
+
+  // // Create data-dependency map from "consumes" statements.
+  // using detail::module_name_t;
+  // std::map<module_name_t, std::set<module_name_t>> dependencies;
+  // // First set up dependencies between TriggerResults and all the
+  // // other paths.
+  // for (auto const& last_mod_in_path : last_mods) {
+  //   dependencies["TriggerResults"].insert(last_mod_in_path);
+  // }
+  // for (auto const& per_module : ConsumesInfo::instance()->consumables()) {
+  //   auto& dep = dependencies[per_module.first];
+  //   for (auto const& per_branch_type : per_module.second) {
+  //     for (auto const& prod_info : per_branch_type) {
+  //       if (prod_info.process_ != processName_ &&
+  //           prod_info.process_ != "*current_process*") {
+  //         dep.insert("*source*");
+  //       } else {
+  //         dep.insert(prod_info.label_);
+  //       }
+  //     }
+  //   }
+  // }
+
+  // auto const module_graph =
+  //   detail::make_module_graph(module_to_path, path_map, dependencies);
+
+  // if (!debug_filename.empty()) {
+  //   std::ofstream ofs{debug_filename};
+  //   detail::print_module_graph(ofs, module_to_path, module_graph);
+  //   std::cerr << "Generated data-dependency graph file: " << debug_filename
+  //             << '\n';
+  // }
+
+  // std::string err;
+  // err += detail::verify_no_interpath_dependencies(module_to_path, module_graph);
+  // err += detail::verify_no_circular_dependencies(module_to_path, module_graph);
+  // if (!err.empty()) {
+  //   throw Exception{errors::Configuration} << err << '\n';
+  // }
 }
 
 art::PathsInfo&

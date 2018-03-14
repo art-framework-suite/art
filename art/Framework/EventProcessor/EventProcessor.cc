@@ -141,7 +141,6 @@ EventProcessor::~EventProcessor()
 }
 
 EventProcessor::EventProcessor(ParameterSet const& pset,
-                               cet::exempt_ptr<cet::ostream_handle> const osh,
                                std::string const& debug_filename)
   : act_table_{pset.get<ParameterSet>("services.scheduler")}
   , actReg_()
@@ -188,7 +187,7 @@ EventProcessor::EventProcessor(ParameterSet const& pset,
   ServiceHandle<FileCatalogMetadata> {}
   ->addMetadataString("process_name", processName);
 
-  pathManager_.createModulesAndWorkers(osh, debug_filename);
+  pathManager_.createModulesAndWorkers(debug_filename);
   endPathExecutor_ = make_unique<EndPathExecutor>(
     pathManager_, act_table_, actReg_, outputCallbacks_);
   for (auto I = 0; I < nschedules; ++I) {

@@ -52,20 +52,14 @@ public:
     return result;
   }
 
-  cet::ostream_handle&
-  stream()
-  {
-    return *osp_;
-  }
-
   bool
-  stream_is_valid()
+  to_cerr() const
   {
-    return static_cast<bool>(*osp_);
+    return dest_ == destination::cerr;
   }
 
   void
-  to_cerr()
+  set_to_cerr()
   {
     dest_ = destination::cerr;
   }
@@ -113,7 +107,11 @@ public:
     return processing_mode_ == processing_mode::data_dependency_graph;
   }
 
-  explicit operator bool() { return maybe_initialize_(); }
+  explicit operator bool()
+  {
+    return processing_mode_ != processing_mode::none &&
+           dest_ != destination::none;
+  }
 
   static destination
   destination_via_env(std::string& fn)
@@ -143,29 +141,6 @@ private:
   processing_mode processing_mode_{processing_mode::none};
   fhicl::detail::print_mode mode_{fhicl::detail::print_mode::raw};
   std::string filename_{};
-  std::unique_ptr<cet::ostream_handle> osp_{nullptr};
-
-  bool
-  maybe_initialize_()
-  {
-    switch (dest_) {
-      case destination::none:
-        return false;
-      case destination::file: {
-        osp_ = std::make_unique<cet::ostream_handle>(filename_);
-        if (*osp_)
-          break;
-        std::cerr << "Output of config to " << filename_
-                  << " failed: fallback to stderr.\n";
-      }
-        FALLTHROUGH;
-      case destination::cerr: {
-        osp_ = std::make_unique<cet::ostream_handle>(std::cerr);
-        break;
-      }
-    }
-    return true;
-  }
 };
 
 #endif /* art_Framework_Art_detail_DebugOutput_h */

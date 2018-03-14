@@ -67,7 +67,6 @@ namespace art {
     ~EventProcessor();
 
     explicit EventProcessor(fhicl::ParameterSet const& pset,
-                            cet::exempt_ptr<cet::ostream_handle> osh,
                             std::string const& debug_filename);
 
     EventProcessor(EventProcessor const&) = delete;

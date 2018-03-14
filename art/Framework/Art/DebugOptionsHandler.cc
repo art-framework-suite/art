@@ -136,7 +136,7 @@ art::DebugOptionsHandler::doProcessOptions(
   std::string fn;
   switch (DebugOutput::destination_via_env(fn)) {
     case dest_t::cerr:
-      dbg_.to_cerr();
+      dbg_.set_to_cerr();
       dbg_.set_processing_mode(DebugOutput::processing_mode::debug_config);
       break;
     case dest_t::file:

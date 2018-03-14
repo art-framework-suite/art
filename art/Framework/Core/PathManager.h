@@ -22,8 +22,8 @@
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/Framework/Core/detail/ModuleGraph.h"
-#include "art/Framework/Core/detail/ModuleToPath.h"
+// #include "art/Framework/Core/detail/ModuleGraph.h"
+// #include "art/Framework/Core/detail/ModuleInfoMap.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
@@ -83,8 +83,7 @@ namespace art {
 
   public:
     std::vector<std::string> const& triggerPathNames() const;
-    void createModulesAndWorkers(cet::exempt_ptr<cet::ostream_handle> osh,
-                                 std::string const& debug_filename);
+    void createModulesAndWorkers(std::string const& debug_filename);
 
     PathsInfo& triggerPathsInfo(int stream);
     std::vector<PathsInfo>& triggerPathsInfo();
