@@ -24,8 +24,8 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/LibraryManager.h"
-#include "cetlib/ostream_handle.h"
 #include "cetlib/detail/wrapLibraryManagerException.h"
+#include "cetlib/ostream_handle.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
@@ -449,153 +449,11 @@ art::PathManager::triggerPathNames() const
 }
 
 void
-art::PathManager::createModulesAndWorkers(cet::exempt_ptr<cet::ostream_handle> const osh,
-                                          std::string const& debug_filename)
+art::PathManager::createModulesAndWorkers(
+  cet::exempt_ptr<cet::ostream_handle> const osh,
+  std::string const& debug_filename)
 {
   auto const nschedules = Globals::instance()->nschedules();
-  auto fillWorkers_ = [this](int si,
-                             int pi,
-                             vector<ModuleConfigInfo> const& mci_list,
-                             map<string, Worker*>& allStreamWorkers,
-                             vector<WorkerInPath>& wips,
-                             map<string, Worker*>& workers) {
-    vector<string> configErrMsgs;
-    for (auto const& mci : mci_list) {
-      auto const& modPS = mci.modPS_;
-      auto const& module_label = mci.label_;
-      auto const& module_type = mci.libSpec_;
-      auto const& module_threading_type = mci.moduleThreadingType_;
-      auto const& filterAction = mci.filterAction_;
-      ModuleBase* module = nullptr;
-      // All modules are singletons except for stream modules,
-      // enforce that.
-      if (module_threading_type != ModuleThreadingType::REPLICATED) {
-        auto iter = moduleSet_.find(module_label);
-        if (iter != moduleSet_.end()) {
-          // We have already constructed this module, reuse it.
-          TDEBUG(5) << "Reusing module 0x" << hex
-                    << ((unsigned long)iter->second) << dec << " (" << si
-                    << ") path: " << pi << " type: " << module_type
-                    << " label: " << module_label << "\n";
-          module = iter->second;
-        }
-      }
-      Worker* worker = nullptr;
-      // Workers which are present on multiple paths should be
-      // shared so that their work is only done once per stream.
-      {
-        auto iter = allStreamWorkers.find(module_label);
-        if (iter != allStreamWorkers.end()) {
-          TDEBUG(5) << "Reusing worker 0x" << hex
-                    << ((unsigned long)iter->second) << dec << " (" << si
-                    << ") path: " << pi << " type: " << module_type
-                    << " label: " << module_label << "\n";
-          worker = iter->second;
-        }
-      }
-      if (worker == nullptr) {
-        try {
-          ModuleDescription const md{modPS.id(),
-                                     module_type,
-                                     module_label,
-                                     static_cast<int>(module_threading_type),
-                                     ProcessConfiguration{processName_,
-                                                          procPS_.id(),
-                                                          getReleaseVersion()}};
-          WorkerParams const wp{procPS_,
-                                modPS,
-                                outputCallbacks_,
-                                productsToProduce_,
-                                actReg_,
-                                exceptActions_,
-                                processName_,
-                                module_threading_type,
-                                si};
-          if (module == nullptr) {
-            detail::ModuleMaker_t* module_factory_func = nullptr;
-            try {
-              lm_.getSymbolByLibspec(
-                module_type, "make_module", module_factory_func);
-            }
-            catch (art::Exception& e) {
-              cet::detail::wrapLibraryManagerException(
-                e, "Module", module_type, getReleaseVersion());
-            }
-            if (module_factory_func == nullptr) {
-              throw art::Exception(errors::Configuration, "BadPluginLibrary: ")
-                << "Module " << module_type << " with version "
-                << getReleaseVersion()
-                << " has internal symbol definition problems: consult an "
-                   "expert.";
-            }
-            string pathName{"ctor"};
-            CurrentProcessingContext cpc{0, &pathName, 0, false};
-            cpc.activate(0, &md);
-            detail::CPCSentry cpc_sentry{cpc};
-            actReg_.sPreModuleConstruction.invoke(md);
-            module = module_factory_func(md, wp);
-            moduleSet_.emplace(module_label, module);
-            TDEBUG(5) << "Made module 0x" << hex << ((unsigned long)module)
-                      << dec << " (" << si << ") path: " << pi
-                      << " type: " << module_type << " label: " << module_label
-                      << "\n";
-            actReg_.sPostModuleConstruction.invoke(md);
-            module->sortConsumables();
-            ConsumesInfo::instance()->collectConsumes(module_label,
-                                                      module->getConsumables());
-          }
-          detail::WorkerFromModuleMaker_t* worker_from_module_factory_func =
-            nullptr;
-          try {
-            lm_.getSymbolByLibspec(module_type,
-                                   "make_worker_from_module",
-                                   worker_from_module_factory_func);
-          }
-          catch (art::Exception& e) {
-            cet::detail::wrapLibraryManagerException(
-              e, "Module", module_type, getReleaseVersion());
-          }
-          if (worker_from_module_factory_func == nullptr) {
-            throw art::Exception(errors::Configuration, "BadPluginLibrary: ")
-              << "Module " << module_type << " with version "
-              << getReleaseVersion()
-              << " has internal symbol definition problems: consult an "
-                 "expert.";
-          }
-          worker = worker_from_module_factory_func(module, md, wp);
-          workerSet_.emplace(module_label, worker);
-          allStreamWorkers.emplace(module_label, worker);
-          TDEBUG(5) << "Made worker 0x" << hex << ((unsigned long)worker) << dec
-                    << " (" << si << ") path: " << pi
-                    << " type: " << module_type << " label: " << module_label
-                    << "\n";
-        }
-        catch (fhicl::detail::validationException const& e) {
-          ostringstream es;
-          es << "\n\nModule label: " << detail::bold_fontify(module_label)
-             << "\nmodule_type : " << detail::bold_fontify(module_type)
-             << "\n\n"
-             << e.what();
-          configErrMsgs.push_back(es.str());
-        }
-      }
-      workers.emplace(module_label, worker);
-      wips.emplace_back(worker, filterAction);
-    }
-    if (!configErrMsgs.empty()) {
-      constexpr cet::HorizontalRule rule{100};
-      ostringstream msg;
-      msg << "\n"
-          << rule('=') << "\n\n"
-          << "!! The following modules have been misconfigured: !!"
-          << "\n";
-      for (auto const& err : configErrMsgs) {
-        msg << "\n" << rule('-') << "\n" << err;
-      }
-      msg << "\n" << rule('=') << "\n\n";
-      throw Exception(errors::Configuration) << msg.str();
-    }
-  };
   //
   //  For each configured stream, create the trigger paths and the workers on
   //  each path.
@@ -672,8 +530,8 @@ art::PathManager::createModulesAndWorkers(cet::exempt_ptr<cet::ostream_handle> c
     detail::make_module_graph(module_to_path, path_map, dependencies);
   if (osh) {
     detail::print_module_graph(*osh, module_to_path, module_graph);
-    std::cerr << "Generated data-dependency graph file: "
-              << debug_filename << '\n';
+    std::cerr << "Generated data-dependency graph file: " << debug_filename
+              << '\n';
   }
 
   if (!protoEndPathInfo_.empty()) {
@@ -736,4 +594,148 @@ art::PathManager::setTriggerResultsInserter(
   std::unique_ptr<WorkerT<EDProducer>>&& w)
 {
   triggerResultsInserter_.at(si) = move(w);
+}
+
+void
+art::PathManager::fillWorkers_(int const si,
+                               int const pi,
+                               vector<ModuleConfigInfo> const& mci_list,
+                               map<string, Worker*>& allStreamWorkers,
+                               vector<WorkerInPath>& wips,
+                               map<string, Worker*>& workers)
+{
+  vector<string> configErrMsgs;
+  for (auto const& mci : mci_list) {
+    auto const& modPS = mci.modPS_;
+    auto const& module_label = mci.label_;
+    auto const& module_type = mci.libSpec_;
+    auto const& module_threading_type = mci.moduleThreadingType_;
+    auto const& filterAction = mci.filterAction_;
+    ModuleBase* module = nullptr;
+    // All modules are singletons except for stream modules,
+    // enforce that.
+    if (module_threading_type != ModuleThreadingType::REPLICATED) {
+      auto iter = moduleSet_.find(module_label);
+      if (iter != moduleSet_.end()) {
+        // We have already constructed this module, reuse it.
+        TDEBUG(5) << "Reusing module 0x" << hex << ((unsigned long)iter->second)
+                  << dec << " (" << si << ") path: " << pi
+                  << " type: " << module_type << " label: " << module_label
+                  << "\n";
+        module = iter->second;
+      }
+    }
+    Worker* worker = nullptr;
+    // Workers which are present on multiple paths should be
+    // shared so that their work is only done once per stream.
+    {
+      auto iter = allStreamWorkers.find(module_label);
+      if (iter != allStreamWorkers.end()) {
+        TDEBUG(5) << "Reusing worker 0x" << hex << ((unsigned long)iter->second)
+                  << dec << " (" << si << ") path: " << pi
+                  << " type: " << module_type << " label: " << module_label
+                  << "\n";
+        worker = iter->second;
+      }
+    }
+    if (worker == nullptr) {
+      try {
+        ModuleDescription const md{modPS.id(),
+                                   module_type,
+                                   module_label,
+                                   static_cast<int>(module_threading_type),
+                                   ProcessConfiguration{processName_,
+                                                        procPS_.id(),
+                                                        getReleaseVersion()}};
+        WorkerParams const wp{procPS_,
+                              modPS,
+                              outputCallbacks_,
+                              productsToProduce_,
+                              actReg_,
+                              exceptActions_,
+                              processName_,
+                              module_threading_type,
+                              si};
+        if (module == nullptr) {
+          detail::ModuleMaker_t* module_factory_func = nullptr;
+          try {
+            lm_.getSymbolByLibspec(
+              module_type, "make_module", module_factory_func);
+          }
+          catch (art::Exception& e) {
+            cet::detail::wrapLibraryManagerException(
+              e, "Module", module_type, getReleaseVersion());
+          }
+          if (module_factory_func == nullptr) {
+            throw art::Exception(errors::Configuration, "BadPluginLibrary: ")
+              << "Module " << module_type << " with version "
+              << getReleaseVersion()
+              << " has internal symbol definition problems: consult an "
+                 "expert.";
+          }
+          string pathName{"ctor"};
+          CurrentProcessingContext cpc{0, &pathName, 0, false};
+          cpc.activate(0, &md);
+          detail::CPCSentry cpc_sentry{cpc};
+          actReg_.sPreModuleConstruction.invoke(md);
+          module = module_factory_func(md, wp);
+          moduleSet_.emplace(module_label, module);
+          TDEBUG(5) << "Made module 0x" << hex << ((unsigned long)module) << dec
+                    << " (" << si << ") path: " << pi
+                    << " type: " << module_type << " label: " << module_label
+                    << "\n";
+          actReg_.sPostModuleConstruction.invoke(md);
+          module->sortConsumables();
+          ConsumesInfo::instance()->collectConsumes(module_label,
+                                                    module->getConsumables());
+        }
+        detail::WorkerFromModuleMaker_t* worker_from_module_factory_func =
+          nullptr;
+        try {
+          lm_.getSymbolByLibspec(module_type,
+                                 "make_worker_from_module",
+                                 worker_from_module_factory_func);
+        }
+        catch (art::Exception& e) {
+          cet::detail::wrapLibraryManagerException(
+            e, "Module", module_type, getReleaseVersion());
+        }
+        if (worker_from_module_factory_func == nullptr) {
+          throw art::Exception(errors::Configuration, "BadPluginLibrary: ")
+            << "Module " << module_type << " with version "
+            << getReleaseVersion()
+            << " has internal symbol definition problems: consult an "
+               "expert.";
+        }
+        worker = worker_from_module_factory_func(module, md, wp);
+        workerSet_.emplace(module_label, worker);
+        allStreamWorkers.emplace(module_label, worker);
+        TDEBUG(5) << "Made worker 0x" << hex << ((unsigned long)worker) << dec
+                  << " (" << si << ") path: " << pi << " type: " << module_type
+                  << " label: " << module_label << "\n";
+      }
+      catch (fhicl::detail::validationException const& e) {
+        ostringstream es;
+        es << "\n\nModule label: " << detail::bold_fontify(module_label)
+           << "\nmodule_type : " << detail::bold_fontify(module_type) << "\n\n"
+           << e.what();
+        configErrMsgs.push_back(es.str());
+      }
+    }
+    workers.emplace(module_label, worker);
+    wips.emplace_back(worker, filterAction);
+  }
+  if (!configErrMsgs.empty()) {
+    constexpr cet::HorizontalRule rule{100};
+    ostringstream msg;
+    msg << "\n"
+        << rule('=') << "\n\n"
+        << "!! The following modules have been misconfigured: !!"
+        << "\n";
+    for (auto const& err : configErrMsgs) {
+      msg << "\n" << rule('-') << "\n" << err;
+    }
+    msg << "\n" << rule('=') << "\n\n";
+    throw Exception(errors::Configuration) << msg.str();
+  }
 }

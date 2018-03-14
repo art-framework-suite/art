@@ -95,6 +95,13 @@ namespace art {
                                    std::unique_ptr<WorkerT<EDProducer>>&&);
 
   private:
+    void fillWorkers_(int si,
+                      int pi,
+                      std::vector<ModuleConfigInfo> const& mci_list,
+                      std::map<std::string, Worker*>& allStreamWorkers,
+                      std::vector<WorkerInPath>& wips,
+                      std::map<std::string, Worker*>& workers);
+
     UpdateOutputCallbacks& outputCallbacks_;
     ActionTable& exceptActions_;
     ActivityRegistry& actReg_;
