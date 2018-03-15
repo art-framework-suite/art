@@ -423,6 +423,10 @@ art::PathManager::PathManager(ParameterSet const& procPS,
           us << ", '" << *i << "'";
         }
         mf::LogInfo("path") << us.str();
+        // Remove configuration info for unused modules
+        for (auto const& unused_module : unused_modules) {
+          allModules_.erase(unused_module);
+        }
       }
     }
     //

@@ -74,7 +74,7 @@ namespace art {
         filterAction_{filterAction}
       {}
 
-      module_label_t label_; // Used for looking up ModuleConfig
+      module_label_t label_; // Used for looking up ModuleConfigInfo
       WorkerInPath::FilterAction filterAction_;
     };
 
