@@ -40,6 +40,8 @@
 
 namespace art {
 
+  class ActivityRegistry;
+
   class EndPathExecutor {
 
   public:

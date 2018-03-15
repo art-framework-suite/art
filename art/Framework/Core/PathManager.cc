@@ -3,12 +3,9 @@
 
 #include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/Path.h"
-#include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
-// #include "art/Framework/Core/WorkerInPath.h"
-// #include "art/Framework/Core/detail/graph_algorithms.h"
+#include "art/Framework/Core/detail/graph_algorithms.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
@@ -23,20 +20,14 @@
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
-#include "cetlib/LibraryManager.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/detail/wrapLibraryManagerException.h"
 #include "cetlib/ostream_handle.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
 #include <algorithm>
 #include <fstream>
-#include <map>
-#include <memory>
-#include <string>
 #include <utility>
-#include <vector>
 
 using namespace std;
 using namespace std::string_literals;
@@ -74,7 +65,6 @@ art::PathManager::PathManager(ParameterSet const& procPS,
   : outputCallbacks_{outputCallbacks}
   , exceptActions_{exceptActions}
   , actReg_{actReg}
-  , lm_{Suffixes::module()}
   , procPS_{procPS}
   , productsToProduce_{productsToProduce}
   , processName_{procPS.get<std::string>("process_name"s, ""s)}
@@ -111,69 +101,29 @@ art::PathManager::PathManager(ParameterSet const& procPS,
       for (auto const& module_label :
            procPS_.get<ParameterSet>(path_table_name, {}).get_names()) {
         try {
-          ModuleConfigInfo mci;
-          mci.configTableName_ = path_table_name;
-          mci.moduleType_ = module_type;
-          mci.modPS_ = procPS_.get<fhicl::ParameterSet>(path_table_name + '.' +
-                                                        module_label);
-          mci.libSpec_ = mci.modPS_.get<string>("module_type");
-          //
-          //  Search for the module library and get the module type function
-          //  pointer from it.
-          //
-          detail::ModuleTypeFunc_t* mod_type_func = nullptr;
-          {
-            try {
-              lm_.getSymbolByLibspec(mci.libSpec_, "moduleType", mod_type_func);
-            }
-            catch (art::Exception& e) {
-              cet::detail::wrapLibraryManagerException(
-                e, "Module", mci.libSpec_, getReleaseVersion());
-            }
-            if (mod_type_func == nullptr) {
-              throw art::Exception(errors::Configuration, "BadPluginLibrary")
-                << "Module " << mci.libSpec_ << " with version "
-                << getReleaseVersion()
-                << " has internal symbol definition problems: consult an "
-                   "expert.";
-            }
-          }
-          auto actualModType = mod_type_func();
-          if (actualModType != mci.moduleType_) {
-            es << "  ERROR: Module with label " << module_label << " of type "
-               << mci.libSpec_ << " is configured as a "
-               << ModuleType_to_string(mci.moduleType_)
+          auto const& module_pset = procPS_.get<fhicl::ParameterSet>(
+            path_table_name + '.' + module_label);
+
+          auto const lib_spec = module_pset.get<string>("module_type");
+          auto const actualModType = loadModuleType_(lib_spec);
+          if (actualModType != module_type) {
+            es << "  ERROR: Module with label " << module_label
+               << " of type " << lib_spec << " is configured as a "
+               << ModuleType_to_string(module_type)
                << " but defined in code as a "
                << ModuleType_to_string(actualModType) << ".\n";
           }
-          //
-          //  Search for the module library and get the module threading type
-          //  function pointer from it.
-          //
-          detail::ModuleThreadingTypeFunc_t* mod_threading_type_func = nullptr;
-          {
-            try {
-              lm_.getSymbolByLibspec(
-                mci.libSpec_, "moduleThreadingType", mod_threading_type_func);
-            }
-            catch (art::Exception& e) {
-              cet::detail::wrapLibraryManagerException(
-                e, "Module", mci.libSpec_, getReleaseVersion());
-            }
-            if (mod_threading_type_func == nullptr) {
-              throw art::Exception(errors::Configuration, "BadPluginLibrary")
-                << "Module " << mci.libSpec_ << " with version "
-                << getReleaseVersion()
-                << " has internal symbol definition problems: consult an "
-                   "expert.";
-            }
-          }
-          mci.moduleThreadingType_ = mod_threading_type_func();
-          auto result = allModules_.emplace(module_label, mci);
+
+          ModuleConfigInfo mci{path_table_name,
+                               module_type,
+                               loadModuleThreadingType_(lib_spec),
+                               module_pset,
+                               lib_spec};
+          auto result = allModules_.emplace(module_label, std::move(mci));
           if (!result.second) {
-            es << "  ERROR: Module label " << module_label << " has been used in "
-               << result.first->second.configTableName_ << " and " << path_table_name
-               << ".\n";
+            es << "  ERROR: Module label " << module_label
+               << " has been used in " << result.first->second.configTableName_
+               << " and " << path_table_name << ".\n";
           }
         }
         catch (exception const& e) {
@@ -219,13 +169,13 @@ art::PathManager::PathManager(ParameterSet const& procPS,
     //  Check that each path in trigger_paths and end_paths actually exists.
     //
     if (trigger_paths_config_) {
-      vector<string> missing_paths;
+      vector<string> unknown_paths;
       set_difference(trigger_paths_config_->cbegin(),
                      trigger_paths_config_->cend(),
                      path_names.cbegin(),
                      path_names.cend(),
-                     back_inserter(missing_paths));
-      for (auto const& path : missing_paths) {
+                     back_inserter(unknown_paths));
+      for (auto const& path : unknown_paths) {
         es << "ERROR: Unknown path " << path
            << " specified by user in trigger_paths.\n";
       }
@@ -258,11 +208,10 @@ art::PathManager::PathManager(ParameterSet const& procPS,
         string msg =
           "\nYou have specified the following unsupported parameters in the\n"
           "\"physics\" block of your configuration:\n\n";
-        cet::for_all(bad_names,
-                     [&msg](auto const& name) {
-                       msg.append("   \"physics." + name.first + "\"   (" + name.second +
-                                  ")\n");
-                     });
+        cet::for_all(bad_names, [&msg](auto const& name) {
+          msg.append("   \"physics." + name.first + "\"   (" + name.second +
+                     ")\n");
+        });
         msg.append("\n");
         msg.append("Supported parameters include the following tables:\n");
         msg.append("   \"physics.producers\"\n");
@@ -291,7 +240,7 @@ art::PathManager::PathManager(ParameterSet const& procPS,
       size_t num_end_paths = 0;
       for (auto const& path_name : path_names) {
         mod_cat_t cat = mod_cat_t::UNSET;
-        auto const path =  physics.get<vector<string>>(path_name);
+        auto const path = physics.get<vector<string>>(path_name);
         for (auto const& modname_filterAction : path) {
           auto const label = remove_filter_action(modname_filterAction);
           specified_modules.insert(label);
@@ -414,7 +363,8 @@ art::PathManager::PathManager(ParameterSet const& procPS,
         us << "The following module label"
            << ((unused_modules.size() == 1) ? " is" : "s are")
            << " either not assigned to any path,\n"
-           << "or " << ((unused_modules.size() == 1ull) ? "it has" : "they have")
+           << "or "
+           << ((unused_modules.size() == 1ull) ? "it has" : "they have")
            << " been assigned to ignored path(s):\n"
            << "'" << unused_modules.front() << "'";
         for (auto i = unused_modules.cbegin() + 1, e = unused_modules.cend();
@@ -423,6 +373,7 @@ art::PathManager::PathManager(ParameterSet const& procPS,
           us << ", '" << *i << "'";
         }
         mf::LogInfo("path") << us.str();
+
         // Remove configuration info for unused modules
         for (auto const& unused_module : unused_modules) {
           allModules_.erase(unused_module);
@@ -448,7 +399,8 @@ art::PathManager::triggerPathNames() const
 }
 
 void
-art::PathManager::createModulesAndWorkers(std::string const& debug_filename [[gnu::unused]])
+art::PathManager::createModulesAndWorkers(
+  std::string const& debug_filename[[gnu::unused]])
 {
   auto const nschedules = Globals::instance()->nschedules();
   //
@@ -514,6 +466,10 @@ art::PathManager::createModulesAndWorkers(std::string const& debug_filename [[gn
               << ((unsigned long)endPathInfo_.paths().back()) << dec << "\n";
   }
 
+  using namespace detail;
+  // ModuleInfoMap
+  // auto const module_graph = detail::make_module_graph(
+
   // // Create module graph and test for no data-dependency errors.  This
   // // function could be moved to after the end-path is created.
   // detail::paths_to_modules_t path_map;
@@ -567,9 +523,10 @@ art::PathManager::createModulesAndWorkers(std::string const& debug_filename [[gn
   // }
 
   // std::string err;
-  // err += detail::verify_no_interpath_dependencies(module_to_path, module_graph);
-  // err += detail::verify_no_circular_dependencies(module_to_path, module_graph);
-  // if (!err.empty()) {
+  // err += detail::verify_no_interpath_dependencies(module_to_path,
+  // module_graph); err +=
+  // detail::verify_no_circular_dependencies(module_to_path, module_graph); if
+  // (!err.empty()) {
   //   throw Exception{errors::Configuration} << err << '\n';
   // }
 }
@@ -751,4 +708,45 @@ art::PathManager::fillWorkers_(int const si,
     msg << "\n" << rule('=') << "\n\n";
     throw Exception(errors::Configuration) << msg.str();
   }
+}
+
+art::ModuleType
+art::PathManager::loadModuleType_(std::string const& lib_spec)
+{
+  detail::ModuleTypeFunc_t* mod_type_func = nullptr;
+  try {
+    lm_.getSymbolByLibspec(lib_spec, "moduleType", mod_type_func);
+  }
+  catch (art::Exception& e) {
+    cet::detail::wrapLibraryManagerException(
+      e, "Module", lib_spec, getReleaseVersion());
+  }
+  if (mod_type_func == nullptr) {
+    throw art::Exception(errors::Configuration, "BadPluginLibrary")
+      << "Module " << lib_spec << " with version " << getReleaseVersion()
+      << " has internal symbol definition problems: consult an "
+         "expert.";
+  }
+  return mod_type_func();
+}
+
+art::ModuleThreadingType
+art::PathManager::loadModuleThreadingType_(std::string const& lib_spec)
+{
+  detail::ModuleThreadingTypeFunc_t* mod_threading_type_func = nullptr;
+  try {
+    lm_.getSymbolByLibspec(
+      lib_spec, "moduleThreadingType", mod_threading_type_func);
+  }
+  catch (art::Exception& e) {
+    cet::detail::wrapLibraryManagerException(
+      e, "Module", lib_spec, getReleaseVersion());
+  }
+  if (mod_threading_type_func == nullptr) {
+    throw art::Exception(errors::Configuration, "BadPluginLibrary")
+      << "Module " << lib_spec << " with version " << getReleaseVersion()
+      << " has internal symbol definition problems: consult an "
+         "expert.";
+  }
+  return mod_threading_type_func();
 }

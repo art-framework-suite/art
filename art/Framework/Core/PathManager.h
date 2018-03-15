@@ -15,31 +15,15 @@
 //
 
 #include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Core/ModuleBase.h"
-#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/ModuleType.h"
-#include "art/Framework/Core/Path.h"
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerT.h"
-// #include "art/Framework/Core/detail/ModuleGraph.h"
-// #include "art/Framework/Core/detail/ModuleInfoMap.h"
-#include "art/Framework/Principal/Actions.h"
-#include "art/Framework/Principal/Worker.h"
-#include "art/Framework/Principal/WorkerParams.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ScheduleID.h"
-#include "art/Version/GetReleaseVersion.h"
-#include "canvas/Persistency/Common/HLTGlobalStatus.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
-#include "canvas/Utilities/Exception.h"
 #include "cetlib/LibraryManager.h"
-#include "cetlib/detail/wrapLibraryManagerException.h"
-#include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 
-#include <iostream>
 #include <map>
 #include <memory>
 #include <set>
@@ -52,11 +36,13 @@ namespace cet {
 
 namespace art {
 
+  class ActionTable;
+  class ActivityRegistry;
+  class ModuleBase;
   class UpdateOutputCallbacks;
 
   class PathManager {
   private:
-
     struct ModuleConfigInfo {
       std::string configTableName_;
       ModuleType moduleType_;
@@ -69,17 +55,14 @@ namespace art {
 
     struct WorkerConfigInfo {
       WorkerConfigInfo(module_label_t const& label,
-                       WorkerInPath::FilterAction const filterAction) :
-        label_{label},
-        filterAction_{filterAction}
+                       WorkerInPath::FilterAction const filterAction)
+        : label_{label}, filterAction_{filterAction}
       {}
-
       module_label_t label_; // Used for looking up ModuleConfigInfo
       WorkerInPath::FilterAction filterAction_;
     };
 
   public:
-
     ~PathManager();
 
     PathManager(fhicl::ParameterSet const& procPS,
@@ -106,13 +89,15 @@ namespace art {
                                    std::unique_ptr<WorkerT<EDProducer>>&&);
 
   private:
-
     void fillWorkers_(int si,
                       int pi,
                       std::vector<WorkerConfigInfo> const& wci_list,
                       std::map<std::string, Worker*>& allStreamWorkers,
                       std::vector<WorkerInPath>& wips,
                       std::map<std::string, Worker*>& workers);
+
+    ModuleType loadModuleType_(std::string const& lib_spec);
+    ModuleThreadingType loadModuleThreadingType_(std::string const& lib_spec);
 
     UpdateOutputCallbacks& outputCallbacks_;
     ActionTable& exceptActions_;
@@ -144,7 +129,8 @@ namespace art {
     std::map<std::string, ModuleConfigInfo> allModules_{};
     std::unique_ptr<std::set<std::string>> trigger_paths_config_{};
     std::unique_ptr<std::set<std::string>> end_paths_config_{};
-    std::map<std::string, std::vector<WorkerConfigInfo>> protoTrigPathLabelMap_{};
+    std::map<std::string, std::vector<WorkerConfigInfo>>
+      protoTrigPathLabelMap_{};
     std::vector<WorkerConfigInfo> protoEndPathLabels_{};
   };
 

@@ -15,6 +15,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/Worker.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/Globals.h"
