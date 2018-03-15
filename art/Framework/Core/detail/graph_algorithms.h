@@ -13,10 +13,22 @@
 namespace art {
   namespace detail {
 
+    std::pair<ModuleGraph, std::string>
+    make_module_graph(ModuleInfoMap const& modInfos,
+                      paths_to_modules_t const& trigger_paths,
+                      names_t const& end_path);
+
     // Make subgraphs - one per path
-    void make_edges_path_orderings(ModuleInfoMap const& modInfos,
-                                   paths_to_modules_t const& paths,
-                                   ModuleGraph& graph);
+    void make_trigger_path_subgraphs(ModuleInfoMap const& modInfos,
+                                     paths_to_modules_t const& trigger_paths,
+                                     ModuleGraph& graph);
+
+    void make_product_dependency_edges(ModuleInfoMap const& modInfos,
+                                       ModuleGraph& graph);
+
+    void make_path_ordering_edges(ModuleInfoMap const& modInfos,
+                                  paths_to_modules_t const& paths,
+                                  ModuleGraph& graph);
 
     void make_synchronization_edges(ModuleInfoMap const& modInfos,
                                     paths_to_modules_t const& trigger_paths,

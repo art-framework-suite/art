@@ -245,54 +245,19 @@ main(int argc, char** argv) try {
   fill_module_info(pset, "end_path", end_path);
 
   ModuleInfoMap const modInfos{modules};
-
-  auto const nmodules = modInfos.size();
-  ModuleGraph module_graph{nmodules};
-  std::map<path_name_t, ModuleGraph*> path_graph;
-  for (auto const& path : trigger_paths) {
-    path_graph[path.first] = &module_graph.create_subgraph();
-  }
-  auto vertex_names = get(boost::vertex_name_t{}, module_graph);
-  for (auto const& pr : modInfos) {
-    auto const& module_name = pr.first;
-    auto const& info = pr.second;
-    if (info.module_type != "producer" && info.module_type != "filter")
-      continue;
-    auto const index = modInfos.vertex_index(pr.first);
-    for (auto const& path : info.paths) {
-      add_vertex(index, *path_graph.at(path));
-    }
-    vertex_names[index] = module_name;
-  }
-
-  // Add data dependencies
-  auto edge_label = get(boost::edge_name, module_graph);
-  for (Vertex u{}; u < modInfos.size(); ++u) {
-    for (auto const& dep : modInfos.info(u).product_dependencies) {
-      auto const v = modInfos.vertex_index(dep);
-      auto const edge = add_edge(u, v, module_graph);
-      edge_label[edge.first] = "prod";
-    }
-  }
-
-  std::string err;
-  err += verify_no_interpath_dependencies(modInfos, module_graph);
-  err += verify_in_order_dependencies(modInfos, trigger_paths);
+  auto const module_graph = art::detail::make_module_graph(modInfos,
+                                                           trigger_paths,
+                                                           end_path);
+  auto const& err = module_graph.second;
   if (!err.empty()) {
     std::cout << err << '\n';
   }
-
-  // Add path-ordering dependencies
-  art::detail::make_edges_path_orderings(modInfos, trigger_paths, module_graph);
-
-  art::detail::make_synchronization_edges(
-    modInfos, trigger_paths, end_path, module_graph);
 
   auto const pos = filename.find(".fcl");
   std::string const basename =
     (pos != std::string::npos) ? filename.substr(0, pos) : filename;
   std::ofstream ofs{basename + ".dot"};
-  print_module_graph(ofs, modInfos, module_graph);
+  print_module_graph(ofs, modInfos, module_graph.first);
 }
 catch (fhicl::detail::validationException const& v) {
   std::cerr << v.what();

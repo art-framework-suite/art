@@ -30,10 +30,69 @@ namespace {
   }
 }
 
+std::pair<ModuleGraph, std::string>
+art::detail::make_module_graph(ModuleInfoMap const& modInfos,
+                               paths_to_modules_t const& trigger_paths,
+                               names_t const& end_path)
+{
+  auto const nmodules = modInfos.size();
+  ModuleGraph module_graph{nmodules};
+
+  make_trigger_path_subgraphs(modInfos, trigger_paths, module_graph);
+  make_product_dependency_edges(modInfos, module_graph);
+
+  std::string err;
+  err += verify_no_interpath_dependencies(modInfos, module_graph);
+  err += verify_in_order_dependencies(modInfos, trigger_paths);
+
+  make_path_ordering_edges(modInfos, trigger_paths, module_graph);
+  make_synchronization_edges(modInfos, trigger_paths, end_path, module_graph);
+
+  return std::make_pair(module_graph, err);
+}
+
 void
-art::detail::make_edges_path_orderings(ModuleInfoMap const& modInfos,
-                                       paths_to_modules_t const& trigger_paths,
-                                       ModuleGraph& graph)
+art::detail::make_trigger_path_subgraphs(ModuleInfoMap const& modInfos,
+                                         paths_to_modules_t const& trigger_paths,
+                                         ModuleGraph& module_graph)
+{
+  std::map<path_name_t, ModuleGraph*> path_graph;
+  for (auto const& path : trigger_paths) {
+    path_graph[path.first] = &module_graph.create_subgraph();
+  }
+  auto vertex_names = get(boost::vertex_name_t{}, module_graph);
+  for (auto const& pr : modInfos) {
+    auto const& module_name = pr.first;
+    auto const& info = pr.second;
+    if (info.module_type != "producer" && info.module_type != "filter")
+      continue;
+    auto const index = modInfos.vertex_index(pr.first);
+    for (auto const& path : info.paths) {
+      add_vertex(index, *path_graph.at(path));
+    }
+    vertex_names[index] = module_name;
+  }
+}
+
+void
+art::detail::make_product_dependency_edges(ModuleInfoMap const& modInfos,
+                                           ModuleGraph& graph)
+{
+  auto edge_label = get(boost::edge_name, graph);
+  for (Vertex u{}; u < modInfos.size(); ++u) {
+    for (auto const& dep : modInfos.info(u).product_dependencies) {
+      auto const v = modInfos.vertex_index(dep);
+      auto const edge = add_edge(u, v, graph);
+      edge_label[edge.first] = "prod";
+    }
+  }
+}
+
+
+void
+art::detail::make_path_ordering_edges(ModuleInfoMap const& modInfos,
+                                      paths_to_modules_t const& trigger_paths,
+                                      ModuleGraph& graph)
 {
   // Make edges corresponding to path ordering
   auto path_label = get(boost::edge_name, graph);
@@ -249,7 +308,7 @@ namespace {
       }
       else if (name == "TriggerResults") {
         os_ << "  \"" << name << '\"';
-        os_ << "[shape=box style=filled fillcolor=black label=\"\" height=0.1 width=4]";
+        os_ << "[shape=box style=filled fillcolor=black label=\"\" height=0.1 width=2]";
       }
       else {
         os_ << "  \"" << name << '\"';
