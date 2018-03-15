@@ -34,12 +34,6 @@ using namespace std::string_literals;
 
 using fhicl::ParameterSet;
 
-namespace art {
-  class EventObserverBase;
-  class ProducerBase;
-  class ResultsProducer;
-} // namespace art
-
 art::PathManager::~PathManager()
 {
   for (auto& label_and_worker : workerSet_) {
@@ -399,8 +393,7 @@ art::PathManager::triggerPathNames() const
 }
 
 void
-art::PathManager::createModulesAndWorkers(
-  std::string const& debug_filename[[gnu::unused]])
+art::PathManager::createModulesAndWorkers(std::string const& debug_filename)
 {
   auto const nschedules = Globals::instance()->nschedules();
   //
@@ -467,68 +460,25 @@ art::PathManager::createModulesAndWorkers(
   }
 
   using namespace detail;
-  // ModuleInfoMap
-  // auto const module_graph = detail::make_module_graph(
 
-  // // Create module graph and test for no data-dependency errors.  This
-  // // function could be moved to after the end-path is created.
-  // detail::paths_to_modules_t path_map;
-  // std::set<std::string> last_mods;
-  // if (!protoTrigPathMap_.empty()) {
-  //   for (auto const& val : protoTrigPathMap_) {
-  //     auto const& path_name = val.first;
-  //     auto const& module_config_infos = val.second;
-  //     auto& modules = path_map[path_name];
-  //     modules.push_back("*source*");
-  //     for (auto const& mci : module_config_infos) {
-  //       modules.push_back(mci.label_);
-  //     }
-  //     if (!module_config_infos.empty()) {
-  //       last_mods.insert(module_config_infos.back().label_);
-  //     }
-  //   }
-  // }
-  // detail::ModuleToPath const module_to_path{path_map};
+  auto const graph_info_collection = getModuleGraphInfoCollection_();
+  allModules_.clear();
 
-  // // Create data-dependency map from "consumes" statements.
-  // using detail::module_name_t;
-  // std::map<module_name_t, std::set<module_name_t>> dependencies;
-  // // First set up dependencies between TriggerResults and all the
-  // // other paths.
-  // for (auto const& last_mod_in_path : last_mods) {
-  //   dependencies["TriggerResults"].insert(last_mod_in_path);
-  // }
-  // for (auto const& per_module : ConsumesInfo::instance()->consumables()) {
-  //   auto& dep = dependencies[per_module.first];
-  //   for (auto const& per_branch_type : per_module.second) {
-  //     for (auto const& prod_info : per_branch_type) {
-  //       if (prod_info.process_ != processName_ &&
-  //           prod_info.process_ != "*current_process*") {
-  //         dep.insert("*source*");
-  //       } else {
-  //         dep.insert(prod_info.label_);
-  //       }
-  //     }
-  //   }
-  // }
+  ModuleGraphInfoMap const modInfos{graph_info_collection};
+  auto const module_graph = make_module_graph(modInfos,
+                                              protoTrigPathLabelMap_,
+                                              protoEndPathLabels_);
+  if (!debug_filename.empty()) {
+    std::ofstream ofs{debug_filename};
+    print_module_graph(ofs, modInfos, module_graph.first);
+    std::cerr << "Generated data-dependency graph file: " << debug_filename
+              << '\n';
+  }
 
-  // auto const module_graph =
-  //   detail::make_module_graph(module_to_path, path_map, dependencies);
-
-  // if (!debug_filename.empty()) {
-  //   std::ofstream ofs{debug_filename};
-  //   detail::print_module_graph(ofs, module_to_path, module_graph);
-  //   std::cerr << "Generated data-dependency graph file: " << debug_filename
-  //             << '\n';
-  // }
-
-  // std::string err;
-  // err += detail::verify_no_interpath_dependencies(module_to_path,
-  // module_graph); err +=
-  // detail::verify_no_circular_dependencies(module_to_path, module_graph); if
-  // (!err.empty()) {
-  //   throw Exception{errors::Configuration} << err << '\n';
-  // }
+  auto const& err = module_graph.second;
+  if (!err.empty()) {
+    throw Exception{errors::Configuration} << err << '\n';
+  }
 }
 
 art::PathsInfo&
@@ -566,15 +516,15 @@ art::PathManager::setTriggerResultsInserter(
 void
 art::PathManager::fillWorkers_(int const si,
                                int const pi,
-                               vector<WorkerConfigInfo> const& wci_list,
+                               vector<WorkerInPath::ConfigInfo> const& wci_list,
                                map<string, Worker*>& allStreamWorkers,
                                vector<WorkerInPath>& wips,
                                map<string, Worker*>& workers)
 {
   vector<string> configErrMsgs;
   for (auto const& wci : wci_list) {
-    auto const& module_label = wci.label_;
-    auto const& filterAction = wci.filterAction_;
+    auto const& module_label = wci.label;
+    auto const& filterAction = wci.filterAction;
 
     auto const& mci = allModules_.at(module_label);
     auto const& modPS = mci.modPS_;
@@ -749,4 +699,52 @@ art::PathManager::loadModuleThreadingType_(std::string const& lib_spec)
          "expert.";
   }
   return mod_threading_type_func();
+}
+
+art::detail::collection_map_t
+art::PathManager::getModuleGraphInfoCollection_()
+{
+  using namespace detail;
+  collection_map_t result{};
+  auto& source_info = (result["*source*"] = ModuleGraphInfo{"source"});
+  if (!protoTrigPathLabelMap_.empty()) {
+    std::set<std::string> const path_names{cbegin(triggerPathNames_), cend(triggerPathNames_)};
+    source_info.paths = path_names;
+    result["TriggerResults"] = ModuleGraphInfo{"producer"};
+  } else if (!protoEndPathLabels_.empty()) {
+    source_info.paths = {"end_path"};
+  }
+
+  auto fill_module_info = [this, &result](std::string const& path_name,
+                                          configs_t const& worker_configs) {
+    for (auto const& worker_config : worker_configs) {
+      auto const& module_name = worker_config.label;
+      auto const& mci = allModules_.at(module_name);
+      auto& graph_info = result[module_name];
+      graph_info.paths.insert(path_name);
+      graph_info.module_type = ModuleType_to_string(mci.moduleType_);
+      auto const& consumables = ConsumesInfo::instance()->consumables(module_name);
+      for (auto const& per_branch_type : consumables) {
+        for (auto const& prod_info : per_branch_type) {
+          if (prod_info.process_ != processName_ &&
+              prod_info.process_ != "*current_process*") {
+            graph_info.product_dependencies.insert("*source*");
+          } else {
+            graph_info.product_dependencies.insert(prod_info.label_);
+          }
+        }
+      }
+
+      // FIXME: include dependencies for SelectEvents
+      if (is_observer(mci.moduleType_)) {
+      }
+    }
+  };
+
+  for (auto const& path : protoTrigPathLabelMap_) {
+    fill_module_info(path.first, path.second);
+  }
+  fill_module_info("end_path", protoEndPathLabels_);
+
+  return result;
 }

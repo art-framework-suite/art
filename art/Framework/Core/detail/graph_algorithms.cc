@@ -8,8 +8,8 @@
 
 using art::detail::Edge;
 using art::detail::ModuleGraph;
-using art::detail::ModuleInfo;
-using art::detail::ModuleInfoMap;
+using art::detail::ModuleGraphInfo;
+using art::detail::ModuleGraphInfoMap;
 using art::detail::Vertex;
 using art::detail::module_name_t;
 using art::detail::name_set_t;
@@ -31,9 +31,9 @@ namespace {
 }
 
 std::pair<ModuleGraph, std::string>
-art::detail::make_module_graph(ModuleInfoMap const& modInfos,
+art::detail::make_module_graph(ModuleGraphInfoMap const& modInfos,
                                paths_to_modules_t const& trigger_paths,
-                               names_t const& end_path)
+                               configs_t const& end_path)
 {
   auto const nmodules = modInfos.size();
   ModuleGraph module_graph{nmodules};
@@ -52,14 +52,19 @@ art::detail::make_module_graph(ModuleInfoMap const& modInfos,
 }
 
 void
-art::detail::make_trigger_path_subgraphs(ModuleInfoMap const& modInfos,
+art::detail::make_trigger_path_subgraphs(ModuleGraphInfoMap const& modInfos,
                                          paths_to_modules_t const& trigger_paths,
                                          ModuleGraph& module_graph)
 {
-  std::map<path_name_t, ModuleGraph*> path_graph;
+  std::map<path_name_t, ModuleGraph*> path_graphs;
+  auto const source_index = modInfos.vertex_index("*source*");
   for (auto const& path : trigger_paths) {
-    path_graph[path.first] = &module_graph.create_subgraph();
+    auto& path_graph = module_graph.create_subgraph();
+    // Always include the source on the path.
+    add_vertex(source_index, path_graph);
+    path_graphs[path.first] = &path_graph;
   }
+
   auto vertex_names = get(boost::vertex_name_t{}, module_graph);
   for (auto const& pr : modInfos) {
     auto const& module_name = pr.first;
@@ -68,14 +73,14 @@ art::detail::make_trigger_path_subgraphs(ModuleInfoMap const& modInfos,
       continue;
     auto const index = modInfos.vertex_index(pr.first);
     for (auto const& path : info.paths) {
-      add_vertex(index, *path_graph.at(path));
+      add_vertex(index, *path_graphs.at(path));
     }
     vertex_names[index] = module_name;
   }
 }
 
 void
-art::detail::make_product_dependency_edges(ModuleInfoMap const& modInfos,
+art::detail::make_product_dependency_edges(ModuleGraphInfoMap const& modInfos,
                                            ModuleGraph& graph)
 {
   auto edge_label = get(boost::edge_name, graph);
@@ -90,7 +95,7 @@ art::detail::make_product_dependency_edges(ModuleInfoMap const& modInfos,
 
 
 void
-art::detail::make_path_ordering_edges(ModuleInfoMap const& modInfos,
+art::detail::make_path_ordering_edges(ModuleGraphInfoMap const& modInfos,
                                       paths_to_modules_t const& trigger_paths,
                                       ModuleGraph& graph)
 {
@@ -103,8 +108,8 @@ art::detail::make_path_ordering_edges(ModuleInfoMap const& modInfos,
     auto curr = prev+1;
     auto const end = cend(modules);
     while (curr != end) {
-      auto const pi = modInfos.vertex_index(*prev);
-      auto const ci = modInfos.vertex_index(*curr);
+      auto const pi = modInfos.vertex_index(prev->label);
+      auto const ci = modInfos.vertex_index(curr->label);
       auto const edge = add_edge(ci, pi, graph);
       path_label[edge.first] = "path:" + path.first;
       prev = curr;
@@ -114,9 +119,9 @@ art::detail::make_path_ordering_edges(ModuleInfoMap const& modInfos,
 }
 
 void
-art::detail::make_synchronization_edges(ModuleInfoMap const& modInfos,
+art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
                                         paths_to_modules_t const& trigger_paths,
-                                        names_t const& end_path,
+                                        configs_t const& end_path,
                                         ModuleGraph& graph)
 {
   auto const source_index = modInfos.vertex_index("*source*");
@@ -128,21 +133,21 @@ art::detail::make_synchronization_edges(ModuleInfoMap const& modInfos,
       if (modules.empty()) {
         continue;
       }
-      auto const front_index = modInfos.vertex_index(modules.front());
-      auto const back_index = modInfos.vertex_index(modules.back());
+      auto const front_index = modInfos.vertex_index(modules.front().label);
+      auto const back_index = modInfos.vertex_index(modules.back().label);
       auto const edge1 = add_edge(front_index, source_index, graph);
       sync_label[edge1.first] = "source:" + path.first;
       auto const edge2 = add_edge(tr_index, back_index, graph);
       sync_label[edge2.first] = "sync";
     }
     for (auto const& module : end_path) {
-      auto const index = modInfos.vertex_index(module);
+      auto const index = modInfos.vertex_index(module.label);
       auto const edge = add_edge(index, tr_index, graph);
       sync_label[edge.first] = "sync";
     }
   } else if (!end_path.empty()) {
     for (auto const& module : end_path) {
-      auto const index = modInfos.vertex_index(module);
+      auto const index = modInfos.vertex_index(module.label);
       auto const edge = add_edge(index, source_index, graph);
       sync_label[edge.first] = "sync";
     }
@@ -154,7 +159,7 @@ art::detail::make_synchronization_edges(ModuleInfoMap const& modInfos,
   for (auto const& path : trigger_paths) {
     auto preceding_filter_index = invalid;
     for (auto const& module : path.second) {
-      auto const index = modInfos.vertex_index(module);
+      auto const index = modInfos.vertex_index(module.label);
       auto const& info = modInfos.info(index);
       if (preceding_filter_index != invalid) {
         auto const edge = add_edge(index, preceding_filter_index, graph);
@@ -166,11 +171,15 @@ art::detail::make_synchronization_edges(ModuleInfoMap const& modInfos,
     }
   }
 
+  if (trigger_paths.empty()) {
+    return;
+  }
+
   // Synchronize end-path modules if a 'SelectEvents' parameter has
   // been specified.  Treat it as a filter.
   auto const tr_index = modInfos.vertex_index("TriggerResults");
   for (auto const& module : end_path) {
-    auto const index = modInfos.vertex_index(module);
+    auto const index = modInfos.vertex_index(module.label);
     auto const& info = modInfos.info(index);
     for (auto const& path: info.select_events) {
       auto const edge = add_edge(index, tr_index, graph);
@@ -180,7 +189,7 @@ art::detail::make_synchronization_edges(ModuleInfoMap const& modInfos,
 }
 
 std::string
-art::detail::verify_no_interpath_dependencies(ModuleInfoMap const& modInfos,
+art::detail::verify_no_interpath_dependencies(ModuleGraphInfoMap const& modInfos,
                                               ModuleGraph const& graph)
 {
   std::map<Vertex, std::set<Vertex>> illegal_dependencies;
@@ -228,9 +237,20 @@ art::detail::verify_no_interpath_dependencies(ModuleInfoMap const& modInfos,
   return oss.str();
 }
 
+namespace {
+  struct name_matches {
+    std::string module_name;
+    explicit name_matches(std::string const& name) : module_name{name} {}
+    bool operator()(art::WorkerInPath::ConfigInfo const& info) const
+    {
+      return info.label == module_name;
+    }
+  };
+}
+
 std::string
 art::detail::verify_in_order_dependencies(
-  ModuleInfoMap const& modInfos,
+  ModuleGraphInfoMap const& modInfos,
   paths_to_modules_t const& trigger_paths)
 {
   // Precondition: there are no inter-path dependencies
@@ -251,11 +271,14 @@ art::detail::verify_in_order_dependencies(
     auto const& first_path_for_module = *cbegin(module_paths);
     auto const& path = trigger_paths.at(first_path_for_module);
     auto const end = cend(path);
-    auto const module_position = cet::find_in_all(path, module_name);
+    auto const module_position = std::find_if(cbegin(path), cend(path), name_matches{module_name});
     assert(module_position != end);
 
     for (auto const& dep : module.second.product_dependencies) {
-      auto const dep_position = cet::find_in_all(path, dep);
+      if (dep == "*source*") {
+        continue;
+      }
+      auto const dep_position = std::find_if(cbegin(path), cend(path), name_matches{dep});
       assert(dep_position != end);
       if (dep_position < module_position) {
         continue;
@@ -294,7 +317,7 @@ namespace {
   class graph_printer : public boost::dfs_visitor<>
   {
   public:
-    explicit graph_printer(std::ostream& os, ModuleInfoMap const& modules)
+    explicit graph_printer(std::ostream& os, ModuleGraphInfoMap const& modules)
       : os_{os}, modules_{modules}
     {}
 
@@ -382,13 +405,13 @@ namespace {
     }
 
     std::ostream& os_;
-    ModuleInfoMap const& modules_;
+    ModuleGraphInfoMap const& modules_;
   };
 }
 
 void
 art::detail::print_module_graph(std::ostream& os,
-                                ModuleInfoMap const& info_map,
+                                ModuleGraphInfoMap const& info_map,
                                 ModuleGraph const& graph)
 {
   os << "digraph {\n"

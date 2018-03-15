@@ -117,10 +117,12 @@ namespace art {
     using consumables_t =
       std::map<std::string const,
                std::array<std::vector<ProductInfo>, NumBranchTypes>>;
-    consumables_t const&
-    consumables() const
+
+    consumables_t::mapped_type const&
+    consumables(std::string const& module_label) const
     {
-      return consumables_;
+      // Will throw if entry for module label doesn't exist.
+      return consumables_.at(module_label);
     }
 
     void collectConsumes(

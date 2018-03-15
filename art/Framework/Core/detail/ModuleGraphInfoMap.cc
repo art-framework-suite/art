@@ -1,4 +1,4 @@
-#include "art/Framework/Core/detail/ModuleInfoMap.h"
+#include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 
@@ -20,14 +20,14 @@ namespace {
   }
 }
 
-art::detail::ModuleInfoMap::ModuleInfoMap(collection_map_t const& modules)
+art::detail::ModuleGraphInfoMap::ModuleGraphInfoMap(collection_map_t const& modules)
   : modules_{map_to_vec(modules)}
   , begin_{cbegin(modules_)}
   , end_{cend(modules_)}
 {}
 
 auto
-art::detail::ModuleInfoMap::vertex_index(std::string const& name) const
+art::detail::ModuleGraphInfoMap::vertex_index(std::string const& name) const
   -> distance_t
 {
   auto const it = std::find_if(
@@ -42,13 +42,13 @@ art::detail::ModuleInfoMap::vertex_index(std::string const& name) const
 }
 
 auto
-art::detail::ModuleInfoMap::info(std::string const& name) const -> ModuleInfo const&
+art::detail::ModuleGraphInfoMap::info(std::string const& name) const -> ModuleGraphInfo const&
 {
   return modules_[vertex_index(name)].second;
 }
 
 std::ostream&
-art::detail::operator<<(std::ostream& os, ModuleInfo const& info)
+art::detail::operator<<(std::ostream& os, ModuleGraphInfo const& info)
 {
   os << "Module type: " << info.module_type << '\n';
   os << "Product dependencies: ";

@@ -19,6 +19,7 @@
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ScheduleID.h"
 #include "cetlib/LibraryManager.h"
@@ -51,17 +52,6 @@ namespace art {
       std::string libSpec_;
     };
 
-    using module_label_t = std::string;
-
-    struct WorkerConfigInfo {
-      WorkerConfigInfo(module_label_t const& label,
-                       WorkerInPath::FilterAction const filterAction)
-        : label_{label}, filterAction_{filterAction}
-      {}
-      module_label_t label_; // Used for looking up ModuleConfigInfo
-      WorkerInPath::FilterAction filterAction_;
-    };
-
   public:
     ~PathManager();
 
@@ -91,13 +81,14 @@ namespace art {
   private:
     void fillWorkers_(int si,
                       int pi,
-                      std::vector<WorkerConfigInfo> const& wci_list,
+                      std::vector<WorkerInPath::ConfigInfo> const& wci_list,
                       std::map<std::string, Worker*>& allStreamWorkers,
                       std::vector<WorkerInPath>& wips,
                       std::map<std::string, Worker*>& workers);
 
     ModuleType loadModuleType_(std::string const& lib_spec);
     ModuleThreadingType loadModuleThreadingType_(std::string const& lib_spec);
+    detail::collection_map_t getModuleGraphInfoCollection_();
 
     UpdateOutputCallbacks& outputCallbacks_;
     ActionTable& exceptActions_;
@@ -129,9 +120,9 @@ namespace art {
     std::map<std::string, ModuleConfigInfo> allModules_{};
     std::unique_ptr<std::set<std::string>> trigger_paths_config_{};
     std::unique_ptr<std::set<std::string>> end_paths_config_{};
-    std::map<std::string, std::vector<WorkerConfigInfo>>
+    std::map<std::string, std::vector<WorkerInPath::ConfigInfo>>
       protoTrigPathLabelMap_{};
-    std::vector<WorkerConfigInfo> protoEndPathLabels_{};
+    std::vector<WorkerInPath::ConfigInfo> protoEndPathLabels_{};
   };
 
 } // namespace art

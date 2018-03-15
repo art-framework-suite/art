@@ -20,9 +20,11 @@
 
 namespace art {
 
-  class WorkerInPath {
+  using module_label_t = std::string;
 
+  class WorkerInPath {
   public: // TYPES
+
     enum FilterAction {
       Normal = 0,
       Ignore // 1
@@ -30,31 +32,33 @@ namespace art {
       Veto // 2
     };
 
+    struct ConfigInfo {
+      ConfigInfo(module_label_t const& lbl,
+                 FilterAction const action)
+        : label{lbl}, filterAction{action}
+      {}
+      module_label_t label; // Used for looking up ModuleConfigInfo
+      FilterAction filterAction;
+    };
+
   public: // MEMBER FUNCTIONS -- Special Member Functions
+
     ~WorkerInPath() noexcept;
-
     explicit WorkerInPath(Worker*) noexcept;
-
     WorkerInPath(Worker*, FilterAction) noexcept;
-
     WorkerInPath(WorkerInPath const&) = delete;
-
     WorkerInPath(WorkerInPath&&) noexcept;
-
     WorkerInPath& operator=(WorkerInPath const&) = delete;
-
     WorkerInPath& operator=(WorkerInPath&&) noexcept;
 
   public: // MEMBER FUNCTIONS -- API for user
-    Worker* getWorker() const;
 
+    Worker* getWorker() const;
     FilterAction filterAction() const;
 
     // Used only by Path
     bool returnCode(int streamIndex) const;
-
     std::string const& label() const;
-
     bool runWorker(Transition, Principal&, CurrentProcessingContext*);
 
     void runWorker_event_for_endpath(EventPrincipal&,

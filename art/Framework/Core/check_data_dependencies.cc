@@ -1,5 +1,5 @@
 #include "art/Framework/Core/detail/ModuleGraph.h"
-#include "art/Framework/Core/detail/ModuleInfoMap.h"
+#include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Framework/Core/detail/graph_algorithms.h"
 #include "boost/graph/graph_utility.hpp"
 #include "canvas/Utilities/Exception.h"
@@ -13,18 +13,8 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
-#include <fstream>
 
-using art::detail::Edge;
-using art::detail::ModuleGraph;
-using art::detail::ModuleInfo;
-using art::detail::ModuleInfoMap;
-using art::detail::Vertex;
-using art::detail::module_name_t;
-using art::detail::name_set_t;
-using art::detail::names_t;
-using art::detail::path_name_t;
-using art::detail::paths_to_modules_t;
+using namespace art::detail;
 
 namespace {
   struct TopLevelTable {
@@ -51,7 +41,14 @@ namespace {
     for (auto const& name : physics.get_names()) {
       if (!physics.is_key_to_sequence(name))
         continue;
-      result[name] = physics.get<std::vector<std::string>>(name);
+      auto const tmp = physics.get<std::vector<std::string>>(name);
+      configs_t configs;
+      cet::transform_all(tmp,
+                         back_inserter(configs),
+                         [](auto const& str) {
+                           return art::WorkerInPath::ConfigInfo{str, art::WorkerInPath::Normal};
+                         });
+      result[name] = configs;
     }
     return result;
   }
@@ -127,17 +124,17 @@ namespace {
 
       bool first_module{true};
       bool present{true};
-      for (auto const& module_name : modules) {
+      for (auto const& module : modules) {
         if (first_module) {
           first_module = false;
-          present = module_found_in_tables(module_name, pset, tables);
+          present = module_found_in_tables(module.label, pset, tables);
         } else if (present !=
-                   module_found_in_tables(module_name, pset, tables)) {
+                   module_found_in_tables(module.label, pset, tables)) {
           // The presence of the first module determines what the
           // remaining modules should be.
           throw art::Exception{art::errors::LogicError}
             << "There is an inconsistency in path " << path_name << ".\n"
-            << "Module " << module_name
+            << "Module " << module.label
             << " is a modifier/observer whereas the other modules\n"
             << "on the path are the opposite.";
         }
@@ -150,10 +147,10 @@ namespace {
     return result;
   }
 
-  names_t
+  configs_t
   merge_end_paths(paths_to_modules_t const& paths_to_modules)
   {
-    names_t result;
+    configs_t result;
     for (auto const& pr : paths_to_modules) {
       result.insert(cend(result), cbegin(pr.second), cend(pr.second));
     }
@@ -194,15 +191,16 @@ main(int argc, char** argv) try {
   // Get modules
   art::detail::collection_map_t modules{};
   if (!trigger_paths.empty()) {
-    modules["*source*"] = ModuleInfo{"source", {}, path_names(trigger_paths)};
+    modules["*source*"] = ModuleGraphInfo{"source", {}, path_names(trigger_paths)};
   } else if (!end_path.empty()) {
-    modules["*source*"] = ModuleInfo{"source", {}, {"end_path"}};
+    modules["*source*"] = ModuleGraphInfo{"source", {}, {"end_path"}};
   }
 
   auto fill_module_info = [&modules](fhicl::ParameterSet const& pset,
                                      std::string const& path_name,
-                                     auto const& module_names) {
-    for (auto const& module_name : module_names) {
+                                     configs_t const& module_configs) {
+    for (auto const& config : module_configs) {
+      auto const& module_name = config.label;
       auto& info = modules[module_name];
       info.paths.insert(path_name);
       info.module_type = module_found_with_type(module_name, pset);
@@ -239,12 +237,12 @@ main(int argc, char** argv) try {
   }
 
   if (!trigger_paths.empty()) {
-    modules["TriggerResults"] = ModuleInfo{"producer"};
+    modules["TriggerResults"] = ModuleGraphInfo{"producer"};
   }
 
   fill_module_info(pset, "end_path", end_path);
 
-  ModuleInfoMap const modInfos{modules};
+  ModuleGraphInfoMap const modInfos{modules};
   auto const module_graph = art::detail::make_module_graph(modInfos,
                                                            trigger_paths,
                                                            end_path);
