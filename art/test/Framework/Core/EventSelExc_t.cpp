@@ -181,12 +181,8 @@ toBools(std::array<bool, nb> const& t)
 void
 evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans)
 {
-  ParameterSet pset;
-  pset.put<Strings>("SelectEvents", ps.path);
-
-  // There are 3 different ways to build the EventSelector.  All
-  // should give the same result.  We exercise all 3 here.
-  EventSelector select_based_on_pset(pset, trigger_path_names);
+  // There are 2 different ways to build the EventSelector.  Both
+  // should give the same result.  We exercise both here.
   EventSelector select_based_on_path_specifiers_and_names(ps.path,
                                                           trigger_path_names);
   EventSelector select_based_on_path_specifiers_only(ps.path);
@@ -216,15 +212,14 @@ evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans)
 
   TriggerResults results_id(bm, trigger_pset.id());
 
-  bool x = select_based_on_pset.acceptEvent(results_id);
-  bool y = select_based_on_path_specifiers_and_names.acceptEvent(results_id);
-  bool z = select_based_on_path_specifiers_only.acceptEvent(results_id);
+  bool const x = select_based_on_path_specifiers_and_names.acceptEvent(results_id);
+  bool const y = select_based_on_path_specifiers_only.acceptEvent(results_id);
 
-  if (x != ans || y != ans || z != ans) {
+  if (x != ans || y != ans) {
     std::cerr
       << "failed to compare pathspecs with trigger results using pset ID: "
       << "correct=" << ans << " "
-      << "results=" << x << "  " << y << "  " << z << "\n"
+      << "results=" << x << "  " << y << "\n"
       << "pathspecs =" << ps.path << "\n"
       << "trigger results = " << tr << "\n";
     abort();

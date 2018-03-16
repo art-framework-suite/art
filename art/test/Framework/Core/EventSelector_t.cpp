@@ -20,7 +20,6 @@ using namespace std;
 constexpr size_t numBits = 5;
 constexpr int numPatterns = 11;
 constexpr int numMasks = 9;
-constexpr int numAns[[gnu::unused]] = numPatterns * numMasks;
 
 typedef bool Answers[numPatterns][numMasks];
 typedef std::vector<std::string> Strings;
@@ -53,13 +52,8 @@ testone(const Strings& paths,
         bool answer,
         int jmask)
 {
-  ParameterSet pset; //, parent;
-  pset.put<Strings>("SelectEvents", pattern);
-  // parent.put<ParameterSet>("SelectEvents",pset);
-
-  // There are 3 different ways to build the EventSelector.  All
-  // should give the same result.  We exercise all 3 here.
-  EventSelector select(pset, paths);
+  // There are 2 different ways to build the EventSelector.  Both
+  // should give the same result.  We exercise both here.
   EventSelector select1(pattern, paths);
   EventSelector select2(pattern);
 
@@ -100,19 +94,14 @@ testone(const Strings& paths,
 
   TriggerResults results_id(bm, trigger_pset.id());
 
-  //      std:: cerr << "a11 \n";
-  bool a11 = select.acceptEvent(results_id);
-  //      std:: cerr << "a12 \n";
-  bool a12 = select1.acceptEvent(results_id);
-  //      std:: cerr << "a13 \n";
-  bool a13 = select2.acceptEvent(results_id);
-  //      std:: cerr << "a14 \n";
-  bool a14 = select2.acceptEvent(results_id);
+  bool const a12 = select1.acceptEvent(results_id);
+  bool const a13 = select2.acceptEvent(results_id);
+  bool const a14 = select2.acceptEvent(results_id);
 
-  if (a11 != answer || a12 != answer || a13 != answer || a14 != answer) {
+  if (a12 != answer || a13 != answer || a14 != answer) {
     std::cerr << "failed to compare pattern with mask using pset ID: "
               << "correct=" << answer << " "
-              << "results=" << a11 << "  " << a12 << "  " << a13 << "  " << a14
+              << "results=" << a12 << "  " << a13 << "  " << a14
               << "\n"
               << "pattern=" << pattern << "\n"
               << "mask=" << mask << "\n"

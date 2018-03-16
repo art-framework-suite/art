@@ -19,25 +19,17 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  EventObserverBase::~EventObserverBase() {}
+  EventObserverBase::~EventObserverBase() = default;
 
   EventObserverBase::EventObserverBase(vector<string> const& paths,
                                        fhicl::ParameterSet const& pset)
-    : ModuleBase()
-    , wantAllEvents_{false}
-    , selectors_{}
-    , process_name_{}
-    , selector_config_id_{pset.id()}
+    : selector_config_id_{pset.id()}
   {
     init_(paths);
   }
 
   EventObserverBase::EventObserverBase(ParameterSet const& pset)
-    : ModuleBase()
-    , wantAllEvents_{false}
-    , selectors_{}
-    , process_name_{}
-    , selector_config_id_{pset.id()}
+    : selector_config_id_{pset.id()}
   {
     auto const& paths = pset.get<vector<string>>("SelectEvents", {});
     init_(paths);

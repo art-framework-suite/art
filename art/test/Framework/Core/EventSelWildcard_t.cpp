@@ -63,13 +63,8 @@ testone(const Strings& paths,
         bool answer,
         int jmask)
 {
-  ParameterSet pset; //, parent;
-  pset.put<Strings>("SelectEvents", pattern);
-  // parent.put<ParameterSet>("SelectEvents",pset);
-
-  // There are 3 different ways to build the EventSelector.  All
-  // should give the same result.  We exercise all 3 here.
-  EventSelector select_based_on_pset(pset, paths);
+  // There are 2 different ways to build the EventSelector.  Both
+  // should give the same result.  We exercise both here.
   EventSelector select_based_on_pattern_paths(pattern, paths);
   EventSelector select_based_on_pattern(pattern);
 
@@ -110,14 +105,13 @@ testone(const Strings& paths,
 
   TriggerResults results_id(bm, trigger_pset.id());
 
-  bool x = select_based_on_pset.acceptEvent(results_id);
-  bool y = select_based_on_pattern_paths.acceptEvent(results_id);
-  bool z = select_based_on_pattern.acceptEvent(results_id);
+  bool const x = select_based_on_pattern_paths.acceptEvent(results_id);
+  bool const y = select_based_on_pattern.acceptEvent(results_id);
 
-  if (x != answer || y != answer || z != answer) {
+  if (x != answer || y != answer) {
     std::cerr << "failed to compare pattern with mask using pset ID: "
               << "correct=" << answer << " "
-              << "results=" << x << "  " << y << "  " << z << "\n"
+              << "results=" << x << "  " << y << "\n"
               << "pattern=" << pattern << "\n"
               << "mask=" << mask << "\n"
               << "jmask = " << jmask << "\n";

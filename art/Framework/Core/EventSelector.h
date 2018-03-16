@@ -46,9 +46,6 @@ namespace art {
 
     explicit EventSelector(std::vector<std::string> const& pathspecs);
 
-    EventSelector(fhicl::ParameterSet const&,
-                  std::vector<std::string> const& triggernames);
-
   public: // MEMBER FUNCTIONS
     bool wantAll() const;
 

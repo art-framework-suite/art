@@ -34,13 +34,6 @@ namespace art {
     : results_from_current_process_(false), paths_(pathspecs)
   {}
 
-  EventSelector::EventSelector(fhicl::ParameterSet const& config,
-                               vector<string> const& triggernames)
-  {
-    auto paths = config.get<vector<string>>("SelectEvents", {});
-    init(paths, triggernames);
-  }
-
   bool
   EventSelector::wantAll() const
   {
