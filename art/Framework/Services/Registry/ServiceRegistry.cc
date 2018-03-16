@@ -7,8 +7,6 @@
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 
-#include "boost/thread/tss.hpp"
-
 using art::ServiceRegistry;
 using art::ServiceToken;
 using fhicl::ParameterSet;
@@ -44,11 +42,8 @@ ServiceRegistry::createSet(ParameterSets const& iPS, ActivityRegistry& reg)
 ServiceRegistry&
 ServiceRegistry::instance()
 {
-  static boost::thread_specific_ptr<ServiceRegistry> s_registry;
-  if (nullptr == s_registry.get()) {
-    s_registry.reset(new ServiceRegistry);
-  }
-  return *s_registry;
+  static ServiceRegistry me;
+  return me;
 }
 
 // ======================================================================
