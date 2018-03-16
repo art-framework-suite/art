@@ -20,7 +20,8 @@ namespace {
   }
 }
 
-art::detail::ModuleGraphInfoMap::ModuleGraphInfoMap(collection_map_t const& modules)
+art::detail::ModuleGraphInfoMap::ModuleGraphInfoMap(
+  collection_map_t const& modules)
   : modules_{map_to_vec(modules)}
   , begin_{cbegin(modules_)}
   , end_{cend(modules_)}
@@ -42,7 +43,8 @@ art::detail::ModuleGraphInfoMap::vertex_index(std::string const& name) const
 }
 
 auto
-art::detail::ModuleGraphInfoMap::info(std::string const& name) const -> ModuleGraphInfo const&
+art::detail::ModuleGraphInfoMap::info(std::string const& name) const
+  -> ModuleGraphInfo const&
 {
   return modules_[vertex_index(name)].second;
 }
@@ -50,7 +52,7 @@ art::detail::ModuleGraphInfoMap::info(std::string const& name) const -> ModuleGr
 std::ostream&
 art::detail::operator<<(std::ostream& os, ModuleGraphInfo const& info)
 {
-  os << "Module type: " << info.module_type << '\n';
+  os << "Module type: " << ModuleType_to_string(info.module_type) << '\n';
   os << "Product dependencies: ";
   for (auto const& dep : info.product_dependencies) {
     os << dep << ' ';

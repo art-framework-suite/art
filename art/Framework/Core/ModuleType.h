@@ -8,37 +8,24 @@
 
 namespace art {
 
-  class EDAnalyzer;
-  class EDFilter;
-  class OutputModule;
-  class EDProducer;
-
   enum class ModuleType : int { NON_ART, PRODUCER, FILTER, ANALYZER, OUTPUT };
 
-  enum class ModuleThreadingType : int {
-    ILLEGAL // 0
-    ,
-    LEGACY // 1
-    ,
-    SHARED // 2
-    ,
-    REPLICATED // 3
-  };
+  enum class ModuleThreadingType : int { ILLEGAL, LEGACY, SHARED, REPLICATED };
 
   inline bool
-  is_modifier(ModuleType const& mt)
+  is_modifier(ModuleType const mt)
   {
     return (mt == ModuleType::PRODUCER) || (mt == ModuleType::FILTER);
   }
 
   inline bool
-  is_observer(ModuleType const& mt)
+  is_observer(ModuleType const mt)
   {
     return (mt == ModuleType::ANALYZER) || (mt == ModuleType::OUTPUT);
   }
 
   inline std::string
-  ModuleType_to_string(ModuleType mt)
+  ModuleType_to_string(ModuleType const mt)
   {
     switch (mt) {
       case ModuleType::NON_ART:

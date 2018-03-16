@@ -31,7 +31,8 @@ namespace {
 
   struct ObserverModuleConfig {
     fhicl::OptionalSequence<std::string> depends_on{fhicl::Name{"depends_on"}};
-    fhicl::OptionalSequence<std::string> select_events{fhicl::Name{"SelectEvents"}};
+    fhicl::OptionalSequence<std::string> select_events{
+      fhicl::Name{"SelectEvents"}};
   };
 
   paths_to_modules_t
@@ -43,11 +44,9 @@ namespace {
         continue;
       auto const tmp = physics.get<std::vector<std::string>>(name);
       configs_t configs;
-      cet::transform_all(tmp,
-                         back_inserter(configs),
-                         [](auto const& str) {
-                           return art::WorkerInPath::ConfigInfo{str, art::WorkerInPath::Normal};
-                         });
+      cet::transform_all(tmp, back_inserter(configs), [](auto const& str) {
+        return art::WorkerInPath::ConfigInfo{str, art::WorkerInPath::Normal};
+      });
       result[name] = configs;
     }
     return result;
@@ -68,31 +67,31 @@ namespace {
     return table.has_key(module_name);
   }
 
-  inline std::string
+  inline art::ModuleType
   module_found_with_type(std::string const& module_name,
                          fhicl::ParameterSet const& pset)
   {
     if (module_found_in_table(module_name, pset, "physics.producers"))
-      return "producer";
+      return art::ModuleType::PRODUCER;
     if (module_found_in_table(module_name, pset, "physics.filters"))
-      return "filter";
+      return art::ModuleType::FILTER;
     if (module_found_in_table(module_name, pset, "physics.analyzers"))
-      return "analyzer";
+      return art::ModuleType::ANALYZER;
     if (module_found_in_table(module_name, pset, "outputs"))
-      return "output";
-    return {};
+      return art::ModuleType::OUTPUT;
+    return art::ModuleType::NON_ART;
   }
 
   inline std::string
-  table_for_module_type(std::string const& module_type)
+  table_for_module_type(art::ModuleType const module_type)
   {
-    if (module_type == "producer")
+    if (module_type == art::ModuleType::PRODUCER)
       return "physics.producers";
-    if (module_type == "filter")
+    if (module_type == art::ModuleType::FILTER)
       return "physics.filters";
-    if (module_type == "analyzer")
+    if (module_type == art::ModuleType::ANALYZER)
       return "physics.analyzers";
-    if (module_type == "output")
+    if (module_type == art::ModuleType::OUTPUT)
       return "outputs";
     return {};
   }
@@ -190,10 +189,12 @@ main(int argc, char** argv) try {
 
   // Get modules
   art::detail::collection_map_t modules{};
+
+  auto& source_info = modules["*source*"];
   if (!trigger_paths.empty()) {
-    modules["*source*"] = ModuleGraphInfo{"source", {}, path_names(trigger_paths)};
+    source_info.paths = path_names(trigger_paths);
   } else if (!end_path.empty()) {
-    modules["*source*"] = ModuleGraphInfo{"source", {}, {"end_path"}};
+    source_info.paths = {"end_path"};
   }
 
   auto fill_module_info = [&modules](fhicl::ParameterSet const& pset,
@@ -204,7 +205,7 @@ main(int argc, char** argv) try {
       auto& info = modules[module_name];
       info.paths.insert(path_name);
       info.module_type = module_found_with_type(module_name, pset);
-      if (info.module_type == "producer" || info.module_type == "filter") {
+      if (is_modifier(info.module_type)) {
         auto const table_name = table_for_module_type(info.module_type);
         auto const& table =
           pset.get<fhicl::ParameterSet>(table_name + "." + module_name);
@@ -237,15 +238,14 @@ main(int argc, char** argv) try {
   }
 
   if (!trigger_paths.empty()) {
-    modules["TriggerResults"] = ModuleGraphInfo{"producer"};
+    modules["TriggerResults"] = ModuleGraphInfo{art::ModuleType::PRODUCER};
   }
 
   fill_module_info(pset, "end_path", end_path);
 
   ModuleGraphInfoMap const modInfos{modules};
-  auto const module_graph = art::detail::make_module_graph(modInfos,
-                                                           trigger_paths,
-                                                           end_path);
+  auto const module_graph =
+    art::detail::make_module_graph(modInfos, trigger_paths, end_path);
   auto const& err = module_graph.second;
   if (!err.empty()) {
     std::cout << err << '\n';

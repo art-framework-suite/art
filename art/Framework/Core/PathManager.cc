@@ -101,8 +101,8 @@ art::PathManager::PathManager(ParameterSet const& procPS,
           auto const lib_spec = module_pset.get<string>("module_type");
           auto const actualModType = loadModuleType_(lib_spec);
           if (actualModType != module_type) {
-            es << "  ERROR: Module with label " << module_label
-               << " of type " << lib_spec << " is configured as a "
+            es << "  ERROR: Module with label " << module_label << " of type "
+               << lib_spec << " is configured as a "
                << ModuleType_to_string(module_type)
                << " but defined in code as a "
                << ModuleType_to_string(actualModType) << ".\n";
@@ -465,9 +465,8 @@ art::PathManager::createModulesAndWorkers(std::string const& debug_filename)
   allModules_.clear();
 
   ModuleGraphInfoMap const modInfos{graph_info_collection};
-  auto const module_graph = make_module_graph(modInfos,
-                                              protoTrigPathLabelMap_,
-                                              protoEndPathLabels_);
+  auto const module_graph =
+    make_module_graph(modInfos, protoTrigPathLabelMap_, protoEndPathLabels_);
   if (!debug_filename.empty()) {
     std::ofstream ofs{debug_filename};
     print_module_graph(ofs, modInfos, module_graph.first);
@@ -706,11 +705,12 @@ art::PathManager::getModuleGraphInfoCollection_()
 {
   using namespace detail;
   collection_map_t result{};
-  auto& source_info = (result["*source*"] = ModuleGraphInfo{"source"});
+  auto& source_info = result["*source*"];
   if (!protoTrigPathLabelMap_.empty()) {
-    std::set<std::string> const path_names{cbegin(triggerPathNames_), cend(triggerPathNames_)};
+    std::set<std::string> const path_names{cbegin(triggerPathNames_),
+                                           cend(triggerPathNames_)};
     source_info.paths = path_names;
-    result["TriggerResults"] = ModuleGraphInfo{"producer"};
+    result["TriggerResults"] = ModuleGraphInfo{ModuleType::PRODUCER};
   } else if (!protoEndPathLabels_.empty()) {
     source_info.paths = {"end_path"};
   }
@@ -722,8 +722,9 @@ art::PathManager::getModuleGraphInfoCollection_()
       auto const& mci = allModules_.at(module_name);
       auto& graph_info = result[module_name];
       graph_info.paths.insert(path_name);
-      graph_info.module_type = ModuleType_to_string(mci.moduleType_);
-      auto const& consumables = ConsumesInfo::instance()->consumables(module_name);
+      graph_info.module_type = mci.moduleType_;
+      auto const& consumables =
+        ConsumesInfo::instance()->consumables(module_name);
       for (auto const& per_branch_type : consumables) {
         for (auto const& prod_info : per_branch_type) {
           if (prod_info.process_ != processName_ &&

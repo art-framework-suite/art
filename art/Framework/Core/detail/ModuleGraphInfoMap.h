@@ -1,6 +1,7 @@
 #ifndef art_Framework_Core_detail_ModuleGraphInfoMap_h
 #define art_Framework_Core_detail_ModuleGraphInfoMap_h
 
+#include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/WorkerInPath.h"
 
 #include <iosfwd>
@@ -13,9 +14,10 @@ namespace art {
   namespace detail {
 
     struct ModuleGraphInfo {
-      std::string module_type{};
+      ModuleType module_type{ModuleType::NON_ART};
       std::set<std::string> product_dependencies{};
-      std::set<std::string> select_events{}; // Only for analyzers and output modules
+      std::set<std::string>
+        select_events{}; // Only for analyzers and output modules
       std::set<std::string> paths{};
     };
 

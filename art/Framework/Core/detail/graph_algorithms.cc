@@ -18,7 +18,8 @@ namespace {
   std::string
   comma_separated_list(name_set_t const& names)
   {
-    if (names.empty()) return {};
+    if (names.empty())
+      return {};
 
     auto cb = cbegin(names);
     std::string result{*cb};
@@ -52,9 +53,10 @@ art::detail::make_module_graph(ModuleGraphInfoMap const& modInfos,
 }
 
 void
-art::detail::make_trigger_path_subgraphs(ModuleGraphInfoMap const& modInfos,
-                                         paths_to_modules_t const& trigger_paths,
-                                         ModuleGraph& module_graph)
+art::detail::make_trigger_path_subgraphs(
+  ModuleGraphInfoMap const& modInfos,
+  paths_to_modules_t const& trigger_paths,
+  ModuleGraph& module_graph)
 {
   std::map<path_name_t, ModuleGraph*> path_graphs;
   auto const source_index = modInfos.vertex_index("*source*");
@@ -69,7 +71,7 @@ art::detail::make_trigger_path_subgraphs(ModuleGraphInfoMap const& modInfos,
   for (auto const& pr : modInfos) {
     auto const& module_name = pr.first;
     auto const& info = pr.second;
-    if (info.module_type != "producer" && info.module_type != "filter")
+    if (!is_modifier(info.module_type))
       continue;
     auto const index = modInfos.vertex_index(pr.first);
     for (auto const& path : info.paths) {
@@ -93,7 +95,6 @@ art::detail::make_product_dependency_edges(ModuleGraphInfoMap const& modInfos,
   }
 }
 
-
 void
 art::detail::make_path_ordering_edges(ModuleGraphInfoMap const& modInfos,
                                       paths_to_modules_t const& trigger_paths,
@@ -103,9 +104,10 @@ art::detail::make_path_ordering_edges(ModuleGraphInfoMap const& modInfos,
   auto path_label = get(boost::edge_name, graph);
   for (auto const& path : trigger_paths) {
     auto const& modules = path.second;
-    if (modules.empty()) continue;
+    if (modules.empty())
+      continue;
     auto prev = cbegin(modules);
-    auto curr = prev+1;
+    auto curr = prev + 1;
     auto const end = cend(modules);
     while (curr != end) {
       auto const pi = modInfos.vertex_index(prev->label);
@@ -165,7 +167,7 @@ art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
         auto const edge = add_edge(index, preceding_filter_index, graph);
         sync_label[edge.first] = "filter:" + path.first;
       }
-      if (info.module_type == "filter") {
+      if (info.module_type == ModuleType::FILTER) {
         preceding_filter_index = index;
       }
     }
@@ -181,7 +183,7 @@ art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
   for (auto const& module : end_path) {
     auto const index = modInfos.vertex_index(module.label);
     auto const& info = modInfos.info(index);
-    for (auto const& path: info.select_events) {
+    for (auto const& path : info.select_events) {
       auto const edge = add_edge(index, tr_index, graph);
       sync_label[edge.first] = "filter:" + path;
     }
@@ -189,21 +191,27 @@ art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
 }
 
 std::string
-art::detail::verify_no_interpath_dependencies(ModuleGraphInfoMap const& modInfos,
-                                              ModuleGraph const& graph)
+art::detail::verify_no_interpath_dependencies(
+  ModuleGraphInfoMap const& modInfos,
+  ModuleGraph const& graph)
 {
   std::map<Vertex, std::set<Vertex>> illegal_dependencies;
   auto const children_iters = graph.children();
-  for (auto ci = children_iters.first, ci_end = children_iters.second; ci != ci_end; ++ci) {
+  for (auto ci = children_iters.first, ci_end = children_iters.second;
+       ci != ci_end;
+       ++ci) {
     auto const& path_graph = *ci;
     auto const vertex_iters = vertices(path_graph);
-    for (auto i = vertex_iters.first, end = vertex_iters.second; i != end; ++i) {
+    for (auto i = vertex_iters.first, end = vertex_iters.second; i != end;
+         ++i) {
       auto const gv = path_graph.local_to_global(*i);
       auto const out_edge_iters = out_edges(gv, graph);
       // Verify that the target of each out edge is a member of the
       // same subgraph (which is determined by calling find_vertex).
       // If not, then it is an illegal path specification.
-      for (auto ei = out_edge_iters.first, edge_end = out_edge_iters.second; ei != edge_end; ++ei) {
+      for (auto ei = out_edge_iters.first, edge_end = out_edge_iters.second;
+           ei != edge_end;
+           ++ei) {
         auto const tv = target(*ei, graph);
         if (path_graph.find_vertex(tv).second) {
           continue;
@@ -241,7 +249,8 @@ namespace {
   struct name_matches {
     std::string module_name;
     explicit name_matches(std::string const& name) : module_name{name} {}
-    bool operator()(art::WorkerInPath::ConfigInfo const& info) const
+    bool
+    operator()(art::WorkerInPath::ConfigInfo const& info) const
     {
       return info.label == module_name;
     }
@@ -257,9 +266,9 @@ art::detail::verify_in_order_dependencies(
   std::map<module_name_t, name_set_t> illegal_module_orderings;
   for (auto const& module : modInfos) {
     auto const& module_name = module.first;
-    auto const& module_type = module.second.module_type;
+    auto const module_type = module.second.module_type;
     auto const& module_paths = module.second.paths;
-    if (module_type != "producer" && module_type != "filter") {
+    if (!is_modifier(module_type)) {
       continue;
     }
     if (module_paths.empty()) {
@@ -272,7 +281,8 @@ art::detail::verify_in_order_dependencies(
     auto const& path = trigger_paths.at(first_path_for_module);
     auto const begin = cbegin(path);
     auto const end = cend(path);
-    auto const module_position = std::find_if(begin, end, name_matches{module_name});
+    auto const module_position =
+      std::find_if(begin, end, name_matches{module_name});
     assert(module_position != end);
 
     for (auto const& dep : module.second.product_dependencies) {
@@ -315,8 +325,7 @@ art::detail::verify_in_order_dependencies(
 }
 
 namespace {
-  class graph_printer : public boost::dfs_visitor<>
-  {
+  class graph_printer : public boost::dfs_visitor<> {
   public:
     explicit graph_printer(std::ostream& os, ModuleGraphInfoMap const& modules)
       : os_{os}, modules_{modules}
@@ -329,14 +338,13 @@ namespace {
       auto const& info = modules_.info(v);
       if (name == "*source*") {
         os_ << "  \"*source*\"[shape=box label=source]";
-      }
-      else if (name == "TriggerResults") {
+      } else if (name == "TriggerResults") {
         os_ << "  \"" << name << '\"';
-        os_ << "[shape=box style=filled fillcolor=black label=\"\" height=0.1 width=2]";
-      }
-      else {
+        os_ << "[shape=box style=filled fillcolor=black label=\"\" height=0.1 "
+               "width=2]";
+      } else {
         os_ << "  \"" << name << '\"';
-        if (info.module_type == "filter") {
+        if (info.module_type == art::ModuleType::FILTER) {
           os_ << "[style=filled fillcolor=pink]";
         }
       }
@@ -362,8 +370,8 @@ namespace {
     }
 
   private:
-
-    void print_edge(Edge const e, ModuleGraph const& g)
+    void
+    print_edge(Edge const e, ModuleGraph const& g)
     {
       auto const u = source(e, g);
       auto const v = target(e, g);
@@ -375,8 +383,7 @@ namespace {
     }
 
     static void
-    fill_label(std::ostream& os,
-               std::string const& edge_name)
+    fill_label(std::ostream& os, std::string const& edge_name)
     {
       auto pos = edge_name.find("path:");
       if (pos == 0) {
