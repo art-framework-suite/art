@@ -270,15 +270,16 @@ art::detail::verify_in_order_dependencies(
     // dependencies.
     auto const& first_path_for_module = *cbegin(module_paths);
     auto const& path = trigger_paths.at(first_path_for_module);
+    auto const begin = cbegin(path);
     auto const end = cend(path);
-    auto const module_position = std::find_if(cbegin(path), cend(path), name_matches{module_name});
+    auto const module_position = std::find_if(begin, end, name_matches{module_name});
     assert(module_position != end);
 
     for (auto const& dep : module.second.product_dependencies) {
       if (dep == "*source*") {
         continue;
       }
-      auto const dep_position = std::find_if(cbegin(path), cend(path), name_matches{dep});
+      auto const dep_position = std::find_if(begin, end, name_matches{dep});
       assert(dep_position != end);
       if (dep_position < module_position) {
         continue;
