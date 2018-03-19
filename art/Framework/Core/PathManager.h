@@ -82,7 +82,6 @@ namespace art {
     void fillWorkers_(int si,
                       int pi,
                       std::vector<WorkerInPath::ConfigInfo> const& wci_list,
-                      std::map<std::string, Worker*>& allStreamWorkers,
                       std::vector<WorkerInPath>& wips,
                       std::map<std::string, Worker*>& workers);
 
@@ -99,10 +98,10 @@ namespace art {
     std::vector<std::string> triggerPathNames_{};
 
     // All unique module objects from any and all paths.
-    std::multimap<module_label_t, ModuleBase*> moduleSet_{};
+    std::map<module_label_t, ModuleBase*> moduleSet_{};
 
     // All unique worker objects from any and all paths.
-    std::multimap<module_label_t, Worker*> workerSet_{};
+    std::map<module_label_t, Worker*> workerSet_{};
 
     // Key is stream number.
     std::vector<PathsInfo> triggerPathsInfo_{};

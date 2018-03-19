@@ -409,7 +409,6 @@ art::PathManager::createModulesAndWorkers(std::string const& debug_filename)
       auto& pinfo = triggerPathsInfo_[streamIndex];
       pinfo.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
       int bitPos = 0;
-      map<string, Worker*> allStreamWorkers;
       for (auto const& val : protoTrigPathLabelMap_) {
         auto const& path_name = val.first;
         auto const& worker_config_infos = val.second;
@@ -417,7 +416,6 @@ art::PathManager::createModulesAndWorkers(std::string const& debug_filename)
         fillWorkers_(streamIndex,
                      bitPos,
                      worker_config_infos,
-                     allStreamWorkers,
                      wips,
                      pinfo.workers());
         pinfo.paths().push_back(new Path{exceptActions_,
@@ -439,12 +437,10 @@ art::PathManager::createModulesAndWorkers(std::string const& debug_filename)
 
   if (!protoEndPathLabels_.empty()) {
     //  Create the end path and the workers on it.
-    map<string, Worker*> dummyAllStreamWorkers;
     vector<WorkerInPath> wips;
     fillWorkers_(0, // stream index
                  0, // bit position
                  protoEndPathLabels_,
-                 dummyAllStreamWorkers,
                  wips,
                  endPathInfo_.workers());
     endPathInfo_.paths().push_back(new Path{exceptActions_,
@@ -516,7 +512,6 @@ void
 art::PathManager::fillWorkers_(int const si,
                                int const pi,
                                vector<WorkerInPath::ConfigInfo> const& wci_list,
-                               map<string, Worker*>& allStreamWorkers,
                                vector<WorkerInPath>& wips,
                                map<string, Worker*>& workers)
 {
@@ -545,11 +540,11 @@ art::PathManager::fillWorkers_(int const si,
       }
     }
     Worker* worker = nullptr;
-    // Workers which are present on multiple paths should be
-    // shared so that their work is only done once per stream.
+    // Workers which are present on multiple paths should be shared so
+    // that their work is only done once per stream.
     {
-      auto iter = allStreamWorkers.find(module_label);
-      if (iter != allStreamWorkers.end()) {
+      auto iter = workers.find(module_label);
+      if (iter != workers.end()) {
         TDEBUG(5) << "Reusing worker 0x" << hex << ((unsigned long)iter->second)
                   << dec << " (" << si << ") path: " << pi
                   << " type: " << module_type << " label: " << module_label
@@ -628,7 +623,6 @@ art::PathManager::fillWorkers_(int const si,
         }
         worker = worker_from_module_factory_func(module, md, wp);
         workerSet_.emplace(module_label, worker);
-        allStreamWorkers.emplace(module_label, worker);
         TDEBUG(5) << "Made worker 0x" << hex << ((unsigned long)worker) << dec
                   << " (" << si << ") path: " << pi << " type: " << module_type
                   << " label: " << module_label << "\n";
