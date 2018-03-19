@@ -205,7 +205,7 @@ namespace art {
                       std::atomic<std::size_t>& /*counts_failed*/)
   {
     detail::CPCSentry sentry{*cpc};
-    detail::PVSentry pvSentry{cachedProducts()};
+    detail::CachedProducts::Sentry pvSentry{cachedProducts()};
     Event const e{ep, moduleDescription(), TypeLabelLookup_t{}};
     if (wantAllEvents() || wantEvent(e)) {
       ++counts_run;

@@ -306,7 +306,7 @@ namespace art {
   void
   OutputModule::doWriteEvent(EventPrincipal& ep)
   {
-    detail::PVSentry clearTriggerResults{cachedProducts()};
+    detail::CachedProducts::Sentry clearTriggerResults{cachedProducts()};
     FDEBUG(2) << "writeEvent called\n";
     Event const e{ep, moduleDescription(), TypeLabelLookup_t{}};
     if (wantAllEvents() || wantEvent(e)) {

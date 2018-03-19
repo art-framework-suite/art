@@ -2,12 +2,9 @@
 #define art_Framework_Core_CachedProducts_h
 
 // -------------------------------------------------------------------
-//
-// CachedProducts: This class is used by OutputModule to interact with
-// the TriggerResults objects upon which the decision to write out an
-// event is made.
-//
-//
+// CachedProducts: This class is used by EventObservers to interact
+// with the TriggerResults objects upon which the decision to write
+// out an event is made.
 // -------------------------------------------------------------------
 
 #include "art/Framework/Core/EventSelector.h"
@@ -64,12 +61,13 @@ namespace art {
       art::Handle<art::TriggerResults> triggerResults_{}; // invalid
     };
 
-    class PVSentry;
-
-    // Handle the SelectEvents configuration parameter of modules on the end
-    // path.
+    // Handle the SelectEvents configuration parameter of modules on
+    // the end path.
     class CachedProducts {
     public:
+
+      class Sentry;
+
       void setupDefault(std::vector<std::string> const& trigger_names);
       void setup(
         std::vector<std::pair<std::string, std::string>> const& path_specs,
@@ -82,22 +80,21 @@ namespace art {
       void clearTriggerResults();
       void loadTriggerResults(Event const&);
 
-      friend class PVSentry;
       std::vector<ProcessAndEventSelector> p_and_e_selectors_{};
       bool loadDone_{false};
       unsigned long numberFound_{};
     };
 
-    class PVSentry {
+    class CachedProducts::Sentry {
     public:
-      explicit PVSentry(CachedProducts& p_and_e_selectors)
-        : p_and_e_selectors_(p_and_e_selectors)
+      explicit Sentry(CachedProducts& p_and_e_selectors)
+        : p_and_e_selectors_{p_and_e_selectors}
       {}
 
-      ~PVSentry() noexcept(false) { p_and_e_selectors_.clearTriggerResults(); }
+      ~Sentry() noexcept(false) { p_and_e_selectors_.clearTriggerResults(); }
 
-      PVSentry(PVSentry const&) = delete;
-      PVSentry& operator=(PVSentry const&) = delete;
+      Sentry(Sentry const&) = delete;
+      Sentry& operator=(Sentry const&) = delete;
 
     private:
       CachedProducts& p_and_e_selectors_;

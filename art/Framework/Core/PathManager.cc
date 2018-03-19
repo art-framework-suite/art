@@ -709,12 +709,13 @@ art::PathManager::getModuleGraphInfoCollection_()
     source_info.paths = {"end_path"};
   }
 
-  auto fill_module_info = [this, &result](std::string const& path_name,
-                                          configs_t const& worker_configs) {
+  auto fill_module_info = [this](std::string const& path_name,
+                                 configs_t const& worker_configs,
+                                 collection_map_t& info_collection) {
     for (auto const& worker_config : worker_configs) {
       auto const& module_name = worker_config.label;
       auto const& mci = allModules_.at(module_name);
-      auto& graph_info = result[module_name];
+      auto& graph_info = info_collection[module_name];
       graph_info.paths.insert(path_name);
       graph_info.module_type = mci.moduleType_;
       auto const& consumables =
@@ -729,17 +730,42 @@ art::PathManager::getModuleGraphInfoCollection_()
           }
         }
       }
+    }
+  };
 
-      // FIXME: include dependencies for SelectEvents
-      if (is_observer(mci.moduleType_)) {
+  static std::string const allowed_path_spec{R"([\*a-zA-Z_][\*\?\w]*)"};
+  static std::regex const regex{"(\\w+:)?(!|exception@)?("+allowed_path_spec+")(&noexception)?"};
+
+  auto fill_select_events_deps = [this](configs_t const& worker_configs,
+                                        collection_map_t& info_collection) {
+    for (auto const& worker_config : worker_configs) {
+      auto const& module_name = worker_config.label;
+      auto const& ps = allModules_.at(module_name).modPS_;
+      auto& graph_info = info_collection[module_name];
+      assert(is_observer(graph_info.module_type));
+      auto const path_specs = ps.get<std::vector<std::string>>("SelectEvents", {});
+      for (auto const& path_spec : path_specs) {
+        std::smatch matches;
+        std::regex_match(path_spec, matches, regex);
+        // By the time we have gotten here, all modules have been
+        // constructed, and it is guaranteed that the specified paths
+        // are in accord with the above regex.
+        //   0: Full match
+        //   1: Optional process name
+        //   2: Optional '!' or 'exception@'
+        //   3: Required path specification
+        //   4: Optional '&noexception'
+        assert(matches.size() == 5);
+        graph_info.select_events.insert(matches[3]);
       }
     }
   };
 
   for (auto const& path : protoTrigPathLabelMap_) {
-    fill_module_info(path.first, path.second);
+    fill_module_info(path.first, path.second, result);
   }
-  fill_module_info("end_path", protoEndPathLabels_);
+  fill_module_info("end_path", protoEndPathLabels_, result);
+  fill_select_events_deps(protoEndPathLabels_, result);
 
   return result;
 }
