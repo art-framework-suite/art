@@ -84,11 +84,16 @@ namespace {
       }
     }
 
-    // Intercept one message and ignore:
-    if (el_message == "no dictionary for class "
-                      "art::Transient<art::ProductRegistry::Transients> is "
-                      "available") {
-      return;
+    // Intercept and ignore messages:
+    for (std::string const & s :
+      { "art::Transient<art::ProductRegistry::Transients>",
+          "art::DoNotRecordParents" }) {
+      if (el_message ==
+          (std::string("no dictionary for class ") +
+           s +
+           " is available")) {
+        return;
+      }
     }
 
     // Intercept some messages and upgrade the severity
