@@ -29,6 +29,7 @@ namespace {
                    char const* message)
   {
     using mf::ELseverityLevel;
+    auto const npos = std::string::npos;
 
     // Translate ROOT severity level to MessageLogger severity level
 
@@ -67,17 +68,17 @@ namespace {
 
     std::string const precursor{"class "};
     size_t index1 = el_message.find(precursor);
-    if (index1 != std::string::npos) {
+    if (index1 != npos) {
       size_t index2 = index1 + precursor.length();
       size_t index3 = el_message.find_first_of(" :", index2);
-      if (index3 != std::string::npos) {
+      if (index3 != npos) {
         size_t substrlen = index3 - index2;
         el_identifier += "-";
         el_identifier += el_message.substr(index2, substrlen);
       }
     } else {
       index1 = el_location.find("::");
-      if (index1 != std::string::npos) {
+      if (index1 != npos) {
         el_identifier += "/";
         el_identifier += el_location.substr(0, index1);
       }
@@ -91,32 +92,31 @@ namespace {
     }
 
     // Intercept some messages and upgrade the severity
-    if ((el_location.find("TBranchElement::Fill") != std::string::npos) &&
-        (el_message.find("fill branch") != std::string::npos) &&
-        (el_message.find("address") != std::string::npos) &&
-        (el_message.find("not set") != std::string::npos)) {
+    if ((el_location.find("TBranchElement::Fill") != npos) &&
+        (el_message.find("fill branch") != npos) &&
+        (el_message.find("address") != npos) &&
+        (el_message.find("not set") != npos)) {
       el_severity = SeverityLevel::kFatal;
     }
-    if ((el_message.find("Tree branches") != std::string::npos) &&
+    if ((el_message.find("Tree branches") != npos) &&
         (el_message.find("different numbers of entries") !=
-         std::string::npos)) {
+         npos)) {
       el_severity = SeverityLevel::kFatal;
     }
 
     // Intercept some messages and downgrade the severity
-    if ((el_message.find("dictionary") != std::string::npos) ||
-        (el_message.find("already in TClassTable") != std::string::npos) ||
-        (el_message.find("matrix not positive definite") !=
-         std::string::npos) ||
-        (el_location.find("Fit") != std::string::npos) ||
-        (el_location.find("TDecompChol::Solve") != std::string::npos) ||
-        (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
-        (el_location.find("TGClient::GetFontByName") != std::string::npos)) {
+    if ((el_message.find("dictionary") != npos) ||
+        (el_message.find("already in TClassTable") != npos) ||
+        (el_message.find("matrix not positive definite") != npos) ||
+        (el_location.find("Fit") != npos) ||
+        (el_location.find("TDecompChol::Solve") != npos) ||
+        (el_location.find("THistPainter::PaintInit") != npos) ||
+        (el_location.find("TGClient::GetFontByName") != npos)) {
       el_severity = SeverityLevel::kInfo;
     }
 
-    if ((el_location.find("TUnixSystem::SetDisplay") != std::string::npos) &&
-        (el_message.find("DISPLAY not set") != std::string::npos)) {
+    if ((el_location.find("TUnixSystem::SetDisplay") != npos) &&
+        (el_message.find("DISPLAY not set") != npos)) {
       el_severity = SeverityLevel::kInfo;
     }
 
