@@ -108,6 +108,8 @@ namespace {
     if ((el_message.find("dictionary") != npos) ||
         (el_message.find("already in TClassTable") != npos) ||
         (el_message.find("matrix not positive definite") != npos) ||
+        (el_message.find("number of iterations was insufficient") != npos) ||
+        (el_message.find("bad integrand behavior") != npos) ||
         (el_location.find("Fit") != npos) ||
         (el_location.find("TDecompChol::Solve") != npos) ||
         (el_location.find("THistPainter::PaintInit") != npos) ||
