@@ -7,7 +7,6 @@
 #include "art/Framework/Art/FileCatalogOptionsHandler.h"
 #include "art/Framework/Art/OptionsHandlers.h"
 #include "art/Framework/Art/run_art.h"
-#include "art/Framework/Art/detail/DebugOutput.h"
 #include "cetlib/filepath_maker.h"
 
 #include "boost/filesystem.hpp"
@@ -44,14 +43,12 @@ int @ART_MAIN_FUNC@(int argc, char* argv[])
   // be done for you.
   handlers.emplace_back(new art::BasicSourceOptionsHandler{all_desc});
   handlers.emplace_back(new art::BasicOutputOptionsHandler{all_desc});
-  art::detail::DebugOutput dbg;
   handlers.emplace_back(new art::ProcessingOptionsHandler{all_desc, ART_RETHROW_DEFAULT});
   handlers.emplace_back(new art::DebugOptionsHandler{all_desc,
-                                                     boost::filesystem::path(argv[0]).filename().native(),
-                                                     dbg});
+                                                     boost::filesystem::path(argv[0]).filename().native()});
 
   handlers.emplace_back(new art::FileCatalogOptionsHandler{all_desc});
-  return art::run_art(argc, argv, all_desc, lookupPolicy, std::move(handlers), std::move(dbg));
+  return art::run_art(argc, argv, all_desc, lookupPolicy, std::move(handlers));
 }
 
 int @ART_MAIN_FUNC@_string_config(std::string const& config_string)

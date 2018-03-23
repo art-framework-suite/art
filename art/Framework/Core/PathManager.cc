@@ -26,7 +26,6 @@
 #include "fhiclcpp/types/detail/validationException.h"
 
 #include <algorithm>
-#include <fstream>
 #include <utility>
 
 using namespace std;
@@ -393,7 +392,7 @@ art::PathManager::triggerPathNames() const
 }
 
 void
-art::PathManager::createModulesAndWorkers(std::string const& debug_filename)
+art::PathManager::createModulesAndWorkers()
 {
   auto const nschedules = Globals::instance()->nschedules();
   //
@@ -463,10 +462,12 @@ art::PathManager::createModulesAndWorkers(std::string const& debug_filename)
   ModuleGraphInfoMap const modInfos{graph_info_collection};
   auto const module_graph =
     make_module_graph(modInfos, protoTrigPathLabelMap_, protoEndPathLabels_);
-  if (!debug_filename.empty()) {
-    std::ofstream ofs{debug_filename};
-    print_module_graph(ofs, modInfos, module_graph.first);
-    std::cerr << "Generated data-dependency graph file: " << debug_filename
+
+  auto const graph_filename = procPS_.get<std::string>("services.scheduler.dataDependencyGraph", {});
+  if (!graph_filename.empty()) {
+    cet::ostream_handle osh{graph_filename};
+    print_module_graph(osh, modInfos, module_graph.first);
+    std::cerr << "Generated data-dependency graph file: " << graph_filename
               << '\n';
   }
 

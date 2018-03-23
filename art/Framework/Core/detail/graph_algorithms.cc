@@ -387,7 +387,7 @@ namespace {
     {
       auto pos = edge_name.find("path:");
       if (pos == 0) {
-        os << "[label=" << edge_name.substr(pos + 5) << " color=gray]";
+        os << "[label=\"" << edge_name.substr(pos + 5) << "\" color=gray]";
         return;
       }
       pos = edge_name.find("sync");
@@ -397,12 +397,12 @@ namespace {
       }
       pos = edge_name.find("source:");
       if (pos == 0) {
-        os << "[label=" << edge_name.substr(pos + 7) << " color=gray]";
+        os << "[label=\"" << edge_name.substr(pos + 7) << "\" color=gray]";
         return;
       }
       pos = edge_name.find("filter:");
       if (pos == 0) {
-        os << "[label=" << edge_name.substr(pos + 7) << " color=red]";
+        os << "[label=\"" << edge_name.substr(pos + 7) << "\" color=red]";
         return;
       }
       if (edge_name == "prod") {

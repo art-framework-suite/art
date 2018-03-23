@@ -15,10 +15,32 @@ using namespace std::string_literals;
 using art::detail::fhicl_key;
 using table_t = fhicl::extended_value::table_t;
 
+namespace {
+  std::pair<std::string, bool>
+  destination_via_env()
+  {
+    char const* debug_config{getenv("ART_DEBUG_CONFIG")};
+    if (debug_config == nullptr)
+      return std::make_pair("", false);
+
+    try {
+      // Check if the provided character string is a file name
+      std::string fn;
+      if (std::regex_match(debug_config, std::regex("[[:alpha:]/\\.].*"))) {
+        fn = debug_config;
+      }
+      std::cerr << "** ART_DEBUG_CONFIG is defined **\n";
+      return std::make_pair(fn, true);
+    }
+    catch (std::regex_error const& e) {
+      std::cerr << "REGEX ERROR: " << e.code() << ".\n";
+    }
+    return std::make_pair("", false);
+  }
+}
+
 art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc,
-                                              std::string const& basename,
-                                              detail::DebugOutput& dbg)
-  : dbg_{dbg}
+                                              std::string const& basename)
 {
   bpo::options_description debug_options{"Debugging options"};
   auto options = debug_options.add_options();
@@ -103,10 +125,10 @@ art::DebugOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
       << "Options --memcheck-db and --nomemcheck are incompatible.\n";
   }
   if (vm.count("validate-config") + vm.count("debug-config") +
-      vm.count("config-out")  + vm.count("data-dependency-graph") >
+      vm.count("config-out") >
       1) {
     throw Exception(errors::Configuration)
-      << "Options --data-dependency-graph, --validate-config, --debug-config, and --config-out are "
+      << "Options --validate-config, --debug-config, and --config-out are "
          "incompatible.\n";
   }
   if (vm.count("annotate") + vm.count("prefix-annotate") > 1) {
@@ -130,46 +152,50 @@ art::DebugOptionsHandler::doProcessOptions(
   fhicl::intermediate_table& raw_config)
 {
 
-  using detail::DebugOutput;
-  using dest_t = DebugOutput::destination;
-
-  std::string fn;
-  switch (DebugOutput::destination_via_env(fn)) {
-    case dest_t::cerr:
-      dbg_.set_to_cerr();
-      dbg_.set_processing_mode(DebugOutput::processing_mode::debug_config);
-      break;
-    case dest_t::file:
-      dbg_.set_filename(fn);
-      dbg_.set_processing_mode(DebugOutput::processing_mode::debug_config);
-      break;
-    case dest_t::none: {
-    }
-  }
-
-  // "debug-config" wins over ART_DEBUG_CONFIG
-  if (vm.count("data-dependency-graph")) {
-    dbg_.set_filename(vm["data-dependency-graph"].as<std::string>());
-    dbg_.set_processing_mode(DebugOutput::processing_mode::data_dependency_graph);
-  } else if (vm.count("validate-config")) {
-    dbg_.set_filename(vm["validate-config"].as<std::string>());
-    dbg_.set_processing_mode(DebugOutput::processing_mode::validate_config);
-  } else if (vm.count("debug-config")) {
-    dbg_.set_filename(vm["debug-config"].as<std::string>());
-    dbg_.set_processing_mode(DebugOutput::processing_mode::debug_config);
-  } else if (vm.count("config-out")) {
-    auto fn = vm["config-out"].as<std::string>();
-    raw_config.put("services.scheduler.configOut", fn);
-    dbg_.set_filename(fn);
-    dbg_.set_processing_mode(DebugOutput::processing_mode::config_out);
-  }
   using namespace fhicl::detail;
+
+  auto const scheduler_key = fhicl_key("services", "scheduler");
+  std::string debug_table;
+
+  // Get ART_DEBUG_CONFIG value
+  std::string fn;
+  auto const result = destination_via_env();
+  if (result.second) {
+    debug_table = fhicl_key(scheduler_key, "debugConfig");
+    fn = result.first;
+  }
+
+  // "validate-config" and "debug-config" win over ART_DEBUG_CONFIG
+  if (vm.count("validate-config")) {
+    debug_table = fhicl_key(scheduler_key, "validateConfig");
+    fn = vm["validate-config"].as<std::string>();
+  } else if (vm.count("debug-config")) {
+    debug_table = fhicl_key(scheduler_key, "debugConfig");
+    fn = vm["debug-config"].as<std::string>();
+  } else if (vm.count("config-out")) {
+    debug_table = fhicl_key(scheduler_key, "configOut");
+    fn = vm["config-out"].as<std::string>();
+  }
+  if (!debug_table.empty()) {
+    raw_config.put(fhicl_key(debug_table, "fileName"), fn);
+  }
+
+  std::string mode{"raw"};
   if (vm.count("annotate")) {
-    dbg_.set_print_mode(print_mode::annotated);
+    mode = "annotate";
   }
   if (vm.count("prefix-annotate")) {
-    dbg_.set_print_mode(print_mode::prefix_annotated);
+    mode = "prefix-annotate";
   }
+  if (!debug_table.empty()) {
+    raw_config.put(fhicl_key(debug_table, "printMode"), mode);
+  }
+
+  std::string graph_option{"data-dependency-graph"};
+  if (vm.count(graph_option)) {
+    raw_config.put("services.scheduler.dataDependencyGraph", vm[graph_option].as<std::string>());
+  }
+
   if (vm.count("trace")) {
     raw_config.put("services.scheduler.wantTracer", true);
   } else if (vm.count("notrace")) {

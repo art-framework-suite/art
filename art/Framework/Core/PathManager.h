@@ -68,7 +68,7 @@ namespace art {
 
   public:
     std::vector<std::string> const& triggerPathNames() const;
-    void createModulesAndWorkers(std::string const& debug_filename);
+    void createModulesAndWorkers();
 
     PathsInfo& triggerPathsInfo(int stream);
     std::vector<PathsInfo>& triggerPathsInfo();

@@ -143,8 +143,7 @@ EventProcessor::~EventProcessor()
   // servicesActivate_(serviceToken_);
 }
 
-EventProcessor::EventProcessor(ParameterSet const& pset,
-                               std::string const& debug_filename)
+EventProcessor::EventProcessor(ParameterSet const& pset)
   : act_table_{pset.get<ParameterSet>("services.scheduler")}
   , actReg_()
   , mfStatusUpdater_{actReg_}
@@ -190,7 +189,7 @@ EventProcessor::EventProcessor(ParameterSet const& pset,
   ServiceHandle<FileCatalogMetadata> {}
   ->addMetadataString("process_name", processName);
 
-  pathManager_.createModulesAndWorkers(debug_filename);
+  pathManager_.createModulesAndWorkers();
   endPathExecutor_ = make_unique<EndPathExecutor>(
     pathManager_, act_table_, actReg_, outputCallbacks_);
   for (auto I = 0; I < nschedules; ++I) {

@@ -66,8 +66,7 @@ namespace art {
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~EventProcessor();
 
-    explicit EventProcessor(fhicl::ParameterSet const& pset,
-                            std::string const& debug_filename);
+    explicit EventProcessor(fhicl::ParameterSet const& pset);
 
     EventProcessor(EventProcessor const&) = delete;
     EventProcessor(EventProcessor&&) = delete;
