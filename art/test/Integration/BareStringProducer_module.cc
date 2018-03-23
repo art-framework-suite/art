@@ -36,7 +36,6 @@ public:
   }
 
 private:
-
   void beginRun(art::Run& r) override;
   void beginSubRun(art::SubRun& sr) override;
   void produce(art::Event& e) override;
@@ -49,21 +48,24 @@ private:
 void
 BareStringProducer::beginRun(art::Run& r)
 {
-  if (branchType_ != art::InRun) return;
+  if (branchType_ != art::InRun)
+    return;
   r.put(std::make_unique<std::string>(value_));
 }
 
 void
 BareStringProducer::beginSubRun(art::SubRun& sr)
 {
-  if (branchType_ != art::InSubRun) return;
+  if (branchType_ != art::InSubRun)
+    return;
   sr.put(std::make_unique<std::string>(value_));
 }
 
 void
 BareStringProducer::produce(art::Event& e)
 {
-  if (branchType_ != art::InEvent) return;
+  if (branchType_ != art::InEvent)
+    return;
   e.put(std::make_unique<std::string>(value_));
 }
 

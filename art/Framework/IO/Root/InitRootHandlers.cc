@@ -85,13 +85,11 @@ namespace {
     }
 
     // Intercept and ignore messages:
-    for (std::string const & s :
-      { "art::Transient<art::ProductRegistry::Transients>",
-          "art::DoNotRecordParents" }) {
+    for (std::string const& s :
+         {"art::Transient<art::ProductRegistry::Transients>",
+          "art::DoNotRecordParents"}) {
       if (el_message ==
-          (std::string("no dictionary for class ") +
-           s +
-           " is available")) {
+          (std::string("no dictionary for class ") + s + " is available")) {
         return;
       }
     }
@@ -104,8 +102,7 @@ namespace {
       el_severity = SeverityLevel::kFatal;
     }
     if ((el_message.find("Tree branches") != npos) &&
-        (el_message.find("different numbers of entries") !=
-         npos)) {
+        (el_message.find("different numbers of entries") != npos)) {
       el_severity = SeverityLevel::kFatal;
     }
 

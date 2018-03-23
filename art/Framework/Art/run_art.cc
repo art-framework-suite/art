@@ -64,40 +64,45 @@ namespace {
   {
     if (mode == "raw") {
       return fhicl::detail::print_mode::raw;
-    }
-    else if (mode == "annotate") {
+    } else if (mode == "annotate") {
       return fhicl::detail::print_mode::annotated;
-    }
-    else if (mode == "prefix-annotate") {
+    } else if (mode == "prefix-annotate") {
       return fhicl::detail::print_mode::prefix_annotated;
     }
     throw art::Exception{art::errors::Configuration}
-    << "Unrecognized ParameterSet printing mode: " << mode << '\n';
+      << "Unrecognized ParameterSet printing mode: " << mode << '\n';
   }
 
   std::string
   banner(std::string const& filename)
   {
     std::string result = "** Config output ";
-    result += filename.empty() ? "follows" :
-                                  std::string("to file '" + filename + "'");
+    result +=
+      filename.empty() ? "follows" : std::string("to file '" + filename + "'");
     result += " **\n";
     return result;
   }
 
-  enum class debug_processing : std::size_t {config_out, debug_config, validate_config, none};
+  enum class debug_processing : std::size_t {
+    config_out,
+    debug_config,
+    validate_config,
+    none
+  };
 
   debug_processing
   maybe_output_config(fhicl::ParameterSet const& main_pset,
                       fhicl::ParameterSet const& scheduler_pset)
   {
     std::underlying_type_t<debug_processing> i{};
-    for (auto const& debugProcessing : {"configOut", "debugConfig", "validateConfig"}) {
+    for (auto const& debugProcessing :
+         {"configOut", "debugConfig", "validateConfig"}) {
       auto const j = i++;
       if (!scheduler_pset.has_key(debugProcessing))
         continue;
 
-      auto const& debug_table = scheduler_pset.get<fhicl::ParameterSet>(debugProcessing);
+      auto const& debug_table =
+        scheduler_pset.get<fhicl::ParameterSet>(debugProcessing);
       auto const filename = debug_table.get<std::string>("fileName");
       auto const mode = debug_table.get<std::string>("printMode");
       std::cerr << banner(filename);
@@ -249,7 +254,8 @@ art::run_art_common_(fhicl::ParameterSet const& main_pset)
     services_pset.get<fhicl::ParameterSet>("scheduler", {});
 
   // Handle early configuration-debugging
-  auto const debug_processing_mode = maybe_output_config(main_pset, scheduler_pset);
+  auto const debug_processing_mode =
+    maybe_output_config(main_pset, scheduler_pset);
   if (debug_processing_mode == debug_processing::debug_config) {
     return 1; // Bail out early
   }

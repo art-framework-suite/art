@@ -170,7 +170,6 @@ art::DebugOptionsHandler::doProcessOptions(
     raw_config.put(fhicl_key(debug_table, "printMode"), mode);
   }
 
-
   if (vm.count("trace")) {
     raw_config.put("services.scheduler.wantTracer", true);
   } else if (vm.count("notrace")) {
