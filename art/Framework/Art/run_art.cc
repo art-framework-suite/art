@@ -11,8 +11,10 @@
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exception.h"
+#include "cetlib/ostream_handle.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
+#include "fhiclcpp/detail/print_mode.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
@@ -26,6 +28,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace bpo = boost::program_options;
@@ -39,6 +42,72 @@ namespace {
     }
     ~RootErrorHandlerSentry() { SetErrorHandler(DefaultErrorHandler); }
   };
+
+  cet::ostream_handle
+  make_ostream_handle(std::string const& filename)
+  {
+    if (filename.empty()) {
+      return cet::ostream_handle{std::cerr};
+    } else {
+      auto os = cet::ostream_handle{filename};
+      if (!os) {
+        throw art::Exception{art::errors::Configuration}
+          << "Unable to write post-processed configuration to specified file "
+          << filename << ".\n";
+      }
+      return os;
+    }
+  }
+
+  fhicl::detail::print_mode
+  get_print_mode(std::string const& mode)
+  {
+    if (mode == "raw") {
+      return fhicl::detail::print_mode::raw;
+    }
+    else if (mode == "annotate") {
+      return fhicl::detail::print_mode::annotated;
+    }
+    else if (mode == "prefix-annotate") {
+      return fhicl::detail::print_mode::prefix_annotated;
+    }
+    throw art::Exception{art::errors::Configuration}
+    << "Unrecognized ParameterSet printing mode: " << mode << '\n';
+  }
+
+  std::string
+  banner(std::string const& filename)
+  {
+    std::string result = "** Config output ";
+    result += filename.empty() ? "follows" :
+                                  std::string("to file '" + filename + "'");
+    result += " **\n";
+    return result;
+  }
+
+  enum class debug_processing : std::size_t {config_out, debug_config, validate_config, none};
+
+  debug_processing
+  maybe_output_config(fhicl::ParameterSet const& main_pset,
+                      fhicl::ParameterSet const& scheduler_pset)
+  {
+    std::underlying_type_t<debug_processing> i{};
+    for (auto const& debugProcessing : {"configOut", "debugConfig", "validateConfig"}) {
+      auto const j = i++;
+      if (!scheduler_pset.has_key(debugProcessing))
+        continue;
+
+      auto const& debug_table = scheduler_pset.get<fhicl::ParameterSet>(debugProcessing);
+      auto const filename = debug_table.get<std::string>("fileName");
+      auto const mode = debug_table.get<std::string>("printMode");
+      std::cerr << banner(filename);
+      auto os = make_ostream_handle(filename);
+      os << main_pset.to_indented_string(0, get_print_mode(mode));
+      return static_cast<debug_processing>(j);
+    }
+    return debug_processing::none;
+  }
+
 } // namespace
 
 int
@@ -46,8 +115,7 @@ art::run_art(int argc,
              char** argv,
              bpo::options_description& in_desc,
              cet::filepath_maker& lookupPolicy,
-             art::OptionsHandlers&& handlers,
-             art::detail::DebugOutput&& dbg)
+             art::OptionsHandlers&& handlers)
 {
   std::ostringstream descstr;
   descstr << '\n'
@@ -126,7 +194,7 @@ art::run_art(int argc,
                  "registry.\n";
     throw;
   }
-  return run_art_common_(main_pset, std::move(dbg));
+  return run_art_common_(main_pset);
 }
 
 int
@@ -169,12 +237,11 @@ art::run_art_string_config(std::string const& config_string)
                  "registry.\n";
     throw;
   }
-  return run_art_common_(main_pset, art::detail::DebugOutput{});
+  return run_art_common_(main_pset);
 }
 
 int
-art::run_art_common_(fhicl::ParameterSet const& main_pset,
-                     art::detail::DebugOutput debug)
+art::run_art_common_(fhicl::ParameterSet const& main_pset)
 {
   auto const& services_pset =
     main_pset.get<fhicl::ParameterSet>("services", {});
@@ -182,21 +249,9 @@ art::run_art_common_(fhicl::ParameterSet const& main_pset,
     services_pset.get<fhicl::ParameterSet>("scheduler", {});
 
   // Handle early configuration-debugging
-  if (debug) {
-    if (!debug.stream_is_valid()) {
-      throw Exception(errors::Configuration)
-        << "Unable to write post-processed configuration to specified file "
-        << debug.filename() << ".\n";
-    }
-    if (debug.debug_config()) {
-      std::cerr << debug.banner();
-      debug.stream() << main_pset.to_indented_string(0, debug.print_mode());
-      return 1; // Bail out early
-    } else if (debug.config_out()) {
-      debug.stream() << main_pset.to_indented_string(0, debug.print_mode());
-      mf::LogInfo("ConfigOut") << "Post-processed configuration written to "
-                               << debug.filename() << ".\n";
-    }
+  auto const debug_processing_mode = maybe_output_config(main_pset, scheduler_pset);
+  if (debug_processing_mode == debug_processing::debug_config) {
+    return 1; // Bail out early
   }
 
   //
@@ -248,9 +303,7 @@ art::run_art_common_(fhicl::ParameterSet const& main_pset,
     // It is thus possible that an exception thrown during
     // construction of the EventProcessor object can have nothing to
     // do with a configuration error.
-    if (debug && debug.validate_config()) {
-      std::cerr << debug.banner();
-      debug.stream() << main_pset.to_indented_string(0, debug.print_mode());
+    if (debug_processing_mode == debug_processing::validate_config) {
       return 1; // Bail out early
     }
     if (ep.runToCompletion() == EventProcessor::epSignal) {

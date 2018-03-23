@@ -31,6 +31,10 @@ services: {
       }
    }
    scheduler: {
+      debugConfig: {
+         fileName: "config.out"
+         printMode: "raw"
+      }
       defaultExceptions: false
       errorOnFailureToPut: true
       errorOnMissingConsumes: false

@@ -43,6 +43,10 @@ services: {
       }
    }
    scheduler: {
+      debugConfig: {
+         fileName: "CmdLineTmpDir_w.out"
+         printMode: "raw"
+      }
       errorOnFailureToPut: true
       errorOnMissingConsumes: false
       errorOnSIGINT: true
