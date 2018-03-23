@@ -127,6 +127,11 @@ namespace {
       el_severity = SeverityLevel::kInfo;
     }
 
+    if ((el_location.find("TTree::ReadStream") != npos) &&
+        (el_message.find("Ignoring trailing") == 0)) {
+      el_severity = SeverityLevel::kInfo;
+    }
+
     if (el_severity == SeverityLevel::kInfo) {
       // Don't throw if the message is just informational.
       die = false;
