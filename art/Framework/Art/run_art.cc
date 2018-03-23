@@ -24,6 +24,8 @@
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 
+#include <cassert>
+#include <cstring>
 #include <exception>
 #include <iostream>
 #include <sstream>
@@ -95,11 +97,22 @@ namespace {
                       fhicl::ParameterSet const& scheduler_pset)
   {
     std::underlying_type_t<debug_processing> i{};
-    for (auto const& debugProcessing :
+    for (auto const debugProcessing :
          {"configOut", "debugConfig", "validateConfig"}) {
       auto const j = i++;
       if (!scheduler_pset.has_key(debugProcessing))
         continue;
+
+      // Handle the backwards compatibility case, where "configOut"
+      // was associated with a filename in older configurations.
+      if (scheduler_pset.is_key_to_atom(debugProcessing)) {
+        assert(std::strcmp(debugProcessing, "configOut") == 0);
+        auto const filename = scheduler_pset.get<std::string>("configOut");
+        std::cerr << banner(filename);
+        auto os = make_ostream_handle(filename);
+        os << main_pset.to_indented_string(0, fhicl::detail::print_mode::raw);
+        return debug_processing::config_out;
+      }
 
       auto const& debug_table =
         scheduler_pset.get<fhicl::ParameterSet>(debugProcessing);
