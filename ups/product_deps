@@ -22,6 +22,19 @@ c2:debug	c2:debug        c2:debug
 c2:prof		c2:prof		c2:prof
 end_qualifier_list
 
+table_fragment_begin
+    sourceRequired(${ART_FQ_DIR}/bin/art_completions, NO_UPS_ENV)
+    sourceRequired(${ART_FQ_DIR}/bin/nova_completions, NO_UPS_ENV)
+    sourceRequired(${ART_FQ_DIR}/bin/lar_completions, NO_UPS_ENV)
+    sourceRequired(${ART_FQ_DIR}/bin/gm2_completions, NO_UPS_ENV)
+    sourceRequired(${ART_FQ_DIR}/bin/mu2e_completions, NO_UPS_ENV)
+    sourceRequired(${ART_FQ_DIR}/bin/sam_metadata_dumper_completions, NO_UPS_ENV)
+    sourceRequired(${ART_FQ_DIR}/bin/product_sizes_dumper_completions, NO_UPS_ENV)
+    sourceRequired(${ART_FQ_DIR}/bin/config_dumper_completions, NO_UPS_ENV)
+    sourceRequired(${ART_FQ_DIR}/bin/count_events_completions, NO_UPS_ENV)
+    sourceRequired(${ART_FQ_DIR}/bin/file_info_dumper_completions, NO_UPS_ENV)
+table_fragment_end
+
 # Local Variables:
 # tab-width: 8
 # End:

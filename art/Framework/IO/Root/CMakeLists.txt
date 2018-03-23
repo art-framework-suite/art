@@ -109,5 +109,11 @@ art_make_exec(NAME file_info_dumper
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )
 
+cet_make_completions(product_sizes_dumper)
+cet_make_completions(config_dumper)
+cet_make_completions(sam_metadata_dumper)
+cet_make_completions(count_events)
+cet_make_completions(file_info_dumper)
+
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

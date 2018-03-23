@@ -101,6 +101,12 @@ art_exec(lar_ut art_ut artapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 art_exec(mu2e_ut art_ut mu2eapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 art_exec(nova_ut art_ut artapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
+cet_make_completions(art)
+cet_make_completions(gm2)
+cet_make_completions(lar)
+cet_make_completions(mu2e)
+cet_make_completions(nova)
+
 art_make_exec(NAME check_libs
   SOURCE ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc
   LIBRARIES
