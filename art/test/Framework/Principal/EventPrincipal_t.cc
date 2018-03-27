@@ -157,9 +157,7 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
 
   auto entryDescriptionPtr = std::make_shared<art::Parentage>();
   auto productProvenancePtr = std::make_unique<art::ProductProvenance const>(
-    pid,
-    art::productstatus::present(),
-    entryDescriptionPtr);
+    pid, art::productstatus::present(), entryDescriptionPtr);
 
   auto* process = gf().processConfigurations_[tag];
   BOOST_REQUIRE(process);
