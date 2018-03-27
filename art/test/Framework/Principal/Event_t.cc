@@ -296,6 +296,16 @@ EventTestFixture::gf()
 
 BOOST_FIXTURE_TEST_SUITE(Event_t, EventTestFixture)
 
+// This test doesn't belong here right now, but it will whenever we go
+// to MT art where product descriptions will be fetched from the
+// art::Event.
+BOOST_AUTO_TEST_CASE(badProductID)
+{
+  auto const pid = ProductID::invalid();
+  auto const tag = ProductMetaData::instance().inputTag(pid);
+  BOOST_CHECK(tag.empty());
+}
+
 BOOST_AUTO_TEST_CASE(emptyEvent)
 {
   BOOST_REQUIRE(currentEvent_.get());
