@@ -135,7 +135,7 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
 {
   (void)gf(); // Bootstrap MasterProductRegistry creation first time out.
 
-  art::EventID eventID(101, 87, 20);
+  art::EventID const eventID{101, 87, 20};
 
   // Making a functional EventPrincipal is not trivial, so we do it
   // all here.
@@ -144,30 +144,33 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   std::unique_ptr<art::EDProduct> product =
     std::make_unique<art::Wrapper<arttest::DummyProduct>>();
 
-  std::string tag("rick");
+  std::string const tag{"rick"};
   auto i = gf().branchKeys_.find(tag);
   BOOST_REQUIRE(i != gf().branchKeys_.end());
 
-  auto it = art::ProductMetaData::instance().productList().find(i->second);
+  auto const& pmd = art::ProductMetaData::instance();
+  auto it = pmd.productList().find(i->second);
 
-  art::BranchDescription const& branchFromRegistry(it->second);
+  art::BranchDescription const& branchFromRegistry{it->second};
+  auto const pid = branchFromRegistry.productID();
+  BOOST_CHECK_EQUAL(pmd.inputTag(pid), branchFromRegistry.inputTag());
 
   auto entryDescriptionPtr = std::make_shared<art::Parentage>();
   auto productProvenancePtr = std::make_unique<art::ProductProvenance const>(
-    branchFromRegistry.productID(),
+    pid,
     art::productstatus::present(),
     entryDescriptionPtr);
 
-  art::ProcessConfiguration* process = gf().processConfigurations_[tag];
+  auto* process = gf().processConfigurations_[tag];
   BOOST_REQUIRE(process);
-  art::Timestamp now(1234567UL);
-  art::RunAuxiliary runAux{eventID.run(), now, now};
+  art::Timestamp const now{1234567UL};
+  art::RunAuxiliary const runAux{eventID.run(), now, now};
   auto rp = std::make_unique<art::RunPrincipal>(runAux, *process, nullptr);
-  art::SubRunAuxiliary subRunAux{rp->run(), eventID.subRun(), now, now};
+  art::SubRunAuxiliary const subRunAux{rp->run(), eventID.subRun(), now, now};
   auto srp =
     std::make_unique<art::SubRunPrincipal>(subRunAux, *process, nullptr);
   srp->setRunPrincipal(rp.get());
-  art::EventAuxiliary eventAux(eventID, now, true);
+  art::EventAuxiliary const eventAux{eventID, now, true};
   pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process, nullptr);
   pEvent_->setSubRunPrincipal(srp.get());
   pEvent_->put(

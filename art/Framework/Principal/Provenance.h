@@ -82,7 +82,7 @@ public:
   InputTag
   inputTag() const
   {
-    return InputTag{moduleLabel(), productInstanceName(), processName()};
+    return productDescription().inputTag();
   }
 
   // Metadata about the product's origin

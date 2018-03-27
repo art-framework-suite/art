@@ -14,6 +14,7 @@
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/type_aliases.h"
+#include "canvas/Utilities/InputTag.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <ostream>
@@ -72,7 +73,6 @@ namespace art {
     // Accessors: this is the facade presented by ProductMetaData for
     // the MasterProductRegistry.
 
-    // MT-FIXME: Handing out reference!
     ProductList const&
     productList() const
     {
@@ -92,6 +92,18 @@ namespace art {
     productProduced(BranchType const which) const
     {
       return mpr_->productProduced(which);
+    }
+
+    InputTag
+    inputTag(art::ProductID const pid) const
+    {
+      for (auto const& pr : mpr_->productList()) {
+        auto const& pd = pr.second;
+        if (pd.productID() == pid) {
+          return pd.inputTag();
+        }
+      }
+      return art::InputTag{};
     }
 
   private:
