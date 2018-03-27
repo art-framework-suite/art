@@ -48,7 +48,7 @@
 
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 
 #include <iostream>
 #include <string>

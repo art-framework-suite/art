@@ -4,7 +4,7 @@
 
 #include "art/Framework/Core/CPCSentry.h"
 #include "art/Framework/Principal/CurrentProcessingContext.h"
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 
 int
 work()

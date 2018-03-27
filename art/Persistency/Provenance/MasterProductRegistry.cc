@@ -3,7 +3,7 @@
 
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "cetlib/assert_only_one_thread.h"
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 
 #include <cassert>
 #include <ostream>
