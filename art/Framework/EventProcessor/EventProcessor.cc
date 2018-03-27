@@ -193,9 +193,7 @@ void
 art::EventProcessor::initSchedules_(ParameterSet const& pset)
 {
   // Initialize TBB with desired number of threads.
-  int const num_threads =
-    pset.get<int>("services.scheduler.num_threads",
-                  tbb::task_scheduler_init::default_num_threads());
+  auto const num_threads = pset.get<int>("services.scheduler.num_threads");
   tbbManager_.initialize(num_threads);
   mf::LogInfo("MTdiagnostics")
     << "TBB has been configured to use a maximum of "

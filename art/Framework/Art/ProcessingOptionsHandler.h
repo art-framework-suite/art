@@ -20,7 +20,9 @@ namespace art {
                          fhicl::intermediate_table& raw_config) override;
     bool rethrowDefault_;
   };
-}
+
+} // namespace art
+
 #endif /* art_Framework_Art_ProcessingOptionsHandler_h */
 
 // Local Variables:

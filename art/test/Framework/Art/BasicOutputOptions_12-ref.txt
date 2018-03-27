@@ -48,6 +48,7 @@ services: {
       errorOnFailureToPut: true
       errorOnMissingConsumes: false
       errorOnSIGINT: true
+      num_threads: 1
    }
 }
 source: {

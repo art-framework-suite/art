@@ -18,7 +18,8 @@ BOOST_AUTO_TEST_CASE(NoConfig)
 BOOST_AUTO_TEST_CASE(testHelp)
 {
   char const* strings[] = {"artapp_t", "--help"};
-  BOOST_REQUIRE(artapp(2, const_cast<char**>(strings)) == art::detail::info_success());
+  BOOST_REQUIRE(artapp(2, const_cast<char**>(strings)) ==
+                art::detail::info_success());
 }
 
 BOOST_AUTO_TEST_CASE(testBadConfigOption)

@@ -32,32 +32,42 @@ art::BasicOptionsHandler::BasicOptionsHandler(bpo::options_description& desc,
                                               cet::filepath_maker& maker)
   : help_desc_{desc}, maker_{maker}
 {
-  desc.add_options()("help,h", "produce help message")(
+  auto options = desc.add_options();
+  add_opt(options, "help,h", "produce help message");
+  add_opt(
+    options,
     "version",
     ("Print art version (" + pretty_version(art::getReleaseVersion()) + ")")
-      .c_str())("config,c", bpo::value<std::string>(), "Configuration file.")(
-    "process-name", bpo::value<std::string>(), "art process name.")(
+      .c_str());
+  add_opt(
+    options, "config,c", bpo::value<std::string>(), "Configuration file.");
+  add_opt(
+    options, "process-name", bpo::value<std::string>(), "art process name.");
+  add_opt(
+    options,
     "print-available",
     bpo::value<std::string>(),
     ("List all available plugins with the provided suffix.  Choose from:"s +
      Suffixes::print())
-      .c_str())(
-    "print-available-modules",
-    "List all available modules that can be invoked in a FHiCL file.")(
-    "print-available-services",
-    "List all available services that can be invoked in a FHiCL file.")(
-    "print-description",
-    bpo::value<std::vector<std::string>>()->multitoken(),
-    "Print description of specified module, service, source, or other plugin "
-    "(multiple OK)."
-    "  Argument can be a regular expression used to match the plugin "
-    "specification."
-    "  To narrow the search to plugins with a particular suffix, preface the "
-    "regular expression"
-    "with the suffix (e.g. service:TFileService).")(
-    "status-bar",
-    "Provide status bar that reports the progress of retrieving "
-    "plugin information for a 'print-available' command.");
+      .c_str());
+  add_opt(options,
+          "print-available-modules",
+          "List all available modules that can be invoked in a FHiCL file.");
+  add_opt(options,
+          "print-available-services",
+          "List all available services that can be invoked in a FHiCL file.");
+  add_opt(options,
+          "print-description",
+          bpo::value<std::vector<std::string>>()->multitoken(),
+          "Print description of specified module, service, source, or other "
+          "plugin (multiple OK).  Argument can be a regular expression used "
+          "to match the plugin specification.  To narrow the search to "
+          "plugins with a particular suffix, preface the regular expression"
+          "with the suffix (e.g. service:TFileService).");
+  add_opt(options,
+          "status-bar",
+          "Provide status bar that reports the progress of retrieving "
+          "plugin information for a 'print-available' command.");
 }
 
 int

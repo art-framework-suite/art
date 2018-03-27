@@ -7,6 +7,7 @@
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/parse.h"
+#include "tbb/task_scheduler_init.h"
 
 #include <string>
 
@@ -44,30 +45,47 @@ namespace {
       config.put(fhicl_key, flag_value);
     }
   }
-}
+
+} // namespace
 
 art::ProcessingOptionsHandler::ProcessingOptionsHandler(
   bpo::options_description& desc,
   bool const rethrowDefault)
   : rethrowDefault_{rethrowDefault}
 {
+
   bpo::options_description processing_options{"Processing options"};
-  processing_options.add_options()("default-exceptions",
-                                   "Some exceptions may be handled differently "
-                                   "by default (e.g. ProductNotFound).")(
-    "rethrow-default", "All exceptions default to rethrow.")(
-    "rethrow-all",
-    "All exceptions overridden to rethrow (cf rethrow-default).")(
+  auto options = processing_options.add_options();
+  // Note: tbb wants nthreads to be an int!
+  add_opt(options,
+          "nthreads",
+          bpo::value<int>()->default_value(1),
+          "Number of threads to use for event processing (default = 1, 0 = all "
+          "cores)");
+  add_opt(options,
+          "default-exceptions",
+          "Some exceptions may be handled differently by default (e.g. "
+          "ProductNotFound).");
+  add_opt(options, "rethrow-default", "All exceptions default to rethrow.");
+  add_opt(options,
+          "rethrow-all",
+          "All exceptions overridden to rethrow (cf rethrow-default).");
+  add_opt(
+    options,
     "errorOnFailureToPut",
     bpo::value<bool>()->implicit_value(true, "true"),
-    "Global flag that controls the behavior upon failure to 'put' a product "
-    "(declared by 'produces') onto the Event.  If 'true', per-module flags "
-    "can override the value of the global flag.")(
+    "Global flag that controls the behavior upon failure to 'put' a "
+    "product (declared by 'produces') onto the Event.  If 'true', per-module "
+    "flags can override the value of the global flag.");
+  add_opt(
+    options,
     "errorOnMissingConsumes",
     bpo::value<bool>()->implicit_value(true, "true"),
-    "If 'true', then an exception will be thrown if any module attempts to "
-    "retrieve a product via the 'getBy*' interface without specifying the "
-    "appropriate 'consumes<T>(...)' statement in the module constructor.")(
+    "If 'true', then an exception will be thrown if any module attempts "
+    "to retrieve a product via the 'getBy*' interface without specifying "
+    "the appropriate 'consumes<T>(...)' statement in the module constructor.");
+  add_opt(
+    options,
     "errorOnSIGINT",
     bpo::value<bool>()->implicit_value(true, "true"),
     "If 'true', a signal received from the user yields an art return code "
@@ -81,8 +99,16 @@ art::ProcessingOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
   if ((vm.count("rethrow-all") + vm.count("rethrow-default") +
        vm.count("no-rethrow-default")) > 1) {
     throw Exception(errors::Configuration)
-      << "Options --default-exceptions, --rethrow-all and --rethrow-default \n"
+      << "Options --default-exceptions, --rethrow-all, and --rethrow-default "
+         "\n"
       << "are mutually incompatible.\n";
+  }
+
+  // No need to check for presence of 'nthreads' since it has a
+  // default value.
+  if (vm["nthreads"].as<int>() < 0) {
+    throw Exception(errors::Configuration)
+      << "Option --nthreads must greater than or equal to 0.";
   }
   return 0;
 }
@@ -120,5 +146,10 @@ art::ProcessingOptionsHandler::doProcessOptions(
             vm,
             raw_config,
             true);
+
+  auto const nt = vm["nthreads"].as<int>();
+  auto const nthreads =
+    (nt == 0) ? tbb::task_scheduler_init::default_num_threads() : nt;
+  raw_config.put(fhicl_key(scheduler_key, "num_threads"), nthreads);
   return 0;
 }

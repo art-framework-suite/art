@@ -25,7 +25,19 @@ namespace art {
     virtual int doProcessOptions(bpo::variables_map const& vm,
                                  fhicl::intermediate_table& raw_config) = 0;
   };
-}
+
+  // Clang-format has trouble with the 'add_options()()()...()'
+  // pattern.  We therefore provide a template to facilitate a better
+  // format.
+  template <typename T, typename... Args>
+  void
+  add_opt(T& t, Args&&... args)
+  {
+    t(std::forward<Args>(args)...);
+  }
+
+} // namespace art
+
 #endif /* art_Framework_Art_OptionsHandler_h */
 
 // Local Variables:
