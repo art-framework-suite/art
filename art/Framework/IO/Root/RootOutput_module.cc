@@ -40,6 +40,10 @@
 
 using std::string;
 
+namespace {
+  std::string const dev_null{"/dev/null"};
+}
+
 namespace art {
   class RootOutput;
   class RootOutputFile;
@@ -120,6 +124,8 @@ public:
   void endRun(RunPrincipal const&) override;
 
 private:
+  std::string fileNameAtOpen() const;
+  std::string fileNameAtClose(std::string const& currentFileName);
   std::string const& lastClosedFileName() const override;
   void openFile(FileBlock const&) override;
   void respondToOpenInputFile(FileBlock const&) override;
@@ -435,8 +441,7 @@ art::RootOutput::finishEndFile()
   rootOutputFile_->writeTTrees();
   rootOutputFile_.reset();
   fstats_.recordFileClose();
-  lastClosedFileName_ =
-    fRenamer_.maybeRenameFile(currentFileName, filePattern_);
+  lastClosedFileName_ = fileNameAtClose(currentFileName);
   detail::logFileAction("Closed output file ", lastClosedFileName_);
   rpm_.invoke(&ResultsProducer::doClear);
 }
@@ -506,7 +511,7 @@ art::RootOutput::doOpenFile()
   }
   rootOutputFile_ =
     std::make_unique<RootOutputFile>(this,
-                                     unique_filename(tmpDir_ + "/RootOutput"),
+                                     fileNameAtOpen(),
                                      fileProperties_,
                                      compressionLevel_,
                                      saveMemoryObjectThreshold_,
@@ -518,6 +523,21 @@ art::RootOutput::doOpenFile()
                                      fastCloningEnabled_);
   fstats_.recordFileOpen();
   detail::logFileAction("Opened output file with pattern ", filePattern_);
+}
+
+string
+art::RootOutput::fileNameAtOpen() const
+{
+  return filePattern_ == dev_null ? dev_null :
+                                    unique_filename(tmpDir_ + "/RootOutput");
+}
+
+string
+art::RootOutput::fileNameAtClose(std::string const& currentFileName)
+{
+  return filePattern_ == dev_null ?
+           dev_null :
+           fRenamer_.maybeRenameFile(currentFileName, filePattern_);
 }
 
 string const&

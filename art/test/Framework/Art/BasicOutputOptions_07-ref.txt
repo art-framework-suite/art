@@ -1,3 +1,10 @@
+outputs: {
+   o1: {
+      fileName: "/dev/null"
+      module_label: "o1"
+      module_type: "RootOutput"
+   }
+}
 physics: {
    analyzers: {
       a1: {
@@ -11,10 +18,15 @@ physics: {
    }
    end_paths: [
       "ep1",
+      "ep2",
       "ep3"
    ]
    ep1: [
+      "o1",
       "a1"
+   ]
+   ep2: [
+      "o1"
    ]
    ep3: [
       "a2"

@@ -24,6 +24,10 @@
 #include "TFile.h"
 #include "TROOT.h"
 
+namespace {
+  std::string const dev_null{"/dev/null"};
+}
+
 using namespace std;
 using art::TFileService;
 using fhicl::ParameterSet;
@@ -128,12 +132,28 @@ TFileService::setDirectoryName_(ModuleDescription const& desc)
   descr_ += ") folder";
 }
 
+std::string
+TFileService::fileNameAtOpen_()
+{
+  if (filePattern_ == dev_null)
+    return dev_null;
+  return unique_filename(
+    (tmpDir_ == default_tmpDir ? parent_path(filePattern_) : tmpDir_) +
+    "/TFileService");
+}
+
+std::string
+TFileService::fileNameAtClose_(std::string const& filename)
+{
+  return filePattern_ == dev_null ?
+           dev_null :
+           fRenamer_.maybeRenameFile(filename, filePattern_);
+}
+
 void
 TFileService::openFile_()
 {
-  uniqueFilename_ = unique_filename(
-    (tmpDir_ == default_tmpDir ? parent_path(filePattern_) : tmpDir_) +
-    "/TFileService");
+  uniqueFilename_ = fileNameAtOpen_();
   assert(file_ == nullptr && "TFile pointer should always be zero here!");
   beginTime_ = std::chrono::steady_clock::now();
   file_ = new TFile{uniqueFilename_.c_str(), "RECREATE"};
@@ -153,7 +173,7 @@ TFileService::closeFile_()
   file_ = nullptr;
   status_ = OutputFileStatus::Closed;
   fstats_.recordFileClose();
-  lastClosedFile_ = fRenamer_.maybeRenameFile(uniqueFilename_, filePattern_);
+  lastClosedFile_ = fileNameAtClose_(uniqueFilename_);
 }
 
 void

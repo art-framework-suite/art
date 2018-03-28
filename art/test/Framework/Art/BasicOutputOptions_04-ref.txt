@@ -1,3 +1,15 @@
+outputs: {
+   out: {
+      fileName: "/dev/null"
+      module_label: "out"
+      module_type: "RootOutput"
+   }
+}
+physics: {
+   injected_end_path_1: [
+      "out"
+   ]
+}
 process_name: "DUMMY"
 services: {
    CatalogInterface: {

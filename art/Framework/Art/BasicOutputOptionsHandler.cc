@@ -128,15 +128,9 @@ namespace {
     auto const b = outputs.begin(), e = outputs.end();
     for (auto i = b; i != e; ++i) {
       auto& output = *i;
-      bool const want_output = (output != "/dev/null");
       bool new_path_entry(false);
       auto const outputsKey = "outputs"s;
-      if (want_output) {
-        ensureTable(raw_config, outputsKey);
-      } else if (!exists_outside_prolog(raw_config, outputsKey)) {
-        // Nothing to do.
-        return;
-      }
+      ensureTable(raw_config, outputsKey);
 
       auto& outputs_table(raw_config.get<table_t&>(outputsKey));
       std::smatch splitResult;
@@ -157,30 +151,19 @@ namespace {
         streamName = "out"s;
       }
 
-      if (outputs_table.empty() && !want_output) {
-        // Nothing to do.
-      } else if (outputs_table.size() > 1ull && splitResult.size() == 0) {
+      if (outputs_table.size() > 1ull && splitResult.empty()) {
         throw art::Exception(art::errors::Configuration)
           << "Output configuration is ambiguous: configuration has "
           << "multiple output modules. Cannot decide where to add "
           << "specified output filename " << output
           << ".\nUse stream-specification (\"label:fileName\") to resolve the "
              "ambiguity.";
-      } else {
-        // Empty.
       }
 
       if (outputs_table.find(streamName) == outputs_table.cend()) {
         new_path_entry = true;
         raw_config.put(outputsKey + '.' + streamName + '.' + "module_type",
                        "RootOutput");
-      }
-      if (!want_output) {
-        // Remove this from paths.
-        removeFromEndPaths(raw_config, streamName);
-        // Remove outputs entrirely.
-        raw_config.erase(outputsKey);
-        return;
       }
       std::string out_table_path(outputsKey);
       out_table_path += '.' + streamName;
