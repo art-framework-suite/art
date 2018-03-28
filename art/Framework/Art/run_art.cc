@@ -265,8 +265,7 @@ namespace art {
     //
     // Start the messagefacility
     //
-    mf::MessageDrop::jobMode = std::string("analysis");
-    mf::MessageDrop::instance()->iteration = std::string("JobSetup");
+    mf::SetIteration("JobSetup");
     try {
       mf::StartMessageFacility(
         services_pset.get<fhicl::ParameterSet>("message", {}));

@@ -635,7 +635,7 @@ cet_test(ProductMix_r1c1 HANDBUILT
   fcl/ProductMix_r1.fcl
   fcl/ProductMix_r1c.fcl
   TEST_PROPERTIES DEPENDS ProductMix_w
-  PASS_REGULAR_EXPRESSION "MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       1.*TrigReport Events total = 400 passed = 400 failed = 0"
+  PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0"
 )
 
 # Mix the events from ProductMix_w, testing that things behave properly
@@ -732,7 +732,7 @@ SET_TESTS_PROPERTIES(
   ProductMix_r1c2
   ProductMix_r1c3
   PROPERTIES
-  PASS_REGULAR_EXPRESSION "MixingInputWrap      -w MixFilterTest[A-Za-z:]*                       2.*TrigReport Events total = 400 passed = 400 failed = 0"
+  PASS_REGULAR_EXPRESSION "TrigReport Events total = 400 passed = 400 failed = 0"
   )
 
 # Mix the events from ProductMix_w, testing that we correctly detect an
