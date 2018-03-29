@@ -298,9 +298,7 @@ namespace art {
     auto& prodList = productListHolder_.productList_;
     dropOnInput(groupSelectorRules, dropDescendants, prodList);
 
-    mpr.updateFromInputFile(prodList);
     auto availableProducts = fillPerBranchTypePresenceFlags(prodList);
-
     // Add branches
     for (auto& prod : prodList) {
       auto& pd = prod.second;
@@ -313,6 +311,8 @@ namespace art {
       pd.setValidity(validity);
       treePointers_[pd.branchType()]->addBranch(prod.first, pd);
     }
+
+    mpr.updateFromInputFile(prodList);
     auto const& descriptions = make_product_descriptions(prodList);
     presentProducts_ = ProductTables{descriptions, availableProducts};
 

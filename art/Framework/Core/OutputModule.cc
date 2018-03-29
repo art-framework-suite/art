@@ -82,12 +82,10 @@ art::OutputModule::doSelectProducts(ProductList const& productList)
   for (auto const& val : productList) {
     BranchDescription const& pd = val.second;
     auto const bt = pd.branchType();
-    if (pd.transient()) {
-      // Transient, skip it.
+    if (pd.transient() || pd.dropped()) {
       continue;
     }
     if (selected(pd)) {
-      // Selected, keep it.
       keptProducts_[bt].push_back(&pd);
       continue;
     }

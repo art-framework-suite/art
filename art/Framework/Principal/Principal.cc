@@ -420,12 +420,16 @@ Principal::deferredGetter_(ProductID const pid) const
   return deferredGetters_[pid].get();
 }
 
+namespace {
+  static auto const invalid_rs = RangeSet::invalid();
+}
+
 OutputHandle
 Principal::getForOutput(ProductID const pid, bool const resolveProd) const
 {
   auto const& g = getResolvedGroup(pid, resolveProd);
   if (g.get() == nullptr) {
-    return OutputHandle{RangeSet::invalid()};
+    return OutputHandle{invalid_rs};
   }
 
   auto const& pd = g->productDescription();
@@ -433,16 +437,20 @@ Principal::getForOutput(ProductID const pid, bool const resolveProd) const
       ((g->anyProduct() == nullptr) || !g->anyProduct()->isPresent()) &&
       (presentFromSource(pid) || pd.produced()) &&
       productstatus::present(g->productProvenancePtr()->productStatus())) {
-    throw Exception(errors::LogicError, "Principal::getForOutput\n")
-      << "A product with a status of 'present' is not actually present.\n"
-      << "The branch name is " << g->productDescription().branchName()
-      << "\nContact a framework developer.\n";
+    // A product with a status of 'present' is not actually
+    // present. Yes, believe it or not, this has happened.  There are
+    // some files where the branch is present in the file, but all the
+    // products are marked not present.  This situation should have
+    // never happened, but since it has, and since it is not a fatal
+    // error (the product is not present, no matter what), we return
+    // an invalid OutputHandle.
+    return OutputHandle{invalid_rs};
   }
   if (!g->anyProduct() && !g->productProvenancePtr()) {
     return OutputHandle{g->rangeOfValidity()};
   }
   return OutputHandle{g->anyProduct(),
-                      &g->productDescription(),
+                      &pd,
                       g->productProvenancePtr(),
                       g->rangeOfValidity()};
 }
