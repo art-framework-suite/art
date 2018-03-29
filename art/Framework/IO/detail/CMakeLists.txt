@@ -7,7 +7,6 @@ art_make_library(
   LIBRARIES
   ${Boost_REGEX_LIBRARY}
   MF_MessageLogger
-  MF_Utilities
   canvas
   cetlib_except
   )

@@ -17,7 +17,6 @@ endif()
 art_make_library(SOURCE ${art_Utilities_sources}
   LIBRARIES canvas
   MF_MessageLogger
-  MF_Utilities
   fhiclcpp
   cetlib
   cetlib_except
