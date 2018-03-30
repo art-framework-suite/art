@@ -225,12 +225,39 @@ art::detail::verifyPtrCollection(iterator const beg,
   return true;
 }
 
+namespace art {
+  namespace detail {
+    template <typename CONTAINER>
+    struct TwoArgInsert {
+      static void concatenate(CONTAINER& out, CONTAINER const& in)
+      {
+        out.insert(in.begin(), in.end());
+      }
+    };
+
+    template <typename T>
+    struct TwoArgInsert<cet::map_vector<T>> {
+      using mv_t = cet::map_vector<T>;
+      static void concatenate(mv_t& out, mv_t in)
+      {
+        // The offset is necessary for concatenating map_vectors so
+        // that all elements will be preserved.
+        auto const d = detail::mix_offset<mv_t>::offset(out);
+        for (auto& pr : in) {
+          pr.first = cet::map_vector_key{pr.first.asInt() + d};
+        }
+        out.insert(in.begin(), in.end());
+      }
+    };
+  }
+}
+
 // I.
 template <typename CONTAINER>
 std::enable_if_t<art::detail::has_two_arg_insert<CONTAINER>::value>
 art::concatContainers(CONTAINER& out, CONTAINER const& in)
 {
-  out.insert(in.begin(), in.end());
+  detail::TwoArgInsert<CONTAINER>::concatenate(out, in);
 }
 // II.
 template <typename CONTAINER>
