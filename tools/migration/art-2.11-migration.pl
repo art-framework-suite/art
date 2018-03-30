@@ -5,6 +5,7 @@ use vars qw(%header_list);
 BEGIN {
     %header_list = (
         "cetlib/coded_exception.h" => "cetlib_except/coded_exception.h",
+        "cetlib/demangle.h" => "cetlib_except/demangle.h",
         "cetlib/exception.h" => "cetlib_except/exception.h",
         "cetlib/exception_collector.h" => "cetlib_except/exception_collector.h"
         );
