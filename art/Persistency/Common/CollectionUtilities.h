@@ -129,22 +129,14 @@ namespace art {
 
     template <typename C>
     struct mix_offset {
-      static size_t (C::*offset)() const;
+      static size_t offset(C const& c) { return c.size(); }
     };
 
     template <typename P>
     struct mix_offset<cet::map_vector<P>> {
-      static size_t (cet::map_vector<P>::*offset)() const;
+      static size_t offset(cet::map_vector<P> const& mv) { return mv.delta(); }
     };
   }
-
-  template <typename C>
-  size_t (C::*art::detail::mix_offset<C>::offset)() const = &C::size;
-
-  template <typename P>
-  size_t (
-    cet::map_vector<P>::*art::detail::mix_offset<cet::map_vector<P>>::offset)()
-    const = &cet::map_vector<P>::delta;
 
   // Append container in to container out.
   // I.
@@ -210,9 +202,9 @@ art::detail::verifyPtrCollection(
 // B.
 template <typename iterator>
 bool
-art::detail::verifyPtrCollection(iterator beg,
-                                 iterator end,
-                                 art::ProductID id,
+art::detail::verifyPtrCollection(iterator const beg,
+                                 iterator const end,
+                                 art::ProductID const id,
                                  art::EDProductGetter const* getter)
 {
   if (beg == end)
@@ -238,7 +230,7 @@ template <typename CONTAINER>
 std::enable_if_t<art::detail::has_two_arg_insert<CONTAINER>::value>
 art::concatContainers(CONTAINER& out, CONTAINER const& in)
 {
-  (void)out.insert(in.begin(), in.end());
+  out.insert(in.begin(), in.end());
 }
 // II.
 template <typename CONTAINER>
@@ -277,14 +269,13 @@ art::flattenCollections(std::vector<COLLECTION const*> const& in,
 {
   offsets.clear();
   offsets.reserve(in.size());
-  typename COLLECTION::size_type current_offset = 0;
+  typename COLLECTION::size_type current_offset{};
   for (auto collptr : in) {
-    if (collptr != nullptr) {
-      typename COLLECTION::size_type delta =
-        (collptr->*detail::mix_offset<COLLECTION>::offset)();
-      offsets.push_back(current_offset);
-      current_offset += delta;
-    }
+    if (collptr == nullptr) continue;
+
+    auto const delta = detail::mix_offset<COLLECTION>::offset(*collptr);
+    offsets.push_back(current_offset);
+    current_offset += delta;
   }
   flattenCollections<COLLECTION>(in, out); // 1.
 }

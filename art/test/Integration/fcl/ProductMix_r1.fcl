@@ -25,9 +25,7 @@ physics:
   }
 
   p1: [ mixFilter ]
-  trigger_paths: [ p1 ]
   e1: [ mixAnalyzer, out ]
-  end_paths: [ e1 ]
 }
 
 outputs:
