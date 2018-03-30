@@ -36,8 +36,8 @@ public:
 
 private:
   using mv_t = cet::map_vector<unsigned int>;
-  using mvv_t= mv_t::value_type  ;
-  using mvm_t= mv_t::mapped_type ;
+  using mvv_t = mv_t::value_type;
+  using mvm_t = mv_t::mapped_type;
 
   // Declare member data here.
   size_t eventCounter_{};
@@ -75,8 +75,7 @@ arttest::MixProducer::produce(art::Event& e)
 
   // SpottyProduct
   if (e.event() % 100) {
-    e.put(std::make_unique<IntProduct>(eventCounter_),
-          "SpottyProductLabel");
+    e.put(std::make_unique<IntProduct>(eventCounter_), "SpottyProductLabel");
   }
 
   // std::string

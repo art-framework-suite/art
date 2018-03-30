@@ -129,12 +129,20 @@ namespace art {
 
     template <typename C>
     struct mix_offset {
-      static size_t offset(C const& c) { return c.size(); }
+      static size_t
+      offset(C const& c)
+      {
+        return c.size();
+      }
     };
 
     template <typename P>
     struct mix_offset<cet::map_vector<P>> {
-      static size_t offset(cet::map_vector<P> const& mv) { return mv.delta(); }
+      static size_t
+      offset(cet::map_vector<P> const& mv)
+      {
+        return mv.delta();
+      }
     };
   }
 
@@ -229,7 +237,8 @@ namespace art {
   namespace detail {
     template <typename CONTAINER>
     struct TwoArgInsert {
-      static void concatenate(CONTAINER& out, CONTAINER const& in)
+      static void
+      concatenate(CONTAINER& out, CONTAINER const& in)
       {
         out.insert(in.begin(), in.end());
       }
@@ -238,7 +247,8 @@ namespace art {
     template <typename T>
     struct TwoArgInsert<cet::map_vector<T>> {
       using mv_t = cet::map_vector<T>;
-      static void concatenate(mv_t& out, mv_t in)
+      static void
+      concatenate(mv_t& out, mv_t in)
       {
         // The offset is necessary for concatenating map_vectors so
         // that all elements will be preserved.
@@ -298,7 +308,8 @@ art::flattenCollections(std::vector<COLLECTION const*> const& in,
   offsets.reserve(in.size());
   typename COLLECTION::size_type current_offset{};
   for (auto collptr : in) {
-    if (collptr == nullptr) continue;
+    if (collptr == nullptr)
+      continue;
 
     auto const delta = detail::mix_offset<COLLECTION>::offset(*collptr);
     offsets.push_back(current_offset);

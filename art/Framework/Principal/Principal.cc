@@ -449,10 +449,8 @@ Principal::getForOutput(ProductID const pid, bool const resolveProd) const
   if (!g->anyProduct() && !g->productProvenancePtr()) {
     return OutputHandle{g->rangeOfValidity()};
   }
-  return OutputHandle{g->anyProduct(),
-                      &pd,
-                      g->productProvenancePtr(),
-                      g->rangeOfValidity()};
+  return OutputHandle{
+    g->anyProduct(), &pd, g->productProvenancePtr(), g->rangeOfValidity()};
 }
 
 cet::exempt_ptr<Group const>
