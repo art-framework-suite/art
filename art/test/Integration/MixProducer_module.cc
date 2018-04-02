@@ -120,7 +120,7 @@ arttest::MixProducer::produce(art::Event& e)
 
   // map_vector, .
   auto mv = std::make_unique<mv_t>();
-  static size_t const mv_size = 5;
+  static size_t constexpr mv_size{5};
   mv->reserve(mv_size);
   for (size_t i = 0; i < mv_size; ++i) {
     (*mv)[cet::map_vector_key(

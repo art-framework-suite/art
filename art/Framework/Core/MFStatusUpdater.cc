@@ -9,13 +9,13 @@
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "messagefacility/MessageService/MessageLoggerQ.h"
 
 #include <sstream>
 #include <string>
 #include <tuple>
 #include <utility>
 
+using namespace std;
 using namespace std::string_literals;
 
 #define MFSU_WATCH_UPDATER(cb)                                                 \
@@ -23,15 +23,12 @@ using namespace std::string_literals;
 
 namespace art {
 
-  MFStatusUpdater::~MFStatusUpdater() {}
+  MFStatusUpdater::~MFStatusUpdater() noexcept = default;
 
   MFStatusUpdater::MFStatusUpdater(ActivityRegistry& areg)
-    : md_(*mf::MessageDrop::instance())
-  //, savedEnabledState_()
   {
     MFSU_WATCH_UPDATER(PostBeginJob);
     MFSU_WATCH_UPDATER(PostEndJob);
-    MFSU_WATCH_UPDATER(JobFailure);
     MFSU_WATCH_UPDATER(PostSourceConstruction);
     MFSU_WATCH_UPDATER(PreSourceEvent);
     MFSU_WATCH_UPDATER(PostSourceEvent);
@@ -83,216 +80,175 @@ namespace art {
 
 #undef MFSU_WATCH_UPDATER
 
-  void
-  MFStatusUpdater::preModuleWithPhase(ModuleDescription const& desc,
-                                      std::string const& phase)
-  {
-    md_.setModuleWithPhase(
-      desc.moduleName(), desc.moduleLabel(), desc.id(), phase);
-    // savedEnabledState_ = mf::setEnabledState(desc.moduleLabel());
-  }
-
-  void
-  MFStatusUpdater::postModuleWithPhase(ModuleDescription const& desc,
-                                       std::string const& phase)
-  {
-    md_.setModuleWithPhase(
-      desc.moduleName(), desc.moduleLabel(), desc.id(), phase);
-    // restoreEnabledState();
-  }
-
-  // void
-  // MFStatusUpdater::
-  // restoreEnabledState()
-  //{
-  //  if (!savedEnabledState_.isValid()) {
-  //    throw Exception(errors::LogicError, "INTERNAL ERROR:")
-  //        << "Art attempted to restore an invalid module state to the message
-  //        facility.\n"
-  //        << "Report the bug at
-  //        https://cdcvs.fnal.gov/redmine/projects/art/issues/new.\n";
-  //  }
-  //  mf::restoreEnabledState(savedEnabledState_);
-  //  savedEnabledState_.reset();
-  //}
-
   MFSU_0_ARG_UPDATER_DEFN(PostBeginJob)
   {
-    md_.setSinglet("PostBeginJob"s);
-    md_.iteration = "BeforeEvents"s;
+    mf::SetModuleName("PostBeginJob"s);
+    mf::SetIteration("BeforeEvents"s);
   }
 
-  MFSU_0_ARG_UPDATER_DEFN(PostEndJob)
-  {
-    md_.setSinglet("PostEndJob"s);
-    mf::MessageLoggerQ::MLqSUM();
-  }
-
-  MFSU_0_ARG_UPDATER_DEFN(JobFailure)
-  {
-    md_.setSinglet("JobFailure"s);
-    mf::MessageLoggerQ::MLqSUM();
-  }
+  MFSU_0_ARG_UPDATER_DEFN(PostEndJob) { mf::SetModuleName("PostEndJob"s); }
 
   MFSU_1_ARG_UPDATER_DEFN(PostSourceConstruction)
   {
-    md_.setSinglet("PostSourceConstruction"s);
-    md_.iteration = "SourceConstruction";
+    mf::SetModuleName("PostSourceConstruction"s);
+    mf::SetIteration("SourceConstruction"s);
   }
 
-  MFSU_0_ARG_UPDATER_DEFN(PreSourceEvent)
-  {
-    md_.setSinglet("SourceEvent"s);
-    // savedEnabledState_ = mf::setEnabledState("source"s);
-  }
+  MFSU_0_ARG_UPDATER_DEFN(PreSourceEvent) { mf::SetModuleName("SourceEvent"s); }
 
   MFSU_1_ARG_UPDATER_DEFN(PostSourceEvent)
   {
-    md_.setSinglet("PostSourceEvent"s);
-    // restoreEnabledState();
+    mf::SetModuleName("PostSourceEvent"s);
   }
 
   MFSU_0_ARG_UPDATER_DEFN(PreSourceSubRun)
   {
-    md_.setSinglet("SourceSubRun"s);
-    // savedEnabledState_ = mf::setEnabledState("source"s);
+    mf::SetModuleName("SourceSubRun"s);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PostSourceSubRun)
   {
-    md_.setSinglet("PostSourceSubRun"s);
-    // restoreEnabledState();
+    mf::SetModuleName("PostSourceSubRun"s);
   }
 
-  MFSU_0_ARG_UPDATER_DEFN(PreSourceRun)
-  {
-    md_.setSinglet("SourceRun"s);
-    // savedEnabledState_ = mf::setEnabledState("source"s);
-  }
+  MFSU_0_ARG_UPDATER_DEFN(PreSourceRun) { mf::SetModuleName("SourceRun"s); }
 
   MFSU_1_ARG_UPDATER_DEFN(PostSourceRun)
   {
-    md_.setSinglet("PostSourceRun"s);
-    // restoreEnabledState();
+    mf::SetModuleName("PostSourceRun"s);
   }
 
-  MFSU_0_ARG_UPDATER_DEFN(PreOpenFile) { md_.setSinglet("OpenFile"s); }
+  MFSU_0_ARG_UPDATER_DEFN(PreOpenFile) { mf::SetModuleName("OpenFile"s); }
 
-  MFSU_1_ARG_UPDATER_DEFN(PostOpenFile) { md_.setSinglet("PostOpenFile"s); }
+  MFSU_1_ARG_UPDATER_DEFN(PostOpenFile) { mf::SetModuleName("PostOpenFile"s); }
 
-  MFSU_0_ARG_UPDATER_DEFN(PreCloseFile) { md_.setSinglet("CloseFile"s); }
+  MFSU_0_ARG_UPDATER_DEFN(PreCloseFile) { mf::SetModuleName("CloseFile"s); }
 
-  MFSU_0_ARG_UPDATER_DEFN(PostCloseFile) { md_.setSinglet("PostCloseFile"s); }
+  MFSU_0_ARG_UPDATER_DEFN(PostCloseFile)
+  {
+    mf::SetModuleName("PostCloseFile"s);
+  }
 
   MFSU_1_ARG_UPDATER_DEFN(PreProcessEvent)
   {
-    md_.setSinglet("ProcessEvent"s);
+    mf::SetModuleName("ProcessEvent"s);
     std::ostringstream os;
     os << arg1.id();
-    md_.iteration = os.str();
+    mf::SetIteration(os.str());
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PostProcessEvent)
   {
-    md_.setSinglet("PostProcessEvent"s);
+    mf::SetModuleName("PostProcessEvent"s);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PreBeginRun)
   {
-    md_.setSinglet("BeginRun"s);
+    mf::SetModuleName("BeginRun"s);
     std::ostringstream os;
     os << arg1.id();
-    md_.iteration = os.str();
+    mf::SetIteration(os.str());
   }
 
-  MFSU_1_ARG_UPDATER_DEFN(PostBeginRun) { md_.setSinglet("PostBeginRun"s); }
+  MFSU_1_ARG_UPDATER_DEFN(PostBeginRun) { mf::SetModuleName("PostBeginRun"s); }
 
   MFSU_2_ARG_UPDATER_DEFN(PreEndRun)
   {
-    md_.setSinglet("EndRun"s);
+    mf::SetModuleName("EndRun"s);
     std::stringstream os;
     os << arg1;
-    md_.iteration = os.str();
+    mf::SetIteration(os.str());
   }
 
-  MFSU_1_ARG_UPDATER_DEFN(PostEndRun) { md_.setSinglet("PostEndRun"s); }
+  MFSU_1_ARG_UPDATER_DEFN(PostEndRun) { mf::SetModuleName("PostEndRun"s); }
 
   MFSU_1_ARG_UPDATER_DEFN(PreBeginSubRun)
   {
-    md_.setSinglet("BeginSubRun"s);
+    mf::SetModuleName("BeginSubRun"s);
     std::ostringstream os;
     os << arg1.id();
-    md_.iteration = os.str();
+    mf::SetIteration(os.str());
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PostBeginSubRun)
   {
-    md_.setSinglet("PostBeginSubRun"s);
+    mf::SetModuleName("PostBeginSubRun"s);
   }
 
   MFSU_2_ARG_UPDATER_DEFN(PreEndSubRun)
   {
-    md_.setSinglet("EndSubRun"s);
+    mf::SetModuleName("EndSubRun"s);
     std::ostringstream os;
     os << arg1;
-    md_.iteration = os.str();
+    mf::SetIteration(os.str());
   }
 
-  MFSU_1_ARG_UPDATER_DEFN(PostEndSubRun) { md_.setSinglet("PostEndSubRun"s); }
+  MFSU_1_ARG_UPDATER_DEFN(PostEndSubRun)
+  {
+    mf::SetModuleName("PostEndSubRun"s);
+  }
 
-  MFSU_1_ARG_UPDATER_DEFN(PreProcessPath) { md_.setPath(arg1, "ProcessPath"s); }
+  MFSU_1_ARG_UPDATER_DEFN(PreProcessPath)
+  {
+    mf::SetModuleName("ProcessPath "s + arg1);
+  }
 
   MFSU_2_ARG_UPDATER_DEFN(PostProcessPath)
   {
-    md_.setPath(arg1, "PostProcessPath"s);
+    mf::SetModuleName("PostProcessPath "s + arg1);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PrePathBeginRun)
   {
-    md_.setPath(arg1, "PathBeginRun"s);
+    mf::SetModuleName("PathBeginRun "s + arg1);
   }
 
   MFSU_2_ARG_UPDATER_DEFN(PostPathBeginRun)
   {
-    md_.setPath(arg1, "PostPathBeginRun"s);
+    mf::SetModuleName("PostPathBeginRun "s + arg1);
   }
 
-  MFSU_1_ARG_UPDATER_DEFN(PrePathEndRun) { md_.setPath(arg1, "PathEndRun"s); }
+  MFSU_1_ARG_UPDATER_DEFN(PrePathEndRun)
+  {
+    mf::SetModuleName("PathEndRun "s + arg1);
+  }
 
   MFSU_2_ARG_UPDATER_DEFN(PostPathEndRun)
   {
-    md_.setPath(arg1, "PostPathEndRun"s);
+    mf::SetModuleName("PostPathEndRun "s + arg1);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PrePathBeginSubRun)
   {
-    md_.setPath(arg1, "PathBeginSubRun"s);
+    mf::SetModuleName("PathBeginSubRun "s + arg1);
   }
 
   MFSU_2_ARG_UPDATER_DEFN(PostPathBeginSubRun)
   {
-    md_.setPath(arg1, "PostPathBeginSubRun"s);
+    mf::SetModuleName("PostPathBeginSubRun "s + arg1);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PrePathEndSubRun)
   {
-    md_.setPath(arg1, "PathEndSubRun"s);
+    mf::SetModuleName("PathEndSubRun "s + arg1);
   }
 
   MFSU_2_ARG_UPDATER_DEFN(PostPathEndSubRun)
   {
-    md_.setPath(arg1, "PostPathEndSubRun"s);
+    mf::SetModuleName("PostPathEndSubRun "s + arg1);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PreModuleConstruction)
   {
-    preModuleWithPhase(arg1, "Construction"s);
-    md_.iteration = "ModuleConstruction";
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@Construction"s);
+    mf::SetIteration("ModuleConstruction"s);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PostModuleConstruction)
   {
-    postModuleWithPhase(arg1, "Construction"s);
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@Construction"s);
   }
 
   MFSU_2_ARG_UPDATER_DEFN(PostBeginJobWorkers)
@@ -302,68 +258,88 @@ namespace art {
 
   MFSU_1_ARG_UPDATER_DEFN(PreModuleBeginJob)
   {
-    preModuleWithPhase(arg1, "BeginJob"s);
-    md_.iteration = "ModuleBeginJob"s;
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@BeginJob"s);
+    mf::SetIteration("ModuleBeginJob"s);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PostModuleBeginJob)
   {
-    postModuleWithPhase(arg1, "BeginJob"s);
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@BeginJob"s);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PreModuleEndJob)
   {
-    preModuleWithPhase(arg1, "EndJob"s);
-    md_.iteration = "ModuleEndJob"s;
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@EndJob"s);
+    mf::SetIteration("ModuleEndJob"s);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PostModuleEndJob)
   {
-    postModuleWithPhase(arg1, "EndJob"s);
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@EndJob"s);
   }
 
-  MFSU_1_ARG_UPDATER_DEFN(PreModule) { preModuleWithPhase(arg1); }
+  MFSU_1_ARG_UPDATER_DEFN(PreModule)
+  {
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@BeginModule"s);
+  }
 
-  MFSU_1_ARG_UPDATER_DEFN(PostModule) { postModuleWithPhase(arg1); }
+  MFSU_1_ARG_UPDATER_DEFN(PostModule)
+  {
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@EndModule"s);
+  }
 
   MFSU_1_ARG_UPDATER_DEFN(PreModuleBeginRun)
   {
-    preModuleWithPhase(arg1, "BeginRun");
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@BeginRun"s);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PostModuleBeginRun)
   {
-    postModuleWithPhase(arg1, "BeginRun");
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@BeginRun"s);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PreModuleEndRun)
   {
-    preModuleWithPhase(arg1, "EndRun");
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@EndRun"s);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PostModuleEndRun)
   {
-    postModuleWithPhase(arg1, "EndRun");
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@EndRun"s);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PreModuleBeginSubRun)
   {
-    preModuleWithPhase(arg1, "BeginSubRun");
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@BeginSubRun"s);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PostModuleBeginSubRun)
   {
-    postModuleWithPhase(arg1, "BeginSubRun");
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@BeginSubRun"s);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PreModuleEndSubRun)
   {
-    preModuleWithPhase(arg1, "EndSubRun");
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@EndSubRun"s);
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PostModuleEndSubRun)
   {
-    postModuleWithPhase(arg1, "EndSubRun");
+    mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
+                      "@EndSubRun"s);
   }
 
 } // namespace art

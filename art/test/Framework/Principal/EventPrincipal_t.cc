@@ -148,20 +148,20 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
     art::productstatus::present(),
     entryDescriptionPtr->parents());
 
-  art::ProcessConfiguration* process = ptf().processConfigurations_[tag];
+  auto* process = ptf().processConfigurations_[tag];
   BOOST_REQUIRE(process);
 
   constexpr art::Timestamp now{1234567UL};
 
-  art::RunAuxiliary runAux{eventID.run(), now, now};
+  art::RunAuxiliary const runAux{eventID.run(), now, now};
   auto rp = std::make_unique<art::RunPrincipal>(runAux, *process, nullptr);
 
-  art::SubRunAuxiliary subRunAux{rp->run(), eventID.subRun(), now, now};
+  art::SubRunAuxiliary const subRunAux{rp->run(), eventID.subRun(), now, now};
   auto srp =
     std::make_unique<art::SubRunPrincipal>(subRunAux, *process, nullptr);
   srp->setRunPrincipal(rp.get());
 
-  art::EventAuxiliary eventAux(eventID, now, true);
+  art::EventAuxiliary const eventAux{eventID, now, true};
   pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process, nullptr);
   pEvent_->setSubRunPrincipal(srp.get());
   pEvent_->enableProductCreation(ptf().producedProducts_);
@@ -169,6 +169,9 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   pEvent_->put(
     *pd, move(productProvenancePtr), move(product), make_unique<RangeSet>());
   BOOST_REQUIRE_EQUAL(pEvent_->size(), 5u);
+
+  auto pdPtr = pEvent_->getProductDescription(i->second);
+  BOOST_REQUIRE_EQUAL(*pd, *pdPtr);
 }
 
 ProductTablesFixture&

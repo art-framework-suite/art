@@ -1013,6 +1013,10 @@ namespace art {
     }
   }
 
+  namespace {
+    static auto const invalid_rs = RangeSet::invalid();
+  }
+
   // Used by RootOutputFile to fetch products being written to disk.
   // Used by FileDumperOutput_module.
   // Used by ProvenanceCheckerOutput_module.
@@ -1045,16 +1049,20 @@ namespace art {
         productstatus::present(
           g->productProvenance()->productStatus()) // provenance says present
     ) {
-      throw Exception(errors::LogicError, "Principal::getForOutput\n")
-        << "A product with a status of 'present' is not actually present.\n"
-        << "The branch name is " << g->productDescription().branchName()
-        << "\nContact a framework developer.\n";
+      // A product with a status of 'present' is not actually
+      // present. Yes, believe it or not, this has happened.  There are
+      // some files where the branch is present in the file, but all the
+      // products are marked not present.  This situation should have
+      // never happened, but since it has, and since it is not a fatal
+      // error (the product is not present, no matter what), we return
+      // an invalid OutputHandle.
+      return OutputHandle{invalid_rs};
     }
     if (!g->anyProduct() && !g->productProvenance()) {
       return OutputHandle{g->rangeOfValidity()};
     }
     return OutputHandle{g->anyProduct(),
-                        &g->productDescription(),
+        &pd,
                         g->productProvenance(),
                         g->rangeOfValidity()};
   }

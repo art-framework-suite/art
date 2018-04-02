@@ -12,8 +12,8 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
-#include "cetlib_except/exception.h"
 #include "cetlib/ostream_handle.h"
+#include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/detail/print_mode.h"
@@ -264,6 +264,7 @@ namespace art {
     // space devoted to per-thread heaps!!!
     mallopt(M_ARENA_MAX, 1);
 #endif
+
     auto const& services_pset =
       main_pset.get<fhicl::ParameterSet>("services", {});
     auto const& scheduler_pset =
@@ -279,8 +280,7 @@ namespace art {
     //
     // Start the messagefacility
     //
-    mf::MessageDrop::jobMode = std::string("analysis");
-    mf::MessageDrop::instance()->iteration = std::string("JobSetup");
+    mf::SetIteration("JobSetup");
     try {
       mf::StartMessageFacility(
         services_pset.get<fhicl::ParameterSet>("message", {}));

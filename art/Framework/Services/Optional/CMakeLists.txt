@@ -27,7 +27,6 @@ simple_plugin(RandomNumberGenerator "service"
   art_Framework_Principal
   art_Persistency_Common
   MF_MessageLogger
-  MF_Utilities
   cetlib
   ${CLHEP})
 

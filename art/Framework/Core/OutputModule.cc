@@ -172,14 +172,12 @@ namespace art {
 
       for (auto const& val : productList) {
         BranchDescription const& pd = val.second;
-        if (pd.transient()) {
-          // Transient, skip it.
+        if (pd.transient() || pd.dropped()) {
           continue;
         }
         if (selected(pd)) {
-          // Selected, keep it.  Here, we take care to merge the
-          // BranchDescription objects if one was already present in the
-          // keptProducts list.
+          // Here, we take care to merge the BranchDescription objects
+          // if one was already present in the keptProducts list.
           auto& keptProducts = keptProducts_[bt];
           auto it = keptProducts.find(pd.productID());
           if (it == end(keptProducts)) {
@@ -192,7 +190,6 @@ namespace art {
           }
           continue;
         }
-        // Newly dropped, skip it.
         hasNewlyDroppedBranch_[bt] = true;
       }
     };

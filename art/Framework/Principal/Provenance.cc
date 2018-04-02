@@ -88,9 +88,7 @@ namespace art {
   InputTag
   Provenance::inputTag() const
   {
-    auto const& pd = productDescription();
-    return InputTag{
-      pd.moduleLabel(), pd.productInstanceName(), pd.processName()};
+    return productDescription().inputTag();
   }
 
   ProductStatus const&

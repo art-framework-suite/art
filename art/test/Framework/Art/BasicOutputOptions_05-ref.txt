@@ -1,5 +1,17 @@
+outputs: {
+   o1: {
+      fileName: "/dev/null"
+      module_label: "o1"
+      module_type: "RootOutput"
+   }
+}
 physics: {
-   end_paths: []
+   end_paths: [
+      "ep"
+   ]
+   ep: [
+      "o1"
+   ]
 }
 process_name: "OptSimpleOut"
 services: {
@@ -38,8 +50,8 @@ services: {
       errorOnFailureToPut: true
       errorOnMissingConsumes: false
       errorOnSIGINT: true
-      nschedules: 1
-      nthreads: 1
+      num_schedules: 1
+      num_threads: 1
    }
 }
 source: {

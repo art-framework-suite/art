@@ -43,6 +43,10 @@
 
 using namespace std;
 
+namespace {
+  std::string const dev_null{"/dev/null"};
+}
+
 namespace art {
 
   class RootOutputFile;
@@ -134,6 +138,8 @@ namespace art {
     void endRun(RunPrincipal const&) override;
 
   private:
+    string fileNameAtOpen() const;
+    string fileNameAtClose(string const& currentFileName);
     string const& lastClosedFileName() const override;
 
     Granularity fileGranularity() const override;
@@ -210,7 +216,7 @@ namespace art {
     RPManager rpm_;
   };
 
-  RootOutput::~RootOutput() {}
+  RootOutput::~RootOutput() = default;
 
   RootOutput::RootOutput(Parameters const& config)
     : OutputModule{config().omConfig, config.get_PSet()}
@@ -458,8 +464,7 @@ namespace art {
     rootOutputFile_->writeTTrees();
     rootOutputFile_.reset();
     fstats_.recordFileClose();
-    lastClosedFileName_ =
-      fRenamer_.maybeRenameFile(currentFileName, filePattern_);
+    lastClosedFileName_ = fileNameAtClose(currentFileName);
     detail::logFileAction("Closed output file ", lastClosedFileName_);
     rpm_.invoke(&ResultsProducer::doClear);
   }
@@ -533,7 +538,7 @@ namespace art {
     }
     rootOutputFile_ =
       std::make_unique<RootOutputFile>(this,
-                                       unique_filename(tmpDir_ + "/RootOutput"),
+                                       fileNameAtOpen(),
                                        fileProperties_,
                                        compressionLevel_,
                                        saveMemoryObjectThreshold_,
@@ -545,6 +550,21 @@ namespace art {
                                        fastCloningEnabled_);
     fstats_.recordFileOpen();
     detail::logFileAction("Opened output file with pattern ", filePattern_);
+  }
+
+  string
+  RootOutput::fileNameAtOpen() const
+  {
+    return filePattern_ == dev_null ? dev_null :
+      unique_filename(tmpDir_ + "/RootOutput");
+  }
+
+  string
+  RootOutput::fileNameAtClose(std::string const& currentFileName)
+  {
+    return filePattern_ == dev_null ?
+      dev_null :
+      fRenamer_.maybeRenameFile(currentFileName, filePattern_);
   }
 
   string const&

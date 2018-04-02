@@ -6,7 +6,6 @@
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "messagefacility/MessageService/MessageDrop.h"
 
 #include <string>
 
@@ -48,16 +47,11 @@ namespace art {
   class MFStatusUpdater {
 
   public:
-    ~MFStatusUpdater();
-
+    ~MFStatusUpdater() noexcept;
     MFStatusUpdater(ActivityRegistry& areg);
-
     MFStatusUpdater(MFStatusUpdater const&) = delete;
-
     MFStatusUpdater(MFStatusUpdater&&) = delete;
-
     MFStatusUpdater& operator=(MFStatusUpdater const&) = delete;
-
     MFStatusUpdater& operator=(MFStatusUpdater&&) = delete;
 
   private:
@@ -137,20 +131,6 @@ namespace art {
     MFSU_1_ARG_UPDATER_DECL(PreModuleEndJob);
     MFSU_1_ARG_UPDATER_DECL(PostModuleEndJob);
     MFSU_0_ARG_UPDATER_DECL(PostEndJob);
-    MFSU_0_ARG_UPDATER_DECL(JobFailure);
-
-  private:
-    void preModuleWithPhase(ModuleDescription const& desc,
-                            std::string const& phase = {});
-    void postModuleWithPhase(ModuleDescription const& desc,
-                             std::string const& phase = {});
-    // void restoreEnabledState();
-
-  private:
-    mf::MessageDrop& md_;
-
-    // mf::EnabledState
-    // savedEnabledState_;
   };
 
 } // namespace art

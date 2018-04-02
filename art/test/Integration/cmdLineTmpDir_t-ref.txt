@@ -50,8 +50,8 @@ services: {
       errorOnFailureToPut: true
       errorOnMissingConsumes: false
       errorOnSIGINT: true
-      nschedules: 1
-      nthreads: 1
+      num_schedules: 1
+      num_threads: 1
    }
 }
 source: {

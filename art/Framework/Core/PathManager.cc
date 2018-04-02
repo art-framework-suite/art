@@ -62,7 +62,7 @@ art::PathManager::PathManager(ParameterSet const& procPS,
   , productsToProduce_{productsToProduce}
   , processName_{procPS.get<std::string>("process_name"s, ""s)}
 {
-  auto const nschedules = procPS_.get<int>("services.scheduler.nschedules", 1);
+  auto const nschedules = procPS_.get<int>("services.scheduler.num_schedules", 1);
   triggerResultsInserter_.resize(nschedules);
   //
   //  Collect trigger_paths and end_paths.

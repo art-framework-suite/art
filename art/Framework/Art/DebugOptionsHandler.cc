@@ -69,7 +69,7 @@ art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc,
   add_opt(options, "nomemcheck", "Deactivate monitoring of memory use.");
   add_opt(options, "data-dependency-graph,g",
           bpo::value<std::string>(),
-          "Print dot file that shows the dependency graph of "
+          "Print DOT file that shows the dependency graph of "
           "modules, based on the specified paths and 'consumes' "
           "statements invoked by users; call constructors of all "
           "modules and exit just before processing the event loop.");

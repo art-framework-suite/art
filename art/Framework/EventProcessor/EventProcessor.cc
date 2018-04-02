@@ -134,6 +134,15 @@ namespace {
     return string(n, ' ');
   }
 
+class Waiter : public tbb::task {
+public:
+  tbb::task*
+  execute()
+  {
+    return nullptr;
+  }
+};
+
 } // unnamed namespace
 
 EventProcessor::~EventProcessor()
@@ -158,14 +167,14 @@ EventProcessor::EventProcessor(ParameterSet const& pset)
       pset.get<bool>("services.scheduler.handleEmptySubRuns", true)}
 {
   // Initialize TBB with desired number of threads.
-  auto nthreads = pset.get<int>("services.scheduler.nthreads");
+  auto nthreads = pset.get<int>("services.scheduler.num_threads");
   tbbManager_.initialize(nthreads);
   mf::LogInfo("MTdiagnostics")
     << "TBB has been configured to use a maximum of "
     << tbb::this_task_arena::max_concurrency() << " threads.";
   Globals::instance()->setNThreads(nthreads);
 
-  auto const nschedules = pset.get<int>("services.scheduler.nschedules");
+  auto const nschedules = pset.get<int>("services.scheduler.num_schedules");
   Globals::instance()->setNSchedules(nschedules);
   eventPrincipal_.resize(nschedules);
   {
@@ -442,7 +451,7 @@ namespace art {
       beginSubRunIfNotDoneAlready();
       // Note: This returns a unique_ptr to an EmptyTask with
       // a custom destructor that destroys the task.
-      auto EventLoopTask = make_empty_waiting_task();
+      auto EventLoopTask = new (tbb::task::allocate_root()) Waiter;
       EventLoopTask->change_group(tgc);
       EventLoopTask->set_ref_count(nschedules + 1);
       int si = 0;
@@ -458,6 +467,7 @@ namespace art {
       // FIXME: threading: habit of consuming lots of cpu time
       // FIXME: threading: in a spin wait.  Replace with a semaphore.
       EventLoopTask->spawn_and_wait_for_all(stream_heads);
+      tbb::task::destroy(*EventLoopTask);
       // If anything bad happened during event processing,
       // let the user know.
       if (deferredExceptionPtrIsSet_) {

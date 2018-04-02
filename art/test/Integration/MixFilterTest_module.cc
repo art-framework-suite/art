@@ -39,8 +39,8 @@ namespace arttest {
 // Normal case
 #define ART_MFT MixFilterTest
 #endif
-  typedef art::MixFilter<MixFilterTestDetail> ART_MFT;
-} // namespace arttest
+  using ART_MFT = art::MixFilter<MixFilterTestDetail>;
+}
 
 namespace {
   class SecondaryFileNameProvider {
@@ -86,9 +86,9 @@ namespace {
 
 class arttest::MixFilterTestDetail {
 public:
-  typedef cet::map_vector<unsigned int> mv_t;
-  typedef typename mv_t::value_type mvv_t;
-  typedef typename mv_t::mapped_type mvm_t;
+  using mv_t = cet::map_vector<unsigned int>;
+  using mvv_t = mv_t::value_type;
+  using mvm_t = mv_t::mapped_type;
 
   // Constructor is responsible for registering mix operations with
   // MixHelper::declareMixOp() and bookkeeping products with
@@ -390,7 +390,7 @@ arttest::MixFilterTestDetail::processEventIDs(art::EventIDSequence const& seq)
   ++currentEvent_;
 #endif
   processEventIDs_called_ = true;
-  eIDs_.reset(new art::EventIDSequence(seq));
+  eIDs_ = std::make_unique<art::EventIDSequence>(seq);
   if (!testEventOrdering_) {
     return;
   }

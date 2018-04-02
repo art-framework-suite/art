@@ -9,7 +9,7 @@
 // into the components:
 //
 //   ("run1_aladdin_", "")
-//   ("_and_jasmin_", "03")
+//   ("_and_jasmine_", "03")
 //
 // with the suffix ".root".  With these components and suffix, the
 // following filename is assembled whenever a call of (e.g.)

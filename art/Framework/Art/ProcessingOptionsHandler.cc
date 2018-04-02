@@ -180,15 +180,15 @@ art::ProcessingOptionsHandler::doProcessOptions(
     auto const j = vm["parallelism"].as<int>();
     auto const nthreads =
       (j == 0) ? tbb::task_scheduler_init::default_num_threads() : j;
-    raw_config.put(fhicl_key(scheduler_key, "nschedules"), nthreads);
-    raw_config.put(fhicl_key(scheduler_key, "nthreads"), nthreads);
+    raw_config.put(fhicl_key(scheduler_key, "num_schedules"), nthreads);
+    raw_config.put(fhicl_key(scheduler_key, "num_threads"), nthreads);
   } else {
-    raw_config.put(fhicl_key(scheduler_key, "nschedules"),
+    raw_config.put(fhicl_key(scheduler_key, "num_schedules"),
                    vm["nschedules"].as<int>());
     auto const nt = vm["nthreads"].as<int>();
     auto const nthreads =
       (nt == 0) ? tbb::task_scheduler_init::default_num_threads() : nt;
-    raw_config.put(fhicl_key(scheduler_key, "nthreads"), nthreads);
+    raw_config.put(fhicl_key(scheduler_key, "num_threads"), nthreads);
   }
 
   return 0;

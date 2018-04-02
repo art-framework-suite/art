@@ -92,6 +92,8 @@ private:
   void closeFile_();
   void maybeSwitchFiles_();
   bool requestsToCloseFile_();
+  std::string fileNameAtOpen_();
+  std::string fileNameAtClose_(std::string const&);
 }; // TFileService
 
 // ======================================================================

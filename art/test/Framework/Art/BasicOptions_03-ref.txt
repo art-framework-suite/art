@@ -74,35 +74,26 @@
 
         message: {
 
-           ## The 'debugModules' parameter is a sequence of strings that
-           ## enables logging of debug messages in the listed modules.
-           ## To enable debug-message logging for all modules, the '*' wildcard
-           ## can be used.  By default, the list is empty, implying that NO
-           ## debug messages are logged.
+           ## The 'debugModules' parameter is a sequence of strings.
+           ## Ignored. Accepted for backwards-compatibility only.
 
            debugModules: [
            ]
 
-           ## If a module label is shared between the 'suppress*' parameters
-           ## below, the suppression corresponding to the greatest severity is enabled.
-           ## 
-           ## The 'suppressDebug' is a sequence of strings that indicates
-           ## the modules for which messages of debug severity should be
-           ## suppressed.  The default list is empty, implying no suppressions.
+           ## The 'suppressDebug' parameter is a sequence of strings.
+           ## Ignored. Accepted for backwards-compatibility only.
 
            suppressDebug: [
            ]
 
-           ## The 'suppressInfo' is a sequence of strings that indicates
-           ## the modules for which messages of info severity should be
-           ## suppressed.  The default list is empty, implying no suppressions.
+           ## The 'suppressInfo' parameter is a sequence of strings.
+           ## Ignored. Accepted for backwards-compatibility only.
 
            suppressInfo: [
            ]
 
-           ## The 'suppressWarning' is a sequence of strings that indicates
-           ## the modules for which messages of warning severity should be
-           ## suppressed.  The default list is empty, implying no suppressions.
+           ## The 'suppressWarning' parameter is a sequence of strings.
+           ## Ignored. Accepted for backwards-compatibility only.
 
            suppressWarning: [
            ]

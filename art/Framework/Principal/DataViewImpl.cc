@@ -412,6 +412,12 @@ namespace art {
     return it->second;
   }
 
+  cet::exempt_ptr<BranchDescription const>
+  DataViewImpl::getProductDescription(ProductID const pid) const
+  {
+    return principal_.getProductDescription(pid);
+  }
+
   void
   DataViewImpl::removeCachedProduct_(ProductID const pid) const
   {

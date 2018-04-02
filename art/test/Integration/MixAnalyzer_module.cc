@@ -34,9 +34,9 @@ public:
   void analyze(art::Event const& e) override;
 
 private:
-  typedef cet::map_vector<unsigned int> mv_t;
-  typedef typename mv_t::value_type mvv_t;
-  typedef typename mv_t::mapped_type mvm_t;
+  using mv_t = cet::map_vector<unsigned int>;
+  using mvv_t = mv_t::value_type;
+  using mvm_t = mv_t::mapped_type;
 
   size_t eventCounter_;
   size_t nSecondaries_;
@@ -133,7 +133,7 @@ arttest::MixAnalyzer::analyze(art::Event const& e)
   BOOST_REQUIRE(e.getByLabel(mixFilterLabel_, "mapVectorLabel", mv));
   BOOST_REQUIRE_EQUAL(mv->size(), 5 * nSecondaries_);
   {
-    typename mv_t::const_iterator it = mv->begin();
+    auto it = mv->begin();
     size_t delta = 0;
     size_t index = 0;
     for (size_t i = 0; i < nSecondaries_; ++i, delta = index + 1) {
@@ -154,7 +154,7 @@ arttest::MixAnalyzer::analyze(art::Event const& e)
   BOOST_REQUIRE(e.getByLabel(mixFilterLabel_, "intVectorPtrLabel", mvvp));
   BOOST_REQUIRE_EQUAL(mvvp->size(), 5 * nSecondaries_);
   {
-    std::vector<art::Ptr<mvv_t>>::const_iterator it = mvvp->begin();
+    auto it = mvvp->begin();
     size_t delta = 0;
     size_t index_base = 0;
     for (size_t i = 0; i < nSecondaries_; ++i, delta = index_base + 9, ++it) {
