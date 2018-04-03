@@ -101,8 +101,7 @@ testone(const Strings& paths,
   if (a12 != answer || a13 != answer || a14 != answer) {
     std::cerr << "failed to compare pattern with mask using pset ID: "
               << "correct=" << answer << " "
-              << "results=" << a12 << "  " << a13 << "  " << a14
-              << "\n"
+              << "results=" << a12 << "  " << a13 << "  " << a14 << "\n"
               << "pattern=" << pattern << "\n"
               << "mask=" << mask << "\n"
               << "jmask = " << jmask << "\n";

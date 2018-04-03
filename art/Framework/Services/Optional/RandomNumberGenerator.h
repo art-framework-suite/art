@@ -18,9 +18,9 @@
 //
 // Creating an engine
 //
-// FIXME: threading: This will have to change because a module ctor
-// FIXME: threading: currently has no way of knowing what stream
-// FIXME: threading: (if any) it is being created for.
+// MT FIXME: This will have to change because a module ctor currently
+//           has no way of knowing what schedule (if any) it is being
+//           created for.
 //
 // Each engine to be used by a module must be created in that module's
 // constructor.  Creating an engine involves specifying:
@@ -229,7 +229,7 @@ namespace art {
     CLHEP::HepRandomEngine& getEngine(std::string const& engine_label) const;
 
   private: // TYPES
-    // Per-stream data
+    // Per-schedule data
     struct ScheduleData {
 
       // Indexed by engine label.
@@ -252,20 +252,20 @@ namespace art {
     };
 
   private: // MEMBER FUNCTIONS -- Engine establishment
-    CLHEP::HepRandomEngine& createEngine(int streamIndex, long seed);
+    CLHEP::HepRandomEngine& createEngine(ScheduleID scheduleID, long seed);
 
     CLHEP::HepRandomEngine& createEngine(
-      int streamIndex,
+      ScheduleID scheduleID,
       long seed,
       std::string const& kind_of_engine_to_make);
 
-    CLHEP::HepRandomEngine& createEngine(int streamIndex,
+    CLHEP::HepRandomEngine& createEngine(ScheduleID scheduleID,
                                          long seed,
                                          std::string kind_of_engine_to_make,
                                          std::string const& engine_label);
 
     CLHEP::HepRandomEngine& getEngine(
-      int streamIndex,
+      ScheduleID scheduleID,
       std::string const& engine_label = {}) const;
 
     // --- MT-TODO: Only for testing
@@ -273,20 +273,20 @@ namespace art {
     //     requested number of schedules is not expanded UNLESS the
     //     expandToNSchedules() function is called by a friend.
     void
-    expandToNSchedules(int const n)
+    expandToNSchedules(unsigned const n)
     {
       data_.resize(n);
     }
 
   private: // MEMBER FUNCTIONS -- Snapshot management helpers
-    void takeSnapshot_(int streamIndex);
+    void takeSnapshot_(ScheduleID scheduleID);
 
-    void restoreSnapshot_(int streamIndex, Event const&);
+    void restoreSnapshot_(ScheduleID scheduleID, Event const&);
 
     std::vector<RNGsnapshot> const&
-    accessSnapshot_(int const streamIndex) const
+    accessSnapshot_(ScheduleID const scheduleID) const
     {
-      return data_[streamIndex].snapshot_;
+      return data_[scheduleID.id()].snapshot_;
     }
 
   private: // MEMBER FUNCTIONS -- File management helpers
@@ -299,7 +299,7 @@ namespace art {
   private: // MEMBER FUNCTIONS -- Debugging helpers
     void print_() const;
 
-    bool invariant_holds_(int streamIndex);
+    bool invariant_holds_(ScheduleID scheduleID);
 
   private: // MEMBER FUNCTIONS -- Callbacks
     void preProcessEvent(Event const&);

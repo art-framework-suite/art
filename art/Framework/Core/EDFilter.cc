@@ -243,7 +243,7 @@ namespace art {
 
   bool
   EDFilter::doEvent(EventPrincipal& ep,
-                    int /*si*/,
+                    ScheduleID /*si*/,
                     CurrentProcessingContext const* cpc,
                     atomic<size_t>& counts_run,
                     atomic<size_t>& counts_passed,

@@ -65,7 +65,6 @@ namespace art {
     // the end path.
     class CachedProducts {
     public:
-
       class Sentry;
 
       void setupDefault(std::vector<std::string> const& trigger_names);

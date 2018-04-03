@@ -37,9 +37,9 @@ namespace art {
   public: // MEMBER FUNCTIONS -- Special Member Functions
     Path(ActionTable&,
          ActivityRegistry&,
-         int const streamIndex,
-         int const bitpos,
-         bool const isEndPath,
+         ScheduleID scheduleID,
+         int bitpos,
+         bool isEndPath,
          std::string const& path_name,
          std::vector<WorkerInPath>&&,
          HLTGlobalStatus*) noexcept;
@@ -49,7 +49,7 @@ namespace art {
     Path& operator=(Path const&) = delete;
 
   public: // MEMBER FUNCTIONS
-    int streamIndex() const;
+    ScheduleID scheduleID() const;
 
     int bitPosition() const;
 
@@ -72,36 +72,36 @@ namespace art {
 
     void process(Transition, Principal&);
 
-    void process_event_for_endpath(EventPrincipal&, int streamIndex);
+    void process_event_for_endpath(EventPrincipal&, ScheduleID scheduleID);
 
     void process_event(hep::concurrency::WaitingTask* pathsDoneTask,
                        EventPrincipal&,
-                       int streamIndex);
+                       ScheduleID scheduleID);
 
   private: // MEMBER FUNCTIONS -- Implementation details
     void process_event_idx_asynch(size_t idx,
-                                  size_t const max_idx,
+                                  size_t max_idx,
                                   EventPrincipal&,
-                                  int si,
+                                  ScheduleID sid,
                                   CurrentProcessingContext*);
 
-    void process_event_idx(size_t const idx,
-                           size_t const max_idx,
+    void process_event_idx(size_t idx,
+                           size_t max_idx,
                            EventPrincipal&,
-                           int si,
+                           ScheduleID sid,
                            CurrentProcessingContext*);
 
-    void process_event_workerFinished(size_t const idx,
-                                      size_t const max_idx,
+    void process_event_workerFinished(size_t idx,
+                                      size_t max_idx,
                                       EventPrincipal&,
-                                      int si,
-                                      bool const should_continue,
+                                      ScheduleID sid,
+                                      bool should_continue,
                                       CurrentProcessingContext*);
 
-    void process_event_pathFinished(size_t const idx,
+    void process_event_pathFinished(size_t idx,
                                     EventPrincipal&,
-                                    int si,
-                                    bool const should_continue,
+                                    ScheduleID sid,
+                                    bool should_continue,
                                     CurrentProcessingContext*);
 
   private: // MEMBER DATA
@@ -109,7 +109,7 @@ namespace art {
 
     ActivityRegistry& actReg_;
 
-    int streamIndex_;
+    ScheduleID scheduleID_;
 
     int bitpos_;
 

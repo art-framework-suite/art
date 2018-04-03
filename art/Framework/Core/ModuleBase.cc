@@ -6,6 +6,7 @@
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Utilities/Globals.h"
+#include "art/Utilities/PerThread.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductToken.h"
@@ -35,10 +36,10 @@ namespace art {
     return md_;
   }
 
-  int
-  ModuleBase::streamIndex() const
+  ScheduleID
+  ModuleBase::scheduleID() const
   {
-    return streamIndex_;
+    return scheduleID_;
   }
 
   void
@@ -48,9 +49,9 @@ namespace art {
   }
 
   void
-  ModuleBase::setStreamIndex(int const si)
+  ModuleBase::setScheduleID(ScheduleID const si)
   {
-    streamIndex_ = si;
+    scheduleID_ = si;
   }
 
   SerialTaskQueueChain*
@@ -83,34 +84,37 @@ namespace art {
     }
   }
 
-  // Warning: Cannot call from the ctor for stream modules because streamIndex_
-  // is not set yet!
   CLHEP::HepRandomEngine&
   ModuleBase::createEngine(long const seed)
   {
+    // Cannot use scheduleID_ because it is not set before the user's
+    // module constructor is called.
+    auto const sid = PerThread::instance()->getCPC().scheduleID();
     return ServiceHandle<RandomNumberGenerator> {}
-    ->createEngine(streamIndex_, seed);
+    ->createEngine(sid, seed);
   }
 
-  // Warning: Cannot call from the ctor for stream modules because streamIndex_
-  // is not set yet!
   CLHEP::HepRandomEngine&
   ModuleBase::createEngine(long const seed,
                            std::string const& kind_of_engine_to_make)
   {
+    // Cannot use scheduleID_ because it is not set before the user's
+    // module constructor is called.
+    auto const sid = PerThread::instance()->getCPC().scheduleID();
     return ServiceHandle<RandomNumberGenerator> {}
-    ->createEngine(streamIndex_, seed, kind_of_engine_to_make);
+    ->createEngine(sid, seed, kind_of_engine_to_make);
   }
 
-  // Warning: Cannot call from the ctor for stream modules because streamIndex_
-  // is not set yet!
   CLHEP::HepRandomEngine&
   ModuleBase::createEngine(long const seed,
                            std::string const& kind_of_engine_to_make,
                            std::string const& engine_label)
   {
+    // Cannot use scheduleID_ because it is not set before the user's
+    // module constructor is called.
+    auto const sid = PerThread::instance()->getCPC().scheduleID();
     return ServiceHandle<RandomNumberGenerator> {}
-    ->createEngine(streamIndex_, seed, kind_of_engine_to_make, engine_label);
+    ->createEngine(sid, seed, kind_of_engine_to_make, engine_label);
   }
 
   long

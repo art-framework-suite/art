@@ -206,7 +206,7 @@ namespace art {
     if (runRangeSetHandler_.at(0)->type() ==
         RangeSetHandler::HandlerType::Open) {
       // We are using EmptyEvent source, need to merge
-      // what the streams have seen.
+      // what the schedules have seen.
       RangeSet mergedSeenRanges;
       for (auto& uptr_rsh : runRangeSetHandler_) {
         mergedSeenRanges.merge(uptr_rsh->seenRanges());
@@ -221,7 +221,7 @@ namespace art {
     // handlers have the same ranges, use the first one.
     // handler with the largest event number, that will be the
     // one which we will use as the file switch boundary.  Note
-    // that is may not match the exactly the stream that triggered
+    // that is may not match the exactly the schedule that triggered
     // the switch.  Do we need to fix this?
     unique_ptr<RangeSetHandler> rshAtSwitch{runRangeSetHandler_.at(0)->clone()};
     if (fileStatus_ != OutputFileStatus::Switching) {
@@ -267,7 +267,7 @@ namespace art {
     if (subRunRangeSetHandler_.at(0)->type() ==
         RangeSetHandler::HandlerType::Open) {
       // We are using EmptyEvent source, need to merge
-      // what the streams have seen.
+      // what the schedules have seen.
       RangeSet mergedRS;
       for (auto& uptr_rsh : subRunRangeSetHandler_) {
         mergedRS.merge(uptr_rsh->seenRanges());
@@ -307,7 +307,7 @@ namespace art {
     // handlers have the same ranges.  Find the closed range set
     // handler with the largest event number, that will be the
     // one which we will use as the file switch boundary.  Note
-    // that is may not match the exactly the stream that triggered
+    // that is may not match the exactly the schedule that triggered
     // the switch.  Do we need to fix this?
     unsigned largestEvent = 1U;
     int idxOfMax = 0;
@@ -367,7 +367,7 @@ namespace art {
   {
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = label_and_worker.second;
-      w->reset(0);
+      w->reset(ScheduleID::first());
     }
     try {
       if (!endPathInfo_.paths().empty()) {
@@ -400,7 +400,7 @@ namespace art {
   // Note: We come here as part of the endPath task, our
   // parent task is the eventLoop task.
   void
-  EndPathExecutor::process_event(EventPrincipal& ep, int si)
+  EndPathExecutor::process_event(EventPrincipal& ep, ScheduleID const si)
   {
     TDEBUG(4) << "-----> Begin EndPathExecutor::process_event (" << si
               << ") ...\n";
@@ -448,12 +448,12 @@ namespace art {
   }
 
   void
-  EndPathExecutor::writeEvent(int si, EventPrincipal& ep)
+  EndPathExecutor::writeEvent(ScheduleID const si, EventPrincipal& ep)
   {
     for (auto ow : outputWorkers_) {
       auto const& md = ow->description();
       // FIXME: this is overkill.  Users just need to be able to
-      // access the correct stream index within the service.  They do
+      // access the correct ScheduleID within the service.  They do
       // not need a full-fledged context.
       CurrentProcessingContext cpc{si, nullptr, -1, false};
       detail::CPCSentry sentry{cpc};
@@ -476,8 +476,8 @@ namespace art {
       buf << "\n";
       TDEBUG(5) << buf.str();
     }
-    runRangeSetHandler_.at(si)->update(eid, lastInSubRun);
-    subRunRangeSetHandler_.at(si)->update(eid, lastInSubRun);
+    runRangeSetHandler_.at(si.id())->update(eid, lastInSubRun);
+    subRunRangeSetHandler_.at(si.id())->update(eid, lastInSubRun);
   }
 
   //
@@ -499,16 +499,16 @@ namespace art {
   }
 
   // Called by EventProcessor::closeSomeOutputFiles(), which is called when
-  // output file switching is happening. Note: threading: This is where we need
-  // to get all the streams Note: threading: synchronized, and then have all
-  // streams do Note: threading: the file close, and then the file open, then
-  // Note: threading: the streams can proceed.
-  // Note: threading: A nasty complication is that a great deal of
-  // Note: threading: time can go by between the file close and the
-  // Note: threading: file open because artdaq may pause the run
-  // Note: threading: inbetween, and wants to have all output files
-  // Note: threading: closed while the run is paused.  They probably
-  // Note: threading: want the input file closed too.
+  // output file switching is happening.
+  //
+  // MT note: This is where we need to get all the schedules
+  //          synchronized, and then have all schedules do the file
+  //          close, and then the file open, then the schedules can
+  //          proceed.  A nasty complication is that a great deal of
+  //          time can go by between the file close and the file open
+  //          because artdaq may pause the run inbetween, and wants to
+  //          have all output files closed while the run is paused.
+  //          They probably want the input file closed too.
   void
   EndPathExecutor::closeSomeOutputFiles()
   {

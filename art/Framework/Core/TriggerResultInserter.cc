@@ -14,13 +14,13 @@ using fhicl::ParameterSet;
 namespace art {
 
   TriggerResultInserter::TriggerResultInserter(ParameterSet const& pset,
-                                               int const si,
+                                               ScheduleID const si,
                                                HLTGlobalStatus& pathResults)
     : pset_id_{pset.id()}, trptr_(&pathResults)
   {
     TDEBUG(5) << "TriggerResultInserter ctor: 0x" << hex
               << ((unsigned long)this) << dec << " (" << si << ")\n";
-    setStreamIndex(si);
+    setScheduleID(si);
     produces<TriggerResults>();
   }
 

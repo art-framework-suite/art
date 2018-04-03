@@ -67,7 +67,8 @@ art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc,
           bpo::value<std::string>(),
           "Output memory use data to SQLite3 database with name <db-file>.");
   add_opt(options, "nomemcheck", "Deactivate monitoring of memory use.");
-  add_opt(options, "data-dependency-graph,g",
+  add_opt(options,
+          "data-dependency-graph,g",
           bpo::value<std::string>(),
           "Print DOT file that shows the dependency graph of "
           "modules, based on the specified paths and 'consumes' "
@@ -125,7 +126,7 @@ art::DebugOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
       << "Options --memcheck-db and --nomemcheck are incompatible.\n";
   }
   if (vm.count("validate-config") + vm.count("debug-config") +
-      vm.count("config-out") >
+        vm.count("config-out") >
       1) {
     throw Exception(errors::Configuration)
       << "Options --validate-config, --debug-config, and --config-out are "
@@ -193,7 +194,8 @@ art::DebugOptionsHandler::doProcessOptions(
 
   std::string graph_option{"data-dependency-graph"};
   if (vm.count(graph_option)) {
-    raw_config.put("services.scheduler.dataDependencyGraph", vm[graph_option].as<std::string>());
+    raw_config.put("services.scheduler.dataDependencyGraph",
+                   vm[graph_option].as<std::string>());
   }
 
   if (vm.count("trace")) {

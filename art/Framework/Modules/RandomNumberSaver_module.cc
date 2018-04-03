@@ -56,8 +56,7 @@ namespace art {
   RandomNumberSaver::produce(Event& e)
   {
     ServiceHandle<RandomNumberGenerator const> rng;
-    e.put(
-      make_unique<vector<RNGsnapshot>>(rng->accessSnapshot_(streamIndex())));
+    e.put(make_unique<vector<RNGsnapshot>>(rng->accessSnapshot_(scheduleID())));
     if (debug_) {
       // Only take out the lock if running in debug mode.
       lock_guard<mutex> hold{m_};

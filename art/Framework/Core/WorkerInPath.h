@@ -24,7 +24,6 @@ namespace art {
 
   class WorkerInPath {
   public: // TYPES
-
     enum FilterAction {
       Normal = 0,
       Ignore // 1
@@ -33,8 +32,7 @@ namespace art {
     };
 
     struct ConfigInfo {
-      ConfigInfo(module_label_t const& lbl,
-                 FilterAction const action)
+      ConfigInfo(module_label_t const& lbl, FilterAction const action)
         : label{lbl}, filterAction{action}
       {}
       module_label_t label; // Used for looking up ModuleConfigInfo
@@ -42,7 +40,6 @@ namespace art {
     };
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-
     ~WorkerInPath() noexcept;
     explicit WorkerInPath(Worker*) noexcept;
     WorkerInPath(Worker*, FilterAction) noexcept;
@@ -52,22 +49,21 @@ namespace art {
     WorkerInPath& operator=(WorkerInPath&&) noexcept;
 
   public: // MEMBER FUNCTIONS -- API for user
-
     Worker* getWorker() const;
     FilterAction filterAction() const;
 
     // Used only by Path
-    bool returnCode(int streamIndex) const;
+    bool returnCode(ScheduleID scheduleID) const;
     std::string const& label() const;
     bool runWorker(Transition, Principal&, CurrentProcessingContext*);
 
     void runWorker_event_for_endpath(EventPrincipal&,
-                                     int streamIndex,
+                                     ScheduleID scheduleID,
                                      CurrentProcessingContext*);
 
     void runWorker_event(hep::concurrency::WaitingTask* workerDoneTask,
                          EventPrincipal&,
-                         int streamIndex,
+                         ScheduleID scheduleID,
                          CurrentProcessingContext*);
 
     // Used only by Path
@@ -90,7 +86,7 @@ namespace art {
 
     FilterAction filterAction_{Normal};
 
-  private: // MEMBER DATA -- Per-stream
+  private: // MEMBER DATA -- Per-schedule
     bool returnCode_{false};
 
     hep::concurrency::WaitingTaskList waitingTasks_{};

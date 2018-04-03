@@ -217,8 +217,8 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const& config,
 void
 art::TimeTracker::prePathProcessing(string const& pathname)
 {
-  auto const sid = PerThread::instance()->getCPC().streamIndex();
-  data_[sid].pathName = pathname;
+  auto const sid = PerThread::instance()->getCPC().scheduleID();
+  data_[sid.id()].pathName = pathname;
 }
 
 //======================================================================
@@ -317,8 +317,8 @@ art::TimeTracker::postSourceConstruction(ModuleDescription const& md)
 void
 art::TimeTracker::preEventReading()
 {
-  auto const sid = PerThread::instance()->getCPC().streamIndex();
-  auto& d = data_[sid];
+  auto const sid = PerThread::instance()->getCPC().scheduleID();
+  auto& d = data_[sid.id()];
   d.eventID = EventID::invalidEvent();
   d.eventStart = now();
 }
@@ -326,8 +326,8 @@ art::TimeTracker::preEventReading()
 void
 art::TimeTracker::postEventReading(Event const& e)
 {
-  auto const sid = PerThread::instance()->getCPC().streamIndex();
-  auto& d = data_[sid];
+  auto const sid = PerThread::instance()->getCPC().scheduleID();
+  auto& d = data_[sid.id()];
   d.eventID = e.id();
 
   auto const t = std::chrono::duration<double>{now() - d.eventStart}.count();
@@ -339,8 +339,8 @@ art::TimeTracker::postEventReading(Event const& e)
 void
 art::TimeTracker::preEventProcessing(Event const& e[[gnu::unused]])
 {
-  auto const sid = PerThread::instance()->getCPC().streamIndex();
-  auto& d = data_[sid];
+  auto const sid = PerThread::instance()->getCPC().scheduleID();
+  auto& d = data_[sid.id()];
   assert(d.eventID == e.id());
   d.eventStart = now();
 }
@@ -348,8 +348,8 @@ art::TimeTracker::preEventProcessing(Event const& e[[gnu::unused]])
 void
 art::TimeTracker::postEventProcessing(Event const&)
 {
-  auto const sid = PerThread::instance()->getCPC().streamIndex();
-  auto const& d = data_[sid];
+  auto const sid = PerThread::instance()->getCPC().scheduleID();
+  auto const& d = data_[sid.id()];
   auto const t = std::chrono::duration<double>{now() - d.eventStart}.count();
   timeEventTable_.insert(
     d.eventID.run(), d.eventID.subRun(), d.eventID.event(), t);
@@ -359,8 +359,8 @@ art::TimeTracker::postEventProcessing(Event const&)
 void
 art::TimeTracker::startTime(ModuleDescription const&)
 {
-  auto const sid = PerThread::instance()->getCPC().streamIndex();
-  auto& d = data_[sid];
+  auto const sid = PerThread::instance()->getCPC().scheduleID();
+  auto& d = data_[sid.id()];
   d.moduleStart = now();
 }
 
@@ -368,8 +368,8 @@ void
 art::TimeTracker::recordTime(ModuleDescription const& desc,
                              string const& suffix)
 {
-  auto const sid = PerThread::instance()->getCPC().streamIndex();
-  auto const& d = data_[sid];
+  auto const sid = PerThread::instance()->getCPC().scheduleID();
+  auto const& d = data_[sid.id()];
   auto const t = std::chrono::duration<double>{now() - d.moduleStart}.count();
   timeModuleTable_.insert(d.eventID.run(),
                           d.eventID.subRun(),

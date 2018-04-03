@@ -7,6 +7,7 @@
 //
 
 #include "art/Framework/Core/ModuleType.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -28,7 +29,7 @@ namespace art {
                  ActionTable& actions,
                  std::string const& processName,
                  ModuleThreadingType const moduleThreadingType,
-                 int const streamIndex)
+                 ScheduleID const scheduleID)
       : procPset_{procPset}
       , pset_{pset}
       , reg_{reg}
@@ -37,7 +38,7 @@ namespace art {
       , actions_{actions}
       , processName_{processName}
       , moduleThreadingType_(moduleThreadingType)
-      , streamIndex_(streamIndex)
+      , scheduleID_{scheduleID}
     {}
 
     fhicl::ParameterSet const& procPset_;
@@ -48,7 +49,7 @@ namespace art {
     ActionTable& actions_;
     std::string const processName_;
     ModuleThreadingType moduleThreadingType_;
-    int streamIndex_;
+    ScheduleID scheduleID_;
   };
 
 } // namespace art

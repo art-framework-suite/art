@@ -28,11 +28,11 @@ namespace art {
     explicit TriggerResultInserter(fhicl::ParameterSet const&) = delete;
 
     explicit TriggerResultInserter(fhicl::ParameterSet const&,
-                                   int streamIndex) = delete;
+                                   ScheduleID scheduleID) = delete;
 
     // the pset needed here is the one that defines the trigger path names
     explicit TriggerResultInserter(fhicl::ParameterSet const&,
-                                   int streamIndex,
+                                   ScheduleID scheduleID,
                                    HLTGlobalStatus&);
 
   public: // MEMBER FUNCTIONS -- EDProducer API

@@ -4,6 +4,7 @@
 
 #include "art/Framework/Core/ModuleType.h"
 #include "art/Utilities/Globals.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductToken.h"
@@ -40,13 +41,13 @@ namespace art {
   public: // MEMBER FUNCTIONS -- API for the user
     ModuleDescription const& moduleDescription() const;
 
-    int streamIndex() const;
+    ScheduleID scheduleID() const;
 
     ModuleThreadingType moduleThreadingType() const;
 
     void setModuleDescription(ModuleDescription const&);
 
-    void setStreamIndex(int streamIndex);
+    void setScheduleID(ScheduleID scheduleID);
 
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
 
@@ -101,7 +102,7 @@ namespace art {
 
   protected: // MEMBER DATA -- For derived classes.
     ModuleDescription md_{};
-    int streamIndex_{};
+    ScheduleID scheduleID_{};
     ModuleThreadingType moduleThreadingType_{};
     std::set<std::string> resourceNames_{};
     std::unique_ptr<hep::concurrency::SerialTaskQueueChain> chain_{};

@@ -128,17 +128,17 @@ namespace art {
   public: // MEMBER FUNCTIONS -- Process Event
     // Called by EventProcessor::processAllEventsAsync_processEndPath(...)
     // Used to make sure only one event is being
-    // processed at a time.  The streams take turns
+    // processed at a time.  The schedules take turns
     // having their events processed on a first-come
     // first-served basis (FIFO).
     hep::concurrency::SerialTaskQueue& serialTaskQueue();
 
     // Called by
     // EventProcessor::processAllEventsAsync_processEndPath::endPathFunctor()
-    void process_event(EventPrincipal&, int streamIndex);
+    void process_event(EventPrincipal&, ScheduleID scheduleID);
 
     // Called by EventProcessor::readAndProcessEventFunctor()
-    void writeEvent(int streamIndex, EventPrincipal& ep);
+    void writeEvent(ScheduleID scheduleID, EventPrincipal& ep);
 
   public: // MEMBER FUNCTIONS -- Output File Switching API
     //
@@ -154,24 +154,25 @@ namespace art {
     bool outputsToClose() const;
 
     // Called by EventProcessor::closeSomeOutputFiles(), which is called when
-    // output file switching is happening. Note: threading: This is where we
-    // need to get all the streams Note: threading: synchronized, and then have
-    // all streams do Note: threading: the file close, and then the file open,
-    // then Note: threading: the streams can proceed. Note: threading: A nasty
-    // complication is that a great deal of Note: threading: time can go by
-    // between the file close and the Note: threading: file open because artdaq
-    // may pause the run Note: threading: inbetween, and wants to have all
-    // output files Note: threading: closed while the run is paused.  They
-    // probably Note: threading: want the input file closed too.
+    // output file switching is happening.
+    // MT note: This is where we need to get all the schedules
+    //          synchronized, and then have all schedules do the file
+    //          close, and then the file open, then the schedules can
+    //          proceed. A nasty complication is that a great deal of
+    //          time can go by between the file close and the file
+    //          open because artdaq may pause the run in between, and
+    //          wants to have all output files closed while the run is
+    //          paused.  They probably want the input file closed too.
     void closeSomeOutputFiles();
 
     // Called by EventProcessor::openSomeOutputFiles(), which is called when
-    // output file switching is happening. Note: This really just returns
-    // !outputWorkersToOpen_.empty()
+    // output file switching is happening.
+    // Note: This really just returns !outputWorkersToOpen_.empty()
     bool outputsToOpen() const;
 
     // Called by EventProcessor::openSomeOutputFiles(), which is called when
-    // output file switching is happening. Note this also calls:
+    // output file switching is happening.
+    // Note this also calls:
     //   setOutputFileStatus(OutputFileStatus::Open);
     //   outputWorkersToOpen_.clear();
     void openSomeOutputFiles(FileBlock const& fb);
@@ -220,12 +221,12 @@ namespace art {
 
     // Dynamic, updated by run processing.
     // Note: threading: Will need to be protected when multiple runs/subruns
-    // in-flight is implemented. Note: Indexed by streamIndex.
+    // in-flight is implemented. Note: Indexed by scheduleID.
     std::vector<std::unique_ptr<RangeSetHandler>> runRangeSetHandler_{};
 
     // Dynamic, updated by subrun processing.
     // Note: threading: Will need to be protected when multiple runs/subruns
-    // in-flight is implemented. Note: Indexed by streamIndex.
+    // in-flight is implemented. Note: Indexed by scheduleID.
     std::vector<std::unique_ptr<RangeSetHandler>> subRunRangeSetHandler_{};
 
   private: // MEMBER DATA -- Output File Switching

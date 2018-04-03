@@ -286,8 +286,8 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
 void
 art::MemoryTracker::prePathProcessing(std::string const& pathname)
 {
-  auto const sid = PerThread::instance()->getCPC().streamIndex();
-  data_[sid].pathName = pathname;
+  auto const sid = PerThread::instance()->getCPC().scheduleID();
+  data_[sid.id()].pathName = pathname;
 }
 
 //======================================================================
@@ -295,8 +295,8 @@ void
 art::MemoryTracker::recordOtherData(ModuleDescription const& md,
                                     std::string const& step)
 {
-  auto const sid = PerThread::instance()->getCPC().streamIndex();
-  auto const data = procInfo_.getCurrentData(sid);
+  auto const sid = PerThread::instance()->getCPC().scheduleID();
+  auto const data = procInfo_.getCurrentData(sid.id());
   otherInfoTable_.insert(step,
                          md.moduleLabel(),
                          md.moduleName(),
@@ -308,11 +308,11 @@ art::MemoryTracker::recordOtherData(ModuleDescription const& md,
 void
 art::MemoryTracker::recordEventData(Event const& e, std::string const& step)
 {
-  auto const sid = PerThread::instance()->getCPC().streamIndex();
-  auto& d = data_[sid];
+  auto const sid = PerThread::instance()->getCPC().scheduleID();
+  auto& d = data_[sid.id()];
   d.eventID = e.id();
 
-  auto const currentMemory = procInfo_.getCurrentData(sid);
+  auto const currentMemory = procInfo_.getCurrentData(sid.id());
 
   eventTable_.insert(step,
                      d.eventID.run(),
@@ -342,10 +342,10 @@ void
 art::MemoryTracker::recordModuleData(ModuleDescription const& md,
                                      std::string const& step)
 {
-  auto const sid = PerThread::instance()->getCPC().streamIndex();
-  auto& d = data_[sid];
+  auto const sid = PerThread::instance()->getCPC().scheduleID();
+  auto& d = data_[sid.id()];
 
-  auto const currentMemory = procInfo_.getCurrentData(sid);
+  auto const currentMemory = procInfo_.getCurrentData(sid.id());
 
   moduleTable_.insert(step,
                       d.eventID.run(),

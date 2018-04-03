@@ -94,14 +94,14 @@ namespace {
   }
 
   inline string
-  qualify_engine_label(int const si, string const& engine_label)
+  qualify_engine_label(art::ScheduleID const si, string const& engine_label)
   {
-    // Format is ModuleLabel:streamIndex:EngineLabel
+    // Format is ModuleLabel:scheduleID:EngineLabel
     string label;
     label +=
       art::PerThread::instance()->getCPC().moduleDescription()->moduleLabel();
     label += ':';
-    label += to_string(si);
+    label += to_string(si.id());
     label += ':';
     label += engine_label;
     return label;
@@ -204,16 +204,16 @@ namespace art {
   CLHEP::HepRandomEngine&
   RandomNumberGenerator::getEngine(string const& engine_label) const
   {
-    return getEngine(0, engine_label);
+    return getEngine(ScheduleID::first(), engine_label);
   }
 
   CLHEP::HepRandomEngine&
-  RandomNumberGenerator::getEngine(int const si,
+  RandomNumberGenerator::getEngine(ScheduleID const si,
                                    string const& engine_label) const
   {
     string const& label = qualify_engine_label(si, engine_label);
-    auto d = data_[si].dict_.find(label);
-    if (d == data_[si].dict_.end()) {
+    auto d = data_[si.id()].dict_.find(label);
+    if (d == data_[si.id()].dict_.end()) {
       throw cet::exception("RANDOM") << "RNGservice::getEngine():\n"
                                      << "The requested engine \"" << label
                                      << "\" has not been established.\n";
@@ -223,21 +223,21 @@ namespace art {
   }
 
   bool
-  RandomNumberGenerator::invariant_holds_(int const si)
+  RandomNumberGenerator::invariant_holds_(ScheduleID const si)
   {
-    auto const& d = data_[si];
+    auto const& d = data_[si.id()];
     return (d.dict_.size() == d.tracker_.size()) &&
            (d.dict_.size() == d.kind_.size());
   }
 
   CLHEP::HepRandomEngine&
-  RandomNumberGenerator::createEngine(int const si, long const seed)
+  RandomNumberGenerator::createEngine(ScheduleID const si, long const seed)
   {
     return createEngine(si, seed, DEFAULT_ENGINE_KIND);
   }
 
   CLHEP::HepRandomEngine&
-  RandomNumberGenerator::createEngine(int const si,
+  RandomNumberGenerator::createEngine(ScheduleID const si,
                                       long const seed,
                                       string const& requested_engine_kind)
   {
@@ -245,7 +245,7 @@ namespace art {
   }
 
   CLHEP::HepRandomEngine&
-  RandomNumberGenerator::createEngine(int const si,
+  RandomNumberGenerator::createEngine(ScheduleID const si,
                                       long const seed,
                                       string requested_engine_kind,
                                       string const& engine_label)
@@ -253,14 +253,14 @@ namespace art {
     // If concurrrent engine creation is desired...even within a
     // schedule, then concurrent containers should be used.
     CET_ASSERT_ONLY_ONE_THREAD();
-    assert(static_cast<size_t>(si) < data_.size());
+    assert(si.id() < data_.size());
     string const& label = qualify_engine_label(si, engine_label);
     if (!engine_creation_is_okay_) {
       throw cet::exception("RANDOM")
         << "RNGservice::createEngine():\n"
         << "Attempt to create engine \"" << label << "\" is too late.\n";
     }
-    auto& d = data_[si];
+    auto& d = data_[si.id()];
     if (d.tracker_.find(label) != d.tracker_.cend()) {
       throw cet::exception("RANDOM")
         << "RNGservice::createEngine():\n"
@@ -318,11 +318,11 @@ namespace art {
   }
 
   void
-  RandomNumberGenerator::takeSnapshot_(int const si)
+  RandomNumberGenerator::takeSnapshot_(ScheduleID const si)
   {
     mf::LogDebug log{"RANDOM"};
     log << "RNGservice::takeSnapshot_() of the following engine labels:\n";
-    auto& d = data_[si];
+    auto& d = data_[si.id()];
     d.snapshot_.clear();
     for (auto const& pr : d.dict_) {
       string const& label = pr.first;
@@ -335,7 +335,8 @@ namespace art {
   }
 
   void
-  RandomNumberGenerator::restoreSnapshot_(int const si, Event const& event)
+  RandomNumberGenerator::restoreSnapshot_(ScheduleID const si,
+                                          Event const& event)
   {
     if (restoreStateLabel_.empty()) {
       return;
@@ -343,7 +344,7 @@ namespace art {
     // access the saved-states product:
     auto const& saved =
       *event.getValidHandle<vector<RNGsnapshot>>(restoreStateLabel_);
-    auto& d = data_[si];
+    auto& d = data_[si.id()];
     // restore engines from saved-states product:
     for (auto const& snapshot : saved) {
       string const& label = snapshot.label();
@@ -428,7 +429,7 @@ namespace art {
       assert(count(label.cbegin(), label.cend(), ':') == 2u);
       auto const p1 = label.find_first_of(':');
       auto const p2 = label.find_last_of(':');
-      int const si = stoi(label.substr(p1 + 1, p2));
+      ScheduleID::size_type const si = stoi(label.substr(p1 + 1, p2));
       auto& data = data_[si];
       auto d = data.dict_.find(label);
       if (d == data.dict_.end()) {
@@ -461,7 +462,8 @@ namespace art {
           << "which was originally initialized via an unknown or impossible "
              "method.\n";
       }
-      assert(invariant_holds_(si) && "RNGservice::restoreFromFile_()");
+      assert(invariant_holds_(ScheduleID{si}) &&
+             "RNGservice::restoreFromFile_()");
     }
   }
 
@@ -478,8 +480,9 @@ namespace art {
   {
     // FIXME: threading: si = 0 hardcoded here, should probably come from the
     // module through the Event object
-    takeSnapshot_(0);
-    restoreSnapshot_(0, e);
+    auto const sid = ScheduleID::first();
+    takeSnapshot_(sid);
+    restoreSnapshot_(sid, e);
   }
 
   void
@@ -490,8 +493,8 @@ namespace art {
     // MT-TODO: Adjust so that the loop does not require creating
     // temporary schedule IDs, but instead uses a system-provided
     // looping mechanism.
-    for (int i = 0; static_cast<size_t>(i) < data_.size(); ++i) {
-      takeSnapshot_(i);
+    for (ScheduleID::size_type i{}; i < data_.size(); ++i) {
+      takeSnapshot_(ScheduleID{i});
     }
     saveToFile_();
   }

@@ -15,6 +15,8 @@
 // also why the module can not be queried for this information when
 // it is not active in processing.
 
+#include "art/Utilities/ScheduleID.h"
+
 #include <string>
 
 namespace art {
@@ -29,7 +31,7 @@ namespace art {
 
     CurrentProcessingContext() noexcept;
 
-    explicit CurrentProcessingContext(int streamIndex,
+    explicit CurrentProcessingContext(ScheduleID scheduleID,
                                       std::string const* const name,
                                       int const bitpos,
                                       bool const isEndPth) noexcept;
@@ -44,7 +46,7 @@ namespace art {
     CurrentProcessingContext& operator=(CurrentProcessingContext&&) noexcept;
 
   public: // MEMBER FUNCTIONS -- API for the user
-    int streamIndex() const noexcept;
+    ScheduleID scheduleID() const noexcept;
 
     std::string const* pathName() const noexcept;
 
@@ -56,39 +58,24 @@ namespace art {
 
     ModuleDescription const* moduleDescription() const noexcept;
 
-    // ModuleBase*
-    // module() const noexcept;
-
-  public: // MEMBER FUNCTIONS -- API for Path to set the WorkerInPath and module
-          // description
     void activate(int theSlotInPath, ModuleDescription const*) noexcept;
 
-  public:  // MEMBER FUNCTIONS -- API for WorkerT<T> to set the module ptr
-           // void
-           // setModule(ModuleBase*) noexcept;
-  private: // MEMBER DATA -- Stream info
-    // What stream this module is active on.
-    int streamIndex_{0};
+  private:
+    // What schedule this module is active on.
+    ScheduleID scheduleID_{}; // invalid
 
-  private: // MEMBER DATA -- Path info
-    // Name of the currently active
-    // path.
+    // Name of the currently active path.
     std::string const* pathName_{nullptr};
 
-    // Index of the currently active
-    // path in the trigger results.
+    // Index of the currently active path in the trigger results.
     int bitPos_{0};
 
-    // Whether or not the currently
-    // active path is the end path.
+    // Whether or not the currently active path is the end path.
     bool isEndPath_{false};
 
-  private: // MEMBER DATA -- WorkerInPath info
-    // Index of the current active worker
-    // in the path.
+    // Index of the current active worker in the path.
     int slotInPath_{0};
 
-  private: // MEMBER DATA -- Module info
     ModuleDescription const* moduleDescription_{nullptr};
 
     ModuleBase* module_{nullptr};

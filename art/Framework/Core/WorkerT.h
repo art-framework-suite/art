@@ -23,7 +23,6 @@ namespace art {
 
   public: // TYPES
     using ModuleType = T;
-    // using WorkerType = WorkerT<T>;
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     // This is called directly by the make_worker function created
@@ -71,13 +70,13 @@ namespace art {
     bool implDoEnd(SubRunPrincipal&, CurrentProcessingContext*) override;
 
     bool implDoProcess(EventPrincipal&,
-                       int streamIndex,
+                       ScheduleID scheduleID,
                        CurrentProcessingContext*) override;
 
   private: // MEMBER DATA
-    // Note: Modules are usually shared between workers
-    // on different streams, only stream modules are not,
-    // the PathManager owns them.
+    // Note: Modules are usually shared between workers on different
+    // schedules, only replicated modules are not--the PathManager owns
+    // them.
     T* module_;
   };
 
@@ -90,9 +89,9 @@ namespace art {
                       WorkerParams const& wp)
     : Worker{md, wp}, module_{module}
   {
-    if (wp.streamIndex_ == 0) {
+    if (wp.scheduleID_ == ScheduleID::first()) {
       // We only want to register the products once, not once for
-      // every stream...
+      // every schedule...
       module_->registerProducts(wp.producedProducts_, md);
     } else {
       // ...but we need to fill product descriptions for each module
@@ -161,7 +160,6 @@ namespace art {
   bool
   WorkerT<T>::implDoBegin(RunPrincipal& rp, CurrentProcessingContext* cpc)
   {
-    // cpc->setModule(module_);
     return module_->doBeginRun(rp, cpc);
   }
 
@@ -169,7 +167,6 @@ namespace art {
   bool
   WorkerT<T>::implDoEnd(RunPrincipal& rp, CurrentProcessingContext* cpc)
   {
-    // cpc->setModule(module_);
     return module_->doEndRun(rp, cpc);
   }
 
@@ -177,7 +174,6 @@ namespace art {
   bool
   WorkerT<T>::implDoBegin(SubRunPrincipal& srp, CurrentProcessingContext* cpc)
   {
-    // cpc->setModule(module_);
     return module_->doBeginSubRun(srp, cpc);
   }
 
@@ -185,19 +181,17 @@ namespace art {
   bool
   WorkerT<T>::implDoEnd(SubRunPrincipal& srp, CurrentProcessingContext* cpc)
   {
-    // cpc->setModule(module_);
     return module_->doEndSubRun(srp, cpc);
   }
 
   template <typename T>
   bool
   WorkerT<T>::implDoProcess(EventPrincipal& ep,
-                            int si,
+                            ScheduleID const si,
                             CurrentProcessingContext* cpc)
   {
-    // cpc->setModule(module_);
-    // Note, only filters ever return false, and when they do it means they have
-    // rejected.
+    // Note, only filters ever return false, and when they do it means
+    // they have rejected.
     return module_->doEvent(
       ep, si, cpc, counts_run_, counts_passed_, counts_failed_);
   }

@@ -63,7 +63,7 @@ namespace art {
   class Schedule {
 
   public:
-    Schedule(int stream,
+    Schedule(ScheduleID scheduleID,
              PathManager&,
              std::string const& processName,
              fhicl::ParameterSet const& proc_pset,
@@ -76,7 +76,7 @@ namespace art {
 
     void process_event(hep::concurrency::WaitingTask* endPathTask,
                        EventPrincipal&,
-                       int streamIndex);
+                       ScheduleID scheduleID);
 
     void beginJob();
 
@@ -93,7 +93,7 @@ namespace art {
   private:
     void process_event_pathsDone(hep::concurrency::WaitingTask* endPathTask,
                                  EventPrincipal&,
-                                 int streamIndex);
+                                 ScheduleID scheduleID);
 
   private:
     fhicl::ParameterSet process_pset_;

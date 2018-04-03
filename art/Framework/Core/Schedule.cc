@@ -13,6 +13,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/Transition.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -37,7 +38,7 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  Schedule::Schedule(int stream,
+  Schedule::Schedule(ScheduleID const scheduleID,
                      PathManager& pm,
                      string const& processName,
                      ParameterSet const& proc_pset,
@@ -50,12 +51,13 @@ namespace art {
     , actionTable_{actions}
     , actReg_{actReg}
     , processName_{processName}
-    , triggerPathsInfo_{pm.triggerPathsInfo(stream)}
+    , triggerPathsInfo_{pm.triggerPathsInfo(scheduleID)}
   {
     TDEBUG(5) << "Schedule ctor: 0x" << hex << ((unsigned long)this) << dec
-              << " (" << stream << ")\n";
+              << " (" << scheduleID << ")\n";
     if (!triggerPathsInfo_.paths().empty()) {
-      if ((results_inserter_ = pm.triggerResultsInserter(stream)) == nullptr) {
+      if ((results_inserter_ = pm.triggerResultsInserter(scheduleID)) ==
+          nullptr) {
         // Make the trigger results inserter.
         ServiceHandle<TriggerNamesService const> tns;
         auto const& trig_pset = tns->getTriggerPSet();
@@ -67,7 +69,7 @@ namespace art {
                               actionTable_,
                               processName_,
                               ModuleThreadingType::REPLICATED,
-                              stream};
+                              scheduleID};
         ModuleDescription md{trig_pset.id(),
                              "TriggerResultInserter",
                              "TriggerResults",
@@ -75,14 +77,18 @@ namespace art {
                              ProcessConfiguration{processName_,
                                                   process_pset_.id(),
                                                   getReleaseVersion()}};
+        string pathName{"ctor"};
+        CurrentProcessingContext cpc{scheduleID, &pathName, 0, false};
+        cpc.activate(0, &md);
+        detail::CPCSentry cpc_sentry{cpc};
         actReg_.sPreModuleConstruction.invoke(md);
         EDProducer* producer = new TriggerResultInserter(
-          trig_pset, stream, triggerPathsInfo_.pathResults());
+          trig_pset, scheduleID, triggerPathsInfo_.pathResults());
         producer->setModuleDescription(md);
-        producer->setStreamIndex(stream);
+        producer->setScheduleID(scheduleID);
         pm.setTriggerResultsInserter(
-          stream, make_unique<WorkerT<EDProducer>>(producer, md, wp));
-        results_inserter_ = pm.triggerResultsInserter(stream);
+          scheduleID, make_unique<WorkerT<EDProducer>>(producer, md, wp));
+        results_inserter_ = pm.triggerResultsInserter(scheduleID);
         actReg_.sPostModuleConstruction.invoke(md);
       }
     }
@@ -196,10 +202,10 @@ namespace art {
   }
 
   void
-  Schedule::process(Transition trans, Principal& principal)
+  Schedule::process(Transition const trans, Principal& principal)
   {
     for (auto const& val : triggerPathsInfo_.workers()) {
-      val.second->reset(0);
+      val.second->reset(ScheduleID::first());
     }
     for (auto const& path : triggerPathsInfo_.paths()) {
       path->process(trans, principal);
@@ -212,7 +218,7 @@ namespace art {
   void
   Schedule::process_event(WaitingTask* endPathTask,
                           EventPrincipal& principal,
-                          int si)
+                          ScheduleID const si)
   {
     TDEBUG(4) << "-----> Begin Schedule::process_event (" << si << ") ...\n";
     auto eventLoopTask = endPathTask->parent();
@@ -334,7 +340,7 @@ namespace art {
   void
   Schedule::process_event_pathsDone(WaitingTask* endPathTask,
                                     EventPrincipal& principal,
-                                    int si)
+                                    ScheduleID const si)
   {
     TDEBUG(4) << "-----> Begin Schedule::process_event_pathsDone (" << si
               << ") ...\n";

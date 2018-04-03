@@ -62,7 +62,8 @@ art::PathManager::PathManager(ParameterSet const& procPS,
   , productsToProduce_{productsToProduce}
   , processName_{procPS.get<std::string>("process_name"s, ""s)}
 {
-  auto const nschedules = procPS_.get<int>("services.scheduler.num_schedules", 1);
+  auto const nschedules =
+    procPS_.get<int>("services.scheduler.num_schedules", 1);
   triggerResultsInserter_.resize(nschedules);
   //
   //  Collect trigger_paths and end_paths.
@@ -396,30 +397,29 @@ art::PathManager::createModulesAndWorkers()
 {
   auto const nschedules = Globals::instance()->nschedules();
   //
-  //  For each configured stream, create the trigger paths and the workers on
+  //  For each configured schedule, create the trigger paths and the workers on
   //  each path.
   //
-  //  Note: Only stream module workers are unique to each stream,
+  //  Note: Only schedule module workers are unique to each schedule,
   //        all other module workers are singletons.
   //
   {
     triggerPathsInfo_.resize(nschedules);
-    for (auto streamIndex = 0; streamIndex < nschedules; ++streamIndex) {
-      auto& pinfo = triggerPathsInfo_[streamIndex];
+    for (auto scheduleID = ScheduleID::first();
+         scheduleID < ScheduleID(nschedules);
+         scheduleID = scheduleID.next()) {
+      auto& pinfo = triggerPathsInfo_[scheduleID.id()];
       pinfo.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
       int bitPos = 0;
       for (auto const& val : protoTrigPathLabelMap_) {
         auto const& path_name = val.first;
         auto const& worker_config_infos = val.second;
         vector<WorkerInPath> wips;
-        fillWorkers_(streamIndex,
-                     bitPos,
-                     worker_config_infos,
-                     wips,
-                     pinfo.workers());
+        fillWorkers_(
+          scheduleID, bitPos, worker_config_infos, wips, pinfo.workers());
         pinfo.paths().push_back(new Path{exceptActions_,
                                          actReg_,
-                                         streamIndex,
+                                         scheduleID,
                                          bitPos,
                                          false, // is_end_path
                                          path_name,
@@ -427,7 +427,7 @@ art::PathManager::createModulesAndWorkers()
                                          &pinfo.pathResults()});
         TDEBUG(5) << "Made path 0x" << hex
                   << ((unsigned long)pinfo.paths().back()) << dec << " ("
-                  << streamIndex << ") bitPos: " << bitPos
+                  << scheduleID << ") bitPos: " << bitPos
                   << " name: " << val.first << "\n";
         ++bitPos;
       }
@@ -437,14 +437,14 @@ art::PathManager::createModulesAndWorkers()
   if (!protoEndPathLabels_.empty()) {
     //  Create the end path and the workers on it.
     vector<WorkerInPath> wips;
-    fillWorkers_(0, // stream index
+    fillWorkers_(ScheduleID::first(),
                  0, // bit position
                  protoEndPathLabels_,
                  wips,
                  endPathInfo_.workers());
     endPathInfo_.paths().push_back(new Path{exceptActions_,
                                             actReg_,
-                                            0,    // stream index
+                                            ScheduleID::first(),
                                             0,    // bit position
                                             true, // is_end_path
                                             "end_path",
@@ -463,7 +463,8 @@ art::PathManager::createModulesAndWorkers()
   auto const module_graph =
     make_module_graph(modInfos, protoTrigPathLabelMap_, protoEndPathLabels_);
 
-  auto const graph_filename = procPS_.get<std::string>("services.scheduler.dataDependencyGraph", {});
+  auto const graph_filename =
+    procPS_.get<std::string>("services.scheduler.dataDependencyGraph", {});
   if (!graph_filename.empty()) {
     cet::ostream_handle osh{graph_filename};
     print_module_graph(osh, modInfos, module_graph.first);
@@ -478,9 +479,9 @@ art::PathManager::createModulesAndWorkers()
 }
 
 art::PathsInfo&
-art::PathManager::triggerPathsInfo(int stream)
+art::PathManager::triggerPathsInfo(ScheduleID const sid)
 {
-  return triggerPathsInfo_.at(stream);
+  return triggerPathsInfo_.at(sid.id());
 }
 
 vector<art::PathsInfo>&
@@ -496,21 +497,21 @@ art::PathManager::endPathInfo()
 }
 
 art::Worker*
-art::PathManager::triggerResultsInserter(int si) const
+art::PathManager::triggerResultsInserter(ScheduleID const si) const
 {
-  return triggerResultsInserter_.at(si).get();
+  return triggerResultsInserter_.at(si.id()).get();
 }
 
 void
 art::PathManager::setTriggerResultsInserter(
-  int si,
+  ScheduleID const sid,
   std::unique_ptr<WorkerT<EDProducer>>&& w)
 {
-  triggerResultsInserter_.at(si) = move(w);
+  triggerResultsInserter_.at(sid.id()) = move(w);
 }
 
 void
-art::PathManager::fillWorkers_(int const si,
+art::PathManager::fillWorkers_(ScheduleID const si,
                                int const pi,
                                vector<WorkerInPath::ConfigInfo> const& wci_list,
                                vector<WorkerInPath>& wips,
@@ -527,7 +528,7 @@ art::PathManager::fillWorkers_(int const si,
     auto const& module_threading_type = mci.moduleThreadingType_;
 
     ModuleBase* module = nullptr;
-    // All modules are singletons except for stream modules,
+    // All modules are singletons except for replicated modules,
     // enforce that.
     if (module_threading_type != ModuleThreadingType::REPLICATED) {
       auto iter = moduleSet_.find(module_label);
@@ -542,7 +543,7 @@ art::PathManager::fillWorkers_(int const si,
     }
     Worker* worker = nullptr;
     // Workers which are present on multiple paths should be shared so
-    // that their work is only done once per stream.
+    // that their work is only done once per schedule.
     {
       auto iter = workers.find(module_label);
       if (iter != workers.end()) {
@@ -589,7 +590,8 @@ art::PathManager::fillWorkers_(int const si,
                  "expert.";
           }
           string pathName{"ctor"};
-          CurrentProcessingContext cpc{0, &pathName, 0, false};
+          CurrentProcessingContext cpc{
+            ScheduleID::first(), &pathName, 0, false};
           cpc.activate(0, &md);
           detail::CPCSentry cpc_sentry{cpc};
           actReg_.sPreModuleConstruction.invoke(md);
@@ -735,7 +737,8 @@ art::PathManager::getModuleGraphInfoCollection_()
   };
 
   static std::string const allowed_path_spec{R"([\*a-zA-Z_][\*\?\w]*)"};
-  static std::regex const regex{"(\\w+:)?(!|exception@)?("+allowed_path_spec+")(&noexception)?"};
+  static std::regex const regex{"(\\w+:)?(!|exception@)?(" + allowed_path_spec +
+                                ")(&noexception)?"};
 
   auto fill_select_events_deps = [this](configs_t const& worker_configs,
                                         collection_map_t& info_collection) {
@@ -744,7 +747,8 @@ art::PathManager::getModuleGraphInfoCollection_()
       auto const& ps = allModules_.at(module_name).modPS_;
       auto& graph_info = info_collection[module_name];
       assert(is_observer(graph_info.module_type));
-      auto const path_specs = ps.get<std::vector<std::string>>("SelectEvents", {});
+      auto const path_specs =
+        ps.get<std::vector<std::string>>("SelectEvents", {});
       for (auto const& path_spec : path_specs) {
         std::smatch matches;
         std::regex_match(path_spec, matches, regex);

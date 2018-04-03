@@ -67,7 +67,7 @@ namespace art {
     : md_{md}, actions_{wp.actions_}, actReg_{wp.actReg_}
   {
     TDEBUG(5) << "Worker ctor: 0x" << hex << ((unsigned long)this) << dec
-              << " (" << wp.streamIndex_ << ")"
+              << " (" << wp.scheduleID_ << ")"
               << " name: " << md.moduleName() << " label: " << md.moduleLabel()
               << "\n";
   }
@@ -91,11 +91,7 @@ namespace art {
   }
 
   // Used only by WorkerInPath.
-  bool
-  Worker::returnCode(int /*si*/) const
-  {
-    return returnCode_;
-  }
+  bool Worker::returnCode(ScheduleID /*si*/) const { return returnCode_; }
 
   SerialTaskQueueChain*
   Worker::serialTaskQueueChain() const
@@ -107,7 +103,7 @@ namespace art {
   // Used by Schedule
   // Used by EndPathExecutor
   void
-  Worker::reset(int si)
+  Worker::reset(ScheduleID const si)
   {
     state_ = Ready;
     cached_exception_ = exception_ptr{};
@@ -159,6 +155,8 @@ namespace art {
 
   void
   Worker::beginJob() try {
+    CurrentProcessingContext cpc{ScheduleID::first(), nullptr, -1, false};
+    detail::CPCSentry sentry{cpc};
     actReg_.sPreModuleBeginJob.invoke(md_);
     implBeginJob();
     actReg_.sPostModuleBeginJob.invoke(md_);
@@ -202,6 +200,8 @@ namespace art {
 
   void
   Worker::endJob() try {
+    CurrentProcessingContext cpc{ScheduleID::first(), nullptr, -1, false};
+    detail::CPCSentry sentry{cpc};
     actReg_.sPreModuleEndJob.invoke(md_);
     implEndJob();
     actReg_.sPostModuleEndJob.invoke(md_);
@@ -277,7 +277,7 @@ namespace art {
   }
 
   bool
-  Worker::doWork(Transition trans,
+  Worker::doWork(Transition const trans,
                  Principal& principal,
                  CurrentProcessingContext* cpc)
   {
@@ -403,7 +403,9 @@ namespace art {
   // This is used to do trigger results insertion,
   // and to run workers on the end path.
   void
-  Worker::doWork_event(EventPrincipal& p, int si, CurrentProcessingContext* cpc)
+  Worker::doWork_event(EventPrincipal& p,
+                       ScheduleID const si,
+                       CurrentProcessingContext* cpc)
   {
     ++counts_visited_;
     returnCode_ = false;
@@ -416,7 +418,7 @@ namespace art {
       // have rejected.
       returnCode_ = implDoProcess(p, si, cpc);
       // FIXME: We construct the following context only so the correct
-      // streamIndex is provided within services.
+      // scheduleID is provided within services.
       CurrentProcessingContext cpc{si, nullptr, -1, false};
       detail::CPCSentry sentry2{cpc};
       actReg_.sPostModule.invoke(md_);
@@ -528,7 +530,7 @@ namespace art {
   void
   Worker::doWork_event(WaitingTask* workerInPathDoneTask,
                        EventPrincipal& p,
-                       int si,
+                       ScheduleID const si,
                        CurrentProcessingContext* cpc)
   {
     TDEBUG(4) << "-----> Begin Worker::doWork_event (" << si << ") ...\n";
@@ -688,7 +690,7 @@ namespace art {
       };
       auto chain = serialTaskQueueChain();
       if (chain) {
-        // Must be a legacy or a one module.
+        // Must be a serialized shared module (including legacy).
         TDEBUG(4) << "-----> Worker::doWork_event: si: " << si
                   << " pushing onto chain " << hex << ((unsigned long*)chain)
                   << dec << "\n";
@@ -696,15 +698,15 @@ namespace art {
         TDEBUG(4) << "-----> End   Worker::doWork_event (" << si << ") ...\n";
         return;
       }
-      // Must be a stream or global module.
+      // Must be a replicated or shared module with no serialization.
       TDEBUG(4) << "-----> Worker::doWork_event: si: " << si
                 << " calling worker functor\n";
       runWorkerFunctor();
       TDEBUG(4) << "-----> End   Worker::doWork_event (" << si << ") ...\n";
       return;
     }
-    // Worker is running on another path, exit without
-    // running the waiting worker done tasks.
+    // Worker is running on another path, exit without running the
+    // waiting worker done tasks.
     TDEBUG(4) << "-----> End   Worker::doWork_event (" << si
               << ") ... work already in progress on another path\n";
   }

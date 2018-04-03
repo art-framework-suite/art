@@ -22,6 +22,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
+#include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
@@ -91,26 +92,18 @@ namespace art {
   private: // MEMBER FUCNTIONS -- Event Loop Infrastructure
     // Event-loop infrastructure
 
-    void processAllEventsAsync(int streamIndex);
+    void processAllEventsAsync(ScheduleID);
 
-    void processAllEventsAsync_readAndProcess(int streamIndex);
-
-    // void
-    // processAllEventsAsync_readAndProcess_do_file_switch(hep::concurrency::WaitingTask*
-    // resumeStreamTask, int streamIndex);
-
-    // void
-    // processAllEventsAsync_readAndProcess_after_output_switch(int
-    // streamIndex);
+    void processAllEventsAsync_readAndProcess(ScheduleID);
 
     void processAllEventsAsync_readAndProcess_after_possible_output_switch(
-      int streamIndex);
+      ScheduleID);
 
-    void processAllEventsAsync_processEvent(int streamIndex);
+    void processAllEventsAsync_processEvent(ScheduleID);
 
-    void processAllEventsAsync_processEndPath(int streamIndex);
+    void processAllEventsAsync_processEndPath(ScheduleID);
 
-    void processAllEventsAsync_finishEvent(int streamIndex);
+    void processAllEventsAsync_finishEvent(ScheduleID);
 
     template <Level L>
     bool levelsToProcess();
@@ -262,7 +255,6 @@ namespace art {
     // subruns in flight.
     std::unique_ptr<SubRunPrincipal> subRunPrincipal_{};
 
-    // Note: threading: This will need to be a vector when we implement streams.
     std::vector<std::unique_ptr<EventPrincipal>> eventPrincipal_{};
 
     ProductTables producedProducts_{ProductTables::invalid()};
@@ -278,7 +270,7 @@ namespace art {
     // Set to true for the first event in a subRun to signal
     // that we should not advance to the next entry.
     // Note that this is shared in common between all the
-    // streams.
+    // schedules.
     // FIXME: Only needed because we cannot peek ahead to see
     // that the next entry is an event, we actually must advance
     // to it before we can know.
@@ -294,7 +286,7 @@ namespace art {
 
     std::condition_variable condFileSwitch_{};
 
-    // Used to hold the tasks that will resume the streams
+    // Used to hold the tasks that will resume the schedules
     // after an output file switch.
     hep::concurrency::WaitingTaskList waitingTasks_{};
   };

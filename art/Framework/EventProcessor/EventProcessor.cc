@@ -26,7 +26,6 @@
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/Globals.h"
-#include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
@@ -134,14 +133,14 @@ namespace {
     return string(n, ' ');
   }
 
-class Waiter : public tbb::task {
-public:
-  tbb::task*
-  execute()
-  {
-    return nullptr;
-  }
-};
+  class Waiter : public tbb::task {
+  public:
+    tbb::task*
+    execute()
+    {
+      return nullptr;
+    }
+  };
 
 } // unnamed namespace
 
@@ -201,8 +200,9 @@ EventProcessor::EventProcessor(ParameterSet const& pset)
   pathManager_.createModulesAndWorkers();
   endPathExecutor_ = make_unique<EndPathExecutor>(
     pathManager_, act_table_, actReg_, outputCallbacks_);
-  for (auto I = 0; I < nschedules; ++I) {
-    schedule_.emplace_back(I,
+  for (auto sid = ScheduleID::first(); sid < ScheduleID(nschedules);
+       sid = sid.next()) {
+    schedule_.emplace_back(sid,
                            pathManager_,
                            processName,
                            pset,
@@ -246,7 +246,8 @@ EventProcessor::invokePostBeginJobWorkers_()
   // the postBeginJobWorkers callbacks can understand.
   vector<Worker*> allWorkers;
   {
-    auto const& workers = pathManager_.triggerPathsInfo(0).workers();
+    auto const& workers =
+      pathManager_.triggerPathsInfo(ScheduleID::first()).workers();
     for_each(workers.cbegin(),
              workers.cend(),
              [&allWorkers](auto const& label_And_worker) {
@@ -454,19 +455,19 @@ namespace art {
       auto EventLoopTask = new (tbb::task::allocate_root()) Waiter;
       EventLoopTask->change_group(tgc);
       EventLoopTask->set_ref_count(nschedules + 1);
-      int si = 0;
-      tbb::task_list stream_heads;
-      for (; si < nschedules; ++si) {
+      auto si = ScheduleID::first();
+      tbb::task_list schedule_heads;
+      for (; si < ScheduleID(nschedules); si = si.next()) {
         auto processAllEventsFunctor = [this, si](exception_ptr const*) {
           processAllEventsAsync(si);
         };
-        stream_heads.push_back(*make_waiting_task(
+        schedule_heads.push_back(*make_waiting_task(
           EventLoopTask->allocate_child(), processAllEventsFunctor));
       }
       // FIXME: threading: spawn_and_wait_for_all has the nasty
       // FIXME: threading: habit of consuming lots of cpu time
       // FIXME: threading: in a spin wait.  Replace with a semaphore.
-      EventLoopTask->spawn_and_wait_for_all(stream_heads);
+      EventLoopTask->spawn_and_wait_for_all(schedule_heads);
       tbb::task::destroy(*EventLoopTask);
       // If anything bad happened during event processing,
       // let the user know.
@@ -500,7 +501,7 @@ namespace art {
 // It makes a continuation task which reads and processes a single
 // event, creates itself again as a continuation task, and then exits.
 void
-EventProcessor::processAllEventsAsync(int si)
+EventProcessor::processAllEventsAsync(ScheduleID const si)
 {
   TDEBUG(4) << "-----> Begin EventProcessor::processAllEventsAsync (" << si
             << ") ...\n";
@@ -549,7 +550,7 @@ EventProcessor::processAllEventsAsync(int si)
 // if it is not an event, or if the user has requested a shutdown, read the
 // event, and then call another function to do the processing.
 void
-EventProcessor::processAllEventsAsync_readAndProcess(int si)
+EventProcessor::processAllEventsAsync_readAndProcess(ScheduleID const si)
 {
   TDEBUG(4)
     << "-----> Begin EventProcessor::processAllEventsAsync_readAndProcess ("
@@ -573,15 +574,17 @@ EventProcessor::processAllEventsAsync_readAndProcess(int si)
 // This function is a continuation of the body of the readAndProcessEvent task.
 void
 EventProcessor::
-  processAllEventsAsync_readAndProcess_after_possible_output_switch(int si)
+  processAllEventsAsync_readAndProcess_after_possible_output_switch(
+    ScheduleID const si)
 {
   TDEBUG(4) << "-----> Begin "
                "EventProcessor::processAllEventsAsync_readAndProcess_after_"
                "possible_output_switch ("
             << si << ") ...\n";
-  // The item type advance and the event read must be
-  // done with the input source lock held, however the
-  // event processing should not be.
+  // The item type advance and the event read must be done with the
+  // input source lock held, however the event processing should not
+  // be.
+  auto& ep = eventPrincipal_[si.id()];
   {
     // FIXME: By using a recursive mutex here we are assuming
     // FIXME: that all the other schedules are definitely running
@@ -590,29 +593,28 @@ EventProcessor::
     lock_guard<recursive_mutex> lock_input(
       *SharedResourcesRegistry::instance()->getMutexForSource());
     if (fileSwitchInProgress_) {
-      // We must avoid advancing the iterator after
-      // a stream has noticed it is time to switch files.
-      // After the switch, we will need to set firstEvent_
-      // true so that the first stream that resumes after
-      // the switch actually reads the event that the first
-      // stream which noticed we needed a switch had advanced
-      // the iterator to.
-      // Note: We still have the problem that because the
-      // schedules do not read events at the same time the file
-      // switch point can be up to #schedules-1 ahead of where
-      // it would have been if there was only one stream.
-      // If we are switching output files every event in an
-      // attempt to create single event files, this really does
-      // not work out too well.
+      // We must avoid advancing the iterator after a schedule has
+      // noticed it is time to switch files.  After the switch, we
+      // will need to set firstEvent_ true so that the first schedule
+      // that resumes after the switch actually reads the event that
+      // the first schedule which noticed we needed a switch had
+      // advanced the iterator to.
+
+      // Note: We still have the problem that because the schedules do
+      // not read events at the same time the file switch point can be
+      // up to #schedules-1 ahead of where it would have been if there
+      // was only one schedule.  If we are switching output files every
+      // event in an attempt to create single event files, this really
+      // does not work out too well.
       TDEBUG(4) << "-----> End   "
                    "EventProcessor::processAllEventsAsync_readAndProcess ("
                 << si << ") ...\n";
       return;
     }
     //
-    //  Check the file index for what comes next and exit
-    //  this task if it is not an event, or if the user
-    //  has asynchronously requested a shutdown.
+    //  Check the file index for what comes next and exit this task if
+    //  it is not an event, or if the user has asynchronously
+    //  requested a shutdown.
     //
     auto expected = true;
     if (firstEvent_.compare_exchange_strong(expected, false)) {
@@ -648,7 +650,7 @@ EventProcessor::
       // At this point we have determined that we are going to read an event
       // and we must do that before dropping the lock on the input source
       // which is what is protecting us against a double-advance caused by
-      // a different stream.
+      // a different schedule.
       if (endPathExecutor_->outputsToClose()) {
         TDEBUG(5)
           << "-----> EventProcessor::processAllEventsAsync_readAndProcess ("
@@ -676,23 +678,22 @@ EventProcessor::
              "EventProcessor::processAllEventsAsync_readAndProcess_after_"
              "possible_output_switch ("
           << si << ") ... Calling input_->readEvent(subRunPrincipal_.get())\n";
-        eventPrincipal_[si] = input_->readEvent(subRunPrincipal_.get());
-        assert(eventPrincipal_[si]);
-        eventPrincipal_[si]->enableProductCreation(producedProducts_);
-        psSignals_.sPostReadEvent.invoke(*eventPrincipal_[si]);
+        ep = input_->readEvent(subRunPrincipal_.get());
+        assert(ep);
+        ep->enableProductCreation(producedProducts_);
+        psSignals_.sPostReadEvent.invoke(*ep);
 
-        eventPrincipal_[si]->setProducedProducts(producedProducts_);
-        Event const e{
-          *eventPrincipal_[si], ModuleDescription{}, TypeLabelLookup_t{}};
+        ep->setProducedProducts(producedProducts_);
+        Event const e{*ep, ModuleDescription{}, TypeLabelLookup_t{}};
         actReg_.sPostSourceEvent.invoke(e);
       }
-      assert(eventPrincipal_[si]);
-      FDEBUG(1) << spaces(8) << "readEvent...................("
-                << eventPrincipal_[si]->eventID() << ")\n";
+      assert(ep);
+      FDEBUG(1) << spaces(8) << "readEvent...................(" << ep->eventID()
+                << ")\n";
     }
     // Now we drop the input source lock by exiting the guarded scope.
   }
-  if (eventPrincipal_[si]->eventID().isFlush()) {
+  if (ep->eventID().isFlush()) {
     // No processing to do, start next event handling task,
     // transferring our parent task (EventLoopTask) to it,
     // and exit this task.
@@ -723,15 +724,15 @@ EventProcessor::
 // gave it to do the end path processing, write the event, and then start the
 // next event processing task.
 void
-EventProcessor::processAllEventsAsync_processEvent(int si)
+EventProcessor::processAllEventsAsync_processEvent(ScheduleID const si)
 {
   TDEBUG(4)
     << "-----> Begin EventProcessor::processAllEventsAsync_processEvent (" << si
     << ") ...\n";
   auto eventLoopTask = tbb::task::self().parent();
   {
-    assert(eventPrincipal_[si]);
-    assert(!eventPrincipal_[si]->eventID().isFlush());
+    assert(eventPrincipal_[si.id()]);
+    assert(!eventPrincipal_[si.id()]->eventID().isFlush());
     {
       try {
         auto endPathFunctor = [this, si](exception_ptr const* ex) {
@@ -800,8 +801,9 @@ EventProcessor::processAllEventsAsync_processEvent(int si)
         auto endPathTask = make_waiting_task(
           tbb::task::self().allocate_continuation(), endPathFunctor);
         {
-          Event const ev{
-            *eventPrincipal_[si], ModuleDescription{}, TypeLabelLookup_t{}};
+          Event const ev{*eventPrincipal_[si.id()],
+                         ModuleDescription{},
+                         TypeLabelLookup_t{}};
           CurrentProcessingContext cpc{si, nullptr, -1, false};
           detail::CPCSentry sentry{cpc};
           actReg_.sPreProcessEvent.invoke(ev);
@@ -810,7 +812,8 @@ EventProcessor::processAllEventsAsync_processEvent(int si)
         // they will spawn the endPathTask which will run the
         // end path, write the event, and start the next event
         // processing task.
-        schedule_[si].process_event(endPathTask, *eventPrincipal_[si], si);
+        schedule_[si.id()].process_event(
+          endPathTask, *eventPrincipal_[si.id()], si);
         // Once the trigger paths are running we are done, exit this task,
         // which does not end event processing because our parent is the
         // nullptr because we transferred it to the endPathTask above.
@@ -897,7 +900,7 @@ EventProcessor::processAllEventsAsync_processEvent(int si)
 // the schedules end when we push onto the queue, and are recreated
 // after the event is written to process the next event.
 void
-EventProcessor::processAllEventsAsync_processEndPath(int si)
+EventProcessor::processAllEventsAsync_processEndPath(ScheduleID const si)
 {
   TDEBUG(4)
     << "-----> Begin EventProcessor::processAllEventsAsync_processEndPath ("
@@ -907,6 +910,7 @@ EventProcessor::processAllEventsAsync_processEndPath(int si)
   // terminating event processing.
   tbb::task::self().set_parent(nullptr);
   auto endPathFunctor = [this, si, eventLoopTask] {
+    auto& ep = eventPrincipal_[si.id()];
     TDEBUG(4) << "=====> Begin "
                  "EventProcessor::processAllEventsAsync_processEndPath::"
                  "endPathFunctor ("
@@ -915,7 +919,7 @@ EventProcessor::processAllEventsAsync_processEndPath(int si)
     // processing if we want to.
     tbb::task::self().set_parent(eventLoopTask);
     try {
-      endPathExecutor_->process_event(*eventPrincipal_[si], si);
+      endPathExecutor_->process_event(*ep, si);
     }
     catch (cet::exception& e) {
       // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
@@ -969,8 +973,7 @@ EventProcessor::processAllEventsAsync_processEndPath(int si)
       return;
     }
     {
-      Event const ev{
-        *eventPrincipal_[si], ModuleDescription{}, TypeLabelLookup_t{}};
+      Event const ev{*ep, ModuleDescription{}, TypeLabelLookup_t{}};
       CurrentProcessingContext cpc{si, nullptr, -1, false};
       detail::CPCSentry sentry{cpc};
       actReg_.sPostProcessEvent.invoke(ev);
@@ -1001,13 +1004,14 @@ EventProcessor::processAllEventsAsync_processEndPath(int si)
 // We write the event out, spawn the next event processing task, and
 // end the current task.
 void
-EventProcessor::processAllEventsAsync_finishEvent(int si)
+EventProcessor::processAllEventsAsync_finishEvent(ScheduleID const si)
 {
+  auto& ep = eventPrincipal_[si.id()];
   TDEBUG(4)
     << "-----> Begin EventProcessor::processAllEventsAsync_finishEvent (" << si
     << ") ...\n";
-  FDEBUG(1) << spaces(8) << "processEvent................("
-            << eventPrincipal_[si]->eventID() << ")\n";
+  FDEBUG(1) << spaces(8) << "processEvent................(" << ep->eventID()
+            << ")\n";
   try {
     // Ask the output workers if they have reached their limits,
     // and if so setup to end the job the next time around the
@@ -1023,8 +1027,8 @@ EventProcessor::processAllEventsAsync_finishEvent(int si)
     //  to the outputs.
     //
     {
-      assert(eventPrincipal_[si]);
-      if (!eventPrincipal_[si]->eventID().isFlush()) {
+      assert(ep);
+      if (!ep->eventID().isFlush()) {
         {
           TDEBUG(5)
             << "-----> EventProcessor::processAllEventsAsync_finishEvent ("
@@ -1041,17 +1045,17 @@ EventProcessor::processAllEventsAsync_finishEvent(int si)
           }
         }
         {
-          assert(eventPrincipal_[si]);
-          assert(!eventPrincipal_[si]->eventID().isFlush());
+          assert(ep);
+          assert(!ep->eventID().isFlush());
           TDEBUG(5)
             << "-----> EventProcessor::processAllEventsAsync_finishEvent ("
             << si
             << ") ... calling endPathExecutor_->writeEvent(si, "
-               "*eventPrincipal_[si])\n";
-          endPathExecutor_->writeEvent(si, *eventPrincipal_[si]);
+               "*ep)\n";
+          endPathExecutor_->writeEvent(si, *ep);
           FDEBUG(1) << spaces(8) << "writeEvent..................("
-                    << eventPrincipal_[si]->eventID() << ")\n";
-          eventPrincipal_[si].reset();
+                    << ep->eventID() << ")\n";
+          ep.reset();
         }
       }
     }

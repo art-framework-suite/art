@@ -525,7 +525,7 @@ namespace art {
   //            OutputModule::updateBranchChildren()
   //
   //       Principal::readImmediate() is called just after principal creation
-  //       with the input mutex held.  Module tasks on other streams could be
+  //       with the input mutex held.  Module tasks on other schedules could be
   //       doing puts which would invalid the iterator if the data product being
   //       put does not exist in the input file and is being put for the first
   //       time so this is a group insertion.
@@ -1061,10 +1061,8 @@ namespace art {
     if (!g->anyProduct() && !g->productProvenance()) {
       return OutputHandle{g->rangeOfValidity()};
     }
-    return OutputHandle{g->anyProduct(),
-        &pd,
-                        g->productProvenance(),
-                        g->rangeOfValidity()};
+    return OutputHandle{
+      g->anyProduct(), &pd, g->productProvenance(), g->rangeOfValidity()};
   }
 
   cet::exempt_ptr<BranchDescription const>

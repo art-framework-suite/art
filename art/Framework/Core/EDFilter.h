@@ -86,7 +86,7 @@ namespace art {
                      cet::exempt_ptr<CurrentProcessingContext const> cpc);
 
     bool doEvent(EventPrincipal& ep,
-                 int streamIndex,
+                 ScheduleID scheduleID,
                  CurrentProcessingContext const* cpc,
                  std::atomic<std::size_t>& counts_run,
                  std::atomic<std::size_t>& counts_passed,

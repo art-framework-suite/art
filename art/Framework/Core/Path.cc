@@ -43,7 +43,7 @@ namespace art {
 
   Path::Path(ActionTable& actions,
              ActivityRegistry& actReg,
-             int const si,
+             ScheduleID const si,
              int const bitpos,
              bool const isEndPath,
              string const& path_name,
@@ -51,7 +51,7 @@ namespace art {
              HLTGlobalStatus* pathResults) noexcept
     : actionTable_{actions}
     , actReg_{actReg}
-    , streamIndex_{si}
+    , scheduleID_{si}
     , bitpos_{bitpos}
     , name_{path_name}
     , workers_{move(workers)}
@@ -62,10 +62,10 @@ namespace art {
     TDEBUG(5) << "Path ctor: 0x" << hex << ((unsigned long)this) << dec << "\n";
   }
 
-  int
-  Path::streamIndex() const
+  ScheduleID
+  Path::scheduleID() const
   {
-    return streamIndex_;
+    return scheduleID_;
   }
 
   int
@@ -184,7 +184,7 @@ namespace art {
   // is the eventLoop task.  We will run the workers on the
   // path in order serially without using tasks.
   void
-  Path::process_event_for_endpath(EventPrincipal& ep, int si)
+  Path::process_event_for_endpath(EventPrincipal& ep, ScheduleID const si)
   {
     TDEBUG(4) << "-----> Begin Path::process_event_for_endpath (" << si
               << ") ...\n";
@@ -283,7 +283,9 @@ namespace art {
   // as part of the endPath task.  Our parent is the nullptr.
   // The parent of the pathsDoneTask is the eventLoop task.
   void
-  Path::process_event(WaitingTask* pathsDoneTask, EventPrincipal& ep, int si)
+  Path::process_event(WaitingTask* pathsDoneTask,
+                      EventPrincipal& ep,
+                      ScheduleID const si)
   {
     TDEBUG(4) << "-----> Begin Path::process_event (" << si << ") ...\n";
     {
@@ -314,10 +316,10 @@ namespace art {
   // on the endPathsTask when finished (which causes it to run if we are
   // the last path to finish running its workers).
   void
-  Path::process_event_idx_asynch(size_t idx,
+  Path::process_event_idx_asynch(size_t const idx,
                                  size_t const max_idx,
                                  EventPrincipal& ep,
-                                 int si,
+                                 ScheduleID const si,
                                  CurrentProcessingContext* cpc)
   {
     TDEBUG(4) << "-----> Begin Path::process_event_idx_asynch: si: " << si
@@ -355,7 +357,7 @@ namespace art {
   Path::process_event_idx(size_t const idx,
                           size_t const max_idx,
                           EventPrincipal& ep,
-                          int si,
+                          ScheduleID const si,
                           CurrentProcessingContext* cpc)
   {
     TDEBUG(4) << "-----> Begin Path::process_event_idx: si: " << si
@@ -434,7 +436,7 @@ namespace art {
   Path::process_event_workerFinished(size_t const idx,
                                      size_t const max_idx,
                                      EventPrincipal& ep,
-                                     int si,
+                                     ScheduleID const si,
                                      bool const should_continue,
                                      CurrentProcessingContext* cpc)
   {
@@ -464,7 +466,7 @@ namespace art {
   void
   Path::process_event_pathFinished(size_t const idx,
                                    EventPrincipal& /*ep*/,
-                                   int si,
+                                   ScheduleID const si,
                                    bool const should_continue,
                                    CurrentProcessingContext* /*cpc*/)
   {

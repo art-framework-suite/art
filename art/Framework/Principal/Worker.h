@@ -98,13 +98,13 @@ namespace art {
 
     void doWork_event(hep::concurrency::WaitingTask* workerInPathDoneTask,
                       EventPrincipal&,
-                      int streamIndex,
+                      ScheduleID scheduleID,
                       CurrentProcessingContext*);
 
     // This is used to do trigger results insertion,
     // and to run workers on the end path.
     void doWork_event(EventPrincipal&,
-                      int streamIndex,
+                      ScheduleID scheduleID,
                       CurrentProcessingContext*);
 
     ModuleDescription const& description() const;
@@ -114,14 +114,14 @@ namespace art {
     std::string const& label() const;
 
     // Used only by WorkerInPath.
-    bool returnCode(int streamIndex) const;
+    bool returnCode(ScheduleID scheduleID) const;
 
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
 
     // Used by EventProcessor
     // Used by Schedule
     // Used by EndPathExecutor
-    void reset(int streamIndex);
+    void reset(ScheduleID scheduleID);
 
     // Used only by writeSummary
     std::size_t timesVisited() const;
@@ -161,7 +161,7 @@ namespace art {
                            CurrentProcessingContext* cpc) = 0;
 
     virtual bool implDoProcess(EventPrincipal&,
-                               int streamIndex,
+                               ScheduleID scheduleID,
                                CurrentProcessingContext* cpc) = 0;
 
   private: // MEMBER FUNCTIONS -- API implementation classes must use to provide
@@ -184,24 +184,25 @@ namespace art {
     std::atomic<int> state_{Ready};
 
     // if state is 'exception'
-    // Note: threading: There is no accessor for this data,
-    // the only way it is ever used is from the doWork*
-    // functions.  Right now event processing only sets it,
-    // but run and subrun processing reads it.  It is not
-    // clear that event processing needs this anymore,
-    // and if we go to multiple runs and subruns in flight,
-    // they may not need it anymore as well.  For now, leave
-    // this, is not thread safe.
+    //
+    // MT note: There is no accessor for this data, the only way it is
+    //          ever used is from the doWork* functions.  Right now
+    //          event processing only sets it, but run and subrun
+    //          processing reads it.  It is not clear that event
+    //          processing needs this anymore, and if we go to
+    //          multiple runs and subruns in flight, they may not need
+    //          it anymore as well.  For now, leave this, is not
+    //          thread safe.
     std::exception_ptr cached_exception_{};
 
     std::atomic<bool> workStarted_{false};
 
     std::atomic<bool> returnCode_{false};
 
-    // Holds the waiting workerInPathDone tasks.
-    // Note: For legacy, one, and global modules the workers are
-    // shared.  For stream modules each stream has its own
-    // private worker copies (the whole reason streams exist!).
+    // Holds the waiting workerInPathDone tasks.  Note: For shared
+    // modules the workers are shared.  For replicated modules each
+    // schedule has its own private worker copies (the whole reason
+    // schedules exist!).
     hep::concurrency::WaitingTaskList waitingTasks_{};
 
   protected: // MEMBER DATA -- counts

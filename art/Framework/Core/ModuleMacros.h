@@ -54,7 +54,7 @@ namespace art {
   {                                                                            \
     art::ModuleBase* mod = new klass(wp.pset_);                                \
     mod->setModuleDescription(md);                                             \
-    mod->setStreamIndex(wp.streamIndex_);                                      \
+    mod->setScheduleID(wp.scheduleID_);                                        \
     return mod;                                                                \
   }                                                                            \
   art::Worker*                                                                 \

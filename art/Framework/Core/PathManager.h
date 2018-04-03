@@ -70,16 +70,16 @@ namespace art {
     std::vector<std::string> const& triggerPathNames() const;
     void createModulesAndWorkers();
 
-    PathsInfo& triggerPathsInfo(int stream);
+    PathsInfo& triggerPathsInfo(ScheduleID scheduleID);
     std::vector<PathsInfo>& triggerPathsInfo();
     PathsInfo& endPathInfo();
 
-    Worker* triggerResultsInserter(int streamIndex) const;
-    void setTriggerResultsInserter(int streamIndex,
+    Worker* triggerResultsInserter(ScheduleID scheduleID) const;
+    void setTriggerResultsInserter(ScheduleID scheduleID,
                                    std::unique_ptr<WorkerT<EDProducer>>&&);
 
   private:
-    void fillWorkers_(int si,
+    void fillWorkers_(ScheduleID si,
                       int pi,
                       std::vector<WorkerInPath::ConfigInfo> const& wci_list,
                       std::vector<WorkerInPath>& wips,
@@ -103,7 +103,7 @@ namespace art {
     // All unique worker objects from any and all paths.
     std::map<module_label_t, Worker*> workerSet_{};
 
-    // Key is stream number.
+    // Key is schedule number.
     std::vector<PathsInfo> triggerPathsInfo_{};
 
     PathsInfo endPathInfo_{};

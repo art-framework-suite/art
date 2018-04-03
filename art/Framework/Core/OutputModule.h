@@ -181,7 +181,7 @@ namespace art {
                      CurrentProcessingContext const* cpc);
 
     bool doEvent(EventPrincipal const& ep,
-                 int streamIndex,
+                 ScheduleID scheduleID,
                  CurrentProcessingContext const* cpc,
                  std::atomic<std::size_t>& counts_run,
                  std::atomic<std::size_t>& counts_passed,

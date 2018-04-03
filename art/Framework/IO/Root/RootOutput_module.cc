@@ -556,15 +556,15 @@ namespace art {
   RootOutput::fileNameAtOpen() const
   {
     return filePattern_ == dev_null ? dev_null :
-      unique_filename(tmpDir_ + "/RootOutput");
+                                      unique_filename(tmpDir_ + "/RootOutput");
   }
 
   string
   RootOutput::fileNameAtClose(std::string const& currentFileName)
   {
     return filePattern_ == dev_null ?
-      dev_null :
-      fRenamer_.maybeRenameFile(currentFileName, filePattern_);
+             dev_null :
+             fRenamer_.maybeRenameFile(currentFileName, filePattern_);
   }
 
   string const&

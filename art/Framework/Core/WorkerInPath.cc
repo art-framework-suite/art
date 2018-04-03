@@ -90,11 +90,7 @@ namespace art {
   }
 
   // Used only by Path
-  bool
-  WorkerInPath::returnCode(int /*si*/) const
-  {
-    return returnCode_;
-  }
+  bool WorkerInPath::returnCode(ScheduleID /*si*/) const { return returnCode_; }
 
   string const&
   WorkerInPath::label() const
@@ -117,7 +113,6 @@ namespace art {
   size_t
   WorkerInPath::timesVisited() const
   {
-    // return counts_.times<stats::Visited>();
     return counts_visited_;
   }
 
@@ -125,7 +120,6 @@ namespace art {
   size_t
   WorkerInPath::timesPassed() const
   {
-    // return counts_.times<stats::Passed>();
     return counts_passed_;
   }
 
@@ -133,7 +127,6 @@ namespace art {
   size_t
   WorkerInPath::timesFailed() const
   {
-    // return counts_.times<stats::Failed>();
     return counts_failed_;
   }
 
@@ -141,7 +134,6 @@ namespace art {
   size_t
   WorkerInPath::timesExcept() const
   {
-    // return counts_.times<stats::ExceptionThrown>();
     return counts_thrown_;
   }
 
@@ -157,7 +149,7 @@ namespace art {
 
   void
   WorkerInPath::runWorker_event_for_endpath(EventPrincipal& ep,
-                                            int si,
+                                            ScheduleID const si,
                                             CurrentProcessingContext* cpc)
   {
     TDEBUG(4) << "-----> Begin WorkerInPath::runWorker_event_for_endpath ("
@@ -194,7 +186,7 @@ namespace art {
   void
   WorkerInPath::runWorker_event(WaitingTask* workerDoneTask,
                                 EventPrincipal& ep,
-                                int si,
+                                ScheduleID const si,
                                 CurrentProcessingContext* cpc)
   {
     TDEBUG(4) << "-----> Begin WorkerInPath::runWorker_event (" << si

@@ -212,7 +212,8 @@ evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans)
 
   TriggerResults results_id(bm, trigger_pset.id());
 
-  bool const x = select_based_on_path_specifiers_and_names.acceptEvent(results_id);
+  bool const x =
+    select_based_on_path_specifiers_and_names.acceptEvent(results_id);
   bool const y = select_based_on_path_specifiers_only.acceptEvent(results_id);
 
   if (x != ans || y != ans) {
