@@ -173,9 +173,7 @@ EventProcessor::EventProcessor(ParameterSet const& pset)
     << tbb::this_task_arena::max_concurrency() << " threads.";
   Globals::instance()->setNThreads(nthreads);
 
-  auto const nschedules = pset.get<int>("services.scheduler.num_schedules");
-  Globals::instance()->setNSchedules(nschedules);
-  eventPrincipal_.resize(nschedules);
+  auto const nschedules = eventPrincipal_.expand_to_num_schedules();
   {
     ostringstream buf;
     buf << "-----> EventProcessor::EventProcessor: nschedules: " << nschedules
@@ -584,7 +582,7 @@ EventProcessor::
   // The item type advance and the event read must be done with the
   // input source lock held, however the event processing should not
   // be.
-  auto& ep = eventPrincipal_[si.id()];
+  auto& ep = eventPrincipal_[si];
   {
     // FIXME: By using a recursive mutex here we are assuming
     // FIXME: that all the other schedules are definitely running
@@ -731,8 +729,8 @@ EventProcessor::processAllEventsAsync_processEvent(ScheduleID const si)
     << ") ...\n";
   auto eventLoopTask = tbb::task::self().parent();
   {
-    assert(eventPrincipal_[si.id()]);
-    assert(!eventPrincipal_[si.id()]->eventID().isFlush());
+    assert(eventPrincipal_[si]);
+    assert(!eventPrincipal_[si]->eventID().isFlush());
     {
       try {
         auto endPathFunctor = [this, si](exception_ptr const* ex) {
@@ -801,7 +799,7 @@ EventProcessor::processAllEventsAsync_processEvent(ScheduleID const si)
         auto endPathTask = make_waiting_task(
           tbb::task::self().allocate_continuation(), endPathFunctor);
         {
-          Event const ev{*eventPrincipal_[si.id()],
+          Event const ev{*eventPrincipal_[si],
                          ModuleDescription{},
                          TypeLabelLookup_t{}};
           CurrentProcessingContext cpc{si, nullptr, -1, false};
@@ -812,8 +810,8 @@ EventProcessor::processAllEventsAsync_processEvent(ScheduleID const si)
         // they will spawn the endPathTask which will run the
         // end path, write the event, and start the next event
         // processing task.
-        schedule_[si.id()].process_event(
-          endPathTask, *eventPrincipal_[si.id()], si);
+        schedule_[si].process_event(
+          endPathTask, *eventPrincipal_[si], si);
         // Once the trigger paths are running we are done, exit this task,
         // which does not end event processing because our parent is the
         // nullptr because we transferred it to the endPathTask above.
@@ -910,7 +908,7 @@ EventProcessor::processAllEventsAsync_processEndPath(ScheduleID const si)
   // terminating event processing.
   tbb::task::self().set_parent(nullptr);
   auto endPathFunctor = [this, si, eventLoopTask] {
-    auto& ep = eventPrincipal_[si.id()];
+    auto& ep = eventPrincipal_[si];
     TDEBUG(4) << "=====> Begin "
                  "EventProcessor::processAllEventsAsync_processEndPath::"
                  "endPathFunctor ("
@@ -1006,7 +1004,7 @@ EventProcessor::processAllEventsAsync_processEndPath(ScheduleID const si)
 void
 EventProcessor::processAllEventsAsync_finishEvent(ScheduleID const si)
 {
-  auto& ep = eventPrincipal_[si.id()];
+  auto& ep = eventPrincipal_[si];
   TDEBUG(4)
     << "-----> Begin EventProcessor::processAllEventsAsync_finishEvent (" << si
     << ") ...\n";
@@ -1216,7 +1214,7 @@ EventProcessor::beginJob()
                                 " processing the beginJob of the 'source'\n";
     throw;
   }
-  schedule_[0].beginJob();
+  schedule_[ScheduleID::first()].beginJob();
   endPathExecutor_->beginJob();
   actReg_.sPostBeginJob.invoke();
   invokePostBeginJobWorkers_();
@@ -1226,7 +1224,7 @@ void
 EventProcessor::endJob()
 {
   FDEBUG(1) << spaces(8) << "endJob\n";
-  ec_.call([this] { schedule_[0].endJob(); });
+  ec_.call([this] { schedule_[ScheduleID::first()].endJob(); });
   ec_.call([this] { endPathExecutor_->endJob(); });
   ec_.call([] { ConsumesInfo::instance()->showMissingConsumes(); });
   ec_.call([this] { input_->doEndJob(); });
@@ -1336,7 +1334,7 @@ EventProcessor::closeSomeOutputFiles()
 void
 EventProcessor::respondToOpenInputFile()
 {
-  schedule_[0].respondToOpenInputFile(*fb_);
+  schedule_[ScheduleID::first()].respondToOpenInputFile(*fb_);
   endPathExecutor_->respondToOpenInputFile(*fb_);
   FDEBUG(1) << spaces(8) << "respondToOpenInputFile\n";
 }
@@ -1344,7 +1342,7 @@ EventProcessor::respondToOpenInputFile()
 void
 EventProcessor::respondToCloseInputFile()
 {
-  schedule_[0].respondToCloseInputFile(*fb_);
+  schedule_[ScheduleID::first()].respondToCloseInputFile(*fb_);
   endPathExecutor_->respondToCloseInputFile(*fb_);
   FDEBUG(1) << spaces(8) << "respondToCloseInputFile\n";
 }
@@ -1352,7 +1350,7 @@ EventProcessor::respondToCloseInputFile()
 void
 EventProcessor::respondToOpenOutputFiles()
 {
-  schedule_[0].respondToOpenOutputFiles(*fb_);
+  schedule_[ScheduleID::first()].respondToOpenOutputFiles(*fb_);
   endPathExecutor_->respondToOpenOutputFiles(*fb_);
   FDEBUG(1) << spaces(8) << "respondToOpenOutputFiles\n";
 }
@@ -1360,7 +1358,7 @@ EventProcessor::respondToOpenOutputFiles()
 void
 EventProcessor::respondToCloseOutputFiles()
 {
-  schedule_[0].respondToCloseOutputFiles(*fb_);
+  schedule_[ScheduleID::first()].respondToCloseOutputFiles(*fb_);
   endPathExecutor_->respondToCloseOutputFiles(*fb_);
   FDEBUG(1) << spaces(8) << "respondToCloseOutputFiles\n";
 }
@@ -1402,7 +1400,7 @@ EventProcessor::beginRun()
       Run const run{*runPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
       actReg_.sPreBeginRun.invoke(run);
     }
-    schedule_[0].process(Transition::BeginRun, *runPrincipal_);
+    schedule_[ScheduleID::first()].process(Transition::BeginRun, *runPrincipal_);
     endPathExecutor_->process(Transition::BeginRun, *runPrincipal_);
     {
       Run const run{*runPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
@@ -1456,7 +1454,7 @@ EventProcessor::endRun()
       actReg_.sPreEndRun.invoke(runPrincipal_->runID(),
                                 runPrincipal_->endTime());
     }
-    schedule_[0].process(Transition::EndRun, *runPrincipal_);
+    schedule_[ScheduleID::first()].process(Transition::EndRun, *runPrincipal_);
     endPathExecutor_->process(Transition::EndRun, *runPrincipal_);
     {
       Run const r{*runPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
@@ -1527,7 +1525,7 @@ EventProcessor::beginSubRun()
         *subRunPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
       actReg_.sPreBeginSubRun.invoke(srun);
     }
-    schedule_[0].process(Transition::BeginSubRun, *subRunPrincipal_);
+    schedule_[ScheduleID::first()].process(Transition::BeginSubRun, *subRunPrincipal_);
     endPathExecutor_->process(Transition::BeginSubRun, *subRunPrincipal_);
     {
       SubRun const srun{
@@ -1582,7 +1580,7 @@ EventProcessor::endSubRun()
       actReg_.sPreEndSubRun.invoke(subRunPrincipal_->subRunID(),
                                    subRunPrincipal_->endTime());
     }
-    schedule_[0].process(Transition::EndSubRun, *subRunPrincipal_);
+    schedule_[ScheduleID::first()].process(Transition::EndSubRun, *subRunPrincipal_);
     endPathExecutor_->process(Transition::EndSubRun, *subRunPrincipal_);
     {
       SubRun const srun{

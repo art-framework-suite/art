@@ -103,7 +103,7 @@ art::detail::writeSummary(PathManager& pm,
 
 void
 art::detail::triggerReport(PathsInfo const& epi,
-                           std::vector<PathsInfo> const& tpis,
+                           PerScheduleContainer<PathsInfo> const& tpis,
                            bool const wantSummary)
 {
   SummaryCounts total_counts{};

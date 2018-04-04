@@ -150,6 +150,7 @@ namespace art {
   class Globals {
 
     friend class EventProcessor;
+    friend class PathManager;
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~Globals();

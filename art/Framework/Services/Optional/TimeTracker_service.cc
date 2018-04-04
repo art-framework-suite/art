@@ -11,6 +11,7 @@
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Utilities/Globals.h"
+#include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/PerThread.h"
 #include "art/Utilities/ScheduleID.h"
 #include "boost/format.hpp"
@@ -142,7 +143,7 @@ private:
     steady_clock::time_point eventStart;
     steady_clock::time_point moduleStart;
   };
-  std::vector<PerScheduleData> data_;
+  PerScheduleContainer<PerScheduleData> data_;
 
   bool printSummary_;
   cet::sqlite::Connection db_;
@@ -171,7 +172,8 @@ private:
 
 art::TimeTracker::TimeTracker(ServiceTable<Config> const& config,
                               ActivityRegistry& iRegistry)
-  : printSummary_{config().printSummary()}
+  : data_(Globals::instance()->nschedules())
+  , printSummary_{config().printSummary()}
   , db_{ServiceHandle<DatabaseConnection>{}->get(
       config().dbOutput().filename())}
   , overwriteContents_{config().dbOutput().overwrite()} // table headers
@@ -188,9 +190,6 @@ art::TimeTracker::TimeTracker(ServiceTable<Config> const& config,
   , timeEventTable_{db_, "TimeEvent", timeEventTuple_, overwriteContents_}
   , timeModuleTable_{db_, "TimeModule", timeModuleTuple_, overwriteContents_}
 {
-
-  data_.resize(Globals::instance()->nschedules());
-
   iRegistry.sPostSourceConstruction.watch(this,
                                           &TimeTracker::postSourceConstruction);
   iRegistry.sPreProcessPath.watch(this, &TimeTracker::prePathProcessing);
@@ -218,7 +217,7 @@ void
 art::TimeTracker::prePathProcessing(string const& pathname)
 {
   auto const sid = PerThread::instance()->getCPC().scheduleID();
-  data_[sid.id()].pathName = pathname;
+  data_[sid].pathName = pathname;
 }
 
 //======================================================================
@@ -318,7 +317,7 @@ void
 art::TimeTracker::preEventReading()
 {
   auto const sid = PerThread::instance()->getCPC().scheduleID();
-  auto& d = data_[sid.id()];
+  auto& d = data_[sid];
   d.eventID = EventID::invalidEvent();
   d.eventStart = now();
 }
@@ -327,7 +326,7 @@ void
 art::TimeTracker::postEventReading(Event const& e)
 {
   auto const sid = PerThread::instance()->getCPC().scheduleID();
-  auto& d = data_[sid.id()];
+  auto& d = data_[sid];
   d.eventID = e.id();
 
   auto const t = std::chrono::duration<double>{now() - d.eventStart}.count();
@@ -340,7 +339,7 @@ void
 art::TimeTracker::preEventProcessing(Event const& e[[gnu::unused]])
 {
   auto const sid = PerThread::instance()->getCPC().scheduleID();
-  auto& d = data_[sid.id()];
+  auto& d = data_[sid];
   assert(d.eventID == e.id());
   d.eventStart = now();
 }
@@ -349,7 +348,7 @@ void
 art::TimeTracker::postEventProcessing(Event const&)
 {
   auto const sid = PerThread::instance()->getCPC().scheduleID();
-  auto const& d = data_[sid.id()];
+  auto const& d = data_[sid];
   auto const t = std::chrono::duration<double>{now() - d.eventStart}.count();
   timeEventTable_.insert(
     d.eventID.run(), d.eventID.subRun(), d.eventID.event(), t);
@@ -360,7 +359,7 @@ void
 art::TimeTracker::startTime(ModuleDescription const&)
 {
   auto const sid = PerThread::instance()->getCPC().scheduleID();
-  auto& d = data_[sid.id()];
+  auto& d = data_[sid];
   d.moduleStart = now();
 }
 
@@ -369,7 +368,7 @@ art::TimeTracker::recordTime(ModuleDescription const& desc,
                              string const& suffix)
 {
   auto const sid = PerThread::instance()->getCPC().scheduleID();
-  auto const& d = data_[sid.id()];
+  auto const& d = data_[sid];
   auto const t = std::chrono::duration<double>{now() - d.moduleStart}.count();
   timeModuleTable_.insert(d.eventID.run(),
                           d.eventID.subRun(),

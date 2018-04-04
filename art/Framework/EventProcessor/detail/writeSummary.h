@@ -4,6 +4,8 @@
 
 #include <vector>
 
+#include "art/Utilities/PerScheduleContainer.h"
+
 namespace cet {
   class cpu_timer;
 } // namespace cet
@@ -19,7 +21,7 @@ namespace art {
                       bool wantSummary,
                       cet::cpu_timer const& timer);
     void triggerReport(PathsInfo const& endPathsInfo,
-                       std::vector<PathsInfo> const& triggerPathsInfo,
+                       PerScheduleContainer<PathsInfo> const& triggerPathsInfo,
                        bool wantSummary);
     void timeReport(cet::cpu_timer const& timer);
 

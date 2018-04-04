@@ -32,6 +32,7 @@
 #include "art/Utilities/LinuxProcData.h"
 #include "art/Utilities/LinuxProcMgr.h"
 #include "art/Utilities/PerThread.h"
+#include "art/Utilities/PerScheduleContainer.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Utilities/Exception.h"
@@ -97,7 +98,7 @@ namespace art {
       std::string pathName{};
       art::EventID eventID{};
     };
-    std::vector<PerScheduleData> data_;
+    PerScheduleContainer<PerScheduleData> data_;
 
     template <unsigned N>
     using name_array = cet::sqlite::name_array<N>;
@@ -212,6 +213,7 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
   // Fix so that a value of 'false' is an error if filename => in-memory db.
   , includeMallocInfo_{checkMallocConfig_(config().dbOutput().filename(),
                                           config().includeMallocInfo())}
+  , data_(Globals::instance()->nschedules())
   // tables
   , peakUsageTable_{db_, "PeakUsage", peakUsageColumns_, true}
   // always recompute the peak usage
@@ -229,7 +231,6 @@ art::MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
                                                          moduleHeapColumns_) :
                        nullptr}
 {
-  data_.resize(Globals::instance()->nschedules());
 
   iReg.sPostEndJob.watch(this, &MemoryTracker::postEndJob);
 
@@ -287,7 +288,7 @@ void
 art::MemoryTracker::prePathProcessing(std::string const& pathname)
 {
   auto const sid = PerThread::instance()->getCPC().scheduleID();
-  data_[sid.id()].pathName = pathname;
+  data_[sid].pathName = pathname;
 }
 
 //======================================================================
@@ -309,7 +310,7 @@ void
 art::MemoryTracker::recordEventData(Event const& e, std::string const& step)
 {
   auto const sid = PerThread::instance()->getCPC().scheduleID();
-  auto& d = data_[sid.id()];
+  auto& d = data_[sid];
   d.eventID = e.id();
 
   auto const currentMemory = procInfo_.getCurrentData(sid.id());
@@ -343,7 +344,7 @@ art::MemoryTracker::recordModuleData(ModuleDescription const& md,
                                      std::string const& step)
 {
   auto const sid = PerThread::instance()->getCPC().scheduleID();
-  auto& d = data_[sid.id()];
+  auto& d = data_[sid];
 
   auto const currentMemory = procInfo_.getCurrentData(sid.id());
 

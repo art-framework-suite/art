@@ -22,6 +22,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
+#include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/UnixSignalHandlers.h"
@@ -240,7 +241,7 @@ namespace art {
     std::unique_ptr<InputSource> input_{};
 
     // Handles trigger paths.
-    std::vector<Schedule> schedule_{};
+    PerScheduleContainer<Schedule> schedule_{};
 
     // Handles the end path.
     std::unique_ptr<EndPathExecutor> endPathExecutor_{};
@@ -255,7 +256,7 @@ namespace art {
     // subruns in flight.
     std::unique_ptr<SubRunPrincipal> subRunPrincipal_{};
 
-    std::vector<std::unique_ptr<EventPrincipal>> eventPrincipal_{};
+    PerScheduleContainer<std::unique_ptr<EventPrincipal>> eventPrincipal_{};
 
     ProductTables producedProducts_{ProductTables::invalid()};
 

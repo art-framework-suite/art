@@ -20,6 +20,7 @@
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
+#include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ScheduleID.h"
 #include "cetlib/LibraryManager.h"
@@ -71,7 +72,7 @@ namespace art {
     void createModulesAndWorkers();
 
     PathsInfo& triggerPathsInfo(ScheduleID scheduleID);
-    std::vector<PathsInfo>& triggerPathsInfo();
+    PerScheduleContainer<PathsInfo>& triggerPathsInfo();
     PathsInfo& endPathInfo();
 
     Worker* triggerResultsInserter(ScheduleID scheduleID) const;
@@ -104,10 +105,10 @@ namespace art {
     std::map<module_label_t, Worker*> workerSet_{};
 
     // Key is schedule number.
-    std::vector<PathsInfo> triggerPathsInfo_{};
+    PerScheduleContainer<PathsInfo> triggerPathsInfo_{};
 
     PathsInfo endPathInfo_{};
-    std::vector<std::unique_ptr<WorkerT<EDProducer>>> triggerResultsInserter_{};
+    PerScheduleContainer<std::unique_ptr<WorkerT<EDProducer>>> triggerResultsInserter_{};
     ProductDescriptions& productsToProduce_;
 
     //  The following data members are only needed to delay the

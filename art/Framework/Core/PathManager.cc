@@ -64,7 +64,8 @@ art::PathManager::PathManager(ParameterSet const& procPS,
 {
   auto const nschedules =
     procPS_.get<int>("services.scheduler.num_schedules", 1);
-  triggerResultsInserter_.resize(nschedules);
+  Globals::instance()->setNSchedules(nschedules);
+  triggerResultsInserter_.expand_to_num_schedules();
   //
   //  Collect trigger_paths and end_paths.
   {
@@ -395,20 +396,17 @@ art::PathManager::triggerPathNames() const
 void
 art::PathManager::createModulesAndWorkers()
 {
-  auto const nschedules = Globals::instance()->nschedules();
-  //
   //  For each configured schedule, create the trigger paths and the workers on
   //  each path.
   //
   //  Note: Only schedule module workers are unique to each schedule,
   //        all other module workers are singletons.
-  //
   {
-    triggerPathsInfo_.resize(nschedules);
+    auto const nschedules = triggerPathsInfo_.expand_to_num_schedules();
     for (auto scheduleID = ScheduleID::first();
          scheduleID < ScheduleID(nschedules);
          scheduleID = scheduleID.next()) {
-      auto& pinfo = triggerPathsInfo_[scheduleID.id()];
+      auto& pinfo = triggerPathsInfo_[scheduleID];
       pinfo.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
       int bitPos = 0;
       for (auto const& val : protoTrigPathLabelMap_) {
@@ -481,10 +479,10 @@ art::PathManager::createModulesAndWorkers()
 art::PathsInfo&
 art::PathManager::triggerPathsInfo(ScheduleID const sid)
 {
-  return triggerPathsInfo_.at(sid.id());
+  return triggerPathsInfo_.at(sid);
 }
 
-vector<art::PathsInfo>&
+art::PerScheduleContainer<art::PathsInfo>&
 art::PathManager::triggerPathsInfo()
 {
   return triggerPathsInfo_;
@@ -499,7 +497,7 @@ art::PathManager::endPathInfo()
 art::Worker*
 art::PathManager::triggerResultsInserter(ScheduleID const si) const
 {
-  return triggerResultsInserter_.at(si.id()).get();
+  return triggerResultsInserter_.at(si).get();
 }
 
 void
@@ -507,7 +505,7 @@ art::PathManager::setTriggerResultsInserter(
   ScheduleID const sid,
   std::unique_ptr<WorkerT<EDProducer>>&& w)
 {
-  triggerResultsInserter_.at(sid.id()) = move(w);
+  triggerResultsInserter_.at(sid) = move(w);
 }
 
 void

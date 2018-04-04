@@ -421,9 +421,9 @@ namespace art {
         return false;
       }
       // Now try to read it.
-      // Note: threading: This may call back to us to update the product
-      // provenance if run or subRun Note: threading: data product merging
-      // creates a new provenance.
+      // Note: threading: This may call back to us to update the
+      //                  product provenance if run or subRun data
+      //                  product merging creates a new provenance.
       product_ =
         delayedReader_
           ->getProduct(branchDescription_.productID(), wrapperType_, *rangeSet_)
