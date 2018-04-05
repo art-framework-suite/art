@@ -623,7 +623,7 @@ namespace art {
 } // namespace art
 
 template <class T>
-class art::MixFilter : public EDFilter {
+class art::MixFilter : public shared::Filter {
 public: // TYPES
   using MixDetail = T;
 
@@ -666,6 +666,9 @@ art::MixFilter<T>::MixFilter(fhicl::ParameterSet const& p)
   std::conditional_t<detail::has_eventsToSkip<T>::value,
                      detail::setup_eventsToSkip<T>,
                      detail::do_not_setup_eventsToSkip<T>>{helper_, detail_};
+  // Only serializes wrt. itself; does not serialize wrt. other
+  // MixFilter instantiations.
+  serialize<InEvent>();
 }
 
 template <class T>

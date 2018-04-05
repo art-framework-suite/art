@@ -17,11 +17,11 @@ using art::Prescaler;
 
 // ======================================================================
 
-class art::Prescaler : public EDFilter {
+class art::Prescaler : public art::shared::Filter {
 public:
   struct Config {
-    Atom<int> prescaleFactor{Name("prescaleFactor")};
-    Atom<int> prescaleOffset{Name("prescaleOffset")};
+    Atom<size_t> prescaleFactor{Name("prescaleFactor")};
+    Atom<size_t> prescaleOffset{Name("prescaleOffset")};
   };
 
   using Parameters = EDFilter::Table<Config>;
@@ -30,9 +30,9 @@ public:
   bool filter(Event&) override;
 
 private:
-  int count_{};
-  int const n_; // accept one in n
-  int const
+  size_t count_{};
+  size_t const n_; // accept one in n
+  size_t const
     offset_; // with offset,
              // i.e. sequence of events does not have to start at first event
 
@@ -42,11 +42,18 @@ private:
 
 Prescaler::Prescaler(Parameters const& config)
   : n_{config().prescaleFactor()}, offset_{config().prescaleOffset()}
-{}
+{
+  // See note below.
+  serialize();
+}
 
 bool
 Prescaler::filter(Event&)
 {
+  // The combination of incrementing, modulo dividing, and equality
+  // comparing must be synchronized.  Changing count_ to the type
+  // std::atomic<size_t> would not help since the entire combination
+  // of operations must be atomic.
   return ++count_ % n_ == offset_;
 }
 

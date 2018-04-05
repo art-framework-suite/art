@@ -7,7 +7,6 @@
 //
 // Note that BlockingPrescaler prescales based on the number of events
 // seen by this module, *not* the event number as recorded by EventID.
-//
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/EDFilter.h"
@@ -23,11 +22,12 @@ namespace art {
 
 // ======================================================================
 
-class art::BlockingPrescaler : public EDFilter {
+class art::BlockingPrescaler : public shared::Filter {
 public:
   struct Config {
     Atom<size_t> blockSize{Name("blockSize"), 1};
-    Atom<size_t> stepSize{Name("stepSize")};
+    Atom<size_t> stepSize{Name("stepSize"),
+        Comment("The value of 'stepSize' cannot be less than that of 'blockSize'.")};
     Atom<size_t> offset{Name("offset"), 0};
   };
 
@@ -50,11 +50,22 @@ art::BlockingPrescaler::BlockingPrescaler(Parameters const& config)
   : m_{config().blockSize()}
   , n_{config().stepSize()}
   , offset_{config().offset()}
-{}
+{
+  if (n_ < m_) {
+    throw art::Exception{art::errors::Configuration,
+        "There was an error configuring Blocking Prescaler.\n"}
+    << "The specified step size (" << n_ << ") is less than the block size (" << m_ << ")\n";
+  }
+  // See note below.
+  serialize();
+}
 
 bool
 art::BlockingPrescaler::filter(Event&)
 {
+  // This sequence of operations/comparisons must be serialized.
+  // Changing 'count_' to be of type std::atomic<size_t> will not
+  // help.
   bool const result{(count_ >= offset_) && ((count_ - offset_) % n_) < m_};
   ++count_;
   return result;

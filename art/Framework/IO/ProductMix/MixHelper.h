@@ -250,7 +250,7 @@ namespace art {
 
 class art::MixHelper {
 private:
-  typedef std::function<std::string()> ProviderFunc_;
+  using ProviderFunc_ = std::function<std::string()>;
 
 public:
   enum class Mode {
@@ -258,10 +258,10 @@ public:
     RANDOM_REPLACE,
     RANDOM_LIM_REPLACE,
     RANDOM_NO_REPLACE,
-    UKNOWN
+    UNKNOWN
   };
 
-  // Constructor.
+  // Should probably pass in something like shared::ProducerBase.
   MixHelper(fhicl::ParameterSet const& pset, ProducerBase& producesProvider);
 
   // Returns the current mixing mode.
