@@ -108,7 +108,8 @@ namespace art {
     PerScheduleContainer<PathsInfo> triggerPathsInfo_{};
 
     PathsInfo endPathInfo_{};
-    PerScheduleContainer<std::unique_ptr<WorkerT<EDProducer>>> triggerResultsInserter_{};
+    PerScheduleContainer<std::unique_ptr<WorkerT<EDProducer>>>
+      triggerResultsInserter_{};
     ProductDescriptions& productsToProduce_;
 
     //  The following data members are only needed to delay the

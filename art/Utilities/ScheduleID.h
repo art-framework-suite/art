@@ -58,7 +58,6 @@ public:
   bool operator<(ScheduleID const& other) const noexcept;
 
 private:
-
   template <typename T>
   friend class PerScheduleContainer;
   static constexpr id_type min_id_() noexcept;

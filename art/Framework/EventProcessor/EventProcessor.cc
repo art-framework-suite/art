@@ -799,9 +799,8 @@ EventProcessor::processAllEventsAsync_processEvent(ScheduleID const si)
         auto endPathTask = make_waiting_task(
           tbb::task::self().allocate_continuation(), endPathFunctor);
         {
-          Event const ev{*eventPrincipal_[si],
-                         ModuleDescription{},
-                         TypeLabelLookup_t{}};
+          Event const ev{
+            *eventPrincipal_[si], ModuleDescription{}, TypeLabelLookup_t{}};
           CurrentProcessingContext cpc{si, nullptr, -1, false};
           detail::CPCSentry sentry{cpc};
           actReg_.sPreProcessEvent.invoke(ev);
@@ -810,8 +809,7 @@ EventProcessor::processAllEventsAsync_processEvent(ScheduleID const si)
         // they will spawn the endPathTask which will run the
         // end path, write the event, and start the next event
         // processing task.
-        schedule_[si].process_event(
-          endPathTask, *eventPrincipal_[si], si);
+        schedule_[si].process_event(endPathTask, *eventPrincipal_[si], si);
         // Once the trigger paths are running we are done, exit this task,
         // which does not end event processing because our parent is the
         // nullptr because we transferred it to the endPathTask above.
@@ -1400,7 +1398,8 @@ EventProcessor::beginRun()
       Run const run{*runPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
       actReg_.sPreBeginRun.invoke(run);
     }
-    schedule_[ScheduleID::first()].process(Transition::BeginRun, *runPrincipal_);
+    schedule_[ScheduleID::first()].process(Transition::BeginRun,
+                                           *runPrincipal_);
     endPathExecutor_->process(Transition::BeginRun, *runPrincipal_);
     {
       Run const run{*runPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
@@ -1525,7 +1524,8 @@ EventProcessor::beginSubRun()
         *subRunPrincipal_, ModuleDescription{}, TypeLabelLookup_t{}};
       actReg_.sPreBeginSubRun.invoke(srun);
     }
-    schedule_[ScheduleID::first()].process(Transition::BeginSubRun, *subRunPrincipal_);
+    schedule_[ScheduleID::first()].process(Transition::BeginSubRun,
+                                           *subRunPrincipal_);
     endPathExecutor_->process(Transition::BeginSubRun, *subRunPrincipal_);
     {
       SubRun const srun{
@@ -1580,7 +1580,8 @@ EventProcessor::endSubRun()
       actReg_.sPreEndSubRun.invoke(subRunPrincipal_->subRunID(),
                                    subRunPrincipal_->endTime());
     }
-    schedule_[ScheduleID::first()].process(Transition::EndSubRun, *subRunPrincipal_);
+    schedule_[ScheduleID::first()].process(Transition::EndSubRun,
+                                           *subRunPrincipal_);
     endPathExecutor_->process(Transition::EndSubRun, *subRunPrincipal_);
     {
       SubRun const srun{
