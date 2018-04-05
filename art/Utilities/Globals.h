@@ -166,8 +166,8 @@ namespace art {
     static Globals* instance();
 
   public: // MEMBER FUNCTIONS -- API for getting system-wide settings
-    int nthreads();
-    int nschedules();
+    int nthreads() const;
+    int nschedules() const;
 
   private: // MEMBER FUNCTIONS -- API for setting system-wide settings, only for
            // friends

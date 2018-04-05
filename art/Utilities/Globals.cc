@@ -206,13 +206,13 @@ namespace art {
   }
 
   int
-  Globals::nthreads()
+  Globals::nthreads() const
   {
     return nthreads_;
   }
 
   int
-  Globals::nschedules()
+  Globals::nschedules() const
   {
     return nschedules_;
   }

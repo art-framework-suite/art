@@ -11,6 +11,7 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Utilities/Globals.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -64,6 +65,21 @@ namespace art {
 
     std::vector<Config::SecondaryFile> secondaryFiles;
     if (config().secondaryFileNames(secondaryFiles)) {
+      // Until we can find a way to atomically update the
+      // 'selectedProducts' list for output modules, secondary input
+      // files can be used only in single-threaded, single-schedule
+      // execution.
+      auto const& globals = *Globals::instance();
+      if (globals.nthreads() != 1 && globals.nschedules() != 1) {
+        throw Exception{errors::Configuration,
+            "An error occurred while creating the RootInput source.\n"}
+        << "This art process is using "
+             << globals.nthreads() << " thread(s) and "
+             << globals.nschedules() << " schedule(s).\n"
+        << "Secondary file names can be used only when 1 thread and 1 schedule are specified.\n"
+             << "This is done by specifying '-j=1' at the command line.\n";
+      }
+
       for (auto const& val : secondaryFiles) {
         auto const a = val.a();
         auto const b = val.b();
