@@ -59,10 +59,7 @@ namespace art {
   EDFilter::doBeginJob()
   {
     serialize(SharedResourcesRegistry::kLegacy);
-    vector<string> names;
-    for_each(resourceNames_.cbegin(),
-             resourceNames_.cend(),
-             [&names](string const& s) { names.emplace_back(s); });
+    vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     chain_.reset(new SerialTaskQueueChain{queues});
     auto const& mainID = moduleDescription().mainParameterSetID();
@@ -79,11 +76,13 @@ namespace art {
   void
   shared::Filter::doBeginJob()
   {
-    vector<string> names;
-    for_each(resourceNames_.cbegin(),
-             resourceNames_.cend(),
-             [&names](string const& s) { names.emplace_back(s); });
-    if (!names.empty()) {
+    if (!resourceNames_.empty()) {
+      if (asyncDeclared_) {
+        throw art::Exception{art::errors::LogicError,
+            "An error occurred while processing scheduling options for a module."}
+        << "async<InEvent>() cannot be called in combination with any serialize<InEvent>(...) calls.\n";
+      }
+      vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
       auto queues = SharedResourcesRegistry::instance()->createQueues(names);
       chain_.reset(new SerialTaskQueueChain{queues});
     }

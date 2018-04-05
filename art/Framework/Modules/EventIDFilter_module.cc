@@ -50,24 +50,26 @@ matches any (not all) of the patterns, the event is accepted.
 }
 
 // ==============================================
-class art::EventIDFilter final : public EDFilter {
+class art::EventIDFilter final : public art::shared::Filter {
 public:
   struct Config {
     Sequence<string> idsToMatch{Name{"idsToMatch"}, Comment{parameter_comment}};
   };
 
-  using Parameters = EDFilter::Table<Config>;
+  using Parameters = Table<Config>;
   explicit EventIDFilter(Parameters const& p);
 
   bool filter(art::Event&) override;
 
 private:
-  EventIDMatcher matcher_;
+  EventIDMatcher const matcher_;
 };
 
 art::EventIDFilter::EventIDFilter(Parameters const& p)
   : matcher_{p().idsToMatch()}
-{}
+{
+  async<InEvent>();
+}
 
 bool
 art::EventIDFilter::filter(art::Event& e)

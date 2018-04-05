@@ -52,8 +52,17 @@ namespace art {
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
 
   public: // MEMBER FUNCTIONS -- API for one modules
-    template <typename... T>
+
+    template <BranchType BT = InEvent, typename... T>
     void serialize(T const&...);
+
+    template <BranchType BT = InEvent>
+    void async()
+    {
+      static_assert(BT == InEvent,
+                    "async is currently supported only for the 'InEvent' level.");
+      asyncDeclared_ = true;
+    }
 
     // FIXME: need "async<Level>()" function for opting in to
     // concurrent event processing for a given module.
@@ -105,6 +114,7 @@ namespace art {
     ScheduleID scheduleID_{};
     ModuleThreadingType moduleThreadingType_{};
     std::set<std::string> resourceNames_{};
+    bool asyncDeclared_{false};
     std::unique_ptr<hep::concurrency::SerialTaskQueueChain> chain_{};
     std::array<std::vector<ProductInfo>, NumBranchTypes> consumables_{};
 
@@ -121,7 +131,7 @@ namespace art {
     }
   };
 
-  template <typename... T>
+  template <BranchType, typename... T>
   void
   ModuleBase::serialize(T const&... resources)
   {

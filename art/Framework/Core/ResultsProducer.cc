@@ -35,10 +35,7 @@ namespace art {
   void
   ResultsProducer::doBeginJob()
   {
-    vector<string> names;
-    for_each(resourceNames_.cbegin(),
-             resourceNames_.cend(),
-             [&names](string const& s) { names.emplace_back(s); });
+    vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     beginJob();
   }

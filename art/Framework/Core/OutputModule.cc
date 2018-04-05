@@ -223,12 +223,8 @@ namespace art {
   OutputModule::doBeginJob()
   {
     serialize(SharedResourcesRegistry::kLegacy);
-    vector<string> names;
-    for_each(resourceNames_.cbegin(),
-             resourceNames_.cend(),
-             [&names](string const& s) { names.emplace_back(s); });
-    auto queues = SharedResourcesRegistry::instance()->createQueues(
-      SharedResourcesRegistry::kLegacy);
+    vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
+    auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     chain_.reset(new SerialTaskQueueChain{queues});
     beginJob();
     cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
@@ -237,13 +233,14 @@ namespace art {
   void
   shared::OutputModule::doBeginJob()
   {
-    vector<string> names;
-    for_each(resourceNames_.cbegin(),
-             resourceNames_.cend(),
-             [&names](string const& s) { names.emplace_back(s); });
-    if (!names.empty()) {
-      auto queues = SharedResourcesRegistry::instance()->createQueues(
-        SharedResourcesRegistry::kLegacy);
+    if (!resourceNames_.empty()) {
+      if (asyncDeclared_) {
+        throw art::Exception{art::errors::LogicError,
+            "An error occurred while processing scheduling options for a module."}
+        << "async<InEvent>() cannot be called in combination with any serialize<InEvent>(...) calls.\n";
+      }
+      vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
+      auto queues = SharedResourcesRegistry::instance()->createQueues(names);
       chain_.reset(new SerialTaskQueueChain{queues});
     }
     beginJob();
