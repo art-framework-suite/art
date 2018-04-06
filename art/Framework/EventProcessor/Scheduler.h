@@ -66,6 +66,11 @@ namespace art {
     {
       return errorOnMissingConsumes_;
     }
+    bool
+    wantSummary() const noexcept
+    {
+      return wantSummary_;
+    }
 
   private:
     // A table of responses to be taken on reception of thrown
@@ -76,6 +81,7 @@ namespace art {
     bool const handleEmptyRuns_;
     bool const handleEmptySubRuns_;
     bool const errorOnMissingConsumes_;
+    bool const wantSummary_;
     tbb::task_scheduler_init tbbManager_{tbb::task_scheduler_init::deferred};
   };
 }

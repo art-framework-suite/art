@@ -159,9 +159,6 @@ namespace art {
     Globals::instance()->setNSchedules(nschedules);
     auto nthreads = pset.get<int>("services.scheduler.num_threads", 1);
     Globals::instance()->setNThreads(nthreads);
-    auto const wantSummary =
-      pset.get<bool>("services.scheduler.wantSummary", false);
-    Globals::instance()->setWantSummary(wantSummary);
     auto const& processName{pset.get<string>("process_name")};
     Globals::instance()->setProcessName(processName);
     {
@@ -1452,7 +1449,7 @@ namespace art {
     ec_.load()->call([] { mf::LogStatistics(); });
     ec_.load()->call([this] {
       detail::writeSummary(*pathManager_.load(),
-                           Globals::instance()->wantSummary(),
+                           scheduler_.load()->wantSummary(),
                            *timer_.load());
     });
   }
