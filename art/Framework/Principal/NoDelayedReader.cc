@@ -8,14 +8,12 @@
 
 namespace art {
 
-  NoDelayedReader::~NoDelayedReader() noexcept {}
-
-  NoDelayedReader::NoDelayedReader() : DelayedReader() {}
+  NoDelayedReader::~NoDelayedReader() noexcept = default;
+  NoDelayedReader::NoDelayedReader() = default;
 
   std::unique_ptr<EDProduct>
   NoDelayedReader::getProduct_(Group const*,
                                ProductID const pid,
-                               TypeID const&,
                                RangeSet&) const
   {
     throw Exception(errors::LogicError, "NoDelayedReader")

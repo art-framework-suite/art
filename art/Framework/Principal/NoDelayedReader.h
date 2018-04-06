@@ -24,7 +24,6 @@ namespace art {
   private:
     [[noreturn]] std::unique_ptr<EDProduct> getProduct_(Group const*,
                                                         ProductID,
-                                                        TypeID const&,
                                                         RangeSet&) const;
   };
 

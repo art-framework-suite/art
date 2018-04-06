@@ -9,19 +9,18 @@
 // input sources to retrieve EDProducts from external storage.
 //
 
-#include "art/Utilities/fwd.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
+#include <vector>
 
 namespace art {
 
   class Group;
   class Principal;
   class ProductProvenance;
-  struct BranchKey;
   class RangeSet;
 
   class DelayedReader {
@@ -35,7 +34,6 @@ namespace art {
   public:
     std::unique_ptr<EDProduct> getProduct(Group const*,
                                           ProductID,
-                                          TypeID const& wrapper_type,
                                           RangeSet&) const;
     void setPrincipal(cet::exempt_ptr<Principal>);
     std::vector<ProductProvenance> readProvenance() const;
@@ -46,7 +44,6 @@ namespace art {
   private:
     virtual std::unique_ptr<EDProduct> getProduct_(Group const*,
                                                    ProductID,
-                                                   TypeID const&,
                                                    RangeSet&) const = 0;
     virtual void setPrincipal_(cet::exempt_ptr<Principal>);
     virtual std::vector<ProductProvenance> readProvenance_() const;

@@ -1,29 +1,22 @@
 #include "art/Persistency/Common/DelayedReader.h"
 // vim: set sw=2 expandtab :
 
-#include "canvas/Persistency/Common/EDProduct.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
-#include "cetlib/exempt_ptr.h"
-
-#include <memory>
-#include <vector>
 
 using namespace std;
 
 namespace art {
 
-  DelayedReader::~DelayedReader() noexcept {}
+  DelayedReader::~DelayedReader() noexcept = default;
 
-  DelayedReader::DelayedReader() {}
+  DelayedReader::DelayedReader() = default;
 
   std::unique_ptr<EDProduct>
   DelayedReader::getProduct(Group const* grp,
                             ProductID const pid,
-                            TypeID const& wrapper_type,
                             RangeSet& rs) const
   {
-    return getProduct_(grp, pid, wrapper_type, rs);
+    return getProduct_(grp, pid, rs);
   }
 
   void

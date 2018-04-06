@@ -128,7 +128,6 @@ namespace art {
   unique_ptr<EDProduct>
   RootDelayedReader::getProduct_(Group const* grp,
                                  ProductID const pid,
-                                 TypeID const& ty,
                                  RangeSet& rs) const
   {
     auto iter = branches_->find(pid);
@@ -136,12 +135,13 @@ namespace art {
     input::BranchInfo const& branchInfo = iter->second;
     TBranch* br = branchInfo.productBranch_;
     assert(br != nullptr);
+    auto const& pd = branchInfo.branchDescription_;
     // Note: It is not an error to attempt to delay read a produced
     // run or subrun product because there might be many of them spread
     // across multiple fragments of the same run or subrun which will
     // be combined below.
     if ((branchType_ != InSubRun) && (branchType_ != InRun)) {
-      if (branchInfo.branchDescription_.produced()) {
+      if (pd.produced()) {
         throw Exception{errors::LogicError, "RootDelayedReader::getProduct_"}
           << "Attempt to delay read a produced product!\n";
       }
@@ -151,7 +151,7 @@ namespace art {
     input::RootMutexSentry sentry;
     configureProductIDStreamer(branchIDLists_);
     configureRefCoreStreamer(principal_.get());
-    TClass* cl = TClass::GetClass(ty.typeInfo());
+    TClass* cl = TClass::GetClass(pd.wrappedName().c_str());
     auto get_product = [this, cl, br](auto entry) {
       unique_ptr<EDProduct> p{static_cast<EDProduct*>(cl->New())};
       EDProduct* pp = p.get();

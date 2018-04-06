@@ -51,7 +51,6 @@ namespace art {
   private: // MEMBER FUNCTIONS -- API
     std::unique_ptr<EDProduct> getProduct_(Group const*,
                                            ProductID,
-                                           TypeID const&,
                                            RangeSet&) const override;
     void setPrincipal_(cet::exempt_ptr<Principal>) override;
     std::vector<ProductProvenance> readProvenance_() const override;

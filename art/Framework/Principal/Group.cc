@@ -421,7 +421,6 @@ namespace art {
       product_ = delayedReader_
                    ->getProduct(this,
                                 branchDescription_.productID(),
-                                wrapperType_,
                                 *rangeSet_.load())
                    .release();
       if (product_.load() == nullptr) {
