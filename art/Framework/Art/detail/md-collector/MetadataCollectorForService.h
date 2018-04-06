@@ -5,11 +5,11 @@
 #include "art/Framework/Art/detail/MetadataRegexHelpers.h"
 #include "art/Framework/Art/detail/PluginMetadata.h"
 #include "art/Framework/Art/detail/PrintFormatting.h"
-#include "art/Framework/Art/detail/ServiceNames.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/bold_fontify.h"
 
 #include <regex>
+#include <string>
 
 namespace art {
   namespace detail {
@@ -28,8 +28,13 @@ namespace art {
       std::string
       header_(LibraryInfo const& li) const
       {
-        static ServiceNames const serviceNames;
-        std::string const& printed_name = serviceNames.fclname(li.short_spec());
+        using namespace std::string_literals;
+        auto fclname = [](std::string const& short_spec) {
+          return short_spec == "FloatingPointControl"s ?
+                   "floating_point_control"s :
+                   short_spec;
+        };
+        std::string const& printed_name = fclname(li.short_spec());
         std::ostringstream result;
         result << indent_1() << "service : " << bold_fontify(printed_name)
                << "\n\n";
