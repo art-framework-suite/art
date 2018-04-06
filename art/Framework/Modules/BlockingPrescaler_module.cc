@@ -26,8 +26,10 @@ class art::BlockingPrescaler : public shared::Filter {
 public:
   struct Config {
     Atom<size_t> blockSize{Name("blockSize"), 1};
-    Atom<size_t> stepSize{Name("stepSize"),
-        Comment("The value of 'stepSize' cannot be less than that of 'blockSize'.")};
+    Atom<size_t> stepSize{
+      Name("stepSize"),
+      Comment(
+        "The value of 'stepSize' cannot be less than that of 'blockSize'.")};
     Atom<size_t> offset{Name("offset"), 0};
   };
 
@@ -53,8 +55,9 @@ art::BlockingPrescaler::BlockingPrescaler(Parameters const& config)
 {
   if (n_ < m_) {
     throw art::Exception{art::errors::Configuration,
-        "There was an error configuring Blocking Prescaler.\n"}
-    << "The specified step size (" << n_ << ") is less than the block size (" << m_ << ")\n";
+                         "There was an error configuring Blocking Prescaler.\n"}
+      << "The specified step size (" << n_ << ") is less than the block size ("
+      << m_ << ")\n";
   }
   // See note below.
   serialize();

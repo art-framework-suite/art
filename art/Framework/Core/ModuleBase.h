@@ -52,15 +52,16 @@ namespace art {
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
 
   public: // MEMBER FUNCTIONS -- API for one modules
-
     template <BranchType BT = InEvent, typename... T>
     void serialize(T const&...);
 
     template <BranchType BT = InEvent>
-    void async()
+    void
+    async()
     {
-      static_assert(BT == InEvent,
-                    "async is currently supported only for the 'InEvent' level.");
+      static_assert(
+        BT == InEvent,
+        "async is currently supported only for the 'InEvent' level.");
       asyncDeclared_ = true;
     }
 

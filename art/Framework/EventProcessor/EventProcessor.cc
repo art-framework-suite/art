@@ -246,19 +246,17 @@ EventProcessor::invokePostBeginJobWorkers_()
   {
     auto const& workers =
       pathManager_.triggerPathsInfo(ScheduleID::first()).workers();
-    cet::transform_all(workers,
-                       back_inserter(allWorkers),
-                       [](auto const& label_And_worker) {
-                         return label_And_worker.second;
-                       });
+    cet::transform_all(
+      workers, back_inserter(allWorkers), [](auto const& label_And_worker) {
+        return label_And_worker.second;
+      });
   }
   {
     auto const& workers = pathManager_.endPathInfo().workers();
-    cet::transform_all(workers,
-                       back_inserter(allWorkers),
-                       [](auto const& label_And_worker) {
-                         return label_And_worker.second;
-                       });
+    cet::transform_all(
+      workers, back_inserter(allWorkers), [](auto const& label_And_worker) {
+        return label_And_worker.second;
+      });
   }
   actReg_.sPostBeginJobWorkers.invoke(input_.get(), allWorkers);
 }
