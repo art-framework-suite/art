@@ -29,8 +29,6 @@
 
 namespace art {
 
-  class Principal;
-
   class Group final : public EDProductGetter {
   private: // TYPES
     enum class grouptype { normal = 0, assns = 1, assnsWithData = 2 };
@@ -39,24 +37,21 @@ namespace art {
     ~Group();
 
     // normal
-    Group(Principal*,
-          DelayedReader*,
+    Group(DelayedReader*,
           BranchDescription const&,
           std::unique_ptr<RangeSet>&&,
           TypeID const& wrapper_type,
           std::unique_ptr<EDProduct>&& edp = nullptr);
 
     // normal, put
-    Group(Principal*,
-          DelayedReader*,
+    Group(DelayedReader*,
           BranchDescription const&,
           std::unique_ptr<RangeSet>&&,
           std::unique_ptr<EDProduct>&&,
           art::TypeID const& wrapper_type);
 
     // assns
-    Group(Principal*,
-          DelayedReader*,
+    Group(DelayedReader*,
           BranchDescription const&,
           std::unique_ptr<RangeSet>&&,
           TypeID const& primary_wrapper_type,
@@ -64,8 +59,7 @@ namespace art {
           std::unique_ptr<EDProduct>&& edp = nullptr);
 
     // assns, put
-    Group(Principal*,
-          DelayedReader*,
+    Group(DelayedReader*,
           BranchDescription const&,
           std::unique_ptr<RangeSet>&&,
           std::unique_ptr<EDProduct>&&,
@@ -73,8 +67,7 @@ namespace art {
           TypeID const& partner_wrapper_type);
 
     // assnsWithData
-    Group(Principal*,
-          DelayedReader*,
+    Group(DelayedReader*,
           BranchDescription const&,
           std::unique_ptr<RangeSet>&&,
           TypeID const& primary_wrapper_type,
@@ -84,8 +77,7 @@ namespace art {
           std::unique_ptr<EDProduct>&& edp = nullptr);
 
     // assnsWithData, put
-    Group(Principal*,
-          DelayedReader*,
+    Group(DelayedReader*,
           BranchDescription const&,
           std::unique_ptr<RangeSet>&&,
           std::unique_ptr<EDProduct>&&,
@@ -118,8 +110,6 @@ namespace art {
     RangeSet const& rangeOfValidity() const;
     bool productAvailable() const;
     cet::exempt_ptr<ProductProvenance const> productProvenance() const;
-    cet::exempt_ptr<BranchDescription const> productDescription(
-      ProductID) const;
 
   public: // MEMBER FUNCTIONS -- API for setting internal product provenance
           // and product pointers.
@@ -135,9 +125,9 @@ namespace art {
 
   private: // MEMBER DATA -- Implementation details
     BranchDescription const& branchDescription_;
-    // Back pointer to the principal that owns us.
-    Principal* const principal_{nullptr};
-    // Back pointer to the delayed reader in the principal that owns us.
+
+    // Back pointer to the delayed reader in the principal that owns
+    // us.
     cet::exempt_ptr<DelayedReader const> const delayedReader_{};
     // Used to serialize access to productProvenance_, product_, rangeSet_,
     // partnerProduct_, baseProduct_, and partnerBaseProduct_.

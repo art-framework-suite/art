@@ -92,33 +92,30 @@ namespace art {
     }
 
     unique_ptr<Group>
-    create_group(Principal* principal,
-                 DelayedReader* reader,
-                 BranchDescription const& bd)
+    create_group(DelayedReader* reader, BranchDescription const& bd)
     {
       unique_ptr<Group> result;
       auto tids = root::getWrapperTIDs(bd.producedClassName());
       switch (tids.size()) {
         case 1ull:
           // Standard Group.
-          result = unique_ptr<Group>(
-            new Group(principal, reader, bd, make_unique<RangeSet>(), tids[0]));
+          result =
+            make_unique<Group>(reader, bd, make_unique<RangeSet>(), tids[0]);
           break;
         case 2ull:
           // Assns<A, B, void>.
-          result = unique_ptr<Group>(new Group(
-            principal, reader, bd, make_unique<RangeSet>(), tids[0], tids[1]));
+          result = make_unique<Group>(
+            reader, bd, make_unique<RangeSet>(), tids[0], tids[1]);
           break;
         case 4ull:
           // Assns<A, B, D>.
-          result = unique_ptr<Group>(new Group(principal,
-                                               reader,
-                                               bd,
-                                               make_unique<RangeSet>(),
-                                               tids[0],
-                                               tids[1],
-                                               tids[2],
-                                               tids[3]));
+          result = make_unique<Group>(reader,
+                                      bd,
+                                      make_unique<RangeSet>(),
+                                      tids[0],
+                                      tids[1],
+                                      tids[2],
+                                      tids[3]);
           break;
         default:
           // throw internal error exception
@@ -133,7 +130,7 @@ namespace art {
 
   } // unnamed namespace
 
-  Principal::~Principal()
+  Principal::~Principal() noexcept
   {
     presentProducts_ = nullptr;
     producedProducts_ = nullptr;
@@ -336,7 +333,8 @@ namespace art {
            "the product ID collision.\n"
         << "In addition, please notify artists@fnal.gov of this error.\n";
     }
-    unique_ptr<Group> group = create_group(this, delayedReader_.get(), pd);
+
+    unique_ptr<Group> group = create_group(delayedReader_.get(), pd);
     groups_[pd.productID()] = move(group);
   }
 

@@ -68,7 +68,7 @@ namespace art {
 
     // MEMBER FUNCTIONS -- Special Member Functions
   public:
-    virtual ~Principal();
+    virtual ~Principal() noexcept;
 
     Principal(BranchType,
               ProcessConfiguration const&,

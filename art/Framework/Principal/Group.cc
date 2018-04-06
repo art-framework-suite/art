@@ -1,7 +1,6 @@
 #include "art/Framework/Principal/Group.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Worker.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -33,14 +32,12 @@ namespace art {
   }
 
   // normal
-  Group::Group(Principal* principal,
-               DelayedReader* reader,
+  Group::Group(DelayedReader* reader,
                BranchDescription const& bd,
                unique_ptr<RangeSet>&& rs,
                TypeID const& wrapper_type,
                unique_ptr<EDProduct>&& edp /*= nullptr*/)
     : branchDescription_{bd}
-    , principal_{principal}
     , delayedReader_{reader}
     , wrapperType_{wrapper_type}
   {
@@ -53,25 +50,22 @@ namespace art {
   }
 
   // normal, put
-  Group::Group(Principal* principal,
-               DelayedReader* reader,
+  Group::Group(DelayedReader* reader,
                BranchDescription const& bd,
                unique_ptr<RangeSet>&& rs,
                unique_ptr<EDProduct>&& edp,
                TypeID const& wrapper_type)
-    : Group{principal, reader, bd, move(rs), wrapper_type, move(edp)}
+    : Group{reader, bd, move(rs), wrapper_type, move(edp)}
   {}
 
   // assns
-  Group::Group(Principal* principal,
-               DelayedReader* reader,
+  Group::Group(DelayedReader* reader,
                BranchDescription const& bd,
                unique_ptr<RangeSet>&& rs,
                TypeID const& primary_wrapper_type,
                TypeID const& partner_wrapper_type,
                unique_ptr<EDProduct>&& edp /*= nullptr*/)
     : branchDescription_{bd}
-    , principal_{principal}
     , delayedReader_{reader}
     , grpType_{grouptype::assns}
     , wrapperType_{primary_wrapper_type}
@@ -86,15 +80,13 @@ namespace art {
   }
 
   // assns, put
-  Group::Group(Principal* principal,
-               DelayedReader* reader,
+  Group::Group(DelayedReader* reader,
                BranchDescription const& bd,
                unique_ptr<RangeSet>&& rs,
                unique_ptr<EDProduct>&& edp,
                TypeID const& primary_wrapper_type,
                TypeID const& partner_wrapper_type)
-    : Group{principal,
-            reader,
+    : Group{reader,
             bd,
             move(rs),
             primary_wrapper_type,
@@ -103,8 +95,7 @@ namespace art {
   {}
 
   // assnsWithData
-  Group::Group(Principal* principal,
-               DelayedReader* reader,
+  Group::Group(DelayedReader* reader,
                BranchDescription const& bd,
                unique_ptr<RangeSet>&& rs,
                TypeID const& primary_wrapper_type,
@@ -113,7 +104,6 @@ namespace art {
                TypeID const& partner_base_wrapper_type,
                unique_ptr<EDProduct>&& edp /*= nullptr*/)
     : branchDescription_{bd}
-    , principal_{principal}
     , delayedReader_{reader}
     , grpType_{grouptype::assnsWithData}
     , wrapperType_{primary_wrapper_type}
@@ -130,8 +120,7 @@ namespace art {
   }
 
   // assnsWithData, put
-  Group::Group(Principal* principal,
-               DelayedReader* reader,
+  Group::Group(DelayedReader* reader,
                BranchDescription const& bd,
                unique_ptr<RangeSet>&& rs,
                unique_ptr<EDProduct>&& edp,
@@ -139,15 +128,14 @@ namespace art {
                TypeID const& partner_wrapper_type,
                TypeID const& base_wrapper_type,
                TypeID const& partner_base_wrapper_type)
-    : Group(principal,
-            reader,
+    : Group{reader,
             bd,
             move(rs),
             primary_wrapper_type,
             partner_wrapper_type,
             base_wrapper_type,
             partner_base_wrapper_type,
-            move(edp))
+            move(edp)}
   {}
 
   EDProduct const*
@@ -247,13 +235,6 @@ namespace art {
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     return productProvenance_.load();
-  }
-
-  cet::exempt_ptr<BranchDescription const>
-  Group::productDescription(ProductID const pid) const
-  {
-    // No lock required here; principal must be valid.
-    return principal_->getProductDescription(pid);
   }
 
   // Called by Principal::ctor_read_provenance()
