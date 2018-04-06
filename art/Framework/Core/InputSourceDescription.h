@@ -21,17 +21,17 @@ namespace art {
   struct InputSourceDescription {
     InputSourceDescription(ModuleDescription const&,
                            UpdateOutputCallbacks&,
-                           ActivityRegistry&);
+                           ActivityRegistry const&);
 
     ModuleDescription const& moduleDescription;
     UpdateOutputCallbacks& productRegistry;
-    ActivityRegistry& activityRegistry;
+    ActivityRegistry const& activityRegistry;
   };
 
   inline InputSourceDescription::InputSourceDescription(
     ModuleDescription const& md,
     UpdateOutputCallbacks& preg,
-    ActivityRegistry& areg)
+    ActivityRegistry const& areg)
     : moduleDescription(md), productRegistry(preg), activityRegistry(areg)
   {}
 

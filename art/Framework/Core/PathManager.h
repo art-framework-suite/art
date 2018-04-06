@@ -56,8 +56,9 @@ namespace art {
     PathManager(fhicl::ParameterSet const& procPS,
                 UpdateOutputCallbacks& preg,
                 ProductDescriptions& productsToProduce,
-                ActionTable& exceptActions,
-                ActivityRegistry& areg);
+                ActionTable const& exceptActions,
+                ActivityRegistry const& areg);
+
     PathManager(PathManager const&) = delete;
     PathManager(PathManager&&) = delete;
     PathManager& operator=(PathManager const&) = delete;
@@ -85,8 +86,8 @@ namespace art {
 
   private: // Member Data
     UpdateOutputCallbacks& outputCallbacks_;
-    ActionTable& exceptActions_;
-    ActivityRegistry& actReg_;
+    ActionTable const& exceptActions_;
+    ActivityRegistry const& actReg_;
     cet::LibraryManager lm_{Suffixes::module()};
     fhicl::ParameterSet procPS_{};
     std::vector<std::string> triggerPathNames_{};

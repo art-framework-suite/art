@@ -157,7 +157,7 @@ namespace art {
   private: // MEMBER DATA
     std::atomic<ModuleDescription const*> md_;
     std::atomic<ActionTable const*> actions_;
-    std::atomic<ActivityRegistry*> actReg_;
+    std::atomic<ActivityRegistry const*> actReg_;
     std::atomic<ModuleThreadingType> moduleThreadingType_;
     std::atomic<int> state_;
 

@@ -46,8 +46,8 @@ namespace art {
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~EndPathExecutor();
     EndPathExecutor(PathManager& pm,
-                    ActionTable& actions,
-                    ActivityRegistry& areg,
+                    ActionTable const& actions,
+                    ActivityRegistry const& areg,
                     UpdateOutputCallbacks& callbacks);
     EndPathExecutor(EndPathExecutor const&) = delete;
     EndPathExecutor(EndPathExecutor&&) = delete;
@@ -191,9 +191,9 @@ namespace art {
     // Protects runRangeSetHandler_, and subRunRangeSetHandler_.
     mutable hep::concurrency::RecursiveMutex mutex_{"EndPathExecutor::mutex_"};
     // Filled by ctor, const after that.
-    std::atomic<ActionTable*> actionTable_;
+    std::atomic<ActionTable const*> actionTable_;
     // Filled by ctor, const after that.
-    std::atomic<ActivityRegistry*> actReg_;
+    std::atomic<ActivityRegistry const*> actReg_;
     // Filled by ctor, const after that.
     std::atomic<PathsInfo*> endPathInfo_;
     // Dynamic, used to force only one event at a time to be active on the end

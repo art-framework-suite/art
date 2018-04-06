@@ -25,8 +25,8 @@ namespace art {
                  fhicl::ParameterSet const& pset,
                  UpdateOutputCallbacks& reg,
                  ProductDescriptions& producedProducts,
-                 ActivityRegistry& actReg,
-                 ActionTable& actions,
+                 ActivityRegistry const& actReg,
+                 ActionTable const& actions,
                  std::string const& processName,
                  ModuleThreadingType const moduleThreadingType,
                  ScheduleID const si)
@@ -45,8 +45,8 @@ namespace art {
     fhicl::ParameterSet const pset_;
     UpdateOutputCallbacks& reg_;
     ProductDescriptions& producedProducts_;
-    ActivityRegistry& actReg_;
-    ActionTable& actions_;
+    ActivityRegistry const& actReg_;
+    ActionTable const& actions_;
     std::string const processName_;
     ModuleThreadingType moduleThreadingType_;
     ScheduleID scheduleID_;

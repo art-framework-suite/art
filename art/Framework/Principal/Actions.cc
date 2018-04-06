@@ -33,11 +33,11 @@ namespace art {
 
   } // namespace actions
 
-  ActionTable::~ActionTable() {}
+  ActionTable::~ActionTable() = default;
 
-  ActionTable::ActionTable() : map_() { addDefaults_(); }
+  ActionTable::ActionTable() { addDefaults_(); }
 
-  ActionTable::ActionTable(const ParameterSet& scheduleOpts) : map_()
+  ActionTable::ActionTable(ParameterSet const& scheduleOpts)
   {
     if (scheduleOpts.get<bool>("defaultExceptions", true)) {
       addDefaults_();

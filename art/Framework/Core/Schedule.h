@@ -68,8 +68,9 @@ namespace art {
              fhicl::ParameterSet const& trig_pset,
              UpdateOutputCallbacks&,
              ProductDescriptions&,
-             ActionTable&,
-             ActivityRegistry&);
+             ActionTable const&,
+             ActivityRegistry const&);
+
     Schedule(Schedule const&) = delete;
     Schedule(Schedule&&) noexcept;
     Schedule& operator=(Schedule const&) = delete;
@@ -99,13 +100,13 @@ namespace art {
     void process_event_pathsDone(hep::concurrency::WaitingTask* endPathTask,
                                  tbb::task* eventLoopTask,
                                  EventPrincipal&,
-                                 ScheduleID const);
+                                 ScheduleID);
 
   private: // Member Data -- Implementation details.
     // const after ctor.
-    std::atomic<ActionTable*> actionTable_;
+    std::atomic<ActionTable const*> actionTable_;
     // const after ctor.
-    std::atomic<ActivityRegistry*> actReg_;
+    std::atomic<ActivityRegistry const*> actReg_;
     // const after ctor.
     std::atomic<PathsInfo*> triggerPathsInfo_;
     // const after ctor.

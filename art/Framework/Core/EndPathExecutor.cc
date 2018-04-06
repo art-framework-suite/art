@@ -72,8 +72,8 @@ namespace art {
   }
 
   EndPathExecutor::EndPathExecutor(PathManager& pm,
-                                   ActionTable& actionTable,
-                                   ActivityRegistry& areg,
+                                   ActionTable const& actionTable,
+                                   ActivityRegistry const& areg,
                                    UpdateOutputCallbacks& outputCallbacks)
   {
     actionTable_ = &actionTable;

@@ -34,9 +34,9 @@ namespace art {
   class Path {
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~Path();
-    Path(ActionTable&,
-         ActivityRegistry&,
-         ScheduleID const,
+    Path(ActionTable const&,
+         ActivityRegistry const&,
+         ScheduleID scheduleID,
          int bitpos,
          bool isEndPath,
          std::string const& path_name,
@@ -101,8 +101,8 @@ namespace art {
                                     CurrentProcessingContext*);
 
   private: // MEMBER DATA
-    std::atomic<ActionTable*> actionTable_;
-    std::atomic<ActivityRegistry*> actReg_;
+    std::atomic<ActionTable const*> actionTable_;
+    std::atomic<ActivityRegistry const*> actReg_;
     std::atomic<ScheduleID> scheduleID_;
     std::atomic<int> bitpos_;
     std::atomic<std::string*> name_;

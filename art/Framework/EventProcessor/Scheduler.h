@@ -1,8 +1,10 @@
 #ifndef art_Framework_EventProcessor_Scheduler_h
 #define art_Framework_EventProcessor_Scheduler_h
 
+#include "art/Framework/Principal/Actions.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/OptionalDelegatedParameter.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Table.h"
 #include "tbb/task_scheduler_init.h"
@@ -12,20 +14,24 @@
 namespace art {
   class Scheduler {
   public:
-
     struct Config {
       using Name = fhicl::Name;
       fhicl::Atom<int> num_threads{Name{"num_threads"}};
       fhicl::Atom<int> num_schedules{Name{"num_schedules"}};
       fhicl::Atom<bool> handleEmptyRuns{Name{"handleEmptyRuns"}, true};
       fhicl::Atom<bool> handleEmptySubRuns{Name{"handleEmptySubRuns"}, true};
-      fhicl::Atom<bool> errorOnMissingConsumes{Name{"errorOnMissingConsumes"}, false};
+      fhicl::Atom<bool> errorOnMissingConsumes{Name{"errorOnMissingConsumes"},
+                                               false};
       fhicl::Atom<bool> errorOnFailureToPut{Name{"errorOnFailureToPut"}, true};
       fhicl::Atom<bool> errorOnSIGINT{Name{"errorOnSIGINT"}, true};
       fhicl::Atom<bool> defaultExceptions{Name{"defaultExceptions"}, true};
       fhicl::Atom<bool> wantSummary{Name{"wantSummary"}, false};
       fhicl::Atom<bool> wantTracer{Name{"wantTracer"}, false};
-      fhicl::Sequence<std::string> ignoreCompletely{Name{"IgnoreCompletely"}, {}};
+      fhicl::OptionalDelegatedParameter configOut{Name{"configOut"}};
+      fhicl::OptionalDelegatedParameter debugConfig{Name{"debugConfig"}};
+      fhicl::OptionalDelegatedParameter validateConfig{Name{"validateConfig"}};
+      fhicl::Sequence<std::string> ignoreCompletely{Name{"IgnoreCompletely"},
+                                                    {}};
       fhicl::Sequence<std::string> rethrow{Name{"Rethrow"}, {}};
       fhicl::Sequence<std::string> skipEvent{Name{"SkipEvent"}, {}};
       fhicl::Sequence<std::string> failModule{Name{"FailModule"}, {}};
@@ -33,6 +39,12 @@ namespace art {
     };
     using Parameters = fhicl::Table<Config>;
     explicit Scheduler(Parameters const& p);
+
+    ActionTable const&
+    actionTable() const noexcept
+    {
+      return actionTable_;
+    }
 
     int
     num_threads() const noexcept
@@ -61,6 +73,9 @@ namespace art {
     }
 
   private:
+    // A table of responses to be taken on reception of thrown
+    // exceptions.
+    ActionTable actionTable_;
     int const nThreads_;
     int const nSchedules_;
     bool const handleEmptyRuns_;

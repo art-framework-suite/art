@@ -58,8 +58,8 @@ namespace art {
     waitingTasks_ = nullptr;
   }
 
-  Path::Path(ActionTable& actions,
-             ActivityRegistry& actReg,
+  Path::Path(ActionTable const& actions,
+             ActivityRegistry const& actReg,
              ScheduleID const si,
              int const bitpos,
              bool const isEndPath,

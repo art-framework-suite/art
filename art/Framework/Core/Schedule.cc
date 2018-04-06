@@ -55,8 +55,8 @@ namespace art {
                      ParameterSet const& trig_pset,
                      UpdateOutputCallbacks& outputCallbacks,
                      ProductDescriptions& productsToProduce,
-                     ActionTable& actions,
-                     ActivityRegistry& actReg)
+                     ActionTable const& actions,
+                     ActivityRegistry const& actReg)
   {
     ostringstream msg;
     msg << "0x" << hex << ((unsigned long)this) << dec;

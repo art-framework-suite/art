@@ -17,7 +17,6 @@
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Framework/EventProcessor/Scheduler.h"
 #include "art/Framework/EventProcessor/detail/ExceptionCollector.h"
-#include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
@@ -180,10 +179,6 @@ namespace art {
 
     // When set allows subruns to end.
     std::atomic<bool> finalizeSubRunEnabled_;
-
-    // A table of responses to be taken on reception
-    // of thrown exceptions.
-    std::atomic<ActionTable*> act_table_;
 
     // A signal/slot system for registering a callback
     // to be called when a specific action is taken by

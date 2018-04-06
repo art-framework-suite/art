@@ -109,8 +109,6 @@ namespace art {
     mfStatusUpdater_ = nullptr;
     delete actReg_.load();
     actReg_ = nullptr;
-    delete act_table_.load();
-    act_table_ = nullptr;
     delete timer_.load();
     timer_ = nullptr;
     delete ec_.load();
@@ -178,8 +176,6 @@ namespace art {
     beginSubRunCalled_ = false;
     finalizeRunEnabled_ = true;
     finalizeSubRunEnabled_ = true;
-    act_table_ =
-      new ActionTable{pset.get<fhicl::ParameterSet>("services.scheduler")};
     actReg_ = new ActivityRegistry{};
     mfStatusUpdater_ = new MFStatusUpdater{*actReg_.load()};
     outputCallbacks_ = new UpdateOutputCallbacks{};
@@ -209,7 +205,7 @@ namespace art {
     pathManager_ = new PathManager{pset,
                                    *outputCallbacks_.load(),
                                    *producedProductDescriptions_.load(),
-                                   *act_table_.load(),
+                                   scheduler_.load()->actionTable(),
                                    *actReg_.load()};
     fhicl::ParameterSet triggerPSet;
     triggerPSet.put("trigger_paths", pathManager_.load()->triggerPathNames());
@@ -268,7 +264,7 @@ namespace art {
     }
     pathManager_.load()->createModulesAndWorkers();
     endPathExecutor_ = new EndPathExecutor{*pathManager_.load(),
-                                           *act_table_.load(),
+                                           scheduler_.load()->actionTable(),
                                            *actReg_.load(),
                                            *outputCallbacks_.load()};
     for (auto I = ScheduleID::first();
@@ -281,7 +277,7 @@ namespace art {
                                      triggerPSet,
                                      *outputCallbacks_.load(),
                                      *producedProductDescriptions_.load(),
-                                     *act_table_.load(),
+                                     scheduler_.load()->actionTable(),
                                      *actReg_.load());
     }
     FDEBUG(2) << pset.to_string() << endl;
@@ -890,7 +886,7 @@ namespace art {
         rethrow_exception(*ex);
       }
       catch (cet::exception& e) {
-        if (act_table_.load()->find(e.root_cause()) !=
+        if (scheduler_.load()->actionTable().find(e.root_cause()) !=
             actions::IgnoreCompletely) {
           auto ex_ptr = make_exception_ptr(
             Exception{errors::EventProcessorFailure,
@@ -988,7 +984,7 @@ namespace art {
       return;
     }
     catch (cet::exception& e) {
-      if (act_table_.load()->find(e.root_cause()) !=
+      if (scheduler_.load()->actionTable().find(e.root_cause()) !=
           actions::IgnoreCompletely) {
         auto ex_ptr =
           make_exception_ptr(Exception{errors::EventProcessorFailure,
@@ -1104,9 +1100,9 @@ namespace art {
                                              si);
     }
     catch (cet::exception& e) {
-      // Possible actions: IgnoreCompletely, Rethrow, SkipEvent,
-      // FailModule, FailPath
-      if (act_table_.load()->find(e.root_cause()) !=
+      // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
+      // FailPath
+      if (scheduler_.load()->actionTable().find(e.root_cause()) !=
           actions::IgnoreCompletely) {
         // Possible actions: Rethrow, SkipEvent, FailModule, FailPath
         auto ex_ptr = make_exception_ptr(
@@ -1280,7 +1276,7 @@ namespace art {
       endPathExecutor_.load()->recordOutputClosureRequests(Granularity::Event);
     }
     catch (cet::exception& e) {
-      if (act_table_.load()->find(e.root_cause()) !=
+      if (scheduler_.load()->actionTable().find(e.root_cause()) !=
           actions::IgnoreCompletely) {
         auto ex_ptr = make_exception_ptr(
           Exception{errors::EventProcessorFailure,

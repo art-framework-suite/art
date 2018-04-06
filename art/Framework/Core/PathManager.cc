@@ -74,8 +74,8 @@ namespace art {
   PathManager::PathManager(ParameterSet const& procPS,
                            UpdateOutputCallbacks& outputCallbacks,
                            ProductDescriptions& productsToProduce,
-                           ActionTable& exceptActions,
-                           ActivityRegistry& actReg)
+                           ActionTable const& exceptActions,
+                           ActivityRegistry const& actReg)
     : outputCallbacks_{outputCallbacks}
     , exceptActions_{exceptActions}
     , actReg_{actReg}
