@@ -1,5 +1,6 @@
 #include "art/Framework/Art/detail/get_LibraryInfoCollection.h"
 #include "art/Framework/Art/detail/PluginSymbolResolvers.h"
+#include "art/Framework/EventProcessor/Scheduler.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "cetlib/LibraryManager.h"
 #include "messagefacility/MessageLogger/MFConfig.h"
@@ -83,6 +84,26 @@ namespace {
     std::vector<std::string> result;
     lm.getLoadableLibraries(result);
     return result;
+  }
+
+  bool
+  scheduler_included(std::string const& spec, LibraryInfoCollection& result)
+  {
+    bool const print_only_message = (spec == "scheduler");
+    bool const print_available_services = (spec == dflt_spec_pattern());
+
+    if (print_only_message || print_available_services) {
+      result.emplace(
+        "[ none ]",
+        std::make_pair("scheduler", ""),
+        "[ none ]",
+        std::make_unique<fhicl::WrappedTable<art::Scheduler::Config>>(
+          fhicl::Name{"scheduler"}),
+        "art",
+        "");
+      return true;
+    }
+    return false;
   }
 
   bool
@@ -202,6 +223,9 @@ namespace {
                      getProvider(fullspec),
                      getType<suffix_type::service>(lm, fullspec));
 
+      status_bar.print_progress(++i);
+    }
+    if (scheduler_included(spec, result)) {
       status_bar.print_progress(++i);
     }
     if (messagefacility_included(spec, result)) {
