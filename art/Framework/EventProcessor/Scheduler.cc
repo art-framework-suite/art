@@ -12,7 +12,7 @@ using fhicl::ParameterSet;
 namespace art {
 
   Scheduler::Scheduler(Parameters const& ps)
-    : actionTable_{ps.get_PSet()}
+    : actionTable_{ps().actionTable()}
     , nThreads_{ps().num_threads()}
     , nSchedules_{ps().num_schedules()}
     , handleEmptyRuns_{ps().handleEmptyRuns()}

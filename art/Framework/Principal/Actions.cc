@@ -7,12 +7,6 @@
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 
-#include <algorithm>
-#include <cstddef>
-#include <map>
-#include <string>
-#include <vector>
-
 using namespace cet;
 using namespace std;
 
@@ -37,16 +31,16 @@ namespace art {
 
   ActionTable::ActionTable() { addDefaults_(); }
 
-  ActionTable::ActionTable(ParameterSet const& scheduleOpts)
+  ActionTable::ActionTable(Config const& c)
   {
-    if (scheduleOpts.get<bool>("defaultExceptions", true)) {
+    if (c.defaultExceptions()) {
       addDefaults_();
     }
-    install_(actions::IgnoreCompletely, scheduleOpts);
-    install_(actions::Rethrow, scheduleOpts);
-    install_(actions::SkipEvent, scheduleOpts);
-    install_(actions::FailModule, scheduleOpts);
-    install_(actions::FailPath, scheduleOpts);
+    install_(actions::IgnoreCompletely, c.ignoreCompletely());
+    install_(actions::Rethrow, c.rethrow());
+    install_(actions::SkipEvent, c.skipEvent());
+    install_(actions::FailModule, c.failModule());
+    install_(actions::FailPath, c.failPath());
   }
 
   void
@@ -64,10 +58,8 @@ namespace art {
 
   void
   ActionTable::install_(actions::ActionCodes code,
-                        const ParameterSet& scheduler)
+                        vector<string> const& action_names)
   {
-    auto const& action_names =
-      scheduler.get<vector<string>>(actionName(code), {});
     for_all(action_names, [this, code](auto const& action_name) {
       this->add(action_name, code);
     });

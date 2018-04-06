@@ -3,13 +3,12 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/ActionCodes.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Sequence.h"
 
 #include <map>
 #include <string>
-
-namespace fhicl {
-  class ParameterSet;
-}
+#include <vector>
 
 namespace art {
   namespace actions {
@@ -21,7 +20,18 @@ namespace art {
     ~ActionTable();
     ActionTable();
 
-    explicit ActionTable(fhicl::ParameterSet const&);
+    struct Config {
+      using Name = fhicl::Name;
+      fhicl::Atom<bool> defaultExceptions{Name{"defaultExceptions"}, true};
+      fhicl::Sequence<std::string> ignoreCompletely{Name{"IgnoreCompletely"},
+                                                    {}};
+      fhicl::Sequence<std::string> rethrow{Name{"Rethrow"}, {}};
+      fhicl::Sequence<std::string> skipEvent{Name{"SkipEvent"}, {}};
+      fhicl::Sequence<std::string> failModule{Name{"FailModule"}, {}};
+      fhicl::Sequence<std::string> failPath{Name{"FailPath"}, {}};
+    };
+
+    explicit ActionTable(Config const&);
 
     ActionTable(ActionTable const&) = delete;
     ActionTable(ActionTable&&) = delete;
@@ -36,7 +46,7 @@ namespace art {
 
   private:
     void addDefaults_();
-    void install_(actions::ActionCodes, fhicl::ParameterSet const&);
+    void install_(actions::ActionCodes, std::vector<std::string> const&);
 
     std::map<std::string, actions::ActionCodes> map_{};
   };

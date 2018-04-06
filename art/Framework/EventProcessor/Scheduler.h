@@ -7,6 +7,7 @@
 #include "fhiclcpp/types/OptionalDelegatedParameter.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Table.h"
+#include "fhiclcpp/types/TableFragment.h"
 #include "tbb/task_scheduler_init.h"
 
 #include <string>
@@ -24,18 +25,12 @@ namespace art {
                                                false};
       fhicl::Atom<bool> errorOnFailureToPut{Name{"errorOnFailureToPut"}, true};
       fhicl::Atom<bool> errorOnSIGINT{Name{"errorOnSIGINT"}, true};
-      fhicl::Atom<bool> defaultExceptions{Name{"defaultExceptions"}, true};
       fhicl::Atom<bool> wantSummary{Name{"wantSummary"}, false};
       fhicl::Atom<bool> wantTracer{Name{"wantTracer"}, false};
       fhicl::OptionalDelegatedParameter configOut{Name{"configOut"}};
       fhicl::OptionalDelegatedParameter debugConfig{Name{"debugConfig"}};
       fhicl::OptionalDelegatedParameter validateConfig{Name{"validateConfig"}};
-      fhicl::Sequence<std::string> ignoreCompletely{Name{"IgnoreCompletely"},
-                                                    {}};
-      fhicl::Sequence<std::string> rethrow{Name{"Rethrow"}, {}};
-      fhicl::Sequence<std::string> skipEvent{Name{"SkipEvent"}, {}};
-      fhicl::Sequence<std::string> failModule{Name{"FailModule"}, {}};
-      fhicl::Sequence<std::string> failPath{Name{"FailPath"}, {}};
+      fhicl::TableFragment<ActionTable::Config> actionTable{};
     };
     using Parameters = fhicl::Table<Config>;
     explicit Scheduler(Parameters const& p);
