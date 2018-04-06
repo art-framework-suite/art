@@ -22,7 +22,6 @@ services:
     SkipEvent: [ 'ProductNotFound' ]
     wantSummary: true
     # wantTracer: false
-    # fileMode: ""
     # handleEmptyRuns: true
     # handleEmptySubRuns: true
     # enableSigInt: true

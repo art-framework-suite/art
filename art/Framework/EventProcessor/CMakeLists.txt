@@ -1,5 +1,6 @@
 set(art_Framework_EventProcessor_sources
   EventProcessor.cc
+  Scheduler.cc
   detail/ExceptionCollector.cc
   detail/writeSummary.cc)
 

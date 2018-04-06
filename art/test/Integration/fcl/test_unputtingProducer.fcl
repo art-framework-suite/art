@@ -1,52 +1,26 @@
 #include "messageDefaults.fcl"
 
-services:
-{
-  # Always-present services; configuration optional.
-  floating_point_control: { }
-
-  scheduler:  # options block in the old system
-  {
-    # wantSummary: true
-    # wantTracer: true
-    # fileMode: ""
-    # handleEmptyRuns: true
-    # handleEmptySubRuns: true
-    # enableSigInt: true
-    # unloadRootSigHandler: false
-    # resetRootErrHandler: true
-  }
-}
-
 services.message: @local::messageDefaults
 
-physics:
-{
-  producers:
-  {
-    unputter:
-    {
+physics: {
+  producers: {
+    unputter: {
       module_type: UnputtingProducer
     }
   }
 
   p1: [ unputter ]
-  trigger_paths: [ p1 ]
   e1: [ o1 ]
-  end_paths: [ e1 ]
 }
 
-outputs:
-{
-  o1:
-  {
+outputs: {
+  o1: {
     module_type: RootOutput
     fileName:  "unputting.root"
   }
 }
 
-source:
-{
+source: {
   module_type: EmptyEvent
   maxEvents: 2
 }

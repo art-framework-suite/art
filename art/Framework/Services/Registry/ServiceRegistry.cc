@@ -19,19 +19,19 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  ServiceRegistry::~ServiceRegistry() { manager_ = nullptr; }
+  ServiceRegistry::~ServiceRegistry() noexcept { manager_ = nullptr; }
 
-  ServiceRegistry::ServiceRegistry() : manager_{nullptr} {}
+  ServiceRegistry::ServiceRegistry() noexcept = default;
 
   ServiceRegistry&
-  ServiceRegistry::instance()
+  ServiceRegistry::instance() noexcept
   {
     static ServiceRegistry me;
     return me;
   }
 
   void
-  ServiceRegistry::setManager(ServicesManager* mgr)
+  ServiceRegistry::setManager(ServicesManager* mgr) noexcept
   {
     manager_ = mgr;
   }

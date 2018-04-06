@@ -91,6 +91,8 @@ namespace art {
     schedule_ = nullptr;
     delete input_.load();
     input_ = nullptr;
+    delete scheduler_.load();
+    scheduler_ = nullptr;
     delete pathManager_.load();
     pathManager_ = nullptr;
     delete servicesManager_.load();
@@ -109,9 +111,6 @@ namespace art {
     actReg_ = nullptr;
     delete act_table_.load();
     act_table_ = nullptr;
-    tbbManager_.load()->terminate();
-    delete tbbManager_.load();
-    tbbManager_ = nullptr;
     delete timer_.load();
     timer_ = nullptr;
     delete ec_.load();
@@ -179,8 +178,6 @@ namespace art {
     beginSubRunCalled_ = false;
     finalizeRunEnabled_ = true;
     finalizeSubRunEnabled_ = true;
-    tbbManager_ =
-      new tbb::task_scheduler_init{tbb::task_scheduler_init::deferred};
     act_table_ =
       new ActionTable{pset.get<fhicl::ParameterSet>("services.scheduler")};
     actReg_ = new ActivityRegistry{};
@@ -201,6 +198,14 @@ namespace art {
       servicesManager_.load()->addSystemService<FloatingPointControl>(
         fpcPSet, *actReg_.load());
     }
+    // We do this late because the floating point control word, signal
+    // masks, etc., are per-thread and inherited from the master
+    // thread, so we want to allow system services, user services, and
+    // modules to configure these things in their constructors before
+    // we let tbb create any threads. This means they cannot use tbb
+    // in their constructors, instead they must use the beginJob
+    // callout.
+    scheduler_ = new Scheduler{pset.get<fhicl::ParameterSet>("services.scheduler")};
     pathManager_ = new PathManager{pset,
                                    *outputCallbacks_.load(),
                                    *producedProductDescriptions_.load(),
@@ -332,17 +337,6 @@ namespace art {
     producedProductLookupTables_ =
       new ProductTables{*producedProductDescriptions_.load()};
     outputCallbacks_.load()->invoke(*producedProductLookupTables_.load());
-    // We do this late because the floating point control word,
-    // signal masks, etc., are per-thread and inherited from the
-    // master thread, so we want to allow system services, user
-    // services, and modules to configure these things in their
-    // constructors before we let tbb create any threads. This
-    // means they cannot use tbb in their constructors, instead
-    // they must use the beginJob callout.
-    tbbManager_.load()->initialize(nthreads);
-    mf::LogInfo("MTdiagnostics")
-      << "TBB has been configured to use a maximum of "
-      << tbb::this_task_arena::max_concurrency() << " threads.";
   }
 
   void

@@ -20,6 +20,7 @@
 namespace art {
 
   class EventProcessor;
+  class Scheduler;
 
   class ProductInfo {
   public: // TYPES
@@ -126,7 +127,7 @@ namespace art {
   class Globals {
 
     friend class EventProcessor;
-    friend class PathManager;
+    friend class Scheduler;
 
     // MEMBER FUNCTIONS -- Special Member Functions
   public:

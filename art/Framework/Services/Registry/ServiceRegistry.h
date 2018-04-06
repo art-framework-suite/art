@@ -7,6 +7,7 @@
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "cetlib/LibraryManager.h"
+#include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
@@ -30,14 +31,14 @@ namespace art {
     friend class ServiceHandle;
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-    ~ServiceRegistry();
+    ~ServiceRegistry() noexcept;
     ServiceRegistry(ServiceRegistry const&) = delete;
     ServiceRegistry(ServiceRegistry&&) = delete;
     ServiceRegistry& operator=(ServiceRegistry const&) = delete;
     ServiceRegistry& operator=(ServiceRegistry&&) = delete;
 
   private: // MEMBER FUNCTIONS -- Special Member Functions
-    ServiceRegistry();
+    ServiceRegistry() noexcept;
 
   public: // MEMBER FUNCTIONS
     template <typename T>
@@ -52,9 +53,9 @@ namespace art {
     }
 
   private:
-    static ServiceRegistry& instance();
+    static ServiceRegistry& instance() noexcept;
 
-    void setManager(ServicesManager*);
+    void setManager(ServicesManager*) noexcept;
 
     template <typename T>
     T&
@@ -68,7 +69,7 @@ namespace art {
     }
 
   private: // MEMBER DATA
-    ServicesManager* manager_{nullptr};
+    cet::exempt_ptr<ServicesManager> manager_{nullptr};
   };
 
 } // namespace art

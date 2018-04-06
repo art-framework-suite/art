@@ -15,6 +15,7 @@
 #include "art/Framework/Core/ProducingServiceSignals.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
+#include "art/Framework/EventProcessor/Scheduler.h"
 #include "art/Framework/EventProcessor/detail/ExceptionCollector.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -180,9 +181,6 @@ namespace art {
     // When set allows subruns to end.
     std::atomic<bool> finalizeSubRunEnabled_;
 
-    // The master tbb controller.
-    std::atomic<tbb::task_scheduler_init*> tbbManager_;
-
     // A table of responses to be taken on reception
     // of thrown exceptions.
     std::atomic<ActionTable*> act_table_;
@@ -220,6 +218,10 @@ namespace art {
 
     // The service subsystem.
     std::atomic<ServicesManager*> servicesManager_;
+
+    // The entity that manages all configuration data from the
+    // services.scheduler block and sets up the TBB task scheduler.
+    std::atomic<Scheduler*> scheduler_;
 
     // Despite the name, this is what parses the paths and modules in
     // the fcl file and creates and owns them.
