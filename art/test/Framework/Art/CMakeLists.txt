@@ -391,7 +391,7 @@ cet_test(DebugOptionsTimeTracker_02 HANDBUILT
 
 cet_test(DebugOptionsTimeTracker_03 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --timing-db=timing.db --notiming --rethrow-default -c opt-empty.fcl
+  TEST_ARGS --timing-db=timing.db --no-timing --rethrow-default -c opt-empty.fcl
   DATAFILES fcl/opt-empty.fcl
   TEST_PROPERTIES WILL_FAIL TRUE
   )

@@ -50,14 +50,14 @@ art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc,
           "Log art-specific multi-threading diagnostics to "
           "the provided destination.");
   add_opt(options, "trace", "Activate tracing.");
-  add_opt(options, "notrace", "Deactivate tracing.");
+  add_opt(options, "no-trace", "Deactivate tracing.");
   add_opt(
     options, "timing", "Activate monitoring of time spent per event/module.");
   add_opt(options,
           "timing-db",
           bpo::value<std::string>(),
           "Output time-tracking data to SQLite3 database with name <db-file>.");
-  add_opt(options, "notiming", "Deactivate time tracking.");
+  add_opt(options, "no-timing", "Deactivate time tracking.");
   add_opt(options,
           "memcheck",
           "Activate monitoring of memory use (deprecated--per-job "
@@ -66,7 +66,7 @@ art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc,
           "memcheck-db",
           bpo::value<std::string>(),
           "Output memory use data to SQLite3 database with name <db-file>.");
-  add_opt(options, "nomemcheck", "Deactivate monitoring of memory use.");
+  add_opt(options, "no-memcheck", "Deactivate monitoring of memory use.");
   add_opt(options,
           "data-dependency-graph,g",
           bpo::value<std::string>(),
@@ -105,25 +105,25 @@ art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc,
 int
 art::DebugOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
 {
-  if (vm.count("trace") + vm.count("notrace") > 1) {
+  if (vm.count("trace") + vm.count("no-trace") > 1) {
     throw Exception(errors::Configuration)
-      << "Options --trace and --notrace are incompatible.\n";
+      << "Options --trace and --no-trace are incompatible.\n";
   }
-  if (vm.count("timing") + vm.count("notiming") > 1) {
+  if (vm.count("timing") + vm.count("no-timing") > 1) {
     throw Exception(errors::Configuration)
-      << "Options --timing and --notiming are incompatible.\n";
+      << "Options --timing and --no-timing are incompatible.\n";
   }
-  if (vm.count("timing-db") + vm.count("notiming") > 1) {
+  if (vm.count("timing-db") + vm.count("no-timing") > 1) {
     throw Exception(errors::Configuration)
-      << "Options --timing-db and --notiming are incompatible.\n";
+      << "Options --timing-db and --no-timing are incompatible.\n";
   }
-  if (vm.count("memcheck") + vm.count("nomemcheck") > 1) {
+  if (vm.count("memcheck") + vm.count("no-memcheck") > 1) {
     throw Exception(errors::Configuration)
-      << "Options --memcheck and --nomemcheck are incompatible.\n";
+      << "Options --memcheck and --no-memcheck are incompatible.\n";
   }
-  if (vm.count("memcheck-db") + vm.count("nomemcheck") > 1) {
+  if (vm.count("memcheck-db") + vm.count("no-memcheck") > 1) {
     throw Exception(errors::Configuration)
-      << "Options --memcheck-db and --nomemcheck are incompatible.\n";
+      << "Options --memcheck-db and --no-memcheck are incompatible.\n";
   }
   if (vm.count("validate-config") + vm.count("debug-config") +
         vm.count("config-out") >
@@ -200,7 +200,7 @@ art::DebugOptionsHandler::doProcessOptions(
 
   if (vm.count("trace")) {
     raw_config.put("services.scheduler.wantTracer", true);
-  } else if (vm.count("notrace")) {
+  } else if (vm.count("no-trace")) {
     raw_config.put("services.scheduler.wantTracer", false);
   }
   auto const timingdb = vm.count("timing-db");
@@ -209,7 +209,7 @@ art::DebugOptionsHandler::doProcessOptions(
     if (timingdb)
       raw_config.put("services.TimeTracker.dbOutput.filename",
                      vm["timing-db"].as<std::string>());
-  } else if (vm.count("notiming")) {
+  } else if (vm.count("no-timing")) {
     raw_config.erase("services.TimeTracker");
   }
   auto const memdb = vm.count("memcheck-db");
@@ -218,7 +218,7 @@ art::DebugOptionsHandler::doProcessOptions(
     if (memdb)
       raw_config.put("services.MemoryTracker.dbOutput.filename",
                      vm["memcheck-db"].as<std::string>());
-  } else if (vm.count("nomemcheck")) {
+  } else if (vm.count("no-memcheck")) {
     raw_config.erase("services.MemoryTracker");
   }
 
