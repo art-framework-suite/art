@@ -161,20 +161,6 @@ namespace {
     return result;
   }
 
-  namespace {
-    auto
-    service_libname(std::string const& spec)
-    {
-      return spec == "floating_point_control"s ? "FloatingPointControl"s : spec;
-    }
-
-    auto
-    service_fclname(std::string const& spec)
-    {
-      return spec == "FloatingPointControl"s ? "floating_point_control"s : spec;
-    }
-  }
-
   template <>
   LibraryInfoCollection
   getCollection<suffix_type::service>(std::string const& spec,
@@ -183,10 +169,7 @@ namespace {
     // These services are not configurable by users.
     std::set<std::string> const systemServicesToIgnore{"TriggerNamesService"};
 
-    std::string const& pSpec = service_libname(spec);
-
-    LibraryManager const lm{Suffixes::get(suffix_type::service),
-                            pattern(pSpec)};
+    LibraryManager const lm{Suffixes::get(suffix_type::service), pattern(spec)};
     auto libs = getLibraries(lm);
 
     // Remove libraries that should be ignored
@@ -207,18 +190,17 @@ namespace {
     std::size_t i{};
     for (auto const& lib : libs) {
       auto const& libspecs = lm.getSpecsByPath(lib);
-      std::string const& spec = libspecs.first;
+      std::string const& shortspec = libspecs.first;
       std::string const& fullspec = libspecs.second;
-      auto const& fclname = service_fclname(spec);
 
-      result.emplace(
-        lib,
-        std::make_pair(fclname, fullspec),
-        getFilePath<suffix_type::service>(lm, spec), // full specs may be empty
-        getAllowedConfiguration<suffix_type::service>(
-          lm, spec, fclname), // for user-defined servicxes
-        getProvider(fullspec),
-        getType<suffix_type::service>(lm, libspecs.second));
+      result.emplace(lib,
+                     std::make_pair(shortspec, fullspec),
+                     getFilePath<suffix_type::service>(
+                       lm, shortspec), // full specs may be empty
+                     getAllowedConfiguration<suffix_type::service>(
+                       lm, shortspec, shortspec), // for user-defined servicxes
+                     getProvider(fullspec),
+                     getType<suffix_type::service>(lm, fullspec));
 
       status_bar.print_progress(++i);
     }

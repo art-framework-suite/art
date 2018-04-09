@@ -192,8 +192,8 @@ namespace art {
     {
       auto servicesPSet = pset.get<fhicl::ParameterSet>("services", {});
       auto const fpcPSet =
-        servicesPSet.get<fhicl::ParameterSet>("floating_point_control", {});
-      servicesPSet.erase("floating_point_control");
+        servicesPSet.get<fhicl::ParameterSet>("FloatingPointControl", {});
+      servicesPSet.erase("FloatingPointControl");
       servicesPSet.erase("message");
       servicesManager_ =
         new ServicesManager(move(servicesPSet), *actReg_.load());

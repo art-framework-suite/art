@@ -28,13 +28,7 @@ namespace art {
       std::string
       header_(LibraryInfo const& li) const
       {
-        using namespace std::string_literals;
-        auto fclname = [](std::string const& short_spec) {
-          return short_spec == "FloatingPointControl"s ?
-                   "floating_point_control"s :
-                   short_spec;
-        };
-        std::string const& printed_name = fclname(li.short_spec());
+        std::string const& printed_name = li.short_spec();
         std::ostringstream result;
         result << indent_1() << "service : " << bold_fontify(printed_name)
                << "\n\n";
