@@ -1,4 +1,4 @@
-services.scheduler.wantTracer: true
+services.Tracer: {}
 
 physics:
 {

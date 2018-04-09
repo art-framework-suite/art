@@ -91,6 +91,7 @@ Begin processing the 6th record. run: 1 subRun: 0 event: 6 at <date-time>
 ++++finished: close input file
 ++ endJob module:a1
 ++ endJob finished:a1
+++ Job ended
 
 <separator (=)>
 TimeTracker printout (sec)            Min           Avg           Max         Median          RMS         nEvts   
@@ -99,7 +100,6 @@ Full event	<duration> <duration> <duration> <duration> <duration> 6
 <separator (-)>
 source:EmptyEvent(read)	<duration> <duration> <duration> <duration> <duration> 6     
 end_path:a1:ThrowingAnalyzer	<duration> <duration> <duration> <duration> <duration> 5     
-++ Job ended
 
 TrigReport ---------- Event  Summary ------------
 TrigReport Events total = 6 passed = 6 failed = 0

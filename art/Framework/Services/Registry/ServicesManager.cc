@@ -121,14 +121,7 @@ namespace art {
   {
     vector<ParameterSet> psets;
     {
-      bool const wantTracer{
-        servicesPSet.get<bool>("scheduler.wantTracer", false)};
       servicesPSet.erase("scheduler");
-      // If we want the tracer and it's not explicitly configured, insert
-      // it, otherwise it'll get picked up automatically.
-      if (wantTracer && !servicesPSet.has_key("Tracer")) {
-        addService("Tracer", psets);
-      }
       // Force presence of FileCatalogMetadata service.
       addService("FileCatalogMetadata", servicesPSet, psets);
       servicesPSet.erase("FileCatalogMetadata");

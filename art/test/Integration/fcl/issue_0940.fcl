@@ -21,7 +21,6 @@ services:
               'ProductDoesNotSupportPtr','NotFound']
     SkipEvent: [ 'ProductNotFound' ]
     wantSummary: true
-    # wantTracer: false
     # handleEmptyRuns: true
     # handleEmptySubRuns: true
     # enableSigInt: true

@@ -199,9 +199,9 @@ art::DebugOptionsHandler::doProcessOptions(
   }
 
   if (vm.count("trace")) {
-    raw_config.put("services.scheduler.wantTracer", true);
+    raw_config.putEmptyTable("services.Tracer");
   } else if (vm.count("no-trace")) {
-    raw_config.put("services.scheduler.wantTracer", false);
+    raw_config.erase("services.Tracer");
   }
   auto const timingdb = vm.count("timing-db");
   if (vm.count("timing") || timingdb) {

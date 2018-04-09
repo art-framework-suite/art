@@ -1,9 +1,8 @@
 #include "messageDefaults.fcl"
 
 services: {
-  # Always-present services; configuration optional.
   FloatingPointControl: {}
-
+  Tracer: {}
   scheduler: {
     Rethrow: ['OtherArt','StdException','Unknown','BadAlloc',
       'BadExceptionType','ProductNotFound','DictionaryNotFound',
@@ -13,7 +12,6 @@ services: {
       'FileInPathError','FileOpenError','FileReadError','FatalRootError',
       'MismatchedInputFiles','ProductDoesNotSupportViews',
       'ProductDoesNotSupportPtr','NotFound']
-    wantTracer: true
   }
 
   TFileService: { fileName: "tfile_output.root" }

@@ -26,7 +26,6 @@ namespace art {
       fhicl::Atom<bool> errorOnFailureToPut{Name{"errorOnFailureToPut"}, true};
       fhicl::Atom<bool> errorOnSIGINT{Name{"errorOnSIGINT"}, true};
       fhicl::Atom<bool> wantSummary{Name{"wantSummary"}, false};
-      fhicl::Atom<bool> wantTracer{Name{"wantTracer"}, false};
       fhicl::OptionalDelegatedParameter configOut{Name{"configOut"}};
       fhicl::OptionalDelegatedParameter debugConfig{Name{"debugConfig"}};
       fhicl::OptionalDelegatedParameter validateConfig{Name{"validateConfig"}};

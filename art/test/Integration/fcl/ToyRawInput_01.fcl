@@ -6,15 +6,12 @@ std_fileNames: [ f1, f2 ]
 
 END_PROLOG
 
-services.scheduler.wantTracer: true
+services.Tracer: {}
 
-physics:
-{
+physics: {
 
-  analyzers:
-  {
-    a1:
-    {
+  analyzers: {
+    a1: {
       module_type: ToyRawInputTester
       fileNames: @local::std_fileNames
       f1: @local::std_f1
@@ -25,17 +22,14 @@ physics:
   e1: [ a1, out1 ]
 }
 
-outputs:
-{
-  out1:
-  {
+outputs: {
+  out1: {
     module_type: RootOutput
     fileName: "out.root"
   }
 }
 
-source:
-{
+source: {
   module_type: ToyRawInput
   fileNames: @local::std_fileNames
   f1: @local::std_f1

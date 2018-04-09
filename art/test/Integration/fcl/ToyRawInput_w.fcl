@@ -1,7 +1,7 @@
 #include "ToyRawInput_wr_f1.fcl"
 #include "ToyRawInput_common.fcl"
 
-services.scheduler.wantTracer: true
+services.Tracer: {}
 
 source.f1: @local::f1
 
