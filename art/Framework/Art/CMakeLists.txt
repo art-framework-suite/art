@@ -25,10 +25,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
   )
 ####################################
 
-add_subdirectory(detail)
-add_subdirectory(detail/md-collector)
-add_subdirectory(detail/md-summary)
-
 set(art_Framework_Art_sources
   BasicOptionsHandler.cc
   BasicPostProcessor.cc
@@ -50,6 +46,7 @@ set(art_Framework_Art_sources
   detail/get_LibraryInfoCollection.cc
   detail/get_MetadataCollector.cc
   detail/get_MetadataSummary.cc
+  detail/prune_configuration.cc
   )
 
 art_make_library(LIBRARY_NAME art_Framework_Art
@@ -86,6 +83,8 @@ macro(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
   set_property(TARGET ${TARGET_STEM} PROPERTY ENABLE_EXPORTS TRUE)
 endmacro()
 
+cet_make_exec(get-loadable-libraries SOURCE get-loadable-libraries.cc LIBRARIES cetlib)
+
 # Standard execs
 art_exec(art art artapp)
 art_exec(gm2 art artapp)
@@ -113,5 +112,5 @@ art_make_exec(NAME check_libs
   cetlib
   )
 
-install_headers()
-install_source()
+install_headers(SUBDIRS detail detail/md-collector detail/md-summary)
+install_source(SUBDIRS detail)

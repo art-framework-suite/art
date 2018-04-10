@@ -26,6 +26,7 @@ namespace art {
       fhicl::Atom<bool> errorOnFailureToPut{Name{"errorOnFailureToPut"}, true};
       fhicl::Atom<bool> errorOnSIGINT{Name{"errorOnSIGINT"}, true};
       fhicl::Atom<bool> wantSummary{Name{"wantSummary"}, false};
+      fhicl::Atom<bool> pruneConfig{Name{"pruneConfig"}, false};
       fhicl::Atom<std::string> dataDependencyGraph{Name{"dataDependencyGraph"}, {}};
       fhicl::OptionalDelegatedParameter configOut{Name{"configOut"}};
       fhicl::OptionalDelegatedParameter debugConfig{Name{"debugConfig"}};

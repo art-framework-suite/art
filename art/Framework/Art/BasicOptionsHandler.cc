@@ -44,6 +44,8 @@ art::BasicOptionsHandler::BasicOptionsHandler(bpo::options_description& desc,
   add_opt(
     options, "process-name", bpo::value<std::string>(), "art process name.");
   add_opt(
+          options, "prune-config", "Remove unused modules from the fully-processed configuration.");
+  add_opt(
     options,
     "print-available",
     bpo::value<std::string>(),
@@ -143,6 +145,9 @@ art::BasicOptionsHandler::doProcessOptions(
   }
   if (vm.count("process-name")) {
     raw_config.put("process_name", vm["process-name"].as<std::string>());
+  }
+  if (vm.count("prune-config")) {
+    raw_config.put("services.scheduler.pruneConfig", true);
   }
   return 0;
 }

@@ -3,7 +3,9 @@
 
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
+#include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/info_success.h"
+#include "art/Framework/Art/detail/prune_configuration.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "boost/filesystem.hpp"
@@ -180,6 +182,16 @@ namespace art {
         return result;
       }
     }
+
+    // If configuration pruning has been enabled, remove unused module
+    // configurations.
+    using detail::exists_outside_prolog;
+    assert(exists_outside_prolog(raw_config, "services.scheduler"));
+    std::string const pruneConfig{"services.scheduler.pruneConfig"};
+    if (exists_outside_prolog(raw_config, pruneConfig) && raw_config.get<bool>(pruneConfig)) {
+      detail::prune_configuration(raw_config);
+    }
+
     //
     // Make the parameter set from the intermediate table.
     //
@@ -304,8 +316,8 @@ namespace art {
     try {
       EventProcessor ep{main_pset};
       // Behavior of validate_config is to validate FHiCL syntax *and*
-      // user-specified configurations of paths, modules, services, etc.
-      // It is thus possible that an exception thrown during
+      // user-specified configurations of paths, modules, services,
+      // etc.  It is thus possible that an exception thrown during
       // construction of the EventProcessor object can have nothing to
       // do with a configuration error.
       if (debug_processing_mode == debug_processing::validate_config) {

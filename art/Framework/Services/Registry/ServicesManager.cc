@@ -113,15 +113,9 @@ namespace art {
   ServicesManager::ServicesManager(ParameterSet&& servicesPSet,
                                    ActivityRegistry& actReg)
     : actReg_{actReg}
-    , lm_{Suffixes::service()}
-    , factory_{}
-    , requestedCreationOrder_{}
-    , actualCreationOrder_{}
-    , configErrMsgs_()
   {
     vector<ParameterSet> psets;
     {
-      servicesPSet.erase("scheduler");
       // Force presence of FileCatalogMetadata service.
       addService("FileCatalogMetadata", servicesPSet, psets);
       servicesPSet.erase("FileCatalogMetadata");
