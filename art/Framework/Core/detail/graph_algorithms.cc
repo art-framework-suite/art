@@ -44,7 +44,11 @@ art::detail::make_module_graph(ModuleGraphInfoMap const& modInfos,
 
   std::string err;
   err += verify_no_interpath_dependencies(modInfos, module_graph);
-  err += verify_in_order_dependencies(modInfos, trigger_paths);
+  if (err.empty()) {
+    // Cannot currently check intrapath dependencies unless the above
+    // check is successful.
+    err += verify_in_order_dependencies(modInfos, trigger_paths);
+  }
 
   make_path_ordering_edges(modInfos, trigger_paths, module_graph);
   make_synchronization_edges(modInfos, trigger_paths, end_path, module_graph);
@@ -312,13 +316,15 @@ art::detail::verify_in_order_dependencies(
     oss << "  Module " << module_name << " on path"
         << (module_paths.size() == 1ull ? " " : "s ")
         << comma_separated_list(module_paths)
-        << " depends on modules that follow it:\n";
+        << " depends on either itself or modules that follow it:\n";
     for (auto const& dep_name : mod.second) {
       auto const dep_index = modInfos.vertex_index(dep_name);
       auto const& on_paths = modInfos.info(dep_index).paths;
       oss << "    Module " << dep_name << " on path"
           << (on_paths.size() == 1ull ? " " : "s ")
-          << comma_separated_list(on_paths) << '\n';
+          << comma_separated_list(on_paths)
+          << (module_name == dep_name ? " (self circularity)" : "")
+          << '\n';
     }
   }
   return oss.str();

@@ -1,0 +1,8 @@
+physics: {
+  producers: {
+    p1: {}
+    p2: { depends_on: [p1] }
+  }
+  tp1: [p1]
+  tp2: [p2]
+}

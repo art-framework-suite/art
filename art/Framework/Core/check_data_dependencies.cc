@@ -5,9 +5,9 @@
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/make_ParameterSet.h"
-#include "fhiclcpp/types/DelegatedParameter.h"
 #include "fhiclcpp/types/OptionalDelegatedParameter.h"
 #include "fhiclcpp/types/OptionalSequence.h"
+#include "fhiclcpp/types/OptionalTable.h"
 #include "fhiclcpp/types/Table.h"
 
 #include <cassert>
@@ -20,8 +20,8 @@ namespace {
   struct TopLevelTable {
     struct Source {
     };
-    fhicl::Table<Source> source{fhicl::Name{"source"}};
-    fhicl::DelegatedParameter physics{fhicl::Name{"physics"}};
+    fhicl::OptionalTable<Source> source{fhicl::Name{"source"}};
+    fhicl::OptionalDelegatedParameter physics{fhicl::Name{"physics"}};
     fhicl::OptionalDelegatedParameter outputs{fhicl::Name{"outputs"}};
   };
 
@@ -179,7 +179,10 @@ main(int argc, char** argv) try {
   make_ParameterSet(filename, maker, pset);
   fhicl::Table<TopLevelTable> table{pset};
 
-  auto const physics = table().physics.get<fhicl::ParameterSet>();
+  fhicl::ParameterSet physics;
+  if (!table().physics.get_if_present(physics)) {
+    return 0;
+  }
   auto paths_to_modules = get_paths_to_modules(physics);
   auto const trigger_paths =
     select_paths(pset, tables_with_modifiers, paths_to_modules);
@@ -247,8 +250,10 @@ main(int argc, char** argv) try {
   auto const module_graph =
     art::detail::make_module_graph(modInfos, trigger_paths, end_path);
   auto const& err = module_graph.second;
+  int rc{};
   if (!err.empty()) {
     std::cout << err << '\n';
+    rc = 1;
   }
 
   auto const pos = filename.find(".fcl");
@@ -256,6 +261,7 @@ main(int argc, char** argv) try {
     (pos != std::string::npos) ? filename.substr(0, pos) : filename;
   std::ofstream ofs{basename + ".dot"};
   print_module_graph(ofs, modInfos, module_graph.first);
+  return rc;
 }
 catch (fhicl::detail::validationException const& v) {
   std::cerr << v.what();

@@ -40,3 +40,5 @@ endforeach()
 cet_test(GroupSelector_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
 )
+
+add_subdirectory(data-dependencies)

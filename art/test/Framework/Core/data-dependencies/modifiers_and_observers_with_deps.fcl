@@ -1,0 +1,21 @@
+physics: {
+  producers: {
+    p1: {}
+    p2: { depends_on: [p1] }
+  }
+  filters: {
+    f1: {}
+    f2: { depends_on: [p2] }
+  }
+  analyzers: {
+    a1: {}
+    a2: { depends_on: [p2] }
+  }
+
+  tp: [p1, f1, p2, f2]
+  ep: [a1, a2, o1]
+}
+
+outputs: {
+  o1: { depends_on: [p1, p2] }
+}

@@ -43,7 +43,7 @@ using std::ostream;
 using std::string;
 using std::vector;
 
-typedef vector<string> stringvec;
+using stringvec = vector<string>;
 struct FileCatalogMetadataEntry {
   int SMDid;
   std::string name;
@@ -84,7 +84,7 @@ print_one_fc_metadata_entry_hr(FileCatalogMetadataEntry const& ent,
                                size_t longestName,
                                ostream& output)
 {
-  const std::string& name = ent.name;
+  std::string const& name = ent.name;
   constexpr size_t maxIDdigits = 5;
   constexpr size_t maxNameSpacing = 20;
 
@@ -185,7 +185,7 @@ read_all_fc_metadata_entries(
   // Open the DB
   art::SQLite3Wrapper sqliteDB{&file, "RootFileDB"};
   // Read the entries into memory.
-  sqlite3_stmt* stmt = 0;
+  sqlite3_stmt* stmt = nullptr;
   sqlite3_prepare_v2(sqliteDB,
                      "SELECT rowid, Name, Value from FileCatalog_metadata;",
                      -1,
