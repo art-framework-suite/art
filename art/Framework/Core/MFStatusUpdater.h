@@ -131,6 +131,7 @@ namespace art {
     MFSU_1_ARG_UPDATER_DECL(PreModuleEndJob);
     MFSU_1_ARG_UPDATER_DECL(PostModuleEndJob);
     MFSU_0_ARG_UPDATER_DECL(PostEndJob);
+    // MFSU_0_ARG_UPDATER_DECL(JobFailure);
   };
 
 } // namespace art

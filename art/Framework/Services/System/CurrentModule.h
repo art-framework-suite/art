@@ -9,6 +9,8 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "hep_concurrency/RecursiveMutex.h"
+
 #include <string>
 
 namespace art {
@@ -16,25 +18,23 @@ namespace art {
   class ActivityRegistry;
 
   class CurrentModule {
-
+    // Special Member Functions
   public:
-    CurrentModule(CurrentModule const&) = delete;
-
-    CurrentModule operator=(CurrentModule const&) = delete;
-
     CurrentModule(art::ActivityRegistry& r);
-
+    CurrentModule(CurrentModule const&) = delete;
+    CurrentModule operator=(CurrentModule const&) = delete;
+    // API
   public:
-    std::string const&
-    label() const
-    {
-      return desc_.moduleLabel();
-    }
-
+    std::string const& label() const;
+    // Implementation details
   private:
-    art::ModuleDescription desc_;
-
     void track_module(art::ModuleDescription const& desc);
+    // Member Data
+  private:
+    // Protects all data members.
+    mutable hep::concurrency::RecursiveMutex mutex_{
+      "art::CurrentModule::mutex_"};
+    art::ModuleDescription desc_;
   };
 
 } // namespace art

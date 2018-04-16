@@ -35,7 +35,6 @@
 #include "fhiclcpp/types/OptionalTable.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/TableFragment.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <array>
 #include <atomic>
@@ -51,7 +50,6 @@ namespace art {
   class ResultsPrincipal;
 
   class OutputModule : public EventObserverBase {
-
     // Allow the WorkerT<T> ctor to call setModuleDescription() and
     // workerType().
     template <typename T>
@@ -74,78 +72,55 @@ namespace art {
 
   public: // CONFIGURATION
     struct Config {
-
       struct KeysToIgnore {
-
         std::set<std::string>
         operator()()
         {
           return {"module_label", "streamName", "FCMDPlugins"};
         }
-
         static auto
         get()
         {
           return KeysToIgnore{}();
         }
       };
-
       fhicl::Atom<std::string> moduleType{fhicl::Name("module_type")};
-
       fhicl::TableFragment<EventObserverBase::EOConfig> eoFragment;
-
       fhicl::Sequence<std::string> outputCommands{
         fhicl::Name("outputCommands"),
         std::vector<std::string>{"keep *"}};
-
       fhicl::Atom<std::string> fileName{fhicl::Name("fileName"), ""};
-
       fhicl::Atom<std::string> dataTier{fhicl::Name("dataTier"), ""};
-
       fhicl::Atom<std::string> streamName{fhicl::Name("streamName"), ""};
     };
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~OutputModule() noexcept;
-
     explicit OutputModule(fhicl::ParameterSet const& pset);
-
     explicit OutputModule(fhicl::TableFragment<Config> const& pset,
                           fhicl::ParameterSet const& containing_pset);
-
     OutputModule(OutputModule const&) = delete;
-
     OutputModule(OutputModule&&) = delete;
-
     OutputModule& operator=(OutputModule const&) = delete;
-
     OutputModule& operator=(OutputModule&&) = delete;
 
   public: // MEMBER FUNCTIONS
     // Accessor for maximum number of events to be written.
     // -1 is used for unlimited.
     int maxEvents() const;
-
     // Accessor for remaining number of events to be written.
     // -1 is used for unlimited.
     int remainingEvents() const;
-
     bool fileIsOpen() const;
-
     OutputFileStatus fileStatus() const;
-
     // Name of output file (may be overridden if default implementation is
     // not appropriate).
     virtual std::string const& lastClosedFileName() const;
-
     SelectionsArray const& keptProducts() const;
     bool selected(BranchDescription const&) const;
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const;
-
     void selectProducts(ProductTables const&);
-
     void doSelectProducts(ProductTables const&);
-
     void registerProducts(ProductDescriptions&, ModuleDescription const&);
     BranchChildren const& branchChildren() const;
 
@@ -154,41 +129,33 @@ namespace art {
     virtual void doRegisterProducts(ProductDescriptions&,
                                     ModuleDescription const&);
 
-  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-           // EndPathExecutor
+  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
+           // and EndPathExecutor
     void configure(OutputModuleDescription const& desc);
-
     virtual void doBeginJob();
-
     // Called after selectProducts() has done its work.
     virtual void postSelectProducts();
-
     void doEndJob();
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
-
     bool doBeginRun(RunPrincipal const& rp,
                     CurrentProcessingContext const* cpc);
-
     bool doEndRun(RunPrincipal const& rp, CurrentProcessingContext const* cpc);
-
     bool doBeginSubRun(SubRunPrincipal const& srp,
                        CurrentProcessingContext const* cpc);
-
     bool doEndSubRun(SubRunPrincipal const& srp,
                      CurrentProcessingContext const* cpc);
-
     bool doEvent(EventPrincipal const& ep,
-                 ScheduleID scheduleID,
+                 ScheduleID const,
                  CurrentProcessingContext const* cpc,
                  std::atomic<std::size_t>& counts_run,
                  std::atomic<std::size_t>& counts_passed,
                  std::atomic<std::size_t>& counts_failed);
 
-  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-           // EndPathExecutor
+  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
+           // and EndPathExecutor
     void doWriteRun(RunPrincipal& rp);
     void doWriteSubRun(SubRunPrincipal& srp);
     void doWriteEvent(EventPrincipal& ep);
@@ -196,20 +163,15 @@ namespace art {
     void doSetSubRunAuxiliaryRangeSetID(RangeSet const&);
     void doOpenFile(FileBlock const& fb);
 
-  protected
-    : // MEMBER FUNCTIONS -- Implementation API, intended to be provided by
-    // derived classes.
+  protected: // MEMBER FUNCTIONS -- Implementation API, intended to be
+             // provided by derived classes.
     std::string workerType() const;
-
     // Tell the OutputModule that it must end the current file.
     void doCloseFile();
-
     // Do the end-of-file tasks; this is only called internally, after
     // the appropriate tests have been done.
     void reallyCloseFile();
-
     virtual void incrementInputFileNumber();
-
     // Ask the OutputModule if we should end the current file.
     // N.B. The default file granularity is 'Unset', which means that
     //      even if an output module requests to close its file, the
@@ -220,7 +182,6 @@ namespace art {
     //      at compile time.  However, such a check would require an
     //      interface change.
     virtual bool requestsToCloseFile() const;
-
     virtual Granularity fileGranularity() const;
     virtual void setFileStatus(OutputFileStatus);
     virtual void beginJob();
@@ -229,15 +190,12 @@ namespace art {
     virtual void endRun(RunPrincipal const&);
     virtual void writeRun(RunPrincipal& r) = 0;
     virtual void setRunAuxiliaryRangeSetID(RangeSet const&);
-
     virtual void beginSubRun(SubRunPrincipal const&);
     virtual void endSubRun(SubRunPrincipal const&);
     virtual void writeSubRun(SubRunPrincipal& sr) = 0;
     virtual void setSubRunAuxiliaryRangeSetID(RangeSet const&);
-
     virtual void event(EventPrincipal const&);
     virtual void write(EventPrincipal& e) = 0;
-
     virtual void openFile(FileBlock const&);
     virtual void respondToOpenInputFile(FileBlock const&);
     virtual void readResults(ResultsPrincipal const& resp);
@@ -245,15 +203,11 @@ namespace art {
     virtual void respondToOpenOutputFiles(FileBlock const&);
     virtual void respondToCloseOutputFiles(FileBlock const&);
     virtual bool isFileOpen() const;
-
     void updateBranchParents(EventPrincipal& ep);
     void fillDependencyGraph();
-
     bool limitReached() const;
-
     // The following member functions are part of the Template Method
     // pattern, used for implementing doCloseFile() and maybeEndFile().
-
     virtual void startEndFile();
     virtual void writeFileFormatVersion();
     virtual void writeFileIdentifier();
@@ -265,20 +219,14 @@ namespace art {
     virtual void writeBranchIDListRegistry();
     virtual void writeParentageRegistry();
     virtual void writeProductDescriptionRegistry();
-
     void writeFileCatalogMetadata();
-
     virtual void doWriteFileCatalogMetadata(
       FileCatalogMetadata::collection_type const& md,
       FileCatalogMetadata::collection_type const& ssmd);
-
     virtual void writeProductDependencies();
     virtual void finishEndFile();
-
     PluginCollection_t makePlugins_(fhicl::ParameterSet const& top_pset);
-
     // FIXME: Make these private data members.
-
   protected: // MEMBER DATA -- For derived classes
     // TODO: Give OutputModule an interface (protected?) that supplies
     // client code with the needed functionality *without* giving away
@@ -292,44 +240,28 @@ namespace art {
     //
     // keptProducts_ are BranchDescription objects OWNED BY VALUE
     // describing the branches we are to write.
-
     SelectionsArray keptProducts_{{}};
     std::array<std::unique_ptr<GroupSelector const>, NumBranchTypes>
       groupSelector_{{nullptr}};
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_{{false}};
-
     GroupSelectorRules groupSelectorRules_;
-
     int maxEvents_{-1};
-
     int remainingEvents_{maxEvents_};
-
     using BranchParents = std::map<ProductID, std::set<ParentageID>>;
-
     std::map<ProductID, std::set<ParentageID>> branchParents_{};
-
     BranchChildren branchChildren_{};
-
     std::string configuredFileName_;
-
     std::string dataTier_;
-
     std::string streamName_;
-
     ServiceHandle<CatalogInterface> ci_{};
-
     cet::BasicPluginFactory pluginFactory_{};
-
     // For diagnostics.
     std::vector<std::string> pluginNames_{};
-
     PluginCollection_t plugins_;
   };
 
   namespace shared {
-
     class OutputModule : public art::OutputModule {
-
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
       template <typename T>
@@ -352,29 +284,23 @@ namespace art {
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
       virtual ~OutputModule() noexcept;
-
       explicit OutputModule(fhicl::ParameterSet const& pset);
-
       explicit OutputModule(fhicl::TableFragment<Config> const& pset,
                             fhicl::ParameterSet const& containing_pset);
-
       OutputModule(OutputModule const&) = delete;
       OutputModule(OutputModule&&) = delete;
       OutputModule& operator=(OutputModule const&) = delete;
       OutputModule& operator=(OutputModule&&) = delete;
 
-    private
-      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-        // EndPathExecutor
+    private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
+             // and EndPathExecutor
       void doBeginJob() override;
     };
 
   } // namespace shared
 
   namespace replicated {
-
     class OutputModule : public art::OutputModule {
-
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
       template <typename T>
@@ -397,25 +323,19 @@ namespace art {
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
       virtual ~OutputModule() noexcept;
-
       explicit OutputModule(fhicl::ParameterSet const& pset);
-
       explicit OutputModule(fhicl::TableFragment<Config> const& pset,
                             fhicl::ParameterSet const& containing_pset);
-
       OutputModule(OutputModule const&) = delete;
       OutputModule(OutputModule&&) = delete;
       OutputModule& operator=(OutputModule const&) = delete;
       OutputModule& operator=(OutputModule&&) = delete;
 
-    private
-      : // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-        // EndPathExecutor
+    private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
+             // and EndPathExecutor
       void doBeginJob() override;
     };
-
   } // namespace replicated
-
 } // namespace art
 
 #endif /* art_Framework_Core_OutputModule_h */

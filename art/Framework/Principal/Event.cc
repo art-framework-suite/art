@@ -23,28 +23,14 @@ namespace art {
       return true;
     }
 
-    [[gnu::unused]] constexpr bool
-    record_parents(Event const*)
-    {
-      return false;
-    }
-
   } // unnamed namespace
 
   Event::~Event() = default;
 
-  Event::Event(EventPrincipal const& ep,
-               ModuleDescription const& md,
-               TypeLabelLookup_t const& expectedProducts)
-    : DataViewImpl{InEvent,
-                   ep,
-                   md,
-                   record_parents(this),
-                   expectedProducts,
-                   RangeSet::invalid()}
-    , subRun_{ep.subRunPrincipalExemptPtr() ?
-                new SubRun{ep.subRunPrincipal(), md, TypeLabelLookup_t{}} :
-                nullptr}
+  Event::Event(EventPrincipal const& ep, ModuleDescription const& md)
+    : DataViewImpl{InEvent, ep, md, record_parents(this), RangeSet::invalid()}
+    , subRun_{ep.subRunPrincipalPtr() ? new SubRun{ep.subRunPrincipal(), md} :
+                                        nullptr}
   {}
 
   EventID

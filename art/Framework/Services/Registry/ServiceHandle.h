@@ -26,7 +26,6 @@
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/detail/ServiceHandleAllowed.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
-#include "art/Utilities/ScheduleID.h"
 
 #include <type_traits>
 

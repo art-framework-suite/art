@@ -11,6 +11,7 @@
 
 #include "TTree.h"
 
+#include <atomic>
 #include <memory>
 #include <set>
 #include <string>
@@ -20,16 +21,14 @@ class TFile;
 class TBranch;
 
 namespace art {
-
   class RootOutputTree {
-
   public: // STATIC MEMBER FUNCTIONS
     static TTree* makeTTree(TFile*, std::string const& name, int splitLevel);
-    static void writeTTree(TTree*) noexcept(false); // This routine MAY THROW if
-                                                    // art converts a ROOT error
-                                                    // message to an exception.
+    // This routine MAY THROW if art converts
+    // a ROOT error message to an exception.
+    static void writeTTree(TTree*) noexcept(false);
 
-  public: // MEMBER FUNCTIONS
+  public: // MEMBER FUNCTIONS -- Special Member Functions
     // Constructor for trees with no fast cloning
     template <typename Aux>
     RootOutputTree(cet::exempt_ptr<TFile> filePtr,
@@ -41,62 +40,52 @@ namespace art {
                    int64_t const treeMaxVirtualSize,
                    int64_t const saveMemoryObjectThreshold)
       : filePtr_{filePtr}
-      , tree_{makeTTree(filePtr.get(),
-                        BranchTypeToProductTreeName(branchType),
-                        splitLevel)}
-      , metaTree_{makeTTree(filePtr.get(),
-                            BranchTypeToMetaDataTreeName(branchType),
-                            0)}
-      , basketSize_{bufSize}
-      , splitLevel_{splitLevel}
-      , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
     {
+      tree_ = makeTTree(
+        filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel);
+      metaTree_ =
+        makeTTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0);
+      fastCloningEnabled_ = false;
+      basketSize_ = bufSize;
+      splitLevel_ = splitLevel;
+      saveMemoryObjectThreshold_ = saveMemoryObjectThreshold;
+      nEntries_ = 0;
       if (treeMaxVirtualSize >= 0) {
-        tree_->SetMaxVirtualSize(treeMaxVirtualSize);
+        tree_.load()->SetMaxVirtualSize(treeMaxVirtualSize);
       }
-      auxBranch_ = tree_->Branch(
+      auto auxBranch = tree_.load()->Branch(
         BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
       delete pAux;
       pAux = nullptr;
-      readBranches_.push_back(auxBranch_);
-      productProvenanceBranch_ =
-        metaTree_->Branch(productProvenanceBranchName(branchType).c_str(),
-                          &pProductProvenanceVector,
-                          bufSize,
-                          0);
-      metaBranches_.push_back(productProvenanceBranch_);
+      readBranches_.push_back(auxBranch);
+      auto productProvenanceBranch = metaTree_.load()->Branch(
+        productProvenanceBranchName(branchType).c_str(),
+        &pProductProvenanceVector,
+        bufSize,
+        0);
+      metaBranches_.push_back(productProvenanceBranch);
     }
-
     RootOutputTree(RootOutputTree const&) = delete;
     RootOutputTree& operator=(RootOutputTree const&) = delete;
 
+  public: // MEMBER FUNCTIONS -- API
     bool isValid() const;
-
-    // void
-    // setOutputBranchAddress(BranchDescription const& bd, void const*& pProd);
-
     void resetOutputBranchAddress(BranchDescription const&);
-
     void addOutputBranch(BranchDescription const&, void const*& pProd);
-
     bool checkSplitLevelAndBasketSize(cet::exempt_ptr<TTree const>) const;
-
     bool fastCloneTree(cet::exempt_ptr<TTree const>);
     void fillTree();
     void writeTree() const;
-
     TTree*
     tree() const
     {
-      return tree_;
+      return tree_.load();
     }
-
     TTree*
     metaTree() const
     {
-      return metaTree_;
+      return metaTree_.load();
     }
-
     void
     setEntries()
     {
@@ -105,20 +94,18 @@ namespace art {
       // the tree entry count.  Tell the trees to set their
       // entry count based on their branches (all branches
       // must have the same number of entries).
-      if (tree_->GetNbranches() != 0) {
-        tree_->SetEntries(-1);
+      if (tree_.load()->GetNbranches() != 0) {
+        tree_.load()->SetEntries(-1);
       }
-      if (metaTree_->GetNbranches() != 0) {
-        metaTree_->SetEntries(-1);
+      if (metaTree_.load()->GetNbranches() != 0) {
+        metaTree_.load()->SetEntries(-1);
       }
     }
-
     void
     beginInputFile(bool fastCloning)
     {
       fastCloningEnabled_ = fastCloning;
     }
-
     bool
     uncloned(std::string const& branchName) const
     {
@@ -128,28 +115,23 @@ namespace art {
 
   private: // MEMBER DATA
     cet::exempt_ptr<TFile> filePtr_;
-    TTree* const tree_;
-    TTree* const metaTree_;
-    TBranch* auxBranch_{nullptr};
-    TBranch* productProvenanceBranch_{nullptr};
+    std::atomic<TTree*> tree_;
+    std::atomic<TTree*> metaTree_;
     // does not include cloned branches
     std::vector<TBranch*> producedBranches_{};
     std::vector<TBranch*> metaBranches_{};
     std::vector<TBranch*> readBranches_{};
     std::vector<TBranch*> unclonedReadBranches_{};
     std::set<std::string> unclonedReadBranchNames_{};
-
     // The default for 'fastCloningEnabled_' is false so that SubRuns
     // and Runs are not fast-cloned.  We explicitly set this variable
     // to true for the event tree.
-    bool fastCloningEnabled_{false};
-
-    int basketSize_;
-    int splitLevel_;
-    int64_t saveMemoryObjectThreshold_;
-    int nEntries_{0};
+    std::atomic<bool> fastCloningEnabled_;
+    std::atomic<int> basketSize_;
+    std::atomic<int> splitLevel_;
+    std::atomic<int64_t> saveMemoryObjectThreshold_;
+    std::atomic<int> nEntries_;
   };
-
 } // namespace art
 
 // Local Variables:

@@ -1,13 +1,21 @@
 #include "art/Framework/Services/Optional/detail/RootDirectorySentry.h"
+// vim: set sw=2 expandtab :
+
 #include "TH1.h"
 
-art::detail::RootDirectorySentry::RootDirectorySentry()
-  : status_{TH1::AddDirectoryStatus()}
-{
-  TH1::AddDirectory(true);
-}
+namespace art {
+  namespace detail {
 
-art::detail::RootDirectorySentry::~RootDirectorySentry() noexcept(false)
-{
-  TH1::AddDirectory(status_);
-}
+    RootDirectorySentry::~RootDirectorySentry() noexcept(false)
+    {
+      TH1::AddDirectory(status_);
+    }
+
+    RootDirectorySentry::RootDirectorySentry()
+      : status_{TH1::AddDirectoryStatus()}
+    {
+      TH1::AddDirectory(true);
+    }
+
+  } // namespace detail
+} // namespace art

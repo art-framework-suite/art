@@ -7,30 +7,33 @@
 #include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
+#include <utility>
 
 using namespace std;
-using fhicl::ParameterSet;
 
 namespace art {
 
-  TriggerResultInserter::TriggerResultInserter(ParameterSet const& pset,
+  TriggerResultInserter::TriggerResultInserter(fhicl::ParameterSet const& pset,
                                                ScheduleID const si,
                                                HLTGlobalStatus& pathResults)
     : pset_id_{pset.id()}, trptr_(&pathResults)
   {
-    TDEBUG(5) << "TriggerResultInserter ctor: 0x" << hex
-              << ((unsigned long)this) << dec << " (" << si << ")\n";
+    {
+      ostringstream msg;
+      msg << "0x" << hex << ((unsigned long)this) << dec;
+      TDEBUG_FUNC_SI_MSG(5, "TriggerResultInserter ctor", si, msg.str());
+    }
     setScheduleID(si);
-    produces<TriggerResults>();
+    if (si == ScheduleID::first()) {
+      produces<TriggerResults>();
+    }
   }
 
   void
   TriggerResultInserter::produce(Event& e)
   {
-    // No Event::get* calls should be made here!  The TriggerResults
-    // object is self-contained, and it should have no parentage, which
-    // an Event::get* call will introduce.
-    e.put(make_unique<TriggerResults>(*trptr_, pset_id_));
+    auto tr = make_unique<TriggerResults>(*trptr_, pset_id_);
+    e.put(move(tr));
   }
 
 } // namespace art

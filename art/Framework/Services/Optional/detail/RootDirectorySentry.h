@@ -1,5 +1,6 @@
 #ifndef art_Framework_Services_Optional_detail_RootDirectorySentry_h
 #define art_Framework_Services_Optional_detail_RootDirectorySentry_h
+// vim: set sw=2 expandtab :
 
 //=================================================================
 // RootDirectorySentry
@@ -17,12 +18,14 @@ namespace art {
 
     class RootDirectorySentry {
     public:
-      RootDirectorySentry();
       ~RootDirectorySentry() noexcept(false);
+      RootDirectorySentry();
+      RootDirectorySentry(RootDirectorySentry const&) = delete;
+      RootDirectorySentry(RootDirectorySentry&&) = delete;
+      RootDirectorySentry& operator=(RootDirectorySentry const&) = delete;
+      RootDirectorySentry& operator=(RootDirectorySentry&&) = delete;
 
     private:
-      RootDirectorySentry(RootDirectorySentry const&) = delete;
-      RootDirectorySentry& operator=(RootDirectorySentry const&) = delete;
       bool status_;
     };
 

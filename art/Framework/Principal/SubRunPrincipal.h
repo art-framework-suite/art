@@ -21,6 +21,7 @@ namespace art {
     static constexpr BranchType branch_type = Auxiliary::branch_type;
 
   public:
+    ~SubRunPrincipal();
     SubRunPrincipal(
       SubRunAuxiliary const&,
       ProcessConfiguration const&,

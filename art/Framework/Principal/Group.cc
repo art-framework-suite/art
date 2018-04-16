@@ -7,6 +7,7 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "cetlib_except/demangle.h"
+#include "hep_concurrency/RecursiveMutex.h"
 
 #include <iostream>
 #include <string>
@@ -17,17 +18,17 @@ namespace art {
 
   Group::~Group()
   {
-    delete productProvenance_;
+    delete productProvenance_.load();
     productProvenance_ = nullptr;
-    delete product_;
+    delete product_.load();
     product_ = nullptr;
-    delete rangeSet_;
+    delete rangeSet_.load();
     rangeSet_ = nullptr;
-    delete partnerProduct_;
+    delete partnerProduct_.load();
     partnerProduct_ = nullptr;
-    delete baseProduct_;
+    delete baseProduct_.load();
     baseProduct_ = nullptr;
-    delete partnerBaseProduct_;
+    delete partnerBaseProduct_.load();
     partnerBaseProduct_ = nullptr;
   }
 
@@ -41,10 +42,15 @@ namespace art {
     : branchDescription_{bd}
     , principal_{principal}
     , delayedReader_{reader}
-    , product_{edp.release()}
-    , rangeSet_{rs.release()}
     , wrapperType_{wrapper_type}
-  {}
+  {
+    productProvenance_ = nullptr;
+    product_ = edp.release();
+    rangeSet_ = rs.release();
+    partnerProduct_ = nullptr;
+    baseProduct_ = nullptr;
+    partnerBaseProduct_ = nullptr;
+  }
 
   // normal, put
   Group::Group(Principal* principal,
@@ -67,12 +73,17 @@ namespace art {
     : branchDescription_{bd}
     , principal_{principal}
     , delayedReader_{reader}
-    , product_{edp.release()}
-    , rangeSet_{rs.release()}
     , grpType_{grouptype::assns}
     , wrapperType_{primary_wrapper_type}
     , partnerWrapperType_{partner_wrapper_type}
-  {}
+  {
+    productProvenance_ = nullptr;
+    product_ = edp.release();
+    rangeSet_ = rs.release();
+    partnerProduct_ = nullptr;
+    baseProduct_ = nullptr;
+    partnerBaseProduct_ = nullptr;
+  }
 
   // assns, put
   Group::Group(Principal* principal,
@@ -104,14 +115,19 @@ namespace art {
     : branchDescription_{bd}
     , principal_{principal}
     , delayedReader_{reader}
-    , product_{edp.release()}
-    , rangeSet_{rs.release()}
     , grpType_{grouptype::assnsWithData}
     , wrapperType_{primary_wrapper_type}
     , partnerWrapperType_{partner_wrapper_type}
     , baseWrapperType_{base_wrapper_type}
     , partnerBaseWrapperType_{partner_base_wrapper_type}
-  {}
+  {
+    productProvenance_ = nullptr;
+    product_ = edp.release();
+    rangeSet_ = rs.release();
+    partnerProduct_ = nullptr;
+    baseProduct_ = nullptr;
+    partnerBaseProduct_ = nullptr;
+  }
 
   // assnsWithData, put
   Group::Group(Principal* principal,
@@ -137,10 +153,10 @@ namespace art {
   EDProduct const*
   Group::getIt_() const
   {
-    lock_guard<recursive_mutex> lock_holder{mutex_};
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     if (grpType_ == grouptype::normal) {
       resolveProductIfAvailable();
-      return product_;
+      return product_.load();
     }
     return uniqueProduct();
   }
@@ -148,13 +164,13 @@ namespace art {
   EDProduct const*
   Group::anyProduct() const
   {
-    lock_guard<recursive_mutex> lock_holder{mutex_};
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     if (grpType_ == grouptype::normal) {
-      return product_;
+      return product_.load();
     }
-    EDProduct* result = product_;
+    EDProduct* result = product_.load();
     if (result == nullptr) {
-      result = partnerProduct_;
+      result = partnerProduct_.load();
     }
     if (grpType_ == grouptype::assns) {
       return result;
@@ -162,9 +178,9 @@ namespace art {
     if (result != nullptr) {
       return result;
     }
-    result = baseProduct_;
+    result = baseProduct_.load();
     if (result == nullptr) {
-      result = partnerBaseProduct_;
+      result = partnerBaseProduct_.load();
     }
     return result;
   }
@@ -172,9 +188,9 @@ namespace art {
   EDProduct const*
   Group::uniqueProduct() const
   {
-    lock_guard<recursive_mutex> lock_holder{mutex_};
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     if (grpType_ == grouptype::normal) {
-      return product_;
+      return product_.load();
     }
     throw Exception(errors::LogicError, "AmbiguousProduct")
       << cet::demangle_symbol(typeid(*this).name())
@@ -185,26 +201,26 @@ namespace art {
   EDProduct const*
   Group::uniqueProduct(TypeID const& wanted_wrapper_type) const
   {
-    lock_guard<recursive_mutex> lock_holder{mutex_};
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     if (grpType_ == grouptype::normal) {
-      return product_;
+      return product_.load();
     }
     if (grpType_ == grouptype::assns) {
       if (wanted_wrapper_type == partnerWrapperType_) {
-        return partnerProduct_;
+        return partnerProduct_.load();
       }
-      return product_;
+      return product_.load();
     }
     if (wanted_wrapper_type == partnerBaseWrapperType_) {
-      return partnerBaseProduct_;
+      return partnerBaseProduct_.load();
     }
     if (wanted_wrapper_type == baseWrapperType_) {
-      return baseProduct_;
+      return baseProduct_.load();
     }
     if (wanted_wrapper_type == partnerWrapperType_) {
-      return partnerProduct_;
+      return partnerProduct_.load();
     }
-    return product_;
+    return product_.load();
   }
 
   BranchDescription const&
@@ -222,14 +238,14 @@ namespace art {
   RangeSet const&
   Group::rangeOfValidity() const
   {
-    lock_guard<recursive_mutex> lock_holder{mutex_};
-    return *rangeSet_;
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    return *rangeSet_.load();
   }
 
   cet::exempt_ptr<ProductProvenance const>
   Group::productProvenance() const
   {
-    lock_guard<recursive_mutex> lock_holder{mutex_};
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     return productProvenance_.load();
   }
 
@@ -246,8 +262,8 @@ namespace art {
   void
   Group::setProductProvenance(unique_ptr<ProductProvenance const>&& pp)
   {
-    lock_guard<recursive_mutex> lock_holder{mutex_};
-    delete productProvenance_;
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    delete productProvenance_.load();
     productProvenance_ = pp.release();
   }
 
@@ -257,40 +273,40 @@ namespace art {
                                  unique_ptr<EDProduct>&& edp,
                                  unique_ptr<RangeSet>&& rs)
   {
-    lock_guard<recursive_mutex> lock_holder{mutex_};
-    delete productProvenance_;
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    delete productProvenance_.load();
     productProvenance_ = pp.release();
-    delete product_;
+    delete product_.load();
     product_ = edp.release();
-    delete rangeSet_;
+    delete rangeSet_.load();
     rangeSet_ = rs.release();
   }
 
   void
   Group::removeCachedProduct()
   {
-    lock_guard<recursive_mutex> lock_holder{mutex_};
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     if (branchDescription_.produced()) {
       throw Exception(errors::LogicError, "Group::removeCachedProduct():")
         << "Attempt to remove a produced product!\n"
         << "This routine should only be used to remove large data products "
         << "read from disk (like raw digits).\n";
     }
-    delete product_;
+    delete product_.load();
     product_ = nullptr;
     if (grpType_ == grouptype::normal) {
       return;
     }
-    delete partnerProduct_;
+    delete partnerProduct_.load();
     partnerProduct_ = nullptr;
     if (grpType_ == grouptype::assns) {
       return;
     }
-    delete baseProduct_;
+    delete baseProduct_.load();
     baseProduct_ = nullptr;
-    delete partnerBaseProduct_;
+    delete partnerBaseProduct_.load();
     partnerBaseProduct_ = nullptr;
-    delete rangeSet_;
+    delete rangeSet_.load();
     rangeSet_ = new RangeSet{};
   }
 
@@ -303,17 +319,15 @@ namespace art {
       return false;
     }
     assert(branchDescription_.present() || branchDescription_.produced());
-
-    lock_guard<recursive_mutex> lock_holder{mutex_};
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     bool availableAfterCombine{false};
     if ((branchDescription_.branchType() == InSubRun) ||
         (branchDescription_.branchType() == InRun)) {
       availableAfterCombine =
         delayedReader_->isAvailableAfterCombine(branchDescription_.productID());
     }
-
     auto status = productstatus::uninitialized();
-    if (productProvenance_ == nullptr) {
+    if (productProvenance_.load() == nullptr) {
       // No provenance, must be a produced product which has not been
       // put yet, or a non-produced product that is available after
       // combine (agggregation) and not yet read, or a non-produced
@@ -331,7 +345,7 @@ namespace art {
         // the next secondary file.
         return false;
       }
-      if (product_) {
+      if (product_.load()) {
         throw Exception(errors::LogicError, "Group::status():")
           << "We have a produced product, the product has been put(), but "
              "there is no provenance!\n";
@@ -361,7 +375,6 @@ namespace art {
       // this and report the product as available even though the the
       // provenance product status is a special flag that is not the
       // present status.
-
       // This is here to allow fetching of a product specially marked by
       // RootOutputFile as a dummy with an invalid range set created to
       // prevent double-counting when combining run/subrun products.  We
@@ -408,9 +421,9 @@ namespace art {
         throwResolveLogicError();
       }
     }
-    lock_guard<recursive_mutex> lock_holder{mutex_};
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     // Now try to get the master product.
-    if (product_ == nullptr) {
+    if (product_.load() == nullptr) {
       // Not already resolved.
       if (branchDescription_.produced()) {
         // Never produced, hopeless.
@@ -421,14 +434,16 @@ namespace art {
         return false;
       }
       // Now try to read it.
-      // Note: threading: This may call back to us to update the
-      //                  product provenance if run or subRun data
-      //                  product merging creates a new provenance.
-      product_ =
-        delayedReader_
-          ->getProduct(branchDescription_.productID(), wrapperType_, *rangeSet_)
-          .release();
-      if (product_ == nullptr) {
+      // Note: This may call back to us to update the product
+      // provenance if run or subRun data product merging
+      // creates a new provenance.
+      product_ = delayedReader_
+                   ->getProduct(this,
+                                branchDescription_.productID(),
+                                wrapperType_,
+                                *rangeSet_.load())
+                   .release();
+      if (product_.load() == nullptr) {
         // We failed to get the master product, hopeless.
         return false;
       }
@@ -438,7 +453,7 @@ namespace art {
       return true;
     }
     if (wanted_wrapper_type == partnerWrapperType_) {
-      if (partnerProduct_ != nullptr) {
+      if (partnerProduct_.load() != nullptr) {
         // They wanted the partner product, and we have already made it, done.
         return true;
       }
@@ -446,10 +461,10 @@ namespace art {
       // who ends up asking the assns to do it.
       partnerProduct_ =
         product_.load()->makePartner(wanted_wrapper_type.typeInfo()).release();
-      return partnerProduct_ != nullptr;
+      return partnerProduct_.load() != nullptr;
     }
     if (wanted_wrapper_type == baseWrapperType_) {
-      if (baseProduct_ != nullptr) {
+      if (baseProduct_.load() != nullptr) {
         // They wanted the base product, and we have already made it, done.
         return true;
       }
@@ -457,22 +472,22 @@ namespace art {
       // who ends up asking the assns to do it.
       baseProduct_ =
         product_.load()->makePartner(wanted_wrapper_type.typeInfo()).release();
-      return baseProduct_ != nullptr;
+      return baseProduct_.load() != nullptr;
     }
-    if (partnerBaseProduct_ != nullptr) {
+    if (partnerBaseProduct_.load() != nullptr) {
       // They wanted the partner base product, and we have already made it,
       // done.
       return true;
     }
     partnerBaseProduct_ =
       product_.load()->makePartner(wanted_wrapper_type.typeInfo()).release();
-    return partnerBaseProduct_ != nullptr;
+    return partnerBaseProduct_.load() != nullptr;
   }
 
   bool
   Group::tryToResolveProduct(TypeID const& wanted_wrapper)
   {
-    lock_guard<recursive_mutex> lock_holder{mutex_};
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     if (wanted_wrapper) {
       resolveProductIfAvailable(wanted_wrapper);
     } else {

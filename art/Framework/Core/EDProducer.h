@@ -12,10 +12,10 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <atomic>
 #include <cstddef>
@@ -23,10 +23,8 @@
 #include <string>
 
 namespace art {
-
   // <<pure virtual abstract base>>
   class EDProducer : public ProducerBase {
-
     // Allow the WorkerT<T> ctor to call setModuleDescription() and
     // workerType().
     template <typename T>
@@ -48,7 +46,6 @@ namespace art {
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~EDProducer() noexcept = 0;
-
     EDProducer();
     EDProducer(EDProducer const&) = delete;
     EDProducer(EDProducer&&) = delete;
@@ -60,27 +57,21 @@ namespace art {
 
   protected:
     virtual void doBeginJob();
-
     void doEndJob();
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
-
     bool doBeginRun(RunPrincipal& rp,
                     cet::exempt_ptr<CurrentProcessingContext const> cpc);
-
     bool doEndRun(RunPrincipal& rp,
                   cet::exempt_ptr<CurrentProcessingContext const> cpc);
-
     bool doBeginSubRun(SubRunPrincipal& srp,
                        cet::exempt_ptr<CurrentProcessingContext const> cpc);
-
     bool doEndSubRun(SubRunPrincipal& srp,
                      cet::exempt_ptr<CurrentProcessingContext const> cpc);
-
     bool doEvent(EventPrincipal& ep,
-                 ScheduleID scheduleID,
+                 ScheduleID const,
                  CurrentProcessingContext const* cpc,
                  std::atomic<std::size_t>& counts_run,
                  std::atomic<std::size_t>& counts_passed,
@@ -89,7 +80,6 @@ namespace art {
   protected:
     // Not called by framework.
     virtual void reconfigure(fhicl::ParameterSet const&);
-
     virtual void beginJob();
     virtual void endJob();
     virtual void respondToOpenInputFile(FileBlock const&);
@@ -100,7 +90,6 @@ namespace art {
     virtual void endRun(Run&);
     virtual void beginSubRun(SubRun&);
     virtual void endSubRun(SubRun&);
-
     // We make this pure virtual because a user module that does
     // not provide one would only have side-effects, and we do
     // not want people doing that.
@@ -111,9 +100,7 @@ namespace art {
   };
 
   namespace shared {
-
     class Producer : public art::EDProducer {
-
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
       template <typename T>
@@ -140,9 +127,7 @@ namespace art {
   } // namespace shared
 
   namespace replicated {
-
     class Producer : public art::EDProducer {
-
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
       template <typename T>
@@ -154,7 +139,6 @@ namespace art {
       {
         return ModuleThreadingType::REPLICATED;
       }
-
       virtual ~Producer() noexcept;
       Producer();
       Producer(Producer const&) = delete;

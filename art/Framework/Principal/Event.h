@@ -46,9 +46,7 @@ namespace art {
   public:
     ~Event();
 
-    explicit Event(EventPrincipal const& ep,
-                   ModuleDescription const& md,
-                   TypeLabelLookup_t const& expectedProducts);
+    explicit Event(EventPrincipal const& ep, ModuleDescription const& md);
 
     Event(Event const&) = delete;
     Event(Event&&) = delete;

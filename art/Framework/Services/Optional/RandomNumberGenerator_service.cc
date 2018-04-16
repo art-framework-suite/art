@@ -41,16 +41,18 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Utilities/Globals.h"
 #include "art/Utilities/PerThread.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/assert_only_one_thread.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/no_delete.h"
 #include "cetlib_except/exception.h"
+#include "hep_concurrency/RecursiveMutex.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
-#include <atomic>
 #include <cassert>
 #include <cstddef>
 #include <fstream>
@@ -58,245 +60,197 @@
 #include <vector>
 
 using namespace std;
+using namespace string_literals;
+using namespace hep::concurrency;
 using fhicl::ParameterSet;
-
-namespace {
-
-  string const DEFAULT_ENGINE_KIND{"HepJamesRandom"};
-
-  long constexpr MAXIMUM_CLHEP_SEED{900000000};
-
-  long constexpr USE_DEFAULT_SEED{-1};
-
-  art::RNGsnapshot const EMPTY_SNAPSHOT;
-
-  struct G4Engine {
-  };
-
-  void
-  throw_if_invalid_seed(long const seed)
-  {
-    if (seed == USE_DEFAULT_SEED) {
-      return;
-    }
-    if (seed > MAXIMUM_CLHEP_SEED) {
-      throw cet::exception("RANGE")
-        << "RNGservice::throw_if_invalid_seed():\n"
-        << "Seed " << seed << " exceeds permitted maximum "
-        << MAXIMUM_CLHEP_SEED << ".\n";
-    }
-    if (seed < 0) {
-      // too small for CLHEP
-      throw cet::exception("RANGE")
-        << "RNGservice::throw_if_invalid_seed():\n"
-        << "Seed " << seed << " is not permitted to be negative.\n";
-    }
-  }
-
-  inline string
-  qualify_engine_label(art::ScheduleID const si, string const& engine_label)
-  {
-    // Format is ModuleLabel:scheduleID:EngineLabel
-    string label;
-    label +=
-      art::PerThread::instance()->getCPC().moduleDescription()->moduleLabel();
-    label += ':';
-    label += to_string(si.id());
-    label += ':';
-    label += engine_label;
-    return label;
-  }
-
-  template <class DesiredEngineType>
-  inline shared_ptr<CLHEP::HepRandomEngine>
-  manufacture_an_engine(long const seed)
-  {
-    return shared_ptr<CLHEP::HepRandomEngine>{(seed == USE_DEFAULT_SEED) ?
-                                                new DesiredEngineType :
-                                                new DesiredEngineType(seed)};
-  }
-
-  template <>
-  inline shared_ptr<CLHEP::HepRandomEngine>
-  manufacture_an_engine<CLHEP::NonRandomEngine>(long /* unused */)
-  {
-    // no engine c'tor takes a seed:
-    return make_shared<CLHEP::NonRandomEngine>();
-  }
-
-  template <>
-  inline shared_ptr<CLHEP::HepRandomEngine>
-  manufacture_an_engine<G4Engine>(long const seed)
-  {
-    if (seed != USE_DEFAULT_SEED) {
-      CLHEP::HepRandom::setTheSeed(seed);
-    }
-    return shared_ptr<CLHEP::HepRandomEngine>{CLHEP::HepRandom::getTheEngine(),
-                                              cet::no_delete{}};
-  }
-
-  shared_ptr<CLHEP::HepRandomEngine>
-  engine_factory(string const& kind_of_engine_to_make, long const seed)
-  {
-#define MANUFACTURE_EXPLICIT(KIND, TYPE)                                       \
-  if (kind_of_engine_to_make == string{KIND}) {                                \
-    return manufacture_an_engine<TYPE>(seed);                                  \
-  }
-    MANUFACTURE_EXPLICIT("G4Engine", G4Engine)
-#define MANUFACTURE_IMPLICIT(ENGINE)                                           \
-  MANUFACTURE_EXPLICIT(#ENGINE, CLHEP::ENGINE)
-    MANUFACTURE_IMPLICIT(DRand48Engine)
-    MANUFACTURE_IMPLICIT(DualRand)
-    MANUFACTURE_IMPLICIT(Hurd160Engine)
-    MANUFACTURE_IMPLICIT(Hurd288Engine)
-    MANUFACTURE_IMPLICIT(HepJamesRandom)
-    MANUFACTURE_IMPLICIT(MTwistEngine)
-    MANUFACTURE_IMPLICIT(NonRandomEngine)
-    MANUFACTURE_IMPLICIT(RanecuEngine)
-    MANUFACTURE_IMPLICIT(Ranlux64Engine)
-    MANUFACTURE_IMPLICIT(RanluxEngine)
-    MANUFACTURE_IMPLICIT(RanshiEngine)
-    MANUFACTURE_IMPLICIT(TripleRand)
-#undef MANUFACTURE_IMPLICIT
-#undef MANUFACTURE_EXPLICIT
-    throw cet::exception("RANDOM")
-      << "engine_factory():\n"
-      << "Attempt to create engine of unknown kind \"" << kind_of_engine_to_make
-      << "\".\n";
-  }
-
-  void
-  expand_if_abbrev_kind(string& requested_engine_kind)
-  {
-    if (requested_engine_kind.empty() ||
-        (requested_engine_kind == "DefaultEngine") ||
-        (requested_engine_kind == "JamesRandom")) {
-      requested_engine_kind = DEFAULT_ENGINE_KIND;
-    }
-  }
-
-} // unnamed namespace
 
 namespace art {
 
+  string const RandomNumberGenerator::defaultEngineKind{"HepJamesRandom"};
+  long constexpr RandomNumberGenerator::maxCLHEPSeed;
+  long constexpr RandomNumberGenerator::useDefaultSeed;
+
+  namespace {
+
+    struct G4Engine {
+    };
+
+    string
+    qualify_engine_label(ScheduleID const si, string const& engine_label)
+    {
+      // Format is ModuleLabel:scheduleID:EngineLabel
+      string label;
+      label +=
+        art::PerThread::instance()->getCPC().moduleDescription()->moduleLabel();
+      label += ':';
+      label += to_string(si.id());
+      label += ':';
+      label += engine_label;
+      return label;
+    }
+
+    template <class DesiredEngineType>
+    shared_ptr<CLHEP::HepRandomEngine>
+    manufacture_an_engine(long const seed)
+    {
+      shared_ptr<CLHEP::HepRandomEngine> ret;
+      if (seed == RandomNumberGenerator::useDefaultSeed) {
+        ret.reset(new DesiredEngineType);
+      } else {
+        ret.reset(new DesiredEngineType(seed));
+      }
+      return ret;
+    }
+
+    shared_ptr<CLHEP::HepRandomEngine>
+    engine_factory(string const& kind_of_engine_to_make, long const seed)
+    {
+#define MANUFACTURE(ENGINE)                                                    \
+  if (kind_of_engine_to_make == string{#ENGINE}) {                             \
+    return manufacture_an_engine<CLHEP::ENGINE>(seed);                         \
+  }
+      MANUFACTURE(DRand48Engine)
+      MANUFACTURE(DualRand)
+      MANUFACTURE(Hurd160Engine)
+      MANUFACTURE(Hurd288Engine)
+      MANUFACTURE(HepJamesRandom)
+      MANUFACTURE(MTwistEngine)
+      MANUFACTURE(RanecuEngine)
+      MANUFACTURE(Ranlux64Engine)
+      MANUFACTURE(RanluxEngine)
+      MANUFACTURE(RanshiEngine)
+      MANUFACTURE(TripleRand)
+#undef MANUFACTURE
+      throw cet::exception("RANDOM")
+        << "engine_factory():\n"
+        << "Attempt to create engine of unknown kind \""
+        << kind_of_engine_to_make << "\".\n";
+    }
+
+  } // unnamed namespace
+
+  bool
+  RandomNumberGenerator::invariant_holds_(ScheduleID const si)
+  {
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    return (data_[si].dict_.size() == data_[si].tracker_.size()) &&
+           (data_[si].dict_.size() == data_[si].kind_.size());
+  }
+
   RandomNumberGenerator::RandomNumberGenerator(Parameters const& config,
-                                               ActivityRegistry& reg)
+                                               ActivityRegistry& actReg)
     : restoreStateLabel_{config().restoreStateLabel()}
     , saveToFilename_{config().saveTo()}
     , restoreFromFilename_{config().restoreFrom()}
     , nPrint_{config().nPrint()}
     , debug_{config().debug()}
   {
-    reg.sPostBeginJob.watch(this, &RandomNumberGenerator::postBeginJob);
-    reg.sPostEndJob.watch(this, &RandomNumberGenerator::postEndJob);
-    reg.sPreProcessEvent.watch(this, &RandomNumberGenerator::preProcessEvent);
-    // MT-TODO: Placeholder until we can query number of schedules.
-    unsigned const nSchedules{1u};
-    data_.resize(nSchedules);
+    actReg.sPostBeginJob.watch(this, &RandomNumberGenerator::postBeginJob);
+    actReg.sPostEndJob.watch(this, &RandomNumberGenerator::postEndJob);
+    actReg.sPreProcessEvent.watch(this,
+                                  &RandomNumberGenerator::preProcessEvent);
+    data_.resize(Globals::instance()->nschedules());
+  }
+
+  void
+  RandomNumberGenerator::expandToNSchedules(unsigned const n)
+  {
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    auto const si = static_cast<ScheduleID::size_type>(n);
+    data_.resize(si);
   }
 
   CLHEP::HepRandomEngine&
-  RandomNumberGenerator::getEngine() const
+  RandomNumberGenerator::getEngine(
+    ScheduleID const si /* = ScheduleID::first() */,
+    string const& engine_label /* = "" */) const
   {
-    return getEngine(string{});
-  }
-
-  CLHEP::HepRandomEngine&
-  RandomNumberGenerator::getEngine(string const& engine_label) const
-  {
-    return getEngine(ScheduleID::first(), engine_label);
-  }
-
-  CLHEP::HepRandomEngine&
-  RandomNumberGenerator::getEngine(ScheduleID const si,
-                                   string const& engine_label) const
-  {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     string const& label = qualify_engine_label(si, engine_label);
-    auto d = data_[si.id()].dict_.find(label);
-    if (d == data_[si.id()].dict_.end()) {
+    auto I = data_[si].dict_.find(label);
+    if (I == data_[si].dict_.end()) {
       throw cet::exception("RANDOM") << "RNGservice::getEngine():\n"
                                      << "The requested engine \"" << label
                                      << "\" has not been established.\n";
     }
-    assert(d->second && "RNGservice::getEngine()");
-    return *d->second;
-  }
-
-  bool
-  RandomNumberGenerator::invariant_holds_(ScheduleID const si)
-  {
-    auto const& d = data_[si.id()];
-    return (d.dict_.size() == d.tracker_.size()) &&
-           (d.dict_.size() == d.kind_.size());
-  }
-
-  CLHEP::HepRandomEngine&
-  RandomNumberGenerator::createEngine(ScheduleID const si, long const seed)
-  {
-    return createEngine(si, seed, DEFAULT_ENGINE_KIND);
+    assert(I->second && "RNGservice::getEngine()");
+    return *I->second;
   }
 
   CLHEP::HepRandomEngine&
   RandomNumberGenerator::createEngine(ScheduleID const si,
                                       long const seed,
-                                      string const& requested_engine_kind)
-  {
-    return createEngine(si, seed, requested_engine_kind, string{});
-  }
-
-  CLHEP::HepRandomEngine&
-  RandomNumberGenerator::createEngine(ScheduleID const si,
-                                      long const seed,
-                                      string requested_engine_kind,
+                                      string const& requested_engine_kind,
                                       string const& engine_label)
   {
-    // If concurrrent engine creation is desired...even within a
-    // schedule, then concurrent containers should be used.
-    CET_ASSERT_ONLY_ONE_THREAD();
-    assert(si.id() < data_.size());
-    string const& label = qualify_engine_label(si, engine_label);
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (!engine_creation_is_okay_) {
       throw cet::exception("RANDOM")
         << "RNGservice::createEngine():\n"
-        << "Attempt to create engine \"" << label << "\" is too late.\n";
+        << "Attempt to create engine \"" << engine_label << "\" is too late.\n";
     }
-    auto& d = data_[si.id()];
-    if (d.tracker_.find(label) != d.tracker_.cend()) {
+    if (si.id() >= data_.size()) {
+      throw cet::exception("RANDOM")
+        << "RNGservice::createEngine():\n"
+        << "Attempt to create engine with out-of-range streamIndex: " << si
+        << "\n";
+    }
+    string const& label = qualify_engine_label(si, engine_label);
+    if (data_[si].tracker_.find(label) != data_[si].tracker_.cend()) {
       throw cet::exception("RANDOM")
         << "RNGservice::createEngine():\n"
         << "Engine \"" << label << "\" has already been created.\n";
     }
-    throw_if_invalid_seed(seed);
-    expand_if_abbrev_kind(requested_engine_kind);
-    shared_ptr<CLHEP::HepRandomEngine> eptr{
-      engine_factory(requested_engine_kind, seed)};
-    assert(eptr && "RNGservice::createEngine()");
-    d.dict_[label] = eptr;
-    d.tracker_[label] = EngineSource::Seed;
-    d.kind_[label] = requested_engine_kind;
-    mf::LogInfo log{"RANDOM"};
-    log << "Instantiated " << requested_engine_kind << " engine \"" << label
-        << "\" with ";
-    if (seed == USE_DEFAULT_SEED) {
-      log << "default seed " << seed;
-    } else {
-      log << "seed " << seed;
+    if (seed == useDefaultSeed) {
+    } else if (seed > maxCLHEPSeed) {
+      throw cet::exception("RANGE")
+        << "RNGservice::throw_if_invalid_seed():\n"
+        << "Seed " << seed << " exceeds permitted maximum " << maxCLHEPSeed
+        << ".\n";
+    } else if (seed < 0) {
+      throw cet::exception("RANGE")
+        << "RNGservice::throw_if_invalid_seed():\n"
+        << "Seed " << seed << " is not permitted to be negative.\n";
     }
-    log << ".\n";
-    assert(invariant_holds_(si) && "RNGservice::createEngine()");
+    string engineKind{requested_engine_kind};
+    if (requested_engine_kind.empty() ||
+        (requested_engine_kind == "DefaultEngine") ||
+        (requested_engine_kind == "JamesRandom")) {
+      engineKind = defaultEngineKind;
+    }
+    shared_ptr<CLHEP::HepRandomEngine> eptr;
+    if (engineKind == "G4Engine"s) {
+      if (seed != RandomNumberGenerator::useDefaultSeed) {
+        CLHEP::HepRandom::setTheSeed(seed);
+      }
+      eptr.reset(CLHEP::HepRandom::getTheEngine(), cet::no_delete{});
+    } else if (engineKind == "NonRandomEngine"s) {
+      eptr.reset(new CLHEP::NonRandomEngine);
+    } else {
+      eptr = engine_factory(engineKind, seed);
+    }
+    if (!eptr) {
+      throw cet::exception("RANDOM")
+        << "RNGservice::createEngine():\n"
+        << "Engine \"" << label << "\" could not be created.\n";
+    }
+    data_[si].dict_[label] = eptr;
+    data_[si].tracker_[label] = EngineSource::Seed;
+    data_[si].kind_[label] = engineKind;
+    mf::LogInfo{"RANDOM"} << "Instantiated " << engineKind << " engine \""
+                          << label << "\" with "
+                          << ((seed == useDefaultSeed) ? "default seed " :
+                                                         "seed ")
+                          << seed << ".\n";
+    assert(invariant_holds_(si) &&
+           "RNGservice::createEngine() invariant failed");
     return *eptr;
   }
 
-  // The 'print_()' does not receive a schedule ID as an argument since
-  // it is only intended for debugging purposes.  Because of this, it is
-  // possible that data races can occur in a multi-threaded context.
-  // Since the only user of 'print_' is the RandomNumberSaver module, we
-  // place the burden of synchronizing on that module, and not on this
-  // service, which could be expensive.
   void
   RandomNumberGenerator::print_() const
   {
-    CET_ASSERT_ONLY_ONE_THREAD();
+    RecursiveMutexSentry sentry{mutex_, __func__};
     static unsigned ncalls = 0;
     if (!debug_ || (++ncalls > nPrint_)) {
       return;
@@ -317,18 +271,26 @@ namespace art {
     cet::for_all_with_index(data_, print_per_stream);
   }
 
+  vector<RNGsnapshot> const&
+  RandomNumberGenerator::accessSnapshot_(ScheduleID const si) const
+  {
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    return data_[si].snapshot_;
+  }
+
   void
   RandomNumberGenerator::takeSnapshot_(ScheduleID const si)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     mf::LogDebug log{"RANDOM"};
     log << "RNGservice::takeSnapshot_() of the following engine labels:\n";
-    auto& d = data_[si.id()];
-    d.snapshot_.clear();
-    for (auto const& pr : d.dict_) {
+    data_[si].snapshot_.clear();
+    for (auto const& pr : data_[si].dict_) {
       string const& label = pr.first;
       shared_ptr<CLHEP::HepRandomEngine> const& eptr = pr.second;
       assert(eptr && "RNGservice::takeSnapshot_()");
-      d.snapshot_.emplace_back(d.kind_[label], label, eptr->put());
+      data_[si].snapshot_.emplace_back(
+        data_[si].kind_[label], label, eptr->put());
       log << " | " << label;
     }
     log << " |\n";
@@ -338,20 +300,20 @@ namespace art {
   RandomNumberGenerator::restoreSnapshot_(ScheduleID const si,
                                           Event const& event)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (restoreStateLabel_.empty()) {
       return;
     }
     // access the saved-states product:
     auto const& saved =
       *event.getValidHandle<vector<RNGsnapshot>>(restoreStateLabel_);
-    auto& d = data_[si.id()];
     // restore engines from saved-states product:
     for (auto const& snapshot : saved) {
       string const& label = snapshot.label();
       mf::LogInfo log("RANDOM");
       log << "RNGservice::restoreSnapshot_(): label \"" << label << "\"";
-      auto t = d.tracker_.find(label);
-      if (t == d.tracker_.end()) {
+      auto t = data_[si].tracker_.find(label);
+      if (t == data_[si].tracker_.end()) {
         log << " could not be restored;\n"
             << "no established engine bears this label.\n";
         continue;
@@ -363,9 +325,9 @@ namespace art {
           << "\" has been previously read from a file;\n"
           << "it is therefore not restorable from a snapshot product.\n";
       }
-      shared_ptr<CLHEP::HepRandomEngine> ep{d.dict_[label]};
+      shared_ptr<CLHEP::HepRandomEngine> ep{data_[si].dict_[label]};
       assert(ep && "RNGservice::restoreSnapshot_()");
-      d.tracker_[label] = EngineSource::Product;
+      data_[si].tracker_[label] = EngineSource::Product;
       auto const& est = snapshot.restoreState();
       if (ep->get(est)) {
         log << " successfully restored.\n";
@@ -382,6 +344,7 @@ namespace art {
   void
   RandomNumberGenerator::saveToFile_()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (saveToFilename_.empty()) {
       return;
     }
@@ -411,6 +374,7 @@ namespace art {
   void
   RandomNumberGenerator::restoreFromFile_()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (restoreFromFilename_.empty()) {
       return;
     }
@@ -429,17 +393,17 @@ namespace art {
       assert(count(label.cbegin(), label.cend(), ':') == 2u);
       auto const p1 = label.find_first_of(':');
       auto const p2 = label.find_last_of(':');
-      ScheduleID::size_type const si = stoi(label.substr(p1 + 1, p2));
-      auto& data = data_[si];
-      auto d = data.dict_.find(label);
-      if (d == data.dict_.end()) {
+      ScheduleID const si{
+        static_cast<ScheduleID::size_type>(stoi(label.substr(p1 + 1, p2)))};
+      auto d = data_[si].dict_.find(label);
+      if (d == data_[si].dict_.end()) {
         throw Exception(errors::Configuration, "RANDOM")
           << "Attempt to restore an engine with label " << label
           << " not configured in this job.\n";
       }
-      assert((data.tracker_.find(label) != data.tracker_.cend()) &&
+      assert((data_[si].tracker_.find(label) != data_[si].tracker_.cend()) &&
              "RNGservice::restoreFromFile_()");
-      EngineSource& how{data.tracker_[label]};
+      EngineSource& how{data_[si].tracker_[label]};
       if (how == EngineSource::Seed) {
         auto& eptr = d->second;
         assert(eptr && "RNGservice::restoreFromFile_()");
@@ -462,8 +426,8 @@ namespace art {
           << "which was originally initialized via an unknown or impossible "
              "method.\n";
       }
-      assert(invariant_holds_(ScheduleID{si}) &&
-             "RNGservice::restoreFromFile_()");
+      assert(invariant_holds_(si) &&
+             "RNGservice::restoreFromFile_() invariant failure");
     }
   }
 
@@ -471,6 +435,7 @@ namespace art {
   void
   RandomNumberGenerator::postBeginJob()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     restoreFromFile_();
     engine_creation_is_okay_ = false;
   }
@@ -478,11 +443,9 @@ namespace art {
   void
   RandomNumberGenerator::preProcessEvent(Event const& e)
   {
-    // FIXME: threading: si = 0 hardcoded here, should probably come from the
-    // module through the Event object
-    auto const sid = ScheduleID::first();
-    takeSnapshot_(sid);
-    restoreSnapshot_(sid, e);
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    takeSnapshot_(PerThread::instance()->getCPC().scheduleID());
+    restoreSnapshot_(PerThread::instance()->getCPC().scheduleID(), e);
   }
 
   void
@@ -490,11 +453,10 @@ namespace art {
   {
     // For normal termination, we wish to save the state at the *end* of
     // processing, not at the beginning of the last event.
-    // MT-TODO: Adjust so that the loop does not require creating
-    // temporary schedule IDs, but instead uses a system-provided
-    // looping mechanism.
-    for (ScheduleID::size_type i{}; i < data_.size(); ++i) {
-      takeSnapshot_(ScheduleID{i});
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto si = ScheduleID::first(); si.id() < data_.size();
+         si = si.next()) {
+      takeSnapshot_(si);
     }
     saveToFile_();
   }

@@ -5,8 +5,8 @@
 #include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Utilities/Globals.h"
 #include "art/Utilities/PerThread.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductToken.h"
@@ -27,8 +27,13 @@ using namespace std;
 
 namespace art {
 
-  ModuleBase::~ModuleBase() noexcept = default;
-  ModuleBase::ModuleBase() = default;
+  ModuleBase::~ModuleBase() noexcept
+  {
+    delete chain_.load();
+    chain_ = nullptr;
+  }
+
+  ModuleBase::ModuleBase() { chain_ = nullptr; }
 
   ModuleDescription const&
   ModuleBase::moduleDescription() const
@@ -57,7 +62,7 @@ namespace art {
   SerialTaskQueueChain*
   ModuleBase::serialTaskQueueChain() const
   {
-    return chain_.get();
+    return chain_.load();
   }
 
   ModuleThreadingType

@@ -4,6 +4,7 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/EventProcessor/detail/memoryReport.h"
+#include "art/Utilities/PerScheduleContainer.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/cpu_timer.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -112,7 +113,6 @@ art::detail::triggerReport(PathsInfo const& epi,
     total_counts.passed += tpi.passedEvents();
     total_counts.failed += tpi.failedEvents();
   }
-
   // The trigger report (pass/fail etc.):
   // Printed even if summary not requested, per issue #1864.
   LogPrint("ArtSummary") << "TrigReport "
@@ -172,7 +172,6 @@ art::detail::triggerReport(PathsInfo const& epi,
         << path->timesPassed() << " " << std::right << setw(10)
         << path->timesExcept() << " " << path->name();
     }
-
     // std::tuple<...> guarantees weak-ordering, so it is a suitable
     // key type for an std::map.
     using path_data_t = std::tuple<std::string, int>; // path-name, bit position
@@ -199,7 +198,6 @@ art::detail::triggerReport(PathsInfo const& epi,
         }
       }
     }
-
     for (auto const& pr : counts_per_worker_in_path) {
       auto const& path_data = pr.first;
       auto const& path_name = std::get<std::string>(path_data);
@@ -220,7 +218,6 @@ art::detail::triggerReport(PathsInfo const& epi,
       workersInPathTriggerReport(1, bit_position, worker_in_path_counts);
     }
   }
-
   // Printed even if summary not requested, per issue #1864.
   for (auto const& path : epi.paths()) {
     LogPrint("ArtSummary") << "";
@@ -237,7 +234,6 @@ art::detail::triggerReport(PathsInfo const& epi,
     workersInEndPathTriggerReport(
       0, path->bitPosition(), path->workersInPath());
   }
-
   if (wantSummary) {
     // This table can arguably be removed since all summary
     // information is better described above.
@@ -252,7 +248,6 @@ art::detail::triggerReport(PathsInfo const& epi,
                            << " " << std::right << setw(10) << "Error"
                            << " "
                            << "Name";
-
     std::map<std::string, ModuleCounts> counts_per_module;
     for (auto const& tpi : tpis) {
       for (auto const& pr : tpi.workers()) {
@@ -276,7 +271,6 @@ art::detail::triggerReport(PathsInfo const& epi,
         << setw(10) << module_counts.failed << " " << std::right << setw(10)
         << module_counts.except << " " << module_label;
     }
-
     for (auto const& val : epi.workers()) {
       // Instead of timesVisited(), which is confusing for the user
       // for end-path modules, we just report timesRun() as a proxy

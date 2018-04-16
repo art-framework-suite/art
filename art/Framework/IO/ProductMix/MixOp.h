@@ -7,10 +7,12 @@
 
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/IO/ProductMix/detail/checkForMissingDictionaries.h"
+#include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/RootBranchInfoList.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Utilities/Globals.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
@@ -102,7 +104,7 @@ namespace art {
     , inputType_{typeid(PROD)}
     , outputInstanceLabel_{outputInstanceLabel}
     , mixFunc_{mixFunc}
-    , processName_{ServiceHandle<TriggerNamesService const>{}->getProcessName()}
+    , processName_{Globals::instance()->processName()}
     , md_{md}
     , outputProduct_{outputProduct}
     , compactMissingProducts_{compactMissingProducts}
@@ -224,8 +226,9 @@ namespace art {
         // Need new product.
         inProducts_.emplace_back(new Wrapper<PROD>);
         Wrapper<PROD>* wp = inProducts_.back().get();
+        input::RootMutexSentry sentry;
         branchInfo_.branch()->SetAddress(&wp);
-        branchInfo_.branch()->GetEntry(*i);
+        input::getEntry(branchInfo_.branch(), *i);
       } else {
         // Already have one: find and use.
         auto pit = inProducts_.cbegin();

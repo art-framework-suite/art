@@ -16,6 +16,8 @@ namespace art {
   class History;
   class DelayedReader;
 
+  EventPrincipal::~EventPrincipal() {}
+
   EventPrincipal::EventPrincipal(
     EventAuxiliary const& aux,
     ProcessConfiguration const& pc,

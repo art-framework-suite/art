@@ -10,6 +10,7 @@ set(art_Utilities_sources
   PerThread.cc
   PluginSuffixes.cc
   RegexMatch.cc
+  ScheduleID.cc
   unique_filename.cc
   UnixSignalHandlers.cc)
 
@@ -23,6 +24,7 @@ art_make_library(SOURCE ${art_Utilities_sources}
   fhiclcpp
   cetlib
   cetlib_except
+  hep_concurrency
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   pthread

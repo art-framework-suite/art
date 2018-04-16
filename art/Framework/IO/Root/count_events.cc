@@ -56,7 +56,7 @@ namespace {
       err << fileName << "\tCould not be opened by ROOT: skipped.\n";
       return false;
     }
-    std::array<std::size_t, art::NumBranchTypes> counters{{0ull}};
+    std::array<std::size_t, art::NumBranchTypes> counters{{0}};
     art::FileIndex fi;
     for (int i = art::InEvent; i != art::InResults; ++i) {
       std::string treeName =

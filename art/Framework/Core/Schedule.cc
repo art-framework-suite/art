@@ -14,16 +14,18 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Utilities/CPCSentry.h"
+#include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "canvas/Utilities/DebugMacros.h"
-#include "cetlib/exempt_ptr.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/WaitingTaskHolder.h"
+#include "hep_concurrency/tsan.h"
 
 #include <algorithm>
+#include <atomic>
 #include <cassert>
 #include <cstdlib>
 #include <iomanip>
@@ -38,71 +40,107 @@ using fhicl::ParameterSet;
 
 namespace art {
 
+  Schedule::~Schedule() noexcept
+  {
+    results_inserter_ = nullptr;
+    triggerPathsInfo_ = nullptr;
+    actReg_ = nullptr;
+    actionTable_ = nullptr;
+  }
+
   Schedule::Schedule(ScheduleID const scheduleID,
                      PathManager& pm,
                      string const& processName,
                      ParameterSet const& proc_pset,
+                     ParameterSet const& trig_pset,
                      UpdateOutputCallbacks& outputCallbacks,
                      ProductDescriptions& productsToProduce,
                      ActionTable& actions,
                      ActivityRegistry& actReg)
-    : process_pset_{proc_pset}
-    , outputCallbacks_{outputCallbacks}
-    , actionTable_{actions}
-    , actReg_{actReg}
-    , processName_{processName}
-    , triggerPathsInfo_{pm.triggerPathsInfo(scheduleID)}
   {
-    TDEBUG(5) << "Schedule ctor: 0x" << hex << ((unsigned long)this) << dec
-              << " (" << scheduleID << ")\n";
-    if (!triggerPathsInfo_.paths().empty()) {
-      if ((results_inserter_ = pm.triggerResultsInserter(scheduleID)) ==
-          nullptr) {
-        // Make the trigger results inserter.
-        ServiceHandle<TriggerNamesService const> tns;
-        auto const& trig_pset = tns->getTriggerPSet();
-        WorkerParams const wp{process_pset_,
-                              trig_pset,
-                              outputCallbacks_,
-                              productsToProduce,
-                              actReg_,
-                              actionTable_,
-                              processName_,
-                              ModuleThreadingType::REPLICATED,
-                              scheduleID};
-        ModuleDescription md{trig_pset.id(),
-                             "TriggerResultInserter",
-                             "TriggerResults",
-                             static_cast<int>(ModuleThreadingType::REPLICATED),
-                             ProcessConfiguration{processName_,
-                                                  process_pset_.id(),
-                                                  getReleaseVersion()}};
-        string pathName{"ctor"};
-        CurrentProcessingContext cpc{scheduleID, &pathName, 0, false};
-        cpc.activate(0, &md);
-        detail::CPCSentry cpc_sentry{cpc};
-        actReg_.sPreModuleConstruction.invoke(md);
-        EDProducer* producer = new TriggerResultInserter(
-          trig_pset, scheduleID, triggerPathsInfo_.pathResults());
-        producer->setModuleDescription(md);
-        producer->setScheduleID(scheduleID);
-        pm.setTriggerResultsInserter(
-          scheduleID, make_unique<WorkerT<EDProducer>>(producer, md, wp));
-        results_inserter_ = pm.triggerResultsInserter(scheduleID);
-        actReg_.sPostModuleConstruction.invoke(md);
-      }
+    ostringstream msg;
+    msg << "0x" << hex << ((unsigned long)this) << dec;
+    TDEBUG_FUNC_SI_MSG(5, "Schedule ctor", scheduleID, msg.str());
+    actionTable_ = &actions;
+    actReg_ = &actReg;
+    triggerPathsInfo_ = &pm.triggerPathsInfo(scheduleID);
+    results_inserter_ = nullptr;
+    runningWorkerCnt_ = 0;
+    if (triggerPathsInfo_.load()->paths().empty()) {
+      return;
     }
+    results_inserter_ = pm.triggerResultsInserter(scheduleID);
+    if (results_inserter_.load() != nullptr) {
+      return;
+    }
+    // Make the trigger results inserter.
+    WorkerParams const wp{proc_pset,
+                          trig_pset,
+                          outputCallbacks,
+                          productsToProduce,
+                          *actReg_.load(),
+                          *actionTable_.load(),
+                          processName,
+                          ModuleThreadingType::REPLICATED,
+                          scheduleID};
+    ModuleDescription md{
+      trig_pset.id(),
+      "TriggerResultInserter",
+      "TriggerResults",
+      static_cast<int>(ModuleThreadingType::REPLICATED),
+      ProcessConfiguration{processName, proc_pset.id(), getReleaseVersion()}};
+    string pathName{"ctor"};
+    CurrentProcessingContext cpc{scheduleID, &pathName, 0, false};
+    cpc.activate(0, &md);
+    detail::CPCSentry cpc_sentry{cpc};
+    actReg_.load()->sPreModuleConstruction.invoke(md);
+    EDProducer* producer = new TriggerResultInserter(
+      trig_pset, scheduleID, triggerPathsInfo_.load()->pathResults());
+    producer->setModuleDescription(md);
+    producer->setScheduleID(scheduleID);
+    pm.setTriggerResultsInserter(
+      scheduleID, make_unique<WorkerT<EDProducer>>(producer, md, wp));
+    results_inserter_ = pm.triggerResultsInserter(scheduleID);
+    actReg_.load()->sPostModuleConstruction.invoke(md);
+  }
+
+  Schedule::Schedule(Schedule&& rhs) noexcept
+  {
+    actionTable_ = rhs.actionTable_.load();
+    rhs.actionTable_ = nullptr;
+    actReg_ = rhs.actReg_.load();
+    rhs.actReg_ = nullptr;
+    triggerPathsInfo_ = rhs.triggerPathsInfo_.load();
+    rhs.triggerPathsInfo_ = nullptr;
+    results_inserter_ = rhs.results_inserter_.load();
+    rhs.results_inserter_ = nullptr;
+    runningWorkerCnt_ = rhs.runningWorkerCnt_.load();
+  }
+
+  Schedule&
+  Schedule::operator=(Schedule&& rhs) noexcept
+  {
+    actionTable_ = rhs.actionTable_.load();
+    rhs.actionTable_ = nullptr;
+    actReg_ = rhs.actReg_.load();
+    rhs.actReg_ = nullptr;
+    triggerPathsInfo_ = rhs.triggerPathsInfo_.load();
+    rhs.triggerPathsInfo_ = nullptr;
+    results_inserter_ = rhs.results_inserter_.load();
+    rhs.results_inserter_ = nullptr;
+    runningWorkerCnt_ = rhs.runningWorkerCnt_.load();
+    return *this;
   }
 
   void
   Schedule::beginJob()
   {
-    for (auto const& val : triggerPathsInfo_.workers()) {
+    for (auto const& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
       w.beginJob();
     }
-    if (results_inserter_) {
-      results_inserter_->beginJob();
+    if (results_inserter_.load() != nullptr) {
+      results_inserter_.load()->beginJob();
     }
   }
 
@@ -110,7 +148,7 @@ namespace art {
   Schedule::endJob()
   {
     Exception error(errors::EndJobFailure);
-    for (auto& val : triggerPathsInfo_.workers()) {
+    for (auto& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
       // FIXME: The catch and rethrow here seems to have little value added.
       try {
@@ -131,10 +169,10 @@ namespace art {
         throw error;
       }
     }
-    if (results_inserter_) {
+    if (results_inserter_.load() != nullptr) {
       // FIXME: The catch and rethrow here seems to have little value added.
       try {
-        results_inserter_->endJob();
+        results_inserter_.load()->endJob();
       }
       catch (cet::exception& e) {
         error << "cet::exception caught in Schedule::endJob\n"
@@ -156,60 +194,161 @@ namespace art {
   void
   Schedule::respondToOpenInputFile(FileBlock const& fb)
   {
-    for (auto const& val : triggerPathsInfo_.workers()) {
+    for (auto const& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
       w.respondToOpenInputFile(fb);
     }
-    if (results_inserter_) {
-      results_inserter_->respondToOpenInputFile(fb);
+    if (results_inserter_.load() != nullptr) {
+      results_inserter_.load()->respondToOpenInputFile(fb);
     }
   }
 
   void
   Schedule::respondToCloseInputFile(FileBlock const& fb)
   {
-    for (auto const& val : triggerPathsInfo_.workers()) {
+    for (auto const& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
       w.respondToCloseInputFile(fb);
     }
-    if (results_inserter_) {
-      results_inserter_->respondToCloseInputFile(fb);
+    if (results_inserter_.load() != nullptr) {
+      results_inserter_.load()->respondToCloseInputFile(fb);
     }
   }
 
   void
   Schedule::respondToOpenOutputFiles(FileBlock const& fb)
   {
-    for (auto const& val : triggerPathsInfo_.workers()) {
+    for (auto const& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
       w.respondToOpenOutputFiles(fb);
     }
-    if (results_inserter_) {
-      results_inserter_->respondToOpenOutputFiles(fb);
+    if (results_inserter_.load() != nullptr) {
+      results_inserter_.load()->respondToOpenOutputFiles(fb);
     }
   }
 
   void
   Schedule::respondToCloseOutputFiles(FileBlock const& fb)
   {
-    for (auto const& val : triggerPathsInfo_.workers()) {
+    for (auto const& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
       w.respondToCloseOutputFiles(fb);
     }
-    if (results_inserter_) {
-      results_inserter_->respondToCloseOutputFiles(fb);
+    if (results_inserter_.load() != nullptr) {
+      results_inserter_.load()->respondToCloseOutputFiles(fb);
     }
   }
 
   void
   Schedule::process(Transition const trans, Principal& principal)
   {
-    for (auto const& val : triggerPathsInfo_.workers()) {
+    for (auto const& val : triggerPathsInfo_.load()->workers()) {
       val.second->reset(ScheduleID::first());
     }
-    for (auto const& path : triggerPathsInfo_.paths()) {
+    for (auto const& path : triggerPathsInfo_.load()->paths()) {
       path->process(trans, principal);
     }
+  }
+
+  class PathsDoneFunctor {
+  public:
+    PathsDoneFunctor(Schedule* schedule,
+                     WaitingTask* endPathTask,
+                     tbb::task* eventLoopTask,
+                     EventPrincipal& principal,
+                     ScheduleID const scheduleID)
+      : schedule_(schedule)
+      , endPathTask_(endPathTask)
+      , eventLoopTask_(eventLoopTask)
+      , principal_(principal)
+      , si_(scheduleID)
+    {}
+    void
+    operator()(exception_ptr const* ex)
+    {
+      schedule_->pathsDoneTask(
+        endPathTask_, eventLoopTask_, principal_, si_, ex);
+    }
+
+  private:
+    Schedule* schedule_;
+    WaitingTask* endPathTask_;
+    tbb::task* eventLoopTask_;
+    EventPrincipal& principal_;
+    ScheduleID const si_;
+  };
+
+  void
+  Schedule::pathsDoneTask(WaitingTask* endPathTask,
+                          tbb::task* eventLoopTask,
+                          EventPrincipal& principal,
+                          ScheduleID const scheduleID,
+                          exception_ptr const* ex)
+  {
+    // Note: When we start our parent task is the eventLoop task.
+    TDEBUG_BEGIN_TASK_SI(4, "pathsDoneTask", scheduleID);
+    INTENTIONAL_DATA_RACE(DR_SCHEDULE_PATHS_DONE_TASK);
+    if (ex != nullptr) {
+      try {
+        rethrow_exception(*ex);
+      }
+      catch (cet::exception& e) {
+        auto action = actionTable_.load()->find(e.root_cause());
+        assert(action != actions::IgnoreCompletely);
+        assert(action != actions::FailPath);
+        assert(action != actions::FailModule);
+        if (action != actions::SkipEvent) {
+          WaitingTaskHolder wth(endPathTask);
+          wth.doneWaiting(current_exception());
+          // And end this task which does not terminate event processing.
+          ANNOTATE_BENIGN_RACE_SIZED(
+            reinterpret_cast<char*>(&tbb::task::self()) -
+              sizeof(tbb::internal::task_prefix),
+            sizeof(tbb::task) + sizeof(tbb::internal::task_prefix),
+            "tbb::task");
+          tbb::task::self().set_parent(nullptr);
+          TDEBUG_END_TASK_SI_ERR(
+            4,
+            "pathsDoneTask",
+            scheduleID,
+            "trigger path processing terminate because of EXCEPTION");
+          return;
+        }
+        // FIXME: We should not ever be able to get here because the only
+        // exceptions passed to the pathsDone task should be ones that
+        // terminated the path.
+        mf::LogWarning(e.category())
+          << "an exception occurred and all paths for the event "
+             "are being skipped: \n"
+          << cet::trim_right_copy(e.what(), " \n");
+      }
+      // FIXME: We should not ever be able to get here because the only
+      // exceptions passed to the pathsDone task should be ones that terminated
+      // the path. Transfer the thrown exception to the endPath task and start
+      // it running.
+      WaitingTaskHolder wth(endPathTask);
+      wth.doneWaiting(*ex);
+      // And end this task without terminating
+      // event processing.
+      ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
+                                   sizeof(tbb::internal::task_prefix),
+                                 sizeof(tbb::task) +
+                                   sizeof(tbb::internal::task_prefix),
+                                 "tbb::task");
+      tbb::task::self().set_parent(nullptr);
+      TDEBUG_END_TASK_SI_ERR(
+        4,
+        "pathsDoneTask",
+        scheduleID,
+        "trigger path processing terminate because of EXCEPTION");
+      return;
+    }
+    process_event_pathsDone(endPathTask, eventLoopTask, principal, scheduleID);
+    // And end this task, which does not terminate
+    // event processing because our parent is the
+    // nullptr.
+    TDEBUG_END_TASK_SI(4, "pathsDoneTask", scheduleID);
+    return;
   }
 
   // Note: We get here as part of the readAndProcessEvent task.
@@ -217,75 +356,40 @@ namespace art {
   // endPathTask is the eventLoopTask.
   void
   Schedule::process_event(WaitingTask* endPathTask,
+                          tbb::task* eventLoopTask,
                           EventPrincipal& principal,
-                          ScheduleID const si)
+                          ScheduleID const scheduleID)
   {
-    TDEBUG(4) << "-----> Begin Schedule::process_event (" << si << ") ...\n";
-    auto eventLoopTask = endPathTask->parent();
-    for (auto const& val : triggerPathsInfo_.workers()) {
+    // Note: We are part of the readAndProcessEventTask (stream head task),
+    // and our parent task is the nullptr because the endPathTask has
+    // been transferred the eventLoopTask as its parent.
+    TDEBUG_BEGIN_FUNC_SI(4, "Schedule::process_event", scheduleID);
+    if (runningWorkerCnt_.load() != 0) {
+      cerr << "Aborting! runningWorkerCnt_.load() != 0: "
+           << runningWorkerCnt_.load() << "\n";
+      abort();
+    }
+    ++runningWorkerCnt_;
+    for (auto const& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
-      w.reset(si);
+      w.reset(scheduleID);
     }
-    if (results_inserter_) {
-      results_inserter_->reset(si);
+    if (results_inserter_.load() != nullptr) {
+      results_inserter_.load()->reset(scheduleID);
     }
-    triggerPathsInfo_.pathResults().reset();
-    triggerPathsInfo_.incrementTotalEventCount();
-    auto pathsDoneFunctor = [this, endPathTask, &principal, si](
-                              exception_ptr const* ex) {
-      // Note: When we start our parent task is the eventLoop task.
-      TDEBUG(4) << "=====> Begin pathsDoneTask (" << si << ") ...\n";
-      if (ex != nullptr) {
-        try {
-          rethrow_exception(*ex);
-        }
-        catch (cet::exception& e) {
-          auto action = actionTable_.find(e.root_cause());
-          assert(action != actions::IgnoreCompletely);
-          assert(action != actions::FailPath);
-          assert(action != actions::FailModule);
-          if (action != actions::SkipEvent) {
-            WaitingTaskHolder wth(endPathTask);
-            wth.doneWaiting(current_exception());
-            // And end this task which does not terminate event processing.
-            tbb::task::self().set_parent(nullptr);
-            TDEBUG(4) << "=====> End   pathsDoneTask (" << si
-                      << ") ... trigger path processing terminate because of "
-                         "exception\n";
-            return;
-          }
-          // FIXME: We should not ever be able to get here because the only
-          // exceptions
-          // FIXME: passed to the pathsDone task should be ones that terminated
-          // the path.
-          mf::LogWarning(e.category()) << "an exception occurred and all paths "
-                                          "for the event are being skipped: \n"
-                                       << cet::trim_right_copy(e.what(), " \n");
-        }
-        // FIXME: We should not ever be able to get here because the only
-        // exceptions
-        // FIXME: passed to the pathsDone task should be ones that terminated
-        // the path. Transfer the thrown exception to the endPath task and start
-        // it running.
-        WaitingTaskHolder wth(endPathTask);
-        wth.doneWaiting(*ex);
-        // And end this task without terminating
-        // event processing.
-        tbb::task::self().set_parent(nullptr);
-        TDEBUG(4)
-          << "=====> End   pathsDoneTask (" << si
-          << ") ... trigger path processing terminate because of exception\n";
-        return;
-      }
-      process_event_pathsDone(endPathTask, principal, si);
-      // And end this task, which does not terminate
-      // event processing because our parent is the
-      // nullptr.
-      TDEBUG(4) << "=====> End   pathsDoneTask (" << si << ") ...\n";
-      return;
-    };
-    auto pathsDoneTask =
-      make_waiting_task(tbb::task::allocate_root(), pathsDoneFunctor);
+    triggerPathsInfo_.load()->pathResults().reset();
+    triggerPathsInfo_.load()->incrementTotalEventCount();
+    auto pathsDoneTask = make_waiting_task(
+      tbb::task::allocate_root(),
+      PathsDoneFunctor{
+        this, endPathTask, eventLoopTask, principal, scheduleID});
+    // Allow the pathsDoneTask to terminate event processing on error.
+    // FIXME: Actually it turns out it never wants to.  :-)
+    ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
+                                 sizeof(tbb::internal::task_prefix),
+                               sizeof(tbb::task) +
+                                 sizeof(tbb::internal::task_prefix),
+                               "tbb::task");
     pathsDoneTask->set_parent(eventLoopTask);
     try {
       // Note: We create the holder here to increment the ref count
@@ -296,22 +400,24 @@ namespace art {
       // the ref count the first thing it does (by putting the task
       // into a WaitingTaskList).
       WaitingTaskHolder wth(pathsDoneTask);
-      for (auto& path : triggerPathsInfo_.paths()) {
+      for (auto& path : triggerPathsInfo_.load()->paths()) {
         // Start each path running.  The path will start a spawn
         // chain going to run each worker in the order specified
         // on the path, and when they have all been run, it will
         // call doneWaiting() on the pathsDoneTask, which decrements
         // its reference count, which will eventually cause it to
         // run when every path has finished.
-        path->process_event(pathsDoneTask, principal, si);
+        INTENTIONAL_DATA_RACE(DR_SCHEDULE_PROCESS_EVENT_PER_PATH);
+        path->process_event(pathsDoneTask, principal, scheduleID);
       }
       // And end this task which does not terminate event processing
       // because our parent is the nullptr.
-      TDEBUG(4) << "-----> End   Schedule::process_event (" << si << ") ...\n";
+      --runningWorkerCnt_;
+      TDEBUG_END_FUNC_SI(4, "Schedule::process_event", scheduleID);
       return;
     }
     catch (cet::exception& e) {
-      auto action = actionTable_.find(e.root_cause());
+      auto action = actionTable_.load()->find(e.root_cause());
       assert(action != actions::IgnoreCompletely);
       assert(action != actions::FailPath);
       assert(action != actions::FailModule);
@@ -320,66 +426,70 @@ namespace art {
         wth.doneWaiting(current_exception());
         // And end this task which does not terminate event processing
         // because our parent is the nullptr.
-        TDEBUG(4) << "-----> End   Schedule::process_event (" << si
-                  << ") ... because of exception\n";
+        --runningWorkerCnt_;
+        TDEBUG_END_FUNC_SI_ERR(
+          4, "Schedule::process_event", scheduleID, "because of EXCEPTION");
         return;
       }
-      mf::LogWarning(e.category()) << "an exception occurred and all paths for "
-                                      "the event are being skipped: \n"
-                                   << cet::trim_right_copy(e.what(), " \n");
+      mf::LogWarning(e.category())
+        << "an exception occurred and all paths for the event "
+           "are being skipped: \n"
+        << cet::trim_right_copy(e.what(), " \n");
     }
     WaitingTaskHolder wth(endPathTask);
     wth.doneWaiting(exception_ptr{});
     // And end this task which does not terminate event processing
     // because our parent is the nullptr.
-    TDEBUG(4) << "-----> End   Schedule::process_event (" << si << ") ...\n";
+    --runningWorkerCnt_;
+    TDEBUG_END_FUNC_SI(4, "Schedule::process_event", scheduleID);
   }
 
   // Note: We come here as part of the pathsDone task.  Our parent
-  // is the eventLoopTask.
+  // is the nullptr.
   void
   Schedule::process_event_pathsDone(WaitingTask* endPathTask,
+                                    WaitingTask* /*eventLoopTask*/,
                                     EventPrincipal& principal,
-                                    ScheduleID const si)
+                                    ScheduleID const scheduleID)
   {
-    TDEBUG(4) << "-----> Begin Schedule::process_event_pathsDone (" << si
-              << ") ...\n";
+    // We are part of the pathsDoneTask, and our parent is the nullptr.
+    TDEBUG_BEGIN_FUNC_SI(4, "Schedule::process_event_pathsDone", scheduleID);
     try {
-      if (triggerPathsInfo_.pathResults().accept()) {
-        triggerPathsInfo_.incrementPassedEventCount();
+      if (triggerPathsInfo_.load()->pathResults().accept()) {
+        triggerPathsInfo_.load()->incrementPassedEventCount();
       }
-      if (results_inserter_) {
+      if (results_inserter_.load() != nullptr) {
         string const name{"TriggerResultsInserter"};
-        CurrentProcessingContext cpc{si, &name, 0, false};
-        results_inserter_->doWork_event(principal, si, &cpc);
+        CurrentProcessingContext cpc{scheduleID, &name, 0, false};
+        results_inserter_.load()->doWork_event(principal, scheduleID, &cpc);
       }
     }
     catch (cet::exception& e) {
-      auto action = actionTable_.find(e.root_cause());
+      auto action = actionTable_.load()->find(e.root_cause());
       assert(action != actions::IgnoreCompletely);
       assert(action != actions::FailPath);
       assert(action != actions::FailModule);
       if (action != actions::SkipEvent) {
-        WaitingTaskHolder wth(endPathTask);
-        wth.doneWaiting(current_exception());
-        // And end this task without terminating
-        // event processing.
-        tbb::task::self().set_parent(nullptr);
-        TDEBUG(4) << "-----> End   Schedule::process_event_pathsDone (" << si
-                  << ") ...\n";
-        return;
+        // Possible actions: Rethrow
+        // FIXME: Do a doneWaiting on the endPathTask instead!
+        TDEBUG_END_FUNC_SI(4, "Schedule::process_event_pathsDone", scheduleID);
+        throw;
       }
-      mf::LogWarning(e.category()) << "an exception occurred and all paths for "
-                                      "the event are being skipped:\n"
-                                   << cet::trim_right_copy(e.what(), " \n");
+      mf::LogWarning(e.category())
+        << "An exception occurred inserting the TriggerResults object:\n"
+        << cet::trim_right_copy(e.what(), " \n");
     }
+    // And end this task without terminating event processing.
+    ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
+                                 sizeof(tbb::internal::task_prefix),
+                               sizeof(tbb::task) +
+                                 sizeof(tbb::internal::task_prefix),
+                               "tbb::task");
+    tbb::task::self().set_parent(nullptr);
+    // Start the endPathTask going.
     WaitingTaskHolder wth(endPathTask);
     wth.doneWaiting(exception_ptr{});
-    // And end this task without terminating
-    // event processing.
-    tbb::task::self().set_parent(nullptr);
-    TDEBUG(4) << "-----> End   Schedule::process_event_pathsDone (" << si
-              << ") ...\n";
+    TDEBUG_END_FUNC_SI(4, "Schedule::process_event_pathsDone", scheduleID);
   }
 
 } // namespace art

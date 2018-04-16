@@ -142,12 +142,28 @@ namespace art {
   void
   ClosedRangeSetHandler::do_maybeSplitRange()
   {
-    if (!eventInfo_.lastInSubRun() && (idx_ != end_idx())) {
-      auto split_range = ranges_.split_range(eventInfo_.id().subRun(),
-                                             eventInfo_.id().next().event());
-      if (split_range.second) {
-        idx_ = split_range.first;
-      }
+    if (eventInfo_.lastInSubRun()) {
+      // No need to split.
+      return;
+    }
+    if (!eventInfo_.id().isValid()) {
+      // Have not read any events yet.
+      return;
+    }
+    if (eventInfo_.id().isFlush()) {
+      // Should not happen, be careful anyway.
+      return;
+    }
+    if (idx_ == end_idx()) {
+      // No need to split.
+      return;
+    }
+    auto split_range = ranges_.split_range(eventInfo_.id().subRun(),
+                                           eventInfo_.id().next().event());
+    if (split_range.second) {
+      // The split did happen, update our idx to the right-hand
+      // side of the split (our ranges has already been updated).
+      idx_ = split_range.first;
     }
   }
 

@@ -9,11 +9,10 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/PerThread.h"
 #include "fhiclcpp/types/Atom.h"
 
 #include <memory>
-#include <mutex>
 #include <vector>
 
 using namespace std;
@@ -23,31 +22,30 @@ namespace art {
 
   class RandomNumberSaver : public EDProducer {
 
-  public: // CONFIGURATION
+    // Configuration
+  public:
     struct Config {
-
       Atom<bool> debug{Name{"debug"}, false};
     };
 
     using Parameters = EDProducer::Table<Config>;
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
+    // Special Member Functions
+  public:
     explicit RandomNumberSaver(Parameters const&);
 
-  public: // MEMBER FUNCTIONS -- API required by EDProducer
+    // API required by EDProducer
+  public:
     void produce(Event&) override;
 
-  private: // MEMBER DATA
+    // Implementation details
+  private:
     // When true makes produce call rng->print_().
-    bool debug_;
-
-    // Used only when debug_ == true to serialize
-    // usage of rng->print_().
-    mutex m_{};
+    bool const debug_;
   };
 
   RandomNumberSaver::RandomNumberSaver(Parameters const& config)
-    : debug_{config().debug()}, m_{}
+    : debug_{config().debug()}
   {
     produces<vector<RNGsnapshot>>();
   }
@@ -58,8 +56,6 @@ namespace art {
     ServiceHandle<RandomNumberGenerator const> rng;
     e.put(make_unique<vector<RNGsnapshot>>(rng->accessSnapshot_(scheduleID())));
     if (debug_) {
-      // Only take out the lock if running in debug mode.
-      lock_guard<mutex> hold{m_};
       rng->print_();
     }
   }

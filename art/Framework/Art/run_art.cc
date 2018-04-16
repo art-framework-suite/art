@@ -6,7 +6,6 @@
 #include "art/Framework/Art/detail/info_success.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Utilities/ExceptionMessages.h"
-#include "art/Utilities/UnixSignalHandlers.h"
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 #include "canvas/Utilities/Exception.h"
@@ -22,6 +21,7 @@
 #include "fhiclcpp/parse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include <atomic>
 #include <cassert>
 #include <cstring>
 #include <exception>
@@ -33,11 +33,13 @@
 
 #ifdef __linux__
 #include <malloc.h>
-#endif
+#endif // __linux__
 
-namespace bpo = boost::program_options;
+using namespace std;
+using namespace string_literals;
 
 namespace {
+
   cet::ostream_handle
   make_ostream_handle(std::string const& filename)
   {
@@ -119,7 +121,9 @@ namespace {
     return debug_processing::none;
   }
 
-} // namespace
+} // unnamed namespace
+
+namespace bpo = boost::program_options;
 
 namespace art {
 
@@ -130,7 +134,7 @@ namespace art {
           cet::filepath_maker& lookupPolicy,
           OptionsHandlers&& handlers)
   {
-    std::ostringstream descstr;
+    ostringstream descstr;
     descstr << "\nUsage: "
             << boost::filesystem::path(argv[0]).filename().native()
             << " <-c <config-file>> <other-options> [<source-file>]+\n\n"
@@ -157,8 +161,8 @@ namespace art {
       bpo::notify(vm);
     }
     catch (bpo::error const& e) {
-      std::cerr << "Exception from command line processing in " << argv[0]
-                << ": " << e.what() << "\n";
+      cerr << "Exception from command line processing in " << argv[0] << ": "
+           << e.what() << "\n";
       return 88;
     }
     // Preliminary argument checking.
@@ -177,7 +181,7 @@ namespace art {
       }
     }
     //
-    // Make the parameter set from the intermediate table:
+    // Make the parameter set from the intermediate table.
     //
     fhicl::ParameterSet main_pset;
     try {
@@ -185,33 +189,32 @@ namespace art {
     }
     catch (cet::exception const& e) {
       constexpr cet::HorizontalRule rule{36};
-      std::cerr << "ERROR: Failed to create a parameter set from parsed "
-                   "configuration with exception "
-                << e.what() << ".\n";
-      std::cerr << "       Intermediate configuration state follows:\n"
-                << rule('-') << '\n'
-                << rule('-') << '\n';
+      cerr << "ERROR: Failed to create a parameter set from parsed "
+              "configuration with exception "
+           << e.what() << ".\n";
+      cerr << "       Intermediate configuration state follows:\n"
+           << rule('-') << '\n'
+           << rule('-') << '\n';
       for (auto const& item : raw_config) {
-        std::cerr << item.first << ": " << item.second.to_string() << '\n';
+        cerr << item.first << ": " << item.second.to_string() << '\n';
       }
-      std::cerr << rule('-') << '\n' << rule('-') << '\n';
+      cerr << rule('-') << '\n' << rule('-') << '\n';
       return 91;
     }
-
     // Main parameter set must be placed in registry manually.
     try {
       fhicl::ParameterSetRegistry::put(main_pset);
     }
     catch (...) {
-      std::cerr << "Uncaught exception while inserting main parameter set into "
-                   "registry.\n";
+      cerr << "Uncaught exception while inserting main parameter set into "
+              "registry.\n";
       throw;
     }
     return run_art_common_(main_pset);
   }
 
   int
-  run_art_string_config(std::string const& config_string)
+  run_art_string_config(string const& config_string)
   {
     //
     // Make the parameter set from the configuration string:
@@ -230,13 +233,13 @@ namespace art {
     }
     catch (cet::exception& e) {
       constexpr cet::HorizontalRule rule{36};
-      std::cerr << "ERROR: Failed to create a parameter set from an input "
-                   "configuration string with exception "
-                << e.what() << ".\n";
-      std::cerr << "       Input configuration string follows:\n"
-                << rule('-') << rule('-') << "\n";
-      std::cerr << config_string << "\n";
-      std::cerr << rule('-') << rule('-') << '\n';
+      cerr << "ERROR: Failed to create a parameter set from an input "
+              "configuration string with exception "
+           << e.what() << ".\n";
+      cerr << "       Input configuration string follows:\n"
+           << rule('-') << rule('-') << "\n";
+      cerr << config_string << "\n";
+      cerr << rule('-') << rule('-') << '\n';
       return 91;
     }
     // Main parameter set must be placed in registry manually.
@@ -244,8 +247,8 @@ namespace art {
       fhicl::ParameterSetRegistry::put(main_pset);
     }
     catch (...) {
-      std::cerr << "Uncaught exception while inserting main parameter set into "
-                   "registry.\n";
+      cerr << "Uncaught exception while inserting main parameter set into "
+              "registry.\n";
       throw;
     }
     return run_art_common_(main_pset);
@@ -255,28 +258,23 @@ namespace art {
   run_art_common_(fhicl::ParameterSet const& main_pset)
   {
 #ifdef __linux__
-    // FIXME: Figure out if we should do something similar for Darwin
-
     // Tell the system memory allocator to only use one arena: they
     // are 64 MiB in size, and the default is 8 * num_of_cores.  Using
     // the default means that when using 40 threads we get 40 arenas,
     // which means we have 40 * 64 MiB = 2560 MiB of virtual address
     // space devoted to per-thread heaps!!!
     mallopt(M_ARENA_MAX, 1);
-#endif
-
+#endif // __linux__
     auto const& services_pset =
       main_pset.get<fhicl::ParameterSet>("services", {});
     auto const& scheduler_pset =
       services_pset.get<fhicl::ParameterSet>("scheduler", {});
-
     // Handle early configuration-debugging
     auto const debug_processing_mode =
       maybe_output_config(main_pset, scheduler_pset);
     if (debug_processing_mode == debug_processing::debug_config) {
-      return detail::info_success(); // Bail out early
+      return detail::info_success();
     }
-
     //
     // Start the messagefacility
     //
@@ -286,25 +284,22 @@ namespace art {
         services_pset.get<fhicl::ParameterSet>("message", {}));
     }
     catch (cet::exception const& e) {
-      std::cerr << e.what() << '\n';
+      cerr << e.what() << '\n';
       return 69;
     }
-    catch (std::exception const& e) {
-      std::cerr << e.what() << '\n';
+    catch (exception const& e) {
+      cerr << e.what() << '\n';
       return 70;
     }
     catch (...) {
-      std::cerr << "Caught unknown exception while initializing the message "
-                   "facility.\n";
+      cerr << "Caught unknown exception while initializing the message "
+              "facility.\n";
       return 71;
     }
-
     mf::LogInfo("MF_INIT_OK") << "Messagelogger initialization complete.";
     //
-    // Initialize:
-    //   unix signal facility
-    art::setupSignals(scheduler_pset.get<bool>("enableSigInt", true));
-
+    // Start the EventProcessor
+    //
     int rc{0};
     try {
       EventProcessor ep{main_pset};
@@ -314,13 +309,14 @@ namespace art {
       // construction of the EventProcessor object can have nothing to
       // do with a configuration error.
       if (debug_processing_mode == debug_processing::validate_config) {
-        return detail::info_success(); // Bail out early
+        return detail::info_success();
       }
       if (scheduler_pset.has_key("dataDependencyGraph")) {
-        return detail::info_success(); // Bail out early
+        return detail::info_success();
       }
-      if (ep.runToCompletion() == EventProcessor::epSignal) {
-        std::cerr << "Art has handled signal " << art::shutdown_flag << ".\n";
+      auto ep_rc = ep.runToCompletion();
+      if (ep_rc == EventProcessor::epSignal) {
+        cerr << "Art has handled signal " << art::shutdown_flag << ".\n";
         if (scheduler_pset.get<bool>("errorOnSIGINT")) {
           rc = 128 + art::shutdown_flag;
         }
@@ -334,11 +330,11 @@ namespace art {
       rc = 65;
       printArtException(e, "art");
     }
-    catch (std::bad_alloc const& bda) {
+    catch (bad_alloc const& bda) {
       rc = 68;
       printBadAllocException("art");
     }
-    catch (std::exception const& e) {
+    catch (exception const& e) {
       rc = 66;
       printStdException(e, "art");
     }
@@ -348,4 +344,5 @@ namespace art {
     }
     return rc;
   }
-}
+
+} // namespace art

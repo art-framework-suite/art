@@ -5,53 +5,37 @@
 #include "art/Framework/Core/Path.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 
+#include <atomic>
 #include <cstddef>
 #include <map>
 #include <string>
 
 namespace art {
-
   class PathsInfo {
-
   public:
     ~PathsInfo();
-
     PathsInfo();
 
   public:
     std::map<std::string, Worker*>& workers();
-
     std::map<std::string, Worker*> const& workers() const;
-
     std::vector<Path*>& paths();
-
     std::vector<Path*> const& paths() const;
-
     HLTGlobalStatus& pathResults();
-
     void incrementTotalEventCount();
-
     void incrementPassedEventCount();
-
     std::size_t passedEvents() const;
-
     std::size_t failedEvents() const;
-
     std::size_t totalEvents() const;
 
   private:
     // Maps module_label to Worker.
     std::map<std::string, Worker*> workers_{};
-
     std::vector<Path*> paths_{};
-
     HLTGlobalStatus pathResults_{};
-
-    std::size_t totalEvents_{};
-
-    std::size_t passedEvents_{};
+    std::atomic<std::size_t> totalEvents_;
+    std::atomic<std::size_t> passedEvents_;
   };
-
 } // namespace art
 
 #endif /* art_Framework_Core_PathsInfo_h */

@@ -18,21 +18,16 @@
 #include <vector>
 
 namespace art {
-
   class Event;
   class HLTGlobalStatus;
-
   class TriggerResultInserter : public EDProducer {
-
   public: // MEMBER FUNCTIONS -- Special Member Functions
     explicit TriggerResultInserter(fhicl::ParameterSet const&) = delete;
-
     explicit TriggerResultInserter(fhicl::ParameterSet const&,
-                                   ScheduleID scheduleID) = delete;
-
+                                   ScheduleID const) = delete;
     // the pset needed here is the one that defines the trigger path names
     explicit TriggerResultInserter(fhicl::ParameterSet const&,
-                                   ScheduleID scheduleID,
+                                   ScheduleID const,
                                    HLTGlobalStatus&);
 
   public: // MEMBER FUNCTIONS -- EDProducer API
@@ -40,10 +35,8 @@ namespace art {
 
   private: // MEMBER DATA
     fhicl::ParameterSetID pset_id_;
-
     cet::exempt_ptr<HLTGlobalStatus> trptr_;
   };
-
 } // namespace art
 
 #endif /* art_Framework_Core_TriggerResultInserter_h */

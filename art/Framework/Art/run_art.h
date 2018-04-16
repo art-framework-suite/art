@@ -16,7 +16,9 @@ namespace art {
   int run_art_string_config(std::string const& config_string);
 
   int run_art_common_(fhicl::ParameterSet const& main_pset);
-}
+
+} // namespace art
+
 #endif /* art_Framework_Art_run_art_h */
 
 // Local Variables:

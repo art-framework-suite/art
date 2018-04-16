@@ -18,6 +18,7 @@
 
 namespace art {
 
+  class Group;
   class Principal;
   class ProductProvenance;
   struct BranchKey;
@@ -25,34 +26,31 @@ namespace art {
 
   class DelayedReader {
 
+    // MEMBER FUNCTIONS -- Special Member Functions
   public:
     virtual ~DelayedReader() noexcept;
-
     DelayedReader();
 
-    std::unique_ptr<EDProduct> getProduct(ProductID,
+    // MEMBER FUNCTIONS -- API
+  public:
+    std::unique_ptr<EDProduct> getProduct(Group const*,
+                                          ProductID,
                                           TypeID const& wrapper_type,
                                           RangeSet&) const;
-
     void setPrincipal(cet::exempt_ptr<Principal>);
-
     std::vector<ProductProvenance> readProvenance() const;
-
     bool isAvailableAfterCombine(ProductID) const;
-
     int openNextSecondaryFile(int idx);
 
+    // MEMBER FUNCTIONS -- Implementation details.
   private:
-    virtual std::unique_ptr<EDProduct> getProduct_(ProductID,
+    virtual std::unique_ptr<EDProduct> getProduct_(Group const*,
+                                                   ProductID,
                                                    TypeID const&,
                                                    RangeSet&) const = 0;
-
     virtual void setPrincipal_(cet::exempt_ptr<Principal>);
-
     virtual std::vector<ProductProvenance> readProvenance_() const;
-
     virtual bool isAvailableAfterCombine_(ProductID) const;
-
     virtual int openNextSecondaryFile_(int idx);
   };
 

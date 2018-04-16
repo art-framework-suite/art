@@ -9,6 +9,8 @@ namespace art {
   class ProcessConfiguration;
   class RunAuxiliary;
 
+  RunPrincipal::~RunPrincipal() {}
+
   RunPrincipal::RunPrincipal(
     RunAuxiliary const& aux,
     ProcessConfiguration const& pc,

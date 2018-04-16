@@ -8,6 +8,7 @@
 #include "canvas/Utilities/DebugMacros.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/WaitingTaskHolder.h"
+#include "hep_concurrency/tsan.h"
 
 #include <atomic>
 #include <iomanip>
@@ -22,54 +23,60 @@ using namespace std;
 
 namespace art {
 
-  WorkerInPath::~WorkerInPath() noexcept { worker_ = nullptr; }
+  WorkerInPath::~WorkerInPath() noexcept
+  {
+    worker_ = nullptr;
+    delete waitingTasks_.load();
+    waitingTasks_ = nullptr;
+  }
 
   WorkerInPath::WorkerInPath(Worker* w) noexcept
-    : worker_{w}
-    , filterAction_{Normal}
-    , returnCode_{false}
-    , waitingTasks_{}
-    , counts_visited_{}
-    , counts_passed_{}
-    , counts_failed_{}
-    , counts_thrown_{}
-  {}
+  {
+    worker_ = w;
+    filterAction_ = Normal;
+    returnCode_ = false;
+    waitingTasks_ = new WaitingTaskList;
+    counts_visited_ = 0;
+    counts_passed_ = 0;
+    counts_failed_ = 0;
+    counts_thrown_ = 0;
+  }
 
   WorkerInPath::WorkerInPath(Worker* w, FilterAction const fa) noexcept
-    : worker_{w}
-    , filterAction_{fa}
-    , returnCode_{false}
-    , waitingTasks_{}
-    , counts_visited_{}
-    , counts_passed_{}
-    , counts_failed_{}
-    , counts_thrown_{}
-  {}
+  {
+    worker_ = w;
+    filterAction_ = fa;
+    returnCode_ = false;
+    waitingTasks_ = new WaitingTaskList;
+    counts_visited_ = 0;
+    counts_passed_ = 0;
+    counts_failed_ = 0;
+    counts_thrown_ = 0;
+  }
 
   WorkerInPath::WorkerInPath(WorkerInPath&& rhs) noexcept
-    : worker_{move(rhs.worker_)}
-    , filterAction_{move(rhs.filterAction_)}
-    , returnCode_{move(rhs.returnCode_)}
-    // Note: A WaitingTaskList cannot be moved,
-    // but it only happens at system startup,
-    // so oh well.
-    , waitingTasks_{}
-    , counts_visited_{rhs.counts_visited_.load()}
-    , counts_passed_{rhs.counts_passed_.load()}
-    , counts_failed_{rhs.counts_failed_.load()}
-    , counts_thrown_{rhs.counts_thrown_.load()}
-  {}
+  {
+    worker_ = rhs.worker_.load();
+    rhs.worker_ = nullptr;
+    filterAction_ = rhs.filterAction_.load();
+    returnCode_ = rhs.returnCode_.load();
+    waitingTasks_ = rhs.waitingTasks_.load();
+    rhs.waitingTasks_ = nullptr;
+    counts_visited_ = rhs.counts_visited_.load();
+    counts_passed_ = rhs.counts_passed_.load();
+    counts_failed_ = rhs.counts_failed_.load();
+    counts_thrown_ = rhs.counts_thrown_.load();
+  }
 
   WorkerInPath&
   WorkerInPath::operator=(WorkerInPath&& rhs) noexcept
   {
-    worker_ = move(rhs.worker_);
-    filterAction_ = move(rhs.filterAction_);
-    returnCode_ = move(rhs.returnCode_);
-    // Note: A WaitingTaskList cannot be moved,
-    // but it only happens at system startup,
-    // so oh well.
-    waitingTasks_.reset();
+    worker_ = rhs.worker_.load();
+    rhs.worker_ = nullptr;
+    filterAction_ = rhs.filterAction_.load();
+    returnCode_ = rhs.returnCode_.load();
+    waitingTasks_ = rhs.waitingTasks_.load();
+    rhs.waitingTasks_ = nullptr;
     counts_visited_.store(rhs.counts_visited_.load());
     counts_passed_.store(rhs.counts_passed_.load());
     counts_failed_.store(rhs.counts_failed_.load());
@@ -80,29 +87,32 @@ namespace art {
   Worker*
   WorkerInPath::getWorker() const
   {
-    return worker_;
+    return worker_.load();
   }
 
   WorkerInPath::FilterAction
   WorkerInPath::filterAction() const
   {
-    return filterAction_;
+    return filterAction_.load();
   }
 
   // Used only by Path
-  bool WorkerInPath::returnCode(ScheduleID /*si*/) const { return returnCode_; }
+  bool
+  WorkerInPath::returnCode(ScheduleID const /*scheduleID*/) const
+  {
+    return returnCode_.load();
+  }
 
   string const&
   WorkerInPath::label() const
   {
-    return worker_->label();
+    return worker_.load()->label();
   }
 
   // Used only by Path
   void
   WorkerInPath::clearCounters()
   {
-    // counts_ = Counts_t{};
     counts_visited_ = 0;
     counts_passed_ = 0;
     counts_failed_ = 0;
@@ -113,28 +123,28 @@ namespace art {
   size_t
   WorkerInPath::timesVisited() const
   {
-    return counts_visited_;
+    return counts_visited_.load();
   }
 
   // Used by writeSummary
   size_t
   WorkerInPath::timesPassed() const
   {
-    return counts_passed_;
+    return counts_passed_.load();
   }
 
   // Used by writeSummary
   size_t
   WorkerInPath::timesFailed() const
   {
-    return counts_failed_;
+    return counts_failed_.load();
   }
 
   // Used by writeSummary
   size_t
   WorkerInPath::timesExcept() const
   {
-    return counts_thrown_;
+    return counts_thrown_.load();
   }
 
   bool
@@ -143,108 +153,146 @@ namespace art {
                           CurrentProcessingContext* cpc)
   {
     // Note: We ignore the return code because we do not process events here.
-    worker_->doWork(trans, principal, cpc);
+    worker_.load()->doWork(trans, principal, cpc);
     return true;
   }
 
   void
   WorkerInPath::runWorker_event_for_endpath(EventPrincipal& ep,
-                                            ScheduleID const si,
+                                            ScheduleID const scheduleID,
                                             CurrentProcessingContext* cpc)
   {
-    TDEBUG(4) << "-----> Begin WorkerInPath::runWorker_event_for_endpath ("
-              << si << ") ...\n";
+    TDEBUG_BEGIN_FUNC_SI(
+      4, "WorkerInPath::runWorker_event_for_endpath", scheduleID);
     ++counts_visited_;
     try {
-      worker_->doWork_event(ep, si, cpc);
+      worker_.load()->doWork_event(ep, scheduleID, cpc);
     }
     catch (...) {
       ++counts_thrown_;
-      TDEBUG(4) << "-----> End   WorkerInPath::runWorker_event_for_endpath ("
-                << si << ") ... because of EXCEPTION\n";
+      TDEBUG_END_FUNC_SI_ERR(4,
+                             "WorkerInPath::runWorker_event_for_endpath",
+                             scheduleID,
+                             "because of EXCEPTION");
       throw;
     }
-    returnCode_ = worker_->returnCode(si);
-    TDEBUG(5) << "-----> WorkerInPath::runWorker_event_for_endpath: si: " << si
-              << " raw returnCode_: " << returnCode_ << "\n";
-    if (filterAction_ == Veto) {
-      returnCode_ = !returnCode_;
-    } else if (filterAction_ == Ignore) {
+    returnCode_ = worker_.load()->returnCode(scheduleID);
+    {
+      ostringstream msg;
+      msg << "raw returnCode_: " << returnCode_.load();
+      TDEBUG_FUNC_SI_MSG(
+        5, "WorkerInPath::runWorker_event_for_endpath", scheduleID, msg.str());
+    }
+    if (filterAction_.load() == Veto) {
+      returnCode_ = !returnCode_.load();
+    } else if (filterAction_.load() == Ignore) {
       returnCode_ = true;
     }
-    TDEBUG(5) << "-----> WorkerInPath::runWorker_event_for_endpath: si: " << si
-              << " final returnCode_: " << returnCode_ << "\n";
-    if (returnCode_) {
+    {
+      ostringstream msg;
+      msg << "final returnCode_: " << returnCode_.load();
+      TDEBUG_FUNC_SI_MSG(
+        5, "WorkerInPath::runWorker_event_for_endpath", scheduleID, msg.str());
+    }
+    if (returnCode_.load()) {
       ++counts_passed_;
     } else {
       ++counts_failed_;
     }
-    TDEBUG(4) << "-----> End   WorkerInPath::runWorker_event_for_endpath ("
-              << si << ") ...\n";
+    TDEBUG_END_FUNC_SI(
+      4, "WorkerInPath::runWorker_event_for_endpath", scheduleID);
+  }
+
+  class WorkerInPathDoneFunctor {
+  public:
+    WorkerInPathDoneFunctor(WorkerInPath* wip, ScheduleID const scheduleID)
+      : wip_{wip}, si_{scheduleID}
+    {}
+    void
+    operator()(exception_ptr const* ex) const
+    {
+      wip_->workerInPathDoneTask(si_, ex);
+    }
+
+  private:
+    WorkerInPath* wip_;
+    ScheduleID const si_;
+  };
+
+  void
+  WorkerInPath::workerInPathDoneTask(ScheduleID const scheduleID,
+                                     exception_ptr const* ex)
+  {
+    TDEBUG_BEGIN_TASK_SI(4, "workerInPathDoneTask", scheduleID);
+    INTENTIONAL_DATA_RACE(DR_WORKER_IN_PATH_DONE_TASK);
+    if (ex != nullptr) {
+      ++counts_thrown_;
+      waitingTasks_.load()->doneWaiting(*ex);
+      TDEBUG_END_TASK_SI_ERR(
+        4, "workerInPathDoneTask", scheduleID, "because of EXCEPTION");
+      return;
+    }
+    returnCode_ = worker_.load()->returnCode(scheduleID);
+    {
+      ostringstream msg;
+      msg << "raw returnCode_: " << returnCode_.load();
+      TDEBUG_TASK_SI_MSG(5, "workerInPathDoneTask", scheduleID, msg.str());
+    }
+    if (filterAction_.load() == Veto) {
+      returnCode_ = !returnCode_.load();
+    } else if (filterAction_.load() == Ignore) {
+      returnCode_ = true;
+    }
+    {
+      ostringstream msg;
+      msg << "final returnCode_: " << returnCode_.load();
+      TDEBUG_TASK_SI_MSG(5, "workerInPathDoneTask", scheduleID, msg.str());
+    }
+    if (returnCode_.load()) {
+      ++counts_passed_;
+    } else {
+      ++counts_failed_;
+    }
+    {
+      ostringstream msg;
+      msg << "returnCode_: " << returnCode_.load();
+      TDEBUG_END_TASK_SI_ERR(4, "workerInPathDoneTask", scheduleID, msg.str());
+    }
+    waitingTasks_.load()->doneWaiting(exception_ptr{});
   }
 
   void
   WorkerInPath::runWorker_event(WaitingTask* workerDoneTask,
                                 EventPrincipal& ep,
-                                ScheduleID const si,
+                                ScheduleID const scheduleID,
                                 CurrentProcessingContext* cpc)
   {
-    TDEBUG(4) << "-----> Begin WorkerInPath::runWorker_event (" << si
-              << ") ...\n";
+    TDEBUG_BEGIN_FUNC_SI(4, "WorkerInPath::runWorker_event", scheduleID);
     // Reset the waiting task list so that it stops running tasks and switches
     // to holding them. Note: There will only ever be one entry in this list!
     {
-      ostringstream buf;
-      buf << "-----> WorkerInPath::runWorker_event: 0x" << hex
-          << ((unsigned long)this) << dec << " Resetting waitingTasks_ (" << si
-          << ") ...\n";
-      TDEBUG(6) << buf.str();
+      ostringstream msg;
+      msg << "0x" << hex << ((unsigned long)this) << dec
+          << " Resetting waitingTasks_";
+      TDEBUG_FUNC_SI_MSG(
+        6, "WorkerInPath::runWorker_event", scheduleID, msg.str());
     }
-    waitingTasks_.reset();
-    waitingTasks_.add(workerDoneTask);
+    waitingTasks_.load()->reset();
+    waitingTasks_.load()->add(workerDoneTask);
     ++counts_visited_;
-    auto workerInPathDoneFunctor = [this, si](exception_ptr const* ex) {
-      TDEBUG(4) << "=====> Begin workerInPathDoneTask (" << si << ") ...\n";
-      if (ex != nullptr) {
-        ++counts_thrown_;
-        waitingTasks_.doneWaiting(*ex);
-        TDEBUG(4) << "=====> End   workerInPathDoneTask (" << si
-                  << ") ... because of exception\n";
-        return;
-      }
-      returnCode_ = worker_->returnCode(si);
-      TDEBUG(5) << "=====> workerInPathDoneTask: si: " << si
-                << " raw returnCode_: " << returnCode_ << "\n";
-      if (filterAction_ == Veto) {
-        returnCode_ = !returnCode_;
-      } else if (filterAction_ == Ignore) {
-        returnCode_ = true;
-      }
-      TDEBUG(5) << "=====> workerInPathDoneTask: si: " << si
-                << " final returnCode_: " << returnCode_ << "\n";
-      if (returnCode_) {
-        ++counts_passed_;
-      } else {
-        ++counts_failed_;
-      }
-      waitingTasks_.doneWaiting(exception_ptr{});
-      TDEBUG(4) << "=====> End   workerInPathDoneTask (" << si
-                << ") ... returnCode_: " << returnCode_ << "\n";
-    };
-    auto workerInPathDoneTask =
-      make_waiting_task(tbb::task::allocate_root(), workerInPathDoneFunctor);
+    auto workerInPathDoneTask = make_waiting_task(
+      tbb::task::allocate_root(), WorkerInPathDoneFunctor{this, scheduleID});
     try {
-      worker_->doWork_event(workerInPathDoneTask, ep, si, cpc);
+      worker_.load()->doWork_event(workerInPathDoneTask, ep, scheduleID, cpc);
     }
     catch (...) {
       ++counts_thrown_;
-      waitingTasks_.doneWaiting(current_exception());
-      TDEBUG(4) << "-----> End   WorkerInPath::runWorker_event (" << si
-                << ") ... because of exception\n";
+      waitingTasks_.load()->doneWaiting(current_exception());
+      TDEBUG_END_FUNC_SI_ERR(
+        4, "WorkerInPath::runWorker_event", scheduleID, "because of EXCEPTION");
       return;
     }
-    TDEBUG(4) << "-----> End   WorkerInPath::runWorker_event (" << si
-              << ") ...\n";
+    TDEBUG_END_FUNC_SI(4, "WorkerInPath::runWorker_event", scheduleID);
   }
 
 } // namespace art

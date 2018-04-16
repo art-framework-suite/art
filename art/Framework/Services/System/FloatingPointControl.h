@@ -1,5 +1,6 @@
 #ifndef art_Framework_Services_System_FloatingPointControl_h
 #define art_Framework_Services_System_FloatingPointControl_h
+// vim: set sw=2 expandtab :
 
 // ======================================================================
 //
@@ -47,61 +48,58 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace art {
-  class FloatingPointControl;
-}
 
-// ----------------------------------------------------------------------
-
-class art::FloatingPointControl {
-public:
-  using precision_t = fp_detail::precision_t;
-  // Return the precision as an enum (SINGLE, DOUBLE, EXTENDED).
-  precision_t getPrecision() const;
-
-  // Return the exception mask (can be ANDed with e.g. FE_DIVBYZERO to
-  // look for specific exception bits).
-  using mask_t = unsigned short int;
-  mask_t getMask() const;
-
-private:
-  FloatingPointControl(FloatingPointControl const&) = delete;
-  FloatingPointControl& operator=(FloatingPointControl const&) = delete;
-
-public:
-  struct Config {
-    fhicl::Atom<bool> enableDivByZeroEx{fhicl::Name{"enableDivByZeroEx"},
-                                        false};
-    fhicl::Atom<bool> enableInvalidEx{fhicl::Name{"enableInvalidEx"}, false};
-    fhicl::Atom<bool> enableOverFlowEx{fhicl::Name{"enableOverFlowEx"}, false};
-    fhicl::Atom<bool> enableUnderFlowEx{fhicl::Name{"enableUnderFlowEx"},
-                                        false};
-    fhicl::Atom<bool> setPrecisionDouble{fhicl::Name{"setPrecisionDouble"},
-                                         true};
-    fhicl::Atom<bool> reportSettings{fhicl::Name{"reportSettings"}, false};
+  class FloatingPointControl {
+    // Types
+  public:
+    using precision_t = fp_detail::precision_t;
+    using mask_t = unsigned short int;
+    // Configuration
+  public:
+    struct Config {
+      fhicl::Atom<bool> enableDivByZeroEx{fhicl::Name{"enableDivByZeroEx"},
+                                          false};
+      fhicl::Atom<bool> enableInvalidEx{fhicl::Name{"enableInvalidEx"}, false};
+      fhicl::Atom<bool> enableOverFlowEx{fhicl::Name{"enableOverFlowEx"},
+                                         false};
+      fhicl::Atom<bool> enableUnderFlowEx{fhicl::Name{"enableUnderFlowEx"},
+                                          false};
+      fhicl::Atom<bool> setPrecisionDouble{fhicl::Name{"setPrecisionDouble"},
+                                           true};
+      fhicl::Atom<bool> reportSettings{fhicl::Name{"reportSettings"}, false};
+    };
+    using Parameters = ServiceTable<Config>;
+    // Special Member Functions
+  public:
+    explicit FloatingPointControl(Parameters const&, ActivityRegistry&);
+    FloatingPointControl(FloatingPointControl const&) = delete;
+    FloatingPointControl& operator=(FloatingPointControl const&) = delete;
+    // API
+  public:
+    // Return the precision as an enum (SINGLE, DOUBLE, EXTENDED).
+    precision_t getPrecision() const;
+    // Return the exception mask (can be ANDed with e.g. FE_DIVBYZERO to
+    // look for specific exception bits).
+    mask_t getMask() const;
+    // Implementation Details
+  private:
+    void postEndJob();
+    // Member Data
+  private:
+    bool enableDivByZeroEx_;
+    bool enableInvalidEx_;
+    bool enableOverFlowEx_;
+    bool enableUnderFlowEx_;
+    bool setPrecisionDouble_;
+    bool reportSettings_;
+    // OS's fpu state on job startup
+    fp_detail::fp_control_t OSdefault_{};
   };
 
-  using Parameters = ServiceTable<Config>;
-  explicit FloatingPointControl(Parameters const&, ActivityRegistry&);
-
-private:
-  void postEndJob();
-  void controlFpe();
-  void echoState();
-
-  bool enableDivByZeroEx_;
-  bool enableInvalidEx_;
-  bool enableOverFlowEx_;
-  bool enableUnderFlowEx_;
-  bool setPrecisionDouble_;
-  bool reportSettings_;
-
-  fp_detail::fp_control_t OSdefault_{}; // OS's fpu state on job startup
-
-}; // FloatingPointControl
-
-// ======================================================================
+} // namespace art
 
 DECLARE_ART_SYSTEM_SERVICE(art::FloatingPointControl, LEGACY)
+
 #endif /* art_Framework_Services_System_FloatingPointControl_h */
 
 // Local Variables:

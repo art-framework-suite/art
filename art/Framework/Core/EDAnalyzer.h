@@ -12,13 +12,13 @@
 #include "art/Framework/Core/detail/ImplicitConfigs.h"
 #include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/KeysToIgnore.h"
 #include "fhiclcpp/types/OptionalTable.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <atomic>
 #include <cstddef>
@@ -29,7 +29,6 @@
 namespace art {
 
   class EDAnalyzer : public EventObserverBase {
-
     // Allow the WorkerT<T> ctor to call setModuleDescription() and
     // workerType().
     template <typename T>
@@ -48,7 +47,6 @@ namespace art {
   public: // CONFIGURATION
     template <typename UserConfig, typename UserKeysToIgnore = void>
     class Table : public fhicl::ConfigurationTable {
-
     private: // TYPES
       template <typename T>
       struct FullConfig {
@@ -107,9 +105,7 @@ namespace art {
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~EDAnalyzer() noexcept;
-
     explicit EDAnalyzer(fhicl::ParameterSet const& pset);
-
     template <typename Config>
     explicit EDAnalyzer(Table<Config> const& config)
       : EventObserverBase{config.eoFragment().selectEvents(), config.get_PSet()}
@@ -118,71 +114,47 @@ namespace art {
   public: // MEMBER FUNCTIONS --
     std::string workerType() const;
 
-  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-           // EndPathExecutor
+  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
+           // and EndPathExecutor
     virtual void doBeginJob();
-
     void doEndJob();
-
     void doRespondToOpenInputFile(FileBlock const& fb);
-
     void doRespondToCloseInputFile(FileBlock const& fb);
-
     void doRespondToOpenOutputFiles(FileBlock const& fb);
-
     void doRespondToCloseOutputFiles(FileBlock const& fb);
-
     bool doBeginRun(RunPrincipal& rp,
                     cet::exempt_ptr<CurrentProcessingContext const> cpc);
-
     bool doEndRun(RunPrincipal& rp,
                   cet::exempt_ptr<CurrentProcessingContext const> cpc);
-
     bool doBeginSubRun(SubRunPrincipal& srp,
                        cet::exempt_ptr<CurrentProcessingContext const> cpc);
-
     bool doEndSubRun(SubRunPrincipal& srp,
                      cet::exempt_ptr<CurrentProcessingContext const> cpc);
-
     bool doEvent(EventPrincipal& ep,
-                 ScheduleID scheduleID,
+                 ScheduleID const,
                  CurrentProcessingContext const* cpc,
                  std::atomic<std::size_t>& counts_run,
                  std::atomic<std::size_t>& counts_passed,
                  std::atomic<std::size_t>& counts_failed);
 
-  protected
-    : // MEMBER FUNCTIONS -- Implementation API, intended to be provided by
-      // derived classes.
+  protected: // MEMBER FUNCTIONS -- Implementation API, intended to be
+             // provided by derived classes.
     virtual void reconfigure(fhicl::ParameterSet const&);
-
     virtual void beginJob();
-
     virtual void endJob();
-
     virtual void respondToOpenInputFile(FileBlock const&);
-
     virtual void respondToCloseInputFile(FileBlock const&);
-
     virtual void respondToOpenOutputFiles(FileBlock const&);
-
     virtual void respondToCloseOutputFiles(FileBlock const&);
-
     virtual void beginRun(Run const&);
-
     virtual void endRun(Run const&);
-
     virtual void beginSubRun(SubRun const&);
-
     virtual void endSubRun(SubRun const&);
-
     virtual void analyze(Event const&) = 0;
   };
 
   namespace shared {
-
     class Analyzer : public art::EDAnalyzer {
-
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
       template <typename T>
@@ -190,14 +162,12 @@ namespace art {
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
       virtual ~Analyzer() noexcept;
-
       static constexpr ModuleThreadingType
       moduleThreadingType()
       {
         return ModuleThreadingType::SHARED;
       }
       explicit Analyzer(fhicl::ParameterSet const&);
-
       template <typename Config>
       explicit Analyzer(Table<Config> const& config) : art::EDAnalyzer{config}
       {}
@@ -205,13 +175,10 @@ namespace art {
     private:
       void doBeginJob() override;
     };
-
   } // namespace shared
 
   namespace replicated {
-
     class Analyzer : public art::EDAnalyzer {
-
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
       template <typename T>
@@ -224,9 +191,7 @@ namespace art {
         return ModuleThreadingType::REPLICATED;
       }
       virtual ~Analyzer() noexcept;
-
       explicit Analyzer(fhicl::ParameterSet const&);
-
       template <typename Config>
       explicit Analyzer(Table<Config> const& config) : art::EDAnalyzer{config}
       {}
@@ -235,7 +200,7 @@ namespace art {
       void doBeginJob() override;
     };
 
-  } // namespace replciated
+  } // namespace replicated
 
   template <typename T>
   inline std::ostream&

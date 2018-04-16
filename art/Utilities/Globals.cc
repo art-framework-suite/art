@@ -5,9 +5,13 @@
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/HorizontalRule.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "hep_concurrency/RecursiveMutex.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <array>
+#include <cstdlib>
+#include <iostream>
 #include <map>
 #include <set>
 #include <string>
@@ -49,8 +53,25 @@ namespace art {
            tie(b.consumableType_, b.typeID_, b.label_, b.instance_, b.process_);
   }
 
-  std::ostream&
-  operator<<(std::ostream& os, ProductInfo const& info)
+  ostream&
+  operator<<(ostream& os, ProductInfo::ConsumableType const ct)
+  {
+    switch (ct) {
+      case ProductInfo::ConsumableType::Product:
+        os << "Product";
+        break;
+      case ProductInfo::ConsumableType::ViewElement:
+        os << "ViewElement";
+        break;
+      case ProductInfo::ConsumableType::Many:
+        os << "Many";
+        break;
+    }
+    return os;
+  }
+
+  ostream&
+  operator<<(ostream& os, ProductInfo const& info)
   {
     os << "Consumable type: " << info.consumableType_ << '\n'
        << "TypeID: " << info.typeID_ << '\n'
@@ -61,7 +82,8 @@ namespace art {
   }
 
   ConsumesInfo::~ConsumesInfo() = default;
-  ConsumesInfo::ConsumesInfo() = default;
+
+  ConsumesInfo::ConsumesInfo() { requireConsumes_ = false; }
 
   ConsumesInfo*
   ConsumesInfo::instance()
@@ -70,11 +92,11 @@ namespace art {
     return &me;
   }
 
-  std::string
+  string
   ConsumesInfo::assemble_consumes_statement(BranchType const bt,
                                             ProductInfo const& pi)
   {
-    std::string result;
+    string result;
     // Create "consumes" prefix
     switch (pi.consumableType_) {
       case ProductInfo::ConsumableType::Product:
@@ -121,10 +143,10 @@ namespace art {
     return result;
   }
 
-  std::string
+  string
   ConsumesInfo::module_context(ModuleDescription const& md)
   {
-    std::string result{"module label: '"};
+    string result{"module label: '"};
     result += md.moduleLabel();
     result += "' of class type '";
     result += md.moduleName();
@@ -140,9 +162,10 @@ namespace art {
 
   void
   ConsumesInfo::collectConsumes(
-    std::string const& module_label,
-    std::array<std::vector<ProductInfo>, NumBranchTypes> const& consumables)
+    string const& module_label,
+    array<vector<ProductInfo>, NumBranchTypes> const& consumables)
   {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     consumables_.emplace(module_label, consumables);
   }
 
@@ -151,13 +174,14 @@ namespace art {
                                         ModuleDescription const& md,
                                         ProductInfo const& productInfo)
   {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     if (binary_search(consumables_[md.moduleLabel()][bt].cbegin(),
                       consumables_[md.moduleLabel()][bt].cend(),
                       productInfo)) {
       // Found it, everything is ok.
       return;
     }
-    if (requireConsumes_) {
+    if (requireConsumes_.load()) {
       throw Exception(errors::ProductRegistrationFailure,
                       "Consumer: an error occurred during validation of a "
                       "retrieved product\n\n")
@@ -171,6 +195,7 @@ namespace art {
   void
   ConsumesInfo::showMissingConsumes() const
   {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto const& modLabelAndarySetPI : missingConsumes_) {
       auto const& modLabel = modLabelAndarySetPI.first;
       auto const& arySetPI = modLabelAndarySetPI.second;
@@ -206,15 +231,21 @@ namespace art {
   }
 
   int
-  Globals::nthreads() const
-  {
-    return nthreads_;
-  }
-
-  int
   Globals::nschedules() const
   {
     return nschedules_;
+  }
+
+  void
+  Globals::setNSchedules(int const nschedules)
+  {
+    nschedules_ = nschedules;
+  }
+
+  int
+  Globals::nthreads() const
+  {
+    return nthreads_;
   }
 
   void
@@ -223,10 +254,52 @@ namespace art {
     nthreads_ = nthreads;
   }
 
-  void
-  Globals::setNSchedules(int const nschedules)
+  bool
+  Globals::wantSummary() const
   {
-    nschedules_ = nschedules;
+    return wantSummary_;
+  }
+
+  void
+  Globals::setWantSummary(bool wantSummary)
+  {
+    wantSummary_ = wantSummary;
+  }
+
+  string const&
+  Globals::processName() const
+  {
+    return processName_;
+  }
+
+  void
+  Globals::setProcessName(string const& processName)
+  {
+    processName_ = processName;
+  }
+
+  fhicl::ParameterSet const&
+  Globals::triggerPSet() const
+  {
+    return triggerPSet_;
+  }
+
+  void
+  Globals::setTriggerPSet(fhicl::ParameterSet const& triggerPSet)
+  {
+    triggerPSet_ = triggerPSet;
+  }
+
+  vector<string> const&
+  Globals::triggerPathNames() const
+  {
+    return triggerPathNames_;
+  }
+
+  void
+  Globals::setTriggerPathNames(vector<string> const& triggerPathNames)
+  {
+    triggerPathNames_ = triggerPathNames;
   }
 
 } // namespace art

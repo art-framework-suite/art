@@ -29,7 +29,7 @@ namespace art {
                  ActionTable& actions,
                  std::string const& processName,
                  ModuleThreadingType const moduleThreadingType,
-                 ScheduleID const scheduleID)
+                 ScheduleID const si)
       : procPset_{procPset}
       , pset_{pset}
       , reg_{reg}
@@ -38,7 +38,7 @@ namespace art {
       , actions_{actions}
       , processName_{processName}
       , moduleThreadingType_(moduleThreadingType)
-      , scheduleID_{scheduleID}
+      , scheduleID_{si}
     {}
 
     fhicl::ParameterSet const& procPset_;

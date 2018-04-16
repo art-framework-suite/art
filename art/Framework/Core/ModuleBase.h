@@ -13,6 +13,7 @@
 #include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <array>
+#include <atomic>
 #include <memory>
 #include <set>
 #include <string>
@@ -27,34 +28,24 @@ namespace fhicl {
 }
 
 namespace art {
-
   class ModuleBase {
-
     // Allow the WorkerT<T> ctor to call setModuleDescription().
     // template <typename T> friend class WorkerT;
-
   public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~ModuleBase() noexcept;
-
     ModuleBase();
 
   public: // MEMBER FUNCTIONS -- API for the user
     ModuleDescription const& moduleDescription() const;
-
     ScheduleID scheduleID() const;
-
     ModuleThreadingType moduleThreadingType() const;
-
     void setModuleDescription(ModuleDescription const&);
-
-    void setScheduleID(ScheduleID scheduleID);
-
+    void setScheduleID(ScheduleID const);
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
 
   public: // MEMBER FUNCTIONS -- API for one modules
     template <BranchType BT = InEvent, typename... T>
     void serialize(T const&...);
-
     template <BranchType BT = InEvent>
     void
     async()
@@ -64,22 +55,17 @@ namespace art {
         "async is currently supported only for the 'InEvent' level.");
       asyncDeclared_ = true;
     }
-
     // FIXME: need "async<Level>()" function for opting in to
     // concurrent event processing for a given module.
-
   public: // MEMBER FUNCTIONS -- API for access to RandomNumberGenerator
     CLHEP::HepRandomEngine& createEngine(long);
-
     CLHEP::HepRandomEngine& createEngine(
       long,
       std::string const& kind_of_engine_to_make);
-
     CLHEP::HepRandomEngine& createEngine(
       long,
       std::string const& kind_of_engine_to_make,
       std::string const& engine_label);
-
     long get_seed_value(fhicl::ParameterSet const&,
                         char const key[] = "seed",
                         long const implicit_seed = -1);
@@ -87,27 +73,22 @@ namespace art {
   public: // MEMBER FUNCTIONS -- API for declaring consumes information
     template <typename T, BranchType = InEvent>
     ProductToken<T> consumes(InputTag const&);
-
     template <typename Element, BranchType = InEvent>
     ViewToken<Element> consumesView(InputTag const&);
-
     template <typename T, BranchType = InEvent>
     void consumesMany();
 
   public: // MEMBER FUNCTIONS -- API for declaring may consumes information
     template <typename T, BranchType = InEvent>
     ProductToken<T> mayConsume(InputTag const&);
-
     template <typename Element, BranchType = InEvent>
     ViewToken<Element> mayConsumeView(InputTag const&);
-
     template <typename T, BranchType = InEvent>
     void mayConsumeMany();
 
   public: // MEMBER FUNCTIONS -- API for using collected consumes information
     std::array<std::vector<ProductInfo>, NumBranchTypes> const& getConsumables()
       const;
-
     void sortConsumables();
 
   protected: // MEMBER DATA -- For derived classes.
@@ -116,13 +97,12 @@ namespace art {
     ModuleThreadingType moduleThreadingType_{};
     std::set<std::string> resourceNames_{};
     bool asyncDeclared_{false};
-    std::unique_ptr<hep::concurrency::SerialTaskQueueChain> chain_{};
+    std::atomic<hep::concurrency::SerialTaskQueueChain*> chain_;
     std::array<std::vector<ProductInfo>, NumBranchTypes> consumables_{};
 
   private:
     void serialize_for_resource();
     void serialize_for_resource(std::string const&);
-
     template <typename H, typename... T>
     std::enable_if_t<std::is_same<std::string, H>::value>
     serialize_for_resource(H const& head, T const&... tail)
@@ -202,7 +182,6 @@ namespace art {
     consumables_[BT].emplace_back(ProductInfo::ConsumableType::Many,
                                   TypeID{typeid(T)});
   }
-
 } // namespace art
 
   // Local Variables:

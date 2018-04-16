@@ -91,7 +91,7 @@ namespace art {
     static void
     commitEvent(EventPrincipal& ep, Event& e)
     {
-      e.commit(ep, false);
+      e.movePutProductsToPrincipal(ep);
     }
   };
 
@@ -223,6 +223,8 @@ public:
                              std::string const& instanceName = {});
 
   ProductTablesFixture& ptf();
+  std::unique_ptr<RunPrincipal> runPrincipal_{};
+  std::unique_ptr<SubRunPrincipal> subRunPrincipal_{};
   std::unique_ptr<EventPrincipal> principal_{nullptr};
   std::unique_ptr<Event> currentEvent_{nullptr};
 };
@@ -256,13 +258,13 @@ EventTestFixture::EventTestFixture()
   auto const processHistoryID = processHistory.id();
   ProcessHistoryRegistry::emplace(processHistoryID, processHistory);
 
-  // When any new product is added to the event principal at commit,
-  // the "CURRENT" process will go into the ProcessHistory because the
-  // process name comes from the currentModuleDescription stored in
-  // the principal.  On the other hand, when addSourceProduct is
-  // called, another event is created with a fake moduleDescription
-  // containing the old process name and that is used to create the
-  // group in the principal used to look up the object.
+  // When any new product is added to the event principal at
+  // movePutProductsToPrincipal, the "CURRENT" process will go into the
+  // ProcessHistory because the process name comes from the
+  // currentModuleDescription stored in the principal.  On the other hand, when
+  // addSourceProduct is called, another event is created with a fake
+  // moduleDescription containing the old process name and that is used to
+  // create the group in the principal used to look up the object.
 
   constexpr auto time = make_timestamp();
   EventID const id{make_id()};
@@ -270,23 +272,23 @@ EventTestFixture::EventTestFixture()
     ptf().currentModuleDescription_.processConfiguration();
 
   RunAuxiliary const runAux{id.run(), time, time};
-  auto rp = std::make_unique<RunPrincipal>(runAux, pc, nullptr);
+  runPrincipal_ = std::make_unique<RunPrincipal>(runAux, pc, nullptr);
 
-  SubRunAuxiliary const subRunAux{rp->run(), 1u, time, time};
-  auto srp = std::make_unique<SubRunPrincipal>(subRunAux, pc, nullptr);
-  srp->setRunPrincipal(rp.get());
+  SubRunAuxiliary const subRunAux{runPrincipal_->run(), 1u, time, time};
+  subRunPrincipal_ = std::make_unique<SubRunPrincipal>(subRunAux, pc, nullptr);
+  subRunPrincipal_->setRunPrincipal(runPrincipal_.get());
 
   EventAuxiliary const eventAux{id, time, true};
   auto history = std::make_unique<History>();
   const_cast<ProcessHistoryID&>(history->processHistoryID()) = processHistoryID;
   principal_ = std::make_unique<EventPrincipal>(
     eventAux, pc, &ptf().presentProducts_, std::move(history));
-  principal_->setSubRunPrincipal(srp.get());
-  principal_->enableProductCreation(ptf().producedProducts_);
-  principal_->setProducedProducts(ptf().producedProducts_);
+  principal_->setSubRunPrincipal(subRunPrincipal_.get());
+  principal_->createGroupsForProducedProducts(ptf().producedProducts_);
+  principal_->enableLookupOfProducedProducts(ptf().producedProducts_);
 
-  currentEvent_ = std::make_unique<Event>(
-    *principal_, ptf().currentModuleDescription_, ptf().currentLookup_);
+  currentEvent_ =
+    std::make_unique<Event>(*principal_, ptf().currentModuleDescription_);
 }
 
 // Add the given product, of type T, to the current event, as if it
@@ -307,7 +309,7 @@ EventTestFixture::addSourceProduct(std::unique_ptr<T>&& product,
     throw art::Exception(errors::LogicError)
       << "Failed to find a product lookup for tag: " << tag << '\n';
 
-  Event temporaryEvent{*principal_, description->second, lookup->second};
+  Event temporaryEvent{*principal_, description->second};
   ProductID const id{temporaryEvent.put(std::move(product), instanceName)};
 
   EDProducer::commitEvent(*principal_, temporaryEvent);
@@ -322,19 +324,6 @@ EventTestFixture::ptf()
 }
 
 BOOST_FIXTURE_TEST_SUITE(Event_t, EventTestFixture)
-
-// This test doesn't belong here right now, but it will whenever we go
-// to MT art where product descriptions will be fetched from the
-// art::Event.
-BOOST_AUTO_TEST_CASE(badProductID)
-{
-  auto const pid = ProductID::invalid();
-  InputTag tag{};
-  if (auto pd = currentEvent_->getProductDescription(pid)) {
-    tag = pd->inputTag();
-  }
-  BOOST_CHECK(tag.empty());
-}
 
 BOOST_AUTO_TEST_CASE(emptyEvent)
 {
@@ -424,7 +413,8 @@ BOOST_AUTO_TEST_CASE(getByProductID)
 BOOST_AUTO_TEST_CASE(transaction)
 {
   // Put a product into an Event, and make sure that if we don't
-  // commit, there is no product in the EventPrincipal afterwards.
+  // movePutProductsToPrincipal, there is no product in the EventPrincipal
+  // afterwards.
   BOOST_REQUIRE_EQUAL(principal_->size(), 6u);
   {
     auto three = make_unique<arttest::IntProduct>(3);
@@ -433,8 +423,8 @@ BOOST_AUTO_TEST_CASE(transaction)
     BOOST_REQUIRE_EQUAL(currentEvent_->size(), 7u);
     // DO NOT COMMIT!
   }
-  // The Event has been destroyed without a commit -- we should not
-  // have any products in the EventPrincipal.
+  // The Event has been destroyed without a movePutProductsToPrincipal -- we
+  // should not have any products in the EventPrincipal.
   BOOST_REQUIRE_EQUAL(principal_->size(), 6u);
 }
 
@@ -603,7 +593,7 @@ BOOST_AUTO_TEST_CASE(getByLabel)
 
   GroupQueryResult bh{principal_->getByLabel(
     WrappedTypeID::make<product_t>(), "modMulti", "int1", "LATE")};
-  convert_handle(bh, h);
+  h = handle_t{bh};
   BOOST_REQUIRE_EQUAL(h->value, 100);
 
   GroupQueryResult bh2{principal_->getByLabel(

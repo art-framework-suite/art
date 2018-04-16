@@ -20,6 +20,7 @@
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "cetlib/sqlite/Connection.h"
+#include "hep_concurrency/RecursiveMutex.h"
 
 #include <array>
 #include <map>
@@ -34,7 +35,6 @@
 class TTree;
 
 namespace art {
-
   class ResultsPrincipal;
   class RootOutput;
   class History;
@@ -44,51 +44,24 @@ namespace art {
   class RunAuxiliary;
   class ResultsAuxiliary;
   class RootFileBlock;
-
   class RootOutputFile {
-
   public: // TYPES
-    enum class ClosureRequestMode {
-      MaxEvents // 0
-      ,
-      MaxSize // 1
-      ,
-      Unset // 2
-    };
-
+    enum class ClosureRequestMode { MaxEvents = 0, MaxSize = 1, Unset = 2 };
     using RootOutputTreePtrArray =
       std::array<std::unique_ptr<RootOutputTree>, NumBranchTypes>;
-
     struct OutputItem {
-
     public: // MEMBER FUNCTIONS -- Special Member Functions
-      ~OutputItem() = default;
-
-      explicit OutputItem(BranchDescription const& bd) : branchDescription_{bd}
-      {}
+      ~OutputItem();
+      explicit OutputItem(BranchDescription const& bd);
 
     public: // MEMBER FUNCTIONS
-      std::string const&
-      branchName() const
-      {
-        return branchDescription_.branchName();
-      }
-
-      bool
-      operator<(OutputItem const& rh) const
-      {
-        return branchDescription_ < rh.branchDescription_;
-      }
+      std::string const& branchName() const;
+      bool operator<(OutputItem const& rh) const;
 
     public: // MEMBER DATA
       BranchDescription const branchDescription_;
-      mutable void const* product_{nullptr};
+      mutable void const* product_;
     };
-
-    // using OutputItemList = std::set<OutputItem>;
-
-    // using OutputItemListArray = std::array<std::set<OutputItem>,
-    // NumBranchTypes>;
 
   public: // MEMBER FUNCTIONS -- Static API
     static bool shouldFastClone(bool const fastCloningSet,
@@ -96,7 +69,8 @@ namespace art {
                                 bool const wantAllEvents,
                                 ClosingCriteria const& cc);
 
-  public: // MEMBER FUNCTIONS
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~RootOutputFile();
     explicit RootOutputFile(OutputModule*,
                             std::string const& fileName,
                             ClosingCriteria const& fileSwitchCriteria,
@@ -108,9 +82,13 @@ namespace art {
                             DropMetaData dropMetaData,
                             bool dropMetaDataForDroppedData,
                             bool fastCloningRequested);
+    RootOutputFile(RootOutputFile const&) = delete;
+    RootOutputFile(RootOutputFile&&) = delete;
+    RootOutputFile& operator=(RootOutputFile const&) = delete;
+    RootOutputFile& operator=(RootOutputFile&&) = delete;
 
+  public: // MEMBER FUNCTIONS
     void writeTTrees();
-
     void writeOne(EventPrincipal const&);
     void writeSubRun(SubRunPrincipal const&);
     void writeRun(RunPrincipal const&);
@@ -133,48 +111,33 @@ namespace art {
     void incrementInputFileNumber();
     void respondToCloseInputFile(FileBlock const&);
     bool requestsToCloseFile();
-    void
-    setFileStatus(OutputFileStatus const ofs)
-    {
-      status_ = ofs;
-    }
-
+    void setFileStatus(OutputFileStatus const ofs);
     void selectProducts();
-
-    std::string const&
-    currentFileName() const
-    {
-      return file_;
-    }
-
+    std::string const& currentFileName() const;
     bool maxEventsPerFileReached(
       FileIndex::EntryNumber_t const maxEventsPerFile) const;
     bool maxSizeReached(unsigned const maxFileSize) const;
 
   private: // MEMBER FUNCTIONS
-    void createDatabaseTables();
-
     template <BranchType>
-    void fillBranches(Principal const&,
-                      std::vector<ProductProvenance>*); // Defined in source.
-
+    void fillBranches(Principal const&, std::vector<ProductProvenance>*);
     template <BranchType BT>
     std::enable_if_t<!detail::RangeSetsSupported<BT>::value, EDProduct const*>
     getProduct(OutputHandle const&,
                RangeSet const& productRS,
-               std::string const& wrappedName); // Defined in source.
-
+               std::string const& wrappedName);
     template <BranchType BT>
     std::enable_if_t<detail::RangeSetsSupported<BT>::value, EDProduct const*>
     getProduct(OutputHandle const&,
                RangeSet const& productRS,
-               std::string const& wrappedName); // Defined in source.
+               std::string const& wrappedName);
 
   private: // MEMBER DATA
-    OutputModule const* om_{nullptr};
+    mutable hep::concurrency::RecursiveMutex mutex_;
+    OutputModule const* om_;
     std::string file_;
     ClosingCriteria fileSwitchCriteria_;
-    OutputFileStatus status_{OutputFileStatus::Closed};
+    OutputFileStatus status_;
     int const compressionLevel_;
     int64_t const saveMemoryObjectThreshold_;
     int64_t const treeMaxVirtualSize_;
@@ -183,54 +146,36 @@ namespace art {
     DropMetaData dropMetaData_;
     bool dropMetaDataForDroppedData_;
     bool fastCloningEnabledAtConstruction_;
-    bool wasFastCloned_{false};
-    std::unique_ptr<TFile> filePtr_; // File closed when d'tor called
-    FileIndex fileIndex_{};
-    FileProperties fp_{};
-    TTree* metaDataTree_{nullptr};
-    TTree* fileIndexTree_{nullptr};
-    TTree* parentageTree_{nullptr};
-    TTree* eventHistoryTree_{nullptr};
-    EventAuxiliary const* pEventAux_{nullptr};
-    SubRunAuxiliary const* pSubRunAux_{nullptr};
-    RunAuxiliary const* pRunAux_{nullptr};
-    ResultsAuxiliary const* pResultsAux_{nullptr};
-    ProductProvenances eventProductProvenanceVector_{};
-    ProductProvenances subRunProductProvenanceVector_{};
-    ProductProvenances runProductProvenanceVector_{};
-    ProductProvenances resultsProductProvenanceVector_{};
-    ProductProvenances* pEventProductProvenanceVector_{
-      &eventProductProvenanceVector_};
-    ProductProvenances* pSubRunProductProvenanceVector_{
-      &subRunProductProvenanceVector_};
-    ProductProvenances* pRunProductProvenanceVector_{
-      &runProductProvenanceVector_};
-    ProductProvenances* pResultsProductProvenanceVector_{
-      &resultsProductProvenanceVector_};
-    History const* pHistory_{nullptr};
+    bool wasFastCloned_;
+    std::unique_ptr<TFile> filePtr_;
+    FileIndex fileIndex_;
+    FileProperties fp_;
+    TTree* metaDataTree_;
+    TTree* fileIndexTree_;
+    TTree* parentageTree_;
+    TTree* eventHistoryTree_;
+    EventAuxiliary const* pEventAux_;
+    SubRunAuxiliary const* pSubRunAux_;
+    RunAuxiliary const* pRunAux_;
+    ResultsAuxiliary const* pResultsAux_;
+    ProductProvenances eventProductProvenanceVector_;
+    ProductProvenances subRunProductProvenanceVector_;
+    ProductProvenances runProductProvenanceVector_;
+    ProductProvenances resultsProductProvenanceVector_;
+    ProductProvenances* pEventProductProvenanceVector_;
+    ProductProvenances* pSubRunProductProvenanceVector_;
+    ProductProvenances* pRunProductProvenanceVector_;
+    ProductProvenances* pResultsProductProvenanceVector_;
+    History const* pHistory_;
     RootOutputTreePtrArray treePointers_;
-    bool dataTypeReported_{false};
-
-    // Descriptions are, again, owned by the RootOutputFile.  This is
-    // an additional overhead that could be mitigated by replacing the
-    // ProductDescriptionsByID type with a std::map<ProductID,
-    // std::shared_ptr<BranchDescription>>.  The reason the product
-    // descriptions must be owned is that whenever retrieving the
-    // description for a parent, we get it from the principal...whose
-    // lifetime is temporary wrt. that of the output file.
-    std::array<ProductDescriptionsByID, NumBranchTypes> descriptionsToPersist_{
-      {}};
-
-    // Connection closed when d'tor called.  DB written to file when
-    // sqlite3_close is called.
-    cet::sqlite::Connection rootFileDB_;
-    std::array<std::set<OutputItem>, NumBranchTypes> selectedOutputItemList_{
-      {}};
-    detail::DummyProductCache dummyProductCache_{};
-    unsigned subRunRSID_{-1u};
-    unsigned runRSID_{-1u};
-    std::chrono::steady_clock::time_point beginTime_{
-      std::chrono::steady_clock::now()};
+    bool dataTypeReported_;
+    std::array<ProductDescriptionsByID, NumBranchTypes> descriptionsToPersist_;
+    std::unique_ptr<cet::sqlite::Connection> rootFileDB_;
+    std::array<std::set<OutputItem>, NumBranchTypes> selectedOutputItemList_;
+    detail::DummyProductCache dummyProductCache_;
+    unsigned subRunRSID_;
+    unsigned runRSID_;
+    std::chrono::steady_clock::time_point beginTime_;
   };
 
 } // namespace art

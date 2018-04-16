@@ -39,12 +39,12 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "cetlib/container_algorithms.h"
-#include "cetlib/exempt_ptr.h"
 #include "cetlib/trim.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include <atomic>
 #include <functional>
 #include <map>
 #include <memory>
@@ -54,65 +54,69 @@
 #include <vector>
 
 namespace art {
-
   class ActivityRegistry;
   class UpdateOutputCallbacks;
   class TriggerNamesService;
   class Schedule;
-
   class Schedule {
-
-  public:
-    Schedule(ScheduleID scheduleID,
+  public: // Special Member Functions
+    ~Schedule() noexcept;
+    Schedule(ScheduleID const,
              PathManager&,
              std::string const& processName,
              fhicl::ParameterSet const& proc_pset,
+             fhicl::ParameterSet const& trig_pset,
              UpdateOutputCallbacks&,
              ProductDescriptions&,
              ActionTable&,
              ActivityRegistry&);
+    Schedule(Schedule const&) = delete;
+    Schedule(Schedule&&) noexcept;
+    Schedule& operator=(Schedule const&) = delete;
+    Schedule& operator=(Schedule&&) noexcept;
 
+  public: // API presented to EventProcessor
     void process(Transition, Principal&);
-
     void process_event(hep::concurrency::WaitingTask* endPathTask,
+                       tbb::task* eventLoopTask,
                        EventPrincipal&,
-                       ScheduleID scheduleID);
-
+                       ScheduleID const);
     void beginJob();
-
     void endJob();
-
     void respondToOpenInputFile(FileBlock const&);
-
     void respondToCloseInputFile(FileBlock const&);
-
     void respondToOpenOutputFiles(FileBlock const&);
-
     void respondToCloseOutputFiles(FileBlock const&);
 
-  private:
+  public: // Tasking Structure
+    void pathsDoneTask(hep::concurrency::WaitingTask* endPathTask,
+                       tbb::task* eventLoopTask,
+                       EventPrincipal&,
+                       ScheduleID const,
+                       std::exception_ptr const*);
+
+  private: // Member Functions -- Implementation details.
     void process_event_pathsDone(hep::concurrency::WaitingTask* endPathTask,
+                                 tbb::task* eventLoopTask,
                                  EventPrincipal&,
-                                 ScheduleID scheduleID);
+                                 ScheduleID const);
 
-  private:
-    fhicl::ParameterSet process_pset_;
-
-    UpdateOutputCallbacks& outputCallbacks_;
-
-    ActionTable& actionTable_;
-
-    ActivityRegistry& actReg_;
-
-    std::string processName_;
-
-    PathsInfo& triggerPathsInfo_;
-
-    Worker* results_inserter_{};
+  private: // Member Data -- Implementation details.
+    // const after ctor.
+    std::atomic<ActionTable*> actionTable_;
+    // const after ctor.
+    std::atomic<ActivityRegistry*> actReg_;
+    // const after ctor.
+    std::atomic<PathsInfo*> triggerPathsInfo_;
+    // const after ctor.
+    std::atomic<Worker*> results_inserter_;
+    // Dynamic, cause an error if more than one thread processes an event.
+    std::atomic<int> runningWorkerCnt_;
   };
 } // namespace art
 
-// Local Variables:
-// mode: c++
-// End:
+  // Local Variables:
+  // mode: c++
+  // End:
+
 #endif /* art_Framework_Core_Schedule_h */

@@ -50,8 +50,11 @@ namespace art {
 } // namespace art
 
 class art::ActivityRegistry {
+
 public:
+  ~ActivityRegistry() = default;
   ActivityRegistry() = default;
+
   ActivityRegistry(ActivityRegistry const&) = delete;
   ActivityRegistry& operator=(ActivityRegistry const&) = delete;
 
@@ -61,10 +64,6 @@ public:
 
   // Signal is emitted after all modules have had their endJob called
   GlobalSignal<detail::SignalResponseType::LIFO, void()> sPostEndJob;
-
-  // Signal is emitted if event processing or end-of-job
-  // processing fails with an uncaught exception.
-  GlobalSignal<detail::SignalResponseType::LIFO, void()> sJobFailure;
 
   // Signal is emitted after the source's constructor is called
   GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleDescription const&)>

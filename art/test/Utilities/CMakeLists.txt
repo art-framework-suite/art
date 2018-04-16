@@ -20,7 +20,8 @@ cet_test(pointersEqual_t USE_BOOST_UNIT
   LIBRARIES ${default_art_test_libraries}
   )
 
-foreach(test_cpp MallocOpts_t.cpp)
+#foreach(test_cpp MallocOpts_t.cpp)
+foreach(test_cpp)
   get_filename_component(tname ${test_cpp} NAME_WE )
   cet_test(${tname}
     SOURCES ${test_cpp}
@@ -28,7 +29,7 @@ foreach(test_cpp MallocOpts_t.cpp)
     )
 endforeach()
 
-cet_test(ScheduleID_t USE_BOOST_UNIT)
+cet_test(ScheduleID_t USE_BOOST_UNIT LIBRARIES art_Utilities)
 
 cet_test(parent_path_t USE_BOOST_UNIT
   LIBRARIES art_Utilities canvas)

@@ -4,7 +4,6 @@
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
-#include "art/Utilities/ScheduleID.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/metaprogramming.h"
 

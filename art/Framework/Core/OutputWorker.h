@@ -21,14 +21,11 @@
 #include <memory>
 
 namespace art {
-
+  struct OutputModuleDescription;
   class RangeSet;
-
   class OutputWorker : public WorkerT<OutputModule> {
-
   public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~OutputWorker();
-
     // This is called directly by the make_worker function created
     // by the DEFINE_ART_MODULE macro.
     OutputWorker(OutputModule* mod,
@@ -37,45 +34,27 @@ namespace art {
 
   public:
     std::string const& lastClosedFileName() const;
-
     void closeFile();
-
     bool fileIsOpen() const;
-
     void incrementInputFileNumber();
-
     bool requestsToCloseFile() const;
-
     bool wantAllEvents() const;
-
     void openFile(FileBlock const& fb);
-
     void writeRun(RunPrincipal& rp);
-
     void writeSubRun(SubRunPrincipal& srp);
-
     void writeEvent(EventPrincipal& ep);
-
     void setRunAuxiliaryRangeSetID(RangeSet const&);
-
     void setSubRunAuxiliaryRangeSetID(RangeSet const&);
-
     bool limitReached() const;
-
     void setFileStatus(OutputFileStatus);
-
     void configure(OutputModuleDescription const& desc);
-
     Granularity fileGranularity() const;
-
     virtual void selectProducts(ProductTables const&);
 
   private:
     ServiceHandle<CatalogInterface> ci_{};
-
     Granularity fileGranularity_{Granularity::Unset};
   };
-
 } // namespace art
 
 #endif /* art_Framework_Core_OutputWorker_h */

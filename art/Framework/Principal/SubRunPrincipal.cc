@@ -9,6 +9,8 @@ namespace art {
   class ProcessConfiguration;
   class DelayedReader;
 
+  SubRunPrincipal::~SubRunPrincipal() {}
+
   SubRunPrincipal::SubRunPrincipal(
     SubRunAuxiliary const& aux,
     ProcessConfiguration const& pc,

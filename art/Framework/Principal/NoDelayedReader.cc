@@ -13,7 +13,8 @@ namespace art {
   NoDelayedReader::NoDelayedReader() : DelayedReader() {}
 
   std::unique_ptr<EDProduct>
-  NoDelayedReader::getProduct_(ProductID const pid,
+  NoDelayedReader::getProduct_(Group const*,
+                               ProductID const pid,
                                TypeID const&,
                                RangeSet&) const
   {

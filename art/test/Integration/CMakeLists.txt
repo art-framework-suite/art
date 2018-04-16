@@ -36,7 +36,6 @@ simple_plugin(BareStringAnalyzer          "module"  NO_INSTALL)
 simple_plugin(BareStringProducer          "module"  NO_INSTALL)
 simple_plugin(CompressedIntProducer       "module"  NO_INSTALL)
 simple_plugin(CompressedIntTestAnalyzer   "module"  NO_INSTALL)
-#simple_plugin(ConcurrentEngineRetrieval   "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(DeferredIsReadyWithAssnsAnalyzer "module"  NO_INSTALL)
 simple_plugin(DeferredIsReadyWithAssnsProducer "module"  NO_INSTALL)
 simple_plugin(DerivedPtrVectorProducer    "module"  NO_INSTALL)
@@ -86,7 +85,7 @@ simple_plugin(RunSubRunProductProducerNoPut "module"  NO_INSTALL)
 simple_plugin(SAMMetadataConcurrentTest   "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_Services_System_FileCatalogMetadata_service)
 simple_plugin(SAMMetadataTest             "module"  NO_INSTALL art_Framework_Services_System_FileCatalogMetadata_service)
 simple_plugin(SeekToEventClient           "service" NO_INSTALL art_Framework_IO_Root_RootInput_source)
-simple_plugin(ServiceUsing                "service" NO_INSTALL)
+simple_plugin(ServiceUsing                "service" NO_INSTALL hep_concurrency)
 simple_plugin(SigIntAnalyzer              "module"  NO_INSTALL)
 simple_plugin(SimpleDerivedAnalyzer       "module"  NO_INSTALL)
 simple_plugin(SimpleDerivedProducer       "module"  NO_INSTALL)
@@ -104,7 +103,7 @@ simple_plugin(TestSimpleMemoryCheckProducer "module"  NO_INSTALL)
 simple_plugin(TestTimeTrackerProducer     "module"  NO_INSTALL)
 simple_plugin(TestTimeTrackerFilter       "module"  NO_INSTALL)
 simple_plugin(TestTimeTrackerAnalyzer     "module"  NO_INSTALL)
-simple_plugin(Throwing                    "service" NO_INSTALL)
+simple_plugin(Throwing                    "service" NO_INSTALL hep_concurrency)
 simple_plugin(ToyProductAnalyzer          "module"  NO_INSTALL)
 simple_plugin(ToyProductFilter            "module"  NO_INSTALL)
 simple_plugin(ToyProductFilterReplicated  "module"  NO_INSTALL)
@@ -179,6 +178,10 @@ cet_test(SelectEventsFromPreviousProcess_EventList_t HANDBUILT
   TEST_PROPERTIES DEPENDS SelectEventsFromPreviousProcess_t
   )
 
+add_executable(test_dropAllEventsSubruns_verify test_dropAllEventsSubruns_verify.cxx)
+target_link_libraries(test_dropAllEventsSubruns_verify ${ROOT_CORE} ${ROOT_RIO} ${ROOT_TREE})
+
+#test_dropAllEventsSubruns_verify.cxx
 cet_test(test_dropAllEventsSubruns_t.sh PREBUILT
   DATAFILES
   fcl/dropAllEvents_t.fcl
@@ -187,7 +190,6 @@ cet_test(test_dropAllEventsSubruns_t.sh PREBUILT
   fcl/dropAllEvents_r_t.fcl
   fcl/dropAllEventsSubruns_r_t1.fcl
   fcl/dropAllEventsSubruns_r_t2.fcl
-  test_dropAllEventsSubruns_verify.cxx
 )
 
 cet_test(testOutputRanges_dropAllEventsSubruns HANDBUILT
@@ -210,12 +212,15 @@ cet_test(test_runSubRunNoPut_t.sh PREBUILT
   fcl/runSubRunNoPut_t.fcl
   )
 
+add_executable(test_simple_01_verify test_simple_01_verify.cxx)
+target_link_libraries(test_simple_01_verify ${ROOT_CORE} ${ROOT_RIO} ${ROOT_TREE} ${ROOT_GRAF} ${ROOT_HIST})
+
+#test_simple_01_verify.cxx
 cet_test(test_simple_01_t.sh PREBUILT
   DATAFILES
   fcl/test_simple_01.fcl
   fcl/test_simple_01r.fcl
   fcl/messageDefaults.fcl
-  test_simple_01_verify.cxx
 )
 
 cet_test(test_view_01_t.sh PREBUILT

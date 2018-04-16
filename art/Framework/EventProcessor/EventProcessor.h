@@ -39,22 +39,19 @@
 #include "tbb/task_scheduler_init.h"
 
 #include <atomic>
-#include <condition_variable>
 #include <exception>
 #include <iosfwd>
 #include <memory>
-#include <mutex>
 #include <string>
 #include <vector>
 
 namespace cet {
   class ostream_handle;
-}
+} // namespace cet
 
 namespace art {
 
   class EventProcessor {
-
   public: // TYPES
     // Status codes:
     //   0     successful completion
@@ -64,17 +61,17 @@ namespace art {
 
     using StatusCode = Status;
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
+    // MEMBER FUNCTIONS -- Special Member Functions
+  public:
     ~EventProcessor();
-
     explicit EventProcessor(fhicl::ParameterSet const& pset);
-
     EventProcessor(EventProcessor const&) = delete;
     EventProcessor(EventProcessor&&) = delete;
     EventProcessor& operator=(EventProcessor const&) = delete;
     EventProcessor& operator=(EventProcessor&&) = delete;
 
-  public: // MEMBER FUNCTIONS -- API we provide to run_art
+    // MEMBER FUNCTIONS -- API we provide to run_art
+  public:
     //
     //  Run the job until done, which means:
     //
@@ -90,206 +87,187 @@ namespace art {
     //
     StatusCode runToCompletion();
 
+    // MEMBER FUNCTIONS -- Tasking Structure
+  public:
+    void processAllEventsTask(tbb::task* eventLoopTask,
+                              ScheduleID const,
+                              std::exception_ptr const*);
+    void readAndProcessEventTask(tbb::task* eventLoopTask,
+                                 ScheduleID const,
+                                 std::exception_ptr const*);
+    void endPathTask(tbb::task* eventLoopTask,
+                     ScheduleID const,
+                     std::exception_ptr const*);
+    void endPathRunnerTask(ScheduleID const, tbb::task* eventLoopTask);
+
   private: // MEMBER FUCNTIONS -- Event Loop Infrastructure
     // Event-loop infrastructure
-
-    void processAllEventsAsync(ScheduleID);
-
-    void processAllEventsAsync_readAndProcess(ScheduleID);
-
-    void processAllEventsAsync_readAndProcess_after_possible_output_switch(
-      ScheduleID);
-
-    void processAllEventsAsync_processEvent(ScheduleID);
-
-    void processAllEventsAsync_processEndPath(ScheduleID);
-
-    void processAllEventsAsync_finishEvent(ScheduleID);
-
+    void processAllEventsAsync(tbb::task* EventLoopTask, ScheduleID const);
+    void readAndProcessAsync(tbb::task* EventLoopTask, ScheduleID const);
+    void processEventAsync(tbb::task* EventLoopTask, ScheduleID const);
+    void processEndPathAsync(tbb::task* EventLoopTask, ScheduleID const);
+    void finishEventAsync(tbb::task* eventLoopTask, ScheduleID const);
     template <Level L>
     bool levelsToProcess();
-
     template <Level L>
     std::enable_if_t<is_above_most_deeply_nested_level(L)> begin();
-
     template <Level L>
     void process();
-
     template <Level L>
     void finalize();
-
     template <Level L>
     void
     finalizeContainingLevels()
     {}
-
     template <Level L>
     void
     recordOutputModuleClosureRequests()
     {}
-
     Level advanceItemType();
 
     // Level-specific member functions
     void beginJob();
-
     void endJob();
-
     void openInputFile();
-
     void openSomeOutputFiles();
-
     void openAllOutputFiles();
-
     void closeInputFile();
-
     void closeSomeOutputFiles();
-
     void closeAllOutputFiles();
-
     void closeAllFiles();
-
     void respondToOpenInputFile();
-
     void respondToCloseInputFile();
-
     void respondToOpenOutputFiles();
-
     void respondToCloseOutputFiles();
-
     void readRun();
-
     void beginRun();
-
     void beginRunIfNotDoneAlready();
-
     void setRunAuxiliaryRangeSetID();
-
     void endRun();
-
     void writeRun();
-
     void readSubRun();
-
     void beginSubRun();
-
     void beginSubRunIfNotDoneAlready();
-
     void setSubRunAuxiliaryRangeSetID();
-
     void endSubRun();
-
     void writeSubRun();
-
     void readEvent();
-
     void processEvent();
-
     void writeEvent();
-
     void setOutputFileStatus(OutputFileStatus);
-
-    ServicesManager* initServices_(fhicl::ParameterSet const& top_pset,
-                                   ActivityRegistry& areg);
-
     void invokePostBeginJobWorkers_();
-
     void terminateAbnormally_();
 
   private: // MEMBER DATA
-    Level nextLevel_{Level::ReadyToAdvance};
+    // Next containment level to move to.
+    std::atomic<Level> nextLevel_;
 
-    detail::ExceptionCollector ec_{};
+    // Utility object to run a functor and collect any exceptions thrown.
+    std::atomic<detail::ExceptionCollector*> ec_;
 
-    cet::cpu_timer timer_{};
+    // Used for timing the job.
+    std::atomic<cet::cpu_timer*> timer_;
 
-    bool beginRunCalled_{false};
-    bool beginSubRunCalled_{false};
-    bool finalizeRunEnabled_{true};
-    bool finalizeSubRunEnabled_{true};
+    // Used to keep track of whether or not we have already call beginRun.
+    std::atomic<bool> beginRunCalled_;
 
-    tbb::task_scheduler_init tbbManager_{tbb::task_scheduler_init::deferred};
+    // Used to keep track of whether or not we have already call beginSubRun.
+    std::atomic<bool> beginSubRunCalled_;
+
+    // When set allows runs to end.
+    std::atomic<bool> finalizeRunEnabled_;
+
+    // When set allows subruns to end.
+    std::atomic<bool> finalizeSubRunEnabled_;
+
+    // The master tbb controller.
+    std::atomic<tbb::task_scheduler_init*> tbbManager_;
 
     // A table of responses to be taken on reception
     // of thrown exceptions.
-    ActionTable act_table_{};
+    std::atomic<ActionTable*> act_table_;
 
     // A signal/slot system for registering a callback
     // to be called when a specific action is taken by
     // the framework.
-    ActivityRegistry actReg_{};
+    std::atomic<ActivityRegistry*> actReg_;
 
-    // Access to the MessageFacility (Marc Fischler).
-    MFStatusUpdater mfStatusUpdater_{actReg_};
+    // Used to update various output fields in logged messages.
+    std::atomic<MFStatusUpdater*> mfStatusUpdater_;
 
     // List of callbacks which, when invoked, can update the state of
     // any output modules.
-    UpdateOutputCallbacks outputCallbacks_{};
+    // FIXME: Used only in the ctor!
+    std::atomic<UpdateOutputCallbacks*> outputCallbacks_;
 
-    ProductDescriptions productsToProduce_{};
+    // Product descriptions for the products that appear
+    // in produces<T>() clauses in modules. Note that
+    // this is the master copy and must be kept alive
+    // until producedProductLookupTables_ is destroyed
+    // because it has references to us.
+    std::atomic<ProductDescriptions*> producedProductDescriptions_;
 
-    ProducingServiceSignals psSignals_{};
+    // Product lookup tables for the products that appear
+    // in produces<T>() clauses in modules. Note that this
+    // also serves as the master list of produced products
+    // and must be kept alive until no more principals
+    // that might use it exist. Also note that we keep
+    // references to the internals of
+    // producedProductDescriptions_.
+    std::atomic<ProductTables*> producedProductLookupTables_;
+
+    std::atomic<ProducingServiceSignals*> psSignals_;
 
     // The service subsystem.
-    std::unique_ptr<ServicesManager> servicesManager_{};
+    std::atomic<ServicesManager*> servicesManager_;
 
     // Despite the name, this is what parses the paths and modules in
     // the fcl file and creates and owns them.
-    PathManager pathManager_;
+    std::atomic<PathManager*> pathManager_;
 
     // The source of input data.
-    std::unique_ptr<InputSource> input_{};
+    std::atomic<InputSource*> input_;
 
-    // Handles trigger paths.
-    PerScheduleContainer<Schedule> schedule_{};
+    // The trigger path runners.
+    std::atomic<PerScheduleContainer<Schedule>*> schedule_;
 
-    // Handles the end path.
-    std::unique_ptr<EndPathExecutor> endPathExecutor_{};
+    // The end path runner.
+    std::atomic<EndPathExecutor*> endPathExecutor_;
 
-    std::unique_ptr<FileBlock> fb_{};
+    // The currently open primary input file.
+    std::atomic<FileBlock*> fb_;
 
-    // Note: threading: This will need to be a vector when we implement multiple
-    // runs in flight.
-    std::unique_ptr<RunPrincipal> runPrincipal_{};
+    // The currently active RunPrincipal.
+    std::atomic<RunPrincipal*> runPrincipal_;
 
-    // Note: threading: This will need to be a vector when we implement multiple
-    // subruns in flight.
-    std::unique_ptr<SubRunPrincipal> subRunPrincipal_{};
+    // The currently active SubRunPrincipal.
+    std::atomic<SubRunPrincipal*> subRunPrincipal_;
 
-    PerScheduleContainer<std::unique_ptr<EventPrincipal>> eventPrincipal_{};
+    // The currently active EventPrincipals.
+    std::atomic<PerScheduleContainer<EventPrincipal*>*> eventPrincipal_;
 
-    ProductTables producedProducts_{ProductTables::invalid()};
+    // Are we configured to process empty runs?
+    std::atomic<bool> handleEmptyRuns_;
 
-    bool const handleEmptyRuns_;
+    // Are we configured to process empty subruns?
+    std::atomic<bool> handleEmptySubRuns_;
 
-    bool const handleEmptySubRuns_;
+    // Has an exception been captured already?
+    std::atomic<bool> deferredExceptionPtrIsSet_;
 
-    std::atomic<bool> deferredExceptionPtrIsSet_{false};
-
-    std::exception_ptr deferredExceptionPtr_{};
+    // An exception captured from event processing.
+    std::atomic<std::exception_ptr*> deferredExceptionPtr_;
 
     // Set to true for the first event in a subRun to signal
     // that we should not advance to the next entry.
     // Note that this is shared in common between all the
-    // schedules.
-    // FIXME: Only needed because we cannot peek ahead to see
-    // that the next entry is an event, we actually must advance
-    // to it before we can know.
-    std::atomic<bool> firstEvent_{true};
+    // schedules. This is onnly needed because we cannot peek ahead
+    // to see that the next entry is an event, we actually must
+    // advance to it before we can know.
+    std::atomic<bool> firstEvent_;
 
-    std::atomic<bool> fileSwitchInProgress_{false};
-
-    // Used to count the number of tasks waiting for an
-    // output file switch to complete.
-    std::atomic<int> waitingTaskCount_{};
-
-    std::mutex mutexForCondFileSwitch_{};
-
-    std::condition_variable condFileSwitch_{};
-
-    // Used to hold the tasks that will resume the schedules
-    // after an output file switch.
-    hep::concurrency::WaitingTaskList waitingTasks_{};
+    // Are we current switching output files?
+    std::atomic<bool> fileSwitchInProgress_;
   };
 
 } // namespace art

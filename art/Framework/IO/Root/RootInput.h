@@ -4,6 +4,7 @@
 
 #include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/RootInputFileSequence.h"

@@ -1,12 +1,13 @@
 #ifndef art_Framework_IO_Root_detail_readFileIndex_h
 #define art_Framework_IO_Root_detail_readFileIndex_h
 
-#include "TFile.h"
-#include "TTree.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/rootErrMsgs.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
+
+#include "TFile.h"
+#include "TTree.h"
 
 #include <memory>
 
@@ -19,7 +20,7 @@ namespace art {
     inline void
     readFileIndex(TFile* file, TTree* metaDataTree, FileIndex*& findexPtr)
     {
-
+      input::RootMutexSentry sentry;
       if (auto branch = metaDataTree->GetBranch(
             rootNames::metaBranchRootName<FileIndex>())) {
         branch->SetAddress(&findexPtr);

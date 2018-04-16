@@ -17,6 +17,7 @@
 
 #include "art/Utilities/ScheduleID.h"
 
+#include <atomic>
 #include <string>
 
 namespace art {
@@ -25,60 +26,51 @@ namespace art {
   class ModuleDescription;
 
   class CurrentProcessingContext {
-
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~CurrentProcessingContext() noexcept;
-
     CurrentProcessingContext() noexcept;
-
-    explicit CurrentProcessingContext(ScheduleID scheduleID,
+    explicit CurrentProcessingContext(ScheduleID const si,
                                       std::string const* const name,
                                       int const bitpos,
                                       bool const isEndPth) noexcept;
-
     CurrentProcessingContext(CurrentProcessingContext const&) noexcept;
-
     CurrentProcessingContext(CurrentProcessingContext&&) noexcept;
-
     CurrentProcessingContext& operator=(
       CurrentProcessingContext const&) noexcept;
-
     CurrentProcessingContext& operator=(CurrentProcessingContext&&) noexcept;
 
   public: // MEMBER FUNCTIONS -- API for the user
     ScheduleID scheduleID() const noexcept;
-
     std::string const* pathName() const noexcept;
-
     int bitPos() const noexcept;
-
     bool isEndPath() const noexcept;
-
     int slotInPath() const noexcept;
-
     ModuleDescription const* moduleDescription() const noexcept;
 
+  public: // MEMBER FUNCTIONS -- API for Path to set the WorkerInPath and module
     void activate(int theSlotInPath, ModuleDescription const*) noexcept;
 
-  private:
+  private: // MEMBER DATA -- Stream info
     // What schedule this module is active on.
-    ScheduleID scheduleID_{}; // invalid
+    std::atomic<ScheduleID> scheduleID_;
 
+  private: // MEMBER DATA -- Path info
     // Name of the currently active path.
-    std::string const* pathName_{nullptr};
+    std::atomic<std::string const*> pathName_;
+    // Index of the currently active
+    // path in the trigger results.
+    std::atomic<int> bitPos_;
+    // Whether or not the currently
+    // active path is the end path.
+    std::atomic<bool> isEndPath_;
 
-    // Index of the currently active path in the trigger results.
-    int bitPos_{0};
-
-    // Whether or not the currently active path is the end path.
-    bool isEndPath_{false};
-
+  private: // MEMBER DATA -- WorkerInPath info
     // Index of the current active worker in the path.
-    int slotInPath_{0};
+    std::atomic<int> slotInPath_;
 
-    ModuleDescription const* moduleDescription_{nullptr};
-
-    ModuleBase* module_{nullptr};
+  private: // MEMBER DATA -- Module info
+    std::atomic<ModuleDescription const*> moduleDescription_;
+    std::atomic<ModuleBase*> module_;
   };
 
 } // namespace art

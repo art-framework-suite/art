@@ -32,6 +32,7 @@
 #include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/Table.h"
+#include "hep_concurrency/RecursiveMutex.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iomanip>
@@ -42,9 +43,10 @@
 #include <utility>
 
 using namespace std;
+using namespace hep::concurrency;
 
 namespace {
-  std::string const dev_null{"/dev/null"};
+  string const dev_null{"/dev/null"};
 }
 
 namespace art {
@@ -53,18 +55,19 @@ namespace art {
 
   class RootOutput final : public OutputModule {
 
+    // Constants.
   public:
     static constexpr char const* default_tmpDir{"<parent-path-of-filename>"};
 
+    // Config.
+  public:
     struct Config {
-
       using Name = fhicl::Name;
       using Comment = fhicl::Comment;
       template <typename T>
       using Atom = fhicl::Atom<T>;
       template <typename T>
       using OptionalAtom = fhicl::OptionalAtom<T>;
-
       fhicl::TableFragment<OutputModule::Config> omConfig;
       Atom<string> catalog{Name("catalog"), ""};
       OptionalAtom<bool> dropAllEvents{Name("dropAllEvents")};
@@ -93,7 +96,7 @@ namespace art {
         // for 'OutputModule::Config::fileName'.
         using namespace fhicl::detail;
         ParameterBase* adjustFilename{
-          const_cast<fhicl::Atom<std::string>*>(&omConfig().fileName)};
+          const_cast<fhicl::Atom<string>*>(&omConfig().fileName)};
         adjustFilename->set_par_style(fhicl::par_style::REQUIRED);
       }
 
@@ -110,40 +113,32 @@ namespace art {
 
     using Parameters = fhicl::WrappedTable<Config, Config::KeysToIgnore>;
 
+    // Special Member Functions.
   public:
     ~RootOutput();
-
     explicit RootOutput(Parameters const&);
-
     RootOutput(RootOutput const&) = delete;
-
     RootOutput(RootOutput&&) = delete;
-
     RootOutput& operator=(RootOutput const&) = delete;
-
     RootOutput& operator=(RootOutput&&) = delete;
 
+    // Member Functions.
   public:
     void postSelectProducts() override;
-
     void beginJob() override;
     void endJob() override;
-
-    void event(EventPrincipal const&) override;
-
-    void beginSubRun(SubRunPrincipal const&) override;
-    void endSubRun(SubRunPrincipal const&) override;
-
     void beginRun(RunPrincipal const&) override;
     void endRun(RunPrincipal const&) override;
+    void beginSubRun(SubRunPrincipal const&) override;
+    void endSubRun(SubRunPrincipal const&) override;
+    void event(EventPrincipal const&) override;
 
+    // Member Functions -- Replace OutputModule Functions.
   private:
     string fileNameAtOpen() const;
     string fileNameAtClose(string const& currentFileName);
     string const& lastClosedFileName() const override;
-
     Granularity fileGranularity() const override;
-
     void openFile(FileBlock const&) override;
     void respondToOpenInputFile(FileBlock const&) override;
     void readResults(ResultsPrincipal const& resp) override;
@@ -157,7 +152,6 @@ namespace art {
     bool isFileOpen() const override;
     void setFileStatus(OutputFileStatus) override;
     bool requestsToCloseFile() const override;
-    void doOpenFile();
     void startEndFile() override;
     void writeFileFormatVersion() override;
     void writeFileIndex() override;
@@ -167,31 +161,32 @@ namespace art {
     void writeParameterSetRegistry() override;
     void writeProductDescriptionRegistry() override;
     void writeParentageRegistry() override;
-
     void doWriteFileCatalogMetadata(
       FileCatalogMetadata::collection_type const& md,
       FileCatalogMetadata::collection_type const& ssmd) override;
-
     void writeProductDependencies() override;
     void finishEndFile() override;
-
     void doRegisterProducts(ProductDescriptions& productsToProduce,
                             ModuleDescription const& md) override;
 
+    // Member Functions -- Implementation Details.
   private:
+    void doOpenFile();
+
+    // Data Members.
+  private:
+    mutable RecursiveMutex mutex_;
     string const catalog_;
-    bool dropAllEvents_{false};
+    bool dropAllEvents_;
     bool dropAllSubRuns_;
     string const moduleLabel_;
-    int inputFileCount_{0};
-    unique_ptr<RootOutputFile> rootOutputFile_{nullptr};
+    int inputFileCount_;
+    unique_ptr<RootOutputFile> rootOutputFile_;
     FileStatsCollector fstats_;
-    PostCloseFileRenamer fRenamer_{fstats_};
+    PostCloseFileRenamer fRenamer_;
     string const filePattern_;
     string tmpDir_;
     string lastClosedFileName_{};
-
-    // We keep this set of data members for the use of RootOutputFile.
     int const compressionLevel_;
     int64_t const saveMemoryObjectThreshold_;
     int64_t const treeMaxVirtualSize_;
@@ -199,20 +194,13 @@ namespace art {
     int const basketSize_;
     DropMetaData dropMetaData_;
     bool dropMetaDataForDroppedData_;
-
-    // We keep this for the use of RootOutputFile and we also use it
-    // during file open to make some choices.
-    bool fastCloningEnabled_{true};
-
-    // Set false only for cases where we are guaranteed never to need
-    // historical ParameterSet information in the downstream file
-    // (e.g. mixing).
+    bool fastCloningEnabled_;
+    // Set false only for cases where we are guaranteed never to need historical
+    // ParameterSet information in the downstream file, such as when mixing.
     bool writeParameterSets_;
     ClosingCriteria fileProperties_;
-
-    // ResultsProducer management.
-    ProductDescriptions productsToProduce_{};
-    ProductTables producedResultsProducts_{ProductTables::invalid()};
+    ProductDescriptions productsToProduce_;
+    ProductTables producedResultsProducts_;
     RPManager rpm_;
   };
 
@@ -220,13 +208,19 @@ namespace art {
 
   RootOutput::RootOutput(Parameters const& config)
     : OutputModule{config().omConfig, config.get_PSet()}
+    , mutex_{"RootOutput::mutex_"}
     , catalog_{config().catalog()}
+    , dropAllEvents_{false}
     , dropAllSubRuns_{config().dropAllSubRuns()}
     , moduleLabel_{config.get_PSet().get<string>("module_label")}
+    , inputFileCount_{0}
+    , rootOutputFile_{}
     , fstats_{moduleLabel_, processName()}
+    , fRenamer_{fstats_}
     , filePattern_{config().omConfig().fileName()}
     , tmpDir_{config().tmpDir() == default_tmpDir ? parent_path(filePattern_) :
                                                     config().tmpDir()}
+    , lastClosedFileName_{}
     , compressionLevel_{config().compressionLevel()}
     , saveMemoryObjectThreshold_{config().saveMemoryObjectThreshold()}
     , treeMaxVirtualSize_{config().treeMaxVirtualSize()}
@@ -234,12 +228,15 @@ namespace art {
     , basketSize_{config().basketSize()}
     , dropMetaData_{config().dropMetaData()}
     , dropMetaDataForDroppedData_{config().dropMetaDataForDroppedData()}
+    , fastCloningEnabled_{true}
     , writeParameterSets_{config().writeParameterSets()}
     , fileProperties_{(
         detail::validateFileNamePattern(
           config.get_PSet().has_key(config().fileProperties.name()),
           filePattern_),
         config().fileProperties())}
+    , productsToProduce_{}
+    , producedResultsProducts_{ProductTables::invalid()}
     , rpm_{config.get_PSet()}
   {
     bool const dropAllEventsSet{config().dropAllEvents(dropAllEvents_)};
@@ -268,6 +265,7 @@ namespace art {
   void
   RootOutput::openFile(FileBlock const& fb)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     // Note: The file block here refers to the currently open
     //       input file, so we can find out about the available
     //       products by looping over the branches of the input
@@ -281,6 +279,7 @@ namespace art {
   void
   RootOutput::postSelectProducts()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (isFileOpen()) {
       rootOutputFile_->selectProducts();
     }
@@ -289,12 +288,12 @@ namespace art {
   void
   RootOutput::respondToOpenInputFile(FileBlock const& fb)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     ++inputFileCount_;
-    if (!isFileOpen())
+    if (!isFileOpen()) {
       return;
-
+    }
     auto const* rfb = dynamic_cast<RootFileBlock const*>(&fb);
-
     bool fastCloneThisOne = fastCloningEnabled_ && rfb &&
                             (rfb->tree() != nullptr) &&
                             ((remainingEvents() < 0) ||
@@ -317,6 +316,7 @@ namespace art {
   void
   RootOutput::readResults(ResultsPrincipal const& resp)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rpm_.for_each_RPWorker(
       [&resp](RPWorker& w) { w.rp().doReadResults(resp); });
   }
@@ -324,6 +324,7 @@ namespace art {
   void
   RootOutput::respondToCloseInputFile(FileBlock const& fb)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (isFileOpen()) {
       rootOutputFile_->respondToCloseInputFile(fb);
     }
@@ -332,6 +333,7 @@ namespace art {
   void
   RootOutput::write(EventPrincipal& ep)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (dropAllEvents_) {
       return;
     }
@@ -345,12 +347,14 @@ namespace art {
   void
   RootOutput::setSubRunAuxiliaryRangeSetID(RangeSet const& rs)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rootOutputFile_->setSubRunAuxiliaryRangeSetID(rs);
   }
 
   void
   RootOutput::writeSubRun(SubRunPrincipal& sr)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (dropAllSubRuns_) {
       return;
     }
@@ -364,12 +368,14 @@ namespace art {
   void
   RootOutput::setRunAuxiliaryRangeSetID(RangeSet const& rs)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rootOutputFile_->setRunAuxiliaryRangeSetID(rs);
   }
 
   void
   RootOutput::writeRun(RunPrincipal& rp)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (hasNewlyDroppedBranch()[InRun]) {
       rp.addToProcessHistory();
     }
@@ -378,12 +384,13 @@ namespace art {
   }
 
   void
-  art::RootOutput::startEndFile()
+  RootOutput::startEndFile()
   {
-    auto resp = std::make_unique<ResultsPrincipal>(
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    auto resp = make_unique<ResultsPrincipal>(
       ResultsAuxiliary{}, moduleDescription().processConfiguration(), nullptr);
-    resp->enableProductCreation(producedResultsProducts_);
-    resp->setProducedProducts(producedResultsProducts_);
+    resp->createGroupsForProducedProducts(producedResultsProducts_);
+    resp->enableLookupOfProducedProducts(producedResultsProducts_);
     if (!producedResultsProducts_.descriptions(InResults).empty() ||
         hasNewlyDroppedBranch()[InResults]) {
       resp->addToProcessHistory();
@@ -396,36 +403,42 @@ namespace art {
   void
   RootOutput::writeFileFormatVersion()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rootOutputFile_->writeFileFormatVersion();
   }
 
   void
   RootOutput::writeFileIndex()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rootOutputFile_->writeFileIndex();
   }
 
   void
   RootOutput::writeEventHistory()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rootOutputFile_->writeEventHistory();
   }
 
   void
   RootOutput::writeProcessConfigurationRegistry()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rootOutputFile_->writeProcessConfigurationRegistry();
   }
 
   void
   RootOutput::writeProcessHistoryRegistry()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rootOutputFile_->writeProcessHistoryRegistry();
   }
 
   void
   RootOutput::writeParameterSetRegistry()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (writeParameterSets_) {
       rootOutputFile_->writeParameterSetRegistry();
     }
@@ -434,12 +447,14 @@ namespace art {
   void
   RootOutput::writeProductDescriptionRegistry()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rootOutputFile_->writeProductDescriptionRegistry();
   }
 
   void
   RootOutput::writeParentageRegistry()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rootOutputFile_->writeParentageRegistry();
   }
 
@@ -448,19 +463,22 @@ namespace art {
     FileCatalogMetadata::collection_type const& md,
     FileCatalogMetadata::collection_type const& ssmd)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rootOutputFile_->writeFileCatalogMetadata(fstats_, md, ssmd);
   }
 
   void
   RootOutput::writeProductDependencies()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rootOutputFile_->writeProductDependencies();
   }
 
   void
   RootOutput::finishEndFile()
   {
-    std::string const currentFileName{rootOutputFile_->currentFileName()};
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    string const currentFileName{rootOutputFile_->currentFileName()};
     rootOutputFile_->writeTTrees();
     rootOutputFile_.reset();
     fstats_.recordFileClose();
@@ -473,6 +491,7 @@ namespace art {
   RootOutput::doRegisterProducts(ProductDescriptions& producedProducts,
                                  ModuleDescription const& md)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     // Register Results products from ResultsProducers.
     rpm_.for_each_RPWorker([&producedProducts, &md](RPWorker& w) {
       auto const& params = w.params();
@@ -482,11 +501,10 @@ namespace art {
                           md.moduleLabel() + '#' + params.rpLabel,
                           static_cast<int>(ModuleThreadingType::LEGACY),
                           md.processConfiguration(),
-                          false, // not emulated module
+                          false,
                           ModuleDescription::invalidID()});
       w.rp().registerProducts(producedProducts, w.moduleDescription());
     });
-
     // Form product table for Results products.  We do this here so we
     // can appropriately set the product tables for the
     // ResultsPrincipal.
@@ -497,6 +515,7 @@ namespace art {
   void
   RootOutput::setFileStatus(OutputFileStatus const ofs)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (isFileOpen()) {
       rootOutputFile_->setFileStatus(ofs);
     }
@@ -505,12 +524,14 @@ namespace art {
   bool
   RootOutput::isFileOpen() const
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     return rootOutputFile_.get() != nullptr;
   }
 
   void
   RootOutput::incrementInputFileNumber()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (isFileOpen()) {
       rootOutputFile_->incrementInputFileNumber();
     }
@@ -519,35 +540,37 @@ namespace art {
   bool
   RootOutput::requestsToCloseFile() const
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     return isFileOpen() ? rootOutputFile_->requestsToCloseFile() : false;
   }
 
   Granularity
   RootOutput::fileGranularity() const
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     return fileProperties_.granularity();
   }
 
   void
   RootOutput::doOpenFile()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (inputFileCount_ == 0) {
-      throw art::Exception(art::errors::LogicError)
+      throw Exception(errors::LogicError)
         << "Attempt to open output file before input file. "
         << "Please report this to the core framework developers.\n";
     }
-    rootOutputFile_ =
-      std::make_unique<RootOutputFile>(this,
-                                       fileNameAtOpen(),
-                                       fileProperties_,
-                                       compressionLevel_,
-                                       saveMemoryObjectThreshold_,
-                                       treeMaxVirtualSize_,
-                                       splitLevel_,
-                                       basketSize_,
-                                       dropMetaData_,
-                                       dropMetaDataForDroppedData_,
-                                       fastCloningEnabled_);
+    rootOutputFile_ = make_unique<RootOutputFile>(this,
+                                                  fileNameAtOpen(),
+                                                  fileProperties_,
+                                                  compressionLevel_,
+                                                  saveMemoryObjectThreshold_,
+                                                  treeMaxVirtualSize_,
+                                                  splitLevel_,
+                                                  basketSize_,
+                                                  dropMetaData_,
+                                                  dropMetaDataForDroppedData_,
+                                                  fastCloningEnabled_);
     fstats_.recordFileOpen();
     detail::logFileAction("Opened output file with pattern ", filePattern_);
   }
@@ -555,14 +578,15 @@ namespace art {
   string
   RootOutput::fileNameAtOpen() const
   {
-    return filePattern_ == dev_null ? dev_null :
-                                      unique_filename(tmpDir_ + "/RootOutput");
+    return (filePattern_ == dev_null) ?
+             dev_null :
+             unique_filename(tmpDir_ + "/RootOutput");
   }
 
   string
   RootOutput::fileNameAtClose(std::string const& currentFileName)
   {
-    return filePattern_ == dev_null ?
+    return (filePattern_ == dev_null) ?
              dev_null :
              fRenamer_.maybeRenameFile(currentFileName, filePattern_);
   }
@@ -570,6 +594,7 @@ namespace art {
   string const&
   RootOutput::lastClosedFileName() const
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     if (lastClosedFileName_.empty()) {
       throw Exception(errors::LogicError, "RootOutput::currentFileName(): ")
         << "called before meaningful.\n";
@@ -580,47 +605,52 @@ namespace art {
   void
   RootOutput::beginJob()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rpm_.invoke(&ResultsProducer::doBeginJob);
   }
 
   void
   RootOutput::endJob()
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rpm_.invoke(&ResultsProducer::doEndJob);
   }
 
   void
   RootOutput::event(EventPrincipal const& ep)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rpm_.for_each_RPWorker([&ep](RPWorker& w) { w.rp().doEvent(ep); });
   }
 
   void
   RootOutput::beginSubRun(SubRunPrincipal const& srp)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rpm_.for_each_RPWorker([&srp](RPWorker& w) { w.rp().doBeginSubRun(srp); });
   }
 
   void
   RootOutput::endSubRun(SubRunPrincipal const& srp)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rpm_.for_each_RPWorker([&srp](RPWorker& w) { w.rp().doEndSubRun(srp); });
   }
 
   void
   RootOutput::beginRun(RunPrincipal const& rp)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rpm_.for_each_RPWorker([&rp](RPWorker& w) { w.rp().doBeginRun(rp); });
   }
 
   void
   RootOutput::endRun(RunPrincipal const& rp)
   {
+    RecursiveMutexSentry sentry{mutex_, __func__};
     rpm_.for_each_RPWorker([&rp](RPWorker& w) { w.rp().doEndRun(rp); });
   }
 
 } // namespace art
 
 DEFINE_ART_MODULE(art::RootOutput)
-
-// vim: set sw=2:

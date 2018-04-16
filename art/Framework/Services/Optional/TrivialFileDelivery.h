@@ -1,5 +1,6 @@
 #ifndef art_Framework_Services_Optional_TrivialFileDelivery_h
 #define art_Framework_Services_Optional_TrivialFileDelivery_h
+// vim: set sw=2 expandtab :
 
 // ===========================================================================
 // TrivialFileDelivery
@@ -21,25 +22,24 @@
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "hep_concurrency/RecursiveMutex.h"
+
 #include <string>
+#include <vector>
 
 namespace art {
-  class TrivialFileDelivery;
-}
 
-namespace art {
   class TrivialFileDelivery : public CatalogInterface {
+    // Configuration
   public:
-    // configuration
     struct Config {
     };
     using Parameters = ServiceTable<Config>;
-
-    // ctor -- the services factory will expect this signature
+    // Special Member Functions
+  public:
     TrivialFileDelivery(Parameters const& config);
-
+    // Implementation -- Required by base class
   private:
-    // Classes inheriting this interface must provide the following methods:
     void doConfigure(std::vector<std::string> const& items) override;
     int doGetNextFileURI(std::string& uri, double& waitTime) override;
     void doUpdateStatus(std::string const& uri,
@@ -54,22 +54,27 @@ namespace art {
                          HLTGlobalStatus const& acceptance_info) override;
     bool doIsSearchable() override;
     void doRewind() override;
-
-    // helper functions
+    // Implementation details
+  private:
     std::vector<std::string> extractFileListFromPset(
       fhicl::ParameterSet const& pset);
     std::string prependFileDesignation(std::string const& name) const;
-
-    // class data
-    std::vector<std::string> fileList{};
-    std::vector<std::string>::const_iterator nextFile{fileList.cbegin()};
-    std::vector<std::string>::const_iterator endOfFiles{fileList.cend()};
+    // Member data
+  private:
+    // Protects all data members.
+    mutable hep::concurrency::RecursiveMutex mutex_{
+      "art::TrivialFileDelivery::mutex_"};
+    std::vector<std::string> fileList_{};
+    std::vector<std::string>::const_iterator nextFile_{fileList_.cbegin()};
+    std::vector<std::string>::const_iterator endOfFiles_{fileList_.cend()};
   };
-} // end of namespace art
+
+} // namespace art
 
 DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileDelivery,
                                    art::CatalogInterface,
                                    LEGACY)
+
 #endif /* art_Framework_Services_Optional_TrivialFileDelivery_h */
 
 // Local Variables:

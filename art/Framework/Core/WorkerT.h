@@ -14,10 +14,8 @@
 #include <memory>
 
 namespace art {
-
   template <typename T>
   class WorkerT : public Worker {
-
     // Let PathManager use module() to delete the trigger results inserter.
     friend class PathManager;
 
@@ -25,8 +23,9 @@ namespace art {
     using ModuleType = T;
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-    // This is called directly by the make_worker function created
-    // by the DEFINE_ART_MODULE macro.
+    ~WorkerT();
+    // This is called directly by the make_worker function created by
+    // the DEFINE_ART_MODULE macro.
     // Note: OutputWorker overrides this.
     WorkerT(T*, ModuleDescription const&, WorkerParams const&);
 
@@ -36,7 +35,6 @@ namespace art {
     {
       return *module_;
     }
-
     T const&
     module() const
     {
@@ -45,40 +43,32 @@ namespace art {
 
   private: // MEMBER FUNCTIONS -- Worker API
     std::string workerType() const override;
-
     hep::concurrency::SerialTaskQueueChain* implSerialTaskQueueChain()
       const override;
-
     void implBeginJob() override;
-
     void implEndJob() override;
-
     void implRespondToOpenInputFile(FileBlock const&) override;
-
     void implRespondToCloseInputFile(FileBlock const&) override;
-
     void implRespondToOpenOutputFiles(FileBlock const&) override;
-
     void implRespondToCloseOutputFiles(FileBlock const&) override;
-
     bool implDoBegin(RunPrincipal&, CurrentProcessingContext*) override;
-
     bool implDoEnd(RunPrincipal&, CurrentProcessingContext*) override;
-
     bool implDoBegin(SubRunPrincipal&, CurrentProcessingContext*) override;
-
     bool implDoEnd(SubRunPrincipal&, CurrentProcessingContext*) override;
-
     bool implDoProcess(EventPrincipal&,
-                       ScheduleID scheduleID,
+                       ScheduleID const,
                        CurrentProcessingContext*) override;
 
   private: // MEMBER DATA
-    // Note: Modules are usually shared between workers on different
-    // schedules, only replicated modules are not--the PathManager owns
-    // them.
+    // Note: Modules are usually shared between workers
+    // on different schedules, only replicated modules are not,
+    // the PathManager owns them.
     T* module_;
   };
+
+  template <typename T>
+  WorkerT<T>::~WorkerT()
+  {}
 
   // This is called directly by the make_worker function created by
   // the DEFINE_ART_MODULE macro.
@@ -187,13 +177,13 @@ namespace art {
   template <typename T>
   bool
   WorkerT<T>::implDoProcess(EventPrincipal& ep,
-                            ScheduleID const si,
+                            ScheduleID const scheduleID,
                             CurrentProcessingContext* cpc)
   {
     // Note, only filters ever return false, and when they do it means
     // they have rejected.
     return module_->doEvent(
-      ep, si, cpc, counts_run_, counts_passed_, counts_failed_);
+      ep, scheduleID, cpc, counts_run_, counts_passed_, counts_failed_);
   }
 
 } // namespace art

@@ -11,6 +11,7 @@
 
 namespace art {
 
+  class Group;
   class RangeSet;
   class TypeID;
 
@@ -21,7 +22,8 @@ namespace art {
     NoDelayedReader();
 
   private:
-    [[noreturn]] std::unique_ptr<EDProduct> getProduct_(ProductID,
+    [[noreturn]] std::unique_ptr<EDProduct> getProduct_(Group const*,
+                                                        ProductID,
                                                         TypeID const&,
                                                         RangeSet&) const;
   };

@@ -25,7 +25,6 @@ namespace art {
 
     explicit Run(RunPrincipal const&,
                  ModuleDescription const&,
-                 TypeLabelLookup_t const& expectedProducts,
                  RangeSet const& rs = RangeSet::invalid());
 
     Run(Run const&) = delete;

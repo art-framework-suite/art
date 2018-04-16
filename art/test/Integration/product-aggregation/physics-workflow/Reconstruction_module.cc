@@ -1,77 +1,104 @@
-//--------------------------------------------------------------------
-//
-// Main motivation for RunProductFilter is to test product
-// aggregation.
-//
-//--------------------------------------------------------------------
-
+// vim: set sw=2 expandtab :
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/test/Integration/product-aggregation/physics-workflow/CalibConstants.h"
 #include "art/test/Integration/product-aggregation/physics-workflow/TrackEfficiency.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Name.h"
+#include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TupleAs.h"
+#include "hep_concurrency/tsan.h"
 
-namespace {
+#include <atomic>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <unistd.h>
+
+using namespace art;
+using namespace std;
+
+namespace arttest {
 
   struct Config {
-    fhicl::TupleAs<art::InputTag(std::string)> inputTag{
-      fhicl::Name("inputTag")};
+    fhicl::TupleAs<InputTag(string)> inputTag{fhicl::Name("inputTag")};
     fhicl::Atom<double> threshold{fhicl::Name("energyThreshold")};
   };
 
-  class Reconstruction : public art::EDFilter {
-    double threshold_;
-    art::ProductToken<std::vector<double>> particleEnergiesTkn_;
-    unsigned numerator_{};
-    unsigned denominator_{};
-
+  class Reconstruction : public shared::Filter {
+    // Types -- Configuration.
   public:
     using Parameters = EDFilter::Table<Config>;
-    explicit Reconstruction(Parameters const& config)
-      : threshold_{config().threshold()}
-      , particleEnergiesTkn_{consumes<std::vector<double>>(config().inputTag())}
-    {
-      produces<arttest::CalibConstants, art::InSubRun>("CalibConstants");
-      produces<arttest::TrackEfficiency, art::InSubRun>("TrackEfficiency");
+    // Special Member Functions
+  public:
+    explicit Reconstruction(Parameters const&);
+    // API
+  public:
+    bool beginSubRun(SubRun&) override;
+    bool endSubRun(SubRun&) override;
+    bool filter(Event&) override;
+    // Data Members -- Implementation details.
+  private:
+    double const threshold_;
+    ProductToken<vector<double>> const particleEnergiesTkn_;
+    std::atomic<unsigned> numerator_;
+    std::atomic<unsigned> denominator_;
+  };
+
+  Reconstruction::Reconstruction(Parameters const& config)
+    : threshold_{config().threshold()}
+    , particleEnergiesTkn_{consumes<vector<double>>(config().inputTag())}
+  {
+    // We must initialize these here because the thread sanitizer does not
+    // handle ctor initializers properly.
+    numerator_ = 0u;
+    denominator_ = 0u;
+    produces<arttest::CalibConstants, InSubRun>("CalibConstants");
+    produces<arttest::TrackEfficiency, InSubRun>("TrackEfficiency");
+  }
+
+  bool
+  Reconstruction::beginSubRun(SubRun& sr)
+  {
+    sr.put(make_unique<arttest::CalibConstants>(sr.subRun()),
+           "CalibConstants",
+           fullSubRun());
+    return true;
+  }
+
+  bool
+  Reconstruction::endSubRun(SubRun& sr)
+  {
+    sr.put(make_unique<arttest::TrackEfficiency>(numerator_.load(),
+                                                 denominator_.load()),
+           "TrackEfficiency",
+           subRunFragment());
+    numerator_ = 0u;
+    denominator_ = 0u;
+    return true;
+  }
+
+  bool
+  Reconstruction::filter(Event& e)
+  {
+    INTENTIONAL_DATA_RACE(DR_RECONSTRUCTION);
+    auto const& particleEnergies = *e.getValidHandle(particleEnergiesTkn_);
+    bool pass = false;
+    for (auto const& val : particleEnergies) {
+      if (val >= threshold_) {
+        pass = true;
+        ++numerator_;
+        break;
+      }
     }
+    ++denominator_;
+    return pass;
+  }
 
-    bool
-    beginSubRun(art::SubRun& sr) override
-    {
-      sr.put(std::make_unique<arttest::CalibConstants>(sr.subRun()),
-             "CalibConstants",
-             art::fullSubRun());
-      return true;
-    }
+} // namespace arttest
 
-    bool
-    filter(art::Event& e) override
-    {
-      auto const& particleEnergies = *e.getValidHandle(particleEnergiesTkn_);
-      bool const pass = std::any_of(
-        particleEnergies.cbegin(),
-        particleEnergies.cend(),
-        [this](double const energy) { return energy >= threshold_; });
-      numerator_ += static_cast<unsigned>(pass);
-      ++denominator_;
-      return pass;
-    }
-
-    bool
-    endSubRun(art::SubRun& sr) override
-    {
-      sr.put(
-        std::make_unique<arttest::TrackEfficiency>(numerator_, denominator_),
-        "TrackEfficiency",
-        art::subRunFragment());
-      denominator_ = numerator_ = 0u;
-      return true;
-    }
-
-  }; // Reconstruction
-
-} // namespace
-
-DEFINE_ART_MODULE(Reconstruction)
+DEFINE_ART_MODULE(arttest::Reconstruction)

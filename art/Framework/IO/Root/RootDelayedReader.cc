@@ -1,5 +1,5 @@
 #include "art/Framework/IO/Root/RootDelayedReader.h"
-// vim: sw=2:
+// vim: sw=2 expandtab :
 
 #include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
@@ -21,13 +21,14 @@
 #include <atomic>
 #include <cassert>
 #include <cstring>
-#include <mutex>
 #include <utility>
 #include <vector>
 
 using namespace std;
 
 namespace art {
+
+  RootDelayedReader::~RootDelayedReader() {}
 
   RootDelayedReader::RootDelayedReader(
     FileFormatVersion const version,
@@ -64,8 +65,7 @@ namespace art {
   std::vector<ProductProvenance>
   RootDelayedReader::readProvenance_() const
   {
-    std::lock_guard<std::recursive_mutex> lock_input(
-      *SharedResourcesRegistry::instance()->getMutexForSource());
+    input::RootMutexSentry sentry;
     vector<ProductProvenance> ppv;
     auto p_ppv = &ppv;
     provenanceBranch_->SetAddress(&p_ppv);
@@ -94,8 +94,7 @@ namespace art {
       return true;
     }
     {
-      lock_guard<recursive_mutex> lock_input(
-        *art::SharedResourcesRegistry::instance()->getMutexForSource());
+      input::RootMutexSentry sentry;
       for (auto I = entrySet_.cbegin(), E = entrySet_.cend(); I != E; ++I) {
         vector<ProductProvenance> ppv;
         ProductProvenance const* prov = nullptr;
@@ -127,7 +126,8 @@ namespace art {
   }
 
   unique_ptr<EDProduct>
-  RootDelayedReader::getProduct_(ProductID const pid,
+  RootDelayedReader::getProduct_(Group const* grp,
+                                 ProductID const pid,
                                  TypeID const& ty,
                                  RangeSet& rs) const
   {
@@ -148,16 +148,16 @@ namespace art {
     }
     // Note: threading: The configure ref core streamer and the related i/o
     // operations must be done with the source lock held!
-    lock_guard<recursive_mutex> lock_input{
-      *art::SharedResourcesRegistry::instance()->getMutexForSource()};
+    input::RootMutexSentry sentry;
     configureProductIDStreamer(branchIDLists_);
-    configureRefCoreStreamer(principal_);
+    configureRefCoreStreamer(principal_.get());
     TClass* cl = TClass::GetClass(ty.typeInfo());
     auto get_product = [this, cl, br](auto entry) {
       unique_ptr<EDProduct> p{static_cast<EDProduct*>(cl->New())};
       EDProduct* pp = p.get();
       br->SetAddress(&pp);
-      auto const bytesRead = input::getEntry(br, entry);
+      unsigned long long ticks = 0;
+      auto const bytesRead = input::getEntry(br, entry, ticks);
       if ((saveMemoryObjectThreshold_ > -1) &&
           (bytesRead > saveMemoryObjectThreshold_)) {
         br->DropBaskets("all");
@@ -269,7 +269,8 @@ namespace art {
         // Replace the provenance.
         // Note: We do not worry about productstatus::unknown() here because
         // newRS is valid.
-        principal_->insert_pp(make_unique<ProductProvenance const>(*new_prov));
+        principal_->insert_pp(const_cast<Group*>(grp),
+                              make_unique<ProductProvenance const>(*new_prov));
         prov = move(new_prov);
       } else if (art::disjoint_ranges(mergedRangeSet, newRS)) {
         // Old and new range sets can be combined, do it.

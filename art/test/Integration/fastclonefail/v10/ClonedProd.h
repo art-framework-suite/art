@@ -1,5 +1,6 @@
 #ifndef art_test_Integration_fastclonefail_v10_ClonedProd_h
 #define art_test_Integration_fastclonefail_v10_ClonedProd_h
+// vim: set sw=2 expandtab :
 
 #include "canvas/Persistency/Common/Wrapper.h"
 
@@ -10,12 +11,8 @@ namespace arttest {
     ~ClonedProd();
     ClonedProd();
 
-  private:
-    int dp1_
-#ifdef __clang__
-      [[gnu::unused]]
-#endif
-      ;
+  public:
+    int dp1_{3};
   };
 
 } // namespace arttest

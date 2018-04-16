@@ -11,12 +11,10 @@ namespace art {
 
   SubRun::SubRun(SubRunPrincipal const& srp,
                  ModuleDescription const& md,
-                 TypeLabelLookup_t const& expectedProducts,
                  RangeSet const& rs /* = RangeSet::invalid() */)
-    : DataViewImpl{InSubRun, srp, md, false, expectedProducts, rs}
-    , run_{srp.runPrincipalExemptPtr() ?
-             new Run{srp.runPrincipal(), md, TypeLabelLookup_t{}} :
-             nullptr}
+    : DataViewImpl{InSubRun, srp, md, false, rs}
+    , run_{srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), md} :
+                                         nullptr}
   {}
 
   SubRunID

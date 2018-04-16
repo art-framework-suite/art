@@ -22,6 +22,7 @@ namespace art {
     static constexpr BranchType branch_type = Auxiliary::branch_type;
 
   public:
+    ~EventPrincipal();
     EventPrincipal(
       EventAuxiliary const& aux,
       ProcessConfiguration const& pc,

@@ -1,6 +1,15 @@
 #include "art/Framework/Core/PathsInfo.h"
 // vim: set sw=2 expandtab :
 
+#include "art/Framework/Core/Path.h"
+#include "canvas/Persistency/Common/HLTGlobalStatus.h"
+
+#include <atomic>
+#include <cstddef>
+#include <map>
+#include <mutex>
+#include <string>
+
 using namespace std;
 
 namespace art {
@@ -13,9 +22,11 @@ namespace art {
     }
   }
 
-  PathsInfo::PathsInfo()
-    : workers_{}, paths_{}, pathResults_{}, totalEvents_{}, passedEvents_{}
-  {}
+  PathsInfo::PathsInfo() : workers_{}, paths_{}, pathResults_{}
+  {
+    totalEvents_ = 0;
+    passedEvents_ = 0;
+  }
 
   map<string, Worker*>&
   PathsInfo::workers()
@@ -62,19 +73,19 @@ namespace art {
   size_t
   PathsInfo::passedEvents() const
   {
-    return passedEvents_;
+    return passedEvents_.load();
   }
 
   size_t
   PathsInfo::failedEvents() const
   {
-    return totalEvents_ - passedEvents_;
+    return totalEvents_.load() - passedEvents_.load();
   }
 
   size_t
   PathsInfo::totalEvents() const
   {
-    return totalEvents_;
+    return totalEvents_.load();
   }
 
 } // namespace art

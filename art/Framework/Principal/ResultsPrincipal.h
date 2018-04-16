@@ -30,6 +30,7 @@ namespace art {
     static constexpr BranchType branch_type = ResultsAuxiliary::branch_type;
 
   public:
+    ~ResultsPrincipal();
     ResultsPrincipal(ResultsAuxiliary const&,
                      ProcessConfiguration const&,
                      cet::exempt_ptr<ProductTable const> presentProducts,

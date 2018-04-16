@@ -3,13 +3,16 @@
 #include "art/Utilities/ScheduleID.h"
 #include "cetlib/SimultaneousFunctionSpawner.h"
 #include "cetlib/container_algorithms.h"
+#include "hep_concurrency/RecursiveMutex.h"
 
 #include <algorithm>
 #include <cassert>
 #include <functional>
-#include <mutex>
 #include <tuple>
 #include <vector>
+
+using namespace std;
+using namespace hep::concurrency;
 
 using art::LinuxProcData;
 using art::LinuxProcMgr;
@@ -33,7 +36,7 @@ namespace {
     update(sid_size_type const sid, logged_memory_t& loggedMemory)
     {
       auto const data = procMgr_.getCurrentData(sid);
-      std::lock_guard<decltype(m_)> hold{m_};
+      RecursiveMutexSentry sentry{mutex_, __func__};
       loggedMemory.emplace_back(sid,
                                 LinuxProcData::getValueInMB<vsize_t>(data),
                                 LinuxProcData::getValueInMB<rss_t>(data));
@@ -41,10 +44,10 @@ namespace {
 
   private:
     LinuxProcMgr procMgr_;
-    static std::mutex m_;
+    static RecursiveMutex mutex_;
   };
 
-  std::mutex ProcInfoTester::m_{};
+  RecursiveMutex ProcInfoTester::mutex_{"ProcInfoTester::mutex_"};
 
   // 6 update calls in test
   void

@@ -1,3 +1,5 @@
+# vim: set sw=2 :
+
 art_dictionary(NO_INSTALL)
 
 simple_plugin(EventGenerator       "module" NO_INSTALL)
@@ -105,113 +107,142 @@ simple_plugin(AssembleMoreProductsRobust "module" NO_INSTALL USE_BOOST_UNIT)
 #              |                                                     ParticleRatio---------->
 # endRun       | nPOTs---------------------------------------------------------------------->
 
+set(NUM_THREADS 1 2 4 8)
 
 cet_test(Stage1_EventGeneration_w HANDBUILT
   TEST_EXEC art
+  PARG_J -j ${NUM_THREADS}
   TEST_ARGS --rethrow-all -c eventGeneration_w.fcl
-  DATAFILES
-  fcl/eventGeneration_w.fcl
-  )
+  DATAFILES fcl/eventGeneration_w.fcl
+)
 
 cet_test(Stage2_ParticleSimulation_w HANDBUILT
   TEST_EXEC art
+  PARG_J -j ${NUM_THREADS}
   TEST_ARGS --rethrow-all -c particleSimulation_w.fcl
-  -s ../Stage1_EventGeneration_w.d/evtGen_1.root
-  -s ../Stage1_EventGeneration_w.d/evtGen_2.root
-  -s ../Stage1_EventGeneration_w.d/evtGen_3.root
-  -s ../Stage1_EventGeneration_w.d/evtGen_4.root
-  DATAFILES
-  fcl/particleSimulation_w.fcl
-  TEST_PROPERTIES
-  DEPENDS Stage1_EventGeneration_w)
+    -s ../Stage1_EventGeneration_w_0.d/evtGen_1.root
+    -s ../Stage1_EventGeneration_w_0.d/evtGen_2.root
+    -s ../Stage1_EventGeneration_w_0.d/evtGen_3.root
+    -s ../Stage1_EventGeneration_w_0.d/evtGen_4.root
+  DATAFILES fcl/particleSimulation_w.fcl
+)
+
+set_tests_properties(Stage2_ParticleSimulation_w_0 PROPERTIES DEPENDS Stage1_EventGeneration_w_0)
+set_tests_properties(Stage2_ParticleSimulation_w_1 PROPERTIES DEPENDS Stage1_EventGeneration_w_0)
+set_tests_properties(Stage2_ParticleSimulation_w_2 PROPERTIES DEPENDS Stage1_EventGeneration_w_0)
+set_tests_properties(Stage2_ParticleSimulation_w_3 PROPERTIES DEPENDS Stage1_EventGeneration_w_0)
 
 cet_test(Stage3_Reconstruction_w HANDBUILT
   TEST_EXEC art
+  PARG_J -j ${NUM_THREADS}
   TEST_ARGS --rethrow-all -c reconstruction_w.fcl
-  -s "../Stage2_ParticleSimulation_w.d/sim_1.root"
-  -s "../Stage2_ParticleSimulation_w.d/sim_2.root"
-  -s "../Stage2_ParticleSimulation_w.d/sim_3.root"
-  -s "../Stage2_ParticleSimulation_w.d/sim_4.root"
-  DATAFILES
-  fcl/reconstruction_w.fcl
-  TEST_PROPERTIES
-  DEPENDS Stage2_ParticleSimulation_w)
+    -s "../Stage2_ParticleSimulation_w_0.d/sim_1.root"
+    -s "../Stage2_ParticleSimulation_w_0.d/sim_2.root"
+    -s "../Stage2_ParticleSimulation_w_0.d/sim_3.root"
+    -s "../Stage2_ParticleSimulation_w_0.d/sim_4.root"
+  DATAFILES fcl/reconstruction_w.fcl
+)
+
+set_tests_properties(Stage3_Reconstruction_w_0 PROPERTIES DEPENDS Stage2_ParticleSimulation_w_0)
+set_tests_properties(Stage3_Reconstruction_w_1 PROPERTIES DEPENDS Stage2_ParticleSimulation_w_0)
+set_tests_properties(Stage3_Reconstruction_w_2 PROPERTIES DEPENDS Stage2_ParticleSimulation_w_0)
+set_tests_properties(Stage3_Reconstruction_w_3 PROPERTIES DEPENDS Stage2_ParticleSimulation_w_0)
 
 # TEST PATH 1
 
 cet_test(Stage4_Concatenation_w HANDBUILT
   TEST_EXEC art
+  PARG_J -j ${NUM_THREADS}
   TEST_ARGS --rethrow-all -c concatenate_w.fcl
-  -s "../Stage3_Reconstruction_w.d/reco_1.root"
-  -s "../Stage3_Reconstruction_w.d/reco_2.root"
-  -s "../Stage3_Reconstruction_w.d/reco_3.root"
-  -s "../Stage3_Reconstruction_w.d/reco_4.root"
-  -s "../Stage3_Reconstruction_w.d/reco_5.root"
-  -s "../Stage3_Reconstruction_w.d/reco_6.root"
-  DATAFILES
-  fcl/concatenate_w.fcl
-  TEST_PROPERTIES
-  DEPENDS Stage3_Reconstruction_w)
+    -s "../Stage3_Reconstruction_w_0.d/reco_1.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_2.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_3.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_4.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_5.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_6.root"
+  DATAFILES fcl/concatenate_w.fcl
+)
 
+set_tests_properties(Stage4_Concatenation_w_0 PROPERTIES DEPENDS Stage3_Reconstruction_w_0)
+set_tests_properties(Stage4_Concatenation_w_1 PROPERTIES DEPENDS Stage3_Reconstruction_w_0)
+set_tests_properties(Stage4_Concatenation_w_2 PROPERTIES DEPENDS Stage3_Reconstruction_w_0)
+set_tests_properties(Stage4_Concatenation_w_3 PROPERTIES DEPENDS Stage3_Reconstruction_w_0)
+
+# A test using art_ut cannot use PARG_J -j ${NUM_THREADS}
+# because those arguments get added before the TEST_ARGS,
+# so they come before the "--" argument to art_ut which
+# does not work.
 cet_test(Stage5_Analysis_r HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS
-  -- -c checkProducts_r.fcl
-  -s "../Stage4_Concatenation_w.d/concatenation.root"
-  DATAFILES
-  fcl/checkProducts_r.fcl
+  TEST_ARGS -- -c checkProducts_r.fcl
+    -s "../Stage4_Concatenation_w_0.d/concatenation.root"
+  DATAFILES fcl/checkProducts_r.fcl
   TEST_PROPERTIES
-  DEPENDS Stage4_Concatenation_w)
+  DEPENDS Stage4_Concatenation_w_0
+)
 
 # TEST PATH 2
 
+# A test using art_ut cannot use PARG_J -j ${NUM_THREADS}
+# because those arguments get added before the TEST_ARGS,
+# so they come before the "--" argument to art_ut which
+# does not work.
 cet_test(Stage4_Assemble_w HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- -c assemble_w.fcl
-  -s "../Stage3_Reconstruction_w.d/reco_1.root"
-  -s "../Stage3_Reconstruction_w.d/reco_2.root"
-  -s "../Stage3_Reconstruction_w.d/reco_3.root"
-  -s "../Stage3_Reconstruction_w.d/reco_4.root"
-  -s "../Stage3_Reconstruction_w.d/reco_5.root"
-  -s "../Stage3_Reconstruction_w.d/reco_6.root"
-  DATAFILES
-  fcl/assemble_w.fcl
+    -s "../Stage3_Reconstruction_w_0.d/reco_1.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_2.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_3.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_4.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_5.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_6.root"
+  DATAFILES fcl/assemble_w.fcl
   TEST_PROPERTIES
-  DEPENDS Stage3_Reconstruction_w)
+  DEPENDS Stage3_Reconstruction_w_0
+)
 
+# A test using art_ut cannot use PARG_J -j ${NUM_THREADS}
+# because those arguments get added before the TEST_ARGS,
+# so they come before the "--" argument to art_ut which
+# does not work.
 cet_test(Stage5_MoreAnalysis_r HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS
-  -- -c checkMoreProducts_r.fcl
-  -s "../Stage4_Assemble_w.d/userAssembled.root"
-  DATAFILES
-  fcl/checkMoreProducts_r.fcl
+  TEST_ARGS -- -c checkMoreProducts_r.fcl
+    -s "../Stage4_Assemble_w.d/userAssembled.root"
+  DATAFILES fcl/checkMoreProducts_r.fcl
   TEST_PROPERTIES
-  DEPENDS Stage4_Assemble_w)
+  DEPENDS Stage4_Assemble_w
+)
 
+# A test using art_ut cannot use PARG_J -j ${NUM_THREADS}
+# because those arguments get added before the TEST_ARGS,
+# so they come before the "--" argument to art_ut which
+# does not work.
 cet_test(Stage4_Assemble_reordered_w HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- -c assemble_reordered_files_w.fcl
-  -s "../Stage3_Reconstruction_w.d/reco_5.root"
-  -s "../Stage3_Reconstruction_w.d/reco_6.root"
-  -s "../Stage3_Reconstruction_w.d/reco_1.root"
-  -s "../Stage3_Reconstruction_w.d/reco_2.root"
-  -s "../Stage3_Reconstruction_w.d/reco_3.root"
-  -s "../Stage3_Reconstruction_w.d/reco_4.root"
-  DATAFILES
-  fcl/assemble_reordered_files_w.fcl
-  fcl/assemble_w.fcl
+    -s "../Stage3_Reconstruction_w_0.d/reco_5.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_6.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_1.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_2.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_3.root"
+    -s "../Stage3_Reconstruction_w_0.d/reco_4.root"
+  DATAFILES fcl/assemble_reordered_files_w.fcl fcl/assemble_w.fcl
   TEST_PROPERTIES
-  DEPENDS Stage3_Reconstruction_w)
+  DEPENDS Stage3_Reconstruction_w_0
+)
 
+# A test using art_ut cannot use PARG_J -j ${NUM_THREADS}
+# because those arguments get added before the TEST_ARGS,
+# so they come before the "--" argument to art_ut which
+# does not work.
 cet_test(Stage5_MoreAnalysis_reordered_r HANDBUILT
   TEST_EXEC art_ut
-  TEST_ARGS
-  -- -c checkMoreProducts_r.fcl
-  -s "../Stage4_Assemble_reordered_w.d/userAssembled.root"
-  --process-name checkMoreProductsReordered
-  DATAFILES
-  fcl/checkMoreProducts_reordered_files_r.fcl
-  fcl/checkMoreProducts_r.fcl
+  TEST_ARGS -- -c checkMoreProducts_r.fcl
+    -s "../Stage4_Assemble_reordered_w.d/userAssembled.root"
+    --process-name checkMoreProductsReordered
+  DATAFILES fcl/checkMoreProducts_reordered_files_r.fcl fcl/checkMoreProducts_r.fcl
   TEST_PROPERTIES
-  DEPENDS Stage4_Assemble_reordered_w)
+  DEPENDS Stage4_Assemble_reordered_w
+)
+

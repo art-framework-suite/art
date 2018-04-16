@@ -14,33 +14,28 @@
 #include <atomic>
 #include <map>
 #include <memory>
-#include <mutex>
 #include <string>
 
 extern "C" {
 #include "sqlite3.h"
-}
+} // extern "C"
 
 class TBranch;
 class TFile;
 
 namespace art {
-
+  class Group;
   class Principal;
   class ProductProvenance;
   class RootInputFile;
   class RootInputTree;
-
   class RootDelayedReader final : public DelayedReader {
-
-  public: // MEMBER FUNCTIONS
-    ~RootDelayedReader() = default;
-
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~RootDelayedReader();
     RootDelayedReader(RootDelayedReader const&) = delete;
     RootDelayedReader& operator=(RootDelayedReader const&) = delete;
     RootDelayedReader(RootDelayedReader&&) = delete;
     RootDelayedReader& operator=(RootDelayedReader&&) = delete;
-
     RootDelayedReader(FileFormatVersion,
                       sqlite3* db,
                       std::vector<input::EntryNumber> const& entrySet,
@@ -53,26 +48,22 @@ namespace art {
                       EventID,
                       bool compactSubRunRanges);
 
-  private: // MEMBER FUNCTIONS
-    std::unique_ptr<EDProduct> getProduct_(ProductID,
+  private: // MEMBER FUNCTIONS -- API
+    std::unique_ptr<EDProduct> getProduct_(Group const*,
+                                           ProductID,
                                            TypeID const&,
                                            RangeSet&) const override;
-
     void setPrincipal_(cet::exempt_ptr<Principal>) override;
-
     std::vector<ProductProvenance> readProvenance_() const override;
-
     bool isAvailableAfterCombine_(ProductID) const override;
-
     int openNextSecondaryFile_(int idx) override;
 
-  private: // MEMBER DATA
+  private: // MEMBER DATA -- Implementation details.
     FileFormatVersion fileFormatVersion_;
     sqlite3* db_;
     std::vector<input::EntryNumber> const entrySet_;
     cet::exempt_ptr<input::BranchMap const> branches_;
     TBranch* provenanceBranch_;
-    // cet::exempt_ptr<RootInputTree> tree_;
     int64_t saveMemoryObjectThreshold_;
     cet::exempt_ptr<Principal> principal_;
     cet::exempt_ptr<RootInputFile> primaryFile_;
@@ -81,7 +72,6 @@ namespace art {
     EventID eventID_;
     bool const compactSubRunRanges_;
   };
-
 } // namespace art
 
 // Local Variables:

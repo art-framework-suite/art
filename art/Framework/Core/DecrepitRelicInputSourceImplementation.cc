@@ -352,7 +352,9 @@ namespace art {
   {
     time_t t = time(0);
     char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-    strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
+    struct tm localtm;
+    strftime(
+      ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime_r(&t, &localtm));
     mf::LogVerbatim("ArtReport")
       << "Begin processing the " << numberOfEventsRead_
       << suffix(numberOfEventsRead_) << " record. " << eventID << " at " << ts;

@@ -1,111 +1,137 @@
-#include "art/Framework/Services/FileServiceInterfaces/FileDeliveryStatus.h"
 #include "art/Framework/Services/Optional/TrivialFileDelivery.h"
+// vim: set sw=2 expandtab :
+
+#include "art/Framework/Services/FileServiceInterfaces/FileDeliveryStatus.h"
 #include "canvas/Utilities/Exception.h"
+#include "hep_concurrency/RecursiveMutex.h"
+
 #include <cerrno>
 #include <cstdlib>
 #include <fstream>
-using namespace art;
+#include <string>
+#include <vector>
+
 using namespace std;
+using namespace art;
+using namespace hep::concurrency;
+
 using fhicl::ParameterSet;
 
-namespace {
-  void
-  throwIfFileNotExist(char const* fname)
-  {
-    std::ifstream f(fname);
-    if (!f) {
-      // Throw here, otherwise we don't know what file we couldn't find.
-      throw Exception(errors::CatalogServiceError)
-        << "Input file not found: " << fname << ".\n";
+namespace art {
+
+  namespace {
+
+    void
+    throwIfFileNotExist(char const* fname)
+    {
+      ifstream f(fname);
+      if (!f) {
+        throw Exception(errors::CatalogServiceError)
+          << "Input file not found: " << fname << ".\n";
+      }
     }
+
+  } // unnamed namespace
+
+  TrivialFileDelivery::TrivialFileDelivery(
+    TrivialFileDelivery::Parameters const&)
+  {}
+
+  void
+  TrivialFileDelivery::doConfigure(vector<string> const& items)
+  {
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    fileList_ = items;
+    nextFile_ = fileList_.begin();
+    endOfFiles_ = fileList_.end();
   }
-} // namespace
 
-art::TrivialFileDelivery::TrivialFileDelivery(
-  TrivialFileDelivery::Parameters const&)
-{}
-
-void
-art::TrivialFileDelivery::doConfigure(std::vector<std::string> const& items)
-{
-  fileList = items;
-  nextFile = fileList.begin();
-  endOfFiles = fileList.end();
-}
-
-int
-art::TrivialFileDelivery::doGetNextFileURI(std::string& uri, double& waitTime)
-{
-  FileDeliveryStatus stat;
-  if (nextFile == endOfFiles) {
-    stat = FileDeliveryStatus::NO_MORE_FILES;
+  int
+  TrivialFileDelivery::doGetNextFileURI(string& uri, double& waitTime)
+  {
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    FileDeliveryStatus stat;
+    if (nextFile_ == endOfFiles_) {
+      stat = FileDeliveryStatus::NO_MORE_FILES;
+      return stat;
+    }
+    // Look for protocol.
+    auto pos = nextFile_->find("://");
+    if (pos == string::npos) {
+      // Bare filename.
+      throwIfFileNotExist(nextFile_->c_str());
+      uri = prependFileDesignation(*nextFile_);
+    } else if (nextFile_->substr(0, pos) == "file") {
+      // file://
+      throwIfFileNotExist(nextFile_->c_str() + pos + 3);
+      uri = *nextFile_;
+    } else {
+      // Unknown URI.
+      uri = *nextFile_;
+    }
+    waitTime = 0.0;
+    stat = FileDeliveryStatus::SUCCESS;
+    ++nextFile_;
     return stat;
   }
-  auto pos = nextFile->find("://"); // Look for protocol.
-  if (pos == std::string::npos) {   // Bare filename.
-    throwIfFileNotExist(nextFile->c_str());
-    uri = prependFileDesignation(*nextFile);
-  } else if (nextFile->substr(0, pos) == "file") { // file://
-    throwIfFileNotExist(nextFile->c_str() + pos + 3);
-    uri = *nextFile;
-  } else { // Unknown URI.
-    uri = *nextFile;
+
+  void
+  TrivialFileDelivery::doUpdateStatus(string const&, FileDisposition)
+  {}
+
+  void
+  TrivialFileDelivery::doOutputFileOpened(string const&)
+  {}
+
+  void
+  TrivialFileDelivery::doOutputModuleInitiated(string const&,
+                                               ParameterSet const&)
+  {}
+
+  void
+  TrivialFileDelivery::doOutputFileClosed(string const&, string const&)
+  {}
+
+  void
+  TrivialFileDelivery::doEventSelected(string const&,
+                                       EventID const&,
+                                       HLTGlobalStatus const&)
+  {}
+
+  bool
+  TrivialFileDelivery::doIsSearchable()
+  {
+    return true;
   }
-  waitTime = 0.0;
-  stat = FileDeliveryStatus::SUCCESS;
-  ++nextFile;
-  return stat;
-}
 
-// The remaining doXXX methods are trivial in this class, ignoring the XXX
-// events. The real SAMProtocol concrete class might have real work in these.
-void
-art::TrivialFileDelivery::doUpdateStatus(std::string const&, FileDisposition)
-{}
-void
-art::TrivialFileDelivery::doOutputFileOpened(std::string const&)
-{}
-void
-art::TrivialFileDelivery::doOutputModuleInitiated(std::string const&,
-                                                  ParameterSet const&)
-{}
-void
-art::TrivialFileDelivery::doOutputFileClosed(std::string const&,
-                                             std::string const&)
-{}
-void
-art::TrivialFileDelivery::doEventSelected(std::string const&,
-                                          EventID const&,
-                                          HLTGlobalStatus const&)
-{}
+  void
+  TrivialFileDelivery::doRewind()
+  {
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    nextFile_ = fileList_.begin();
+  }
 
-bool
-art::TrivialFileDelivery::doIsSearchable()
-{
-  return true;
-}
-void
-art::TrivialFileDelivery::doRewind()
-{
-  nextFile = fileList.begin();
-}
+  vector<string>
+  TrivialFileDelivery::extractFileListFromPset(ParameterSet const& pset)
+  {
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    // TODO -- How do we properly throw if either source or fileNames is absent?
+    // get() does throw, but is it the right throw and should we be catching it?
+    auto const& p = pset.get<ParameterSet>("source");
+    auto ret = p.get<vector<string>>("fileNames");
+    return ret;
+  }
 
-// helper functions
-std::vector<std::string>
-art::TrivialFileDelivery::extractFileListFromPset(ParameterSet const& pset)
-{
-  auto const& p = pset.get<ParameterSet>("source");
-  return p.get<std::vector<std::string>>("fileNames");
-  // TODO -- How do we properly throw if either source or fileNames is absent?
-  // get() does throw, but is it the right throw and should we be catching it?
-}
+  string
+  TrivialFileDelivery::prependFileDesignation(string const& name) const
+  {
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    string ret{"file://"};
+    ret += name;
+    return ret;
+  }
 
-std::string
-art::TrivialFileDelivery::prependFileDesignation(std::string const& name) const
-{
-  std::string const s{"file://"};
-  return s + name;
-}
+} // namespace art
 
 DEFINE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileDelivery,
                                   art::CatalogInterface)

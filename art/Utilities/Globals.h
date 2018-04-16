@@ -5,8 +5,12 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Utilities/TypeID.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "hep_concurrency/RecursiveMutex.h"
 
 #include <array>
+#include <atomic>
+#include <cstdlib>
 #include <map>
 #include <set>
 #include <string>
@@ -18,21 +22,12 @@ namespace art {
   class EventProcessor;
 
   class ProductInfo {
-
   public: // TYPES
-    enum class ConsumableType {
-      Product // 0
-      ,
-      ViewElement // 1
-      ,
-      Many // 2
-    };
+    enum class ConsumableType { Product = 0, ViewElement = 1, Many = 2 };
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~ProductInfo();
-
     explicit ProductInfo(ConsumableType const, TypeID const&);
-
     explicit ProductInfo(ConsumableType const,
                          TypeID const&,
                          std::string const& label,
@@ -64,34 +59,11 @@ namespace art {
   };
 
   bool operator<(ProductInfo const& a, ProductInfo const& b);
-
-  inline std::ostream&
-  operator<<(std::ostream& os, ProductInfo::ConsumableType const ct)
-  {
-    switch (ct) {
-      case ProductInfo::ConsumableType::Product:
-        os << "Product";
-        break;
-      case ProductInfo::ConsumableType::ViewElement:
-        os << "ViewElement";
-        break;
-      case ProductInfo::ConsumableType::Many:
-        os << "Many";
-        break;
-    }
-    return os;
-  }
-
+  std::ostream& operator<<(std::ostream& os,
+                           ProductInfo::ConsumableType const ct);
   std::ostream& operator<<(std::ostream& os, ProductInfo const& info);
 
-  // using ConsumableProductVectorPerBranch = std::vector<ProductInfo>;
-  // using ConsumableProductSetPerBranch = std::set<ProductInfo>;
-  // using ConsumableProducts = std::array<std::vector<ProductInfo>,
-  // NumBranchTypes>;  using ConsumableProductSets =
-  // std::array<std::set<ProductInfo>, NumBranchTypes>;
-
   class ConsumesInfo {
-
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~ConsumesInfo();
     ConsumesInfo(ConsumesInfo const&) = delete;
@@ -104,10 +76,8 @@ namespace art {
 
   public: // MEMBER FUNCTIONS -- Static API
     static ConsumesInfo* instance();
-
     static std::string assemble_consumes_statement(BranchType const,
                                                    ProductInfo const&);
-
     static std::string module_context(ModuleDescription const&);
 
   public: // MEMBER FUNCTIONS -- API for user
@@ -118,10 +88,9 @@ namespace art {
       std::map<std::string const,
                std::array<std::vector<ProductInfo>, NumBranchTypes>>;
 
-    consumables_t::mapped_type const&
+    std::array<std::vector<ProductInfo>, NumBranchTypes> const&
     consumables(std::string const& module_label) const
     {
-      // Will throw if entry for module label doesn't exist.
       return consumables_.at(module_label);
     }
 
@@ -137,14 +106,21 @@ namespace art {
     void showMissingConsumes() const;
 
   private: // MEMBER DATA
-    bool requireConsumes_{};
+    // Protects access to consumables_ and missingConsumes_.
+    mutable hep::concurrency::RecursiveMutex mutex_{
+      "art::ConsumesInfo::mutex_"};
 
-    consumables_t consumables_{};
+    std::atomic<bool> requireConsumes_;
+
+    // Maps module label to run, per-branch consumes info.
+    std::map<std::string const,
+             std::array<std::vector<ProductInfo>, NumBranchTypes>>
+      consumables_;
 
     // Maps module label to run, per-branch missing product consumes info.
     std::map<std::string const,
              std::array<std::set<ProductInfo>, NumBranchTypes>>
-      missingConsumes_{};
+      missingConsumes_;
   };
 
   class Globals {
@@ -152,31 +128,61 @@ namespace art {
     friend class EventProcessor;
     friend class PathManager;
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
+    // MEMBER FUNCTIONS -- Special Member Functions
+  public:
     ~Globals();
     Globals(Globals const&) = delete;
-    Globals(Globals&) = delete;
+    Globals(Globals&&) = delete;
     Globals& operator=(Globals const&) = delete;
-    Globals& operator=(Globals&) = delete;
+    Globals& operator=(Globals&&) = delete;
 
-  private: // MEMBER FUNCTIONS -- Special Member Functions
+    // MEMBER FUNCTIONS -- Special Member Functions
+  private:
     Globals();
 
-  public: // MEMBER FUNCTIONS -- Static API
+    // MEMBER FUNCTIONS -- Static API
+  public:
     static Globals* instance();
 
-  public: // MEMBER FUNCTIONS -- API for getting system-wide settings
-    int nthreads() const;
+    // MEMBER FUNCTIONS -- API for getting system-wide settings
+  public:
     int nschedules() const;
+    int nthreads() const;
+    bool wantSummary() const;
+    std::string const& processName() const;
+    fhicl::ParameterSet const& triggerPSet() const;
+    std::vector<std::string> const& triggerPathNames() const;
 
-  private: // MEMBER FUNCTIONS -- API for setting system-wide settings, only for
-           // friends
-    void setNThreads(int);
+    // MEMBER FUNCTIONS -- API for setting system-wide settings, only for
+    // friends
+  private:
     void setNSchedules(int);
+    void setNThreads(int);
+    void setWantSummary(bool);
+    void setProcessName(std::string const&);
+    void setTriggerPSet(fhicl::ParameterSet const&);
+    void setTriggerPathNames(std::vector<std::string> const&);
 
-  private: // MEMBER DATA
-    int nthreads_{1};
+    // MEMBER DATA
+  private:
+    // The services.scheduler.nschedules parameter.
     int nschedules_{1};
+
+    // The services.scheduler.nthreads parameter.
+    int nthreads_{1};
+
+    // The services.scheduler.wantSummary parameter.
+    bool wantSummary_{false};
+
+    // The art process_name from the job pset.
+    std::string processName_;
+
+    // Parameter set of trigger paths, the key is "trigger_paths",
+    // and the value is triggerPathNames_.
+    fhicl::ParameterSet triggerPSet_;
+
+    // Trigger path names, passed to ctor.
+    std::vector<std::string> triggerPathNames_;
   };
 
 } // namespace art

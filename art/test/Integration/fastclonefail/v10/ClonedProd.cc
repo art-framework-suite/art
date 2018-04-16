@@ -1,9 +1,10 @@
 #include "art/test/Integration/fastclonefail/v10/ClonedProd.h"
+// vim: set sw=2 expandtab :
 
 namespace arttest {
 
   ClonedProd::~ClonedProd() {}
 
-  ClonedProd::ClonedProd() : dp1_(3) {}
+  ClonedProd::ClonedProd() {}
 
 } // namespace arttest

@@ -26,9 +26,7 @@ namespace art {
   public:
     ~Results();
 
-    explicit Results(ResultsPrincipal const& p,
-                     ModuleDescription const& md,
-                     TypeLabelLookup_t const& expectedProducts);
+    explicit Results(ResultsPrincipal const& p, ModuleDescription const& md);
 
     Results(Results const&) = delete;
     Results(Results&&) = delete;

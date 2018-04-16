@@ -164,8 +164,8 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   art::EventAuxiliary const eventAux{eventID, now, true};
   pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process, nullptr);
   pEvent_->setSubRunPrincipal(srp.get());
-  pEvent_->enableProductCreation(ptf().producedProducts_);
-  pEvent_->setProducedProducts(ptf().producedProducts_);
+  pEvent_->createGroupsForProducedProducts(ptf().producedProducts_);
+  pEvent_->enableLookupOfProducedProducts(ptf().producedProducts_);
   pEvent_->put(
     *pd, move(productProvenancePtr), move(product), make_unique<RangeSet>());
   BOOST_REQUIRE_EQUAL(pEvent_->size(), 5u);

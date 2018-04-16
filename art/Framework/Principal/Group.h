@@ -19,12 +19,12 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
+#include "hep_concurrency/RecursiveMutex.h"
 
 #include <algorithm>
 #include <atomic>
 #include <iostream>
 #include <memory>
-#include <mutex>
 #include <type_traits>
 
 namespace art {
@@ -32,15 +32,8 @@ namespace art {
   class Principal;
 
   class Group final : public EDProductGetter {
-
   private: // TYPES
-    enum class grouptype {
-      normal // 0
-      ,
-      assns // 1
-      ,
-      assnsWithData // 2
-    };
+    enum class grouptype { normal = 0, assns = 1, assnsWithData = 2 };
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~Group();
@@ -102,24 +95,16 @@ namespace art {
           TypeID const& partner_base_wrapper_type);
 
     Group(Group const&) = delete;
-
     Group(Group&&) = delete;
-
     Group& operator=(Group const&) = delete;
-
     Group& operator=(Group&&) = delete;
 
   public: // MEMBER FUNCTIONS -- EDProductGetter interface
     virtual EDProduct const* getIt_() const override;
-
     EDProduct const* anyProduct() const;
-
     EDProduct const* uniqueProduct() const;
-
     EDProduct const* uniqueProduct(TypeID const&) const;
-
     bool resolveProductIfAvailable(TypeID wanted_wrapper = TypeID{}) const;
-
     bool tryToResolveProduct(TypeID const&);
 
   public: // MEMBER FUNCTIONS -- Memory-saving API
@@ -129,20 +114,15 @@ namespace art {
 
   public: // MEMBER FUNCTIONS -- Metadata API
     BranchDescription const& productDescription() const;
-
     ProductID productID() const;
-
     RangeSet const& rangeOfValidity() const;
-
     bool productAvailable() const;
-
     cet::exempt_ptr<ProductProvenance const> productProvenance() const;
-
     cet::exempt_ptr<BranchDescription const> productDescription(
       ProductID) const;
 
-  public: // MEMBER FUNCTIONS -- API for setting internal product provenance and
-          // product pointers.
+  public: // MEMBER FUNCTIONS -- API for setting internal product provenance
+          // and product pointers.
     // Called by Principal::ctor_read_provenance()
     // Called by Principal::insert_pp
     //   Called by RootDelayedReader::getProduct_
@@ -153,78 +133,62 @@ namespace art {
                                  std::unique_ptr<EDProduct>&&,
                                  std::unique_ptr<RangeSet>&&);
 
-  private:
+  private: // MEMBER DATA -- Implementation details
     BranchDescription const& branchDescription_;
-
     // Back pointer to the principal that owns us.
     Principal* const principal_{nullptr};
-
     // Back pointer to the delayed reader in the principal that owns us.
     cet::exempt_ptr<DelayedReader const> const delayedReader_{};
-
     // Used to serialize access to productProvenance_, product_, rangeSet_,
     // partnerProduct_, baseProduct_, and partnerBaseProduct_.
-    // Note: threading: This is recursive because sometimes we may need to
-    // Note: threading: replace the product provenance when merging run or
-    // Note: threading: subRun data products while checking if the product
-    // Note: threading: is available, which we may do while resolving a
-    // Note: threading: a product with this mutex locked to make the updating
-    // Note: threading: of provenance and product pointers atomic.
-    mutable std::recursive_mutex mutex_{};
-
+    // This is recursive because sometimes we may need to
+    // replace the product provenance when merging run or
+    // subRun data products while checking if the product
+    // is available, which we may do while resolving a
+    // a product with this locked to make the updating
+    // of provenance and product pointers together one atomic
+    // transaction.
+    mutable hep::concurrency::RecursiveMutex mutex_{"Group::mutex_"};
     // The product provenance for the data product.
     // Note: Modified by setProductProvenance (called by Principal ctors and
     // Principal::insert_pp (called by Principal::put).
-    std::atomic<ProductProvenance const*> productProvenance_{nullptr};
-
+    std::atomic<ProductProvenance const*> productProvenance_;
     // The wrapped data product itself.
     // Note: Modified by setProduct (called by Principal::put)
     // Note: Modified by removeCachedProduct.
     // Note: Modified by resolveProductIfAvailable.
-    mutable std::atomic<EDProduct*> product_{nullptr};
-
+    mutable std::atomic<EDProduct*> product_;
     // Note: Modified by setProduct (called by Principal put).
     // Note: Modified by removeCachedProduct.
     // Note: Modified by resolveProductIfAvailable.
-    mutable std::atomic<RangeSet*> rangeSet_{new RangeSet{}};
-
+    mutable std::atomic<RangeSet*> rangeSet_;
     // Are we normal, assns, or assnsWithData?
     grouptype const grpType_{grouptype::normal};
-
     //
     //  Normal Group
     //
-
     TypeID const wrapperType_{};
-
     //
     //  AssnsGroup
     //
-
     TypeID const partnerWrapperType_{};
-
     // Note: Modified by setProduct (called by Principal put).
     // Note: Modified by removeCachedProduct.
     // Note: Modified by resolveProductIfAvailable.
-    mutable std::atomic<EDProduct*> partnerProduct_{nullptr};
-
+    mutable std::atomic<EDProduct*> partnerProduct_;
     //
     //  AssnsGroupWithData
     //
-
     TypeID const baseWrapperType_{};
-
     TypeID const partnerBaseWrapperType_{};
-
     // Note: Modified by setProduct.
     // Note: Modified by removeCachedProduct.
     // Note: Modified by resolveProductIfAvailable.
-    mutable std::atomic<EDProduct*> baseProduct_{nullptr};
-
+    mutable std::atomic<EDProduct*> baseProduct_;
     // Note: Modified by setProduct.
     // Note: Modified by removeCachedProduct.
     // Note: Modified by resolveProductIfAvailable.
-    mutable std::atomic<EDProduct*> partnerBaseProduct_{nullptr};
+    mutable std::atomic<EDProduct*> partnerBaseProduct_;
   };
 
 } // namespace art

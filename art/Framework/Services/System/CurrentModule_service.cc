@@ -3,8 +3,12 @@
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "hep_concurrency/RecursiveMutex.h"
 
-using art::CurrentModule;
+#include <string>
+
+using namespace std;
+using namespace hep::concurrency;
 
 namespace art {
 
@@ -20,9 +24,17 @@ namespace art {
     r.sPreModuleEndSubRun.watch(this, &CurrentModule::track_module);
   }
 
+  string const&
+  label() const
+  {
+    RecursiveMutexSentry sentry(mutex_, __func__);
+    return desc_.moduleLabel();
+  }
+
   void
   CurrentModule::track_module(ModuleDescription const& desc)
   {
+    RecursiveMutexSentry sentry(mutex_, __func__);
     desc_ = desc;
   }
 

@@ -18,11 +18,12 @@ namespace art {
   DelayedReader::DelayedReader() {}
 
   std::unique_ptr<EDProduct>
-  DelayedReader::getProduct(ProductID const pid,
+  DelayedReader::getProduct(Group const* grp,
+                            ProductID const pid,
                             TypeID const& wrapper_type,
                             RangeSet& rs) const
   {
-    return getProduct_(pid, wrapper_type, rs);
+    return getProduct_(grp, pid, wrapper_type, rs);
   }
 
   void

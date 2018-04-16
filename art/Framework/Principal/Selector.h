@@ -1,5 +1,6 @@
 #ifndef art_Framework_Principal_Selector_h
 #define art_Framework_Principal_Selector_h
+// vim: set sw=2 expandtab :
 
 /*----------------------------------------------------------------------
 

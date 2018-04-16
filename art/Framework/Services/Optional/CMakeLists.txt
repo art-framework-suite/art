@@ -30,9 +30,6 @@ simple_plugin(RandomNumberGenerator "service"
   cetlib
   ${CLHEP})
 
-simple_plugin(MemoryAdjuster "service"
-  art_Framework_Services_Optional)
-
 basic_plugin(MemoryTracker "service"
   art_Framework_Services_Optional
   art_Framework_Principal

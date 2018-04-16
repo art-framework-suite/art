@@ -5,7 +5,6 @@
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include "cetlib/exempt_ptr.h"
 #include "cetlib_except/exception.h"
 
 #include <memory>

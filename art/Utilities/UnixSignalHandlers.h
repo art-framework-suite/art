@@ -1,39 +1,14 @@
 #ifndef art_Utilities_UnixSignalHandlers_h
 #define art_Utilities_UnixSignalHandlers_h
-
-/*----------------------------------------------------------------------
-
-UnixSignalHandlers: A set of little utility functions to establish
-and manipulate Unix-style signal handling.
-
-----------------------------------------------------------------------*/
+// vim: set sw=2 expandtab :
 
 #include "art/Utilities/fwd.h"
 
 #include <atomic>
-#include <csignal>
-#include <mutex>
 
 namespace art {
 
-  extern std::mutex usr2_lock;
   extern std::atomic<int> shutdown_flag;
-
-  extern "C" {
-  void ep_sigusr2(int, siginfo_t*, void*);
-  using CFUNC = void (*)(int, siginfo_t*, void*);
-  }
-
-  int getSigNum();
-  void disableAllSigs(sigset_t* oldset);
-  void disableRTSigs();
-  void enableSignal(sigset_t* newset, int signum);
-  void disableSignal(sigset_t* newset, int signum);
-  void reenableSigs(sigset_t* oldset);
-  void installSig(int signum, CFUNC func);
-  void installCustomHandler(int signum, CFUNC func);
-  void sigInventory();
-
   void setupSignals(bool want_sigint_enabled);
 
 } // namespace art

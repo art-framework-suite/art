@@ -1,6 +1,6 @@
 simple_plugin(DatabaseConnection "service")
 simple_plugin(FileCatalogMetadata "service")
-simple_plugin(FloatingPointControl "service"
+simple_plugin(FloatingPointControl "service" hep_concurrency
   SOURCE FloatingPointControl_service.cc detail/fpControl.cc)
 simple_plugin(TriggerNamesService "service")
 

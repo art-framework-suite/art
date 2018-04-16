@@ -400,7 +400,7 @@ namespace art {
           throwDataCorruption_(
             "readNext returned an Event with an invalid EventID.\n");
         }
-        if (newE->subRunPrincipalExemptPtr()) {
+        if (newE->subRunPrincipalPtr()) {
           throwDataCorruption_(
             "readNext returned an Event with a non-null embedded SubRun.\n");
         }

@@ -5,9 +5,9 @@
 #include "art/Framework/Core/detail/parse_path_spec.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Utilities/Globals.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <string>
 #include <vector>
@@ -38,13 +38,12 @@ namespace art {
   void
   EventObserverBase::init_(vector<string> const& paths)
   {
-    ServiceHandle<TriggerNamesService const> TNS;
-    process_name_ = TNS->getProcessName();
-    auto const& trigPaths = TNS->getTrigPaths();
+    process_name_ = Globals::instance()->processName();
+    auto const& triggerPathNames = Globals::instance()->triggerPathNames();
     if (paths.empty()) {
       // No event selection criteria given, we want all events.
       wantAllEvents_ = true;
-      selectors_.setupDefault(trigPaths);
+      selectors_.setupDefault(triggerPathNames);
       return;
     }
     // Parse the event selection criteria into
@@ -53,7 +52,7 @@ namespace art {
     for (size_t i = 0; i < paths.size(); ++i) {
       detail::parse_path_spec(paths[i], PPS[i]);
     }
-    selectors_.setup(PPS, trigPaths, process_name_);
+    selectors_.setup(PPS, triggerPathNames, process_name_);
   }
 
   void
@@ -95,8 +94,8 @@ namespace art {
     return selectors_.getOneTriggerResults(e);
   }
 
-  detail::CachedProducts&
-  EventObserverBase::cachedProducts()
+  detail::ProcessAndEventSelectors&
+  EventObserverBase::processAndEventSelectors()
   {
     return selectors_;
   }

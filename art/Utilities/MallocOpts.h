@@ -117,8 +117,6 @@ namespace art {
     std::string error_message_;
   };
 
-  MallocOptionSetter& getGlobalOptionSetter();
-
 } // namespace art
 
 #endif /* art_Utilities_MallocOpts_h */

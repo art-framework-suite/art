@@ -3,6 +3,7 @@
 #include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Services/Registry/LocalSignal.h"
+#include "art/Utilities/ScheduleID.h"
 
 #include <ostream>
 #include <stdexcept>

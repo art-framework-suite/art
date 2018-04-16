@@ -13,10 +13,10 @@
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <atomic>
 #include <cstddef>
@@ -24,10 +24,8 @@
 #include <string>
 
 namespace art {
-
   // <<pure virtual abstract base>>
   class EDFilter : public ProducerBase {
-
     // Allow the WorkerT<T> ctor to call setModuleDescription() and
     // workerType().
     template <typename T>
@@ -37,7 +35,6 @@ namespace art {
     // The module macros need these two.
     using ModuleType = EDFilter;
     using WorkerType = WorkerT<EDFilter>;
-
     static constexpr bool Pass{true};
     static constexpr bool Fail{false};
     static constexpr ModuleThreadingType
@@ -52,7 +49,6 @@ namespace art {
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~EDFilter() noexcept;
-
     EDFilter();
     EDFilter(EDFilter const&) = delete;
     EDFilter(EDFilter&&) = delete;
@@ -62,31 +58,24 @@ namespace art {
   private: // MEMBER FUNCTIONS
     std::string workerType() const;
 
-  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule, and
-           // EndPathExecutor
+  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
+           // and EndPathExecutor
     virtual void doBeginJob();
-
     void doEndJob();
-
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
-
     bool doBeginRun(RunPrincipal& rp,
                     cet::exempt_ptr<CurrentProcessingContext const> cpc);
-
     bool doEndRun(RunPrincipal& rp,
                   cet::exempt_ptr<CurrentProcessingContext const> cpc);
-
     bool doBeginSubRun(SubRunPrincipal& srp,
                        cet::exempt_ptr<CurrentProcessingContext const> cpc);
-
     bool doEndSubRun(SubRunPrincipal& srp,
                      cet::exempt_ptr<CurrentProcessingContext const> cpc);
-
     bool doEvent(EventPrincipal& ep,
-                 ScheduleID scheduleID,
+                 ScheduleID const,
                  CurrentProcessingContext const* cpc,
                  std::atomic<std::size_t>& counts_run,
                  std::atomic<std::size_t>& counts_passed,
@@ -94,7 +83,6 @@ namespace art {
 
   protected:
     // Not called by framework
-
     virtual void reconfigure(fhicl::ParameterSet const&);
     virtual void beginJob();
     virtual void endJob();
@@ -113,9 +101,7 @@ namespace art {
   };
 
   namespace shared {
-
     class Filter : public art::EDFilter {
-
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
       template <typename T>
@@ -141,9 +127,7 @@ namespace art {
   } // namespace shared
 
   namespace replicated {
-
     class Filter : public art::EDFilter {
-
       // Allow the WorkerT<T> ctor to call setModuleDescription() and
       // workerType().
       template <typename T>
@@ -155,7 +139,6 @@ namespace art {
       {
         return ModuleThreadingType::REPLICATED;
       }
-
       virtual ~Filter() noexcept;
       Filter();
       Filter(Filter const&) = delete;
@@ -166,9 +149,7 @@ namespace art {
     private:
       void doBeginJob() override;
     };
-
   } // namespace replicated
-
 } // namespace art
 
 #endif /* art_Framework_Core_EDFilter_h */

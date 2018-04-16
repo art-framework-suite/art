@@ -2,14 +2,18 @@
 #include "canvas/Utilities/Exception.h"
 // vim: set sw=2 expandtab :
 
+#include <utility>
+
+using namespace std;
+
 using EntryNumber_t = art::FileIndex::EntryNumber_t;
-using seconds_t = std::chrono::seconds;
 
 namespace art {
 
   namespace {
+
     void
-    config_assert(bool const cond, std::string const& msg)
+    config_assert(bool const cond, string const& msg)
     {
       if (!cond)
         throw art::Exception(art::errors::Configuration) << msg << '\n';
@@ -19,77 +23,160 @@ namespace art {
 
   FileProperties::~FileProperties() {}
 
+  // Note: Cannot be noexcept because of age_!
   FileProperties::FileProperties()
-    : counts_{{}}
-    , treeEntryNumbers_{{}}
-    , age_{std::chrono::seconds::zero()}
-    , size_{}
+    : counts_event_{0}
+    , counts_subRun_{0}
+    , counts_run_{0}
+    , counts_inputFile_{0}
+    , counts_job_{0}
+    , treeEntryNumbers_event_{0}
+    , treeEntryNumbers_subRun_{0}
+    , treeEntryNumbers_run_{0}
+    , treeEntryNumbers_inputFile_{0}
+    , age_{chrono::seconds::zero()}
+    , size_{0}
   {}
 
+  // Note: Cannot be noexcept because of age_!
   FileProperties::FileProperties(unsigned const events,
                                  unsigned const subRuns,
                                  unsigned const runs,
                                  unsigned const inputFiles,
                                  unsigned const the_size,
-                                 seconds_t const the_age)
-    : counts_{{events, subRuns, runs, inputFiles}}
-    , treeEntryNumbers_{{}}
+                                 chrono::seconds const the_age)
+    : counts_event_{events}
+    , counts_subRun_{subRuns}
+    , counts_run_{runs}
+    , counts_inputFile_{inputFiles}
+    , counts_job_{0}
+    , treeEntryNumbers_event_{0}
+    , treeEntryNumbers_subRun_{0}
+    , treeEntryNumbers_run_{0}
+    , treeEntryNumbers_inputFile_{0}
     , age_{the_age}
     , size_{the_size}
   {}
 
+  // Note: Cannot be noexcept because of age_!
+  FileProperties::FileProperties(FileProperties const& rhs)
+    : counts_event_{rhs.counts_event_.load()}
+    , counts_subRun_{rhs.counts_subRun_.load()}
+    , counts_run_{rhs.counts_run_.load()}
+    , counts_inputFile_{rhs.counts_inputFile_.load()}
+    , counts_job_{rhs.counts_job_.load()}
+    , treeEntryNumbers_event_{rhs.treeEntryNumbers_event_.load()}
+    , treeEntryNumbers_subRun_{rhs.treeEntryNumbers_subRun_.load()}
+    , treeEntryNumbers_run_{rhs.treeEntryNumbers_run_.load()}
+    , treeEntryNumbers_inputFile_{rhs.treeEntryNumbers_inputFile_.load()}
+    , age_{rhs.age_.load()}
+    , size_{rhs.size_.load()}
+  {}
+
+  // Note: Cannot be noexcept because of age_!
+  FileProperties::FileProperties(FileProperties&& rhs)
+    : counts_event_{rhs.counts_event_.load()}
+    , counts_subRun_{rhs.counts_subRun_.load()}
+    , counts_run_{rhs.counts_run_.load()}
+    , counts_inputFile_{rhs.counts_inputFile_.load()}
+    , counts_job_{rhs.counts_job_.load()}
+    , treeEntryNumbers_event_{rhs.treeEntryNumbers_event_.load()}
+    , treeEntryNumbers_subRun_{rhs.treeEntryNumbers_subRun_.load()}
+    , treeEntryNumbers_run_{rhs.treeEntryNumbers_run_.load()}
+    , treeEntryNumbers_inputFile_{rhs.treeEntryNumbers_inputFile_.load()}
+    , age_{rhs.age_.load()}
+    , size_{rhs.size_.load()}
+  {}
+
+  // Note: Cannot be noexcept because of age_!
+  FileProperties&
+  FileProperties::operator=(FileProperties const& rhs)
+  {
+    if (this != &rhs) {
+      counts_event_ = rhs.counts_event_.load();
+      counts_subRun_ = rhs.counts_subRun_.load();
+      counts_run_ = rhs.counts_run_.load();
+      counts_inputFile_ = rhs.counts_inputFile_.load();
+      counts_job_ = rhs.counts_job_.load();
+      treeEntryNumbers_event_ = rhs.treeEntryNumbers_event_.load();
+      treeEntryNumbers_subRun_ = rhs.treeEntryNumbers_subRun_.load();
+      treeEntryNumbers_run_ = rhs.treeEntryNumbers_run_.load();
+      treeEntryNumbers_inputFile_ = rhs.treeEntryNumbers_inputFile_.load();
+      age_ = rhs.age_.load();
+      size_ = rhs.size_.load();
+    }
+    return *this;
+  }
+
+  FileProperties&
+  FileProperties::operator=(FileProperties&& rhs)
+  {
+    counts_event_ = rhs.counts_event_.load();
+    counts_subRun_ = rhs.counts_subRun_.load();
+    counts_run_ = rhs.counts_run_.load();
+    counts_inputFile_ = rhs.counts_inputFile_.load();
+    counts_job_ = rhs.counts_job_.load();
+    treeEntryNumbers_event_ = rhs.treeEntryNumbers_event_.load();
+    treeEntryNumbers_subRun_ = rhs.treeEntryNumbers_subRun_.load();
+    treeEntryNumbers_run_ = rhs.treeEntryNumbers_run_.load();
+    treeEntryNumbers_inputFile_ = rhs.treeEntryNumbers_inputFile_.load();
+    age_ = rhs.age_.load();
+    size_ = rhs.size_.load();
+    return *this;
+  }
+
   unsigned
   FileProperties::nEvents() const
   {
-    return counts_[Granularity::Event];
+    return counts_event_.load();
   }
 
   unsigned
   FileProperties::nSubRuns() const
   {
-    return counts_[Granularity::SubRun];
+    return counts_subRun_.load();
   }
 
   unsigned
   FileProperties::nRuns() const
   {
-    return counts_[Granularity::Run];
+    return counts_run_.load();
   }
 
   unsigned
   FileProperties::nInputFiles() const
   {
-    return counts_[Granularity::InputFile];
+    return counts_inputFile_.load();
   }
 
   unsigned
   FileProperties::size() const
   {
-    return size_;
+    return size_.load();
   }
 
-  std::chrono::seconds
+  chrono::seconds
   FileProperties::age() const
   {
-    return age_;
+    return age_.load();
   }
 
   FileIndex::EntryNumber_t
   FileProperties::eventEntryNumber() const
   {
-    return treeEntryNumbers_[Granularity::Event];
+    return treeEntryNumbers_event_.load();
   }
 
   FileIndex::EntryNumber_t
   FileProperties::subRunEntryNumber() const
   {
-    return treeEntryNumbers_[Granularity::SubRun];
+    return treeEntryNumbers_subRun_.load();
   }
 
   FileIndex::EntryNumber_t
   FileProperties::runEntryNumber() const
   {
-    return treeEntryNumbers_[Granularity::Run];
+    return treeEntryNumbers_run_.load();
   }
 
   void
@@ -99,7 +186,7 @@ namespace art {
   }
 
   void
-  FileProperties::updateAge(std::chrono::seconds const age)
+  FileProperties::updateAge(chrono::seconds const age)
   {
     age_ = age;
   }
@@ -107,36 +194,36 @@ namespace art {
   void
   FileProperties::update_event()
   {
-    ++treeEntryNumbers_[Granularity::Event];
-    ++counts_[Granularity::Event];
+    ++treeEntryNumbers_event_;
+    ++counts_event_;
   }
 
   void
   FileProperties::update_subRun(OutputFileStatus const status)
   {
-    ++treeEntryNumbers_[Granularity::SubRun];
+    ++treeEntryNumbers_subRun_;
     if (status != OutputFileStatus::Switching) {
-      ++counts_[Granularity::SubRun];
+      ++counts_subRun_;
     }
   }
 
   void
   FileProperties::update_run(OutputFileStatus const status)
   {
-    ++treeEntryNumbers_[Granularity::Run];
+    ++treeEntryNumbers_run_;
     if (status != OutputFileStatus::Switching) {
-      ++counts_[Granularity::Run];
+      ++counts_run_;
     }
   }
 
   void
   FileProperties::update_inputFile()
   {
-    ++counts_[Granularity::InputFile];
+    ++counts_inputFile_;
   }
 
-  std::ostream&
-  operator<<(std::ostream& os, FileProperties const& fp)
+  ostream&
+  operator<<(ostream& os, FileProperties const& fp)
   {
     os << "[nEvents: " << fp.nEvents() << ", nSubRuns: " << fp.nSubRuns()
        << ", nRuns: " << fp.nRuns() << ", nInputFiles: " << fp.nInputFiles()
@@ -153,7 +240,7 @@ namespace art {
   {}
 
   ClosingCriteria::ClosingCriteria(FileProperties const& fp,
-                                   std::string const& granularity)
+                                   string const& granularity)
     : closingCriteria_{fp}, granularity_{Granularity::value(granularity)}
   {}
 
@@ -163,7 +250,7 @@ namespace art {
                                      c.maxRuns(),
                                      c.maxInputFiles(),
                                      c.maxSize(),
-                                     seconds_t{c.maxAge()}},
+                                     chrono::seconds{c.maxAge()}},
                       c.granularity()}
   {
     auto const& cc = closingCriteria_;

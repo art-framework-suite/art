@@ -14,6 +14,7 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/CPCSentry.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Utilities/Exception.h"
@@ -61,13 +62,13 @@ namespace art {
     serialize(SharedResourcesRegistry::kLegacy);
     vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-    chain_.reset(new SerialTaskQueueChain{queues});
-    auto const& mainID = moduleDescription().mainParameterSetID();
+    chain_ = new SerialTaskQueueChain{queues};
+    auto const& mainID = md_.mainParameterSetID();
     auto const& scheduler_pset =
       fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
         "services.scheduler");
     auto const& module_pset =
-      fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
+      fhicl::ParameterSetRegistry::get(md_.parameterSetID());
     checkPutProducts_ =
       detail::get_failureToPut_flag(scheduler_pset, module_pset);
     beginJob();
@@ -86,14 +87,14 @@ namespace art {
       }
       vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
       auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-      chain_.reset(new SerialTaskQueueChain{queues});
+      chain_ = new SerialTaskQueueChain{queues};
     }
-    auto const& mainID = moduleDescription().mainParameterSetID();
+    auto const& mainID = md_.mainParameterSetID();
     auto const& scheduler_pset =
       fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
         "services.scheduler");
     auto const& module_pset =
-      fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
+      fhicl::ParameterSetRegistry::get(md_.parameterSetID());
     checkPutProducts_ =
       detail::get_failureToPut_flag(scheduler_pset, module_pset);
     beginJob();
@@ -102,12 +103,12 @@ namespace art {
   void
   replicated::Filter::doBeginJob()
   {
-    auto const& mainID = moduleDescription().mainParameterSetID();
+    auto const& mainID = md_.mainParameterSetID();
     auto const& scheduler_pset =
       fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
         "services.scheduler");
     auto const& module_pset =
-      fhicl::ParameterSetRegistry::get(moduleDescription().parameterSetID());
+      fhicl::ParameterSetRegistry::get(md_.parameterSetID());
     checkPutProducts_ =
       detail::get_failureToPut_flag(scheduler_pset, module_pset);
     beginJob();
@@ -172,12 +173,11 @@ namespace art {
                        cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    Run r{rp,
-          moduleDescription(),
-          expectedProducts<InRun>(),
-          RangeSet::forRun(rp.runID())};
+    Run r{rp, md_, RangeSet::forRun(rp.runID())};
     bool const rc = beginRun(r);
-    r.DataViewImpl::commit(rp);
+    // r.DataViewImpl::movePutProductsToPrincipal(rp, checkPutProducts_,
+    // &expectedProducts<InRun>());
+    r.DataViewImpl::movePutProductsToPrincipal(rp);
     return rc;
   }
 
@@ -192,9 +192,11 @@ namespace art {
                      cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    Run r{rp, moduleDescription(), expectedProducts<InRun>(), rp.seenRanges()};
+    Run r{rp, md_, rp.seenRanges()};
     bool const rc = endRun(r);
-    r.DataViewImpl::commit(rp);
+    // r.DataViewImpl::movePutProductsToPrincipal(rp, checkPutProducts_,
+    // &expectedProducts<InRun>());
+    r.DataViewImpl::movePutProductsToPrincipal(rp);
     return rc;
   }
 
@@ -209,12 +211,11 @@ namespace art {
                           cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    SubRun sr{srp,
-              moduleDescription(),
-              expectedProducts<InSubRun>(),
-              RangeSet::forSubRun(srp.subRunID())};
+    SubRun sr{srp, md_, RangeSet::forSubRun(srp.subRunID())};
     bool const rc = beginSubRun(sr);
-    sr.DataViewImpl::commit(srp);
+    // sr.DataViewImpl::movePutProductsToPrincipal(srp, checkPutProducts_,
+    // &expectedProducts<InSubRun>());
+    sr.DataViewImpl::movePutProductsToPrincipal(srp);
     return rc;
   }
 
@@ -229,10 +230,11 @@ namespace art {
                         cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    SubRun sr{
-      srp, moduleDescription(), expectedProducts<InSubRun>(), srp.seenRanges()};
+    SubRun sr{srp, md_, srp.seenRanges()};
     bool const rc = endSubRun(sr);
-    sr.DataViewImpl::commit(srp);
+    // sr.DataViewImpl::movePutProductsToPrincipal(srp, checkPutProducts_,
+    // &expectedProducts<InSubRun>());
+    sr.DataViewImpl::movePutProductsToPrincipal(srp);
     return rc;
   }
 
@@ -244,18 +246,19 @@ namespace art {
 
   bool
   EDFilter::doEvent(EventPrincipal& ep,
-                    ScheduleID /*si*/,
+                    ScheduleID const /*si*/,
                     CurrentProcessingContext const* cpc,
                     atomic<size_t>& counts_run,
                     atomic<size_t>& counts_passed,
                     atomic<size_t>& counts_failed)
   {
     detail::CPCSentry sentry{*cpc};
-    Event e{ep, moduleDescription(), expectedProducts<InEvent>()};
+    Event e{ep, md_};
     ++counts_run;
     bool rc = false;
     rc = filter(e);
-    e.DataViewImpl::commit(ep, checkPutProducts_);
+    e.DataViewImpl::movePutProductsToPrincipal(
+      ep, checkPutProducts_, &expectedProducts<InEvent>());
     if (rc) {
       ++counts_passed;
     } else {

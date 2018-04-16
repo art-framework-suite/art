@@ -28,10 +28,13 @@
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/Worker.h"
+#include "art/Utilities/PerScheduleContainer.h"
+#include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "cetlib/trim.h"
+#include "hep_concurrency/RecursiveMutex.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -39,21 +42,24 @@
 #include <vector>
 
 namespace art {
-
-  class ActivityRegistry;
-
   class EndPathExecutor {
-
-  public:
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~EndPathExecutor();
     EndPathExecutor(PathManager& pm,
                     ActionTable& actions,
                     ActivityRegistry& areg,
                     UpdateOutputCallbacks& callbacks);
+    EndPathExecutor(EndPathExecutor const&) = delete;
+    EndPathExecutor(EndPathExecutor&&) = delete;
+    EndPathExecutor& operator=(EndPathExecutor const&) = delete;
+    EndPathExecutor& operator=(EndPathExecutor&&) = delete;
+
+  public: // MEMBER FUNCTIONS -- Check Range Validity
+    void check();
 
   public: // MEMBER FUNCTIONS -- Begin/End Job
     // Called by EventProcessor::beginJob()
     void beginJob();
-
     // Called by EventProcessor::endJob()
     void endJob();
 
@@ -61,21 +67,17 @@ namespace art {
     // Called by UpdateOutputCallbacks product list updaters (on input file
     // open).
     void selectProducts(ProductTables const&);
-
     // Called by EventProcessor::openInputFile()
     //   Called by EventProcessor::begin<Level::InputFile>()
     void respondToOpenInputFile(FileBlock const& fb);
-
     // Called by EventProcessor::closeInputFile()
     //   Called by EventProcessor::finalize<Level::InputFile>()
     //   Called by EventProcessor::closeAllFiles()
     //     Called by EventProcessor::finalize<Level::InputFile>()
     void respondToCloseInputFile(FileBlock const& fb);
-
     // Called by EventProcessor::respondToOpenOutputFiles(
     //   Called by EventProcessor::openSomeOutputFiles() (output file switching)
     void respondToOpenOutputFiles(FileBlock const& fb);
-
     // Called by EventProcessor::respondToCloseOutputFiles()
     //   Called by EventProcessor::closeAllOutputFiles()
     //     Called by EventProcessor::closeAllFiles(),
@@ -83,17 +85,14 @@ namespace art {
     //   Called by EventProcessor::closeSomeOutputFiles() (output file
     //   switching)
     void respondToCloseOutputFiles(FileBlock const& fb);
-
     // Called by EventProcessor::closeAllOutputFiles()
     //   Called by EventProcessor::closeAllFiles(),
     //     Called by EventProcessor::finalize<Level::InputFile>()
     bool someOutputsOpen() const;
-
     // Called by EventProcessor::closeAllOutputFiles()
     //   Called by EventProcessor::closeAllFiles(),
     //     Called by EventProcessor::finalize<Level::InputFile>()
     void closeAllOutputFiles();
-
     // FIXME: Can be deleted!
     // Called by EventProcessor::openAllOutputFiles(), which is never called.
     void openAllOutputFiles(FileBlock& fb);
@@ -101,11 +100,9 @@ namespace art {
   public: // MEMBER FUNCTIONS -- Begin/End Run
     // Called only by EventProcessor::readRun()
     void seedRunRangeSet(std::unique_ptr<RangeSetHandler>);
-
     // Called by EventProcessor::setRunAuxiliaryRangeSetID(), which is called by
     // EventProcessor::finalize<Level::Run>()
     void setAuxiliaryRangeSetID(RunPrincipal& rp);
-
     // Called by EventProcessor::writeRun(), which is called by
     // EventProcessor::finalize<Level::Run>()
     void writeRun(RunPrincipal& rp);
@@ -113,11 +110,9 @@ namespace art {
   public: // MEMBER FUNCTIONS -- Begin/End SubRun
     // Called only by EventProcessor::readSubRun()
     void seedSubRunRangeSet(std::unique_ptr<RangeSetHandler>);
-
     // Called by EventProcessor::setSubRunAuxiliaryRangeSetID(), which is called
     // by EventProcessor::finalize<Level::SubRun>()
     void setAuxiliaryRangeSetID(SubRunPrincipal& srp);
-
     // Called by EventProcessor::writeSubRun(), which is called by
     // EventProcessor::finalize<Level::SubRun>()
     void writeSubRun(SubRunPrincipal& srp);
@@ -126,19 +121,18 @@ namespace art {
     void process(Transition, Principal&);
 
   public: // MEMBER FUNCTIONS -- Process Event
-    // Called by EventProcessor::processAllEventsAsync_processEndPath(...)
+    // Called by EventProcessor::processEndPathAsync(...)
     // Used to make sure only one event is being
     // processed at a time.  The schedules take turns
     // having their events processed on a first-come
     // first-served basis (FIFO).
-    hep::concurrency::SerialTaskQueue& serialTaskQueue();
-
+    template <typename T>
+    void push(const T& func);
     // Called by
     // EventProcessor::processAllEventsAsync_processEndPath::endPathFunctor()
-    void process_event(EventPrincipal&, ScheduleID scheduleID);
-
+    void process_event(EventPrincipal&, ScheduleID const);
     // Called by EventProcessor::readAndProcessEventFunctor()
-    void writeEvent(ScheduleID scheduleID, EventPrincipal& ep);
+    void writeEvent(ScheduleID const, EventPrincipal&);
 
   public: // MEMBER FUNCTIONS -- Output File Switching API
     //
@@ -147,12 +141,10 @@ namespace art {
     //    respondToOpenOutputFiles(FileBlock const& fb);
     //    respondToCloseOutputFiles(FileBlock const& fb);
     //
-
     // Called by EventProcessor::closeSomeOutputFiles(), which is called when
     // output file switching is happening. Note: This is really returns
     // !outputWorkersToClose_.empty()
     bool outputsToClose() const;
-
     // Called by EventProcessor::closeSomeOutputFiles(), which is called when
     // output file switching is happening.
     // MT note: This is where we need to get all the schedules
@@ -164,19 +156,16 @@ namespace art {
     //          wants to have all output files closed while the run is
     //          paused.  They probably want the input file closed too.
     void closeSomeOutputFiles();
-
     // Called by EventProcessor::openSomeOutputFiles(), which is called when
     // output file switching is happening.
     // Note: This really just returns !outputWorkersToOpen_.empty()
     bool outputsToOpen() const;
-
     // Called by EventProcessor::openSomeOutputFiles(), which is called when
     // output file switching is happening.
     // Note this also calls:
     //   setOutputFileStatus(OutputFileStatus::Open);
     //   outputWorkersToOpen_.clear();
     void openSomeOutputFiles(FileBlock const& fb);
-
     // Note: When we are passed OutputFileStatus::Switching, we must close
     //       the file and call openSomeOutputFiles which changes it back
     //       to OutputFileStatus::Open.
@@ -185,63 +174,54 @@ namespace art {
     //       RootOutputClosingCriteria. However, they are still counted by the
     //       individual counters.
     void setOutputFileStatus(OutputFileStatus);
-
     // Note: What this is really used for is to push workers into
     //       the outputWorkersToClose_ data member.
     void recordOutputClosureRequests(Granularity);
-
     // Called by EventProcessor::closeInputFile()
     // What this really does is cause RootOutputFile to call
     // RootOutputClosingCriteria::update<Granularity::InputFile>() which counts
     // how many times we have crossed a file boundary.
     void incrementInputFileNumber();
-
     // Called by EventProcessor::readAndProcessEventFunctor(...)
     // Return whether or not all of the output workers have
     // reached their maximum limit of work to do.
     bool allAtLimit() const;
 
   private: // MEMBER DATA
+    // Protects runRangeSetHandler_, and subRunRangeSetHandler_.
+    mutable hep::concurrency::RecursiveMutex mutex_{"EndPathExecutor::mutex_"};
     // Filled by ctor, const after that.
-    ActionTable& actionTable_;
-
+    std::atomic<ActionTable*> actionTable_;
     // Filled by ctor, const after that.
-    ActivityRegistry& actReg_;
-
+    std::atomic<ActivityRegistry*> actReg_;
     // Filled by ctor, const after that.
-    PathsInfo& endPathInfo_;
-
-    // Dynamic, used to force only one
-    // event at a time to be active on
-    // the end path.
-    hep::concurrency::SerialTaskQueue serialTaskQueue_{};
-
+    std::atomic<PathsInfo*> endPathInfo_;
+    // Dynamic, used to force only one event at a time to be active on the end
+    // path.
+    std::atomic<hep::concurrency::SerialTaskQueue*> serialTaskQueue_;
+    // Dynamic, cause an error if more than one thread processes an event.
+    std::atomic<int> runningWorkerCnt_;
     // Filled by ctor, const after that.
-    std::vector<OutputWorker*> outputWorkers_{};
-
+    std::atomic<std::vector<OutputWorker*>*> outputWorkers_;
     // Dynamic, updated by run processing.
-    // Note: threading: Will need to be protected when multiple runs/subruns
-    // in-flight is implemented. Note: Indexed by scheduleID.
-    std::vector<std::unique_ptr<RangeSetHandler>> runRangeSetHandler_{};
-
+    std::atomic<PerScheduleContainer<RangeSetHandler*>*> runRangeSetHandler_;
     // Dynamic, updated by subrun processing.
-    // Note: threading: Will need to be protected when multiple runs/subruns
-    // in-flight is implemented. Note: Indexed by scheduleID.
-    std::vector<std::unique_ptr<RangeSetHandler>> subRunRangeSetHandler_{};
+    std::atomic<PerScheduleContainer<RangeSetHandler*>*> subRunRangeSetHandler_;
 
   private: // MEMBER DATA -- Output File Switching
+    // Protects fileStatus_, outputWorkersToOpen_, and outputWorkersToClose_
+    mutable hep::concurrency::RecursiveMutex ofsMutex_{
+      "EndPathExecutor::ofsMutex_"};
     // Dynamic, changed by EventProcessor (using
     // setOutputFileStatus(OutputFileStatus)) to track whether or not we have
     // entered output file switching mode.
-    OutputFileStatus fileStatus_{OutputFileStatus::Closed};
-
+    std::atomic<OutputFileStatus> fileStatus_;
     // Dynamic, updated internally by:
     //   closeSomeOutputFiles()
     //   outputsToOpen() const
     //   openSomeOutputFiles(FileBlock const& fb)
     // to manage the output file switches.
-    std::set<OutputWorker*> outputWorkersToOpen_{};
-
+    std::atomic<std::set<OutputWorker*>*> outputWorkersToOpen_;
     // Dynamic, updated internally by:
     //   outputsToClose() const
     //   closeSomeOutputFiles()
@@ -250,17 +230,21 @@ namespace art {
     //     happen.
     // to manage the output file switches.
     // Note: During an output file switch, after the closes happen, the entire
-    // contents
-    //       of this is moved to outputWorkersToOpen_.
+    // contents of this is moved to outputWorkersToOpen_.
     // FIXME: The move to outputWorkersToOpen_ is not really necessary, a flag
-    // is all we
-    //        need, something that says whether we should close or open what is
-    //        in the list. Basically EventProcessor uses
-    //        recordOutputClosureRequests to populate the list, then uses the
-    //        list to do closes, then uses the same list to do opens, then
-    //        clears the list.
-    std::set<OutputWorker*> outputWorkersToClose_{};
+    // is all we need, something that says whether we should close or open what
+    // is in the list. Basically EventProcessor uses recordOutputClosureRequests
+    // to populate the list, then uses the list to do closes, then uses the same
+    // list to do opens, then clears the list.
+    std::atomic<std::set<OutputWorker*>*> outputWorkersToClose_;
   };
+
+  template <typename T>
+  void
+  EndPathExecutor::push(const T& func)
+  {
+    serialTaskQueue_.load()->push(func);
+  }
 
 } // namespace art
 

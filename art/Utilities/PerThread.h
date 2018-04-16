@@ -7,7 +7,6 @@
 namespace art {
 
   class PerThread {
-
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~PerThread();
 
@@ -16,11 +15,8 @@ namespace art {
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     PerThread(PerThread const&) = delete;
-
     PerThread(PerThread&) = delete;
-
     PerThread& operator=(PerThread const&) = delete;
-
     PerThread& operator=(PerThread&) = delete;
 
   public: // MEMBER FUNCTIONS -- Static API
@@ -28,7 +24,6 @@ namespace art {
 
   public: // MEMBER FUNCTIONS -- API for users
     CurrentProcessingContext const& getCPC() const;
-
     void setCPC(CurrentProcessingContext const&);
 
   private: // MEMBER DATA

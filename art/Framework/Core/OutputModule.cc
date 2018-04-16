@@ -160,16 +160,13 @@ namespace art {
     // BranchDescription objects that may be persisted to disk.  Since
     // we do not reset it, the list never shrinks.  This behavior should
     // be reconsidered for future use cases of art.
-
     auto selectProductForBranchType = [this, &tables](BranchType const bt) {
       auto const& productList = tables.descriptions(bt);
       groupSelector_[bt] =
         std::make_unique<GroupSelector const>(groupSelectorRules_, productList);
-
       // TODO: See if we can collapse keptProducts_ and groupSelector into
       // a single object. See the notes in the header for GroupSelector
       // for more information.
-
       for (auto const& val : productList) {
         BranchDescription const& pd = val.second;
         if (pd.transient() || pd.dropped()) {
@@ -225,7 +222,7 @@ namespace art {
     serialize(SharedResourcesRegistry::kLegacy);
     vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-    chain_.reset(new SerialTaskQueueChain{queues});
+    chain_ = new SerialTaskQueueChain{queues};
     beginJob();
     cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
   }
@@ -243,7 +240,7 @@ namespace art {
       }
       vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
       auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-      chain_.reset(new SerialTaskQueueChain{queues});
+      chain_ = new SerialTaskQueueChain{queues};
     }
     beginJob();
     cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
@@ -263,7 +260,7 @@ namespace art {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp);
-    Run const r{rp, moduleDescription(), TypeLabelLookup_t{}};
+    Run const r{rp, md_};
     cet::for_all(plugins_, [&r](auto& p) { p->doBeginRun(r); });
     return true;
   }
@@ -275,14 +272,14 @@ namespace art {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "beginSubRun called\n";
     beginSubRun(srp);
-    SubRun const sr{srp, moduleDescription(), TypeLabelLookup_t{}};
+    SubRun const sr{srp, md_};
     cet::for_all(plugins_, [&sr](auto& p) { p->doBeginSubRun(sr); });
     return true;
   }
 
   bool
   OutputModule::doEvent(EventPrincipal const& ep,
-                        ScheduleID /*si*/,
+                        ScheduleID const /*si*/,
                         CurrentProcessingContext const* cpc,
                         std::atomic<std::size_t>& counts_run,
                         std::atomic<std::size_t>& counts_passed,
@@ -290,7 +287,7 @@ namespace art {
   {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "doEvent called\n";
-    Event const e{ep, moduleDescription(), TypeLabelLookup_t{}};
+    Event const e{ep, md_};
     if (wantAllEvents() || wantEvent(e)) {
       ++counts_run;
       event(ep);
@@ -302,9 +299,9 @@ namespace art {
   void
   OutputModule::doWriteEvent(EventPrincipal& ep)
   {
-    detail::CachedProducts::Sentry clearTriggerResults{cachedProducts()};
+    detail::PVSentry clearTriggerResults{processAndEventSelectors()};
     FDEBUG(2) << "writeEvent called\n";
-    Event const e{ep, moduleDescription(), TypeLabelLookup_t{}};
+    Event const e{ep, md_};
     if (wantAllEvents() || wantEvent(e)) {
       write(ep);
       // Declare that the event was selected for write to the catalog interface.
@@ -312,13 +309,12 @@ namespace art {
       auto const& trRef(trHandle.isValid() ?
                           static_cast<HLTGlobalStatus>(*trHandle) :
                           HLTGlobalStatus{});
-      ci_->eventSelected(
-        moduleDescription().moduleLabel(), ep.eventID(), trRef);
+      ci_->eventSelected(md_.moduleLabel(), ep.eventID(), trRef);
       // ... and invoke the plugins:
       // ... The transactional object presented to the plugins is
       //     different since the relevant context information is not the
       //     same for the consumes functionality.
-      Event const we{ep, moduleDescription(), TypeLabelLookup_t{}};
+      Event const we{ep, md_};
       cet::for_all(plugins_, [&we](auto& p) { p->doCollectMetadata(we); });
       updateBranchParents(ep);
       if (remainingEvents_ > 0) {
@@ -340,7 +336,7 @@ namespace art {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "endSubRun called\n";
     endSubRun(srp);
-    SubRun const sr{srp, moduleDescription(), TypeLabelLookup_t{}};
+    SubRun const sr{srp, md_};
     cet::for_all(plugins_, [&sr](auto& p) { p->doEndSubRun(sr); });
     return true;
   }
@@ -366,7 +362,7 @@ namespace art {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "endRun called\n";
     endRun(rp);
-    Run const r{rp, moduleDescription(), TypeLabelLookup_t{}};
+    Run const r{rp, md_};
     cet::for_all(plugins_, [&r](auto& p) { p->doEndRun(r); });
     return true;
   }
@@ -399,9 +395,7 @@ namespace art {
     ResultsPrincipal const* respPtr = fb.resultsPrincipal();
     if (respPtr == nullptr) {
       respHolder = make_unique<ResultsPrincipal>(
-        ResultsAuxiliary{},
-        moduleDescription().processConfiguration(),
-        nullptr);
+        ResultsAuxiliary{}, md_.processConfiguration(), nullptr);
       respPtr = respHolder.get();
     }
     readResults(*respPtr);
@@ -723,7 +717,7 @@ namespace art {
     catch (cet::exception& e) {
       throw Exception(errors::Configuration, "OutputModule: ", e)
         << "Exception caught while processing FCMDPlugins[" << count
-        << "] in module " << moduleDescription().moduleLabel() << ".\n";
+        << "] in module " << md_.moduleLabel() << ".\n";
     }
     return result;
   }
@@ -771,5 +765,4 @@ namespace art {
   {
     return remainingEvents_ == 0;
   }
-
 } // namespace art

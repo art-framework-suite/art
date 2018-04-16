@@ -33,12 +33,22 @@ cet_test(TFileService_t_06 HANDBUILT
   DATAFILES
   fcl/TFileService_t_01.fcl)
 
+add_executable(TestTFileService_r TestTFileService_r.cxx)
+target_link_libraries(TestTFileService_r ${ROOT_CORE} ${ROOT_RIO} ${ROOT_HIST})
+
+#TestTFileService_r.cxx
+#foreach(NUM 1 5 6) # N.B. No 'RANGE' for these two tests
+#  cet_test(TFileService_r_0${NUM} HANDBUILT
+#    TEST_EXEC root
+#    TEST_ARGS -l -b -q TestTFileService_r.cxx\("TFileService_r_0${NUM}_input.txt"\)
+#    DATAFILES
+#    TFileService_r_0${NUM}_input.txt
+#    TEST_PROPERTIES DEPENDS TFileService_t_0${NUM})
+#endforeach()
 foreach(NUM 1 5 6) # N.B. No 'RANGE' for these two tests
   cet_test(TFileService_r_0${NUM} HANDBUILT
-    TEST_EXEC root
-    TEST_ARGS -l -b -q TestTFileService_r.cxx\("TFileService_r_0${NUM}_input.txt"\)
-    DATAFILES
-    TestTFileService_r.cxx
-    TFileService_r_0${NUM}_input.txt
+    TEST_EXEC TestTFileService_r
+    TEST_ARGS TFileService_r_0${NUM}_input.txt
+    DATAFILES TFileService_r_0${NUM}_input.txt
     TEST_PROPERTIES DEPENDS TFileService_t_0${NUM})
 endforeach()

@@ -2,6 +2,7 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/Group.h"
+#include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/OutputHandle.h"
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/Provenance.h"
@@ -12,69 +13,83 @@
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "canvas/Persistency/Common/PrincipalBase.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/EventAuxiliary.h"
+#include "canvas/Persistency/Provenance/EventRange.h"
 #include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
+#include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
+#include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedClassName.h"
+#include "canvas/Utilities/WrappedTypeID.h"
 #include "canvas_root_io/Utilities/getWrapperTIDs.h"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/exempt_ptr.h"
+#include "hep_concurrency/RecursiveMutex.h"
 
 #include <algorithm>
+#include <atomic>
 #include <cassert>
-#include <mutex>
+#include <memory>
+#include <string>
 #include <utility>
+#include <vector>
 
 using namespace cet;
+using namespace hep::concurrency;
 using namespace std;
-
-namespace {
-  template <typename T>
-  class ReverseIteration;
-
-  template <typename T>
-  ReverseIteration<T> reverse_iteration(T const&);
-
-  template <typename T>
-  class ReverseIteration {
-    friend ReverseIteration reverse_iteration<>(T const&);
-    T const& t_;
-    ReverseIteration(T const& t) : t_{t} {};
-
-  public:
-    auto
-    begin() const
-    {
-      return crbegin(t_);
-    }
-    auto
-    end() const
-    {
-      return crend(t_);
-    }
-  };
-
-  template <typename T>
-  ReverseIteration<T>
-  reverse_iteration(T const& t)
-  {
-    return ReverseIteration<T>{t};
-  }
-} // namespace
 
 namespace art {
 
   class EventPrincipal;
 
   namespace {
+
+    template <typename T>
+    class ReverseIteration;
+    template <typename T>
+    ReverseIteration<T> reverse_iteration(T const&);
+
+    template <typename T>
+    class ReverseIteration {
+      friend ReverseIteration reverse_iteration<>(T const&);
+
+    private:
+      T const& t_;
+      ReverseIteration(T const& t) : t_{t} {};
+
+    public:
+      auto
+      begin() const
+      {
+        return crbegin(t_);
+      }
+      auto
+      end() const
+      {
+        return crend(t_);
+      }
+    };
+
+    template <typename T>
+    ReverseIteration<T>
+    reverse_iteration(T const& t)
+    {
+      return ReverseIteration<T>{t};
+    }
 
     unique_ptr<Group>
     create_group(Principal* principal,
@@ -118,15 +133,21 @@ namespace art {
 
   } // unnamed namespace
 
-  Principal::~Principal() noexcept {}
+  Principal::~Principal()
+  {
+    presentProducts_ = nullptr;
+    producedProducts_ = nullptr;
+    delete eventAux_.load();
+    eventAux_.store(nullptr);
+  }
 
   void
   Principal::ctor_create_groups(
     cet::exempt_ptr<ProductTable const> presentProducts)
   {
-    if (!presentProducts)
+    if (!presentProducts) {
       return;
-
+    }
     // Note: Dropped products are a problem. We should not create
     //       groups for them now because later we may open a secondary
     //       file which actually contains them and we want the
@@ -180,10 +201,15 @@ namespace art {
                        std::unique_ptr<DelayedReader>&& reader)
     : branchType_{branchType}
     , processConfiguration_{pc}
-    , presentProducts_{presentProducts}
     , delayedReader_{std::move(reader)}
   {
+    processHistoryModified_ = false;
+    presentProducts_ = presentProducts.get();
+    producedProducts_ = nullptr;
+    enableLookupOfProducedProducts_ = false;
     delayedReader_->setPrincipal(this);
+    eventAux_ = nullptr;
+    subRunPrincipal_ = nullptr;
     ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(hist);
@@ -197,11 +223,16 @@ namespace art {
                          reader /* = std::make_unique<NoDelayedReader>() */)
     : branchType_{InRun}
     , processConfiguration_{pc}
-    , presentProducts_{presentProducts}
     , delayedReader_{std::move(reader)}
     , runAux_{aux}
   {
+    processHistoryModified_ = false;
+    presentProducts_ = presentProducts.get();
+    producedProducts_ = nullptr;
+    enableLookupOfProducedProducts_ = false;
     delayedReader_->setPrincipal(this);
+    eventAux_ = nullptr;
+    subRunPrincipal_ = nullptr;
     ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(runAux_.processHistoryID());
@@ -215,11 +246,16 @@ namespace art {
                          reader /* = std::make_unique<NoDelayedReader>() */)
     : branchType_{InSubRun}
     , processConfiguration_{pc}
-    , presentProducts_{presentProducts}
     , delayedReader_{std::move(reader)}
     , subRunAux_{aux}
   {
+    processHistoryModified_ = false;
+    presentProducts_ = presentProducts.get();
+    producedProducts_ = nullptr;
+    enableLookupOfProducedProducts_ = false;
     delayedReader_->setPrincipal(this);
+    eventAux_ = nullptr;
+    subRunPrincipal_ = nullptr;
     ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(subRunAux_.processHistoryID());
@@ -236,13 +272,17 @@ namespace art {
     bool const lastInSubRun /* = false */)
     : branchType_{InEvent}
     , processConfiguration_{pc}
-    , presentProducts_{presentProducts}
     , delayedReader_{std::move(reader)}
-    , eventAux_{aux}
     , history_{move(history)}
     , lastInSubRun_{lastInSubRun}
   {
+    processHistoryModified_ = false;
+    presentProducts_ = presentProducts.get();
+    producedProducts_ = nullptr;
+    enableLookupOfProducedProducts_ = false;
     delayedReader_->setPrincipal(this);
+    eventAux_ = new EventAuxiliary(aux);
+    subRunPrincipal_ = nullptr;
     ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(history_->processHistoryID());
@@ -256,11 +296,16 @@ namespace art {
                          reader /* = std::make_unique<NoDelayedReader>() */)
     : branchType_{InResults}
     , processConfiguration_{pc}
-    , presentProducts_{presentProducts}
     , delayedReader_{std::move(reader)}
     , resultsAux_{aux}
   {
+    processHistoryModified_ = false;
+    presentProducts_ = presentProducts.get();
+    producedProducts_ = nullptr;
+    enableLookupOfProducedProducts_ = false;
     delayedReader_->setPrincipal(this);
+    eventAux_ = nullptr;
+    subRunPrincipal_ = nullptr;
     ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(resultsAux_.processHistoryID());
@@ -269,11 +314,12 @@ namespace art {
   void
   Principal::fillGroup(BranchDescription const& pd)
   {
+    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
     auto it = groups_.find(pd.productID());
     if (it != std::cend(groups_)) {
-      auto const& found_pd = it->second->productDescription();
       // The 'combinable' call does not require that the processing
       // history be the same, which is not what we are checking for here.
+      auto const& found_pd = it->second->productDescription();
       if (combinable(found_pd, pd)) {
         throw Exception(errors::Configuration)
           << "The process name " << pd.processName()
@@ -281,7 +327,6 @@ namespace art {
           << "Please modify the configuration file to use a "
           << "distinct process name.\n";
       }
-
       throw Exception(errors::ProductRegistrationFailure)
         << "The product ID " << pd.productID() << " of the new product:\n"
         << pd
@@ -291,7 +336,6 @@ namespace art {
            "the product ID collision.\n"
         << "In addition, please notify artists@fnal.gov of this error.\n";
     }
-
     unique_ptr<Group> group = create_group(this, delayedReader_.get(), pd);
     groups_[pd.productID()] = move(group);
   }
@@ -309,6 +353,19 @@ namespace art {
     } else {
       resultsAux_.setProcessHistoryID(phid);
     }
+  }
+
+  // Used by SourceHelper::makeRunPrincipal(RunAuxiliary const&
+  // runAux) const, SourceHelper::makeSubRunPrincipal(SubRunAuxiliary const&
+  // subRunAux) const, and SourceHelper::makeEventPrincipal(EventAuxiliary
+  // const& eventAux, std::unique_ptr<History>&& history) const.  FIXME:
+  // This breaks the purpose of the Principal::addToProcessHistory()
+  // compare_exchange_strong because of the temporal hole between when the
+  // history is changed and when the flag is set, this must be fixed!
+  void
+  Principal::markProcessHistoryAsModified()
+  {
+    processHistoryModified_ = true;
   }
 
   // Note: Used by run, subrun, event, and results ProductGetter!
@@ -343,28 +400,30 @@ namespace art {
   }
 
   void
-  Principal::enableProductCreation(ProductTables const& producedProducts)
+  Principal::createGroupsForProducedProducts(
+    ProductTables const& producedProducts)
   {
     auto const& produced = producedProducts.get(branchType_);
-    if (produced.descriptions.empty())
+    producedProducts_ = &produced;
+    if (produced.descriptions.empty()) {
       return;
-
+    }
     // The process history is expanded if there is a product that is
     // produced in this process.
     addToProcessHistory();
-
     for (auto const& pr : produced.descriptions) {
       auto const& pd = pr.second;
       assert(pd.branchType() == branchType_);
+      // Create a group for the produced product.
       fillGroup(pd);
     }
   }
 
   void
-  Principal::setProducedProducts(ProductTables const& producedProducts)
+  Principal::enableLookupOfProducedProducts(
+    ProductTables const& /*producedProducts*/)
   {
-    producedProducts_ =
-      cet::make_exempt_ptr(&producedProducts.get(branchType_));
+    enableLookupOfProducedProducts_ = true;
   }
 
   void
@@ -378,11 +437,12 @@ namespace art {
     //
     // FIXME: threading: For right now ignore the delay reading option
     // FIXME: threading: for product provenance. If we do the delay
-    // FIXME: threading: reading then we must use a lock/mutex to
+    // FIXME: threading: reading then we must use a lock to
     // FIXME: threading: interlock all fetches of provenance because
     // FIXME: threading: the delay read fills the pp_by_pid_ one entry
     // FIXME: threading: at a time, and we do not want other threads
     // FIXME: threading: to find the info only partly there.
+    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
     for (auto const& pid_and_group : groups_) {
       auto group = pid_and_group.second.get();
       group->resolveProductIfAvailable();
@@ -408,30 +468,35 @@ namespace art {
   size_t
   Principal::size() const
   {
+    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
     return groups_.size();
   }
 
   Principal::const_iterator
   Principal::begin() const
   {
+    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
     return groups_.begin();
   }
 
   Principal::const_iterator
   Principal::cbegin() const
   {
+    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
     return groups_.cbegin();
   }
 
   Principal::const_iterator
   Principal::end() const
   {
+    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
     return groups_.end();
   }
 
   Principal::const_iterator
   Principal::cend() const
   {
+    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
     return groups_.cend();
   }
 
@@ -463,13 +528,15 @@ namespace art {
   // Used by RootDelayedReader::getProduct_ to replace the product provenance
   // when merging run and subRun data products.
   void
-  Principal::insert_pp(std::unique_ptr<ProductProvenance const>&& pp)
+  Principal::insert_pp(Group* grp,
+                       std::unique_ptr<ProductProvenance const>&& pp)
   {
-    auto const& pid = pp->productID();
-    auto g = getGroupLocal(pid);
-    if (g.get() != nullptr) {
-      g->setProductProvenance(move(pp));
-    }
+    // auto const& pid = pp->productID();
+    // auto g = getGroupLocal(pid);
+    // if (g.get() != nullptr) {
+    //  g->setProductProvenance(move(pp));
+    //}
+    grp->setProductProvenance(move(pp));
   }
 
   cet::exempt_ptr<ProductProvenance const>
@@ -477,12 +544,12 @@ namespace art {
   {
     // FIXME: threading: For right now ignore the delay reading option
     // FIXME: threading: for product provenance. If we do the delay
-    // FIXME: threading: reading then we must use a lock/mutex to
+    // FIXME: threading: reading then we must use a lock to
     // FIXME: threading: interlock all fetches of provenance because
     // FIXME: threading: the delay read fills the pp_by_pid_ one entry
     // FIXME: threading: at a time, and we do not want other threads
     // FIXME: threading: to find the info only partly there.
-    // Note: This routine may lock the input source mutex.
+    // Note: This routine may lock the input source lock.
     cet::exempt_ptr<ProductProvenance const> ret;
     auto g = getGroupLocal(pid);
     if (g.get() != nullptr) {
@@ -492,127 +559,126 @@ namespace art {
   }
 
   //
-  // Note: threading: The solution chosen for the following problems is to
-  // convert groups_ from type:
+  // Note: threading: The solution chosen for the following
+  // problems is to convert groups_ from type:
   //
-  //            std::map<ProductID, std::unique_ptr<Group>>
+  //   std::map<ProductID, std::unique_ptr<Group>>
   //
-  //       to type:
+  // to type:
   //
-  //            tbb::concurrent_unordered_map<ProductID, std::unique_ptr<Group>>
+  //   tbb::concurrent_unordered_map<
+  //     ProductID, std::unique_ptr<Group>>
   //
-  //       We get concurrent insertion and iteration, but not concurrent erasure
-  //       (which is not a problem because we never remove groups).  Note that
-  //       tbb uses a value for the end() iterator for this class which is
-  //       always valid for comparing against the result of an interation or
-  //       find (it is implemented as (<element-ptr>(nullptr),
-  //       <internal-table>)).
+  // We get concurrent insertion and iteration, but not
+  // concurrent erasure (which is not a problem because we never
+  // remove groups).  Note that tbb uses a value for the end()
+  // iterator for this class which is always valid for comparing
+  // against the result of an interation or find (it is
+  // implemented as (<element-ptr>(nullptr), <internal-table>)).
   //
-  // Note: threading: May be called from producer and filter module processing
-  // tasks! This requires us to
-  //       protect groups_ against multiple threads attempting an insert at the
-  //       same time.
+  // Note: threading: May be called from producer and filter
+  // module processing tasks! This requires us to protect
+  // groups_ against multiple threads attempting an insert at
+  // the same time.
   //
-  // Note: threading: Also anyone using the iterators over groups_ (which are
-  // Principal::begin() and Principal::end())
-  //       need protection against having their interators invalidated.  Right
-  //       now the only code doing this is:
+  // Note: threading: Also anyone using the iterators over
+  // groups_ (which are Principal::begin() and Principal::end())
+  // need protection against having their interators invalidated.
+  // Right now the only code doing this is:
   //
-  //            Principal::readImmediate() const
-  //            Principal::getGroupTryAllFiles(ProductID const& pid) const
-  //            Principal::removeCachedProduct(ProductID const pid) const
-  //            Principal::findGroupsForProcess(...) const
-  //            OutputModule::updateBranchChildren()
+  //   Principal::readImmediate() const
+  //   Principal::getGroupTryAllFiles(ProductID const& pid) const
+  //   Principal::removeCachedProduct(ProductID const pid) const
+  //   Principal::findGroupsForProcess(...) const
+  //   OutputModule::updateBranchChildren()
   //
-  //       Principal::readImmediate() is called just after principal creation
-  //       with the input mutex held.  Module tasks on other schedules could be
-  //       doing puts which would invalid the iterator if the data product being
-  //       put does not exist in the input file and is being put for the first
-  //       time so this is a group insertion.
+  // Principal::readImmediate() is called just after principal
+  // creation with the input lock held.  Module tasks on other
+  // streams could be doing puts which would invalid the iterator
+  // if the data product being put does not exist in the input
+  // file and is being put for the first time so this is a
+  // group insertion.
   //
-  //       Principal::getGroupTryAllFiles(ProductID const& pid) const
-  //         Used by Principal::getByProductID(ProductID const& pid) const
-  //           Used by art::DataViewImpl<T>::get(ProductID const pid, Handle<T>&
-  //           result) const. (easy user-facing api) Used by
-  //           Principal::productGetter(ProductID const pid) const
-  //             Used by (Run,SubRun,Event,Results)::productGetter (advanced
-  //             user-facing api)
-  //         Used by Principal::getForOutput(ProductID const pid, bool
-  //         resolveProd) const
-  //           Used by RootOutputFile to fetch products being written to disk.
-  //           Used by FileDumperOutput_module.
-  //           Used by ProvenanceCheckerOutput_module.
-  //       These uses are find() and compare against end().  Problem is that
-  //       end() may have moved by the time we do the compare with the find
-  //       result. There is also use of the mpr and secondary files.
+  // Principal::getGroupTryAllFiles(ProductID const& pid) const
+  //   Used by Principal::getByProductID(ProductID const& pid) const
+  //     Used by art::DataViewImpl<T>::get(ProductID const pid, Handle<T>&
+  //       result) const. (easy user-facing api)
+  //     Used by Principal::productGetter(ProductID const pid) const
+  //       Used by (Run,SubRun,Event,Results)::productGetter (advanced
+  //         user-facing api)
+  //   Used by Principal::getForOutput(ProductID const pid, bool
+  //       resolveProd) const
+  //     Used by RootOutputFile to fetch products being written to disk.
+  //     Used by FileDumperOutput_module.
+  //     Used by ProvenanceCheckerOutput_module.
   //
-  //       Principal::removeCachedProduct(ProductID const pid) const
-  //       Principal::findGroupsForProcess(...) const
-  //       These uses are find() and compare against end().  Problem is that
-  //       end() may have moved by the time we do the compare with the find
-  //       result. There is also use of secondary principals.
+  // These uses are find() and compare against end().  Problem is that
+  // end() may have moved by the time we do the compare with the find
+  // result. There is also use of the mpr and secondary files.
   //
-  //       OutputModule::updateBranchChildren is called only for events and only
-  //       after all module processing tasks which can put products into the
-  //       event have finished running, so it does not need the protection.
+  // Principal::removeCachedProduct(ProductID const pid) const
+  // Principal::findGroupsForProcess(...) const
   //
-
-  // Used by the Run, SubRun, and EventPrincipal constructors if a product was
-  // produced. Used by RootOutput_module from write, writeSubRun, and writeRun
-  // if a branch was dropped by selectEvents processing
-  //                                                                 for that
-  //                                                                 kind of
-  //                                                                 principal.
-  // Used by RootOutput_module from startEndFile if a branch was dropped by
-  // selectEvents processing for a results principal,
-  //                                             or if a product was produced by
-  //                                             a results principal (note that
-  //                                             it has not actually gotten the
-  //                                             chance to make the product,
-  //                                             that happens right after this
-  //                                             call is made).
+  // These uses are find() and compare against end().  Problem is that
+  // end() may have moved by the time we do the compare with the find
+  // result. There is also use of secondary principals.
   //
-  // Note: threading: If the only uses were from the constructors we would have
-  // no problems, but the use from
-  //       the root output module is bad because it could be running
-  //       concurrently with other output modules and analyzers for this same
-  //       principal. So we have to use a compare_exchange_strong on
-  //       processHistoryModified_ so that only one task tries to do this. We
-  //       also need to stall the other output and analyzer modules that call
-  //       processHistory() while we are doing the update so that they get the
-  //       updated result.  For output and analyzer modules that have already
-  //       fetched the process history pointer, we have to stall any attempt to
-  //       access its internal process configuration list while we are updating
-  //       it.
+  // OutputModule::updateBranchChildren is called only for events
+  // and only after all module processing tasks which can put
+  // products into the event have finished running, so it does
+  // not need the protection.
   //
-  // FIXME: threading: We hand out processHistory_ through the processHistory()
-  // interface, which is in turn
-  // FIXME: threading: handed out by the DataViewImpl::processHistory()
-  // interface to any module task that wants it.
-  // FIXME: threading: This is a problem for output modules and analyzers if an
-  // output module decides to update the
-  // FIXME: threading: process history from startEndFile. We must stall users of
-  // the process history if we updating it,
-  // FIXME: threading: both by stalling a fetch of processHistory_ once we start
-  // to update, and for those modules
-  // FIXME: threading: that have already fetched the processHistory_ we must
-  // stall any attempt by them to access
-  // FIXME: threading: its internal process configuration list while we are
-  // changing it.
+  // Used by the Run, SubRun, and EventPrincipal constructors
+  // if a product was produced.
+  //
+  // Used by RootOutput_module from write, writeSubRun, and
+  // writeRun if a branch was dropped by selectEvents processing
+  // for that kind of principal.
+  //
+  // Used by RootOutput_module from startEndFile if a branch was
+  // dropped by selectEvents processing for a results principal,
+  // or if a product was produced by a results principal (note
+  // that it has not actually gotten the chance to make the
+  // product, that happens right after this call is made).
+  //
+  // Note: threading: If the only uses were from the constructors
+  // we would have no problems, but the use from the root output
+  // module is bad because it could be running concurrently with
+  // other output modules and analyzers for this same principal.
+  // So we have to use a compare_exchange_strong on
+  // processHistoryModified_ so that only one task tries to do
+  // this. We also need to stall the other output and analyzer
+  // modules that call processHistory() while we are doing the
+  // update so that they get the updated result.  For output and
+  // analyzer modules that have already fetched the process
+  // history pointer, we have to stall any attempt to access its
+  // internal process configuration list while we are updating it.
+  //
+  // FIXME: threading: We hand out processHistory_ through the
+  // processHistory() interface, which is in turn handed out by
+  // the DataViewImpl::processHistory() interface to any module
+  // task that wants it.  This is a problem for output modules
+  // and analyzers if an output module decides to update the
+  // process history from startEndFile. We must stall users of
+  // the process history if we updating it, both by stalling a
+  // fetch of processHistory_ once we start to update, and for
+  // those modules that have already fetched the processHistory_
+  // we must stall any attempt by them to access its internal
+  // process configuration list while we are changing it.
   void
   Principal::addToProcessHistory()
   {
     bool expected = false;
     if (processHistoryModified_.compare_exchange_strong(expected, true)) {
       // Note: threading: We have now locked out any other task trying to modify
-      // the process history. Note: threading: Now we have to block tasks that
-      // already have a pointer to the process history Note: threading: from
-      // accessing its internals while we update it. Note: threading: Note: We
+      // the process history. Now we have to block tasks that
+      // already have a pointer to the process history from
+      // accessing its internals while we update it. We
       // do not protect the iteration interface, the begin(), end(), and size()
-      // Note: threading: Note: are all separate calls and we cannot lock the
-      // mutex in each one because Note: threading: Note: there is no way to
-      // automatically unlock it.
-      lock_guard<recursive_mutex> sentry(processHistory_.get_mutex());
+      // are all separate calls and we cannot lock
+      // in each one because there is no way to
+      // automatically unlock.
+      RecursiveMutexSentry sentry{processHistory_.get_mutex(), __func__};
       string const& processName = processConfiguration_.processName();
       for (auto const& val : processHistory_) {
         if (processName == val.processName()) {
@@ -708,22 +774,20 @@ namespace art {
   Principal::getMatchingSequence(SelectorBase const& selector) const
   {
     GroupQueryResultVec results;
-
     // Find groups from current process
-    if (producedProducts_) {
-      if (findGroups(producedProducts_->viewLookup, selector, results, true) !=
+    if (enableLookupOfProducedProducts_.load()) {
+      if (findGroups(
+            producedProducts_.load()->viewLookup, selector, results, true) !=
           0) {
         return results;
       }
     }
-
     // Look through currently opened input files
     if (results.empty()) {
       results = matchingSequenceFromInputFile(selector);
       if (!results.empty()) {
         return results;
       }
-
       for (auto const& sp : secondaryPrincipals_) {
         results = sp->matchingSequenceFromInputFile(selector);
         if (!results.empty()) {
@@ -731,7 +795,6 @@ namespace art {
         }
       }
     }
-
     // Open more secondary files if necessary
     if (results.empty()) {
       while (true) {
@@ -752,7 +815,6 @@ namespace art {
         }
       }
     }
-
     return results;
   }
 
@@ -760,11 +822,10 @@ namespace art {
   Principal::matchingSequenceFromInputFile(SelectorBase const& selector) const
   {
     GroupQueryResultVec results;
-    if (!presentProducts_) {
+    if (!presentProducts_.load()) {
       return results;
     }
-
-    findGroups(presentProducts_->viewLookup, selector, results, true);
+    findGroups(presentProducts_.load()->viewLookup, selector, results, true);
     return results;
   }
 
@@ -779,21 +840,21 @@ namespace art {
     // stop after we find a process with matches so check for that at
     // each step.
     std::size_t found{};
-
     // Loop over processes in reverse time order.  Sometimes we want to stop
     // after we find a process with matches so check for that at each step.
     // Note: threading: We must protect the process history iterators here
     // Note: threading: against possible invalidation by output modules
     // inserting Note: threading: a process history entry while we are
     // iterating.
-    lock_guard<recursive_mutex> sentry{processHistory_.get_mutex()};
+    RecursiveMutexSentry sentry{processHistory_.get_mutex(), __func__};
     for (auto const& h : reverse_iteration(processHistory_)) {
       auto it = pl.find(h.processName());
       if (it != pl.end()) {
         found += findGroupsForProcess(it->second, sel, res, wanted_wrapper);
       }
-      if (stopIfProcessHasMatch && !res.empty())
+      if (stopIfProcessHasMatch && !res.empty()) {
         break;
+      }
     }
     return found;
   }
@@ -804,10 +865,10 @@ namespace art {
                                      GroupQueryResultVec& results,
                                      bool const stopIfProcessHasMatch) const
   {
-    if (!presentProducts_) {
+    if (!presentProducts_.load()) {
       return 0;
     }
-    auto const& lookup = presentProducts_->productLookup;
+    auto const& lookup = presentProducts_.load()->productLookup;
     auto it = lookup.find(wrapped.product_type.friendlyClassName());
     if (it == lookup.end()) {
       return 0;
@@ -825,11 +886,10 @@ namespace art {
                                   bool const stopIfProcessHasMatch) const
   {
     GroupQueryResultVec results;
-
     unsigned ret{};
     // Find groups from current process
-    if (producedProducts_) {
-      auto const& lookup = producedProducts_->productLookup;
+    if (enableLookupOfProducedProducts_.load()) {
+      auto const& lookup = producedProducts_.load()->productLookup;
       auto it = lookup.find(wrapped.product_type.friendlyClassName());
       if (it != lookup.end()) {
         ret += findGroups(it->second,
@@ -839,21 +899,18 @@ namespace art {
                           wrapped.wrapped_product_type);
       }
     }
-
     // Look through currently opened input files
     ret += findGroupsFromInputFile(
       wrapped, selector, results, stopIfProcessHasMatch);
     if (ret) {
       return results;
     }
-
     for (auto const& sp : secondaryPrincipals_) {
       if (sp->findGroupsFromInputFile(
             wrapped, selector, results, stopIfProcessHasMatch)) {
         return results;
       }
     }
-
     // Open more secondary files if necessary
     while (true) {
       int const err = tryNextSecondaryFile();
@@ -903,11 +960,11 @@ namespace art {
   SubRunPrincipal const&
   Principal::subRunPrincipal() const
   {
-    if (!subRunPrincipal_) {
+    if (subRunPrincipal_.load() == nullptr) {
       throw Exception(errors::NullPointerError)
         << "Tried to obtain a NULL subRunPrincipal.\n";
     }
-    return *subRunPrincipal_;
+    return *subRunPrincipal_.load();
   }
 
   cet::exempt_ptr<RunPrincipal const>
@@ -916,10 +973,10 @@ namespace art {
     return runPrincipal_;
   }
 
-  cet::exempt_ptr<SubRunPrincipal const>
-  Principal::subRunPrincipalExemptPtr() const
+  SubRunPrincipal const*
+  Principal::subRunPrincipalPtr() const
   {
-    return subRunPrincipal_;
+    return subRunPrincipal_.load();
   }
 
   void
@@ -931,7 +988,7 @@ namespace art {
   void
   Principal::setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal const> srp)
   {
-    subRunPrincipal_ = srp;
+    subRunPrincipal_ = srp.get();
   }
 
   RangeSet
@@ -949,13 +1006,13 @@ namespace art {
   bool
   Principal::isReal() const
   {
-    return eventAux_.isRealData();
+    return eventAux_.load()->isRealData();
   }
 
   EventAuxiliary::ExperimentType
   Principal::ExperimentType() const
   {
-    return eventAux_.experimentType();
+    return eventAux_.load()->experimentType();
   }
 
   History const&
@@ -1034,7 +1091,6 @@ namespace art {
     if (g.get() == nullptr) {
       return OutputHandle{RangeSet::invalid()};
     }
-
     if (resolveProd) {
       bool gotIt = g->resolveProductIfAvailable();
       if (!gotIt) {
@@ -1066,28 +1122,30 @@ namespace art {
   }
 
   cet::exempt_ptr<BranchDescription const>
-  Principal::getProductDescription(ProductID const pid) const
+  Principal::getProductDescription(
+    ProductID const pid,
+    bool const alwaysEnableLookupOfProducedProducts /*=false*/) const
   {
     // Find groups from current process
-    if (producedProducts_) {
-      if (auto result = producedProducts_->description(pid)) {
-        return result;
+    if (alwaysEnableLookupOfProducedProducts ||
+        enableLookupOfProducedProducts_.load()) {
+      if (producedProducts_.load() != nullptr) {
+        if (auto result = producedProducts_.load()->description(pid)) {
+          return result;
+        }
       }
     }
-
-    if (presentProducts_) {
+    if (presentProducts_.load()) {
       // Look through currently opened input files
-      if (auto result = presentProducts_->description(pid)) {
+      if (auto result = presentProducts_.load()->description(pid)) {
         return result;
       }
     }
-
     for (auto const& sp : secondaryPrincipals_) {
       if (auto result = sp->getProductDescription(pid)) {
         return result;
       }
     }
-
     return nullptr;
   }
 
@@ -1114,7 +1172,7 @@ namespace art {
   EventAuxiliary const&
   Principal::eventAux() const
   {
-    return eventAux_;
+    return *eventAux_.load();
   }
 
   ResultsAuxiliary const&
@@ -1138,7 +1196,7 @@ namespace art {
   EventID const&
   Principal::eventID() const
   {
-    return eventAux_.id();
+    return eventAux_.load()->id();
   }
 
   RunNumber_t
@@ -1150,7 +1208,7 @@ namespace art {
     if (branchType_ == InSubRun) {
       return subRunAux_.run();
     }
-    return eventAux_.id().run();
+    return eventAux_.load()->id().run();
   }
 
   SubRunNumber_t
@@ -1159,13 +1217,13 @@ namespace art {
     if (branchType_ == InSubRun) {
       return subRunAux_.subRun();
     }
-    return eventAux_.id().subRun();
+    return eventAux_.load()->id().subRun();
   }
 
   EventNumber_t
   Principal::event() const
   {
-    return eventAux_.id().event();
+    return eventAux_.load()->id().event();
   }
 
   Timestamp const&
@@ -1200,7 +1258,7 @@ namespace art {
   Timestamp const&
   Principal::time() const
   {
-    return eventAux_.time();
+    return eventAux_.load()->time();
   }
 
   int
@@ -1218,22 +1276,20 @@ namespace art {
   bool
   Principal::producedInProcess(ProductID const pid) const
   {
-    if (!producedProducts_) {
+    if (!enableLookupOfProducedProducts_.load()) {
       return false;
     }
-
-    auto pd = producedProducts_->description(pid);
+    auto pd = producedProducts_.load()->description(pid);
     return pd == nullptr ? false : pd->produced();
   }
 
   bool
   Principal::presentFromSource(ProductID const pid) const
   {
-    if (!presentProducts_) {
+    if (!presentProducts_.load()) {
       return false;
     }
-
-    auto pd = presentProducts_->description(pid);
+    auto pd = presentProducts_.load()->description(pid);
     return pd == nullptr ? false : pd->present();
   }
 
@@ -1258,6 +1314,7 @@ namespace art {
   cet::exempt_ptr<Group>
   Principal::getGroupLocal(ProductID const pid) const
   {
+    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
     auto it = groups_.find(pid);
     return it != groups_.cend() ? it->second.get() : nullptr;
   }
@@ -1280,14 +1337,12 @@ namespace art {
     if (producedInProcess(pid) || presentFromSource(pid)) {
       return getGroupLocal(pid);
     }
-
     // Look through secondary files
     for (auto const& sp : secondaryPrincipals_) {
       if (sp->presentFromSource(pid)) {
         return sp->getGroupLocal(pid);
       }
     }
-
     // Try new secondary files
     while (true) {
       int const err = tryNextSecondaryFile();
@@ -1305,7 +1360,6 @@ namespace art {
         return new_sp->getGroupLocal(pid);
       }
     }
-
     return nullptr;
   }
 

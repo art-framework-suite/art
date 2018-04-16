@@ -77,17 +77,14 @@ namespace art {
   template <class T>
   std::enable_if_t<detail::is_handle<T>::value, RangeSet const&>
   range_of_validity(T const& h);
-
   template <class T, class U>
   std::enable_if_t<detail::are_handles<T, U>::value, bool> same_ranges(
     T const& a,
     U const& b);
-
   template <class T, class U>
   std::enable_if_t<detail::are_handles<T, U>::value, bool> disjoint_ranges(
     T const& a,
     U const& b);
-
   template <class T, class U>
   std::enable_if_t<detail::are_handles<T, U>::value, bool> overlapping_ranges(
     T const& a,
@@ -102,10 +99,14 @@ public:
   class HandleTag {
   };
 
-  // c'tors:
+  ~Handle() = default;
   explicit constexpr Handle() =
     default; // Default-constructed handles are invalid.
   explicit Handle(GroupQueryResult const&);
+  Handle(Handle const&) = default;
+  Handle(Handle&&) = default;
+  Handle& operator=(Handle const&) = default;
+  Handle& operator=(Handle&&) = default;
 
   // pointer behaviors:
   T const& operator*() const;
@@ -140,15 +141,15 @@ art::Handle<T>::Handle(GroupQueryResult const& gqr)
   if (gqr.succeeded()) {
     auto const wrapperPtr = dynamic_cast<Wrapper<T> const*>(
       gqr.result()->uniqueProduct(TypeID{typeid(Wrapper<T>)}));
-    if (wrapperPtr == nullptr) {
+    if (wrapperPtr != nullptr) {
+      prod_ = wrapperPtr->product();
+    } else {
       Exception e{errors::LogicError};
       e << "Product retrieval via Handle<T> succeeded for product:\n"
         << prov_.productDescription()
         << "but an attempt to interpret it as an object of type '"
         << cet::demangle_symbol(typeid(T).name()) << "' failed.\n";
       whyFailed_ = std::make_shared<art::Exception const>(std::move(e));
-    } else {
-      prod_ = wrapperPtr->product();
     }
   }
 }
@@ -259,11 +260,13 @@ public:
   class HandleTag {
   };
 
+  ~ValidHandle() = default;
   ValidHandle() = delete;
   explicit ValidHandle(T const* prod, Provenance prov);
-
   ValidHandle(ValidHandle const&) = default;
+  ValidHandle(ValidHandle&&) = default;
   ValidHandle& operator=(ValidHandle const&) & = default;
+  ValidHandle& operator=(ValidHandle&&) & = default;
 
   // pointer behaviors
   operator T const*() const; // conversion to T const*
@@ -280,8 +283,9 @@ public:
 
   // mutators
   void swap(ValidHandle<T>& other);
-  // No clear() function, because a ValidHandle may not have an invalid
-  // state, and that is what clear() would obtain.
+
+  // No clear() function, because a ValidHandle does not have an invalid
+  // state, and that is what the result of clear() would have to be.
 
 private:
   T const* prod_;
@@ -292,9 +296,10 @@ template <class T>
 art::ValidHandle<T>::ValidHandle(T const* prod, Provenance prov)
   : prod_{prod}, prov_{prov}
 {
-  if (prod == nullptr)
+  if (prod == nullptr) {
     throw Exception(art::errors::NullPointerError)
       << "Attempt to create ValidHandle with null pointer";
+  }
 }
 
 template <class T>

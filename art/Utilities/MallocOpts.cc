@@ -47,38 +47,38 @@ namespace art {
 #if defined(__x86_64__)
 
       __asm__ __volatile__("pushq %%rdx;\
- pushq %%rcx;                            \
- pushq %%rsi;                            \
- pushq %%rbx;                            \
- cpuid;                                  \
- movq  %%rbx,%%rsi;                      \
- popq  %%rbx;                            \
- movl  %%ecx,%0;                         \
- movl  %%edx,%1;                         \
- movl  %%esi,%2;                         \
- movl  %%eax,%3;                         \
- popq  %%rsi;                            \
- popq  %%rcx;                            \
- popq  %%rdx;"
+        pushq %%rcx;                            \
+        pushq %%rsi;                            \
+        pushq %%rbx;                            \
+        cpuid;                                  \
+        movq  %%rbx,%%rsi;                      \
+        popq  %%rbx;                            \
+        movl  %%ecx,%0;                         \
+        movl  %%edx,%1;                         \
+        movl  %%esi,%2;                         \
+        movl  %%eax,%3;                         \
+        popq  %%rsi;                            \
+        popq  %%rcx;                            \
+        popq  %%rdx;"
                            : "=m"(ans[2]), "=m"(ans[1]), "=m"(ans[0]), "=m"(a)
                            : "a"(op));
 
 #elif defined(__i386__)
 
       __asm__ __volatile__("pushl %%edx;\
- pushl %%ecx;                            \
- pushl %%esi;                            \
- pushl %%ebx;                            \
- cpuid;                                  \
- movl  %%ebx,%%esi;                      \
- popl  %%ebx;                            \
- movl  %%ecx,%0;                         \
- movl  %%edx,%1;                         \
- movl  %%esi,%2;                         \
- movl  %%eax,%3;                         \
- popl  %%esi;                            \
- popl  %%ecx;                            \
- popl  %%edx;"
+        pushl %%ecx;                            \
+        pushl %%esi;                            \
+        pushl %%ebx;                            \
+        cpuid;                                  \
+        movl  %%ebx,%%esi;                      \
+        popl  %%ebx;                            \
+        movl  %%ecx,%0;                         \
+        movl  %%edx,%1;                         \
+        movl  %%esi,%2;                         \
+        movl  %%eax,%3;                         \
+        popl  %%esi;                            \
+        popl  %%ecx;                            \
+        popl  %%edx;"
                            : "=m"(ans[2]), "=m"(ans[1]), "=m"(ans[0]), "=m"(a)
                            : "a"(op));
 
@@ -177,8 +177,6 @@ namespace art {
     std::string spar(par);
     bool rc = false;
 
-    // ART_MALLOC_RESET = "mmap_max trim_thres top_pad mmap_thres"
-
     if (spar.size() > 1) {
       std::istringstream ist(spar);
       ist >> values_.mmap_max_ >> values_.trim_thr_ >> values_.top_pad_ >>
@@ -200,13 +198,4 @@ namespace art {
     return rc;
   }
 
-  MallocOptionSetter global_malloc_options;
-
-  MallocOptionSetter&
-  getGlobalOptionSetter()
-  {
-    return global_malloc_options;
-  }
-
-  // ----------------------------------------------------------------
 } // namespace art

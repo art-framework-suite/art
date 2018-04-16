@@ -8,15 +8,8 @@ namespace art {
 
   Results::~Results() = default;
 
-  Results::Results(ResultsPrincipal const& p,
-                   ModuleDescription const& md,
-                   TypeLabelLookup_t const& expectedProducts)
-    : DataViewImpl{InResults,
-                   p,
-                   md,
-                   false,
-                   expectedProducts,
-                   RangeSet::invalid()}
+  Results::Results(ResultsPrincipal const& p, ModuleDescription const& md)
+    : DataViewImpl{InResults, p, md, false, RangeSet::invalid()}
   {}
 
 } // namespace art

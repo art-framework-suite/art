@@ -275,8 +275,7 @@ namespace art {
     , origEventID_{origEventID}
     , eventsToSkip_{eventsToSkip}
     , compactSubRunRanges_{compactSubRunRanges}
-    , treePointers_{{// Indexed by BranchTypes.h!
-                     make_unique<RootInputTree>(filePtr_.get(),
+    , treePointers_{{make_unique<RootInputTree>(filePtr_.get(),
                                                 InEvent,
                                                 saveMemoryObjectThreshold,
                                                 this,
@@ -391,16 +390,17 @@ namespace art {
     }
     // Also need to check RootFileDB if we have one.
     if (fileFormatVersion_.value_ >= 5) {
-      sqliteDB_ = ServiceHandle<DatabaseConnection> {}
-      ->get<TKeyVFSOpenPolicy>("RootFileDB", filePtr_.get());
+      sqliteDB_.reset(
+        ServiceHandle<DatabaseConnection> {}->get<TKeyVFSOpenPolicy>(
+          "RootFileDB", filePtr_.get()));
       if (readIncomingParameterSets &&
-          have_table(sqliteDB_, "ParameterSets", fileName_)) {
-        fhicl::ParameterSetRegistry::importFrom(sqliteDB_);
+          have_table(*sqliteDB_, "ParameterSets", fileName_)) {
+        fhicl::ParameterSetRegistry::importFrom(*sqliteDB_);
       }
       if (ServiceRegistry::isAvailable<art::FileCatalogMetadata>() &&
-          have_table(sqliteDB_, "FileCatalog_metadata", fileName_)) {
+          have_table(*sqliteDB_, "FileCatalog_metadata", fileName_)) {
         sqlite3_stmt* stmt{nullptr};
-        sqlite3_prepare_v2(sqliteDB_,
+        sqlite3_prepare_v2(*sqliteDB_,
                            "SELECT Name, Value from FileCatalog_metadata;",
                            -1,
                            &stmt,
@@ -417,7 +417,8 @@ namespace art {
         if (finalize_status != SQLITE_OK) {
           throw art::Exception{art::errors::SQLExecutionError}
             << "Unexpected status from DB status cleanup: "
-            << sqlite3_errmsg(sqliteDB_) << " (0x" << finalize_status << ").\n";
+            << sqlite3_errmsg(*sqliteDB_) << " (0x" << finalize_status
+            << ").\n";
         }
         art::ServiceHandle<art::FileCatalogMetadata> {}
         ->setMetadataFromInput(md);
@@ -569,6 +570,7 @@ namespace art {
   void
   RootInputFile::fillAuxiliary_Event(EntryNumber const entry)
   {
+    input::RootMutexSentry sentry;
     auto auxbr = treePointers_[InEvent]->auxBranch();
     auto pAux = &eventAux_;
     auxbr->SetAddress(&pAux);
@@ -578,6 +580,7 @@ namespace art {
   void
   RootInputFile::fillAuxiliary_SubRun(EntryNumber const entry)
   {
+    input::RootMutexSentry sentry;
     auto auxbr = treePointers_[InSubRun]->auxBranch();
     auto pAux = &subRunAux_;
     auxbr->SetAddress(&pAux);
@@ -587,6 +590,7 @@ namespace art {
   void
   RootInputFile::fillAuxiliary_Run(EntryNumber const entry)
   {
+    input::RootMutexSentry sentry;
     auto auxbr = treePointers_[InRun]->auxBranch();
     auto pAux = &runAux_;
     auxbr->SetAddress(&pAux);
@@ -596,6 +600,7 @@ namespace art {
   void
   RootInputFile::fillAuxiliary_Results(EntryNumber const entry)
   {
+    input::RootMutexSentry sentry;
     auto auxbr = treePointers_[InResults]->auxBranch();
     auto pAux = &resultsAux_;
     auxbr->SetAddress(&pAux);
@@ -607,6 +612,7 @@ namespace art {
   {
     SubRunAuxiliary auxResult{};
     {
+      input::RootMutexSentry sentry;
       auto auxbr = treePointers_[InSubRun]->auxBranch();
       auto pAux = &auxResult;
       auxbr->SetAddress(&pAux);
@@ -617,7 +623,7 @@ namespace art {
       return make_unique<OpenRangeSetHandler>(subRunAux_.run());
     }
     auto resolve_info = [this](auto const id) {
-      return detail::resolveRangeSetInfo(this->sqliteDB_,
+      return detail::resolveRangeSetInfo(*sqliteDB_,
                                          this->fileName_,
                                          SubRunAuxiliary::branch_type,
                                          id,
@@ -627,6 +633,7 @@ namespace art {
     for (auto i = entries.cbegin() + 1, e = entries.cend(); i != e; ++i) {
       SubRunAuxiliary tmpAux{};
       {
+        input::RootMutexSentry sentry;
         auto auxbr = treePointers_[InSubRun]->auxBranch();
         auto pAux = &tmpAux;
         auxbr->SetAddress(&pAux);
@@ -646,6 +653,7 @@ namespace art {
   {
     RunAuxiliary auxResult{};
     {
+      input::RootMutexSentry sentry;
       auto auxbr = treePointers_[InRun]->auxBranch();
       auto pAux = &auxResult;
       auxbr->SetAddress(&pAux);
@@ -656,7 +664,7 @@ namespace art {
       return make_unique<OpenRangeSetHandler>(runAux_.run());
     }
     auto resolve_info = [this](auto const id) {
-      return detail::resolveRangeSetInfo(this->sqliteDB_,
+      return detail::resolveRangeSetInfo(*sqliteDB_,
                                          this->fileName_,
                                          RunAuxiliary::branch_type,
                                          id,
@@ -666,6 +674,7 @@ namespace art {
     for (auto i = entries.cbegin() + 1, e = entries.cend(); i != e; ++i) {
       RunAuxiliary tmpAux{};
       {
+        input::RootMutexSentry sentry;
         auto auxbr = treePointers_[InRun]->auxBranch();
         auto pAux = &tmpAux;
         auxbr->SetAddress(&pAux);
@@ -771,6 +780,7 @@ namespace art {
     //
     //  Auxiliary routine for the constructor.
     //
+    input::RootMutexSentry sentry;
     auto parentageTree = static_cast<TTree*>(
       filePtr_->Get(rootNames::parentageTreeName().c_str()));
     if (!parentageTree) {
@@ -1004,6 +1014,7 @@ namespace art {
   void
   RootInputFile::fillHistory(EntryNumber const entry, History& history)
   {
+    input::RootMutexSentry sentry;
     // We could consider doing delayed reading, but because we have to
     // store this History object in a different tree than the event
     // data tree, this is too hard to do in this first version.
@@ -1175,7 +1186,7 @@ namespace art {
       processConfiguration_,
       &presentProducts_.get(InRun),
       make_unique<RootDelayedReader>(fileFormatVersion_,
-                                     sqliteDB_,
+                                     *sqliteDB_,
                                      entryNumbers,
                                      &runTree().branches(),
                                      runTree().productProvenanceBranch(),
@@ -1218,7 +1229,7 @@ namespace art {
       processConfiguration_,
       &presentProducts_.get(InRun),
       make_unique<RootDelayedReader>(fileFormatVersion_,
-                                     sqliteDB_,
+                                     *sqliteDB_,
                                      entryNumbers,
                                      &runTree().branches(),
                                      runTree().productProvenanceBranch(),
@@ -1270,7 +1281,7 @@ namespace art {
       processConfiguration_,
       &presentProducts_.get(InSubRun),
       make_unique<RootDelayedReader>(fileFormatVersion_,
-                                     sqliteDB_,
+                                     *sqliteDB_,
                                      entryNumbers,
                                      &subRunTree().branches(),
                                      subRunTree().productProvenanceBranch(),
@@ -1312,7 +1323,7 @@ namespace art {
       processConfiguration_,
       &presentProducts_.get(InSubRun),
       make_unique<RootDelayedReader>(fileFormatVersion_,
-                                     sqliteDB_,
+                                     *sqliteDB_,
                                      entryNumbers,
                                      &subRunTree().branches(),
                                      subRunTree().productProvenanceBranch(),

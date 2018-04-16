@@ -2,9 +2,9 @@
 #define art_Framework_EventProcessor_detail_writeSummary_h
 // vim: set sw=2 expandtab :
 
-#include <vector>
-
 #include "art/Utilities/PerScheduleContainer.h"
+
+#include <vector>
 
 namespace cet {
   class cpu_timer;

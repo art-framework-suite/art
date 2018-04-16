@@ -3,6 +3,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Utilities/Globals.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
@@ -99,7 +100,7 @@ arttest::TestBitsOutput::TestBitsOutput(
 void
 arttest::TestBitsOutput::write(art::EventPrincipal& ep)
 {
-  Event const ev{ep, moduleDescription_, TypeLabelLookup_t{}};
+  Event const ev{ep, moduleDescription_};
   // There should not be a TriggerResults object in the event if all
   // three of the following requirements are met:
   //
@@ -135,8 +136,10 @@ arttest::TestBitsOutput::write(art::EventPrincipal& ep)
   // TriggerResults objects should have no parents.
   assert(prod.provenance()->parents().empty());
   std::vector<unsigned char> vHltState;
-  ServiceHandle<TriggerNamesService> tns;
-  std::vector<std::string> const& hlts = tns->getTrigPaths();
+  // std::vector<std::string> const& hlts = ServiceHandle<TriggerNamesService
+  // const>{}->getTrigPaths();
+  std::vector<std::string> const& hlts =
+    art::Globals::instance()->triggerPathNames();
   unsigned int hltSize = hlts.size();
   for (unsigned int i = 0; i != hltSize; ++i) {
     vHltState.push_back(prod->at(i).state());

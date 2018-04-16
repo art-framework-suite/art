@@ -213,4 +213,4 @@ namespace art {
     configureRefCoreStreamer();
   }
 
-} // namespace art
+} // art

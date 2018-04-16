@@ -31,7 +31,6 @@ namespace art {
 
     SubRun(SubRunPrincipal const& srp,
            ModuleDescription const& md,
-           TypeLabelLookup_t const& expectedProducts,
            RangeSet const& rs = RangeSet::invalid());
 
     SubRun(SubRun const&) = delete;

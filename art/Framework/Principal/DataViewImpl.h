@@ -2,45 +2,8 @@
 #define art_Framework_Principal_DataViewImpl_h
 // vim: set sw=2 expandtab :
 
-//
-//  DataViewImpl - This is the implementation for accessing EDProducts
-//  and inserting new EDproducts.
-//
-//  Getting Data
-//
-//  The art::DataViewImpl class provides many 'get*" methods for
-//  getting data it contains.
-//
-//  The primary method for getting data is to use getByLabel(). The
-//  labels are the label of the module assigned in the configuration
-//  file and the 'product instance label' (which can be omitted in the
-//  case the 'product instance label' is the default value).  The C++
-//  type of the product plus the two labels uniquely identify a product
-//  in the DataViewImpl.
-//
-//  We use an Event in the examples, but a Run or a SubRun can also
-//  hold products.
-//
-//    art::Handle<AppleCollection> apples;
-//    event.getByLabel("tree", apples);
-//
-//    art::Handle<FruitCollection> fruits;
-//    event.getByLabel("market", "apples", fruits);
-//
-//  Putting Data
-//
-//    auto pApples = std::make_unique<AppleCollection>();
-//    // fill the collection
-//    ...
-//    event.put(std::move(pApples));
-//
-//    auto pFruits = std::make_unique<FruitCollection>();
-//    // fill the collection
-//    ...
-//    event.put(std::move(pFruits), "apples");
-//
-
 #include "art/Framework/Core/ModuleBase.h"
+#include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
@@ -50,6 +13,8 @@
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ProductSemantics.h"
 #include "canvas/Persistency/Common/EDProduct.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Common/PtrVector.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Common/detail/maybeCastObj.h"
 #include "canvas/Persistency/Common/traits.h"
@@ -67,17 +32,24 @@
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
+#include "canvas/Persistency/Provenance/canonicalProductName.h"
 #include "canvas/Persistency/Provenance/type_aliases.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedTypeID.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/exempt_ptr.h"
+#include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "hep_concurrency/RecursiveMutex.h"
+#include "hep_concurrency/tsan.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <cstdlib>
+#include <map>
 #include <memory>
 #include <ostream>
 #include <set>
@@ -89,326 +61,885 @@ namespace art {
 
   class EDProductGetter;
 
-  template <typename PROD>
-  std::ostream& operator<<(std::ostream& os, Handle<PROD> const& h);
-
   class DataViewImpl {
 
-    // Give access to commit(...).
+    // Give access to movePutProductsToPrincipal(...).
     friend class EDFilter;
     friend class EDProducer;
     friend class ResultsProducer;
     friend class ProducingService;
 
-  public: // TYPES
+    // TYPES
+  public:
     struct PMValue {
 
       PMValue(std::unique_ptr<EDProduct>&& p,
               BranchDescription const& b,
               RangeSet const& r)
-        : prod{std::move(p)}, bd{b}, rs{r}
+        : prod_{std::move(p)}, bd_{b}, rs_{r}
       {}
-
-      std::unique_ptr<EDProduct> prod;
-      BranchDescription const& bd;
-      RangeSet rs;
+      std::unique_ptr<EDProduct> prod_;
+      BranchDescription const& bd_;
+      RangeSet rs_;
     };
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
+    // MEMBER FUNCTIONS -- Special Member Functions
+  public:
     ~DataViewImpl();
-
     explicit DataViewImpl(BranchType bt,
                           Principal const& p,
                           ModuleDescription const& md,
                           bool recordParents,
-                          TypeLabelLookup_t const& expectedProducts,
                           RangeSet const& rs = RangeSet::invalid());
-
     DataViewImpl(DataViewImpl const&) = delete;
     DataViewImpl(DataViewImpl&&) = delete;
     DataViewImpl& operator=(DataViewImpl const&) = delete;
     DataViewImpl& operator=(DataViewImpl&) = delete;
 
-  public: // MEMBER FUNCTIONS -- User-facing API - misc
+    // MEMBER FUNCTIONS -- User-facing API - misc
+  public:
     RunID runID() const;
-
     SubRunID subRunID() const;
-
     EventID eventID() const;
-
     RunNumber_t run() const;
-
     SubRunNumber_t subRun() const;
-
     EventNumber_t event() const;
-
     Timestamp const& beginTime() const;
-
     Timestamp const& endTime() const;
-
     Timestamp time() const;
-
     bool isRealData() const;
-
     EventAuxiliary::ExperimentType experimentType() const;
-
     History const& history() const;
-
     ProcessHistoryID const& processHistoryID() const;
-
     size_t size() const;
-
     ProcessHistory const& processHistory() const;
-
     template <typename PROD>
     bool removeCachedProduct(Handle<PROD>&) const;
-
     EDProductGetter const* productGetter(ProductID const pid) const;
-
     bool getProcessParameterSet(std::string const& process,
                                 fhicl::ParameterSet&) const;
 
-  public: // MEMBER FUNCTIONS -- User-facing API -- get*
+    // MEMBER FUNCTIONS -- User-facing API -- get*
+  public:
     template <typename PROD>
     bool get(SelectorBase const&, Handle<PROD>& result) const;
-
     template <typename PROD>
     bool get(ProductID const pid, Handle<PROD>& result) const;
-
     template <typename PROD>
     bool getByLabel(std::string const& label,
                     std::string const& instance,
                     Handle<PROD>& result) const;
-
     template <typename PROD>
     bool getByLabel(std::string const& label,
                     std::string const& instance,
                     std::string const& process,
                     Handle<PROD>& result) const;
 
-  public: // MEMBER FUNCTIONS -- User-facing API -- get*, using InputTag
+    // MEMBER FUNCTIONS -- User-facing API -- get*, using InputTag
+  public:
     template <typename PROD>
     PROD const& getByLabel(InputTag const& tag) const;
-
     template <typename PROD>
     bool getByLabel(InputTag const& tag, Handle<PROD>& result) const;
-
     template <typename PROD>
     PROD const* getPointerByLabel(InputTag const& tag) const;
-
     template <typename PROD>
     ValidHandle<PROD> getValidHandle(InputTag const& tag) const;
 
+    // MEMBER FUNCTIONS -- User-facing API -- get*, using ProductToken
+  public:
     template <typename PROD>
     bool getByToken(ProductToken<PROD> const&, Handle<PROD>& result) const;
-
     template <typename PROD>
     ValidHandle<PROD> getValidHandle(ProductToken<PROD> const&) const;
 
-  public: // MEMBER FUNCTIONS -- User-facing API -- getMany*
+    // MEMBER FUNCTIONS -- User-facing API -- getMany*
+  public:
     template <typename PROD>
     void getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
-
     template <typename PROD>
     void getManyByType(std::vector<Handle<PROD>>& results) const;
 
-  public: // MEMBER FUNCTIONS -- User-facing API -- getView
-    // If getView returns true, then result.isValid() is true, but the View may
-    // still be empty.
+    // MEMBER FUNCTIONS -- User-facing API -- getView
+  public:
     template <typename ELEMENT>
-    bool getView(std::string const& label,
-                 std::string const& instance,
-                 View<ELEMENT>& result) const;
-
-    template <typename ELEMENT>
-    std::size_t getView(std::string const& label,
-                        std::string const& instance,
+    std::size_t getView(std::string const& moduleLabel,
+                        std::string const& productInstanceName,
+                        std::string const& processName,
                         std::vector<ELEMENT const*>& result) const;
-
-    // If getView returns true, then result.isValid() is true, but the View may
-    // still be empty.
     template <typename ELEMENT>
-    bool getView(InputTag const&, View<ELEMENT>& result) const;
-
+    std::size_t getView(std::string const& moduleLabel,
+                        std::string const& productInstanceName,
+                        std::vector<ELEMENT const*>& result) const;
     template <typename ELEMENT>
     std::size_t getView(InputTag const&,
                         std::vector<ELEMENT const*>& result) const;
-
-    // FIXME: Implementation missing!
     template <typename ELEMENT>
     std::size_t getView(ViewToken<ELEMENT> const&,
                         std::vector<ELEMENT const*>& result) const;
-
+    template <typename ELEMENT>
+    bool getView(std::string const& moduleLabel,
+                 std::string const& productInstanceName,
+                 std::string const& processName,
+                 View<ELEMENT>& result) const;
+    template <typename ELEMENT>
+    bool getView(std::string const& moduleLabel,
+                 std::string const& productInstanceName,
+                 View<ELEMENT>& result) const;
+    template <typename ELEMENT>
+    bool getView(InputTag const&, View<ELEMENT>& result) const;
     template <typename ELEMENT>
     bool getView(ViewToken<ELEMENT> const&, View<ELEMENT>& result) const;
 
+    // MEMBER FUNCTIONS -- User-facing API -- getPtrVector
+  public:
+    template <typename ELEMENT>
+    void getPtrVector(std::string const& moduleLabel,
+                      std::string const& productInstanceName,
+                      std::string const& processName,
+                      PtrVector<ELEMENT>& result) const;
+    template <typename ELEMENT>
+    void getPtrVector(std::string const& moduleLabel,
+                      std::string const& productInstanceName,
+                      PtrVector<ELEMENT>& result) const;
+    template <typename ELEMENT>
+    void getPtrVector(InputTag const&, PtrVector<ELEMENT>& result) const;
+    template <typename ELEMENT>
+    void getPtrVector(ViewToken<ELEMENT> const&,
+                      PtrVector<ELEMENT>& result) const;
+
+    // MEMBER FUNCTIONS -- User-facing API -- getProductID
+  public:
     template <typename T>
-    ProductID getProductID() const;
+    ProductID getProductID(std::string const& instance_name = "") const;
 
-    template <typename T>
-    ProductID getProductID(std::string const& instance_name) const;
-
-    cet::exempt_ptr<BranchDescription const> getProductDescription(
-      ProductID) const;
-
-  public: // MEMBER FUNCTIONS -- User-facing API -- put*
-    template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp);
-
+    // MEMBER FUNCTIONS -- User-facing API -- put*, Run product
+  public:
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   FullSemantic<Level::Run> const semantic);
-
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   FragmentSemantic<Level::Run> const semantic);
-
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   RangedFragmentSemantic<Level::Run> semantic);
-
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   std::string const& instance,
                   FullSemantic<Level::Run>);
-
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   std::string const& instance,
                   FragmentSemantic<Level::Run>);
-
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   std::string const& instance,
                   RangedFragmentSemantic<Level::Run> semantic);
 
+    // MEMBER FUNCTIONS -- User-facing API -- put*, SubRun product
+  public:
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   FullSemantic<Level::SubRun> const semantic);
-
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   FragmentSemantic<Level::SubRun> const semantic);
-
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   RangedFragmentSemantic<Level::SubRun> semantic);
-
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   std::string const& instance,
                   FullSemantic<Level::SubRun>);
-
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   std::string const& instance,
                   FragmentSemantic<Level::SubRun>);
-
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   std::string const& instance,
                   RangedFragmentSemantic<Level::SubRun> semantic);
 
+    // MEMBER FUNCTIONS -- User-facing API -- put*, Event product
+  public:
+    template <typename PROD>
+    ProductID put(std::unique_ptr<PROD>&& edp);
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp, std::string const& instance);
-
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   std::string const& instance,
                   RangeSet const& rs);
 
-  private: // MEMBER FUNCTIONS -- implementation details
-    using GroupQueryResultVec = std::vector<GroupQueryResult>;
+    // MEMBER FUNCTIONS -- Data Product Insertion, used only by EDProducer,
+    // EDFilter, and ResultsProducer
+  private:
+    void movePutProductsToPrincipal(Principal& principal);
+    void movePutProductsToPrincipal(
+      Principal& principal,
+      bool const checkProducts,
+      std::map<TypeLabel, BranchDescription> const* expectedProducts);
 
-    void removeNonViewableMatches_(TypeID const& requestedElementType,
-                                   GroupQueryResultVec& results) const;
-
-    void ensureUniqueProduct_(std::size_t nFound,
-                              TypeID const& typeID,
-                              std::string const& moduleLabel,
-                              std::string const& productInstanceName,
-                              std::string const& processName) const;
-
-    // The following 'get' functions serve to isolate the DataViewImpl class
-    // from the Principal class.
-    GroupQueryResult get_(WrappedTypeID const& wrapped,
-                          SelectorBase const&) const;
-
-    GroupQueryResult getByProductID_(ProductID const pid) const;
-
-    void removeCachedProduct_(ProductID const pid) const;
-
-    template <typename ELEMENT>
-    void fillView_(GroupQueryResult& bh,
-                   std::vector<ELEMENT const*>& result) const;
-
-    void checkPutProducts();
-
+    // MEMBER FUNCTIONS -- implementation details
+  private:
     BranchDescription const& getProductDescription_(
-      TypeLabel const& typeLabel) const;
-
-    void recordAsParent(Provenance const& prov) const;
-
-    ProductID getProductID_(TypeID const& type,
-                            std::string const& instance) const;
-
-    GroupQueryResult getByLabel_(WrappedTypeID const& wrapped,
-                                 std::string const& label,
-                                 std::string const& productInstanceName,
-                                 std::string const& processName) const;
-
-    GroupQueryResultVec getMany_(WrappedTypeID const& wrapped,
-                                 SelectorBase const& sel) const;
-
-    GroupQueryResultVec getMatchingSequenceByLabel_(
-      std::string const& label,
+      TypeID const& type,
+      std::string const& instance,
+      bool const alwaysEnableLookupOfProducedProducts = false) const;
+    void recordAsParent(cet::exempt_ptr<Group const> grp) const;
+    cet::exempt_ptr<Group const> getContainerForView(
+      TypeID const&,
+      std::string const& moduleLabel,
       std::string const& productInstanceName,
       std::string const& processName) const;
 
-    // If getView returns true, then result.isValid() is certain to be
-    // true -- but the View may still be empty.
-    template <typename ELEMENT>
-    GroupQueryResultVec getView_(std::string const& moduleLabel,
-                                 std::string const& productInstanceName,
-                                 std::string const& processName) const;
+    // MEMBER DATA
+  private:
+    // Protects use of retrievedProducts_,
+    // putProducts_, and rangeSet_.
+    mutable hep::concurrency::RecursiveMutex mutex_{"DataViewImpl"};
 
-    void commit(Principal& principal, bool const checkProducts);
-
-    void commit(Principal& principal);
-
-  private: // MEMBER DATA
     // Is this an Event, a Run, a SubRun, or a Results.
     BranchType const branchType_;
 
-    // Each DataViewImpl must have an associated Principal, used as the
-    // source of all 'gets' and the target of 'puts'.
+    // The principal we are operating on.
     Principal const& principal_;
 
-    // Each DataViewImpl must have a description of the module executing the
-    // "transaction" which the DataViewImpl represents.
+    // The module we were created for.
     ModuleDescription const& md_;
 
-    // Should we record the parents of the products put into the event.
+    // If we are constructed as a non-const Event, then we
+    // can be used to put products into the Principal, so
+    // we need to record retrieved products into
+    // retrievedProducts_ to track parentage of any
+    // products we put.
     bool const recordParents_;
 
-    // must be mutable because it records all 'gets',
-    // which do not logically modify the DataViewImpl. retrievedProducts_ is
-    // merely a cache reflecting what has been retrieved from the
-    // Principal class.
+    // The RangeSet to be used by any products put by the user.
+    // Cannot be const because we call collapse() on it.
+    RangeSet rangeSet_{RangeSet::invalid()};
+
+    // The set of products retrieved from the principal.
+    // We use this to track parentage of any products
+    // we put.
     mutable std::set<ProductID> retrievedProducts_{};
 
-    TypeLabelLookup_t const& expectedProducts_;
-
-    // holding pen for EDProducts inserted into this
-    // DataViewImpl. Pointers in these collections own the products to
-    // which they point.
+    // The set of products which have been put by the user.
+    // We own them.
     std::map<TypeLabel, PMValue> putProducts_{};
-
-    RangeSet rangeSet_{RangeSet::invalid()};
   };
 
   template <typename PROD>
-  inline std::ostream&
+  ProductID
+  DataViewImpl::getProductID(std::string const& instance /* = "" */) const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    TypeID const type{typeid(PROD)};
+    auto const& product_name = canonicalProductName(
+      type.friendlyClassName(), md_.moduleLabel(), instance, md_.processName());
+    ProductID const pid{product_name};
+    auto desc = principal_.getProductDescription(pid);
+    if (!desc) {
+      throw art::Exception(art::errors::ProductRegistrationFailure,
+                           "DataViewImpl::getProductID: error while trying to "
+                           "retrieve product description:\n")
+        << "No product is registered for\n"
+        << "  process name:                '" << md_.processName() << "'\n"
+        << "  module label:                '" << md_.moduleLabel() << "'\n"
+        << "  product friendly class name: '" << type.friendlyClassName()
+        << "'\n"
+        << "  product instance name:       '" << instance << "'\n"
+        << "  branch type:                 '" << branchType_ << "'\n";
+    }
+    // The description object is owned by either the source or the
+    // event processor, whose lifetimes exceed that of the
+    // DataViewImpl object.  It is therefore safe to dereference.
+    return desc->productID();
+  }
+
+  template <typename PROD>
+  bool
+  DataViewImpl::get(SelectorBase const& sel, Handle<PROD>& result) const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    result.clear();
+    // We do *not* track whether consumes was called for a SelectorBase.
+    auto qr = principal_.getBySelector(WrappedTypeID::make<PROD>(), sel);
+    result = Handle<PROD>{qr};
+    bool const ok = qr.succeeded() && !qr.failed();
+    if (recordParents_ && ok) {
+      recordAsParent(qr.result());
+    }
+    return ok;
+  }
+
+  template <typename PROD>
+  bool
+  DataViewImpl::get(ProductID const pid, Handle<PROD>& result) const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    result.clear();
+    auto qr = principal_.getByProductID(pid);
+    result = Handle<PROD>{qr};
+    bool const ok = qr.succeeded() && !qr.failed();
+    if (recordParents_ && ok) {
+      recordAsParent(qr.result());
+    }
+    return ok;
+  }
+
+  template <typename PROD>
+  bool
+  DataViewImpl::getByLabel(std::string const& moduleLabel,
+                           std::string const& productInstanceName,
+                           std::string const& processName,
+                           Handle<PROD>& result) const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    result.clear();
+    auto const wrapped = WrappedTypeID::make<PROD>();
+    ProductInfo const pinfo{ProductInfo::ConsumableType::Product,
+                            wrapped.product_type,
+                            moduleLabel,
+                            productInstanceName,
+                            processName};
+    ConsumesInfo::instance()->validateConsumedProduct(branchType_, md_, pinfo);
+    GroupQueryResult qr = principal_.getByLabel(
+      wrapped, moduleLabel, productInstanceName, processName);
+    result = Handle<PROD>{qr};
+    bool const ok = qr.succeeded() && !qr.failed();
+    if (recordParents_ && ok) {
+      recordAsParent(qr.result());
+    }
+    return ok;
+  }
+
+  template <typename PROD>
+  bool
+  DataViewImpl::getByLabel(std::string const& moduleLabel,
+                           std::string const& instance,
+                           Handle<PROD>& result) const
+  {
+    return getByLabel<PROD>(moduleLabel, instance, {}, result);
+  }
+
+  template <typename PROD>
+  bool
+  DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
+  {
+    return getByLabel<PROD>(tag.label(), tag.instance(), tag.process(), result);
+  }
+
+  template <typename PROD>
+  bool
+  DataViewImpl::getByToken(ProductToken<PROD> const& token,
+                           Handle<PROD>& result) const
+  {
+    return getByLabel<PROD>(token.inputTag_.label(),
+                            token.inputTag_.instance(),
+                            token.inputTag_.process(),
+                            result);
+  }
+
+  template <typename PROD>
+  PROD const&
+  DataViewImpl::getByLabel(InputTag const& tag) const
+  {
+    Handle<PROD> h;
+    getByLabel(tag, h);
+    return *h;
+  }
+
+  template <typename PROD>
+  PROD const*
+  DataViewImpl::getPointerByLabel(InputTag const& tag) const
+  {
+    Handle<PROD> h;
+    getByLabel(tag, h);
+    return h.product();
+  }
+
+  template <typename PROD>
+  ValidHandle<PROD>
+  DataViewImpl::getValidHandle(InputTag const& tag) const
+  {
+    Handle<PROD> h;
+    getByLabel(tag, h);
+    return ValidHandle<PROD>(h.product(), *h.provenance());
+  }
+
+  template <typename PROD>
+  ValidHandle<PROD>
+  DataViewImpl::getValidHandle(ProductToken<PROD> const& token) const
+  {
+    return getValidHandle<PROD>(token.inputTag_);
+  }
+
+  template <typename PROD>
+  void
+  DataViewImpl::getMany(SelectorBase const& sel,
+                        std::vector<Handle<PROD>>& results) const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    auto const wrapped = WrappedTypeID::make<PROD>();
+    ConsumesInfo::instance()->validateConsumedProduct(
+      branchType_,
+      md_,
+      ProductInfo{ProductInfo::ConsumableType::Many, wrapped.product_type});
+    std::vector<Handle<PROD>> products;
+    for (auto const& qr : principal_.getMany(wrapped, sel)) {
+      products.emplace_back(qr);
+      if (recordParents_) {
+        recordAsParent(qr.result());
+      }
+    }
+    results.swap(products);
+  }
+
+  template <typename PROD>
+  void
+  DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
+  {
+    getMany(MatchAllSelector{}, results);
+  }
+
+  template <typename ELEMENT>
+  std::size_t
+  DataViewImpl::getView(std::string const& moduleLabel,
+                        std::string const& productInstanceName,
+                        std::string const& processName,
+                        std::vector<ELEMENT const*>& result) const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::size_t const orig_size = result.size();
+    auto grp = getContainerForView(
+      TypeID{typeid(ELEMENT)}, moduleLabel, productInstanceName, processName);
+    if (recordParents_) {
+      recordAsParent(grp);
+    }
+    std::vector<void const*> view;
+    grp->uniqueProduct()->fillView(view);
+    std::vector<ELEMENT const*> castedView;
+    for (auto p : view) {
+      castedView.push_back(static_cast<ELEMENT const*>(p));
+    }
+    result = std::move(castedView);
+    return result.size() - orig_size;
+  }
+
+  template <typename ELEMENT>
+  std::size_t
+  DataViewImpl::getView(std::string const& moduleLabel,
+                        std::string const& productInstanceName,
+                        std::vector<ELEMENT const*>& result) const
+  {
+    return getView(moduleLabel, productInstanceName, {}, result);
+  }
+
+  template <typename ELEMENT>
+  std::size_t
+  DataViewImpl::getView(InputTag const& tag,
+                        std::vector<ELEMENT const*>& result) const
+  {
+    return getView(tag.label(), tag.instance(), tag.process(), result);
+  }
+
+  template <typename ELEMENT>
+  std::size_t
+  DataViewImpl::getView(ViewToken<ELEMENT> const& token,
+                        std::vector<ELEMENT const*>& result) const
+  {
+    return getView(token.inputTag_.label(),
+                   token.inputTag_.instance(),
+                   token.inputTag_.process(),
+                   result);
+  }
+
+  template <typename ELEMENT>
+  bool
+  DataViewImpl::getView(std::string const& moduleLabel,
+                        std::string const& productInstanceName,
+                        std::string const& processName,
+                        View<ELEMENT>& result) const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    auto grp = getContainerForView(
+      TypeID{typeid(ELEMENT)}, moduleLabel, productInstanceName, processName);
+    if (recordParents_) {
+      recordAsParent(grp);
+    }
+    std::vector<void const*> view;
+    grp->uniqueProduct()->fillView(view);
+    std::vector<ELEMENT const*> castedView;
+    for (auto p : view) {
+      castedView.push_back(static_cast<ELEMENT const*>(p));
+    }
+    result = View<ELEMENT>{castedView, grp->productID(), grp->uniqueProduct()};
+    return true;
+  }
+
+  template <typename ELEMENT>
+  bool
+  DataViewImpl::getView(std::string const& moduleLabel,
+                        std::string const& productInstanceName,
+                        View<ELEMENT>& result) const
+  {
+    return getView(moduleLabel, productInstanceName, {}, result);
+  }
+
+  template <typename ELEMENT>
+  bool
+  DataViewImpl::getView(InputTag const& tag, View<ELEMENT>& result) const
+  {
+    return getView(tag.label(), tag.instance(), tag.process(), result);
+  }
+
+  template <typename ELEMENT>
+  bool
+  DataViewImpl::getView(ViewToken<ELEMENT> const& token,
+                        View<ELEMENT>& result) const
+  {
+    return getView(token.inputTag_.label(),
+                   token.inputTag_.instance(),
+                   token.inputTag_.process(),
+                   result);
+  }
+
+  template <typename ELEMENT>
+  void
+  DataViewImpl::getPtrVector(std::string const& moduleLabel,
+                             std::string const& productInstanceName,
+                             std::string const& processName,
+                             PtrVector<ELEMENT>& result) const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    auto grp = getContainerForView(
+      TypeID{typeid(ELEMENT)}, moduleLabel, productInstanceName, processName);
+    if (recordParents_) {
+      recordAsParent(grp);
+    }
+    std::vector<void const*> view;
+    grp->uniqueProduct()->fillView(view);
+    std::size_t i{0};
+    for (auto p : view) {
+      result.push_back(
+        Ptr<ELEMENT>{grp->productID(),
+                     const_cast<ELEMENT*>(static_cast<ELEMENT const*>(p)),
+                     i++});
+    }
+  }
+
+  template <typename ELEMENT>
+  void
+  DataViewImpl::getPtrVector(std::string const& moduleLabel,
+                             std::string const& productInstanceName,
+                             PtrVector<ELEMENT>& result) const
+  {
+    getPtrVector(moduleLabel, productInstanceName, {}, result);
+  }
+
+  template <typename ELEMENT>
+  void
+  DataViewImpl::getPtrVector(InputTag const& tag,
+                             PtrVector<ELEMENT>& result) const
+  {
+    getPtrVector(tag.label(), tag.instance(), tag.process(), result);
+  }
+
+  template <typename ELEMENT>
+  void
+  DataViewImpl::getPtrVector(ViewToken<ELEMENT> const& token,
+                             PtrVector<ELEMENT>& result) const
+  {
+    getPtrVector(token.inputTag_.label(),
+                 token.inputTag_.instance(),
+                 token.inputTag_.process(),
+                 result);
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp)
+  {
+    return put<PROD>(std::move(edp), "");
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                    FullSemantic<Level::Run> const semantic)
+  {
+    return put<PROD>(std::move(edp), "", semantic);
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                    FragmentSemantic<Level::Run> const semantic)
+  {
+    return put<PROD>(std::move(edp), "", semantic);
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                    RangedFragmentSemantic<Level::Run> semantic)
+  {
+    return put<PROD>(std::move(edp), "", std::move(semantic));
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                    std::string const& instance,
+                    FullSemantic<Level::Run>)
+  {
+    return put<PROD>(std::move(edp), instance, RangeSet::forRun(runID()));
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                    std::string const& instance,
+                    FragmentSemantic<Level::Run>)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    static_assert(
+      detail::CanBeAggregated<PROD>::value,
+      "\n\n"
+      "art error: A Run product put with the semantic 'RunFragment'\n"
+      "           must be able to be aggregated. Please add the appropriate\n"
+      "              void aggregate(T const&)\n"
+      "           function to your class, or contact artists@fnal.gov.\n");
+    if (rangeSet_.collapse().is_full_run()) {
+      throw art::Exception{errors::ProductPutFailure, "Run::put"}
+        << "\nCannot put a product corresponding to a full Run using\n"
+        << "art::runFragment().  This can happen if you attempted to\n"
+        << "put a product at beginRun using art::runFragment().\n"
+        << "Please use either:\n"
+        << "   art::fullRun(), or\n"
+        << "   art::runFragment(art::RangeSet const&)\n"
+        << "or contact artists@fnal.gov for assistance.\n";
+    }
+    return put<PROD>(std::move(edp), instance, rangeSet_);
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                    std::string const& instance,
+                    RangedFragmentSemantic<Level::Run> semantic)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    static_assert(
+      detail::CanBeAggregated<PROD>::value,
+      "\n\n"
+      "art error: A Run product put with the semantic 'RunFragment'\n"
+      "           must be able to be aggregated. Please add the appropriate\n"
+      "              void aggregate(T const&)\n"
+      "           function to your class, or contact artists@fnal.gov.\n");
+    if (semantic.rs.collapse().is_full_run()) {
+      throw art::Exception{errors::ProductPutFailure, "Run::put"}
+        << "\nCannot put a product corresponding to a full Run using\n"
+        << "art::runFragment(art::RangeSet&).  Please use:\n"
+        << "   art::fullRun()\n"
+        << "or contact artists@fnal.gov for assistance.\n";
+    }
+    return put<PROD>(std::move(edp), instance, semantic.rs);
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                    FullSemantic<Level::SubRun> const semantic)
+  {
+    return put<PROD>(std::move(edp), "", semantic);
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                    FragmentSemantic<Level::SubRun> const semantic)
+  {
+    return put<PROD>(std::move(edp), "", semantic);
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                    RangedFragmentSemantic<Level::SubRun> semantic)
+  {
+    return put<PROD>(std::move(edp), "", std::move(semantic));
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                    std::string const& instance,
+                    FullSemantic<Level::SubRun>)
+  {
+    return put<PROD>(std::move(edp), instance, RangeSet::forSubRun(subRunID()));
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                    std::string const& instance,
+                    FragmentSemantic<Level::SubRun>)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    static_assert(
+      detail::CanBeAggregated<PROD>::value,
+      "\n\n"
+      "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
+      "           must be able to be aggregated. Please add the appropriate\n"
+      "              void aggregate(T const&)\n"
+      "           function to your class, or contact artists@fnal.gov.\n");
+    if (rangeSet_.collapse().is_full_subRun()) {
+      throw art::Exception(errors::ProductPutFailure, "SubRun::put")
+        << "\nCannot put a product corresponding to a full SubRun using\n"
+        << "art::subRunFragment().  This can happen if you attempted to\n"
+        << "put a product at beginSubRun using art::subRunFragment().\n"
+        << "Please use either:\n"
+        << "   art::fullSubRun(), or\n"
+        << "   art::subRunFragment(art::RangeSet const&)\n"
+        << "or contact artists@fnal.gov for assistance.\n";
+    }
+    return put<PROD>(std::move(edp), instance, rangeSet_);
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                    std::string const& instance,
+                    RangedFragmentSemantic<Level::SubRun> semantic)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    static_assert(
+      detail::CanBeAggregated<PROD>::value,
+      "\n\n"
+      "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
+      "           must be able to be aggregated. Please add the appropriate\n"
+      "              void aggregate(T const&)\n"
+      "           function to your class, or contact artists@fnal.gov.\n");
+    if (semantic.rs.collapse().is_full_subRun()) {
+      throw art::Exception{errors::ProductPutFailure, "Run::put"}
+        << "\nCannot put a product corresponding to a full SubRun using\n"
+        << "art::subRunFragment(art::RangeSet&).  Please use:\n"
+        << "   art::fullSubRun()\n"
+        << "or contact artists@fnal.gov for assistance.\n";
+    }
+    return put<PROD>(std::move(edp), instance, semantic.rs);
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    TypeID const tid{typeid(PROD)};
+    if (edp.get() == nullptr) {
+      throw art::Exception(errors::NullPointerError)
+        << "Event::put: A null unique_ptr was passed to 'put'.\n"
+        << "The pointer is of type " << tid << ".\n"
+        << "The specified productInstanceName was '" << instance << "'.\n";
+    }
+    auto const& bd = getProductDescription_(tid, instance, true);
+    assert(bd.productID() != ProductID::invalid());
+    std::unique_ptr<TypeLabel> typeLabel;
+    if (md_.isEmulatedModule()) {
+      typeLabel = std::make_unique<TypeLabel>(
+        tid, instance, SupportsView<PROD>::value, md_.moduleLabel());
+    } else {
+      typeLabel = std::make_unique<TypeLabel>(
+        tid, instance, SupportsView<PROD>::value, false);
+    }
+    auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
+    bool result = false;
+    if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
+      rangeSet_.collapse();
+      result =
+        putProducts_.emplace(*typeLabel, PMValue{std::move(wp), bd, rangeSet_})
+          .second;
+    } else {
+      result =
+        putProducts_
+          .emplace(*typeLabel, PMValue{std::move(wp), bd, RangeSet::invalid()})
+          .second;
+    }
+    if (!result) {
+      cet::HorizontalRule rule{30};
+      throw art::Exception(errors::ProductPutFailure)
+        << "Event::put: Attempt to put multiple products with the\n"
+        << "            following description onto the Event.\n"
+        << "            Products must be unique per Event.\n"
+        << rule('=') << '\n'
+        << bd << rule('=') << '\n';
+    }
+    return bd.productID();
+  }
+
+  template <typename PROD>
+  ProductID
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
+                    std::string const& instance,
+                    RangeSet const& rs)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    TypeID const tid{typeid(PROD)};
+    if (edp.get() == nullptr) {
+      throw art::Exception(errors::NullPointerError)
+        << "Event::put: A null unique_ptr was passed to 'put'.\n"
+        << "The pointer is of type " << tid << ".\n"
+        << "The specified productInstanceName was '" << instance << "'.\n";
+    }
+    if (!rs.is_valid()) {
+      throw art::Exception{errors::ProductPutFailure, "SubRun::put"}
+        << "\nCannot put a product with an invalid RangeSet.\n"
+        << "Please contact artists@fnal.gov.\n";
+    }
+    auto const& bd = getProductDescription_(tid, instance, true);
+    assert(bd.productID() != ProductID::invalid());
+    std::unique_ptr<TypeLabel> typeLabel;
+    if (md_.isEmulatedModule()) {
+      typeLabel = std::make_unique<TypeLabel>(
+        tid, instance, SupportsView<PROD>::value, md_.moduleLabel());
+    } else {
+      typeLabel = std::make_unique<TypeLabel>(
+        tid, instance, SupportsView<PROD>::value, false);
+    }
+    auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
+    auto result =
+      putProducts_.emplace(*typeLabel, PMValue{std::move(wp), bd, rs}).second;
+    if (!result) {
+      cet::HorizontalRule rule{30};
+      throw art::Exception(errors::ProductPutFailure)
+        << "Event::put: Attempt to put multiple products with the\n"
+        << "            following description onto the Event.\n"
+        << "            Products must be unique per Event.\n"
+        << rule('=') << '\n'
+        << bd << rule('=') << '\n';
+    }
+    return bd.productID();
+  }
+
+  template <typename PROD>
+  bool
+  DataViewImpl::removeCachedProduct(Handle<PROD>& h) const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    bool result{false};
+    if (h.isValid() && !h.provenance()->produced()) {
+      principal_.removeCachedProduct(h.id());
+      h.clear();
+      result = true;
+    }
+    return result;
+  }
+
+  template <typename PROD>
+  std::ostream&
   operator<<(std::ostream& os, Handle<PROD> const& h)
   {
     os << h.product() << " " << h.provenance() << " " << h.id();
@@ -416,536 +947,6 @@ namespace art {
   }
 
 } // namespace art
-
-template <typename PROD>
-inline bool
-art::DataViewImpl::get(SelectorBase const& sel, Handle<PROD>& result) const
-{
-  result.clear(); // Is this the correct thing to do if an exception is thrown?
-  // We do *not* track whether consumes was called for a SelectorBase.
-  GroupQueryResult bh = get_(WrappedTypeID::make<PROD>(), sel);
-  convert_handle(bh, result);
-  bool const ok = bh.succeeded() && !result.failedToGet();
-  if (recordParents_ && ok) {
-    recordAsParent(*result.provenance());
-  }
-  return ok;
-}
-
-template <typename PROD>
-bool
-art::DataViewImpl::get(ProductID const pid, Handle<PROD>& result) const
-{
-  // Is this the correct thing to do if an exception is thrown?
-  result.clear();
-  GroupQueryResult bh = getByProductID_(pid);
-  convert_handle(bh, result);
-  bool const ok = bh.succeeded() && !result.failedToGet();
-  if (recordParents_ && ok) {
-    recordAsParent(*result.provenance());
-  }
-  return ok;
-}
-
-template <typename PROD>
-inline bool
-art::DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
-{
-  return getByLabel<PROD>(tag.label(), tag.instance(), tag.process(), result);
-}
-
-template <typename PROD>
-inline bool
-art::DataViewImpl::getByToken(ProductToken<PROD> const& token,
-                              Handle<PROD>& result) const
-{
-  auto const& tag = token.inputTag_;
-  return getByLabel<PROD>(tag.label(), tag.instance(), tag.process(), result);
-}
-
-template <typename PROD>
-inline bool
-art::DataViewImpl::getByLabel(std::string const& label,
-                              std::string const& instance,
-                              Handle<PROD>& result) const
-{
-  return getByLabel<PROD>(label, instance, {}, result);
-}
-
-template <typename PROD>
-inline bool
-art::DataViewImpl::getByLabel(std::string const& label,
-                              std::string const& productInstanceName,
-                              std::string const& processName,
-                              Handle<PROD>& result) const
-{
-  result.clear(); // Is this the correct thing to do if an exception is thrown?
-  auto const wrapped = WrappedTypeID::make<PROD>();
-  ProductInfo const pinfo{ProductInfo::ConsumableType::Product,
-                          wrapped.product_type,
-                          label,
-                          productInstanceName,
-                          processName};
-  ConsumesInfo::instance()->validateConsumedProduct(branchType_, md_, pinfo);
-  GroupQueryResult bh =
-    getByLabel_(wrapped, label, productInstanceName, processName);
-  convert_handle(bh, result);
-  bool const ok = bh.succeeded() && !result.failedToGet();
-  if (recordParents_ && ok) {
-    recordAsParent(*result.provenance());
-  }
-  return ok;
-}
-
-template <typename PROD>
-inline PROD const&
-art::DataViewImpl::getByLabel(InputTag const& tag) const
-{
-  Handle<PROD> h;
-  getByLabel(tag, h);
-  return *h;
-}
-
-template <typename PROD>
-inline PROD const*
-art::DataViewImpl::getPointerByLabel(InputTag const& tag) const
-{
-  Handle<PROD> h;
-  getByLabel(tag, h);
-  return &(*h);
-}
-
-template <typename PROD>
-inline art::ValidHandle<PROD>
-art::DataViewImpl::getValidHandle(InputTag const& tag) const
-{
-  Handle<PROD> h;
-  getByLabel(tag, h);
-  return ValidHandle<PROD>(&(*h), *h.provenance());
-}
-
-template <typename PROD>
-inline art::ValidHandle<PROD>
-art::DataViewImpl::getValidHandle(ProductToken<PROD> const& token) const
-{
-  return getValidHandle<PROD>(token.inputTag_);
-}
-
-template <typename PROD>
-inline void
-art::DataViewImpl::getMany(SelectorBase const& sel,
-                           std::vector<Handle<PROD>>& results) const
-{
-  auto const wrapped = WrappedTypeID::make<PROD>();
-  ConsumesInfo::instance()->validateConsumedProduct(
-    branchType_,
-    md_,
-    ProductInfo{ProductInfo::ConsumableType::Many, wrapped.product_type});
-  std::vector<Handle<PROD>> products;
-  for (auto const& qr : getMany_(wrapped, sel)) {
-    Handle<PROD> result;
-    convert_handle(qr, result);
-    products.push_back(result);
-  }
-  results.swap(products);
-  if (recordParents_) {
-    for (auto const& h : results) {
-      recordAsParent(*h.provenance());
-    }
-  }
-}
-
-template <typename PROD>
-inline void
-art::DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
-{
-  getMany(MatchAllSelector{}, results);
-}
-
-template <typename ELEMENT>
-art::DataViewImpl::GroupQueryResultVec
-art::DataViewImpl::getView_(std::string const& moduleLabel,
-                            std::string const& productInstanceName,
-                            std::string const& processName) const
-{
-  TypeID const typeID{typeid(ELEMENT)};
-  ProductInfo const pinfo{ProductInfo::ConsumableType::ViewElement,
-                          typeID,
-                          moduleLabel,
-                          productInstanceName,
-                          processName};
-  ConsumesInfo::instance()->validateConsumedProduct(branchType_, md_, pinfo);
-  auto bhv =
-    getMatchingSequenceByLabel_(moduleLabel, productInstanceName, processName);
-  removeNonViewableMatches_(typeID, bhv);
-  ensureUniqueProduct_(
-    bhv.size(), typeID, moduleLabel, productInstanceName, processName);
-  return bhv;
-} // getView_<>()
-
-template <typename ELEMENT>
-std::size_t
-art::DataViewImpl::getView(std::string const& moduleLabel,
-                           std::string const& productInstanceName,
-                           std::vector<ELEMENT const*>& result) const
-{
-  auto bhv = getView_<ELEMENT>(moduleLabel, productInstanceName, {});
-  std::size_t const orig_size = result.size();
-  fillView_(bhv[0], result);
-  return result.size() - orig_size;
-} // getView<>()
-
-template <typename ELEMENT>
-std::size_t
-art::DataViewImpl::getView(InputTag const& tag,
-                           std::vector<ELEMENT const*>& result) const
-{
-  auto bhv = getView_<ELEMENT>(tag.label(), tag.instance(), tag.process());
-  std::size_t const orig_size = result.size();
-  fillView_(bhv[0], result);
-  return result.size() - orig_size;
-} // getView<>()
-
-template <typename ELEMENT>
-bool
-art::DataViewImpl::getView(std::string const& moduleLabel,
-                           std::string const& productInstanceName,
-                           View<ELEMENT>& result) const
-{
-  auto bhv = getView_<ELEMENT>(moduleLabel, productInstanceName, {});
-  fillView_(bhv[0], result.vals());
-  result.set_innards(bhv[0].result()->productID(),
-                     bhv[0].result()->uniqueProduct());
-  return true;
-}
-
-template <typename ELEMENT>
-bool
-art::DataViewImpl::getView(InputTag const& tag, View<ELEMENT>& result) const
-{
-  auto bhv = getView_<ELEMENT>(tag.label(), tag.instance(), tag.process());
-  fillView_(bhv[0], result.vals());
-  result.set_innards(bhv[0].result()->productID(),
-                     bhv[0].result()->uniqueProduct());
-  return true;
-}
-
-template <typename ELEMENT>
-bool
-art::DataViewImpl::getView(ViewToken<ELEMENT> const& token,
-                           View<ELEMENT>& result) const
-{
-  return getView(token.inputTag_, result);
-}
-
-template <typename ELEMENT>
-void
-art::DataViewImpl::fillView_(GroupQueryResult& bh,
-                             std::vector<ELEMENT const*>& result) const
-{
-  std::vector<void const*> erased_ptrs;
-  auto product = bh.result()->uniqueProduct();
-
-  // The lookups and the checking done in getView_ ensure that the
-  // retrieved product supports the requested view.
-  product->fillView(erased_ptrs);
-  recordAsParent(Provenance{bh.result()});
-
-  std::vector<ELEMENT const*> vals;
-  cet::transform_all(erased_ptrs, std::back_inserter(vals), [](auto p) {
-    return static_cast<ELEMENT const*>(p);
-  });
-  result.swap(vals);
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::getProductID() const
-{
-  TypeID const type{typeid(PROD)};
-  return getProductID_(type, "");
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::getProductID(std::string const& instance_name) const
-{
-  TypeID const type{typeid(PROD)};
-  return getProductID_(type, instance_name);
-}
-
-template <typename PROD>
-bool
-art::DataViewImpl::removeCachedProduct(Handle<PROD>& h) const
-{
-  bool result{false};
-  if (h.isValid() && !h.provenance()->produced()) {
-    removeCachedProduct_(h.id());
-    h.clear();
-    result = true;
-  }
-  return result;
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp)
-{
-  return put<PROD>(std::move(edp), "");
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                       FullSemantic<Level::Run> const semantic)
-{
-  return put<PROD>(std::move(edp), "", semantic);
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                       FragmentSemantic<Level::Run> const semantic)
-{
-  return put<PROD>(std::move(edp), "", semantic);
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                       RangedFragmentSemantic<Level::Run> semantic)
-{
-  return put<PROD>(std::move(edp), "", std::move(semantic));
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                       std::string const& instance,
-                       FullSemantic<Level::Run>)
-{
-  return put<PROD>(std::move(edp), instance, RangeSet::forRun(runID()));
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                       std::string const& instance,
-                       FragmentSemantic<Level::Run>)
-{
-  static_assert(
-    detail::CanBeAggregated<PROD>::value,
-    "\n\n"
-    "art error: A Run product put with the semantic 'RunFragment'\n"
-    "           must be able to be aggregated. Please add the appropriate\n"
-    "              void aggregate(T const&)\n"
-    "           function to your class, or contact artists@fnal.gov.\n");
-  if (rangeSet_.collapse().is_full_run()) {
-    throw Exception{errors::ProductPutFailure, "Run::put"}
-      << "\nCannot put a product corresponding to a full Run using\n"
-      << "art::runFragment().  This can happen if you attempted to\n"
-      << "put a product at beginRun using art::runFragment().\n"
-      << "Please use either:\n"
-      << "   art::fullRun(), or\n"
-      << "   art::runFragment(art::RangeSet const&)\n"
-      << "or contact artists@fnal.gov for assistance.\n";
-  }
-  return put<PROD>(std::move(edp), instance, rangeSet_);
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                       std::string const& instance,
-                       RangedFragmentSemantic<Level::Run> semantic)
-{
-  static_assert(
-    detail::CanBeAggregated<PROD>::value,
-    "\n\n"
-    "art error: A Run product put with the semantic 'RunFragment'\n"
-    "           must be able to be aggregated. Please add the appropriate\n"
-    "              void aggregate(T const&)\n"
-    "           function to your class, or contact artists@fnal.gov.\n");
-  if (semantic.rs.collapse().is_full_run()) {
-    throw Exception{errors::ProductPutFailure, "Run::put"}
-      << "\nCannot put a product corresponding to a full Run using\n"
-      << "art::runFragment(art::RangeSet&).  Please use:\n"
-      << "   art::fullRun()\n"
-      << "or contact artists@fnal.gov for assistance.\n";
-  }
-  return put<PROD>(std::move(edp), instance, semantic.rs);
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                       FullSemantic<Level::SubRun> const semantic)
-{
-  return put<PROD>(std::move(edp), "", semantic);
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                       FragmentSemantic<Level::SubRun> const semantic)
-{
-  return put<PROD>(std::move(edp), "", semantic);
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                       RangedFragmentSemantic<Level::SubRun> semantic)
-{
-  return put<PROD>(std::move(edp), "", std::move(semantic));
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                       std::string const& instance,
-                       FullSemantic<Level::SubRun>)
-{
-  return put<PROD>(std::move(edp), instance, RangeSet::forSubRun(subRunID()));
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                       std::string const& instance,
-                       FragmentSemantic<Level::SubRun>)
-{
-  static_assert(
-    detail::CanBeAggregated<PROD>::value,
-    "\n\n"
-    "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
-    "           must be able to be aggregated. Please add the appropriate\n"
-    "              void aggregate(T const&)\n"
-    "           function to your class, or contact artists@fnal.gov.\n");
-  if (rangeSet_.collapse().is_full_subRun()) {
-    throw Exception(errors::ProductPutFailure, "SubRun::put")
-      << "\nCannot put a product corresponding to a full SubRun using\n"
-      << "art::subRunFragment().  This can happen if you attempted to\n"
-      << "put a product at beginSubRun using art::subRunFragment().\n"
-      << "Please use either:\n"
-      << "   art::fullSubRun(), or\n"
-      << "   art::subRunFragment(art::RangeSet const&)\n"
-      << "or contact artists@fnal.gov for assistance.\n";
-  }
-  return put<PROD>(std::move(edp), instance, rangeSet_);
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                       std::string const& instance,
-                       RangedFragmentSemantic<Level::SubRun> semantic)
-{
-  static_assert(
-    detail::CanBeAggregated<PROD>::value,
-    "\n\n"
-    "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
-    "           must be able to be aggregated. Please add the appropriate\n"
-    "              void aggregate(T const&)\n"
-    "           function to your class, or contact artists@fnal.gov.\n");
-  if (semantic.rs.collapse().is_full_subRun()) {
-    throw Exception{errors::ProductPutFailure, "Run::put"}
-      << "\nCannot put a product corresponding to a full SubRun using\n"
-      << "art::subRunFragment(art::RangeSet&).  Please use:\n"
-      << "   art::fullSubRun()\n"
-      << "or contact artists@fnal.gov for assistance.\n";
-  }
-  return put<PROD>(std::move(edp), instance, semantic.rs);
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
-{
-  TypeID const tid{typeid(PROD)};
-  if (edp.get() == nullptr) {
-    throw Exception(errors::NullPointerError)
-      << "Event::put: A null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << tid << ".\n"
-      << "The specified productInstanceName was '" << instance << "'.\n";
-  }
-  std::unique_ptr<TypeLabel> typeLabel{nullptr};
-  if (md_.isEmulatedModule()) {
-    typeLabel = std::make_unique<TypeLabel>(
-      tid, instance, SupportsView<PROD>::value, md_.moduleLabel());
-  } else {
-    typeLabel = std::make_unique<TypeLabel>(
-      tid, instance, SupportsView<PROD>::value, false /*not used*/);
-  }
-  auto const& bd = getProductDescription_(*typeLabel);
-  assert(bd.productID() != ProductID::invalid());
-  auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
-  bool result = false;
-  if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
-    rangeSet_.collapse();
-    result =
-      putProducts_.emplace(*typeLabel, PMValue{std::move(wp), bd, rangeSet_})
-        .second;
-  } else {
-    result =
-      putProducts_
-        .emplace(*typeLabel, PMValue{std::move(wp), bd, RangeSet::invalid()})
-        .second;
-  }
-  if (!result) {
-    cet::HorizontalRule rule{30};
-    throw Exception(errors::ProductPutFailure)
-      << "Event::put: Attempt to put multiple products with the\n"
-      << "            following description onto the Event.\n"
-      << "            Products must be unique per Event.\n"
-      << rule('=') << '\n'
-      << bd << rule('=') << '\n';
-  }
-  return bd.productID();
-}
-
-template <typename PROD>
-art::ProductID
-art::DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                       std::string const& instance,
-                       RangeSet const& rs)
-{
-  TypeID const tid{typeid(PROD)};
-  if (edp.get() == nullptr) {
-    throw Exception(errors::NullPointerError)
-      << "Event::put: A null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << tid << ".\n"
-      << "The specified productInstanceName was '" << instance << "'.\n";
-  }
-  if (!rs.is_valid()) {
-    throw Exception{errors::ProductPutFailure, "SubRun::put"}
-      << "\nCannot put a product with an invalid RangeSet.\n"
-      << "Please contact artists@fnal.gov.\n";
-  }
-
-  std::unique_ptr<TypeLabel> typeLabel{nullptr};
-  if (md_.isEmulatedModule()) {
-    typeLabel = std::make_unique<TypeLabel>(
-      tid, instance, SupportsView<PROD>::value, md_.moduleLabel());
-  } else {
-    typeLabel = std::make_unique<TypeLabel>(
-      tid, instance, SupportsView<PROD>::value, false /*not used*/);
-  }
-  auto const& bd = getProductDescription_(*typeLabel);
-  auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
-  auto result =
-    putProducts_.emplace(*typeLabel, PMValue{std::move(wp), bd, rs});
-  if (!result.second) {
-    cet::HorizontalRule rule{30};
-    throw Exception(errors::ProductPutFailure)
-      << "Event::put: Attempt to put multiple products with the\n"
-      << "            following description onto the Event.\n"
-      << "            Products must be unique per Event.\n"
-      << rule('=') << '\n'
-      << bd << rule('=') << '\n';
-  }
-  return bd.productID();
-}
 
 #endif /* art_Framework_Principal_DataViewImpl_h */
 

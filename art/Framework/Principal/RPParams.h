@@ -1,5 +1,7 @@
 #ifndef art_Framework_Principal_RPParams_h
 #define art_Framework_Principal_RPParams_h
+// vim: set sw=2 expandtab :
+
 ////////////////////////////////////////////////////////////////////////
 // RPParams
 //
@@ -12,14 +14,14 @@
 #include <string>
 
 namespace art {
-  struct RPParams;
-}
 
-struct art::RPParams {
-  fhicl::ParameterSetID rpPSetID;
-  std::string rpPluginType;
-  std::string rpLabel;
-};
+  struct RPParams {
+    fhicl::ParameterSetID rpPSetID;
+    std::string rpPluginType;
+    std::string rpLabel;
+  };
+
+} // namespace art
 
 #endif /* art_Framework_Principal_RPParams_h */
 

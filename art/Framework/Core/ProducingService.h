@@ -1,5 +1,6 @@
 #ifndef art_Framework_Core_ProducingService_h
 #define art_Framework_Core_ProducingService_h
+// vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Principal/fwd.h"
@@ -12,30 +13,36 @@ namespace art {
   class ProducingServiceSignals;
 
   class ProducingService : private ProductRegistryHelper {
-  public:
+  public: // Types
     static constexpr bool service_handle_allowed{false};
 
+  public: // Special Member Functions
     virtual ~ProducingService() noexcept;
 
+  public: // API
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::registerProducts;
-
-    void setModuleDescription(ModuleDescription const& md);
-
+    void setModuleDescription(ModuleDescription const&);
     void registerCallbacks(ProducingServiceSignals&);
 
-  private:
-    void doPostReadRun(RunPrincipal& rp);
-    void doPostReadSubRun(SubRunPrincipal& srp);
-    void doPostReadEvent(EventPrincipal& ep);
+  private: // The signal handlers to register.
+    void doPostReadRun(RunPrincipal&);
+    void doPostReadSubRun(SubRunPrincipal&);
+    void doPostReadEvent(EventPrincipal&);
 
-    virtual void postReadRun(Run& r);
-    virtual void postReadSubRun(SubRun& sr);
-    virtual void postReadEvent(Event& e);
+  private: // API derived classes can implement.
+    virtual void postReadRun(Run&);
+    virtual void postReadSubRun(SubRun&);
+    virtual void postReadEvent(Event&);
 
+  private: // Member Data
+    // The fake module description created by the service mgr
+    // which contains the service_type as the module label.
+    // We must copy it because it has no permanent existence.
     ModuleDescription md_;
   };
-}
+
+} // namespace art
 
 #define DEFINE_ART_PRODUCING_SERVICE(klass)                                    \
   DECLARE_ART_SERVICE(klass, LEGACY)                                           \

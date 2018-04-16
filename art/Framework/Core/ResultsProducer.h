@@ -83,7 +83,6 @@
 #include "cetlib/compiler_macros.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <memory>
 #include <set>

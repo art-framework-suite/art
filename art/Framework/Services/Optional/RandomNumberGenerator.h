@@ -55,7 +55,7 @@
 // a createEngine() call is used right away (arguments elided for
 // clarity):
 //
-//   CLHEP::RandFlat dist {createEngine(...)};
+//   CLHEP::RandFlat dist{createEngine(...)};
 //
 // Creating the global engine
 //
@@ -151,9 +151,12 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
+#include "art/Utilities/PerScheduleContainer.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Common/RNGsnapshot.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"
+#include "hep_concurrency/RecursiveMutex.h"
 
 #include <map>
 #include <memory>
@@ -191,10 +194,37 @@ namespace art {
     friend class test::ConcurrentEngineRetrieval;
 
   public: // TYPES
-    // Used by createEngine.
-    // Used by restoreSnapshot_.
-    // Used by restoreFromFile_.
-    enum class EngineSource { Seed = 1, File, Product };
+    // Used by createEngine, restoreSnapshot_, and restoreFromFile_.
+    enum class EngineSource { Seed = 1, File = 2, Product = 3 };
+
+  public: // CONSTANTS
+    static std::string const defaultEngineKind /*  = "HepJamesRandom" */;
+    static long constexpr maxCLHEPSeed{900000000};
+    static long constexpr useDefaultSeed{-1};
+
+  private: // TYPES
+    // Per-schedule data
+    struct ScheduleData {
+      // The labeled random number engines for this stream.
+      // Indexed by engine label.
+      std::map<std::string, std::shared_ptr<CLHEP::HepRandomEngine>> dict_{};
+
+      // The most recent source of the labeled random number engines for this
+      // stream. Indexed by engine label. When EngineSource == Seed, this means
+      // an engine with the given label has been created by createEngine(si,
+      // seed, ...). When EngineSource == File, this means the engine was
+      // created by restoring it from a file. When EngineSource == Product, this
+      // means the engine was created by restoring it from a snapshot data
+      // product with module label "restoreStateLabel".
+      std::map<std::string, EngineSource> tracker_{};
+
+      // The requested engine kind for each labeled random number engine for
+      // this stream. Indexed by engine label.
+      std::map<std::string, std::string> kind_{};
+
+      // The random engine number state snapshots taken for this stream.
+      std::vector<RNGsnapshot> snapshot_{};
+    };
 
   public: // CONFIGURATION
     struct Config {
@@ -209,112 +239,56 @@ namespace art {
 
     using Parameters = ServiceTable<Config>;
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
+  public: // Special Member Functions
     RandomNumberGenerator(Parameters const&, ActivityRegistry&);
-
     RandomNumberGenerator(RandomNumberGenerator const&) = delete;
-
     RandomNumberGenerator(RandomNumberGenerator&&) = delete;
-
     RandomNumberGenerator& operator=(RandomNumberGenerator const&) = delete;
-
     RandomNumberGenerator& operator=(RandomNumberGenerator&&) = delete;
 
-  public: // MEMBER FUNCTIONS -- Engine access
-    // TODO: Could remove if we do not need to support access from
-    //       engines restored from file.
-
-    CLHEP::HepRandomEngine& getEngine() const;
-
-    CLHEP::HepRandomEngine& getEngine(std::string const& engine_label) const;
-
-  private: // TYPES
-    // Per-schedule data
-    struct ScheduleData {
-
-      // Indexed by engine label.
-      std::map<std::string, std::shared_ptr<CLHEP::HepRandomEngine>> dict_{};
-
-      // Indexed by engine label.
-      // When EngineSource == Seed, this means an engine with the
-      // given label has been created by createEngine(si, seed, ...).
-      // When EngineSource == File, this means the engine was
-      // created by restoring it from a file.
-      // When EngineSource == Product, this means the engine was
-      // created by restoring it from a snapshot data product
-      // with module label "restoreStateLabel".
-      std::map<std::string, EngineSource> tracker_{};
-
-      // Indexed by engine label.
-      std::map<std::string, std::string> kind_{};
-
-      std::vector<RNGsnapshot> snapshot_{};
-    };
-
-  private: // MEMBER FUNCTIONS -- Engine establishment
-    CLHEP::HepRandomEngine& createEngine(ScheduleID scheduleID, long seed);
-
-    CLHEP::HepRandomEngine& createEngine(
-      ScheduleID scheduleID,
-      long seed,
-      std::string const& kind_of_engine_to_make);
-
-    CLHEP::HepRandomEngine& createEngine(ScheduleID scheduleID,
-                                         long seed,
-                                         std::string kind_of_engine_to_make,
-                                         std::string const& engine_label);
-
+  public: // API -- Engine access
+    // Note: Could remove if we do not need to support access from engines
+    // restored from file.
     CLHEP::HepRandomEngine& getEngine(
-      ScheduleID scheduleID,
+      ScheduleID const si = ScheduleID::first(),
       std::string const& engine_label = {}) const;
 
-    // --- MT-TODO: Only for testing
-    //     For testing multi-schedule parallization of this service, the
-    //     requested number of schedules is not expanded UNLESS the
-    //     expandToNSchedules() function is called by a friend.
-    void
-    expandToNSchedules(unsigned const n)
-    {
-      data_.resize(n);
-    }
+  private: // Engine establishment
+    // Accessible to user modules through friendship. Should only be used in
+    // ctors.
+    CLHEP::HepRandomEngine& createEngine(
+      ScheduleID const,
+      long seed,
+      std::string const& kind_of_engine_to_make = defaultEngineKind,
+      std::string const& engine_label = {});
 
-  private: // MEMBER FUNCTIONS -- Snapshot management helpers
-    void takeSnapshot_(ScheduleID scheduleID);
+  private: // Testing only
+    // For testing only.
+    void expandToNSchedules(unsigned const n);
 
-    void restoreSnapshot_(ScheduleID scheduleID, Event const&);
+  private: // Snapshot management helpers
+    void takeSnapshot_(ScheduleID const);
+    void restoreSnapshot_(ScheduleID const, Event const&);
+    std::vector<RNGsnapshot> const& accessSnapshot_(ScheduleID const) const;
 
-    std::vector<RNGsnapshot> const&
-    accessSnapshot_(ScheduleID const scheduleID) const
-    {
-      return data_[scheduleID.id()].snapshot_;
-    }
-
-  private: // MEMBER FUNCTIONS -- File management helpers
+  private: // File management helpers
     // TODO: Determine if this facility is necessary.
-
     void saveToFile_();
-
     void restoreFromFile_();
 
-  private: // MEMBER FUNCTIONS -- Debugging helpers
+  private: // Debugging helpers
     void print_() const;
+    bool invariant_holds_(ScheduleID const);
 
-    bool invariant_holds_(ScheduleID scheduleID);
-
-  private: // MEMBER FUNCTIONS -- Callbacks
+  private: // Callbacks from the framework
     void preProcessEvent(Event const&);
-
     void postProcessEvent(Event const&);
-
     void postBeginJob();
-
     void postEndJob();
 
-  private: // MEMBER DATA -- Guard against tardy engine creation
-    bool engine_creation_is_okay_{true};
-
   private:
-    std::vector<ScheduleData> data_;
+    // Protects all data members.
+    mutable hep::concurrency::RecursiveMutex mutex_{"art::rng::mutex_"};
 
     // Product key for restoring from a snapshot
     std::string const restoreStateLabel_;
@@ -330,6 +304,12 @@ namespace art {
 
     // Tracing and debug controls
     bool const debug_;
+
+    // Guard against tardy engine creation
+    bool engine_creation_is_okay_{true};
+
+    // Per-schedule data
+    PerScheduleContainer<ScheduleData> data_;
   };
 
 } // namespace art

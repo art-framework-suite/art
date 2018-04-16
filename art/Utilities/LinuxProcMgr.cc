@@ -6,6 +6,7 @@
 
 #include "art/Utilities/LinuxProcMgr.h"
 #include "art/Utilities/LinuxProcData.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/assert_only_one_thread.h"
 

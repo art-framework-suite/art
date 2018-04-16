@@ -10,6 +10,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/CPCSentry.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
 #include "hep_concurrency/SerialTaskQueueChain.h"
@@ -26,9 +27,9 @@ using namespace std;
 
 namespace art {
 
-  EDAnalyzer::~EDAnalyzer() noexcept = default;
-  shared::Analyzer::~Analyzer() noexcept = default;
-  replicated::Analyzer::~Analyzer() noexcept = default;
+  EDAnalyzer::~EDAnalyzer() noexcept {}
+  shared::Analyzer::~Analyzer() noexcept {}
+  replicated::Analyzer::~Analyzer() noexcept {}
 
   EDAnalyzer::EDAnalyzer(fhicl::ParameterSet const& pset)
     : EventObserverBase{pset}
@@ -59,7 +60,7 @@ namespace art {
     serialize(SharedResourcesRegistry::kLegacy);
     vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-    chain_.reset(new SerialTaskQueueChain{queues});
+    chain_ = new SerialTaskQueueChain{queues};
     beginJob();
   }
 
@@ -76,7 +77,7 @@ namespace art {
       }
       vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
       auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-      chain_.reset(new SerialTaskQueueChain{queues});
+      chain_ = new SerialTaskQueueChain{queues};
     }
     beginJob();
   }
@@ -146,7 +147,7 @@ namespace art {
                          cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    Run const r{rp, moduleDescription(), TypeLabelLookup_t{}};
+    Run const r{rp, md_};
     beginRun(r);
     return true;
   }
@@ -160,7 +161,7 @@ namespace art {
                        cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    Run const r{rp, moduleDescription(), TypeLabelLookup_t{}};
+    Run const r{rp, md_};
     endRun(r);
     return true;
   }
@@ -174,7 +175,7 @@ namespace art {
                             cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    SubRun const sr{srp, moduleDescription(), TypeLabelLookup_t{}};
+    SubRun const sr{srp, md_};
     beginSubRun(sr);
     return true;
   }
@@ -188,7 +189,7 @@ namespace art {
                           cet::exempt_ptr<CurrentProcessingContext const> cpc)
   {
     detail::CPCSentry sentry{*cpc};
-    SubRun const sr{srp, moduleDescription(), TypeLabelLookup_t{}};
+    SubRun const sr{srp, md_};
     endSubRun(sr);
     return true;
   }
@@ -199,15 +200,15 @@ namespace art {
 
   bool
   EDAnalyzer::doEvent(EventPrincipal& ep,
-                      ScheduleID /*si*/,
+                      ScheduleID const /*si*/,
                       CurrentProcessingContext const* cpc,
                       std::atomic<std::size_t>& counts_run,
                       std::atomic<std::size_t>& counts_passed,
                       std::atomic<std::size_t>& /*counts_failed*/)
   {
     detail::CPCSentry sentry{*cpc};
-    detail::CachedProducts::Sentry pvSentry{cachedProducts()};
-    Event const e{ep, moduleDescription(), TypeLabelLookup_t{}};
+    detail::PVSentry pvSentry{processAndEventSelectors()};
+    Event const e{ep, md_};
     if (wantAllEvents() || wantEvent(e)) {
       ++counts_run;
       analyze(e);

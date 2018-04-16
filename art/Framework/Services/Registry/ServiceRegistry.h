@@ -6,7 +6,6 @@
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Utilities/PluginSuffixes.h"
-#include "art/Utilities/ScheduleID.h"
 #include "cetlib/LibraryManager.h"
 #include "fhiclcpp/ParameterSet.h"
 

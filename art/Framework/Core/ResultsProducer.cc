@@ -10,7 +10,6 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <memory>
 #include <set>
@@ -49,51 +48,51 @@ namespace art {
   void
   ResultsProducer::doBeginRun(RunPrincipal const& rp)
   {
-    Run const r{rp, moduleDescription(), TypeLabelLookup_t{}};
+    Run const r{rp, md_};
     beginRun(r);
   }
 
   void
   ResultsProducer::doEndRun(RunPrincipal const& rp)
   {
-    Run const r{rp, moduleDescription(), TypeLabelLookup_t{}};
+    Run const r{rp, md_};
     endRun(r);
   }
 
   void
   ResultsProducer::doBeginSubRun(SubRunPrincipal const& srp)
   {
-    SubRun const sr{srp, moduleDescription(), TypeLabelLookup_t{}};
+    SubRun const sr{srp, md_};
     beginSubRun(sr);
   }
 
   void
   ResultsProducer::doEndSubRun(SubRunPrincipal const& srp)
   {
-    SubRun const sr{srp, moduleDescription(), TypeLabelLookup_t{}};
+    SubRun const sr{srp, md_};
     endSubRun(sr);
   }
 
   void
   ResultsProducer::doEvent(EventPrincipal const& ep)
   {
-    Event const e{ep, moduleDescription(), TypeLabelLookup_t{}};
+    Event const e{ep, md_};
     event(e);
   }
 
   void
   ResultsProducer::doReadResults(ResultsPrincipal const& resp)
   {
-    Results const res{resp, moduleDescription(), TypeLabelLookup_t{}};
+    Results const res{resp, md_};
     readResults(res);
   }
 
   void
   ResultsProducer::doWriteResults(ResultsPrincipal& resp)
   {
-    Results res{resp, moduleDescription(), expectedProducts<InResults>()};
+    Results res{resp, md_};
     writeResults(res);
-    res.DataViewImpl::commit(resp);
+    res.DataViewImpl::movePutProductsToPrincipal(resp);
   }
 
   void

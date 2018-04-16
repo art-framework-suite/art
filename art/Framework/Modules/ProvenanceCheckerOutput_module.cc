@@ -10,7 +10,6 @@
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
-#include "cetlib/exempt_ptr.h"
 #include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/ConfigurationTable.h"

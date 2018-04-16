@@ -20,6 +20,7 @@
 #include <functional>
 #include <limits>
 #include <numeric>
+#include <random>
 #include <regex>
 #include <unordered_set>
 
@@ -213,6 +214,7 @@ void
 art::MixHelper::generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
                                                EventAuxiliarySequence& auxseq)
 {
+  input::RootMutexSentry sentry;
   auto const eventTree = currentDataTrees_[InEvent];
   auto auxBranch =
     eventTree->GetBranch(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
@@ -415,11 +417,11 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
     // Prepare shuffled event sequence.
     shuffledSequence_.resize(static_cast<size_t>(nEventsInFile_));
     std::iota(shuffledSequence_.begin(), shuffledSequence_.end(), 0);
-    std::random_shuffle(shuffledSequence_.begin(),
-                        shuffledSequence_.end(),
-                        [this](EntryNumberSequence::difference_type const& n) {
-                          return dist_.get()->fireInt(n);
-                        });
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(shuffledSequence_.begin(), shuffledSequence_.end(), g);
+    //[this](EntryNumberSequence::difference_type const& n) { return
+    // dist_.get()->fireInt(n); }
   }
 }
 

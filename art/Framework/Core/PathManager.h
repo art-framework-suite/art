@@ -34,17 +34,15 @@
 
 namespace cet {
   class ostream_handle;
-}
+} // namespace cet
 
 namespace art {
-
   class ActionTable;
   class ActivityRegistry;
   class ModuleBase;
   class UpdateOutputCallbacks;
-
   class PathManager {
-  private:
+  private: // Types
     struct ModuleConfigInfo {
       std::string configTableName_;
       ModuleType moduleType_;
@@ -53,70 +51,58 @@ namespace art {
       std::string libSpec_;
     };
 
-  public:
+  public: // Special Member Functions
     ~PathManager();
-
     PathManager(fhicl::ParameterSet const& procPS,
                 UpdateOutputCallbacks& preg,
                 ProductDescriptions& productsToProduce,
                 ActionTable& exceptActions,
                 ActivityRegistry& areg);
-
     PathManager(PathManager const&) = delete;
     PathManager(PathManager&&) = delete;
     PathManager& operator=(PathManager const&) = delete;
     PathManager& operator=(PathManager&&) = delete;
 
-  public:
+  public: // API
     std::vector<std::string> const& triggerPathNames() const;
     void createModulesAndWorkers();
-
-    PathsInfo& triggerPathsInfo(ScheduleID scheduleID);
+    PathsInfo& triggerPathsInfo(ScheduleID const);
     PerScheduleContainer<PathsInfo>& triggerPathsInfo();
     PathsInfo& endPathInfo();
-
-    Worker* triggerResultsInserter(ScheduleID scheduleID) const;
-    void setTriggerResultsInserter(ScheduleID scheduleID,
+    Worker* triggerResultsInserter(ScheduleID const) const;
+    void setTriggerResultsInserter(ScheduleID const,
                                    std::unique_ptr<WorkerT<EDProducer>>&&);
 
-  private:
-    void fillWorkers_(ScheduleID si,
+  private: // Implementation Details
+    void fillWorkers_(ScheduleID const,
                       int pi,
                       std::vector<WorkerInPath::ConfigInfo> const& wci_list,
                       std::vector<WorkerInPath>& wips,
                       std::map<std::string, Worker*>& workers);
-
     ModuleType loadModuleType_(std::string const& lib_spec);
     ModuleThreadingType loadModuleThreadingType_(std::string const& lib_spec);
     detail::collection_map_t getModuleGraphInfoCollection_();
 
+  private: // Member Data
     UpdateOutputCallbacks& outputCallbacks_;
     ActionTable& exceptActions_;
     ActivityRegistry& actReg_;
     cet::LibraryManager lm_{Suffixes::module()};
     fhicl::ParameterSet procPS_{};
-
     std::vector<std::string> triggerPathNames_{};
-
     // All unique module objects from any and all paths.
     std::map<module_label_t, ModuleBase*> moduleSet_{};
-
     // All unique worker objects from any and all paths.
     std::map<module_label_t, Worker*> workerSet_{};
-
-    // Key is schedule number.
     PerScheduleContainer<PathsInfo> triggerPathsInfo_{};
-
     PathsInfo endPathInfo_{};
     PerScheduleContainer<std::unique_ptr<WorkerT<EDProducer>>>
       triggerResultsInserter_{};
     ProductDescriptions& productsToProduce_;
-
     //  The following data members are only needed to delay the
     //  creation of modules until after the service system has
     //  started.  We can move them back to the ctor once that is
     //  fixed.
-
     std::string processName_{};
     std::map<std::string, ModuleConfigInfo> allModules_{};
     std::unique_ptr<std::set<std::string>> trigger_paths_config_{};
@@ -125,7 +111,6 @@ namespace art {
       protoTrigPathLabelMap_{};
     std::vector<WorkerInPath::ConfigInfo> protoEndPathLabels_{};
   };
-
 } // namespace art
 
 #endif /* art_Framework_Core_PathManager_h */

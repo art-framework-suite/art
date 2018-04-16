@@ -1,5 +1,6 @@
 #ifndef art_Framework_Art_@ART_MAIN_FUNC@_h
 #define art_Framework_Art_@ART_MAIN_FUNC@_h
+// vim: set sw=2 expandtab :
 
 #include <string>
 

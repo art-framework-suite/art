@@ -1,10 +1,5 @@
-// ======================================================================
-//
-// TriggerNamesService
-//
-// ======================================================================
-
 #include "art/Framework/Services/System/TriggerNamesService.h"
+// vim: set sw=2 expandtab :
 
 #include "canvas/Persistency/Common/TriggerResults.h"
 #include "canvas/Utilities/Exception.h"
@@ -12,60 +7,112 @@
 #include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
-using art::TriggerNamesService;
+#include <cstddef>
+#include <map>
+#include <string>
+#include <vector>
+
+using namespace std;
 using namespace cet;
 using namespace fhicl;
-using namespace std;
+using namespace hep::concurrency;
 
-// ----------------------------------------------------------------------
+namespace art {
 
-TriggerNamesService::TriggerNamesService(ParameterSet const& procPS,
-                                         Strings const& trigger_path_names)
-  : trignames_{trigger_path_names}
-  , process_name_{procPS.get<string>("process_name")}
-  , wantSummary_{procPS.get<bool>("services.scheduler.wantSummary", false)}
-{
-  // Make and hold onto a parameter set for posterity.
-  trigger_pset_.put("trigger_paths", trignames_);
-  ParameterSetRegistry::put(trigger_pset_);
-
-  auto const& physics = procPS.get<ParameterSet>("physics", {});
-  end_names_ = physics.get<Strings>("end_paths", {});
-
-  auto assign_position = [](auto& posmap, size_type const i, auto const& name) {
-    posmap[name] = i;
-  };
-
-  using namespace std::placeholders;
-  cet::for_all_with_index(
-    trignames_, std::bind(assign_position, std::ref(trigpos_), _1, _2));
-  cet::for_all_with_index(
-    end_names_, std::bind(assign_position, std::ref(end_pos_), _1, _2));
-
-  cet::transform_all(
-    trignames_,
-    std::back_inserter(modulenames_),
-    [&physics](std::string const& par) { return physics.get<Strings>(par); });
-} // c'tor
-
-// ----------------------------------------------------------------------
-
-bool
-TriggerNamesService::getTrigPaths(TriggerResults const& triggerResults,
-                                  Strings& trigPaths) const
-{
-  ParameterSet pset;
-  if (!ParameterSetRegistry::get(triggerResults.parameterSetID(), pset)) {
-    return false;
+  TriggerNamesService::TriggerNamesService(
+    vector<string> const& triggerPathNames,
+    string const& processName,
+    bool const wantSummary,
+    ParameterSet const& triggerPSet,
+    ParameterSet const& physicsPSet)
+    : triggerPathNames_{triggerPathNames}
+    , processName_{processName}
+    , wantSummary_{wantSummary}
+    , triggerPSet_{triggerPSet}
+  {
+    size_t i{0};
+    for (auto const& pathname : triggerPathNames_) {
+      trigPathNameToTrigBitPos_[pathname] = i++;
+      moduleNames_.push_back(physicsPSet.get<vector<string>>(pathname));
+    }
   }
-  auto tmpPaths = pset.get<Strings>("trigger_paths", {});
-  if (tmpPaths.size() != triggerResults.size()) {
-    throw art::Exception(art::errors::Unknown)
-      << "TriggerNamesService::getTrigPaths, Trigger names vector and\n"
-         "TriggerResults are different sizes.  This should be impossible,\n"
-         "please send information to reproduce this problem to\n"
-         "the ART developers.\n";
+
+  string const&
+  TriggerNamesService::getProcessName() const
+  {
+    return processName_;
   }
-  std::swap(tmpPaths, trigPaths);
-  return true;
-}
+
+  bool
+  TriggerNamesService::wantSummary() const
+  {
+    return wantSummary_;
+  }
+
+  ParameterSet const&
+  TriggerNamesService::getTriggerPSet() const
+  {
+    return triggerPSet_;
+  }
+
+  vector<string> const&
+  TriggerNamesService::getTrigPaths() const
+  {
+    return triggerPathNames_;
+  }
+
+  size_t
+  TriggerNamesService::size() const
+  {
+    return triggerPathNames_.size();
+  }
+
+  string const&
+  TriggerNamesService::getTrigPath(size_t const i) const
+  {
+    return triggerPathNames_.at(i);
+  }
+
+  size_t
+  TriggerNamesService::find(map<string, size_t> const& posmap,
+                            string const& name) const
+  {
+    auto const I = posmap.find(name);
+    if (I == posmap.cend()) {
+      return posmap.size();
+    }
+    return I->second;
+  }
+
+  size_t
+  TriggerNamesService::findTrigPath(string const& name) const
+  {
+    return find(trigPathNameToTrigBitPos_, name);
+  }
+
+  vector<string> const&
+  TriggerNamesService::getTrigPathModules(string const& name) const
+  {
+    return moduleNames_.at(find(trigPathNameToTrigBitPos_, name));
+  }
+
+  vector<string> const&
+  TriggerNamesService::getTrigPathModules(size_t const i) const
+  {
+    return moduleNames_.at(i);
+  }
+
+  string const&
+  TriggerNamesService::getTrigPathModule(string const& name,
+                                         size_t const j) const
+  {
+    return moduleNames_.at(find(trigPathNameToTrigBitPos_, name)).at(j);
+  }
+
+  string const&
+  TriggerNamesService::getTrigPathModule(size_t const i, size_t const j) const
+  {
+    return moduleNames_.at(i).at(j);
+  }
+
+} // namespace art
