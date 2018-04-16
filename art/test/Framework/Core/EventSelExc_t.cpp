@@ -262,7 +262,8 @@ main()
   auto servicesManager_ = make_unique<ServicesManager>(ParameterSet{}, aReg);
   ServiceRegistry::instance().setManager(servicesManager_.get());
 
-  servicesManager_->put(std::make_unique<art::TriggerNamesService>(trigger_path_names, processName, trigPaths, physics_pset));
+  servicesManager_->put(std::make_unique<art::TriggerNamesService>(
+    trigger_path_names, processName, trigPaths, physics_pset));
 
   // We are ready to run some tests
 

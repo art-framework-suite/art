@@ -323,8 +323,7 @@ art::detail::verify_in_order_dependencies(
       oss << "    Module " << dep_name << " on path"
           << (on_paths.size() == 1ull ? " " : "s ")
           << comma_separated_list(on_paths)
-          << (module_name == dep_name ? " (self circularity)" : "")
-          << '\n';
+          << (module_name == dep_name ? " (self circularity)" : "") << '\n';
     }
   }
   return oss.str();

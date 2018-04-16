@@ -37,9 +37,7 @@ namespace art {
                unique_ptr<RangeSet>&& rs,
                TypeID const& wrapper_type,
                unique_ptr<EDProduct>&& edp /*= nullptr*/)
-    : branchDescription_{bd}
-    , delayedReader_{reader}
-    , wrapperType_{wrapper_type}
+    : branchDescription_{bd}, delayedReader_{reader}, wrapperType_{wrapper_type}
   {
     productProvenance_ = nullptr;
     product_ = edp.release();
@@ -418,11 +416,10 @@ namespace art {
       // Note: This may call back to us to update the product
       // provenance if run or subRun data product merging
       // creates a new provenance.
-      product_ = delayedReader_
-                   ->getProduct(this,
-                                branchDescription_.productID(),
-                                *rangeSet_.load())
-                   .release();
+      product_ =
+        delayedReader_
+          ->getProduct(this, branchDescription_.productID(), *rangeSet_.load())
+          .release();
       if (product_.load() == nullptr) {
         // We failed to get the master product, hopeless.
         return false;
