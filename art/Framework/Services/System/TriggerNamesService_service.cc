@@ -22,12 +22,10 @@ namespace art {
   TriggerNamesService::TriggerNamesService(
     vector<string> const& triggerPathNames,
     string const& processName,
-    bool const wantSummary,
     ParameterSet const& triggerPSet,
     ParameterSet const& physicsPSet)
     : triggerPathNames_{triggerPathNames}
     , processName_{processName}
-    , wantSummary_{wantSummary}
     , triggerPSet_{triggerPSet}
   {
     size_t i{0};
@@ -41,12 +39,6 @@ namespace art {
   TriggerNamesService::getProcessName() const
   {
     return processName_;
-  }
-
-  bool
-  TriggerNamesService::wantSummary() const
-  {
-    return wantSummary_;
   }
 
   ParameterSet const&

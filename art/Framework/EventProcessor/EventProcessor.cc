@@ -244,7 +244,6 @@ namespace art {
       servicesManager_.load()->addSystemService<TriggerNamesService>(
         pathManager_.load()->triggerPathNames(),
         processName,
-        wantSummary,
         triggerPSet,
         physicsPSet);
     }

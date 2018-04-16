@@ -42,15 +42,12 @@ namespace art {
   public:
     TriggerNamesService(std::vector<std::string> const& triggerPathNames,
                         std::string const& processName,
-                        bool const wantSummary,
                         fhicl::ParameterSet const& triggerPSet,
                         fhicl::ParameterSet const& physicsPSet);
     // API
   public:
     // Returns jobPS.process_name
     std::string const& getProcessName() const;
-    // Returns jobPS.services.scheduler.wantSummary
-    bool wantSummary() const;
     // Parameter set containing the trigger paths, the key
     // is "trigger_paths", and the value is getTrigPaths().
     fhicl::ParameterSet const& getTriggerPSet() const;
@@ -89,8 +86,6 @@ namespace art {
     std::vector<std::string> const triggerPathNames_;
     // The art process_name from the top pset.
     std::string const processName_;
-    // The services.scheduler.wantSummary parameter.
-    bool const wantSummary_;
     // Parameter set of trigger paths (used by
     // TriggerResults objects), the key is
     // "trigger_paths", and the value is
