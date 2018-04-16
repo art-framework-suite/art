@@ -1580,7 +1580,7 @@ cet_test(NonexistentPathCheck_02_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c NonexistentPathCheck_02.fcl
   DATAFILES fcl/NonexistentPathCheck_02.fcl
-  TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\n  ERROR: Unknown path d6 specified by user in end_paths.\n  ERROR: Unknown path x1 specified by user in end_paths.\n"
+  TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\n  ERROR: Unknown path x1 specified by user in end_paths.\n  ERROR: Unknown path d6 specified by user in end_paths.\n"
 )
 
 include(legacy-tests)
