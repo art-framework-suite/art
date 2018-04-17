@@ -115,11 +115,10 @@ namespace {
                paths_to_modules_t& paths_to_modules)
   {
     paths_to_modules_t result;
-    auto it = cbegin(paths_to_modules);
-    auto e = cend(paths_to_modules);
-    for (; it != e; ++it) {
-      auto const& path_name = it->first;
-      auto const& modules = it->second;
+    std::vector<std::string> paths_to_erase;
+    for (auto const& pr : paths_to_modules) {
+      auto const& path_name = pr.first;
+      auto const& modules = pr.second;
 
       bool first_module{true};
       bool present{true};
@@ -139,9 +138,12 @@ namespace {
         }
       }
       if (present) {
-        result.insert(cend(result), *it);
-        paths_to_modules.erase(it);
+        result.insert(cend(result), pr);
+        paths_to_erase.push_back(path_name);
       }
+    }
+    for (auto const& path : paths_to_erase) {
+      paths_to_modules.erase(path);
     }
     return result;
   }
