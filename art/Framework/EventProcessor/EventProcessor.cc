@@ -117,7 +117,7 @@ namespace art {
     ParentageRegistry::instance(true);
     ProcessConfigurationRegistry::instance(true);
     ProcessHistoryRegistry::instance(true);
-    SharedResourcesRegistry::instance(true);
+    //    SharedResourcesRegistry::instance(true);
     SetErrorHandler(DefaultErrorHandler);
     TypeID::shutdown();
     ANNOTATE_THREAD_IGNORE_END;

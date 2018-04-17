@@ -37,8 +37,6 @@ namespace art {
   SharedResourcesRegistry*
   SharedResourcesRegistry::instance(bool shutdown /*= false*/)
   {
-    static mutex meMutex_;
-    lock_guard<mutex> sentry{meMutex_};
     static SharedResourcesRegistry* me{nullptr};
     if (shutdown) {
       delete me;
