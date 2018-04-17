@@ -26,6 +26,7 @@ namespace art {
       fhicl::Atom<bool> errorOnFailureToPut{Name{"errorOnFailureToPut"}, true};
       fhicl::Atom<bool> errorOnSIGINT{Name{"errorOnSIGINT"}, true};
       fhicl::Atom<bool> wantSummary{Name{"wantSummary"}, false};
+      fhicl::Atom<std::string> dataDependencyGraph{Name{"dataDependencyGraph"}, {}};
       fhicl::OptionalDelegatedParameter configOut{Name{"configOut"}};
       fhicl::OptionalDelegatedParameter debugConfig{Name{"debugConfig"}};
       fhicl::OptionalDelegatedParameter validateConfig{Name{"validateConfig"}};
@@ -70,6 +71,11 @@ namespace art {
     {
       return wantSummary_;
     }
+    std::string const&
+    dataDependencyGraph() const noexcept
+    {
+      return dataDependencyGraph_;
+    }
 
   private:
     // A table of responses to be taken on reception of thrown
@@ -81,6 +87,7 @@ namespace art {
     bool const handleEmptySubRuns_;
     bool const errorOnMissingConsumes_;
     bool const wantSummary_;
+    std::string const dataDependencyGraph_;
     tbb::task_scheduler_init tbbManager_{tbb::task_scheduler_init::deferred};
   };
 }

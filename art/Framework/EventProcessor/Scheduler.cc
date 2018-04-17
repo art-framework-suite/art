@@ -19,6 +19,7 @@ namespace art {
     , handleEmptySubRuns_{ps().handleEmptySubRuns()}
     , errorOnMissingConsumes_{ps().errorOnMissingConsumes()}
     , wantSummary_{ps().wantSummary()}
+    , dataDependencyGraph_{ps().dataDependencyGraph()}
   {
     auto& globals = *Globals::instance();
     tbbManager_.initialize(nThreads_);
