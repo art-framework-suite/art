@@ -74,10 +74,10 @@ namespace art {
       abort_on_error(pthread_sigmask(SIG_UNBLOCK, &newset, 0));
     }
 
+#ifdef __linux__
     void
     disableRTSigs()
     {
-#ifdef __linux__
       sigset_t myset;
       abort_on_error(sigemptyset(&myset));
       struct sigaction tmpact;
@@ -88,8 +88,8 @@ namespace art {
         abort_on_error(sigaction(num, &tmpact, nullptr));
       }
       abort_on_error(pthread_sigmask(SIG_BLOCK, &myset, 0));
-#endif // __linux__
     }
+#endif // __linux__
 
     void
     disableAllSigs(sigset_t* oldset)
