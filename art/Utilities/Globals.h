@@ -149,7 +149,6 @@ namespace art {
   public:
     int nschedules() const;
     int nthreads() const;
-    bool wantSummary() const;
     std::string const& processName() const;
     fhicl::ParameterSet const& triggerPSet() const;
     std::vector<std::string> const& triggerPathNames() const;
@@ -159,7 +158,6 @@ namespace art {
   private:
     void setNSchedules(int);
     void setNThreads(int);
-    void setWantSummary(bool);
     void setProcessName(std::string const&);
     void setTriggerPSet(fhicl::ParameterSet const&);
     void setTriggerPathNames(std::vector<std::string> const&);
@@ -171,9 +169,6 @@ namespace art {
 
     // The services.scheduler.nthreads parameter.
     int nthreads_{1};
-
-    // The services.scheduler.wantSummary parameter.
-    bool wantSummary_{false};
 
     // The art process_name from the job pset.
     std::string processName_;

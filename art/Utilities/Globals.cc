@@ -254,18 +254,6 @@ namespace art {
     nthreads_ = nthreads;
   }
 
-  bool
-  Globals::wantSummary() const
-  {
-    return wantSummary_;
-  }
-
-  void
-  Globals::setWantSummary(bool wantSummary)
-  {
-    wantSummary_ = wantSummary;
-  }
-
   string const&
   Globals::processName() const
   {

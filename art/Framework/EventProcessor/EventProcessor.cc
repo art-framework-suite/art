@@ -66,6 +66,7 @@
 using namespace hep::concurrency;
 using namespace std;
 using namespace string_literals;
+using fhicl::ParameterSet;
 
 namespace art {
 
@@ -119,27 +120,23 @@ namespace art {
     SharedResourcesRegistry::instance(true);
     SetErrorHandler(DefaultErrorHandler);
     TypeID::shutdown();
-    // Cannot do these two because of artapp_t.
-    // input::RootMutexSentry::shutdown();
-    // RecursiveMutex::shutdown();
     ANNOTATE_THREAD_IGNORE_END;
   }
 
-  EventProcessor::EventProcessor(fhicl::ParameterSet const& pset)
+  EventProcessor::EventProcessor(ParameterSet const& pset)
   {
-    // RecursiveMutex::startup();
     TypeID::startup();
+    auto services_pset = pset.get<ParameterSet>("services");
+    auto const scheduler_pset = services_pset.get<ParameterSet>("scheduler");
     {
-      auto const& services_pset = pset.get<fhicl::ParameterSet>("services", {});
-      auto const& scheduler_pset =
-        services_pset.get<fhicl::ParameterSet>("scheduler", {});
-      // FIXME: Signals and threads require more effort than this!
-      // A signal is delivered to only one thread, and which thread
-      // is left up to the implementation to decide. To get control
-      // we must block all signals in the main thread, create a new
-      // thread which will handle the signals we want to handle,
-      // unblock the signals in that thread only, and have it use
-      // sigwaitinfo() to suspend itselt and wait for those signals.
+      // FIXME: Signals and threads require more effort than this!  A
+      //        signal is delivered to only one thread, and which
+      //        thread is left up to the implementation to decide. To
+      //        get control we must block all signals in the main
+      //        thread, create a new thread which will handle the
+      //        signals we want to handle, unblock the signals in that
+      //        thread only, and have it use sigwaitinfo() to suspend
+      //        itselt and wait for those signals.
       setupSignals(scheduler_pset.get<bool>("enableSigInt", true));
       if (scheduler_pset.get<bool>("unloadRootSigHandler", true)) {
         unloadRootSigHandler();
@@ -147,25 +144,10 @@ namespace art {
       setRootErrorHandler(
         scheduler_pset.get<bool>("resetRootErrHandler", true));
       completeRootHandlers();
-      if (scheduler_pset.get<bool>("debugDictionaries", false)) {
-        throw Exception(errors::UnimplementedFeature)
-          << "debugDictionaries not yet implemented for ROOT 6.\n";
-      }
     }
     ParentageRegistry::instance();
     ProcessConfigurationRegistry::instance();
     ProcessHistoryRegistry::instance();
-    auto nschedules = pset.get<int>("services.scheduler.num_schedules", 1);
-    Globals::instance()->setNSchedules(nschedules);
-    auto nthreads = pset.get<int>("services.scheduler.num_threads", 1);
-    Globals::instance()->setNThreads(nthreads);
-    auto const& processName{pset.get<string>("process_name")};
-    Globals::instance()->setProcessName(processName);
-    {
-      ostringstream msg;
-      msg << "nschedules: " << nschedules << " nthreads: " << nthreads;
-      TDEBUG_FUNC_MSG(5, "EventProcessor::EventProcessor", msg.str());
-    }
     nextLevel_ = Level::ReadyToAdvance;
     ec_ = new detail::ExceptionCollector{};
     timer_ = new cet::cpu_timer{};
@@ -180,16 +162,16 @@ namespace art {
     producedProductLookupTables_ = nullptr;
     psSignals_ = new ProducingServiceSignals{};
     {
-      auto servicesPSet = pset.get<fhicl::ParameterSet>("services", {});
       auto const fpcPSet =
-        servicesPSet.get<fhicl::ParameterSet>("FloatingPointControl", {});
-      servicesPSet.erase("FloatingPointControl");
-      servicesPSet.erase("message");
+        services_pset.get<ParameterSet>("FloatingPointControl", {});
+      services_pset.erase("FloatingPointControl");
+      services_pset.erase("message");
+      services_pset.erase("scheduler");
       servicesManager_ =
-        new ServicesManager(move(servicesPSet), *actReg_.load());
-      ServiceRegistry::instance().setManager(servicesManager_.load());
+        new ServicesManager{move(services_pset), *actReg_.load()};
       servicesManager_.load()->addSystemService<FloatingPointControl>(
         fpcPSet, *actReg_.load());
+      ServiceRegistry::instance().setManager(servicesManager_.load());
     }
     // We do this late because the floating point control word, signal
     // masks, etc., are per-thread and inherited from the master
@@ -198,13 +180,22 @@ namespace art {
     // we let tbb create any threads. This means they cannot use tbb
     // in their constructors, instead they must use the beginJob
     // callout.
-    scheduler_ = new Scheduler{pset.get<fhicl::ParameterSet>("services.scheduler")};
+    scheduler_ = new Scheduler{scheduler_pset};
+    auto const nschedules = scheduler_.load()->num_schedules();
+    auto const nthreads = scheduler_.load()->num_threads();
+    auto const& processName{pset.get<string>("process_name")};
+    Globals::instance()->setProcessName(processName);
+    {
+      ostringstream msg;
+      msg << "nschedules: " << nschedules << " nthreads: " << nthreads;
+      TDEBUG_FUNC_MSG(5, "EventProcessor::EventProcessor", msg.str());
+    }
     pathManager_ = new PathManager{pset,
                                    *outputCallbacks_.load(),
                                    *producedProductDescriptions_.load(),
                                    scheduler_.load()->actionTable(),
                                    *actReg_.load()};
-    fhicl::ParameterSet triggerPSet;
+    ParameterSet triggerPSet;
     triggerPSet.put("trigger_paths", pathManager_.load()->triggerPathNames());
     /*auto const& triggerPSetID =*/fhicl::ParameterSetRegistry::put(
       triggerPSet);
@@ -218,10 +209,8 @@ namespace art {
     runPrincipal_ = nullptr;
     subRunPrincipal_ = nullptr;
     eventPrincipal_ = new PerScheduleContainer<EventPrincipal*>{};
-    handleEmptyRuns_ =
-      pset.get<bool>("services.scheduler.handleEmptyRuns", true);
-    handleEmptySubRuns_ =
-      pset.get<bool>("services.scheduler.handleEmptySubRuns", true);
+    handleEmptyRuns_ = scheduler_.load()->handleEmptyRuns();
+    handleEmptySubRuns_ = scheduler_.load()->handleEmptySubRuns();
     deferredExceptionPtrIsSet_ = false;
     deferredExceptionPtr_ = new exception_ptr{};
     firstEvent_ = true;
@@ -234,11 +223,10 @@ namespace art {
                                  sizeof(EventPrincipal*),
                                  "EventPrincipal ptr");
     }
-    auto errorOnMissingConsumes =
-      pset.get<bool>("services.scheduler.errorOnMissingConsumes", false);
+    auto const errorOnMissingConsumes = scheduler_.load()->errorOnMissingConsumes();
     ConsumesInfo::instance()->setRequireConsumes(errorOnMissingConsumes);
     {
-      auto const& physicsPSet = pset.get<fhicl::ParameterSet>("physics", {});
+      auto const& physicsPSet = pset.get<ParameterSet>("physics", {});
       servicesManager_.load()->addSystemService<TriggerNamesService>(
         pathManager_.load()->triggerPathNames(),
         processName,
@@ -282,7 +270,7 @@ namespace art {
     // because the end path executor registers a callback that must
     // be invoked after the first input file is opened.
     {
-      fhicl::ParameterSet main_input;
+      ParameterSet main_input;
       main_input.put("module_type", "EmptyEvent");
       main_input.put("module_label", "source");
       main_input.put("maxEvents", -1);
