@@ -171,7 +171,7 @@ art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
         auto const edge = add_edge(index, preceding_filter_index, graph);
         sync_label[edge.first] = "filter:" + path.first;
       }
-      if (info.module_type == ModuleType::FILTER) {
+      if (info.module_type == ModuleType::filter) {
         preceding_filter_index = index;
       }
     }
@@ -349,7 +349,7 @@ namespace {
                "width=2]";
       } else {
         os_ << "  \"" << name << '\"';
-        if (info.module_type == art::ModuleType::FILTER) {
+        if (info.module_type == art::ModuleType::filter) {
           os_ << "[style=filled fillcolor=pink]";
         }
       }

@@ -14,7 +14,7 @@ namespace art {
   namespace detail {
 
     struct ModuleGraphInfo {
-      ModuleType module_type{ModuleType::NON_ART};
+      ModuleType module_type{ModuleType::non_art};
       std::set<std::string> product_dependencies{};
       std::set<std::string>
         select_events{}; // Only for analyzers and output modules

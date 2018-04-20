@@ -8,35 +8,34 @@
 
 namespace art {
 
-  enum class ModuleType : int { NON_ART, PRODUCER, FILTER, ANALYZER, OUTPUT };
-
-  enum class ModuleThreadingType : int { ILLEGAL, LEGACY, SHARED, REPLICATED };
+  enum class ModuleType : int { non_art, producer, filter, analyzer, output_module };
+  enum class ModuleThreadingType : int { illegal, legacy, shared, replicated };
 
   inline bool
   is_modifier(ModuleType const mt)
   {
-    return (mt == ModuleType::PRODUCER) || (mt == ModuleType::FILTER);
+    return (mt == ModuleType::producer) || (mt == ModuleType::filter);
   }
 
   inline bool
   is_observer(ModuleType const mt)
   {
-    return (mt == ModuleType::ANALYZER) || (mt == ModuleType::OUTPUT);
+    return (mt == ModuleType::analyzer) || (mt == ModuleType::output_module);
   }
 
   inline std::string
   ModuleType_to_string(ModuleType const mt)
   {
     switch (mt) {
-      case ModuleType::NON_ART:
+      case ModuleType::non_art:
         return "non-art";
-      case ModuleType::PRODUCER:
+      case ModuleType::producer:
         return "producer";
-      case ModuleType::FILTER:
+      case ModuleType::filter:
         return "filter";
-      case ModuleType::ANALYZER:
+      case ModuleType::analyzer:
         return "analyzer";
-      case ModuleType::OUTPUT:
+      case ModuleType::output_module:
         return "output module";
       default:
         throw Exception(errors::LogicError)

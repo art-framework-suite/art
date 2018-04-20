@@ -341,7 +341,7 @@ namespace art {
             } else if (modname_filterAction[0] == '-') {
               filteract = WorkerInPath::FilterAction::Ignore;
             }
-            if (mci.moduleType_ != ModuleType::FILTER &&
+            if (mci.moduleType_ != ModuleType::filter &&
                 filteract != WorkerInPath::Normal) {
               es << "  ERROR: Module " << label << " in path " << path_name
                  << " is" << (cat == mod_cat_t::OBSERVER ? " an " : " a ")
@@ -552,7 +552,7 @@ namespace art {
       ModuleBase* module = nullptr;
       // All modules are singletons except for replicated modules,
       // enforce that.
-      if (module_threading_type != ModuleThreadingType::REPLICATED) {
+      if (module_threading_type != ModuleThreadingType::replicated) {
         auto iter = moduleSet_.find(module_label);
         if (iter != moduleSet_.end()) {
           // We have already constructed this module, reuse it.
@@ -737,7 +737,7 @@ namespace art {
       set<string> const path_names{cbegin(triggerPathNames_),
                                    cend(triggerPathNames_)};
       source_info.paths = path_names;
-      result["TriggerResults"] = ModuleGraphInfo{ModuleType::PRODUCER};
+      result["TriggerResults"] = ModuleGraphInfo{ModuleType::producer};
     } else if (!protoEndPathLabels_.empty()) {
       source_info.paths = {"end_path"};
     }

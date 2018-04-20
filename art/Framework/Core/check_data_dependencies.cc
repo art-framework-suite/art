@@ -72,26 +72,26 @@ namespace {
                          fhicl::ParameterSet const& pset)
   {
     if (module_found_in_table(module_name, pset, "physics.producers"))
-      return art::ModuleType::PRODUCER;
+      return art::ModuleType::producer;
     if (module_found_in_table(module_name, pset, "physics.filters"))
-      return art::ModuleType::FILTER;
+      return art::ModuleType::filter;
     if (module_found_in_table(module_name, pset, "physics.analyzers"))
-      return art::ModuleType::ANALYZER;
+      return art::ModuleType::analyzer;
     if (module_found_in_table(module_name, pset, "outputs"))
-      return art::ModuleType::OUTPUT;
-    return art::ModuleType::NON_ART;
+      return art::ModuleType::output_module;
+    return art::ModuleType::non_art;
   }
 
   inline std::string
   table_for_module_type(art::ModuleType const module_type)
   {
-    if (module_type == art::ModuleType::PRODUCER)
+    if (module_type == art::ModuleType::producer)
       return "physics.producers";
-    if (module_type == art::ModuleType::FILTER)
+    if (module_type == art::ModuleType::filter)
       return "physics.filters";
-    if (module_type == art::ModuleType::ANALYZER)
+    if (module_type == art::ModuleType::analyzer)
       return "physics.analyzers";
-    if (module_type == art::ModuleType::OUTPUT)
+    if (module_type == art::ModuleType::output_module)
       return "outputs";
     return {};
   }
@@ -243,7 +243,7 @@ main(int argc, char** argv) try {
   }
 
   if (!trigger_paths.empty()) {
-    modules["TriggerResults"] = ModuleGraphInfo{art::ModuleType::PRODUCER};
+    modules["TriggerResults"] = ModuleGraphInfo{art::ModuleType::producer};
   }
 
   fill_module_info(pset, "end_path", end_path);

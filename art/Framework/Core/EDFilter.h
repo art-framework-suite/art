@@ -24,12 +24,9 @@
 #include <string>
 
 namespace art {
-  // <<pure virtual abstract base>>
+
   class EDFilter : public ProducerBase {
-    // Allow the WorkerT<T> ctor to call setModuleDescription() and
-    // workerType().
-    template <typename T>
-    friend class WorkerT;
+    friend class WorkerT<EDFilter>;
 
   public: // TYPES
     // The module macros need these two.
@@ -40,7 +37,7 @@ namespace art {
     static constexpr ModuleThreadingType
     moduleThreadingType()
     {
-      return ModuleThreadingType::LEGACY;
+      return ModuleThreadingType::legacy;
     }
 
   public: // CONFIGURATION
@@ -55,12 +52,11 @@ namespace art {
     EDFilter& operator=(EDFilter const&) = delete;
     EDFilter& operator=(EDFilter&&) = delete;
 
-  private: // MEMBER FUNCTIONS
+    // FIXME: Change this to private when you're ready
+
+    virtual void doBeginJob();
     std::string workerType() const;
 
-  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
-           // and EndPathExecutor
-    virtual void doBeginJob();
     void doEndJob();
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
@@ -94,22 +90,22 @@ namespace art {
     virtual bool endSubRun(SubRun&);
     virtual bool filter(Event&) = 0;
 
-  protected: // FIXME!!!!!
+  private:
     bool checkPutProducts_{true};
   };
 
   namespace shared {
     class Filter : public art::EDFilter {
-      // Allow the WorkerT<T> ctor to call setModuleDescription() and
-      // workerType().
-      template <typename T>
-      friend class WorkerT;
+      friend class WorkerT<Filter>;
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
+      using ModuleType = Filter;
+      using WorkerType = WorkerT<Filter>;
+
       static constexpr ModuleThreadingType
       moduleThreadingType()
       {
-        return ModuleThreadingType::SHARED;
+        return ModuleThreadingType::shared;
       }
       virtual ~Filter() noexcept;
       Filter();
@@ -118,25 +114,28 @@ namespace art {
       Filter& operator=(Filter const&) = delete;
       Filter& operator=(Filter&&) = delete;
 
-    private:
       void doBeginJob() override;
+
+    private:
+      bool checkPutProducts_{true};
     };
 
   } // namespace shared
 
   namespace replicated {
     class Filter : public art::EDFilter {
-      // Allow the WorkerT<T> ctor to call setModuleDescription() and
-      // workerType().
-      template <typename T>
-      friend class WorkerT;
+      friend class WorkerT<Filter>;
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
+      using ModuleType = Filter;
+      using WorkerType = WorkerT<Filter>;
+
       static constexpr ModuleThreadingType
       moduleThreadingType()
       {
-        return ModuleThreadingType::REPLICATED;
+        return ModuleThreadingType::replicated;
       }
+
       virtual ~Filter() noexcept;
       Filter();
       Filter(Filter const&) = delete;
@@ -144,8 +143,10 @@ namespace art {
       Filter& operator=(Filter const&) = delete;
       Filter& operator=(Filter&&) = delete;
 
-    private:
       void doBeginJob() override;
+
+    private:
+      bool checkPutProducts_{true};
     };
   } // namespace replicated
 } // namespace art

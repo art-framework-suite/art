@@ -50,10 +50,7 @@ namespace art {
   class ResultsPrincipal;
 
   class OutputModule : public EventObserverBase {
-    // Allow the WorkerT<T> ctor to call setModuleDescription() and
-    // workerType().
-    template <typename T>
-    friend class WorkerT;
+    friend class WorkerT<OutputModule>;
     friend class OutputWorker;
 
   public: // TYPES
@@ -63,7 +60,7 @@ namespace art {
     static constexpr ModuleThreadingType
     moduleThreadingType()
     {
-      return ModuleThreadingType::LEGACY;
+      return ModuleThreadingType::legacy;
     }
 
   private: // TYPES
@@ -262,10 +259,7 @@ namespace art {
 
   namespace shared {
     class OutputModule : public art::OutputModule {
-      // Allow the WorkerT<T> ctor to call setModuleDescription() and
-      // workerType().
-      template <typename T>
-      friend class WorkerT;
+      friend class WorkerT<OutputModule>;
       friend class OutputWorker;
 
     public: // TYPES
@@ -275,7 +269,7 @@ namespace art {
       static constexpr ModuleThreadingType
       moduleThreadingType()
       {
-        return ModuleThreadingType::SHARED;
+        return ModuleThreadingType::shared;
       }
 
     private: // TYPES
@@ -301,10 +295,7 @@ namespace art {
 
   namespace replicated {
     class OutputModule : public art::OutputModule {
-      // Allow the WorkerT<T> ctor to call setModuleDescription() and
-      // workerType().
-      template <typename T>
-      friend class WorkerT;
+      friend class WorkerT<OutputModule>;
       friend class OutputWorker;
 
     public: // TYPES
@@ -314,7 +305,7 @@ namespace art {
       static constexpr ModuleThreadingType
       moduleThreadingType()
       {
-        return ModuleThreadingType::REPLICATED;
+        return ModuleThreadingType::replicated;
       }
 
     private: // TYPES

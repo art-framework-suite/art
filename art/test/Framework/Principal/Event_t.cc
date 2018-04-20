@@ -190,7 +190,7 @@ ProductTablesFixture::registerProduct(std::string const& tag,
     moduleParams.id(),
     module_class_name(),
     moduleLabel,
-    static_cast<int>(ModuleThreadingType::LEGACY),
+    static_cast<int>(ModuleThreadingType::legacy),
     process,
     Present};
 

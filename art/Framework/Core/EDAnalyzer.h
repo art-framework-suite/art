@@ -29,8 +29,6 @@
 namespace art {
 
   class EDAnalyzer : public EventObserverBase {
-    // Allow the WorkerT<T> ctor to call setModuleDescription() and
-    // workerType().
     template <typename T>
     friend class WorkerT;
 
@@ -41,7 +39,7 @@ namespace art {
     static constexpr ModuleThreadingType
     moduleThreadingType()
     {
-      return ModuleThreadingType::LEGACY;
+      return ModuleThreadingType::legacy;
     }
 
   public: // CONFIGURATION
@@ -154,17 +152,18 @@ namespace art {
 
   namespace shared {
     class Analyzer : public art::EDAnalyzer {
-      // Allow the WorkerT<T> ctor to call setModuleDescription() and
-      // workerType().
       template <typename T>
       friend class WorkerT;
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
+      using WorkerType = WorkerT<Analyzer>;
+      using ModuleType = Analyzer;
+
       virtual ~Analyzer() noexcept;
       static constexpr ModuleThreadingType
       moduleThreadingType()
       {
-        return ModuleThreadingType::SHARED;
+        return ModuleThreadingType::shared;
       }
       explicit Analyzer(fhicl::ParameterSet const&);
       template <typename Config>
@@ -178,16 +177,17 @@ namespace art {
 
   namespace replicated {
     class Analyzer : public art::EDAnalyzer {
-      // Allow the WorkerT<T> ctor to call setModuleDescription() and
-      // workerType().
       template <typename T>
       friend class WorkerT;
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
+      using WorkerType = WorkerT<Analyzer>;
+      using ModuleType = Analyzer;
+
       static constexpr ModuleThreadingType
       moduleThreadingType()
       {
-        return ModuleThreadingType::REPLICATED;
+        return ModuleThreadingType::replicated;
       }
       virtual ~Analyzer() noexcept;
       explicit Analyzer(fhicl::ParameterSet const&);

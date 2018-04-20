@@ -81,13 +81,13 @@ namespace art {
                           *actReg_.load(),
                           *actionTable_.load(),
                           processName,
-                          ModuleThreadingType::REPLICATED,
+                          ModuleThreadingType::replicated,
                           scheduleID};
     ModuleDescription md{
       trig_pset.id(),
       "TriggerResultInserter",
       "TriggerResults",
-      static_cast<int>(ModuleThreadingType::REPLICATED),
+      static_cast<int>(ModuleThreadingType::replicated),
       ProcessConfiguration{processName, proc_pset.id(), getReleaseVersion()}};
     string pathName{"ctor"};
     CurrentProcessingContext cpc{scheduleID, &pathName, 0, false};

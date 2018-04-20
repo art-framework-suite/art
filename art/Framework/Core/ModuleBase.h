@@ -29,8 +29,6 @@ namespace fhicl {
 
 namespace art {
   class ModuleBase {
-    // Allow the WorkerT<T> ctor to call setModuleDescription().
-    // template <typename T> friend class WorkerT;
   public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~ModuleBase() noexcept;
     ModuleBase();
@@ -55,8 +53,6 @@ namespace art {
         "async is currently supported only for the 'InEvent' level.");
       asyncDeclared_ = true;
     }
-    // FIXME: need "async<Level>()" function for opting in to
-    // concurrent event processing for a given module.
   public: // MEMBER FUNCTIONS -- API for access to RandomNumberGenerator
     CLHEP::HepRandomEngine& createEngine(long);
     CLHEP::HepRandomEngine& createEngine(
@@ -108,7 +104,9 @@ namespace art {
     serialize_for_resource(H const& head, T const&... tail)
     {
       serialize_for_resource(head);
-      serialize_for_resource(tail...);
+      if (sizeof...(T) != 0) {
+        serialize_for_resource(tail...);
+      }
     }
   };
 

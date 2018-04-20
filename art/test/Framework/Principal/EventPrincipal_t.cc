@@ -105,7 +105,7 @@ ProductTablesFixture::fake_single_process_branch(
     modParams.id(),
     moduleClass,
     moduleLabel,
-    static_cast<int>(ModuleThreadingType::LEGACY),
+    static_cast<int>(ModuleThreadingType::legacy),
     *fake_single_module_process(tag, processName, modParams)};
 
   art::BranchDescription const result{

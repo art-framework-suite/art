@@ -23,12 +23,9 @@
 #include <string>
 
 namespace art {
-  // <<pure virtual abstract base>>
+
   class EDProducer : public ProducerBase {
-    // Allow the WorkerT<T> ctor to call setModuleDescription() and
-    // workerType().
-    template <typename T>
-    friend class WorkerT;
+    friend class WorkerT<EDProducer>;
 
   public: // TYPES
     // The module macros need these two.
@@ -37,7 +34,7 @@ namespace art {
     static constexpr ModuleThreadingType
     moduleThreadingType()
     {
-      return ModuleThreadingType::LEGACY;
+      return ModuleThreadingType::legacy;
     }
 
   public: // CONFIGURATION
@@ -52,10 +49,9 @@ namespace art {
     EDProducer& operator=(EDProducer const&) = delete;
     EDProducer& operator=(EDProducer&&) = delete;
 
-  protected: // MEMBER FUNCTIONS
+    // FIXME: Make this private when you're ready
     std::string workerType() const;
 
-  protected:
     virtual void doBeginJob();
     void doEndJob();
     void doRespondToOpenInputFile(FileBlock const& fb);
@@ -88,27 +84,24 @@ namespace art {
     virtual void endRun(Run&);
     virtual void beginSubRun(SubRun&);
     virtual void endSubRun(SubRun&);
-    // We make this pure virtual because a user module that does
-    // not provide one would only have side-effects, and we do
-    // not want people doing that.
     virtual void produce(Event&) = 0;
 
-  protected: // MEMBER DATA -- For derived classes
+  private:
     bool checkPutProducts_{true};
   };
 
   namespace shared {
     class Producer : public art::EDProducer {
-      // Allow the WorkerT<T> ctor to call setModuleDescription() and
-      // workerType().
-      template <typename T>
-      friend class WorkerT;
+      friend class WorkerT<Producer>;
 
-    public: // MEMBER FUNCTIONS -- Special Member Functions
+    public:
+      using ModuleType = Producer;
+      using WorkerType = WorkerT<Producer>;
+
       static constexpr ModuleThreadingType
       moduleThreadingType()
       {
-        return ModuleThreadingType::SHARED;
+        return ModuleThreadingType::shared;
       }
       virtual ~Producer() noexcept;
 
@@ -118,25 +111,27 @@ namespace art {
       Producer& operator=(Producer const&) = delete;
       Producer& operator=(Producer&&) = delete;
 
-    protected:
       void doBeginJob() override;
+    private:
+      bool checkPutProducts_{true};
     };
 
   } // namespace shared
 
   namespace replicated {
     class Producer : public art::EDProducer {
-      // Allow the WorkerT<T> ctor to call setModuleDescription() and
-      // workerType().
-      template <typename T>
-      friend class WorkerT;
+      friend class WorkerT<Producer>;
 
-    public: // MEMBER FUNCTIONS -- Special Member Functions
+    public:
+      using ModuleType = Producer;
+      using WorkerType = WorkerT<Producer>;
+
       static constexpr ModuleThreadingType
       moduleThreadingType()
       {
-        return ModuleThreadingType::REPLICATED;
+        return ModuleThreadingType::replicated;
       }
+
       virtual ~Producer() noexcept;
       Producer();
       Producer(Producer const&) = delete;
@@ -144,8 +139,9 @@ namespace art {
       Producer& operator=(Producer const&) = delete;
       Producer& operator=(Producer&&) = delete;
 
-    protected:
       void doBeginJob() override;
+    private:
+      bool checkPutProducts_{true};
     };
 
   } // namespace replicated
