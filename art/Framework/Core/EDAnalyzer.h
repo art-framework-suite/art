@@ -139,7 +139,6 @@ namespace art {
 
   protected: // MEMBER FUNCTIONS -- Implementation API, intended to be
              // provided by derived classes.
-    virtual void reconfigure(fhicl::ParameterSet const&);
     virtual void beginJob();
     virtual void endJob();
     virtual void respondToOpenInputFile(FileBlock const&);

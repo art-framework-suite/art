@@ -78,8 +78,6 @@ namespace art {
                  std::atomic<std::size_t>& counts_failed);
 
   protected:
-    // Not called by framework.
-    virtual void reconfigure(fhicl::ParameterSet const&);
     virtual void beginJob();
     virtual void endJob();
     virtual void respondToOpenInputFile(FileBlock const&);

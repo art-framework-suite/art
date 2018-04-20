@@ -49,11 +49,6 @@ namespace art {
     return "WorkerT<EDAnalyzer>";
   }
 
-  // Not called by framework
-  void
-  EDAnalyzer::reconfigure(fhicl::ParameterSet const&)
-  {}
-
   void
   EDAnalyzer::doBeginJob()
   {

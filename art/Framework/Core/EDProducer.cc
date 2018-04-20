@@ -43,10 +43,6 @@ namespace art {
   }
 
   void
-  EDProducer::reconfigure(fhicl::ParameterSet const&)
-  {}
-
-  void
   EDProducer::doRespondToOpenInputFile(FileBlock const& fb)
   {
     respondToOpenInputFile(fb);

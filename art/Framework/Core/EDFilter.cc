@@ -53,10 +53,6 @@ namespace art {
   }
 
   void
-  EDFilter::reconfigure(fhicl::ParameterSet const&)
-  {}
-
-  void
   EDFilter::doBeginJob()
   {
     serialize(SharedResourcesRegistry::kLegacy);
