@@ -95,17 +95,6 @@ BOOST_AUTO_TEST_CASE(TestSignal2_cfunc_t)
   BOOST_CHECK(os.is_equal(test_text));
 }
 
-BOOST_AUTO_TEST_CASE(TestSignal2_clear_t)
-{
-  TestSignal2 s;
-  std::string const test_text{"Test text"};
-  boost::test_tools::output_test_stream os;
-  s.watch(testCallback<0>);
-  s.clear();
-  BOOST_CHECK_NO_THROW(s.invoke(os, test_text));
-  BOOST_CHECK(os.is_empty());
-}
-
 BOOST_AUTO_TEST_CASE(TestSignal1_t)
 {
   TestSignal1 s;

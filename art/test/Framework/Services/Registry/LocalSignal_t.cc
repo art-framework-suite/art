@@ -122,38 +122,6 @@ BOOST_AUTO_TEST_CASE(TestSignal0_t)
   BOOST_CHECK(os.is_equal(test_text));
 }
 
-BOOST_AUTO_TEST_CASE(TestSignal2_All_t)
-{
-  TestSignal2 s{nSchedules};
-  std::string const test_text{"Test text"};
-  boost::test_tools::output_test_stream os;
-  BOOST_CHECK_NO_THROW(s.watchAll(testCallback<0>));
-  BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
-  BOOST_CHECK(os.is_equal(test_text));
-}
-
-BOOST_AUTO_TEST_CASE(TestSignal2_clear_t)
-{
-  TestSignal2 s{nSchedules};
-  std::string const test_text{"Test text"};
-  boost::test_tools::output_test_stream os;
-  BOOST_CHECK_NO_THROW(s.watchAll(testCallback<0>));
-  BOOST_CHECK_NO_THROW(s.clear(sID));
-  BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
-  BOOST_CHECK(os.is_empty());
-}
-
-BOOST_AUTO_TEST_CASE(TestSignal2_clearAll_t)
-{
-  TestSignal2 s{nSchedules};
-  std::string const test_text{"Test text"};
-  boost::test_tools::output_test_stream os;
-  BOOST_CHECK_NO_THROW(s.watchAll(testCallback<0>));
-  BOOST_CHECK_NO_THROW(s.clearAll());
-  BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
-  BOOST_CHECK(os.is_empty());
-}
-
 BOOST_AUTO_TEST_CASE(TestSignal1_All_t)
 {
   TestSignal1 s{nSchedules};
@@ -162,6 +130,16 @@ BOOST_AUTO_TEST_CASE(TestSignal1_All_t)
   BOOST_CHECK_NO_THROW(
     s.watchAll([&test_text](auto& x) { testCallback<0>(x, test_text); }));
   BOOST_CHECK_NO_THROW(s.invoke(sID, os));
+  BOOST_CHECK(os.is_equal(test_text));
+}
+
+BOOST_AUTO_TEST_CASE(TestSignal2_All_t)
+{
+  TestSignal2 s{nSchedules};
+  std::string const test_text{"Test text"};
+  boost::test_tools::output_test_stream os;
+  BOOST_CHECK_NO_THROW(s.watchAll(testCallback<0>));
+  BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
   BOOST_CHECK(os.is_equal(test_text));
 }
 

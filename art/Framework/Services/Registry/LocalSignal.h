@@ -71,9 +71,6 @@ namespace art {
 
     void invoke(ScheduleID const, Args&&... args) const; // Discard ResultType.
 
-    void clear(ScheduleID const);
-    void clearAll();
-
   private:
     ContainerType_ signals_;
   };
@@ -172,26 +169,6 @@ namespace art {
   {
     for (auto f : signals_.at(sID.id())) {
       f(std::forward<Args>(args)...);
-    }
-  }
-
-  template <detail::SignalResponseType STYPE,
-            typename ResultType,
-            typename... Args>
-  void
-  LocalSignal<STYPE, ResultType(Args...)>::clear(ScheduleID const sID)
-  {
-    signals_.at(sID.id()).clear();
-  }
-
-  template <detail::SignalResponseType STYPE,
-            typename ResultType,
-            typename... Args>
-  void
-  LocalSignal<STYPE, ResultType(Args...)>::clearAll()
-  {
-    for (auto& signal : signals_) {
-      signal.clear();
     }
   }
 

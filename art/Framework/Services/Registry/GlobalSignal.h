@@ -52,8 +52,6 @@ namespace art {
 
     void invoke(Args&&... args) const; // Discard ResultType.
 
-    void clear();
-
   private:
     // Protects all data members.
     mutable hep::concurrency::RecursiveMutex mutex_{"GlobalSignal::mutex_"};
@@ -142,15 +140,6 @@ namespace art {
     }
   }
 
-  template <detail::SignalResponseType SRTYPE,
-            typename ResultType,
-            typename... Args>
-  void
-  GlobalSignal<SRTYPE, ResultType(Args...)>::clear()
-  {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    signal_.clear();
-  }
 } // namespace art
 #endif /* art_Framework_Services_Registry_GlobalSignal_h */
 
