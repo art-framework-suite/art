@@ -61,11 +61,16 @@ namespace art {
 
   class EDProductGetter;
 
+  namespace detail {
+    class ProducerImpl;
+  }
+
   class DataViewImpl {
 
     // Give access to movePutProductsToPrincipal(...).
     friend class EDFilter;
     friend class EDProducer;
+    friend class detail::ProducerImpl;
     friend class ResultsProducer;
     friend class ProducingService;
 

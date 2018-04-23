@@ -2,23 +2,10 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/SharedResourcesRegistry.h"
-#include "art/Framework/Core/detail/get_failureToPut_flag.h"
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/Run.h"
-#include "art/Framework/Principal/RunPrincipal.h"
-#include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Utilities/CPCSentry.h"
-#include "art/Utilities/ScheduleID.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib_except/demangle.h"
-#include "fhiclcpp/ParameterSetRegistry.h"
 #include "hep_concurrency/SerialTaskQueueChain.h"
 
-#include <algorithm>
-#include <atomic>
-#include <cstddef>
 #include <string>
 #include <utility>
 #include <vector>
@@ -28,59 +15,23 @@ using namespace std;
 
 namespace art {
 
-  EDProducer::~EDProducer() noexcept = default;
-  shared::Producer::~Producer() noexcept = default;
-  replicated::Producer::~Producer() noexcept = default;
-
-  EDProducer::EDProducer() = default;
-  shared::Producer::Producer() = default;
-  replicated::Producer::Producer() = default;
-
   string
   EDProducer::workerType() const
   {
     return "WorkerT<EDProducer>";
   }
 
-  void
-  EDProducer::doRespondToOpenInputFile(FileBlock const& fb)
+  string
+  shared::Producer::workerType() const
   {
-    respondToOpenInputFile(fb);
+    return "WorkerT<shared::Producer>";
   }
 
-  void
-  EDProducer::respondToOpenInputFile(FileBlock const&)
-  {}
-
-  void
-  EDProducer::doRespondToCloseInputFile(FileBlock const& fb)
+  string
+  replicated::Producer::workerType() const
   {
-    respondToCloseInputFile(fb);
+    return "WorkerT<replicated::Producer>";
   }
-
-  void
-  EDProducer::respondToCloseInputFile(FileBlock const&)
-  {}
-
-  void
-  EDProducer::doRespondToOpenOutputFiles(FileBlock const& fb)
-  {
-    respondToOpenOutputFiles(fb);
-  }
-
-  void
-  EDProducer::respondToOpenOutputFiles(FileBlock const&)
-  {}
-
-  void
-  EDProducer::doRespondToCloseOutputFiles(FileBlock const& fb)
-  {
-    respondToCloseOutputFiles(fb);
-  }
-
-  void
-  EDProducer::respondToCloseOutputFiles(FileBlock const&)
-  {}
 
   void
   EDProducer::doBeginJob()
@@ -89,14 +40,7 @@ namespace art {
     vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     chain_ = new SerialTaskQueueChain{queues};
-    auto const& mainID = md_.mainParameterSetID();
-    auto const& scheduler_pset =
-      fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
-        "services.scheduler");
-    auto const& module_pset =
-      fhicl::ParameterSetRegistry::get(md_.parameterSetID());
-    checkPutProducts_ =
-      detail::get_failureToPut_flag(scheduler_pset, module_pset);
+    failureToPutProducts(md_);
     beginJob();
   }
 
@@ -115,129 +59,15 @@ namespace art {
       auto queues = SharedResourcesRegistry::instance()->createQueues(names);
       chain_ = new SerialTaskQueueChain{queues};
     }
-    auto const& mainID = md_.mainParameterSetID();
-    auto const& scheduler_pset =
-      fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
-        "services.scheduler");
-    auto const& module_pset =
-      fhicl::ParameterSetRegistry::get(md_.parameterSetID());
-    checkPutProducts_ =
-      detail::get_failureToPut_flag(scheduler_pset, module_pset);
+    failureToPutProducts(md_);
     beginJob();
   }
 
   void
   replicated::Producer::doBeginJob()
   {
-    auto const& mainID = md_.mainParameterSetID();
-    auto const& scheduler_pset =
-      fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
-        "services.scheduler");
-    auto const& module_pset =
-      fhicl::ParameterSetRegistry::get(md_.parameterSetID());
-    checkPutProducts_ =
-      detail::get_failureToPut_flag(scheduler_pset, module_pset);
+    failureToPutProducts(md_);
     beginJob();
-  }
-
-  void
-  EDProducer::beginJob()
-  {}
-
-  void
-  EDProducer::doEndJob()
-  {
-    endJob();
-  }
-
-  void
-  EDProducer::endJob()
-  {}
-
-  bool
-  EDProducer::doBeginRun(RunPrincipal& rp,
-                         cet::exempt_ptr<CurrentProcessingContext const> cpc)
-  {
-    detail::CPCSentry sentry{*cpc};
-    Run r{rp, md_, RangeSet::forRun(rp.runID())};
-    beginRun(r);
-    // r.DataViewImpl::movePutProductsToPrincipal(rp, checkPutProducts_,
-    // &expectedProducts<InRun>());
-    r.DataViewImpl::movePutProductsToPrincipal(rp);
-    return true;
-  }
-
-  void
-  EDProducer::beginRun(Run&)
-  {}
-
-  bool
-  EDProducer::doEndRun(RunPrincipal& rp,
-                       cet::exempt_ptr<CurrentProcessingContext const> cpc)
-  {
-    detail::CPCSentry sentry{*cpc};
-    Run r{rp, md_, rp.seenRanges()};
-    endRun(r);
-    // r.DataViewImpl::movePutProductsToPrincipal(rp, checkPutProducts_,
-    // &expectedProducts<InRun>());
-    r.DataViewImpl::movePutProductsToPrincipal(rp);
-    return true;
-  }
-
-  void
-  EDProducer::endRun(Run&)
-  {}
-
-  bool
-  EDProducer::doBeginSubRun(SubRunPrincipal& srp,
-                            cet::exempt_ptr<CurrentProcessingContext const> cpc)
-  {
-    detail::CPCSentry sentry{*cpc};
-    SubRun sr{srp, md_, RangeSet::forSubRun(srp.subRunID())};
-    beginSubRun(sr);
-    // sr.DataViewImpl::movePutProductsToPrincipal(srp, checkPutProducts_,
-    // &expectedProducts<InSubRun>());
-    sr.DataViewImpl::movePutProductsToPrincipal(srp);
-    return true;
-  }
-
-  void
-  EDProducer::beginSubRun(SubRun&)
-  {}
-
-  bool
-  EDProducer::doEndSubRun(SubRunPrincipal& srp,
-                          cet::exempt_ptr<CurrentProcessingContext const> cpc)
-  {
-    detail::CPCSentry sentry{*cpc};
-    SubRun sr{srp, md_, srp.seenRanges()};
-    endSubRun(sr);
-    // sr.DataViewImpl::movePutProductsToPrincipal(srp, checkPutProducts_,
-    // &expectedProducts<InSubRun>());
-    sr.DataViewImpl::movePutProductsToPrincipal(srp);
-    return true;
-  }
-
-  void
-  EDProducer::endSubRun(SubRun&)
-  {}
-
-  bool
-  EDProducer::doEvent(EventPrincipal& ep,
-                      ScheduleID const /*si*/,
-                      CurrentProcessingContext const* cpc,
-                      atomic<size_t>& counts_run,
-                      atomic<size_t>& counts_passed,
-                      atomic<size_t>& /*counts_failed*/)
-  {
-    detail::CPCSentry sentry{*cpc};
-    Event e{ep, md_};
-    ++counts_run;
-    produce(e);
-    e.DataViewImpl::movePutProductsToPrincipal(
-      ep, checkPutProducts_, &expectedProducts<InEvent>());
-    ++counts_passed;
-    return true;
   }
 
 } // namespace art

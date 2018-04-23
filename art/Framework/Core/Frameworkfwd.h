@@ -10,7 +10,6 @@ namespace art {
   class CurrentProcessingContext;
   class EDAnalyzer;
   class EDFilter;
-  class EDLooper;
   class EDProducer;
   class EndPathExecutor;
   class FileBlock;
