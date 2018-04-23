@@ -13,7 +13,6 @@
 #include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Services/Registry/detail/SignalResponseType.h"
 #include "art/Framework/Services/Registry/detail/makeWatchFunc.h"
-#include "hep_concurrency/RecursiveMutex.h"
 
 #include <deque>
 #include <functional>
@@ -31,7 +30,6 @@ namespace art {
             typename... Args>
   class GlobalSignal<SRTYPE, ResultType(Args...)> {
   public:
-    // Typedefs
     using slot_type = std::function<ResultType(Args...)>;
     using result_type = ResultType;
 
@@ -53,10 +51,6 @@ namespace art {
     void invoke(Args&&... args) const; // Discard ResultType.
 
   private:
-    // Protects all data members.
-    mutable hep::concurrency::RecursiveMutex mutex_{"GlobalSignal::mutex_"};
-
-    // The registered signal handlers.
     std::deque<slot_type> signal_;
   };
 
@@ -68,7 +62,6 @@ namespace art {
   GlobalSignal<SRTYPE, ResultType(Args...)>::watch(
     std::function<ResultType(Args...)> slot)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     detail::connect_to_signal<SRTYPE>(signal_, slot);
   }
 
@@ -82,7 +75,6 @@ namespace art {
     ResultType (T::*slot)(Args...),
     T& t)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     watch(detail::makeWatchFunc(slot, t));
   }
 
@@ -96,7 +88,6 @@ namespace art {
     T* t,
     ResultType (T::*slot)(Args...))
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     watch(detail::makeWatchFunc(slot, *t));
   }
 
@@ -110,7 +101,6 @@ namespace art {
     ResultType (T::*slot)(Args...) const,
     T const& t)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     watch(detail::makeWatchFunc(slot, t));
   }
 
@@ -124,7 +114,6 @@ namespace art {
     T const* t,
     ResultType (T::*slot)(Args...) const)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     watch(detail::makeWatchFunc(slot, *t));
   }
 
@@ -134,7 +123,6 @@ namespace art {
   void
   GlobalSignal<SRTYPE, ResultType(Args...)>::invoke(Args&&... args) const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto f : signal_) {
       f(std::forward<Args>(args)...);
     }

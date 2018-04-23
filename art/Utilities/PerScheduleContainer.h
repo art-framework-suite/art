@@ -5,8 +5,6 @@
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
 #include "canvas/Utilities/Exception.h"
-#include "hep_concurrency/RecursiveMutex.h"
-#include "hep_concurrency/tsan.h"
 
 #include <utility>
 #include <vector>
@@ -18,79 +16,56 @@ namespace art {
 
     static_assert(ScheduleID::first().id() == 0,
                   "First allowed ScheduleID value is not 0.");
-
   public:
     PerScheduleContainer() = default;
-
     explicit PerScheduleContainer(ScheduleID::size_type const n) : data_(n) {}
 
-  public:
     bool
     is_valid() const
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
       return !data_.empty();
     }
 
     auto
     size() const
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
       return data_.size();
     }
 
     auto
     cbegin() const noexcept
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-      // Take advantage of the named return value optimization.
-      auto ret = data_.cbegin();
-      return ret;
+      return data_.cbegin();
     }
 
     auto
     begin() const noexcept
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-      // Take advantage of the named return value optimization.
-      auto ret = data_.begin();
-      return ret;
+      return data_.begin();
     }
 
     auto
     begin() noexcept
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-      // Take advantage of the named return value optimization.
-      auto ret = data_.begin();
-      return ret;
+      return data_.begin();
     }
 
     auto
     cend() const noexcept
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-      // Take advantage of the named return value optimization.
-      auto ret = data_.cend();
-      return ret;
+      return data_.cend();
     }
 
     auto
     end() const noexcept
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-      // Take advantage of the named return value optimization.
-      auto ret = data_.end();
-      return ret;
+      return data_.end();
     }
 
     auto
     end() noexcept
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-      // Take advantage of the named return value optimization.
-      auto ret = data_.end();
-      return ret;
+      return data_.end();
     }
 
     // FIXME: Should replace emplace_back with emplace
@@ -98,20 +73,17 @@ namespace art {
     void
     emplace_back(Args&&... args)
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
       data_.emplace_back(std::forward<Args>(args)...);
     }
 
     void
     resize(ScheduleID::size_type const sz)
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
       if (is_valid()) {
         throw Exception{errors::LogicError,
                         "An error occurred while calling "
                         "PerScheduleContainer::expand_to_num_schedules"}
-          << "Can only call resize when the "
-             "container is invalid.";
+          << "Can only call resize when the container is invalid.\n";
       }
       data_.resize(sz);
     }
@@ -119,7 +91,6 @@ namespace art {
     auto
     expand_to_num_schedules()
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
       if (is_valid()) {
         throw Exception{errors::LogicError,
                         "An error occurred while calling "
@@ -134,43 +105,27 @@ namespace art {
 
     T& operator[](ScheduleID const sid)
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-      // Take advantage of the named return value optimization.
-      auto& ret = data_[sid.id()];
-      return ret;
+      return data_[sid.id()];
     }
 
     T const& operator[](ScheduleID const sid) const
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-      // Take advantage of the named return value optimization.
-      auto const& ret = data_[sid.id()];
-      return ret;
+      return data_[sid.id()];
     }
 
     T&
     at(ScheduleID const sid)
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-      // Take advantage of the named return value optimization.
-      auto& ret = data_.at(sid.id());
-      return ret;
+      return data_.at(sid.id());
     }
 
     T const&
     at(ScheduleID const sid) const
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-      // Take advantage of the named return value optimization.
-      auto const& ret = data_.at(sid.id());
-      return ret;
+      return data_.at(sid.id());
     }
 
   private:
-    // Protects all data members.
-    mutable hep::concurrency::RecursiveMutex mutex_{"art::psc"};
-
-    // The actual container.
     std::vector<T> data_;
   };
 
