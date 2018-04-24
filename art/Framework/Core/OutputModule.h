@@ -85,7 +85,7 @@ namespace art {
       fhicl::TableFragment<EventObserverBase::EOConfig> eoFragment;
       fhicl::Sequence<std::string> outputCommands{
         fhicl::Name("outputCommands"),
-        std::vector<std::string>{"keep *"}};
+          std::vector<std::string>{"keep *"}};
       fhicl::Atom<std::string> fileName{fhicl::Name("fileName"), ""};
       fhicl::Atom<std::string> dataTier{fhicl::Name("dataTier"), ""};
       fhicl::Atom<std::string> streamName{fhicl::Name("streamName"), ""};
@@ -218,8 +218,8 @@ namespace art {
     virtual void writeProductDescriptionRegistry();
     void writeFileCatalogMetadata();
     virtual void doWriteFileCatalogMetadata(
-      FileCatalogMetadata::collection_type const& md,
-      FileCatalogMetadata::collection_type const& ssmd);
+                                            FileCatalogMetadata::collection_type const& md,
+                                            FileCatalogMetadata::collection_type const& ssmd);
     virtual void writeProductDependencies();
     virtual void finishEndFile();
     PluginCollection_t makePlugins_(fhicl::ParameterSet const& top_pset);
@@ -239,7 +239,7 @@ namespace art {
     // describing the branches we are to write.
     SelectionsArray keptProducts_{{}};
     std::array<std::unique_ptr<GroupSelector const>, NumBranchTypes>
-      groupSelector_{{nullptr}};
+    groupSelector_{{nullptr}};
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_{{false}};
     GroupSelectorRules groupSelectorRules_;
     int maxEvents_{-1};
@@ -257,76 +257,71 @@ namespace art {
     PluginCollection_t plugins_;
   };
 
-  namespace shared {
-    class OutputModule : public art::OutputModule {
-      friend class WorkerT<OutputModule>;
-      friend class OutputWorker;
+  class SharedOutputModule : public art::OutputModule {
+    friend class WorkerT<SharedOutputModule>;
+    friend class OutputWorker;
 
-    public: // TYPES
-      // The module macros need these two.
-      using ModuleType = OutputModule;
-      using WorkerType = OutputWorker;
-      static constexpr ModuleThreadingType
-      moduleThreadingType()
-      {
-        return ModuleThreadingType::shared;
-      }
+  public: // TYPES
+    // The module macros need these two.
+    using ModuleType = SharedOutputModule;
+    using WorkerType = OutputWorker;
+    static constexpr ModuleThreadingType
+    moduleThreadingType()
+    {
+      return ModuleThreadingType::shared;
+    }
 
-    private: // TYPES
-      using PluginCollection_t =
-        std::vector<std::unique_ptr<FileCatalogMetadataPlugin>>;
+  private: // TYPES
+    using PluginCollection_t =
+      std::vector<std::unique_ptr<FileCatalogMetadataPlugin>>;
 
-    public: // MEMBER FUNCTIONS -- Special Member Functions
-      virtual ~OutputModule() noexcept;
-      explicit OutputModule(fhicl::ParameterSet const& pset);
-      explicit OutputModule(fhicl::TableFragment<Config> const& pset,
-                            fhicl::ParameterSet const& containing_pset);
-      OutputModule(OutputModule const&) = delete;
-      OutputModule(OutputModule&&) = delete;
-      OutputModule& operator=(OutputModule const&) = delete;
-      OutputModule& operator=(OutputModule&&) = delete;
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    virtual ~SharedOutputModule() noexcept;
+    explicit SharedOutputModule(fhicl::ParameterSet const& pset);
+    explicit SharedOutputModule(fhicl::TableFragment<Config> const& pset,
+                                fhicl::ParameterSet const& containing_pset);
+    SharedOutputModule(SharedOutputModule const&) = delete;
+    SharedOutputModule(SharedOutputModule&&) = delete;
+    SharedOutputModule& operator=(SharedOutputModule const&) = delete;
+    SharedOutputModule& operator=(SharedOutputModule&&) = delete;
 
-    private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
-             // and EndPathExecutor
-      void doBeginJob() override;
-    };
+  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
+    // and EndPathExecutor
+    void doBeginJob() override;
+  };
 
-  } // namespace shared
+  class ReplicatedOutputModule : public OutputModule {
+    friend class WorkerT<ReplicatedOutputModule>;
+    friend class OutputWorker;
 
-  namespace replicated {
-    class OutputModule : public art::OutputModule {
-      friend class WorkerT<OutputModule>;
-      friend class OutputWorker;
+  public: // TYPES
+    // The module macros need these two.
+    using ModuleType = ReplicatedOutputModule;
+    using WorkerType = OutputWorker;
+    static constexpr ModuleThreadingType
+    moduleThreadingType()
+    {
+      return ModuleThreadingType::replicated;
+    }
 
-    public: // TYPES
-      // The module macros need these two.
-      using ModuleType = OutputModule;
-      using WorkerType = OutputWorker;
-      static constexpr ModuleThreadingType
-      moduleThreadingType()
-      {
-        return ModuleThreadingType::replicated;
-      }
+  private: // TYPES
+    using PluginCollection_t =
+      std::vector<std::unique_ptr<FileCatalogMetadataPlugin>>;
 
-    private: // TYPES
-      using PluginCollection_t =
-        std::vector<std::unique_ptr<FileCatalogMetadataPlugin>>;
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    virtual ~ReplicatedOutputModule() noexcept;
+    explicit ReplicatedOutputModule(fhicl::ParameterSet const& pset);
+    explicit ReplicatedOutputModule(fhicl::TableFragment<Config> const& pset,
+                                    fhicl::ParameterSet const& containing_pset);
+    ReplicatedOutputModule(ReplicatedOutputModule const&) = delete;
+    ReplicatedOutputModule(ReplicatedOutputModule&&) = delete;
+    ReplicatedOutputModule& operator=(ReplicatedOutputModule const&) = delete;
+    ReplicatedOutputModule& operator=(ReplicatedOutputModule&&) = delete;
 
-    public: // MEMBER FUNCTIONS -- Special Member Functions
-      virtual ~OutputModule() noexcept;
-      explicit OutputModule(fhicl::ParameterSet const& pset);
-      explicit OutputModule(fhicl::TableFragment<Config> const& pset,
-                            fhicl::ParameterSet const& containing_pset);
-      OutputModule(OutputModule const&) = delete;
-      OutputModule(OutputModule&&) = delete;
-      OutputModule& operator=(OutputModule const&) = delete;
-      OutputModule& operator=(OutputModule&&) = delete;
-
-    private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
-             // and EndPathExecutor
-      void doBeginJob() override;
-    };
-  } // namespace replicated
+  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
+    // and EndPathExecutor
+    void doBeginJob() override;
+  };
 } // namespace art
 
 #endif /* art_Framework_Core_OutputModule_h */

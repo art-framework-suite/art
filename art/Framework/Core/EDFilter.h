@@ -94,61 +94,57 @@ namespace art {
     bool checkPutProducts_{true};
   };
 
-  namespace shared {
-    class Filter : public art::EDFilter {
-      friend class WorkerT<Filter>;
+  class SharedFilter : public EDFilter {
+    friend class WorkerT<SharedFilter>;
 
-    public: // MEMBER FUNCTIONS -- Special Member Functions
-      using ModuleType = Filter;
-      using WorkerType = WorkerT<Filter>;
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    using ModuleType = SharedFilter;
+    using WorkerType = WorkerT<SharedFilter>;
 
-      static constexpr ModuleThreadingType
-      moduleThreadingType()
-      {
-        return ModuleThreadingType::shared;
-      }
-      virtual ~Filter() noexcept;
-      Filter();
-      Filter(Filter const&) = delete;
-      Filter(Filter&&) = delete;
-      Filter& operator=(Filter const&) = delete;
-      Filter& operator=(Filter&&) = delete;
+    static constexpr ModuleThreadingType
+    moduleThreadingType()
+    {
+      return ModuleThreadingType::shared;
+    }
+    virtual ~SharedFilter() noexcept;
+    SharedFilter();
+    SharedFilter(SharedFilter const&) = delete;
+    SharedFilter(SharedFilter&&) = delete;
+    SharedFilter& operator=(SharedFilter const&) = delete;
+    SharedFilter& operator=(SharedFilter&&) = delete;
 
-      void doBeginJob() override;
+    void doBeginJob() override;
 
-    private:
-      bool checkPutProducts_{true};
-    };
+  private:
+    bool checkPutProducts_{true};
+  };
 
-  } // namespace shared
+  class ReplicatedFilter : public art::EDFilter {
+    friend class WorkerT<ReplicatedFilter>;
 
-  namespace replicated {
-    class Filter : public art::EDFilter {
-      friend class WorkerT<Filter>;
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    using ModuleType = ReplicatedFilter;
+    using WorkerType = WorkerT<ReplicatedFilter>;
 
-    public: // MEMBER FUNCTIONS -- Special Member Functions
-      using ModuleType = Filter;
-      using WorkerType = WorkerT<Filter>;
+    static constexpr ModuleThreadingType
+    moduleThreadingType()
+    {
+      return ModuleThreadingType::replicated;
+    }
 
-      static constexpr ModuleThreadingType
-      moduleThreadingType()
-      {
-        return ModuleThreadingType::replicated;
-      }
+    virtual ~ReplicatedFilter() noexcept;
+    ReplicatedFilter();
+    ReplicatedFilter(ReplicatedFilter const&) = delete;
+    ReplicatedFilter(ReplicatedFilter&&) = delete;
+    ReplicatedFilter& operator=(ReplicatedFilter const&) = delete;
+    ReplicatedFilter& operator=(ReplicatedFilter&&) = delete;
 
-      virtual ~Filter() noexcept;
-      Filter();
-      Filter(Filter const&) = delete;
-      Filter(Filter&&) = delete;
-      Filter& operator=(Filter const&) = delete;
-      Filter& operator=(Filter&&) = delete;
+    void doBeginJob() override;
 
-      void doBeginJob() override;
+  private:
+    bool checkPutProducts_{true};
+  };
 
-    private:
-      bool checkPutProducts_{true};
-    };
-  } // namespace replicated
 } // namespace art
 
 #endif /* art_Framework_Core_EDFilter_h */

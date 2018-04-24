@@ -67,8 +67,8 @@ using fhicl::ParameterSet;
 namespace art {
 
   OutputModule::~OutputModule() noexcept = default;
-  shared::OutputModule::~OutputModule() noexcept = default;
-  replicated::OutputModule::~OutputModule() noexcept = default;
+  SharedOutputModule::~SharedOutputModule() noexcept = default;
+  ReplicatedOutputModule::~ReplicatedOutputModule() noexcept = default;
 
   OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
                              ParameterSet const& containing_pset)
@@ -82,15 +82,15 @@ namespace art {
     , plugins_{makePlugins_(containing_pset)}
   {}
 
-  shared::OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
-                                     ParameterSet const& containing_pset)
-    : art::OutputModule{config, containing_pset}
+  SharedOutputModule::SharedOutputModule(fhicl::TableFragment<Config> const& config,
+                                         ParameterSet const& containing_pset)
+    : OutputModule{config, containing_pset}
   {}
 
-  replicated::OutputModule::OutputModule(
+  ReplicatedOutputModule::ReplicatedOutputModule(
     fhicl::TableFragment<Config> const& config,
     ParameterSet const& containing_pset)
-    : art::OutputModule{config, containing_pset}
+    : OutputModule{config, containing_pset}
   {}
 
   OutputModule::OutputModule(ParameterSet const& pset)
@@ -105,12 +105,12 @@ namespace art {
     , plugins_{makePlugins_(pset)}
   {}
 
-  shared::OutputModule::OutputModule(ParameterSet const& pset)
-    : art::OutputModule{pset}
+  SharedOutputModule::SharedOutputModule(ParameterSet const& pset)
+    : OutputModule{pset}
   {}
 
-  replicated::OutputModule::OutputModule(ParameterSet const& pset)
-    : art::OutputModule{pset}
+  ReplicatedOutputModule::ReplicatedOutputModule(ParameterSet const& pset)
+    : OutputModule{pset}
   {}
 
   bool
@@ -228,7 +228,7 @@ namespace art {
   }
 
   void
-  shared::OutputModule::doBeginJob()
+  SharedOutputModule::doBeginJob()
   {
     if (!resourceNames_.empty()) {
       if (asyncDeclared_) {
@@ -247,7 +247,7 @@ namespace art {
   }
 
   void
-  replicated::OutputModule::doBeginJob()
+  ReplicatedOutputModule::doBeginJob()
   {
     beginJob();
     cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });

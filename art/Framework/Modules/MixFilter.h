@@ -623,7 +623,7 @@ namespace art {
 } // namespace art
 
 template <class T>
-class art::MixFilter : public shared::Filter {
+class art::MixFilter : public SharedFilter {
 public: // TYPES
   using MixDetail = T;
 

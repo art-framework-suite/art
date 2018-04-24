@@ -33,7 +33,7 @@ namespace {
 
 namespace arttest {
 
-  class ToyProductFilterAsync : public shared::Filter {
+  class ToyProductFilterAsync : public SharedFilter {
 
   public:
     explicit ToyProductFilterAsync(fhicl::ParameterSet const& pset);

@@ -22,15 +22,15 @@ namespace art {
   }
 
   string
-  shared::Producer::workerType() const
+  SharedProducer::workerType() const
   {
-    return "WorkerT<shared::Producer>";
+    return "WorkerT<SharedProducer>";
   }
 
   string
-  replicated::Producer::workerType() const
+  ReplicatedProducer::workerType() const
   {
-    return "WorkerT<replicated::Producer>";
+    return "WorkerT<ReplicatedProducer>";
   }
 
   void
@@ -45,7 +45,7 @@ namespace art {
   }
 
   void
-  shared::Producer::doBeginJob()
+  SharedProducer::doBeginJob()
   {
     if (!resourceNames_.empty()) {
       if (asyncDeclared_) {
@@ -64,7 +64,7 @@ namespace art {
   }
 
   void
-  replicated::Producer::doBeginJob()
+  ReplicatedProducer::doBeginJob()
   {
     failureToPutProducts(md_);
     beginJob();

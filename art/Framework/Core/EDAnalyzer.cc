@@ -27,20 +27,20 @@ using namespace std;
 
 namespace art {
 
-  EDAnalyzer::~EDAnalyzer() noexcept {}
-  shared::Analyzer::~Analyzer() noexcept {}
-  replicated::Analyzer::~Analyzer() noexcept {}
+  EDAnalyzer::~EDAnalyzer() noexcept = default;
+  SharedAnalyzer::~SharedAnalyzer() noexcept = default;
+  ReplicatedAnalyzer::~ReplicatedAnalyzer() noexcept = default;
 
   EDAnalyzer::EDAnalyzer(fhicl::ParameterSet const& pset)
     : EventObserverBase{pset}
   {}
 
-  shared::Analyzer::Analyzer(fhicl::ParameterSet const& pset)
-    : art::EDAnalyzer{pset}
+  SharedAnalyzer::SharedAnalyzer(fhicl::ParameterSet const& pset)
+    : EDAnalyzer{pset}
   {}
 
-  replicated::Analyzer::Analyzer(fhicl::ParameterSet const& pset)
-    : art::EDAnalyzer{pset}
+  ReplicatedAnalyzer::ReplicatedAnalyzer(fhicl::ParameterSet const& pset)
+    : EDAnalyzer{pset}
   {}
 
   string
@@ -60,7 +60,7 @@ namespace art {
   }
 
   void
-  shared::Analyzer::doBeginJob()
+  SharedAnalyzer::doBeginJob()
   {
     if (!resourceNames_.empty()) {
       if (asyncDeclared_) {
@@ -78,7 +78,7 @@ namespace art {
   }
 
   void
-  replicated::Analyzer::doBeginJob()
+  ReplicatedAnalyzer::doBeginJob()
   {
     beginJob();
   }

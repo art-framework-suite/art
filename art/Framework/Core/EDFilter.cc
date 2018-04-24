@@ -39,12 +39,12 @@ namespace art {
   constexpr bool EDFilter::Fail;
 
   EDFilter::EDFilter() = default;
-  shared::Filter::Filter() = default;
-  replicated::Filter::Filter() = default;
+  SharedFilter::SharedFilter() = default;
+  ReplicatedFilter::ReplicatedFilter() = default;
 
   EDFilter::~EDFilter() noexcept = default;
-  shared::Filter::~Filter() noexcept = default;
-  replicated::Filter::~Filter() noexcept = default;
+  SharedFilter::~SharedFilter() noexcept = default;
+  ReplicatedFilter::~ReplicatedFilter() noexcept = default;
 
   string
   EDFilter::workerType() const
@@ -71,7 +71,7 @@ namespace art {
   }
 
   void
-  shared::Filter::doBeginJob()
+  SharedFilter::doBeginJob()
   {
     if (!resourceNames_.empty()) {
       if (asyncDeclared_) {
@@ -97,7 +97,7 @@ namespace art {
   }
 
   void
-  replicated::Filter::doBeginJob()
+  ReplicatedFilter::doBeginJob()
   {
     auto const& mainID = md_.mainParameterSetID();
     auto const& scheduler_pset =

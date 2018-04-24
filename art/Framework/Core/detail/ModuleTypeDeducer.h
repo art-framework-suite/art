@@ -10,18 +10,20 @@
 #include "art/Framework/Core/ModuleType.h"
 
 namespace art {
-  namespace shared {
-    class Analyzer;
-    class Producer;
-    class Filter;
-    class OutputModule;
-  }
-  namespace replicated {
-    class Analyzer;
-    class Producer;
-    class Filter;
-    class OutputModule;
-  }
+  class EDAnalyzer;
+  class EDProducer;
+  class EDFilter;
+  class OutputModule;
+
+  class SharedAnalyzer;
+  class SharedProducer;
+  class SharedFilter;
+  class SharedOutputModule;
+
+  class ReplicatedAnalyzer;
+  class ReplicatedProducer;
+  class ReplicatedFilter;
+  class ReplicatedOutputModule;
 
   namespace detail {
 
@@ -52,42 +54,42 @@ namespace art {
     };
 
     template <>
-    struct ModuleTypeDeducer<shared::Analyzer> {
+    struct ModuleTypeDeducer<SharedAnalyzer> {
       static constexpr ModuleType value = ModuleType::analyzer;
     };
 
     template <>
-    struct ModuleTypeDeducer<shared::Filter> {
+    struct ModuleTypeDeducer<SharedFilter> {
       static constexpr ModuleType value = ModuleType::filter;
     };
 
     template <>
-    struct ModuleTypeDeducer<shared::OutputModule> {
+    struct ModuleTypeDeducer<SharedOutputModule> {
       static constexpr ModuleType value = ModuleType::output_module;
     };
 
     template <>
-    struct ModuleTypeDeducer<shared::Producer> {
+    struct ModuleTypeDeducer<SharedProducer> {
       static constexpr ModuleType value = ModuleType::producer;
     };
 
     template <>
-    struct ModuleTypeDeducer<replicated::Analyzer> {
+    struct ModuleTypeDeducer<ReplicatedAnalyzer> {
       static constexpr ModuleType value = ModuleType::analyzer;
     };
 
     template <>
-    struct ModuleTypeDeducer<replicated::Filter> {
+    struct ModuleTypeDeducer<ReplicatedFilter> {
       static constexpr ModuleType value = ModuleType::filter;
     };
 
     template <>
-    struct ModuleTypeDeducer<replicated::OutputModule> {
+    struct ModuleTypeDeducer<ReplicatedOutputModule> {
       static constexpr ModuleType value = ModuleType::output_module;
     };
 
     template <>
-    struct ModuleTypeDeducer<replicated::Producer> {
+    struct ModuleTypeDeducer<ReplicatedProducer> {
       static constexpr ModuleType value = ModuleType::producer;
     };
 

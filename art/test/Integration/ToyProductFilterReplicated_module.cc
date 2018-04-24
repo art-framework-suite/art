@@ -33,7 +33,7 @@ namespace {
 
 namespace arttest {
 
-  class ToyProductFilterReplicated : public replicated::Filter {
+  class ToyProductFilterReplicated : public ReplicatedFilter {
   public:
     explicit ToyProductFilterReplicated(fhicl::ParameterSet const& pset);
 

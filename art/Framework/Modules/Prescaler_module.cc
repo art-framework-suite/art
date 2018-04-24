@@ -17,7 +17,7 @@ using art::Prescaler;
 
 // ======================================================================
 
-class art::Prescaler : public art::shared::Filter {
+class art::Prescaler : public art::SharedFilter {
 public:
   struct Config {
     Atom<size_t> prescaleFactor{Name("prescaleFactor")};

@@ -261,7 +261,7 @@ public:
     UNKNOWN
   };
 
-  // Should probably pass in something like shared::ProducerBase.
+  // Should probably pass in something like SharedProducerBase.
   MixHelper(fhicl::ParameterSet const& pset, ProducerBase& producesProvider);
 
   // Returns the current mixing mode.

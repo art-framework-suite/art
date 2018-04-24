@@ -50,7 +50,7 @@ matches any (not all) of the patterns, the event is accepted.
 }
 
 // ==============================================
-class art::EventIDFilter final : public art::shared::Filter {
+class art::EventIDFilter final : public art::SharedFilter {
 public:
   struct Config {
     Sequence<string> idsToMatch{Name{"idsToMatch"}, Comment{parameter_comment}};

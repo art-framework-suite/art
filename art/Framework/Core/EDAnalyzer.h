@@ -150,56 +150,52 @@ namespace art {
     virtual void analyze(Event const&) = 0;
   };
 
-  namespace shared {
-    class Analyzer : public art::EDAnalyzer {
-      template <typename T>
-      friend class WorkerT;
+  class SharedAnalyzer : public EDAnalyzer {
+    template <typename T>
+    friend class WorkerT;
 
-    public: // MEMBER FUNCTIONS -- Special Member Functions
-      using WorkerType = WorkerT<Analyzer>;
-      using ModuleType = Analyzer;
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    using WorkerType = WorkerT<SharedAnalyzer>;
+    using ModuleType = SharedAnalyzer;
 
-      virtual ~Analyzer() noexcept;
-      static constexpr ModuleThreadingType
-      moduleThreadingType()
-      {
-        return ModuleThreadingType::shared;
-      }
-      explicit Analyzer(fhicl::ParameterSet const&);
-      template <typename Config>
-      explicit Analyzer(Table<Config> const& config) : art::EDAnalyzer{config}
-      {}
+    virtual ~SharedAnalyzer() noexcept;
+    static constexpr ModuleThreadingType
+    moduleThreadingType()
+    {
+      return ModuleThreadingType::shared;
+    }
+    explicit SharedAnalyzer(fhicl::ParameterSet const&);
+    template <typename Config>
+    explicit SharedAnalyzer(Table<Config> const& config) : EDAnalyzer{config}
+    {}
 
-    private:
-      void doBeginJob() override;
-    };
-  } // namespace shared
+  private:
+    void doBeginJob() override;
+  };
 
-  namespace replicated {
-    class Analyzer : public art::EDAnalyzer {
-      template <typename T>
-      friend class WorkerT;
+  class ReplicatedAnalyzer : public EDAnalyzer {
+    template <typename T>
+    friend class WorkerT;
 
-    public: // MEMBER FUNCTIONS -- Special Member Functions
-      using WorkerType = WorkerT<Analyzer>;
-      using ModuleType = Analyzer;
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    using WorkerType = WorkerT<ReplicatedAnalyzer>;
+    using ModuleType = ReplicatedAnalyzer;
 
-      static constexpr ModuleThreadingType
-      moduleThreadingType()
-      {
-        return ModuleThreadingType::replicated;
-      }
-      virtual ~Analyzer() noexcept;
-      explicit Analyzer(fhicl::ParameterSet const&);
-      template <typename Config>
-      explicit Analyzer(Table<Config> const& config) : art::EDAnalyzer{config}
-      {}
+    static constexpr ModuleThreadingType
+    moduleThreadingType()
+    {
+      return ModuleThreadingType::replicated;
+    }
+    virtual ~ReplicatedAnalyzer() noexcept;
+    explicit ReplicatedAnalyzer(fhicl::ParameterSet const&);
+    template <typename Config>
+    explicit ReplicatedAnalyzer(Table<Config> const& config) : EDAnalyzer{config}
+    {}
 
-    private:
-      void doBeginJob() override;
-    };
+  private:
+    void doBeginJob() override;
+  };
 
-  } // namespace replicated
 
   template <typename T>
   inline std::ostream&

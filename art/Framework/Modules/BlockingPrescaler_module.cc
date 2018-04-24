@@ -22,7 +22,7 @@ namespace art {
 
 // ======================================================================
 
-class art::BlockingPrescaler : public shared::Filter {
+class art::BlockingPrescaler : public SharedFilter {
 public:
   struct Config {
     Atom<size_t> blockSize{Name("blockSize"), 1};

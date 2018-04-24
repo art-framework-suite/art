@@ -29,7 +29,7 @@ namespace arttest {
     fhicl::Atom<double> threshold{fhicl::Name("energyThreshold")};
   };
 
-  class Reconstruction : public shared::Filter {
+  class Reconstruction : public SharedFilter {
     // Types -- Configuration.
   public:
     using Parameters = EDFilter::Table<Config>;

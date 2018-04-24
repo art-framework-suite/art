@@ -29,31 +29,27 @@ namespace art {
     void doBeginJob();
   };
 
-  namespace shared {
-    class Producer : public art::detail::ProducerImpl {
-      friend class WorkerT<Producer>;
-    public:
-      using ModuleType = Producer;
-      using WorkerType = WorkerT<Producer>;
-      static constexpr auto moduleThreadingType() { return ModuleThreadingType::shared; }
-      std::string workerType() const;
-    private:
-      void doBeginJob();
-    };
-  } // namespace shared
+  class SharedProducer : public detail::ProducerImpl {
+    friend class WorkerT<SharedProducer>;
+  public:
+    using ModuleType = SharedProducer;
+    using WorkerType = WorkerT<SharedProducer>;
+    static constexpr auto moduleThreadingType() { return ModuleThreadingType::shared; }
+    std::string workerType() const;
+  private:
+    void doBeginJob();
+  };
 
-  namespace replicated {
-    class Producer : public art::detail::ProducerImpl {
-      friend class WorkerT<Producer>;
-    public:
-      using ModuleType = Producer;
-      using WorkerType = WorkerT<Producer>;
-      static constexpr auto moduleThreadingType() { return ModuleThreadingType::replicated; }
-      std::string workerType() const;
-    private:
-      void doBeginJob();
-    };
-  } // namespace replicated
+  class ReplicatedProducer : public detail::ProducerImpl {
+    friend class WorkerT<ReplicatedProducer>;
+  public:
+    using ModuleType = ReplicatedProducer;
+    using WorkerType = WorkerT<ReplicatedProducer>;
+    static constexpr auto moduleThreadingType() { return ModuleThreadingType::replicated; }
+    std::string workerType() const;
+  private:
+    void doBeginJob();
+  };
 
 } // namespace art
 
