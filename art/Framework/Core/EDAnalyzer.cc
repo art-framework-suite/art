@@ -27,22 +27,6 @@ using namespace std;
 
 namespace art {
 
-  EDAnalyzer::~EDAnalyzer() noexcept = default;
-  SharedAnalyzer::~SharedAnalyzer() noexcept = default;
-  ReplicatedAnalyzer::~ReplicatedAnalyzer() noexcept = default;
-
-  EDAnalyzer::EDAnalyzer(fhicl::ParameterSet const& pset)
-    : EventObserverBase{pset}
-  {}
-
-  SharedAnalyzer::SharedAnalyzer(fhicl::ParameterSet const& pset)
-    : EDAnalyzer{pset}
-  {}
-
-  ReplicatedAnalyzer::ReplicatedAnalyzer(fhicl::ParameterSet const& pset)
-    : EDAnalyzer{pset}
-  {}
-
   string
   EDAnalyzer::workerType() const
   {
@@ -57,6 +41,12 @@ namespace art {
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     chain_ = new SerialTaskQueueChain{queues};
     beginJob();
+  }
+
+  string
+  SharedAnalyzer::workerType() const
+  {
+    return "WorkerT<SharedAnalyzer>";
   }
 
   void
@@ -77,139 +67,16 @@ namespace art {
     beginJob();
   }
 
+  string
+  ReplicatedAnalyzer::workerType() const
+  {
+    return "WorkerT<ReplicatedAnalyzer>";
+  }
+
   void
   ReplicatedAnalyzer::doBeginJob()
   {
     beginJob();
-  }
-
-  void
-  EDAnalyzer::beginJob()
-  {}
-
-  void
-  EDAnalyzer::doEndJob()
-  {
-    endJob();
-  }
-
-  void
-  EDAnalyzer::endJob()
-  {}
-
-  void
-  EDAnalyzer::doRespondToOpenInputFile(FileBlock const& fb)
-  {
-    respondToOpenInputFile(fb);
-  }
-
-  void
-  EDAnalyzer::respondToOpenInputFile(FileBlock const&)
-  {}
-
-  void
-  EDAnalyzer::doRespondToCloseInputFile(FileBlock const& fb)
-  {
-    respondToCloseInputFile(fb);
-  }
-
-  void
-  EDAnalyzer::respondToCloseInputFile(FileBlock const&)
-  {}
-
-  void
-  EDAnalyzer::doRespondToOpenOutputFiles(FileBlock const& fb)
-  {
-    respondToOpenOutputFiles(fb);
-  }
-
-  void
-  EDAnalyzer::respondToOpenOutputFiles(FileBlock const&)
-  {}
-
-  void
-  EDAnalyzer::doRespondToCloseOutputFiles(FileBlock const& fb)
-  {
-    respondToCloseOutputFiles(fb);
-  }
-
-  void
-  EDAnalyzer::respondToCloseOutputFiles(FileBlock const&)
-  {}
-
-  bool
-  EDAnalyzer::doBeginRun(RunPrincipal& rp,
-                         cet::exempt_ptr<CurrentProcessingContext const> cpc)
-  {
-    detail::CPCSentry sentry{*cpc};
-    Run const r{rp, md_};
-    beginRun(r);
-    return true;
-  }
-
-  void
-  EDAnalyzer::beginRun(Run const&)
-  {}
-
-  bool
-  EDAnalyzer::doEndRun(RunPrincipal& rp,
-                       cet::exempt_ptr<CurrentProcessingContext const> cpc)
-  {
-    detail::CPCSentry sentry{*cpc};
-    Run const r{rp, md_};
-    endRun(r);
-    return true;
-  }
-
-  void
-  EDAnalyzer::endRun(Run const&)
-  {}
-
-  bool
-  EDAnalyzer::doBeginSubRun(SubRunPrincipal& srp,
-                            cet::exempt_ptr<CurrentProcessingContext const> cpc)
-  {
-    detail::CPCSentry sentry{*cpc};
-    SubRun const sr{srp, md_};
-    beginSubRun(sr);
-    return true;
-  }
-
-  void
-  EDAnalyzer::beginSubRun(SubRun const&)
-  {}
-
-  bool
-  EDAnalyzer::doEndSubRun(SubRunPrincipal& srp,
-                          cet::exempt_ptr<CurrentProcessingContext const> cpc)
-  {
-    detail::CPCSentry sentry{*cpc};
-    SubRun const sr{srp, md_};
-    endSubRun(sr);
-    return true;
-  }
-
-  void
-  EDAnalyzer::endSubRun(SubRun const&)
-  {}
-
-  bool
-  EDAnalyzer::doEvent(EventPrincipal& ep,
-                      ScheduleID const /*si*/,
-                      CurrentProcessingContext const* cpc,
-                      std::atomic<std::size_t>& counts_run,
-                      std::atomic<std::size_t>& counts_passed,
-                      std::atomic<std::size_t>& /*counts_failed*/)
-  {
-    detail::CPCSentry sentry{*cpc};
-    detail::PVSentry pvSentry{processAndEventSelectors()};
-    Event const e{ep, md_};
-    if (wantAllEvents() || wantEvent(e)) {
-      ++counts_run;
-      analyze(e);
-      ++counts_passed;
-    }
-    return true;
   }
 
 } // namespace art
