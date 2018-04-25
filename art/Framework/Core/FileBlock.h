@@ -29,7 +29,6 @@ namespace art {
     std::string const& fileName() const;
 
   private:
-    // Friends only.
     friend class OutputModule;
     ResultsPrincipal const* resultsPrincipal() const;
 

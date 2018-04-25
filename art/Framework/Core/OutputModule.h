@@ -6,11 +6,11 @@
 //  The base class of all modules that write Events to an output stream.
 //
 
-#include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/FileCatalogMetadataPlugin.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
+#include "art/Framework/Core/Observer.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Core/SharedResourcesRegistry.h"
@@ -49,7 +49,7 @@ namespace art {
 
   class ResultsPrincipal;
 
-  class OutputModule : public EventObserverBase {
+  class OutputModule : public Observer {
     friend class WorkerT<OutputModule>;
     friend class OutputWorker;
 
@@ -82,7 +82,7 @@ namespace art {
         }
       };
       fhicl::Atom<std::string> moduleType{fhicl::Name("module_type")};
-      fhicl::TableFragment<EventObserverBase::EOConfig> eoFragment;
+      fhicl::TableFragment<Observer::EOConfig> eoFragment;
       fhicl::Sequence<std::string> outputCommands{
         fhicl::Name("outputCommands"),
         std::vector<std::string>{"keep *"}};
@@ -258,12 +258,12 @@ namespace art {
   };
 
   class SharedOutputModule : public art::OutputModule {
-    friend class WorkerT<SharedOutputModule>;
+    friend class WorkerT<OutputModule>;
     friend class OutputWorker;
 
   public: // TYPES
     // The module macros need these two.
-    using ModuleType = SharedOutputModule;
+    using ModuleType = OutputModule;
     using WorkerType = OutputWorker;
     static constexpr ModuleThreadingType
     moduleThreadingType()
@@ -291,12 +291,12 @@ namespace art {
   };
 
   class ReplicatedOutputModule : public OutputModule {
-    friend class WorkerT<ReplicatedOutputModule>;
+    friend class WorkerT<OutputModule>;
     friend class OutputWorker;
 
   public: // TYPES
     // The module macros need these two.
-    using ModuleType = ReplicatedOutputModule;
+    using ModuleType = OutputModule;
     using WorkerType = OutputWorker;
     static constexpr ModuleThreadingType
     moduleThreadingType()

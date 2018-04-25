@@ -1,12 +1,12 @@
 #include "art/Framework/Core/OutputModule.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/FileCatalogMetadataPlugin.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
+#include "art/Framework/Core/Observer.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Core/SharedResourcesRegistry.h"
@@ -72,7 +72,7 @@ namespace art {
 
   OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
                              ParameterSet const& containing_pset)
-    : EventObserverBase{config().eoFragment().selectEvents(), containing_pset}
+    : Observer{config().eoFragment().selectEvents(), containing_pset}
     , groupSelectorRules_{config().outputCommands(),
                           "outputCommands",
                           "OutputModule"}
@@ -95,7 +95,7 @@ namespace art {
   {}
 
   OutputModule::OutputModule(ParameterSet const& pset)
-    : EventObserverBase{pset}
+    : Observer{pset}
     , groupSelectorRules_{pset.get<vector<string>>("outputCommands",
                                                    {"keep *"}),
                           "outputCommands",

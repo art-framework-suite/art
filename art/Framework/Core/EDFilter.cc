@@ -2,7 +2,7 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/ProducerBase.h"
+#include "art/Framework/Core/Modifier.h"
 #include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/get_failureToPut_flag.h"

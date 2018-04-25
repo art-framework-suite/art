@@ -27,10 +27,10 @@ namespace art {
 
   namespace detail {
 
+    // Only specializations allowed so that errors can be caught at
+    // compile-time and not run-time.
     template <typename T>
-    struct ModuleTypeDeducer {
-      static constexpr ModuleType value = ModuleType::non_art;
-    };
+    struct ModuleTypeDeducer;
 
     // Legacy modules
     template <>

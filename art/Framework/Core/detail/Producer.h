@@ -8,7 +8,7 @@
 //=====================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/ProducerBase.h"
+#include "art/Framework/Core/Modifier.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/CPCSentry.h"
@@ -22,10 +22,10 @@
 namespace art {
   namespace detail {
 
-    class Producer : public ProducerBase {
+    class Producer : public Modifier {
     public:
       template <typename UserConfig, typename KeysToIgnore = void>
-      using Table = ProducerBase::Table<UserConfig, KeysToIgnore>;
+      using Table = Modifier::Table<UserConfig, KeysToIgnore>;
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
       virtual ~Producer() noexcept;

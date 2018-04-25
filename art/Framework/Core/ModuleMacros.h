@@ -14,7 +14,6 @@
 // the "one definition" rule would be violated.
 //
 
-#include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/WorkerT.h"

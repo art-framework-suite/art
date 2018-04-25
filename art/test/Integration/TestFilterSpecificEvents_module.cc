@@ -1,5 +1,6 @@
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Event.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Sequence.h"
 

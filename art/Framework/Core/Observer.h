@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_EventObserverBase_h
-#define art_Framework_Core_EventObserverBase_h
+#ifndef art_Framework_Core_Observer_h
+#define art_Framework_Core_Observer_h
 // vim: set sw=2 expandtab :
 
 // Common base class for module which do not modify events, such as
@@ -19,7 +19,7 @@
 
 namespace art {
   class ModuleDescription;
-  class EventObserverBase : public ModuleBase {
+  class Observer : public ModuleBase {
   protected: // TYPES
     struct EOConfig {
       fhicl::Sequence<std::string> selectEvents{
@@ -30,17 +30,16 @@ namespace art {
     };
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-    // FIXME: This class need not be virtual.
-    virtual ~EventObserverBase();
-    EventObserverBase(EventObserverBase const&) = delete;
-    EventObserverBase(EventObserverBase&&) = delete;
-    EventObserverBase& operator=(EventObserverBase const&) = delete;
-    EventObserverBase& operator=(EventObserverBase&&) = delete;
+    ~Observer() noexcept;
+    Observer(Observer const&) = delete;
+    Observer(Observer&&) = delete;
+    Observer& operator=(Observer const&) = delete;
+    Observer& operator=(Observer&&) = delete;
 
   protected: // MEMBER FUNCTIONS -- Special Member Functions
-    explicit EventObserverBase(fhicl::ParameterSet const& config);
-    explicit EventObserverBase(std::vector<std::string> const& paths,
-                               fhicl::ParameterSet const& config);
+    explicit Observer(fhicl::ParameterSet const& config);
+    explicit Observer(std::vector<std::string> const& paths,
+                      fhicl::ParameterSet const& config);
 
   public:
     // FIXME: One could obviate the need for this trivial implementation
@@ -73,7 +72,7 @@ namespace art {
 
 } // namespace art
 
-#endif /* art_Framework_Core_EventObserverBase_h */
+#endif /* art_Framework_Core_Observer_h */
 
 // Local Variables:
 // mode: c++

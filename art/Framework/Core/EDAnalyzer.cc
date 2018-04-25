@@ -1,8 +1,8 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/Observer.h"
 #include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/Event.h"

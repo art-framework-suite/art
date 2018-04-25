@@ -218,7 +218,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "CLHEP/Random/RandFlat.h"
-#include "art/Framework/Core/ProducerBase.h"
+#include "art/Framework/Core/Modifier.h"
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/IO/ProductMix/MixOp.h"
 #include "art/Framework/IO/ProductMix/MixTypes.h"
@@ -261,8 +261,8 @@ public:
     UNKNOWN
   };
 
-  // Should probably pass in something like SharedProducerBase.
-  MixHelper(fhicl::ParameterSet const& pset, ProducerBase& producesProvider);
+  // Should probably pass in something like SharedModifier.
+  MixHelper(fhicl::ParameterSet const& pset, Modifier& producesProvider);
 
   // Returns the current mixing mode.
   Mode readMode() const;
@@ -369,7 +369,7 @@ private:
   ProdToProdMapBuilder::ProductIDTransMap buildProductIDTransMap_(
     MixOpList& mixOps);
 
-  ProducerBase& producesProvider_;
+  Modifier& producesProvider_;
   std::vector<std::string> const filenames_;
   bool compactMissingProducts_;
   ProviderFunc_ providerFunc_{};

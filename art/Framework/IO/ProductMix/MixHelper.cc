@@ -119,7 +119,7 @@ namespace {
 } // namespace
 
 art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
-                          ProducerBase& producesProvider)
+                          Modifier& producesProvider)
   : producesProvider_{producesProvider}
   , filenames_{pset.get<std::vector<std::string>>("fileNames", {})}
   , compactMissingProducts_{pset.get<bool>("compactMissingProducts", false)}

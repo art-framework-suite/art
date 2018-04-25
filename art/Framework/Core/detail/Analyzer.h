@@ -6,8 +6,8 @@
 //  The base class for all analyzer modules.
 //
 
-#include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/Observer.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ImplicitConfigs.h"
 #include "art/Framework/Principal/fwd.h"
@@ -25,7 +25,7 @@
 
 namespace art {
   namespace detail {
-    class Analyzer : public EventObserverBase {
+    class Analyzer : public Observer {
     public: // CONFIGURATION
       template <typename UserConfig, typename UserKeysToIgnore = void>
       class Table : public fhicl::ConfigurationTable {
@@ -34,7 +34,7 @@ namespace art {
         struct FullConfig {
           fhicl::Atom<std::string> module_type{
             detail::ModuleConfig::plugin_type()};
-          fhicl::TableFragment<EventObserverBase::EOConfig> eoConfig;
+          fhicl::TableFragment<Observer::EOConfig> eoConfig;
           fhicl::TableFragment<T> user;
         };
 
@@ -90,8 +90,7 @@ namespace art {
       explicit Analyzer(fhicl::ParameterSet const& pset);
       template <typename Config>
       explicit Analyzer(Table<Config> const& config)
-        : EventObserverBase{config.eoFragment().selectEvents(),
-                            config.get_PSet()}
+        : Observer{config.eoFragment().selectEvents(), config.get_PSet()}
       {}
 
       void doBeginJob() = delete;

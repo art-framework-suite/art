@@ -10,7 +10,7 @@
 //==================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/ProducerBase.h"
+#include "art/Framework/Core/Modifier.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ScheduleID.h"
@@ -22,13 +22,13 @@
 
 namespace art {
   namespace detail {
-    class Filter : public ProducerBase {
+    class Filter : public Modifier {
     public:
       static constexpr bool Pass{true};
       static constexpr bool Fail{false};
 
       template <typename UserConfig>
-      using Table = ProducerBase::Table<UserConfig>;
+      using Table = Modifier::Table<UserConfig>;
 
       virtual ~Filter() noexcept;
       Filter();

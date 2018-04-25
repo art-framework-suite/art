@@ -1,11 +1,10 @@
-#ifndef art_Framework_Core_ProducerBase_h
-#define art_Framework_Core_ProducerBase_h
+#ifndef art_Framework_Core_Modifier_h
+#define art_Framework_Core_Modifier_h
 // vim: set sw=2 expandtab :
 
-//
-// The base class of all "modules" that will insert new
-// EDProducts into an Event.
-//
+//============================================================
+// The base class of all modules that will insert products.
+//============================================================
 
 #include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/ModuleType.h"
@@ -32,21 +31,21 @@ namespace art {
 
   class BranchDescription;
 
-  class ProducerBase : public ModuleBase, private ProductRegistryHelper {
+  class Modifier : public ModuleBase, private ProductRegistryHelper {
   public: // CONFIGURATION
     template <typename UserConfig, typename UserKeysToIgnore = void>
     using Table =
       ProducerTable<UserConfig, detail::ModuleConfig, UserKeysToIgnore>;
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-    virtual ~ProducerBase();
+    virtual ~Modifier() noexcept;
 
-    ProducerBase();
+    Modifier();
 
-    ProducerBase(ProducerBase const&) = delete;
-    ProducerBase(ProducerBase&&) = delete;
-    ProducerBase& operator=(ProducerBase const&) = delete;
-    ProducerBase& operator=(ProducerBase&&) = delete;
+    Modifier(Modifier const&) = delete;
+    Modifier(Modifier&&) = delete;
+    Modifier& operator=(Modifier const&) = delete;
+    Modifier& operator=(Modifier&&) = delete;
 
   public: // MEMBER FUNCTIONS -- Product Registry Helper API
     using ProductRegistryHelper::expectedProducts;
@@ -57,7 +56,7 @@ namespace art {
 
 } // namespace art
 
-#endif /* art_Framework_Core_ProducerBase_h */
+#endif /* art_Framework_Core_Modifier_h */
 
 // Local Variables:
 // mode: c++

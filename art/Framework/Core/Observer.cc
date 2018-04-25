@@ -1,4 +1,4 @@
-#include "art/Framework/Core/EventObserverBase.h"
+#include "art/Framework/Core/Observer.h"
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/SharedResourcesRegistry.h"
@@ -19,24 +19,23 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  EventObserverBase::~EventObserverBase() = default;
+  Observer::~Observer() noexcept = default;
 
-  EventObserverBase::EventObserverBase(vector<string> const& paths,
-                                       fhicl::ParameterSet const& pset)
+  Observer::Observer(vector<string> const& paths,
+                     fhicl::ParameterSet const& pset)
     : selector_config_id_{pset.id()}
   {
     init_(paths);
   }
 
-  EventObserverBase::EventObserverBase(ParameterSet const& pset)
-    : selector_config_id_{pset.id()}
+  Observer::Observer(ParameterSet const& pset) : selector_config_id_{pset.id()}
   {
     auto const& paths = pset.get<vector<string>>("SelectEvents", {});
     init_(paths);
   }
 
   void
-  EventObserverBase::init_(vector<string> const& paths)
+  Observer::init_(vector<string> const& paths)
   {
     process_name_ = Globals::instance()->processName();
     auto const& triggerPathNames = Globals::instance()->triggerPathNames();
@@ -56,46 +55,45 @@ namespace art {
   }
 
   void
-  EventObserverBase::registerProducts(ProductDescriptions&,
-                                      ModuleDescription const&)
+  Observer::registerProducts(ProductDescriptions&, ModuleDescription const&)
   {}
 
   void
-  EventObserverBase::fillDescriptions(ModuleDescription const&)
+  Observer::fillDescriptions(ModuleDescription const&)
   {}
 
   string const&
-  EventObserverBase::processName() const
+  Observer::processName() const
   {
     return process_name_;
   }
 
   bool
-  EventObserverBase::wantAllEvents() const
+  Observer::wantAllEvents() const
   {
     return wantAllEvents_;
   }
 
   bool
-  EventObserverBase::wantEvent(Event const& e)
+  Observer::wantEvent(Event const& e)
   {
     return selectors_.wantEvent(e);
   }
 
   fhicl::ParameterSetID
-  EventObserverBase::selectorConfig() const
+  Observer::selectorConfig() const
   {
     return selector_config_id_;
   }
 
   Handle<TriggerResults>
-  EventObserverBase::getTriggerResults(Event const& e) const
+  Observer::getTriggerResults(Event const& e) const
   {
     return selectors_.getOneTriggerResults(e);
   }
 
   detail::ProcessAndEventSelectors&
-  EventObserverBase::processAndEventSelectors()
+  Observer::processAndEventSelectors()
   {
     return selectors_;
   }
