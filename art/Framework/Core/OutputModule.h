@@ -85,7 +85,7 @@ namespace art {
       fhicl::TableFragment<EventObserverBase::EOConfig> eoFragment;
       fhicl::Sequence<std::string> outputCommands{
         fhicl::Name("outputCommands"),
-          std::vector<std::string>{"keep *"}};
+        std::vector<std::string>{"keep *"}};
       fhicl::Atom<std::string> fileName{fhicl::Name("fileName"), ""};
       fhicl::Atom<std::string> dataTier{fhicl::Name("dataTier"), ""};
       fhicl::Atom<std::string> streamName{fhicl::Name("streamName"), ""};
@@ -218,8 +218,8 @@ namespace art {
     virtual void writeProductDescriptionRegistry();
     void writeFileCatalogMetadata();
     virtual void doWriteFileCatalogMetadata(
-                                            FileCatalogMetadata::collection_type const& md,
-                                            FileCatalogMetadata::collection_type const& ssmd);
+      FileCatalogMetadata::collection_type const& md,
+      FileCatalogMetadata::collection_type const& ssmd);
     virtual void writeProductDependencies();
     virtual void finishEndFile();
     PluginCollection_t makePlugins_(fhicl::ParameterSet const& top_pset);
@@ -239,7 +239,7 @@ namespace art {
     // describing the branches we are to write.
     SelectionsArray keptProducts_{{}};
     std::array<std::unique_ptr<GroupSelector const>, NumBranchTypes>
-    groupSelector_{{nullptr}};
+      groupSelector_{{nullptr}};
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_{{false}};
     GroupSelectorRules groupSelectorRules_;
     int maxEvents_{-1};

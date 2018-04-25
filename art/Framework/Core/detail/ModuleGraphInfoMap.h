@@ -78,4 +78,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Core_detail_ModuleGraphInfoMap_h */
+
+// Local Variables:
+// mode: c++
+// End:

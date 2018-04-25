@@ -43,8 +43,9 @@ art::BasicOptionsHandler::BasicOptionsHandler(bpo::options_description& desc,
     options, "config,c", bpo::value<std::string>(), "Configuration file.");
   add_opt(
     options, "process-name", bpo::value<std::string>(), "art process name.");
-  add_opt(
-          options, "prune-config", "Remove unused modules from the fully-processed configuration.");
+  add_opt(options,
+          "prune-config",
+          "Remove unused modules from the fully-processed configuration.");
   add_opt(
     options,
     "print-available",

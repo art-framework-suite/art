@@ -53,6 +53,7 @@ namespace art {
         "async is currently supported only for the 'InEvent' level.");
       asyncDeclared_ = true;
     }
+
   public: // MEMBER FUNCTIONS -- API for access to RandomNumberGenerator
     CLHEP::HepRandomEngine& createEngine(long);
     CLHEP::HepRandomEngine& createEngine(

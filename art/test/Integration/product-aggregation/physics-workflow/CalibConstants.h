@@ -1,5 +1,5 @@
-#ifndef art_test_Integration_product_aggregation_CalibConstants_h
-#define art_test_Integration_product_aggregation_CalibConstants_h
+#ifndef art_test_Integration_product_aggregation_physics_workflow_CalibConstants_h
+#define art_test_Integration_product_aggregation_physics_workflow_CalibConstants_h
 
 #include "canvas/Persistency/Provenance/IDNumber.h"
 
@@ -24,7 +24,7 @@ namespace arttest {
 
 } // namespace arttest
 
-#endif /* art_test_Integration_product_aggregation_CalibConstants_h */
+#endif /* art_test_Integration_product_aggregation_physics_workflow_CalibConstants_h */
 
 // Local variables:
 // mode: c++

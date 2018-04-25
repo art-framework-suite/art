@@ -32,4 +32,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_test_Integration_RunTimeProduces_h */
+
+// Local Variables:
+// mode: c++
+// End:

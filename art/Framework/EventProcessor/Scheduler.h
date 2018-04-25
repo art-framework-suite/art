@@ -27,7 +27,8 @@ namespace art {
       fhicl::Atom<bool> errorOnSIGINT{Name{"errorOnSIGINT"}, true};
       fhicl::Atom<bool> wantSummary{Name{"wantSummary"}, false};
       fhicl::Atom<bool> pruneConfig{Name{"pruneConfig"}, false};
-      fhicl::Atom<std::string> dataDependencyGraph{Name{"dataDependencyGraph"}, {}};
+      fhicl::Atom<std::string> dataDependencyGraph{Name{"dataDependencyGraph"},
+                                                   {}};
       fhicl::OptionalDelegatedParameter configOut{Name{"configOut"}};
       fhicl::OptionalDelegatedParameter debugConfig{Name{"debugConfig"}};
       fhicl::OptionalDelegatedParameter validateConfig{Name{"validateConfig"}};
@@ -93,4 +94,8 @@ namespace art {
   };
 }
 
-#endif
+#endif /* art_Framework_EventProcessor_Scheduler_h */
+
+// Local Variables:
+// mode: c++
+// End:

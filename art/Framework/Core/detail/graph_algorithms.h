@@ -50,4 +50,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Core_detail_graph_algorithms_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -8,7 +8,13 @@
 
 namespace art {
 
-  enum class ModuleType : int { non_art, producer, filter, analyzer, output_module };
+  enum class ModuleType : int {
+    non_art,
+    producer,
+    filter,
+    analyzer,
+    output_module
+  };
   enum class ModuleThreadingType : int { illegal, legacy, shared, replicated };
 
   inline bool

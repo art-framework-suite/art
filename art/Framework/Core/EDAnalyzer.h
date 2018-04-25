@@ -189,13 +189,13 @@ namespace art {
     virtual ~ReplicatedAnalyzer() noexcept;
     explicit ReplicatedAnalyzer(fhicl::ParameterSet const&);
     template <typename Config>
-    explicit ReplicatedAnalyzer(Table<Config> const& config) : EDAnalyzer{config}
+    explicit ReplicatedAnalyzer(Table<Config> const& config)
+      : EDAnalyzer{config}
     {}
 
   private:
     void doBeginJob() override;
   };
-
 
   template <typename T>
   inline std::ostream&

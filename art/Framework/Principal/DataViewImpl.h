@@ -60,9 +60,12 @@
 namespace art {
 
   class EDProductGetter;
+  class ResultsProducer;
 
   namespace detail {
-    class ProducerImpl;
+    class Analyzer;
+    class Filter;
+    class Producer;
   }
 
   class DataViewImpl {
@@ -70,7 +73,9 @@ namespace art {
     // Give access to movePutProductsToPrincipal(...).
     friend class EDFilter;
     friend class EDProducer;
-    friend class detail::ProducerImpl;
+    friend class detail::Analyzer;
+    friend class detail::Filter;
+    friend class detail::Producer;
     friend class ResultsProducer;
     friend class ProducingService;
 

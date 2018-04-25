@@ -1,6 +1,6 @@
+#include "art/Framework/Art/detail/prune_configuration.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
-#include "art/Framework/Art/detail/prune_configuration.h"
 #include "boost/algorithm/string.hpp"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -27,7 +27,8 @@ namespace {
   {
     modules_t result;
     for (auto const tbl : tables) {
-      if (!exists_outside_prolog(config, tbl)) continue;
+      if (!exists_outside_prolog(config, tbl))
+        continue;
       table_t const& table = config.find(tbl);
       for (auto const& pr : table) {
         // Record only tables, which are the allowed FHiCL values for
@@ -57,8 +58,9 @@ namespace {
     }
     if (result.size() != seq.size()) {
       throw art::Exception{art::errors::Configuration,
-          "There was an error parsing the specified entries in a FHiCL sequence.\n"}
-      << "One of the presented elements is not a string.\n";
+                           "There was an error parsing the specified entries "
+                           "in a FHiCL sequence.\n"}
+        << "One of the presented elements is not a string.\n";
     }
     return result;
   }
@@ -82,7 +84,6 @@ namespace {
     }
     return paths;
   }
-
 
   modules_per_path_t
   paths_for_tables(modules_per_path_t& all_paths,
@@ -131,8 +132,8 @@ namespace {
     for (auto const& pathname : it->second) {
       auto res = modules_per_path.find(pathname);
       if (res == cend(modules_per_path)) {
-        os << "ERROR: Unknown path " << pathname
-           << " specified by user in " << controlling_sequence << ".\n";
+        os << "ERROR: Unknown path " << pathname << " specified by user in "
+           << controlling_sequence << ".\n";
         continue;
       }
       result->insert(*res);
@@ -142,33 +143,36 @@ namespace {
 
     auto const err = os.str();
     if (!err.empty()) {
-      throw art::Exception{art::errors::Configuration}
-      << err;
+      throw art::Exception{art::errors::Configuration} << err;
     }
     return result;
   }
-
 }
 
 std::pair<modules_per_path_t, modules_t>
 art::detail::detect_unused_configuration(intermediate_table& config)
 {
-  auto module_tables = {"physics.producers", "physics.filters", "physics.analyzers", "outputs"};
+  auto module_tables = {
+    "physics.producers", "physics.filters", "physics.analyzers", "outputs"};
   auto const modules = declared_modules(config, module_tables);
 
   auto paths = all_paths(config);
 
   auto trigger_paths = explicitly_declared_paths(paths, "trigger_paths");
   auto modifier_tables = {"physics.producers", "physics.filters"};
-  auto enabled_trigger_paths = trigger_paths ? *trigger_paths : paths_for_tables(paths, config, modifier_tables);
+  auto enabled_trigger_paths =
+    trigger_paths ? *trigger_paths :
+                    paths_for_tables(paths, config, modifier_tables);
 
   auto end_paths = explicitly_declared_paths(paths, "end_paths");
   auto observer_tables = {"physics.analyzers", "outputs"};
-  auto enabled_end_paths = end_paths ? *end_paths : paths_for_tables(paths, config, observer_tables);
+  auto enabled_end_paths =
+    end_paths ? *end_paths : paths_for_tables(paths, config, observer_tables);
 
   // The only paths left are those that are not enabled for execution.
   if (!paths.empty()) {
-    std::cerr << "The following paths have not been enabled for execution and will be ignored:\n";
+    std::cerr << "The following paths have not been enabled for execution and "
+                 "will be ignored:\n";
     for (auto const& pr : paths) {
       std::cerr << "  " << pr.first << '\n';
     }
@@ -183,9 +187,10 @@ art::detail::detect_unused_configuration(intermediate_table& config)
   }
 
   std::map<std::string, std::string> unused_modules;
-  std::copy_if(cbegin(modules), cend(modules),
+  std::copy_if(cbegin(modules),
+               cend(modules),
                inserter(unused_modules, end(unused_modules)),
-               [&emods=enabled_modules](auto const& mod) {
+               [& emods = enabled_modules](auto const& mod) {
                  return emods.find(mod.first) == cend(emods);
                });
 
@@ -195,8 +200,7 @@ art::detail::detect_unused_configuration(intermediate_table& config)
     os << "The following module label"
        << ((unused_modules.size() == 1) ? " is" : "s are")
        << " either not assigned to any path,\n"
-       << "or "
-       << ((unused_modules.size() == 1ull) ? "it has" : "they have")
+       << "or " << ((unused_modules.size() == 1ull) ? "it has" : "they have")
        << " been assigned to ignored path(s):\n"
        << "'" << i->first << "'";
     ++i;

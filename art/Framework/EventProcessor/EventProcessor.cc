@@ -223,7 +223,8 @@ namespace art {
                                  sizeof(EventPrincipal*),
                                  "EventPrincipal ptr");
     }
-    auto const errorOnMissingConsumes = scheduler_.load()->errorOnMissingConsumes();
+    auto const errorOnMissingConsumes =
+      scheduler_.load()->errorOnMissingConsumes();
     ConsumesInfo::instance()->setRequireConsumes(errorOnMissingConsumes);
     {
       auto const& physicsPSet = pset.get<ParameterSet>("physics", {});
@@ -1436,9 +1437,8 @@ namespace art {
     ec_.load()->call([this] { actReg_.load()->sPostEndJob.invoke(); });
     ec_.load()->call([] { mf::LogStatistics(); });
     ec_.load()->call([this] {
-      detail::writeSummary(*pathManager_.load(),
-                           scheduler_.load()->wantSummary(),
-                           *timer_.load());
+      detail::writeSummary(
+        *pathManager_.load(), scheduler_.load()->wantSummary(), *timer_.load());
     });
   }
 

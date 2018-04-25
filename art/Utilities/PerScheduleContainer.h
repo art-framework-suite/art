@@ -16,6 +16,7 @@ namespace art {
 
     static_assert(ScheduleID::first().id() == 0,
                   "First allowed ScheduleID value is not 0.");
+
   public:
     PerScheduleContainer() = default;
     explicit PerScheduleContainer(ScheduleID::size_type const n) : data_(n) {}
@@ -103,15 +104,9 @@ namespace art {
       return n;
     }
 
-    T& operator[](ScheduleID const sid)
-    {
-      return data_[sid.id()];
-    }
+    T& operator[](ScheduleID const sid) { return data_[sid.id()]; }
 
-    T const& operator[](ScheduleID const sid) const
-    {
-      return data_[sid.id()];
-    }
+    T const& operator[](ScheduleID const sid) const { return data_[sid.id()]; }
 
     T&
     at(ScheduleID const sid)

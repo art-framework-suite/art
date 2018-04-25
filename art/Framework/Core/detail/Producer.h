@@ -1,11 +1,11 @@
-#ifndef art_Framework_Core_ProducerImpl_h
-#define art_Framework_Core_ProducerImpl_h
+#ifndef art_Framework_Core_detail_Producer_h
+#define art_Framework_Core_detail_Producer_h
 // vim: set sw=2 expandtab :
 
-//
-// The base class of "modules" whose main purpose is to
-// insert new EDProducts into an Event.
-//
+//=====================================================
+// The base class of modules whose main purpose is to
+// insert products into an Event.
+//=====================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
@@ -18,8 +18,8 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/CPCSentry.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -32,18 +32,18 @@
 namespace art {
   namespace detail {
 
-    class ProducerImpl : public ProducerBase {
+    class Producer : public ProducerBase {
     public:
       template <typename UserConfig, typename KeysToIgnore = void>
       using Table = ProducerBase::Table<UserConfig, KeysToIgnore>;
 
     public: // MEMBER FUNCTIONS -- Special Member Functions
-      virtual ~ProducerImpl() noexcept;
-      ProducerImpl();
-      ProducerImpl(ProducerImpl const&) = delete;
-      ProducerImpl(ProducerImpl&&) = delete;
-      ProducerImpl& operator=(ProducerImpl const&) = delete;
-      ProducerImpl& operator=(ProducerImpl&&) = delete;
+      virtual ~Producer() noexcept;
+      Producer();
+      Producer(Producer const&) = delete;
+      Producer(Producer&&) = delete;
+      Producer& operator=(Producer const&) = delete;
+      Producer& operator=(Producer&&) = delete;
 
       // The doBeginJob function depends on the module threading type.
       void doBeginJob() = delete;
@@ -89,8 +89,7 @@ namespace art {
   } // namespace detail
 } // namespace art
 
-
-#endif /* art_Framework_Core_detail_ProducerImpl_h */
+#endif /* art_Framework_Core_detail_Producer_h */
 
 // Local Variables:
 // mode: c++

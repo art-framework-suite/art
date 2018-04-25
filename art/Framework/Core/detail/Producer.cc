@@ -1,4 +1,4 @@
-#include "art/Framework/Core/detail/ProducerImpl.h"
+#include "art/Framework/Core/detail/Producer.h"
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/SharedResourcesRegistry.h"
@@ -28,66 +28,66 @@ using namespace std;
 namespace art {
   namespace detail {
 
-    ProducerImpl::ProducerImpl() = default;
-    ProducerImpl::~ProducerImpl() noexcept = default;
+    Producer::Producer() = default;
+    Producer::~Producer() noexcept = default;
 
     void
-    ProducerImpl::doRespondToOpenInputFile(FileBlock const& fb)
+    Producer::doRespondToOpenInputFile(FileBlock const& fb)
     {
       respondToOpenInputFile(fb);
     }
 
     void
-    ProducerImpl::respondToOpenInputFile(FileBlock const&)
+    Producer::respondToOpenInputFile(FileBlock const&)
     {}
 
     void
-    ProducerImpl::doRespondToCloseInputFile(FileBlock const& fb)
+    Producer::doRespondToCloseInputFile(FileBlock const& fb)
     {
       respondToCloseInputFile(fb);
     }
 
     void
-    ProducerImpl::respondToCloseInputFile(FileBlock const&)
+    Producer::respondToCloseInputFile(FileBlock const&)
     {}
 
     void
-    ProducerImpl::doRespondToOpenOutputFiles(FileBlock const& fb)
+    Producer::doRespondToOpenOutputFiles(FileBlock const& fb)
     {
       respondToOpenOutputFiles(fb);
     }
 
     void
-    ProducerImpl::respondToOpenOutputFiles(FileBlock const&)
+    Producer::respondToOpenOutputFiles(FileBlock const&)
     {}
 
     void
-    ProducerImpl::doRespondToCloseOutputFiles(FileBlock const& fb)
+    Producer::doRespondToCloseOutputFiles(FileBlock const& fb)
     {
       respondToCloseOutputFiles(fb);
     }
 
     void
-    ProducerImpl::respondToCloseOutputFiles(FileBlock const&)
+    Producer::respondToCloseOutputFiles(FileBlock const&)
     {}
 
     void
-    ProducerImpl::beginJob()
+    Producer::beginJob()
     {}
 
     void
-    ProducerImpl::doEndJob()
+    Producer::doEndJob()
     {
       endJob();
     }
 
     void
-    ProducerImpl::endJob()
+    Producer::endJob()
     {}
 
     bool
-    ProducerImpl::doBeginRun(RunPrincipal& rp,
-                             cet::exempt_ptr<CurrentProcessingContext const> cpc)
+    Producer::doBeginRun(RunPrincipal& rp,
+                         cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
       Run r{rp, md_, RangeSet::forRun(rp.runID())};
@@ -97,12 +97,12 @@ namespace art {
     }
 
     void
-    ProducerImpl::beginRun(Run&)
+    Producer::beginRun(Run&)
     {}
 
     bool
-    ProducerImpl::doEndRun(RunPrincipal& rp,
-                           cet::exempt_ptr<CurrentProcessingContext const> cpc)
+    Producer::doEndRun(RunPrincipal& rp,
+                       cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
       Run r{rp, md_, rp.seenRanges()};
@@ -112,12 +112,12 @@ namespace art {
     }
 
     void
-    ProducerImpl::endRun(Run&)
+    Producer::endRun(Run&)
     {}
 
     bool
-    ProducerImpl::doBeginSubRun(SubRunPrincipal& srp,
-                                cet::exempt_ptr<CurrentProcessingContext const> cpc)
+    Producer::doBeginSubRun(SubRunPrincipal& srp,
+                            cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
       SubRun sr{srp, md_, RangeSet::forSubRun(srp.subRunID())};
@@ -127,12 +127,12 @@ namespace art {
     }
 
     void
-    ProducerImpl::beginSubRun(SubRun&)
+    Producer::beginSubRun(SubRun&)
     {}
 
     bool
-    ProducerImpl::doEndSubRun(SubRunPrincipal& srp,
-                              cet::exempt_ptr<CurrentProcessingContext const> cpc)
+    Producer::doEndSubRun(SubRunPrincipal& srp,
+                          cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
       SubRun sr{srp, md_, srp.seenRanges()};
@@ -142,34 +142,34 @@ namespace art {
     }
 
     void
-    ProducerImpl::endSubRun(SubRun&)
+    Producer::endSubRun(SubRun&)
     {}
 
     bool
-    ProducerImpl::doEvent(EventPrincipal& ep,
-                          ScheduleID const /*si*/,
-                          CurrentProcessingContext const* cpc,
-                          std::atomic<size_t>& counts_run,
-                          std::atomic<size_t>& counts_passed,
-                          std::atomic<size_t>& /*counts_failed*/)
+    Producer::doEvent(EventPrincipal& ep,
+                      ScheduleID const /*si*/,
+                      CurrentProcessingContext const* cpc,
+                      std::atomic<size_t>& counts_run,
+                      std::atomic<size_t>& counts_passed,
+                      std::atomic<size_t>& /*counts_failed*/)
     {
       detail::CPCSentry sentry{*cpc};
       Event e{ep, md_};
       ++counts_run;
       produce(e);
       e.DataViewImpl::movePutProductsToPrincipal(
-                                                 ep, checkPutProducts_, &expectedProducts<InEvent>());
+        ep, checkPutProducts_, &expectedProducts<InEvent>());
       ++counts_passed;
       return true;
     }
 
     void
-    ProducerImpl::failureToPutProducts(ModuleDescription const& md)
+    Producer::failureToPutProducts(ModuleDescription const& md)
     {
       auto const& mainID = md.mainParameterSetID();
       auto const& scheduler_pset =
         fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
-                                                                          "services.scheduler");
+          "services.scheduler");
       auto const& module_pset =
         fhicl::ParameterSetRegistry::get(md.parameterSetID());
       checkPutProducts_ =

@@ -82,8 +82,9 @@ namespace art {
     , plugins_{makePlugins_(containing_pset)}
   {}
 
-  SharedOutputModule::SharedOutputModule(fhicl::TableFragment<Config> const& config,
-                                         ParameterSet const& containing_pset)
+  SharedOutputModule::SharedOutputModule(
+    fhicl::TableFragment<Config> const& config,
+    ParameterSet const& containing_pset)
     : OutputModule{config, containing_pset}
   {}
 

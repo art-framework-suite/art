@@ -190,10 +190,9 @@ namespace art {
     try {
       auto const result = detail::detect_unused_configuration(raw_config);
       std::string const pruneConfig{"services.scheduler.pruneConfig"};
-      if (exists_outside_prolog(raw_config, pruneConfig) && raw_config.get<bool>(pruneConfig)) {
-        detail::prune_configuration(result.first,
-                                    result.second,
-                                    raw_config);
+      if (exists_outside_prolog(raw_config, pruneConfig) &&
+          raw_config.get<bool>(pruneConfig)) {
+        detail::prune_configuration(result.first, result.second, raw_config);
       }
     }
     catch (Exception const& e) {
