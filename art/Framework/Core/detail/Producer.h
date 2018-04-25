@@ -10,23 +10,13 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/Framework/Principal/DataViewImpl.h"
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/Run.h"
-#include "art/Framework/Principal/RunPrincipal.h"
-#include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
-#include "canvas/Persistency/Provenance/RangeSet.h"
-#include "fhiclcpp/ParameterSet.h"
 
 #include <atomic>
 #include <cstddef>
-#include <memory>
 #include <string>
 
 namespace art {
@@ -61,7 +51,7 @@ namespace art {
       bool doEndSubRun(SubRunPrincipal& srp,
                        cet::exempt_ptr<CurrentProcessingContext const> cpc);
       bool doEvent(EventPrincipal& ep,
-                   ScheduleID const,
+                   ScheduleID,
                    CurrentProcessingContext const* cpc,
                    std::atomic<std::size_t>& counts_run,
                    std::atomic<std::size_t>& counts_passed,

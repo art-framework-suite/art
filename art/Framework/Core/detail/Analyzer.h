@@ -10,10 +10,8 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ImplicitConfigs.h"
-#include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ScheduleID.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/KeysToIgnore.h"
 #include "fhiclcpp/types/OptionalTable.h"
@@ -22,7 +20,6 @@
 
 #include <atomic>
 #include <cstddef>
-#include <memory>
 #include <ostream>
 #include <string>
 

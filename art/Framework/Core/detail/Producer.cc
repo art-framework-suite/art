@@ -11,16 +11,7 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/ScheduleID.h"
-#include "canvas/Utilities/Exception.h"
-#include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-
-#include <algorithm>
-#include <atomic>
-#include <cstddef>
-#include <string>
-#include <utility>
-#include <vector>
 
 using namespace hep::concurrency;
 using namespace std;

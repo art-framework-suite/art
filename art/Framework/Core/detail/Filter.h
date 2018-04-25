@@ -15,12 +15,9 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
-#include "canvas/Persistency/Provenance/RangeSet.h"
-#include "fhiclcpp/ParameterSet.h"
 
 #include <atomic>
 #include <cstddef>
-#include <memory>
 #include <string>
 
 namespace art {

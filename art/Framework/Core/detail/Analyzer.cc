@@ -4,23 +4,14 @@
 #include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/SharedResourcesRegistry.h"
-#include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/CPCSentry.h"
-#include "art/Utilities/ScheduleID.h"
-#include "canvas/Utilities/Exception.h"
-#include "cetlib_except/demangle.h"
 #include "hep_concurrency/SerialTaskQueueChain.h"
 
-#include <algorithm>
-#include <atomic>
-#include <cstddef>
-#include <memory>
 #include <ostream>
-#include <string>
 
 using namespace hep::concurrency;
 using namespace std;
