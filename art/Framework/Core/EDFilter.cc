@@ -35,17 +35,6 @@ using namespace std;
 
 namespace art {
 
-  constexpr bool EDFilter::Pass;
-  constexpr bool EDFilter::Fail;
-
-  EDFilter::EDFilter() = default;
-  SharedFilter::SharedFilter() = default;
-  ReplicatedFilter::ReplicatedFilter() = default;
-
-  EDFilter::~EDFilter() noexcept = default;
-  SharedFilter::~SharedFilter() noexcept = default;
-  ReplicatedFilter::~ReplicatedFilter() noexcept = default;
-
   string
   EDFilter::workerType() const
   {
@@ -59,15 +48,14 @@ namespace art {
     vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     chain_ = new SerialTaskQueueChain{queues};
-    auto const& mainID = md_.mainParameterSetID();
-    auto const& scheduler_pset =
-      fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
-        "services.scheduler");
-    auto const& module_pset =
-      fhicl::ParameterSetRegistry::get(md_.parameterSetID());
-    checkPutProducts_ =
-      detail::get_failureToPut_flag(scheduler_pset, module_pset);
+    failureToPutProducts(md_);
     beginJob();
+  }
+
+  string
+  SharedFilter::workerType() const
+  {
+    return "WorkerT<SharedFilter>";
   }
 
   void
@@ -85,182 +73,21 @@ namespace art {
       auto queues = SharedResourcesRegistry::instance()->createQueues(names);
       chain_ = new SerialTaskQueueChain{queues};
     }
-    auto const& mainID = md_.mainParameterSetID();
-    auto const& scheduler_pset =
-      fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
-        "services.scheduler");
-    auto const& module_pset =
-      fhicl::ParameterSetRegistry::get(md_.parameterSetID());
-    checkPutProducts_ =
-      detail::get_failureToPut_flag(scheduler_pset, module_pset);
+    failureToPutProducts(md_);
     beginJob();
+  }
+
+  string
+  ReplicatedFilter::workerType() const
+  {
+    return "WorkerT<ReplicatedFilter>";
   }
 
   void
   ReplicatedFilter::doBeginJob()
   {
-    auto const& mainID = md_.mainParameterSetID();
-    auto const& scheduler_pset =
-      fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
-        "services.scheduler");
-    auto const& module_pset =
-      fhicl::ParameterSetRegistry::get(md_.parameterSetID());
-    checkPutProducts_ =
-      detail::get_failureToPut_flag(scheduler_pset, module_pset);
+    failureToPutProducts(md_);
     beginJob();
-  }
-
-  void
-  EDFilter::beginJob()
-  {}
-
-  void
-  EDFilter::doEndJob()
-  {
-    endJob();
-  }
-
-  void
-  EDFilter::endJob()
-  {}
-
-  void
-  EDFilter::doRespondToOpenInputFile(FileBlock const& fb)
-  {
-    respondToOpenInputFile(fb);
-  }
-
-  void
-  EDFilter::respondToOpenInputFile(FileBlock const&)
-  {}
-
-  void
-  EDFilter::doRespondToCloseInputFile(FileBlock const& fb)
-  {
-    respondToCloseInputFile(fb);
-  }
-
-  void
-  EDFilter::respondToCloseInputFile(FileBlock const&)
-  {}
-
-  void
-  EDFilter::doRespondToOpenOutputFiles(FileBlock const& fb)
-  {
-    respondToOpenOutputFiles(fb);
-  }
-
-  void
-  EDFilter::respondToOpenOutputFiles(FileBlock const&)
-  {}
-
-  void
-  EDFilter::doRespondToCloseOutputFiles(FileBlock const& fb)
-  {
-    respondToCloseOutputFiles(fb);
-  }
-
-  void
-  EDFilter::respondToCloseOutputFiles(FileBlock const&)
-  {}
-
-  bool
-  EDFilter::doBeginRun(RunPrincipal& rp,
-                       cet::exempt_ptr<CurrentProcessingContext const> cpc)
-  {
-    detail::CPCSentry sentry{*cpc};
-    Run r{rp, md_, RangeSet::forRun(rp.runID())};
-    bool const rc = beginRun(r);
-    // r.DataViewImpl::movePutProductsToPrincipal(rp, checkPutProducts_,
-    // &expectedProducts<InRun>());
-    r.DataViewImpl::movePutProductsToPrincipal(rp);
-    return rc;
-  }
-
-  bool
-  EDFilter::beginRun(Run&)
-  {
-    return true;
-  }
-
-  bool
-  EDFilter::doEndRun(RunPrincipal& rp,
-                     cet::exempt_ptr<CurrentProcessingContext const> cpc)
-  {
-    detail::CPCSentry sentry{*cpc};
-    Run r{rp, md_, rp.seenRanges()};
-    bool const rc = endRun(r);
-    // r.DataViewImpl::movePutProductsToPrincipal(rp, checkPutProducts_,
-    // &expectedProducts<InRun>());
-    r.DataViewImpl::movePutProductsToPrincipal(rp);
-    return rc;
-  }
-
-  bool
-  EDFilter::endRun(Run&)
-  {
-    return true;
-  }
-
-  bool
-  EDFilter::doBeginSubRun(SubRunPrincipal& srp,
-                          cet::exempt_ptr<CurrentProcessingContext const> cpc)
-  {
-    detail::CPCSentry sentry{*cpc};
-    SubRun sr{srp, md_, RangeSet::forSubRun(srp.subRunID())};
-    bool const rc = beginSubRun(sr);
-    // sr.DataViewImpl::movePutProductsToPrincipal(srp, checkPutProducts_,
-    // &expectedProducts<InSubRun>());
-    sr.DataViewImpl::movePutProductsToPrincipal(srp);
-    return rc;
-  }
-
-  bool
-  EDFilter::beginSubRun(SubRun&)
-  {
-    return true;
-  }
-
-  bool
-  EDFilter::doEndSubRun(SubRunPrincipal& srp,
-                        cet::exempt_ptr<CurrentProcessingContext const> cpc)
-  {
-    detail::CPCSentry sentry{*cpc};
-    SubRun sr{srp, md_, srp.seenRanges()};
-    bool const rc = endSubRun(sr);
-    // sr.DataViewImpl::movePutProductsToPrincipal(srp, checkPutProducts_,
-    // &expectedProducts<InSubRun>());
-    sr.DataViewImpl::movePutProductsToPrincipal(srp);
-    return rc;
-  }
-
-  bool
-  EDFilter::endSubRun(SubRun&)
-  {
-    return true;
-  }
-
-  bool
-  EDFilter::doEvent(EventPrincipal& ep,
-                    ScheduleID const /*si*/,
-                    CurrentProcessingContext const* cpc,
-                    atomic<size_t>& counts_run,
-                    atomic<size_t>& counts_passed,
-                    atomic<size_t>& counts_failed)
-  {
-    detail::CPCSentry sentry{*cpc};
-    Event e{ep, md_};
-    ++counts_run;
-    bool rc = false;
-    rc = filter(e);
-    e.DataViewImpl::movePutProductsToPrincipal(
-      ep, checkPutProducts_, &expectedProducts<InEvent>());
-    if (rc) {
-      ++counts_passed;
-    } else {
-      ++counts_failed;
-    }
-    return rc;
   }
 
 } // namespace art
