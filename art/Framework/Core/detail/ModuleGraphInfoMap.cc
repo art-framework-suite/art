@@ -52,7 +52,7 @@ art::detail::ModuleGraphInfoMap::info(std::string const& name) const
 std::ostream&
 art::detail::operator<<(std::ostream& os, ModuleGraphInfo const& info)
 {
-  os << "Module type: " << ModuleType_to_string(info.module_type) << '\n';
+  os << "Module type: " << to_string(info.module_type) << '\n';
   os << "Product dependencies: ";
   for (auto const& dep : info.product_dependencies) {
     os << dep << ' ';

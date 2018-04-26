@@ -158,7 +158,6 @@ namespace art {
     std::atomic<ModuleDescription const*> md_;
     std::atomic<ActionTable const*> actions_;
     std::atomic<ActivityRegistry const*> actReg_;
-    std::atomic<ModuleThreadingType> moduleThreadingType_;
     std::atomic<int> state_;
 
     // if state is 'exception'

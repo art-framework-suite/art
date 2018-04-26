@@ -6,7 +6,6 @@
 // OutputModule and EDAnalyzer.
 
 #include "art/Framework/Core/ModuleBase.h"
-#include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/ProcessAndEventSelectors.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "fhiclcpp/ParameterSet.h"

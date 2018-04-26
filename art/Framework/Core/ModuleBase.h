@@ -2,7 +2,6 @@
 #define art_Framework_Core_ModuleBase_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/ModuleType.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -36,23 +35,8 @@ namespace art {
   public: // MEMBER FUNCTIONS -- API for the user
     ModuleDescription const& moduleDescription() const;
     ScheduleID scheduleID() const;
-    ModuleThreadingType moduleThreadingType() const;
     void setModuleDescription(ModuleDescription const&);
     void setScheduleID(ScheduleID const);
-    hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
-
-  public: // MEMBER FUNCTIONS -- API for one modules
-    template <BranchType BT = InEvent, typename... T>
-    void serialize(T const&...);
-    template <BranchType BT = InEvent>
-    void
-    async()
-    {
-      static_assert(
-        BT == InEvent,
-        "async is currently supported only for the 'InEvent' level.");
-      asyncDeclared_ = true;
-    }
 
   public: // MEMBER FUNCTIONS -- API for access to RandomNumberGenerator
     CLHEP::HepRandomEngine& createEngine(long);
@@ -91,32 +75,8 @@ namespace art {
   protected: // MEMBER DATA -- For derived classes.
     ModuleDescription md_{};
     ScheduleID scheduleID_{};
-    ModuleThreadingType moduleThreadingType_{};
-    std::set<std::string> resourceNames_{};
-    bool asyncDeclared_{false};
-    std::atomic<hep::concurrency::SerialTaskQueueChain*> chain_;
     std::array<std::vector<ProductInfo>, NumBranchTypes> consumables_{};
-
-  private:
-    void serialize_for_resource();
-    void serialize_for_resource(std::string const&);
-    template <typename H, typename... T>
-    std::enable_if_t<std::is_same<std::string, H>::value>
-    serialize_for_resource(H const& head, T const&... tail)
-    {
-      serialize_for_resource(head);
-      if (sizeof...(T) != 0) {
-        serialize_for_resource(tail...);
-      }
-    }
   };
-
-  template <BranchType, typename... T>
-  void
-  ModuleBase::serialize(T const&... resources)
-  {
-    serialize_for_resource(resources...);
-  }
 
   template <typename T, BranchType BT>
   ProductToken<T>

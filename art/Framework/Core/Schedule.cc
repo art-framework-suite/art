@@ -81,7 +81,6 @@ namespace art {
                           *actReg_.load(),
                           *actionTable_.load(),
                           processName,
-                          ModuleThreadingType::replicated,
                           scheduleID};
     ModuleDescription md{
       trig_pset.id(),

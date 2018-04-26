@@ -8,14 +8,8 @@
 
 namespace art {
 
-  enum class ModuleType : int {
-    non_art,
-    producer,
-    filter,
-    analyzer,
-    output_module
-  };
-  enum class ModuleThreadingType : int { illegal, legacy, shared, replicated };
+  enum class ModuleType { non_art, producer, filter, analyzer, output_module };
+  enum class ModuleThreadingType { illegal, legacy, shared, replicated };
 
   inline bool
   is_modifier(ModuleType const mt)
@@ -30,7 +24,7 @@ namespace art {
   }
 
   inline std::string
-  ModuleType_to_string(ModuleType const mt)
+  to_string(ModuleType const mt)
   {
     switch (mt) {
       case ModuleType::non_art:

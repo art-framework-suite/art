@@ -52,17 +52,17 @@ namespace art {
       for (auto const& l : path) {
         if (all_labels_set.find(l) == all_labels_set.end()) {
           // Bad label
-          errMsg += omLabel + ".results."s + *path_key + '[' + to_string(idx) +
-                    "] ("s + l + ')' + " is not defined in "s + omLabel +
-                    ".results.producers.\n"s;
+          errMsg += omLabel + ".results."s + *path_key + '[' +
+                    std::to_string(idx) + "] ("s + l + ')' +
+                    " is not defined in "s + omLabel + ".results.producers.\n"s;
           ++idx;
           continue;
         }
         auto const ans = used_labels.emplace(l, *path_key);
         if (!ans.second) {
           // Duplicate
-          errMsg += omLabel + ".results." + *path_key + '[' + to_string(idx) +
-                    "] (" + l + ')' +
+          errMsg += omLabel + ".results." + *path_key + '[' +
+                    std::to_string(idx) + "] (" + l + ')' +
                     " is a duplicate: previously used in path " +
                     ans.first->second + ".\n";
         }

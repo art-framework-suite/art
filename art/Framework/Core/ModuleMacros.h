@@ -72,7 +72,7 @@ namespace art {
   art::ModuleThreadingType                                                     \
   moduleThreadingType()                                                        \
   {                                                                            \
-    return klass::moduleThreadingType();                                       \
+    return art::detail::ModuleThreadingTypeDeducer<klass::ModuleType>::value;  \
   }                                                                            \
   }
 

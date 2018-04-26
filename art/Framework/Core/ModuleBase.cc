@@ -15,7 +15,6 @@
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/HorizontalRule.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace CLHEP {
@@ -27,13 +26,8 @@ using namespace std;
 
 namespace art {
 
-  ModuleBase::~ModuleBase() noexcept
-  {
-    delete chain_.load();
-    chain_ = nullptr;
-  }
-
-  ModuleBase::ModuleBase() { chain_ = nullptr; }
+  ModuleBase::~ModuleBase() noexcept = default;
+  ModuleBase::ModuleBase() = default;
 
   ModuleDescription const&
   ModuleBase::moduleDescription() const
@@ -57,36 +51,6 @@ namespace art {
   ModuleBase::setScheduleID(ScheduleID const si)
   {
     scheduleID_ = si;
-  }
-
-  SerialTaskQueueChain*
-  ModuleBase::serialTaskQueueChain() const
-  {
-    return chain_.load();
-  }
-
-  ModuleThreadingType
-  ModuleBase::moduleThreadingType() const
-  {
-    return moduleThreadingType_;
-  }
-
-  void
-  ModuleBase::serialize_for_resource()
-  {
-    // This is the situation where a shared module must be serialized,
-    // but only wrt. itself--only one event call at a time.
-    serialize_for_resource(md_.moduleLabel());
-  }
-
-  void
-  ModuleBase::serialize_for_resource(std::string const& resourceName)
-  {
-    auto posAndSuccess = resourceNames_.emplace(resourceName);
-    auto newName = posAndSuccess.second;
-    if (newName) {
-      SharedResourcesRegistry::instance()->registerSharedResource(resourceName);
-    }
   }
 
   CLHEP::HepRandomEngine&

@@ -35,62 +35,132 @@ namespace art {
     // Legacy modules
     template <>
     struct ModuleTypeDeducer<EDAnalyzer> {
-      static constexpr ModuleType value = ModuleType::analyzer;
+      static constexpr auto value{ModuleType::analyzer};
     };
 
     template <>
     struct ModuleTypeDeducer<EDFilter> {
-      static constexpr ModuleType value = ModuleType::filter;
+      static constexpr auto value{ModuleType::filter};
     };
 
     template <>
     struct ModuleTypeDeducer<OutputModule> {
-      static constexpr ModuleType value = ModuleType::output_module;
+      static constexpr auto value{ModuleType::output_module};
     };
 
     template <>
     struct ModuleTypeDeducer<EDProducer> {
-      static constexpr ModuleType value = ModuleType::producer;
+      static constexpr auto value{ModuleType::producer};
     };
 
+    // Shared modules
     template <>
     struct ModuleTypeDeducer<SharedAnalyzer> {
-      static constexpr ModuleType value = ModuleType::analyzer;
+      static constexpr auto value{ModuleType::analyzer};
     };
 
     template <>
     struct ModuleTypeDeducer<SharedFilter> {
-      static constexpr ModuleType value = ModuleType::filter;
+      static constexpr auto value{ModuleType::filter};
     };
 
     template <>
     struct ModuleTypeDeducer<SharedOutputModule> {
-      static constexpr ModuleType value = ModuleType::output_module;
+      static constexpr auto value{ModuleType::output_module};
     };
 
     template <>
     struct ModuleTypeDeducer<SharedProducer> {
-      static constexpr ModuleType value = ModuleType::producer;
+      static constexpr auto value{ModuleType::producer};
     };
 
+    // Replicated modules
     template <>
     struct ModuleTypeDeducer<ReplicatedAnalyzer> {
-      static constexpr ModuleType value = ModuleType::analyzer;
+      static constexpr auto value{ModuleType::analyzer};
     };
 
     template <>
     struct ModuleTypeDeducer<ReplicatedFilter> {
-      static constexpr ModuleType value = ModuleType::filter;
+      static constexpr auto value{ModuleType::filter};
     };
 
     template <>
     struct ModuleTypeDeducer<ReplicatedOutputModule> {
-      static constexpr ModuleType value = ModuleType::output_module;
+      static constexpr auto value{ModuleType::output_module};
     };
 
     template <>
     struct ModuleTypeDeducer<ReplicatedProducer> {
-      static constexpr ModuleType value = ModuleType::producer;
+      static constexpr auto value{ModuleType::producer};
+    };
+
+    // Only specializations allowed so that errors can be caught at
+    // compile-time and not run-time.
+    template <typename T>
+    struct ModuleThreadingTypeDeducer;
+
+    // Legacy modules
+    template <>
+    struct ModuleThreadingTypeDeducer<EDAnalyzer> {
+      static constexpr auto value{ModuleThreadingType::legacy};
+    };
+
+    template <>
+    struct ModuleThreadingTypeDeducer<EDFilter> {
+      static constexpr auto value{ModuleThreadingType::legacy};
+    };
+
+    template <>
+    struct ModuleThreadingTypeDeducer<OutputModule> {
+      static constexpr auto value{ModuleThreadingType::legacy};
+    };
+
+    template <>
+    struct ModuleThreadingTypeDeducer<EDProducer> {
+      static constexpr auto value{ModuleThreadingType::legacy};
+    };
+
+    // Shared modules
+    template <>
+    struct ModuleThreadingTypeDeducer<SharedAnalyzer> {
+      static constexpr auto value{ModuleThreadingType::shared};
+    };
+
+    template <>
+    struct ModuleThreadingTypeDeducer<SharedFilter> {
+      static constexpr auto value{ModuleThreadingType::shared};
+    };
+
+    template <>
+    struct ModuleThreadingTypeDeducer<SharedOutputModule> {
+      static constexpr auto value{ModuleThreadingType::shared};
+    };
+
+    template <>
+    struct ModuleThreadingTypeDeducer<SharedProducer> {
+      static constexpr auto value{ModuleThreadingType::shared};
+    };
+
+    // Replicated modules
+    template <>
+    struct ModuleThreadingTypeDeducer<ReplicatedAnalyzer> {
+      static constexpr auto value{ModuleThreadingType::replicated};
+    };
+
+    template <>
+    struct ModuleThreadingTypeDeducer<ReplicatedFilter> {
+      static constexpr auto value{ModuleThreadingType::replicated};
+    };
+
+    template <>
+    struct ModuleThreadingTypeDeducer<ReplicatedOutputModule> {
+      static constexpr auto value{ModuleThreadingType::replicated};
+    };
+
+    template <>
+    struct ModuleThreadingTypeDeducer<ReplicatedProducer> {
+      static constexpr auto value{ModuleThreadingType::replicated};
     };
 
   } // namespace detail

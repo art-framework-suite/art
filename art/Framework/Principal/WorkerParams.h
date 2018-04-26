@@ -6,7 +6,6 @@
 // This struct is used to communicate parameters into the worker factory.
 //
 
-#include "art/Framework/Core/ModuleType.h"
 #include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -28,7 +27,6 @@ namespace art {
                  ActivityRegistry const& actReg,
                  ActionTable const& actions,
                  std::string const& processName,
-                 ModuleThreadingType const moduleThreadingType,
                  ScheduleID const si)
       : procPset_{procPset}
       , pset_{pset}
@@ -37,7 +35,6 @@ namespace art {
       , actReg_{actReg}
       , actions_{actions}
       , processName_{processName}
-      , moduleThreadingType_(moduleThreadingType)
       , scheduleID_{si}
     {}
 
@@ -48,7 +45,6 @@ namespace art {
     ActivityRegistry const& actReg_;
     ActionTable const& actions_;
     std::string const processName_;
-    ModuleThreadingType moduleThreadingType_;
     ScheduleID scheduleID_;
   };
 

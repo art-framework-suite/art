@@ -2,9 +2,9 @@
 #define art_Framework_Core_OutputModule_h
 // vim: set sw=2 expandtab :
 
-//
-//  The base class of all modules that write Events to an output stream.
-//
+// ==============================================================
+// The base class of all modules that write to an output stream.
+// ==============================================================
 
 #include "art/Framework/Core/FileCatalogMetadataPlugin.h"
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -14,6 +14,7 @@
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Core/SharedResourcesRegistry.h"
+#include "art/Framework/Core/detail/SharedModule.h"
 #include "art/Framework/Core/detail/parse_path_spec.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/fwd.h"
@@ -49,19 +50,13 @@ namespace art {
 
   class ResultsPrincipal;
 
-  class OutputModule : public Observer {
+  class OutputModule : public Observer, public detail::SharedModule {
     friend class WorkerT<OutputModule>;
     friend class OutputWorker;
 
   public: // TYPES
-    // The module macros need these two.
     using ModuleType = OutputModule;
     using WorkerType = OutputWorker;
-    static constexpr ModuleThreadingType
-    moduleThreadingType()
-    {
-      return ModuleThreadingType::legacy;
-    }
 
   private: // TYPES
     using PluginCollection_t =
@@ -262,14 +257,8 @@ namespace art {
     friend class OutputWorker;
 
   public: // TYPES
-    // The module macros need these two.
     using ModuleType = OutputModule;
     using WorkerType = OutputWorker;
-    static constexpr ModuleThreadingType
-    moduleThreadingType()
-    {
-      return ModuleThreadingType::shared;
-    }
 
   private: // TYPES
     using PluginCollection_t =
@@ -295,14 +284,8 @@ namespace art {
     friend class OutputWorker;
 
   public: // TYPES
-    // The module macros need these two.
     using ModuleType = OutputModule;
     using WorkerType = OutputWorker;
-    static constexpr ModuleThreadingType
-    moduleThreadingType()
-    {
-      return ModuleThreadingType::replicated;
-    }
 
   private: // TYPES
     using PluginCollection_t =

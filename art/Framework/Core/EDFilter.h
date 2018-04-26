@@ -5,6 +5,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/Filter.h"
+#include "art/Framework/Core/detail/SharedModule.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -18,16 +19,10 @@
 
 namespace art {
 
-  class EDFilter : public detail::Filter {
+  class EDFilter : public detail::Filter, public detail::SharedModule {
   public:
     using ModuleType = EDFilter;
     using WorkerType = WorkerT<EDFilter>;
-
-    static constexpr ModuleThreadingType
-    moduleThreadingType()
-    {
-      return ModuleThreadingType::legacy;
-    }
 
     std::string workerType() const;
 
@@ -37,16 +32,10 @@ namespace art {
     virtual bool filter(Event&) = 0;
   };
 
-  class SharedFilter : public detail::Filter {
+  class SharedFilter : public detail::Filter, public detail::SharedModule {
   public:
     using ModuleType = SharedFilter;
     using WorkerType = WorkerT<SharedFilter>;
-
-    static constexpr ModuleThreadingType
-    moduleThreadingType()
-    {
-      return ModuleThreadingType::shared;
-    }
 
     std::string workerType() const;
 
@@ -60,12 +49,6 @@ namespace art {
   public:
     using ModuleType = ReplicatedFilter;
     using WorkerType = WorkerT<ReplicatedFilter>;
-
-    static constexpr ModuleThreadingType
-    moduleThreadingType()
-    {
-      return ModuleThreadingType::replicated;
-    }
 
     std::string workerType() const;
 

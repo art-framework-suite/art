@@ -803,7 +803,7 @@ namespace art {
     fileCatalogMetadata.insert("file_format_era",
                                cet::canonical_string(getFileFormatEra()));
     fileCatalogMetadata.insert("file_format_version",
-                               to_string(getFileFormatVersion()));
+                               std::to_string(getFileFormatVersion()));
     // File start time.
     namespace bpt = boost::posix_time;
     auto formatted_time = [](auto const& t) {
@@ -835,7 +835,7 @@ namespace art {
     }
     // Number of events.
     fileCatalogMetadata.insert("event_count",
-                               to_string(stats.eventsThisFile()));
+                               std::to_string(stats.eventsThisFile()));
     // first_event and last_event.
     auto eidToTuple = [](EventID const& eid) -> string {
       ostringstream eidStr;

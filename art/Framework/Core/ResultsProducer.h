@@ -78,6 +78,7 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/RPWorkerT.h"
 #include "art/Framework/Core/detail/ImplicitConfigs.h"
+#include "art/Framework/Core/detail/SharedModule.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "cetlib/ProvideFilePathMacro.h"
 #include "cetlib/compiler_macros.h"
@@ -100,7 +101,9 @@ namespace art {
   class Run;
   class SubRun;
 
-  class ResultsProducer : public ModuleBase, private ProductRegistryHelper {
+  class ResultsProducer : public ModuleBase,
+                          public detail::SharedModule,
+                          private ProductRegistryHelper {
   public:
     virtual ~ResultsProducer() noexcept = default;
 

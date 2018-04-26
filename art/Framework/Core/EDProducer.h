@@ -5,6 +5,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/Producer.h"
+#include "art/Framework/Core/detail/SharedModule.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Principal/fwd.h"
 
@@ -12,16 +13,10 @@
 
 namespace art {
 
-  class EDProducer : public detail::Producer {
+  class EDProducer : public detail::Producer, public detail::SharedModule {
   public:
     using ModuleType = EDProducer;
     using WorkerType = WorkerT<EDProducer>;
-
-    static constexpr auto
-    moduleThreadingType()
-    {
-      return ModuleThreadingType::legacy;
-    }
 
     std::string workerType() const;
 
@@ -31,16 +26,10 @@ namespace art {
     virtual void produce(Event&) = 0;
   };
 
-  class SharedProducer : public detail::Producer {
+  class SharedProducer : public detail::Producer, public detail::SharedModule {
   public:
     using ModuleType = SharedProducer;
     using WorkerType = WorkerT<SharedProducer>;
-
-    static constexpr auto
-    moduleThreadingType()
-    {
-      return ModuleThreadingType::shared;
-    }
 
     std::string workerType() const;
 
@@ -54,12 +43,6 @@ namespace art {
   public:
     using ModuleType = ReplicatedProducer;
     using WorkerType = WorkerT<ReplicatedProducer>;
-
-    static constexpr auto
-    moduleThreadingType()
-    {
-      return ModuleThreadingType::replicated;
-    }
 
     std::string workerType() const;
 

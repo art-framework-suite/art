@@ -133,10 +133,9 @@ namespace art {
             auto const actualModType = loadModuleType_(lib_spec);
             if (actualModType != module_type) {
               es << "  ERROR: Module with label " << module_label << " of type "
-                 << lib_spec << " is configured as a "
-                 << ModuleType_to_string(module_type)
-                 << " but defined in code as a "
-                 << ModuleType_to_string(actualModType) << ".\n";
+                 << lib_spec << " is configured as a " << to_string(module_type)
+                 << " but defined in code as a " << to_string(actualModType)
+                 << ".\n";
             }
             ModuleConfigInfo mci{path_table_name,
                                  module_type,
@@ -346,7 +345,7 @@ namespace art {
                 filteract != WorkerInPath::Normal) {
               es << "  ERROR: Module " << label << " in path " << path_name
                  << " is" << (cat == mod_cat_t::OBSERVER ? " an " : " a ")
-                 << ModuleType_to_string(mci.moduleType_)
+                 << to_string(mci.moduleType_)
                  << " and cannot have a '!' or '-' prefix.\n";
             }
             if (cat == mod_cat_t::MODIFIER) {
@@ -599,7 +598,6 @@ namespace art {
                                 actReg_,
                                 exceptActions_,
                                 processName_,
-                                module_threading_type,
                                 si};
           if (module == nullptr) {
             detail::ModuleMaker_t* module_factory_func = nullptr;

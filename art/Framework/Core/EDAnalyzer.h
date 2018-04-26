@@ -9,6 +9,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/Analyzer.h"
+#include "art/Framework/Core/detail/SharedModule.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -26,16 +27,10 @@
 
 namespace art {
 
-  class EDAnalyzer : public detail::Analyzer {
+  class EDAnalyzer : public detail::Analyzer, public detail::SharedModule {
   public:
     using WorkerType = WorkerT<EDAnalyzer>;
     using ModuleType = EDAnalyzer;
-
-    static constexpr ModuleThreadingType
-    moduleThreadingType()
-    {
-      return ModuleThreadingType::legacy;
-    }
 
     using detail::Analyzer::Analyzer;
 
@@ -47,18 +42,12 @@ namespace art {
     virtual void analyze(Event const&) = 0;
   };
 
-  class SharedAnalyzer : public detail::Analyzer {
+  class SharedAnalyzer : public detail::Analyzer, public detail::SharedModule {
   public:
     using WorkerType = WorkerT<SharedAnalyzer>;
     using ModuleType = SharedAnalyzer;
 
     using detail::Analyzer::Analyzer;
-
-    static constexpr ModuleThreadingType
-    moduleThreadingType()
-    {
-      return ModuleThreadingType::shared;
-    }
 
     std::string workerType() const;
 
@@ -74,12 +63,6 @@ namespace art {
     using ModuleType = ReplicatedAnalyzer;
 
     using detail::Analyzer::Analyzer;
-
-    static constexpr ModuleThreadingType
-    moduleThreadingType()
-    {
-      return ModuleThreadingType::replicated;
-    }
 
     std::string workerType() const;
 

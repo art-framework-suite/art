@@ -10,8 +10,10 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/SerialTaskQueueChain.h"
 
+#include <cstddef>
 #include <iosfwd>
 #include <memory>
+#include <type_traits>
 
 namespace art {
   template <typename T>
@@ -97,11 +99,34 @@ namespace art {
     return module_->workerType();
   }
 
+  namespace detail {
+    class SharedModule;
+    template <typename T, typename = void>
+    struct MaybeSharedModule {
+      static std::nullptr_t
+      chain(T*)
+      {
+        return nullptr;
+      }
+    };
+
+    template <typename T>
+    struct MaybeSharedModule<
+      T,
+      std::enable_if_t<std::is_base_of<SharedModule, T>::value>> {
+      static hep::concurrency::SerialTaskQueueChain*
+      chain(T const* const mod)
+      {
+        return mod->serialTaskQueueChain();
+      }
+    };
+  }
+
   template <typename T>
   hep::concurrency::SerialTaskQueueChain*
   WorkerT<T>::implSerialTaskQueueChain() const
   {
-    return module_->serialTaskQueueChain();
+    return detail::MaybeSharedModule<T>::chain(module_);
   }
 
   template <typename T>

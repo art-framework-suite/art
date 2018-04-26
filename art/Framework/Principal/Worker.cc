@@ -85,7 +85,6 @@ namespace art {
     md_ = new ModuleDescription(md);
     actions_ = &wp.actions_;
     actReg_ = &wp.actReg_;
-    moduleThreadingType_ = wp.moduleThreadingType_;
     state_ = Ready;
     cached_exception_ = new exception_ptr;
     workStarted_ = false;
