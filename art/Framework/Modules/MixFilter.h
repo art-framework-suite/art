@@ -636,7 +636,7 @@ public: // MEMBER FUNCTIONS -- API supported by EDFilter
   void respondToCloseInputFile(FileBlock const& fb) override;
   void respondToOpenOutputFiles(FileBlock const& fb) override;
   void respondToCloseOutputFiles(FileBlock const& fb) override;
-  bool filter(Event& e) override;
+  bool filter(Event& e, ScheduleID) override;
   bool beginSubRun(SubRun& sr) override;
   bool endSubRun(SubRun& sr) override;
   bool beginRun(Run& r) override;
@@ -714,7 +714,7 @@ art::MixFilter<T>::respondToCloseOutputFiles(FileBlock const& fb)
 
 template <class T>
 bool
-art::MixFilter<T>::filter(art::Event& e)
+art::MixFilter<T>::filter(Event& e, ScheduleID)
 {
   // 1. Call detail object's startEvent() if it exists.
   std::conditional_t<detail::has_startEvent<T>::value,

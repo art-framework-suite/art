@@ -27,6 +27,8 @@ namespace art {
 
   private:
     void setupQueues() override final;
+    void produceWithScheduleID(Event&, ScheduleID) override final;
+    virtual void produce(Event&) = 0;
   };
 
   class SharedProducer : public detail::Producer {
@@ -44,6 +46,8 @@ namespace art {
 
   private:
     void setupQueues() override final;
+    void produceWithScheduleID(Event&, ScheduleID) override final;
+    virtual void produce(Event&, ScheduleID) = 0;
   };
 
   class ReplicatedProducer : public detail::Producer {
@@ -61,6 +65,8 @@ namespace art {
 
   private:
     void setupQueues() override final;
+    void produceWithScheduleID(Event&, ScheduleID) override final;
+    virtual void produce(Event&) = 0;
   };
 
 } // namespace art

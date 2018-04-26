@@ -27,7 +27,7 @@ public:
   using Parameters = EDFilter::Table<Config>;
   explicit Prescaler(Parameters const&);
 
-  bool filter(Event&) override;
+  bool filter(Event&, ScheduleID) override;
 
 private:
   size_t count_{};
@@ -48,7 +48,7 @@ Prescaler::Prescaler(Parameters const& config)
 }
 
 bool
-Prescaler::filter(Event&)
+Prescaler::filter(Event&, ScheduleID)
 {
   // The combination of incrementing, modulo dividing, and equality
   // comparing must be synchronized.  Changing count_ to the type

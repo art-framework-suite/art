@@ -50,6 +50,12 @@ namespace art {
     chain_ = new SerialTaskQueueChain{queues};
   }
 
+  bool
+  EDFilter::filterWithScheduleID(Event& e, ScheduleID)
+  {
+    return filter(e);
+  }
+
   string
   SharedFilter::workerType() const
   {
@@ -65,13 +71,19 @@ namespace art {
     if (asyncDeclared_) {
       throw art::Exception{
         art::errors::LogicError,
-          "An error occurred while processing scheduling options for a module."}
-      << "async<InEvent>() cannot be called in combination with any "
+        "An error occurred while processing scheduling options for a module."}
+        << "async<InEvent>() cannot be called in combination with any "
            "serialize<InEvent>(...) calls.\n";
     }
     vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     chain_ = new SerialTaskQueueChain{queues};
+  }
+
+  bool
+  SharedFilter::filterWithScheduleID(Event& e, ScheduleID const sid)
+  {
+    return filter(e, sid);
   }
 
   string
@@ -84,6 +96,12 @@ namespace art {
   ReplicatedFilter::setupQueues()
   {
     // For art 3.0, replicated modules will not have queues.
+  }
+
+  bool
+  ReplicatedFilter::filterWithScheduleID(Event& e, ScheduleID)
+  {
+    return filter(e);
   }
 
 } // namespace art

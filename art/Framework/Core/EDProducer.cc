@@ -51,8 +51,8 @@ namespace art {
     if (asyncDeclared_) {
       throw art::Exception{
         art::errors::LogicError,
-          "An error occurred while processing scheduling options for a module."}
-      << "async<InEvent>() cannot be called in combination with any "
+        "An error occurred while processing scheduling options for a module."}
+        << "async<InEvent>() cannot be called in combination with any "
            "serialize<InEvent>(...) calls.\n";
     }
     vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
@@ -64,6 +64,24 @@ namespace art {
   ReplicatedProducer::setupQueues()
   {
     // For art 3.0, replicated modules will not have queues.
+  }
+
+  void
+  EDProducer::produceWithScheduleID(Event& e, ScheduleID)
+  {
+    produce(e);
+  }
+
+  void
+  SharedProducer::produceWithScheduleID(Event& e, ScheduleID const sid)
+  {
+    produce(e, sid);
+  }
+
+  void
+  ReplicatedProducer::produceWithScheduleID(Event& e, ScheduleID)
+  {
+    produce(e);
   }
 
 } // namespace art

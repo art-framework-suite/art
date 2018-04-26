@@ -42,6 +42,12 @@ namespace art {
     chain_ = new SerialTaskQueueChain{queues};
   }
 
+  void
+  EDAnalyzer::analyzeWithScheduleID(Event const& e, ScheduleID)
+  {
+    analyze(e);
+  }
+
   string
   SharedAnalyzer::workerType() const
   {
@@ -57,13 +63,19 @@ namespace art {
     if (asyncDeclared_) {
       throw art::Exception{
         art::errors::LogicError,
-          "An error occurred while processing scheduling options for a module."}
-      << "async<InEvent>() cannot be called in combination with any "
+        "An error occurred while processing scheduling options for a module."}
+        << "async<InEvent>() cannot be called in combination with any "
            "serialize<InEvent>(...) calls.\n";
     }
     vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     chain_ = new SerialTaskQueueChain{queues};
+  }
+
+  void
+  SharedAnalyzer::analyzeWithScheduleID(Event const& e, ScheduleID const sid)
+  {
+    analyze(e, sid);
   }
 
   string
@@ -76,6 +88,12 @@ namespace art {
   ReplicatedAnalyzer::setupQueues()
   {
     // For art 3.0, replicated modules will not have queues.
+  }
+
+  void
+  ReplicatedAnalyzer::analyzeWithScheduleID(Event const& e, ScheduleID)
+  {
+    analyze(e);
   }
 
 } // namespace art

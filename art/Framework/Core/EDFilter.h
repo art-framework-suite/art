@@ -33,6 +33,8 @@ namespace art {
 
   private:
     void setupQueues() override final;
+    bool filterWithScheduleID(Event&, ScheduleID) override final;
+    virtual bool filter(Event&) = 0;
   };
 
   class SharedFilter : public detail::Filter {
@@ -50,6 +52,8 @@ namespace art {
 
   private:
     void setupQueues() override final;
+    bool filterWithScheduleID(Event&, ScheduleID) override final;
+    virtual bool filter(Event&, ScheduleID) = 0;
   };
 
   class ReplicatedFilter : public detail::Filter {
@@ -67,6 +71,8 @@ namespace art {
 
   private:
     void setupQueues() override final;
+    bool filterWithScheduleID(Event&, ScheduleID) override final;
+    virtual bool filter(Event&) = 0;
   };
 
 } // namespace art

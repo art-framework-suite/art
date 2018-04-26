@@ -36,7 +36,7 @@ public:
   using Parameters = EDFilter::Table<Config>;
   explicit BlockingPrescaler(Parameters const&);
 
-  virtual bool filter(Event&) override;
+  bool filter(Event&, ScheduleID) override;
 
 private:
   size_t count_{};
@@ -64,7 +64,7 @@ art::BlockingPrescaler::BlockingPrescaler(Parameters const& config)
 }
 
 bool
-art::BlockingPrescaler::filter(Event&)
+art::BlockingPrescaler::filter(Event&, ScheduleID)
 {
   // This sequence of operations/comparisons must be serialized.
   // Changing 'count_' to be of type std::atomic<size_t> will not

@@ -161,7 +161,7 @@ namespace art {
 
     bool
     Filter::doEvent(EventPrincipal& ep,
-                    ScheduleID const /*si*/,
+                    ScheduleID const sid,
                     CurrentProcessingContext const* cpc,
                     atomic<size_t>& counts_run,
                     atomic<size_t>& counts_passed,
@@ -171,7 +171,7 @@ namespace art {
       Event e{ep, md_};
       ++counts_run;
       bool rc = false;
-      rc = filter(e);
+      rc = filterWithScheduleID(e, sid);
       e.DataViewImpl::movePutProductsToPrincipal(
         ep, checkPutProducts_, &expectedProducts<InEvent>());
       if (rc) {

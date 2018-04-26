@@ -40,7 +40,7 @@ namespace arttest {
   public:
     bool beginSubRun(SubRun&) override;
     bool endSubRun(SubRun&) override;
-    bool filter(Event&) override;
+    bool filter(Event&, ScheduleID) override;
     // Data Members -- Implementation details.
   private:
     double const threshold_;
@@ -83,7 +83,7 @@ namespace arttest {
   }
 
   bool
-  Reconstruction::filter(Event& e)
+  Reconstruction::filter(Event& e, ScheduleID)
   {
     INTENTIONAL_DATA_RACE(DR_RECONSTRUCTION);
     auto const& particleEnergies = *e.getValidHandle(particleEnergiesTkn_);

@@ -142,7 +142,7 @@ namespace art {
 
     bool
     Analyzer::doEvent(EventPrincipal& ep,
-                      ScheduleID const /*si*/,
+                      ScheduleID const sid,
                       CurrentProcessingContext const* cpc,
                       std::atomic<std::size_t>& counts_run,
                       std::atomic<std::size_t>& counts_passed,
@@ -153,7 +153,7 @@ namespace art {
       Event const e{ep, md_};
       if (wantAllEvents() || wantEvent(e)) {
         ++counts_run;
-        analyze(e);
+        analyzeWithScheduleID(e, sid);
         ++counts_passed;
       }
       return true;

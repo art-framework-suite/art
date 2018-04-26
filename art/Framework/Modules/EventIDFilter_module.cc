@@ -59,7 +59,7 @@ public:
   using Parameters = Table<Config>;
   explicit EventIDFilter(Parameters const& p);
 
-  bool filter(art::Event&) override;
+  bool filter(Event&, ScheduleID) override;
 
 private:
   EventIDMatcher const matcher_;
@@ -72,7 +72,7 @@ art::EventIDFilter::EventIDFilter(Parameters const& p)
 }
 
 bool
-art::EventIDFilter::filter(art::Event& e)
+art::EventIDFilter::filter(Event& e, ScheduleID)
 {
   return matcher_(e.id());
 }

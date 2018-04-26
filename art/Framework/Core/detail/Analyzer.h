@@ -108,7 +108,7 @@ namespace art {
       bool doEndSubRun(SubRunPrincipal& srp,
                        cet::exempt_ptr<CurrentProcessingContext const> cpc);
       bool doEvent(EventPrincipal& ep,
-                   ScheduleID const,
+                   ScheduleID,
                    CurrentProcessingContext const* cpc,
                    std::atomic<std::size_t>& counts_run,
                    std::atomic<std::size_t>& counts_passed,
@@ -116,6 +116,7 @@ namespace art {
 
     private:
       virtual void setupQueues() = 0;
+      virtual void analyzeWithScheduleID(Event const&, ScheduleID) = 0;
 
       // To be overridden by users
       virtual void beginJob();
@@ -128,7 +129,6 @@ namespace art {
       virtual void endRun(Run const&);
       virtual void beginSubRun(SubRun const&);
       virtual void endSubRun(SubRun const&);
-      virtual void analyze(Event const&) = 0;
     };
 
     template <typename T>

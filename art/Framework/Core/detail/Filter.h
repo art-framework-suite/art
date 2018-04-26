@@ -61,6 +61,7 @@ namespace art {
     private:
       void failureToPutProducts(ModuleDescription const& md);
       virtual void setupQueues() = 0;
+      virtual bool filterWithScheduleID(Event&, ScheduleID) = 0;
 
       // To be overridden by users
       virtual void beginJob();
@@ -73,7 +74,6 @@ namespace art {
       virtual bool endRun(Run&);
       virtual bool beginSubRun(SubRun&);
       virtual bool endSubRun(SubRun&);
-      virtual bool filter(Event&) = 0;
 
     private:
       bool checkPutProducts_{true};

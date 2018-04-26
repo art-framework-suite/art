@@ -43,6 +43,8 @@ namespace art {
 
   private:
     void setupQueues() override final;
+    void analyzeWithScheduleID(Event const&, ScheduleID) override final;
+    virtual void analyze(Event const&) = 0;
   };
 
   class SharedAnalyzer : public detail::Analyzer {
@@ -62,6 +64,8 @@ namespace art {
 
   private:
     void setupQueues() override final;
+    void analyzeWithScheduleID(Event const&, ScheduleID) override final;
+    virtual void analyze(Event const&, ScheduleID) = 0;
   };
 
   class ReplicatedAnalyzer : public detail::Analyzer {
@@ -81,6 +85,8 @@ namespace art {
 
   private:
     void setupQueues() override final;
+    void analyzeWithScheduleID(Event const&, ScheduleID) override final;
+    virtual void analyze(Event const&) = 0;
   };
 
 } // namespace art

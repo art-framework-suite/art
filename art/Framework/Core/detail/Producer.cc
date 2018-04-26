@@ -146,7 +146,7 @@ namespace art {
 
     bool
     Producer::doEvent(EventPrincipal& ep,
-                      ScheduleID const /*si*/,
+                      ScheduleID const sid,
                       CurrentProcessingContext const* cpc,
                       std::atomic<size_t>& counts_run,
                       std::atomic<size_t>& counts_passed,
@@ -155,7 +155,7 @@ namespace art {
       detail::CPCSentry sentry{*cpc};
       Event e{ep, md_};
       ++counts_run;
-      produce(e);
+      produceWithScheduleID(e, sid);
       e.DataViewImpl::movePutProductsToPrincipal(
         ep, checkPutProducts_, &expectedProducts<InEvent>());
       ++counts_passed;
