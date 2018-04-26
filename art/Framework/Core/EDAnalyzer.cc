@@ -34,13 +34,12 @@ namespace art {
   }
 
   void
-  EDAnalyzer::doBeginJob()
+  EDAnalyzer::setupQueues()
   {
     serialize(SharedResourcesRegistry::kLegacy);
     vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     chain_ = new SerialTaskQueueChain{queues};
-    beginJob();
   }
 
   string
@@ -50,21 +49,21 @@ namespace art {
   }
 
   void
-  SharedAnalyzer::doBeginJob()
+  SharedAnalyzer::setupQueues()
   {
-    if (!resourceNames_.empty()) {
-      if (asyncDeclared_) {
-        throw art::Exception{
-          art::errors::LogicError,
+    if (resourceNames_.empty())
+      return;
+
+    if (asyncDeclared_) {
+      throw art::Exception{
+        art::errors::LogicError,
           "An error occurred while processing scheduling options for a module."}
-          << "async<InEvent>() cannot be called in combination with any "
-             "serialize<InEvent>(...) calls.\n";
-      }
-      vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
-      auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-      chain_ = new SerialTaskQueueChain{queues};
+      << "async<InEvent>() cannot be called in combination with any "
+           "serialize<InEvent>(...) calls.\n";
     }
-    beginJob();
+    vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
+    auto queues = SharedResourcesRegistry::instance()->createQueues(names);
+    chain_ = new SerialTaskQueueChain{queues};
   }
 
   string
@@ -74,9 +73,9 @@ namespace art {
   }
 
   void
-  ReplicatedAnalyzer::doBeginJob()
+  ReplicatedAnalyzer::setupQueues()
   {
-    beginJob();
+    // For art 3.0, replicated modules will not have queues.
   }
 
 } // namespace art

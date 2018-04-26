@@ -24,6 +24,13 @@ namespace art {
     Analyzer::Analyzer(fhicl::ParameterSet const& pset) : Observer{pset} {}
 
     void
+    Analyzer::doBeginJob()
+    {
+      setupQueues();
+      beginJob();
+    }
+
+    void
     Analyzer::beginJob()
     {}
 

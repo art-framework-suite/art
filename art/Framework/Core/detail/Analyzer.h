@@ -93,7 +93,7 @@ namespace art {
         : Observer{config.eoFragment().selectEvents(), config.get_PSet()}
       {}
 
-      void doBeginJob() = delete;
+      void doBeginJob();
       void doEndJob();
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
@@ -114,7 +114,10 @@ namespace art {
                    std::atomic<std::size_t>& counts_passed,
                    std::atomic<std::size_t>& counts_failed);
 
-    protected:
+    private:
+      virtual void setupQueues() = 0;
+
+      // To be overridden by users
       virtual void beginJob();
       virtual void endJob();
       virtual void respondToOpenInputFile(FileBlock const&);

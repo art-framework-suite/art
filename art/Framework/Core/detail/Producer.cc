@@ -63,6 +63,14 @@ namespace art {
     {}
 
     void
+    Producer::doBeginJob()
+    {
+      setupQueues();
+      failureToPutProducts(md_);
+      beginJob();
+    }
+
+    void
     Producer::beginJob()
     {}
 

@@ -34,40 +34,36 @@ namespace art {
   }
 
   void
-  EDProducer::doBeginJob()
+  EDProducer::setupQueues()
   {
     serialize(SharedResourcesRegistry::kLegacy);
     vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
     auto queues = SharedResourcesRegistry::instance()->createQueues(names);
     chain_ = new SerialTaskQueueChain{queues};
-    failureToPutProducts(md_);
-    beginJob();
   }
 
   void
-  SharedProducer::doBeginJob()
+  SharedProducer::setupQueues()
   {
-    if (!resourceNames_.empty()) {
-      if (asyncDeclared_) {
-        throw art::Exception{
-          art::errors::LogicError,
+    if (resourceNames_.empty())
+      return;
+
+    if (asyncDeclared_) {
+      throw art::Exception{
+        art::errors::LogicError,
           "An error occurred while processing scheduling options for a module."}
-          << "async<InEvent>() cannot be called in combination with any "
-             "serialize<InEvent>(...) calls.\n";
-      }
-      vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
-      auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-      chain_ = new SerialTaskQueueChain{queues};
+      << "async<InEvent>() cannot be called in combination with any "
+           "serialize<InEvent>(...) calls.\n";
     }
-    failureToPutProducts(md_);
-    beginJob();
+    vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
+    auto queues = SharedResourcesRegistry::instance()->createQueues(names);
+    chain_ = new SerialTaskQueueChain{queues};
   }
 
   void
-  ReplicatedProducer::doBeginJob()
+  ReplicatedProducer::setupQueues()
   {
-    failureToPutProducts(md_);
-    beginJob();
+    // For art 3.0, replicated modules will not have queues.
   }
 
 } // namespace art

@@ -37,9 +37,7 @@ namespace art {
       Filter& operator=(Filter const&) = delete;
       Filter& operator=(Filter&&) = delete;
 
-      void doBeginJob() = delete;
-      std::string workerType() const;
-
+      void doBeginJob();
       void doEndJob();
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
@@ -60,9 +58,11 @@ namespace art {
                    std::atomic<std::size_t>& counts_passed,
                    std::atomic<std::size_t>& counts_failed);
 
+    private:
       void failureToPutProducts(ModuleDescription const& md);
+      virtual void setupQueues() = 0;
 
-    protected:
+      // To be overridden by users
       virtual void beginJob();
       virtual void endJob();
       virtual void respondToOpenInputFile(FileBlock const&);

@@ -2,13 +2,6 @@
 #define art_Framework_Core_EDFilter_h
 // vim: set sw=2 expandtab :
 
-//
-// The base class of all "modules" used to control the flow of
-// processing in a trigger path.  Filters can also insert products
-// into the event.  These products should be informational products
-// about the filter decision.
-//
-
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/Filter.h"
@@ -26,25 +19,23 @@
 namespace art {
 
   class EDFilter : public detail::Filter {
-    friend class WorkerT<EDFilter>;
-
   public:
     using ModuleType = EDFilter;
     using WorkerType = WorkerT<EDFilter>;
+
     static constexpr ModuleThreadingType
     moduleThreadingType()
     {
       return ModuleThreadingType::legacy;
     }
+
     std::string workerType() const;
 
   private:
-    void doBeginJob();
+    void setupQueues() override final;
   };
 
   class SharedFilter : public detail::Filter {
-    friend class WorkerT<SharedFilter>;
-
   public:
     using ModuleType = SharedFilter;
     using WorkerType = WorkerT<SharedFilter>;
@@ -58,12 +49,10 @@ namespace art {
     std::string workerType() const;
 
   private:
-    void doBeginJob();
+    void setupQueues() override final;
   };
 
   class ReplicatedFilter : public detail::Filter {
-    friend class WorkerT<ReplicatedFilter>;
-
   public:
     using ModuleType = ReplicatedFilter;
     using WorkerType = WorkerT<ReplicatedFilter>;
@@ -77,7 +66,7 @@ namespace art {
     std::string workerType() const;
 
   private:
-    void doBeginJob();
+    void setupQueues() override final;
   };
 
 } // namespace art

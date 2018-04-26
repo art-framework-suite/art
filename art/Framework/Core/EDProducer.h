@@ -13,54 +13,54 @@
 namespace art {
 
   class EDProducer : public detail::Producer {
-    friend class WorkerT<EDProducer>;
-
   public:
     using ModuleType = EDProducer;
     using WorkerType = WorkerT<EDProducer>;
+
     static constexpr auto
     moduleThreadingType()
     {
       return ModuleThreadingType::legacy;
     }
+
     std::string workerType() const;
 
   private:
-    void doBeginJob();
+    void setupQueues() override final;
   };
 
   class SharedProducer : public detail::Producer {
-    friend class WorkerT<SharedProducer>;
-
   public:
     using ModuleType = SharedProducer;
     using WorkerType = WorkerT<SharedProducer>;
+
     static constexpr auto
     moduleThreadingType()
     {
       return ModuleThreadingType::shared;
     }
+
     std::string workerType() const;
 
   private:
-    void doBeginJob();
+    void setupQueues() override final;
   };
 
   class ReplicatedProducer : public detail::Producer {
-    friend class WorkerT<ReplicatedProducer>;
-
   public:
     using ModuleType = ReplicatedProducer;
     using WorkerType = WorkerT<ReplicatedProducer>;
+
     static constexpr auto
     moduleThreadingType()
     {
       return ModuleThreadingType::replicated;
     }
+
     std::string workerType() const;
 
   private:
-    void doBeginJob();
+    void setupQueues() override final;
   };
 
 } // namespace art

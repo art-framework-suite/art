@@ -30,6 +30,14 @@ namespace art {
     Filter::~Filter() noexcept = default;
 
     void
+    Filter::doBeginJob()
+    {
+      setupQueues();
+      failureToPutProducts(md_);
+      beginJob();
+    }
+
+    void
     Filter::beginJob()
     {}
 

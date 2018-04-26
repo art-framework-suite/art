@@ -27,7 +27,6 @@ namespace art {
       template <typename UserConfig, typename KeysToIgnore = void>
       using Table = Modifier::Table<UserConfig, KeysToIgnore>;
 
-    public: // MEMBER FUNCTIONS -- Special Member Functions
       virtual ~Producer() noexcept;
       Producer();
       Producer(Producer const&) = delete;
@@ -35,8 +34,8 @@ namespace art {
       Producer& operator=(Producer const&) = delete;
       Producer& operator=(Producer&&) = delete;
 
-      // The doBeginJob function depends on the module threading type.
-      void doBeginJob() = delete;
+      // Interface provided for the worker.
+      void doBeginJob();
       void doEndJob();
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
@@ -57,9 +56,11 @@ namespace art {
                    std::atomic<std::size_t>& counts_passed,
                    std::atomic<std::size_t>& counts_failed);
 
+    private:
       void failureToPutProducts(ModuleDescription const& md);
+      virtual void setupQueues() = 0;
 
-    protected:
+      // To be overridden by users
       virtual void beginJob();
       virtual void endJob();
       virtual void respondToOpenInputFile(FileBlock const&);
@@ -72,7 +73,6 @@ namespace art {
       virtual void endSubRun(SubRun&);
       virtual void produce(Event&) = 0;
 
-    private:
       bool checkPutProducts_{true};
     };
 

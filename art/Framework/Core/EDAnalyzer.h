@@ -27,8 +27,6 @@
 namespace art {
 
   class EDAnalyzer : public detail::Analyzer {
-    friend class WorkerT<EDAnalyzer>;
-
   public:
     using WorkerType = WorkerT<EDAnalyzer>;
     using ModuleType = EDAnalyzer;
@@ -44,12 +42,10 @@ namespace art {
     std::string workerType() const;
 
   private:
-    void doBeginJob();
+    void setupQueues() override final;
   };
 
   class SharedAnalyzer : public detail::Analyzer {
-    friend class WorkerT<SharedAnalyzer>;
-
   public:
     using WorkerType = WorkerT<SharedAnalyzer>;
     using ModuleType = SharedAnalyzer;
@@ -65,12 +61,10 @@ namespace art {
     std::string workerType() const;
 
   private:
-    void doBeginJob();
+    void setupQueues() override final;
   };
 
   class ReplicatedAnalyzer : public detail::Analyzer {
-    friend class WorkerT<ReplicatedAnalyzer>;
-
   public:
     using WorkerType = WorkerT<ReplicatedAnalyzer>;
     using ModuleType = ReplicatedAnalyzer;
@@ -86,7 +80,7 @@ namespace art {
     std::string workerType() const;
 
   private:
-    void doBeginJob();
+    void setupQueues() override final;
   };
 
 } // namespace art
