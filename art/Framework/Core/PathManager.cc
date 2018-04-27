@@ -80,22 +80,11 @@ namespace art {
     : outputCallbacks_{outputCallbacks}
     , exceptActions_{exceptActions}
     , actReg_{actReg}
-    , lm_{Suffixes::module()}
     , procPS_{procPS}
-    , triggerPathNames_()
-    , moduleSet_{}
-    , workerSet_{}
     , triggerPathsInfo_{static_cast<ScheduleID::size_type>(
         Globals::instance()->nschedules())}
-    , endPathInfo_{}
-    , triggerResultsInserter_{}
     , productsToProduce_{productsToProduce}
     , processName_{procPS.get<string>("process_name"s, ""s)}
-    , allModules_{}
-    , trigger_paths_config_{}
-    , end_paths_config_{}
-    , protoTrigPathLabelMap_{}
-    , protoEndPathLabels_()
   {
     triggerResultsInserter_.expand_to_num_schedules();
     //
@@ -551,7 +540,7 @@ namespace art {
       auto const& module_type = mci.libSpec_;
       auto const& module_threading_type = mci.moduleThreadingType_;
       ModuleBase* module = nullptr;
-      // All modules are singletons except for replicated modules,
+      // All modules are singletons except for replicated modules;
       // enforce that.
       if (module_threading_type != ModuleThreadingType::replicated) {
         auto iter = moduleSet_.find(module_label);

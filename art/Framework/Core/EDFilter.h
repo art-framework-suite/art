@@ -20,10 +20,12 @@
 
 namespace art {
 
-  class EDFilter : public detail::Filter, public detail::LegacyModule {
+  class EDFilter : public detail::Filter, private detail::LegacyModule {
   public:
     using ModuleType = EDFilter;
     using WorkerType = WorkerT<EDFilter>;
+
+    using detail::LegacyModule::serialTaskQueueChain;
 
     std::string workerType() const;
 

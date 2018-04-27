@@ -24,11 +24,8 @@ namespace art {
   public: // TYPES
     using ModuleType = T;
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    ~WorkerT();
     // This is called directly by the make_worker function created by
     // the DEFINE_ART_MODULE macro.
-    // Note: OutputWorker overrides this.
     WorkerT(T*, ModuleDescription const&, WorkerParams const&);
 
   protected: // MEMBER FUNCTIONS -- API for implementation classes
@@ -43,7 +40,7 @@ namespace art {
       return *module_;
     }
 
-  private: // MEMBER FUNCTIONS -- Worker API
+  private:
     std::string workerType() const override;
     hep::concurrency::SerialTaskQueueChain* implSerialTaskQueueChain()
       const override;
@@ -61,20 +58,14 @@ namespace art {
                        ScheduleID const,
                        CurrentProcessingContext*) override;
 
-  private: // MEMBER DATA
     // Note: Modules are usually shared between workers
     // on different schedules, only replicated modules are not,
     // the PathManager owns them.
     T* module_;
   };
 
-  template <typename T>
-  WorkerT<T>::~WorkerT()
-  {}
-
   // This is called directly by the make_worker function created by
   // the DEFINE_ART_MODULE macro.
-  // Note: OutputWorker overrides this.
   template <typename T>
   WorkerT<T>::WorkerT(T* module,
                       ModuleDescription const& md,

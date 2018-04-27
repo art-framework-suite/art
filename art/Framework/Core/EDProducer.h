@@ -14,10 +14,12 @@
 
 namespace art {
 
-  class EDProducer : public detail::Producer, public detail::LegacyModule {
+  class EDProducer : public detail::Producer, private detail::LegacyModule {
   public:
     using ModuleType = EDProducer;
     using WorkerType = WorkerT<EDProducer>;
+
+    using detail::LegacyModule::serialTaskQueueChain;
 
     std::string workerType() const;
 

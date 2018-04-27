@@ -92,10 +92,16 @@ namespace art {
     cet::LibraryManager lm_{Suffixes::module()};
     fhicl::ParameterSet procPS_{};
     std::vector<std::string> triggerPathNames_{};
-    // All unique module objects from any and all paths.
     std::map<module_label_t, ModuleBase*> moduleSet_{};
-    // All unique worker objects from any and all paths.
-    std::map<module_label_t, Worker*> workerSet_{};
+    // FIXME: The number of workers is the number of schedules times
+    //        the number of configured modules.  For a replicated
+    //        module, there is one worker per module copy; for a
+    //        shared module, there are as many workers as their are
+    //        schedules.  To avoid any memory leaks, we use a multimap
+    //        so we can delete the memory in the destructor.  This
+    //        part of the code could benefit from using smart
+    //        pointers.
+    std::multimap<module_label_t, Worker*> workerSet_{};
     PerScheduleContainer<PathsInfo> triggerPathsInfo_{};
     PathsInfo endPathInfo_{};
     PerScheduleContainer<std::unique_ptr<WorkerT<ReplicatedProducer>>>

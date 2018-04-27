@@ -27,6 +27,7 @@
 #include <memory>
 #include <ostream>
 #include <string>
+#include <type_traits>
 
 namespace art {
   namespace detail {
@@ -41,26 +42,26 @@ namespace art {
     using ModuleThreadingTypeFunc_t = ModuleThreadingType();
 
     template <typename T, typename = void>
-    struct MaybeSetScheduleID {
-      static void
-      set(T* const, ScheduleID)
-      {}
-    };
-
-    class LegacyModule;
-    template <typename T>
-    struct MaybeSetScheduleID<
-      T,
-      std::enable_if_t<std::is_base_of<LegacyModule, T>::value>> {
-      static void
-      set(T* const mod, ScheduleID const sid)
+    struct NewModule {
+      static T*
+      make(fhicl::ParameterSet const& pset, ScheduleID)
       {
-        mod->setScheduleID(sid);
+        return new T{pset};
       }
     };
 
-  } // namespace detail
-} // namespace art
+    template <typename T>
+    struct NewModule<T,
+                     std::enable_if_t<ModuleThreadingTypeDeducer<T>::value ==
+                                      ModuleThreadingType::replicated>> {
+      static T*
+      make(fhicl::ParameterSet const& pset, ScheduleID const sid)
+      {
+        return new T{pset, sid};
+      }
+    };
+  }
+}
 
 #define DEFINE_ART_MODULE(klass)                                               \
   extern "C" {                                                                 \
@@ -70,9 +71,8 @@ namespace art {
   make_module(art::ModuleDescription const& md, art::WorkerParams const& wp)   \
   {                                                                            \
     using Base = klass::ModuleType;                                            \
-    Base* mod = new klass(wp.pset_);                                           \
+    Base* mod = art::detail::NewModule<klass>::make(wp.pset_, wp.scheduleID_); \
     mod->setModuleDescription(md);                                             \
-    art::detail::MaybeSetScheduleID<Base>::set(mod, wp.scheduleID_);           \
     return mod;                                                                \
   }                                                                            \
   art::Worker*                                                                 \

@@ -28,12 +28,13 @@
 
 namespace art {
 
-  class EDAnalyzer : public detail::Analyzer, public detail::LegacyModule {
+  class EDAnalyzer : public detail::Analyzer, private detail::LegacyModule {
   public:
     using WorkerType = WorkerT<EDAnalyzer>;
     using ModuleType = EDAnalyzer;
 
     using detail::Analyzer::Analyzer;
+    using detail::LegacyModule::serialTaskQueueChain;
 
     std::string workerType() const;
 
