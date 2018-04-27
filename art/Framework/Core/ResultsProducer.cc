@@ -34,8 +34,7 @@ namespace art {
   void
   ResultsProducer::doBeginJob()
   {
-    vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
-    auto queues = SharedResourcesRegistry::instance()->createQueues(names);
+    createQueues();
     beginJob();
   }
 
@@ -48,49 +47,49 @@ namespace art {
   void
   ResultsProducer::doBeginRun(RunPrincipal const& rp)
   {
-    Run const r{rp, md_};
+    Run const r{rp, moduleDescription()};
     beginRun(r);
   }
 
   void
   ResultsProducer::doEndRun(RunPrincipal const& rp)
   {
-    Run const r{rp, md_};
+    Run const r{rp, moduleDescription()};
     endRun(r);
   }
 
   void
   ResultsProducer::doBeginSubRun(SubRunPrincipal const& srp)
   {
-    SubRun const sr{srp, md_};
+    SubRun const sr{srp, moduleDescription()};
     beginSubRun(sr);
   }
 
   void
   ResultsProducer::doEndSubRun(SubRunPrincipal const& srp)
   {
-    SubRun const sr{srp, md_};
+    SubRun const sr{srp, moduleDescription()};
     endSubRun(sr);
   }
 
   void
   ResultsProducer::doEvent(EventPrincipal const& ep)
   {
-    Event const e{ep, md_};
+    Event const e{ep, moduleDescription()};
     event(e);
   }
 
   void
   ResultsProducer::doReadResults(ResultsPrincipal const& resp)
   {
-    Results const res{resp, md_};
+    Results const res{resp, moduleDescription()};
     readResults(res);
   }
 
   void
   ResultsProducer::doWriteResults(ResultsPrincipal& resp)
   {
-    Results res{resp, md_};
+    Results res{resp, moduleDescription()};
     writeResults(res);
     res.DataViewImpl::movePutProductsToPrincipal(resp);
   }

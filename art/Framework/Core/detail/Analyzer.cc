@@ -89,7 +89,7 @@ namespace art {
                          cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
-      Run const r{rp, md_};
+      Run const r{rp, moduleDescription()};
       beginRun(r);
       return true;
     }
@@ -103,7 +103,7 @@ namespace art {
                        cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
-      Run const r{rp, md_};
+      Run const r{rp, moduleDescription()};
       endRun(r);
       return true;
     }
@@ -117,7 +117,7 @@ namespace art {
                             cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
-      SubRun const sr{srp, md_};
+      SubRun const sr{srp, moduleDescription()};
       beginSubRun(sr);
       return true;
     }
@@ -131,7 +131,7 @@ namespace art {
                           cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
-      SubRun const sr{srp, md_};
+      SubRun const sr{srp, moduleDescription()};
       endSubRun(sr);
       return true;
     }
@@ -150,7 +150,7 @@ namespace art {
     {
       detail::CPCSentry sentry{*cpc};
       detail::PVSentry pvSentry{processAndEventSelectors()};
-      Event const e{ep, md_};
+      Event const e{ep, moduleDescription()};
       if (wantAllEvents() || wantEvent(e)) {
         ++counts_run;
         analyzeWithScheduleID(e, sid);

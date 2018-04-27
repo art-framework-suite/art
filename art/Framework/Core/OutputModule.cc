@@ -221,9 +221,7 @@ namespace art {
   OutputModule::doBeginJob()
   {
     serialize(SharedResourcesRegistry::kLegacy);
-    vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
-    auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-    chain_ = new SerialTaskQueueChain{queues};
+    createQueues();
     beginJob();
     cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
   }
@@ -231,18 +229,7 @@ namespace art {
   void
   SharedOutputModule::doBeginJob()
   {
-    if (!resourceNames_.empty()) {
-      if (asyncDeclared_) {
-        throw art::Exception{
-          art::errors::LogicError,
-          "An error occurred while processing scheduling options for a module."}
-          << "async<InEvent>() cannot be called in combination with any "
-             "serialize<InEvent>(...) calls.\n";
-      }
-      vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
-      auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-      chain_ = new SerialTaskQueueChain{queues};
-    }
+    createQueues();
     beginJob();
     cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
   }
@@ -261,7 +248,7 @@ namespace art {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp);
-    Run const r{rp, md_};
+    Run const r{rp, moduleDescription()};
     cet::for_all(plugins_, [&r](auto& p) { p->doBeginRun(r); });
     return true;
   }
@@ -273,7 +260,7 @@ namespace art {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "beginSubRun called\n";
     beginSubRun(srp);
-    SubRun const sr{srp, md_};
+    SubRun const sr{srp, moduleDescription()};
     cet::for_all(plugins_, [&sr](auto& p) { p->doBeginSubRun(sr); });
     return true;
   }
@@ -288,7 +275,7 @@ namespace art {
   {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "doEvent called\n";
-    Event const e{ep, md_};
+    Event const e{ep, moduleDescription()};
     if (wantAllEvents() || wantEvent(e)) {
       ++counts_run;
       event(ep);
@@ -302,7 +289,7 @@ namespace art {
   {
     detail::PVSentry clearTriggerResults{processAndEventSelectors()};
     FDEBUG(2) << "writeEvent called\n";
-    Event const e{ep, md_};
+    Event const e{ep, moduleDescription()};
     if (wantAllEvents() || wantEvent(e)) {
       write(ep);
       // Declare that the event was selected for write to the catalog interface.
@@ -310,12 +297,12 @@ namespace art {
       auto const& trRef(trHandle.isValid() ?
                           static_cast<HLTGlobalStatus>(*trHandle) :
                           HLTGlobalStatus{});
-      ci_->eventSelected(md_.moduleLabel(), ep.eventID(), trRef);
+      ci_->eventSelected(moduleDescription().moduleLabel(), ep.eventID(), trRef);
       // ... and invoke the plugins:
       // ... The transactional object presented to the plugins is
       //     different since the relevant context information is not the
       //     same for the consumes functionality.
-      Event const we{ep, md_};
+      Event const we{ep, moduleDescription()};
       cet::for_all(plugins_, [&we](auto& p) { p->doCollectMetadata(we); });
       updateBranchParents(ep);
       if (remainingEvents_ > 0) {
@@ -337,7 +324,7 @@ namespace art {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "endSubRun called\n";
     endSubRun(srp);
-    SubRun const sr{srp, md_};
+    SubRun const sr{srp, moduleDescription()};
     cet::for_all(plugins_, [&sr](auto& p) { p->doEndSubRun(sr); });
     return true;
   }
@@ -363,7 +350,7 @@ namespace art {
     detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "endRun called\n";
     endRun(rp);
-    Run const r{rp, md_};
+    Run const r{rp, moduleDescription()};
     cet::for_all(plugins_, [&r](auto& p) { p->doEndRun(r); });
     return true;
   }
@@ -396,7 +383,7 @@ namespace art {
     ResultsPrincipal const* respPtr = fb.resultsPrincipal();
     if (respPtr == nullptr) {
       respHolder = make_unique<ResultsPrincipal>(
-        ResultsAuxiliary{}, md_.processConfiguration(), nullptr);
+        ResultsAuxiliary{}, moduleDescription().processConfiguration(), nullptr);
       respPtr = respHolder.get();
     }
     readResults(*respPtr);
@@ -718,7 +705,7 @@ namespace art {
     catch (cet::exception& e) {
       throw Exception(errors::Configuration, "OutputModule: ", e)
         << "Exception caught while processing FCMDPlugins[" << count
-        << "] in module " << md_.moduleLabel() << ".\n";
+        << "] in module " << moduleDescription().moduleLabel() << ".\n";
     }
     return result;
   }

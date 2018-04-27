@@ -66,7 +66,7 @@ namespace art {
     Producer::doBeginJob()
     {
       setupQueues();
-      failureToPutProducts(md_);
+      failureToPutProducts(moduleDescription());
       beginJob();
     }
 
@@ -89,7 +89,7 @@ namespace art {
                          cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
-      Run r{rp, md_, RangeSet::forRun(rp.runID())};
+      Run r{rp, moduleDescription(), RangeSet::forRun(rp.runID())};
       beginRun(r);
       r.DataViewImpl::movePutProductsToPrincipal(rp);
       return true;
@@ -104,7 +104,7 @@ namespace art {
                        cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
-      Run r{rp, md_, rp.seenRanges()};
+      Run r{rp, moduleDescription(), rp.seenRanges()};
       endRun(r);
       r.DataViewImpl::movePutProductsToPrincipal(rp);
       return true;
@@ -119,7 +119,7 @@ namespace art {
                             cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
-      SubRun sr{srp, md_, RangeSet::forSubRun(srp.subRunID())};
+      SubRun sr{srp, moduleDescription(), RangeSet::forSubRun(srp.subRunID())};
       beginSubRun(sr);
       sr.DataViewImpl::movePutProductsToPrincipal(srp);
       return true;
@@ -134,7 +134,7 @@ namespace art {
                           cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
-      SubRun sr{srp, md_, srp.seenRanges()};
+      SubRun sr{srp, moduleDescription(), srp.seenRanges()};
       endSubRun(sr);
       sr.DataViewImpl::movePutProductsToPrincipal(srp);
       return true;
@@ -153,7 +153,7 @@ namespace art {
                       std::atomic<size_t>& /*counts_failed*/)
     {
       detail::CPCSentry sentry{*cpc};
-      Event e{ep, md_};
+      Event e{ep, moduleDescription()};
       ++counts_run;
       produceWithScheduleID(e, sid);
       e.DataViewImpl::movePutProductsToPrincipal(

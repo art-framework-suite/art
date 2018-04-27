@@ -19,6 +19,8 @@ namespace art {
 
       hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
 
+      void createQueues();
+
       template <BranchType BT = InEvent, typename... T>
       void serialize(T const&...);
 
@@ -31,10 +33,6 @@ namespace art {
           "async is currently supported only for the 'InEvent' level.");
         asyncDeclared_ = true;
       }
-
-      std::set<std::string> resourceNames_{};
-      bool asyncDeclared_{false};
-      std::atomic<hep::concurrency::SerialTaskQueueChain*> chain_;
 
     private:
       void serialize_for_resource();
@@ -49,6 +47,10 @@ namespace art {
           serialize_for_resource(tail...);
         }
       }
+
+      std::set<std::string> resourceNames_{};
+      bool asyncDeclared_{false};
+      std::atomic<hep::concurrency::SerialTaskQueueChain*> chain_;
     };
 
     template <BranchType, typename... T>

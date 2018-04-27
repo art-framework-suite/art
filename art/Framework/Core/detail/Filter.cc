@@ -33,7 +33,7 @@ namespace art {
     Filter::doBeginJob()
     {
       setupQueues();
-      failureToPutProducts(md_);
+      failureToPutProducts(moduleDescription());
       beginJob();
     }
 
@@ -96,7 +96,7 @@ namespace art {
                        cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
-      Run r{rp, md_, RangeSet::forRun(rp.runID())};
+      Run r{rp, moduleDescription(), RangeSet::forRun(rp.runID())};
       bool const rc = beginRun(r);
       r.DataViewImpl::movePutProductsToPrincipal(rp);
       return rc;
@@ -113,7 +113,7 @@ namespace art {
                      cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
-      Run r{rp, md_, rp.seenRanges()};
+      Run r{rp, moduleDescription(), rp.seenRanges()};
       bool const rc = endRun(r);
       r.DataViewImpl::movePutProductsToPrincipal(rp);
       return rc;
@@ -130,7 +130,7 @@ namespace art {
                           cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
-      SubRun sr{srp, md_, RangeSet::forSubRun(srp.subRunID())};
+      SubRun sr{srp, moduleDescription(), RangeSet::forSubRun(srp.subRunID())};
       bool const rc = beginSubRun(sr);
       sr.DataViewImpl::movePutProductsToPrincipal(srp);
       return rc;
@@ -147,7 +147,7 @@ namespace art {
                         cet::exempt_ptr<CurrentProcessingContext const> cpc)
     {
       detail::CPCSentry sentry{*cpc};
-      SubRun sr{srp, md_, srp.seenRanges()};
+      SubRun sr{srp, moduleDescription(), srp.seenRanges()};
       bool const rc = endSubRun(sr);
       sr.DataViewImpl::movePutProductsToPrincipal(srp);
       return rc;
@@ -168,7 +168,7 @@ namespace art {
                     atomic<size_t>& counts_failed)
     {
       detail::CPCSentry sentry{*cpc};
-      Event e{ep, md_};
+      Event e{ep, moduleDescription()};
       ++counts_run;
       bool rc = false;
       rc = filterWithScheduleID(e, sid);

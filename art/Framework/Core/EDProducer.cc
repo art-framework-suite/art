@@ -37,27 +37,13 @@ namespace art {
   EDProducer::setupQueues()
   {
     serialize(SharedResourcesRegistry::kLegacy);
-    vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
-    auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-    chain_ = new SerialTaskQueueChain{queues};
+    createQueues();
   }
 
   void
   SharedProducer::setupQueues()
   {
-    if (resourceNames_.empty())
-      return;
-
-    if (asyncDeclared_) {
-      throw art::Exception{
-        art::errors::LogicError,
-        "An error occurred while processing scheduling options for a module."}
-        << "async<InEvent>() cannot be called in combination with any "
-           "serialize<InEvent>(...) calls.\n";
-    }
-    vector<string> const names(cbegin(resourceNames_), cend(resourceNames_));
-    auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-    chain_ = new SerialTaskQueueChain{queues};
+    createQueues();
   }
 
   void

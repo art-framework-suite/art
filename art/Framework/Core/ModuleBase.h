@@ -23,15 +23,14 @@ namespace fhicl {
 
 namespace art {
   class ModuleBase {
-  public: // MEMBER FUNCTIONS -- Special Member Functions
+  public:
     virtual ~ModuleBase() noexcept;
     ModuleBase();
 
-  public: // MEMBER FUNCTIONS -- API for the user
     ModuleDescription const& moduleDescription() const;
     void setModuleDescription(ModuleDescription const&);
 
-  public: // MEMBER FUNCTIONS -- API for access to RandomNumberGenerator
+    // RandomNumberGenerator interface
     CLHEP::HepRandomEngine& createEngine(long);
     CLHEP::HepRandomEngine& createEngine(
       long,
@@ -44,7 +43,7 @@ namespace art {
                         char const key[] = "seed",
                         long const implicit_seed = -1);
 
-  public: // MEMBER FUNCTIONS -- API for declaring consumes information
+    // Consumes information
     template <typename T, BranchType = InEvent>
     ProductToken<T> consumes(InputTag const&);
     template <typename Element, BranchType = InEvent>
@@ -52,7 +51,6 @@ namespace art {
     template <typename T, BranchType = InEvent>
     void consumesMany();
 
-  public: // MEMBER FUNCTIONS -- API for declaring may consumes information
     template <typename T, BranchType = InEvent>
     ProductToken<T> mayConsume(InputTag const&);
     template <typename Element, BranchType = InEvent>
@@ -60,12 +58,11 @@ namespace art {
     template <typename T, BranchType = InEvent>
     void mayConsumeMany();
 
-  public: // MEMBER FUNCTIONS -- API for using collected consumes information
     std::array<std::vector<ProductInfo>, NumBranchTypes> const& getConsumables()
       const;
     void sortConsumables();
 
-  protected: // MEMBER DATA -- For derived classes.
+  private:
     ModuleDescription md_{};
     std::array<std::vector<ProductInfo>, NumBranchTypes> consumables_{};
   };
