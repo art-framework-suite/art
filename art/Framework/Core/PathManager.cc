@@ -528,8 +528,9 @@ namespace art {
   }
 
   void
-  PathManager::setTriggerResultsInserter(ScheduleID const si,
-                                         unique_ptr<WorkerT<EDProducer>>&& w)
+  PathManager::setTriggerResultsInserter(
+    ScheduleID const si,
+    unique_ptr<WorkerT<ReplicatedProducer>>&& w)
   {
     triggerResultsInserter_.at(si) = move(w);
   }

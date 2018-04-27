@@ -71,8 +71,9 @@ namespace art {
     PerScheduleContainer<PathsInfo>& triggerPathsInfo();
     PathsInfo& endPathInfo();
     Worker* triggerResultsInserter(ScheduleID const) const;
-    void setTriggerResultsInserter(ScheduleID const,
-                                   std::unique_ptr<WorkerT<EDProducer>>&&);
+    void setTriggerResultsInserter(
+      ScheduleID const,
+      std::unique_ptr<WorkerT<ReplicatedProducer>>&&);
 
   private: // Implementation Details
     void fillWorkers_(ScheduleID const,
@@ -97,7 +98,7 @@ namespace art {
     std::map<module_label_t, Worker*> workerSet_{};
     PerScheduleContainer<PathsInfo> triggerPathsInfo_{};
     PathsInfo endPathInfo_{};
-    PerScheduleContainer<std::unique_ptr<WorkerT<EDProducer>>>
+    PerScheduleContainer<std::unique_ptr<WorkerT<ReplicatedProducer>>>
       triggerResultsInserter_{};
     ProductDescriptions& productsToProduce_;
     //  The following data members are only needed to delay the

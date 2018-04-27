@@ -7,9 +7,8 @@
 #include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
+#include <sstream>
 #include <utility>
-
-using namespace std;
 
 namespace art {
 
@@ -19,11 +18,10 @@ namespace art {
     : pset_id_{pset.id()}, trptr_(&pathResults)
   {
     {
-      ostringstream msg;
-      msg << "0x" << hex << ((unsigned long)this) << dec;
+      std::ostringstream msg;
+      msg << "0x" << std::hex << ((unsigned long)this) << std::dec;
       TDEBUG_FUNC_SI_MSG(5, "TriggerResultInserter ctor", si, msg.str());
     }
-    setScheduleID(si);
     if (si == ScheduleID::first()) {
       produces<TriggerResults>();
     }
@@ -32,7 +30,7 @@ namespace art {
   void
   TriggerResultInserter::produce(Event& e)
   {
-    auto tr = make_unique<TriggerResults>(*trptr_, pset_id_);
+    auto tr = std::make_unique<TriggerResults>(*trptr_, pset_id_);
     e.put(move(tr));
   }
 

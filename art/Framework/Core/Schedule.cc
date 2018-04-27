@@ -93,12 +93,11 @@ namespace art {
     cpc.activate(0, &md);
     detail::CPCSentry cpc_sentry{cpc};
     actReg_.load()->sPreModuleConstruction.invoke(md);
-    EDProducer* producer = new TriggerResultInserter(
+    ReplicatedProducer* producer = new TriggerResultInserter(
       trig_pset, scheduleID, triggerPathsInfo_.load()->pathResults());
     producer->setModuleDescription(md);
-    producer->setScheduleID(scheduleID);
     pm.setTriggerResultsInserter(
-      scheduleID, make_unique<WorkerT<EDProducer>>(producer, md, wp));
+      scheduleID, make_unique<WorkerT<ReplicatedProducer>>(producer, md, wp));
     results_inserter_ = pm.triggerResultsInserter(scheduleID);
     actReg_.load()->sPostModuleConstruction.invoke(md);
   }

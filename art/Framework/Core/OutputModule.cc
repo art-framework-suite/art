@@ -297,7 +297,8 @@ namespace art {
       auto const& trRef(trHandle.isValid() ?
                           static_cast<HLTGlobalStatus>(*trHandle) :
                           HLTGlobalStatus{});
-      ci_->eventSelected(moduleDescription().moduleLabel(), ep.eventID(), trRef);
+      ci_->eventSelected(
+        moduleDescription().moduleLabel(), ep.eventID(), trRef);
       // ... and invoke the plugins:
       // ... The transactional object presented to the plugins is
       //     different since the relevant context information is not the
@@ -383,7 +384,9 @@ namespace art {
     ResultsPrincipal const* respPtr = fb.resultsPrincipal();
     if (respPtr == nullptr) {
       respHolder = make_unique<ResultsPrincipal>(
-        ResultsAuxiliary{}, moduleDescription().processConfiguration(), nullptr);
+        ResultsAuxiliary{},
+        moduleDescription().processConfiguration(),
+        nullptr);
       respPtr = respHolder.get();
     }
     readResults(*respPtr);
