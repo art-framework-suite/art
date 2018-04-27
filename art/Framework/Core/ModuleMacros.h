@@ -30,7 +30,6 @@
 
 namespace art {
   namespace detail {
-
     using ModuleMaker_t = ModuleBase*(art::ModuleDescription const&,
                                       WorkerParams const&);
     using WorkerFromModuleMaker_t = Worker*(ModuleBase*,
@@ -40,6 +39,25 @@ namespace art {
                                   ModuleDescription const&);
     using ModuleTypeFunc_t = ModuleType();
     using ModuleThreadingTypeFunc_t = ModuleThreadingType();
+
+    template <typename T, typename = void>
+    struct MaybeSetScheduleID {
+      static void
+      set(T* const, ScheduleID)
+      {}
+    };
+
+    class LegacyModule;
+    template <typename T>
+    struct MaybeSetScheduleID<
+      T,
+      std::enable_if_t<std::is_base_of<LegacyModule, T>::value>> {
+      static void
+      set(T* const mod, ScheduleID const sid)
+      {
+        mod->setScheduleID(sid);
+      }
+    };
 
   } // namespace detail
 } // namespace art
@@ -51,9 +69,10 @@ namespace art {
   art::ModuleBase*                                                             \
   make_module(art::ModuleDescription const& md, art::WorkerParams const& wp)   \
   {                                                                            \
-    art::ModuleBase* mod = new klass(wp.pset_);                                \
+    using Base = klass::ModuleType;                                            \
+    Base* mod = new klass(wp.pset_);                                           \
     mod->setModuleDescription(md);                                             \
-    mod->setScheduleID(wp.scheduleID_);                                        \
+    art::detail::MaybeSetScheduleID<Base>::set(mod, wp.scheduleID_);           \
     return mod;                                                                \
   }                                                                            \
   art::Worker*                                                                 \

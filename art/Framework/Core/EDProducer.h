@@ -4,6 +4,7 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Core/detail/LegacyModule.h"
 #include "art/Framework/Core/detail/Producer.h"
 #include "art/Framework/Core/detail/SharedModule.h"
 #include "art/Framework/Principal/WorkerParams.h"
@@ -13,7 +14,7 @@
 
 namespace art {
 
-  class EDProducer : public detail::Producer, public detail::SharedModule {
+  class EDProducer : public detail::Producer, public detail::LegacyModule {
   public:
     using ModuleType = EDProducer;
     using WorkerType = WorkerT<EDProducer>;

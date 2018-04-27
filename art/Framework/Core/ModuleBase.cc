@@ -1,8 +1,6 @@
 #include "art/Framework/Core/ModuleBase.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/ModuleType.h"
-#include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Utilities/PerThread.h"
@@ -35,22 +33,10 @@ namespace art {
     return md_;
   }
 
-  ScheduleID
-  ModuleBase::scheduleID() const
-  {
-    return scheduleID_;
-  }
-
   void
   ModuleBase::setModuleDescription(ModuleDescription const& md)
   {
     md_ = md;
-  }
-
-  void
-  ModuleBase::setScheduleID(ScheduleID const si)
-  {
-    scheduleID_ = si;
   }
 
   CLHEP::HepRandomEngine&

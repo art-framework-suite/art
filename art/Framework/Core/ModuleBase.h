@@ -2,19 +2,14 @@
 #define art_Framework_Core_ModuleBase_h
 // vim: set sw=2 expandtab :
 
-#include "art/Utilities/Globals.h"
-#include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/Globals.h" // for ProductInfo
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductToken.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/exempt_ptr.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <array>
-#include <atomic>
-#include <memory>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -34,9 +29,7 @@ namespace art {
 
   public: // MEMBER FUNCTIONS -- API for the user
     ModuleDescription const& moduleDescription() const;
-    ScheduleID scheduleID() const;
     void setModuleDescription(ModuleDescription const&);
-    void setScheduleID(ScheduleID const);
 
   public: // MEMBER FUNCTIONS -- API for access to RandomNumberGenerator
     CLHEP::HepRandomEngine& createEngine(long);
@@ -74,7 +67,6 @@ namespace art {
 
   protected: // MEMBER DATA -- For derived classes.
     ModuleDescription md_{};
-    ScheduleID scheduleID_{};
     std::array<std::vector<ProductInfo>, NumBranchTypes> consumables_{};
   };
 

@@ -51,8 +51,9 @@ namespace art {
   }
 
   bool
-  EDFilter::filterWithScheduleID(Event& e, ScheduleID)
+  EDFilter::filterWithScheduleID(Event& e, ScheduleID const sid)
   {
+    ScheduleIDSentry sentry{*this, sid};
     return filter(e);
   }
 

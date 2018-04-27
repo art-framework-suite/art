@@ -67,8 +67,9 @@ namespace art {
   }
 
   void
-  EDProducer::produceWithScheduleID(Event& e, ScheduleID)
+  EDProducer::produceWithScheduleID(Event& e, ScheduleID const sid)
   {
+    ScheduleIDSentry sentry{*this, sid};
     produce(e);
   }
 

@@ -9,6 +9,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/Analyzer.h"
+#include "art/Framework/Core/detail/LegacyModule.h"
 #include "art/Framework/Core/detail/SharedModule.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ScheduleID.h"
@@ -27,7 +28,7 @@
 
 namespace art {
 
-  class EDAnalyzer : public detail::Analyzer, public detail::SharedModule {
+  class EDAnalyzer : public detail::Analyzer, public detail::LegacyModule {
   public:
     using WorkerType = WorkerT<EDAnalyzer>;
     using ModuleType = EDAnalyzer;

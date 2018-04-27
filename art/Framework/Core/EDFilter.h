@@ -5,6 +5,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/Filter.h"
+#include "art/Framework/Core/detail/LegacyModule.h"
 #include "art/Framework/Core/detail/SharedModule.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ScheduleID.h"
@@ -19,7 +20,7 @@
 
 namespace art {
 
-  class EDFilter : public detail::Filter, public detail::SharedModule {
+  class EDFilter : public detail::Filter, public detail::LegacyModule {
   public:
     using ModuleType = EDFilter;
     using WorkerType = WorkerT<EDFilter>;

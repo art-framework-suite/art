@@ -43,8 +43,9 @@ namespace art {
   }
 
   void
-  EDAnalyzer::analyzeWithScheduleID(Event const& e, ScheduleID)
+  EDAnalyzer::analyzeWithScheduleID(Event const& e, ScheduleID const sid)
   {
+    ScheduleIDSentry sentry{*this, sid};
     analyze(e);
   }
 
