@@ -43,8 +43,9 @@ services: {
       }
    }
    scheduler: {
-      debugConfig: {
+      debug: {
          fileName: "CmdLineTmpDir_w.out"
+         option: "debug-config"
          printMode: "raw"
       }
       errorOnFailureToPut: true

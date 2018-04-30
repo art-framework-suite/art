@@ -10,6 +10,7 @@
 
 #include <regex>
 #include <string>
+#include <tuple>
 
 using namespace std::string_literals;
 using art::detail::fhicl_key;
@@ -156,29 +157,28 @@ art::DebugOptionsHandler::doProcessOptions(
   using namespace fhicl::detail;
 
   auto const scheduler_key = fhicl_key("services", "scheduler");
-  std::string debug_table;
+  std::string const debug_table{fhicl_key(scheduler_key, "debug")};
+  std::string option;
+  std::string fn;
+
+  // Remove any previously-defined "services.scheduler.debug" parameter.
+  raw_config.erase(debug_table);
+  raw_config.erase(
+    fhicl_key(scheduler_key, "configOut")); // legacy configuration
 
   // Get ART_DEBUG_CONFIG value
-  std::string fn;
   auto const result = destination_via_env();
   if (result.second) {
-    debug_table = fhicl_key(scheduler_key, "debugConfig");
-    fn = result.first;
+    tie(option, fn) = make_tuple("debug-config"s, result.first);
   }
 
   // "validate-config" and "debug-config" win over ART_DEBUG_CONFIG
-  if (vm.count("validate-config")) {
-    debug_table = fhicl_key(scheduler_key, "validateConfig");
-    fn = vm["validate-config"].as<std::string>();
-  } else if (vm.count("debug-config")) {
-    debug_table = fhicl_key(scheduler_key, "debugConfig");
-    fn = vm["debug-config"].as<std::string>();
-  } else if (vm.count("config-out")) {
-    debug_table = fhicl_key(scheduler_key, "configOut");
-    fn = vm["config-out"].as<std::string>();
-  }
-  if (!debug_table.empty()) {
-    raw_config.put(fhicl_key(debug_table, "fileName"), fn);
+  auto debugging_options = {"config-out", "debug-config", "validate-config"};
+  for (auto const opt : debugging_options) {
+    if (vm.count(opt)) {
+      tie(option, fn) = make_tuple(opt, vm[opt].as<std::string>());
+      break;
+    }
   }
 
   std::string mode{"raw"};
@@ -188,7 +188,10 @@ art::DebugOptionsHandler::doProcessOptions(
   if (vm.count("prefix-annotate")) {
     mode = "prefix-annotate";
   }
-  if (!debug_table.empty()) {
+
+  if (!option.empty()) {
+    raw_config.put(fhicl_key(debug_table, "option"), option);
+    raw_config.put(fhicl_key(debug_table, "fileName"), fn);
     raw_config.put(fhicl_key(debug_table, "printMode"), mode);
   }
 

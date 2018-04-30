@@ -5,6 +5,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalDelegatedParameter.h"
+#include "fhiclcpp/types/OptionalTable.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
@@ -29,9 +30,13 @@ namespace art {
       fhicl::Atom<bool> pruneConfig{Name{"pruneConfig"}, false};
       fhicl::Atom<std::string> dataDependencyGraph{Name{"dataDependencyGraph"},
                                                    {}};
-      fhicl::OptionalDelegatedParameter configOut{Name{"configOut"}};
-      fhicl::OptionalDelegatedParameter debugConfig{Name{"debugConfig"}};
-      fhicl::OptionalDelegatedParameter validateConfig{Name{"validateConfig"}};
+      struct DebugConfig {
+        fhicl::OptionalDelegatedParameter configOut{Name{"configOut"}};
+        fhicl::OptionalDelegatedParameter debugConfig{Name{"debugConfig"}};
+        fhicl::OptionalDelegatedParameter validateConfig{
+          Name{"validateConfig"}};
+      };
+      fhicl::OptionalTable<DebugConfig> debug{Name{"debug"}};
       fhicl::TableFragment<ActionTable::Config> actionTable{};
     };
     using Parameters = fhicl::Table<Config>;

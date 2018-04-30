@@ -41,8 +41,9 @@ services: {
       }
    }
    scheduler: {
-      debugConfig: {
+      debug: {
          fileName: "config.out"
+         option: "debug-config"
          printMode: "raw"
       }
       errorOnFailureToPut: true

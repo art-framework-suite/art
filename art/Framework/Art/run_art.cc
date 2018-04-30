@@ -4,6 +4,7 @@
 #include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
+#include "art/Framework/Art/detail/fhicl_key.h"
 #include "art/Framework/Art/detail/info_success.h"
 #include "art/Framework/Art/detail/prune_configuration.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
@@ -93,34 +94,35 @@ namespace {
   maybe_output_config(fhicl::ParameterSet const& main_pset,
                       fhicl::ParameterSet const& scheduler_pset)
   {
-    std::underlying_type_t<debug_processing> i{};
-    for (auto const debugProcessing :
-         {"configOut", "debugConfig", "validateConfig"}) {
-      auto const j = i++;
-      if (!scheduler_pset.has_key(debugProcessing))
-        continue;
+    if (!scheduler_pset.has_key("debug"))
+      return debug_processing::none;
 
-      // Handle the backwards compatibility case, where "configOut"
-      // was associated with a filename in older configurations.
-      if (scheduler_pset.is_key_to_atom(debugProcessing)) {
-        assert(std::strcmp(debugProcessing, "configOut") == 0);
-        auto const filename = scheduler_pset.get<std::string>("configOut");
-        std::cerr << banner(filename);
-        auto os = make_ostream_handle(filename);
-        os << main_pset.to_indented_string(0, fhicl::detail::print_mode::raw);
-        return debug_processing::config_out;
-      }
+    auto processing_options = {"config-out", "debug-config", "validate-config"};
 
-      auto const& debug_table =
-        scheduler_pset.get<fhicl::ParameterSet>(debugProcessing);
-      auto const filename = debug_table.get<std::string>("fileName");
-      auto const mode = debug_table.get<std::string>("printMode");
-      std::cerr << banner(filename);
-      auto os = make_ostream_handle(filename);
-      os << main_pset.to_indented_string(0, get_print_mode(mode));
-      return static_cast<debug_processing>(j);
+    auto const& debug_pset = scheduler_pset.get<fhicl::ParameterSet>("debug");
+
+    auto const option = debug_pset.get<std::string>("option");
+    auto pos = cet::find_in_all(processing_options, option);
+    if (pos == cend(processing_options)) {
+      throw art::Exception{
+        art::errors::Configuration,
+        "An error was encountered while processing debugging options"}
+        << "The debugging option '" << option << "' is not supported.\n"
+        << "If you did not explicitly provide this value in your configuration "
+           "file,"
+        << "please contact artists@fnal.gov and report this error.  "
+           "Otherwise,\n"
+        << "choose from 'configOut', 'debugConfig', or 'validateConfig'.\n";
     }
-    return debug_processing::none;
+
+    auto const index = std::distance(cbegin(processing_options), pos);
+    std::cerr << "Index: " << index << '\n';
+    auto const filename = debug_pset.get<std::string>("fileName");
+    auto const mode = debug_pset.get<std::string>("printMode");
+    std::cerr << banner(filename);
+    auto os = make_ostream_handle(filename);
+    os << main_pset.to_indented_string(0, get_print_mode(mode));
+    return static_cast<debug_processing>(index);
   }
 
 } // unnamed namespace
