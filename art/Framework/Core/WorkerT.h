@@ -26,7 +26,7 @@ namespace art {
 
     // This is called directly by the make_worker function created by
     // the DEFINE_ART_MODULE macro.
-    WorkerT(T*, ModuleDescription const&, WorkerParams const&);
+    WorkerT(std::shared_ptr<T>, ModuleDescription const&, WorkerParams const&);
 
   protected: // MEMBER FUNCTIONS -- API for implementation classes
     T&
@@ -58,16 +58,16 @@ namespace art {
                        ScheduleID const,
                        CurrentProcessingContext*) override;
 
-    // Note: Modules are usually shared between workers
-    // on different schedules, only replicated modules are not,
-    // the PathManager owns them.
-    T* module_;
+    // A module is co-owned by one worker per schedule.  Only
+    // replicated modules have a one-to-one correspondence with their
+    // worker.
+    std::shared_ptr<T> module_;
   };
 
   // This is called directly by the make_worker function created by
   // the DEFINE_ART_MODULE macro.
   template <typename T>
-  WorkerT<T>::WorkerT(T* module,
+  WorkerT<T>::WorkerT(std::shared_ptr<T> module,
                       ModuleDescription const& md,
                       WorkerParams const& wp)
     : Worker{md, wp}, module_{module}
@@ -95,7 +95,7 @@ namespace art {
     template <typename T, typename = void>
     struct MaybeSharedModule {
       static std::nullptr_t
-      chain(T*)
+      chain(...)
       {
         return nullptr;
       }
@@ -106,7 +106,7 @@ namespace art {
       T,
       std::enable_if_t<std::is_base_of<SharedModule, T>::value>> {
       static hep::concurrency::SerialTaskQueueChain*
-      chain(T const* const mod)
+      chain(std::shared_ptr<T> const& mod)
       {
         return mod->serialTaskQueueChain();
       }

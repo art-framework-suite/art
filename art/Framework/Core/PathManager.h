@@ -52,7 +52,7 @@ namespace art {
     };
 
   public: // Special Member Functions
-    ~PathManager();
+    ~PathManager() noexcept;
     PathManager(fhicl::ParameterSet const& procPS,
                 UpdateOutputCallbacks& preg,
                 ProductDescriptions& productsToProduce,
@@ -76,7 +76,12 @@ namespace art {
       std::unique_ptr<WorkerT<ReplicatedProducer>>&&);
 
   private: // Implementation Details
-    void fillWorkers_(ScheduleID const,
+    void makeModules_(ScheduleID::size_type n);
+    std::pair<ModuleBase*, std::string> makeModule_(
+      fhicl::ParameterSet const& module_pset,
+      ModuleDescription const& md,
+      ScheduleID) const;
+    void fillWorkers_(ScheduleID,
                       int pi,
                       std::vector<WorkerInPath::ConfigInfo> const& wci_list,
                       std::vector<WorkerInPath>& wips,
@@ -92,16 +97,16 @@ namespace art {
     cet::LibraryManager lm_{Suffixes::module()};
     fhicl::ParameterSet procPS_{};
     std::vector<std::string> triggerPathNames_{};
-    std::map<module_label_t, ModuleBase*> moduleSet_{};
+    std::map<module_label_t, std::shared_ptr<ModuleBase>> sharedModules_{};
+    std::map<module_label_t, PerScheduleContainer<std::shared_ptr<ModuleBase>>>
+      replicatedModules_{};
     // FIXME: The number of workers is the number of schedules times
     //        the number of configured modules.  For a replicated
     //        module, there is one worker per module copy; for a
     //        shared module, there are as many workers as their are
-    //        schedules.  To avoid any memory leaks, we use a multimap
-    //        so we can delete the memory in the destructor.  This
-    //        part of the code could benefit from using smart
-    //        pointers.
-    std::multimap<module_label_t, Worker*> workerSet_{};
+    //        schedules.  This part of the code could benefit from
+    //        using smart pointers.
+    std::map<module_label_t, PerScheduleContainer<Worker*>> workers_{};
     PerScheduleContainer<PathsInfo> triggerPathsInfo_{};
     PathsInfo endPathInfo_{};
     PerScheduleContainer<std::unique_ptr<WorkerT<ReplicatedProducer>>>

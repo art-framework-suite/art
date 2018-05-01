@@ -93,7 +93,7 @@ namespace art {
     cpc.activate(0, &md);
     detail::CPCSentry cpc_sentry{cpc};
     actReg_.load()->sPreModuleConstruction.invoke(md);
-    ReplicatedProducer* producer = new TriggerResultInserter(
+    auto producer = std::make_shared<TriggerResultInserter>(
       trig_pset, scheduleID, triggerPathsInfo_.load()->pathResults());
     producer->setModuleDescription(md);
     pm.setTriggerResultsInserter(

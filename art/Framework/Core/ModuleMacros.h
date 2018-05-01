@@ -33,7 +33,7 @@ namespace art {
   namespace detail {
     using ModuleMaker_t = ModuleBase*(art::ModuleDescription const&,
                                       WorkerParams const&);
-    using WorkerFromModuleMaker_t = Worker*(ModuleBase*,
+    using WorkerFromModuleMaker_t = Worker*(std::shared_ptr<ModuleBase>,
                                             ModuleDescription const&,
                                             WorkerParams const&);
     using WorkerMaker_t = Worker*(WorkerParams const&,
@@ -76,12 +76,12 @@ namespace art {
     return mod;                                                                \
   }                                                                            \
   art::Worker*                                                                 \
-  make_worker_from_module(art::ModuleBase* mod,                                \
+  make_worker_from_module(std::shared_ptr<art::ModuleBase> mod,                \
                           art::ModuleDescription const& md,                    \
                           art::WorkerParams const& wp)                         \
   {                                                                            \
     return new klass::WorkerType(                                              \
-      dynamic_cast<klass::ModuleType*>(mod), md, wp);                          \
+      std::dynamic_pointer_cast<klass::ModuleType>(mod), md, wp);              \
   }                                                                            \
   art::ModuleType                                                              \
   moduleType()                                                                 \

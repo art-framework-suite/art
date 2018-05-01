@@ -28,7 +28,7 @@ namespace art {
     virtual ~OutputWorker();
     // This is called directly by the make_worker function created
     // by the DEFINE_ART_MODULE macro.
-    OutputWorker(OutputModule* mod,
+    OutputWorker(std::shared_ptr<OutputModule> mod,
                  ModuleDescription const&,
                  WorkerParams const&);
 

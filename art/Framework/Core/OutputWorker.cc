@@ -12,7 +12,7 @@ namespace art {
 
   // This is called directly by the make_worker function created
   // by the DEFINE_ART_MODULE macro.
-  OutputWorker::OutputWorker(OutputModule* mod,
+  OutputWorker::OutputWorker(std::shared_ptr<OutputModule> mod,
                              ModuleDescription const& md,
                              WorkerParams const& wp)
     : WorkerT<OutputModule>{mod, md, wp}

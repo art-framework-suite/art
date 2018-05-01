@@ -55,19 +55,12 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  PathManager::~PathManager()
+  PathManager::~PathManager() noexcept
   {
-    for (auto& label_and_worker : workerSet_) {
-      delete label_and_worker.second;
-      label_and_worker.second = nullptr;
-    }
-    for (auto& label_and_module : moduleSet_) {
-      delete label_and_module.second;
-      label_and_module.second = nullptr;
-    }
-    for (auto& tri : triggerResultsInserter_) {
-      if (tri) {
-        delete &tri->module();
+    for (auto& label_and_workers : workers_) {
+      for (auto wkr : label_and_workers.second) {
+        delete wkr;
+        wkr = nullptr;
       }
     }
   }
@@ -418,6 +411,7 @@ namespace art {
     {
       auto const nschedules =
         static_cast<ScheduleID::size_type>(Globals::instance()->nschedules());
+      makeModules_(nschedules);
       for (auto si = ScheduleID::first(); si < ScheduleID(nschedules);
            si = si.next()) {
         auto& pinfo = triggerPathsInfo_[si];
@@ -472,6 +466,11 @@ namespace art {
           5, "PathManager::createModulesAndWorkers", 0, msg.str());
       }
     }
+
+    // Modules are now owned by the workers; release references.
+    sharedModules_.clear();
+    replicatedModules_.clear();
+
     using namespace detail;
     auto const graph_info_collection = getModuleGraphInfoCollection_();
     allModules_.clear();
@@ -525,143 +524,64 @@ namespace art {
   }
 
   void
-  PathManager::fillWorkers_(ScheduleID const si,
-                            int const pi,
-                            vector<WorkerInPath::ConfigInfo> const& wci_list,
-                            vector<WorkerInPath>& wips,
-                            map<string, Worker*>& workers)
+  PathManager::makeModules_(ScheduleID::size_type const nschedules)
   {
     vector<string> configErrMsgs;
-    for (auto const& wci : wci_list) {
-      auto const& module_label = wci.label;
-      auto const& filterAction = wci.filterAction;
-      auto const& mci = allModules_.at(module_label);
+    for (auto const& pr : allModules_) {
+      auto const& module_label = pr.first;
+      auto const& mci = pr.second;
       auto const& modPS = mci.modPS_;
       auto const& module_type = mci.libSpec_;
       auto const& module_threading_type = mci.moduleThreadingType_;
-      ModuleBase* module = nullptr;
-      // All modules are singletons except for replicated modules;
-      // enforce that.
-      if (module_threading_type != ModuleThreadingType::replicated) {
-        auto iter = moduleSet_.find(module_label);
-        if (iter != moduleSet_.end()) {
-          // We have already constructed this module, reuse it.
-          {
-            ostringstream msg;
-            msg << "Reusing module 0x" << hex << ((unsigned long)iter->second)
-                << dec << " path: " << pi << " type: " << module_type
-                << " label: " << module_label;
-            TDEBUG_FUNC_SI_MSG(5, "PathManager::fillWorkers_", si, msg.str());
-          }
-          module = iter->second;
-        }
+
+      ModuleDescription const md{
+        modPS.id(),
+        module_type,
+        module_label,
+        static_cast<int>(module_threading_type),
+        ProcessConfiguration{processName_, procPS_.id(), getReleaseVersion()}};
+
+      string pathName{"ctor"};
+      CurrentProcessingContext cpc{ScheduleID::first(), &pathName, 0, false};
+      cpc.activate(0, &md);
+      detail::CPCSentry cpc_sentry{cpc};
+      actReg_.sPreModuleConstruction.invoke(md);
+
+      auto sid = ScheduleID::first();
+      auto result = makeModule_(modPS, md, sid);
+      auto module = result.first;
+      auto const& err = result.second;
+      if (!err.empty()) {
+        configErrMsgs.push_back(err);
+        continue;
       }
-      Worker* worker = nullptr;
-      // Workers which are present on multiple paths should be shared so
-      // that their work is only done once per schedule.
-      {
-        auto iter = workers.find(module_label);
-        if (iter != workers.end()) {
-          {
-            ostringstream msg;
-            msg << "Reusing worker 0x" << hex << ((unsigned long)iter->second)
-                << dec << " path: " << pi << " type: " << module_type
-                << " label: " << module_label;
-            TDEBUG_FUNC_SI_MSG(5, "PathManager::fillWorkers_", si, msg.str());
+
+      if (module_threading_type == ModuleThreadingType::shared ||
+          module_threading_type == ModuleThreadingType::legacy) {
+        sharedModules_.emplace(module_label,
+                               std::shared_ptr<ModuleBase>{module});
+      } else {
+        PerScheduleContainer<std::shared_ptr<ModuleBase>> replicated_modules(
+          nschedules);
+        replicated_modules[sid].reset(module);
+        for (sid = sid.next(); sid < ScheduleID(nschedules); sid = sid.next()) {
+          auto repl_result = makeModule_(modPS, md, sid);
+          if (!repl_result.second.empty()) {
+            replicated_modules[sid].reset(repl_result.first);
           }
-          worker = iter->second;
         }
+        replicatedModules_.emplace(module_label, replicated_modules);
       }
-      if (worker == nullptr) {
-        try {
-          ModuleDescription const md{modPS.id(),
-                                     module_type,
-                                     module_label,
-                                     static_cast<int>(module_threading_type),
-                                     ProcessConfiguration{processName_,
-                                                          procPS_.id(),
-                                                          getReleaseVersion()}};
-          WorkerParams const wp{procPS_,
-                                modPS,
-                                outputCallbacks_,
-                                productsToProduce_,
-                                actReg_,
-                                exceptActions_,
-                                processName_,
-                                si};
-          if (module == nullptr) {
-            detail::ModuleMaker_t* module_factory_func = nullptr;
-            try {
-              lm_.getSymbolByLibspec(
-                module_type, "make_module", module_factory_func);
-            }
-            catch (Exception& e) {
-              cet::detail::wrapLibraryManagerException(
-                e, "Module", module_type, getReleaseVersion());
-            }
-            if (module_factory_func == nullptr) {
-              throw Exception(errors::Configuration, "BadPluginLibrary: ")
-                << "Module " << module_type << " with version "
-                << getReleaseVersion()
-                << " has internal symbol definition problems: consult an "
-                   "expert.";
-            }
-            string pathName{"ctor"};
-            CurrentProcessingContext cpc{
-              ScheduleID::first(), &pathName, 0, false};
-            cpc.activate(0, &md);
-            detail::CPCSentry cpc_sentry{cpc};
-            actReg_.sPreModuleConstruction.invoke(md);
-            module = module_factory_func(md, wp);
-            moduleSet_.emplace(module_label, module);
-            {
-              ostringstream msg;
-              msg << "Made module 0x" << hex << ((unsigned long)module) << dec
-                  << " path: " << pi << " type: " << module_type
-                  << " label: " << module_label;
-              TDEBUG_FUNC_SI_MSG(5, "PathManager::fillWorkers_", si, msg.str());
-            }
-            actReg_.sPostModuleConstruction.invoke(md);
-            module->sortConsumables();
-            ConsumesInfo::instance()->collectConsumes(module_label,
-                                                      module->getConsumables());
-          }
-          detail::WorkerFromModuleMaker_t* worker_from_module_factory_func =
-            nullptr;
-          try {
-            lm_.getSymbolByLibspec(module_type,
-                                   "make_worker_from_module",
-                                   worker_from_module_factory_func);
-          }
-          catch (Exception& e) {
-            cet::detail::wrapLibraryManagerException(
-              e, "Module", module_type, getReleaseVersion());
-          }
-          if (worker_from_module_factory_func == nullptr) {
-            throw Exception(errors::Configuration, "BadPluginLibrary: ")
-              << "Module " << module_type << " with version "
-              << getReleaseVersion()
-              << " has internal symbol definition problems: consult an expert.";
-          }
-          worker = worker_from_module_factory_func(module, md, wp);
-          workerSet_.emplace(module_label, worker);
-          TDEBUG(5) << "Made worker 0x" << hex << ((unsigned long)worker) << dec
-                    << " (" << si << ") path: " << pi
-                    << " type: " << module_type << " label: " << module_label
-                    << "\n";
-        }
-        catch (fhicl::detail::validationException const& e) {
-          ostringstream es;
-          es << "\n\nModule label: " << detail::bold_fontify(module_label)
-             << "\nmodule_type : " << detail::bold_fontify(module_type)
-             << "\n\n"
-             << e.what();
-          configErrMsgs.push_back(es.str());
-        }
-      }
-      workers.emplace(module_label, worker);
-      wips.emplace_back(worker, filterAction);
+
+      actReg_.sPostModuleConstruction.invoke(md);
+
+      // FIXME: we do this for only one of the module copies in the
+      // case where we have replicated modules.
+      module->sortConsumables();
+      ConsumesInfo::instance()->collectConsumes(module_label,
+                                                module->getConsumables());
     }
+
     if (!configErrMsgs.empty()) {
       constexpr cet::HorizontalRule rule{100};
       ostringstream msg;
@@ -674,6 +594,140 @@ namespace art {
       }
       msg << "\n" << rule('=') << "\n\n";
       throw Exception(errors::Configuration) << msg.str();
+    }
+  }
+
+  std::pair<ModuleBase*, std::string>
+  PathManager::makeModule_(ParameterSet const& modPS,
+                           ModuleDescription const& md,
+                           ScheduleID const sid) const
+  {
+    std::pair<ModuleBase*, std::string> result;
+    auto const& module_type = md.moduleName();
+    try {
+      detail::ModuleMaker_t* module_factory_func = nullptr;
+      try {
+        lm_.getSymbolByLibspec(module_type, "make_module", module_factory_func);
+      }
+      catch (Exception& e) {
+        cet::detail::wrapLibraryManagerException(
+          e, "Module", module_type, getReleaseVersion());
+      }
+      if (module_factory_func == nullptr) {
+        throw Exception(errors::Configuration, "BadPluginLibrary: ")
+          << "Module " << module_type << " with version " << getReleaseVersion()
+          << " has internal symbol definition problems: consult an "
+             "expert.";
+      }
+      WorkerParams const wp{procPS_,
+                            modPS,
+                            outputCallbacks_,
+                            productsToProduce_,
+                            actReg_,
+                            exceptActions_,
+                            processName_,
+                            sid};
+      result.first = module_factory_func(md, wp);
+    }
+    catch (fhicl::detail::validationException const& e) {
+      ostringstream es;
+      es << "\n\nModule label: " << detail::bold_fontify(md.moduleLabel())
+         << "\nmodule_type : " << detail::bold_fontify(module_type) << "\n\n"
+         << e.what();
+      result.second = es.str();
+    }
+    return result;
+  }
+
+  void
+  PathManager::fillWorkers_(ScheduleID const sid,
+                            int const pi,
+                            vector<WorkerInPath::ConfigInfo> const& wci_list,
+                            vector<WorkerInPath>& wips,
+                            map<string, Worker*>& workers)
+  {
+    for (auto const& wci : wci_list) {
+      auto const& module_label = wci.label;
+
+      if (workers_.find(module_label) == cend(workers_)) {
+        workers_[module_label].expand_to_num_schedules();
+      }
+
+      auto const& filterAction = wci.filterAction;
+      auto const& mci = allModules_.at(module_label);
+      auto const& modPS = mci.modPS_;
+      auto const& module_type = mci.libSpec_;
+      auto const& module_threading_type = mci.moduleThreadingType_;
+      Worker* worker = nullptr;
+      // Workers which are present on multiple paths should be shared so
+      // that their work is only done once per schedule.
+      {
+        auto iter = workers.find(module_label);
+        if (iter != workers.end()) {
+          ostringstream msg;
+          msg << "Reusing worker 0x" << hex << ((unsigned long)iter->second)
+              << dec << " path: " << pi << " type: " << module_type
+              << " label: " << module_label;
+          TDEBUG_FUNC_SI_MSG(5, "PathManager::fillWorkers_", sid, msg.str());
+          worker = iter->second;
+        }
+      }
+      if (worker == nullptr) {
+        auto getModule_ =
+          [this](std::string const& module_label,
+                 ModuleThreadingType const module_threading_type,
+                 ScheduleID const sid) {
+            if (module_threading_type == ModuleThreadingType::shared ||
+                module_threading_type == ModuleThreadingType::legacy) {
+              return sharedModules_.at(module_label);
+            } else {
+              return replicatedModules_.at(module_label)[sid];
+            }
+          };
+
+        ModuleDescription const md{modPS.id(),
+                                   module_type,
+                                   module_label,
+                                   static_cast<int>(module_threading_type),
+                                   ProcessConfiguration{processName_,
+                                                        procPS_.id(),
+                                                        getReleaseVersion()}};
+        WorkerParams const wp{procPS_,
+                              modPS,
+                              outputCallbacks_,
+                              productsToProduce_,
+                              actReg_,
+                              exceptActions_,
+                              processName_,
+                              sid};
+        detail::WorkerFromModuleMaker_t* worker_from_module_factory_func =
+          nullptr;
+        try {
+          lm_.getSymbolByLibspec(module_type,
+                                 "make_worker_from_module",
+                                 worker_from_module_factory_func);
+        }
+        catch (Exception& e) {
+          cet::detail::wrapLibraryManagerException(
+            e, "Module", module_type, getReleaseVersion());
+        }
+        if (worker_from_module_factory_func == nullptr) {
+          throw Exception(errors::Configuration, "BadPluginLibrary: ")
+            << "Module " << module_type << " with version "
+            << getReleaseVersion()
+            << " has internal symbol definition problems: consult an expert.";
+        }
+        auto module = getModule_(module_label, module_threading_type, sid);
+        worker = worker_from_module_factory_func(module, md, wp);
+        workers_[module_label][sid] = worker;
+
+        // workerSet_.emplace(module_label, worker);
+        TDEBUG(5) << "Made worker 0x" << hex << ((unsigned long)worker) << dec
+                  << " (" << sid << ") path: " << pi << " type: " << module_type
+                  << " label: " << module_label << "\n";
+      }
+      workers.emplace(module_label, worker);
+      wips.emplace_back(worker, filterAction);
     }
   }
 
