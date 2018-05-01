@@ -50,8 +50,8 @@ namespace art {
     void preBeginSubRun(SubRun const& subRun);
     void postBeginSubRun(SubRun const& subRun);
 
-    void preEvent(Event const& ev);
-    void postEvent(Event const& ev);
+    void preEvent(Event const& ev, ScheduleID);
+    void postEvent(Event const& ev, ScheduleID);
 
     void preEndSubRun(SubRunID const& id, Timestamp const& ts);
     void postEndSubRun(SubRun const& run);
@@ -71,8 +71,8 @@ namespace art {
     void preModuleBeginSubRun(ModuleDescription const& md);
     void postModuleBeginSubRun(ModuleDescription const& md);
 
-    void preModuleEvent(ModuleDescription const& md);
-    void postModuleEvent(ModuleDescription const& md);
+    void preModuleEvent(ModuleDescription const& md, ScheduleID);
+    void postModuleEvent(ModuleDescription const& md, ScheduleID);
 
     void preModuleEndSubRun(ModuleDescription const& md);
     void postModuleEndSubRun(ModuleDescription const& md);
@@ -83,8 +83,8 @@ namespace art {
     void preModuleEndJob(ModuleDescription const& md);
     void postModuleEndJob(ModuleDescription const& md);
 
-    void preSourceEvent();
-    void postSourceEvent(Event const&);
+    void preSourceEvent(ScheduleID);
+    void postSourceEvent(Event const&, ScheduleID);
 
     void preSourceSubRun();
     void postSourceSubRun(SubRun const&);
@@ -108,8 +108,8 @@ namespace art {
     void prePathBeginSubRun(string const& s);
     void postPathBeginSubRun(string const& s, HLTPathStatus const& hlt);
 
-    void prePathEvent(string const& s);
-    void postPathEvent(string const& s, HLTPathStatus const& hlt);
+    void prePathEvent(string const& s, ScheduleID);
+    void postPathEvent(string const& s, HLTPathStatus const& hlt, ScheduleID);
 
     void prePathEndSubRun(string const& s);
     void postPathEndSubRun(string const& s, HLTPathStatus const& hlt);
@@ -204,14 +204,13 @@ namespace art {
     indent(1) << " Job ended" << endl;
   }
 
-  void
-  art::Tracer::preSourceEvent()
+  void art::Tracer::preSourceEvent(ScheduleID)
   {
     indent(2) << "source event" << endl;
   }
 
   void
-  art::Tracer::postSourceEvent(Event const&)
+  art::Tracer::postSourceEvent(Event const&, ScheduleID)
   {
     indent(2) << "finished: source event" << endl;
   }
@@ -285,7 +284,7 @@ namespace art {
   }
 
   void
-  art::Tracer::preEvent(Event const& ev)
+  art::Tracer::preEvent(Event const& ev, ScheduleID)
   {
     depth_ = 0;
     indent(2) << " processing event:" << ev.id()
@@ -293,32 +292,34 @@ namespace art {
   }
 
   void
-  art::Tracer::postEvent(Event const&)
+  art::Tracer::postEvent(Event const&, ScheduleID)
   {
     indent(2) << " finished event:" << endl;
   }
 
   void
-  Tracer::prePathEvent(string const& iName)
+  Tracer::prePathEvent(string const& iName, ScheduleID)
   {
     indent(3) << " processing path for event:" << iName << endl;
   }
 
   void
-  Tracer::postPathEvent(string const& /*iName*/, HLTPathStatus const&)
+  Tracer::postPathEvent(string const& /*iName*/,
+                        HLTPathStatus const&,
+                        ScheduleID)
   {
     indent(3) << " finished path for event:" << endl;
   }
 
   void
-  Tracer::preModuleEvent(ModuleDescription const& md)
+  Tracer::preModuleEvent(ModuleDescription const& md, ScheduleID)
   {
     ++depth_;
     indent(3 + depth_) << " module for event:" << md.moduleLabel() << endl;
   }
 
   void
-  Tracer::postModuleEvent(ModuleDescription const& md)
+  Tracer::postModuleEvent(ModuleDescription const& md, ScheduleID)
   {
     --depth_;
     indent(4 + depth_) << " finished for event:" << md.moduleLabel() << endl;

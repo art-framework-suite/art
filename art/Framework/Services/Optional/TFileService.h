@@ -8,6 +8,7 @@
 #include "art/Framework/IO/PostCloseFileRenamer.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/OptionalTable.h"
@@ -63,6 +64,8 @@ namespace art {
     // set current directory according to module name and prepare to create
     // directory
     void setDirectoryName_(art::ModuleDescription const&);
+    void setDirectoryNameWithScheduleID_(art::ModuleDescription const&,
+                                         ScheduleID);
     void openFile_();
     void closeFile_();
     void maybeSwitchFiles_();

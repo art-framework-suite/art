@@ -215,7 +215,7 @@ namespace art {
     TDEBUG_BEGIN_FUNC_SI(4, "Path::process_event_for_endpath", si);
     CurrentProcessingContext cpc{si, nullptr, -1, false};
     detail::CPCSentry sentry{cpc};
-    actReg_.load()->sPreProcessPath.invoke(*name_.load());
+    actReg_.load()->sPreProcessPath.invoke(*name_.load(), si);
     ++timesRun_;
     state_ = hlt::Ready;
     auto const max_idx = workers_.load()->size();
@@ -295,7 +295,7 @@ namespace art {
         (*trptr_.load())[bitpos_.load()] = HLTPathStatus(state_, idx);
       }
       HLTPathStatus const status(state_, idx);
-      actReg_.load()->sPostProcessPath.invoke(*name_.load(), status);
+      actReg_.load()->sPostProcessPath.invoke(*name_.load(), status, si);
     }
     catch (...) {
       TDEBUG_END_FUNC_SI_ERR(
@@ -333,7 +333,7 @@ namespace art {
     waitingTasks_.load()->add(pathsDoneTask);
     {
       detail::CPCSentry sentry{*cpc_.load()};
-      actReg_.load()->sPreProcessPath.invoke(*name_.load());
+      actReg_.load()->sPreProcessPath.invoke(*name_.load(), si);
     }
     ++timesRun_;
     state_ = hlt::Ready;
@@ -626,7 +626,7 @@ namespace art {
       }
       {
         HLTPathStatus const status(state_, idx);
-        actReg_.load()->sPostProcessPath.invoke(*name_.load(), status);
+        actReg_.load()->sPostProcessPath.invoke(*name_.load(), status, si);
       }
     }
     catch (...) {

@@ -142,10 +142,12 @@ namespace art {
 
     // Member Functions -- Implementation details
   private:
-    void prePathProcessing(string const&);
+    void prePathProcessing(string const&, ScheduleID);
     void recordOtherData(ModuleDescription const& md, string const& step);
-    void recordEventData(Event const& e, string const& step);
-    void recordModuleData(ModuleDescription const& md, string const& step);
+    void recordEventData(Event const& e, ScheduleID, string const& step);
+    void recordModuleData(ModuleDescription const& md,
+                          ScheduleID,
+                          string const& step);
     void postEndJob();
     bool checkMallocConfig_(string const&, bool);
     void recordPeakUsages_();
@@ -257,22 +259,23 @@ namespace art {
         this->recordOtherData(md, "PostBeginSubRun");
       });
       iReg.sPreProcessPath.watch(this, &MemoryTracker::prePathProcessing);
-      iReg.sPreProcessEvent.watch(
-        [this](auto const& e) { this->recordEventData(e, "PreProcessEvent"); });
-      iReg.sPostProcessEvent.watch([this](auto const& e) {
-        this->recordEventData(e, "PostProcessEvent");
+      iReg.sPreProcessEvent.watch([this](auto const& e, ScheduleID const sid) {
+        this->recordEventData(e, sid, "PreProcessEvent");
       });
-      iReg.sPreModule.watch([this](auto const& md) {
-        this->recordModuleData(md, "PreProcessModule");
+      iReg.sPostProcessEvent.watch([this](auto const& e, ScheduleID const sid) {
+        this->recordEventData(e, sid, "PostProcessEvent");
       });
-      iReg.sPostModule.watch([this](auto const& md) {
-        this->recordModuleData(md, "PostProcessModule");
+      iReg.sPreModule.watch([this](auto const& md, ScheduleID const sid) {
+        this->recordModuleData(md, sid, "PreProcessModule");
       });
-      iReg.sPreWriteEvent.watch([this](auto const& md) {
-        this->recordModuleData(md, "PreWriteEvent");
+      iReg.sPostModule.watch([this](auto const& md, ScheduleID const sid) {
+        this->recordModuleData(md, sid, "PostProcessModule");
       });
-      iReg.sPostWriteEvent.watch([this](auto const& md) {
-        this->recordModuleData(md, "PostWriteEvent");
+      iReg.sPreWriteEvent.watch([this](auto const& md, ScheduleID const sid) {
+        this->recordModuleData(md, sid, "PreWriteEvent");
+      });
+      iReg.sPostWriteEvent.watch([this](auto const& md, ScheduleID const sid) {
+        this->recordModuleData(md, sid, "PostWriteEvent");
       });
       iReg.sPreModuleEndSubRun.watch(
         [this](auto const& md) { this->recordOtherData(md, "PreEndSubRun"); });
@@ -290,10 +293,9 @@ namespace art {
   }
 
   void
-  MemoryTracker::prePathProcessing(string const& pathname)
+  MemoryTracker::prePathProcessing(string const& pathname, ScheduleID const sid)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
     data_[sid].pathName = pathname;
   }
 
@@ -302,7 +304,7 @@ namespace art {
                                  string const& step)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
+    auto const sid = ScheduleID::first();
     auto const data = procInfo_.getCurrentData(sid.id());
     otherInfoTable_.insert(step,
                            md.moduleLabel(),
@@ -312,10 +314,11 @@ namespace art {
   }
 
   void
-  MemoryTracker::recordEventData(Event const& e, string const& step)
+  MemoryTracker::recordEventData(Event const& e,
+                                 ScheduleID const sid,
+                                 string const& step)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
     auto& d = data_[sid];
     d.eventID = e.id();
     auto const currentMemory = procInfo_.getCurrentData(sid.id());
@@ -343,10 +346,10 @@ namespace art {
 
   void
   MemoryTracker::recordModuleData(ModuleDescription const& md,
+                                  ScheduleID const sid,
                                   string const& step)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
     auto& d = data_[sid];
     auto const currentMemory = procInfo_.getCurrentData(sid.id());
     moduleTable_.insert(step,

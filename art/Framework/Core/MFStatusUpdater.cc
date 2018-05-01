@@ -94,9 +94,9 @@ namespace art {
     mf::SetIteration("SourceConstruction"s);
   }
 
-  MFSU_0_ARG_UPDATER_DEFN(PreSourceEvent) { mf::SetModuleName("SourceEvent"s); }
+  MFSU_1_ARG_UPDATER_DEFN(PreSourceEvent) { mf::SetModuleName("SourceEvent"s); }
 
-  MFSU_1_ARG_UPDATER_DEFN(PostSourceEvent)
+  MFSU_2_ARG_UPDATER_DEFN(PostSourceEvent)
   {
     mf::SetModuleName("PostSourceEvent"s);
   }
@@ -129,7 +129,7 @@ namespace art {
     mf::SetModuleName("PostCloseFile"s);
   }
 
-  MFSU_1_ARG_UPDATER_DEFN(PreProcessEvent)
+  MFSU_2_ARG_UPDATER_DEFN(PreProcessEvent)
   {
     mf::SetModuleName("ProcessEvent"s);
     std::ostringstream os;
@@ -137,7 +137,7 @@ namespace art {
     mf::SetIteration(os.str());
   }
 
-  MFSU_1_ARG_UPDATER_DEFN(PostProcessEvent)
+  MFSU_2_ARG_UPDATER_DEFN(PostProcessEvent)
   {
     mf::SetModuleName("PostProcessEvent"s);
   }
@@ -188,12 +188,12 @@ namespace art {
     mf::SetModuleName("PostEndSubRun"s);
   }
 
-  MFSU_1_ARG_UPDATER_DEFN(PreProcessPath)
+  MFSU_2_ARG_UPDATER_DEFN(PreProcessPath)
   {
     mf::SetModuleName("ProcessPath "s + arg1);
   }
 
-  MFSU_2_ARG_UPDATER_DEFN(PostProcessPath)
+  MFSU_3_ARG_UPDATER_DEFN(PostProcessPath)
   {
     mf::SetModuleName("PostProcessPath "s + arg1);
   }
@@ -282,13 +282,13 @@ namespace art {
                       "@EndJob"s);
   }
 
-  MFSU_1_ARG_UPDATER_DEFN(PreModule)
+  MFSU_2_ARG_UPDATER_DEFN(PreModule)
   {
     mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
                       "@BeginModule"s);
   }
 
-  MFSU_1_ARG_UPDATER_DEFN(PostModule)
+  MFSU_2_ARG_UPDATER_DEFN(PostModule)
   {
     mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
                       "@EndModule"s);

@@ -451,7 +451,7 @@ namespace art {
       // Transition from Ready state to Working state.
       state_ = Working;
       detail::CPCSentry sentry{*cpc};
-      actReg_.load()->sPreModule.invoke(*md_.load());
+      actReg_.load()->sPreModule.invoke(*md_.load(), si);
       // Note: Only filters ever return false, and when they do it means they
       // have rejected.
       returnCode_ = implDoProcess(p, si, cpc);
@@ -459,7 +459,7 @@ namespace art {
       // scheduleID is provided within services.
       CurrentProcessingContext cpc{si, nullptr, -1, false};
       detail::CPCSentry sentry2{cpc};
-      actReg_.load()->sPostModule.invoke(*md_.load());
+      actReg_.load()->sPostModule.invoke(*md_.load(), si);
       if (returnCode_.load()) {
         state_ = Pass;
       } else {
@@ -597,11 +597,11 @@ namespace art {
       // Transition from Ready state to Working state.
       state_ = Working;
       detail::CPCSentry sentry{*cpc};
-      actReg_.load()->sPreModule.invoke(*md_.load());
+      actReg_.load()->sPreModule.invoke(*md_.load(), si);
       // Note: Only filters ever return false, and when they do it means they
       // have rejected.
       returnCode_ = implDoProcess(p, si, cpc);
-      actReg_.load()->sPostModule.invoke(*md_.load());
+      actReg_.load()->sPostModule.invoke(*md_.load(), si);
       state_ = Fail;
       if (returnCode_.load()) {
         state_ = Pass;

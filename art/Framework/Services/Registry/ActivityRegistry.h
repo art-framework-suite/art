@@ -22,6 +22,7 @@
 
 #include "art/Framework/Services/Registry/GlobalSignal.h"
 #include "art/Framework/Services/Registry/detail/SignalResponseType.h"
+#include "art/Utilities/ScheduleID.h"
 
 #include <functional>
 #include <string>
@@ -70,10 +71,11 @@ public:
     sPostSourceConstruction;
 
   // Signal is emitted before the source starts creating an Event
-  GlobalSignal<detail::SignalResponseType::FIFO, void()> sPreSourceEvent;
+  GlobalSignal<detail::SignalResponseType::FIFO, void(ScheduleID)>
+    sPreSourceEvent;
 
   // Signal is emitted after the source starts creating an Event
-  GlobalSignal<detail::SignalResponseType::LIFO, void(Event const&)>
+  GlobalSignal<detail::SignalResponseType::LIFO, void(Event const&, ScheduleID)>
     sPostSourceEvent;
 
   // Signal is emitted before the source starts creating a SubRun
@@ -120,21 +122,23 @@ public:
 
   // Signal is emitted after the Event has been created by the
   // InputSource but before any modules have seen the Event
-  GlobalSignal<detail::SignalResponseType::FIFO, void(Event const&)>
+  GlobalSignal<detail::SignalResponseType::FIFO, void(Event const&, ScheduleID)>
     sPreProcessEvent;
 
   // Signal is emitted after all modules have finished processing the
   // Event
-  GlobalSignal<detail::SignalResponseType::LIFO, void(Event const&)>
+  GlobalSignal<detail::SignalResponseType::LIFO, void(Event const&, ScheduleID)>
     sPostProcessEvent;
 
   // Signal is emitted after the event has been processed, but before
   // the event has been written.
-  GlobalSignal<detail::SignalResponseType::FIFO, void(ModuleDescription const&)>
+  GlobalSignal<detail::SignalResponseType::FIFO,
+               void(ModuleDescription const&, ScheduleID)>
     sPreWriteEvent;
 
   // Signal is emitted after the event has been written.
-  GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleDescription const&)>
+  GlobalSignal<detail::SignalResponseType::LIFO,
+               void(ModuleDescription const&, ScheduleID)>
     sPostWriteEvent;
 
   // Signal is emitted after the Run has been created by the InputSource
@@ -176,13 +180,14 @@ public:
     sPostEndSubRun;
 
   // Signal is emitted before starting to process a Path for an event
-  GlobalSignal<detail::SignalResponseType::FIFO, void(std::string const&)>
+  GlobalSignal<detail::SignalResponseType::FIFO,
+               void(std::string const&, ScheduleID)>
     sPreProcessPath;
 
   // Signal is emitted after all modules have finished for the Path for
   // an event
   GlobalSignal<detail::SignalResponseType::LIFO,
-               void(std::string const&, HLTPathStatus const&)>
+               void(std::string const&, HLTPathStatus const&, ScheduleID)>
     sPostProcessPath;
 
   // Signal is emitted before starting to process a Path for beginRun
@@ -284,11 +289,13 @@ public:
     sPostModuleEndJob;
 
   // Signal is emitted before the module starts processing the Event
-  GlobalSignal<detail::SignalResponseType::FIFO, void(ModuleDescription const&)>
+  GlobalSignal<detail::SignalResponseType::FIFO,
+               void(ModuleDescription const&, ScheduleID)>
     sPreModule;
 
   // Signal is emitted after the module finished processing the Event
-  GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleDescription const&)>
+  GlobalSignal<detail::SignalResponseType::LIFO,
+               void(ModuleDescription const&, ScheduleID)>
     sPostModule;
 
   // Signal is emitted before the module starts processing beginRun

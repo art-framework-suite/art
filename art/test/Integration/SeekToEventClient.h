@@ -45,8 +45,8 @@ public:
 private:
   void postBeginJobWorkers(art::InputSource* input_source,
                            std::vector<art::Worker*> const&);
-  void preProcessEvent(art::Event const&);
-  void postProcessEvent(art::Event const&);
+  void preProcessEvent(art::Event const&, art::ScheduleID);
+  void postProcessEvent(art::Event const&, art::ScheduleID);
 
   std::vector<art::EventID> nextEventsToProcess_;
   cet::exempt_ptr<art::RootInput> input_{nullptr};

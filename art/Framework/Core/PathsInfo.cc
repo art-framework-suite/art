@@ -14,7 +14,7 @@ using namespace std;
 
 namespace art {
 
-  PathsInfo::~PathsInfo()
+  PathsInfo::~PathsInfo() noexcept
   {
     for (auto& path : paths_) {
       delete path;
@@ -22,7 +22,7 @@ namespace art {
     }
   }
 
-  PathsInfo::PathsInfo() : workers_{}, paths_{}, pathResults_{}
+  PathsInfo::PathsInfo()
   {
     totalEvents_ = 0;
     passedEvents_ = 0;

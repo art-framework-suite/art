@@ -563,9 +563,9 @@ namespace art {
       // not need a full-fledged context.
       CurrentProcessingContext cpc{si, nullptr, -1, false};
       detail::CPCSentry sentry{cpc};
-      actReg_.load()->sPreWriteEvent.invoke(md);
+      actReg_.load()->sPreWriteEvent.invoke(md, si);
       ow->writeEvent(ep);
-      actReg_.load()->sPostWriteEvent.invoke(md);
+      actReg_.load()->sPostWriteEvent.invoke(md, si);
     }
     auto const& eid = ep.eventID();
     bool const lastInSubRun{ep.isLastInSubRun()};

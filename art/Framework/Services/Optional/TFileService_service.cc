@@ -70,9 +70,9 @@ namespace art {
     r.sPreModuleEndRun.watch(this, &TFileService::setDirectoryName_);
     r.sPreModuleBeginSubRun.watch(this, &TFileService::setDirectoryName_);
     r.sPreModuleEndSubRun.watch(this, &TFileService::setDirectoryName_);
-    r.sPreModule.watch(this, &TFileService::setDirectoryName_);
+    r.sPreModule.watch(this, &TFileService::setDirectoryNameWithScheduleID_);
     // Activities to monitor to keep track of events, subruns and runs seen.
-    r.sPostProcessEvent.watch([this](Event const& e) {
+    r.sPostProcessEvent.watch([this](Event const& e, ScheduleID) {
       RecursiveMutexSentry sentry{mutex_, __func__};
       currentGranularity_ = Granularity::Event;
       fp_.update_event();
@@ -114,6 +114,13 @@ namespace art {
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
     registerCallback(cb);
+  }
+
+  void
+  TFileService::setDirectoryNameWithScheduleID_(ModuleDescription const& desc,
+                                                ScheduleID)
+  {
+    setDirectoryName_(desc);
   }
 
   void

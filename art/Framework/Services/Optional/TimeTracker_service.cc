@@ -132,15 +132,17 @@ namespace art {
       Ntuple<uint32_t, uint32_t, uint32_t, string, string, string, double>;
     // Implementation details -- Member Functions
   private:
-    void prePathProcessing(string const&);
+    void prePathProcessing(string const&, ScheduleID);
     void postSourceConstruction(ModuleDescription const&);
     void postEndJob();
-    void preEventReading();
-    void postEventReading(Event const&);
-    void preEventProcessing(Event const&);
-    void postEventProcessing(Event const&);
-    void startTime(ModuleDescription const&);
-    void recordTime(ModuleDescription const& md, string const& suffix);
+    void preEventReading(ScheduleID);
+    void postEventReading(Event const&, ScheduleID);
+    void preEventProcessing(Event const&, ScheduleID);
+    void postEventProcessing(Event const&, ScheduleID);
+    void startTime(ModuleDescription const&, ScheduleID);
+    void recordTime(ModuleDescription const& md,
+                    ScheduleID,
+                    string const& suffix);
     void logToDestination_(Statistics const& evt,
                            vector<Statistics> const& modules);
     // Implementation details -- Member Data
@@ -192,22 +194,21 @@ namespace art {
     areg.sPostProcessEvent.watch(this, &TimeTracker::postEventProcessing);
     // Module execution
     areg.sPreModule.watch(this, &TimeTracker::startTime);
-    areg.sPostModule.watch([this](auto const& md) {
+    areg.sPostModule.watch([this](auto const& md, ScheduleID const sid) {
       RecursiveMutexSentry sentry{mutex_, __func__};
-      this->recordTime(md, ""s);
+      this->recordTime(md, sid, ""s);
     });
     areg.sPreWriteEvent.watch(this, &TimeTracker::startTime);
-    areg.sPostWriteEvent.watch([this](auto const& md) {
+    areg.sPostWriteEvent.watch([this](auto const& md, ScheduleID const sid) {
       RecursiveMutexSentry sentry{mutex_, __func__};
-      this->recordTime(md, "(write)"s);
+      this->recordTime(md, sid, "(write)"s);
     });
   }
 
   void
-  TimeTracker::prePathProcessing(string const& pathname)
+  TimeTracker::prePathProcessing(string const& pathname, ScheduleID const sid)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
     data_[sid].pathName = pathname;
   }
 
@@ -291,20 +292,18 @@ namespace art {
   }
 
   void
-  TimeTracker::preEventReading()
+  TimeTracker::preEventReading(ScheduleID const sid)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
     auto& d = data_[sid];
     d.eventID = EventID::invalidEvent();
     d.eventStart = now();
   }
 
   void
-  TimeTracker::postEventReading(Event const& e)
+  TimeTracker::postEventReading(Event const& e, ScheduleID const sid)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
     auto& d = data_[sid];
     d.eventID = e.id();
     auto const t = chrono::duration<double>{now() - d.eventStart}.count();
@@ -313,20 +312,19 @@ namespace art {
   }
 
   void
-  TimeTracker::preEventProcessing(Event const& e[[gnu::unused]])
+  TimeTracker::preEventProcessing(Event const& e[[gnu::unused]],
+                                  ScheduleID const sid)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
     auto& d = data_[sid];
     assert(d.eventID == e.id());
     d.eventStart = now();
   }
 
   void
-  TimeTracker::postEventProcessing(Event const&)
+  TimeTracker::postEventProcessing(Event const&, ScheduleID const sid)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
     auto const& d = data_[sid];
     auto const t = chrono::duration<double>{now() - d.eventStart}.count();
     timeEventTable_.insert(
@@ -334,19 +332,19 @@ namespace art {
   }
 
   void
-  TimeTracker::startTime(ModuleDescription const&)
+  TimeTracker::startTime(ModuleDescription const&, ScheduleID const sid)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
     auto& d = data_[sid];
     d.moduleStart = now();
   }
 
   void
-  TimeTracker::recordTime(ModuleDescription const& desc, string const& suffix)
+  TimeTracker::recordTime(ModuleDescription const& desc,
+                          ScheduleID const sid,
+                          string const& suffix)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
     auto const& d = data_[sid];
     auto const t = chrono::duration<double>{now() - d.moduleStart}.count();
     timeModuleTable_.insert(d.eventID.run(),

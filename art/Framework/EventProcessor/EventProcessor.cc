@@ -797,7 +797,7 @@ namespace art {
       {
         CurrentProcessingContext cpc{si, nullptr, -1, false};
         detail::CPCSentry sentry{cpc};
-        actReg_.load()->sPreSourceEvent.invoke();
+        actReg_.load()->sPreSourceEvent.invoke(si);
       }
       TDEBUG_FUNC_SI_MSG(5,
                          "readAndProcessAsync",
@@ -820,7 +820,7 @@ namespace art {
         CurrentProcessingContext cpc{si, nullptr, -1, false};
         detail::CPCSentry sentry{cpc};
         Event const e{*(*eventPrincipal_.load())[si], ModuleDescription{}};
-        actReg_.load()->sPostSourceEvent.invoke(e);
+        actReg_.load()->sPostSourceEvent.invoke(e, si);
       }
       FDEBUG(1) << string(8, ' ') << "readEvent...................("
                 << (*eventPrincipal_.load())[si]->eventID() << ")\n";
@@ -958,7 +958,7 @@ namespace art {
         Event const ev{*(*eventPrincipal_.load())[si], ModuleDescription{}};
         CurrentProcessingContext cpc{si, nullptr, -1, false};
         detail::CPCSentry sentry{cpc};
-        actReg_.load()->sPreProcessEvent.invoke(ev);
+        actReg_.load()->sPreProcessEvent.invoke(ev, si);
       }
       // Start the trigger paths running.  When they finish
       // they will spawn the endPathTask which will run the
@@ -1154,7 +1154,7 @@ namespace art {
       Event const ev{*(*eventPrincipal_.load())[si], ModuleDescription{}};
       CurrentProcessingContext cpc{si, nullptr, -1, false};
       detail::CPCSentry sentry{cpc};
-      actReg_.load()->sPostProcessEvent.invoke(ev);
+      actReg_.load()->sPostProcessEvent.invoke(ev, si);
     }
     finishEventAsync(eventLoopTask, si);
     // Note that we do not terminate event processing when we end

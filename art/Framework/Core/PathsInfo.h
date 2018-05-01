@@ -13,7 +13,7 @@
 namespace art {
   class PathsInfo {
   public:
-    ~PathsInfo();
+    ~PathsInfo() noexcept;
     PathsInfo();
 
   public:

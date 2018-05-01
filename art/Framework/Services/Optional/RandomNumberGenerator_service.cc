@@ -442,11 +442,11 @@ namespace art {
   }
 
   void
-  RandomNumberGenerator::preProcessEvent(Event const& e)
+  RandomNumberGenerator::preProcessEvent(Event const& e, ScheduleID const sid)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    takeSnapshot_(PerThread::instance()->getCPC().scheduleID());
-    restoreSnapshot_(PerThread::instance()->getCPC().scheduleID(), e);
+    takeSnapshot_(sid);
+    restoreSnapshot_(sid, e);
   }
 
   void

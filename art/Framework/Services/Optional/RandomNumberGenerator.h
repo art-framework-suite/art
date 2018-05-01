@@ -281,8 +281,8 @@ namespace art {
     bool invariant_holds_(ScheduleID const);
 
   private: // Callbacks from the framework
-    void preProcessEvent(Event const&);
-    void postProcessEvent(Event const&);
+    void preProcessEvent(Event const&, ScheduleID);
+    void postProcessEvent(Event const&, ScheduleID);
     void postBeginJob();
     void postEndJob();
 
