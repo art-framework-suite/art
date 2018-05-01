@@ -76,7 +76,14 @@ namespace art {
       std::unique_ptr<WorkerT<ReplicatedProducer>>&&);
 
   private: // Implementation Details
-    void makeModules_(ScheduleID::size_type n);
+    struct ModulesByThreadingType {
+      std::map<module_label_t, std::shared_ptr<ModuleBase>> shared{};
+      std::map<module_label_t,
+               PerScheduleContainer<std::shared_ptr<ModuleBase>>>
+        replicated{};
+    };
+
+    ModulesByThreadingType makeModules_(ScheduleID::size_type n);
     std::pair<ModuleBase*, std::string> makeModule_(
       fhicl::ParameterSet const& module_pset,
       ModuleDescription const& md,
@@ -84,6 +91,7 @@ namespace art {
     void fillWorkers_(ScheduleID,
                       int pi,
                       std::vector<WorkerInPath::ConfigInfo> const& wci_list,
+                      ModulesByThreadingType const& modules,
                       std::vector<WorkerInPath>& wips,
                       std::map<std::string, Worker*>& workers);
     ModuleType loadModuleType_(std::string const& lib_spec);
@@ -97,9 +105,6 @@ namespace art {
     cet::LibraryManager lm_{Suffixes::module()};
     fhicl::ParameterSet procPS_{};
     std::vector<std::string> triggerPathNames_{};
-    std::map<module_label_t, std::shared_ptr<ModuleBase>> sharedModules_{};
-    std::map<module_label_t, PerScheduleContainer<std::shared_ptr<ModuleBase>>>
-      replicatedModules_{};
     // FIXME: The number of workers is the number of schedules times
     //        the number of configured modules.  For a replicated
     //        module, there is one worker per module copy; for a

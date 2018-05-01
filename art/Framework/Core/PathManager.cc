@@ -404,53 +404,54 @@ namespace art {
   void
   PathManager::createModulesAndWorkers()
   {
-    //  For each configured schedule, create the trigger paths and the workers
-    //  on each path.
-    //
-    //  Note: Only schedule module workers are unique to each schedule,
-    //        all other module workers are singletons.
-    {
-      auto const nschedules =
-        static_cast<ScheduleID::size_type>(Globals::instance()->nschedules());
-      makeModules_(nschedules);
+    // For each configured schedule, create the trigger paths and the
+    // workers on each path.
+    auto const nschedules =
+      static_cast<ScheduleID::size_type>(Globals::instance()->nschedules());
 
-      auto fill_workers = [this](ScheduleID const sid) {
-        auto& pinfo = triggerPathsInfo_[sid];
-        pinfo.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
-        int bitPos = 0;
-        for (auto const& val : protoTrigPathLabelMap_) {
-          auto const& path_name = val.first;
-          auto const& worker_config_infos = val.second;
-          vector<WorkerInPath> wips;
-          fillWorkers_(sid, bitPos, worker_config_infos, wips, pinfo.workers());
-          pinfo.paths().push_back(new Path{exceptActions_,
-                                           actReg_,
-                                           sid,
-                                           bitPos,
-                                           false,
-                                           path_name,
-                                           move(wips),
-                                           &pinfo.pathResults()});
-          {
-            ostringstream msg;
-            msg << "Made path 0x" << hex
-                << ((unsigned long)pinfo.paths().back()) << dec
-                << " bitPos: " << bitPos << " name: " << val.first;
-            TDEBUG_FUNC_SI_MSG(
-              5, "PathManager::createModulesAndWorkers", sid, msg.str());
-          }
-          ++bitPos;
+    // The modules created are managed by shared_ptrs.  Once the
+    // workers claim (co-)ownership of the modules, the 'modules'
+    // object can be destroyed.
+    auto modules = makeModules_(nschedules);
+
+    auto fill_workers = [&modules, this](ScheduleID const sid) {
+      auto& pinfo = triggerPathsInfo_[sid];
+      pinfo.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
+      int bitPos = 0;
+      for (auto const& val : protoTrigPathLabelMap_) {
+        auto const& path_name = val.first;
+        auto const& worker_config_infos = val.second;
+        vector<WorkerInPath> wips;
+        fillWorkers_(
+          sid, bitPos, worker_config_infos, modules, wips, pinfo.workers());
+        pinfo.paths().push_back(new Path{exceptActions_,
+                                         actReg_,
+                                         sid,
+                                         bitPos,
+                                         false,
+                                         path_name,
+                                         move(wips),
+                                         &pinfo.pathResults()});
+        {
+          ostringstream msg;
+          msg << "Made path 0x" << hex << ((unsigned long)pinfo.paths().back())
+              << dec << " bitPos: " << bitPos << " name: " << val.first;
+          TDEBUG_FUNC_SI_MSG(
+            5, "PathManager::createModulesAndWorkers", sid, msg.str());
         }
-      };
-      ScheduleIteration schedule_iteration{nschedules};
-      schedule_iteration.for_each_schedule(fill_workers);
-    }
+        ++bitPos;
+      }
+    };
+    ScheduleIteration schedule_iteration{nschedules};
+    schedule_iteration.for_each_schedule(fill_workers);
+
     if (!protoEndPathLabels_.empty()) {
       //  Create the end path and the workers on it.
       vector<WorkerInPath> wips;
       fillWorkers_(ScheduleID::first(),
                    0,
                    protoEndPathLabels_,
+                   modules,
                    wips,
                    endPathInfo_.workers());
       endPathInfo_.paths().push_back(new Path{exceptActions_,
@@ -469,10 +470,6 @@ namespace art {
           5, "PathManager::createModulesAndWorkers", 0, msg.str());
       }
     }
-
-    // Modules are now owned by the workers; release references.
-    sharedModules_.clear();
-    replicatedModules_.clear();
 
     using namespace detail;
     auto const graph_info_collection = getModuleGraphInfoCollection_();
@@ -526,9 +523,10 @@ namespace art {
     triggerResultsInserter_.at(si) = move(w);
   }
 
-  void
+  PathManager::ModulesByThreadingType
   PathManager::makeModules_(ScheduleID::size_type const nschedules)
   {
+    ModulesByThreadingType modules{};
     vector<string> configErrMsgs;
     for (auto const& pr : allModules_) {
       auto const& module_label = pr.first;
@@ -561,7 +559,7 @@ namespace art {
 
       if (module_threading_type == ModuleThreadingType::shared ||
           module_threading_type == ModuleThreadingType::legacy) {
-        sharedModules_.emplace(module_label,
+        modules.shared.emplace(module_label,
                                std::shared_ptr<ModuleBase>{module});
       } else {
         PerScheduleContainer<std::shared_ptr<ModuleBase>> replicated_modules(
@@ -578,7 +576,7 @@ namespace art {
             }
           };
         schedule_iteration.for_each_schedule(fill_replicated_module);
-        replicatedModules_.emplace(module_label, replicated_modules);
+        modules.replicated.emplace(module_label, replicated_modules);
       }
 
       actReg_.sPostModuleConstruction.invoke(md);
@@ -603,6 +601,7 @@ namespace art {
       msg << "\n" << rule('=') << "\n\n";
       throw Exception(errors::Configuration) << msg.str();
     }
+    return modules;
   }
 
   std::pair<ModuleBase*, std::string>
@@ -651,6 +650,7 @@ namespace art {
   PathManager::fillWorkers_(ScheduleID const sid,
                             int const pi,
                             vector<WorkerInPath::ConfigInfo> const& wci_list,
+                            ModulesByThreadingType const& modules,
                             vector<WorkerInPath>& wips,
                             map<string, Worker*>& workers)
   {
@@ -681,15 +681,15 @@ namespace art {
         }
       }
       if (worker == nullptr) {
-        auto getModule_ =
-          [this](std::string const& module_label,
-                 ModuleThreadingType const module_threading_type,
-                 ScheduleID const sid) {
+        auto get_module =
+          [&modules, this](std::string const& module_label,
+                           ModuleThreadingType const module_threading_type,
+                           ScheduleID const sid) {
             if (module_threading_type == ModuleThreadingType::shared ||
                 module_threading_type == ModuleThreadingType::legacy) {
-              return sharedModules_.at(module_label);
+              return modules.shared.at(module_label);
             } else {
-              return replicatedModules_.at(module_label)[sid];
+              return modules.replicated.at(module_label)[sid];
             }
           };
 
@@ -725,7 +725,7 @@ namespace art {
             << getReleaseVersion()
             << " has internal symbol definition problems: consult an expert.";
         }
-        auto module = getModule_(module_label, module_threading_type, sid);
+        auto module = get_module(module_label, module_threading_type, sid);
         worker = worker_from_module_factory_func(module, md, wp);
         workers_[module_label][sid] = worker;
 
