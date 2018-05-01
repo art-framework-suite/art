@@ -29,6 +29,7 @@
 #include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/ScheduleIteration.h"
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Utilities/bold_fontify.h"
@@ -216,13 +217,13 @@ namespace art {
     firstEvent_ = true;
     fileSwitchInProgress_ = false;
     eventPrincipal_.load()->expand_to_num_schedules();
-    for (auto si = ScheduleID::first();
-         si < ScheduleID{static_cast<ScheduleID::size_type>(nschedules)};
-         si = si.next()) {
-      ANNOTATE_BENIGN_RACE_SIZED(&(*eventPrincipal_.load())[si],
+    ScheduleIteration schedule_iteration(nschedules);
+    auto annotate_principal = [this](ScheduleID const sid[[gnu::unused]]) {
+      ANNOTATE_BENIGN_RACE_SIZED(&(*eventPrincipal_.load())[sid],
                                  sizeof(EventPrincipal*),
                                  "EventPrincipal ptr");
-    }
+    };
+    schedule_iteration.for_each_schedule(annotate_principal);
     auto const errorOnMissingConsumes =
       scheduler_.load()->errorOnMissingConsumes();
     ConsumesInfo::instance()->setRequireConsumes(errorOnMissingConsumes);
@@ -253,19 +254,19 @@ namespace art {
                                            scheduler_.load()->actionTable(),
                                            *actReg_.load(),
                                            *outputCallbacks_.load()};
-    for (auto I = ScheduleID::first();
-         I < ScheduleID{static_cast<ScheduleID::size_type>(nschedules)};
-         I = I.next()) {
-      schedule_.load()->emplace_back(I,
-                                     *pathManager_.load(),
-                                     processName,
-                                     pset,
-                                     triggerPSet,
-                                     *outputCallbacks_.load(),
-                                     *producedProductDescriptions_.load(),
-                                     scheduler_.load()->actionTable(),
-                                     *actReg_.load());
-    }
+    auto create =
+      [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
+        schedule_.load()->emplace_back(sid,
+                                       *pathManager_.load(),
+                                       processName,
+                                       pset,
+                                       triggerPSet,
+                                       *outputCallbacks_.load(),
+                                       *producedProductDescriptions_.load(),
+                                       scheduler_.load()->actionTable(),
+                                       *actReg_.load());
+      };
+    schedule_iteration.for_each_schedule(create);
     FDEBUG(2) << pset.to_string() << endl;
     // The input source must be created after the end path executor
     // because the end path executor registers a callback that must
@@ -565,15 +566,19 @@ namespace art {
       };
       auto eventLoopTask = new (tbb::task::allocate_root()) Waiter;
       eventLoopTask->set_ref_count(nschedules + 1);
+
       tbb::task_list schedule_heads;
-      for (auto si = ScheduleID::first();
-           si < ScheduleID{static_cast<ScheduleID::size_type>(nschedules)};
-           si = si.next()) {
+      ScheduleIteration schedule_iteration(nschedules);
+      auto create_event_processing_tasks = [&eventLoopTask,
+                                            &schedule_heads,
+                                            this](ScheduleID const sid) {
         auto processAllEventsTask =
           make_waiting_task(eventLoopTask->allocate_child(),
-                            ProcessAllEventsFunctor{this, eventLoopTask, si});
+                            ProcessAllEventsFunctor{this, eventLoopTask, sid});
         schedule_heads.push_back(*processAllEventsTask);
-      }
+      };
+      schedule_iteration.for_each_schedule(create_event_processing_tasks);
+
       eventLoopTask->spawn_and_wait_for_all(schedule_heads);
       tbb::task::destroy(*eventLoopTask);
       // If anything bad happened during event processing,

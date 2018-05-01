@@ -21,6 +21,7 @@
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/ScheduleIteration.h"
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
@@ -412,19 +413,19 @@ namespace art {
       auto const nschedules =
         static_cast<ScheduleID::size_type>(Globals::instance()->nschedules());
       makeModules_(nschedules);
-      for (auto si = ScheduleID::first(); si < ScheduleID(nschedules);
-           si = si.next()) {
-        auto& pinfo = triggerPathsInfo_[si];
+
+      auto fill_workers = [this](ScheduleID const sid) {
+        auto& pinfo = triggerPathsInfo_[sid];
         pinfo.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
         int bitPos = 0;
         for (auto const& val : protoTrigPathLabelMap_) {
           auto const& path_name = val.first;
           auto const& worker_config_infos = val.second;
           vector<WorkerInPath> wips;
-          fillWorkers_(si, bitPos, worker_config_infos, wips, pinfo.workers());
+          fillWorkers_(sid, bitPos, worker_config_infos, wips, pinfo.workers());
           pinfo.paths().push_back(new Path{exceptActions_,
                                            actReg_,
-                                           si,
+                                           sid,
                                            bitPos,
                                            false,
                                            path_name,
@@ -436,11 +437,13 @@ namespace art {
                 << ((unsigned long)pinfo.paths().back()) << dec
                 << " bitPos: " << bitPos << " name: " << val.first;
             TDEBUG_FUNC_SI_MSG(
-              5, "PathManager::createModulesAndWorkers", si, msg.str());
+              5, "PathManager::createModulesAndWorkers", sid, msg.str());
           }
           ++bitPos;
         }
-      }
+      };
+      ScheduleIteration schedule_iteration{nschedules};
+      schedule_iteration.for_each_schedule(fill_workers);
     }
     if (!protoEndPathLabels_.empty()) {
       //  Create the end path and the workers on it.
@@ -564,12 +567,17 @@ namespace art {
         PerScheduleContainer<std::shared_ptr<ModuleBase>> replicated_modules(
           nschedules);
         replicated_modules[sid].reset(module);
-        for (sid = sid.next(); sid < ScheduleID(nschedules); sid = sid.next()) {
-          auto repl_result = makeModule_(modPS, md, sid);
-          if (!repl_result.second.empty()) {
-            replicated_modules[sid].reset(repl_result.first);
-          }
-        }
+        ScheduleIteration schedule_iteration{sid.next(),
+                                             ScheduleID(nschedules)};
+
+        auto fill_replicated_module =
+          [&replicated_modules, &modPS, &md, this](ScheduleID const sid) {
+            auto repl_result = makeModule_(modPS, md, sid);
+            if (!repl_result.second.empty()) {
+              replicated_modules[sid].reset(repl_result.first);
+            }
+          };
+        schedule_iteration.for_each_schedule(fill_replicated_module);
         replicatedModules_.emplace(module_label, replicated_modules);
       }
 

@@ -44,6 +44,7 @@
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/PerThread.h"
 #include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/ScheduleIteration.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/assert_only_one_thread.h"
 #include "cetlib/container_algorithms.h"
@@ -454,10 +455,9 @@ namespace art {
     // For normal termination, we wish to save the state at the *end* of
     // processing, not at the beginning of the last event.
     RecursiveMutexSentry sentry{mutex_, __func__};
-    for (auto si = ScheduleID::first(); si.id() < data_.size();
-         si = si.next()) {
-      takeSnapshot_(si);
-    }
+    ScheduleIteration iteration(data_.size());
+    iteration.for_each_schedule(
+      [this](ScheduleID const sid) { takeSnapshot_(sid); });
     saveToFile_();
   }
 
