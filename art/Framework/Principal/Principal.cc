@@ -420,37 +420,32 @@ Principal::deferredGetter_(ProductID const pid) const
   return deferredGetters_[pid].get();
 }
 
-namespace {
-  static auto const invalid_rs = RangeSet::invalid();
-}
-
 OutputHandle
 Principal::getForOutput(ProductID const pid, bool const resolveProd) const
 {
   auto const& g = getResolvedGroup(pid, resolveProd);
   if (g.get() == nullptr) {
-    return OutputHandle{invalid_rs};
+    return OutputHandle::invalid();
   }
 
-  auto const& pd = g->productDescription();
-  if (resolveProd &&
-      ((g->anyProduct() == nullptr) || !g->anyProduct()->isPresent()) &&
-      (presentFromSource(pid) || pd.produced()) &&
-      productstatus::present(g->productProvenancePtr()->productStatus())) {
-    // A product with a status of 'present' is not actually
-    // present. Yes, believe it or not, this has happened.  There are
-    // some files where the branch is present in the file, but all the
-    // products are marked not present.  This situation should have
-    // never happened, but since it has, and since it is not a fatal
-    // error (the product is not present, no matter what), we return
-    // an invalid OutputHandle.
-    return OutputHandle{invalid_rs};
+  if (resolveProd) {
+    // If a request to resolve the product is made, then it should
+    // exist and be marked as present.  Return invalid handles if this
+    // is not the case.
+    if (g->anyProduct() == nullptr) {
+      return OutputHandle::invalid();
+    }
+    if (!g->anyProduct()->isPresent()) {
+      return OutputHandle::invalid();
+    }
   }
   if (!g->anyProduct() && !g->productProvenancePtr()) {
     return OutputHandle{g->rangeOfValidity()};
   }
-  return OutputHandle{
-    g->anyProduct(), &pd, g->productProvenancePtr(), g->rangeOfValidity()};
+  return OutputHandle{g->anyProduct(),
+                      &g->productDescription(),
+                      g->productProvenancePtr(),
+                      g->rangeOfValidity()};
 }
 
 cet::exempt_ptr<Group const>

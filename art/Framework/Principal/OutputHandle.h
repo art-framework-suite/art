@@ -48,6 +48,12 @@ namespace art {
       , rangeOfValidity_{rs}
     {}
 
+    static OutputHandle
+    invalid()
+    {
+      return OutputHandle{RangeSet::invalid()};
+    }
+
     /// Used when the attempt to get the data failed
     OutputHandle(RangeSet const& rs) : rangeOfValidity_{rs} {}
 
