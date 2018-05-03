@@ -488,10 +488,10 @@ namespace art {
   // Note: We come here as part of the endPath task, our
   // parent task is the eventLoop task.
   void
-  EndPathExecutor::process_event(EventPrincipal& ep, ScheduleID const si)
+  EndPathExecutor::process_event(EventPrincipal& ep, ScheduleID const sid)
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    TDEBUG_BEGIN_FUNC_SI(4, "EndPathExecutor::process_event", si);
+    TDEBUG_BEGIN_FUNC_SI(4, "EndPathExecutor::process_event", sid);
     if (runningWorkerCnt_.load() != 0) {
       cerr << "Aborting! runningWorkerCnt_.load() != 0: "
            << runningWorkerCnt_.load() << "\n";
@@ -500,12 +500,13 @@ namespace art {
     ++runningWorkerCnt_;
     for (auto& label_and_worker : endPathInfo_.load()->workers()) {
       auto& w = label_and_worker.second;
-      w->reset(si);
+      w->reset(sid);
     }
     endPathInfo_.load()->incrementTotalEventCount();
     try {
       if (!endPathInfo_.load()->paths().empty()) {
-        endPathInfo_.load()->paths().front()->process_event_for_endpath(ep, si);
+        endPathInfo_.load()->paths().front()->process_event_for_endpath(ep,
+                                                                        sid);
       }
     }
     catch (cet::exception& ex) {
@@ -515,7 +516,7 @@ namespace art {
       if (action != actions::IgnoreCompletely) {
         // Possible actions: Rethrow, SkipEvent, FailModule, FailPath
         TDEBUG_END_FUNC_SI_ERR(
-          4, "EndPathExecutor::process_event", si, "because of EXCEPTION");
+          4, "EndPathExecutor::process_event", sid, "because of EXCEPTION");
         if (runningWorkerCnt_.load() != 1) {
           abort();
         }
@@ -537,7 +538,7 @@ namespace art {
       mf::LogError("PassingThrough")
         << "an exception occurred during current event processing\n";
       TDEBUG_END_FUNC_SI_ERR(
-        4, "EndPathExecutor::process_event", si, "because of EXCEPTION");
+        4, "EndPathExecutor::process_event", sid, "because of EXCEPTION");
       if (runningWorkerCnt_.load() != 1) {
         abort();
       }
@@ -549,11 +550,11 @@ namespace art {
       abort();
     }
     --runningWorkerCnt_;
-    TDEBUG_END_FUNC_SI(4, "EndPathExecutor::process_event", si);
+    TDEBUG_END_FUNC_SI(4, "EndPathExecutor::process_event", sid);
   }
 
   void
-  EndPathExecutor::writeEvent(ScheduleID const si, EventPrincipal& ep)
+  EndPathExecutor::writeEvent(ScheduleID const sid, EventPrincipal& ep)
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : *outputWorkers_.load()) {
@@ -561,11 +562,11 @@ namespace art {
       // FIXME: this is overkill.  Users just need to be able to
       // access the correct ScheduleID within the service.  They do
       // not need a full-fledged context.
-      CurrentProcessingContext cpc{si, nullptr, -1, false};
+      CurrentProcessingContext cpc{sid, nullptr, -1, false};
       detail::CPCSentry sentry{cpc};
-      actReg_.load()->sPreWriteEvent.invoke(md, si);
+      actReg_.load()->sPreWriteEvent.invoke(md, sid);
       ow->writeEvent(ep);
-      actReg_.load()->sPostWriteEvent.invoke(md, si);
+      actReg_.load()->sPostWriteEvent.invoke(md, sid);
     }
     auto const& eid = ep.eventID();
     bool const lastInSubRun{ep.isLastInSubRun()};
@@ -577,10 +578,10 @@ namespace art {
       msg << eid.subRun();
       msg << ", ";
       msg << eid.event();
-      TDEBUG_FUNC_SI_MSG(5, "EndPathExecutor::writeEvent", si, msg.str());
+      TDEBUG_FUNC_SI_MSG(5, "EndPathExecutor::writeEvent", sid, msg.str());
     }
-    runRangeSetHandler_.load()->at(si)->update(eid, lastInSubRun);
-    subRunRangeSetHandler_.load()->at(si)->update(eid, lastInSubRun);
+    runRangeSetHandler_.load()->at(sid)->update(eid, lastInSubRun);
+    subRunRangeSetHandler_.load()->at(sid)->update(eid, lastInSubRun);
   }
 
   //

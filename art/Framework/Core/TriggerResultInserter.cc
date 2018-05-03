@@ -13,16 +13,16 @@
 namespace art {
 
   TriggerResultInserter::TriggerResultInserter(fhicl::ParameterSet const& pset,
-                                               ScheduleID const si,
+                                               ScheduleID const sid,
                                                HLTGlobalStatus& pathResults)
     : pset_id_{pset.id()}, trptr_(&pathResults)
   {
     {
       std::ostringstream msg;
       msg << "0x" << std::hex << ((unsigned long)this) << std::dec;
-      TDEBUG_FUNC_SI_MSG(5, "TriggerResultInserter ctor", si, msg.str());
+      TDEBUG_FUNC_SI_MSG(5, "TriggerResultInserter ctor", sid, msg.str());
     }
-    if (si == ScheduleID::first()) {
+    if (sid == ScheduleID::first()) {
       produces<TriggerResults>();
     }
   }

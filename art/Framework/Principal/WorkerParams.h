@@ -27,7 +27,7 @@ namespace art {
                  ActivityRegistry const& actReg,
                  ActionTable const& actions,
                  std::string const& processName,
-                 ScheduleID const si)
+                 ScheduleID const sid)
       : procPset_{procPset}
       , pset_{pset}
       , reg_{reg}
@@ -35,7 +35,7 @@ namespace art {
       , actReg_{actReg}
       , actions_{actions}
       , processName_{processName}
-      , scheduleID_{si}
+      , scheduleID_{sid}
     {}
 
     fhicl::ParameterSet const& procPset_;

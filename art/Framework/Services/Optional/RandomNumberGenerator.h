@@ -211,7 +211,7 @@ namespace art {
 
       // The most recent source of the labeled random number engines for this
       // stream. Indexed by engine label. When EngineSource == Seed, this means
-      // an engine with the given label has been created by createEngine(si,
+      // an engine with the given label has been created by createEngine(sid,
       // seed, ...). When EngineSource == File, this means the engine was
       // created by restoring it from a file. When EngineSource == Product, this
       // means the engine was created by restoring it from a snapshot data
@@ -250,7 +250,7 @@ namespace art {
     // Note: Could remove if we do not need to support access from engines
     // restored from file.
     CLHEP::HepRandomEngine& getEngine(
-      ScheduleID const si = ScheduleID::first(),
+      ScheduleID const sid = ScheduleID::first(),
       std::string const& engine_label = {}) const;
 
   private: // Engine establishment

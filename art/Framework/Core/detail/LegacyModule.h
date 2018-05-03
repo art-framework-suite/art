@@ -17,9 +17,9 @@ namespace art {
       }
 
       void
-      setScheduleID(ScheduleID const si) noexcept
+      setScheduleID(ScheduleID const sid) noexcept
       {
-        scheduleID_ = si;
+        scheduleID_ = sid;
       }
 
       class ScheduleIDSentry;

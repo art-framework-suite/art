@@ -32,12 +32,12 @@ namespace art {
   }
 
   CurrentProcessingContext::CurrentProcessingContext(
-    ScheduleID const si,
+    ScheduleID const sid,
     string const* const name,
     int const bitpos,
     bool const isEndPath) noexcept
   {
-    scheduleID_ = si;
+    scheduleID_ = sid;
     pathName_ = name;
     bitPos_ = bitpos;
     isEndPath_ = isEndPath;

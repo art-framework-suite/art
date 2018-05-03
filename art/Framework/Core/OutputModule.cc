@@ -267,7 +267,7 @@ namespace art {
 
   bool
   OutputModule::doEvent(EventPrincipal const& ep,
-                        ScheduleID const /*si*/,
+                        ScheduleID const /*sid*/,
                         CurrentProcessingContext const* cpc,
                         std::atomic<std::size_t>& counts_run,
                         std::atomic<std::size_t>& counts_passed,

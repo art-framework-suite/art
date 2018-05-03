@@ -60,7 +60,7 @@ namespace art {
 
   Path::Path(ActionTable const& actions,
              ActivityRegistry const& actReg,
-             ScheduleID const si,
+             ScheduleID const sid,
              int const bitpos,
              bool const isEndPath,
              string const& path_name,
@@ -70,16 +70,16 @@ namespace art {
     {
       ostringstream msg;
       msg << "0x" << hex << ((unsigned long)this) << dec;
-      TDEBUG_FUNC_SI_MSG(4, "Path ctor", si, msg.str());
+      TDEBUG_FUNC_SI_MSG(4, "Path ctor", sid, msg.str());
     }
     actionTable_ = &actions;
     actReg_ = &actReg;
-    scheduleID_ = si;
+    scheduleID_ = sid;
     bitpos_ = bitpos;
     name_ = new string(path_name);
     workers_ = new vector<WorkerInPath>{move(workers)};
     trptr_ = pathResults;
-    cpc_ = new CurrentProcessingContext(si, name_.load(), bitpos, isEndPath);
+    cpc_ = new CurrentProcessingContext(sid, name_.load(), bitpos, isEndPath);
     waitingTasks_ = new WaitingTaskList;
     state_ = hlt::Ready;
     timesRun_ = 0;
@@ -210,12 +210,12 @@ namespace art {
   // is the eventLoop task.  We will run the workers on the
   // path in order serially without using tasks.
   void
-  Path::process_event_for_endpath(EventPrincipal& ep, ScheduleID const si)
+  Path::process_event_for_endpath(EventPrincipal& ep, ScheduleID const sid)
   {
-    TDEBUG_BEGIN_FUNC_SI(4, "Path::process_event_for_endpath", si);
-    CurrentProcessingContext cpc{si, nullptr, -1, false};
+    TDEBUG_BEGIN_FUNC_SI(4, "Path::process_event_for_endpath", sid);
+    CurrentProcessingContext cpc{sid, nullptr, -1, false};
     detail::CPCSentry sentry{cpc};
-    actReg_.load()->sPreProcessPath.invoke(*name_.load(), si);
+    actReg_.load()->sPreProcessPath.invoke(*name_.load(), sid);
     ++timesRun_;
     state_ = hlt::Ready;
     auto const max_idx = workers_.load()->size();
@@ -225,7 +225,7 @@ namespace art {
       auto& workerInPath = (*workers_.load())[idx];
       cpc_.load()->activate(idx, workerInPath.getWorker()->descPtr());
       try {
-        workerInPath.runWorker_event_for_endpath(ep, si, cpc_.load());
+        workerInPath.runWorker_event_for_endpath(ep, sid, cpc_.load());
       }
       catch (cet::exception& e) {
         // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
@@ -242,7 +242,7 @@ namespace art {
           }
           TDEBUG_END_FUNC_SI_ERR(4,
                                  "Path::process_event_for_endpath",
-                                 si,
+                                 sid,
                                  "terminate path because of EXCEPTION");
           throw Exception{
             errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
@@ -268,17 +268,18 @@ namespace art {
         }
         TDEBUG_END_FUNC_SI_ERR(4,
                                "Path::process_event_for_endpath",
-                               si,
+                               sid,
                                "terminate end path because of EXCEPTION");
         return;
       }
       // Note: This will only be set false by a filter which has rejected
       // (impossible on the end path!).
-      should_continue = workerInPath.returnCode(si);
+      should_continue = workerInPath.returnCode(sid);
       {
         ostringstream msg;
         msg << "idx: " << idx << " should_continue: " << should_continue;
-        TDEBUG_FUNC_SI_MSG(5, "Path::process_event_for_endpath", si, msg.str());
+        TDEBUG_FUNC_SI_MSG(
+          5, "Path::process_event_for_endpath", sid, msg.str());
       }
     }
     // All done, or filter rejected, or error.
@@ -295,17 +296,17 @@ namespace art {
         (*trptr_.load())[bitpos_.load()] = HLTPathStatus(state_, idx);
       }
       HLTPathStatus const status(state_, idx);
-      actReg_.load()->sPostProcessPath.invoke(*name_.load(), status, si);
+      actReg_.load()->sPostProcessPath.invoke(*name_.load(), status, sid);
     }
     catch (...) {
       TDEBUG_END_FUNC_SI_ERR(
         4,
         "Path::process_event_for_endpath",
-        si,
+        sid,
         "terminate end path final processing because of EXCEPTION");
       throw;
     }
-    TDEBUG_END_FUNC_SI(4, "Path::process_event_for_endpath", si);
+    TDEBUG_END_FUNC_SI(4, "Path::process_event_for_endpath", sid);
   }
 
   // We come here as part of the readAndProcessEvent task, or
@@ -314,18 +315,18 @@ namespace art {
   void
   Path::process_event(WaitingTask* pathsDoneTask,
                       EventPrincipal& ep,
-                      ScheduleID const si)
+                      ScheduleID const sid)
   {
     // Note: We are part of the readAndProcessEventTask (stream head task),
     // or the endPath task, and our parent task is the nullptr.
     // The parent of the pathsDoneTask is the eventLoop Task.
-    TDEBUG_BEGIN_FUNC_SI(4, "Path::process_event", si);
+    TDEBUG_BEGIN_FUNC_SI(4, "Path::process_event", sid);
     INTENTIONAL_DATA_RACE(DR_PATH_PROCESS_EVENT);
     {
       ostringstream msg;
       msg << "0x" << hex << ((unsigned long)this) << dec
           << " Resetting waitingTasks_";
-      TDEBUG_FUNC_SI_MSG(6, "Path::process_event", si, msg.str());
+      TDEBUG_FUNC_SI_MSG(6, "Path::process_event", sid, msg.str());
     }
     // Make sure the list is not auto-spawning tasks.
     waitingTasks_.load()->reset();
@@ -333,7 +334,7 @@ namespace art {
     waitingTasks_.load()->add(pathsDoneTask);
     {
       detail::CPCSentry sentry{*cpc_.load()};
-      actReg_.load()->sPreProcessPath.invoke(*name_.load(), si);
+      actReg_.load()->sPreProcessPath.invoke(*name_.load(), sid);
     }
     ++timesRun_;
     state_ = hlt::Ready;
@@ -343,8 +344,8 @@ namespace art {
     // Start the task spawn chain going with the first worker on the
     // path.  Each worker will spawn the next worker in order, until
     // all the workers have run.
-    process_event_idx_asynch(idx, max_idx, ep, si, cpc_.load());
-    TDEBUG_END_FUNC_SI(4, "Path::process_event", si);
+    process_event_idx_asynch(idx, max_idx, ep, sid, cpc_.load());
+    TDEBUG_END_FUNC_SI(4, "Path::process_event", sid);
   }
 
   class RunWorkerFunctor {
@@ -353,15 +354,15 @@ namespace art {
                      size_t idx,
                      size_t const max_idx,
                      EventPrincipal& ep,
-                     ScheduleID const si,
+                     ScheduleID const sid,
                      CurrentProcessingContext* cpc)
-      : path_{path}, idx_{idx}, max_idx_{max_idx}, ep_{ep}, si_{si}, cpc_{cpc}
+      : path_{path}, idx_{idx}, max_idx_{max_idx}, ep_{ep}, sid_{sid}, cpc_{cpc}
     {}
     void
     operator()(exception_ptr const* ex) const
     {
       INTENTIONAL_DATA_RACE(DR_PATH_RUN_WORKER_FUNCTOR);
-      path_->runWorkerTask(idx_, max_idx_, ep_, si_, cpc_, ex);
+      path_->runWorkerTask(idx_, max_idx_, ep_, sid_, cpc_, ex);
     }
 
   private:
@@ -369,7 +370,7 @@ namespace art {
     size_t idx_;
     size_t const max_idx_;
     EventPrincipal& ep_;
-    ScheduleID const si_;
+    ScheduleID const sid_;
     CurrentProcessingContext* cpc_;
   };
 
@@ -377,26 +378,26 @@ namespace art {
   Path::runWorkerTask(size_t idx,
                       size_t const max_idx,
                       EventPrincipal& ep,
-                      ScheduleID const si,
+                      ScheduleID const sid,
                       CurrentProcessingContext* cpc,
                       std::exception_ptr const*)
   {
     // Note: When we start here our parent task is the nullptr.
-    TDEBUG_BEGIN_TASK_SI(4, "runWorkerTask", si);
+    TDEBUG_BEGIN_TASK_SI(4, "runWorkerTask", sid);
     INTENTIONAL_DATA_RACE(DR_PATH_RUN_WORKER_TASK);
     auto new_idx = idx;
     auto new_cpc = cpc;
     try {
-      process_event_idx(new_idx, max_idx, ep, si, new_cpc);
+      process_event_idx(new_idx, max_idx, ep, sid, new_cpc);
     }
     catch (...) {
       waitingTasks_.load()->doneWaiting(current_exception());
       // End this task, terminating the path here.
       TDEBUG_END_TASK_SI_ERR(
-        4, "runWorkerTask", si, "path terminate because of EXCEPTION");
+        4, "runWorkerTask", sid, "path terminate because of EXCEPTION");
       return;
     }
-    TDEBUG_END_TASK_SI(4, "runWorkerTask", si);
+    TDEBUG_END_TASK_SI(4, "runWorkerTask", sid);
   }
 
   // This function is a spawn chain system to run workers one at a time,
@@ -407,26 +408,26 @@ namespace art {
   Path::process_event_idx_asynch(size_t const idx,
                                  size_t const max_idx,
                                  EventPrincipal& ep,
-                                 ScheduleID const si,
+                                 ScheduleID const sid,
                                  CurrentProcessingContext* cpc)
   {
     {
       ostringstream msg;
       msg << "idx: " << idx << " max_idx: " << max_idx;
       TDEBUG_FUNC_SI_MSG(
-        4, "Begin Path::process_event_idx_asynch", si, msg.str());
+        4, "Begin Path::process_event_idx_asynch", sid, msg.str());
     }
     INTENTIONAL_DATA_RACE(DR_PATH_PROCESS_EVENT_IDX_ASYNCH);
     auto runWorkerTask =
       make_waiting_task(tbb::task::allocate_root(),
-                        RunWorkerFunctor{this, idx, max_idx, ep, si, cpc});
+                        RunWorkerFunctor{this, idx, max_idx, ep, sid, cpc});
     tbb::task::spawn(*runWorkerTask);
     // And end this task, which does not terminate event
     // processing because our parent task is the nullptr.
     {
       ostringstream msg;
       msg << "idx: " << idx << " max_idx: " << max_idx;
-      TDEBUG_FUNC_SI_MSG(4, "Path::process_event_idx_asynch", si, msg.str());
+      TDEBUG_FUNC_SI_MSG(4, "Path::process_event_idx_asynch", sid, msg.str());
     }
   }
 
@@ -436,14 +437,14 @@ namespace art {
                       size_t const idx,
                       size_t const max_idx,
                       EventPrincipal& ep,
-                      ScheduleID const si,
+                      ScheduleID const sid,
                       CurrentProcessingContext* cpc)
-      : path_{path}, idx_{idx}, max_idx_{max_idx}, ep_{ep}, si_{si}, cpc_{cpc}
+      : path_{path}, idx_{idx}, max_idx_{max_idx}, ep_{ep}, sid_{sid}, cpc_{cpc}
     {}
     void
     operator()(exception_ptr const* ex)
     {
-      path_->workerDoneTask(idx_, max_idx_, ep_, si_, cpc_, ex);
+      path_->workerDoneTask(idx_, max_idx_, ep_, sid_, cpc_, ex);
     }
 
   private:
@@ -451,7 +452,7 @@ namespace art {
     size_t const idx_;
     size_t const max_idx_;
     EventPrincipal& ep_;
-    ScheduleID const si_;
+    ScheduleID const sid_;
     CurrentProcessingContext* cpc_;
   };
 
@@ -459,19 +460,19 @@ namespace art {
   Path::workerDoneTask(size_t const idx,
                        size_t const max_idx,
                        EventPrincipal& ep,
-                       ScheduleID const si,
+                       ScheduleID const sid,
                        CurrentProcessingContext* cpc,
                        exception_ptr const* ex)
   {
-    TDEBUG_BEGIN_TASK_SI(4, "workerDoneTask", si);
+    TDEBUG_BEGIN_TASK_SI(4, "workerDoneTask", sid);
     INTENTIONAL_DATA_RACE(DR_PATH_WORKER_DONE_TASK);
     auto& workerInPath = (*workers_.load())[idx];
     // Note: This will only be set false by a filter which has rejected.
-    bool new_should_continue = workerInPath.returnCode(si);
+    bool new_should_continue = workerInPath.returnCode(sid);
     {
       ostringstream msg;
       msg << "new_should_continue: " << new_should_continue;
-      TDEBUG_TASK_SI_MSG(4, "workerDoneTask", si, msg.str());
+      TDEBUG_TASK_SI_MSG(4, "workerDoneTask", sid, msg.str());
     }
     if (ex != nullptr) {
       try {
@@ -495,7 +496,7 @@ namespace art {
           auto ex_ptr = make_exception_ptr(art_ex);
           waitingTasks_.load()->doneWaiting(ex_ptr);
           TDEBUG_END_TASK_SI_ERR(
-            4, "workerDoneTask", si, "terminate path because of EXCEPTION");
+            4, "workerDoneTask", sid, "terminate path because of EXCEPTION");
           return;
         }
         new_should_continue = false;
@@ -515,7 +516,7 @@ namespace art {
         }
         waitingTasks_.load()->doneWaiting(current_exception());
         TDEBUG_END_TASK_SI_ERR(
-          4, "workerDoneTask", si, "terminate path because of EXCEPTION");
+          4, "workerDoneTask", sid, "terminate path because of EXCEPTION");
         return;
       }
       // WARNING: The only way we can get here is if the worker
@@ -523,8 +524,8 @@ namespace art {
       // the path because of actions::FailPath!!!
     }
     process_event_workerFinished(
-      idx, max_idx, ep, si, new_should_continue, cpc);
-    TDEBUG_END_TASK_SI(4, "workerDoneTask", si);
+      idx, max_idx, ep, sid, new_should_continue, cpc);
+    TDEBUG_END_TASK_SI(4, "workerDoneTask", sid);
   }
 
   // This function is the main body of the Run Worker task.
@@ -533,25 +534,25 @@ namespace art {
   Path::process_event_idx(size_t const idx,
                           size_t const max_idx,
                           EventPrincipal& ep,
-                          ScheduleID const si,
+                          ScheduleID const sid,
                           CurrentProcessingContext* cpc)
   {
     {
       ostringstream msg;
       msg << "idx: " << idx << " max_idx: " << max_idx;
-      TDEBUG_FUNC_SI_MSG(4, "Path::process_event_idx", si, msg.str());
+      TDEBUG_FUNC_SI_MSG(4, "Path::process_event_idx", sid, msg.str());
     }
     INTENTIONAL_DATA_RACE(DR_PATH_PROCESS_EVENT_IDX);
     auto workerDoneTask =
       make_waiting_task(tbb::task::allocate_root(),
-                        WorkerDoneFunctor{this, idx, max_idx, ep, si, cpc});
+                        WorkerDoneFunctor{this, idx, max_idx, ep, sid, cpc});
     auto& workerInPath = (*workers_.load())[idx];
     cpc->activate(idx, workerInPath.getWorker()->descPtr());
-    workerInPath.runWorker_event(workerDoneTask, ep, si, cpc);
+    workerInPath.runWorker_event(workerDoneTask, ep, sid, cpc);
     {
       ostringstream msg;
       msg << "idx: " << idx << " max_idx: " << max_idx;
-      TDEBUG_FUNC_SI_MSG(4, "Path::process_event_idx", si, msg.str());
+      TDEBUG_FUNC_SI_MSG(4, "Path::process_event_idx", sid, msg.str());
     }
   }
 
@@ -559,7 +560,7 @@ namespace art {
   Path::process_event_workerFinished(size_t const idx,
                                      size_t const max_idx,
                                      EventPrincipal& ep,
-                                     ScheduleID const si,
+                                     ScheduleID const sid,
                                      bool const should_continue,
                                      CurrentProcessingContext* cpc)
   {
@@ -568,7 +569,7 @@ namespace art {
       msg << "idx: " << idx << " max_idx: " << max_idx
           << " should_continue: " << should_continue;
       TDEBUG_FUNC_SI_MSG(
-        4, "Begin Path::process_event_workerFinished", si, msg.str());
+        4, "Begin Path::process_event_workerFinished", sid, msg.str());
     }
     INTENTIONAL_DATA_RACE(DR_PATH_PROCESS_EVENT_WORKER_FINISHED);
     auto new_idx = idx;
@@ -576,24 +577,24 @@ namespace art {
     ++new_idx;
     if (should_continue && (new_idx < max_idx)) {
       // Spawn the next worker.
-      process_event_idx_asynch(new_idx, max_idx, ep, si, cpc);
+      process_event_idx_asynch(new_idx, max_idx, ep, sid, cpc);
       // And end this one.
       {
         ostringstream msg;
         msg << "new_idx: " << new_idx << " max_idx: " << max_idx;
         TDEBUG_FUNC_SI_MSG(
-          4, "Path::process_event_workerFinished", si, msg.str());
+          4, "Path::process_event_workerFinished", sid, msg.str());
       }
       return;
     }
     // All done, or filter rejected, or error.
-    process_event_pathFinished(new_idx, ep, si, should_continue, cpc);
+    process_event_pathFinished(new_idx, ep, sid, should_continue, cpc);
     // And end the path here.
     {
       ostringstream msg;
       msg << "idx: " << idx << " max_idx: " << max_idx;
       TDEBUG_FUNC_SI_MSG(
-        4, "Path::process_event_workerFinished", si, msg.str());
+        4, "Path::process_event_workerFinished", sid, msg.str());
     }
   }
 
@@ -602,14 +603,14 @@ namespace art {
   void
   Path::process_event_pathFinished(size_t const idx,
                                    EventPrincipal&,
-                                   ScheduleID const si,
+                                   ScheduleID const sid,
                                    bool const should_continue,
                                    CurrentProcessingContext*)
   {
     {
       ostringstream msg;
       msg << "idx: " << idx << " should_continue: " << should_continue;
-      TDEBUG_FUNC_SI_MSG(4, "Path::process_event_pathFinished", si, msg.str());
+      TDEBUG_FUNC_SI_MSG(4, "Path::process_event_pathFinished", sid, msg.str());
     }
     INTENTIONAL_DATA_RACE(DR_PATH_PROCESS_EVENT_PATH_FINISHED);
     try {
@@ -626,7 +627,7 @@ namespace art {
       }
       {
         HLTPathStatus const status(state_, idx);
-        actReg_.load()->sPostProcessPath.invoke(*name_.load(), status, si);
+        actReg_.load()->sPostProcessPath.invoke(*name_.load(), status, sid);
       }
     }
     catch (...) {
@@ -636,7 +637,7 @@ namespace art {
         msg << "idx: " << idx << " should_continue: " << should_continue
             << " EXCEPTION";
         TDEBUG_FUNC_SI_MSG(
-          4, "Path::process_event_pathFinished", si, msg.str());
+          4, "Path::process_event_pathFinished", sid, msg.str());
       }
       return;
     }
@@ -644,7 +645,7 @@ namespace art {
     {
       ostringstream msg;
       msg << "idx: " << idx << " should_continue: " << should_continue;
-      TDEBUG_FUNC_SI_MSG(4, "Path::process_event_pathFinished", si, msg.str());
+      TDEBUG_FUNC_SI_MSG(4, "Path::process_event_pathFinished", sid, msg.str());
     }
   }
 

@@ -492,9 +492,9 @@ namespace art {
   }
 
   PathsInfo&
-  PathManager::triggerPathsInfo(ScheduleID const si)
+  PathManager::triggerPathsInfo(ScheduleID const sid)
   {
-    return triggerPathsInfo_.at(si);
+    return triggerPathsInfo_.at(sid);
   }
 
   PerScheduleContainer<PathsInfo>&
@@ -510,17 +510,17 @@ namespace art {
   }
 
   Worker*
-  PathManager::triggerResultsInserter(ScheduleID const si) const
+  PathManager::triggerResultsInserter(ScheduleID const sid) const
   {
-    return triggerResultsInserter_.at(si).get();
+    return triggerResultsInserter_.at(sid).get();
   }
 
   void
   PathManager::setTriggerResultsInserter(
-    ScheduleID const si,
+    ScheduleID const sid,
     unique_ptr<WorkerT<ReplicatedProducer>>&& w)
   {
-    triggerResultsInserter_.at(si) = move(w);
+    triggerResultsInserter_.at(sid) = move(w);
   }
 
   PathManager::ModulesByThreadingType

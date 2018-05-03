@@ -65,9 +65,9 @@ namespace art {
       FileNameComponents result;
 
       boost::smatch match;
-      auto si = cbegin(pattern), se = cend(pattern);
+      auto sid = cbegin(pattern), se = cend(pattern);
       while (boost::regex_search(
-        si,
+        sid,
         se,
         match,
         boost::regex{"%(\\d+)?#", boost::regex_constants::ECMAScript})) {
@@ -76,10 +76,10 @@ namespace art {
         //   0. Entire matched expression
         //   1. Possible fill format digits for numeric substitution.
         result.add(match.prefix(), match[1].str());
-        si = match[0].second;
+        sid = match[0].second;
       }
       // Get remaining characters of filename
-      result.setSuffix(std::string(si, se));
+      result.setSuffix(std::string(sid, se));
       return result;
     }
   }

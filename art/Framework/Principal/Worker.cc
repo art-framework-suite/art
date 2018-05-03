@@ -117,7 +117,7 @@ namespace art {
 
   // Used only by WorkerInPath.
   bool
-  Worker::returnCode(ScheduleID const /*si*/) const
+  Worker::returnCode(ScheduleID const /*sid*/) const
   {
     return returnCode_.load();
   }
@@ -132,7 +132,7 @@ namespace art {
   // Used by Schedule
   // Used by EndPathExecutor
   void
-  Worker::reset(ScheduleID const si)
+  Worker::reset(ScheduleID const sid)
   {
     state_ = Ready;
     delete cached_exception_.load();
@@ -141,7 +141,7 @@ namespace art {
       ostringstream msg;
       msg << "0x" << hex << ((unsigned long)this) << dec
           << " Resetting waitingTasks_";
-      TDEBUG_FUNC_SI_MSG(6, "Worker::reset", si, msg.str());
+      TDEBUG_FUNC_SI_MSG(6, "Worker::reset", sid, msg.str());
     }
     waitingTasks_.load()->reset();
     workStarted_ = false;
@@ -442,7 +442,7 @@ namespace art {
   // and to run workers on the end path.
   void
   Worker::doWork_event(EventPrincipal& p,
-                       ScheduleID const si,
+                       ScheduleID const sid,
                        CurrentProcessingContext* cpc)
   {
     ++counts_visited_;
@@ -451,15 +451,15 @@ namespace art {
       // Transition from Ready state to Working state.
       state_ = Working;
       detail::CPCSentry sentry{*cpc};
-      actReg_.load()->sPreModule.invoke(*md_.load(), si);
+      actReg_.load()->sPreModule.invoke(*md_.load(), sid);
       // Note: Only filters ever return false, and when they do it means they
       // have rejected.
-      returnCode_ = implDoProcess(p, si, cpc);
+      returnCode_ = implDoProcess(p, sid, cpc);
       // FIXME: We construct the following context only so the correct
       // scheduleID is provided within services.
-      CurrentProcessingContext cpc{si, nullptr, -1, false};
+      CurrentProcessingContext cpc{sid, nullptr, -1, false};
       detail::CPCSentry sentry2{cpc};
-      actReg_.load()->sPostModule.invoke(*md_.load(), si);
+      actReg_.load()->sPostModule.invoke(*md_.load(), sid);
       if (returnCode_.load()) {
         state_ = Pass;
       } else {
@@ -568,40 +568,40 @@ namespace art {
   public:
     RunWorkerFunctor(Worker* w,
                      EventPrincipal& p,
-                     ScheduleID const si,
+                     ScheduleID const sid,
                      CurrentProcessingContext* cpc)
-      : w_{w}, p_{p}, si_{si}, cpc_{cpc}
+      : w_{w}, p_{p}, sid_{sid}, cpc_{cpc}
     {}
     void
     operator()() const
     {
-      w_->runWorker(p_, si_, cpc_);
+      w_->runWorker(p_, sid_, cpc_);
     }
 
   private:
     Worker* w_;
     EventPrincipal& p_;
-    ScheduleID const si_;
+    ScheduleID const sid_;
     CurrentProcessingContext* cpc_;
   };
 
   void
   Worker::runWorker(EventPrincipal& p,
-                    ScheduleID const si,
+                    ScheduleID const sid,
                     CurrentProcessingContext* cpc)
   {
-    TDEBUG_BEGIN_TASK_SI(4, "runWorker", si);
+    TDEBUG_BEGIN_TASK_SI(4, "runWorker", sid);
     INTENTIONAL_DATA_RACE(DR_WORKER_RUN_WORKER);
     returnCode_ = false;
     try {
       // Transition from Ready state to Working state.
       state_ = Working;
       detail::CPCSentry sentry{*cpc};
-      actReg_.load()->sPreModule.invoke(*md_.load(), si);
+      actReg_.load()->sPreModule.invoke(*md_.load(), sid);
       // Note: Only filters ever return false, and when they do it means they
       // have rejected.
-      returnCode_ = implDoProcess(p, si, cpc);
-      actReg_.load()->sPostModule.invoke(*md_.load(), si);
+      returnCode_ = implDoProcess(p, sid, cpc);
+      actReg_.load()->sPostModule.invoke(*md_.load(), sid);
       state_ = Fail;
       if (returnCode_.load()) {
         state_ = Pass;
@@ -641,7 +641,7 @@ namespace art {
             make_exception_ptr(Exception{errors::OtherArt, string(), e});
         }
         waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-        TDEBUG_END_TASK_SI_ERR(4, "runWorker", si, "because of EXCEPTION");
+        TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
         return;
       }
     }
@@ -656,7 +656,7 @@ namespace art {
         << "The job has probably exhausted the virtual memory available to the "
            "process.\n";
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", si, "because of EXCEPTION");
+      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
       return;
     }
     catch (exception const& e) {
@@ -670,7 +670,7 @@ namespace art {
         << "Previous information:\n"
         << e.what();
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", si, "because of EXCEPTION");
+      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
       return;
     }
     catch (string const& s) {
@@ -684,7 +684,7 @@ namespace art {
         << "and cannot be repropagated.\n"
         << "Previous information:\n string = " << s;
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", si, "because of EXCEPTION");
+      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
       return;
     }
     catch (char const* c) {
@@ -698,7 +698,7 @@ namespace art {
         << "and cannot be repropagated.\n"
         << "Previous information:\n const char* = " << c << "\n";
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", si, "because of EXCEPTION");
+      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
       return;
     }
     catch (...) {
@@ -711,21 +711,21 @@ namespace art {
       detail::exceptionContext(*md_.load(), p, art_ex)
         << "and cannot be repropagated.\n";
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", si, "because of EXCEPTION");
+      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
       return;
     }
     waitingTasks_.load()->doneWaiting(exception_ptr{});
-    TDEBUG_END_TASK_SI(4, "runWorker", si);
+    TDEBUG_END_TASK_SI(4, "runWorker", sid);
     return;
   }
 
   void
   Worker::doWork_event(WaitingTask* workerInPathDoneTask,
                        EventPrincipal& p,
-                       ScheduleID const si,
+                       ScheduleID const sid,
                        CurrentProcessingContext* cpc)
   {
-    TDEBUG_BEGIN_FUNC_SI(4, "Worker::doWork_event", si);
+    TDEBUG_BEGIN_FUNC_SI(4, "Worker::doWork_event", sid);
     INTENTIONAL_DATA_RACE(DR_WORKER_DOWORK_EVENT);
     // Note: We actually can have more than one entry in this
     // list because a worker may be one more than one path,
@@ -742,31 +742,31 @@ namespace art {
     ++counts_visited_;
     bool expected = false;
     if (workStarted_.compare_exchange_strong(expected, true)) {
-      RunWorkerFunctor runWorkerFunctor{this, p, si, cpc};
+      RunWorkerFunctor runWorkerFunctor{this, p, sid, cpc};
       auto chain = serialTaskQueueChain();
       if (chain) {
         // Must be a serialized shared module (including legacy).
         {
           ostringstream msg;
           msg << "pushing onto chain " << hex << ((unsigned long*)chain) << dec;
-          TDEBUG_FUNC_SI_MSG(4, "Worker::doWork_event", si, msg.str());
+          TDEBUG_FUNC_SI_MSG(4, "Worker::doWork_event", sid, msg.str());
         }
         chain->push(runWorkerFunctor);
-        TDEBUG_END_FUNC_SI(4, "Worker::doWork_event", si);
+        TDEBUG_END_FUNC_SI(4, "Worker::doWork_event", sid);
         return;
       }
       // Must be a replicated or shared module with no serialization.
       TDEBUG_FUNC_SI_MSG(
-        4, "Worker::doWork_event", si, "calling worker functor");
+        4, "Worker::doWork_event", sid, "calling worker functor");
       runWorkerFunctor();
-      TDEBUG_END_FUNC_SI(4, "Worker::doWork_event", si);
+      TDEBUG_END_FUNC_SI(4, "Worker::doWork_event", sid);
       return;
     }
     // Worker is running on another path, exit without running the waiting
     // worker done tasks.
     TDEBUG_END_FUNC_SI_ERR(4,
                            "Worker::doWork_event",
-                           si,
+                           sid,
                            "work already in progress on another path");
   }
 

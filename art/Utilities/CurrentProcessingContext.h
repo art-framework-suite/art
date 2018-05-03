@@ -29,7 +29,7 @@ namespace art {
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~CurrentProcessingContext() noexcept;
     CurrentProcessingContext() noexcept;
-    explicit CurrentProcessingContext(ScheduleID const si,
+    explicit CurrentProcessingContext(ScheduleID const sid,
                                       std::string const* const name,
                                       int const bitpos,
                                       bool const isEndPth) noexcept;

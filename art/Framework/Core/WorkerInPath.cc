@@ -206,17 +206,17 @@ namespace art {
   class WorkerInPathDoneFunctor {
   public:
     WorkerInPathDoneFunctor(WorkerInPath* wip, ScheduleID const scheduleID)
-      : wip_{wip}, si_{scheduleID}
+      : wip_{wip}, sid_{scheduleID}
     {}
     void
     operator()(exception_ptr const* ex) const
     {
-      wip_->workerInPathDoneTask(si_, ex);
+      wip_->workerInPathDoneTask(sid_, ex);
     }
 
   private:
     WorkerInPath* wip_;
-    ScheduleID const si_;
+    ScheduleID const sid_;
   };
 
   void

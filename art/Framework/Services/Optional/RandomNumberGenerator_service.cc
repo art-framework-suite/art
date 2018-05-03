@@ -77,14 +77,14 @@ namespace art {
     };
 
     string
-    qualify_engine_label(ScheduleID const si, string const& engine_label)
+    qualify_engine_label(ScheduleID const sid, string const& engine_label)
     {
       // Format is ModuleLabel:scheduleID:EngineLabel
       string label;
       label +=
         art::PerThread::instance()->getCPC().moduleDescription()->moduleLabel();
       label += ':';
-      label += to_string(si.id());
+      label += to_string(sid.id());
       label += ':';
       label += engine_label;
       return label;
@@ -131,11 +131,11 @@ namespace art {
   } // unnamed namespace
 
   bool
-  RandomNumberGenerator::invariant_holds_(ScheduleID const si)
+  RandomNumberGenerator::invariant_holds_(ScheduleID const sid)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    return (data_[si].dict_.size() == data_[si].tracker_.size()) &&
-           (data_[si].dict_.size() == data_[si].kind_.size());
+    return (data_[sid].dict_.size() == data_[sid].tracker_.size()) &&
+           (data_[sid].dict_.size() == data_[sid].kind_.size());
   }
 
   RandomNumberGenerator::RandomNumberGenerator(Parameters const& config,
@@ -157,19 +157,19 @@ namespace art {
   RandomNumberGenerator::expandToNSchedules(unsigned const n)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const si = static_cast<ScheduleID::size_type>(n);
-    data_.resize(si);
+    auto const sid = static_cast<ScheduleID::size_type>(n);
+    data_.resize(sid);
   }
 
   CLHEP::HepRandomEngine&
   RandomNumberGenerator::getEngine(
-    ScheduleID const si /* = ScheduleID::first() */,
+    ScheduleID const sid /* = ScheduleID::first() */,
     string const& engine_label /* = "" */) const
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    string const& label = qualify_engine_label(si, engine_label);
-    auto I = data_[si].dict_.find(label);
-    if (I == data_[si].dict_.end()) {
+    string const& label = qualify_engine_label(sid, engine_label);
+    auto I = data_[sid].dict_.find(label);
+    if (I == data_[sid].dict_.end()) {
       throw cet::exception("RANDOM") << "RNGservice::getEngine():\n"
                                      << "The requested engine \"" << label
                                      << "\" has not been established.\n";
@@ -179,7 +179,7 @@ namespace art {
   }
 
   CLHEP::HepRandomEngine&
-  RandomNumberGenerator::createEngine(ScheduleID const si,
+  RandomNumberGenerator::createEngine(ScheduleID const sid,
                                       long const seed,
                                       string const& requested_engine_kind,
                                       string const& engine_label)
@@ -190,14 +190,14 @@ namespace art {
         << "RNGservice::createEngine():\n"
         << "Attempt to create engine \"" << engine_label << "\" is too late.\n";
     }
-    if (si.id() >= data_.size()) {
+    if (sid.id() >= data_.size()) {
       throw cet::exception("RANDOM")
         << "RNGservice::createEngine():\n"
-        << "Attempt to create engine with out-of-range streamIndex: " << si
+        << "Attempt to create engine with out-of-range streamIndex: " << sid
         << "\n";
     }
-    string const& label = qualify_engine_label(si, engine_label);
-    if (data_[si].tracker_.find(label) != data_[si].tracker_.cend()) {
+    string const& label = qualify_engine_label(sid, engine_label);
+    if (data_[sid].tracker_.find(label) != data_[sid].tracker_.cend()) {
       throw cet::exception("RANDOM")
         << "RNGservice::createEngine():\n"
         << "Engine \"" << label << "\" has already been created.\n";
@@ -235,15 +235,15 @@ namespace art {
         << "RNGservice::createEngine():\n"
         << "Engine \"" << label << "\" could not be created.\n";
     }
-    data_[si].dict_[label] = eptr;
-    data_[si].tracker_[label] = EngineSource::Seed;
-    data_[si].kind_[label] = engineKind;
+    data_[sid].dict_[label] = eptr;
+    data_[sid].tracker_[label] = EngineSource::Seed;
+    data_[sid].kind_[label] = engineKind;
     mf::LogInfo{"RANDOM"} << "Instantiated " << engineKind << " engine \""
                           << label << "\" with "
                           << ((seed == useDefaultSeed) ? "default seed " :
                                                          "seed ")
                           << seed << ".\n";
-    assert(invariant_holds_(si) &&
+    assert(invariant_holds_(sid) &&
            "RNGservice::createEngine() invariant failed");
     return *eptr;
   }
@@ -273,32 +273,32 @@ namespace art {
   }
 
   vector<RNGsnapshot> const&
-  RandomNumberGenerator::accessSnapshot_(ScheduleID const si) const
+  RandomNumberGenerator::accessSnapshot_(ScheduleID const sid) const
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    return data_[si].snapshot_;
+    return data_[sid].snapshot_;
   }
 
   void
-  RandomNumberGenerator::takeSnapshot_(ScheduleID const si)
+  RandomNumberGenerator::takeSnapshot_(ScheduleID const sid)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
     mf::LogDebug log{"RANDOM"};
     log << "RNGservice::takeSnapshot_() of the following engine labels:\n";
-    data_[si].snapshot_.clear();
-    for (auto const& pr : data_[si].dict_) {
+    data_[sid].snapshot_.clear();
+    for (auto const& pr : data_[sid].dict_) {
       string const& label = pr.first;
       shared_ptr<CLHEP::HepRandomEngine> const& eptr = pr.second;
       assert(eptr && "RNGservice::takeSnapshot_()");
-      data_[si].snapshot_.emplace_back(
-        data_[si].kind_[label], label, eptr->put());
+      data_[sid].snapshot_.emplace_back(
+        data_[sid].kind_[label], label, eptr->put());
       log << " | " << label;
     }
     log << " |\n";
   }
 
   void
-  RandomNumberGenerator::restoreSnapshot_(ScheduleID const si,
+  RandomNumberGenerator::restoreSnapshot_(ScheduleID const sid,
                                           Event const& event)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
@@ -313,8 +313,8 @@ namespace art {
       string const& label = snapshot.label();
       mf::LogInfo log("RANDOM");
       log << "RNGservice::restoreSnapshot_(): label \"" << label << "\"";
-      auto t = data_[si].tracker_.find(label);
-      if (t == data_[si].tracker_.end()) {
+      auto t = data_[sid].tracker_.find(label);
+      if (t == data_[sid].tracker_.end()) {
         log << " could not be restored;\n"
             << "no established engine bears this label.\n";
         continue;
@@ -326,9 +326,9 @@ namespace art {
           << "\" has been previously read from a file;\n"
           << "it is therefore not restorable from a snapshot product.\n";
       }
-      shared_ptr<CLHEP::HepRandomEngine> ep{data_[si].dict_[label]};
+      shared_ptr<CLHEP::HepRandomEngine> ep{data_[sid].dict_[label]};
       assert(ep && "RNGservice::restoreSnapshot_()");
-      data_[si].tracker_[label] = EngineSource::Product;
+      data_[sid].tracker_[label] = EngineSource::Product;
       auto const& est = snapshot.restoreState();
       if (ep->get(est)) {
         log << " successfully restored.\n";
@@ -339,7 +339,7 @@ namespace art {
           << "\"\n";
       }
     }
-    assert(invariant_holds_(si) && "RNGsnapshot::restoreSnapshot_()");
+    assert(invariant_holds_(sid) && "RNGsnapshot::restoreSnapshot_()");
   }
 
   void
@@ -394,17 +394,17 @@ namespace art {
       assert(count(label.cbegin(), label.cend(), ':') == 2u);
       auto const p1 = label.find_first_of(':');
       auto const p2 = label.find_last_of(':');
-      ScheduleID const si{
+      ScheduleID const sid{
         static_cast<ScheduleID::size_type>(stoi(label.substr(p1 + 1, p2)))};
-      auto d = data_[si].dict_.find(label);
-      if (d == data_[si].dict_.end()) {
+      auto d = data_[sid].dict_.find(label);
+      if (d == data_[sid].dict_.end()) {
         throw Exception(errors::Configuration, "RANDOM")
           << "Attempt to restore an engine with label " << label
           << " not configured in this job.\n";
       }
-      assert((data_[si].tracker_.find(label) != data_[si].tracker_.cend()) &&
+      assert((data_[sid].tracker_.find(label) != data_[sid].tracker_.cend()) &&
              "RNGservice::restoreFromFile_()");
-      EngineSource& how{data_[si].tracker_[label]};
+      EngineSource& how{data_[sid].tracker_[label]};
       if (how == EngineSource::Seed) {
         auto& eptr = d->second;
         assert(eptr && "RNGservice::restoreFromFile_()");
@@ -427,7 +427,7 @@ namespace art {
           << "which was originally initialized via an unknown or impossible "
              "method.\n";
       }
-      assert(invariant_holds_(si) &&
+      assert(invariant_holds_(sid) &&
              "RNGservice::restoreFromFile_() invariant failure");
     }
   }

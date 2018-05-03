@@ -30,9 +30,9 @@ art::PostCloseFileRenamer::applySubstitutionsNoIndex_(
 {
   std::string result; // Empty
   smatch match;
-  auto sb = cbegin(filePattern), si = sb, se = cend(filePattern);
+  auto sb = cbegin(filePattern), sid = sb, se = cend(filePattern);
   while (
-    regex_search(si,
+    regex_search(sid,
                  se,
                  match,
                  boost::regex{"%[lp]|%(\\d+)?([#rRsS])|%t([oc])|%if([bnedp])|%"
@@ -84,9 +84,9 @@ art::PostCloseFileRenamer::applySubstitutionsNoIndex_(
         }
         break;
     }
-    si = match[0].second; // Set position for next match start.
+    sid = match[0].second; // Set position for next match start.
   }
-  result.append(si, se); // Append unmatched text at end.
+  result.append(sid, se); // Append unmatched text at end.
   return result;
 }
 

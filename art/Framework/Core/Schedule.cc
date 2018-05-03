@@ -259,13 +259,13 @@ namespace art {
       , endPathTask_(endPathTask)
       , eventLoopTask_(eventLoopTask)
       , principal_(principal)
-      , si_(scheduleID)
+      , sid_(scheduleID)
     {}
     void
     operator()(exception_ptr const* ex)
     {
       schedule_->pathsDoneTask(
-        endPathTask_, eventLoopTask_, principal_, si_, ex);
+        endPathTask_, eventLoopTask_, principal_, sid_, ex);
     }
 
   private:
@@ -273,7 +273,7 @@ namespace art {
     WaitingTask* endPathTask_;
     tbb::task* eventLoopTask_;
     EventPrincipal& principal_;
-    ScheduleID const si_;
+    ScheduleID const sid_;
   };
 
   void
