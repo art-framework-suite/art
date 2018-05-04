@@ -6,20 +6,15 @@ services.message: @local::messageDefaults
 services.scheduler.wantTracer: true
 
 source: { module_type: EmptyEvent maxEvents: 5 }
-physics:
-{
-  producers:
-  {
-    m1:
-    {
+physics: {
+  producers: {
+    m1: {
       module_type: IntVectorProducer
       nvalues: 7
      }
   }
-  analyzers:
-  {
-    a1:
-    {
+  analyzers: {
+    a1: {
       module_type: PtrListAnalyzer
       input_label: m1
       nvalues: 7
@@ -27,8 +22,4 @@ physics:
   }
   reconstruction: [ m1 ]
   analysis: [ a1 ]
-  trigger_paths: [ reconstruction ]
-  end_paths:     [ analysis ]
 }
-
-outputs: { }

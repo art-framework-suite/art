@@ -1,37 +1,21 @@
 process_name: DEVEL
 
-source:
-{
-  module_type: FlushingGenerator
-}
+source.module_type: FlushingGenerator
 
-services:
-{
-  scheduler:
-  {
-      wantTracer: true
-  }
-}
+services.scheduler.wantTracer: true
 
-physics:
-{
-  filters:
-  {
-    fgf:
-    {
+physics: {
+  filters: {
+    fgf: {
       module_type: FlushingGeneratorTestFilter
     }
   }
   p1: [ fgf ]
   e1: [ o1 ]
-  trigger_paths: [ p1 ]
-  end_paths: [ e1 ]
 }
 
-outputs:
-{
-  o1:
-  {
+outputs: {
+  o1: {
     module_type: FlushingGeneratorTest
   }
 }

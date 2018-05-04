@@ -21,6 +21,7 @@
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/OptionalAtom.h"
+#include "fhiclcpp/types/OptionalDelegatedParameter.h"
 #include "fhiclcpp/types/TableFragment.h"
 
 #include <cstdint>
@@ -30,6 +31,7 @@ namespace art {
   class EmptyEvent;
 }
 
+using namespace fhicl;
 using DRISI = art::DecrepitRelicInputSourceImplementation;
 using std::uint32_t;
 
@@ -37,30 +39,39 @@ class art::EmptyEvent final : public DRISI {
 public:
   struct Config {
 
-    using Name = fhicl::Name;
-
-    fhicl::Atom<std::string> module_type{Name("module_type")};
-    fhicl::TableFragment<DRISI::Config> drisi_config;
-    fhicl::Atom<int> numberEventsInRun{Name("numberEventsInRun"),
-                                       drisi_config().maxEvents()};
-    fhicl::Atom<int> numberEventsInSubRun{Name("numberEventsInSubRun"),
-                                          drisi_config().maxSubRuns()};
-    fhicl::Atom<uint32_t> eventCreationDelay{Name("eventCreationDelay"), 0u};
-    fhicl::Atom<bool> resetEventOnSubRun{Name("resetEventOnSubRun"), true};
-    fhicl::OptionalAtom<RunNumber_t> firstRun{Name("firstRun")};
-    fhicl::OptionalAtom<SubRunNumber_t> firstSubRun{Name("firstSubRun")};
-    fhicl::OptionalAtom<EventNumber_t> firstEvent{Name("firstEvent")};
+    Atom<std::string> module_type{Name("module_type")};
+    TableFragment<DRISI::Config> drisi_config;
+    Atom<int> numberEventsInRun{Name("numberEventsInRun"),
+                                drisi_config().maxEvents()};
+    Atom<int> numberEventsInSubRun{Name("numberEventsInSubRun"),
+                                   drisi_config().maxSubRuns()};
+    Atom<uint32_t> eventCreationDelay{Name("eventCreationDelay"), 0u};
+    Atom<bool> resetEventOnSubRun{Name("resetEventOnSubRun"), true};
+    OptionalAtom<RunNumber_t> firstRun{Name("firstRun")};
+    OptionalAtom<SubRunNumber_t> firstSubRun{Name("firstSubRun")};
+    OptionalAtom<EventNumber_t> firstEvent{Name("firstEvent")};
+    OptionalDelegatedParameter timestampPlugin{
+      Name("timestampPlugin"),
+      Comment(
+        "The 'timestampPlugin' parameter must be a FHiCL table\n"
+        "of the form:\n\n"
+        "  timestampPlugin: {\n"
+        "    plugin_type: <plugin specification>\n"
+        "    ...\n"
+        "  }\n\n"
+        "See the notes in art/Framework/Core/EmptyEventTimestampPlugin.h\n"
+        "for more details.")};
 
     struct KeysToIgnore {
       std::set<std::string>
       operator()() const
       {
-        return {"timestampPlugin", "module_label"};
+        return {"module_label"};
       }
     };
   };
 
-  using Parameters = fhicl::WrappedTable<Config, Config::KeysToIgnore>;
+  using Parameters = WrappedTable<Config, Config::KeysToIgnore>;
 
   explicit EmptyEvent(Parameters const& config, InputSourceDescription& desc);
 
@@ -109,7 +120,7 @@ private:
   void reallyReadEvent(bool const lastEventInSubRun);
 
   std::unique_ptr<EmptyEventTimestampPlugin> makePlugin_(
-    fhicl::ParameterSet const& pset);
+    OptionalDelegatedParameter const& maybeConfig);
 
   unsigned int numberEventsInRun_;
   unsigned int numberEventsInSubRun_;
@@ -144,8 +155,7 @@ art::EmptyEvent::EmptyEvent(art::EmptyEvent::Parameters const& config,
       config().numberEventsInSubRun())}
   , eventCreationDelay_{config().eventCreationDelay()}
   , resetEventOnSubRun_{config().resetEventOnSubRun()}
-  , plugin_{makePlugin_(
-      config.get_PSet().get<fhicl::ParameterSet>("timestampPlugin", {}))}
+  , plugin_{makePlugin_(config().timestampPlugin)}
 {
 
   RunNumber_t firstRun{};
@@ -257,11 +267,12 @@ art::EmptyEvent::reallyReadEvent(bool const lastEventInSubRun)
 }
 
 std::unique_ptr<art::EmptyEventTimestampPlugin>
-art::EmptyEvent::makePlugin_(fhicl::ParameterSet const& pset)
+art::EmptyEvent::makePlugin_(OptionalDelegatedParameter const& maybeConfig)
 {
   std::unique_ptr<art::EmptyEventTimestampPlugin> result;
   try {
-    if (!pset.is_empty()) {
+    ParameterSet pset;
+    if (maybeConfig.get_if_present(pset)) {
       auto const libspec = pset.get<std::string>("plugin_type");
       auto const pluginType = pluginFactory_.pluginType(libspec);
       if (pluginType ==

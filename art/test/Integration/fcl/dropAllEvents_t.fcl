@@ -1,34 +1,25 @@
-source:
-{
-   module_type: EmptyEvent
-   maxEvents : 100
+source: {
+  module_type: EmptyEvent
+  maxEvents : 100
 }
 
-physics:
-{
+physics: {
+  producers: {
+    prod: {
+      module_type: ToyProductProducer
+    }
+  }
 
-   producers:
-   {
-      prod:
-      {
-         module_type: ToyProductProducer
-      }
-   }
-
-   p1: [ prod ]
-   e1: [ output ]
-
-   trigger_paths: [ p1 ]
-   end_paths: [ e1 ]
+  p1: [ prod ]
+  e1: [ output ]
 }
 
-outputs:
-{
-   output : {
-      module_type: RootOutput
-      fileName: "out_dropAllEvents.root"
-      dropAllEvents: true
-   }
+outputs: {
+  output: {
+    module_type: RootOutput
+    fileName: "out_dropAllEvents.root"
+    dropAllEvents: true
+  }
 }
 
 process_name: DropAllEventsTest

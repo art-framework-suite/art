@@ -2,15 +2,12 @@
 
 process_name: issue0926b
 
-services: { scheduler: { wantSummary: true } }
+services.scheduler.wantSummary: true
 services.message: @local::messageDefaults
 
-physics:
-{
-  producers:
-  {
-    prod2:
-    {
+physics: {
+  producers: {
+    prod2: {
       module_type: MockClusterListProducer
       input_label: prod1
       nvalues: 16
@@ -19,22 +16,16 @@ physics:
 
   p1: [ prod2 ]
   e1: [ out2 ]
-
-  trigger_paths: [ p1 ]
-  end_paths: [ e1 ]
 }
 
-outputs:
-{
-  out2:
-  {
+outputs: {
+  out2: {
     module_type: RootOutput
     fileName: "issue_0926b.root"
   }
 }
 
-source:
-{
+source: {
   module_type: RootInput
   fileNames: [ "issue_0926a.root" ]
 }
