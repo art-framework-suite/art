@@ -2,74 +2,59 @@ process_name: PROD
 
 services.scheduler.wantSummary: true
 
-source:
-{
+source: {
   module_type: EmptyEvent
   maxEvents: 10
 }
 
-physics:
-{
-  producers:
-  {
-    m1:
-    {
+physics: {
+  producers: {
+    m1: {
       module_type: IntProducer
       ivalue: 1
     }
-    m2:
-    {
+    m2: {
       module_type: IntProducer
       ivalue: 2
     }
-    m3:
-    {
+    m3: {
       module_type: IntProducer
       ivalue: 3
     }
-    m4:
-    {
+    m4: {
       module_type: IntProducer
       ivalue: 4
     }
-    m5:
-    {
+    m5: {
       module_type: IntProducer
       ivalue: 5
     }
-    m6:
-    {
+    m6: {
       module_type: IntProducer
       ivalue: 6
     }
   }
 
-  analyzers:
-  {
-    a1:
-    {
+  analyzers: {
+    a1: {
       module_type: TestResultAnalyzer
       dump: true
       numbits: 6
     }
   }
 
-  filters:
-  {
-    f1:
-    {
+  filters: {
+    f1: {
       module_type: TestFilter
       acceptValue: 3
       onlyOne: true
     }
-    f2:
-    {
+    f2: {
       module_type: TestFilter
       acceptValue: 5
       onlyOne: true
     }
-    f3:
-    {
+    f3: {
       module_type: TestFilter
       acceptValue: 8
       onlyOne: true
@@ -85,15 +70,10 @@ physics:
 
   e1: [ testout1 ]
   e2: [ a1 ]
-
-  trigger_paths: [ p1, p2, p3, p4, p5, p6 ]
-  end_paths: [ e1, e2 ]
 }
 
-outputs:
-{
-  testout1:
-  {
+outputs: {
+  testout1: {
     module_type: TestBitsOutput
     bitMask: 1386
   }

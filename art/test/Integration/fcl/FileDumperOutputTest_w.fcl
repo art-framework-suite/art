@@ -2,8 +2,7 @@ process_name: FileDumperOutputTestw
 
 physics: {
   producers: {
-    m1a:
-    {
+    m1a: {
       module_type: SimpleDerivedProducer
       nvalues: 16
     }
@@ -23,19 +22,14 @@ physics: {
     }
   }
   p1: [ m1a, m1b, m2, m3 ]
-  trigger_paths: [ p1 ]
-
   e1: [ out1, out2 ]
-  end_paths: [ e1 ]
 }
 
 outputs: {
-  out1:
-  {
+  out1: {
     module_type: FileDumperOutput
   }
-  out2:
-  {
+  out2: {
     module_type: RootOutput
     fileName: "out.root"
     outputCommands: [ "keep *", "drop *_m1a_*_*" ]

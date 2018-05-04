@@ -5,21 +5,18 @@ services.Tracer: {}
 
 source.f1: @local::f1
 
-physics.producers.wp1:
-{
+physics.producers.wp1: {
   module_type: BareStringProducer
   value: "String1"
 }
 
-physics.analyzers.wa1:
-{
+physics.analyzers.wa1: {
   module_type: ToyRawInputTester
   fileNames: [ f1 ]
   f1: @local::f1
 }
 
-physics.analyzers.wa2:
-{
+physics.analyzers.wa2: {
   module_type: ToyRawProductAnalyzer
 }
 

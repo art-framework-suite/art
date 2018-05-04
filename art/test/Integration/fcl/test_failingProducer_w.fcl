@@ -1,10 +1,6 @@
 #include "messageDefaults.fcl"
 
-services:
-{
-  # Always-present services; configuration optional.
-  FloatingPointControl: { }
-
+services: {
   scheduler:  # options block in the old system
   {
     Rethrow: ['OtherArt','StdException','Unknown','BadAlloc',
@@ -21,53 +17,36 @@ services:
 
 services.message: @local::messageDefaults
 
-physics:
-{
-  producers:
-  {
-    m1a:
-    {
+physics: {
+  producers: {
+    m1a: {
       module_type: IntProducer
       ivalue: 1
     }
   }
 
-  analyzers:
-  {
-    a1:
-    {
+  analyzers: {
+    a1: {
       module_type: IntTestAnalyzer
       input_label: m1a
       expected_value: 1
     }
   }
 
-  filters:
-  {
-  }
   p1: [ m1a ]
   e1: [ a1, out1 ]
-
-  trigger_paths: [ p1 ]
-  end_paths: [ e1 ]
 }
 
-outputs:
-{
-  out1:
-  {
+outputs: {
+  out1: {
     module_type: RootOutput
     fileName: "out.root"
   }
 }
 
-source:
-{
+source: {
   module_type: EmptyEvent
-
-  # were in the global area before
   maxEvents: 10
-  # maxSubRuns: 2
 }
 
 process_name: DEVEL

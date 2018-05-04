@@ -45,6 +45,12 @@ namespace art {
                  cet::exempt_ptr<ProductProvenance const>,
                  RangeSet const&);
 
+    static OutputHandle
+    invalid()
+    {
+      return OutputHandle{RangeSet::invalid()};
+    }
+
     /// Used when the attempt to get the data failed
     OutputHandle(RangeSet const&);
 

@@ -24,56 +24,63 @@
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/OptionalAtom.h"
+#include "fhiclcpp/types/OptionalDelegatedParameter.h"
 #include "fhiclcpp/types/TableFragment.h"
 
 #include <cstdint>
 #include <memory>
 
+using namespace fhicl;
 using namespace std;
+using DRISI = art::DecrepitRelicInputSourceImplementation;
 
 namespace art {
 
-  class EmptyEvent final : public DecrepitRelicInputSourceImplementation {
-
-  public: // CONFIGURATION
+  class EmptyEvent final : public DRISI {
+  public:
     struct Config {
 
-      using Name = fhicl::Name;
-
-      fhicl::Atom<string> module_type{Name("module_type")};
-      fhicl::TableFragment<DecrepitRelicInputSourceImplementation::Config>
-        drisi_config;
-      fhicl::Atom<int> numberEventsInRun{Name("numberEventsInRun"),
-                                         drisi_config().maxEvents()};
-      fhicl::Atom<int> numberEventsInSubRun{Name("numberEventsInSubRun"),
-                                            drisi_config().maxSubRuns()};
-      fhicl::Atom<uint32_t> eventCreationDelay{Name("eventCreationDelay"), 0u};
-      fhicl::Atom<bool> resetEventOnSubRun{Name("resetEventOnSubRun"), true};
-      fhicl::OptionalAtom<RunNumber_t> firstRun{Name("firstRun")};
-      fhicl::OptionalAtom<SubRunNumber_t> firstSubRun{Name("firstSubRun")};
-      fhicl::OptionalAtom<EventNumber_t> firstEvent{Name("firstEvent")};
+      Atom<std::string> module_type{Name("module_type")};
+      TableFragment<DRISI::Config> drisi_config;
+      Atom<int> numberEventsInRun{Name("numberEventsInRun"),
+                                  drisi_config().maxEvents()};
+      Atom<int> numberEventsInSubRun{Name("numberEventsInSubRun"),
+                                     drisi_config().maxSubRuns()};
+      Atom<uint32_t> eventCreationDelay{Name("eventCreationDelay"), 0u};
+      Atom<bool> resetEventOnSubRun{Name("resetEventOnSubRun"), true};
+      OptionalAtom<RunNumber_t> firstRun{Name("firstRun")};
+      OptionalAtom<SubRunNumber_t> firstSubRun{Name("firstSubRun")};
+      OptionalAtom<EventNumber_t> firstEvent{Name("firstEvent")};
+      OptionalDelegatedParameter timestampPlugin{
+        Name("timestampPlugin"),
+        Comment(
+          "The 'timestampPlugin' parameter must be a FHiCL table\n"
+          "of the form:\n\n"
+          "  timestampPlugin: {\n"
+          "    plugin_type: <plugin specification>\n"
+          "    ...\n"
+          "  }\n\n"
+          "See the notes in art/Framework/Core/EmptyEventTimestampPlugin.h\n"
+          "for more details.")};
 
       struct KeysToIgnore {
-        set<string>
+        std::set<std::string>
         operator()() const
         {
-          return {"timestampPlugin", "module_label"};
+          return {"module_label"};
         }
       };
     };
 
     using Parameters = fhicl::WrappedTable<Config, Config::KeysToIgnore>;
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
     EmptyEvent(Parameters const& config, InputSourceDescription& desc);
 
     EmptyEvent(EmptyEvent const&) = delete;
     EmptyEvent(EmptyEvent&&) = delete;
-
     EmptyEvent& operator=(EmptyEvent const&) = delete;
     EmptyEvent& operator=(EmptyEvent&&) = delete;
 
-  public: // MEMBER FUNCTIONS
     unsigned
     numberEventsInRun() const
     {
@@ -104,119 +111,21 @@ namespace art {
       return numberEventsInThisSubRun_;
     }
 
-  public: // MEMBER FUNCTIONS -- Serial Access Interface -- NOT IMPLEMENTED
-          // Not Implemented
-          // virtual
-          // input::ItemType
-          // nextItemType() override;
-    // Not Implemented
-    // Open next file
-    // virtual
-    // std::unique_ptr<FileBlock>
-    // readFile(UpdateOutputCallbacks&) override;
-
-    // Not Implemented
-    // Close current file
-    // virtual
-    // void
-    // closeFile() override;
-
-    // Not Implemented
-    // Read next run.
-    // virtual
-    // std::unique_ptr<RunPrincipal>
-    // readRun() override;
-
-    // Not Implemented
-    // Read next subRun
-    // virtual
-    // std::unique_ptr<SubRunPrincipal>
-    // readSubRun(cet::exempt_ptr<RunPrincipal const>) override;
-
-    // Not Implemented
-    // Read next event
-    // Indicate inability to get a new event by returning a null unique_ptr.
-    // virtual
-    // std::unique_ptr<EventPrincipal>
-    // readEvent(cet::exempt_ptr<SubRunPrincipal const>) override;
-
-  private: // MEMBER FUNCTIONS -- Serial Access Interface
-    virtual unique_ptr<RangeSetHandler> runRangeSetHandler() override;
-
-    virtual unique_ptr<RangeSetHandler> subRunRangeSetHandler() override;
-
-  public: // MEMBER FUNCTIONS -- Job Interface -- NOT IMPLEMENTED
-          // Not Implemented
-          // Called by framework at beginning of job
-          // virtual
-          // void
-          // doBeginJob() override;
-    // Not Implemented
-    // Called by framework at end of job
-    // virtual
-    // void
-    // doEndJob() override;
-
-  public: // MEMBER FUNCTIONS -- Random Access Interface -- NOT IMPLEMENTED
-          // Not Implemented
-          // Read a specific event
-          // virtual
-          // std::unique_ptr<EventPrincipal>
-          // readEvent(EventID const&) override;
-    // Not Implemented
-    // Skip the number of events specified.
-    // Offset may be negative.
-    // virtual
-    // void
-    // skipEvents(int offset) override;
-
-    // Not Implemented
-    // Begin again at the first event
-    // virtual
-    // void
-    // rewind() override;
-
-  private
-    : // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation required
-      // interface
+  private:
+    unique_ptr<RangeSetHandler> runRangeSetHandler() override;
+    unique_ptr<RangeSetHandler> subRunRangeSetHandler() override;
     input::ItemType getNextItemType() override;
-
     unique_ptr<RunPrincipal> readRun_() override;
-
     unique_ptr<SubRunPrincipal> readSubRun_(
       cet::exempt_ptr<RunPrincipal const>) override;
-
     unique_ptr<EventPrincipal> readEvent_() override;
-
-  private
-    : // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation interface
-      // -- NOT IMPLEMENTED
-    // Not Implemented
-    // virtual
-    // std::unique_ptr<FileBlock>
-    // readFile_();
-
-    // Not Implemented
-    // virtual
-    // void
-    // closeFile_();
-
-  private
-    : // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation interface
+    unique_ptr<EmptyEventTimestampPlugin> makePlugin_(
+      OptionalDelegatedParameter const& maybeConfig);
     void beginJob() override;
-
     void endJob() override;
-
-  private
-    : // MEMBER FUNCTIONS -- DecrepitRelicInputSourceImplementation interface
     void skip(int offset) override;
-
     void rewind_() override;
 
-    std::unique_ptr<EmptyEventTimestampPlugin> makePlugin_(
-      fhicl::ParameterSet const& pset);
-
-  private: // MEMBER DATA
     unsigned const numberEventsInRun_;
     unsigned const numberEventsInSubRun_;
     // microseconds
@@ -245,8 +154,7 @@ art::EmptyEvent::EmptyEvent(Parameters const& config,
       config().numberEventsInSubRun())}
   , eventCreationDelay_{config().eventCreationDelay()}
   , resetEventOnSubRun_{config().resetEventOnSubRun()}
-  , plugin_{makePlugin_(
-      config.get_PSet().get<fhicl::ParameterSet>("timestampPlugin", {}))}
+  , plugin_{makePlugin_(config().timestampPlugin)}
 {
   RunNumber_t firstRun{};
   bool haveFirstRun = config().firstRun(firstRun);
@@ -435,11 +343,12 @@ art::EmptyEvent::endJob()
 }
 
 std::unique_ptr<art::EmptyEventTimestampPlugin>
-art::EmptyEvent::makePlugin_(fhicl::ParameterSet const& pset)
+art::EmptyEvent::makePlugin_(OptionalDelegatedParameter const& maybeConfig)
 {
   std::unique_ptr<EmptyEventTimestampPlugin> result;
   try {
-    if (!pset.is_empty()) {
+    ParameterSet pset;
+    if (maybeConfig.get_if_present(pset)) {
       auto const libspec = pset.get<std::string>("plugin_type");
       auto const pluginType = pluginFactory_.pluginType(libspec);
       if (pluginType ==

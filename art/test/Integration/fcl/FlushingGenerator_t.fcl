@@ -1,9 +1,6 @@
 process_name: DEVEL
 
-source: {
-  module_type: FlushingGenerator
-}
-
+source.module_type: FlushingGenerator
 services.Tracer: {}
 
 physics: {

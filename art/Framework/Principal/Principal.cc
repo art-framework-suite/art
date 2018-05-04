@@ -1087,36 +1087,27 @@ namespace art {
     // FIXME: threading: Uses of group!
     auto g = getGroupTryAllFiles(pid);
     if (g.get() == nullptr) {
-      return OutputHandle{RangeSet::invalid()};
+      return OutputHandle::invalid();
     }
     if (resolveProd) {
-      bool gotIt = g->resolveProductIfAvailable();
-      if (!gotIt) {
+      if (!g->resolveProductIfAvailable()) {
         // Behavior is the same as if the group wasn't there.
-        return OutputHandle{RangeSet::invalid()};
+        return OutputHandle::invalid();
       }
-    }
-    auto const& pd = g->productDescription();
-    if (resolveProd &&                   // asked to resolve
-        !g->anyProduct()->isPresent() && // wrapper says it is a dummy, and
-        (presentFromSource(pid) || pd.produced()) && // , and
-        productstatus::present(
-          g->productProvenance()->productStatus()) // provenance says present
-    ) {
-      // A product with a status of 'present' is not actually
-      // present. Yes, believe it or not, this has happened.  There are
-      // some files where the branch is present in the file, but all the
-      // products are marked not present.  This situation should have
-      // never happened, but since it has, and since it is not a fatal
-      // error (the product is not present, no matter what), we return
-      // an invalid OutputHandle.
-      return OutputHandle{invalid_rs};
+      if (g->anyProduct() == nullptr) {
+        return OutputHandle::invalid();
+      }
+      if (!g->anyProduct()->isPresent()) {
+        return OutputHandle::invalid();
+      }
     }
     if (!g->anyProduct() && !g->productProvenance()) {
       return OutputHandle{g->rangeOfValidity()};
     }
-    return OutputHandle{
-      g->anyProduct(), &pd, g->productProvenance(), g->rangeOfValidity()};
+    return OutputHandle{g->anyProduct(),
+                        &g->productDescription(),
+                        g->productProvenance(),
+                        g->rangeOfValidity()};
   }
 
   cet::exempt_ptr<BranchDescription const>
