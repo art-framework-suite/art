@@ -24,24 +24,43 @@
 
 namespace art {
 
-  class SubRun final : public DataViewImpl {
-
+  class SubRun final : private DataViewImpl {
   public:
+
     ~SubRun();
 
-    SubRun(SubRunPrincipal const& srp,
-           ModuleDescription const& md,
-           RangeSet const& rs = RangeSet::invalid());
+    explicit SubRun(SubRunPrincipal const& srp,
+                    ModuleDescription const& md,
+                    RangeSet const& rs = RangeSet::invalid());
 
     SubRun(SubRun const&) = delete;
     SubRun(SubRun&&) = delete;
     SubRun& operator=(SubRun const&) = delete;
     SubRun& operator=(SubRun&&) = delete;
 
-  public:
     SubRunID id() const;
 
     Run const& getRun() const;
+
+    using DataViewImpl::get;
+    using DataViewImpl::getByLabel;
+    using DataViewImpl::getByToken;
+    using DataViewImpl::getValidHandle;
+    using DataViewImpl::getView;
+    using DataViewImpl::getMany;
+    using DataViewImpl::getManyByType;
+    using DataViewImpl::put;
+
+    using DataViewImpl::removeCachedProduct;
+    using DataViewImpl::getPointerByLabel;
+    using DataViewImpl::getProductID;
+    using DataViewImpl::productGetter;
+
+    using DataViewImpl::subRun;
+    using DataViewImpl::run;
+    using DataViewImpl::beginTime;
+    using DataViewImpl::endTime;
+    using DataViewImpl::movePutProductsToPrincipal;
 
   private:
     std::unique_ptr<Run const> const run_;

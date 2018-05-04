@@ -91,7 +91,7 @@ namespace art {
   {
     Results res{resp, moduleDescription()};
     writeResults(res);
-    res.DataViewImpl::movePutProductsToPrincipal(resp);
+    res.movePutProductsToPrincipal(resp);
   }
 
   void

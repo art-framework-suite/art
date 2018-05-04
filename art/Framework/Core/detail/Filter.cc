@@ -98,7 +98,7 @@ namespace art {
       detail::CPCSentry sentry{*cpc};
       Run r{rp, moduleDescription(), RangeSet::forRun(rp.runID())};
       bool const rc = beginRun(r);
-      r.DataViewImpl::movePutProductsToPrincipal(rp);
+      r.movePutProductsToPrincipal(rp);
       return rc;
     }
 
@@ -115,7 +115,7 @@ namespace art {
       detail::CPCSentry sentry{*cpc};
       Run r{rp, moduleDescription(), rp.seenRanges()};
       bool const rc = endRun(r);
-      r.DataViewImpl::movePutProductsToPrincipal(rp);
+      r.movePutProductsToPrincipal(rp);
       return rc;
     }
 
@@ -132,7 +132,7 @@ namespace art {
       detail::CPCSentry sentry{*cpc};
       SubRun sr{srp, moduleDescription(), RangeSet::forSubRun(srp.subRunID())};
       bool const rc = beginSubRun(sr);
-      sr.DataViewImpl::movePutProductsToPrincipal(srp);
+      sr.movePutProductsToPrincipal(srp);
       return rc;
     }
 
@@ -149,7 +149,7 @@ namespace art {
       detail::CPCSentry sentry{*cpc};
       SubRun sr{srp, moduleDescription(), srp.seenRanges()};
       bool const rc = endSubRun(sr);
-      sr.DataViewImpl::movePutProductsToPrincipal(srp);
+      sr.movePutProductsToPrincipal(srp);
       return rc;
     }
 
@@ -172,7 +172,7 @@ namespace art {
       ++counts_run;
       bool rc = false;
       rc = filterWithScheduleID(e, sid);
-      e.DataViewImpl::movePutProductsToPrincipal(
+      e.movePutProductsToPrincipal(
         ep, checkPutProducts_, &expectedProducts<InEvent>());
       if (rc) {
         ++counts_passed;

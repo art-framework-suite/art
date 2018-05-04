@@ -161,13 +161,6 @@ namespace art {
     return principal_.productGetter(pid);
   }
 
-  size_t
-  DataViewImpl::size() const
-  {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    return putProducts_.size() + principal_.size();
-  }
-
   bool
   DataViewImpl::getProcessParameterSet(string const& processName,
                                        fhicl::ParameterSet& ps) const

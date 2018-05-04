@@ -71,8 +71,6 @@ namespace art {
   class DataViewImpl {
 
     // Give access to movePutProductsToPrincipal(...).
-    friend class EDFilter;
-    friend class EDProducer;
     friend class detail::Analyzer;
     friend class detail::Filter;
     friend class detail::Producer;
@@ -121,7 +119,6 @@ namespace art {
     EventAuxiliary::ExperimentType experimentType() const;
     History const& history() const;
     ProcessHistoryID const& processHistoryID() const;
-    size_t size() const;
     ProcessHistory const& processHistory() const;
     template <typename PROD>
     bool removeCachedProduct(Handle<PROD>&) const;
@@ -282,9 +279,6 @@ namespace art {
                   std::string const& instance,
                   RangeSet const& rs);
 
-    // MEMBER FUNCTIONS -- Data Product Insertion, used only by EDProducer,
-    // EDFilter, and ResultsProducer
-  private:
     void movePutProductsToPrincipal(Principal& principal);
     void movePutProductsToPrincipal(
       Principal& principal,

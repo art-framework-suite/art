@@ -330,7 +330,6 @@ BOOST_AUTO_TEST_CASE(emptyEvent)
   BOOST_REQUIRE(currentEvent_.get());
   BOOST_REQUIRE_EQUAL(currentEvent_->id(), make_id());
   BOOST_REQUIRE(currentEvent_->time() == make_timestamp());
-  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 }
 
 BOOST_AUTO_TEST_CASE(getBySelectorFromEmpty)
@@ -355,9 +354,7 @@ BOOST_AUTO_TEST_CASE(putAnIntProduct)
 {
   auto three = make_unique<arttest::IntProduct>(3);
   currentEvent_->put(move(three), "int1");
-  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 7u);
   EDProducer::commitEvent(*principal_, *currentEvent_);
-  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 }
 
 BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
@@ -394,8 +391,6 @@ BOOST_AUTO_TEST_CASE(getByProductID)
     auto const id2 = addSourceProduct(std::move(two), "int2_tag", "int2");
     BOOST_REQUIRE(id2 != ProductID{});
     BOOST_REQUIRE(id2 != id1);
-
-    BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u); // Used to be 2u
   }
   Handle<arttest::IntProduct> h;
   currentEvent_->get(wanted, h);
@@ -420,7 +415,6 @@ BOOST_AUTO_TEST_CASE(transaction)
     auto three = make_unique<arttest::IntProduct>(3);
     currentEvent_->put(move(three), "int1");
     BOOST_REQUIRE_EQUAL(principal_->size(), 6u);
-    BOOST_REQUIRE_EQUAL(currentEvent_->size(), 7u);
     // DO NOT COMMIT!
   }
   // The Event has been destroyed without a movePutProductsToPrincipal -- we
@@ -442,8 +436,6 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
   addSourceProduct(std::move(two), "int2_tag", "int2");
   addSourceProduct(std::move(three), "int3_tag");
   addSourceProduct(std::move(four), "nolabel_tag");
-
-  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u); // Used to be 4u
 
   Selector const sel{ProductInstanceNameSelector{"int2"} &&
                      ModuleLabelSelector{"modMulti"}};
@@ -497,7 +489,6 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   auto twoHundred = std::make_unique<product_t>(200);
   currentEvent_->put(std::move(twoHundred), "int1");
   EDProducer::commitEvent(*principal_, *currentEvent_);
-  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
 
   Selector const sel{ProductInstanceNameSelector{"int2"} &&
                      ModuleLabelSelector{"modMulti"} &&
@@ -577,7 +568,6 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   currentEvent_->put(std::move(twoHundred), "int1");
 
   EDProducer::commitEvent(*principal_, *currentEvent_);
-  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
   handle_t h;
   BOOST_REQUIRE(currentEvent_->getByLabel("modMulti", h));
   BOOST_REQUIRE_EQUAL(h->value, 3);
@@ -623,7 +613,6 @@ BOOST_AUTO_TEST_CASE(getManyByType)
   currentEvent_->put(std::move(twoHundred), "int1");
 
   EDProducer::commitEvent(*principal_, *currentEvent_);
-  BOOST_REQUIRE_EQUAL(currentEvent_->size(), 6u);
   handle_vec handles;
   currentEvent_->getManyByType(handles);
   BOOST_REQUIRE_EQUAL(handles.size(), 6u);

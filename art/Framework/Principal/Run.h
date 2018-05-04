@@ -18,7 +18,7 @@
 
 namespace art {
 
-  class Run final : public DataViewImpl {
+  class Run final : private DataViewImpl {
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~Run();
@@ -32,8 +32,26 @@ namespace art {
     Run& operator=(Run const&) = delete;
     Run& operator=(Run&&) = delete;
 
-  public: // MEMBER FUNCTIONS -- User-facing API
     RunID id() const;
+
+    using DataViewImpl::get;
+    using DataViewImpl::getByLabel;
+    using DataViewImpl::getByToken;
+    using DataViewImpl::getValidHandle;
+    using DataViewImpl::getView;
+    using DataViewImpl::getMany;
+    using DataViewImpl::getManyByType;
+    using DataViewImpl::put;
+
+    using DataViewImpl::removeCachedProduct;
+    using DataViewImpl::getPointerByLabel;
+    using DataViewImpl::getProductID;
+    using DataViewImpl::productGetter;
+
+    using DataViewImpl::run;
+    using DataViewImpl::beginTime;
+    using DataViewImpl::endTime;
+    using DataViewImpl::movePutProductsToPrincipal;
   };
 
 } // namespace art

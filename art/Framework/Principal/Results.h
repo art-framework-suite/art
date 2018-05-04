@@ -21,7 +21,7 @@
 
 namespace art {
 
-  class Results final : public DataViewImpl {
+  class Results final : private DataViewImpl {
 
   public:
     ~Results();
@@ -32,6 +32,22 @@ namespace art {
     Results(Results&&) = delete;
     Results& operator=(Results const&) = delete;
     Results& operator=(Results&&) = delete;
+
+    using DataViewImpl::get;
+    using DataViewImpl::getByLabel;
+    using DataViewImpl::getByToken;
+    using DataViewImpl::getValidHandle;
+    using DataViewImpl::getView;
+    using DataViewImpl::getMany;
+    using DataViewImpl::getManyByType;
+    using DataViewImpl::put;
+
+    using DataViewImpl::removeCachedProduct;
+    using DataViewImpl::getPointerByLabel;
+    using DataViewImpl::getProductID;
+    using DataViewImpl::productGetter;
+
+    using DataViewImpl::movePutProductsToPrincipal;
   };
 
 } // namespace art

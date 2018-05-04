@@ -2,12 +2,12 @@
 #define art_Framework_Principal_Event_h
 // vim: set sw=2 expandtab :
 
+// =============================================================
+// This is the primary interface for accessing products from a
+// triggered event and inserting new derived products.
 //
-//   This is the primary interface for accessing EDProducts from a
-//   single collision and inserting new derived products.
-//
-//   For its usage, see "art/Framework/Principal/DataViewImpl.h"
-//
+// For its usage, see "art/Framework/Principal/DataViewImpl.h"
+// =============================================================
 
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/Handle.h"
@@ -37,13 +37,11 @@ namespace art {
   class BranchDescription;
   class ProdToProdMapBuilder;
 
-  class Event final : public DataViewImpl {
-
+  class Event final : private DataViewImpl {
   public:
     template <typename T>
     using HandleT = Handle<T>;
 
-  public:
     ~Event();
 
     explicit Event(EventPrincipal const& ep, ModuleDescription const& md);
@@ -53,10 +51,30 @@ namespace art {
     Event& operator=(Event const&) = delete;
     Event& operator=(Event&&) = delete;
 
-  public:
     EventID id() const;
     SubRun const& getSubRun() const;
     Run const& getRun() const;
+
+    using DataViewImpl::get;
+    using DataViewImpl::getByLabel;
+    using DataViewImpl::getByToken;
+    using DataViewImpl::getValidHandle;
+    using DataViewImpl::getView;
+    using DataViewImpl::getMany;
+    using DataViewImpl::getManyByType;
+    using DataViewImpl::put;
+
+    using DataViewImpl::removeCachedProduct;
+    using DataViewImpl::getPointerByLabel;
+    using DataViewImpl::getProductID;
+    using DataViewImpl::productGetter;
+
+    using DataViewImpl::processHistory; // ?
+    using DataViewImpl::subRun;
+    using DataViewImpl::event;
+    using DataViewImpl::run;
+    using DataViewImpl::time;
+    using DataViewImpl::movePutProductsToPrincipal;
 
   private:
     std::unique_ptr<SubRun const> const subRun_;
