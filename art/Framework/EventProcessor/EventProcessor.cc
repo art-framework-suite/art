@@ -537,7 +537,6 @@ namespace art {
                                        exception_ptr const*)
   {
     TDEBUG_BEGIN_TASK_SI(4, "processAllEventsTask", sid);
-    INTENTIONAL_DATA_RACE(DR_EP_PROCESS_ALL_EVENTS_TASK);
     processAllEventsAsync(eventLoopTask, sid);
     TDEBUG_END_TASK_SI(4, "processAllEventsTask", sid);
   }
@@ -616,7 +615,6 @@ namespace art {
     void
     operator()(exception_ptr const* ex)
     {
-      INTENTIONAL_DATA_RACE(DR_EP_READ_AND_PROCESS_EVENT_FUNCTOR);
       evp_->readAndProcessEventTask(eventLoopTask_, sid_, ex);
     }
 
@@ -633,7 +631,6 @@ namespace art {
   {
     // Note: When we come here our parent is the eventLoop task.
     TDEBUG_BEGIN_TASK_SI(4, "readAndProcessEventTask", sid);
-    INTENTIONAL_DATA_RACE(DR_EP_READ_AND_PROCESS_EVENT_TASK);
     try {
       // Note: We pass eventLoopTask here to keep the thread sanitizer happy.
       readAndProcessAsync(eventLoopTask, sid);
@@ -673,7 +670,6 @@ namespace art {
     // Note: We are part of the processAllEventsTask (schedule head task),
     // and our parent is the eventLoopTask.
     TDEBUG_BEGIN_FUNC_SI(4, "EventProcessor::processAllEventsAsync", sid);
-    INTENTIONAL_DATA_RACE(DR_EP_PROCESS_ALL_EVENTS_ASYNC);
     // Create a continuation task that has the EventLoopTask as parent,
     // and reset our parent to the nullptr at the same time, which means when
     // we end we do not decrement the ref count of the EventLoopTask and our
@@ -705,7 +701,6 @@ namespace art {
     // Note: We are part of the readAndProcessEventTask (schedule head task),
     // and our parent task is the EventLoopTask.
     TDEBUG_BEGIN_FUNC_SI(4, "EventProcessor::readAndProcessAsync", sid);
-    INTENTIONAL_DATA_RACE(DR_EP_READ_AND_PROCESS_ASYNC);
     // Note: shutdown_flag is a extern global atomic int in
     // art/art/Utilities/UnixSignalHandlers.cc
     if (shutdown_flag) {
@@ -826,8 +821,6 @@ namespace art {
                 << (*eventPrincipal_.load())[sid]->eventID() << ")\n";
       // Now we drop the input source lock by exiting the guarded scope.
     }
-    INTENTIONAL_DATA_RACE(
-      DR_EP_READ_AND_PROCESS_ASYNC_AFTER_INPUT_MUTEX_UNLOCK);
     if ((*eventPrincipal_.load())[sid]->eventID().isFlush()) {
       // No processing to do, start next event handling task,
       // transferring our parent task (EventLoopTask) to it,
@@ -871,7 +864,6 @@ namespace art {
   {
     // Note: When we start our parent is the eventLoopTask.
     TDEBUG_BEGIN_TASK_SI(4, "endPathTask", sid);
-    INTENTIONAL_DATA_RACE(DR_EP_END_PATH_TASK);
     if (ex != nullptr) {
       try {
         rethrow_exception(*ex);
@@ -944,7 +936,6 @@ namespace art {
     // Note: We are part of the readAndProcessEventTask (schedule head task),
     // and our parent task is the EventLoopTask.
     TDEBUG_BEGIN_FUNC_SI(4, "EventProcessor::processEventAsync", sid);
-    INTENTIONAL_DATA_RACE(DR_EP_PROCESS_EVENT_ASYNC);
     assert((*eventPrincipal_.load())[sid]);
     assert(!(*eventPrincipal_.load())[sid]->eventID().isFlush());
     try {
@@ -964,8 +955,6 @@ namespace art {
       // they will spawn the endPathTask which will run the
       // end path, write the event, and start the next event
       // processing task.
-      INTENTIONAL_DATA_RACE(
-        DR_EP_PROCESS_EVENT_ASYNC_JUST_BEFORE_SCHEDULE_PROCESS_EVENT);
       (*schedule_.load())[sid].process_event(
         endPathTask, eventLoopTask, *(*eventPrincipal_.load())[sid], sid);
       // Once the trigger paths are running we are done, exit this task,
@@ -1077,7 +1066,6 @@ namespace art {
                                     tbb::task* eventLoopTask)
   {
     TDEBUG_BEGIN_TASK_SI(4, "endPathFunctor", sid);
-    INTENTIONAL_DATA_RACE(DR_EP_END_PATH_RUNNER_TASK);
     // Arrange it so that we can terminate event
     // processing if we want to.
     ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -

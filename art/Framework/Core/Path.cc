@@ -321,7 +321,6 @@ namespace art {
     // or the endPath task, and our parent task is the nullptr.
     // The parent of the pathsDoneTask is the eventLoop Task.
     TDEBUG_BEGIN_FUNC_SI(4, "Path::process_event", sid);
-    INTENTIONAL_DATA_RACE(DR_PATH_PROCESS_EVENT);
     {
       ostringstream msg;
       msg << "0x" << hex << ((unsigned long)this) << dec
@@ -361,7 +360,6 @@ namespace art {
     void
     operator()(exception_ptr const* ex) const
     {
-      INTENTIONAL_DATA_RACE(DR_PATH_RUN_WORKER_FUNCTOR);
       path_->runWorkerTask(idx_, max_idx_, ep_, sid_, cpc_, ex);
     }
 
@@ -384,7 +382,6 @@ namespace art {
   {
     // Note: When we start here our parent task is the nullptr.
     TDEBUG_BEGIN_TASK_SI(4, "runWorkerTask", sid);
-    INTENTIONAL_DATA_RACE(DR_PATH_RUN_WORKER_TASK);
     auto new_idx = idx;
     auto new_cpc = cpc;
     try {
@@ -417,7 +414,6 @@ namespace art {
       TDEBUG_FUNC_SI_MSG(
         4, "Begin Path::process_event_idx_asynch", sid, msg.str());
     }
-    INTENTIONAL_DATA_RACE(DR_PATH_PROCESS_EVENT_IDX_ASYNCH);
     auto runWorkerTask =
       make_waiting_task(tbb::task::allocate_root(),
                         RunWorkerFunctor{this, idx, max_idx, ep, sid, cpc});
@@ -465,7 +461,6 @@ namespace art {
                        exception_ptr const* ex)
   {
     TDEBUG_BEGIN_TASK_SI(4, "workerDoneTask", sid);
-    INTENTIONAL_DATA_RACE(DR_PATH_WORKER_DONE_TASK);
     auto& workerInPath = (*workers_.load())[idx];
     // Note: This will only be set false by a filter which has rejected.
     bool new_should_continue = workerInPath.returnCode(sid);
@@ -542,7 +537,6 @@ namespace art {
       msg << "idx: " << idx << " max_idx: " << max_idx;
       TDEBUG_FUNC_SI_MSG(4, "Path::process_event_idx", sid, msg.str());
     }
-    INTENTIONAL_DATA_RACE(DR_PATH_PROCESS_EVENT_IDX);
     auto workerDoneTask =
       make_waiting_task(tbb::task::allocate_root(),
                         WorkerDoneFunctor{this, idx, max_idx, ep, sid, cpc});
@@ -571,7 +565,6 @@ namespace art {
       TDEBUG_FUNC_SI_MSG(
         4, "Begin Path::process_event_workerFinished", sid, msg.str());
     }
-    INTENTIONAL_DATA_RACE(DR_PATH_PROCESS_EVENT_WORKER_FINISHED);
     auto new_idx = idx;
     // Move on to the next worker.
     ++new_idx;
@@ -612,7 +605,6 @@ namespace art {
       msg << "idx: " << idx << " should_continue: " << should_continue;
       TDEBUG_FUNC_SI_MSG(4, "Path::process_event_pathFinished", sid, msg.str());
     }
-    INTENTIONAL_DATA_RACE(DR_PATH_PROCESS_EVENT_PATH_FINISHED);
     try {
       if (should_continue) {
         ++timesPassed_;

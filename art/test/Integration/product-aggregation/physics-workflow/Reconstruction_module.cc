@@ -85,7 +85,6 @@ namespace arttest {
   bool
   Reconstruction::filter(Event& e, ScheduleID)
   {
-    INTENTIONAL_DATA_RACE(DR_RECONSTRUCTION);
     auto const& particleEnergies = *e.getValidHandle(particleEnergiesTkn_);
     bool pass = false;
     for (auto const& val : particleEnergies) {

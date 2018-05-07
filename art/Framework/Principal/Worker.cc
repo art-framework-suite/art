@@ -591,7 +591,6 @@ namespace art {
                     CurrentProcessingContext* cpc)
   {
     TDEBUG_BEGIN_TASK_SI(4, "runWorker", sid);
-    INTENTIONAL_DATA_RACE(DR_WORKER_RUN_WORKER);
     returnCode_ = false;
     try {
       // Transition from Ready state to Working state.
@@ -726,7 +725,6 @@ namespace art {
                        CurrentProcessingContext* cpc)
   {
     TDEBUG_BEGIN_FUNC_SI(4, "Worker::doWork_event", sid);
-    INTENTIONAL_DATA_RACE(DR_WORKER_DOWORK_EVENT);
     // Note: We actually can have more than one entry in this
     // list because a worker may be one more than one path,
     // and if both paths are running in parallel, then it is

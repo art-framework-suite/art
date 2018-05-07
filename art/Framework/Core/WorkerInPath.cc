@@ -224,7 +224,6 @@ namespace art {
                                      exception_ptr const* ex)
   {
     TDEBUG_BEGIN_TASK_SI(4, "workerInPathDoneTask", scheduleID);
-    INTENTIONAL_DATA_RACE(DR_WORKER_IN_PATH_DONE_TASK);
     if (ex != nullptr) {
       ++counts_thrown_;
       waitingTasks_.load()->doneWaiting(*ex);

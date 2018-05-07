@@ -285,7 +285,6 @@ namespace art {
   {
     // Note: When we start our parent task is the eventLoop task.
     TDEBUG_BEGIN_TASK_SI(4, "pathsDoneTask", scheduleID);
-    INTENTIONAL_DATA_RACE(DR_SCHEDULE_PATHS_DONE_TASK);
     if (ex != nullptr) {
       try {
         rethrow_exception(*ex);
@@ -405,7 +404,6 @@ namespace art {
         // call doneWaiting() on the pathsDoneTask, which decrements
         // its reference count, which will eventually cause it to
         // run when every path has finished.
-        INTENTIONAL_DATA_RACE(DR_SCHEDULE_PROCESS_EVENT_PER_PATH);
         path->process_event(pathsDoneTask, principal, scheduleID);
       }
       // And end this task which does not terminate event processing
