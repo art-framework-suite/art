@@ -95,7 +95,7 @@ namespace art {
     template <typename T, typename = void>
     struct MaybeSharedModule {
       static std::nullptr_t
-      chain(...)
+      chain(std::shared_ptr<T> const&)
       {
         return nullptr;
       }

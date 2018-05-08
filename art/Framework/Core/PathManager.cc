@@ -682,9 +682,9 @@ namespace art {
       }
       if (worker == nullptr) {
         auto get_module =
-          [&modules, this](std::string const& module_label,
-                           ModuleThreadingType const module_threading_type,
-                           ScheduleID const sid) {
+          [&modules](std::string const& module_label,
+                     ModuleThreadingType const module_threading_type,
+                     ScheduleID const sid) {
             if (module_threading_type == ModuleThreadingType::shared ||
                 module_threading_type == ModuleThreadingType::legacy) {
               return modules.shared.at(module_label);
