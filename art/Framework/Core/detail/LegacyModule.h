@@ -6,6 +6,8 @@
 #include "art/Framework/Core/detail/SharedModule.h"
 #include "art/Utilities/ScheduleID.h"
 
+#include <atomic>
+
 namespace art {
   namespace detail {
 
@@ -14,7 +16,7 @@ namespace art {
       auto
       scheduleID() const
       {
-        return scheduleID_;
+        return scheduleID_.load();
       }
 
       void
@@ -52,7 +54,9 @@ namespace art {
       class ScheduleIDSentry;
 
     private:
-      ScheduleID scheduleID_;
+      // The thread-sanitizer wants this to be atomic, even though
+      // it's unlikely to be a problem in any practical scenario.
+      std::atomic<ScheduleID> scheduleID_;
     };
 
     class LegacyModule::ScheduleIDSentry {

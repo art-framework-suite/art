@@ -159,67 +159,98 @@ namespace art {
     void terminateAbnormally_();
 
   private: // MEMBER DATA
+    template <typename T>
+    class thread_sanitize {
+    public:
+      template <typename... Args>
+      thread_sanitize(Args&&... args)
+      {
+        obj_ = new T(std::forward<Args>(args)...);
+      }
+
+      operator T&() { return *obj_.load(); }
+
+      thread_sanitize&
+      operator=(T&& t)
+      {
+        *obj_.load() = std::forward<T>(t);
+        return *this;
+      }
+
+      T* operator->() const { return obj_.load(); }
+
+      ~thread_sanitize() noexcept
+      {
+        ANNOTATE_THREAD_IGNORE_BEGIN;
+        delete obj_.load();
+        obj_ = nullptr;
+        ANNOTATE_THREAD_IGNORE_END;
+      }
+
+    private:
+      std::atomic<T*> obj_;
+    };
+
     // Next containment level to move to.
-    std::atomic<Level> nextLevel_;
+    std::atomic<Level> nextLevel_{Level::ReadyToAdvance};
 
     // Utility object to run a functor and collect any exceptions thrown.
-    std::atomic<detail::ExceptionCollector*> ec_;
+    thread_sanitize<detail::ExceptionCollector> ec_{};
 
     // Used for timing the job.
-    std::atomic<cet::cpu_timer*> timer_;
+    thread_sanitize<cet::cpu_timer> timer_{};
 
     // Used to keep track of whether or not we have already call beginRun.
-    std::atomic<bool> beginRunCalled_;
+    std::atomic<bool> beginRunCalled_{false};
 
     // Used to keep track of whether or not we have already call beginSubRun.
-    std::atomic<bool> beginSubRunCalled_;
+    std::atomic<bool> beginSubRunCalled_{false};
 
     // When set allows runs to end.
-    std::atomic<bool> finalizeRunEnabled_;
+    std::atomic<bool> finalizeRunEnabled_{true};
 
     // When set allows subruns to end.
-    std::atomic<bool> finalizeSubRunEnabled_;
+    std::atomic<bool> finalizeSubRunEnabled_{true};
 
-    // A signal/slot system for registering a callback
-    // to be called when a specific action is taken by
-    // the framework.
-    std::atomic<ActivityRegistry*> actReg_;
+    // A signal/slot system for registering a callback to be called
+    // when a specific action is taken by the framework.
+    thread_sanitize<ActivityRegistry> actReg_{};
 
     // Used to update various output fields in logged messages.
-    std::atomic<MFStatusUpdater*> mfStatusUpdater_;
+    thread_sanitize<MFStatusUpdater> mfStatusUpdater_{actReg_};
 
     // List of callbacks which, when invoked, can update the state of
     // any output modules.
     // FIXME: Used only in the ctor!
-    std::atomic<UpdateOutputCallbacks*> outputCallbacks_;
+    thread_sanitize<UpdateOutputCallbacks> outputCallbacks_{};
 
-    // Product descriptions for the products that appear
-    // in produces<T>() clauses in modules. Note that
-    // this is the master copy and must be kept alive
-    // until producedProductLookupTables_ is destroyed
-    // because it has references to us.
-    std::atomic<ProductDescriptions*> producedProductDescriptions_;
+    // Product descriptions for the products that appear in
+    // produces<T>() clauses in modules. Note that this is the master
+    // copy and must be kept alive until producedProductLookupTables_
+    // is destroyed because it has references to us.
+    thread_sanitize<ProductDescriptions> producedProductDescriptions_{};
 
-    // Product lookup tables for the products that appear
-    // in produces<T>() clauses in modules. Note that this
-    // also serves as the master list of produced products
-    // and must be kept alive until no more principals
-    // that might use it exist. Also note that we keep
-    // references to the internals of
+    // Product lookup tables for the products that appear in
+    // produces<T>() clauses in modules. Note that this also serves as
+    // the master list of produced products and must be kept alive
+    // until no more principals that might use it exist. Also note
+    // that we keep references to the internals of
     // producedProductDescriptions_.
-    std::atomic<ProductTables*> producedProductLookupTables_;
+    thread_sanitize<ProductTables> producedProductLookupTables_{
+      ProductTables::invalid()};
 
-    std::atomic<ProducingServiceSignals*> psSignals_;
+    thread_sanitize<ProducingServiceSignals> psSignals_{};
 
     // The service subsystem.
     std::atomic<ServicesManager*> servicesManager_;
 
     // The entity that manages all configuration data from the
-    // services.scheduler block and sets up the TBB task scheduler.
-    std::atomic<Scheduler*> scheduler_;
+    // services.scheduler block and (eventually) sets up the TBB task
+    // scheduler.
+    thread_sanitize<Scheduler> scheduler_;
 
     // Despite the name, this is what parses the paths and modules in
-    // the fcl file and creates and owns them.
+    // the FHiCL file and creates and owns them.
     std::atomic<PathManager*> pathManager_;
 
     // The source of input data.
@@ -250,7 +281,7 @@ namespace art {
     std::atomic<bool> handleEmptySubRuns_;
 
     // Has an exception been captured already?
-    std::atomic<bool> deferredExceptionPtrIsSet_;
+    std::atomic<bool> deferredExceptionPtrIsSet_{false};
 
     // An exception captured from event processing.
     std::atomic<std::exception_ptr*> deferredExceptionPtr_;
@@ -261,10 +292,10 @@ namespace art {
     // schedules. This is onnly needed because we cannot peek ahead
     // to see that the next entry is an event, we actually must
     // advance to it before we can know.
-    std::atomic<bool> firstEvent_;
+    std::atomic<bool> firstEvent_{true};
 
     // Are we current switching output files?
-    std::atomic<bool> fileSwitchInProgress_;
+    std::atomic<bool> fileSwitchInProgress_{false};
   };
 
 } // namespace art

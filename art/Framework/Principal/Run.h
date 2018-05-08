@@ -33,9 +33,9 @@ namespace art {
     Run& operator=(Run&&) = delete;
 
     RunID id() const;
-    using DataViewImpl::run;
     using DataViewImpl::beginTime;
     using DataViewImpl::endTime;
+    using DataViewImpl::run;
 
     using DataViewImpl::get;
     using DataViewImpl::getByLabel;
@@ -50,10 +50,10 @@ namespace art {
     using DataViewImpl::getProductDescription;
     using DataViewImpl::getProductID;
 
-    using DataViewImpl::processHistory;
-    using DataViewImpl::removeCachedProduct;
     using DataViewImpl::getProcessParameterSet;
+    using DataViewImpl::processHistory;
     using DataViewImpl::productGetter;
+    using DataViewImpl::removeCachedProduct;
 
     using DataViewImpl::movePutProductsToPrincipal;
   };

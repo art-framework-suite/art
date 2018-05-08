@@ -22,11 +22,16 @@ namespace art {
     , dataDependencyGraph_{ps().dataDependencyGraph()}
   {
     auto& globals = *Globals::instance();
+    globals.setNThreads(nThreads_);
+    globals.setNSchedules(nSchedules_);
+  }
+
+  void
+  Scheduler::initialize_task_manager()
+  {
     tbbManager_.initialize(nThreads_);
     mf::LogInfo("MTdiagnostics")
       << "TBB has been configured to use a maximum of "
       << tbb::this_task_arena::max_concurrency() << " threads.";
-    globals.setNThreads(nThreads_);
-    globals.setNSchedules(nSchedules_);
   }
 }

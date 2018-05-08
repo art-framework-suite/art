@@ -38,10 +38,10 @@ namespace art {
     SubRun& operator=(SubRun&&) = delete;
 
     SubRunID id() const;
-    using DataViewImpl::run;
-    using DataViewImpl::subRun;
     using DataViewImpl::beginTime;
     using DataViewImpl::endTime;
+    using DataViewImpl::run;
+    using DataViewImpl::subRun;
 
     using DataViewImpl::get;
     using DataViewImpl::getByLabel;
@@ -58,8 +58,8 @@ namespace art {
     using DataViewImpl::getProductID;
 
     using DataViewImpl::processHistory;
-    using DataViewImpl::removeCachedProduct;
     using DataViewImpl::productGetter;
+    using DataViewImpl::removeCachedProduct;
 
     using DataViewImpl::movePutProductsToPrincipal;
 

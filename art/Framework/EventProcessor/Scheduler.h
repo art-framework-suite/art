@@ -84,6 +84,8 @@ namespace art {
       return dataDependencyGraph_;
     }
 
+    void initialize_task_manager();
+
   private:
     // A table of responses to be taken on reception of thrown
     // exceptions.

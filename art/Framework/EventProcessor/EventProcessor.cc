@@ -93,38 +93,20 @@ namespace art {
     schedule_ = nullptr;
     delete input_.load();
     input_ = nullptr;
-    delete scheduler_.load();
-    scheduler_ = nullptr;
     delete pathManager_.load();
     pathManager_ = nullptr;
     delete servicesManager_.load();
     servicesManager_ = nullptr;
-    delete psSignals_.load();
-    psSignals_ = nullptr;
-    delete producedProductLookupTables_.load();
-    producedProductLookupTables_ = nullptr;
-    delete producedProductDescriptions_.load();
-    producedProductDescriptions_ = nullptr;
-    delete outputCallbacks_.load();
-    outputCallbacks_ = nullptr;
-    delete mfStatusUpdater_.load();
-    mfStatusUpdater_ = nullptr;
-    delete actReg_.load();
-    actReg_ = nullptr;
-    delete timer_.load();
-    timer_ = nullptr;
-    delete ec_.load();
-    ec_ = nullptr;
     ParentageRegistry::instance(true);
     ProcessConfigurationRegistry::instance(true);
     ProcessHistoryRegistry::instance(true);
-    //    SharedResourcesRegistry::instance(true);
     SetErrorHandler(DefaultErrorHandler);
     TypeID::shutdown();
     ANNOTATE_THREAD_IGNORE_END;
   }
 
   EventProcessor::EventProcessor(ParameterSet const& pset)
+    : scheduler_{pset.get<ParameterSet>("services.scheduler")}
   {
     TypeID::startup();
     auto services_pset = pset.get<ParameterSet>("services");
@@ -149,31 +131,18 @@ namespace art {
     ParentageRegistry::instance();
     ProcessConfigurationRegistry::instance();
     ProcessHistoryRegistry::instance();
-    nextLevel_ = Level::ReadyToAdvance;
-    ec_ = new detail::ExceptionCollector{};
-    timer_ = new cet::cpu_timer{};
-    beginRunCalled_ = false;
-    beginSubRunCalled_ = false;
-    finalizeRunEnabled_ = true;
-    finalizeSubRunEnabled_ = true;
-    actReg_ = new ActivityRegistry{};
-    mfStatusUpdater_ = new MFStatusUpdater{*actReg_.load()};
-    outputCallbacks_ = new UpdateOutputCallbacks{};
-    producedProductDescriptions_ = new ProductDescriptions{};
-    producedProductLookupTables_ = nullptr;
-    psSignals_ = new ProducingServiceSignals{};
     {
       auto const fpcPSet =
         services_pset.get<ParameterSet>("FloatingPointControl", {});
       services_pset.erase("FloatingPointControl");
       services_pset.erase("message");
       services_pset.erase("scheduler");
-      servicesManager_ =
-        new ServicesManager{move(services_pset), *actReg_.load()};
-      servicesManager_.load()->addSystemService<FloatingPointControl>(
-        fpcPSet, *actReg_.load());
+      servicesManager_ = new ServicesManager{move(services_pset), actReg_};
+      servicesManager_.load()->addSystemService<FloatingPointControl>(fpcPSet,
+                                                                      actReg_);
       ServiceRegistry::instance().setManager(servicesManager_.load());
     }
+
     // We do this late because the floating point control word, signal
     // masks, etc., are per-thread and inherited from the master
     // thread, so we want to allow system services, user services, and
@@ -181,9 +150,9 @@ namespace art {
     // we let tbb create any threads. This means they cannot use tbb
     // in their constructors, instead they must use the beginJob
     // callout.
-    scheduler_ = new Scheduler{scheduler_pset};
-    auto const nschedules = scheduler_.load()->num_schedules();
-    auto const nthreads = scheduler_.load()->num_threads();
+    scheduler_->initialize_task_manager();
+    auto const nschedules = scheduler_->num_schedules();
+    auto const nthreads = scheduler_->num_threads();
     auto const& processName{pset.get<string>("process_name")};
     Globals::instance()->setProcessName(processName);
     {
@@ -192,14 +161,13 @@ namespace art {
       TDEBUG_FUNC_MSG(5, "EventProcessor::EventProcessor", msg.str());
     }
     pathManager_ = new PathManager{pset,
-                                   *outputCallbacks_.load(),
-                                   *producedProductDescriptions_.load(),
-                                   scheduler_.load()->actionTable(),
-                                   *actReg_.load()};
+                                   outputCallbacks_,
+                                   producedProductDescriptions_,
+                                   scheduler_->actionTable(),
+                                   actReg_};
     ParameterSet triggerPSet;
     triggerPSet.put("trigger_paths", pathManager_.load()->triggerPathNames());
-    /*auto const& triggerPSetID =*/fhicl::ParameterSetRegistry::put(
-      triggerPSet);
+    fhicl::ParameterSetRegistry::put(triggerPSet);
     Globals::instance()->setTriggerPSet(triggerPSet);
     Globals::instance()->setTriggerPathNames(
       pathManager_.load()->triggerPathNames());
@@ -210,23 +178,18 @@ namespace art {
     runPrincipal_ = nullptr;
     subRunPrincipal_ = nullptr;
     eventPrincipal_ = new PerScheduleContainer<EventPrincipal*>{};
-    handleEmptyRuns_ = scheduler_.load()->handleEmptyRuns();
-    handleEmptySubRuns_ = scheduler_.load()->handleEmptySubRuns();
-    deferredExceptionPtrIsSet_ = false;
+    handleEmptyRuns_ = scheduler_->handleEmptyRuns();
+    handleEmptySubRuns_ = scheduler_->handleEmptySubRuns();
     deferredExceptionPtr_ = new exception_ptr{};
-    firstEvent_ = true;
-    fileSwitchInProgress_ = false;
     eventPrincipal_.load()->expand_to_num_schedules();
     ScheduleIteration schedule_iteration(nschedules);
     auto annotate_principal = [this](ScheduleID const sid) {
-      auto ep [[gnu::unused]] = &(*eventPrincipal_.load())[sid];
-      ANNOTATE_BENIGN_RACE_SIZED(ep,
-                                 sizeof(EventPrincipal*),
-                                 "EventPrincipal ptr");
+      auto ep[[gnu::unused]] = &(*eventPrincipal_.load())[sid];
+      ANNOTATE_BENIGN_RACE_SIZED(
+        ep, sizeof(EventPrincipal*), "EventPrincipal ptr");
     };
     schedule_iteration.for_each_schedule(annotate_principal);
-    auto const errorOnMissingConsumes =
-      scheduler_.load()->errorOnMissingConsumes();
+    auto const errorOnMissingConsumes = scheduler_->errorOnMissingConsumes();
     ConsumesInfo::instance()->setRequireConsumes(errorOnMissingConsumes);
     {
       auto const& physicsPSet = pset.get<ParameterSet>("physics", {});
@@ -236,7 +199,7 @@ namespace art {
         triggerPSet,
         physicsPSet);
     }
-    // We have delayed creating the service module instances, now actually
+    // We have delayed creating the service instances, now actually
     // create them.
     servicesManager_.load()->forceCreation();
     ServiceHandle<FileCatalogMetadata> {}
@@ -248,13 +211,13 @@ namespace art {
       ProcessConfiguration const pc{
         processName, pset.id(), getReleaseVersion()};
       servicesManager_.load()->registerProducts(
-        *producedProductDescriptions_.load(), *psSignals_.load(), pc);
+        producedProductDescriptions_, psSignals_, pc);
     }
     pathManager_.load()->createModulesAndWorkers();
     endPathExecutor_ = new EndPathExecutor{*pathManager_.load(),
-                                           scheduler_.load()->actionTable(),
-                                           *actReg_.load(),
-                                           *outputCallbacks_.load()};
+                                           scheduler_->actionTable(),
+                                           actReg_,
+                                           outputCallbacks_};
     auto create =
       [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
         schedule_.load()->emplace_back(sid,
@@ -262,10 +225,10 @@ namespace art {
                                        processName,
                                        pset,
                                        triggerPSet,
-                                       *outputCallbacks_.load(),
-                                       *producedProductDescriptions_.load(),
-                                       scheduler_.load()->actionTable(),
-                                       *actReg_.load());
+                                       outputCallbacks_,
+                                       producedProductDescriptions_,
+                                       scheduler_->actionTable(),
+                                       actReg_);
       };
     schedule_iteration.for_each_schedule(create);
     FDEBUG(2) << pset.to_string() << endl;
@@ -287,7 +250,7 @@ namespace art {
         main_input.get<string>("module_label"),
         static_cast<int>(ModuleThreadingType::legacy),
         ProcessConfiguration{processName, pset.id(), getReleaseVersion()}};
-      InputSourceDescription isd{md, *outputCallbacks_.load(), *actReg_.load()};
+      InputSourceDescription isd{md, outputCallbacks_, actReg_};
       try {
         input_ = InputSourceFactory::make(main_input, isd).release();
       }
@@ -315,12 +278,10 @@ namespace art {
         throw;
       }
     }
-    actReg_.load()->sPostSourceConstruction.invoke(
-      input_.load()->moduleDescription());
+    actReg_->sPostSourceConstruction.invoke(input_.load()->moduleDescription());
     // Create product tables used for product retrieval within modules.
-    producedProductLookupTables_ =
-      new ProductTables{*producedProductDescriptions_.load()};
-    outputCallbacks_.load()->invoke(*producedProductLookupTables_.load());
+    producedProductLookupTables_ = ProductTables{producedProductDescriptions_};
+    outputCallbacks_->invoke(producedProductLookupTables_);
   }
 
   void
@@ -346,7 +307,7 @@ namespace art {
                  allWorkers.push_back(label_And_worker.second);
                });
     }
-    actReg_.load()->sPostBeginJobWorkers.invoke(input_.load(), allWorkers);
+    actReg_->sPostBeginJobWorkers.invoke(input_.load(), allWorkers);
   }
 
   //================================================================
@@ -382,7 +343,7 @@ namespace art {
   inline void
   EventProcessor::begin<Level::Job>()
   {
-    timer_.load()->start();
+    timer_->start();
     beginJob();
   }
 
@@ -474,7 +435,7 @@ namespace art {
   EventProcessor::finalize<Level::Job>()
   {
     endJob();
-    timer_.load()->stop();
+    timer_->stop();
   }
 
   template <>
@@ -547,7 +508,7 @@ namespace art {
   EventProcessor::process<most_deeply_nested_level()>()
   {
     auto const nschedules = Globals::instance()->nschedules();
-    if ((shutdown_flag > 0) || !ec_.load()->empty()) {
+    if ((shutdown_flag > 0) || !ec_->empty()) {
       return;
     }
     // Note: This loop is to allow output file switching to
@@ -793,7 +754,7 @@ namespace art {
       {
         CurrentProcessingContext cpc{sid, nullptr, -1, false};
         detail::CPCSentry sentry{cpc};
-        actReg_.load()->sPreSourceEvent.invoke(sid);
+        actReg_->sPreSourceEvent.invoke(sid);
       }
       TDEBUG_FUNC_SI_MSG(5,
                          "readAndProcessAsync",
@@ -808,15 +769,15 @@ namespace art {
       // do not allow the lookups to find them until after the callbacks have
       // run.
       (*eventPrincipal_.load())[sid]->createGroupsForProducedProducts(
-        *producedProductLookupTables_.load());
-      psSignals_.load()->sPostReadEvent.invoke(*(*eventPrincipal_.load())[sid]);
+        producedProductLookupTables_);
+      psSignals_->sPostReadEvent.invoke(*(*eventPrincipal_.load())[sid]);
       (*eventPrincipal_.load())[sid]->enableLookupOfProducedProducts(
-        *producedProductLookupTables_.load());
+        producedProductLookupTables_);
       {
         CurrentProcessingContext cpc{sid, nullptr, -1, false};
         detail::CPCSentry sentry{cpc};
         Event const e{*(*eventPrincipal_.load())[sid], ModuleDescription{}};
-        actReg_.load()->sPostSourceEvent.invoke(e, sid);
+        actReg_->sPostSourceEvent.invoke(e, sid);
       }
       FDEBUG(1) << string(8, ' ') << "readEvent...................("
                 << (*eventPrincipal_.load())[sid]->eventID() << ")\n";
@@ -870,7 +831,7 @@ namespace art {
         rethrow_exception(*ex);
       }
       catch (cet::exception& e) {
-        if (scheduler_.load()->actionTable().find(e.root_cause()) !=
+        if (scheduler_->actionTable().find(e.root_cause()) !=
             actions::IgnoreCompletely) {
           auto ex_ptr = make_exception_ptr(
             Exception{errors::EventProcessorFailure,
@@ -950,7 +911,7 @@ namespace art {
         Event const ev{*(*eventPrincipal_.load())[sid], ModuleDescription{}};
         CurrentProcessingContext cpc{sid, nullptr, -1, false};
         detail::CPCSentry sentry{cpc};
-        actReg_.load()->sPreProcessEvent.invoke(ev, sid);
+        actReg_->sPreProcessEvent.invoke(ev, sid);
       }
       // Start the trigger paths running.  When they finish
       // they will spawn the endPathTask which will run the
@@ -965,7 +926,7 @@ namespace art {
       return;
     }
     catch (cet::exception& e) {
-      if (scheduler_.load()->actionTable().find(e.root_cause()) !=
+      if (scheduler_->actionTable().find(e.root_cause()) !=
           actions::IgnoreCompletely) {
         auto ex_ptr =
           make_exception_ptr(Exception{errors::EventProcessorFailure,
@@ -1082,7 +1043,7 @@ namespace art {
     catch (cet::exception& e) {
       // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
       // FailPath
-      if (scheduler_.load()->actionTable().find(e.root_cause()) !=
+      if (scheduler_->actionTable().find(e.root_cause()) !=
           actions::IgnoreCompletely) {
         // Possible actions: Rethrow, SkipEvent, FailModule, FailPath
         auto ex_ptr = make_exception_ptr(
@@ -1145,7 +1106,7 @@ namespace art {
       Event const ev{*(*eventPrincipal_.load())[sid], ModuleDescription{}};
       CurrentProcessingContext cpc{sid, nullptr, -1, false};
       detail::CPCSentry sentry{cpc};
-      actReg_.load()->sPostProcessEvent.invoke(ev, sid);
+      actReg_->sPostProcessEvent.invoke(ev, sid);
     }
     finishEventAsync(eventLoopTask, sid);
     // Note that we do not terminate event processing when we end
@@ -1259,7 +1220,7 @@ namespace art {
       endPathExecutor_.load()->recordOutputClosureRequests(Granularity::Event);
     }
     catch (cet::exception& e) {
-      if (scheduler_.load()->actionTable().find(e.root_cause()) !=
+      if (scheduler_->actionTable().find(e.root_cause()) !=
           actions::IgnoreCompletely) {
         auto ex_ptr = make_exception_ptr(
           Exception{errors::EventProcessorFailure,
@@ -1325,15 +1286,15 @@ namespace art {
   void
   EventProcessor::process()
   {
-    if ((shutdown_flag > 0) || !ec_.load()->empty()) {
+    if ((shutdown_flag > 0) || !ec_->empty()) {
       return;
     }
-    ec_.load()->call([this] { begin<L>(); });
-    while ((shutdown_flag == 0) && ec_.load()->empty() &&
+    ec_->call([this] { begin<L>(); });
+    while ((shutdown_flag == 0) && ec_->empty() &&
            levelsToProcess<level_down(L)>()) {
-      ec_.load()->call([this] { process<level_down(L)>(); });
+      ec_->call([this] { process<level_down(L)>(); });
     }
-    ec_.load()->call([this] {
+    ec_->call([this] {
       finalize<L>();
       recordOutputModuleClosureRequests<L>();
     });
@@ -1343,15 +1304,15 @@ namespace art {
   EventProcessor::runToCompletion()
   {
     StatusCode returnCode{epSuccess};
-    ec_.load()->call([this, &returnCode] {
+    ec_->call([this, &returnCode] {
       process<highest_level()>();
       if (shutdown_flag > 0) {
         returnCode = epSignal;
       }
     });
-    if (!ec_.load()->empty()) {
+    if (!ec_->empty()) {
       terminateAbnormally_();
-      ec_.load()->rethrow();
+      ec_->rethrow();
     }
     return returnCode;
   }
@@ -1418,7 +1379,7 @@ namespace art {
     }
     (*schedule_.load())[ScheduleID::first()].beginJob();
     endPathExecutor_.load()->beginJob();
-    actReg_.load()->sPostBeginJob.invoke();
+    actReg_->sPostBeginJob.invoke();
     invokePostBeginJobWorkers_();
   }
 
@@ -1426,16 +1387,15 @@ namespace art {
   EventProcessor::endJob()
   {
     FDEBUG(1) << string(8, ' ') << "endJob\n";
-    ec_.load()->call(
-      [this] { (*schedule_.load())[ScheduleID::first()].endJob(); });
-    ec_.load()->call([this] { endPathExecutor_.load()->endJob(); });
-    ec_.load()->call([] { ConsumesInfo::instance()->showMissingConsumes(); });
-    ec_.load()->call([this] { input_.load()->doEndJob(); });
-    ec_.load()->call([this] { actReg_.load()->sPostEndJob.invoke(); });
-    ec_.load()->call([] { mf::LogStatistics(); });
-    ec_.load()->call([this] {
+    ec_->call([this] { (*schedule_.load())[ScheduleID::first()].endJob(); });
+    ec_->call([this] { endPathExecutor_.load()->endJob(); });
+    ec_->call([] { ConsumesInfo::instance()->showMissingConsumes(); });
+    ec_->call([this] { input_.load()->doEndJob(); });
+    ec_->call([this] { actReg_->sPostEndJob.invoke(); });
+    ec_->call([] { mf::LogStatistics(); });
+    ec_->call([this] {
       detail::writeSummary(
-        *pathManager_.load(), scheduler_.load()->wantSummary(), *timer_.load());
+        *pathManager_.load(), scheduler_->wantSummary(), timer_);
     });
   }
 
@@ -1445,7 +1405,7 @@ namespace art {
   void
   EventProcessor::openInputFile()
   {
-    actReg_.load()->sPreOpenFile.invoke();
+    actReg_->sPreOpenFile.invoke();
     FDEBUG(1) << string(8, ' ') << "openInputFile\n";
     delete fb_.load();
     fb_ = nullptr;
@@ -1455,7 +1415,7 @@ namespace art {
         << "Source readFile() did not return a valid FileBlock: FileBlock "
         << "should be valid or readFile() should throw.\n";
     }
-    actReg_.load()->sPostOpenFile.invoke(fb_.load()->fileName());
+    actReg_->sPostOpenFile.invoke(fb_.load()->fileName());
     respondToOpenInputFile();
   }
 
@@ -1481,9 +1441,9 @@ namespace art {
       closeSomeOutputFiles();
     }
     respondToCloseInputFile();
-    actReg_.load()->sPreCloseFile.invoke();
+    actReg_->sPreCloseFile.invoke();
     input_.load()->closeFile();
-    actReg_.load()->sPostCloseFile.invoke();
+    actReg_->sPostCloseFile.invoke();
     FDEBUG(1) << string(8, ' ') << "closeInputFile\n";
   }
 
@@ -1578,7 +1538,7 @@ namespace art {
   void
   EventProcessor::readRun()
   {
-    actReg_.load()->sPreSourceRun.invoke();
+    actReg_->sPreSourceRun.invoke();
     delete runPrincipal_.load();
     runPrincipal_ = nullptr;
     runPrincipal_ = input_.load()->readRun().release();
@@ -1590,13 +1550,13 @@ namespace art {
     // enforce this by creating the groups for the produced products, but do
     // not allow the lookups to find them until after the callbacks have run.
     runPrincipal_.load()->createGroupsForProducedProducts(
-      *producedProductLookupTables_.load());
-    psSignals_.load()->sPostReadRun.invoke(*runPrincipal_);
+      producedProductLookupTables_);
+    psSignals_->sPostReadRun.invoke(*runPrincipal_);
     runPrincipal_.load()->enableLookupOfProducedProducts(
-      *producedProductLookupTables_.load());
+      producedProductLookupTables_);
     {
       Run const r{*runPrincipal_.load(), ModuleDescription{}};
-      actReg_.load()->sPostSourceRun.invoke(r);
+      actReg_->sPostSourceRun.invoke(r);
     }
     FDEBUG(1) << string(8, ' ') << "readRun.....................("
               << runPrincipal_.load()->runID() << ")\n";
@@ -1614,7 +1574,7 @@ namespace art {
     try {
       {
         Run const run{*runPrincipal_.load(), ModuleDescription{}};
-        actReg_.load()->sPreBeginRun.invoke(run);
+        actReg_->sPreBeginRun.invoke(run);
       }
       (*schedule_.load())[ScheduleID::first()].process(Transition::BeginRun,
                                                        *runPrincipal_.load());
@@ -1622,7 +1582,7 @@ namespace art {
                                        *runPrincipal_.load());
       {
         Run const run{*runPrincipal_.load(), ModuleDescription{}};
-        actReg_.load()->sPostBeginRun.invoke(run);
+        actReg_->sPostBeginRun.invoke(run);
       }
     }
     catch (cet::exception& ex) {
@@ -1670,8 +1630,8 @@ namespace art {
     assert(!run.isFlush());
     try {
       {
-        actReg_.load()->sPreEndRun.invoke(runPrincipal_.load()->runID(),
-                                          runPrincipal_.load()->endTime());
+        actReg_->sPreEndRun.invoke(runPrincipal_.load()->runID(),
+                                   runPrincipal_.load()->endTime());
       }
       (*schedule_.load())[ScheduleID::first()].process(Transition::EndRun,
                                                        *runPrincipal_.load());
@@ -1679,7 +1639,7 @@ namespace art {
                                        *runPrincipal_.load());
       {
         Run const r{*runPrincipal_.load(), ModuleDescription{}};
-        actReg_.load()->sPostEndRun.invoke(r);
+        actReg_->sPostEndRun.invoke(r);
       }
     }
     catch (cet::exception& ex) {
@@ -1716,7 +1676,7 @@ namespace art {
   void
   EventProcessor::readSubRun()
   {
-    actReg_.load()->sPreSourceSubRun.invoke();
+    actReg_->sPreSourceSubRun.invoke();
     delete subRunPrincipal_.load();
     subRunPrincipal_ = nullptr;
     subRunPrincipal_ =
@@ -1729,13 +1689,13 @@ namespace art {
     // enforce this by creating the groups for the produced products, but do
     // not allow the lookups to find them until after the callbacks have run.
     subRunPrincipal_.load()->createGroupsForProducedProducts(
-      *producedProductLookupTables_.load());
-    psSignals_.load()->sPostReadSubRun.invoke(*subRunPrincipal_);
+      producedProductLookupTables_);
+    psSignals_->sPostReadSubRun.invoke(*subRunPrincipal_);
     subRunPrincipal_.load()->enableLookupOfProducedProducts(
-      *producedProductLookupTables_.load());
+      producedProductLookupTables_);
     {
       SubRun const sr{*subRunPrincipal_.load(), ModuleDescription{}};
-      actReg_.load()->sPostSourceSubRun.invoke(sr);
+      actReg_->sPostSourceSubRun.invoke(sr);
     }
     FDEBUG(1) << string(8, ' ') << "readSubRun..................("
               << subRunPrincipal_.load()->subRunID() << ")\n";
@@ -1753,7 +1713,7 @@ namespace art {
     try {
       {
         SubRun const srun{*subRunPrincipal_.load(), ModuleDescription{}};
-        actReg_.load()->sPreBeginSubRun.invoke(srun);
+        actReg_->sPreBeginSubRun.invoke(srun);
       }
       (*schedule_.load())[ScheduleID::first()].process(
         Transition::BeginSubRun, *subRunPrincipal_.load());
@@ -1761,7 +1721,7 @@ namespace art {
                                        *subRunPrincipal_.load());
       {
         SubRun const srun{*subRunPrincipal_.load(), ModuleDescription{}};
-        actReg_.load()->sPostBeginSubRun.invoke(srun);
+        actReg_->sPostBeginSubRun.invoke(srun);
       }
     }
     catch (cet::exception& ex) {
@@ -1809,9 +1769,8 @@ namespace art {
     assert(!sr.isFlush());
     try {
       {
-        actReg_.load()->sPreEndSubRun.invoke(
-          subRunPrincipal_.load()->subRunID(),
-          subRunPrincipal_.load()->endTime());
+        actReg_->sPreEndSubRun.invoke(subRunPrincipal_.load()->subRunID(),
+                                      subRunPrincipal_.load()->endTime());
       }
       (*schedule_.load())[ScheduleID::first()].process(
         Transition::EndSubRun, *subRunPrincipal_.load());
@@ -1819,7 +1778,7 @@ namespace art {
                                        *subRunPrincipal_.load());
       {
         SubRun const srun{*subRunPrincipal_.load(), ModuleDescription{}};
-        actReg_.load()->sPostEndSubRun.invoke(srun);
+        actReg_->sPostEndSubRun.invoke(srun);
       }
     }
     catch (cet::exception& ex) {

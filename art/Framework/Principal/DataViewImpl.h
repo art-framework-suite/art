@@ -220,7 +220,8 @@ namespace art {
     template <typename T>
     ProductID getProductID(std::string const& instance_name = "") const;
 
-    cet::exempt_ptr<BranchDescription const> getProductDescription(ProductID) const;
+    cet::exempt_ptr<BranchDescription const> getProductDescription(
+      ProductID) const;
 
     // MEMBER FUNCTIONS -- User-facing API -- put*, Run product
   public:

@@ -52,12 +52,12 @@ namespace art {
     Event& operator=(Event&&) = delete;
 
     EventID id() const;
-    using DataViewImpl::time;
     using DataViewImpl::event;
+    using DataViewImpl::experimentType;
+    using DataViewImpl::isRealData;
     using DataViewImpl::run;
     using DataViewImpl::subRun;
-    using DataViewImpl::isRealData;
-    using DataViewImpl::experimentType;
+    using DataViewImpl::time;
 
     SubRun const& getSubRun() const;
     Run const& getRun() const;
@@ -79,10 +79,10 @@ namespace art {
     using DataViewImpl::getProductDescription;
     using DataViewImpl::getProductID;
 
-    using DataViewImpl::processHistory;
-    using DataViewImpl::removeCachedProduct;
     using DataViewImpl::getProcessParameterSet;
+    using DataViewImpl::processHistory;
     using DataViewImpl::productGetter;
+    using DataViewImpl::removeCachedProduct;
 
     using DataViewImpl::movePutProductsToPrincipal;
 
