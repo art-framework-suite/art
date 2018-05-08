@@ -19,6 +19,7 @@
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/ScheduleIteration.h"
 #include "cetlib/SimultaneousFunctionSpawner.h"
 #include "cetlib/test_macros.h"
 
@@ -31,103 +32,31 @@
 namespace art {
   namespace test {
 
-    class ConcurrentEngineRetrieval : public EDAnalyzer {
+    class ConcurrentEngineRetrieval : public ReplicatedAnalyzer {
     public:
-      explicit ConcurrentEngineRetrieval(fhicl::ParameterSet const& p);
-
-      void analyze(art::Event const&) override;
+      explicit ConcurrentEngineRetrieval(fhicl::ParameterSet const& p,
+                                         ScheduleID);
 
     private:
-      void generateNumbersDirectly();
-      void generateNumbersIndirectly();
-
-      template <typename F>
-      void launchAndTest(std::vector<CLHEP::RandFlat>& dists, F f);
-
-      ServiceHandle<RandomNumberGenerator> rng_{};
-      std::vector<CLHEP::RandFlat> dists_{};
+      void analyze(art::Event const&) override;
+      CLHEP::RandFlat dist_;
     };
 
     ConcurrentEngineRetrieval::ConcurrentEngineRetrieval(
-      fhicl::ParameterSet const& p)
-      : EDAnalyzer{p}
-    {
-      auto const seed = p.get<int>("seed", 0);
-      std::uint16_t constexpr num_schedules{4};
-      rng_->expandToNSchedules(
-        num_schedules); // MT-TODO: To be removed whenever we
-                        // are truly multi-schedule aware.
-      for (std::uint16_t i{}; i < num_schedules; ++i) {
-        dists_.emplace_back(rng_->createEngine(ScheduleID{i}, seed));
-      }
-    }
+      fhicl::ParameterSet const& p,
+      ScheduleID const sid)
+      : ReplicatedAnalyzer{p}, dist_{createEngine(sid, p.get<int>("seed", 0))}
+    {}
 
     void
     ConcurrentEngineRetrieval::analyze(art::Event const&)
     {
-      generateNumbersDirectly();
-      generateNumbersIndirectly();
-    }
-
-    template <typename F>
-    void
-    ConcurrentEngineRetrieval::launchAndTest(
-      std::vector<CLHEP::RandFlat>& dists,
-      F f)
-    {
-      std::vector<std::vector<std::size_t>> numsPerThread(dists.size());
-      std::vector<std::function<void()>> tasks;
-      std::size_t constexpr nums_size{5};
-      std::size_t i{};
-      for (auto& d : dists) {
-        auto& nums = numsPerThread[i];
-        nums.assign(nums_size, 0);
-        tasks.emplace_back(std::bind(f, i, std::ref(d), std::ref(nums)));
-        ++i;
-      }
-      cet::SimultaneousFunctionSpawner launch{tasks};
-
-      // Check that all generated numbers per thread are the same
-      for (std::uint16_t i{1}; i < numsPerThread.size(); ++i) {
-        CET_CHECK_EQUAL_COLLECTIONS(numsPerThread[i], numsPerThread.front());
-      }
-    }
-
-    // 'generateNumbersDirectly' does not call
-    // RandomNumberGenerator::getEngine, but directly uses the
-    // class-member distributions that were created in the c'tor.
-    // This function tests the thread-safety of THIS module, and NOT
-    // the RandomNumberGenerator service.
-    void
-    ConcurrentEngineRetrieval::generateNumbersDirectly()
-    {
-      auto generate_number =
-        [](ScheduleID::size_type const, auto& d, auto& nums) {
-          std::size_t constexpr random_range{1000};
-          std::generate_n(nums.begin(), nums.size(), [&d] {
-            return d.fireInt(random_range);
-          });
-        };
-      launchAndTest(dists_, generate_number);
-    }
-
-    // 'generateNumbersIndirectly' DOES call
-    // RandomNumberGenerate::getEngine in a multi-threaded context.
-    // It tests BOTH the thread-safety of this module AND the
-    // RandomNumberGenerator::getEngine facility.
-    void
-    ConcurrentEngineRetrieval::generateNumbersIndirectly()
-    {
-      std::vector<CLHEP::RandFlat> dists;
-      auto generate_number =
-        [this](ScheduleID::size_type const i, auto& d, auto& nums) {
-          d = rng_->getEngine(ScheduleID{i});
-          std::size_t constexpr random_range{1000};
-          std::generate_n(nums.begin(), nums.size(), [&d] {
-            return d.fireInt(random_range);
-          });
-        };
-      launchAndTest(dists, generate_number);
+      std::vector<std::size_t> numbers(5);
+      std::size_t constexpr random_range{1000};
+      std::generate_n(numbers.begin(), numbers.size(), [this] {
+        return dist_.fireInt(random_range);
+      });
+      // Find way to verify this for all schedules?
     }
 
   } // namespace test

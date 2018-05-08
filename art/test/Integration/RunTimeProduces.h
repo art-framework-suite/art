@@ -5,11 +5,14 @@
 #include <string>
 
 namespace art {
+  namespace detail {
+    class Producer;
+  }
   namespace test {
 
     template <typename T>
     void
-    run_time_produces(art::EDProducer* p,
+    run_time_produces(art::detail::Producer* p,
                       art::BranchType const bt,
                       std::string const& instance = {})
     {

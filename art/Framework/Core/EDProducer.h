@@ -19,6 +19,7 @@ namespace art {
     using ModuleType = EDProducer;
     using WorkerType = WorkerT<EDProducer>;
 
+    using detail::LegacyModule::createEngine;
     using detail::LegacyModule::serialTaskQueueChain;
 
     std::string workerType() const;
@@ -42,10 +43,13 @@ namespace art {
     virtual void produce(Event&, ScheduleID) = 0;
   };
 
-  class ReplicatedProducer : public detail::Producer {
+  class ReplicatedProducer : public detail::Producer,
+                             private detail::EngineCreator {
   public:
     using ModuleType = ReplicatedProducer;
     using WorkerType = WorkerT<ReplicatedProducer>;
+
+    using detail::EngineCreator::createEngine;
 
     std::string workerType() const;
 

@@ -2,6 +2,7 @@
 #define art_Utilities_Globals_h
 // vim: set sw=2 expandtab :
 
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Utilities/TypeID.h"
@@ -147,8 +148,8 @@ namespace art {
 
     // MEMBER FUNCTIONS -- API for getting system-wide settings
   public:
-    int nschedules() const;
-    int nthreads() const;
+    ScheduleID::size_type nschedules() const;
+    ScheduleID::size_type nthreads() const;
     std::string const& processName() const;
     fhicl::ParameterSet const& triggerPSet() const;
     std::vector<std::string> const& triggerPathNames() const;

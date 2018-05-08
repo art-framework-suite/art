@@ -230,7 +230,7 @@ namespace art {
     return &me;
   }
 
-  int
+  ScheduleID::size_type
   Globals::nschedules() const
   {
     return nschedules_;
@@ -242,7 +242,7 @@ namespace art {
     nschedules_ = nschedules;
   }
 
-  int
+  ScheduleID::size_type
   Globals::nthreads() const
   {
     return nthreads_;

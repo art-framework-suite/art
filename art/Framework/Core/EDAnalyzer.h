@@ -34,6 +34,7 @@ namespace art {
     using ModuleType = EDAnalyzer;
 
     using detail::Analyzer::Analyzer;
+    using detail::LegacyModule::createEngine;
     using detail::LegacyModule::serialTaskQueueChain;
 
     std::string workerType() const;
@@ -59,12 +60,14 @@ namespace art {
     virtual void analyze(Event const&, ScheduleID) = 0;
   };
 
-  class ReplicatedAnalyzer : public detail::Analyzer {
+  class ReplicatedAnalyzer : public detail::Analyzer,
+                             private detail::EngineCreator {
   public:
     using WorkerType = WorkerT<ReplicatedAnalyzer>;
     using ModuleType = ReplicatedAnalyzer;
 
     using detail::Analyzer::Analyzer;
+    using detail::EngineCreator::createEngine;
 
     std::string workerType() const;
 

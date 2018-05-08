@@ -36,6 +36,7 @@ simple_plugin(BareStringAnalyzer          "module"  NO_INSTALL)
 simple_plugin(BareStringProducer          "module"  NO_INSTALL)
 simple_plugin(CompressedIntProducer       "module"  NO_INSTALL)
 simple_plugin(CompressedIntTestAnalyzer   "module"  NO_INSTALL)
+simple_plugin(ConcurrentEngineRetrieval   "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(DeferredIsReadyWithAssnsAnalyzer "module"  NO_INSTALL)
 simple_plugin(DeferredIsReadyWithAssnsProducer "module"  NO_INSTALL)
 simple_plugin(DerivedPtrVectorProducer    "module"  NO_INSTALL)
@@ -132,7 +133,7 @@ cet_test(EventIDFilter_t HANDBUILT
 
 cet_test(EventSelectorFromFile_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --rethrow-all --config EventSelectorFromFile_w.fcl
+  TEST_ARGS --rethrow-all --config EventSelectorFromFile_w.fcl -j 4
   DATAFILES
   fcl/EventSelectorFromFile_w.fcl
 )
@@ -157,7 +158,12 @@ cet_test(EventSelectorFromFile_r2 HANDBUILT
 
 cet_test(SelectEventsFromPreviousProcess_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --rethrow-all --config SelectEventsFromPreviousProcess_w.fcl -n 10 -o out.root
+  TEST_ARGS
+  --rethrow-all
+  --config SelectEventsFromPreviousProcess_w.fcl
+  -j 4
+  -n 10
+  -o out.root
   DATAFILES
   fcl/SelectEventsFromPreviousProcess_w.fcl
   )
@@ -166,6 +172,7 @@ cet_test(SelectEventsFromPreviousProcess_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all --config SelectEventsFromPreviousProcess_t.fcl
   -s ../SelectEventsFromPreviousProcess_w.d/out.root
+  -j 4
   DATAFILES
   fcl/SelectEventsFromPreviousProcess_t.fcl
   TEST_PROPERTIES DEPENDS SelectEventsFromPreviousProcess_w
@@ -958,12 +965,12 @@ endforeach()
 
 # Write a data file containing stored products and stored random number
 # states for subsequent tests.
-#cet_test(RNGConcurrentAccess_t HANDBUILT
-#  TEST_EXEC art_ut
-#  TEST_ARGS -- --rethrow-all -c "RNGConcurrentAccess_t.fcl"
-#  DATAFILES
-#  fcl/RNGConcurrentAccess_t.fcl
-#)
+cet_test(RNGConcurrentAccess_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- --rethrow-all -c "RNGConcurrentAccess_t.fcl"
+  DATAFILES
+  fcl/RNGConcurrentAccess_t.fcl
+)
 
 # Write a data file containing stored products and stored random number
 # states for subsequent tests.

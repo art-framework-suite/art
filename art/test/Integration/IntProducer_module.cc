@@ -36,30 +36,29 @@ namespace arttest {
 
 using arttest::IntProducer;
 
-class arttest::IntProducer : public art::EDProducer {
+class arttest::IntProducer : public art::SharedProducer {
 public:
-  using Parameters = EDProducer::Table<Config>;
-  explicit IntProducer(EDProducer::Table<Config> const& p)
+  using Parameters = art::SharedProducer::Table<Config>;
+  explicit IntProducer(Parameters const& p)
     : value_{p().ivalue()} // enums don't usually have a conversion from string
     , branchType_{art::BranchType(p().branchType())}
   {
     art::test::run_time_produces<IntProduct>(this, branchType_);
+    async<art::InEvent>();
   }
 
-  // explicit IntProducer(int i) : value_(i) { produces<IntProduct>(); }
-
-  void produce(art::Event& e) override;
+  void produce(art::Event& e, art::ScheduleID) override;
   void endSubRun(art::SubRun& sr) override;
   void endRun(art::Run& r) override;
 
 private:
-  int value_;
-  art::BranchType branchType_;
+  int const value_;
+  art::BranchType const branchType_;
 
 }; // IntProducer
 
 void
-IntProducer::produce(art::Event& e)
+IntProducer::produce(art::Event& e, art::ScheduleID)
 {
   if (branchType_ == art::InEvent)
     e.put(std::make_unique<IntProduct>(value_));

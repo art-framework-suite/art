@@ -58,23 +58,23 @@ namespace art {
     using DataViewImpl::get;
     using DataViewImpl::getByLabel;
     using DataViewImpl::getByToken;
-    using DataViewImpl::getValidHandle;
-    using DataViewImpl::getView;
     using DataViewImpl::getMany;
     using DataViewImpl::getManyByType;
+    using DataViewImpl::getValidHandle;
+    using DataViewImpl::getView;
     using DataViewImpl::put;
 
-    using DataViewImpl::removeCachedProduct;
     using DataViewImpl::getPointerByLabel;
     using DataViewImpl::getProductID;
     using DataViewImpl::productGetter;
+    using DataViewImpl::removeCachedProduct;
 
-    using DataViewImpl::processHistory; // ?
-    using DataViewImpl::subRun;
     using DataViewImpl::event;
-    using DataViewImpl::run;
-    using DataViewImpl::time;
     using DataViewImpl::movePutProductsToPrincipal;
+    using DataViewImpl::processHistory; // ?
+    using DataViewImpl::run;
+    using DataViewImpl::subRun;
+    using DataViewImpl::time;
 
   private:
     std::unique_ptr<SubRun const> const subRun_;

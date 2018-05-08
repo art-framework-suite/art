@@ -36,16 +36,16 @@ namespace art {
     using DataViewImpl::get;
     using DataViewImpl::getByLabel;
     using DataViewImpl::getByToken;
-    using DataViewImpl::getValidHandle;
-    using DataViewImpl::getView;
     using DataViewImpl::getMany;
     using DataViewImpl::getManyByType;
+    using DataViewImpl::getValidHandle;
+    using DataViewImpl::getView;
     using DataViewImpl::put;
 
-    using DataViewImpl::removeCachedProduct;
     using DataViewImpl::getPointerByLabel;
     using DataViewImpl::getProductID;
     using DataViewImpl::productGetter;
+    using DataViewImpl::removeCachedProduct;
 
     using DataViewImpl::movePutProductsToPrincipal;
   };

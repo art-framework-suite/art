@@ -13,19 +13,20 @@
 #include <memory>
 #include <vector>
 
-int main();
-
 namespace art {
+  namespace test {
+    void set_manager_for_tests(ServicesManager*);
+  }
 
   class ActivityRegistry;
   class EventProcessor;
 
   class ServiceRegistry {
 
-    // Allow EventProcessor to set the manager.  Also, allow 'main' to
-    // set it for testing reasons.
+    // Allow EventProcessor to set the manager.  Also, allow a testing
+    // function to set it.
     friend class EventProcessor;
-    friend int ::main();
+    friend void art::test::set_manager_for_tests(ServicesManager*);
 
     template <typename T, art::ServiceScope>
     friend class ServiceHandle;

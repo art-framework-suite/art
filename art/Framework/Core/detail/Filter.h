@@ -16,9 +16,7 @@
 #include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 
-#include <atomic>
 #include <cstddef>
-#include <string>
 
 namespace art {
   namespace detail {

@@ -153,14 +153,6 @@ namespace art {
     data_.resize(Globals::instance()->nschedules());
   }
 
-  void
-  RandomNumberGenerator::expandToNSchedules(unsigned const n)
-  {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const sid = static_cast<ScheduleID::size_type>(n);
-    data_.resize(sid);
-  }
-
   CLHEP::HepRandomEngine&
   RandomNumberGenerator::getEngine(
     ScheduleID const sid /* = ScheduleID::first() */,
@@ -193,7 +185,7 @@ namespace art {
     if (sid.id() >= data_.size()) {
       throw cet::exception("RANDOM")
         << "RNGservice::createEngine():\n"
-        << "Attempt to create engine with out-of-range streamIndex: " << sid
+        << "Attempt to create engine with out-of-range ScheduleID: " << sid
         << "\n";
     }
     string const& label = qualify_engine_label(sid, engine_label);

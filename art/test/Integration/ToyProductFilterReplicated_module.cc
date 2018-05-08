@@ -35,18 +35,17 @@ namespace arttest {
 
   class ToyProductFilterReplicated : public ReplicatedFilter {
   public:
-    explicit ToyProductFilterReplicated(fhicl::ParameterSet const& pset);
+    struct Config {
+    };
+    using Parameters = Table<Config>;
+    explicit ToyProductFilterReplicated(Parameters const& p, art::ScheduleID);
 
   private:
     bool filter(Event& e) override;
-
-  private:
-    string inputLabel_{};
   };
 
-  ToyProductFilterReplicated::ToyProductFilterReplicated(
-    fhicl::ParameterSet const& pset)
-    : inputLabel_(pset.get<std::string>("inputLabel"))
+  ToyProductFilterReplicated::ToyProductFilterReplicated(Parameters const&,
+                                                         art::ScheduleID)
   {}
 
   bool

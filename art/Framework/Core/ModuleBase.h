@@ -30,19 +30,6 @@ namespace art {
     ModuleDescription const& moduleDescription() const;
     void setModuleDescription(ModuleDescription const&);
 
-    // RandomNumberGenerator interface
-    CLHEP::HepRandomEngine& createEngine(long);
-    CLHEP::HepRandomEngine& createEngine(
-      long,
-      std::string const& kind_of_engine_to_make);
-    CLHEP::HepRandomEngine& createEngine(
-      long,
-      std::string const& kind_of_engine_to_make,
-      std::string const& engine_label);
-    long get_seed_value(fhicl::ParameterSet const&,
-                        char const key[] = "seed",
-                        long const implicit_seed = -1);
-
     // Consumes information
     template <typename T, BranchType = InEvent>
     ProductToken<T> consumes(InputTag const&);

@@ -9,6 +9,10 @@ set(default_test_libraries
   ${CMAKE_DL_LIBS}
  )
 
+cet_make_library(LIBRARY_NAME set_manager_for_tests
+  SOURCE set_manager_for_tests.cc
+  LIBRARIES art_Framework_Services_Registry)
+
 foreach (type Analyzer Filter Output Producer)
   SET_SOURCE_FILES_PROPERTIES(PMTest${type}_module.cc
     PROPERTIES
@@ -33,7 +37,7 @@ foreach(cpp_test
     RegistryTemplate_t
     parse_path_spec_t)
   cet_test(${cpp_test} SOURCES ${cpp_test}.cpp
-    LIBRARIES ${default_test_libraries}
+    LIBRARIES ${default_test_libraries} set_manager_for_tests
     )
 endforeach()
 

@@ -39,48 +39,6 @@ namespace art {
     md_ = md;
   }
 
-  CLHEP::HepRandomEngine&
-  ModuleBase::createEngine(long const seed)
-  {
-    // Cannot use scheduleID_ because it is not set before the user's
-    // module constructor is called.
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
-    return ServiceHandle<RandomNumberGenerator> {}
-    ->createEngine(sid, seed);
-  }
-
-  CLHEP::HepRandomEngine&
-  ModuleBase::createEngine(long const seed,
-                           std::string const& kind_of_engine_to_make)
-  {
-    // Cannot use scheduleID_ because it is not set before the user's
-    // module constructor is called.
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
-    return ServiceHandle<RandomNumberGenerator> {}
-    ->createEngine(sid, seed, kind_of_engine_to_make);
-  }
-
-  CLHEP::HepRandomEngine&
-  ModuleBase::createEngine(long const seed,
-                           std::string const& kind_of_engine_to_make,
-                           std::string const& engine_label)
-  {
-    // Cannot use scheduleID_ because it is not set before the user's
-    // module constructor is called.
-    auto const sid = PerThread::instance()->getCPC().scheduleID();
-    return ServiceHandle<RandomNumberGenerator> {}
-    ->createEngine(sid, seed, kind_of_engine_to_make, engine_label);
-  }
-
-  long
-  ModuleBase::get_seed_value(fhicl::ParameterSet const& pset,
-                             char const key[],
-                             long const implicit_seed)
-  {
-    auto const& explicit_seeds = pset.get<std::vector<int>>(key, {});
-    return explicit_seeds.empty() ? implicit_seed : explicit_seeds.front();
-  }
-
   array<vector<ProductInfo>, NumBranchTypes> const&
   ModuleBase::getConsumables() const
   {

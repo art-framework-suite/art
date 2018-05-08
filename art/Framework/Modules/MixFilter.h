@@ -623,7 +623,7 @@ namespace art {
 } // namespace art
 
 template <class T>
-class art::MixFilter : public SharedFilter {
+class art::MixFilter : public EDFilter {
 public: // TYPES
   using MixDetail = T;
 
@@ -636,7 +636,7 @@ public: // MEMBER FUNCTIONS -- API supported by EDFilter
   void respondToCloseInputFile(FileBlock const& fb) override;
   void respondToOpenOutputFiles(FileBlock const& fb) override;
   void respondToCloseOutputFiles(FileBlock const& fb) override;
-  bool filter(Event& e, ScheduleID) override;
+  bool filter(Event& e) override;
   bool beginSubRun(SubRun& sr) override;
   bool endSubRun(SubRun& sr) override;
   bool beginRun(Run& r) override;
@@ -666,9 +666,6 @@ art::MixFilter<T>::MixFilter(fhicl::ParameterSet const& p)
   std::conditional_t<detail::has_eventsToSkip<T>::value,
                      detail::setup_eventsToSkip<T>,
                      detail::do_not_setup_eventsToSkip<T>>{helper_, detail_};
-  // Only serializes wrt. itself; does not serialize wrt. other
-  // MixFilter instantiations.
-  serialize<InEvent>();
 }
 
 template <class T>
@@ -714,7 +711,7 @@ art::MixFilter<T>::respondToCloseOutputFiles(FileBlock const& fb)
 
 template <class T>
 bool
-art::MixFilter<T>::filter(Event& e, ScheduleID)
+art::MixFilter<T>::filter(Event& e)
 {
   // 1. Call detail object's startEvent() if it exists.
   std::conditional_t<detail::has_startEvent<T>::value,
@@ -819,7 +816,7 @@ art::MixFilter<T>::initEngine_(fhicl::ParameterSet const& p)
   // If we can't create one of these, the helper will deal with the
   // situation accordingly.
   if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
-    createEngine(get_seed_value(p));
+    createEngine(p.get<long>("seed", -1));
   }
   return p;
 }

@@ -9,6 +9,7 @@
 // Generated at Wed Oct 12 11:44:35 2011 by Chris Green using artmod
 // from art v1_00_00.
 ////////////////////////////////////////////////////////////////////////
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
@@ -17,15 +18,19 @@
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
+#include "fhiclcpp/types/Atom.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
 #include <algorithm>
+#include <atomic>
 #include <iostream>
 #include <iterator>
 #include <ostream>
 #include <string>
 #include <vector>
+
+using namespace fhicl;
 
 namespace arttest {
   class RandomNumberSaveTest;
@@ -35,16 +40,22 @@ class arttest::RandomNumberSaveTest : public art::EDProducer {
 public:
   using prod_t = std::vector<size_t>;
 
-  explicit RandomNumberSaveTest(fhicl::ParameterSet const& p);
-
-  void produce(art::Event& e) override;
+  struct Config {
+    Atom<long> seed{Name{"seed"}, -1};
+    Atom<size_t> dieOnNthEvent{Name{"dieOnNthEvent"}, 0};
+    Atom<bool> genUnsaved{Name{"genUnsaved"}, true};
+  };
+  using Parameters = Table<Config>;
+  explicit RandomNumberSaveTest(Parameters const& p);
 
 private:
-  std::string myLabel_;
+  void produce(art::Event& e) override;
+
+  std::string const myLabel_;
   CLHEP::RandFlat dist_;
-  size_t dieOnNthEvent_;
+  size_t const dieOnNthEvent_;
   size_t eventN_{};
-  bool genUnsaved_;
+  bool const genUnsaved_;
 };
 
 std::ostream&
@@ -57,14 +68,11 @@ operator<<(std::ostream& os, arttest::RandomNumberSaveTest::prod_t const& v)
   return os;
 }
 
-#include "cetlib/quiet_unit_test.hpp"
-
-arttest::RandomNumberSaveTest::RandomNumberSaveTest(
-  fhicl::ParameterSet const& p)
-  : myLabel_{p.get<std::string>("module_label")}
-  , dist_{createEngine(get_seed_value(p))}
-  , dieOnNthEvent_{p.get<size_t>("dieOnNthEvent", 0)}
-  , genUnsaved_{p.get<bool>("genUnsaved", true)}
+arttest::RandomNumberSaveTest::RandomNumberSaveTest(Parameters const& p)
+  : myLabel_{p.get_PSet().get<std::string>("module_label")}
+  , dist_{createEngine(p().seed())}
+  , dieOnNthEvent_{p().dieOnNthEvent()}
+  , genUnsaved_{p().genUnsaved()}
 {
   produces<prod_t>();
 }

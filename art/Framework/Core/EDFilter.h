@@ -25,6 +25,7 @@ namespace art {
     using ModuleType = EDFilter;
     using WorkerType = WorkerT<EDFilter>;
 
+    using detail::LegacyModule::createEngine;
     using detail::LegacyModule::serialTaskQueueChain;
 
     std::string workerType() const;
@@ -48,12 +49,15 @@ namespace art {
     virtual bool filter(Event&, ScheduleID) = 0;
   };
 
-  class ReplicatedFilter : public detail::Filter {
+  class ReplicatedFilter : public detail::Filter,
+                           private detail::EngineCreator {
   public:
     using ModuleType = ReplicatedFilter;
     using WorkerType = WorkerT<ReplicatedFilter>;
 
     std::string workerType() const;
+
+    using detail::EngineCreator::createEngine;
 
   private:
     void setupQueues() override final;

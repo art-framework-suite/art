@@ -231,7 +231,6 @@ evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans)
 int
 main()
 {
-
   // We want to create the TriggerNamesService because it is used in
   // the tests.  We do that here, but first we need to build a minimal
   // parameter set to pass to its constructor.  Then we build the
@@ -260,7 +259,7 @@ main()
   art::ActivityRegistry aReg;
 
   auto servicesManager_ = make_unique<ServicesManager>(ParameterSet{}, aReg);
-  ServiceRegistry::instance().setManager(servicesManager_.get());
+  art::test::set_manager_for_tests(servicesManager_.get());
 
   servicesManager_->put(std::make_unique<art::TriggerNamesService>(
     trigger_path_names, processName, trigPaths, physics_pset));
@@ -439,8 +438,4 @@ main()
   evSelTest(ps_n, tr_13, true);
   tr_13.set(fail, fail, fail, fail, fail, fail, fail, fail);
   evSelTest(ps_n, tr_13, true);
-
-  // Now test testSelectionOverlap
-
-  return 0;
 }

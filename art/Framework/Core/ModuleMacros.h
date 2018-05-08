@@ -52,7 +52,8 @@ namespace art {
 
     template <typename T>
     struct NewModule<T,
-                     std::enable_if_t<ModuleThreadingTypeDeducer<T>::value ==
+                     std::enable_if_t<ModuleThreadingTypeDeducer<
+                                        typename T::ModuleType>::value ==
                                       ModuleThreadingType::replicated>> {
       static T*
       make(fhicl::ParameterSet const& pset, ScheduleID const sid)

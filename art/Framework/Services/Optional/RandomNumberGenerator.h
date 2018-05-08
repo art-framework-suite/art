@@ -92,16 +92,7 @@
 //     with some fallback value in case the ParameterSet omits the
 //     specified parameter:
 //
-//       createEngine(pset.get<int>("seed",13597));
-//
-//   - Obtain a seed value from the module's ParameterSet via a helper
-//     function, get_seed_value(), provided by the framework.  Since
-//     this helper has defaults, each of the following calls has
-//     equivalent effect:
-//
-//       createEngine(get_seed_value(pset));
-//       createEngine(get_seed_value(pset,"seed"));
-//       createEngine(get_seed_value(pset,"seed",-1));
+//       createEngine(pset.get<int>("seed", 13597));
 //
 // Service handles
 //
@@ -177,21 +168,17 @@ namespace art {
   class Timestamp;
 
   class EventProcessor;
-  class ModuleBase;
   class RandomNumberSaver;
 
-  namespace test {
-
-    class ConcurrentEngineRetrieval;
-
-  } // namespace test
+  namespace detail {
+    class EngineCreator;
+  }
 
   class RandomNumberGenerator {
 
     friend class EventProcessor;
-    friend class ModuleBase;
+    friend class detail::EngineCreator;
     friend class RandomNumberSaver;
-    friend class test::ConcurrentEngineRetrieval;
 
   public: // TYPES
     // Used by createEngine, restoreSnapshot_, and restoreFromFile_.
@@ -201,6 +188,7 @@ namespace art {
     static std::string const defaultEngineKind /*  = "HepJamesRandom" */;
     static long constexpr maxCLHEPSeed{900000000};
     static long constexpr useDefaultSeed{-1};
+    using base_engine_t = CLHEP::HepRandomEngine;
 
   private: // TYPES
     // Per-schedule data
@@ -261,10 +249,6 @@ namespace art {
       long seed,
       std::string const& kind_of_engine_to_make = defaultEngineKind,
       std::string const& engine_label = {});
-
-  private: // Testing only
-    // For testing only.
-    void expandToNSchedules(unsigned const n);
 
   private: // Snapshot management helpers
     void takeSnapshot_(ScheduleID const);
