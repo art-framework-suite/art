@@ -38,11 +38,12 @@ namespace art {
     using DataViewImpl::getByToken;
     using DataViewImpl::getMany;
     using DataViewImpl::getManyByType;
+    using DataViewImpl::getPointerByLabel;
     using DataViewImpl::getValidHandle;
     using DataViewImpl::getView;
     using DataViewImpl::put;
 
-    using DataViewImpl::getPointerByLabel;
+    using DataViewImpl::getProductDescription;
     using DataViewImpl::getProductID;
     using DataViewImpl::productGetter;
     using DataViewImpl::removeCachedProduct;

@@ -354,6 +354,12 @@ namespace art {
     return qrs[0].result();
   }
 
+  cet::exempt_ptr<BranchDescription const>
+  DataViewImpl::getProductDescription(ProductID const pid) const
+  {
+    return principal_.getProductDescription(pid);
+  }
+
   void
   DataViewImpl::recordAsParent(exempt_ptr<Group const> grp) const
   {

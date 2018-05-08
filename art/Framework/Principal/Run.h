@@ -33,25 +33,29 @@ namespace art {
     Run& operator=(Run&&) = delete;
 
     RunID id() const;
+    using DataViewImpl::run;
+    using DataViewImpl::beginTime;
+    using DataViewImpl::endTime;
 
     using DataViewImpl::get;
     using DataViewImpl::getByLabel;
     using DataViewImpl::getByToken;
     using DataViewImpl::getMany;
     using DataViewImpl::getManyByType;
+    using DataViewImpl::getPointerByLabel;
     using DataViewImpl::getValidHandle;
     using DataViewImpl::getView;
     using DataViewImpl::put;
 
-    using DataViewImpl::getPointerByLabel;
+    using DataViewImpl::getProductDescription;
     using DataViewImpl::getProductID;
-    using DataViewImpl::productGetter;
-    using DataViewImpl::removeCachedProduct;
 
-    using DataViewImpl::beginTime;
-    using DataViewImpl::endTime;
+    using DataViewImpl::processHistory;
+    using DataViewImpl::removeCachedProduct;
+    using DataViewImpl::getProcessParameterSet;
+    using DataViewImpl::productGetter;
+
     using DataViewImpl::movePutProductsToPrincipal;
-    using DataViewImpl::run;
   };
 
 } // namespace art

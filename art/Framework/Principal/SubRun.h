@@ -38,28 +38,30 @@ namespace art {
     SubRun& operator=(SubRun&&) = delete;
 
     SubRunID id() const;
-
-    Run const& getRun() const;
+    using DataViewImpl::run;
+    using DataViewImpl::subRun;
+    using DataViewImpl::beginTime;
+    using DataViewImpl::endTime;
 
     using DataViewImpl::get;
     using DataViewImpl::getByLabel;
     using DataViewImpl::getByToken;
     using DataViewImpl::getMany;
     using DataViewImpl::getManyByType;
+    using DataViewImpl::getPointerByLabel;
     using DataViewImpl::getValidHandle;
     using DataViewImpl::getView;
     using DataViewImpl::put;
 
-    using DataViewImpl::getPointerByLabel;
+    Run const& getRun() const;
+    using DataViewImpl::getProductDescription;
     using DataViewImpl::getProductID;
-    using DataViewImpl::productGetter;
-    using DataViewImpl::removeCachedProduct;
 
-    using DataViewImpl::beginTime;
-    using DataViewImpl::endTime;
+    using DataViewImpl::processHistory;
+    using DataViewImpl::removeCachedProduct;
+    using DataViewImpl::productGetter;
+
     using DataViewImpl::movePutProductsToPrincipal;
-    using DataViewImpl::run;
-    using DataViewImpl::subRun;
 
   private:
     std::unique_ptr<Run const> const run_;

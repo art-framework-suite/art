@@ -52,29 +52,39 @@ namespace art {
     Event& operator=(Event&&) = delete;
 
     EventID id() const;
+    using DataViewImpl::time;
+    using DataViewImpl::event;
+    using DataViewImpl::run;
+    using DataViewImpl::subRun;
+    using DataViewImpl::isRealData;
+    using DataViewImpl::experimentType;
+
     SubRun const& getSubRun() const;
     Run const& getRun() const;
+
+    using DataViewImpl::history;
+    using DataViewImpl::processHistoryID;
+
+    using DataViewImpl::put;
 
     using DataViewImpl::get;
     using DataViewImpl::getByLabel;
     using DataViewImpl::getByToken;
     using DataViewImpl::getMany;
     using DataViewImpl::getManyByType;
+    using DataViewImpl::getPointerByLabel;
     using DataViewImpl::getValidHandle;
     using DataViewImpl::getView;
-    using DataViewImpl::put;
 
-    using DataViewImpl::getPointerByLabel;
+    using DataViewImpl::getProductDescription;
     using DataViewImpl::getProductID;
-    using DataViewImpl::productGetter;
-    using DataViewImpl::removeCachedProduct;
 
-    using DataViewImpl::event;
+    using DataViewImpl::processHistory;
+    using DataViewImpl::removeCachedProduct;
+    using DataViewImpl::getProcessParameterSet;
+    using DataViewImpl::productGetter;
+
     using DataViewImpl::movePutProductsToPrincipal;
-    using DataViewImpl::processHistory; // ?
-    using DataViewImpl::run;
-    using DataViewImpl::subRun;
-    using DataViewImpl::time;
 
   private:
     std::unique_ptr<SubRun const> const subRun_;

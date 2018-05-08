@@ -218,8 +218,9 @@ namespace art {
     fileSwitchInProgress_ = false;
     eventPrincipal_.load()->expand_to_num_schedules();
     ScheduleIteration schedule_iteration(nschedules);
-    auto annotate_principal = [this](ScheduleID const sid[[gnu::unused]]) {
-      ANNOTATE_BENIGN_RACE_SIZED(&(*eventPrincipal_.load())[sid],
+    auto annotate_principal = [this](ScheduleID const sid) {
+      auto ep [[gnu::unused]] = &(*eventPrincipal_.load())[sid];
+      ANNOTATE_BENIGN_RACE_SIZED(ep,
                                  sizeof(EventPrincipal*),
                                  "EventPrincipal ptr");
     };

@@ -325,6 +325,16 @@ EventTestFixture::ptf()
 
 BOOST_FIXTURE_TEST_SUITE(Event_t, EventTestFixture)
 
+BOOST_AUTO_TEST_CASE(badProductID)
+{
+  auto const pid = ProductID::invalid();
+  InputTag tag{};
+  if (auto pd = currentEvent_->getProductDescription(pid)) {
+    tag = pd->inputTag();
+  }
+  BOOST_CHECK(tag.empty());
+}
+
 BOOST_AUTO_TEST_CASE(emptyEvent)
 {
   BOOST_REQUIRE(currentEvent_.get());
