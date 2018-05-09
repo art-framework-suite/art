@@ -2,7 +2,6 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/Breakpoints.h"
-#include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
@@ -44,7 +43,6 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/types/detail/validationException.h"
-#include "hep_concurrency/RecursiveMutex.h"
 #include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "tbb/task.h"
@@ -53,7 +51,6 @@
 #include "TError.h"
 
 #include <algorithm>
-#include <atomic>
 #include <cassert>
 #include <exception>
 #include <functional>
@@ -87,8 +84,32 @@ namespace art {
     ANNOTATE_THREAD_IGNORE_END;
   }
 
+  namespace {
+    ServicesManager*
+    create_services_manager(ParameterSet services_pset,
+                            ActivityRegistry& actReg)
+    {
+      auto const fpcPSet =
+        services_pset.get<ParameterSet>("FloatingPointControl", {});
+      services_pset.erase("FloatingPointControl");
+      services_pset.erase("message");
+      services_pset.erase("scheduler");
+      auto mgr = new ServicesManager{move(services_pset), actReg};
+      mgr->addSystemService<FloatingPointControl>(fpcPSet, actReg);
+      return mgr;
+    }
+  }
+
   EventProcessor::EventProcessor(ParameterSet const& pset)
     : scheduler_{pset.get<ParameterSet>("services.scheduler")}
+    , servicesManager_{create_services_manager(
+        pset.get<ParameterSet>("services"),
+        actReg_)}
+    , pathManager_{pset,
+                   outputCallbacks_,
+                   producedProductDescriptions_,
+                   scheduler_->actionTable(),
+                   actReg_}
     , handleEmptyRuns_{scheduler_->handleEmptyRuns()}
     , handleEmptySubRuns_{scheduler_->handleEmptySubRuns()}
   {
@@ -115,18 +136,7 @@ namespace art {
     ParentageRegistry::instance();
     ProcessConfigurationRegistry::instance();
     ProcessHistoryRegistry::instance();
-    {
-      auto const fpcPSet =
-        services_pset.get<ParameterSet>("FloatingPointControl", {});
-      services_pset.erase("FloatingPointControl");
-      services_pset.erase("message");
-      services_pset.erase("scheduler");
-      servicesManager_.reset(new ServicesManager{move(services_pset), actReg_});
-      servicesManager_->addSystemService<FloatingPointControl>(fpcPSet,
-                                                               actReg_);
-      ServiceRegistry::instance().setManager(servicesManager_.get());
-    }
-
+    ServiceRegistry::instance().setManager(servicesManager_.get());
     // We do this late because the floating point control word, signal
     // masks, etc., are per-thread and inherited from the master
     // thread, so we want to allow system services, user services, and
@@ -144,11 +154,6 @@ namespace art {
       msg << "nschedules: " << nschedules << " nthreads: " << nthreads;
       TDEBUG_FUNC_MSG(5, "EventProcessor::EventProcessor", msg.str());
     }
-    pathManager_.reset(new PathManager{pset,
-                                       outputCallbacks_,
-                                       producedProductDescriptions_,
-                                       scheduler_->actionTable(),
-                                       actReg_});
     ParameterSet triggerPSet;
     triggerPSet.put("trigger_paths", pathManager_->triggerPathNames());
     fhicl::ParameterSetRegistry::put(triggerPSet);
@@ -188,11 +193,11 @@ namespace art {
     }
     pathManager_->createModulesAndWorkers();
     endPathExecutor_.reset(new EndPathExecutor{
-      *pathManager_, scheduler_->actionTable(), actReg_, outputCallbacks_});
+      pathManager_, scheduler_->actionTable(), actReg_, outputCallbacks_});
     auto create =
       [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
         schedules_->emplace_back(sid,
-                                 *pathManager_,
+                                 pathManager_,
                                  processName,
                                  pset,
                                  triggerPSet,
@@ -1358,7 +1363,7 @@ namespace art {
     ec_->call([this] { actReg_->sPostEndJob.invoke(); });
     ec_->call([] { mf::LogStatistics(); });
     ec_->call([this] {
-      detail::writeSummary(*pathManager_, scheduler_->wantSummary(), timer_);
+      detail::writeSummary(pathManager_, scheduler_->wantSummary(), timer_);
     });
   }
 

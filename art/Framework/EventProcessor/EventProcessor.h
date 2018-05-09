@@ -24,27 +24,17 @@
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/ScheduleID.h"
-#include "art/Utilities/Transition.h"
-#include "art/Utilities/UnixSignalHandlers.h"
-#include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
-#include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "cetlib/cpu_timer.h"
-#include "cetlib/trim.h"
-#include "cetlib_except/exception.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/WaitingTaskList.h"
 #include "hep_concurrency/thread_sanitize.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
-#include "tbb/task_scheduler_init.h"
 
 #include <atomic>
 #include <exception>
-#include <iosfwd>
 #include <memory>
-#include <string>
-#include <vector>
+
+namespace fhicl {
+  class ParameterSet;
+}
 
 namespace art {
 
@@ -211,17 +201,17 @@ namespace art {
 
     tsan<ProducingServiceSignals> psSignals_{};
 
-    // The service subsystem.
-    tsan_unique_ptr<ServicesManager> servicesManager_{nullptr};
-
     // The entity that manages all configuration data from the
     // services.scheduler block and (eventually) sets up the TBB task
     // scheduler.
     tsan<Scheduler> scheduler_;
 
+    // The service subsystem.
+    tsan_unique_ptr<ServicesManager> servicesManager_;
+
     // Despite the name, this is what parses the paths and modules in
     // the FHiCL file and creates and owns them.
-    tsan_unique_ptr<PathManager> pathManager_{nullptr};
+    tsan<PathManager> pathManager_;
 
     // The source of input data.
     tsan_unique_ptr<InputSource> input_{nullptr};

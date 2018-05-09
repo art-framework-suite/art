@@ -9,6 +9,7 @@
 #include "art/Framework/Art/detail/prune_configuration.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Utilities/ExceptionMessages.h"
+#include "art/Utilities/UnixSignalHandlers.h"
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 #include "canvas/Utilities/Exception.h"
