@@ -74,29 +74,11 @@ namespace art {
   EventProcessor::~EventProcessor()
   {
     ANNOTATE_THREAD_IGNORE_BEGIN;
-    delete deferredExceptionPtr_.load();
-    deferredExceptionPtr_ = nullptr;
-    for (auto val : *eventPrincipal_.load()) {
-      delete val;
+    auto it = eventPrincipals_->cbegin();
+    auto const e = eventPrincipals_->cend();
+    for (; it != e; ++it) {
+      delete *it;
     }
-    delete eventPrincipal_.load();
-    eventPrincipal_ = nullptr;
-    delete subRunPrincipal_.load();
-    subRunPrincipal_ = nullptr;
-    delete runPrincipal_.load();
-    runPrincipal_ = nullptr;
-    delete fb_.load();
-    fb_ = nullptr;
-    delete endPathExecutor_.load();
-    endPathExecutor_ = nullptr;
-    delete schedule_.load();
-    schedule_ = nullptr;
-    delete input_.load();
-    input_ = nullptr;
-    delete pathManager_.load();
-    pathManager_ = nullptr;
-    delete servicesManager_.load();
-    servicesManager_ = nullptr;
     ParentageRegistry::instance(true);
     ProcessConfigurationRegistry::instance(true);
     ProcessHistoryRegistry::instance(true);
@@ -107,6 +89,8 @@ namespace art {
 
   EventProcessor::EventProcessor(ParameterSet const& pset)
     : scheduler_{pset.get<ParameterSet>("services.scheduler")}
+    , handleEmptyRuns_{scheduler_->handleEmptyRuns()}
+    , handleEmptySubRuns_{scheduler_->handleEmptySubRuns()}
   {
     TypeID::startup();
     auto services_pset = pset.get<ParameterSet>("services");
@@ -137,10 +121,10 @@ namespace art {
       services_pset.erase("FloatingPointControl");
       services_pset.erase("message");
       services_pset.erase("scheduler");
-      servicesManager_ = new ServicesManager{move(services_pset), actReg_};
-      servicesManager_.load()->addSystemService<FloatingPointControl>(fpcPSet,
-                                                                      actReg_);
-      ServiceRegistry::instance().setManager(servicesManager_.load());
+      servicesManager_.reset(new ServicesManager{move(services_pset), actReg_});
+      servicesManager_->addSystemService<FloatingPointControl>(fpcPSet,
+                                                               actReg_);
+      ServiceRegistry::instance().setManager(servicesManager_.get());
     }
 
     // We do this late because the floating point control word, signal
@@ -160,31 +144,20 @@ namespace art {
       msg << "nschedules: " << nschedules << " nthreads: " << nthreads;
       TDEBUG_FUNC_MSG(5, "EventProcessor::EventProcessor", msg.str());
     }
-    pathManager_ = new PathManager{pset,
-                                   outputCallbacks_,
-                                   producedProductDescriptions_,
-                                   scheduler_->actionTable(),
-                                   actReg_};
+    pathManager_.reset(new PathManager{pset,
+                                       outputCallbacks_,
+                                       producedProductDescriptions_,
+                                       scheduler_->actionTable(),
+                                       actReg_});
     ParameterSet triggerPSet;
-    triggerPSet.put("trigger_paths", pathManager_.load()->triggerPathNames());
+    triggerPSet.put("trigger_paths", pathManager_->triggerPathNames());
     fhicl::ParameterSetRegistry::put(triggerPSet);
     Globals::instance()->setTriggerPSet(triggerPSet);
-    Globals::instance()->setTriggerPathNames(
-      pathManager_.load()->triggerPathNames());
-    input_ = nullptr;
-    schedule_ = new PerScheduleContainer<Schedule>{};
-    endPathExecutor_ = nullptr;
-    fb_ = nullptr;
-    runPrincipal_ = nullptr;
-    subRunPrincipal_ = nullptr;
-    eventPrincipal_ = new PerScheduleContainer<EventPrincipal*>{};
-    handleEmptyRuns_ = scheduler_->handleEmptyRuns();
-    handleEmptySubRuns_ = scheduler_->handleEmptySubRuns();
-    deferredExceptionPtr_ = new exception_ptr{};
-    eventPrincipal_.load()->expand_to_num_schedules();
+    Globals::instance()->setTriggerPathNames(pathManager_->triggerPathNames());
+    eventPrincipals_->expand_to_num_schedules();
     ScheduleIteration schedule_iteration(nschedules);
     auto annotate_principal = [this](ScheduleID const sid) {
-      auto ep[[gnu::unused]] = &(*eventPrincipal_.load())[sid];
+      auto ep[[gnu::unused]] = &eventPrincipals_->at(sid);
       ANNOTATE_BENIGN_RACE_SIZED(
         ep, sizeof(EventPrincipal*), "EventPrincipal ptr");
     };
@@ -193,15 +166,15 @@ namespace art {
     ConsumesInfo::instance()->setRequireConsumes(errorOnMissingConsumes);
     {
       auto const& physicsPSet = pset.get<ParameterSet>("physics", {});
-      servicesManager_.load()->addSystemService<TriggerNamesService>(
-        pathManager_.load()->triggerPathNames(),
+      servicesManager_->addSystemService<TriggerNamesService>(
+        pathManager_->triggerPathNames(),
         processName,
         triggerPSet,
         physicsPSet);
     }
     // We have delayed creating the service instances, now actually
     // create them.
-    servicesManager_.load()->forceCreation();
+    servicesManager_->forceCreation();
     ServiceHandle<FileCatalogMetadata> {}
     ->addMetadataString("process_name", processName);
     {
@@ -210,25 +183,23 @@ namespace art {
       // register the products for each service module instance.
       ProcessConfiguration const pc{
         processName, pset.id(), getReleaseVersion()};
-      servicesManager_.load()->registerProducts(
+      servicesManager_->registerProducts(
         producedProductDescriptions_, psSignals_, pc);
     }
-    pathManager_.load()->createModulesAndWorkers();
-    endPathExecutor_ = new EndPathExecutor{*pathManager_.load(),
-                                           scheduler_->actionTable(),
-                                           actReg_,
-                                           outputCallbacks_};
+    pathManager_->createModulesAndWorkers();
+    endPathExecutor_.reset(new EndPathExecutor{
+      *pathManager_, scheduler_->actionTable(), actReg_, outputCallbacks_});
     auto create =
       [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
-        schedule_.load()->emplace_back(sid,
-                                       *pathManager_.load(),
-                                       processName,
-                                       pset,
-                                       triggerPSet,
-                                       outputCallbacks_,
-                                       producedProductDescriptions_,
-                                       scheduler_->actionTable(),
-                                       actReg_);
+        schedules_->emplace_back(sid,
+                                 *pathManager_,
+                                 processName,
+                                 pset,
+                                 triggerPSet,
+                                 outputCallbacks_,
+                                 producedProductDescriptions_,
+                                 scheduler_->actionTable(),
+                                 actReg_);
       };
     schedule_iteration.for_each_schedule(create);
     FDEBUG(2) << pset.to_string() << endl;
@@ -252,7 +223,7 @@ namespace art {
         ProcessConfiguration{processName, pset.id(), getReleaseVersion()}};
       InputSourceDescription isd{md, outputCallbacks_, actReg_};
       try {
-        input_ = InputSourceFactory::make(main_input, isd).release();
+        input_.reset(InputSourceFactory::make(main_input, isd).release());
       }
       catch (fhicl::detail::validationException const& e) {
         throw Exception(errors::Configuration)
@@ -278,7 +249,7 @@ namespace art {
         throw;
       }
     }
-    actReg_->sPostSourceConstruction.invoke(input_.load()->moduleDescription());
+    actReg_->sPostSourceConstruction.invoke(input_->moduleDescription());
     // Create product tables used for product retrieval within modules.
     producedProductLookupTables_ = ProductTables{producedProductDescriptions_};
     outputCallbacks_->invoke(producedProductLookupTables_);
@@ -292,7 +263,7 @@ namespace art {
     vector<Worker*> allWorkers;
     {
       auto const& workers =
-        pathManager_.load()->triggerPathsInfo(ScheduleID::first()).workers();
+        pathManager_->triggerPathsInfo(ScheduleID::first()).workers();
       for_each(workers.cbegin(),
                workers.cend(),
                [&allWorkers](auto const& label_And_worker) {
@@ -300,14 +271,14 @@ namespace art {
                });
     }
     {
-      auto const& workers = pathManager_.load()->endPathInfo().workers();
+      auto const& workers = pathManager_->endPathInfo().workers();
       for_each(workers.cbegin(),
                workers.cend(),
                [&allWorkers](auto const& label_And_worker) {
                  allWorkers.push_back(label_And_worker.second);
                });
     }
-    actReg_->sPostBeginJobWorkers.invoke(input_.load(), allWorkers);
+    actReg_->sPostBeginJobWorkers.invoke(input_, allWorkers);
   }
 
   //================================================================
@@ -323,7 +294,7 @@ namespace art {
     }
     if (nextLevel_.load() == L) {
       nextLevel_ = Level::ReadyToAdvance;
-      if (endPathExecutor_.load()->outputsToClose()) {
+      if (endPathExecutor_->outputsToClose()) {
         setOutputFileStatus(OutputFileStatus::Switching);
         finalizeContainingLevels<L>();
         closeSomeOutputFiles();
@@ -360,7 +331,7 @@ namespace art {
   {
     finalizeRunEnabled_ = true;
     readRun();
-    if (handleEmptyRuns_.load()) {
+    if (handleEmptyRuns_) {
       beginRun();
     }
   }
@@ -370,10 +341,10 @@ namespace art {
   EventProcessor::begin<Level::SubRun>()
   {
     finalizeSubRunEnabled_ = true;
-    assert(runPrincipal_.load());
-    assert(runPrincipal_.load()->runID().isValid());
+    assert(runPrincipal_);
+    assert(runPrincipal_->runID().isValid());
     readSubRun();
-    if (handleEmptySubRuns_.load()) {
+    if (handleEmptySubRuns_) {
       beginRunIfNotDoneAlready();
       beginSubRun();
     }
@@ -383,11 +354,11 @@ namespace art {
   void
   EventProcessor::finalize<Level::SubRun>()
   {
-    assert(subRunPrincipal_.load());
+    assert(subRunPrincipal_);
     if (!finalizeSubRunEnabled_) {
       return;
     }
-    if (subRunPrincipal_.load()->subRunID().isFlush()) {
+    if (subRunPrincipal_->subRunID().isFlush()) {
       return;
     }
     openSomeOutputFiles();
@@ -403,11 +374,11 @@ namespace art {
   void
   EventProcessor::finalize<Level::Run>()
   {
-    assert(runPrincipal_.load());
+    assert(runPrincipal_);
     if (!finalizeRunEnabled_) {
       return;
     }
-    if (runPrincipal_.load()->runID().isFlush()) {
+    if (runPrincipal_->runID().isFlush()) {
       return;
     }
     openSomeOutputFiles();
@@ -457,21 +428,21 @@ namespace art {
   void
   EventProcessor::recordOutputModuleClosureRequests<Level::Run>()
   {
-    endPathExecutor_.load()->recordOutputClosureRequests(Granularity::Run);
+    endPathExecutor_->recordOutputClosureRequests(Granularity::Run);
   }
 
   template <>
   void
   EventProcessor::recordOutputModuleClosureRequests<Level::SubRun>()
   {
-    endPathExecutor_.load()->recordOutputClosureRequests(Granularity::SubRun);
+    endPathExecutor_->recordOutputClosureRequests(Granularity::SubRun);
   }
 
   template <>
   void
   EventProcessor::recordOutputModuleClosureRequests<Level::Event>()
   {
-    endPathExecutor_.load()->recordOutputClosureRequests(Granularity::Event);
+    endPathExecutor_->recordOutputClosureRequests(Granularity::Event);
   }
 
   class ProcessAllEventsFunctor {
@@ -542,10 +513,10 @@ namespace art {
 
       eventLoopTask->spawn_and_wait_for_all(schedule_heads);
       tbb::task::destroy(*eventLoopTask);
-      // If anything bad happened during event processing,
-      // let the user know.
+      // If anything bad happened during event processing, let the
+      // user know.
       if (deferredExceptionPtrIsSet_.load()) {
-        rethrow_exception(*deferredExceptionPtr_.load());
+        rethrow_exception(deferredExceptionPtr_);
       }
       auto do_switch = fileSwitchInProgress_.load();
       if (!do_switch) {
@@ -556,12 +527,12 @@ namespace art {
       finalizeContainingLevels<most_deeply_nested_level()>();
       respondToCloseOutputFiles();
       {
-        endPathExecutor_.load()->closeSomeOutputFiles();
+        endPathExecutor_->closeSomeOutputFiles();
         FDEBUG(1) << string(8, ' ') << "closeSomeOutputFiles\n";
       }
       // We started the switch after advancing the file index
-      // iterator, we must make sure that we read that event
-      // before advancing the iterator again.
+      // iterator, we must make sure that we read that event before
+      // advancing the iterator again.
       firstEvent_ = true;
       fileSwitchInProgress_ = false;
     }
@@ -604,7 +575,7 @@ namespace art {
       bool expected = false;
       if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
         // Put the exception where the main thread can get at it.
-        *deferredExceptionPtr_.load() = current_exception();
+        deferredExceptionPtr_ = current_exception();
       }
       // And then end this task, terminating event processing.
       TDEBUG_END_TASK_SI_ERR(4,
@@ -672,7 +643,7 @@ namespace art {
       return;
     }
     {
-      endPathExecutor_.load()->check();
+      endPathExecutor_->check();
     }
     // The item type advance and the event read must be
     // done with the input source lock held, however the
@@ -735,7 +706,7 @@ namespace art {
         // and we must do that before dropping the lock on the input source
         // which is what is protecting us against a double-advance caused by
         // a different schedule.
-        auto mustClose = endPathExecutor_.load()->outputsToClose();
+        auto mustClose = endPathExecutor_->outputsToClose();
         if (mustClose) {
           fileSwitchInProgress_ = true;
           TDEBUG_END_FUNC_SI_ERR(4,
@@ -748,9 +719,9 @@ namespace art {
       //
       //  Now we can read the event from the source.
       //
-      assert(subRunPrincipal_.load());
+      assert(subRunPrincipal_);
       // FIXME: This assert is causing a data race!
-      // assert(subRunPrincipal_.load()->subRunID().isValid());
+      // assert(subRunPrincipal_->subRunID().isValid());
       {
         CurrentProcessingContext cpc{sid, nullptr, -1, false};
         detail::CPCSentry sentry{cpc};
@@ -759,31 +730,31 @@ namespace art {
       TDEBUG_FUNC_SI_MSG(5,
                          "readAndProcessAsync",
                          sid,
-                         "Calling input_->readEvent(subRunPrincipal_.load())");
-      (*eventPrincipal_.load())[sid] =
-        input_.load()->readEvent(subRunPrincipal_.load()).release();
-      assert((*eventPrincipal_.load())[sid]);
+                         "Calling input_->readEvent(subRunPrincipal_)");
+      eventPrincipals_->at(sid) =
+        input_->readEvent(subRunPrincipal_.get()).release();
+      assert(eventPrincipals_->at(sid));
       // The intended behavior here is that the producing services which are
       // called during the sPostReadEvent cannot see each others put products.
       // We enforce this by creating the groups for the produced products, but
       // do not allow the lookups to find them until after the callbacks have
       // run.
-      (*eventPrincipal_.load())[sid]->createGroupsForProducedProducts(
+      eventPrincipals_->at(sid)->createGroupsForProducedProducts(
         producedProductLookupTables_);
-      psSignals_->sPostReadEvent.invoke(*(*eventPrincipal_.load())[sid]);
-      (*eventPrincipal_.load())[sid]->enableLookupOfProducedProducts(
+      psSignals_->sPostReadEvent.invoke(*eventPrincipals_->at(sid));
+      eventPrincipals_->at(sid)->enableLookupOfProducedProducts(
         producedProductLookupTables_);
       {
         CurrentProcessingContext cpc{sid, nullptr, -1, false};
         detail::CPCSentry sentry{cpc};
-        Event const e{*(*eventPrincipal_.load())[sid], ModuleDescription{}};
+        Event const e{*eventPrincipals_->at(sid), ModuleDescription{}};
         actReg_->sPostSourceEvent.invoke(e, sid);
       }
       FDEBUG(1) << string(8, ' ') << "readEvent...................("
-                << (*eventPrincipal_.load())[sid]->eventID() << ")\n";
+                << eventPrincipals_->at(sid)->eventID() << ")\n";
       // Now we drop the input source lock by exiting the guarded scope.
     }
-    if ((*eventPrincipal_.load())[sid]->eventID().isFlush()) {
+    if (eventPrincipals_->at(sid)->eventID().isFlush()) {
       // No processing to do, start next event handling task,
       // transferring our parent task (EventLoopTask) to it,
       // and exit this task.
@@ -833,18 +804,17 @@ namespace art {
       catch (cet::exception& e) {
         if (scheduler_->actionTable().find(e.root_cause()) !=
             actions::IgnoreCompletely) {
-          auto ex_ptr = make_exception_ptr(
-            Exception{errors::EventProcessorFailure,
-                      "EventProcessor: an exception occurred during current "
-                      "event processing",
-                      e});
           // Use a thread-safe, one-way trapdoor pattern to notify the
           // main thread of the exception.
           bool expected = false;
           if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
                                                                  true)) {
             // Put the exception where the main thread can get at it.
-            *deferredExceptionPtr_.load() = ex_ptr;
+            deferredExceptionPtr_ = make_exception_ptr(
+              Exception{errors::EventProcessorFailure,
+                        "EventProcessor: an exception occurred during current "
+                        "event processing",
+                        e});
           }
           // And then end this task, terminating event processing.
           TDEBUG_END_TASK_SI_ERR(
@@ -865,7 +835,7 @@ namespace art {
         if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
                                                                true)) {
           // Put the exception where the main thread can get at it.
-          *deferredExceptionPtr_.load() = current_exception();
+          deferredExceptionPtr_ = current_exception();
         }
         // And then end this task, terminating event processing.
         TDEBUG_END_TASK_SI_ERR(
@@ -898,8 +868,8 @@ namespace art {
     // Note: We are part of the readAndProcessEventTask (schedule head task),
     // and our parent task is the EventLoopTask.
     TDEBUG_BEGIN_FUNC_SI(4, "EventProcessor::processEventAsync", sid);
-    assert((*eventPrincipal_.load())[sid]);
-    assert(!(*eventPrincipal_.load())[sid]->eventID().isFlush());
+    assert(eventPrincipals_->at(sid));
+    assert(!eventPrincipals_->at(sid)->eventID().isFlush());
     try {
       // Make the end path processing task, make its parent
       // the EventLoopTask, and set our parent to the nullptr
@@ -908,7 +878,7 @@ namespace art {
         make_waiting_task(tbb::task::self().allocate_continuation(),
                           EndPathFunctor{this, eventLoopTask, sid});
       {
-        Event const ev{*(*eventPrincipal_.load())[sid], ModuleDescription{}};
+        Event const ev{*eventPrincipals_->at(sid), ModuleDescription{}};
         CurrentProcessingContext cpc{sid, nullptr, -1, false};
         detail::CPCSentry sentry{cpc};
         actReg_->sPreProcessEvent.invoke(ev, sid);
@@ -917,8 +887,8 @@ namespace art {
       // they will spawn the endPathTask which will run the
       // end path, write the event, and start the next event
       // processing task.
-      (*schedule_.load())[sid].process_event(
-        endPathTask, eventLoopTask, *(*eventPrincipal_.load())[sid], sid);
+      schedules_->at(sid).process_event(
+        endPathTask, eventLoopTask, *eventPrincipals_->at(sid), sid);
       // Once the trigger paths are running we are done, exit this task,
       // which does not end event processing because our parent is the
       // nullptr because we transferred it to the endPathTask above.
@@ -928,19 +898,18 @@ namespace art {
     catch (cet::exception& e) {
       if (scheduler_->actionTable().find(e.root_cause()) !=
           actions::IgnoreCompletely) {
-        auto ex_ptr =
-          make_exception_ptr(Exception{errors::EventProcessorFailure,
-                                       "EventProcessor: an exception "
-                                       "occurred during current event "
-                                       "processing",
-                                       e});
         // Use a thread-safe, one-way trapdoor pattern to notify the main
         // thread of the exception.
         bool expected = false;
         if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
                                                                true)) {
           // Put the exception where the main thread can get at it.
-          *deferredExceptionPtr_.load() = ex_ptr;
+          deferredExceptionPtr_ =
+            make_exception_ptr(Exception{errors::EventProcessorFailure,
+                                         "EventProcessor: an exception "
+                                         "occurred during current event "
+                                         "processing",
+                                         e});
         }
         // And then end this task, terminating event processing.
         ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
@@ -977,7 +946,7 @@ namespace art {
       bool expected = false;
       if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
         // Put the exception where the main thread can get at it.
-        *deferredExceptionPtr_.load() = current_exception();
+        deferredExceptionPtr_ = current_exception();
       }
       // Do this in case we already gave our parent to
       // to endPathTask.
@@ -1037,8 +1006,7 @@ namespace art {
                                "tbb::task");
     tbb::task::self().set_parent(eventLoopTask);
     try {
-      endPathExecutor_.load()->process_event(*(*eventPrincipal_.load())[sid],
-                                             sid);
+      endPathExecutor_->process_event(*eventPrincipals_->at(sid), sid);
     }
     catch (cet::exception& e) {
       // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
@@ -1046,18 +1014,17 @@ namespace art {
       if (scheduler_->actionTable().find(e.root_cause()) !=
           actions::IgnoreCompletely) {
         // Possible actions: Rethrow, SkipEvent, FailModule, FailPath
-        auto ex_ptr = make_exception_ptr(
-          Exception{errors::EventProcessorFailure,
-                    "EventProcessor: an exception occurred during "
-                    "current event processing",
-                    e});
         // Use a thread-safe, one-way trapdoor pattern to
         // notify the main thread of the exception.
         bool expected = false;
         if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
                                                                true)) {
           // Put the exception where the main thread can get at it.
-          *deferredExceptionPtr_.load() = ex_ptr;
+          deferredExceptionPtr_ = make_exception_ptr(
+            Exception{errors::EventProcessorFailure,
+                      "EventProcessor: an exception occurred during "
+                      "current event processing",
+                      e});
         }
         // And then end this task, terminating event processing.
         ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
@@ -1089,7 +1056,7 @@ namespace art {
       bool expected = false;
       if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
         // Put the exception where the main thread can get at it.
-        *deferredExceptionPtr_.load() = current_exception();
+        deferredExceptionPtr_ = current_exception();
       }
       // And then end this task, terminating event processing.
       ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
@@ -1103,7 +1070,7 @@ namespace art {
       return;
     }
     {
-      Event const ev{*(*eventPrincipal_.load())[sid], ModuleDescription{}};
+      Event const ev{*eventPrincipals_->at(sid), ModuleDescription{}};
       CurrentProcessingContext cpc{sid, nullptr, -1, false};
       detail::CPCSentry sentry{cpc};
       actReg_->sPostProcessEvent.invoke(ev, sid);
@@ -1139,8 +1106,7 @@ namespace art {
                                  sizeof(tbb::internal::task_prefix),
                                "tbb::task");
     tbb::task::self().set_parent(nullptr);
-    endPathExecutor_.load()->push(
-      EndPathRunnerFunctor{this, sid, eventLoopTask});
+    endPathExecutor_->push(EndPathRunnerFunctor{this, sid, eventLoopTask});
     // Once the end path processing and event finalization processing
     // is queued we are done, exit this task, which does not end event
     // processing because our parent is the nullptr because we transferred
@@ -1161,7 +1127,7 @@ namespace art {
     // Note: We are part of the endPathFunctor.
     TDEBUG_BEGIN_FUNC_SI(4, "EventProcessor::finishEventAsync", sid);
     FDEBUG(1) << string(8, ' ') << "processEvent................("
-              << (*eventPrincipal_.load())[sid]->eventID() << ")\n";
+              << eventPrincipals_->at(sid)->eventID() << ")\n";
     try {
       // Ask the output workers if they have reached their limits,
       // and if so setup to end the job the next time around the
@@ -1171,69 +1137,67 @@ namespace art {
                          "EventProcessor::finishEventAsync",
                          sid,
                          "Calling endPathExecutor_->allAtLimit()");
-      if (endPathExecutor_.load()->allAtLimit()) {
+      if (endPathExecutor_->allAtLimit()) {
         // Set to return to the File level.
         nextLevel_ = highest_level();
       }
       // Now we can write the results of processing to the outputs,
       // and delete the event principal.
-      assert((*eventPrincipal_.load())[sid]);
-      auto isFlush = (*eventPrincipal_.load())[sid]->eventID().isFlush();
+      assert(eventPrincipals_->at(sid));
+      auto isFlush = eventPrincipals_->at(sid)->eventID().isFlush();
       if (!isFlush) {
         // Possibly open new output files.
         TDEBUG_FUNC_SI_MSG(5,
                            "EventProcessor::finishEventAsync",
                            sid,
                            "Calling endPathExecutor_->outputsToOpen()");
-        auto toOpen = endPathExecutor_.load()->outputsToOpen();
+        auto toOpen = endPathExecutor_->outputsToOpen();
         if (toOpen) {
           TDEBUG_FUNC_SI_MSG(
             5,
             "EventProcessor::finishEventAsync",
             sid,
             "Calling endPathExecutor_->openSomeOutputFiles(*fb_)");
-          endPathExecutor_.load()->openSomeOutputFiles(*fb_.load());
+          endPathExecutor_->openSomeOutputFiles(*fb_);
           FDEBUG(1) << string(8, ' ') << "openSomeOutputFiles\n";
           respondToOpenOutputFiles();
         }
-        assert((*eventPrincipal_.load())[sid]);
-        assert(!(*eventPrincipal_.load())[sid]->eventID().isFlush());
+        assert(eventPrincipals_->at(sid));
+        assert(!eventPrincipals_->at(sid)->eventID().isFlush());
         TDEBUG_FUNC_SI_MSG(5,
                            "EventProcessor::finishEventAsync",
                            sid,
                            "Calling endPathExecutor_->writeEvent(sid, "
-                           "*(*eventPrincipal_.load())[sid])");
+                           "*eventPrincipals_->at(sid))");
         // Write the event.
-        endPathExecutor_.load()->writeEvent(sid,
-                                            *(*eventPrincipal_.load())[sid]);
+        endPathExecutor_->writeEvent(sid, *eventPrincipals_->at(sid));
         FDEBUG(1) << string(8, ' ') << "writeEvent..................("
-                  << (*eventPrincipal_.load())[sid]->eventID() << ")\n";
+                  << eventPrincipals_->at(sid)->eventID() << ")\n";
         // And delete the event principal.
-        delete (*eventPrincipal_.load())[sid];
-        (*eventPrincipal_.load())[sid] = nullptr;
+        delete eventPrincipals_->at(sid);
+        eventPrincipals_->at(sid) = nullptr;
       }
       TDEBUG_FUNC_SI_MSG(5,
                          "EventProcessor::finishEventAsync",
                          sid,
                          "Calling endPathExecutor_->"
                          "recordOutputClosureRequests(Granularity::Event)");
-      endPathExecutor_.load()->recordOutputClosureRequests(Granularity::Event);
+      endPathExecutor_->recordOutputClosureRequests(Granularity::Event);
     }
     catch (cet::exception& e) {
       if (scheduler_->actionTable().find(e.root_cause()) !=
           actions::IgnoreCompletely) {
-        auto ex_ptr = make_exception_ptr(
-          Exception{errors::EventProcessorFailure,
-                    "EventProcessor: an exception occurred during "
-                    "current event processing",
-                    e});
         // Use a thread-safe, one-way trapdoor pattern to notify the
         // main thread of the exception.
         bool expected = false;
         if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
                                                                true)) {
           // Put the exception where the main thread can get at it.
-          *deferredExceptionPtr_.load() = ex_ptr;
+          deferredExceptionPtr_ = make_exception_ptr(
+            Exception{errors::EventProcessorFailure,
+                      "EventProcessor: an exception occurred during "
+                      "current event processing",
+                      e});
         }
         // And then end this task, terminating event processing.
         ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
@@ -1259,7 +1223,7 @@ namespace art {
       bool expected = false;
       if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
         // Put the exception where the main thread can get at it.
-        *deferredExceptionPtr_.load() = current_exception();
+        deferredExceptionPtr_ = current_exception();
       }
       // And then end this task, terminating event processing.
       ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
@@ -1320,7 +1284,7 @@ namespace art {
   Level
   EventProcessor::advanceItemType()
   {
-    auto const itemType = input_.load()->nextItemType();
+    auto const itemType = input_->nextItemType();
     FDEBUG(1) << string(4, ' ') << "*** nextItemType: " << itemType << " ***\n";
     switch (itemType) {
       case input::IsStop:
@@ -1358,7 +1322,7 @@ namespace art {
     // In that case the newly added Module needs its 'beginJob' to be
     // called.
     try {
-      input_.load()->doBeginJob();
+      input_->doBeginJob();
     }
     catch (cet::exception& e) {
       mf::LogError("BeginJob") << "A cet::exception happened while processing"
@@ -1377,8 +1341,8 @@ namespace art {
                                   " processing the beginJob of the 'source'\n";
       throw;
     }
-    (*schedule_.load())[ScheduleID::first()].beginJob();
-    endPathExecutor_.load()->beginJob();
+    schedules_->at(ScheduleID::first()).beginJob();
+    endPathExecutor_->beginJob();
     actReg_->sPostBeginJob.invoke();
     invokePostBeginJobWorkers_();
   }
@@ -1387,15 +1351,14 @@ namespace art {
   EventProcessor::endJob()
   {
     FDEBUG(1) << string(8, ' ') << "endJob\n";
-    ec_->call([this] { (*schedule_.load())[ScheduleID::first()].endJob(); });
-    ec_->call([this] { endPathExecutor_.load()->endJob(); });
+    ec_->call([this] { schedules_->at(ScheduleID::first()).endJob(); });
+    ec_->call([this] { endPathExecutor_->endJob(); });
     ec_->call([] { ConsumesInfo::instance()->showMissingConsumes(); });
-    ec_->call([this] { input_.load()->doEndJob(); });
+    ec_->call([this] { input_->doEndJob(); });
     ec_->call([this] { actReg_->sPostEndJob.invoke(); });
     ec_->call([] { mf::LogStatistics(); });
     ec_->call([this] {
-      detail::writeSummary(
-        *pathManager_.load(), scheduler_->wantSummary(), timer_);
+      detail::writeSummary(*pathManager_, scheduler_->wantSummary(), timer_);
     });
   }
 
@@ -1407,15 +1370,13 @@ namespace art {
   {
     actReg_->sPreOpenFile.invoke();
     FDEBUG(1) << string(8, ' ') << "openInputFile\n";
-    delete fb_.load();
-    fb_ = nullptr;
-    fb_ = input_.load()->readFile().release();
-    if (fb_.load() == nullptr) {
+    fb_.reset(input_->readFile().release());
+    if (fb_ == nullptr) {
       throw Exception(errors::LogicError)
         << "Source readFile() did not return a valid FileBlock: FileBlock "
         << "should be valid or readFile() should throw.\n";
     }
-    actReg_->sPostOpenFile.invoke(fb_.load()->fileName());
+    actReg_->sPostOpenFile.invoke(fb_->fileName());
     respondToOpenInputFile();
   }
 
@@ -1429,20 +1390,19 @@ namespace art {
   void
   EventProcessor::closeInputFile()
   {
-    endPathExecutor_.load()->incrementInputFileNumber();
+    endPathExecutor_->incrementInputFileNumber();
     // Output-file closing on input-file boundaries are tricky since
     // input files must outlive the output files, which often have data
     // copied forward from the input files.  That's why the
     // recordOutputClosureRequests call is made here instead of in a
     // specialization of recordOutputModuleClosureRequests<>.
-    endPathExecutor_.load()->recordOutputClosureRequests(
-      Granularity::InputFile);
-    if (endPathExecutor_.load()->outputsToClose()) {
+    endPathExecutor_->recordOutputClosureRequests(Granularity::InputFile);
+    if (endPathExecutor_->outputsToClose()) {
       closeSomeOutputFiles();
     }
     respondToCloseInputFile();
     actReg_->sPreCloseFile.invoke();
-    input_.load()->closeFile();
+    input_->closeFile();
     actReg_->sPostCloseFile.invoke();
     FDEBUG(1) << string(8, ' ') << "closeInputFile\n";
   }
@@ -1450,28 +1410,28 @@ namespace art {
   void
   EventProcessor::openAllOutputFiles()
   {
-    endPathExecutor_.load()->openAllOutputFiles(*fb_.load());
+    endPathExecutor_->openAllOutputFiles(*fb_);
     FDEBUG(1) << string(8, ' ') << "openAllOutputFiles\n";
   }
 
   void
   EventProcessor::closeAllOutputFiles()
   {
-    if (!endPathExecutor_.load()->someOutputsOpen()) {
+    if (!endPathExecutor_->someOutputsOpen()) {
       return;
     }
     respondToCloseOutputFiles();
-    endPathExecutor_.load()->closeAllOutputFiles();
+    endPathExecutor_->closeAllOutputFiles();
     FDEBUG(1) << string(8, ' ') << "closeAllOutputFiles\n";
   }
 
   void
   EventProcessor::openSomeOutputFiles()
   {
-    if (!endPathExecutor_.load()->outputsToOpen()) {
+    if (!endPathExecutor_->outputsToOpen()) {
       return;
     }
-    endPathExecutor_.load()->openSomeOutputFiles(*fb_.load());
+    endPathExecutor_->openSomeOutputFiles(*fb_);
     FDEBUG(1) << string(8, ' ') << "openSomeOutputFiles\n";
     respondToOpenOutputFiles();
   }
@@ -1479,7 +1439,7 @@ namespace art {
   void
   EventProcessor::setOutputFileStatus(OutputFileStatus const ofs)
   {
-    endPathExecutor_.load()->setOutputFileStatus(ofs);
+    endPathExecutor_->setOutputFileStatus(ofs);
     FDEBUG(1) << string(8, ' ') << "setOutputFileStatus\n";
   }
 
@@ -1490,45 +1450,41 @@ namespace art {
     //               flagged as needing to close.  Otherwise,
     //               'respondtoCloseOutputFiles' will be needlessly
     //               called.
-    assert(endPathExecutor_.load()->outputsToClose());
+    assert(endPathExecutor_->outputsToClose());
     respondToCloseOutputFiles();
-    endPathExecutor_.load()->closeSomeOutputFiles();
+    endPathExecutor_->closeSomeOutputFiles();
     FDEBUG(1) << string(8, ' ') << "closeSomeOutputFiles\n";
   }
 
   void
   EventProcessor::respondToOpenInputFile()
   {
-    (*schedule_.load())[ScheduleID::first()].respondToOpenInputFile(
-      *fb_.load());
-    endPathExecutor_.load()->respondToOpenInputFile(*fb_.load());
+    schedules_->at(ScheduleID::first()).respondToOpenInputFile(*fb_);
+    endPathExecutor_->respondToOpenInputFile(*fb_);
     FDEBUG(1) << string(8, ' ') << "respondToOpenInputFile\n";
   }
 
   void
   EventProcessor::respondToCloseInputFile()
   {
-    (*schedule_.load())[ScheduleID::first()].respondToCloseInputFile(
-      *fb_.load());
-    endPathExecutor_.load()->respondToCloseInputFile(*fb_.load());
+    schedules_->at(ScheduleID::first()).respondToCloseInputFile(*fb_);
+    endPathExecutor_->respondToCloseInputFile(*fb_);
     FDEBUG(1) << string(8, ' ') << "respondToCloseInputFile\n";
   }
 
   void
   EventProcessor::respondToOpenOutputFiles()
   {
-    (*schedule_.load())[ScheduleID::first()].respondToOpenOutputFiles(
-      *fb_.load());
-    endPathExecutor_.load()->respondToOpenOutputFiles(*fb_.load());
+    schedules_->at(ScheduleID::first()).respondToOpenOutputFiles(*fb_);
+    endPathExecutor_->respondToOpenOutputFiles(*fb_);
     FDEBUG(1) << string(8, ' ') << "respondToOpenOutputFiles\n";
   }
 
   void
   EventProcessor::respondToCloseOutputFiles()
   {
-    (*schedule_.load())[ScheduleID::first()].respondToCloseOutputFiles(
-      *fb_.load());
-    endPathExecutor_.load()->respondToCloseOutputFiles(*fb_.load());
+    schedules_->at(ScheduleID::first()).respondToCloseOutputFiles(*fb_);
+    endPathExecutor_->respondToCloseOutputFiles(*fb_);
     FDEBUG(1) << string(8, ' ') << "respondToCloseOutputFiles\n";
   }
 
@@ -1539,49 +1495,44 @@ namespace art {
   EventProcessor::readRun()
   {
     actReg_->sPreSourceRun.invoke();
-    delete runPrincipal_.load();
-    runPrincipal_ = nullptr;
-    runPrincipal_ = input_.load()->readRun().release();
-    assert(runPrincipal_.load());
-    endPathExecutor_.load()->seedRunRangeSet(
-      input_.load()->runRangeSetHandler());
+    runPrincipal_.reset(input_->readRun().release());
+    assert(runPrincipal_);
+    endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
     // The intended behavior here is that the producing services which are
     // called during the sPostReadRun cannot see each others put products. We
     // enforce this by creating the groups for the produced products, but do
     // not allow the lookups to find them until after the callbacks have run.
-    runPrincipal_.load()->createGroupsForProducedProducts(
+    runPrincipal_->createGroupsForProducedProducts(
       producedProductLookupTables_);
     psSignals_->sPostReadRun.invoke(*runPrincipal_);
-    runPrincipal_.load()->enableLookupOfProducedProducts(
-      producedProductLookupTables_);
+    runPrincipal_->enableLookupOfProducedProducts(producedProductLookupTables_);
     {
-      Run const r{*runPrincipal_.load(), ModuleDescription{}};
+      Run const r{*runPrincipal_, ModuleDescription{}};
       actReg_->sPostSourceRun.invoke(r);
     }
     FDEBUG(1) << string(8, ' ') << "readRun.....................("
-              << runPrincipal_.load()->runID() << ")\n";
+              << runPrincipal_->runID() << ")\n";
   }
 
   void
   EventProcessor::beginRun()
   {
-    assert(runPrincipal_.load());
-    RunID const r{runPrincipal_.load()->runID()};
+    assert(runPrincipal_);
+    RunID const r{runPrincipal_->runID()};
     if (r.isFlush()) {
       return;
     }
     finalizeRunEnabled_ = true;
     try {
       {
-        Run const run{*runPrincipal_.load(), ModuleDescription{}};
+        Run const run{*runPrincipal_, ModuleDescription{}};
         actReg_->sPreBeginRun.invoke(run);
       }
-      (*schedule_.load())[ScheduleID::first()].process(Transition::BeginRun,
-                                                       *runPrincipal_.load());
-      endPathExecutor_.load()->process(Transition::BeginRun,
-                                       *runPrincipal_.load());
+      schedules_->at(ScheduleID::first())
+        .process(Transition::BeginRun, *runPrincipal_);
+      endPathExecutor_->process(Transition::BeginRun, *runPrincipal_);
       {
-        Run const run{*runPrincipal_.load(), ModuleDescription{}};
+        Run const run{*runPrincipal_, ModuleDescription{}};
         actReg_->sPostBeginRun.invoke(run);
       }
     }
@@ -1612,33 +1563,32 @@ namespace art {
   void
   EventProcessor::setRunAuxiliaryRangeSetID()
   {
-    assert(runPrincipal_.load());
-    endPathExecutor_.load()->setAuxiliaryRangeSetID(*runPrincipal_.load());
+    assert(runPrincipal_);
+    endPathExecutor_->setAuxiliaryRangeSetID(*runPrincipal_);
     FDEBUG(1) << string(8, ' ') << "setRunAuxiliaryRangeSetID...("
-              << runPrincipal_.load()->runID() << ")\n";
+              << runPrincipal_->runID() << ")\n";
   }
 
   void
   EventProcessor::endRun()
   {
-    assert(runPrincipal_.load());
+    assert(runPrincipal_);
     // Precondition: The RunID does not correspond to a flush ID. --
     // N.B. The flush flag is not explicitly checked here since endRun
     // is only called from finalizeRun, which is where the check
     // happens.
-    RunID const run{runPrincipal_.load()->runID()};
+    RunID const run{runPrincipal_->runID()};
     assert(!run.isFlush());
     try {
       {
-        actReg_->sPreEndRun.invoke(runPrincipal_.load()->runID(),
-                                   runPrincipal_.load()->endTime());
+        actReg_->sPreEndRun.invoke(runPrincipal_->runID(),
+                                   runPrincipal_->endTime());
       }
-      (*schedule_.load())[ScheduleID::first()].process(Transition::EndRun,
-                                                       *runPrincipal_.load());
-      endPathExecutor_.load()->process(Transition::EndRun,
-                                       *runPrincipal_.load());
+      schedules_->at(ScheduleID::first())
+        .process(Transition::EndRun, *runPrincipal_);
+      endPathExecutor_->process(Transition::EndRun, *runPrincipal_);
       {
-        Run const r{*runPrincipal_.load(), ModuleDescription{}};
+        Run const r{*runPrincipal_, ModuleDescription{}};
         actReg_->sPostEndRun.invoke(r);
       }
     }
@@ -1661,11 +1611,11 @@ namespace art {
   void
   EventProcessor::writeRun()
   {
-    assert(runPrincipal_.load());
+    assert(runPrincipal_);
     // Precondition: The RunID does not correspond to a flush ID.
-    RunID const r{runPrincipal_.load()->runID()};
+    RunID const r{runPrincipal_->runID()};
     assert(!r.isFlush());
-    endPathExecutor_.load()->writeRun(*runPrincipal_.load());
+    endPathExecutor_->writeRun(*runPrincipal_);
     FDEBUG(1) << string(8, ' ') << "writeRun....................(" << r
               << ")\n";
   }
@@ -1677,50 +1627,45 @@ namespace art {
   EventProcessor::readSubRun()
   {
     actReg_->sPreSourceSubRun.invoke();
-    delete subRunPrincipal_.load();
-    subRunPrincipal_ = nullptr;
-    subRunPrincipal_ =
-      input_.load()->readSubRun(runPrincipal_.load()).release();
-    assert(subRunPrincipal_.load());
-    endPathExecutor_.load()->seedSubRunRangeSet(
-      input_.load()->subRunRangeSetHandler());
+    subRunPrincipal_.reset(input_->readSubRun(runPrincipal_.get()).release());
+    assert(subRunPrincipal_);
+    endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
     // The intended behavior here is that the producing services which are
     // called during the sPostReadSubRun cannot see each others put products. We
     // enforce this by creating the groups for the produced products, but do
     // not allow the lookups to find them until after the callbacks have run.
-    subRunPrincipal_.load()->createGroupsForProducedProducts(
+    subRunPrincipal_->createGroupsForProducedProducts(
       producedProductLookupTables_);
     psSignals_->sPostReadSubRun.invoke(*subRunPrincipal_);
-    subRunPrincipal_.load()->enableLookupOfProducedProducts(
+    subRunPrincipal_->enableLookupOfProducedProducts(
       producedProductLookupTables_);
     {
-      SubRun const sr{*subRunPrincipal_.load(), ModuleDescription{}};
+      SubRun const sr{*subRunPrincipal_, ModuleDescription{}};
       actReg_->sPostSourceSubRun.invoke(sr);
     }
     FDEBUG(1) << string(8, ' ') << "readSubRun..................("
-              << subRunPrincipal_.load()->subRunID() << ")\n";
+              << subRunPrincipal_->subRunID() << ")\n";
   }
 
   void
   EventProcessor::beginSubRun()
   {
-    assert(subRunPrincipal_.load());
-    SubRunID const sr{subRunPrincipal_.load()->subRunID()};
+    assert(subRunPrincipal_);
+    SubRunID const sr{subRunPrincipal_->subRunID()};
     if (sr.isFlush()) {
       return;
     }
     finalizeSubRunEnabled_ = true;
     try {
       {
-        SubRun const srun{*subRunPrincipal_.load(), ModuleDescription{}};
+        SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
         actReg_->sPreBeginSubRun.invoke(srun);
       }
-      (*schedule_.load())[ScheduleID::first()].process(
-        Transition::BeginSubRun, *subRunPrincipal_.load());
-      endPathExecutor_.load()->process(Transition::BeginSubRun,
-                                       *subRunPrincipal_.load());
+      schedules_->at(ScheduleID::first())
+        .process(Transition::BeginSubRun, *subRunPrincipal_);
+      endPathExecutor_->process(Transition::BeginSubRun, *subRunPrincipal_);
       {
-        SubRun const srun{*subRunPrincipal_.load(), ModuleDescription{}};
+        SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
         actReg_->sPostBeginSubRun.invoke(srun);
       }
     }
@@ -1751,33 +1696,32 @@ namespace art {
   void
   EventProcessor::setSubRunAuxiliaryRangeSetID()
   {
-    assert(subRunPrincipal_.load());
-    endPathExecutor_.load()->setAuxiliaryRangeSetID(*subRunPrincipal_.load());
+    assert(subRunPrincipal_);
+    endPathExecutor_->setAuxiliaryRangeSetID(*subRunPrincipal_);
     FDEBUG(1) << string(8, ' ') << "setSubRunAuxiliaryRangeSetID("
-              << subRunPrincipal_.load()->subRunID() << ")\n";
+              << subRunPrincipal_->subRunID() << ")\n";
   }
 
   void
   EventProcessor::endSubRun()
   {
-    assert(subRunPrincipal_.load());
+    assert(subRunPrincipal_);
     // Precondition: The SubRunID does not correspond to a flush ID.
     // Note: the flush flag is not explicitly checked here since
     // endSubRun is only called from finalizeSubRun, which is where the
     // check happens.
-    SubRunID const sr{subRunPrincipal_.load()->subRunID()};
+    SubRunID const sr{subRunPrincipal_->subRunID()};
     assert(!sr.isFlush());
     try {
       {
-        actReg_->sPreEndSubRun.invoke(subRunPrincipal_.load()->subRunID(),
-                                      subRunPrincipal_.load()->endTime());
+        actReg_->sPreEndSubRun.invoke(subRunPrincipal_->subRunID(),
+                                      subRunPrincipal_->endTime());
       }
-      (*schedule_.load())[ScheduleID::first()].process(
-        Transition::EndSubRun, *subRunPrincipal_.load());
-      endPathExecutor_.load()->process(Transition::EndSubRun,
-                                       *subRunPrincipal_.load());
+      schedules_->at(ScheduleID::first())
+        .process(Transition::EndSubRun, *subRunPrincipal_);
+      endPathExecutor_->process(Transition::EndSubRun, *subRunPrincipal_);
       {
-        SubRun const srun{*subRunPrincipal_.load(), ModuleDescription{}};
+        SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
         actReg_->sPostEndSubRun.invoke(srun);
       }
     }
@@ -1800,11 +1744,11 @@ namespace art {
   void
   EventProcessor::writeSubRun()
   {
-    assert(subRunPrincipal_.load());
+    assert(subRunPrincipal_);
     // Precondition: The SubRunID does not correspond to a flush ID.
-    SubRunID const& sr{subRunPrincipal_.load()->subRunID()};
+    SubRunID const& sr{subRunPrincipal_->subRunID()};
     assert(!sr.isFlush());
-    endPathExecutor_.load()->writeSubRun(*subRunPrincipal_.load());
+    endPathExecutor_->writeSubRun(*subRunPrincipal_);
     FDEBUG(1) << string(8, ' ') << "writeSubRun.................(" << sr
               << ")\n";
   }

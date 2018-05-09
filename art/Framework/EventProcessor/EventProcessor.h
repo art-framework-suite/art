@@ -35,6 +35,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/WaitingTaskList.h"
+#include "hep_concurrency/thread_sanitize.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "tbb/task_scheduler_init.h"
 
@@ -44,10 +45,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-namespace cet {
-  class ostream_handle;
-} // namespace cet
 
 namespace art {
 
@@ -160,45 +157,19 @@ namespace art {
 
   private: // MEMBER DATA
     template <typename T>
-    class thread_sanitize {
-    public:
-      template <typename... Args>
-      thread_sanitize(Args&&... args)
-      {
-        obj_ = new T(std::forward<Args>(args)...);
-      }
+    using tsan = hep::concurrency::thread_sanitize<T>;
 
-      operator T&() { return *obj_.load(); }
-
-      thread_sanitize&
-      operator=(T&& t)
-      {
-        *obj_.load() = std::forward<T>(t);
-        return *this;
-      }
-
-      T* operator->() const { return obj_.load(); }
-
-      ~thread_sanitize() noexcept
-      {
-        ANNOTATE_THREAD_IGNORE_BEGIN;
-        delete obj_.load();
-        obj_ = nullptr;
-        ANNOTATE_THREAD_IGNORE_END;
-      }
-
-    private:
-      std::atomic<T*> obj_;
-    };
+    template <typename T>
+    using tsan_unique_ptr = hep::concurrency::thread_sanitize_unique_ptr<T>;
 
     // Next containment level to move to.
     std::atomic<Level> nextLevel_{Level::ReadyToAdvance};
 
     // Utility object to run a functor and collect any exceptions thrown.
-    thread_sanitize<detail::ExceptionCollector> ec_{};
+    tsan<detail::ExceptionCollector> ec_{};
 
     // Used for timing the job.
-    thread_sanitize<cet::cpu_timer> timer_{};
+    tsan<cet::cpu_timer> timer_{};
 
     // Used to keep track of whether or not we have already call beginRun.
     std::atomic<bool> beginRunCalled_{false};
@@ -214,21 +185,21 @@ namespace art {
 
     // A signal/slot system for registering a callback to be called
     // when a specific action is taken by the framework.
-    thread_sanitize<ActivityRegistry> actReg_{};
+    tsan<ActivityRegistry> actReg_{};
 
     // Used to update various output fields in logged messages.
-    thread_sanitize<MFStatusUpdater> mfStatusUpdater_{actReg_};
+    tsan<MFStatusUpdater> mfStatusUpdater_{actReg_};
 
     // List of callbacks which, when invoked, can update the state of
     // any output modules.
     // FIXME: Used only in the ctor!
-    thread_sanitize<UpdateOutputCallbacks> outputCallbacks_{};
+    tsan<UpdateOutputCallbacks> outputCallbacks_{};
 
     // Product descriptions for the products that appear in
     // produces<T>() clauses in modules. Note that this is the master
     // copy and must be kept alive until producedProductLookupTables_
     // is destroyed because it has references to us.
-    thread_sanitize<ProductDescriptions> producedProductDescriptions_{};
+    tsan<ProductDescriptions> producedProductDescriptions_{};
 
     // Product lookup tables for the products that appear in
     // produces<T>() clauses in modules. Note that this also serves as
@@ -236,62 +207,60 @@ namespace art {
     // until no more principals that might use it exist. Also note
     // that we keep references to the internals of
     // producedProductDescriptions_.
-    thread_sanitize<ProductTables> producedProductLookupTables_{
-      ProductTables::invalid()};
+    tsan<ProductTables> producedProductLookupTables_{ProductTables::invalid()};
 
-    thread_sanitize<ProducingServiceSignals> psSignals_{};
+    tsan<ProducingServiceSignals> psSignals_{};
 
     // The service subsystem.
-    std::atomic<ServicesManager*> servicesManager_;
+    tsan_unique_ptr<ServicesManager> servicesManager_{nullptr};
 
     // The entity that manages all configuration data from the
     // services.scheduler block and (eventually) sets up the TBB task
     // scheduler.
-    thread_sanitize<Scheduler> scheduler_;
+    tsan<Scheduler> scheduler_;
 
     // Despite the name, this is what parses the paths and modules in
     // the FHiCL file and creates and owns them.
-    std::atomic<PathManager*> pathManager_;
+    tsan_unique_ptr<PathManager> pathManager_{nullptr};
 
     // The source of input data.
-    std::atomic<InputSource*> input_;
+    tsan_unique_ptr<InputSource> input_{nullptr};
 
     // The trigger path runners.
-    std::atomic<PerScheduleContainer<Schedule>*> schedule_;
+    tsan<PerScheduleContainer<Schedule>> schedules_{};
 
     // The end path runner.
-    std::atomic<EndPathExecutor*> endPathExecutor_;
+    tsan_unique_ptr<EndPathExecutor> endPathExecutor_{nullptr};
 
     // The currently open primary input file.
-    std::atomic<FileBlock*> fb_;
+    tsan_unique_ptr<FileBlock> fb_{nullptr};
 
     // The currently active RunPrincipal.
-    std::atomic<RunPrincipal*> runPrincipal_;
+    tsan_unique_ptr<RunPrincipal> runPrincipal_{nullptr};
 
     // The currently active SubRunPrincipal.
-    std::atomic<SubRunPrincipal*> subRunPrincipal_;
+    tsan_unique_ptr<SubRunPrincipal> subRunPrincipal_{nullptr};
 
     // The currently active EventPrincipals.
-    std::atomic<PerScheduleContainer<EventPrincipal*>*> eventPrincipal_;
+    tsan<PerScheduleContainer<EventPrincipal*>> eventPrincipals_{};
 
     // Are we configured to process empty runs?
-    std::atomic<bool> handleEmptyRuns_;
+    bool const handleEmptyRuns_;
 
     // Are we configured to process empty subruns?
-    std::atomic<bool> handleEmptySubRuns_;
+    bool const handleEmptySubRuns_;
 
     // Has an exception been captured already?
     std::atomic<bool> deferredExceptionPtrIsSet_{false};
 
     // An exception captured from event processing.
-    std::atomic<std::exception_ptr*> deferredExceptionPtr_;
+    tsan<std::exception_ptr> deferredExceptionPtr_{};
 
-    // Set to true for the first event in a subRun to signal
-    // that we should not advance to the next entry.
-    // Note that this is shared in common between all the
-    // schedules. This is onnly needed because we cannot peek ahead
-    // to see that the next entry is an event, we actually must
-    // advance to it before we can know.
+    // Set to true for the first event in a subRun to signal that we
+    // should not advance to the next entry.  Note that this is shared
+    // in common between all the schedules. This is only needed
+    // because we cannot peek ahead to see that the next entry is an
+    // event, we actually must advance to it before we can know.
     std::atomic<bool> firstEvent_{true};
 
     // Are we current switching output files?
