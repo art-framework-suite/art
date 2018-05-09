@@ -104,7 +104,11 @@ namespace art {
       auto& expectedProducts = typeLabelList_[bt];
       for (auto& pr : expectedProducts) {
         auto const& typeLabel = pr.first;
-        BranchDescription pd{bt, typeLabel, md};
+        BranchDescription pd{bt,
+                             typeLabel,
+                             md.moduleLabel(),
+                             md.parameterSetID(),
+                             md.processConfiguration()};
         auto it = expectedProducts.find(typeLabel);
         assert(it != end(expectedProducts));
         it->second = pd;

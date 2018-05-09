@@ -36,13 +36,10 @@ namespace {
       bt,
       art::TypeLabel{
         producedType, instanceName, art::SupportsView<PROD>::value, false},
-      art::ModuleDescription{
-        pset.id(),
-        "arttest::NOMOD",
-        moduleLabel,
-        1,
-        art::ProcessConfiguration{
-          processName, fhicl::ParameterSet{}.id(), art::getReleaseVersion()}}};
+      moduleLabel,
+      pset.id(),
+      art::ProcessConfiguration{
+        processName, fhicl::ParameterSet{}.id(), art::getReleaseVersion()}};
   }
 
   void

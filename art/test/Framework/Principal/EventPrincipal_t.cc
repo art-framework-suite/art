@@ -101,20 +101,15 @@ ProductTablesFixture::fake_single_process_branch(
   modParams.put("module_type", moduleClass);
   modParams.put("module_label", moduleLabel);
 
-  art::ModuleDescription const mod{
-    modParams.id(),
-    moduleClass,
-    moduleLabel,
-    static_cast<int>(ModuleThreadingType::legacy),
-    *fake_single_module_process(tag, processName, modParams)};
-
   art::BranchDescription const result{
     art::InEvent,
     art::TypeLabel{dummyType,
                    productInstanceName,
                    art::SupportsView<arttest::DummyProduct>::value,
                    false},
-    mod};
+    moduleLabel,
+    modParams.id(),
+    *fake_single_module_process(tag, processName, modParams)};
   productIDs_.emplace(tag, result.productID());
   return result;
 }

@@ -203,7 +203,8 @@ ProductTablesFixture::registerProduct(std::string const& tag,
     typeLabel = TypeLabel{
       product_type, productInstanceName, SupportsView<T>::value, moduleLabel};
   }
-  BranchDescription pd{InEvent, typeLabel, localModuleDescription};
+  BranchDescription pd{
+    InEvent, typeLabel, moduleLabel, moduleParams.id(), process};
   if (Present) {
     earlyLookup_[tag].emplace(typeLabel, pd);
   } else {

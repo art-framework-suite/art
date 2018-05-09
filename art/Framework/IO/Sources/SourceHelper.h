@@ -104,7 +104,11 @@ art::SourceHelper::makePtr(TypeLabel const& tl,
                            Principal const& p,
                            typename Ptr<T>::key_type key) const
 {
-  BranchDescription const pd{p.branchType(), tl, md_};
+  BranchDescription const pd{p.branchType(),
+                             tl,
+                             md_.moduleLabel(),
+                             md_.parameterSetID(),
+                             md_.processConfiguration()};
   ProductID const pid{pd.productID()};
   return Ptr<T>{pid, key, p.productGetter(pid)};
 }
