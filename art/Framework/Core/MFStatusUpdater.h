@@ -3,7 +3,7 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

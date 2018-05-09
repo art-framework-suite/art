@@ -1,8 +1,8 @@
 #ifndef art_Framework_Core_detail_ModuleGraphInfoMap_h
 #define art_Framework_Core_detail_ModuleGraphInfoMap_h
 
-#include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/WorkerInPath.h"
+#include "art/Persistency/Provenance/ModuleType.h"
 
 #include <iosfwd>
 #include <map>

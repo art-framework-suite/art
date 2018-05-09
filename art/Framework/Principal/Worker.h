@@ -21,17 +21,17 @@
 // cached and reused until the worker is reset().
 // ======================================================================
 
-#include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/BranchActionType.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/ExecutionCounts.h"
 #include "art/Framework/Principal/MaybeIncrementCounts.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"

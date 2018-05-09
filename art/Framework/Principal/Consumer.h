@@ -2,6 +2,8 @@
 #define art_Framework_Principal_Consumer_h
 // vim: set sw=2 expandtab :
 
+// FIXME: THESE NOTES SHOULD GO SOMEWHERE ELSE
+//
 //============================================================================
 // Consumer is the base class for all module types that retrieve
 // products.  See below for guidance as to which interface should be
@@ -68,194 +70,131 @@
 // interface is, therefore, not supported in non-module contexts.
 //============================================================================
 
-//#include "art/Framework/Principal/ProductInfo.h"
-//#include "canvas/Persistency/Provenance/BranchType.h"
-//#include "canvas/Persistency/Provenance/ProductToken.h"
-//#include "canvas/Persistency/Provenance/TypeLabel.h"
-//#include "canvas/Utilities/InputTag.h"
-//#include "canvas/Utilities/TypeID.h"
-//#include "cetlib/exempt_ptr.h"
-//
-// namespace fhicl {
-// class ParameterSet;
-//} // namespace fhicl
-//
-// namespace art {
-//
-// class DataViewImpl;
-// class ModuleDescription;
-//
-// class Consumer {
-//
-//  friend class DataViewImpl;
-//
-// private: // TYPES
-//
-//  struct InvalidTag {};
-//
-//  using ConsumableType = ProductInfo::ConsumableType;
-//
-// public: // MEMBER FUNCTIONS -- Static API for user
-//
-//  static
-//  cet::exempt_ptr<Consumer>
-//  non_module_context();
-//
-// public: // MEMBER FUNCTIONS -- Special Member Functions
-//
-//  ~Consumer();
-//
-//  explicit
-//  Consumer();
-//
-// private: // MEMBER FUNCTIONS -- Special Member Functions
-//
-//  explicit
-//  Consumer(InvalidTag);
-//
-// public: // MEMBER FUNCTIONS -- API for user
-//
-//  template <typename T, BranchType = InEvent>
-//  ProductToken<T>
-//  consumes(InputTag const&);
-//
-//  template <typename T, BranchType = InEvent>
-//  void
-//  consumesMany();
-//
-//  template <typename Element, BranchType = InEvent>
-//  ViewToken<Element>
-//  consumesView(InputTag const&);
-//
-//  // mayConsume variants, which should be used whenever product
-//  // retrievals do not always occur whenever the user is presented
-//  // with a transactional object.
-//  template <typename T, BranchType = InEvent>
-//  ProductToken<T>
-//  mayConsume(InputTag const&);
-//
-//  template <typename T, BranchType = InEvent>
-//  void
-//  mayConsumeMany();
-//
-//  template <typename Element, BranchType = InEvent>
-//  ViewToken<Element>
-//  mayConsumeView(InputTag const&);
-//
-// protected: // MEMBER FUNCTIONS -- API for derived classes
-//
-//  void
-//  validateConsumedProduct(BranchType const bt, ProductInfo const& pi);
-//
-//  // After the modules are constructed, their ModuleDescription
-//  // values are assigned.  We receive the values of that assignment.
-//  void
-//  setModuleDescription(ModuleDescription const& md);
-//
-//  // Once all of the 'consumes(Many)' calls have been made for this
-//  // recorder, the consumables are sorted, and the configuration is
-//  // retrieved to specify the desired behavior in the case of a
-//  // missing consumes clause.
-//  void
-//  prepareForJob(fhicl::ParameterSet const& pset);
-//
-//  void
-//  showMissingConsumes() const;
-//
-// private: // MEMBER DATA
-//
-//  bool
-//  moduleContext_{true};
-//
-//  bool
-//  requireConsumes_{false};
-//
-//  //std::array<std::vector<ProductInfo>, NumBranchTypes>
-//  ConsumableProducts
-//  consumables_{};
-//
-//  //std::array<std::set<ProductInfo>, NumBranchTypes>;
-//  ConsumableProductSets
-//  missingConsumes_{};
-//
-//  cet::exempt_ptr<ModuleDescription const>
-//  moduleDescription_{nullptr};
-//
-//};
-//
-// template <typename T, BranchType BT>
-// ProductToken<T>
-// Consumer::
-// consumes(InputTag const& it)
-//{
-//  if (!moduleContext_) {
-//    return ProductToken<T>::invalid();
-//  }
-//  consumables_[BT].emplace_back(ConsumableType::Product, TypeID{typeid(T)},
-//  it.label(), it.instance(), it.process()); return ProductToken<T>{it};
-//}
-//
-// template <typename T, BranchType BT>
-// void
-// Consumer::
-// consumesMany()
-//{
-//  if (!moduleContext_) {
-//    return;
-//  }
-//  consumables_[BT].emplace_back(ConsumableType::Many, TypeID{typeid(T)});
-//}
-//
-// template <typename T, BranchType BT>
-// ViewToken<T>
-// Consumer::
-// consumesView(InputTag const& it)
-//{
-//  if (!moduleContext_) {
-//    return ViewToken<T>::invalid();
-//  }
-//  consumables_[BT].emplace_back(ConsumableType::ViewElement,
-//  TypeID{typeid(T)}, it.label(), it.instance(), it.process()); return
-//  ViewToken<T>{it};
-//}
-//
-// template <typename T, BranchType BT>
-// ProductToken<T>
-// Consumer::
-// mayConsume(InputTag const& it)
-//{
-//  if (!moduleContext_) {
-//    return ProductToken<T>::invalid();
-//  }
-//  consumables_[BT].emplace_back(ConsumableType::Product, TypeID{typeid(T)},
-//  it.label(), it.instance(), it.process()); return ProductToken<T>{it};
-//}
-//
-// template <typename T, BranchType BT>
-// void
-// Consumer::
-// mayConsumeMany()
-//{
-//  if (!moduleContext_) {
-//    return;
-//  }
-//  consumables_[BT].emplace_back(ConsumableType::Many, TypeID{typeid(T)});
-//}
-//
-// template <typename T, BranchType BT>
-// ViewToken<T>
-// Consumer::
-// mayConsumeView(InputTag const& it)
-//{
-//  if (!moduleContext_) {
-//    return ViewToken<T>::invalid();
-//  }
-//  consumables_[BT].emplace_back(ConsumableType::ViewElement,
-//  TypeID{typeid(T)}, it.label(), it.instance(), it.process()); return
-//  ViewToken<T>{it};
-//}
-//
-//} // namespace art
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Utilities/ScheduleID.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Utilities/TypeID.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "hep_concurrency/RecursiveMutex.h"
+
+#include <array>
+#include <atomic>
+#include <cstdlib>
+#include <map>
+#include <set>
+#include <string>
+#include <tuple>
+#include <vector>
+
+namespace art {
+
+  class EventProcessor;
+  class Scheduler;
+
+  class ProductInfo {
+  public: // TYPES
+    enum class ConsumableType { Product = 0, ViewElement = 1, Many = 2 };
+
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~ProductInfo();
+    explicit ProductInfo(ConsumableType const, TypeID const&);
+    explicit ProductInfo(ConsumableType const,
+                         TypeID const&,
+                         std::string const& label,
+                         std::string const& instance,
+                         std::string const& process);
+
+  public: // MEMBER DATA -- FIXME: Are these supposed to be public?
+    // FIXME: We need a way to tell whether this came from consumes or from may
+    // consume!!!
+
+    // Which kind of the DataViewImpl::get* functions we validate.
+    ConsumableType consumableType_{};
+
+    // Data product class type.
+    // Part 1 of branch name.
+    TypeID typeID_;
+
+    // Note: This part is only provided and used by the DataViewImpl::get*
+    // functions. Data product module label. Part 2 of branch name.
+    std::string label_{};
+
+    // Note: This part is only provided and used by the DataViewImpl::get*
+    // functions. Data product instance name. Part 3 of branch name.
+    std::string instance_{};
+
+    // Note: This part is only provided and used by the DataViewImpl::get*
+    // functions. Data product process name. Part 4 of branch name.
+    std::string process_{};
+  };
+
+  bool operator<(ProductInfo const& a, ProductInfo const& b);
+  std::ostream& operator<<(std::ostream& os,
+                           ProductInfo::ConsumableType const ct);
+  std::ostream& operator<<(std::ostream& os, ProductInfo const& info);
+
+  class ConsumesInfo {
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    ~ConsumesInfo();
+    ConsumesInfo(ConsumesInfo const&) = delete;
+    ConsumesInfo(ConsumesInfo&&) = delete;
+    ConsumesInfo& operator=(ConsumesInfo const&) = delete;
+    ConsumesInfo& operator=(ConsumesInfo&&) = delete;
+
+  public:
+    static ConsumesInfo* instance();
+    static std::string assemble_consumes_statement(BranchType const,
+                                                   ProductInfo const&);
+    static std::string module_context(ModuleDescription const&);
+
+    void setRequireConsumes(bool const);
+
+    // Maps module label to run, per-branch consumes info.
+    using consumables_t =
+      std::map<std::string const,
+               std::array<std::vector<ProductInfo>, NumBranchTypes>>;
+
+    std::array<std::vector<ProductInfo>, NumBranchTypes> const&
+    consumables(std::string const& module_label) const
+    {
+      return consumables_.at(module_label);
+    }
+
+    void collectConsumes(
+      std::string const& module_label,
+      std::array<std::vector<ProductInfo>, NumBranchTypes> const& consumables);
+
+    // This is used by get*() in DataViewImpl.
+    void validateConsumedProduct(BranchType const,
+                                 ModuleDescription const&,
+                                 ProductInfo const& productInfo);
+
+    void showMissingConsumes() const;
+
+  private:
+    ConsumesInfo();
+
+    // Protects access to consumables_ and missingConsumes_.
+    mutable hep::concurrency::RecursiveMutex mutex_{
+      "art::ConsumesInfo::mutex_"};
+
+    std::atomic<bool> requireConsumes_;
+
+    // Maps module label to run, per-branch consumes info.
+    std::map<std::string const,
+             std::array<std::vector<ProductInfo>, NumBranchTypes>>
+      consumables_;
+
+    // Maps module label to run, per-branch missing product consumes info.
+    std::map<std::string const,
+             std::array<std::set<ProductInfo>, NumBranchTypes>>
+      missingConsumes_;
+  };
+} // namespace art
+
+  // Local Variables:
+  // mode: c++
+  // End:
 
 #endif /* art_Framework_Principal_Consumer_h */
 

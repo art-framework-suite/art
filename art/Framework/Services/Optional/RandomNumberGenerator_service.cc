@@ -41,11 +41,11 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/PerThread.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/ScheduleIteration.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/assert_only_one_thread.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/no_delete.h"
@@ -84,7 +84,7 @@ namespace art {
       label +=
         art::PerThread::instance()->getCPC().moduleDescription()->moduleLabel();
       label += ':';
-      label += to_string(sid.id());
+      label += std::to_string(sid.id());
       label += ':';
       label += engine_label;
       return label;

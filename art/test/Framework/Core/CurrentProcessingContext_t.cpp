@@ -1,6 +1,6 @@
 // vim: set sw=2 expandtab :
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/CurrentProcessingContext.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 

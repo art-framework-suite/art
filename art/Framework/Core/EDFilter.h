@@ -8,8 +8,8 @@
 #include "art/Framework/Core/detail/LegacyModule.h"
 #include "art/Framework/Core/detail/SharedModule.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/ScheduleID.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
 

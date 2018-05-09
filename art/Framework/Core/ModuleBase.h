@@ -2,9 +2,9 @@
 #define art_Framework_Core_ModuleBase_h
 // vim: set sw=2 expandtab :
 
-#include "art/Utilities/Globals.h" // for ProductInfo
+#include "art/Framework/Principal/Consumer.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductToken.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/exempt_ptr.h"

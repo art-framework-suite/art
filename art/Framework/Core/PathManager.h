@@ -15,11 +15,11 @@
 //
 
 #include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
+#include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ScheduleID.h"

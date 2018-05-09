@@ -11,9 +11,9 @@
 #include "art/Framework/Core/Modifier.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/ScheduleID.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 
 #include <cstddef>
 

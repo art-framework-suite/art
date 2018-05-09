@@ -9,10 +9,10 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/RecursiveMutex.h"
 

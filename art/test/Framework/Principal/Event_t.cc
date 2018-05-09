@@ -16,13 +16,14 @@
 
 #include "cetlib/quiet_unit_test.hpp"
 
-#include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "art/test/TestObjects/ToyProducts.h"
@@ -31,7 +32,6 @@
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/History.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
@@ -186,13 +186,12 @@ ProductTablesFixture::registerProduct(std::string const& tag,
   ProcessConfiguration const process{
     processName, processParams.id(), getReleaseVersion()};
 
-  ModuleDescription const localModuleDescription{
-    moduleParams.id(),
-    module_class_name(),
-    moduleLabel,
-    static_cast<int>(ModuleThreadingType::legacy),
-    process,
-    Present};
+  ModuleDescription const localModuleDescription{moduleParams.id(),
+                                                 module_class_name(),
+                                                 moduleLabel,
+                                                 ModuleThreadingType::legacy,
+                                                 process,
+                                                 Present};
 
   TypeID const product_type{typeid(T)};
 

@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_ModuleType_h
-#define art_Framework_Core_ModuleType_h
+#ifndef art_Persistency_Provenance_ModuleType_h
+#define art_Persistency_Provenance_ModuleType_h
 // vim: set sw=2 expandtab :
 
 #include "canvas/Utilities/Exception.h"
@@ -46,7 +46,7 @@ namespace art {
 
 } // namespace art
 
-#endif /* art_Framework_Core_ModuleType_h */
+#endif /* art_Persistency_Provenance_ModuleType_h */
 
 // Local Variables:
 // mode: c++

@@ -224,7 +224,7 @@ namespace art {
         main_input.id(),
         main_input.get<string>("module_type"),
         main_input.get<string>("module_label"),
-        static_cast<int>(ModuleThreadingType::legacy),
+        ModuleThreadingType::legacy,
         ProcessConfiguration{processName, pset.id(), getReleaseVersion()}};
       InputSourceDescription isd{md, outputCallbacks_, actReg_};
       try {

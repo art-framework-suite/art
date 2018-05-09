@@ -499,7 +499,7 @@ namespace art {
         ModuleDescription{params.rpPSetID,
                           params.rpPluginType,
                           md.moduleLabel() + '#' + params.rpLabel,
-                          static_cast<int>(ModuleThreadingType::legacy),
+                          ModuleThreadingType::legacy,
                           md.processConfiguration(),
                           false,
                           ModuleDescription::invalidID()});

@@ -7,13 +7,13 @@
 //============================================================
 
 #include "art/Framework/Core/ModuleBase.h"
-#include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/ProducerTable.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/detail/ImplicitConfigs.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/ProductSemantics.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/ConfigurationTable.h"

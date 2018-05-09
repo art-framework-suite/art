@@ -7,7 +7,7 @@
 //  ModuleType for a module.
 //
 
-#include "art/Framework/Core/ModuleType.h"
+#include "art/Persistency/Provenance/ModuleType.h"
 
 namespace art {
   class EDAnalyzer;

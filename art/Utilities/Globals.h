@@ -4,7 +4,6 @@
 
 #include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Utilities/TypeID.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/RecursiveMutex.h"
@@ -22,108 +21,6 @@ namespace art {
 
   class EventProcessor;
   class Scheduler;
-
-  class ProductInfo {
-  public: // TYPES
-    enum class ConsumableType { Product = 0, ViewElement = 1, Many = 2 };
-
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    ~ProductInfo();
-    explicit ProductInfo(ConsumableType const, TypeID const&);
-    explicit ProductInfo(ConsumableType const,
-                         TypeID const&,
-                         std::string const& label,
-                         std::string const& instance,
-                         std::string const& process);
-
-  public: // MEMBER DATA -- FIXME: Are these supposed to be public?
-    // FIXME: We need a way to tell whether this came from consumes or from may
-    // consume!!!
-
-    // Which kind of the DataViewImpl::get* functions we validate.
-    ConsumableType consumableType_{};
-
-    // Data product class type.
-    // Part 1 of branch name.
-    TypeID typeID_;
-
-    // Note: This part is only provided and used by the DataViewImpl::get*
-    // functions. Data product module label. Part 2 of branch name.
-    std::string label_{};
-
-    // Note: This part is only provided and used by the DataViewImpl::get*
-    // functions. Data product instance name. Part 3 of branch name.
-    std::string instance_{};
-
-    // Note: This part is only provided and used by the DataViewImpl::get*
-    // functions. Data product process name. Part 4 of branch name.
-    std::string process_{};
-  };
-
-  bool operator<(ProductInfo const& a, ProductInfo const& b);
-  std::ostream& operator<<(std::ostream& os,
-                           ProductInfo::ConsumableType const ct);
-  std::ostream& operator<<(std::ostream& os, ProductInfo const& info);
-
-  class ConsumesInfo {
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    ~ConsumesInfo();
-    ConsumesInfo(ConsumesInfo const&) = delete;
-    ConsumesInfo(ConsumesInfo&&) = delete;
-    ConsumesInfo& operator=(ConsumesInfo const&) = delete;
-    ConsumesInfo& operator=(ConsumesInfo&&) = delete;
-
-  private: // MEMBER FUNCTIONS -- Special Member Functions
-    ConsumesInfo();
-
-  public: // MEMBER FUNCTIONS -- Static API
-    static ConsumesInfo* instance();
-    static std::string assemble_consumes_statement(BranchType const,
-                                                   ProductInfo const&);
-    static std::string module_context(ModuleDescription const&);
-
-  public: // MEMBER FUNCTIONS -- API for user
-    void setRequireConsumes(bool const);
-
-    // Maps module label to run, per-branch consumes info.
-    using consumables_t =
-      std::map<std::string const,
-               std::array<std::vector<ProductInfo>, NumBranchTypes>>;
-
-    std::array<std::vector<ProductInfo>, NumBranchTypes> const&
-    consumables(std::string const& module_label) const
-    {
-      return consumables_.at(module_label);
-    }
-
-    void collectConsumes(
-      std::string const& module_label,
-      std::array<std::vector<ProductInfo>, NumBranchTypes> const& consumables);
-
-    // This is used by get*() in DataViewImpl.
-    void validateConsumedProduct(BranchType const,
-                                 ModuleDescription const&,
-                                 ProductInfo const& productInfo);
-
-    void showMissingConsumes() const;
-
-  private: // MEMBER DATA
-    // Protects access to consumables_ and missingConsumes_.
-    mutable hep::concurrency::RecursiveMutex mutex_{
-      "art::ConsumesInfo::mutex_"};
-
-    std::atomic<bool> requireConsumes_;
-
-    // Maps module label to run, per-branch consumes info.
-    std::map<std::string const,
-             std::array<std::vector<ProductInfo>, NumBranchTypes>>
-      consumables_;
-
-    // Maps module label to run, per-branch missing product consumes info.
-    std::map<std::string const,
-             std::array<std::set<ProductInfo>, NumBranchTypes>>
-      missingConsumes_;
-  };
 
   class Globals {
 

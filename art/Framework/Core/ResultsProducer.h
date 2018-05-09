@@ -73,12 +73,12 @@
 //
 
 #include "art/Framework/Core/ModuleBase.h"
-#include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/ProducerTable.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/RPWorkerT.h"
 #include "art/Framework/Core/detail/ImplicitConfigs.h"
 #include "art/Framework/Core/detail/SharedModule.h"
+#include "art/Persistency/Provenance/ModuleType.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "cetlib/ProvideFilePathMacro.h"
 #include "cetlib/compiler_macros.h"

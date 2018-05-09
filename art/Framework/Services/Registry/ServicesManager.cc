@@ -7,9 +7,9 @@
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/bold_fontify.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/HorizontalRule.h"
@@ -102,10 +102,8 @@ namespace art {
         continue;
       }
 
-      // The enum value SHARED is not used below so as to avoid circular
-      // dependencies.
       ModuleDescription const md{
-        pset.id(), moduleLabel, moduleLabel, 2 /*==SHARED*/, pc};
+        pset.id(), moduleLabel, moduleLabel, ModuleThreadingType::shared, pc};
       serviceEntry.registerProducts(productsToProduce, signals, md);
     }
   }

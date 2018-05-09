@@ -15,11 +15,11 @@
 //
 
 #include "art/Framework/Core/ModuleBase.h"
-#include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ModuleTypeDeducer.h"
 #include "art/Framework/Principal/WorkerParams.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleType.h"
 #include "cetlib/ProvideFilePathMacro.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"

@@ -94,8 +94,8 @@
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
@@ -672,9 +672,9 @@ namespace art {
       ModuleDescription{fhicl::ParameterSet{}.id(), // Dummy
                         "_NAMEERROR_",
                         "_LABELERROR_",
-                        1,
+                        ModuleThreadingType::legacy,
                         d.moduleDescription.processConfiguration(),
-                        true, // isEmulaed
+                        true, // isEmulated
                         ModuleDescription::invalidID()});
     presentProducts_ = ProductTables{descriptions};
     sourceHelper_.setPresentProducts(cet::make_exempt_ptr(&presentProducts_));

@@ -13,11 +13,11 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "art/Version/GetReleaseVersion.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "hep_concurrency/WaitingTask.h"
@@ -86,7 +86,7 @@ namespace art {
       trig_pset.id(),
       "TriggerResultInserter",
       "TriggerResults",
-      static_cast<int>(ModuleThreadingType::replicated),
+      ModuleThreadingType::replicated,
       ProcessConfiguration{processName, proc_pset.id(), getReleaseVersion()}};
     string pathName{"ctor"};
     CurrentProcessingContext cpc{scheduleID, &pathName, 0, false};

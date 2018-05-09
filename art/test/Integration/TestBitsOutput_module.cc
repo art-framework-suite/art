@@ -3,9 +3,9 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Globals.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
 
 #include <algorithm>

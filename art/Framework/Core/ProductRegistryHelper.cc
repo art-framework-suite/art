@@ -1,11 +1,11 @@
 #include "art/Framework/Core/ProductRegistryHelper.h"
 // vim: set sw=2:
 
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Utilities/DebugMacros.h"

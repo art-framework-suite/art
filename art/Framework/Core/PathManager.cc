@@ -4,7 +4,6 @@
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Core/ModuleType.h"
 #include "art/Framework/Core/Path.h"
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
@@ -16,6 +15,8 @@
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/PerScheduleContainer.h"
@@ -25,7 +26,6 @@
 #include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
@@ -539,7 +539,7 @@ namespace art {
         modPS.id(),
         module_type,
         module_label,
-        static_cast<int>(module_threading_type),
+        module_threading_type,
         ProcessConfiguration{processName_, procPS_.id(), getReleaseVersion()}};
 
       string pathName{"ctor"};
@@ -696,7 +696,7 @@ namespace art {
         ModuleDescription const md{modPS.id(),
                                    module_type,
                                    module_label,
-                                   static_cast<int>(module_threading_type),
+                                   module_threading_type,
                                    ProcessConfiguration{processName_,
                                                         procPS_.id(),
                                                         getReleaseVersion()}};

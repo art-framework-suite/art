@@ -2,7 +2,7 @@
 #define art_Framework_Art_detail_PluginSymbolResolvers_h
 
 #include "art/Framework/Art/detail/PrintFormatting.h"
-#include "art/Framework/Core/ModuleType.h"
+#include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "boost/filesystem.hpp"
 #include "cetlib/LibraryManager.h"
