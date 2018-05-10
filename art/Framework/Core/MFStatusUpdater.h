@@ -38,22 +38,6 @@
       decltype(                                                                \
         ActivityRegistry::s##cb)::slot_argument_type<1> arg2[[gnu::unused]])
 
-#define MFSU_3_ARG_UPDATER_DECL(cb)                                            \
-  decltype(ActivityRegistry::s##cb)::result_type updateStatusTo##cb(           \
-    decltype(ActivityRegistry::s##cb)::slot_argument_type<0>,                  \
-    decltype(ActivityRegistry::s##cb)::slot_argument_type<1>,                  \
-    decltype(ActivityRegistry::s##cb)::slot_argument_type<2>)
-
-#define MFSU_3_ARG_UPDATER_DEFN(cb)                                            \
-  decltype(ActivityRegistry::s##cb)::result_type                               \
-    MFStatusUpdater::updateStatusTo##cb(                                       \
-      decltype(                                                                \
-        ActivityRegistry::s##cb)::slot_argument_type<0> arg1[[gnu::unused]],   \
-      decltype(                                                                \
-        ActivityRegistry::s##cb)::slot_argument_type<1> arg2[[gnu::unused]],   \
-      decltype(                                                                \
-        ActivityRegistry::s##cb)::slot_argument_type<2> arg3[[gnu::unused]])
-
 namespace art {
 
   class MFStatusUpdater {
@@ -114,14 +98,14 @@ namespace art {
     MFSU_1_ARG_UPDATER_DECL(PreSourceEvent);
     MFSU_2_ARG_UPDATER_DECL(PostSourceEvent);
 
-    MFSU_2_ARG_UPDATER_DECL(PreProcessPath);
-    MFSU_3_ARG_UPDATER_DECL(PostProcessPath);
+    MFSU_1_ARG_UPDATER_DECL(PreProcessPath);
+    MFSU_2_ARG_UPDATER_DECL(PostProcessPath);
 
     MFSU_2_ARG_UPDATER_DECL(PreProcessEvent);
     MFSU_2_ARG_UPDATER_DECL(PostProcessEvent);
 
-    MFSU_2_ARG_UPDATER_DECL(PreModule);
-    MFSU_2_ARG_UPDATER_DECL(PostModule);
+    MFSU_1_ARG_UPDATER_DECL(PreModule);
+    MFSU_1_ARG_UPDATER_DECL(PostModule);
 
   private:
     MFSU_1_ARG_UPDATER_DECL(PreModuleEndSubRun);

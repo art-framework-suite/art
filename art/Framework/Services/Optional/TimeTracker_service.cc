@@ -6,7 +6,9 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/PathContext.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/PerThread.h"
@@ -24,6 +26,7 @@
 #include "fhiclcpp/types/Table.h"
 #include "hep_concurrency/RecursiveMutex.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "tbb/concurrent_unordered_map.h"
 
 #include <algorithm>
 #include <chrono>
@@ -43,6 +46,12 @@ using chrono::steady_clock;
 namespace art {
 
   namespace {
+
+    using ConcurrentKey = std::pair<ScheduleID, std::string>;
+    auto key(ScheduleID const sid, std::string const& label = {})
+    {
+      return ConcurrentKey{sid, label};
+    }
 
     auto now = bind(&steady_clock::now);
 
@@ -116,8 +125,6 @@ namespace art {
     // Implementation details -- Types
   private:
     struct PerScheduleData {
-      string pathName; // This member will need to be rethought once we decide
-      // to process paths in parallel per event.
       EventID eventID;
       steady_clock::time_point eventStart;
       steady_clock::time_point moduleStart;
@@ -130,33 +137,27 @@ namespace art {
       cet::sqlite::Ntuple<uint32_t, uint32_t, uint32_t, double>;
     using timeModule_t = cet::sqlite::
       Ntuple<uint32_t, uint32_t, uint32_t, string, string, string, double>;
-    // Implementation details -- Member Functions
-  private:
-    void prePathProcessing(string const&, ScheduleID);
+
     void postSourceConstruction(ModuleDescription const&);
     void postEndJob();
     void preEventReading(ScheduleID);
     void postEventReading(Event const&, ScheduleID);
     void preEventProcessing(Event const&, ScheduleID);
     void postEventProcessing(Event const&, ScheduleID);
-    void startTime(ModuleDescription const&, ScheduleID);
-    void recordTime(ModuleDescription const& md,
-                    ScheduleID,
+    void startTime(ModuleContext const& mc);
+    void recordTime(ModuleContext const& mc,
                     string const& suffix);
     void logToDestination_(Statistics const& evt,
                            vector<Statistics> const& modules);
-    // Implementation details -- Member Data
-  private:
-    // Protects all data members.
-    mutable RecursiveMutex mutex_{"art::TimeTracker::mutex_"};
-    PerScheduleContainer<PerScheduleData> data_;
-    bool printSummary_;
-    unique_ptr<cet::sqlite::Connection> db_;
-    bool overwriteContents_;
+
+    tbb::concurrent_unordered_map<ConcurrentKey, PerScheduleData> data_;
+    bool const printSummary_;
+    unique_ptr<cet::sqlite::Connection> const db_;
+    bool const overwriteContents_;
     string sourceType_{};
-    name_array<5u> timeSourceTuple_;
-    name_array<4u> timeEventTuple_;
-    name_array<7u> timeModuleTuple_;
+    name_array<5u> const timeSourceTuple_;
+    name_array<4u> const timeEventTuple_;
+    name_array<7u> const timeModuleTuple_;
     timeSource_t timeSourceTable_;
     timeEvent_t timeEventTable_;
     timeModule_t timeModuleTable_;
@@ -181,10 +182,8 @@ namespace art {
     , timeEventTable_{*db_, "TimeEvent", timeEventTuple_, overwriteContents_}
     , timeModuleTable_{*db_, "TimeModule", timeModuleTuple_, overwriteContents_}
   {
-    data_.expand_to_num_schedules();
     areg.sPostSourceConstruction.watch(this,
                                        &TimeTracker::postSourceConstruction);
-    areg.sPreProcessPath.watch(this, &TimeTracker::prePathProcessing);
     areg.sPostEndJob.watch(this, &TimeTracker::postEndJob);
     // Event reading
     areg.sPreSourceEvent.watch(this, &TimeTracker::preEventReading);
@@ -194,28 +193,18 @@ namespace art {
     areg.sPostProcessEvent.watch(this, &TimeTracker::postEventProcessing);
     // Module execution
     areg.sPreModule.watch(this, &TimeTracker::startTime);
-    areg.sPostModule.watch([this](auto const& md, ScheduleID const sid) {
-      RecursiveMutexSentry sentry{mutex_, __func__};
-      this->recordTime(md, sid, ""s);
+    areg.sPostModule.watch([this](auto const& mc) {
+      this->recordTime(mc, ""s);
     });
     areg.sPreWriteEvent.watch(this, &TimeTracker::startTime);
-    areg.sPostWriteEvent.watch([this](auto const& md, ScheduleID const sid) {
-      RecursiveMutexSentry sentry{mutex_, __func__};
-      this->recordTime(md, sid, "(write)"s);
+    areg.sPostWriteEvent.watch([this](auto const& mc) {
+      this->recordTime(mc, "(write)"s);
     });
-  }
-
-  void
-  TimeTracker::prePathProcessing(string const& pathname, ScheduleID const sid)
-  {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    data_[sid].pathName = pathname;
   }
 
   void
   TimeTracker::postEndJob()
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
     timeSourceTable_.flush();
     timeEventTable_.flush();
     timeModuleTable_.flush();
@@ -287,15 +276,13 @@ namespace art {
   void
   TimeTracker::postSourceConstruction(ModuleDescription const& md)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
     sourceType_ = md.moduleName();
   }
 
   void
   TimeTracker::preEventReading(ScheduleID const sid)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    auto& d = data_[sid];
+    auto& d = data_[key(sid)];
     d.eventID = EventID::invalidEvent();
     d.eventStart = now();
   }
@@ -303,8 +290,7 @@ namespace art {
   void
   TimeTracker::postEventReading(Event const& e, ScheduleID const sid)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    auto& d = data_[sid];
+    auto& d = data_[key(sid)];
     d.eventID = e.id();
     auto const t = chrono::duration<double>{now() - d.eventStart}.count();
     timeSourceTable_.insert(
@@ -315,8 +301,7 @@ namespace art {
   TimeTracker::preEventProcessing(Event const& e[[gnu::unused]],
                                   ScheduleID const sid)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    auto& d = data_[sid];
+    auto& d = data_[key(sid)];
     assert(d.eventID == e.id());
     d.eventStart = now();
   }
@@ -324,35 +309,30 @@ namespace art {
   void
   TimeTracker::postEventProcessing(Event const&, ScheduleID const sid)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const& d = data_[sid];
+    auto const& d = data_[key(sid)];
     auto const t = chrono::duration<double>{now() - d.eventStart}.count();
     timeEventTable_.insert(
       d.eventID.run(), d.eventID.subRun(), d.eventID.event(), t);
   }
 
   void
-  TimeTracker::startTime(ModuleDescription const&, ScheduleID const sid)
+  TimeTracker::startTime(ModuleContext const& mc)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    auto& d = data_[sid];
-    d.moduleStart = now();
+    data_[key(mc.scheduleID())].moduleStart = now();
   }
 
   void
-  TimeTracker::recordTime(ModuleDescription const& desc,
-                          ScheduleID const sid,
+  TimeTracker::recordTime(ModuleContext const& mc,
                           string const& suffix)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const& d = data_[sid];
+    auto const& d = data_[key(mc.scheduleID())];
     auto const t = chrono::duration<double>{now() - d.moduleStart}.count();
     timeModuleTable_.insert(d.eventID.run(),
                             d.eventID.subRun(),
                             d.eventID.event(),
-                            d.pathName,
-                            desc.moduleLabel(),
-                            desc.moduleName() + suffix,
+                            mc.pathName(),
+                            mc.moduleLabel(),
+                            mc.moduleName() + suffix,
                             t);
   }
 
@@ -360,7 +340,6 @@ namespace art {
   TimeTracker::logToDestination_(Statistics const& evt,
                                  vector<Statistics> const& modules)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
     size_t width{30};
     auto identifier_size = [](Statistics const& s) {
       return s.path.size() + s.mod_label.size() + s.mod_type.size() +

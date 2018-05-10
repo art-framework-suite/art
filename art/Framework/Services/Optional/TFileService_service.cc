@@ -9,6 +9,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/parent_path.h"
@@ -70,7 +71,7 @@ namespace art {
     r.sPreModuleEndRun.watch(this, &TFileService::setDirectoryName_);
     r.sPreModuleBeginSubRun.watch(this, &TFileService::setDirectoryName_);
     r.sPreModuleEndSubRun.watch(this, &TFileService::setDirectoryName_);
-    r.sPreModule.watch(this, &TFileService::setDirectoryNameWithScheduleID_);
+    r.sPreModule.watch(this, &TFileService::setDirectoryNameViaContext_);
     // Activities to monitor to keep track of events, subruns and runs seen.
     r.sPostProcessEvent.watch([this](Event const& e, ScheduleID) {
       RecursiveMutexSentry sentry{mutex_, __func__};
@@ -117,10 +118,9 @@ namespace art {
   }
 
   void
-  TFileService::setDirectoryNameWithScheduleID_(ModuleDescription const& desc,
-                                                ScheduleID)
+  TFileService::setDirectoryNameViaContext_(ModuleContext const& mc)
   {
-    setDirectoryName_(desc);
+    setDirectoryName_(mc.moduleDescription());
   }
 
   void

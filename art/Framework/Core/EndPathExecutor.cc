@@ -16,6 +16,9 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
+#include "art/Persistency/Provenance/PathContext.h"
+#include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/Globals.h"
@@ -556,6 +559,8 @@ namespace art {
   void
   EndPathExecutor::writeEvent(ScheduleID const sid, EventPrincipal& ep)
   {
+    ScheduleContext const sc{sid};
+    PathContext const pc{sc, "end_path", true};
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : *outputWorkers_.load()) {
       auto const& md = ow->description();
@@ -564,9 +569,10 @@ namespace art {
       // not need a full-fledged context.
       CurrentProcessingContext cpc{sid, nullptr, -1, false};
       detail::CPCSentry sentry{cpc};
-      actReg_.load()->sPreWriteEvent.invoke(md, sid);
+      ModuleContext const mc{pc, md};
+      actReg_.load()->sPreWriteEvent.invoke(mc);
       ow->writeEvent(ep);
-      actReg_.load()->sPostWriteEvent.invoke(md, sid);
+      actReg_.load()->sPostWriteEvent.invoke(mc);
     }
     auto const& eid = ep.eventID();
     bool const lastInSubRun{ep.isLastInSubRun()};

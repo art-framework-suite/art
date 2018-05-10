@@ -5,6 +5,8 @@
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Persistency/Provenance/PathContext.h"
+#include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/ScheduleID.h"
@@ -158,13 +160,13 @@ namespace art {
   Path::process(Transition trans, Principal& principal)
   {
     if (trans == Transition::BeginRun) {
-      actReg_.load()->sPrePathBeginRun.invoke(*name_.load());
+      actReg_.load()->sPrePathBeginRun.invoke(name());
     } else if (trans == Transition::EndRun) {
-      actReg_.load()->sPrePathEndRun.invoke(*name_.load());
+      actReg_.load()->sPrePathEndRun.invoke(name());
     } else if (trans == Transition::BeginSubRun) {
-      actReg_.load()->sPrePathBeginSubRun.invoke(*name_.load());
+      actReg_.load()->sPrePathBeginSubRun.invoke(name());
     } else if (trans == Transition::EndSubRun) {
-      actReg_.load()->sPrePathEndSubRun.invoke(*name_.load());
+      actReg_.load()->sPrePathEndSubRun.invoke(name());
     }
     state_ = hlt::Ready;
     bool should_continue = true;
@@ -180,11 +182,11 @@ namespace art {
         state_ = hlt::Exception;
         throw art::Exception{
           errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
-          << "Exception going through path " << *name_.load() << "\n";
+          << "Exception going through path " << name() << "\n";
       }
       catch (...) {
         mf::LogError("PassingThrough")
-          << "Exception passing through path " << *name_.load() << "\n";
+          << "Exception passing through path " << name() << "\n";
         state_ = hlt::Exception;
         throw;
       }
@@ -196,26 +198,26 @@ namespace art {
     }
     HLTPathStatus const status(state_, idx);
     if (trans == Transition::BeginRun) {
-      actReg_.load()->sPostPathBeginRun.invoke(*name_.load(), status);
+      actReg_.load()->sPostPathBeginRun.invoke(name(), status);
     } else if (trans == Transition::EndRun) {
-      actReg_.load()->sPostPathEndRun.invoke(*name_.load(), status);
+      actReg_.load()->sPostPathEndRun.invoke(name(), status);
     } else if (trans == Transition::BeginSubRun) {
-      actReg_.load()->sPostPathBeginSubRun.invoke(*name_.load(), status);
+      actReg_.load()->sPostPathBeginSubRun.invoke(name(), status);
     } else if (trans == Transition::EndSubRun) {
-      actReg_.load()->sPostPathEndSubRun.invoke(*name_.load(), status);
+      actReg_.load()->sPostPathEndSubRun.invoke(name(), status);
     }
   }
 
-  // We come here as part of the endPath task.  Our parent
-  // is the eventLoop task.  We will run the workers on the
-  // path in order serially without using tasks.
+  // We come here as part of the endPath task.  Our parent is the
+  // eventLoop task.  We will run the workers on the path in order
+  // serially without using tasks.
   void
   Path::process_event_for_endpath(EventPrincipal& ep, ScheduleID const sid)
   {
     TDEBUG_BEGIN_FUNC_SI(4, "Path::process_event_for_endpath", sid);
-    CurrentProcessingContext cpc{sid, nullptr, -1, false};
-    detail::CPCSentry sentry{cpc};
-    actReg_.load()->sPreProcessPath.invoke(*name_.load(), sid);
+    ScheduleContext const sc{sid};
+    PathContext const pc{sc, name(), true};
+    actReg_.load()->sPreProcessPath.invoke(pc);
     ++timesRun_;
     state_ = hlt::Ready;
     auto const max_idx = workers_.load()->size();
@@ -225,7 +227,7 @@ namespace art {
       auto& workerInPath = (*workers_.load())[idx];
       cpc_.load()->activate(idx, workerInPath.getWorker()->descPtr());
       try {
-        workerInPath.runWorker_event_for_endpath(ep, sid, cpc_.load());
+        workerInPath.runWorker_event_for_endpath(ep, sid, pc);
       }
       catch (cet::exception& e) {
         // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
@@ -246,11 +248,11 @@ namespace art {
                                  "terminate path because of EXCEPTION");
           throw Exception{
             errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
-            << "Exception going through path " << *name_.load() << "\n";
+            << "Exception going through path " << name() << "\n";
         }
         // Possible actions: FailPath
         should_continue = false;
-        mf::LogWarning(e.category()) << "Failing path " << *name_.load()
+        mf::LogWarning(e.category()) << "Failing path " << name()
                                      << ", due to exception, message:\n"
                                      << e.what() << "\n";
         // WARNING: We continue processing below!!! The only way we can get here
@@ -259,7 +261,7 @@ namespace art {
       }
       catch (...) {
         mf::LogError("PassingThrough")
-          << "Exception passing through path " << *name_.load() << "\n";
+          << "Exception passing through path " << name() << "\n";
         ++timesExcept_;
         state_ = hlt::Exception;
         if (trptr_.load()) {
@@ -295,8 +297,10 @@ namespace art {
         // Not the end path.
         (*trptr_.load())[bitpos_.load()] = HLTPathStatus(state_, idx);
       }
+      ScheduleContext const sc{sid};
+      PathContext const pc{sc, name(), true};
       HLTPathStatus const status(state_, idx);
-      actReg_.load()->sPostProcessPath.invoke(*name_.load(), status, sid);
+      actReg_.load()->sPostProcessPath.invoke(pc, status);
     }
     catch (...) {
       TDEBUG_END_FUNC_SI_ERR(
@@ -309,9 +313,9 @@ namespace art {
     TDEBUG_END_FUNC_SI(4, "Path::process_event_for_endpath", sid);
   }
 
-  // We come here as part of the readAndProcessEvent task, or
-  // as part of the endPath task.  Our parent is the nullptr.
-  // The parent of the pathsDoneTask is the eventLoop task.
+  // We come here as part of the readAndProcessEvent task, or as part
+  // of the endPath task.  Our parent is the nullptr.  The parent of
+  // the pathsDoneTask is the eventLoop task.
   void
   Path::process_event(WaitingTask* pathsDoneTask,
                       EventPrincipal& ep,
@@ -333,13 +337,14 @@ namespace art {
     waitingTasks_.load()->add(pathsDoneTask);
     {
       detail::CPCSentry sentry{*cpc_.load()};
-      actReg_.load()->sPreProcessPath.invoke(*name_.load(), sid);
+      ScheduleContext const sc{sid};
+      PathContext const pc{sc, name(), false};
+      actReg_.load()->sPreProcessPath.invoke(pc);
     }
     ++timesRun_;
     state_ = hlt::Ready;
     size_t idx = 0;
     auto max_idx = workers_.load()->size();
-    // bool should_continue = true;
     // Start the task spawn chain going with the first worker on the
     // path.  Each worker will spawn the next worker in order, until
     // all the workers have run.
@@ -487,7 +492,7 @@ namespace art {
           auto art_ex =
             art::Exception{
               errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
-            << "Exception going through path " << *name_.load() << "\n";
+            << "Exception going through path " << name() << "\n";
           auto ex_ptr = make_exception_ptr(art_ex);
           waitingTasks_.load()->doneWaiting(ex_ptr);
           TDEBUG_END_TASK_SI_ERR(
@@ -495,14 +500,14 @@ namespace art {
           return;
         }
         new_should_continue = false;
-        mf::LogWarning(e.category()) << "Failing path " << *name_.load()
+        mf::LogWarning(e.category()) << "Failing path " << name()
                                      << ", due to exception, message:\n"
                                      << e.what() << "\n";
         // WARNING: We continue processing below!!!
       }
       catch (...) {
         mf::LogError("PassingThrough")
-          << "Exception passing through path " << *name_.load() << "\n";
+          << "Exception passing through path " << name() << "\n";
         ++timesExcept_;
         state_ = hlt::Exception;
         if (trptr_.load()) {
@@ -542,7 +547,9 @@ namespace art {
                         WorkerDoneFunctor{this, idx, max_idx, ep, sid, cpc});
     auto& workerInPath = (*workers_.load())[idx];
     cpc->activate(idx, workerInPath.getWorker()->descPtr());
-    workerInPath.runWorker_event(workerDoneTask, ep, sid, cpc);
+    ScheduleContext const sc{sid};
+    PathContext const pc{sc, name(), false};
+    workerInPath.runWorker_event(workerDoneTask, ep, sid, pc);
     {
       ostringstream msg;
       msg << "idx: " << idx << " max_idx: " << max_idx;
@@ -618,8 +625,10 @@ namespace art {
         (*trptr_.load())[bitpos_.load()] = HLTPathStatus(state_, idx);
       }
       {
+        ScheduleContext const sc{sid};
+        PathContext const pc{sc, name(), false};
         HLTPathStatus const status(state_, idx);
-        actReg_.load()->sPostProcessPath.invoke(*name_.load(), status, sid);
+        actReg_.load()->sPostProcessPath.invoke(pc, status);
       }
     }
     catch (...) {

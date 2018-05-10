@@ -29,6 +29,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleType.h"
+#include "art/Persistency/Provenance/PathContext.h"
 #include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
@@ -51,6 +52,8 @@
 namespace art {
 
   class ActivityRegistry;
+  class PathContext;
+  class ModuleContext;
   class FileBlock;
   class RunPrincipal;
   class SubRunPrincipal;
@@ -87,14 +90,14 @@ namespace art {
 
     void doWork_event(hep::concurrency::WaitingTask* workerInPathDoneTask,
                       EventPrincipal&,
-                      ScheduleID const,
-                      CurrentProcessingContext*);
+                      ScheduleID,
+                      PathContext const&);
 
     // This is used to do trigger results insertion,
     // and to run workers on the end path.
     void doWork_event(EventPrincipal&,
-                      ScheduleID const,
-                      CurrentProcessingContext*);
+                      ScheduleID,
+                      PathContext const&);
 
     ModuleDescription const& description() const;
     ModuleDescription const* descPtr() const;
@@ -127,8 +130,8 @@ namespace art {
 
   public: // Tasking Structure
     void runWorker(EventPrincipal&,
-                   ScheduleID const,
-                   CurrentProcessingContext*);
+                   ScheduleID,
+                   PathContext const&);
 
   protected: // MEMBER FUNCTIONS -- API implementation classes must provide
     virtual std::string workerType() const = 0;
@@ -144,8 +147,8 @@ namespace art {
     virtual bool implDoEnd(SubRunPrincipal& srp,
                            CurrentProcessingContext* cpc) = 0;
     virtual bool implDoProcess(EventPrincipal&,
-                               ScheduleID const,
-                               CurrentProcessingContext* cpc) = 0;
+                               ScheduleID,
+                               ModuleContext const&) = 0;
 
   private: // MEMBER FUNCTIONS -- API implementation classes must use
            // to provide their API to us

@@ -147,12 +147,12 @@ namespace art {
     bool
     Producer::doEvent(EventPrincipal& ep,
                       ScheduleID const sid,
-                      CurrentProcessingContext const* cpc,
+                      ModuleContext const& mc [[gnu::unused]],
                       std::atomic<size_t>& counts_run,
                       std::atomic<size_t>& counts_passed,
                       std::atomic<size_t>& /*counts_failed*/)
     {
-      detail::CPCSentry sentry{*cpc};
+      //      detail::CPCSentry sentry{*cpc};
       Event e{ep, moduleDescription()};
       ++counts_run;
       produceWithScheduleID(e, sid);

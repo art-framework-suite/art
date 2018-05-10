@@ -5,7 +5,9 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/PathContext.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -188,14 +190,14 @@ namespace art {
     mf::SetModuleName("PostEndSubRun"s);
   }
 
-  MFSU_2_ARG_UPDATER_DEFN(PreProcessPath)
+  MFSU_1_ARG_UPDATER_DEFN(PreProcessPath)
   {
-    mf::SetModuleName("ProcessPath "s + arg1);
+    mf::SetModuleName("ProcessPath "s + arg1.pathName());
   }
 
-  MFSU_3_ARG_UPDATER_DEFN(PostProcessPath)
+  MFSU_2_ARG_UPDATER_DEFN(PostProcessPath)
   {
-    mf::SetModuleName("PostProcessPath "s + arg1);
+    mf::SetModuleName("PostProcessPath "s + arg1.pathName());
   }
 
   MFSU_1_ARG_UPDATER_DEFN(PrePathBeginRun)
@@ -282,13 +284,13 @@ namespace art {
                       "@EndJob"s);
   }
 
-  MFSU_2_ARG_UPDATER_DEFN(PreModule)
+  MFSU_1_ARG_UPDATER_DEFN(PreModule)
   {
     mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
                       "@BeginModule"s);
   }
 
-  MFSU_2_ARG_UPDATER_DEFN(PostModule)
+  MFSU_1_ARG_UPDATER_DEFN(PostModule)
   {
     mf::SetModuleName(arg1.moduleName() + ":"s + arg1.moduleLabel() +
                       "@EndModule"s);

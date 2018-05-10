@@ -21,6 +21,7 @@
 
 namespace art {
   using module_label_t = std::string;
+  class PathContext;
   class WorkerInPath {
   public: // TYPES
     enum FilterAction { Normal = 0, Ignore = 1, Veto = 2 };
@@ -49,12 +50,12 @@ namespace art {
     std::string const& label() const;
     bool runWorker(Transition, Principal&, CurrentProcessingContext*);
     void runWorker_event_for_endpath(EventPrincipal&,
-                                     ScheduleID const,
-                                     CurrentProcessingContext*);
+                                     ScheduleID,
+                                     PathContext const&);
     void runWorker_event(hep::concurrency::WaitingTask* workerDoneTask,
                          EventPrincipal&,
-                         ScheduleID const,
-                         CurrentProcessingContext*);
+                         ScheduleID,
+                         PathContext const&);
     // Used only by Path
     void clearCounters();
     // Used by writeSummary

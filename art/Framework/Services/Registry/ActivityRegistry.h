@@ -17,7 +17,6 @@
 //
 // describes a watchpoint whose callable objects should have void return
 // type and take a single argument of type ModuleDescription const&.
-//
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Services/Registry/GlobalSignal.h"
@@ -36,7 +35,9 @@ namespace art {
   class HLTPathStatus;
   class InputSource;
   class ModuleDescription;
+  class ModuleContext;
   class OutputFileInfo;
+  class PathContext;
   class Run;
   class RunID;
   class SubRun;
@@ -133,12 +134,12 @@ public:
   // Signal is emitted after the event has been processed, but before
   // the event has been written.
   GlobalSignal<detail::SignalResponseType::FIFO,
-               void(ModuleDescription const&, ScheduleID)>
+               void(ModuleContext const&)>
     sPreWriteEvent;
 
   // Signal is emitted after the event has been written.
   GlobalSignal<detail::SignalResponseType::LIFO,
-               void(ModuleDescription const&, ScheduleID)>
+               void(ModuleContext const&)>
     sPostWriteEvent;
 
   // Signal is emitted after the Run has been created by the InputSource
@@ -181,13 +182,13 @@ public:
 
   // Signal is emitted before starting to process a Path for an event
   GlobalSignal<detail::SignalResponseType::FIFO,
-               void(std::string const&, ScheduleID)>
+               void(PathContext const&)>
     sPreProcessPath;
 
   // Signal is emitted after all modules have finished for the Path for
   // an event
   GlobalSignal<detail::SignalResponseType::LIFO,
-               void(std::string const&, HLTPathStatus const&, ScheduleID)>
+               void(PathContext const&, HLTPathStatus const&)>
     sPostProcessPath;
 
   // Signal is emitted before starting to process a Path for beginRun
@@ -290,12 +291,12 @@ public:
 
   // Signal is emitted before the module starts processing the Event
   GlobalSignal<detail::SignalResponseType::FIFO,
-               void(ModuleDescription const&, ScheduleID)>
+               void(ModuleContext const&)>
     sPreModule;
 
   // Signal is emitted after the module finished processing the Event
   GlobalSignal<detail::SignalResponseType::LIFO,
-               void(ModuleDescription const&, ScheduleID)>
+               void(ModuleContext const&)>
     sPostModule;
 
   // Signal is emitted before the module starts processing beginRun

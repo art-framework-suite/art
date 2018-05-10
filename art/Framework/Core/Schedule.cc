@@ -14,6 +14,8 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/PathContext.h"
+#include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
@@ -457,7 +459,9 @@ namespace art {
       if (results_inserter_.load() != nullptr) {
         string const name{"TriggerResultsInserter"};
         CurrentProcessingContext cpc{scheduleID, &name, 0, false};
-        results_inserter_.load()->doWork_event(principal, scheduleID, &cpc);
+        ScheduleContext const sc{scheduleID};
+        PathContext const pc{sc, name, false}; // SHOULD NOT BE HERE
+        results_inserter_.load()->doWork_event(principal, scheduleID, pc);
       }
     }
     catch (cet::exception& e) {

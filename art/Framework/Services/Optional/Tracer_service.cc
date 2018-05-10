@@ -6,7 +6,9 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/PathContext.h"
 #include "art/Utilities/OutputFileInfo.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunID.h"
@@ -25,19 +27,13 @@ using namespace std::string_literals;
 namespace art {
 
   class Tracer {
-
-    // Configuration
   public:
     struct Config {
       fhicl::Atom<string> indentation{fhicl::Name{"indentation"}, "++"};
     };
     using Parameters = ServiceTable<Config>;
+    Tracer(Parameters const&, ActivityRegistry&);
 
-    // Special Member Functions
-  public:
-    Tracer(ServiceTable<Config> const&, ActivityRegistry&);
-
-    // Implementation details
   private:
     ostream& indent(unsigned n = 1u) const;
 
@@ -71,8 +67,8 @@ namespace art {
     void preModuleBeginSubRun(ModuleDescription const& md);
     void postModuleBeginSubRun(ModuleDescription const& md);
 
-    void preModuleEvent(ModuleDescription const& md, ScheduleID);
-    void postModuleEvent(ModuleDescription const& md, ScheduleID);
+    void preModuleEvent(ModuleContext const& mc);
+    void postModuleEvent(ModuleContext const& mc);
 
     void preModuleEndSubRun(ModuleDescription const& md);
     void postModuleEndSubRun(ModuleDescription const& md);
@@ -108,8 +104,8 @@ namespace art {
     void prePathBeginSubRun(string const& s);
     void postPathBeginSubRun(string const& s, HLTPathStatus const& hlt);
 
-    void prePathEvent(string const& s, ScheduleID);
-    void postPathEvent(string const& s, HLTPathStatus const& hlt, ScheduleID);
+    void prePathEvent(PathContext const& pc);
+    void postPathEvent(PathContext const& pc, HLTPathStatus const& hlt);
 
     void prePathEndSubRun(string const& s);
     void postPathEndSubRun(string const& s, HLTPathStatus const& hlt);
@@ -123,7 +119,7 @@ namespace art {
     unsigned int depth_{};
   };
 
-  art::Tracer::Tracer(ServiceTable<Config> const& config,
+  art::Tracer::Tracer(Parameters const& config,
                       ActivityRegistry& iRegistry)
     : indentation_{config().indentation()}
   {
@@ -298,31 +294,30 @@ namespace art {
   }
 
   void
-  Tracer::prePathEvent(string const& iName, ScheduleID)
+  Tracer::prePathEvent(PathContext const& pc)
   {
-    indent(3) << " processing path for event:" << iName << endl;
+    indent(3) << " processing path for event:" << pc.pathName() << endl;
   }
 
   void
-  Tracer::postPathEvent(string const& /*iName*/,
-                        HLTPathStatus const&,
-                        ScheduleID)
+  Tracer::postPathEvent(PathContext const& pc,
+                        HLTPathStatus const&)
   {
-    indent(3) << " finished path for event:" << endl;
+    indent(3) << " finished path for event:" << pc.pathName() << endl;
   }
 
   void
-  Tracer::preModuleEvent(ModuleDescription const& md, ScheduleID)
+  Tracer::preModuleEvent(ModuleContext const& mc)
   {
     ++depth_;
-    indent(3 + depth_) << " module for event:" << md.moduleLabel() << endl;
+    indent(3 + depth_) << " module for event:" << mc.moduleLabel() << endl;
   }
 
   void
-  Tracer::postModuleEvent(ModuleDescription const& md, ScheduleID)
+  Tracer::postModuleEvent(ModuleContext const& mc)
   {
     --depth_;
-    indent(4 + depth_) << " finished for event:" << md.moduleLabel() << endl;
+    indent(4 + depth_) << " finished for event:" << mc.moduleLabel() << endl;
   }
 
   void

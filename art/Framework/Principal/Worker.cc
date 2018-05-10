@@ -11,7 +11,9 @@
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/PathContext.h"
 #include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/ScheduleID.h"
@@ -438,28 +440,24 @@ namespace art {
     return rc;
   }
 
-  // This is used to do trigger results insertion,
-  // and to run workers on the end path.
+  // This is used to do trigger results insertion, and to run workers
+  // on the end path.
   void
   Worker::doWork_event(EventPrincipal& p,
                        ScheduleID const sid,
-                       CurrentProcessingContext* cpc)
+                       PathContext const& pc)
   {
     ++counts_visited_;
     returnCode_ = false;
     try {
       // Transition from Ready state to Working state.
       state_ = Working;
-      detail::CPCSentry sentry{*cpc};
-      actReg_.load()->sPreModule.invoke(*md_.load(), sid);
+      ModuleContext const mc{pc, description()};
+      actReg_.load()->sPreModule.invoke(mc);
       // Note: Only filters ever return false, and when they do it means they
       // have rejected.
-      returnCode_ = implDoProcess(p, sid, cpc);
-      // FIXME: We construct the following context only so the correct
-      // scheduleID is provided within services.
-      CurrentProcessingContext cpc{sid, nullptr, -1, false};
-      detail::CPCSentry sentry2{cpc};
-      actReg_.load()->sPostModule.invoke(*md_.load(), sid);
+      returnCode_ = implDoProcess(p, sid, mc);
+      actReg_.load()->sPostModule.invoke(mc);
       if (returnCode_.load()) {
         state_ = Pass;
       } else {
@@ -470,7 +468,7 @@ namespace art {
       auto action = actions_.load()->find(e.root_cause());
       // If we are processing an endPath, treat SkipEvent or FailPath as
       // FailModule, so any subsequent OutputModules are still run.
-      if (cpc->isEndPath()) {
+      if (pc.isEndPath()) {
         if ((action == actions::SkipEvent) || (action == actions::FailPath)) {
           action = actions::FailModule;
         }
@@ -569,38 +567,38 @@ namespace art {
     RunWorkerFunctor(Worker* w,
                      EventPrincipal& p,
                      ScheduleID const sid,
-                     CurrentProcessingContext* cpc)
-      : w_{w}, p_{p}, sid_{sid}, cpc_{cpc}
+                     PathContext const& pc)
+      : w_{w}, p_{p}, sid_{sid}, pc_{pc}
     {}
     void
     operator()() const
     {
-      w_->runWorker(p_, sid_, cpc_);
+      w_->runWorker(p_, sid_, pc_);
     }
 
   private:
     Worker* w_;
     EventPrincipal& p_;
     ScheduleID const sid_;
-    CurrentProcessingContext* cpc_;
+    PathContext const pc_; // Must own because it is transient
   };
 
   void
   Worker::runWorker(EventPrincipal& p,
                     ScheduleID const sid,
-                    CurrentProcessingContext* cpc)
+                    PathContext const& pc)
   {
     TDEBUG_BEGIN_TASK_SI(4, "runWorker", sid);
     returnCode_ = false;
     try {
       // Transition from Ready state to Working state.
       state_ = Working;
-      detail::CPCSentry sentry{*cpc};
-      actReg_.load()->sPreModule.invoke(*md_.load(), sid);
-      // Note: Only filters ever return false, and when they do it means they
-      // have rejected.
-      returnCode_ = implDoProcess(p, sid, cpc);
-      actReg_.load()->sPostModule.invoke(*md_.load(), sid);
+      ModuleContext const mc{pc, description()};
+      actReg_.load()->sPreModule.invoke(mc);
+      // Note: Only filters ever return false, and when they do it
+      // means they have rejected.
+      returnCode_ = implDoProcess(p, sid, mc);
+      actReg_.load()->sPostModule.invoke(mc);
       state_ = Fail;
       if (returnCode_.load()) {
         state_ = Pass;
@@ -608,9 +606,9 @@ namespace art {
     }
     catch (cet::exception& e) {
       auto action = actions_.load()->find(e.root_cause());
-      // If we are processing an endPath, treat SkipEvent or FailPath as
-      // FailModule, so any subsequent OutputModules are still run.
-      if (cpc->isEndPath()) {
+      // If we are processing an endPath, treat SkipEvent or FailPath
+      // as FailModule, so any subsequent OutputModules are still run.
+      if (pc.isEndPath()) {
         if ((action == actions::SkipEvent) || (action == actions::FailPath)) {
           action = actions::FailModule;
         }
@@ -722,7 +720,7 @@ namespace art {
   Worker::doWork_event(WaitingTask* workerInPathDoneTask,
                        EventPrincipal& p,
                        ScheduleID const sid,
-                       CurrentProcessingContext* cpc)
+                       PathContext const& pc)
   {
     TDEBUG_BEGIN_FUNC_SI(4, "Worker::doWork_event", sid);
     // Note: We actually can have more than one entry in this
@@ -740,7 +738,7 @@ namespace art {
     ++counts_visited_;
     bool expected = false;
     if (workStarted_.compare_exchange_strong(expected, true)) {
-      RunWorkerFunctor runWorkerFunctor{this, p, sid, cpc};
+      RunWorkerFunctor runWorkerFunctor{this, p, sid, pc};
       auto chain = serialTaskQueueChain();
       if (chain) {
         // Must be a serialized shared module (including legacy).

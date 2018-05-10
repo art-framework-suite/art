@@ -143,12 +143,12 @@ namespace art {
     bool
     Analyzer::doEvent(EventPrincipal& ep,
                       ScheduleID const sid,
-                      CurrentProcessingContext const* cpc,
+                      ModuleContext const& mc [[gnu::unused]],
                       std::atomic<std::size_t>& counts_run,
                       std::atomic<std::size_t>& counts_passed,
                       std::atomic<std::size_t>& /*counts_failed*/)
     {
-      detail::CPCSentry sentry{*cpc};
+      //      detail::CPCSentry sentry{*cpc};
       detail::PVSentry pvSentry{processAndEventSelectors()};
       Event const e{ep, moduleDescription()};
       if (wantAllEvents() || wantEvent(e)) {

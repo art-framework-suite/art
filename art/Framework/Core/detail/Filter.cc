@@ -162,12 +162,12 @@ namespace art {
     bool
     Filter::doEvent(EventPrincipal& ep,
                     ScheduleID const sid,
-                    CurrentProcessingContext const* cpc,
+                    ModuleContext const& mc [[gnu::unused]],
                     atomic<size_t>& counts_run,
                     atomic<size_t>& counts_passed,
                     atomic<size_t>& counts_failed)
     {
-      detail::CPCSentry sentry{*cpc};
+      //      detail::CPCSentry sentry{*cpc};
       Event e{ep, moduleDescription()};
       ++counts_run;
       bool rc = false;

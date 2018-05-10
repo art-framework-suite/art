@@ -140,8 +140,8 @@ namespace art {
     bool doEndSubRun(SubRunPrincipal const& srp,
                      CurrentProcessingContext const* cpc);
     bool doEvent(EventPrincipal const& ep,
-                 ScheduleID const,
-                 CurrentProcessingContext const* cpc,
+                 ScheduleID,
+                 ModuleContext const&,
                  std::atomic<std::size_t>& counts_run,
                  std::atomic<std::size_t>& counts_passed,
                  std::atomic<std::size_t>& counts_failed);

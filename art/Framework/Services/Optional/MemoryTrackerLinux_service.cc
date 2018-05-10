@@ -26,7 +26,9 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/PathContext.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/LinuxProcData.h"
 #include "art/Utilities/LinuxProcMgr.h"
@@ -122,10 +124,10 @@ namespace art {
     MemoryTracker(Parameters const&, ActivityRegistry&);
 
   private:
-    void prePathProcessing(string const&, ScheduleID);
+    void prePathProcessing(PathContext const& pc);
     void recordOtherData(ModuleDescription const& md, string const& step);
     void recordEventData(Event const& e, string const& step);
-    void recordModuleData(ModuleDescription const& md,
+    void recordModuleData(ModuleContext const& mc,
                           string const& step);
     void postEndJob();
     bool checkMallocConfig_(string const&, bool);
@@ -251,17 +253,17 @@ namespace art {
       iReg.sPostProcessEvent.watch([this](auto const& e, ScheduleID) {
         this->recordEventData(e, "PostProcessEvent");
       });
-      iReg.sPreModule.watch([this](auto const& md, ScheduleID) {
-        this->recordModuleData(md, "PreProcessModule");
+      iReg.sPreModule.watch([this](auto const& mc) {
+        this->recordModuleData(mc, "PreProcessModule");
       });
-      iReg.sPostModule.watch([this](auto const& md, ScheduleID) {
-        this->recordModuleData(md, "PostProcessModule");
+      iReg.sPostModule.watch([this](auto const& mc) {
+        this->recordModuleData(mc, "PostProcessModule");
       });
-      iReg.sPreWriteEvent.watch([this](auto const& md, ScheduleID) {
-        this->recordModuleData(md, "PreWriteEvent");
+      iReg.sPreWriteEvent.watch([this](auto const& mc) {
+        this->recordModuleData(mc, "PreWriteEvent");
       });
-      iReg.sPostWriteEvent.watch([this](auto const& md, ScheduleID) {
-        this->recordModuleData(md, "PostWriteEvent");
+      iReg.sPostWriteEvent.watch([this](auto const& mc) {
+        this->recordModuleData(mc, "PostWriteEvent");
       });
       iReg.sPreModuleEndSubRun.watch(
         [this](auto const& md) { this->recordOtherData(md, "PreEndSubRun"); });
@@ -279,9 +281,9 @@ namespace art {
   }
 
   void
-  MemoryTracker::prePathProcessing(string const& pathname, ScheduleID)
+  MemoryTracker::prePathProcessing(PathContext const& pc)
   {
-    currentPathName_ = pathname;
+    currentPathName_ = pc.pathName();
   }
 
   void
@@ -325,7 +327,7 @@ namespace art {
   }
 
   void
-  MemoryTracker::recordModuleData(ModuleDescription const& md,
+  MemoryTracker::recordModuleData(ModuleContext const& mc,
                                   string const& step)
   {
     auto const currentMemory = procInfo_.getCurrentData();
@@ -334,8 +336,8 @@ namespace art {
                         currentEventID_.subRun(),
                         currentEventID_.event(),
                         currentPathName_,
-                        md.moduleLabel(),
-                        md.moduleName(),
+                        mc.moduleLabel(),
+                        mc.moduleName(),
                         LinuxProcData::getValueInMB<vsize_t>(currentMemory),
                         LinuxProcData::getValueInMB<rss_t>(currentMemory));
     if (includeMallocInfo_) {
@@ -345,8 +347,8 @@ namespace art {
                                currentEventID_.subRun(),
                                currentEventID_.event(),
                                currentPathName_,
-                               md.moduleLabel(),
-                               md.moduleName(),
+                               mc.moduleLabel(),
+                               mc.moduleName(),
                                minfo.arena,
                                minfo.ordblks,
                                minfo.keepcost,

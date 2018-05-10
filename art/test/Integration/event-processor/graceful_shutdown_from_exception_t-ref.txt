@@ -31,7 +31,7 @@ Begin processing the 1st record. run: 1 subRun: 0 event: 1 at <date-time>
 ++++++ processing path for event:end_path
 ++++++++ module for event:a1
 ++++++++ finished for event:a1
-++++++ finished path for event:
+++++++ finished path for event:end_path
 ++++ finished event:
 ++++source event
 Begin processing the 2nd record. run: 1 subRun: 0 event: 2 at <date-time>
@@ -40,7 +40,7 @@ Begin processing the 2nd record. run: 1 subRun: 0 event: 2 at <date-time>
 ++++++ processing path for event:end_path
 ++++++++ module for event:a1
 ++++++++ finished for event:a1
-++++++ finished path for event:
+++++++ finished path for event:end_path
 ++++ finished event:
 ++++source event
 Begin processing the 3rd record. run: 1 subRun: 0 event: 3 at <date-time>
@@ -49,7 +49,7 @@ Begin processing the 3rd record. run: 1 subRun: 0 event: 3 at <date-time>
 ++++++ processing path for event:end_path
 ++++++++ module for event:a1
 ++++++++ finished for event:a1
-++++++ finished path for event:
+++++++ finished path for event:end_path
 ++++ finished event:
 ++++source event
 Begin processing the 4th record. run: 1 subRun: 0 event: 4 at <date-time>
@@ -58,7 +58,7 @@ Begin processing the 4th record. run: 1 subRun: 0 event: 4 at <date-time>
 ++++++ processing path for event:end_path
 ++++++++ module for event:a1
 ++++++++ finished for event:a1
-++++++ finished path for event:
+++++++ finished path for event:end_path
 ++++ finished event:
 ++++source event
 Begin processing the 5th record. run: 1 subRun: 0 event: 5 at <date-time>
@@ -67,7 +67,7 @@ Begin processing the 5th record. run: 1 subRun: 0 event: 5 at <date-time>
 ++++++ processing path for event:end_path
 ++++++++ module for event:a1
 ++++++++ finished for event:a1
-++++++ finished path for event:
+++++++ finished path for event:end_path
 ++++ finished event:
 ++++source event
 Begin processing the 6th record. run: 1 subRun: 0 event: 6 at <date-time>

@@ -24,6 +24,7 @@ namespace fhicl {
 namespace art {
 
   class ActivityRegistry;
+  class ModuleContext;
   class ModuleDescription;
 
   class TFileService : public TFileDirectory {
@@ -64,8 +65,7 @@ namespace art {
     // set current directory according to module name and prepare to create
     // directory
     void setDirectoryName_(art::ModuleDescription const&);
-    void setDirectoryNameWithScheduleID_(art::ModuleDescription const&,
-                                         ScheduleID);
+    void setDirectoryNameViaContext_(art::ModuleContext const&);
     void openFile_();
     void closeFile_();
     void maybeSwitchFiles_();

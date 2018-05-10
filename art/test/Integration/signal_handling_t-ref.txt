@@ -31,7 +31,7 @@ Begin processing the 1st record. run: 1 subRun: 0 event: 1 at <date-time>
 ++++++ processing path for event:end_path
 ++++++++ module for event:pa
 ++++++++ finished for event:pa
-++++++ finished path for event:
+++++++ finished path for event:end_path
 ++++ finished event:
 ++++ processing end subRun:run: 1 subRun: 0 time:0
 ++++++ processing path for end subRun:end_path

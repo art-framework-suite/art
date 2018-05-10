@@ -49,7 +49,7 @@ namespace art {
                        cet::exempt_ptr<CurrentProcessingContext const> cpc);
       bool doEvent(EventPrincipal& ep,
                    ScheduleID,
-                   CurrentProcessingContext const* cpc,
+                   ModuleContext const& mc,
                    std::atomic<std::size_t>& counts_run,
                    std::atomic<std::size_t>& counts_passed,
                    std::atomic<std::size_t>& counts_failed);
