@@ -16,13 +16,14 @@ namespace arttest {
 
   class TestSimpleMemoryCheckProducer : public art::EDProducer {
   public:
-    explicit TestSimpleMemoryCheckProducer(fhicl::ParameterSet const&) {}
-
-    void produce(art::Event&) override;
+    struct Config {};
+    using Parameters = art::EDProducer::Table<Config>;
+    explicit TestSimpleMemoryCheckProducer(Parameters const&) {}
 
   private:
+    void produce(art::Event&) override;
     std::vector<std::vector<int>> int_ptr_vec_;
-  }; // TestSimpleMemoryCheckProducer
+  };
 
   void
   TestSimpleMemoryCheckProducer::produce(art::Event&)
