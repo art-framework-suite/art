@@ -674,8 +674,7 @@ namespace art {
                         "_LABELERROR_",
                         ModuleThreadingType::legacy,
                         d.moduleDescription.processConfiguration(),
-                        true, // isEmulated
-                        ModuleDescription::invalidID()});
+                        true /*isEmulated*/});
     presentProducts_ = ProductTables{descriptions};
     sourceHelper_.setPresentProducts(cet::make_exempt_ptr(&presentProducts_));
     outputCallbacks_.invoke(presentProducts_);

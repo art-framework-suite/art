@@ -2,7 +2,6 @@
 #define art_Persistency_Provenance_ModuleDescription_h
 // vim: set sw=2 expandtab :
 
-#include "art/Persistency/Provenance/ModuleDescriptionID.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Persistency/Provenance/ProcessConfigurationID.h"
@@ -13,16 +12,6 @@
 namespace art {
 
   class ModuleDescription {
-
-  public:
-    static ModuleDescriptionID getUniqueID();
-
-    static constexpr ModuleDescriptionID
-    invalidID()
-    {
-      return std::numeric_limits<ModuleDescriptionID>::max();
-    }
-
   public:
     ~ModuleDescription();
     explicit ModuleDescription();
@@ -31,10 +20,8 @@ namespace art {
                                std::string const& modLabel,
                                ModuleThreadingType moduleThreadingType,
                                ProcessConfiguration pc,
-                               bool isEmulated = false,
-                               ModuleDescriptionID id = getUniqueID());
+                               bool isEmulated = false);
 
-    ModuleDescriptionID id() const;
     void write(std::ostream& os) const;
 
     fhicl::ParameterSetID const& parameterSetID() const;
@@ -55,27 +42,15 @@ namespace art {
     bool operator!=(ModuleDescription const& rh) const;
 
   private:
-    // ID of parameter set of the creator
+    // Properties of the product creator
     fhicl::ParameterSetID parameterSetID_{};
-
-    // The class name of the creator
-    std::string moduleName_{};
-
-    // A human friendly string that uniquely identifies the EDProducer
-    // and becomes part of the identity of a product that it produces
+    std::string moduleName_{}; // class name
     std::string moduleLabel_{};
-
-    // What kind of multi-threading the module supports.
     ModuleThreadingType moduleThreadingType_{};
-
-    // The process configuration.
-    ProcessConfiguration processConfiguration_{};
-
-    // Does this object describe an emulated module?
     bool isEmulated_{false};
 
-    // Unique ID.
-    ModuleDescriptionID id_{};
+    // Process-wide configuration
+    ProcessConfiguration processConfiguration_{};
   };
 
   std::ostream& operator<<(std::ostream& os, ModuleDescription const& p);

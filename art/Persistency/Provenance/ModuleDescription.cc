@@ -19,24 +19,14 @@ namespace art {
     string const& modLabel,
     ModuleThreadingType const moduleThreadingType,
     ProcessConfiguration pc,
-    bool const isEmulated,
-    ModuleDescriptionID const id)
+    bool const isEmulated)
     : parameterSetID_{parameterSetID}
     , moduleName_{modName}
     , moduleLabel_{modLabel}
     , moduleThreadingType_{moduleThreadingType}
-    , processConfiguration_{move(pc)}
     , isEmulated_{isEmulated}
-    , id_{id}
+    , processConfiguration_{move(pc)}
   {}
-
-  static atomic<ModuleDescriptionID> s_id{0u};
-
-  ModuleDescriptionID
-  ModuleDescription::id() const
-  {
-    return id_; // Unique only within a process.
-  }
 
   fhicl::ParameterSetID const&
   ModuleDescription::parameterSetID() const
@@ -96,12 +86,6 @@ namespace art {
   ModuleDescription::mainParameterSetID() const
   {
     return processConfiguration().parameterSetID();
-  }
-
-  ModuleDescriptionID
-  ModuleDescription::getUniqueID()
-  {
-    return ++s_id;
   }
 
   bool

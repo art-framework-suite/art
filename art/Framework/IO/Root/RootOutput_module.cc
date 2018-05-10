@@ -500,9 +500,7 @@ namespace art {
                           params.rpPluginType,
                           md.moduleLabel() + '#' + params.rpLabel,
                           ModuleThreadingType::legacy,
-                          md.processConfiguration(),
-                          false,
-                          ModuleDescription::invalidID()});
+                          md.processConfiguration()});
       w.rp().registerProducts(producedProducts, w.moduleDescription());
     });
     // Form product table for Results products.  We do this here so we
