@@ -1166,9 +1166,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     DATAFILES
     fcl/memoryTracker.fcl
     fcl/messageDefaults.fcl
-    REF "${CMAKE_CURRENT_SOURCE_DIR}/MemoryTracker_t-ref.txt"
-    OUTPUT_FILTERS "filter-memoryTracker-output" "DEFAULT"
-    )
+    TEST_PROPERTIES
+    PASS_REGULAR_EXPRESSION "Details saved in.*passed = 10.*status 0\\.")
 endif()
 
 cet_test(TimeTracker_t1 HANDBUILT

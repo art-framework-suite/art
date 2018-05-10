@@ -100,6 +100,8 @@ namespace art {
   bool operator>=(ScheduleID left, ScheduleID right) noexcept;
   std::ostream& operator<<(std::ostream&, ScheduleID scheduleID);
 
+  std::size_t tbb_hasher(ScheduleID);
+
 } // namespace art
 
 #endif /* art_Utilities_ScheduleID_h */

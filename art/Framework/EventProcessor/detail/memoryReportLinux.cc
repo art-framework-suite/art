@@ -7,7 +7,7 @@ using mf::LogPrint;
 void
 art::detail::memoryReport()
 {
-  LinuxProcMgr procInfo{1};
+  LinuxProcMgr procInfo{};
   LogPrint("ArtSummary") << "MemReport  "
                          << "---------- Memory  Summary ---[base-10 MB]----";
   LogPrint("ArtSummary") << "MemReport  VmPeak = " << procInfo.getVmPeak()

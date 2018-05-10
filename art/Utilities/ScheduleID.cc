@@ -12,8 +12,8 @@ namespace art {
 
   ScheduleID::ScheduleID(id_type const id)
   {
-    // No need to test against min_id_() since
-    // that is the smallest possible value already.
+    // No need to test against min_id_() since that is the smallest
+    // possible value already.
     if (id > max_id_()) {
       // Somebody passed us invalid_id_().
       throw out_of_range("ScheduleID: Invalid initializer.");
@@ -24,9 +24,7 @@ namespace art {
   ScheduleID
   ScheduleID::next() const
   {
-    // Take advantage of the named return value optimization.
-    auto ret = ScheduleID(id_ + 1);
-    return ret;
+    return ScheduleID(id_ + 1);
   }
 
   bool
@@ -69,6 +67,12 @@ namespace art {
   operator<<(ostream& os, ScheduleID const sid)
   {
     return os << sid.id();
+  }
+
+  size_t
+  tbb_hasher(ScheduleID const sid)
+  {
+    return sid.id();
   }
 
 } // namespace art

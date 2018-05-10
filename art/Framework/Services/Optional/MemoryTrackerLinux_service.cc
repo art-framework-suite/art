@@ -1,26 +1,23 @@
 // vim: set sw=2 expandtab :
 // ======================================================================
-//
 // MemoryTracker
 //
-// The MemoryTracker service records VSize and RSS information
-// throughout the course of an art process.  It inserts memory
-// information into an in-memory SQLite database, or an external file
-// if the user provides a non-empty file name.
+// This MemoryTracker implementation is supported only for Linux
+// systems.  It relies on the proc file system to record VSize and RSS
+// information throughout the course of an art process.  It inserts
+// memory information into an in-memory SQLite database, or an
+// external file if the user provides a non-empty file name.
 //
-// In the context of multi-threading, the memory information recorded
-// corresponds to all memory information for the process, and not for
-// individual threads.  A consequence of this is that the recorded
-// memory usage for a given event may not correspond to memory usage
-// of that event per se, but can include contributions from other
-// events that are being processed concurrently.
-//
-// In order to have a straightforward interpretation of the
-// per-event/module memory usage of an art process, then only one
-// thread should be used.  The max VSize and RSS measurements of a job
-// should be meaningful, however, even in a multi-threaded process.
-//
+// Since information that procfs provides is process-specific, the
+// MemoryTracker does not attempt to provide per-module information in
+// the context of multi-threading.  If more than one thread has been
+// enabled for the art process, only the maximum RSS and VSize for the
+// process is reported and the end of the job.
 // ======================================================================
+
+#ifndef __linux__
+#error "This source file can be built only for Linux platforms."
+#endif
 
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/detail/LinuxMallInfo.h"
@@ -33,8 +30,6 @@
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/LinuxProcData.h"
 #include "art/Utilities/LinuxProcMgr.h"
-#include "art/Utilities/PerScheduleContainer.h"
-#include "art/Utilities/PerThread.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
@@ -45,10 +40,9 @@
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/Sequence.h"
-#include "hep_concurrency/RecursiveMutex.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <ios>
+#include <iomanip>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -58,7 +52,6 @@
 using namespace std;
 using namespace string_literals;
 using namespace cet;
-using namespace hep::concurrency;
 
 using art::detail::LinuxMallInfo;
 using vsize_t = art::LinuxProcData::vsize_t;
@@ -67,14 +60,6 @@ using rss_t = art::LinuxProcData::rss_t;
 namespace art {
 
   class MemoryTracker {
-
-    // Types -- Implementation details
-  private:
-    struct PerScheduleData {
-      string pathName{};
-      EventID eventID{};
-    };
-
     template <unsigned N>
     using name_array = cet::sqlite::name_array<N>;
     using peakUsage_t = cet::sqlite::Ntuple<string, double, string>;
@@ -117,7 +102,6 @@ namespace art {
                                                 int,
                                                 int>;
 
-    // Configuration
   public:
     struct Config {
       template <typename T>
@@ -135,18 +119,13 @@ namespace art {
     };
 
     using Parameters = ServiceTable<Config>;
+    MemoryTracker(Parameters const&, ActivityRegistry&);
 
-    // Member Functions -- Special Member Functions
-  public:
-    MemoryTracker(ServiceTable<Config> const&, ActivityRegistry&);
-
-    // Member Functions -- Implementation details
   private:
     void prePathProcessing(string const&, ScheduleID);
     void recordOtherData(ModuleDescription const& md, string const& step);
-    void recordEventData(Event const& e, ScheduleID, string const& step);
+    void recordEventData(Event const& e, string const& step);
     void recordModuleData(ModuleDescription const& md,
-                          ScheduleID,
                           string const& step);
     void postEndJob();
     bool checkMallocConfig_(string const&, bool);
@@ -154,15 +133,17 @@ namespace art {
     void flushTables_();
     void summary_();
 
-    // Member Data -- Implementation details
-  private:
-    RecursiveMutex mutex_{"art::MemoryTracker::mutex_"};
-    LinuxProcMgr procInfo_;
-    string fileName_;
-    unique_ptr<cet::sqlite::Connection> db_;
-    bool overwriteContents_;
-    bool includeMallocInfo_;
-    PerScheduleContainer<PerScheduleData> data_;
+    LinuxProcMgr procInfo_{};
+    string const fileName_;
+    unique_ptr<cet::sqlite::Connection> const db_;
+    bool const overwriteContents_;
+    bool const includeMallocInfo_;
+
+    // NB: using "current" semantics for the MemoryTracker is valid
+    // since per-module/event information are retrieved only in a
+    // sequential (i.e. single-threaded) context.
+    EventID currentEventID_{EventID::invalidEvent()};
+    std::string currentPathName_{};
     name_array<3u> peakUsageColumns_{{"Name", "Value", "Description"}};
     name_array<5u> otherInfoColumns_{
       {"Step", "ModuleLabel", "ModuleType", "Vsize", "RSS"}};
@@ -212,8 +193,7 @@ namespace art {
 
   MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
                                ActivityRegistry& iReg)
-    : procInfo_{static_cast<unsigned short>(Globals::instance()->nschedules())}
-    , fileName_{config().dbOutput().filename()}
+    : fileName_{config().dbOutput().filename()}
     , db_{ServiceHandle<DatabaseConnection>{}->get(fileName_)}
     , overwriteContents_{config().dbOutput().overwrite()}
     , includeMallocInfo_{checkMallocConfig_(config().dbOutput().filename(),
@@ -235,9 +215,15 @@ namespace art {
                                                       moduleHeapColumns_) :
                          nullptr}
   {
-    data_.expand_to_num_schedules();
     iReg.sPostEndJob.watch(this, &MemoryTracker::postEndJob);
-    if (!fileName_.empty()) {
+    auto const nthreads = Globals::instance()->nthreads();
+    if (nthreads != 1) {
+      mf::LogWarning("MemoryTracker") <<
+        "Since " << nthreads << " threads have been configured, only process-level\n"
+        "memory usage will be recorded at the end of the job.";
+    }
+
+    if (!fileName_.empty() && nthreads == 1u) {
       iReg.sPreModuleConstruction.watch([this](auto const& md) {
         this->recordOtherData(md, "PreModuleConstruction");
       });
@@ -259,23 +245,23 @@ namespace art {
         this->recordOtherData(md, "PostBeginSubRun");
       });
       iReg.sPreProcessPath.watch(this, &MemoryTracker::prePathProcessing);
-      iReg.sPreProcessEvent.watch([this](auto const& e, ScheduleID const sid) {
-        this->recordEventData(e, sid, "PreProcessEvent");
+      iReg.sPreProcessEvent.watch([this](auto const& e, ScheduleID) {
+        this->recordEventData(e, "PreProcessEvent");
       });
-      iReg.sPostProcessEvent.watch([this](auto const& e, ScheduleID const sid) {
-        this->recordEventData(e, sid, "PostProcessEvent");
+      iReg.sPostProcessEvent.watch([this](auto const& e, ScheduleID) {
+        this->recordEventData(e, "PostProcessEvent");
       });
-      iReg.sPreModule.watch([this](auto const& md, ScheduleID const sid) {
-        this->recordModuleData(md, sid, "PreProcessModule");
+      iReg.sPreModule.watch([this](auto const& md, ScheduleID) {
+        this->recordModuleData(md, "PreProcessModule");
       });
-      iReg.sPostModule.watch([this](auto const& md, ScheduleID const sid) {
-        this->recordModuleData(md, sid, "PostProcessModule");
+      iReg.sPostModule.watch([this](auto const& md, ScheduleID) {
+        this->recordModuleData(md, "PostProcessModule");
       });
-      iReg.sPreWriteEvent.watch([this](auto const& md, ScheduleID const sid) {
-        this->recordModuleData(md, sid, "PreWriteEvent");
+      iReg.sPreWriteEvent.watch([this](auto const& md, ScheduleID) {
+        this->recordModuleData(md, "PreWriteEvent");
       });
-      iReg.sPostWriteEvent.watch([this](auto const& md, ScheduleID const sid) {
-        this->recordModuleData(md, sid, "PostWriteEvent");
+      iReg.sPostWriteEvent.watch([this](auto const& md, ScheduleID) {
+        this->recordModuleData(md, "PostWriteEvent");
       });
       iReg.sPreModuleEndSubRun.watch(
         [this](auto const& md) { this->recordOtherData(md, "PreEndSubRun"); });
@@ -293,19 +279,16 @@ namespace art {
   }
 
   void
-  MemoryTracker::prePathProcessing(string const& pathname, ScheduleID const sid)
+  MemoryTracker::prePathProcessing(string const& pathname, ScheduleID)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    data_[sid].pathName = pathname;
+    currentPathName_ = pathname;
   }
 
   void
   MemoryTracker::recordOtherData(ModuleDescription const& md,
                                  string const& step)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const sid = ScheduleID::first();
-    auto const data = procInfo_.getCurrentData(sid.id());
+    auto const data = procInfo_.getCurrentData();
     otherInfoTable_.insert(step,
                            md.moduleLabel(),
                            md.moduleName(),
@@ -315,25 +298,22 @@ namespace art {
 
   void
   MemoryTracker::recordEventData(Event const& e,
-                                 ScheduleID const sid,
                                  string const& step)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    auto& d = data_[sid];
-    d.eventID = e.id();
-    auto const currentMemory = procInfo_.getCurrentData(sid.id());
+    currentEventID_ = e.id();
+    auto const currentMemory = procInfo_.getCurrentData();
     eventTable_.insert(step,
-                       d.eventID.run(),
-                       d.eventID.subRun(),
-                       d.eventID.event(),
+                       currentEventID_.run(),
+                       currentEventID_.subRun(),
+                       currentEventID_.event(),
                        LinuxProcData::getValueInMB<vsize_t>(currentMemory),
                        LinuxProcData::getValueInMB<rss_t>(currentMemory));
     if (includeMallocInfo_) {
       auto minfo = LinuxMallInfo{}.get();
       eventHeapTable_->insert(step,
-                              d.eventID.run(),
-                              d.eventID.subRun(),
-                              d.eventID.event(),
+                              currentEventID_.run(),
+                              currentEventID_.subRun(),
+                              currentEventID_.event(),
                               minfo.arena,
                               minfo.ordblks,
                               minfo.keepcost,
@@ -346,17 +326,14 @@ namespace art {
 
   void
   MemoryTracker::recordModuleData(ModuleDescription const& md,
-                                  ScheduleID const sid,
                                   string const& step)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    auto& d = data_[sid];
-    auto const currentMemory = procInfo_.getCurrentData(sid.id());
+    auto const currentMemory = procInfo_.getCurrentData();
     moduleTable_.insert(step,
-                        d.eventID.run(),
-                        d.eventID.subRun(),
-                        d.eventID.event(),
-                        d.pathName,
+                        currentEventID_.run(),
+                        currentEventID_.subRun(),
+                        currentEventID_.event(),
+                        currentPathName_,
                         md.moduleLabel(),
                         md.moduleName(),
                         LinuxProcData::getValueInMB<vsize_t>(currentMemory),
@@ -364,10 +341,10 @@ namespace art {
     if (includeMallocInfo_) {
       auto minfo = LinuxMallInfo{}.get();
       moduleHeapTable_->insert(step,
-                               d.eventID.run(),
-                               d.eventID.subRun(),
-                               d.eventID.event(),
-                               d.pathName,
+                               currentEventID_.run(),
+                               currentEventID_.subRun(),
+                               currentEventID_.event(),
+                               currentPathName_,
                                md.moduleLabel(),
                                md.moduleName(),
                                minfo.arena,
@@ -383,7 +360,6 @@ namespace art {
   void
   MemoryTracker::postEndJob()
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
     recordPeakUsages_();
     flushTables_();
     summary_();

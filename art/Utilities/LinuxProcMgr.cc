@@ -37,43 +37,44 @@ namespace {
     return is;
   }
 
+  // NB: fclose must be called on the returned file descriptor.
+  auto
+  new_proc_file_descriptor(pid_t const pid)
+  {
+    std::ostringstream ost;
+    ost << "/proc/" << pid << "/stat";
+
+    auto file = fopen(ost.str().c_str(), "r");
+    if (file == nullptr) {
+      throw art::Exception{art::errors::Configuration}
+        << " Failed to open: " << ost.str() << '\n'
+        << " errno: " << errno << " (" << std::strerror(errno) << ")\n";
+    }
+    return file;
+  }
+
 } // namespace
 
 namespace art {
 
-  //=======================================================
-  LinuxProcMgr::LinuxProcMgr(sid_size_type const nSchedules)
-    : pid_{getpid()}, pgSize_{sysconf(_SC_PAGESIZE)}
-  {
-    std::ostringstream ost;
-    ost << "/proc/" << pid_ << "/stat";
+  LinuxProcMgr::LinuxProcMgr() noexcept(false)
+    : pid_{getpid()}
+    , pgSize_{sysconf(_SC_PAGESIZE)}
+    , file_{new_proc_file_descriptor(pid_)}
+  {}
 
-    for (sid_size_type i{}; i < nSchedules; ++i) {
-      auto file = fopen(ost.str().c_str(), "r");
-      if (file == nullptr) {
-        throw Exception{errors::Configuration}
-          << " Failed to open: " << ost.str() << " for schedule: " << i << '\n'
-          << " errno: " << errno << " (" << std::strerror(errno) << ")\n";
-      }
-      files_.push_back(file);
-    }
-  }
-
-  //=======================================================
   LinuxProcMgr::~LinuxProcMgr() noexcept
   {
-    for (auto const file : files_) {
-      fclose(file);
-    }
+    fclose(file_);
   }
 
   //=======================================================
   LinuxProcData::proc_tuple
-  LinuxProcMgr::getCurrentData(sid_size_type const sid) const
+  LinuxProcMgr::getCurrentData() const noexcept(false)
   {
-    auto file = files_[sid];
+    CET_ASSERT_ONLY_ONE_THREAD();
 
-    int const seek_result{fseek(file, 0, SEEK_SET)};
+    int const seek_result{fseek(file_, 0, SEEK_SET)};
     if (seek_result != 0) {
       throw Exception{errors::FileReadError,
                       "Error while retrieving Linux proc data."}
@@ -82,9 +83,7 @@ namespace art {
     }
 
     char buf[400];
-    size_t const cnt{fread(buf, 1, sizeof(buf), file)};
-
-    auto data = LinuxProcData::make_proc_tuple();
+    size_t const cnt{fread(buf, 1, sizeof(buf), file_)};
 
     if (cnt == 0) {
       throw Exception{errors::FileReadError,
@@ -100,13 +99,12 @@ namespace art {
     std::istringstream iss{buf};
     iss >> token_ignore(22) >> vsize >> rss;
 
-    data = LinuxProcData::make_proc_tuple(vsize, rss * pgSize_);
-    return data;
+    return LinuxProcData::make_proc_tuple(vsize, rss * pgSize_);
   }
 
   //=======================================================
   double
-  LinuxProcMgr::getStatusData_(std::string const& field) const
+  LinuxProcMgr::getStatusData_(std::string const& field) const noexcept(false)
   {
     CET_ASSERT_ONLY_ONE_THREAD();
 
