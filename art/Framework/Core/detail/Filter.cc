@@ -162,7 +162,7 @@ namespace art {
     bool
     Filter::doEvent(EventPrincipal& ep,
                     ScheduleID const sid,
-                    ModuleContext const& mc [[gnu::unused]],
+                    ModuleContext const& mc[[gnu::unused]],
                     atomic<size_t>& counts_run,
                     atomic<size_t>& counts_passed,
                     atomic<size_t>& counts_failed)

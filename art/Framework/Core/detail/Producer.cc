@@ -147,7 +147,7 @@ namespace art {
     bool
     Producer::doEvent(EventPrincipal& ep,
                       ScheduleID const sid,
-                      ModuleContext const& mc [[gnu::unused]],
+                      ModuleContext const& mc[[gnu::unused]],
                       std::atomic<size_t>& counts_run,
                       std::atomic<size_t>& counts_passed,
                       std::atomic<size_t>& /*counts_failed*/)

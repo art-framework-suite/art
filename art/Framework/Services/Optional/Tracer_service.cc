@@ -119,8 +119,7 @@ namespace art {
     unsigned int depth_{};
   };
 
-  art::Tracer::Tracer(Parameters const& config,
-                      ActivityRegistry& iRegistry)
+  art::Tracer::Tracer(Parameters const& config, ActivityRegistry& iRegistry)
     : indentation_{config().indentation()}
   {
     iRegistry.sPostBeginJob.watch(this, &Tracer::postBeginJob);
@@ -300,8 +299,7 @@ namespace art {
   }
 
   void
-  Tracer::postPathEvent(PathContext const& pc,
-                        HLTPathStatus const&)
+  Tracer::postPathEvent(PathContext const& pc, HLTPathStatus const&)
   {
     indent(3) << " finished path for event:" << pc.pathName() << endl;
   }

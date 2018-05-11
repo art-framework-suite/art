@@ -127,8 +127,7 @@ namespace art {
     void prePathProcessing(PathContext const& pc);
     void recordOtherData(ModuleDescription const& md, string const& step);
     void recordEventData(Event const& e, string const& step);
-    void recordModuleData(ModuleContext const& mc,
-                          string const& step);
+    void recordModuleData(ModuleContext const& mc, string const& step);
     void postEndJob();
     bool checkMallocConfig_(string const&, bool);
     void recordPeakUsages_();
@@ -220,9 +219,10 @@ namespace art {
     iReg.sPostEndJob.watch(this, &MemoryTracker::postEndJob);
     auto const nthreads = Globals::instance()->nthreads();
     if (nthreads != 1) {
-      mf::LogWarning("MemoryTracker") <<
-        "Since " << nthreads << " threads have been configured, only process-level\n"
-        "memory usage will be recorded at the end of the job.";
+      mf::LogWarning("MemoryTracker")
+        << "Since " << nthreads
+        << " threads have been configured, only process-level\n"
+           "memory usage will be recorded at the end of the job.";
     }
 
     if (!fileName_.empty() && nthreads == 1u) {
@@ -299,8 +299,7 @@ namespace art {
   }
 
   void
-  MemoryTracker::recordEventData(Event const& e,
-                                 string const& step)
+  MemoryTracker::recordEventData(Event const& e, string const& step)
   {
     currentEventID_ = e.id();
     auto const currentMemory = procInfo_.getCurrentData();
@@ -327,8 +326,7 @@ namespace art {
   }
 
   void
-  MemoryTracker::recordModuleData(ModuleContext const& mc,
-                                  string const& step)
+  MemoryTracker::recordModuleData(ModuleContext const& mc, string const& step)
   {
     auto const currentMemory = procInfo_.getCurrentData();
     moduleTable_.insert(step,

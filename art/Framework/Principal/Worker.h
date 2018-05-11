@@ -95,9 +95,7 @@ namespace art {
 
     // This is used to do trigger results insertion,
     // and to run workers on the end path.
-    void doWork_event(EventPrincipal&,
-                      ScheduleID,
-                      PathContext const&);
+    void doWork_event(EventPrincipal&, ScheduleID, PathContext const&);
 
     ModuleDescription const& description() const;
     ModuleDescription const* descPtr() const;
@@ -129,9 +127,7 @@ namespace art {
     std::size_t timesExcept() const;
 
   public: // Tasking Structure
-    void runWorker(EventPrincipal&,
-                   ScheduleID,
-                   PathContext const&);
+    void runWorker(EventPrincipal&, ScheduleID, PathContext const&);
 
   protected: // MEMBER FUNCTIONS -- API implementation classes must provide
     virtual std::string workerType() const = 0;

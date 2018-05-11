@@ -63,10 +63,7 @@ namespace art {
     , file_{new_proc_file_descriptor(pid_)}
   {}
 
-  LinuxProcMgr::~LinuxProcMgr() noexcept
-  {
-    fclose(file_);
-  }
+  LinuxProcMgr::~LinuxProcMgr() noexcept { fclose(file_); }
 
   //=======================================================
   LinuxProcData::proc_tuple

@@ -133,13 +133,11 @@ public:
 
   // Signal is emitted after the event has been processed, but before
   // the event has been written.
-  GlobalSignal<detail::SignalResponseType::FIFO,
-               void(ModuleContext const&)>
+  GlobalSignal<detail::SignalResponseType::FIFO, void(ModuleContext const&)>
     sPreWriteEvent;
 
   // Signal is emitted after the event has been written.
-  GlobalSignal<detail::SignalResponseType::LIFO,
-               void(ModuleContext const&)>
+  GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleContext const&)>
     sPostWriteEvent;
 
   // Signal is emitted after the Run has been created by the InputSource
@@ -181,8 +179,7 @@ public:
     sPostEndSubRun;
 
   // Signal is emitted before starting to process a Path for an event
-  GlobalSignal<detail::SignalResponseType::FIFO,
-               void(PathContext const&)>
+  GlobalSignal<detail::SignalResponseType::FIFO, void(PathContext const&)>
     sPreProcessPath;
 
   // Signal is emitted after all modules have finished for the Path for
@@ -290,13 +287,11 @@ public:
     sPostModuleEndJob;
 
   // Signal is emitted before the module starts processing the Event
-  GlobalSignal<detail::SignalResponseType::FIFO,
-               void(ModuleContext const&)>
+  GlobalSignal<detail::SignalResponseType::FIFO, void(ModuleContext const&)>
     sPreModule;
 
   // Signal is emitted after the module finished processing the Event
-  GlobalSignal<detail::SignalResponseType::LIFO,
-               void(ModuleContext const&)>
+  GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleContext const&)>
     sPostModule;
 
   // Signal is emitted before the module starts processing beginRun

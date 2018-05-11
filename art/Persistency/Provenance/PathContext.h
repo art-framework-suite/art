@@ -14,9 +14,21 @@ namespace art {
       , isEndPath_{isEndPath}
     {}
 
-    auto scheduleID() const { return scheduleContext_.id(); }
-    auto const& pathName() const { return pathName_; }
-    bool isEndPath() const { return isEndPath_; }
+    auto
+    scheduleID() const
+    {
+      return scheduleContext_.id();
+    }
+    auto const&
+    pathName() const
+    {
+      return pathName_;
+    }
+    bool
+    isEndPath() const
+    {
+      return isEndPath_;
+    }
 
   private:
     ScheduleContext const& scheduleContext_;

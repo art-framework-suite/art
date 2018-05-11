@@ -252,9 +252,9 @@ namespace art {
         }
         // Possible actions: FailPath
         should_continue = false;
-        mf::LogWarning(e.category()) << "Failing path " << name()
-                                     << ", due to exception, message:\n"
-                                     << e.what() << "\n";
+        mf::LogWarning(e.category())
+          << "Failing path " << name() << ", due to exception, message:\n"
+          << e.what() << "\n";
         // WARNING: We continue processing below!!! The only way we can get here
         // is if the worker threw and we are ignoring the exception but failing
         // the path because of actions::FailPath!!!
@@ -489,10 +489,10 @@ namespace art {
             // Not the end path.
             (*trptr_.load())[bitpos_.load()] = HLTPathStatus(state_, idx);
           }
-          auto art_ex =
-            art::Exception{
-              errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
-            << "Exception going through path " << name() << "\n";
+          auto art_ex = art::Exception{errors::ScheduleExecutionFailure,
+                                       "Path: ProcessingStopped.",
+                                       e}
+                        << "Exception going through path " << name() << "\n";
           auto ex_ptr = make_exception_ptr(art_ex);
           waitingTasks_.load()->doneWaiting(ex_ptr);
           TDEBUG_END_TASK_SI_ERR(
@@ -500,9 +500,9 @@ namespace art {
           return;
         }
         new_should_continue = false;
-        mf::LogWarning(e.category()) << "Failing path " << name()
-                                     << ", due to exception, message:\n"
-                                     << e.what() << "\n";
+        mf::LogWarning(e.category())
+          << "Failing path " << name() << ", due to exception, message:\n"
+          << e.what() << "\n";
         // WARNING: We continue processing below!!!
       }
       catch (...) {

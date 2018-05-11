@@ -119,10 +119,8 @@ namespace art {
       fhicl::Table<DBoutput> dbOutput{fhicl::Name{"dbOutput"}};
     };
     using Parameters = ServiceTable<Config>;
-    // Special Member Functions
-  public:
-    explicit TimeTracker(ServiceTable<Config> const&, ActivityRegistry&);
-    // Implementation details -- Types
+    explicit TimeTracker(Parameters const&, ActivityRegistry&);
+
   private:
     struct PerScheduleData {
       EventID eventID;
@@ -145,8 +143,7 @@ namespace art {
     void preEventProcessing(Event const&, ScheduleID);
     void postEventProcessing(Event const&, ScheduleID);
     void startTime(ModuleContext const& mc);
-    void recordTime(ModuleContext const& mc,
-                    string const& suffix);
+    void recordTime(ModuleContext const& mc, string const& suffix);
     void logToDestination_(Statistics const& evt,
                            vector<Statistics> const& modules);
 
@@ -193,13 +190,11 @@ namespace art {
     areg.sPostProcessEvent.watch(this, &TimeTracker::postEventProcessing);
     // Module execution
     areg.sPreModule.watch(this, &TimeTracker::startTime);
-    areg.sPostModule.watch([this](auto const& mc) {
-      this->recordTime(mc, ""s);
-    });
+    areg.sPostModule.watch(
+      [this](auto const& mc) { this->recordTime(mc, ""s); });
     areg.sPreWriteEvent.watch(this, &TimeTracker::startTime);
-    areg.sPostWriteEvent.watch([this](auto const& mc) {
-      this->recordTime(mc, "(write)"s);
-    });
+    areg.sPostWriteEvent.watch(
+      [this](auto const& mc) { this->recordTime(mc, "(write)"s); });
   }
 
   void
@@ -226,9 +221,8 @@ namespace art {
       string const errMsg{
         "Malformed TimeTracker database.  The TimeEvent table is empty, but\n"
         "the TimeModule table is not.  This can happen if an exception has\n"
-        "been thrown from a module while processing the first event.  Any "
-        "saved\n"
-        "database file is suspect and should not be used."};
+        "been thrown from a module while processing the first event.  Any\n"
+        "saved database file is suspect and should not be used."};
       mf::LogAbsolute("TimeTracker") << errMsg;
       return;
     }
@@ -322,8 +316,7 @@ namespace art {
   }
 
   void
-  TimeTracker::recordTime(ModuleContext const& mc,
-                          string const& suffix)
+  TimeTracker::recordTime(ModuleContext const& mc, string const& suffix)
   {
     auto const& d = data_[key(mc.scheduleID())];
     auto const t = chrono::duration<double>{now() - d.moduleStart}.count();
