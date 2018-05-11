@@ -15,10 +15,13 @@ services: {
 physics: {
 
   producers: {
-    prod: {
+    prod1: {
       module_type: TestTimeTrackerProducer
     }
-  }
+    prod2: {
+      module_type: TestTimeTrackerProducer
+    }
+ }
 
   filters: {
     filt: {
@@ -37,7 +40,8 @@ physics: {
     }
   }
 
-  p1: [prod, filt]
+  p1: [prod1, filt]
+  p2: [prod1, prod2]
   e1: [mod1, mod2]
 }
 

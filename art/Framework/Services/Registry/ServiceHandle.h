@@ -2,7 +2,7 @@
 #define art_Framework_Services_Registry_ServiceHandle_h
 // vim: set sw=2 expandtab :
 
-//
+// =======================================================================
 // ServiceHandle
 //
 // Smart pointer used to give easy access to Services.
@@ -20,7 +20,7 @@
 //    ServiceHandle<MyService const> as long as the const-ness of the
 //    template argument is stripped (via std::remove_const_t<T>)
 //    before serving as an argument to ServiceHelper.
-//
+// =======================================================================
 
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceScope.h"

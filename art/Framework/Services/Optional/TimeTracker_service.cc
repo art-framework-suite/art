@@ -48,9 +48,15 @@ namespace art {
   namespace {
 
     using ConcurrentKey = std::pair<ScheduleID, std::string>;
-    auto key(ScheduleID const sid, std::string const& label = {})
+    auto
+    key(ScheduleID const sid)
     {
-      return ConcurrentKey{sid, label};
+      return ConcurrentKey{sid, {}};
+    }
+    auto
+    key(ModuleContext const& mc)
+    {
+      return ConcurrentKey{mc.scheduleID(), mc.moduleLabel()};
     }
 
     auto now = bind(&steady_clock::now);
@@ -108,7 +114,6 @@ namespace art {
   } // unnamed namespace
 
   class TimeTracker {
-    // Configuration
   public:
     struct Config {
       fhicl::Atom<bool> printSummary{fhicl::Name{"printSummary"}, true};
@@ -152,32 +157,32 @@ namespace art {
     unique_ptr<cet::sqlite::Connection> const db_;
     bool const overwriteContents_;
     string sourceType_{};
-    name_array<5u> const timeSourceTuple_;
-    name_array<4u> const timeEventTuple_;
-    name_array<7u> const timeModuleTuple_;
+    name_array<5u> const timeSourceColumnNames_;
+    name_array<4u> const timeEventColumnNames_;
+    name_array<7u> const timeModuleColumnNames_;
     timeSource_t timeSourceTable_;
     timeEvent_t timeEventTable_;
     timeModule_t timeModuleTable_;
   };
 
-  TimeTracker::TimeTracker(ServiceTable<Config> const& config,
+  TimeTracker::TimeTracker(Parameters const& config,
                            ActivityRegistry& areg)
     : printSummary_{config().printSummary()}
     , db_{ServiceHandle<DatabaseConnection>{}->get(
         config().dbOutput().filename())}
-    , overwriteContents_{config().dbOutput().overwrite()} // table headers
-    , timeSourceTuple_{{"Run", "SubRun", "Event", "Source", "Time"}}
-    , timeEventTuple_{{"Run", "SubRun", "Event", "Time"}}
-    , timeModuleTuple_{{"Run",
+    , overwriteContents_{config().dbOutput().overwrite()}
+    , timeSourceColumnNames_{{"Run", "SubRun", "Event", "Source", "Time"}}
+    , timeEventColumnNames_{{"Run", "SubRun", "Event", "Time"}}
+    , timeModuleColumnNames_{{"Run",
                         "SubRun",
                         "Event",
                         "Path",
                         "ModuleLabel",
                         "ModuleType",
                         "Time"}}
-    , timeSourceTable_{*db_, "TimeSource", timeSourceTuple_, overwriteContents_}
-    , timeEventTable_{*db_, "TimeEvent", timeEventTuple_, overwriteContents_}
-    , timeModuleTable_{*db_, "TimeModule", timeModuleTuple_, overwriteContents_}
+    , timeSourceTable_{*db_, "TimeSource", timeSourceColumnNames_, overwriteContents_}
+    , timeEventTable_{*db_, "TimeEvent", timeEventColumnNames_, overwriteContents_}
+    , timeModuleTable_{*db_, "TimeModule", timeModuleColumnNames_, overwriteContents_}
   {
     areg.sPostSourceConstruction.watch(this,
                                        &TimeTracker::postSourceConstruction);
@@ -312,13 +317,14 @@ namespace art {
   void
   TimeTracker::startTime(ModuleContext const& mc)
   {
-    data_[key(mc.scheduleID())].moduleStart = now();
+    data_[key(mc)].eventID = data_[key(mc.scheduleID())].eventID;
+    data_[key(mc)].moduleStart = now();
   }
 
   void
   TimeTracker::recordTime(ModuleContext const& mc, string const& suffix)
   {
-    auto const& d = data_[key(mc.scheduleID())];
+    auto const& d = data_[key(mc)];
     auto const t = chrono::duration<double>{now() - d.moduleStart}.count();
     timeModuleTable_.insert(d.eventID.run(),
                             d.eventID.subRun(),

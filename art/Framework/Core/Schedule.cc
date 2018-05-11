@@ -457,10 +457,8 @@ namespace art {
         triggerPathsInfo_.load()->incrementPassedEventCount();
       }
       if (results_inserter_.load() != nullptr) {
-        string const name{"TriggerResultsInserter"};
-        CurrentProcessingContext cpc{scheduleID, &name, 0, false};
         ScheduleContext const sc{scheduleID};
-        PathContext const pc{sc, name, false}; // SHOULD NOT BE HERE
+        PathContext const pc{sc, "[art]", false};
         results_inserter_.load()->doWork_event(principal, scheduleID, pc);
       }
     }

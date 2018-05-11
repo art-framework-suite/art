@@ -1178,20 +1178,13 @@ cet_test(TimeTracker_t1 HANDBUILT
   OUTPUT_FILTERS "filter-timeTracker-output" "DEFAULT"
   )
 
+# Exercise TimeTracker's parallel execution handling
 cet_test(TimeTracker_t2 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c TimeTracker_t2.fcl
+  TEST_ARGS -c TimeTracker_t2.fcl -j10
   DATAFILES
   fcl/TimeTracker_t2.fcl
   fcl/TimeTracker_t1.fcl
-  )
-
-cet_test(TimeTracker_t3 HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS -c TimeTracker_t3.fcl
-  DATAFILES fcl/TimeTracker_t3.fcl
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/TimeTracker_t3-ref.txt"
-  OUTPUT_FILTERS "filter-timeTracker-output" "DEFAULT"
   )
 
 macro(seekToEventTest NEVENTS)

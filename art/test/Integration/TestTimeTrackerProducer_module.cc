@@ -11,12 +11,16 @@
 
 namespace arttest {
 
-  class TestTimeTrackerProducer : public art::EDProducer {
+  class TestTimeTrackerProducer : public art::ReplicatedProducer {
   public:
-    explicit TestTimeTrackerProducer(fhicl::ParameterSet const&) {}
+    explicit TestTimeTrackerProducer(fhicl::ParameterSet const&,
+                                     art::ScheduleID)
+    {
+      //      async<art::InEvent>();
+    }
 
     void
-    produce(art::Event&) override
+    produce(art::Event&) override//, art::ScheduleID) override
     {}
   }; // TestTimeTrackerProducer
 
