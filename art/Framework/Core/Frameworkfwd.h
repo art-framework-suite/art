@@ -6,14 +6,11 @@
 #include "fhiclcpp/ParameterSet.h"
 
 namespace art {
-  class ConfigurableInputSource;
-  class CurrentProcessingContext;
   class EDAnalyzer;
   class EDFilter;
   class EDProducer;
   class EndPathExecutor;
   class FileBlock;
-  class GeneratedInputSource;
   class InputSource;
   class OutputModule;
   class ProcessNameSelector;

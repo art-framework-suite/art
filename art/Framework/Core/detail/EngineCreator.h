@@ -27,9 +27,10 @@
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Utilities/ScheduleID.h"
-#include "fhiclcpp/ParameterSet.h"
 
-// ----------------------------------------------------------------------
+namespace fhicl {
+  class ParameterSet;
+}
 
 namespace art {
   namespace detail {
@@ -43,12 +44,12 @@ namespace art {
       using seed_t = long;
       using engine_state_t = RNGsnapshot::engine_state_t;
 
-      base_engine_t& createEngine(ScheduleID, seed_t seed);
+      base_engine_t& createEngine(ScheduleID, fhicl::ParameterSet const& pset);
       base_engine_t& createEngine(ScheduleID,
-                                  seed_t seed,
+                                  fhicl::ParameterSet const& pset,
                                   std::string const& kind_of_engine_to_make);
       base_engine_t& createEngine(ScheduleID,
-                                  seed_t seed,
+                                  fhicl::ParameterSet const& pset,
                                   std::string const& kind_of_engine_to_make,
                                   label_t const& engine_label);
 
@@ -58,8 +59,6 @@ namespace art {
     }; // EngineCreator
   }    // detail
 } // art
-
-  // ======================================================================
 
 #endif /* art_Framework_Core_detail_EngineCreator_h */
 

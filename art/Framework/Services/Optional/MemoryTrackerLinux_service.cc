@@ -126,6 +126,7 @@ namespace art {
   private:
     void prePathProcessing(PathContext const& pc);
     void recordOtherData(ModuleDescription const& md, string const& step);
+    void recordOtherData(ModuleContext const& mc, string const& step);
     void recordEventData(Event const& e, string const& step);
     void recordModuleData(ModuleContext const& mc, string const& step);
     void postEndJob();
@@ -237,14 +238,14 @@ namespace art {
       iReg.sPostModuleBeginJob.watch(
         [this](auto const& md) { this->recordOtherData(md, "PostBeginJob"); });
       iReg.sPreModuleBeginRun.watch(
-        [this](auto const& md) { this->recordOtherData(md, "PreBeginRun"); });
+        [this](auto const& mc) { this->recordOtherData(mc, "PreBeginRun"); });
       iReg.sPostModuleBeginRun.watch(
-        [this](auto const& md) { this->recordOtherData(md, "PostBeginRun"); });
-      iReg.sPreModuleBeginSubRun.watch([this](auto const& md) {
-        this->recordOtherData(md, "PreBeginSubRun");
+        [this](auto const& mc) { this->recordOtherData(mc, "PostBeginRun"); });
+      iReg.sPreModuleBeginSubRun.watch([this](auto const& mc) {
+        this->recordOtherData(mc, "PreBeginSubRun");
       });
-      iReg.sPostModuleBeginSubRun.watch([this](auto const& md) {
-        this->recordOtherData(md, "PostBeginSubRun");
+      iReg.sPostModuleBeginSubRun.watch([this](auto const& mc) {
+        this->recordOtherData(mc, "PostBeginSubRun");
       });
       iReg.sPreProcessPath.watch(this, &MemoryTracker::prePathProcessing);
       iReg.sPreProcessEvent.watch([this](auto const& e, ScheduleID) {
@@ -266,15 +267,15 @@ namespace art {
         this->recordModuleData(mc, "PostWriteEvent");
       });
       iReg.sPreModuleEndSubRun.watch(
-        [this](auto const& md) { this->recordOtherData(md, "PreEndSubRun"); });
+        [this](auto const& mc) { this->recordOtherData(mc, "PreEndSubRun"); });
       iReg.sPreModuleEndRun.watch(
-        [this](auto const& md) { this->recordOtherData(md, "PreEndRun"); });
+        [this](auto const& mc) { this->recordOtherData(mc, "PreEndRun"); });
       iReg.sPreModuleEndJob.watch(
         [this](auto const& md) { this->recordOtherData(md, "PreEndJob"); });
       iReg.sPostModuleEndSubRun.watch(
-        [this](auto const& md) { this->recordOtherData(md, "PostEndSubRun"); });
+        [this](auto const& mc) { this->recordOtherData(mc, "PostEndSubRun"); });
       iReg.sPostModuleEndRun.watch(
-        [this](auto const& md) { this->recordOtherData(md, "PostEndRun"); });
+        [this](auto const& mc) { this->recordOtherData(mc, "PostEndRun"); });
       iReg.sPostModuleEndJob.watch(
         [this](auto const& md) { this->recordOtherData(md, "PostEndJob"); });
     }
@@ -284,6 +285,12 @@ namespace art {
   MemoryTracker::prePathProcessing(PathContext const& pc)
   {
     currentPathName_ = pc.pathName();
+  }
+
+  void
+  MemoryTracker::recordOtherData(ModuleContext const& mc, string const& step)
+  {
+    recordOtherData(mc.moduleDescription(), step);
   }
 
   void

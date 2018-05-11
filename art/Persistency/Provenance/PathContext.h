@@ -31,7 +31,7 @@ namespace art {
     }
 
   private:
-    ScheduleContext const& scheduleContext_;
+    ScheduleContext const scheduleContext_;
     std::string const pathName_;
     bool const isEndPath_;
   };

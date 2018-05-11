@@ -61,20 +61,20 @@ namespace art {
     void preModuleBeginJob(ModuleDescription const& md);
     void postModuleBeginJob(ModuleDescription const& md);
 
-    void preModuleBeginRun(ModuleDescription const& md);
-    void postModuleBeginRun(ModuleDescription const& md);
+    void preModuleBeginRun(ModuleContext const& mc);
+    void postModuleBeginRun(ModuleContext const& mc);
 
-    void preModuleBeginSubRun(ModuleDescription const& md);
-    void postModuleBeginSubRun(ModuleDescription const& md);
+    void preModuleBeginSubRun(ModuleContext const& mc);
+    void postModuleBeginSubRun(ModuleContext const& mc);
 
     void preModuleEvent(ModuleContext const& mc);
     void postModuleEvent(ModuleContext const& mc);
 
-    void preModuleEndSubRun(ModuleDescription const& md);
-    void postModuleEndSubRun(ModuleDescription const& md);
+    void preModuleEndSubRun(ModuleContext const& mc);
+    void postModuleEndSubRun(ModuleContext const& mc);
 
-    void preModuleEndRun(ModuleDescription const& md);
-    void postModuleEndRun(ModuleDescription const& md);
+    void preModuleEndRun(ModuleContext const& mc);
+    void postModuleEndRun(ModuleContext const& mc);
 
     void preModuleEndJob(ModuleDescription const& md);
     void postModuleEndJob(ModuleDescription const& md);
@@ -345,17 +345,17 @@ namespace art {
   }
 
   void
-  Tracer::preModuleBeginRun(ModuleDescription const& md)
+  Tracer::preModuleBeginRun(ModuleContext const& mc)
   {
     ++depth_;
-    indent(3 + depth_) << " module for begin run:" << md.moduleLabel() << endl;
+    indent(3 + depth_) << " module for begin run:" << mc.moduleLabel() << endl;
   }
 
   void
-  Tracer::postModuleBeginRun(ModuleDescription const& md)
+  Tracer::postModuleBeginRun(ModuleContext const& mc)
   {
     --depth_;
-    indent(4 + depth_) << " finished for begin run:" << md.moduleLabel()
+    indent(4 + depth_) << " finished for begin run:" << mc.moduleLabel()
                        << endl;
   }
 
@@ -386,17 +386,17 @@ namespace art {
   }
 
   void
-  Tracer::preModuleEndRun(ModuleDescription const& md)
+  Tracer::preModuleEndRun(ModuleContext const& mc)
   {
     ++depth_;
-    indent(3 + depth_) << " module for end run:" << md.moduleLabel() << endl;
+    indent(3 + depth_) << " module for end run:" << mc.moduleLabel() << endl;
   }
 
   void
-  Tracer::postModuleEndRun(ModuleDescription const& md)
+  Tracer::postModuleEndRun(ModuleContext const& mc)
   {
     --depth_;
-    indent(4 + depth_) << " finished for end run:" << md.moduleLabel() << endl;
+    indent(4 + depth_) << " finished for end run:" << mc.moduleLabel() << endl;
   }
 
   void
@@ -426,18 +426,18 @@ namespace art {
   }
 
   void
-  Tracer::preModuleBeginSubRun(ModuleDescription const& md)
+  Tracer::preModuleBeginSubRun(ModuleContext const& mc)
   {
     ++depth_;
-    indent(3 + depth_) << " module for begin subRun:" << md.moduleLabel()
+    indent(3 + depth_) << " module for begin subRun:" << mc.moduleLabel()
                        << endl;
   }
 
   void
-  Tracer::postModuleBeginSubRun(ModuleDescription const& md)
+  Tracer::postModuleBeginSubRun(ModuleContext const& mc)
   {
     --depth_;
-    indent(4) << " finished for begin subRun:" << md.moduleLabel() << endl;
+    indent(4) << " finished for begin subRun:" << mc.moduleLabel() << endl;
   }
 
   void
@@ -467,17 +467,17 @@ namespace art {
   }
 
   void
-  Tracer::preModuleEndSubRun(ModuleDescription const& md)
+  Tracer::preModuleEndSubRun(ModuleContext const& mc)
   {
     ++depth_;
-    indent(3 + depth_) << " module for end subRun:" << md.moduleLabel() << endl;
+    indent(3 + depth_) << " module for end subRun:" << mc.moduleLabel() << endl;
   }
 
   void
-  Tracer::postModuleEndSubRun(ModuleDescription const& md)
+  Tracer::postModuleEndSubRun(ModuleContext const& mc)
   {
     --depth_;
-    indent(4 + depth_) << " finished for end subRun:" << md.moduleLabel()
+    indent(4 + depth_) << " finished for end subRun:" << mc.moduleLabel()
                        << endl;
   }
 

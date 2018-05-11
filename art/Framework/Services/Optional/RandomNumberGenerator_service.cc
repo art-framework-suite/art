@@ -43,7 +43,6 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Globals.h"
-#include "art/Utilities/PerThread.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/ScheduleIteration.h"
 #include "cetlib/assert_only_one_thread.h"
@@ -77,12 +76,13 @@ namespace art {
     };
 
     string
-    qualify_engine_label(ScheduleID const sid, string const& engine_label)
+    qualify_engine_label(ScheduleID const sid,
+                         string const& module_label,
+                         string const& engine_label)
     {
       // Format is ModuleLabel:scheduleID:EngineLabel
       string label;
-      label +=
-        art::PerThread::instance()->getCPC().moduleDescription()->moduleLabel();
+      label += module_label;
       label += ':';
       label += std::to_string(sid.id());
       label += ':';
@@ -154,12 +154,12 @@ namespace art {
   }
 
   CLHEP::HepRandomEngine&
-  RandomNumberGenerator::getEngine(
-    ScheduleID const sid /* = ScheduleID::first() */,
-    string const& engine_label /* = "" */) const
+  RandomNumberGenerator::getEngine(ScheduleID const sid,
+                                   string const& module_label,
+                                   string const& engine_label /* = "" */) const
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    string const& label = qualify_engine_label(sid, engine_label);
+    string const& label = qualify_engine_label(sid, module_label, engine_label);
     auto I = data_[sid].dict_.find(label);
     if (I == data_[sid].dict_.end()) {
       throw cet::exception("RANDOM") << "RNGservice::getEngine():\n"
@@ -172,6 +172,7 @@ namespace art {
 
   CLHEP::HepRandomEngine&
   RandomNumberGenerator::createEngine(ScheduleID const sid,
+                                      std::string const& module_label,
                                       long const seed,
                                       string const& requested_engine_kind,
                                       string const& engine_label)
@@ -188,7 +189,7 @@ namespace art {
         << "Attempt to create engine with out-of-range ScheduleID: " << sid
         << "\n";
     }
-    string const& label = qualify_engine_label(sid, engine_label);
+    string const& label = qualify_engine_label(sid, module_label, engine_label);
     if (data_[sid].tracker_.find(label) != data_[sid].tracker_.cend()) {
       throw cet::exception("RANDOM")
         << "RNGservice::createEngine():\n"

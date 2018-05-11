@@ -238,22 +238,24 @@ namespace art {
     // Note: Could remove if we do not need to support access from engines
     // restored from file.
     CLHEP::HepRandomEngine& getEngine(
-      ScheduleID const sid = ScheduleID::first(),
+      ScheduleID sid,
+      std::string const& module_label,
       std::string const& engine_label = {}) const;
 
   private: // Engine establishment
     // Accessible to user modules through friendship. Should only be used in
     // ctors.
     CLHEP::HepRandomEngine& createEngine(
-      ScheduleID const,
+      ScheduleID sid,
+      std::string const& module_label,
       long seed,
       std::string const& kind_of_engine_to_make = defaultEngineKind,
       std::string const& engine_label = {});
 
   private: // Snapshot management helpers
-    void takeSnapshot_(ScheduleID const);
-    void restoreSnapshot_(ScheduleID const, Event const&);
-    std::vector<RNGsnapshot> const& accessSnapshot_(ScheduleID const) const;
+    void takeSnapshot_(ScheduleID);
+    void restoreSnapshot_(ScheduleID, Event const&);
+    std::vector<RNGsnapshot> const& accessSnapshot_(ScheduleID) const;
 
   private: // File management helpers
     // TODO: Determine if this facility is necessary.
@@ -262,7 +264,7 @@ namespace art {
 
   private: // Debugging helpers
     void print_() const;
-    bool invariant_holds_(ScheduleID const);
+    bool invariant_holds_(ScheduleID);
 
   private: // Callbacks from the framework
     void preProcessEvent(Event const&, ScheduleID);

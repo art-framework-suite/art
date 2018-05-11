@@ -9,7 +9,6 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
@@ -86,9 +85,8 @@ namespace art {
 
     bool
     Producer::doBeginRun(RunPrincipal& rp,
-                         cet::exempt_ptr<CurrentProcessingContext const> cpc)
+                         ModuleContext const& mc[[gnu::unused]])
     {
-      detail::CPCSentry sentry{*cpc};
       Run r{rp, moduleDescription(), RangeSet::forRun(rp.runID())};
       beginRun(r);
       r.movePutProductsToPrincipal(rp);
@@ -100,10 +98,8 @@ namespace art {
     {}
 
     bool
-    Producer::doEndRun(RunPrincipal& rp,
-                       cet::exempt_ptr<CurrentProcessingContext const> cpc)
+    Producer::doEndRun(RunPrincipal& rp, ModuleContext const& mc[[gnu::unused]])
     {
-      detail::CPCSentry sentry{*cpc};
       Run r{rp, moduleDescription(), rp.seenRanges()};
       endRun(r);
       r.movePutProductsToPrincipal(rp);
@@ -116,9 +112,8 @@ namespace art {
 
     bool
     Producer::doBeginSubRun(SubRunPrincipal& srp,
-                            cet::exempt_ptr<CurrentProcessingContext const> cpc)
+                            ModuleContext const& mc[[gnu::unused]])
     {
-      detail::CPCSentry sentry{*cpc};
       SubRun sr{srp, moduleDescription(), RangeSet::forSubRun(srp.subRunID())};
       beginSubRun(sr);
       sr.movePutProductsToPrincipal(srp);
@@ -131,9 +126,8 @@ namespace art {
 
     bool
     Producer::doEndSubRun(SubRunPrincipal& srp,
-                          cet::exempt_ptr<CurrentProcessingContext const> cpc)
+                          ModuleContext const& mc[[gnu::unused]])
     {
-      detail::CPCSentry sentry{*cpc};
       SubRun sr{srp, moduleDescription(), srp.seenRanges()};
       endSubRun(sr);
       sr.movePutProductsToPrincipal(srp);
@@ -152,7 +146,6 @@ namespace art {
                       std::atomic<size_t>& counts_passed,
                       std::atomic<size_t>& /*counts_failed*/)
     {
-      //      detail::CPCSentry sentry{*cpc};
       Event e{ep, moduleDescription()};
       ++counts_run;
       produceWithScheduleID(e, sid);

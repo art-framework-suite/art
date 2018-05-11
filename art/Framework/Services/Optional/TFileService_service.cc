@@ -67,10 +67,13 @@ namespace art {
       this, &TFileService::setDirectoryName_);
     r.sPreModuleRespondToCloseOutputFiles.watch(
       this, &TFileService::setDirectoryName_);
-    r.sPreModuleBeginRun.watch(this, &TFileService::setDirectoryName_);
-    r.sPreModuleEndRun.watch(this, &TFileService::setDirectoryName_);
-    r.sPreModuleBeginSubRun.watch(this, &TFileService::setDirectoryName_);
-    r.sPreModuleEndSubRun.watch(this, &TFileService::setDirectoryName_);
+    r.sPreModuleBeginRun.watch(this,
+                               &TFileService::setDirectoryNameViaContext_);
+    r.sPreModuleEndRun.watch(this, &TFileService::setDirectoryNameViaContext_);
+    r.sPreModuleBeginSubRun.watch(this,
+                                  &TFileService::setDirectoryNameViaContext_);
+    r.sPreModuleEndSubRun.watch(this,
+                                &TFileService::setDirectoryNameViaContext_);
     r.sPreModule.watch(this, &TFileService::setDirectoryNameViaContext_);
     // Activities to monitor to keep track of events, subruns and runs seen.
     r.sPostProcessEvent.watch([this](Event const& e, ScheduleID) {

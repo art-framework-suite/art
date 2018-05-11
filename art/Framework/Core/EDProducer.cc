@@ -2,15 +2,7 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/SharedResourcesRegistry.h"
-#include "art/Utilities/CPCSentry.h"
-#include "canvas/Utilities/Exception.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
-#include <string>
-#include <utility>
-#include <vector>
-
-using namespace hep::concurrency;
 using namespace std;
 
 namespace art {

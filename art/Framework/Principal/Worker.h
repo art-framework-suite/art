@@ -30,7 +30,6 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Persistency/Provenance/PathContext.h"
-#include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Utilities/Exception.h"
@@ -86,7 +85,7 @@ namespace art {
     void respondToCloseInputFile(FileBlock const& fb);
     void respondToOpenOutputFiles(FileBlock const& fb);
     void respondToCloseOutputFiles(FileBlock const& fb);
-    bool doWork(Transition, Principal&, CurrentProcessingContext*);
+    bool doWork(Transition, Principal&, PathContext const&);
 
     void doWork_event(hep::concurrency::WaitingTask* workerInPathDoneTask,
                       EventPrincipal&,
@@ -135,13 +134,10 @@ namespace art {
       const = 0;
     virtual void implBeginJob() = 0;
     virtual void implEndJob() = 0;
-    virtual bool implDoBegin(RunPrincipal& rp,
-                             CurrentProcessingContext* cpc) = 0;
-    virtual bool implDoEnd(RunPrincipal& rp, CurrentProcessingContext* cpc) = 0;
-    virtual bool implDoBegin(SubRunPrincipal& srp,
-                             CurrentProcessingContext* cpc) = 0;
-    virtual bool implDoEnd(SubRunPrincipal& srp,
-                           CurrentProcessingContext* cpc) = 0;
+    virtual bool implDoBegin(RunPrincipal& rp, ModuleContext const& mc) = 0;
+    virtual bool implDoEnd(RunPrincipal& rp, ModuleContext const& mc) = 0;
+    virtual bool implDoBegin(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
+    virtual bool implDoEnd(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
     virtual bool implDoProcess(EventPrincipal&,
                                ScheduleID,
                                ModuleContext const&) = 0;

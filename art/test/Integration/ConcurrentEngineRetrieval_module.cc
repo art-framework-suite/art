@@ -45,7 +45,7 @@ namespace art {
     ConcurrentEngineRetrieval::ConcurrentEngineRetrieval(
       fhicl::ParameterSet const& p,
       ScheduleID const sid)
-      : ReplicatedAnalyzer{p}, dist_{createEngine(sid, p.get<int>("seed", 0))}
+      : ReplicatedAnalyzer{p}, dist_{createEngine(sid, p)}
     {}
 
     void

@@ -99,14 +99,10 @@ namespace art {
       void doRespondToCloseInputFile(FileBlock const& fb);
       void doRespondToOpenOutputFiles(FileBlock const& fb);
       void doRespondToCloseOutputFiles(FileBlock const& fb);
-      bool doBeginRun(RunPrincipal& rp,
-                      cet::exempt_ptr<CurrentProcessingContext const> cpc);
-      bool doEndRun(RunPrincipal& rp,
-                    cet::exempt_ptr<CurrentProcessingContext const> cpc);
-      bool doBeginSubRun(SubRunPrincipal& srp,
-                         cet::exempt_ptr<CurrentProcessingContext const> cpc);
-      bool doEndSubRun(SubRunPrincipal& srp,
-                       cet::exempt_ptr<CurrentProcessingContext const> cpc);
+      bool doBeginRun(RunPrincipal& rp, ModuleContext const&);
+      bool doEndRun(RunPrincipal& rp, ModuleContext const& mc);
+      bool doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc);
+      bool doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc);
       bool doEvent(EventPrincipal& ep,
                    ScheduleID,
                    ModuleContext const&,

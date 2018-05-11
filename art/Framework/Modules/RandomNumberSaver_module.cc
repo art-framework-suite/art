@@ -9,7 +9,6 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Utilities/PerThread.h"
 #include "fhiclcpp/types/Atom.h"
 
 #include <memory>

@@ -11,7 +11,6 @@
 #include "art/Persistency/Provenance/PathContext.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/PerScheduleContainer.h"
-#include "art/Utilities/PerThread.h"
 #include "art/Utilities/ScheduleID.h"
 #include "boost/format.hpp"
 #include "canvas/Persistency/Provenance/EventID.h"
@@ -165,8 +164,7 @@ namespace art {
     timeModule_t timeModuleTable_;
   };
 
-  TimeTracker::TimeTracker(Parameters const& config,
-                           ActivityRegistry& areg)
+  TimeTracker::TimeTracker(Parameters const& config, ActivityRegistry& areg)
     : printSummary_{config().printSummary()}
     , db_{ServiceHandle<DatabaseConnection>{}->get(
         config().dbOutput().filename())}
@@ -174,15 +172,24 @@ namespace art {
     , timeSourceColumnNames_{{"Run", "SubRun", "Event", "Source", "Time"}}
     , timeEventColumnNames_{{"Run", "SubRun", "Event", "Time"}}
     , timeModuleColumnNames_{{"Run",
-                        "SubRun",
-                        "Event",
-                        "Path",
-                        "ModuleLabel",
-                        "ModuleType",
-                        "Time"}}
-    , timeSourceTable_{*db_, "TimeSource", timeSourceColumnNames_, overwriteContents_}
-    , timeEventTable_{*db_, "TimeEvent", timeEventColumnNames_, overwriteContents_}
-    , timeModuleTable_{*db_, "TimeModule", timeModuleColumnNames_, overwriteContents_}
+                              "SubRun",
+                              "Event",
+                              "Path",
+                              "ModuleLabel",
+                              "ModuleType",
+                              "Time"}}
+    , timeSourceTable_{*db_,
+                       "TimeSource",
+                       timeSourceColumnNames_,
+                       overwriteContents_}
+    , timeEventTable_{*db_,
+                      "TimeEvent",
+                      timeEventColumnNames_,
+                      overwriteContents_}
+    , timeModuleTable_{*db_,
+                       "TimeModule",
+                       timeModuleColumnNames_,
+                       overwriteContents_}
   {
     areg.sPostSourceConstruction.watch(this,
                                        &TimeTracker::postSourceConstruction);

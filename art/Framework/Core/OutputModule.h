@@ -132,13 +132,10 @@ namespace art {
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
-    bool doBeginRun(RunPrincipal const& rp,
-                    CurrentProcessingContext const* cpc);
-    bool doEndRun(RunPrincipal const& rp, CurrentProcessingContext const* cpc);
-    bool doBeginSubRun(SubRunPrincipal const& srp,
-                       CurrentProcessingContext const* cpc);
-    bool doEndSubRun(SubRunPrincipal const& srp,
-                     CurrentProcessingContext const* cpc);
+    bool doBeginRun(RunPrincipal const& rp, ModuleContext const&);
+    bool doEndRun(RunPrincipal const& rp, ModuleContext const& mc);
+    bool doBeginSubRun(SubRunPrincipal const& srp, ModuleContext const& mc);
+    bool doEndSubRun(SubRunPrincipal const& srp, ModuleContext const& mc);
     bool doEvent(EventPrincipal const& ep,
                  ScheduleID,
                  ModuleContext const&,

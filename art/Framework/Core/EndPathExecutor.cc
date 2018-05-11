@@ -19,8 +19,6 @@
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/PathContext.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
-#include "art/Utilities/CPCSentry.h"
-#include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/OutputFileInfo.h"
 #include "art/Utilities/ScheduleID.h"
@@ -564,11 +562,6 @@ namespace art {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : *outputWorkers_.load()) {
       auto const& md = ow->description();
-      // FIXME: this is overkill.  Users just need to be able to
-      // access the correct ScheduleID within the service.  They do
-      // not need a full-fledged context.
-      CurrentProcessingContext cpc{sid, nullptr, -1, false};
-      detail::CPCSentry sentry{cpc};
       ModuleContext const mc{pc, md};
       actReg_.load()->sPreWriteEvent.invoke(mc);
       ow->writeEvent(ep);

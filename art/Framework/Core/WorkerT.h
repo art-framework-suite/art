@@ -50,10 +50,10 @@ namespace art {
     void implRespondToCloseInputFile(FileBlock const&) override;
     void implRespondToOpenOutputFiles(FileBlock const&) override;
     void implRespondToCloseOutputFiles(FileBlock const&) override;
-    bool implDoBegin(RunPrincipal&, CurrentProcessingContext*) override;
-    bool implDoEnd(RunPrincipal&, CurrentProcessingContext*) override;
-    bool implDoBegin(SubRunPrincipal&, CurrentProcessingContext*) override;
-    bool implDoEnd(SubRunPrincipal&, CurrentProcessingContext*) override;
+    bool implDoBegin(RunPrincipal&, ModuleContext const&) override;
+    bool implDoEnd(RunPrincipal&, ModuleContext const&) override;
+    bool implDoBegin(SubRunPrincipal&, ModuleContext const&) override;
+    bool implDoEnd(SubRunPrincipal&, ModuleContext const&) override;
     bool implDoProcess(EventPrincipal&,
                        ScheduleID,
                        ModuleContext const&) override;
@@ -164,30 +164,30 @@ namespace art {
 
   template <typename T>
   bool
-  WorkerT<T>::implDoBegin(RunPrincipal& rp, CurrentProcessingContext* cpc)
+  WorkerT<T>::implDoBegin(RunPrincipal& rp, ModuleContext const& mc)
   {
-    return module_->doBeginRun(rp, cpc);
+    return module_->doBeginRun(rp, mc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoEnd(RunPrincipal& rp, CurrentProcessingContext* cpc)
+  WorkerT<T>::implDoEnd(RunPrincipal& rp, ModuleContext const& mc)
   {
-    return module_->doEndRun(rp, cpc);
+    return module_->doEndRun(rp, mc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoBegin(SubRunPrincipal& srp, CurrentProcessingContext* cpc)
+  WorkerT<T>::implDoBegin(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    return module_->doBeginSubRun(srp, cpc);
+    return module_->doBeginSubRun(srp, mc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoEnd(SubRunPrincipal& srp, CurrentProcessingContext* cpc)
+  WorkerT<T>::implDoEnd(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    return module_->doEndSubRun(srp, cpc);
+    return module_->doEndSubRun(srp, mc);
   }
 
   template <typename T>

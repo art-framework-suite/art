@@ -2,15 +2,17 @@
 #define art_Framework_Core_Path_h
 // vim: set sw=2 expandtab :
 
-//  An object of this type represents one path in a job configuration.
-//  It holds the assigned bit position and the list of workers that are
-//  an event must pass through when this parh is processed.  The workers
-//  are held in WorkerInPath wrappers so that per path execution statistics
-//  can be kept for each worker.
+// ====================================================================
+// A object of type Path represents one path in a job configuration
+// for a given schedule.  It holds the assigned bit position and the
+// list of workers that are an event must pass through when this parh
+// is processed.  The workers are held in WorkerInPath wrappers so
+// that per-path execution statistics can be kept for each worker.
+// ====================================================================
 
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Principal/Worker.h"
-#include "art/Utilities/CurrentProcessingContext.h"
+#include "art/Persistency/Provenance/PathContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
@@ -65,45 +67,40 @@ namespace art {
 
   public: // MEMBER FUNCTIONS - Tasking System
     void runWorkerTask(size_t idx,
-                       size_t const max_idx,
+                       size_t max_idx,
                        EventPrincipal&,
-                       ScheduleID const,
-                       CurrentProcessingContext*,
+                       ScheduleID,
                        std::exception_ptr const*);
-    void workerDoneTask(size_t const idx,
-                        size_t const max_idx,
+    void workerDoneTask(size_t idx,
+                        size_t max_idx,
                         EventPrincipal&,
-                        ScheduleID const,
-                        CurrentProcessingContext*,
+                        ScheduleID,
                         std::exception_ptr const*);
 
   private: // MEMBER FUNCTIONS -- Implementation details
     void process_event_idx_asynch(size_t idx,
                                   size_t max_idx,
                                   EventPrincipal&,
-                                  ScheduleID const,
-                                  CurrentProcessingContext*);
+                                  ScheduleID);
     void process_event_idx(size_t const idx,
                            size_t const max_idx,
                            EventPrincipal&,
-                           ScheduleID const,
-                           CurrentProcessingContext*);
+                           ScheduleID);
     void process_event_workerFinished(size_t const idx,
                                       size_t const max_idx,
                                       EventPrincipal&,
-                                      ScheduleID const,
-                                      bool should_continue,
-                                      CurrentProcessingContext*);
+                                      ScheduleID,
+                                      bool should_continue);
     void process_event_pathFinished(size_t const idx,
                                     EventPrincipal&,
                                     ScheduleID const,
-                                    bool should_continue,
-                                    CurrentProcessingContext*);
+                                    bool should_continue);
 
   private: // MEMBER DATA
     std::atomic<ActionTable const*> actionTable_;
     std::atomic<ActivityRegistry const*> actReg_;
     std::atomic<ScheduleID> scheduleID_;
+    PathContext const pc_;
     std::atomic<int> bitpos_;
     std::atomic<std::string*> name_;
     // Note: threading: We clear their counters.
@@ -111,7 +108,6 @@ namespace art {
     // The PathManager trigger paths info actually owns this.
     // Note: For the end path this will be the nullptr.
     std::atomic<HLTGlobalStatus*> trptr_;
-    std::atomic<CurrentProcessingContext*> cpc_;
     // Tasks waiting for path workers to finish.
     std::atomic<hep::concurrency::WaitingTaskList*> waitingTasks_;
     std::atomic<hlt::HLTState> state_;

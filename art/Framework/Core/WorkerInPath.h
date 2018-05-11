@@ -2,10 +2,14 @@
 #define art_Framework_Core_WorkerInPath_h
 // vim: set sw=2 expandtab :
 
+// ====================================================================
+// The WorkerInPath is a wrapper around a Worker, so that statistics
+// can be managed per path.  A Path holds Workers as these things.
 //
-// A wrapper around a Worker, so that statistics can be
-// managed per path.  A Path holds Workers as these things.
-//
+// For a given module label, there will be n*m WorkerInPath objects,
+// where n is the number of configured schedules, and m is the number
+// paths in which the module label appears.
+// ====================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Principal/ExecutionCounts.h"
@@ -48,7 +52,7 @@ namespace art {
     // Used only by Path
     bool returnCode(ScheduleID const) const;
     std::string const& label() const;
-    bool runWorker(Transition, Principal&, CurrentProcessingContext*);
+    bool runWorker(Transition, Principal&, PathContext const&);
     void runWorker_event_for_endpath(EventPrincipal&,
                                      ScheduleID,
                                      PathContext const&);

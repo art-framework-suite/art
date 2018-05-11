@@ -14,8 +14,6 @@
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PathContext.h"
-#include "art/Utilities/CPCSentry.h"
-#include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Utilities/DebugMacros.h"
@@ -189,8 +187,6 @@ namespace art {
   Worker::beginJob()
   {
     try {
-      CurrentProcessingContext cpc{ScheduleID::first(), nullptr, -1, false};
-      detail::CPCSentry sentry{cpc};
       actReg_.load()->sPreModuleBeginJob.invoke(*md_.load());
       implBeginJob();
       actReg_.load()->sPostModuleBeginJob.invoke(*md_.load());
@@ -238,8 +234,6 @@ namespace art {
   Worker::endJob()
   {
     try {
-      CurrentProcessingContext cpc{ScheduleID::first(), nullptr, -1, false};
-      detail::CPCSentry sentry{cpc};
       actReg_.load()->sPreModuleEndJob.invoke(*md_.load());
       implEndJob();
       actReg_.load()->sPostModuleEndJob.invoke(*md_.load());
@@ -319,7 +313,7 @@ namespace art {
   bool
   Worker::doWork(Transition const trans,
                  Principal& principal,
-                 CurrentProcessingContext* cpc)
+                 PathContext const& pc)
   {
     switch (state_.load()) {
       case Ready:
@@ -351,23 +345,23 @@ namespace art {
           << "Product dependencies have invoked a module execution cycle.\n";
       }
       state_ = Working;
-      detail::CPCSentry sentry{*cpc};
+      ModuleContext const mc{pc, *md_.load()};
       if (trans == Transition::BeginRun) {
-        actReg_.load()->sPreModuleBeginRun.invoke(*md_.load());
-        rc = implDoBegin(dynamic_cast<RunPrincipal&>(principal), cpc);
-        actReg_.load()->sPostModuleBeginRun.invoke(*md_.load());
+        actReg_.load()->sPreModuleBeginRun.invoke(mc);
+        rc = implDoBegin(dynamic_cast<RunPrincipal&>(principal), mc);
+        actReg_.load()->sPostModuleBeginRun.invoke(mc);
       } else if (trans == Transition::EndRun) {
-        actReg_.load()->sPreModuleEndRun.invoke(*md_.load());
-        rc = implDoEnd(dynamic_cast<RunPrincipal&>(principal), cpc);
-        actReg_.load()->sPostModuleEndRun.invoke(*md_.load());
+        actReg_.load()->sPreModuleEndRun.invoke(mc);
+        rc = implDoEnd(dynamic_cast<RunPrincipal&>(principal), mc);
+        actReg_.load()->sPostModuleEndRun.invoke(mc);
       } else if (trans == Transition::BeginSubRun) {
-        actReg_.load()->sPreModuleBeginSubRun.invoke(*md_.load());
-        rc = implDoBegin(dynamic_cast<SubRunPrincipal&>(principal), cpc);
-        actReg_.load()->sPostModuleBeginSubRun.invoke(*md_.load());
+        actReg_.load()->sPreModuleBeginSubRun.invoke(mc);
+        rc = implDoBegin(dynamic_cast<SubRunPrincipal&>(principal), mc);
+        actReg_.load()->sPostModuleBeginSubRun.invoke(mc);
       } else if (trans == Transition::EndSubRun) {
-        actReg_.load()->sPreModuleEndSubRun.invoke(*md_.load());
-        rc = implDoEnd(dynamic_cast<SubRunPrincipal&>(principal), cpc);
-        actReg_.load()->sPostModuleEndSubRun.invoke(*md_.load());
+        actReg_.load()->sPreModuleEndSubRun.invoke(mc);
+        rc = implDoEnd(dynamic_cast<SubRunPrincipal&>(principal), mc);
+        actReg_.load()->sPostModuleEndSubRun.invoke(mc);
       }
       state_ = Pass;
     }
@@ -562,26 +556,28 @@ namespace art {
     }
   }
 
-  class RunWorkerFunctor {
-  public:
-    RunWorkerFunctor(Worker* w,
-                     EventPrincipal& p,
-                     ScheduleID const sid,
-                     PathContext const& pc)
-      : w_{w}, p_{p}, sid_{sid}, pc_{pc}
-    {}
-    void
-    operator()() const
-    {
-      w_->runWorker(p_, sid_, pc_);
-    }
+  namespace {
+    class RunWorkerFunctor {
+    public:
+      RunWorkerFunctor(Worker* w,
+                       EventPrincipal& p,
+                       ScheduleID const sid,
+                       PathContext const& pc)
+        : w_{w}, p_{p}, sid_{sid}, pc_{pc}
+      {}
+      void
+      operator()() const
+      {
+        w_->runWorker(p_, sid_, pc_);
+      }
 
-  private:
-    Worker* w_;
-    EventPrincipal& p_;
-    ScheduleID const sid_;
-    PathContext const pc_; // Must own because it is transient
-  };
+    private:
+      Worker* w_;
+      EventPrincipal& p_;
+      ScheduleID const sid_;
+      PathContext const pc_; // Must own because it is transient
+    };
+  }
 
   void
   Worker::runWorker(EventPrincipal& p,

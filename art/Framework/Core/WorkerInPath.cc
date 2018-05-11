@@ -148,12 +148,12 @@ namespace art {
   }
 
   bool
-  WorkerInPath::runWorker(Transition trans,
+  WorkerInPath::runWorker(Transition const trans,
                           Principal& principal,
-                          CurrentProcessingContext* cpc)
+                          PathContext const& pc)
   {
     // Note: We ignore the return code because we do not process events here.
-    worker_.load()->doWork(trans, principal, cpc);
+    worker_.load()->doWork(trans, principal, pc);
     return true;
   }
 

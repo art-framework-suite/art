@@ -11,7 +11,6 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Utilities/CPCSentry.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -92,10 +91,8 @@ namespace art {
     {}
 
     bool
-    Filter::doBeginRun(RunPrincipal& rp,
-                       cet::exempt_ptr<CurrentProcessingContext const> cpc)
+    Filter::doBeginRun(RunPrincipal& rp, ModuleContext const& mc[[gnu::unused]])
     {
-      detail::CPCSentry sentry{*cpc};
       Run r{rp, moduleDescription(), RangeSet::forRun(rp.runID())};
       bool const rc = beginRun(r);
       r.movePutProductsToPrincipal(rp);
@@ -109,10 +106,8 @@ namespace art {
     }
 
     bool
-    Filter::doEndRun(RunPrincipal& rp,
-                     cet::exempt_ptr<CurrentProcessingContext const> cpc)
+    Filter::doEndRun(RunPrincipal& rp, ModuleContext const& mc[[gnu::unused]])
     {
-      detail::CPCSentry sentry{*cpc};
       Run r{rp, moduleDescription(), rp.seenRanges()};
       bool const rc = endRun(r);
       r.movePutProductsToPrincipal(rp);
@@ -127,9 +122,8 @@ namespace art {
 
     bool
     Filter::doBeginSubRun(SubRunPrincipal& srp,
-                          cet::exempt_ptr<CurrentProcessingContext const> cpc)
+                          ModuleContext const& mc[[gnu::unused]])
     {
-      detail::CPCSentry sentry{*cpc};
       SubRun sr{srp, moduleDescription(), RangeSet::forSubRun(srp.subRunID())};
       bool const rc = beginSubRun(sr);
       sr.movePutProductsToPrincipal(srp);
@@ -144,9 +138,8 @@ namespace art {
 
     bool
     Filter::doEndSubRun(SubRunPrincipal& srp,
-                        cet::exempt_ptr<CurrentProcessingContext const> cpc)
+                        ModuleContext const& mc[[gnu::unused]])
     {
-      detail::CPCSentry sentry{*cpc};
       SubRun sr{srp, moduleDescription(), srp.seenRanges()};
       bool const rc = endSubRun(sr);
       sr.movePutProductsToPrincipal(srp);
@@ -167,7 +160,6 @@ namespace art {
                     atomic<size_t>& counts_passed,
                     atomic<size_t>& counts_failed)
     {
-      //      detail::CPCSentry sentry{*cpc};
       Event e{ep, moduleDescription()};
       ++counts_run;
       bool rc = false;

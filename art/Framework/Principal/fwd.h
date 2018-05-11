@@ -11,7 +11,6 @@ namespace art {
 
   class ActionTable; // Action.h
   class ConsumesRecorder;
-  class CurrentProcessingContext;
   class DataViewImpl;
   class Event;
   class EventPrincipal;

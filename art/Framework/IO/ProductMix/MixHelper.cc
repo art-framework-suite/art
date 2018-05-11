@@ -97,14 +97,15 @@ namespace {
   }
 
   std::unique_ptr<CLHEP::RandFlat>
-  initDist(art::MixHelper::Mode readMode)
+  initDist(std::string const& moduleLabel, art::MixHelper::Mode const readMode)
   {
     using namespace art;
     std::unique_ptr<CLHEP::RandFlat> result;
     if (readMode > MixHelper::Mode::SEQUENTIAL) {
       if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
         result = std::make_unique<CLHEP::RandFlat>(
-          ServiceHandle<RandomNumberGenerator> {}->getEngine());
+          ServiceHandle<RandomNumberGenerator> {}->getEngine(
+            ScheduleID::first(), moduleLabel));
       } else {
         throw Exception(errors::Configuration, "MixHelper")
           << "Random event mixing selected but RandomNumberGenerator service "
@@ -127,7 +128,7 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
   , readMode_{initReadMode_(pset.get<std::string>("readMode", "sequential"))}
   , coverageFraction_{initCoverageFraction(pset)}
   , canWrapFiles_{pset.get<bool>("wrapFiles", false)}
-  , dist_{initDist(readMode_)}
+  , dist_{initDist(pset.get<std::string>("module_label"), readMode_)}
 {}
 
 void

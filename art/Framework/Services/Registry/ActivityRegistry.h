@@ -295,35 +295,35 @@ public:
     sPostModule;
 
   // Signal is emitted before the module starts processing beginRun
-  GlobalSignal<detail::SignalResponseType::FIFO, void(ModuleDescription const&)>
+  GlobalSignal<detail::SignalResponseType::FIFO, void(ModuleContext const&)>
     sPreModuleBeginRun;
 
   // Signal is emitted after the module finished processing beginRun
-  GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleDescription const&)>
+  GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleContext const&)>
     sPostModuleBeginRun;
 
   // Signal is emitted before the module starts processing endRun
-  GlobalSignal<detail::SignalResponseType::FIFO, void(ModuleDescription const&)>
+  GlobalSignal<detail::SignalResponseType::FIFO, void(ModuleContext const&)>
     sPreModuleEndRun;
 
   // Signal is emitted after the module finished processing endRun
-  GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleDescription const&)>
+  GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleContext const&)>
     sPostModuleEndRun;
 
   // Signal is emitted before the module starts processing beginSubRun
-  GlobalSignal<detail::SignalResponseType::FIFO, void(ModuleDescription const&)>
+  GlobalSignal<detail::SignalResponseType::FIFO, void(ModuleContext const&)>
     sPreModuleBeginSubRun;
 
   // Signal is emitted after the module finished processing beginSubRun
-  GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleDescription const&)>
+  GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleContext const&)>
     sPostModuleBeginSubRun;
 
   // Signal is emitted before the module starts processing endSubRun
-  GlobalSignal<detail::SignalResponseType::FIFO, void(ModuleDescription const&)>
+  GlobalSignal<detail::SignalResponseType::FIFO, void(ModuleContext const&)>
     sPreModuleEndSubRun;
 
   // Signal is emitted after the module finished processing endSubRun
-  GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleDescription const&)>
+  GlobalSignal<detail::SignalResponseType::LIFO, void(ModuleContext const&)>
     sPostModuleEndSubRun;
 
 }; // ActivityRegistry

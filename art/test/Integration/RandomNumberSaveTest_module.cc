@@ -70,7 +70,7 @@ operator<<(std::ostream& os, arttest::RandomNumberSaveTest::prod_t const& v)
 
 arttest::RandomNumberSaveTest::RandomNumberSaveTest(Parameters const& p)
   : myLabel_{p.get_PSet().get<std::string>("module_label")}
-  , dist_{createEngine(p().seed())}
+  , dist_{createEngine(p.get_PSet())}
   , dieOnNthEvent_{p().dieOnNthEvent()}
   , genUnsaved_{p().genUnsaved()}
 {

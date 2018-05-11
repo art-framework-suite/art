@@ -816,7 +816,7 @@ art::MixFilter<T>::initEngine_(fhicl::ParameterSet const& p)
   // If we can't create one of these, the helper will deal with the
   // situation accordingly.
   if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
-    createEngine(p.get<long>("seed", -1));
+    createEngine(p);
   }
   return p;
 }

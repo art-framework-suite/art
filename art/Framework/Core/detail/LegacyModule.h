@@ -30,25 +30,26 @@ namespace art {
       using label_t = EngineCreator::label_t;
 
       base_engine_t&
-      createEngine(seed_t const seed)
+      createEngine(fhicl::ParameterSet const& pset)
       {
-        return EngineCreator::createEngine(ScheduleID::first(), seed);
+        return EngineCreator::createEngine(ScheduleID::first(), pset);
       }
 
       base_engine_t&
-      createEngine(seed_t const seed, std::string const& kind_of_engine_to_make)
+      createEngine(fhicl::ParameterSet const& pset,
+                   std::string const& kind_of_engine_to_make)
       {
         return EngineCreator::createEngine(
-          ScheduleID::first(), seed, kind_of_engine_to_make);
+          ScheduleID::first(), pset, kind_of_engine_to_make);
       }
 
       base_engine_t&
-      createEngine(seed_t seed,
+      createEngine(fhicl::ParameterSet const& pset,
                    std::string const& kind_of_engine_to_make,
                    label_t const& engine_label)
       {
         return EngineCreator::createEngine(
-          ScheduleID::first(), seed, kind_of_engine_to_make, engine_label);
+          ScheduleID::first(), pset, kind_of_engine_to_make, engine_label);
       }
 
       class ScheduleIDSentry;

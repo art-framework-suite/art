@@ -1,13 +1,10 @@
 set(art_Utilities_sources
   ensureTable.cc
-  CPCSentry.cc
-  CurrentProcessingContext.cc
   ExceptionMessages.cc
   Globals.cc
   LinuxProcMgr.cc
   MallocOpts.cc
   parent_path.cc
-  PerThread.cc
   PluginSuffixes.cc
   RegexMatch.cc
   ScheduleID.cc

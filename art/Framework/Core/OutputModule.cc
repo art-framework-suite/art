@@ -27,8 +27,6 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/Selections.h"
-#include "art/Utilities/CPCSentry.h"
-#include "art/Utilities/CurrentProcessingContext.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
@@ -242,10 +240,8 @@ namespace art {
   }
 
   bool
-  OutputModule::doBeginRun(RunPrincipal const& rp,
-                           CurrentProcessingContext const* cpc)
+  OutputModule::doBeginRun(RunPrincipal const& rp, ModuleContext const&)
   {
-    detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp);
     Run const r{rp, moduleDescription()};
@@ -255,9 +251,8 @@ namespace art {
 
   bool
   OutputModule::doBeginSubRun(SubRunPrincipal const& srp,
-                              CurrentProcessingContext const* cpc)
+                              ModuleContext const& mc[[gnu::unused]])
   {
-    detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "beginSubRun called\n";
     beginSubRun(srp);
     SubRun const sr{srp, moduleDescription()};
@@ -273,7 +268,6 @@ namespace art {
                         std::atomic<std::size_t>& counts_passed,
                         std::atomic<std::size_t>& /*counts_failed*/)
   {
-    //    detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "doEvent called\n";
     Event const e{ep, moduleDescription()};
     if (wantAllEvents() || wantEvent(e)) {
@@ -320,9 +314,8 @@ namespace art {
 
   bool
   OutputModule::doEndSubRun(SubRunPrincipal const& srp,
-                            CurrentProcessingContext const* cpc)
+                            ModuleContext const& mc[[gnu::unused]])
   {
-    detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "endSubRun called\n";
     endSubRun(srp);
     SubRun const sr{srp, moduleDescription()};
@@ -346,9 +339,8 @@ namespace art {
 
   bool
   OutputModule::doEndRun(RunPrincipal const& rp,
-                         CurrentProcessingContext const* cpc)
+                         ModuleContext const& mc[[gnu::unused]])
   {
-    detail::CPCSentry sentry{*cpc};
     FDEBUG(2) << "endRun called\n";
     endRun(rp);
     Run const r{rp, moduleDescription()};

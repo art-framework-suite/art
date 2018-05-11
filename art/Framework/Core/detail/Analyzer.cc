@@ -2,14 +2,11 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/Observer.h"
 #include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Utilities/CPCSentry.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <ostream>
 
@@ -85,10 +82,8 @@ namespace art {
     {}
 
     bool
-    Analyzer::doBeginRun(RunPrincipal& rp,
-                         cet::exempt_ptr<CurrentProcessingContext const> cpc)
+    Analyzer::doBeginRun(RunPrincipal& rp, ModuleContext const&)
     {
-      detail::CPCSentry sentry{*cpc};
       Run const r{rp, moduleDescription()};
       beginRun(r);
       return true;
@@ -99,10 +94,8 @@ namespace art {
     {}
 
     bool
-    Analyzer::doEndRun(RunPrincipal& rp,
-                       cet::exempt_ptr<CurrentProcessingContext const> cpc)
+    Analyzer::doEndRun(RunPrincipal& rp, ModuleContext const&)
     {
-      detail::CPCSentry sentry{*cpc};
       Run const r{rp, moduleDescription()};
       endRun(r);
       return true;
@@ -113,10 +106,8 @@ namespace art {
     {}
 
     bool
-    Analyzer::doBeginSubRun(SubRunPrincipal& srp,
-                            cet::exempt_ptr<CurrentProcessingContext const> cpc)
+    Analyzer::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const&)
     {
-      detail::CPCSentry sentry{*cpc};
       SubRun const sr{srp, moduleDescription()};
       beginSubRun(sr);
       return true;
@@ -127,10 +118,8 @@ namespace art {
     {}
 
     bool
-    Analyzer::doEndSubRun(SubRunPrincipal& srp,
-                          cet::exempt_ptr<CurrentProcessingContext const> cpc)
+    Analyzer::doEndSubRun(SubRunPrincipal& srp, ModuleContext const&)
     {
-      detail::CPCSentry sentry{*cpc};
       SubRun const sr{srp, moduleDescription()};
       endSubRun(sr);
       return true;
@@ -148,7 +137,6 @@ namespace art {
                       std::atomic<std::size_t>& counts_passed,
                       std::atomic<std::size_t>& /*counts_failed*/)
     {
-      //      detail::CPCSentry sentry{*cpc};
       detail::PVSentry pvSentry{processAndEventSelectors()};
       Event const e{ep, moduleDescription()};
       if (wantAllEvents() || wantEvent(e)) {

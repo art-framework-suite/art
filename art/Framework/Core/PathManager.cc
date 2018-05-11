@@ -17,7 +17,6 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleType.h"
-#include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/PluginSuffixes.h"
@@ -542,10 +541,7 @@ namespace art {
         module_threading_type,
         ProcessConfiguration{processName_, procPS_.id(), getReleaseVersion()}};
 
-      string pathName{"ctor"};
-      CurrentProcessingContext cpc{ScheduleID::first(), &pathName, 0, false};
-      cpc.activate(0, &md);
-      detail::CPCSentry cpc_sentry{cpc};
+      // FIXME: provide context information?
       actReg_.sPreModuleConstruction.invoke(md);
 
       auto sid = ScheduleID::first();

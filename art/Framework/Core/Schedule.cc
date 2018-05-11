@@ -16,7 +16,6 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PathContext.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
-#include "art/Utilities/CPCSentry.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "art/Version/GetReleaseVersion.h"
@@ -90,10 +89,6 @@ namespace art {
       "TriggerResults",
       ModuleThreadingType::replicated,
       ProcessConfiguration{processName, proc_pset.id(), getReleaseVersion()}};
-    string pathName{"ctor"};
-    CurrentProcessingContext cpc{scheduleID, &pathName, 0, false};
-    cpc.activate(0, &md);
-    detail::CPCSentry cpc_sentry{cpc};
     actReg_.load()->sPreModuleConstruction.invoke(md);
     auto producer = std::make_shared<TriggerResultInserter>(
       trig_pset, scheduleID, triggerPathsInfo_.load()->pathResults());

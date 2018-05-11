@@ -24,8 +24,6 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/ProcessConfigurationRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Utilities/CPCSentry.h"
-#include "art/Utilities/CurrentProcessingContext.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/ScheduleIteration.h"
@@ -728,8 +726,6 @@ namespace art {
       // FIXME: This assert is causing a data race!
       // assert(subRunPrincipal_->subRunID().isValid());
       {
-        CurrentProcessingContext cpc{sid, nullptr, -1, false};
-        detail::CPCSentry sentry{cpc};
         actReg_->sPreSourceEvent.invoke(sid);
       }
       TDEBUG_FUNC_SI_MSG(5,
@@ -750,8 +746,6 @@ namespace art {
       eventPrincipals_->at(sid)->enableLookupOfProducedProducts(
         producedProductLookupTables_);
       {
-        CurrentProcessingContext cpc{sid, nullptr, -1, false};
-        detail::CPCSentry sentry{cpc};
         Event const e{*eventPrincipals_->at(sid), ModuleDescription{}};
         actReg_->sPostSourceEvent.invoke(e, sid);
       }
@@ -884,8 +878,6 @@ namespace art {
                           EndPathFunctor{this, eventLoopTask, sid});
       {
         Event const ev{*eventPrincipals_->at(sid), ModuleDescription{}};
-        CurrentProcessingContext cpc{sid, nullptr, -1, false};
-        detail::CPCSentry sentry{cpc};
         actReg_->sPreProcessEvent.invoke(ev, sid);
       }
       // Start the trigger paths running.  When they finish
@@ -1076,8 +1068,6 @@ namespace art {
     }
     {
       Event const ev{*eventPrincipals_->at(sid), ModuleDescription{}};
-      CurrentProcessingContext cpc{sid, nullptr, -1, false};
-      detail::CPCSentry sentry{cpc};
       actReg_->sPostProcessEvent.invoke(ev, sid);
     }
     finishEventAsync(eventLoopTask, sid);
