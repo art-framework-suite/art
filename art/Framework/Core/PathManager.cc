@@ -571,7 +571,7 @@ namespace art {
         auto fill_replicated_module =
           [&replicated_modules, &modPS, &md, this](ScheduleID const sid) {
             auto repl_result = makeModule_(modPS, md, sid);
-            if (!repl_result.second.empty()) {
+            if (repl_result.second.empty()) {
               replicated_modules[sid].reset(repl_result.first);
             }
           };
