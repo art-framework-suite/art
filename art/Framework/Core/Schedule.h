@@ -102,16 +102,15 @@ namespace art {
                                  EventPrincipal&,
                                  ScheduleID);
 
-  private: // Member Data -- Implementation details.
+  private:
     // const after ctor.
     std::atomic<ActionTable const*> actionTable_;
-    // const after ctor.
     std::atomic<ActivityRegistry const*> actReg_;
-    // const after ctor.
     std::atomic<PathsInfo*> triggerPathsInfo_;
-    // const after ctor.
     std::atomic<Worker*> results_inserter_;
-    // Dynamic, cause an error if more than one thread processes an event.
+
+    // Dynamic: cause an error if more than one thread processes an
+    // event.
     std::atomic<int> runningWorkerCnt_;
   };
 } // namespace art

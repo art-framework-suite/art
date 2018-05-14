@@ -117,7 +117,6 @@ namespace art {
     void endJob();
     void openInputFile();
     void openSomeOutputFiles();
-    void openAllOutputFiles();
     void closeInputFile();
     void closeSomeOutputFiles();
     void closeAllOutputFiles();

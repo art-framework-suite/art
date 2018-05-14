@@ -242,16 +242,6 @@ namespace art {
     }
   }
 
-  void
-  EndPathExecutor::openAllOutputFiles(FileBlock& fb)
-  {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    for (auto ow : *outputWorkers_.load()) {
-      ow->openFile(fb);
-      actReg_.load()->sPostOpenOutputFile.invoke(ow->label());
-    }
-  }
-
   //
   //  MEMBER FUNCTIONS -- Begin/End Run
   //
@@ -267,38 +257,10 @@ namespace art {
   }
 
   void
-  EndPathExecutor::setAuxiliaryRangeSetID(RunPrincipal& rp)
+  EndPathExecutor::setRunAuxiliaryRangeSetID(RangeSet const& rangeSet)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    if (runRangeSetHandler_.load()->at(ScheduleID::first())->type() ==
-        RangeSetHandler::HandlerType::Open) {
-      // We are using EmptyEvent source, need to merge
-      // what the schedules have seen.
-      RangeSet mergedSeenRanges;
-      for (auto& uptr_rsh : *runRangeSetHandler_.load()) {
-        mergedSeenRanges.merge(uptr_rsh->seenRanges());
-      }
-      rp.updateSeenRanges(mergedSeenRanges);
-      for (auto ow : *outputWorkers_.load()) {
-        ow->setRunAuxiliaryRangeSetID(mergedSeenRanges);
-      }
-      return;
-    }
-    // Since we are using already existing ranges, all the range set
-    // handlers have the same ranges, use the first one.
-    // handler with the largest event number, that will be the
-    // one which we will use as the file switch boundary.  Note
-    // that is may not match the exactly the schedule that triggered
-    // the switch.  Do we need to fix this?
-    unique_ptr<RangeSetHandler> rshAtSwitch{
-      runRangeSetHandler_.load()->at(ScheduleID::first())->clone()};
-    if (fileStatus_.load() != OutputFileStatus::Switching) {
-      // We are at the end of the job.
-      rshAtSwitch->flushRanges();
-    }
-    rp.updateSeenRanges(rshAtSwitch->seenRanges());
     for (auto ow : *outputWorkers_.load()) {
-      ow->setRunAuxiliaryRangeSetID(rshAtSwitch->seenRanges());
+      ow->setRunAuxiliaryRangeSetID(rangeSet);
     }
   }
 
@@ -335,106 +297,13 @@ namespace art {
   // Called by EventProcessor::finalize<Level::SubRun>()
   // just before endSubRun() and writeSubRun().
   void
-  EndPathExecutor::setAuxiliaryRangeSetID(SubRunPrincipal& srp)
+  EndPathExecutor::setSubRunAuxiliaryRangeSetID(RangeSet const& rs)
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    if (subRunRangeSetHandler_.load()->at(ScheduleID::first())->type() ==
-        RangeSetHandler::HandlerType::Open) {
-      // We are using EmptyEvent source, need to merge
-      // what the schedules have seen.
-      RangeSet mergedRS;
-      for (auto& rsh : *subRunRangeSetHandler_.load()) {
-        mergedRS.merge(rsh->seenRanges());
-      }
-      srp.updateSeenRanges(mergedRS);
-      for (auto ow : *outputWorkers_.load()) {
-        // For RootOutput this enters the possibly split
-        // range set into the range set db.
-        ow->setSubRunAuxiliaryRangeSetID(mergedRS);
-      }
-      return;
-    }
-    // Ranges are split/flushed only for a RangeSetHandler whose dynamic
-    // type is 'ClosedRangeSetHandler'.
-    //
-    // Consider the following range-sets
-    //
-    //  SubRun RangeSet:
-    //
-    //    { Run 1 : SubRun 1 : Events [1,7) }  <-- Current
-    //
-    //  Run RangeSet:
-    //
-    //    { Run 1 : SubRun 0 : Events [5,11)
-    //              SubRun 1 : Events [1,7)    <-- Current
-    //              SubRun 1 : Events [9,15) }
-    //
-    // For a range split just before SubRun 1, Event 6, the
-    // range sets should become:
-    //
-    //  SubRun RangeSet:
-    //
-    //    { Run 1 : SubRun 1 : Events [1,6)
-    //              SubRun 1 : Events [6,7) } <-- Updated
-    //
-    //  Run RangeSet:
-    //
-    //    { Run 1 : SubRun 0 : Events [5,11)
-    //              SubRun 1 : Events [1,6)
-    //              SubRun 1 : Events [6,7)   <-- Updated
-    //              SubRun 1 : Events [9,15) }
-    //
-    // Since we are using already existing ranges, all the range set
-    // handlers have the same ranges.  Find the closed range set
-    // handler with the largest event number, that will be the
-    // one which we will use as the file switch boundary.  Note
-    // that is may not match the exactly the schedule that triggered
-    // the switch.  Do we need to fix this?
-    //
-    // If we do not find any handlers with valid event info then
-    // we use the first one, which is just fine.  This happens
-    // for example when we are dropping all events.
-    //
-    unsigned largestEvent = 1U;
-    ScheduleID idxOfMax{ScheduleID::first()};
-    ScheduleID idx{ScheduleID::first()};
-    for (auto& val : *subRunRangeSetHandler_.load()) {
-      auto rsh = dynamic_cast<ClosedRangeSetHandler*>(val);
-      // Make sure the event number is a valid event number
-      // before using it. It can be invalid in the handler if
-      // we have not yet read an event, which happens with empty
-      // subruns and when we are dropping all events.
-      if (rsh->eventInfo().id().isValid() && !rsh->eventInfo().id().isFlush()) {
-        if (rsh->eventInfo().id().event() > largestEvent) {
-          largestEvent = rsh->eventInfo().id().event();
-          idxOfMax = idx;
-        }
-      }
-      idx = idx.next();
-    }
-    unique_ptr<RangeSetHandler> rshAtSwitch{
-      subRunRangeSetHandler_.load()->at(idxOfMax)->clone()};
-    if (fileStatus_.load() == OutputFileStatus::Switching) {
-      rshAtSwitch->maybeSplitRange();
-      unique_ptr<RangeSetHandler> runRSHAtSwitch{
-        runRangeSetHandler_.load()->at(idxOfMax)->clone()};
-      runRSHAtSwitch->maybeSplitRange();
-      for (auto& rsh : *runRangeSetHandler_.load()) {
-        rsh = runRSHAtSwitch->clone();
-      }
-    } else {
-      // We are at the end of the job.
-      rshAtSwitch->flushRanges();
-    }
-    for (auto& val : *subRunRangeSetHandler_.load()) {
-      delete val;
-      val = rshAtSwitch->clone();
-    }
-    srp.updateSeenRanges(rshAtSwitch->seenRanges());
     for (auto ow : *outputWorkers_.load()) {
-      // For RootOutput this enters the possibly split
-      // range set into the range set db.
-      ow->setSubRunAuxiliaryRangeSetID(rshAtSwitch->seenRanges());
+      // For RootOutput this enters the possibly split range set into
+      // the range set db.
+      ow->setSubRunAuxiliaryRangeSetID(rs);
     }
   }
 
