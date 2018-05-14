@@ -31,16 +31,8 @@ namespace art {
   }
 
   WorkerInPath::WorkerInPath(Worker* w) noexcept
-  {
-    worker_ = w;
-    filterAction_ = Normal;
-    returnCode_ = false;
-    waitingTasks_ = new WaitingTaskList;
-    counts_visited_ = 0;
-    counts_passed_ = 0;
-    counts_failed_ = 0;
-    counts_thrown_ = 0;
-  }
+    : WorkerInPath{w, Normal}
+  {}
 
   WorkerInPath::WorkerInPath(Worker* w, FilterAction const fa) noexcept
   {
@@ -98,7 +90,7 @@ namespace art {
 
   // Used only by Path
   bool
-  WorkerInPath::returnCode(ScheduleID const /*scheduleID*/) const
+  WorkerInPath::returnCode() const
   {
     return returnCode_.load();
   }

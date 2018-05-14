@@ -268,7 +268,7 @@ namespace art {
       }
       // Note: This will only be set false by a filter which has rejected
       // (impossible on the end path!).
-      should_continue = workerInPath.returnCode(sid);
+      should_continue = workerInPath.returnCode();
       {
         ostringstream msg;
         msg << "idx: " << idx << " should_continue: " << should_continue;
@@ -448,7 +448,7 @@ namespace art {
     TDEBUG_BEGIN_TASK_SI(4, "workerDoneTask", sid);
     auto& workerInPath = (*workers_.load())[idx];
     // Note: This will only be set false by a filter which has rejected.
-    bool new_should_continue = workerInPath.returnCode(sid);
+    bool new_should_continue = workerInPath.returnCode();
     {
       ostringstream msg;
       msg << "new_should_continue: " << new_should_continue;

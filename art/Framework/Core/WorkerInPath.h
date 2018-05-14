@@ -15,6 +15,7 @@
 #include "art/Framework/Principal/ExecutionCounts.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Utilities/Transition.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "hep_concurrency/WaitingTask.h"
 
 #include <atomic>
@@ -37,7 +38,8 @@ namespace art {
       FilterAction filterAction;
     };
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
+  public:
+    // Special Member Functions
     ~WorkerInPath() noexcept;
     explicit WorkerInPath(Worker*) noexcept;
     WorkerInPath(Worker*, FilterAction) noexcept;
@@ -46,11 +48,12 @@ namespace art {
     WorkerInPath& operator=(WorkerInPath const&) = delete;
     WorkerInPath& operator=(WorkerInPath&&) noexcept;
 
-  public: // MEMBER FUNCTIONS -- API for user
+    // API for user
     Worker* getWorker() const;
     FilterAction filterAction() const;
+
     // Used only by Path
-    bool returnCode(ScheduleID const) const;
+    bool returnCode() const;
     std::string const& label() const;
     bool runWorker(Transition, Principal&, PathContext const&);
     void runWorker_event_for_endpath(EventPrincipal&,
@@ -60,27 +63,26 @@ namespace art {
                          PathContext const&);
     // Used only by Path
     void clearCounters();
+
     // Used by writeSummary
     std::size_t timesVisited() const;
-    // Used by writeSummary
     std::size_t timesPassed() const;
-    // Used by writeSummary
     std::size_t timesFailed() const;
-    // Used by writeSummary
     std::size_t timesExcept() const;
 
-  public: // MEMBER FUNCTIONS -- Task Structure
+    // Task Structure
     void workerInPathDoneTask(ScheduleID const, std::exception_ptr const*);
 
-  private: // MEMBER DATA
+  private:
     std::atomic<Worker*> worker_;
     std::atomic<FilterAction> filterAction_;
+    //    ModuleContext const mc_;
 
-  private: // MEMBER DATA -- Per-schedule
+    // Per-schedule
     std::atomic<bool> returnCode_;
     std::atomic<hep::concurrency::WaitingTaskList*> waitingTasks_;
 
-  private: // MEMBER DATA -- Counts
+    // Counts
     std::atomic<std::size_t> counts_visited_;
     std::atomic<std::size_t> counts_passed_;
     std::atomic<std::size_t> counts_failed_;
