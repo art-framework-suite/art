@@ -61,7 +61,7 @@ namespace art {
   class Schedule {
   public: // Special Member Functions
     ~Schedule() noexcept;
-    Schedule(ScheduleID const,
+    Schedule(ScheduleID,
              PathManager&,
              std::string const& processName,
              fhicl::ParameterSet const& proc_pset,
@@ -72,16 +72,15 @@ namespace art {
              ActivityRegistry const&);
 
     Schedule(Schedule const&) = delete;
-    Schedule(Schedule&&) noexcept;
+    Schedule(Schedule&&) = delete;
     Schedule& operator=(Schedule const&) = delete;
-    Schedule& operator=(Schedule&&) noexcept;
+    Schedule& operator=(Schedule&&) = delete;
 
   public: // API presented to EventProcessor
     void process(Transition, Principal&);
     void process_event(hep::concurrency::WaitingTask* endPathTask,
                        tbb::task* eventLoopTask,
-                       EventPrincipal&,
-                       ScheduleID const);
+                       EventPrincipal&);
     void beginJob();
     void endJob();
     void respondToOpenInputFile(FileBlock const&);
@@ -93,17 +92,16 @@ namespace art {
     void pathsDoneTask(hep::concurrency::WaitingTask* endPathTask,
                        tbb::task* eventLoopTask,
                        EventPrincipal&,
-                       ScheduleID const,
                        std::exception_ptr const*);
 
   private: // Member Functions -- Implementation details.
     void process_event_pathsDone(hep::concurrency::WaitingTask* endPathTask,
                                  tbb::task* eventLoopTask,
-                                 EventPrincipal&,
-                                 ScheduleID);
+                                 EventPrincipal&);
 
   private:
     // const after ctor.
+    ScheduleContext const sc_;
     std::atomic<ActionTable const*> actionTable_;
     std::atomic<ActivityRegistry const*> actReg_;
     std::atomic<PathsInfo*> triggerPathsInfo_;

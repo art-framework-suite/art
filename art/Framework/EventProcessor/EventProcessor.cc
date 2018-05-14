@@ -26,7 +26,6 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
-#include "art/Utilities/ScheduleIteration.h"
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Utilities/bold_fontify.h"
@@ -100,6 +99,8 @@ namespace art {
 
   EventProcessor::EventProcessor(ParameterSet const& pset)
     : scheduler_{pset.get<ParameterSet>("services.scheduler")}
+    , scheduleIteration_{static_cast<ScheduleID::size_type>(
+        scheduler_->num_schedules())}
     , servicesManager_{create_services_manager(
         pset.get<ParameterSet>("services"),
         actReg_)}
@@ -143,13 +144,12 @@ namespace art {
     // in their constructors, instead they must use the beginJob
     // callout.
     scheduler_->initialize_task_manager();
-    auto const nschedules = scheduler_->num_schedules();
-    auto const nthreads = scheduler_->num_threads();
     auto const& processName{pset.get<string>("process_name")};
     Globals::instance()->setProcessName(processName);
     {
       ostringstream msg;
-      msg << "nschedules: " << nschedules << " nthreads: " << nthreads;
+      msg << "nschedules: " << scheduler_->num_schedules()
+          << " nthreads: " << scheduler_->num_threads();
       TDEBUG_FUNC_MSG(5, "EventProcessor::EventProcessor", msg.str());
     }
     ParameterSet triggerPSet;
@@ -158,13 +158,12 @@ namespace art {
     Globals::instance()->setTriggerPSet(triggerPSet);
     Globals::instance()->setTriggerPathNames(pathManager_->triggerPathNames());
     eventPrincipals_->expand_to_num_schedules();
-    ScheduleIteration schedule_iteration(nschedules);
     auto annotate_principal = [this](ScheduleID const sid) {
       auto ep[[gnu::unused]] = &eventPrincipals_->at(sid);
       ANNOTATE_BENIGN_RACE_SIZED(
         ep, sizeof(EventPrincipal*), "EventPrincipal ptr");
     };
-    schedule_iteration.for_each_schedule(annotate_principal);
+    scheduleIteration_.for_each_schedule(annotate_principal);
     auto const errorOnMissingConsumes = scheduler_->errorOnMissingConsumes();
     ConsumesInfo::instance()->setRequireConsumes(errorOnMissingConsumes);
     {
@@ -190,21 +189,28 @@ namespace art {
         producedProductDescriptions_, psSignals_, pc);
     }
     pathManager_->createModulesAndWorkers();
-    endPathExecutor_.reset(new EndPathExecutor{
-      pathManager_, scheduler_->actionTable(), actReg_, outputCallbacks_});
-    auto create =
-      [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
-        schedules_->emplace_back(sid,
-                                 pathManager_,
-                                 processName,
-                                 pset,
-                                 triggerPSet,
-                                 outputCallbacks_,
-                                 producedProductDescriptions_,
-                                 scheduler_->actionTable(),
-                                 actReg_);
-      };
-    schedule_iteration.for_each_schedule(create);
+    auto create = [&processName, &pset, &triggerPSet, this](
+                    ScheduleID const sid) {
+      endPathExecutors_.emplace(std::piecewise_construct,
+                                std::forward_as_tuple(sid),
+                                std::forward_as_tuple(sid,
+                                                      pathManager_,
+                                                      scheduler_->actionTable(),
+                                                      actReg_,
+                                                      outputCallbacks_));
+      schedules_.emplace(std::piecewise_construct,
+                         std::forward_as_tuple(sid),
+                         std::forward_as_tuple(sid,
+                                               pathManager_,
+                                               processName,
+                                               pset,
+                                               triggerPSet,
+                                               outputCallbacks_,
+                                               producedProductDescriptions_,
+                                               scheduler_->actionTable(),
+                                               actReg_));
+    };
+    scheduleIteration_.for_each_schedule(create);
     FDEBUG(2) << pset.to_string() << endl;
     // The input source must be created after the end path executor
     // because the end path executor registers a callback that must
@@ -274,7 +280,8 @@ namespace art {
                });
     }
     {
-      auto const& workers = pathManager_->endPathInfo().workers();
+      auto const& workers =
+        pathManager_->endPathInfo(ScheduleID::first()).workers();
       for_each(workers.cbegin(),
                workers.cend(),
                [&allWorkers](auto const& label_And_worker) {
@@ -297,7 +304,7 @@ namespace art {
     }
     if (nextLevel_.load() == L) {
       nextLevel_ = Level::ReadyToAdvance;
-      if (endPathExecutor_->outputsToClose()) {
+      if (endPathExecutors_.at(ScheduleID::first()).outputsToClose()) {
         setOutputFileStatus(OutputFileStatus::Switching);
         finalizeContainingLevels<L>();
         closeSomeOutputFiles();
@@ -431,21 +438,24 @@ namespace art {
   void
   EventProcessor::recordOutputModuleClosureRequests<Level::Run>()
   {
-    endPathExecutor_->recordOutputClosureRequests(Granularity::Run);
+    endPathExecutors_.at(ScheduleID::first())
+      .recordOutputClosureRequests(Granularity::Run);
   }
 
   template <>
   void
   EventProcessor::recordOutputModuleClosureRequests<Level::SubRun>()
   {
-    endPathExecutor_->recordOutputClosureRequests(Granularity::SubRun);
+    endPathExecutors_.at(ScheduleID::first())
+      .recordOutputClosureRequests(Granularity::SubRun);
   }
 
   template <>
   void
   EventProcessor::recordOutputModuleClosureRequests<Level::Event>()
   {
-    endPathExecutor_->recordOutputClosureRequests(Granularity::Event);
+    endPathExecutors_.at(ScheduleID::first())
+      .recordOutputClosureRequests(Granularity::Event);
   }
 
   class ProcessAllEventsFunctor {
@@ -481,7 +491,6 @@ namespace art {
   void
   EventProcessor::process<most_deeply_nested_level()>()
   {
-    auto const nschedules = Globals::instance()->nschedules();
     if ((shutdown_flag > 0) || !ec_->empty()) {
       return;
     }
@@ -500,10 +509,9 @@ namespace art {
         }
       };
       auto eventLoopTask = new (tbb::task::allocate_root()) Waiter;
-      eventLoopTask->set_ref_count(nschedules + 1);
+      eventLoopTask->set_ref_count(scheduler_->num_schedules() + 1);
 
       tbb::task_list schedule_heads;
-      ScheduleIteration schedule_iteration(nschedules);
       auto create_event_processing_tasks = [&eventLoopTask,
                                             &schedule_heads,
                                             this](ScheduleID const sid) {
@@ -512,7 +520,7 @@ namespace art {
                             ProcessAllEventsFunctor{this, eventLoopTask, sid});
         schedule_heads.push_back(*processAllEventsTask);
       };
-      schedule_iteration.for_each_schedule(create_event_processing_tasks);
+      scheduleIteration_.for_each_schedule(create_event_processing_tasks);
 
       eventLoopTask->spawn_and_wait_for_all(schedule_heads);
       tbb::task::destroy(*eventLoopTask);
@@ -530,12 +538,12 @@ namespace art {
       finalizeContainingLevels<most_deeply_nested_level()>();
       respondToCloseOutputFiles();
       {
-        endPathExecutor_->closeSomeOutputFiles();
+        endPathExecutors_.at(ScheduleID::first()).closeSomeOutputFiles();
         FDEBUG(1) << string(8, ' ') << "closeSomeOutputFiles\n";
       }
-      // We started the switch after advancing the file index
-      // iterator, we must make sure that we read that event before
-      // advancing the iterator again.
+      // We started the switch after advancing to the next item type;
+      // we must make sure that we read that event before advancing
+      // the item type again.
       firstEvent_ = true;
       fileSwitchInProgress_ = false;
     }
@@ -543,10 +551,10 @@ namespace art {
 
   class ReadAndProcessEventFunctor {
   public:
-    ReadAndProcessEventFunctor(EventProcessor* evp,
-                               tbb::task* eventLoopTask,
+    ReadAndProcessEventFunctor(EventProcessor* const evp,
+                               tbb::task* const eventLoopTask,
                                ScheduleID const sid)
-      : evp_(evp), eventLoopTask_(eventLoopTask), sid_(sid)
+      : evp_{evp}, eventLoopTask_{eventLoopTask}, sid_{sid}
     {}
     void
     operator()(exception_ptr const* ex)
@@ -555,8 +563,8 @@ namespace art {
     }
 
   private:
-    EventProcessor* evp_;
-    tbb::task* eventLoopTask_;
+    EventProcessor* const evp_;
+    tbb::task* const eventLoopTask_;
     ScheduleID const sid_;
   };
 
@@ -572,10 +580,9 @@ namespace art {
       readAndProcessAsync(eventLoopTask, sid);
     }
     catch (...) {
-      // Event processing threw an exception.
-      // Use a thread-safe, one-way trapdoor pattern to notify
-      // the main thread.
-      bool expected = false;
+      // Use a thread-safe, one-way trapdoor pattern to notify the
+      // main thread of the exception.
+      bool expected{false};
       if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
         // Put the exception where the main thread can get at it.
         deferredExceptionPtr_ = current_exception();
@@ -587,18 +594,17 @@ namespace art {
                              "terminate event loop because of EXCEPTION");
       return;
     }
-    // And then end this task, which does not terminate event
-    // processing because our parent is the nullptr because
-    // we transferred it to another task.
+    // If no exception, then end this task, which does not terminate
+    // event processing because our parent is the nullptr because we
+    // transferred it to another task.
     TDEBUG_END_TASK_SI(4, "readAndProcessEventTask", sid);
-    return;
   }
 
-  // This is the event loop (also known as the schedule head).
-  // It makes a continuation task (the readAndProcessEventTask)
-  // which reads and processes a single event, creates itself
-  // again as a continuation task, and then exits. We are passed
-  // the EventLoopTask here to keep the thread sanitizer happy.
+  // This is the event loop (also known as the schedule head).  It
+  // makes a continuation task (the readAndProcessEventTask) which
+  // reads and processes a single event, creates itself again as a
+  // continuation task, and then exits. We are passed the
+  // EventLoopTask here to keep the thread sanitizer happy.
   void
   EventProcessor::processAllEventsAsync(tbb::task* eventLoopTask,
                                         ScheduleID const sid)
@@ -613,16 +619,17 @@ namespace art {
     auto readAndProcessEventTask =
       make_waiting_task(tbb::task::self().allocate_continuation(),
                         ReadAndProcessEventFunctor{this, eventLoopTask, sid});
-    // Push the readAndProcessEventTask onto the end of this
-    // thread's tbb scheduling dequeue.
+    // Push the readAndProcessEventTask onto the end of this thread's
+    // TBB scheduling dequeue.
     tbb::task::spawn(*readAndProcessEventTask);
     // And end this task, which does not terminate event processing
     // because our parent is the nullptr because we transferred it
     // to the readAndProcessEventTask with allocate_continuation().
     TDEBUG_END_FUNC_SI(4, "EventProcessor::processAllEventsAsync", sid);
-    // Note: We end and our continuation, the readAndProcessEventTask begins
-    // on this same thread because it is the first task on this thread's
-    // tbb scheduling deque, and we have no parent, and we return the nullptr.
+    // Note: We end and our continuation, the readAndProcessEventTask,
+    // begins on this same thread because it is the first task on this
+    // thread's TBB scheduling deque, and we have no parent, and we
+    // return the nullptr.
   }
 
   // This function is executed as part of the readAndProcessEvent task,
@@ -645,39 +652,33 @@ namespace art {
       TDEBUG_END_FUNC_SI_ERR(4, "readAndProcessAsync", sid, "CLEAN SHUTDOWN");
       return;
     }
-    {
-      endPathExecutor_->check();
-    }
-    // The item type advance and the event read must be
-    // done with the input source lock held, however the
-    // event processing should not be.
+    // The item type advance and the event read must be done with the
+    // input source lock held; however event-processing must not
+    // serialized.
     {
       input::RootMutexSentry lock_input;
       auto do_switch = fileSwitchInProgress_.load();
       if (do_switch) {
-        // We must avoid advancing the iterator after
-        // a schedule has noticed it is time to switch files.
-        // After the switch, we will need to set firstEvent_
-        // true so that the first schedule that resumes after
-        // the switch actually reads the event that the first
-        // schedule which noticed we needed a switch had advanced
-        // the iterator to.
-        // Note: We still have the problem that because the
-        // schedules do not read events at the same time the file
-        // switch point can be up to #nschedules-1 ahead of where
-        // it would have been if there was only one schedule.
-        // If we are switching output files every event in an
-        // attempt to create single event files, this really does
-        // not work out too well.
+        // We must avoid advancing the iterator after a schedule has
+        // noticed it is time to switch files.  After the switch, we
+        // will need to set firstEvent_ true so that the first
+        // schedule that resumes after the switch actually reads the
+        // event that the first schedule which noticed we needed a
+        // switch had advanced the iterator to.
+
+        // Note: We still have the problem that because the schedules
+        // do not read events at the same time the file switch point
+        // can be up to #nschedules-1 ahead of where it would have
+        // been if there was only one schedule.  If we are switching
+        // output files every event in an attempt to create single
+        // event files, this really does not work out too well.
         TDEBUG_END_FUNC_SI_ERR(
           4, "EventProcessor::readAndProcessAsync", sid, "FILE SWITCH");
         return;
       }
-      //
-      //  Check the file index for what comes next and exit
-      //  this task if it is not an event, or if the user
-      //  has asynchronously requested a shutdown.
-      //
+      // Check the next item type and exit this task if it is not an
+      // event, or if the user has asynchronously requested a
+      // shutdown.
       auto expected = true;
       if (firstEvent_.compare_exchange_strong(expected, false)) {
         // Do not advance the item type on the first event.
@@ -709,7 +710,7 @@ namespace art {
         // and we must do that before dropping the lock on the input source
         // which is what is protecting us against a double-advance caused by
         // a different schedule.
-        auto mustClose = endPathExecutor_->outputsToClose();
+        auto mustClose = endPathExecutors_.at(sid).outputsToClose();
         if (mustClose) {
           fileSwitchInProgress_ = true;
           TDEBUG_END_FUNC_SI_ERR(4,
@@ -736,11 +737,11 @@ namespace art {
       eventPrincipals_->at(sid) =
         input_->readEvent(subRunPrincipal_.get()).release();
       assert(eventPrincipals_->at(sid));
-      // The intended behavior here is that the producing services which are
-      // called during the sPostReadEvent cannot see each others put products.
-      // We enforce this by creating the groups for the produced products, but
-      // do not allow the lookups to find them until after the callbacks have
-      // run.
+      // The intended behavior here is that the producing services
+      // which are called during the sPostReadEvent cannot see each
+      // others put products.  We enforce this by creating the groups
+      // for the produced products, but do not allow the lookups to
+      // find them until after the callbacks have run.
       eventPrincipals_->at(sid)->createGroupsForProducedProducts(
         producedProductLookupTables_);
       psSignals_->sPostReadEvent.invoke(*eventPrincipals_->at(sid));
@@ -766,8 +767,8 @@ namespace art {
     // Now process the event.
     processEventAsync(EventLoopTask, sid);
     // And end this task, which does not terminate event processing
-    // because our parent is the nullptr because we transferred it
-    // to the endPathTask.
+    // because our parent is the nullptr because we transferred it to
+    // the endPathTask.
     TDEBUG_END_FUNC_SI(4, "EventProcessor::readAndProcessAsync", sid);
   }
 
@@ -842,31 +843,32 @@ namespace art {
           4, "endPathTask", sid, "terminate event loop because of EXCEPTION");
         return;
       }
-      // WARNING: We only get here if the trigger paths threw
-      // and we are ignoring the exception because of
+      // WARNING: We only get here if the trigger paths threw and we
+      // are ignoring the exception because of
       // actions::IgnoreCompletely.
     }
     processEndPathAsync(eventLoopTask, sid);
-    // And end this task, which does not terminate event
-    // processing because our parent is the nullptr because
-    // it got transferred to the next process event task.
+    // And end this task, which does not terminate event processing
+    // because our parent is the nullptr because it got transferred to
+    // the next process event task.
     TDEBUG_END_TASK_SI(4, "endPathTask", sid);
   }
 
-  // This function is a continuation of the body of the readAndProcessEvent
-  // task. Here we call down to Schedule to do the trigger path processing,
-  // passing it a waiting task which will do the end path processing, finalize
-  // the event, and start the next read and process event task.  Note that
-  // Schedule will spawn a task to process each of the trigger paths, and then
-  // when they are finished, insert the trigger results, and then spawn the
-  // waiting task we gave it to do the end path processing, write the event, and
-  // then start the next event processing task.
+  // This function is a continuation of the body of the
+  // readAndProcessEvent task. Here we call down to Schedule to do the
+  // trigger path processing, passing it a waiting task which will do
+  // the end path processing, finalize the event, and start the next
+  // read and process event task.  Note that Schedule will spawn a
+  // task to process each of the trigger paths, and then when they are
+  // finished, insert the trigger results, and then spawn the waiting
+  // task we gave it to do the end path processing, write the event,
+  // and then start the next event processing task.
   void
   EventProcessor::processEventAsync(tbb::task* eventLoopTask,
                                     ScheduleID const sid)
   {
-    // Note: We are part of the readAndProcessEventTask (schedule head task),
-    // and our parent task is the EventLoopTask.
+    // Note: We are part of the readAndProcessEventTask (schedule head
+    // task), and our parent task is the EventLoopTask.
     TDEBUG_BEGIN_FUNC_SI(4, "EventProcessor::processEventAsync", sid);
     assert(eventPrincipals_->at(sid));
     assert(!eventPrincipals_->at(sid)->eventID().isFlush());
@@ -886,8 +888,8 @@ namespace art {
       // they will spawn the endPathTask which will run the
       // end path, write the event, and start the next event
       // processing task.
-      schedules_->at(sid).process_event(
-        endPathTask, eventLoopTask, *eventPrincipals_->at(sid), sid);
+      schedules_.at(sid).process_event(
+        endPathTask, eventLoopTask, *eventPrincipals_->at(sid));
       // Once the trigger paths are running we are done, exit this task,
       // which does not end event processing because our parent is the
       // nullptr because we transferred it to the endPathTask above.
@@ -1005,7 +1007,7 @@ namespace art {
                                "tbb::task");
     tbb::task::self().set_parent(eventLoopTask);
     try {
-      endPathExecutor_->process_event(*eventPrincipals_->at(sid), sid);
+      endPathExecutors_.at(sid).process_event(*eventPrincipals_->at(sid));
     }
     catch (cet::exception& e) {
       // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
@@ -1050,8 +1052,8 @@ namespace art {
     catch (...) {
       mf::LogError("PassingThrough")
         << "an exception occurred during current event processing\n";
-      // Use a thread-safe, one-way trapdoor pattern to
-      // notify the main thread of the exception.
+      // Use a thread-safe, one-way trapdoor pattern to notify the
+      // main thread of the exception.
       bool expected = false;
       if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
         // Put the exception where the main thread can get at it.
@@ -1081,6 +1083,7 @@ namespace art {
 
   // This function is the main body of the Process End Path task, our
   // parent is the eventLoopTask.
+
   // Here we create a functor which will call down to EndPathExecutor
   // to do the end path processing serially, without using tasks, and
   // then proceed on to write the event, and then start the next event
@@ -1088,23 +1091,23 @@ namespace art {
   // writing the event into a nice package which we then push onto the
   // EndPathExecutor serial task queue.  This ensures that only one
   // event at a time is being processed by the end path.  Essentially
-  // the nschedules end when we push onto the queue, and are recreated
-  // after the event is written to process the next event.
+  // the n schedules end when we push onto the queue, and are
+  // recreated after the event is written to process the next event.
   void
   EventProcessor::processEndPathAsync(tbb::task* eventLoopTask,
                                       ScheduleID const sid)
   {
     // Note: We are part of the endPathTask.
     TDEBUG_BEGIN_FUNC_SI(4, "EventProcessor::processEndPathAsync", sid);
-    // Arrange it so that we can end the task without
-    // terminating event processing.
+    // Arrange it so that we can end the task without terminating
+    // event processing.
     ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
                                  sizeof(tbb::internal::task_prefix),
                                sizeof(tbb::task) +
                                  sizeof(tbb::internal::task_prefix),
                                "tbb::task");
     tbb::task::self().set_parent(nullptr);
-    endPathExecutor_->push(EndPathRunnerFunctor{this, sid, eventLoopTask});
+    endPathQueue_->push(EndPathRunnerFunctor{this, sid, eventLoopTask});
     // Once the end path processing and event finalization processing
     // is queued we are done, exit this task, which does not end event
     // processing because our parent is the nullptr because we transferred
@@ -1134,8 +1137,8 @@ namespace art {
       TDEBUG_FUNC_SI_MSG(5,
                          "EventProcessor::finishEventAsync",
                          sid,
-                         "Calling endPathExecutor_->allAtLimit()");
-      if (endPathExecutor_->allAtLimit()) {
+                         "Calling endPathExecutors_->allAtLimit()");
+      if (endPathExecutors_.at(sid).allAtLimit()) {
         // Set to return to the File level.
         nextLevel_ = highest_level();
       }
@@ -1144,31 +1147,23 @@ namespace art {
       assert(eventPrincipals_->at(sid));
       auto isFlush = eventPrincipals_->at(sid)->eventID().isFlush();
       if (!isFlush) {
-        // Possibly open new output files.
+        // Possibly open new output files.  This is safe to do because
+        // EndPathExecutor functions are called in a serialized
+        // context.
         TDEBUG_FUNC_SI_MSG(5,
                            "EventProcessor::finishEventAsync",
                            sid,
-                           "Calling endPathExecutor_->outputsToOpen()");
-        auto toOpen = endPathExecutor_->outputsToOpen();
-        if (toOpen) {
-          TDEBUG_FUNC_SI_MSG(
-            5,
-            "EventProcessor::finishEventAsync",
-            sid,
-            "Calling endPathExecutor_->openSomeOutputFiles(*fb_)");
-          endPathExecutor_->openSomeOutputFiles(*fb_);
-          FDEBUG(1) << string(8, ' ') << "openSomeOutputFiles\n";
-          respondToOpenOutputFiles();
-        }
+                           "Calling openSomeOutputFiles()");
+        openSomeOutputFiles();
         assert(eventPrincipals_->at(sid));
         assert(!eventPrincipals_->at(sid)->eventID().isFlush());
         TDEBUG_FUNC_SI_MSG(5,
                            "EventProcessor::finishEventAsync",
                            sid,
-                           "Calling endPathExecutor_->writeEvent(sid, "
+                           "Calling endPathExecutors_->writeEvent(sid, "
                            "*eventPrincipals_->at(sid))");
         // Write the event.
-        endPathExecutor_->writeEvent(sid, *eventPrincipals_->at(sid));
+        endPathExecutors_.at(sid).writeEvent(*eventPrincipals_->at(sid));
         FDEBUG(1) << string(8, ' ') << "writeEvent..................("
                   << eventPrincipals_->at(sid)->eventID() << ")\n";
         // And delete the event principal.
@@ -1178,9 +1173,9 @@ namespace art {
       TDEBUG_FUNC_SI_MSG(5,
                          "EventProcessor::finishEventAsync",
                          sid,
-                         "Calling endPathExecutor_->"
+                         "Calling endPathExecutors_->"
                          "recordOutputClosureRequests(Granularity::Event)");
-      endPathExecutor_->recordOutputClosureRequests(Granularity::Event);
+      endPathExecutors_.at(sid).recordOutputClosureRequests(Granularity::Event);
     }
     catch (cet::exception& e) {
       if (scheduler_->actionTable().find(e.root_cause()) !=
@@ -1339,8 +1334,8 @@ namespace art {
                                   " processing the beginJob of the 'source'\n";
       throw;
     }
-    schedules_->at(ScheduleID::first()).beginJob();
-    endPathExecutor_->beginJob();
+    schedules_.at(ScheduleID::first()).beginJob();
+    endPathExecutors_.at(ScheduleID::first()).beginJob();
     actReg_->sPostBeginJob.invoke();
     invokePostBeginJobWorkers_();
   }
@@ -1349,8 +1344,8 @@ namespace art {
   EventProcessor::endJob()
   {
     FDEBUG(1) << string(8, ' ') << "endJob\n";
-    ec_->call([this] { schedules_->at(ScheduleID::first()).endJob(); });
-    ec_->call([this] { endPathExecutor_->endJob(); });
+    ec_->call([this] { schedules_.at(ScheduleID::first()).endJob(); });
+    ec_->call([this] { endPathExecutors_.at(ScheduleID::first()).endJob(); });
     ec_->call([] { ConsumesInfo::instance()->showMissingConsumes(); });
     ec_->call([this] { input_->doEndJob(); });
     ec_->call([this] { actReg_->sPostEndJob.invoke(); });
@@ -1388,14 +1383,15 @@ namespace art {
   void
   EventProcessor::closeInputFile()
   {
-    endPathExecutor_->incrementInputFileNumber();
+    endPathExecutors_.at(ScheduleID::first()).incrementInputFileNumber();
     // Output-file closing on input-file boundaries are tricky since
     // input files must outlive the output files, which often have data
     // copied forward from the input files.  That's why the
     // recordOutputClosureRequests call is made here instead of in a
     // specialization of recordOutputModuleClosureRequests<>.
-    endPathExecutor_->recordOutputClosureRequests(Granularity::InputFile);
-    if (endPathExecutor_->outputsToClose()) {
+    endPathExecutors_.at(ScheduleID::first())
+      .recordOutputClosureRequests(Granularity::InputFile);
+    if (endPathExecutors_.at(ScheduleID::first()).outputsToClose()) {
       closeSomeOutputFiles();
     }
     respondToCloseInputFile();
@@ -1408,21 +1404,40 @@ namespace art {
   void
   EventProcessor::closeAllOutputFiles()
   {
-    if (!endPathExecutor_->someOutputsOpen()) {
+    if (!endPathExecutors_.at(ScheduleID::first()).someOutputsOpen()) {
       return;
     }
     respondToCloseOutputFiles();
-    endPathExecutor_->closeAllOutputFiles();
+    endPathExecutors_.at(ScheduleID::first()).closeAllOutputFiles();
     FDEBUG(1) << string(8, ' ') << "closeAllOutputFiles\n";
+  }
+
+  bool
+  EventProcessor::outputsToOpen()
+  {
+    bool outputs_to_open{false};
+    auto check_outputs_to_open = [this,
+                                  &outputs_to_open](ScheduleID const sid) {
+      if (endPathExecutors_.at(sid).outputsToOpen()) {
+        outputs_to_open = true;
+      }
+    };
+    scheduleIteration_.for_each_schedule(check_outputs_to_open);
+    return outputs_to_open;
   }
 
   void
   EventProcessor::openSomeOutputFiles()
   {
-    if (!endPathExecutor_->outputsToOpen()) {
+    if (!outputsToOpen()) {
       return;
     }
-    endPathExecutor_->openSomeOutputFiles(*fb_);
+
+    auto open_some_outputs = [this](ScheduleID const sid) {
+      endPathExecutors_.at(sid).openSomeOutputFiles(*fb_);
+    };
+    scheduleIteration_.for_each_schedule(open_some_outputs);
+
     FDEBUG(1) << string(8, ' ') << "openSomeOutputFiles\n";
     respondToOpenOutputFiles();
   }
@@ -1430,7 +1445,7 @@ namespace art {
   void
   EventProcessor::setOutputFileStatus(OutputFileStatus const ofs)
   {
-    endPathExecutor_->setOutputFileStatus(ofs);
+    endPathExecutors_.at(ScheduleID::first()).setOutputFileStatus(ofs);
     FDEBUG(1) << string(8, ' ') << "setOutputFileStatus\n";
   }
 
@@ -1441,41 +1456,41 @@ namespace art {
     //               flagged as needing to close.  Otherwise,
     //               'respondtoCloseOutputFiles' will be needlessly
     //               called.
-    assert(endPathExecutor_->outputsToClose());
+    assert(endPathExecutors_.at(ScheduleID::first()).outputsToClose());
     respondToCloseOutputFiles();
-    endPathExecutor_->closeSomeOutputFiles();
+    endPathExecutors_.at(ScheduleID::first()).closeSomeOutputFiles();
     FDEBUG(1) << string(8, ' ') << "closeSomeOutputFiles\n";
   }
 
   void
   EventProcessor::respondToOpenInputFile()
   {
-    schedules_->at(ScheduleID::first()).respondToOpenInputFile(*fb_);
-    endPathExecutor_->respondToOpenInputFile(*fb_);
+    schedules_.at(ScheduleID::first()).respondToOpenInputFile(*fb_);
+    endPathExecutors_.at(ScheduleID::first()).respondToOpenInputFile(*fb_);
     FDEBUG(1) << string(8, ' ') << "respondToOpenInputFile\n";
   }
 
   void
   EventProcessor::respondToCloseInputFile()
   {
-    schedules_->at(ScheduleID::first()).respondToCloseInputFile(*fb_);
-    endPathExecutor_->respondToCloseInputFile(*fb_);
+    schedules_.at(ScheduleID::first()).respondToCloseInputFile(*fb_);
+    endPathExecutors_.at(ScheduleID::first()).respondToCloseInputFile(*fb_);
     FDEBUG(1) << string(8, ' ') << "respondToCloseInputFile\n";
   }
 
   void
   EventProcessor::respondToOpenOutputFiles()
   {
-    schedules_->at(ScheduleID::first()).respondToOpenOutputFiles(*fb_);
-    endPathExecutor_->respondToOpenOutputFiles(*fb_);
+    schedules_.at(ScheduleID::first()).respondToOpenOutputFiles(*fb_);
+    endPathExecutors_.at(ScheduleID::first()).respondToOpenOutputFiles(*fb_);
     FDEBUG(1) << string(8, ' ') << "respondToOpenOutputFiles\n";
   }
 
   void
   EventProcessor::respondToCloseOutputFiles()
   {
-    schedules_->at(ScheduleID::first()).respondToCloseOutputFiles(*fb_);
-    endPathExecutor_->respondToCloseOutputFiles(*fb_);
+    schedules_.at(ScheduleID::first()).respondToCloseOutputFiles(*fb_);
+    endPathExecutors_.at(ScheduleID::first()).respondToCloseOutputFiles(*fb_);
     FDEBUG(1) << string(8, ' ') << "respondToCloseOutputFiles\n";
   }
 
@@ -1488,11 +1503,17 @@ namespace art {
     actReg_->sPreSourceRun.invoke();
     runPrincipal_.reset(input_->readRun().release());
     assert(runPrincipal_);
-    endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
-    // The intended behavior here is that the producing services which are
-    // called during the sPostReadRun cannot see each others put products. We
-    // enforce this by creating the groups for the produced products, but do
-    // not allow the lookups to find them until after the callbacks have run.
+    auto rsh = input_->runRangeSetHandler();
+    assert(rsh);
+    auto seed_range_set = [this, &rsh](ScheduleID const sid) {
+      endPathExecutors_.at(sid).seedRunRangeSet(*rsh);
+    };
+    scheduleIteration_.for_each_schedule(seed_range_set);
+    // The intended behavior here is that the producing services which
+    // are called during the sPostReadRun cannot see each others put
+    // products. We enforce this by creating the groups for the
+    // produced products, but do not allow the lookups to find them
+    // until after the callbacks have run.
     runPrincipal_->createGroupsForProducedProducts(
       producedProductLookupTables_);
     psSignals_->sPostReadRun.invoke(*runPrincipal_);
@@ -1519,9 +1540,10 @@ namespace art {
         Run const run{*runPrincipal_, ModuleDescription{}};
         actReg_->sPreBeginRun.invoke(run);
       }
-      schedules_->at(ScheduleID::first())
+      schedules_.at(ScheduleID::first())
         .process(Transition::BeginRun, *runPrincipal_);
-      endPathExecutor_->process(Transition::BeginRun, *runPrincipal_);
+      endPathExecutors_.at(ScheduleID::first())
+        .process(Transition::BeginRun, *runPrincipal_);
       {
         Run const run{*runPrincipal_, ModuleDescription{}};
         actReg_->sPostBeginRun.invoke(run);
@@ -1557,18 +1579,25 @@ namespace art {
     assert(runPrincipal_);
     FDEBUG(1) << string(8, ' ') << "setRunAuxiliaryRangeSetID...("
               << runPrincipal_->runID() << ")\n";
-    if (endPathExecutor_->runRangeSetHandler_.load()->at(ScheduleID::first())->type() ==
-        RangeSetHandler::HandlerType::Open) {
-      // We are using EmptyEvent source; need to merge what the
-      // schedules have seen.
-      RangeSet mergedSeenRanges;
-      for (auto& uptr_rsh : *endPathExecutor_->runRangeSetHandler_.load()) {
-        mergedSeenRanges.merge(uptr_rsh->seenRanges());
-      }
-      runPrincipal_->updateSeenRanges(mergedSeenRanges);
-      endPathExecutor_->setRunAuxiliaryRangeSetID(mergedSeenRanges);
+    if (endPathExecutors_.at(ScheduleID::first())
+          .runRangeSetHandler_.load()
+          ->type() == RangeSetHandler::HandlerType::Open) {
+      // We are using EmptyEvent source, need to merge
+      // what the schedules have seen.
+      RangeSet mergedRS;
+      auto merge_range_sets = [this, &mergedRS](ScheduleID const sid) {
+        auto const rsh = endPathExecutors_.at(sid).runRangeSetHandler_.load();
+        mergedRS.merge(rsh->seenRanges());
+      };
+      scheduleIteration_.for_each_schedule(merge_range_sets);
+      runPrincipal_->updateSeenRanges(mergedRS);
+      auto update_executors = [this, &mergedRS](ScheduleID const sid) {
+        endPathExecutors_.at(sid).setRunAuxiliaryRangeSetID(mergedRS);
+      };
+      scheduleIteration_.for_each_schedule(update_executors);
       return;
     }
+
     // Since we are using already existing ranges, all the range set
     // handlers have the same ranges, use the first one.  handler with
     // the largest event number, that will be the one which we will
@@ -1576,13 +1605,17 @@ namespace art {
     // the exactly the schedule that triggered the switch.  Do we need
     // to fix this?
     unique_ptr<RangeSetHandler> rshAtSwitch{
-      endPathExecutor_->runRangeSetHandler_.load()->at(ScheduleID::first())->clone()};
-    if (endPathExecutor_->fileStatus_.load() != OutputFileStatus::Switching) {
+      endPathExecutors_.at(ScheduleID::first())
+        .runRangeSetHandler_.load()
+        ->clone()};
+    if (endPathExecutors_.at(ScheduleID::first()).fileStatus_.load() !=
+        OutputFileStatus::Switching) {
       // We are at the end of the job.
       rshAtSwitch->flushRanges();
     }
     runPrincipal_->updateSeenRanges(rshAtSwitch->seenRanges());
-    endPathExecutor_->setRunAuxiliaryRangeSetID(rshAtSwitch->seenRanges());
+    endPathExecutors_.at(ScheduleID::first())
+      .setRunAuxiliaryRangeSetID(rshAtSwitch->seenRanges());
   }
 
   void
@@ -1600,9 +1633,10 @@ namespace art {
         actReg_->sPreEndRun.invoke(runPrincipal_->runID(),
                                    runPrincipal_->endTime());
       }
-      schedules_->at(ScheduleID::first())
+      schedules_.at(ScheduleID::first())
         .process(Transition::EndRun, *runPrincipal_);
-      endPathExecutor_->process(Transition::EndRun, *runPrincipal_);
+      endPathExecutors_.at(ScheduleID::first())
+        .process(Transition::EndRun, *runPrincipal_);
       {
         Run const r{*runPrincipal_, ModuleDescription{}};
         actReg_->sPostEndRun.invoke(r);
@@ -1631,7 +1665,7 @@ namespace art {
     // Precondition: The RunID does not correspond to a flush ID.
     RunID const r{runPrincipal_->runID()};
     assert(!r.isFlush());
-    endPathExecutor_->writeRun(*runPrincipal_);
+    endPathExecutors_.at(ScheduleID::first()).writeRun(*runPrincipal_);
     FDEBUG(1) << string(8, ' ') << "writeRun....................(" << r
               << ")\n";
   }
@@ -1645,7 +1679,12 @@ namespace art {
     actReg_->sPreSourceSubRun.invoke();
     subRunPrincipal_.reset(input_->readSubRun(runPrincipal_.get()).release());
     assert(subRunPrincipal_);
-    endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
+    auto rsh = input_->subRunRangeSetHandler();
+    assert(rsh);
+    auto seed_range_set = [this, &rsh](ScheduleID const sid) {
+      endPathExecutors_.at(sid).seedSubRunRangeSet(*rsh);
+    };
+    scheduleIteration_.for_each_schedule(seed_range_set);
     // The intended behavior here is that the producing services which are
     // called during the sPostReadSubRun cannot see each others put products. We
     // enforce this by creating the groups for the produced products, but do
@@ -1677,9 +1716,10 @@ namespace art {
         SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
         actReg_->sPreBeginSubRun.invoke(srun);
       }
-      schedules_->at(ScheduleID::first())
+      schedules_.at(ScheduleID::first())
         .process(Transition::BeginSubRun, *subRunPrincipal_);
-      endPathExecutor_->process(Transition::BeginSubRun, *subRunPrincipal_);
+      endPathExecutors_.at(ScheduleID::first())
+        .process(Transition::BeginSubRun, *subRunPrincipal_);
       {
         SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
         actReg_->sPostBeginSubRun.invoke(srun);
@@ -1715,21 +1755,25 @@ namespace art {
     assert(subRunPrincipal_);
     FDEBUG(1) << string(8, ' ') << "setSubRunAuxiliaryRangeSetID("
               << subRunPrincipal_->subRunID() << ")\n";
-        if (endPathExecutor_->subRunRangeSetHandler_.load()->at(ScheduleID::first())->type() ==
-        RangeSetHandler::HandlerType::Open) {
+    if (endPathExecutors_.at(ScheduleID::first())
+          .subRunRangeSetHandler_.load()
+          ->at(ScheduleID::first())
+          ->type() == RangeSetHandler::HandlerType::Open) {
       // We are using EmptyEvent source, need to merge
       // what the schedules have seen.
       RangeSet mergedRS;
-      for (auto& rsh : *endPathExecutor_->subRunRangeSetHandler_.load()) {
+      auto merge_range_sets = [this, &mergedRS](ScheduleID const sid) {
+        auto const rsh =
+          endPathExecutors_.at(sid).subRunRangeSetHandler_.load()->at(
+            ScheduleID::first());
         mergedRS.merge(rsh->seenRanges());
-      }
+      };
+      scheduleIteration_.for_each_schedule(merge_range_sets);
       subRunPrincipal_->updateSeenRanges(mergedRS);
-      endPathExecutor_->setSubRunAuxiliaryRangeSetID(mergedRS);
-      // for (auto ow : *endPathExecutor_->outputWorkers_.load()) {
-      //   // For RootOutput this enters the possibly split
-      //   // range set into the range set db.
-      //   ow->setSubRunAuxiliaryRangeSetID(mergedRS);
-      // }
+      auto update_executors = [this, &mergedRS](ScheduleID const sid) {
+        endPathExecutors_.at(sid).setSubRunAuxiliaryRangeSetID(mergedRS);
+      };
+      scheduleIteration_.for_each_schedule(update_executors);
       return;
     }
     // Ranges are split/flushed only for a RangeSetHandler whose dynamic
@@ -1776,7 +1820,8 @@ namespace art {
     unsigned largestEvent = 1U;
     ScheduleID idxOfMax{ScheduleID::first()};
     ScheduleID idx{ScheduleID::first()};
-    for (auto& val : *endPathExecutor_->subRunRangeSetHandler_.load()) {
+    for (auto& val : *endPathExecutors_.at(ScheduleID::first())
+                        .subRunRangeSetHandler_.load()) {
       auto rsh = dynamic_cast<ClosedRangeSetHandler*>(val);
       // Make sure the event number is a valid event number
       // before using it. It can be invalid in the handler if
@@ -1791,25 +1836,31 @@ namespace art {
       idx = idx.next();
     }
     unique_ptr<RangeSetHandler> rshAtSwitch{
-      endPathExecutor_->subRunRangeSetHandler_.load()->at(idxOfMax)->clone()};
-    if (endPathExecutor_->fileStatus_.load() == OutputFileStatus::Switching) {
+      endPathExecutors_.at(ScheduleID::first())
+        .subRunRangeSetHandler_.load()
+        ->at(idxOfMax)
+        ->clone()};
+    if (endPathExecutors_.at(ScheduleID::first()).fileStatus_.load() ==
+        OutputFileStatus::Switching) {
       rshAtSwitch->maybeSplitRange();
       unique_ptr<RangeSetHandler> runRSHAtSwitch{
-        endPathExecutor_->runRangeSetHandler_.load()->at(idxOfMax)->clone()};
+        endPathExecutors_.at(idxOfMax).runRangeSetHandler_.load()->clone()};
       runRSHAtSwitch->maybeSplitRange();
-      for (auto& rsh : *endPathExecutor_->runRangeSetHandler_.load()) {
-        rsh = runRSHAtSwitch->clone();
-      }
+      auto& rsh = endPathExecutors_.at(ScheduleID::first()).runRangeSetHandler_;
+      delete rsh.load();
+      rsh = runRSHAtSwitch->clone();
     } else {
       // We are at the end of the job.
       rshAtSwitch->flushRanges();
     }
-    for (auto& val : *endPathExecutor_->subRunRangeSetHandler_.load()) {
+    for (auto& val : *endPathExecutors_.at(ScheduleID::first())
+                        .subRunRangeSetHandler_.load()) {
       delete val;
       val = rshAtSwitch->clone();
     }
     subRunPrincipal_->updateSeenRanges(rshAtSwitch->seenRanges());
-    endPathExecutor_->setSubRunAuxiliaryRangeSetID(rshAtSwitch->seenRanges());
+    endPathExecutors_.at(ScheduleID::first())
+      .setSubRunAuxiliaryRangeSetID(rshAtSwitch->seenRanges());
   }
 
   void
@@ -1827,9 +1878,10 @@ namespace art {
         actReg_->sPreEndSubRun.invoke(subRunPrincipal_->subRunID(),
                                       subRunPrincipal_->endTime());
       }
-      schedules_->at(ScheduleID::first())
+      schedules_.at(ScheduleID::first())
         .process(Transition::EndSubRun, *subRunPrincipal_);
-      endPathExecutor_->process(Transition::EndSubRun, *subRunPrincipal_);
+      endPathExecutors_.at(ScheduleID::first())
+        .process(Transition::EndSubRun, *subRunPrincipal_);
       {
         SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
         actReg_->sPostEndSubRun.invoke(srun);
@@ -1858,7 +1910,7 @@ namespace art {
     // Precondition: The SubRunID does not correspond to a flush ID.
     SubRunID const& sr{subRunPrincipal_->subRunID()};
     assert(!sr.isFlush());
-    endPathExecutor_->writeSubRun(*subRunPrincipal_);
+    endPathExecutors_.at(ScheduleID::first()).writeSubRun(*subRunPrincipal_);
     FDEBUG(1) << string(8, ' ') << "writeSubRun.................(" << sr
               << ")\n";
   }

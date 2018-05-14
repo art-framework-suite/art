@@ -101,58 +101,54 @@ Begin processing the 97th record. run: 1 subRun: 0 event: 97 at <date-time>
 Begin processing the 98th record. run: 1 subRun: 0 event: 98 at <date-time>
 Begin processing the 99th record. run: 1 subRun: 0 event: 99 at <date-time>
 Begin processing the 100th record. run: 1 subRun: 0 event: 100 at <date-time>
-Begin processing the 200th record. run: 1 subRun: 0 event: 200 at <date-time>
-Begin processing the 300th record. run: 1 subRun: 0 event: 300 at <date-time>
-Begin processing the 500th record. run: 1 subRun: 0 event: 500 at <date-time>
-Begin processing the 900th record. run: 1 subRun: 0 event: 900 at <date-time>
 
 <separator (=)>
 TimeTracker printout (sec)                        Min           Avg           Max         Median          RMS         nEvts   
 <separator (=)>
-Full event	<duration> <duration> <duration> <duration> <duration> 1000    
+Full event	<duration> <duration> <duration> <duration> <duration> 100    
 <separator (-)>
-source:EmptyEvent(read)	<duration> <duration> <duration> <duration> <duration> 1000    
-p2:prod1:TestTimeTrackerProducer	<duration> <duration> <duration> <duration> <duration> 1000    
-p2:prod2:TestTimeTrackerProducer	<duration> <duration> <duration> <duration> <duration> 1000    
-p1:filt:TestTimeTrackerFilter	<duration> <duration> <duration> <duration> <duration> 1000    
-[art]:TriggerResults:TriggerResultInserter	<duration> <duration> <duration> <duration> <duration> 1000    
-end_path:mod1:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 1000    
-end_path:mod2:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 1000    
+source:EmptyEvent(read)	<duration> <duration> <duration> <duration> <duration> 100    
+p2:prod1:TestTimeTrackerProducer	<duration> <duration> <duration> <duration> <duration> 100    
+p2:prod2:TestTimeTrackerProducer	<duration> <duration> <duration> <duration> <duration> 100    
+p1:filt:TestTimeTrackerFilter	<duration> <duration> <duration> <duration> <duration> 100    
+[art]:TriggerResults:TriggerResultInserter	<duration> <duration> <duration> <duration> <duration> 100    
+end_path:mod1:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 100    
+end_path:mod2:TestTimeTrackerAnalyzer	<duration> <duration> <duration> <duration> <duration> 100    
 
 TrigReport ---------- Event  Summary ------------
-TrigReport Events total = 1000 passed = 1000 failed = 0
+TrigReport Events total = 100 passed = 100 failed = 0
 
 TrigReport ---------- Path   Summary ------------
 TrigReport  Trig Bit#        Run     Passed     Failed      Error Name
-TrigReport     1    0       1000        300        700          0 p1
-TrigReport     1    1       1000       1000          0          0 p2
+TrigReport     1    0        100         30         70          0 p1
+TrigReport     1    1        100        100          0          0 p2
 
 TrigReport -------End-Path   Summary ------------
 TrigReport  Trig Bit#        Run    Success      Error Name
-TrigReport     0    0       1000       1000          0 end_path
+TrigReport     0    0        100        100          0 end_path
 
 TrigReport ---------- Modules in Path: p1 ------------
 TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
-TrigReport     1    0       1000       1000          0          0 prod1
-TrigReport     1    0       1000        300        700          0 filt
+TrigReport     1    0        100        100          0          0 prod1
+TrigReport     1    0        100         30         70          0 filt
 
 TrigReport ---------- Modules in Path: p2 ------------
 TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
-TrigReport     1    1       1000       1000          0          0 prod1
-TrigReport     1    1       1000       1000          0          0 prod2
+TrigReport     1    1        100        100          0          0 prod1
+TrigReport     1    1        100        100          0          0 prod2
 
 TrigReport ------ Modules in End-Path: end_path ------------
 TrigReport  Trig Bit#        Run    Success      Error Name
-TrigReport     0    0        300        300          0 mod1
-TrigReport     0    0       1000       1000          0 mod2
+TrigReport     0    0         30         30          0 mod1
+TrigReport     0    0        100        100          0 mod2
 
 TrigReport ---------- Module Summary ------------
 TrigReport    Visited        Run     Passed     Failed      Error Name
-TrigReport       1000       1000        300        700          0 filt
-TrigReport       2000       1000       1000          0          0 prod1
-TrigReport       1000       1000       1000          0          0 prod2
-TrigReport       1000        300        300          0          0 mod1
-TrigReport       1000       1000       1000          0          0 mod2
+TrigReport        100        100         30         70          0 filt
+TrigReport        200        100        100          0          0 prod1
+TrigReport        100        100        100          0          0 prod2
+TrigReport        100         30         30          0          0 mod1
+TrigReport        100        100        100          0          0 mod2
 
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>

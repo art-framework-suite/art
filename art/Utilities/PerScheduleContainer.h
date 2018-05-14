@@ -69,6 +69,13 @@ namespace art {
       return data_.end();
     }
 
+    // FIXME: Should remove once we replace this with a mappish thing.
+    void
+    reserve(ScheduleID::size_type const sz)
+    {
+      data_.reserve(sz);
+    }
+
     // FIXME: Should replace emplace_back with emplace
     template <typename... Args>
     void

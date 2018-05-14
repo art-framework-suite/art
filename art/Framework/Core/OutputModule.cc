@@ -361,10 +361,14 @@ namespace art {
     cet::for_all(plugins_, [](auto& p) { p->doEndJob(); });
   }
 
-  void
+  bool
   OutputModule::doOpenFile(FileBlock const& fb)
   {
+    if (isFileOpen()) {
+      return false;
+    }
     openFile(fb);
+    return true;
   }
 
   void
@@ -401,12 +405,14 @@ namespace art {
     respondToCloseOutputFiles(fb);
   }
 
-  void
+  bool
   OutputModule::doCloseFile()
   {
     if (isFileOpen()) {
       reallyCloseFile();
+      return true;
     }
+    return false;
   }
 
   void

@@ -15,6 +15,7 @@ namespace art {
     : actionTable_{ps().actionTable()}
     , nThreads_{ps().num_threads()}
     , nSchedules_{ps().num_schedules()}
+    , stackSize_{ps().stack_size()}
     , handleEmptyRuns_{ps().handleEmptyRuns()}
     , handleEmptySubRuns_{ps().handleEmptySubRuns()}
     , errorOnMissingConsumes_{ps().errorOnMissingConsumes()}
@@ -29,9 +30,10 @@ namespace art {
   void
   Scheduler::initialize_task_manager()
   {
-    tbbManager_.initialize(nThreads_);
+    tbbManager_.initialize(nThreads_, stackSize_);
     mf::LogInfo("MTdiagnostics")
       << "TBB has been configured to use a maximum of "
-      << tbb::this_task_arena::max_concurrency() << " threads.";
+      << tbb::this_task_arena::max_concurrency() << " threads,\n"
+      << "with a stack size of " << stackSize_ << " bytes.";
   }
 }

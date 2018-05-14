@@ -142,20 +142,19 @@ namespace art {
                  std::atomic<std::size_t>& counts_passed,
                  std::atomic<std::size_t>& counts_failed);
 
-  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
-           // and EndPathExecutor
+  private:
+    // API required by EventProcessor, Schedule, and EndPathExecutor
     void doWriteRun(RunPrincipal& rp);
     void doWriteSubRun(SubRunPrincipal& srp);
     void doWriteEvent(EventPrincipal& ep);
     void doSetRunAuxiliaryRangeSetID(RangeSet const&);
     void doSetSubRunAuxiliaryRangeSetID(RangeSet const&);
-    void doOpenFile(FileBlock const& fb);
+    bool doCloseFile();
+    bool doOpenFile(FileBlock const& fb);
 
   protected: // MEMBER FUNCTIONS -- Implementation API, intended to be
              // provided by derived classes.
     std::string workerType() const;
-    // Tell the OutputModule that it must end the current file.
-    void doCloseFile();
     // Do the end-of-file tasks; this is only called internally, after
     // the appropriate tests have been done.
     void reallyCloseFile();

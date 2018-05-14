@@ -9,6 +9,8 @@
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 
+#include <thread>
+
 namespace arttest {
 
   class TestTimeTrackerAnalyzer : public art::EDAnalyzer {
@@ -19,7 +21,10 @@ namespace arttest {
 
     void
     analyze(art::Event const&) override
-    {}
+    {
+      using namespace std::literals;
+      std::this_thread::sleep_for(10ms * scheduleID().id());
+    }
   }; // TestTimeTrackerAnalyzer
 
 } // namespace arttest

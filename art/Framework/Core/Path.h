@@ -13,6 +13,7 @@
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Persistency/Provenance/PathContext.h"
+#include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
@@ -38,7 +39,7 @@ namespace art {
     ~Path();
     Path(ActionTable const&,
          ActivityRegistry const&,
-         ScheduleID scheduleID,
+         ScheduleContext scheduleContext,
          int bitpos,
          bool isEndPath,
          std::string const& path_name,

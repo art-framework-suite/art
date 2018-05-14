@@ -58,6 +58,7 @@ namespace art {
                      ProductDescriptions& productsToProduce,
                      ActionTable const& actions,
                      ActivityRegistry const& actReg)
+    : sc_{scheduleID}
   {
     ostringstream msg;
     msg << "0x" << hex << ((unsigned long)this) << dec;
@@ -97,34 +98,6 @@ namespace art {
       scheduleID, make_unique<WorkerT<ReplicatedProducer>>(producer, md, wp));
     results_inserter_ = pm.triggerResultsInserter(scheduleID);
     actReg_.load()->sPostModuleConstruction.invoke(md);
-  }
-
-  Schedule::Schedule(Schedule&& rhs) noexcept
-  {
-    actionTable_ = rhs.actionTable_.load();
-    rhs.actionTable_ = nullptr;
-    actReg_ = rhs.actReg_.load();
-    rhs.actReg_ = nullptr;
-    triggerPathsInfo_ = rhs.triggerPathsInfo_.load();
-    rhs.triggerPathsInfo_ = nullptr;
-    results_inserter_ = rhs.results_inserter_.load();
-    rhs.results_inserter_ = nullptr;
-    runningWorkerCnt_ = rhs.runningWorkerCnt_.load();
-  }
-
-  Schedule&
-  Schedule::operator=(Schedule&& rhs) noexcept
-  {
-    actionTable_ = rhs.actionTable_.load();
-    rhs.actionTable_ = nullptr;
-    actReg_ = rhs.actReg_.load();
-    rhs.actReg_ = nullptr;
-    triggerPathsInfo_ = rhs.triggerPathsInfo_.load();
-    rhs.triggerPathsInfo_ = nullptr;
-    results_inserter_ = rhs.results_inserter_.load();
-    rhs.results_inserter_ = nullptr;
-    runningWorkerCnt_ = rhs.runningWorkerCnt_.load();
-    return *this;
   }
 
   void
@@ -247,39 +220,35 @@ namespace art {
 
   class PathsDoneFunctor {
   public:
-    PathsDoneFunctor(Schedule* schedule,
-                     WaitingTask* endPathTask,
-                     tbb::task* eventLoopTask,
-                     EventPrincipal& principal,
-                     ScheduleID const scheduleID)
-      : schedule_(schedule)
-      , endPathTask_(endPathTask)
-      , eventLoopTask_(eventLoopTask)
-      , principal_(principal)
-      , sid_(scheduleID)
+    PathsDoneFunctor(Schedule* const schedule,
+                     WaitingTask* const endPathTask,
+                     tbb::task* const eventLoopTask,
+                     EventPrincipal& principal)
+      : schedule_{schedule}
+      , endPathTask_{endPathTask}
+      , eventLoopTask_{eventLoopTask}
+      , principal_{principal}
     {}
     void
     operator()(exception_ptr const* ex)
     {
-      schedule_->pathsDoneTask(
-        endPathTask_, eventLoopTask_, principal_, sid_, ex);
+      schedule_->pathsDoneTask(endPathTask_, eventLoopTask_, principal_, ex);
     }
 
   private:
-    Schedule* schedule_;
-    WaitingTask* endPathTask_;
-    tbb::task* eventLoopTask_;
+    Schedule* const schedule_;
+    WaitingTask* const endPathTask_;
+    tbb::task* const eventLoopTask_;
     EventPrincipal& principal_;
-    ScheduleID const sid_;
   };
 
   void
   Schedule::pathsDoneTask(WaitingTask* endPathTask,
                           tbb::task* eventLoopTask,
                           EventPrincipal& principal,
-                          ScheduleID const scheduleID,
                           exception_ptr const* ex)
   {
+    auto const scheduleID = sc_.id();
     // Note: When we start our parent task is the eventLoop task.
     TDEBUG_BEGIN_TASK_SI(4, "pathsDoneTask", scheduleID);
     if (ex != nullptr) {
@@ -337,7 +306,7 @@ namespace art {
         "trigger path processing terminate because of EXCEPTION");
       return;
     }
-    process_event_pathsDone(endPathTask, eventLoopTask, principal, scheduleID);
+    process_event_pathsDone(endPathTask, eventLoopTask, principal);
     // And end this task, which does not terminate
     // event processing because our parent is the
     // nullptr.
@@ -351,9 +320,9 @@ namespace art {
   void
   Schedule::process_event(WaitingTask* endPathTask,
                           tbb::task* eventLoopTask,
-                          EventPrincipal& principal,
-                          ScheduleID const scheduleID)
+                          EventPrincipal& principal)
   {
+    auto const scheduleID = sc_.id();
     // Note: We are part of the readAndProcessEventTask (stream head task),
     // and our parent task is the nullptr because the endPathTask has
     // been transferred the eventLoopTask as its parent.
@@ -375,8 +344,7 @@ namespace art {
     triggerPathsInfo_.load()->incrementTotalEventCount();
     auto pathsDoneTask = make_waiting_task(
       tbb::task::allocate_root(),
-      PathsDoneFunctor{
-        this, endPathTask, eventLoopTask, principal, scheduleID});
+      PathsDoneFunctor{this, endPathTask, eventLoopTask, principal});
     // Allow the pathsDoneTask to terminate event processing on error.
     // FIXME: Actually it turns out it never wants to.  :-)
     ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
@@ -442,9 +410,9 @@ namespace art {
   void
   Schedule::process_event_pathsDone(WaitingTask* endPathTask,
                                     WaitingTask* /*eventLoopTask*/,
-                                    EventPrincipal& principal,
-                                    ScheduleID const scheduleID)
+                                    EventPrincipal& principal)
   {
+    auto const scheduleID = sc_.id();
     // We are part of the pathsDoneTask, and our parent is the nullptr.
     TDEBUG_BEGIN_FUNC_SI(4, "Schedule::process_event_pathsDone", scheduleID);
     try {
@@ -452,8 +420,7 @@ namespace art {
         triggerPathsInfo_.load()->incrementPassedEventCount();
       }
       if (results_inserter_.load() != nullptr) {
-        ScheduleContext const sc{scheduleID};
-        PathContext const pc{sc, "[art]", false};
+        PathContext const pc{sc_, "[art]", false};
         results_inserter_.load()->doWork_event(principal, pc);
       }
     }

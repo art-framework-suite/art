@@ -67,9 +67,10 @@ namespace art {
   public: // API
     std::vector<std::string> const& triggerPathNames() const;
     void createModulesAndWorkers();
-    PathsInfo& triggerPathsInfo(ScheduleID const);
+    PathsInfo& triggerPathsInfo(ScheduleID);
     PerScheduleContainer<PathsInfo>& triggerPathsInfo();
-    PathsInfo& endPathInfo();
+    PathsInfo& endPathInfo(ScheduleID);
+    PerScheduleContainer<PathsInfo>& endPathInfo();
     Worker* triggerResultsInserter(ScheduleID const) const;
     void setTriggerResultsInserter(
       ScheduleID const,
@@ -112,8 +113,8 @@ namespace art {
     //        schedules.  This part of the code could benefit from
     //        using smart pointers.
     std::map<module_label_t, PerScheduleContainer<Worker*>> workers_{};
-    PerScheduleContainer<PathsInfo> triggerPathsInfo_{};
-    PathsInfo endPathInfo_{};
+    PerScheduleContainer<PathsInfo> triggerPathsInfo_;
+    PerScheduleContainer<PathsInfo> endPathInfo_;
     PerScheduleContainer<std::unique_ptr<WorkerT<ReplicatedProducer>>>
       triggerResultsInserter_{};
     ProductDescriptions& productsToProduce_;

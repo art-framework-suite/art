@@ -74,8 +74,8 @@ namespace art {
     , exceptActions_{exceptActions}
     , actReg_{actReg}
     , procPS_{procPS}
-    , triggerPathsInfo_{static_cast<ScheduleID::size_type>(
-        Globals::instance()->nschedules())}
+    , triggerPathsInfo_(Globals::instance()->nschedules())
+    , endPathInfo_(Globals::instance()->nschedules())
     , productsToProduce_{productsToProduce}
     , processName_{procPS.get<string>("process_name"s, ""s)}
   {
@@ -425,7 +425,7 @@ namespace art {
           sid, bitPos, worker_config_infos, modules, wips, pinfo.workers());
         pinfo.paths().push_back(new Path{exceptActions_,
                                          actReg_,
-                                         sid,
+                                         ScheduleContext{sid},
                                          bitPos,
                                          false,
                                          path_name,
@@ -440,35 +440,34 @@ namespace art {
         }
         ++bitPos;
       }
-    };
-    ScheduleIteration schedule_iteration{nschedules};
-    schedule_iteration.for_each_schedule(fill_workers);
 
-    if (!protoEndPathLabels_.empty()) {
+      if (protoEndPathLabels_.empty()) {
+        return;
+      }
+
       //  Create the end path and the workers on it.
+      auto& einfo = endPathInfo_[sid];
       vector<WorkerInPath> wips;
-      fillWorkers_(ScheduleID::first(),
-                   0,
-                   protoEndPathLabels_,
-                   modules,
-                   wips,
-                   endPathInfo_.workers());
-      endPathInfo_.paths().push_back(new Path{exceptActions_,
-                                              actReg_,
-                                              ScheduleID::first(),
-                                              0,
-                                              true,
-                                              "end_path",
-                                              move(wips),
-                                              nullptr});
+      fillWorkers_(sid, 0, protoEndPathLabels_, modules, wips, einfo.workers());
+      einfo.paths().push_back(new Path{exceptActions_,
+                                       actReg_,
+                                       ScheduleContext{sid},
+                                       0,
+                                       true,
+                                       "end_path",
+                                       move(wips),
+                                       nullptr});
       {
         ostringstream msg;
         msg << "Made end path 0x" << hex
-            << ((unsigned long)endPathInfo_.paths().back()) << dec;
+            << ((unsigned long)einfo.paths().back()) << dec;
         TDEBUG_FUNC_SI_MSG(
           5, "PathManager::createModulesAndWorkers", 0, msg.str());
       }
-    }
+
+    };
+    ScheduleIteration schedule_iteration{nschedules};
+    schedule_iteration.for_each_schedule(fill_workers);
 
     using namespace detail;
     auto const graph_info_collection = getModuleGraphInfoCollection_();
@@ -503,6 +502,12 @@ namespace art {
   }
 
   PathsInfo&
+  PathManager::endPathInfo(ScheduleID const sid)
+  {
+    return endPathInfo_.at(sid);
+  }
+
+  PerScheduleContainer<PathsInfo>&
   PathManager::endPathInfo()
   {
     return endPathInfo_;

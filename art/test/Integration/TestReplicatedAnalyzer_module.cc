@@ -9,7 +9,8 @@ using namespace art;
 namespace {
   class TestReplicatedAnalyzer : public ReplicatedAnalyzer {
   public:
-    struct Config {};
+    struct Config {
+    };
     using Parameters = Table<Config>;
     explicit TestReplicatedAnalyzer(Parameters const& p,
                                     ScheduleID const sid) noexcept
@@ -17,6 +18,7 @@ namespace {
     {
       std::cout << "Module constructor - ScheduleID: " << sid_ << '\n';
     }
+
   private:
     void analyze(Event const&) override;
     ScheduleID const sid_;

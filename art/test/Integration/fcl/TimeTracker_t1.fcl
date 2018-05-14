@@ -47,7 +47,7 @@ physics: {
 
 source: {
   module_type: EmptyEvent
-  maxEvents: 1000
+  maxEvents: 100
 }
 
 process_name: TimingServiceTest1

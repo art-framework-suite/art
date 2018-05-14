@@ -17,10 +17,31 @@ namespace art {
   class Scheduler {
   public:
     struct Config {
+      static constexpr unsigned
+      kb()
+      {
+        return 1024;
+      }
+      static constexpr unsigned
+      mb()
+      {
+        return kb() * kb();
+      }
+
       using Name = fhicl::Name;
       using Comment = fhicl::Comment;
       fhicl::Atom<int> num_threads{Name{"num_threads"}};
       fhicl::Atom<int> num_schedules{Name{"num_schedules"}};
+      fhicl::Atom<unsigned> stack_size{
+        Name{"stack_size"},
+        Comment{"The stack size (in bytes) that the TBB scheduler will use for "
+                "its threads.\n"
+                "The default stack size TBB specifies is 1 MB, which can be "
+                "inadequate for\n"
+                "various workflows.  Because of that, art picks a default of "
+                "10 MB, which\n"
+                "more closely approximates the stack size of the main thread."},
+        10 * mb()};
       fhicl::Atom<bool> handleEmptyRuns{Name{"handleEmptyRuns"}, true};
       fhicl::Atom<bool> handleEmptySubRuns{Name{"handleEmptySubRuns"}, true};
       fhicl::Atom<bool> errorOnMissingConsumes{Name{"errorOnMissingConsumes"},
@@ -97,6 +118,7 @@ namespace art {
     ActionTable actionTable_;
     int const nThreads_;
     int const nSchedules_;
+    unsigned const stackSize_;
     bool const handleEmptyRuns_;
     bool const handleEmptySubRuns_;
     bool const errorOnMissingConsumes_;

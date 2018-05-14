@@ -47,46 +47,47 @@ using namespace std;
 
 namespace art {
 
+  hep::concurrency::RecursiveMutex EndPathExecutor::mutex_{
+    "EndPathExecutor::mutex_"};
+  hep::concurrency::RecursiveMutex EndPathExecutor::ofsMutex_{
+    "EndPathExecutor::ofsMutex_"};
+
   EndPathExecutor::~EndPathExecutor()
   {
     delete outputWorkersToClose_.load();
     outputWorkersToClose_ = nullptr;
     delete outputWorkersToOpen_.load();
     outputWorkersToOpen_ = nullptr;
-    for (auto val : *subRunRangeSetHandler_.load()) {
-      delete val;
+    if (auto rsh = subRunRangeSetHandler_.load()) {
+      for (auto val : *rsh) {
+        delete val;
+      }
+      delete rsh;
     }
-    delete subRunRangeSetHandler_.load();
     subRunRangeSetHandler_ = nullptr;
-    for (auto val : *runRangeSetHandler_.load()) {
-      delete val;
-    }
     delete runRangeSetHandler_.load();
     runRangeSetHandler_ = nullptr;
     delete outputWorkers_.load();
     outputWorkers_ = nullptr;
-    delete serialTaskQueue_.load();
-    serialTaskQueue_ = nullptr;
     endPathInfo_ = nullptr;
     actReg_ = nullptr;
     actionTable_ = nullptr;
   }
 
-  EndPathExecutor::EndPathExecutor(PathManager& pm,
+  EndPathExecutor::EndPathExecutor(ScheduleID const sid,
+                                   PathManager& pm,
                                    ActionTable const& actionTable,
                                    ActivityRegistry const& areg,
                                    UpdateOutputCallbacks& outputCallbacks)
+    : sc_{sid}
   {
     actionTable_ = &actionTable;
     actReg_ = &areg;
-    endPathInfo_ = &pm.endPathInfo();
-    serialTaskQueue_ = new SerialTaskQueue;
+    endPathInfo_ = &pm.endPathInfo(sid);
     runningWorkerCnt_ = 0;
     outputWorkers_ = new vector<OutputWorker*>;
-    runRangeSetHandler_ = new PerScheduleContainer<RangeSetHandler*>;
-    runRangeSetHandler_.load()->expand_to_num_schedules();
-    subRunRangeSetHandler_ = new PerScheduleContainer<RangeSetHandler*>;
-    subRunRangeSetHandler_.load()->expand_to_num_schedules();
+    runRangeSetHandler_ = nullptr;
+    subRunRangeSetHandler_ = new PerScheduleContainer<RangeSetHandler*>{1};
     fileStatus_ = OutputFileStatus::Closed;
     outputWorkersToOpen_ = new set<OutputWorker*>;
     outputWorkersToClose_ = new set<OutputWorker*>;
@@ -101,28 +102,6 @@ namespace art {
                                         outputWorkers_.load()->cend());
     outputCallbacks.registerCallback(
       [this](auto const& tables) { this->selectProducts(tables); });
-  }
-
-  void
-  EndPathExecutor::check()
-  {
-    return;
-    int idx = 0;
-    for (auto& val : *subRunRangeSetHandler_.load()) {
-      auto rsh = dynamic_cast<ClosedRangeSetHandler*>(val);
-      if (rsh == nullptr) {
-        ++idx;
-        continue;
-      }
-      if (!rsh->eventInfo().id().isValid()) {
-        cerr << "\n";
-        ostringstream buf;
-        buf << "EndPathExecutor::check: idx: " << idx << "\n";
-        cerr << buf.str();
-        cerr << "\n";
-      }
-      ++idx;
-    }
   }
 
   //
@@ -247,13 +226,10 @@ namespace art {
   //
 
   void
-  EndPathExecutor::seedRunRangeSet(unique_ptr<RangeSetHandler> rsh)
+  EndPathExecutor::seedRunRangeSet(RangeSetHandler const& rsh)
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    for (auto& val : *runRangeSetHandler_.load()) {
-      delete val;
-      val = rsh->clone();
-    }
+    runRangeSetHandler_ = rsh.clone();
   }
 
   void
@@ -272,9 +248,7 @@ namespace art {
       ow->writeRun(rp);
     }
     if (fileStatus_.load() == OutputFileStatus::Switching) {
-      for (auto& rsh : *runRangeSetHandler_.load()) {
-        rsh->rebase();
-      }
+      runRangeSetHandler_.load()->rebase();
     }
   }
 
@@ -285,12 +259,12 @@ namespace art {
   // Called by EventProcessor::readSubRun() just after
   // reading the subrun.
   void
-  EndPathExecutor::seedSubRunRangeSet(unique_ptr<RangeSetHandler> rsh)
+  EndPathExecutor::seedSubRunRangeSet(RangeSetHandler const& rsh)
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& val : *subRunRangeSetHandler_.load()) {
       delete val;
-      val = rsh->clone();
+      val = rsh.clone();
     }
   }
 
@@ -358,8 +332,9 @@ namespace art {
   // Note: We come here as part of the endPath task, our
   // parent task is the eventLoop task.
   void
-  EndPathExecutor::process_event(EventPrincipal& ep, ScheduleID const sid)
+  EndPathExecutor::process_event(EventPrincipal& ep)
   {
+    auto const sid = sc_.id();
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     TDEBUG_BEGIN_FUNC_SI(4, "EndPathExecutor::process_event", sid);
     if (runningWorkerCnt_.load() != 0) {
@@ -423,10 +398,10 @@ namespace art {
   }
 
   void
-  EndPathExecutor::writeEvent(ScheduleID const sid, EventPrincipal& ep)
+  EndPathExecutor::writeEvent(EventPrincipal& ep)
   {
-    ScheduleContext const sc{sid};
-    PathContext const pc{sc, "end_path", true};
+    auto const sid = sc_.id();
+    PathContext const pc{sc_, "end_path", true};
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : *outputWorkers_.load()) {
       auto const& md = ow->description();
@@ -447,8 +422,10 @@ namespace art {
       msg << eid.event();
       TDEBUG_FUNC_SI_MSG(5, "EndPathExecutor::writeEvent", sid, msg.str());
     }
-    runRangeSetHandler_.load()->at(sid)->update(eid, lastInSubRun);
-    subRunRangeSetHandler_.load()->at(sid)->update(eid, lastInSubRun);
+    runRangeSetHandler_.load()->update(eid, lastInSubRun);
+    subRunRangeSetHandler_.load()
+      ->at(ScheduleID::first())
+      ->update(eid, lastInSubRun);
   }
 
   //
@@ -485,18 +462,18 @@ namespace art {
   EndPathExecutor::closeSomeOutputFiles()
   {
     hep::concurrency::RecursiveMutexSentry sentry{ofsMutex_, __func__};
-    auto invoke_sPreCloseOutputFile = [this](auto ow) {
+    setOutputFileStatus(OutputFileStatus::Switching);
+    for (auto ow : *outputWorkersToClose_) {
+      // Skip files that are already closed due to other end-path
+      // executors already closing them.
+      if (!ow->fileIsOpen()) {
+        continue;
+      }
       actReg_.load()->sPreCloseOutputFile.invoke(ow->label());
-    };
-    auto closeFile = [](auto ow) { ow->closeFile(); };
-    auto invoke_sPostCloseOutputFile = [this](auto ow) {
+      ow->closeFile();
       actReg_.load()->sPostCloseOutputFile.invoke(
         OutputFileInfo{ow->label(), ow->lastClosedFileName()});
-    };
-    setOutputFileStatus(OutputFileStatus::Switching);
-    cet::for_all(*outputWorkersToClose_.load(), invoke_sPreCloseOutputFile);
-    cet::for_all(*outputWorkersToClose_.load(), closeFile);
-    cet::for_all(*outputWorkersToClose_.load(), invoke_sPostCloseOutputFile);
+    }
     *outputWorkersToOpen_.load() = move(*outputWorkersToClose_.load());
   }
 
@@ -518,12 +495,12 @@ namespace art {
   EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
   {
     hep::concurrency::RecursiveMutexSentry sentry{ofsMutex_, __func__};
-    auto openFile = [&fb](auto ow) { ow->openFile(fb); };
-    auto invoke_sPostOpenOutputFile = [this](auto ow) {
+    for (auto ow : *outputWorkersToOpen_.load()) {
+      if (!ow->openFile(fb)) {
+        continue;
+      }
       actReg_.load()->sPostOpenOutputFile.invoke(ow->label());
-    };
-    cet::for_all(*outputWorkersToOpen_.load(), openFile);
-    cet::for_all(*outputWorkersToOpen_.load(), invoke_sPostOpenOutputFile);
+    }
     setOutputFileStatus(OutputFileStatus::Open);
     outputWorkersToOpen_.load()->clear();
   }
@@ -556,11 +533,10 @@ namespace art {
     hep::concurrency::RecursiveMutexSentry sentry{ofsMutex_, __func__};
     for (auto ow : *outputWorkers_.load()) {
       if (atBoundary < ow->fileGranularity()) {
-        // The boundary we are checking at is finer than
-        // the checks the output worker needs, nothing to do.
+        // The boundary we are checking at is finer than the checks
+        // the output worker needs, nothing to do.
         continue;
       }
-      // Ask the worker if it wants to close.
       auto wants_to_close = ow->requestsToCloseFile();
       if (wants_to_close) {
         outputWorkersToClose_.load()->insert(ow);

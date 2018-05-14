@@ -24,8 +24,10 @@
 #include "art/Framework/Services/Registry/ServicesManager.h"
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/ScheduleIteration.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "cetlib/cpu_timer.h"
+#include "hep_concurrency/SerialTaskQueue.h"
 #include "hep_concurrency/thread_sanitize.h"
 
 #include <atomic>
@@ -116,6 +118,7 @@ namespace art {
     void beginJob();
     void endJob();
     void openInputFile();
+    bool outputsToOpen();
     void openSomeOutputFiles();
     void closeInputFile();
     void closeSomeOutputFiles();
@@ -205,6 +208,8 @@ namespace art {
     // scheduler.
     tsan<Scheduler> scheduler_;
 
+    ScheduleIteration scheduleIteration_;
+
     // The service subsystem.
     tsan_unique_ptr<ServicesManager> servicesManager_;
 
@@ -216,10 +221,12 @@ namespace art {
     tsan_unique_ptr<InputSource> input_{nullptr};
 
     // The trigger path runners.
-    tsan<PerScheduleContainer<Schedule>> schedules_{};
+    std::map<ScheduleID, Schedule> schedules_{};
 
     // The end path runner.
-    tsan_unique_ptr<EndPathExecutor> endPathExecutor_{nullptr};
+    std::map<ScheduleID, EndPathExecutor> endPathExecutors_{};
+
+    tsan<hep::concurrency::SerialTaskQueue> endPathQueue_{};
 
     // The currently open primary input file.
     tsan_unique_ptr<FileBlock> fb_{nullptr};

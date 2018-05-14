@@ -57,22 +57,21 @@ namespace art {
 
   Path::Path(ActionTable const& actions,
              ActivityRegistry const& actReg,
-             ScheduleID const sid,
+             ScheduleContext const sc,
              int const bitpos,
              bool const isEndPath,
              string const& path_name,
              vector<WorkerInPath>&& workers,
              HLTGlobalStatus* pathResults) noexcept
-    : pc_{ScheduleContext{sid}, path_name, isEndPath}
+    : pc_{sc, path_name, isEndPath}
   {
     {
       ostringstream msg;
       msg << "0x" << hex << ((unsigned long)this) << dec;
-      TDEBUG_FUNC_SI_MSG(4, "Path ctor", sid, msg.str());
+      TDEBUG_FUNC_SI_MSG(4, "Path ctor", sc.id(), msg.str());
     }
     actionTable_ = &actions;
     actReg_ = &actReg;
-    scheduleID_ = sid;
     bitpos_ = bitpos;
     name_ = new string(path_name);
     workers_ = new vector<WorkerInPath>{move(workers)};
@@ -88,7 +87,7 @@ namespace art {
   ScheduleID
   Path::scheduleID() const
   {
-    return scheduleID_.load();
+    return pc_.scheduleID();
   }
 
   int

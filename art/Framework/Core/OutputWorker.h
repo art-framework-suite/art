@@ -34,12 +34,12 @@ namespace art {
 
   public:
     std::string const& lastClosedFileName() const;
-    void closeFile();
+    bool closeFile();
     bool fileIsOpen() const;
     void incrementInputFileNumber();
     bool requestsToCloseFile() const;
     bool wantAllEvents() const;
-    void openFile(FileBlock const& fb);
+    bool openFile(FileBlock const& fb);
     void writeRun(RunPrincipal& rp);
     void writeSubRun(SubRunPrincipal& srp);
     void writeEvent(EventPrincipal& ep);

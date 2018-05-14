@@ -39,26 +39,27 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <memory>
+#include <mutex>
 #include <vector>
 
 namespace art {
   class EventProcessor;
   class EndPathExecutor {
     friend class EventProcessor;
+
   public:
     // Special Member Functions
     ~EndPathExecutor();
-    EndPathExecutor(PathManager& pm,
+    EndPathExecutor(ScheduleID sid,
+                    PathManager& pm,
                     ActionTable const& actions,
                     ActivityRegistry const& areg,
                     UpdateOutputCallbacks& callbacks);
-    EndPathExecutor(EndPathExecutor const&) = delete;
-    EndPathExecutor(EndPathExecutor&&) = delete;
-    EndPathExecutor& operator=(EndPathExecutor const&) = delete;
-    EndPathExecutor& operator=(EndPathExecutor&&) = delete;
 
-    // Check Range Validity
-    void check();
+    EndPathExecutor(EndPathExecutor&&) = delete;
+    EndPathExecutor& operator=(EndPathExecutor&&) = delete;
+    EndPathExecutor(EndPathExecutor const&) = delete;
+    EndPathExecutor& operator=(EndPathExecutor const&) = delete;
 
     void beginJob();
     void endJob();
@@ -72,11 +73,11 @@ namespace art {
     bool someOutputsOpen() const;
     void closeAllOutputFiles();
 
-    void seedRunRangeSet(std::unique_ptr<RangeSetHandler>);
+    void seedRunRangeSet(RangeSetHandler const&);
     void setRunAuxiliaryRangeSetID(RangeSet const& rs);
     void writeRun(RunPrincipal& rp);
 
-    void seedSubRunRangeSet(std::unique_ptr<RangeSetHandler>);
+    void seedSubRunRangeSet(RangeSetHandler const&);
     void setSubRunAuxiliaryRangeSetID(RangeSet const& rs);
     void writeSubRun(SubRunPrincipal& srp);
 
@@ -90,8 +91,8 @@ namespace art {
     // first-come first-served basis (FIFO).
     template <typename T>
     void push(const T& func);
-    void process_event(EventPrincipal&, ScheduleID const);
-    void writeEvent(ScheduleID const, EventPrincipal&);
+    void process_event(EventPrincipal&);
+    void writeEvent(EventPrincipal&);
 
     // Output File Switching API
     //
@@ -129,27 +130,24 @@ namespace art {
 
   private:
     // Protects runRangeSetHandler_, and subRunRangeSetHandler_.
-    mutable hep::concurrency::RecursiveMutex mutex_{"EndPathExecutor::mutex_"};
+    static hep::concurrency::RecursiveMutex mutex_;
     // Filled by ctor, const after that.
+    ScheduleContext const sc_;
     std::atomic<ActionTable const*> actionTable_;
     std::atomic<ActivityRegistry const*> actReg_;
     std::atomic<PathsInfo*> endPathInfo_;
-    // Dynamic, used to force only one event at a time to be active on the end
-    // path.
-    std::atomic<hep::concurrency::SerialTaskQueue*> serialTaskQueue_;
     // Dynamic, cause an error if more than one thread processes an event.
     std::atomic<int> runningWorkerCnt_;
     // Filled by ctor, const after that.
     std::atomic<std::vector<OutputWorker*>*> outputWorkers_;
     // Dynamic, updated by run processing.
-    std::atomic<PerScheduleContainer<RangeSetHandler*>*> runRangeSetHandler_;
+    std::atomic<RangeSetHandler*> runRangeSetHandler_;
     // Dynamic, updated by subrun processing.
     std::atomic<PerScheduleContainer<RangeSetHandler*>*> subRunRangeSetHandler_;
 
     // Output File Switching
     // Protects fileStatus_, outputWorkersToOpen_, and outputWorkersToClose_
-    mutable hep::concurrency::RecursiveMutex ofsMutex_{
-      "EndPathExecutor::ofsMutex_"};
+    static hep::concurrency::RecursiveMutex ofsMutex_;
     std::atomic<OutputFileStatus> fileStatus_;
     std::atomic<std::set<OutputWorker*>*> outputWorkersToOpen_;
     // Note: During an output file switch, after the closes happen, the entire
@@ -161,14 +159,6 @@ namespace art {
     // list to do opens, then clears the list.
     std::atomic<std::set<OutputWorker*>*> outputWorkersToClose_;
   };
-
-  template <typename T>
-  void
-  EndPathExecutor::push(const T& func)
-  {
-    serialTaskQueue_.load()->push(func);
-  }
-
 } // namespace art
 
   // Local Variables:

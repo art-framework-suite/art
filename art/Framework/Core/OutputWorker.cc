@@ -8,7 +8,7 @@
 
 namespace art {
 
-  OutputWorker::~OutputWorker() {}
+  OutputWorker::~OutputWorker() = default;
 
   // This is called directly by the make_worker function created
   // by the DEFINE_ART_MODULE macro.
@@ -28,12 +28,14 @@ namespace art {
     return module().lastClosedFileName();
   }
 
-  void
+  bool
   OutputWorker::closeFile()
   {
-    module().doCloseFile();
-    ci_->outputFileClosed(description().moduleLabel(),
-                          module().lastClosedFileName());
+    bool const didCloseFile{module().doCloseFile()};
+    if (didCloseFile) {
+      ci_->outputFileClosed(description().moduleLabel(), lastClosedFileName());
+    }
+    return didCloseFile;
   }
 
   void
@@ -48,11 +50,14 @@ namespace art {
     return module().requestsToCloseFile();
   }
 
-  void
+  bool
   OutputWorker::openFile(FileBlock const& fb)
   {
-    module().doOpenFile(fb);
-    ci_->outputFileOpened(description().moduleLabel());
+    bool const didOpenFile{module().doOpenFile(fb)};
+    if (didOpenFile) {
+      ci_->outputFileOpened(description().moduleLabel());
+    }
+    return didOpenFile;
   }
 
   void

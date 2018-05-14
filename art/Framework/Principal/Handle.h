@@ -172,7 +172,7 @@ art::Handle<T>::product() const
   }
   if (prod_ == nullptr)
     throw Exception(art::errors::NullPointerError)
-      << "Attempt to de-reference product that points to 'nullptr'";
+      << "Attempt to de-reference product that points to 'nullptr'.\n";
   return prod_;
 }
 

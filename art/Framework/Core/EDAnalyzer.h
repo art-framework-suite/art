@@ -44,6 +44,7 @@ namespace art {
     {}
 
     using detail::LegacyModule::createEngine;
+    using detail::LegacyModule::scheduleID;
     using detail::LegacyModule::serialTaskQueueChain;
 
     std::string workerType() const;

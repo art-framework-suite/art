@@ -92,7 +92,7 @@ art::detail::writeSummary(PathManager& pm,
                           bool const wantSummary,
                           cet::cpu_timer const& jobTimer)
 {
-  auto const& epi = pm.endPathInfo();
+  auto const& epi = pm.endPathInfo(ScheduleID::first());
   auto const& tpis = pm.triggerPathsInfo();
   LogPrint("ArtSummary") << "";
   triggerReport(epi, tpis, wantSummary);
