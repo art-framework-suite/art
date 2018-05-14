@@ -89,12 +89,11 @@ namespace art {
 
     void doWork_event(hep::concurrency::WaitingTask* workerInPathDoneTask,
                       EventPrincipal&,
-                      ScheduleID,
                       PathContext const&);
 
     // This is used to do trigger results insertion,
     // and to run workers on the end path.
-    void doWork_event(EventPrincipal&, ScheduleID, PathContext const&);
+    void doWork_event(EventPrincipal&, PathContext const&);
 
     ModuleDescription const& description() const;
     ModuleDescription const* descPtr() const;
@@ -139,7 +138,6 @@ namespace art {
     virtual bool implDoBegin(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
     virtual bool implDoEnd(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
     virtual bool implDoProcess(EventPrincipal&,
-                               ScheduleID,
                                ModuleContext const&) = 0;
 
   private: // MEMBER FUNCTIONS -- API implementation classes must use

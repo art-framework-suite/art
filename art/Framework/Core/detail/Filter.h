@@ -46,8 +46,7 @@ namespace art {
       bool doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc);
       bool doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc);
       bool doEvent(EventPrincipal& ep,
-                   ScheduleID const,
-                   ModuleContext const&,
+                   ModuleContext const& mc,
                    std::atomic<std::size_t>& counts_run,
                    std::atomic<std::size_t>& counts_passed,
                    std::atomic<std::size_t>& counts_failed);

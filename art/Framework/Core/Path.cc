@@ -206,8 +206,9 @@ namespace art {
   // eventLoop task.  We will run the workers on the path in order
   // serially without using tasks.
   void
-  Path::process_event_for_endpath(EventPrincipal& ep, ScheduleID const sid)
+  Path::process_event_for_endpath(EventPrincipal& ep)
   {
+    auto const sid = pc_.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, "Path::process_event_for_endpath", sid);
     actReg_.load()->sPreProcessPath.invoke(pc_);
     ++timesRun_;
@@ -218,7 +219,7 @@ namespace art {
     for (; should_continue && (idx < max_idx); ++idx) {
       auto& workerInPath = (*workers_.load())[idx];
       try {
-        workerInPath.runWorker_event_for_endpath(ep, sid, pc_);
+        workerInPath.runWorker_event_for_endpath(ep, pc_);
       }
       catch (cet::exception& e) {
         // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
@@ -307,9 +308,9 @@ namespace art {
   // the pathsDoneTask is the eventLoop task.
   void
   Path::process_event(WaitingTask* pathsDoneTask,
-                      EventPrincipal& ep,
-                      ScheduleID const sid)
+                      EventPrincipal& ep)
   {
+    auto const sid = pc_.scheduleID();
     // Note: We are part of the readAndProcessEventTask (stream head task),
     // or the endPath task, and our parent task is the nullptr.
     // The parent of the pathsDoneTask is the eventLoop Task.
@@ -335,7 +336,7 @@ namespace art {
     // Start the task spawn chain going with the first worker on the
     // path.  Each worker will spawn the next worker in order, until
     // all the workers have run.
-    process_event_idx_asynch(idx, max_idx, ep, sid);
+    process_event_idx_asynch(idx, max_idx, ep);
     TDEBUG_END_FUNC_SI(4, "Path::process_event", sid);
   }
 
@@ -343,24 +344,22 @@ namespace art {
     class RunWorkerFunctor {
     public:
       RunWorkerFunctor(Path* path,
-                       size_t idx,
+                       size_t const idx,
                        size_t const max_idx,
-                       EventPrincipal& ep,
-                       ScheduleID const sid)
-        : path_{path}, idx_{idx}, max_idx_{max_idx}, ep_{ep}, sid_{sid}
+                       EventPrincipal& ep)
+        : path_{path}, idx_{idx}, max_idx_{max_idx}, ep_{ep}
       {}
       void
       operator()(exception_ptr const* ex) const
       {
-        path_->runWorkerTask(idx_, max_idx_, ep_, sid_, ex);
+        path_->runWorkerTask(idx_, max_idx_, ep_, ex);
       }
 
     private:
       Path* path_;
-      size_t idx_;
+      size_t const idx_;
       size_t const max_idx_;
       EventPrincipal& ep_;
-      ScheduleID const sid_;
     };
   }
 
@@ -368,14 +367,14 @@ namespace art {
   Path::runWorkerTask(size_t idx,
                       size_t const max_idx,
                       EventPrincipal& ep,
-                      ScheduleID const sid,
                       std::exception_ptr const*)
   {
+    auto const sid = pc_.scheduleID();
     // Note: When we start here our parent task is the nullptr.
     TDEBUG_BEGIN_TASK_SI(4, "runWorkerTask", sid);
     auto new_idx = idx;
     try {
-      process_event_idx(new_idx, max_idx, ep, sid);
+      process_event_idx(new_idx, max_idx, ep);
     }
     catch (...) {
       waitingTasks_.load()->doneWaiting(current_exception());
@@ -394,9 +393,9 @@ namespace art {
   void
   Path::process_event_idx_asynch(size_t const idx,
                                  size_t const max_idx,
-                                 EventPrincipal& ep,
-                                 ScheduleID const sid)
+                                 EventPrincipal& ep)
   {
+    auto const sid = pc_.scheduleID();
     {
       ostringstream msg;
       msg << "idx: " << idx << " max_idx: " << max_idx;
@@ -405,7 +404,7 @@ namespace art {
     }
     auto runWorkerTask =
       make_waiting_task(tbb::task::allocate_root(),
-                        RunWorkerFunctor{this, idx, max_idx, ep, sid});
+                        RunWorkerFunctor{this, idx, max_idx, ep});
     tbb::task::spawn(*runWorkerTask);
     // And end this task, which does not terminate event
     // processing because our parent task is the nullptr.
@@ -422,14 +421,13 @@ namespace art {
       WorkerDoneFunctor(Path* path,
                         size_t const idx,
                         size_t const max_idx,
-                        EventPrincipal& ep,
-                        ScheduleID const sid)
-        : path_{path}, idx_{idx}, max_idx_{max_idx}, ep_{ep}, sid_{sid}
+                        EventPrincipal& ep)
+        : path_{path}, idx_{idx}, max_idx_{max_idx}, ep_{ep}
       {}
       void
       operator()(exception_ptr const* ex)
       {
-        path_->workerDoneTask(idx_, max_idx_, ep_, sid_, ex);
+        path_->workerDoneTask(idx_, max_idx_, ep_, ex);
       }
 
     private:
@@ -437,7 +435,6 @@ namespace art {
       size_t const idx_;
       size_t const max_idx_;
       EventPrincipal& ep_;
-      ScheduleID const sid_;
     };
   }
 
@@ -445,9 +442,9 @@ namespace art {
   Path::workerDoneTask(size_t const idx,
                        size_t const max_idx,
                        EventPrincipal& ep,
-                       ScheduleID const sid,
                        exception_ptr const* ex)
   {
+    auto const sid = pc_.scheduleID();
     TDEBUG_BEGIN_TASK_SI(4, "workerDoneTask", sid);
     auto& workerInPath = (*workers_.load())[idx];
     // Note: This will only be set false by a filter which has rejected.
@@ -506,7 +503,7 @@ namespace art {
       // threw and we are ignoring the exception but failing
       // the path because of actions::FailPath!!!
     }
-    process_event_workerFinished(idx, max_idx, ep, sid, new_should_continue);
+    process_event_workerFinished(idx, max_idx, ep, new_should_continue);
     TDEBUG_END_TASK_SI(4, "workerDoneTask", sid);
   }
 
@@ -515,9 +512,9 @@ namespace art {
   void
   Path::process_event_idx(size_t const idx,
                           size_t const max_idx,
-                          EventPrincipal& ep,
-                          ScheduleID const sid)
+                          EventPrincipal& ep)
   {
+    auto const sid = pc_.scheduleID();
     {
       ostringstream msg;
       msg << "idx: " << idx << " max_idx: " << max_idx;
@@ -525,9 +522,9 @@ namespace art {
     }
     auto workerDoneTask =
       make_waiting_task(tbb::task::allocate_root(),
-                        WorkerDoneFunctor{this, idx, max_idx, ep, sid});
+                        WorkerDoneFunctor{this, idx, max_idx, ep});
     auto& workerInPath = (*workers_.load())[idx];
-    workerInPath.runWorker_event(workerDoneTask, ep, sid, pc_);
+    workerInPath.runWorker_event(workerDoneTask, ep, pc_);
     {
       ostringstream msg;
       msg << "idx: " << idx << " max_idx: " << max_idx;
@@ -539,9 +536,9 @@ namespace art {
   Path::process_event_workerFinished(size_t const idx,
                                      size_t const max_idx,
                                      EventPrincipal& ep,
-                                     ScheduleID const sid,
                                      bool const should_continue)
   {
+    auto const sid = pc_.scheduleID();
     {
       ostringstream msg;
       msg << "idx: " << idx << " max_idx: " << max_idx
@@ -554,7 +551,7 @@ namespace art {
     ++new_idx;
     if (should_continue && (new_idx < max_idx)) {
       // Spawn the next worker.
-      process_event_idx_asynch(new_idx, max_idx, ep, sid);
+      process_event_idx_asynch(new_idx, max_idx, ep);
       // And end this one.
       {
         ostringstream msg;
@@ -565,7 +562,7 @@ namespace art {
       return;
     }
     // All done, or filter rejected, or error.
-    process_event_pathFinished(new_idx, ep, sid, should_continue);
+    process_event_pathFinished(new_idx, ep, should_continue);
     // And end the path here.
     {
       ostringstream msg;
@@ -580,9 +577,9 @@ namespace art {
   void
   Path::process_event_pathFinished(size_t const idx,
                                    EventPrincipal&,
-                                   ScheduleID const sid,
                                    bool const should_continue)
   {
+    auto const sid = pc_.scheduleID();
     {
       ostringstream msg;
       msg << "idx: " << idx << " should_continue: " << should_continue;

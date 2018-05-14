@@ -7,6 +7,7 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 
 #include <ostream>
 
@@ -131,8 +132,7 @@ namespace art {
 
     bool
     Analyzer::doEvent(EventPrincipal& ep,
-                      ScheduleID const sid,
-                      ModuleContext const& mc[[gnu::unused]],
+                      ModuleContext const& mc,
                       std::atomic<std::size_t>& counts_run,
                       std::atomic<std::size_t>& counts_passed,
                       std::atomic<std::size_t>& /*counts_failed*/)
@@ -141,7 +141,7 @@ namespace art {
       Event const e{ep, moduleDescription()};
       if (wantAllEvents() || wantEvent(e)) {
         ++counts_run;
-        analyzeWithScheduleID(e, sid);
+        analyzeWithScheduleID(e, mc.scheduleID());
         ++counts_passed;
       }
       return true;

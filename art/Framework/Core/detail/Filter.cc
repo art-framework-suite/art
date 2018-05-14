@@ -11,6 +11,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -154,8 +155,7 @@ namespace art {
 
     bool
     Filter::doEvent(EventPrincipal& ep,
-                    ScheduleID const sid,
-                    ModuleContext const& mc[[gnu::unused]],
+                    ModuleContext const& mc,
                     atomic<size_t>& counts_run,
                     atomic<size_t>& counts_passed,
                     atomic<size_t>& counts_failed)
@@ -163,7 +163,7 @@ namespace art {
       Event e{ep, moduleDescription()};
       ++counts_run;
       bool rc = false;
-      rc = filterWithScheduleID(e, sid);
+      rc = filterWithScheduleID(e, mc.scheduleID());
       e.movePutProductsToPrincipal(
         ep, checkPutProducts_, &expectedProducts<InEvent>());
       if (rc) {

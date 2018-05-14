@@ -262,7 +262,6 @@ namespace art {
 
   bool
   OutputModule::doEvent(EventPrincipal const& ep,
-                        ScheduleID const /*sid*/,
                         ModuleContext const& mc[[gnu::unused]],
                         std::atomic<std::size_t>& counts_run,
                         std::atomic<std::size_t>& counts_passed,

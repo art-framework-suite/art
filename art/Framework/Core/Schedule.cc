@@ -401,7 +401,7 @@ namespace art {
         // call doneWaiting() on the pathsDoneTask, which decrements
         // its reference count, which will eventually cause it to
         // run when every path has finished.
-        path->process_event(pathsDoneTask, principal, scheduleID);
+        path->process_event(pathsDoneTask, principal);
       }
       // And end this task which does not terminate event processing
       // because our parent is the nullptr.
@@ -454,7 +454,7 @@ namespace art {
       if (results_inserter_.load() != nullptr) {
         ScheduleContext const sc{scheduleID};
         PathContext const pc{sc, "[art]", false};
-        results_inserter_.load()->doWork_event(principal, scheduleID, pc);
+        results_inserter_.load()->doWork_event(principal, pc);
       }
     }
     catch (cet::exception& e) {

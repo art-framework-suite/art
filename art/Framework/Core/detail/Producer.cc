@@ -9,6 +9,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
@@ -140,15 +141,14 @@ namespace art {
 
     bool
     Producer::doEvent(EventPrincipal& ep,
-                      ScheduleID const sid,
-                      ModuleContext const& mc[[gnu::unused]],
+                      ModuleContext const& mc,
                       std::atomic<size_t>& counts_run,
                       std::atomic<size_t>& counts_passed,
                       std::atomic<size_t>& /*counts_failed*/)
     {
       Event e{ep, moduleDescription()};
       ++counts_run;
-      produceWithScheduleID(e, sid);
+      produceWithScheduleID(e, mc.scheduleID());
       e.movePutProductsToPrincipal(
         ep, checkPutProducts_, &expectedProducts<InEvent>());
       ++counts_passed;

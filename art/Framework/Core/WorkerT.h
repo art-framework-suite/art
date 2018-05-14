@@ -55,7 +55,6 @@ namespace art {
     bool implDoBegin(SubRunPrincipal&, ModuleContext const&) override;
     bool implDoEnd(SubRunPrincipal&, ModuleContext const&) override;
     bool implDoProcess(EventPrincipal&,
-                       ScheduleID,
                        ModuleContext const&) override;
 
     // A module is co-owned by one worker per schedule.  Only
@@ -193,13 +192,12 @@ namespace art {
   template <typename T>
   bool
   WorkerT<T>::implDoProcess(EventPrincipal& ep,
-                            ScheduleID const scheduleID,
                             ModuleContext const& mc)
   {
     // Note, only filters ever return false, and when they do it means
     // they have rejected.
     return module_->doEvent(
-      ep, scheduleID, mc, counts_run_, counts_passed_, counts_failed_);
+      ep, mc, counts_run_, counts_passed_, counts_failed_);
   }
 
 } // namespace art

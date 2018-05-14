@@ -506,8 +506,7 @@ namespace art {
     endPathInfo_.load()->incrementTotalEventCount();
     try {
       if (!endPathInfo_.load()->paths().empty()) {
-        endPathInfo_.load()->paths().front()->process_event_for_endpath(ep,
-                                                                        sid);
+        endPathInfo_.load()->paths().front()->process_event_for_endpath(ep);
       }
     }
     catch (cet::exception& ex) {

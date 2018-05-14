@@ -54,11 +54,9 @@ namespace art {
     std::string const& label() const;
     bool runWorker(Transition, Principal&, PathContext const&);
     void runWorker_event_for_endpath(EventPrincipal&,
-                                     ScheduleID,
                                      PathContext const&);
     void runWorker_event(hep::concurrency::WaitingTask* workerDoneTask,
                          EventPrincipal&,
-                         ScheduleID,
                          PathContext const&);
     // Used only by Path
     void clearCounters();

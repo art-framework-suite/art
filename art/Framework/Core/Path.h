@@ -60,40 +60,33 @@ namespace art {
     // Note: threading: Clears the counters of workersInPath.
     void clearCounters();
     void process(Transition, Principal&);
-    void process_event_for_endpath(EventPrincipal&, ScheduleID const);
+    void process_event_for_endpath(EventPrincipal&);
     void process_event(hep::concurrency::WaitingTask* pathsDoneTask,
-                       EventPrincipal&,
-                       ScheduleID const);
+                       EventPrincipal&);
 
   public: // MEMBER FUNCTIONS - Tasking System
     void runWorkerTask(size_t idx,
                        size_t max_idx,
                        EventPrincipal&,
-                       ScheduleID,
                        std::exception_ptr const*);
     void workerDoneTask(size_t idx,
                         size_t max_idx,
                         EventPrincipal&,
-                        ScheduleID,
                         std::exception_ptr const*);
 
   private: // MEMBER FUNCTIONS -- Implementation details
     void process_event_idx_asynch(size_t idx,
                                   size_t max_idx,
-                                  EventPrincipal&,
-                                  ScheduleID);
+                                  EventPrincipal&);
     void process_event_idx(size_t const idx,
                            size_t const max_idx,
-                           EventPrincipal&,
-                           ScheduleID);
+                           EventPrincipal&);
     void process_event_workerFinished(size_t const idx,
                                       size_t const max_idx,
                                       EventPrincipal&,
-                                      ScheduleID,
                                       bool should_continue);
     void process_event_pathFinished(size_t const idx,
                                     EventPrincipal&,
-                                    ScheduleID const,
                                     bool should_continue);
 
   private: // MEMBER DATA

@@ -438,7 +438,6 @@ namespace art {
   // on the end path.
   void
   Worker::doWork_event(EventPrincipal& p,
-                       ScheduleID const sid,
                        PathContext const& pc)
   {
     ++counts_visited_;
@@ -450,7 +449,7 @@ namespace art {
       actReg_.load()->sPreModule.invoke(mc);
       // Note: Only filters ever return false, and when they do it means they
       // have rejected.
-      returnCode_ = implDoProcess(p, sid, mc);
+      returnCode_ = implDoProcess(p, mc);
       actReg_.load()->sPostModule.invoke(mc);
       if (returnCode_.load()) {
         state_ = Pass;
@@ -593,7 +592,7 @@ namespace art {
       actReg_.load()->sPreModule.invoke(mc);
       // Note: Only filters ever return false, and when they do it
       // means they have rejected.
-      returnCode_ = implDoProcess(p, sid, mc);
+      returnCode_ = implDoProcess(p, mc);
       actReg_.load()->sPostModule.invoke(mc);
       state_ = Fail;
       if (returnCode_.load()) {
@@ -715,9 +714,9 @@ namespace art {
   void
   Worker::doWork_event(WaitingTask* workerInPathDoneTask,
                        EventPrincipal& p,
-                       ScheduleID const sid,
                        PathContext const& pc)
   {
+    auto const sid = pc.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, "Worker::doWork_event", sid);
     // Note: We actually can have more than one entry in this
     // list because a worker may be one more than one path,

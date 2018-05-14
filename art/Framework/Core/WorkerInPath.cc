@@ -159,14 +159,14 @@ namespace art {
 
   void
   WorkerInPath::runWorker_event_for_endpath(EventPrincipal& ep,
-                                            ScheduleID const scheduleID,
                                             PathContext const& pc)
   {
+    auto const scheduleID = pc.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(
       4, "WorkerInPath::runWorker_event_for_endpath", scheduleID);
     ++counts_visited_;
     try {
-      worker_.load()->doWork_event(ep, scheduleID, pc);
+      worker_.load()->doWork_event(ep, pc);
     }
     catch (...) {
       ++counts_thrown_;
@@ -263,9 +263,9 @@ namespace art {
   void
   WorkerInPath::runWorker_event(WaitingTask* workerDoneTask,
                                 EventPrincipal& ep,
-                                ScheduleID const scheduleID,
                                 PathContext const& pc)
   {
+    auto const scheduleID = pc.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, "WorkerInPath::runWorker_event", scheduleID);
     // Reset the waiting task list so that it stops running tasks and switches
     // to holding them. Note: There will only ever be one entry in this list!
@@ -282,7 +282,7 @@ namespace art {
     auto workerInPathDoneTask = make_waiting_task(
       tbb::task::allocate_root(), WorkerInPathDoneFunctor{this, scheduleID});
     try {
-      worker_.load()->doWork_event(workerInPathDoneTask, ep, scheduleID, pc);
+      worker_.load()->doWork_event(workerInPathDoneTask, ep, pc);
     }
     catch (...) {
       ++counts_thrown_;
