@@ -145,7 +145,6 @@ namespace art {
     // since per-module/event information are retrieved only in a
     // sequential (i.e. single-threaded) context.
     EventID currentEventID_{EventID::invalidEvent()};
-    std::string currentPathName_{};
     name_array<3u> peakUsageColumns_{{"Name", "Value", "Description"}};
     name_array<5u> otherInfoColumns_{
       {"Step", "ModuleLabel", "ModuleType", "Vsize", "RSS"}};
@@ -247,7 +246,6 @@ namespace art {
       iReg.sPostModuleBeginSubRun.watch([this](auto const& mc) {
         this->recordOtherData(mc, "PostBeginSubRun");
       });
-      iReg.sPreProcessPath.watch(this, &MemoryTracker::prePathProcessing);
       iReg.sPreProcessEvent.watch([this](auto const& e, ScheduleID) {
         this->recordEventData(e, "PreProcessEvent");
       });
@@ -279,12 +277,6 @@ namespace art {
       iReg.sPostModuleEndJob.watch(
         [this](auto const& md) { this->recordOtherData(md, "PostEndJob"); });
     }
-  }
-
-  void
-  MemoryTracker::prePathProcessing(PathContext const& pc)
-  {
-    currentPathName_ = pc.pathName();
   }
 
   void
@@ -340,7 +332,7 @@ namespace art {
                         currentEventID_.run(),
                         currentEventID_.subRun(),
                         currentEventID_.event(),
-                        currentPathName_,
+                        mc.pathName(),
                         mc.moduleLabel(),
                         mc.moduleName(),
                         LinuxProcData::getValueInMB<vsize_t>(currentMemory),
@@ -351,7 +343,7 @@ namespace art {
                                currentEventID_.run(),
                                currentEventID_.subRun(),
                                currentEventID_.event(),
-                               currentPathName_,
+                               mc.pathName(),
                                mc.moduleLabel(),
                                mc.moduleName(),
                                minfo.arena,
