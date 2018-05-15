@@ -23,8 +23,8 @@ logical expression formed from any other selectors, combined with &&
 For example, to select only products produced by a module with label
 "mymodule" and made in the process "PROD", one can use:
 
-  Selector s( ModuleLabelSelector("mymodule") &&
-              ProcessNameSelector("PROD") );
+  Selector s{ModuleLabelSelector("mymodule") &&
+             ProcessNameSelector("PROD")};
 
 If a module (EDProducter, EDFilter, EDAnalyzer, or OutputModule) is
 to use such a selector, it is best to initialize it directly upon
@@ -61,26 +61,32 @@ namespace art {
   operator!(A const& a);
 } // namespace art
 
-//------------------------------------------------------------------
+//--------------------------------------------------------------------
+// Class ProcessNameSelector.
+// Selects EDProducts based upon process name.
 //
-/// Class ProcessNameSelector.
-/// Selects EDProducts based upon process name.
-///
-/// As a special case, a ProcessNameSelector created with the
-/// string "*" matches *any* process (and so is rather like having
-/// no ProcessNameSelector at all).
-//------------------------------------------------------------------
+// As a special case, a ProcessNameSelector created with the string
+// "*" matches *any* process (and so is rather like having no
+// ProcessNameSelector at all).  The ProcessNameSelector does *not*
+// understand the string "current_process" as a match to the current
+// process name.  To do so with the current design would require the
+// use of accessing global data, which we would like to avoid.  If
+// such matching is desired in the future, a redesign of the selector
+// system could be considered.  For now, if users wish to retrieve
+// products with the process name "current_process", they must use the
+// getBy* facilities provided by Event and friends.
+// -------------------------------------------------------------------
 
 class art::ProcessNameSelector : public art::SelectorBase {
 public:
-  ProcessNameSelector(const std::string& pn)
-    : pn_(pn.empty() ? std::string("*") : pn)
+  ProcessNameSelector(std::string const& pn)
+    : pn_{pn.empty() ? std::string{"*"} : pn}
   {}
 
-  virtual ProcessNameSelector*
+  ProcessNameSelector*
   clone() const override
   {
-    return new ProcessNameSelector(*this);
+    return new ProcessNameSelector{*this};
   }
 
   std::string const&
@@ -90,7 +96,7 @@ public:
   }
 
 private:
-  virtual bool
+  bool
   doMatch(BranchDescription const& p) const override
   {
     return (pn_ == "*") || (p.processName() == pn_);
@@ -100,24 +106,22 @@ private:
 };
 
 //------------------------------------------------------------------
-//
-/// Class ProductInstanceNameSelector.
-/// Selects EDProducts based upon product instance name.
-//
+// Class ProductInstanceNameSelector.
+// Selects EDProducts based upon product instance name.
 //------------------------------------------------------------------
 
 class art::ProductInstanceNameSelector : public art::SelectorBase {
 public:
-  ProductInstanceNameSelector(const std::string& pin) : pin_(pin) {}
+  ProductInstanceNameSelector(std::string const& pin) : pin_{pin} {}
 
-  virtual ProductInstanceNameSelector*
+  ProductInstanceNameSelector*
   clone() const override
   {
-    return new ProductInstanceNameSelector(*this);
+    return new ProductInstanceNameSelector{*this};
   }
 
 private:
-  virtual bool
+  bool
   doMatch(BranchDescription const& p) const override
   {
     return p.productInstanceName() == pin_;
@@ -127,24 +131,22 @@ private:
 };
 
 //------------------------------------------------------------------
-//
-/// Class ModuleLabelSelector.
-/// Selects EDProducts based upon module label.
-//
+// Class ModuleLabelSelector.
+// Selects EDProducts based upon module label.
 //------------------------------------------------------------------
 
 class art::ModuleLabelSelector : public art::SelectorBase {
 public:
-  ModuleLabelSelector(const std::string& label) : label_(label) {}
+  ModuleLabelSelector(std::string const& label) : label_{label} {}
 
-  virtual ModuleLabelSelector*
+  ModuleLabelSelector*
   clone() const override
   {
-    return new ModuleLabelSelector(*this);
+    return new ModuleLabelSelector{*this};
   }
 
 private:
-  virtual bool
+  bool
   doMatch(BranchDescription const& p) const override
   {
     return p.moduleLabel() == label_;
@@ -154,24 +156,20 @@ private:
 };
 
 //------------------------------------------------------------------
-//
-/// Class MatchAllSelector.
-/// Dummy selector whose match function always returns true.
-//
+// Class MatchAllSelector.
+// Dummy selector whose match function always returns true.
 //------------------------------------------------------------------
 
 class art::MatchAllSelector : public art::SelectorBase {
 public:
-  MatchAllSelector() {}
-
-  virtual MatchAllSelector*
+  MatchAllSelector*
   clone() const override
   {
     return new MatchAllSelector;
   }
 
 private:
-  virtual bool
+  bool
   doMatch(BranchDescription const&) const override
   {
     return true;
@@ -179,24 +177,23 @@ private:
 };
 
 //----------------------------------------------------------
-//
 // AndHelper template.
 // Used to form expressions involving && between other selectors.
-//
 //----------------------------------------------------------
 
 template <class A, class B>
 class art::AndHelper : public SelectorBase {
 public:
-  AndHelper(A const& a, B const& b) : a_(a), b_(b) {}
-  virtual AndHelper*
+  AndHelper(A const& a, B const& b) : a_{a}, b_{b} {}
+
+  AndHelper*
   clone() const override
   {
-    return new AndHelper(*this);
+    return new AndHelper{*this};
   }
 
 private:
-  virtual bool
+  bool
   doMatch(BranchDescription const& p) const override
   {
     return a_.match(p) && b_.match(p);
@@ -216,24 +213,23 @@ art::operator&&(A const& a, B const& b)
 }
 
 //----------------------------------------------------------
-//
 // OrHelper template.
 // Used to form expressions involving || between other selectors.
-//
 //----------------------------------------------------------
 
 template <class A, class B>
 class art::OrHelper : public art::SelectorBase {
 public:
-  OrHelper(A const& a, B const& b) : a_(a), b_(b) {}
-  virtual OrHelper*
+  OrHelper(A const& a, B const& b) : a_{a}, b_{b} {}
+
+  OrHelper*
   clone() const override
   {
-    return new OrHelper(*this);
+    return new OrHelper{*this};
   }
 
 private:
-  virtual bool
+  bool
   doMatch(BranchDescription const& p) const override
   {
     return a_.match(p) || b_.match(p);
@@ -253,24 +249,22 @@ art::operator||(A const& a, B const& b)
 }
 
 //----------------------------------------------------------
-//
 // NotHelper template.
 // Used to form expressions involving ! acting on a selector.
-//
 //----------------------------------------------------------
 
 template <class A>
 class art::NotHelper : public art::SelectorBase {
 public:
-  explicit NotHelper(A const& a) : a_(a) {}
+  explicit NotHelper(A const& a) : a_{a} {}
   NotHelper*
   clone() const override
   {
-    return new NotHelper(*this);
+    return new NotHelper{*this};
   }
 
 private:
-  virtual bool
+  bool
   doMatch(BranchDescription const& p) const override
   {
     return !a_.match(p);
@@ -288,26 +282,24 @@ std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value,
 }
 
 //----------------------------------------------------------
-//
 // ComposedSelectorWrapper template
 // Used to hold an expression formed from the various helpers.
-//
 //----------------------------------------------------------
 
 template <class T>
 class art::ComposedSelectorWrapper : public art::SelectorBase {
 public:
-  typedef T wrapped_type;
-  explicit ComposedSelectorWrapper(T const& t) : expression_(t) {}
-  ~ComposedSelectorWrapper(){};
+  using wrapped_type = T;
+  explicit ComposedSelectorWrapper(T const& t) : expression_{t} {}
+
   ComposedSelectorWrapper<T>*
   clone() const override
   {
-    return new ComposedSelectorWrapper<T>(*this);
+    return new ComposedSelectorWrapper<T>{*this};
   }
 
 private:
-  virtual bool
+  bool
   doMatch(BranchDescription const& p) const override
   {
     return expression_.match(p);
@@ -317,9 +309,7 @@ private:
 };
 
 //----------------------------------------------------------
-//
 // Selector
-//
 //----------------------------------------------------------
 
 class art::Selector : public art::SelectorBase {
@@ -330,17 +320,17 @@ public:
   Selector& operator=(Selector const& other) &;
   void swap(Selector& other);
   virtual ~Selector();
-  virtual Selector* clone() const override;
+  Selector* clone() const override;
 
 private:
-  virtual bool doMatch(BranchDescription const& p) const override;
+  bool doMatch(BranchDescription const& p) const override;
 
   cet::value_ptr<SelectorBase> sel_;
 };
 
 template <class T>
 art::Selector::Selector(T const& expression)
-  : sel_(new ComposedSelectorWrapper<T>(expression))
+  : sel_{new ComposedSelectorWrapper<T>(expression)}
 {}
 
 #endif /* art_Framework_Principal_Selector_h */

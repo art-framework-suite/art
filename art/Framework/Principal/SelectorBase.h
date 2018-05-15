@@ -1,14 +1,12 @@
 #ifndef art_Framework_Principal_SelectorBase_h
 #define art_Framework_Principal_SelectorBase_h
 
-/*----------------------------------------------------------------------
-
-Selector: Base class for all "selector" objects, used to select
-EDProducts based on information in the associated Provenance.
-
-Developers who make their own Selectors should inherit from SelectorBase.
-
-----------------------------------------------------------------------*/
+// ==========================================================================
+// Selector: Base class for all "selector" objects, used to select
+// EDProducts based on information in the associated Provenance.
+//
+// Developers who make their own Selectors should inherit from SelectorBase.
+// ==========================================================================
 
 #include "art/Framework/Principal/fwd.h"
 

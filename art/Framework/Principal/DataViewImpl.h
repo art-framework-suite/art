@@ -290,12 +290,13 @@ namespace art {
 
     // MEMBER FUNCTIONS -- implementation details
   private:
+    std::string const& getProcessName_(std::string const&) const;
     BranchDescription const& getProductDescription_(
       TypeID const& type,
       std::string const& instance,
       bool const alwaysEnableLookupOfProducedProducts = false) const;
-    void recordAsParent(cet::exempt_ptr<Group const> grp) const;
-    cet::exempt_ptr<Group const> getContainerForView(
+    void recordAsParent_(cet::exempt_ptr<Group const> grp) const;
+    cet::exempt_ptr<Group const> getContainerForView_(
       TypeID const&,
       std::string const& moduleLabel,
       std::string const& productInstanceName,
@@ -376,7 +377,7 @@ namespace art {
     result = Handle<PROD>{qr};
     bool const ok = qr.succeeded() && !qr.failed();
     if (recordParents_ && ok) {
-      recordAsParent(qr.result());
+      recordAsParent_(qr.result());
     }
     return ok;
   }
@@ -391,7 +392,7 @@ namespace art {
     result = Handle<PROD>{qr};
     bool const ok = qr.succeeded() && !qr.failed();
     if (recordParents_ && ok) {
-      recordAsParent(qr.result());
+      recordAsParent_(qr.result());
     }
     return ok;
   }
@@ -406,18 +407,19 @@ namespace art {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     result.clear();
     auto const wrapped = WrappedTypeID::make<PROD>();
+    auto const& actualProcessName = getProcessName_(processName);
     ProductInfo const pinfo{ProductInfo::ConsumableType::Product,
                             wrapped.product_type,
                             moduleLabel,
                             productInstanceName,
-                            processName};
+                            actualProcessName};
     ConsumesInfo::instance()->validateConsumedProduct(branchType_, md_, pinfo);
     GroupQueryResult qr = principal_.getByLabel(
-      wrapped, moduleLabel, productInstanceName, processName);
+      wrapped, moduleLabel, productInstanceName, actualProcessName);
     result = Handle<PROD>{qr};
     bool const ok = qr.succeeded() && !qr.failed();
     if (recordParents_ && ok) {
-      recordAsParent(qr.result());
+      recordAsParent_(qr.result());
     }
     return ok;
   }
@@ -498,7 +500,7 @@ namespace art {
     for (auto const& qr : principal_.getMany(wrapped, sel)) {
       products.emplace_back(qr);
       if (recordParents_) {
-        recordAsParent(qr.result());
+        recordAsParent_(qr.result());
       }
     }
     results.swap(products);
@@ -520,10 +522,13 @@ namespace art {
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     std::size_t const orig_size = result.size();
-    auto grp = getContainerForView(
-      TypeID{typeid(ELEMENT)}, moduleLabel, productInstanceName, processName);
+    auto const& actualProcessName = getProcessName_(processName);
+    auto grp = getContainerForView_(TypeID{typeid(ELEMENT)},
+                                    moduleLabel,
+                                    productInstanceName,
+                                    actualProcessName);
     if (recordParents_) {
-      recordAsParent(grp);
+      recordAsParent_(grp);
     }
     std::vector<void const*> view;
     grp->uniqueProduct()->fillView(view);
@@ -571,10 +576,13 @@ namespace art {
                         View<ELEMENT>& result) const
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    auto grp = getContainerForView(
-      TypeID{typeid(ELEMENT)}, moduleLabel, productInstanceName, processName);
+    auto const& actualProcessName = getProcessName_(processName);
+    auto grp = getContainerForView_(TypeID{typeid(ELEMENT)},
+                                    moduleLabel,
+                                    productInstanceName,
+                                    actualProcessName);
     if (recordParents_) {
-      recordAsParent(grp);
+      recordAsParent_(grp);
     }
     std::vector<void const*> view;
     grp->uniqueProduct()->fillView(view);
@@ -621,10 +629,13 @@ namespace art {
                              PtrVector<ELEMENT>& result) const
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    auto grp = getContainerForView(
-      TypeID{typeid(ELEMENT)}, moduleLabel, productInstanceName, processName);
+    auto const& actualProcessName = getProcessName_(processName);
+    auto grp = getContainerForView_(TypeID{typeid(ELEMENT)},
+                                    moduleLabel,
+                                    productInstanceName,
+                                    actualProcessName);
     if (recordParents_) {
-      recordAsParent(grp);
+      recordAsParent_(grp);
     }
     std::vector<void const*> view;
     grp->uniqueProduct()->fillView(view);

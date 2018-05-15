@@ -20,12 +20,12 @@ namespace art {
     swap(sel_, other.sel_);
   }
 
-  Selector::~Selector() {}
+  Selector::~Selector() = default;
 
   Selector*
   Selector::clone() const
   {
-    return new Selector(*this);
+    return new Selector{*this};
   }
 
   bool

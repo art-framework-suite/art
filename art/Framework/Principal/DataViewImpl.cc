@@ -42,7 +42,7 @@ namespace art {
 
   class EDProductGetter;
 
-  DataViewImpl::~DataViewImpl() {}
+  DataViewImpl::~DataViewImpl() = default;
 
   DataViewImpl::DataViewImpl(BranchType const bt,
                              Principal const& principal,
@@ -186,39 +186,10 @@ namespace art {
     return process_found;
   }
 
-  BranchDescription const&
-  DataViewImpl::getProductDescription_(
-    TypeID const& type,
-    string const& instance,
-    bool const alwaysEnableLookupOfProducedProducts /*= false*/) const
+  cet::exempt_ptr<BranchDescription const>
+  DataViewImpl::getProductDescription(ProductID const pid) const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const& product_name = canonicalProductName(
-      type.friendlyClassName(), md_.moduleLabel(), instance, md_.processName());
-    ProductID const pid{product_name};
-    auto bd = principal_.getProductDescription(
-      pid, alwaysEnableLookupOfProducedProducts);
-    if (!bd || (bd->producedClassName() != type.className())) {
-      // Either we did not find the product, or the product we
-      // did find does not match (which can happen with Assns
-      // since Assns(A,B) and Assns(B,A) have the same ProductID
-      // but not the same class name.
-      throw Exception(errors::ProductRegistrationFailure,
-                      "DataViewImpl::getProductDescription_: error while "
-                      "trying to retrieve product description:\n")
-        << "No product is registered for\n"
-        << "  process name:                '" << md_.processName() << "'\n"
-        << "  module label:                '" << md_.moduleLabel() << "'\n"
-        << "  product class name:          '" << type.className() << "'\n"
-        << "  product friendly class name: '" << type.friendlyClassName()
-        << "'\n"
-        << "  product instance name:       '" << instance << "'\n"
-        << "  branch type:                 '" << branchType_ << "'\n";
-    }
-    // The description object is owned by either the source or the
-    // event processor, whose lifetimes exceed that of the
-    // DataViewImpl object.  It is therefore safe to dereference.
-    return *bd;
+    return principal_.getProductDescription(pid);
   }
 
   void
@@ -301,11 +272,66 @@ namespace art {
     putProducts_.clear();
   }
 
+  string const&
+  DataViewImpl::getProcessName_(std::string const& specifiedProcessName) const
+  {
+    return specifiedProcessName == "current_process"s ? md_.processName() :
+                                                        specifiedProcessName;
+  }
+
+  BranchDescription const&
+  DataViewImpl::getProductDescription_(
+    TypeID const& type,
+    string const& instance,
+    bool const alwaysEnableLookupOfProducedProducts /*= false*/) const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    auto const& product_name = canonicalProductName(
+      type.friendlyClassName(), md_.moduleLabel(), instance, md_.processName());
+    ProductID const pid{product_name};
+    auto bd = principal_.getProductDescription(
+      pid, alwaysEnableLookupOfProducedProducts);
+    if (!bd || (bd->producedClassName() != type.className())) {
+      // Either we did not find the product, or the product we
+      // did find does not match (which can happen with Assns
+      // since Assns(A,B) and Assns(B,A) have the same ProductID
+      // but not the same class name.
+      throw Exception(errors::ProductRegistrationFailure,
+                      "DataViewImpl::getProductDescription_: error while "
+                      "trying to retrieve product description:\n")
+        << "No product is registered for\n"
+        << "  process name:                '" << md_.processName() << "'\n"
+        << "  module label:                '" << md_.moduleLabel() << "'\n"
+        << "  product class name:          '" << type.className() << "'\n"
+        << "  product friendly class name: '" << type.friendlyClassName()
+        << "'\n"
+        << "  product instance name:       '" << instance << "'\n"
+        << "  branch type:                 '" << branchType_ << "'\n";
+    }
+    // The description object is owned by either the source or the
+    // event processor, whose lifetimes exceed that of the
+    // DataViewImpl object.  It is therefore safe to dereference.
+    return *bd;
+  }
+
+  void
+  DataViewImpl::recordAsParent_(exempt_ptr<Group const> grp) const
+  {
+    if (grp->productDescription().transient()) {
+      // If the product retrieved is transient, don't use its
+      // ProductID; use the ProductID's of its parents.
+      auto const& parents = grp->productProvenance()->parentage().parents();
+      retrievedProducts_.insert(cbegin(parents), cend(parents));
+    } else {
+      retrievedProducts_.insert(grp->productDescription().productID());
+    }
+  }
+
   exempt_ptr<Group const>
-  DataViewImpl::getContainerForView(TypeID const& typeID,
-                                    string const& moduleLabel,
-                                    string const& productInstanceName,
-                                    string const& processName) const
+  DataViewImpl::getContainerForView_(TypeID const& typeID,
+                                     string const& moduleLabel,
+                                     string const& productInstanceName,
+                                     string const& processName) const
   {
     // Check that the consumesView<ELEMENT, BT>(InputTag),
     // or the mayConsumeView<ELEMENT, BT>(InputTag)
@@ -353,24 +379,4 @@ namespace art {
     // And return the single result.
     return qrs[0].result();
   }
-
-  cet::exempt_ptr<BranchDescription const>
-  DataViewImpl::getProductDescription(ProductID const pid) const
-  {
-    return principal_.getProductDescription(pid);
-  }
-
-  void
-  DataViewImpl::recordAsParent(exempt_ptr<Group const> grp) const
-  {
-    if (grp->productDescription().transient()) {
-      // If the product retrieved is transient, don't use its
-      // ProductID; use the ProductID's of its parents.
-      auto const& parents = grp->productProvenance()->parentage().parents();
-      retrievedProducts_.insert(cbegin(parents), cend(parents));
-    } else {
-      retrievedProducts_.insert(grp->productDescription().productID());
-    }
-  }
-
 } // namespace art

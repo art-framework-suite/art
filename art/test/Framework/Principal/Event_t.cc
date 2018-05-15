@@ -375,12 +375,18 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 
   ProcessNameSelector const should_match{"CURRENT"};
   ProcessNameSelector const should_not_match{"NONESUCH"};
+  // The ProcessNameSelector does not understand the "current_process"
+  // string.  See notes in the Selector header file.
+  ProcessNameSelector const should_also_not_match{"current_process"};
   Handle<arttest::IntProduct> h;
-  currentEvent_->get(should_match, h);
+  BOOST_REQUIRE(currentEvent_->get(should_match, h));
   BOOST_REQUIRE(h.isValid());
   h.clear();
   BOOST_REQUIRE_THROW(*h, cet::exception);
   BOOST_REQUIRE(!currentEvent_->get(should_not_match, h));
+  BOOST_REQUIRE(!h.isValid());
+  BOOST_REQUIRE_THROW(*h, cet::exception);
+  BOOST_REQUIRE(!currentEvent_->get(should_also_not_match, h));
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
 }
@@ -583,6 +589,11 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   BOOST_REQUIRE_EQUAL(h->value, 3);
   BOOST_REQUIRE(currentEvent_->getByLabel("modMulti", "int1", h));
   BOOST_REQUIRE_EQUAL(h->value, 200);
+  BOOST_REQUIRE(currentEvent_->getByLabel("modMulti", "int1", "CURRENT", h));
+  BOOST_REQUIRE_EQUAL(h->value, 200);
+  BOOST_REQUIRE(
+    currentEvent_->getByLabel("modMulti", "int1", "current_process", h));
+  BOOST_REQUIRE_EQUAL(h->value, 200);
   BOOST_REQUIRE(!currentEvent_->getByLabel("modMulti", "nomatch", h));
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
@@ -595,6 +606,11 @@ BOOST_AUTO_TEST_CASE(getByLabel)
     WrappedTypeID::make<product_t>(), "modMulti", "int1", "LATE")};
   h = handle_t{bh};
   BOOST_REQUIRE_EQUAL(h->value, 100);
+
+  // Try to retrieve something that does not exist in the current process.
+  InputTag const earlyTag{"modMulti", "int2", "current_process"};
+  BOOST_REQUIRE_THROW(currentEvent_->getValidHandle<product_t>(earlyTag),
+                      cet::exception);
 
   GroupQueryResult bh2{principal_->getByLabel(
     WrappedTypeID::make<product_t>(), "modMulti", "int1", "nomatch")};
