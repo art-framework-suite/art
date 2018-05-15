@@ -131,7 +131,6 @@ private:
 
 ProductTablesFixture::ProductTablesFixture()
 {
-  using product_t = arttest::IntProduct;
   constexpr bool presentFromSource{true};
   constexpr bool produced{false};
 
@@ -393,7 +392,6 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 
 BOOST_AUTO_TEST_CASE(getByProductID)
 {
-  using product_t = arttest::IntProduct;
   using handle_t = Handle<product_t>;
 
   ProductID wanted;
@@ -440,7 +438,6 @@ BOOST_AUTO_TEST_CASE(transaction)
 
 BOOST_AUTO_TEST_CASE(getByInstanceName)
 {
-  using product_t = arttest::IntProduct;
   using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
@@ -486,7 +483,6 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
 
 BOOST_AUTO_TEST_CASE(getBySelector)
 {
-  using product_t = arttest::IntProduct;
   using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
@@ -564,7 +560,6 @@ BOOST_AUTO_TEST_CASE(getBySelector)
 
 BOOST_AUTO_TEST_CASE(getByLabel)
 {
-  using product_t = arttest::IntProduct;
   using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
@@ -609,11 +604,6 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   h = handle_t{bh};
   BOOST_REQUIRE_EQUAL(h->value, 100);
 
-  // Try to retrieve something that does not exist in the current process.
-  InputTag const earlyTag{"modMulti", "int2", "current_process"};
-  BOOST_REQUIRE_THROW(currentEvent_->getValidHandle<product_t>(earlyTag),
-                      cet::exception);
-
   GroupQueryResult bh2{
     principal_->getByLabel(WrappedTypeID::make<product_t>(),
                            "modMulti",
@@ -622,9 +612,31 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   BOOST_REQUIRE(!bh2.succeeded());
 }
 
+BOOST_AUTO_TEST_CASE(getByLabelSpecialProcessNames)
+{
+  addSourceProduct(std::make_unique<product_t>(2), "int2_tag", "int2");
+  currentEvent_->put(std::make_unique<product_t>(200), "int1");
+
+  // Try to retrieve something that does not exist in the current process.
+  InputTag const badEarlyTag{"modMulti", "int2", "current_process"};
+  BOOST_REQUIRE_THROW(currentEvent_->getValidHandle<product_t>(badEarlyTag),
+                      cet::exception);
+
+  // Verify that it can be read using the 'input_source' process name
+  Handle<product_t> h;
+  InputTag const goodEarlyTag{"modMulti", "int2", "input_source"};
+  BOOST_REQUIRE(currentEvent_->getByLabel(goodEarlyTag, h));
+  BOOST_REQUIRE_EQUAL(h->value, 2);
+
+  // Verify that "int1" cannot be looked up using the "input_source"
+  // process name.
+  InputTag const badCurrentTag{"modMulti", "int1", "input_source"};
+  BOOST_REQUIRE_THROW(currentEvent_->getValidHandle<product_t>(badCurrentTag),
+                      cet::exception);
+}
+
 BOOST_AUTO_TEST_CASE(getManyByType)
 {
-  using product_t = arttest::IntProduct;
   using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
