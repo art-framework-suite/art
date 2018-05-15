@@ -8,7 +8,6 @@
 #include "art/Framework/IO/PostCloseFileRenamer.h"
 #include "art/Framework/Services/Optional/TFileDirectory.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/OptionalTable.h"

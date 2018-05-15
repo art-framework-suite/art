@@ -9,9 +9,9 @@
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PathContext.h"
+#include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/PerScheduleContainer.h"
-#include "art/Utilities/ScheduleID.h"
 #include "boost/format.hpp"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
@@ -142,10 +142,10 @@ namespace art {
 
     void postSourceConstruction(ModuleDescription const&);
     void postEndJob();
-    void preEventReading(ScheduleID);
-    void postEventReading(Event const&, ScheduleID);
-    void preEventProcessing(Event const&, ScheduleID);
-    void postEventProcessing(Event const&, ScheduleID);
+    void preEventReading(ScheduleContext);
+    void postEventReading(Event const&, ScheduleContext);
+    void preEventProcessing(Event const&, ScheduleContext);
+    void postEventProcessing(Event const&, ScheduleContext);
     void startTime(ModuleContext const& mc);
     void recordTime(ModuleContext const& mc, string const& suffix);
     void logToDestination_(Statistics const& evt,
@@ -286,17 +286,17 @@ namespace art {
   }
 
   void
-  TimeTracker::preEventReading(ScheduleID const sid)
+  TimeTracker::preEventReading(ScheduleContext const sc)
   {
-    auto& d = data_[key(sid)];
+    auto& d = data_[key(sc.id())];
     d.eventID = EventID::invalidEvent();
     d.eventStart = now();
   }
 
   void
-  TimeTracker::postEventReading(Event const& e, ScheduleID const sid)
+  TimeTracker::postEventReading(Event const& e, ScheduleContext const sc)
   {
-    auto& d = data_[key(sid)];
+    auto& d = data_[key(sc.id())];
     d.eventID = e.id();
     auto const t = chrono::duration<double>{now() - d.eventStart}.count();
     timeSourceTable_.insert(
@@ -305,17 +305,17 @@ namespace art {
 
   void
   TimeTracker::preEventProcessing(Event const& e[[gnu::unused]],
-                                  ScheduleID const sid)
+                                  ScheduleContext const sc)
   {
-    auto& d = data_[key(sid)];
+    auto& d = data_[key(sc.id())];
     assert(d.eventID == e.id());
     d.eventStart = now();
   }
 
   void
-  TimeTracker::postEventProcessing(Event const&, ScheduleID const sid)
+  TimeTracker::postEventProcessing(Event const&, ScheduleContext const sc)
   {
-    auto const& d = data_[key(sid)];
+    auto const& d = data_[key(sc.id())];
     auto const t = chrono::duration<double>{now() - d.eventStart}.count();
     timeEventTable_.insert(
       d.eventID.run(), d.eventID.subRun(), d.eventID.event(), t);

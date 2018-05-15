@@ -137,8 +137,7 @@ namespace art {
     virtual bool implDoEnd(RunPrincipal& rp, ModuleContext const& mc) = 0;
     virtual bool implDoBegin(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
     virtual bool implDoEnd(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
-    virtual bool implDoProcess(EventPrincipal&,
-                               ModuleContext const&) = 0;
+    virtual bool implDoProcess(EventPrincipal&, ModuleContext const&) = 0;
 
   private: // MEMBER FUNCTIONS -- API implementation classes must use
            // to provide their API to us

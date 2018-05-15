@@ -435,8 +435,10 @@ namespace art {
   }
 
   void
-  RandomNumberGenerator::preProcessEvent(Event const& e, ScheduleID const sid)
+  RandomNumberGenerator::preProcessEvent(Event const& e,
+                                         ScheduleContext const sc)
   {
+    auto const sid = sc.id();
     RecursiveMutexSentry sentry{mutex_, __func__};
     takeSnapshot_(sid);
     restoreSnapshot_(sid, e);

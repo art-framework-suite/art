@@ -21,7 +21,7 @@
 
 #include "art/Framework/Services/Registry/GlobalSignal.h"
 #include "art/Framework/Services/Registry/detail/SignalResponseType.h"
-#include "art/Utilities/ScheduleID.h"
+#include "art/Persistency/Provenance/ScheduleContext.h"
 
 #include <functional>
 #include <string>
@@ -40,15 +40,13 @@ namespace art {
   class PathContext;
   class Run;
   class RunID;
+  class ScheduleContext;
   class SubRun;
   class SubRunID;
   class Timestamp;
   class Worker;
 
   class ActivityRegistry;
-
-  class EventProcessor;
-  class Schedule;
 } // namespace art
 
 class art::ActivityRegistry {
@@ -72,11 +70,12 @@ public:
     sPostSourceConstruction;
 
   // Signal is emitted before the source starts creating an Event
-  GlobalSignal<detail::SignalResponseType::FIFO, void(ScheduleID)>
+  GlobalSignal<detail::SignalResponseType::FIFO, void(ScheduleContext)>
     sPreSourceEvent;
 
   // Signal is emitted after the source starts creating an Event
-  GlobalSignal<detail::SignalResponseType::LIFO, void(Event const&, ScheduleID)>
+  GlobalSignal<detail::SignalResponseType::LIFO,
+               void(Event const&, ScheduleContext)>
     sPostSourceEvent;
 
   // Signal is emitted before the source starts creating a SubRun
@@ -123,12 +122,14 @@ public:
 
   // Signal is emitted after the Event has been created by the
   // InputSource but before any modules have seen the Event
-  GlobalSignal<detail::SignalResponseType::FIFO, void(Event const&, ScheduleID)>
+  GlobalSignal<detail::SignalResponseType::FIFO,
+               void(Event const&, ScheduleContext)>
     sPreProcessEvent;
 
   // Signal is emitted after all modules have finished processing the
   // Event
-  GlobalSignal<detail::SignalResponseType::LIFO, void(Event const&, ScheduleID)>
+  GlobalSignal<detail::SignalResponseType::LIFO,
+               void(Event const&, ScheduleContext)>
     sPostProcessEvent;
 
   // Signal is emitted after the event has been processed, but before

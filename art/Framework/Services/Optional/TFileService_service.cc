@@ -11,6 +11,7 @@
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
@@ -76,7 +77,7 @@ namespace art {
                                 &TFileService::setDirectoryNameViaContext_);
     r.sPreModule.watch(this, &TFileService::setDirectoryNameViaContext_);
     // Activities to monitor to keep track of events, subruns and runs seen.
-    r.sPostProcessEvent.watch([this](Event const& e, ScheduleID) {
+    r.sPostProcessEvent.watch([this](Event const& e, ScheduleContext) {
       RecursiveMutexSentry sentry{mutex_, __func__};
       currentGranularity_ = Granularity::Event;
       fp_.update_event();

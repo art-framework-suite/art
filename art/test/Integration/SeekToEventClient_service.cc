@@ -35,7 +35,7 @@ arttest::SeekToEventClient::postBeginJobWorkers(
 
 void
 arttest::SeekToEventClient::preProcessEvent(art::Event const& e,
-                                            art::ScheduleID)
+                                            art::ScheduleContext)
 {
   // Check to make sure SubRuns and Runs are appropriately filled.
   // Exception will be thrown if not.  Discard return value.
@@ -44,7 +44,8 @@ arttest::SeekToEventClient::preProcessEvent(art::Event const& e,
 }
 
 void
-arttest::SeekToEventClient::postProcessEvent(art::Event const&, art::ScheduleID)
+arttest::SeekToEventClient::postProcessEvent(art::Event const&,
+                                             art::ScheduleContext)
 {
   if (nextEventsToProcess_.empty())
     return;

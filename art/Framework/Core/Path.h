@@ -75,9 +75,7 @@ namespace art {
                         std::exception_ptr const*);
 
   private: // MEMBER FUNCTIONS -- Implementation details
-    void process_event_idx_asynch(size_t idx,
-                                  size_t max_idx,
-                                  EventPrincipal&);
+    void process_event_idx_asynch(size_t idx, size_t max_idx, EventPrincipal&);
     void process_event_idx(size_t const idx,
                            size_t const max_idx,
                            EventPrincipal&);

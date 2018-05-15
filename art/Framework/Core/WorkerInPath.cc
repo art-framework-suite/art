@@ -30,9 +30,7 @@ namespace art {
     waitingTasks_ = nullptr;
   }
 
-  WorkerInPath::WorkerInPath(Worker* w) noexcept
-    : WorkerInPath{w, Normal}
-  {}
+  WorkerInPath::WorkerInPath(Worker* w) noexcept : WorkerInPath{w, Normal} {}
 
   WorkerInPath::WorkerInPath(Worker* w, FilterAction const fa) noexcept
   {

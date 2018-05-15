@@ -17,7 +17,8 @@ namespace arttest {
                                      art::ScheduleID)
     {}
 
-    void produce(art::Event&) override
+    void
+    produce(art::Event&) override
     {}
   };
 

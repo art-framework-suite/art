@@ -246,10 +246,10 @@ namespace art {
       iReg.sPostModuleBeginSubRun.watch([this](auto const& mc) {
         this->recordOtherData(mc, "PostBeginSubRun");
       });
-      iReg.sPreProcessEvent.watch([this](auto const& e, ScheduleID) {
+      iReg.sPreProcessEvent.watch([this](auto const& e, ScheduleContext) {
         this->recordEventData(e, "PreProcessEvent");
       });
-      iReg.sPostProcessEvent.watch([this](auto const& e, ScheduleID) {
+      iReg.sPostProcessEvent.watch([this](auto const& e, ScheduleContext) {
         this->recordEventData(e, "PostProcessEvent");
       });
       iReg.sPreModule.watch([this](auto const& mc) {

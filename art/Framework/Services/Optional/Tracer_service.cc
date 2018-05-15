@@ -9,6 +9,7 @@
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PathContext.h"
+#include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/OutputFileInfo.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunID.h"
@@ -46,8 +47,8 @@ namespace art {
     void preBeginSubRun(SubRun const& subRun);
     void postBeginSubRun(SubRun const& subRun);
 
-    void preEvent(Event const& ev, ScheduleID);
-    void postEvent(Event const& ev, ScheduleID);
+    void preEvent(Event const& ev, ScheduleContext);
+    void postEvent(Event const& ev, ScheduleContext);
 
     void preEndSubRun(SubRunID const& id, Timestamp const& ts);
     void postEndSubRun(SubRun const& run);
@@ -79,8 +80,8 @@ namespace art {
     void preModuleEndJob(ModuleDescription const& md);
     void postModuleEndJob(ModuleDescription const& md);
 
-    void preSourceEvent(ScheduleID);
-    void postSourceEvent(Event const&, ScheduleID);
+    void preSourceEvent(ScheduleContext);
+    void postSourceEvent(Event const&, ScheduleContext);
 
     void preSourceSubRun();
     void postSourceSubRun(SubRun const&);
@@ -199,13 +200,13 @@ namespace art {
     indent(1) << " Job ended" << endl;
   }
 
-  void art::Tracer::preSourceEvent(ScheduleID)
+  void art::Tracer::preSourceEvent(ScheduleContext)
   {
     indent(2) << "source event" << endl;
   }
 
   void
-  art::Tracer::postSourceEvent(Event const&, ScheduleID)
+  art::Tracer::postSourceEvent(Event const&, ScheduleContext)
   {
     indent(2) << "finished: source event" << endl;
   }
@@ -279,7 +280,7 @@ namespace art {
   }
 
   void
-  art::Tracer::preEvent(Event const& ev, ScheduleID)
+  art::Tracer::preEvent(Event const& ev, ScheduleContext)
   {
     depth_ = 0;
     indent(2) << " processing event:" << ev.id()
@@ -287,7 +288,7 @@ namespace art {
   }
 
   void
-  art::Tracer::postEvent(Event const&, ScheduleID)
+  art::Tracer::postEvent(Event const&, ScheduleContext)
   {
     indent(2) << " finished event:" << endl;
   }

@@ -437,8 +437,7 @@ namespace art {
   // This is used to do trigger results insertion, and to run workers
   // on the end path.
   void
-  Worker::doWork_event(EventPrincipal& p,
-                       PathContext const& pc)
+  Worker::doWork_event(EventPrincipal& p, PathContext const& pc)
   {
     ++counts_visited_;
     returnCode_ = false;

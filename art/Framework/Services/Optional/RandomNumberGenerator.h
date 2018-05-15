@@ -142,8 +142,8 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
+#include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/PerScheduleContainer.h"
-#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Common/RNGsnapshot.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"
@@ -267,8 +267,8 @@ namespace art {
     bool invariant_holds_(ScheduleID);
 
   private: // Callbacks from the framework
-    void preProcessEvent(Event const&, ScheduleID);
-    void postProcessEvent(Event const&, ScheduleID);
+    void preProcessEvent(Event const&, ScheduleContext);
+    void postProcessEvent(Event const&, ScheduleContext);
     void postBeginJob();
     void postEndJob();
 

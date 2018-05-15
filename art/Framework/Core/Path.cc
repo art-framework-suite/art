@@ -307,8 +307,7 @@ namespace art {
   // of the endPath task.  Our parent is the nullptr.  The parent of
   // the pathsDoneTask is the eventLoop task.
   void
-  Path::process_event(WaitingTask* pathsDoneTask,
-                      EventPrincipal& ep)
+  Path::process_event(WaitingTask* pathsDoneTask, EventPrincipal& ep)
   {
     auto const sid = pc_.scheduleID();
     // Note: We are part of the readAndProcessEventTask (stream head task),
@@ -402,9 +401,8 @@ namespace art {
       TDEBUG_FUNC_SI_MSG(
         4, "Begin Path::process_event_idx_asynch", sid, msg.str());
     }
-    auto runWorkerTask =
-      make_waiting_task(tbb::task::allocate_root(),
-                        RunWorkerFunctor{this, idx, max_idx, ep});
+    auto runWorkerTask = make_waiting_task(
+      tbb::task::allocate_root(), RunWorkerFunctor{this, idx, max_idx, ep});
     tbb::task::spawn(*runWorkerTask);
     // And end this task, which does not terminate event
     // processing because our parent task is the nullptr.
@@ -520,9 +518,8 @@ namespace art {
       msg << "idx: " << idx << " max_idx: " << max_idx;
       TDEBUG_FUNC_SI_MSG(4, "Path::process_event_idx", sid, msg.str());
     }
-    auto workerDoneTask =
-      make_waiting_task(tbb::task::allocate_root(),
-                        WorkerDoneFunctor{this, idx, max_idx, ep});
+    auto workerDoneTask = make_waiting_task(
+      tbb::task::allocate_root(), WorkerDoneFunctor{this, idx, max_idx, ep});
     auto& workerInPath = (*workers_.load())[idx];
     workerInPath.runWorker_event(workerDoneTask, ep, pc_);
     {

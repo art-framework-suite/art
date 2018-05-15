@@ -14,8 +14,8 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Principal/ExecutionCounts.h"
 #include "art/Framework/Principal/Worker.h"
-#include "art/Utilities/Transition.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
+#include "art/Utilities/Transition.h"
 #include "hep_concurrency/WaitingTask.h"
 
 #include <atomic>
@@ -56,8 +56,7 @@ namespace art {
     bool returnCode() const;
     std::string const& label() const;
     bool runWorker(Transition, Principal&, PathContext const&);
-    void runWorker_event_for_endpath(EventPrincipal&,
-                                     PathContext const&);
+    void runWorker_event_for_endpath(EventPrincipal&, PathContext const&);
     void runWorker_event(hep::concurrency::WaitingTask* workerDoneTask,
                          EventPrincipal&,
                          PathContext const&);

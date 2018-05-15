@@ -722,11 +722,12 @@ namespace art {
       //
       //  Now we can read the event from the source.
       //
+      ScheduleContext const sc{sid};
       assert(subRunPrincipal_);
       // FIXME: This assert is causing a data race!
       // assert(subRunPrincipal_->subRunID().isValid());
       {
-        actReg_->sPreSourceEvent.invoke(sid);
+        actReg_->sPreSourceEvent.invoke(sc);
       }
       TDEBUG_FUNC_SI_MSG(5,
                          "readAndProcessAsync",
@@ -747,7 +748,7 @@ namespace art {
         producedProductLookupTables_);
       {
         Event const e{*eventPrincipals_->at(sid), ModuleDescription{}};
-        actReg_->sPostSourceEvent.invoke(e, sid);
+        actReg_->sPostSourceEvent.invoke(e, sc);
       }
       FDEBUG(1) << string(8, ' ') << "readEvent...................("
                 << eventPrincipals_->at(sid)->eventID() << ")\n";
@@ -877,8 +878,9 @@ namespace art {
         make_waiting_task(tbb::task::self().allocate_continuation(),
                           EndPathFunctor{this, eventLoopTask, sid});
       {
+        ScheduleContext const sc{sid};
         Event const ev{*eventPrincipals_->at(sid), ModuleDescription{}};
-        actReg_->sPreProcessEvent.invoke(ev, sid);
+        actReg_->sPreProcessEvent.invoke(ev, sc);
       }
       // Start the trigger paths running.  When they finish
       // they will spawn the endPathTask which will run the
@@ -1067,8 +1069,9 @@ namespace art {
       return;
     }
     {
+      ScheduleContext const sc{sid};
       Event const ev{*eventPrincipals_->at(sid), ModuleDescription{}};
-      actReg_->sPostProcessEvent.invoke(ev, sid);
+      actReg_->sPostProcessEvent.invoke(ev, sc);
     }
     finishEventAsync(eventLoopTask, sid);
     // Note that we do not terminate event processing when we end
