@@ -747,7 +747,8 @@ namespace art {
                  << "Looking for productInstanceName: " << productInstanceName
                  << "\n"
                  << (processName.empty() ? "" : "Looking for process: ")
-                 << processName;
+                 << processName
+                 << '\n';
       return GroupQueryResult{whyFailed};
     }
     if (results.size() > 1) {

@@ -50,7 +50,9 @@ namespace art {
     bool isEmulated_{false};
 
     // Process-wide configuration
-    ProcessConfiguration processConfiguration_{};
+    ProcessConfiguration processConfiguration_{"invalid_process",
+                                               fhicl::ParameterSetID{},
+                                               ReleaseVersion{}};
   };
 
   std::ostream& operator<<(std::ostream& os, ModuleDescription const& p);

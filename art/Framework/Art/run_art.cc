@@ -117,7 +117,6 @@ namespace {
     }
 
     auto const index = std::distance(cbegin(processing_options), pos);
-    std::cerr << "Index: " << index << '\n';
     auto const filename = debug_pset.get<std::string>("fileName");
     auto const mode = debug_pset.get<std::string>("printMode");
     std::cerr << banner(filename);

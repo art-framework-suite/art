@@ -2,7 +2,7 @@ physics: {
   producers: {
     makeNewInt: {
       module_type: IntReaderThenProducer
-      inputTag: "makeInt"
+      inputTag: "makeInt::input_source"
       deltaValue: 2
     }
   }

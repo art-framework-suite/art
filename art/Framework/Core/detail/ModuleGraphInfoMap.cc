@@ -34,10 +34,17 @@ art::detail::ModuleGraphInfoMap::vertex_index(std::string const& name) const
   auto const it = std::find_if(
     begin_, end_, [&name](auto const& pr) { return pr.first == name; });
   if (it == end_) {
-    throw art::Exception{art::errors::LogicError}
-      << "The module name '" << name << "' does not correspond to an element\n"
-      << "in the set of filters and producers used to create the workflow "
-         "graph.\n";
+    throw Exception{
+      errors::Configuration,
+      "An error occurred while constructing the data-dependency graph.\n"}
+      << "The module name '" << name << "' is not included in the set of\n"
+      << "filters and producers configured for this job.  This error can\n"
+      << "happen if a 'consumes' statement in one of the modules specifies\n"
+      << "either the current process name or the literal string "
+         "\"current_process\"\n"
+      << "for the input tag.  If you have encountered this error under a\n"
+      << "different circumstance, please contact artists@fnal.gov for "
+         "guidance.\n";
   }
   return std::distance(begin_, it);
 }

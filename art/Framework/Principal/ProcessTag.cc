@@ -23,8 +23,12 @@ namespace {
   process_name(std::string const& specified_name,
                std::string const& current_process_name)
   {
-    return specified_name == current_process_lit ? current_process_name :
-                                                   specified_name;
+    if (specified_name == current_process_lit) {
+      return current_process_name;
+    } else if (specified_name == input_source_lit) {
+      return {};
+    }
+    return specified_name;
   }
 }
 
