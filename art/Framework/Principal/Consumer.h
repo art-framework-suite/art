@@ -70,6 +70,7 @@
 // interface is, therefore, not supported in non-module contexts.
 //============================================================================
 
+#include "art/Framework/Principal/ProcessTag.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -102,7 +103,7 @@ namespace art {
                          TypeID const&,
                          std::string const& label,
                          std::string const& instance,
-                         std::string const& process);
+                         ProcessTag const& process);
 
   public: // MEMBER DATA -- FIXME: Are these supposed to be public?
     // FIXME: We need a way to tell whether this came from consumes or from may
@@ -117,15 +118,15 @@ namespace art {
 
     // Note: This part is only provided and used by the DataViewImpl::get*
     // functions. Data product module label. Part 2 of branch name.
-    std::string label_{};
+    std::string label_;
 
     // Note: This part is only provided and used by the DataViewImpl::get*
     // functions. Data product instance name. Part 3 of branch name.
-    std::string instance_{};
+    std::string instance_;
 
     // Note: This part is only provided and used by the DataViewImpl::get*
     // functions. Data product process name. Part 4 of branch name.
-    std::string process_{};
+    ProcessTag process_;
   };
 
   bool operator<(ProductInfo const& a, ProductInfo const& b);

@@ -707,9 +707,10 @@ namespace art {
 
   GroupQueryResult
   Principal::getBySelector(WrappedTypeID const& wrapped,
-                           SelectorBase const& sel) const
+                           SelectorBase const& sel,
+                           ProcessTag const& processTag) const
   {
-    auto const& results = findGroupsForProduct(wrapped, sel, true);
+    auto const& results = findGroupsForProduct(wrapped, sel, processTag, true);
     if (results.empty()) {
       auto whyFailed =
         std::make_shared<art::Exception>(art::errors::ProductNotFound);
@@ -730,12 +731,13 @@ namespace art {
   Principal::getByLabel(WrappedTypeID const& wrapped,
                         string const& label,
                         string const& productInstanceName,
-                        string const& processName) const
+                        ProcessTag const& processTag) const
   {
+    auto const& processName = processTag.name();
     Selector const sel{ModuleLabelSelector{label} &&
                        ProductInstanceNameSelector{productInstanceName} &&
                        ProcessNameSelector{processName}};
-    auto const& results = findGroupsForProduct(wrapped, sel, true);
+    auto const& results = findGroupsForProduct(wrapped, sel, processTag, true);
     if (results.empty()) {
       auto whyFailed =
         std::make_shared<art::Exception>(art::errors::ProductNotFound);
@@ -763,9 +765,10 @@ namespace art {
 
   Principal::GroupQueryResultVec
   Principal::getMany(WrappedTypeID const& wrapped,
-                     SelectorBase const& sel) const
+                     SelectorBase const& sel,
+                     ProcessTag const& processTag) const
   {
-    return findGroupsForProduct(wrapped, sel, false);
+    return findGroupsForProduct(wrapped, sel, processTag, false);
   }
 
   Principal::GroupQueryResultVec
@@ -881,12 +884,14 @@ namespace art {
   Principal::GroupQueryResultVec
   Principal::findGroupsForProduct(WrappedTypeID const& wrapped,
                                   SelectorBase const& selector,
+                                  ProcessTag const& processTag,
                                   bool const stopIfProcessHasMatch) const
   {
     GroupQueryResultVec results;
     unsigned ret{};
     // Find groups from current process
-    if (enableLookupOfProducedProducts_.load()) {
+    if (processTag.current_process_search_allowed() &&
+        enableLookupOfProducedProducts_.load()) {
       auto const& lookup = producedProducts_.load()->productLookup;
       auto it = lookup.find(wrapped.product_type.friendlyClassName());
       if (it != lookup.end()) {
@@ -897,6 +902,11 @@ namespace art {
                           wrapped.wrapped_product_type);
       }
     }
+
+    if (!processTag.input_source_search_allowed()) {
+      return results;
+    }
+
     // Look through currently opened input files
     ret += findGroupsFromInputFile(
       wrapped, selector, results, stopIfProcessHasMatch);
@@ -1066,10 +1076,6 @@ namespace art {
       group->setProductAndProvenance(
         move(pp), move(edp), make_unique<RangeSet>());
     }
-  }
-
-  namespace {
-    static auto const invalid_rs = RangeSet::invalid();
   }
 
   // Used by RootOutputFile to fetch products being written to disk.

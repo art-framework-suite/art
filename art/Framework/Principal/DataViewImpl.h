@@ -5,6 +5,7 @@
 #include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Principal/ProcessTag.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/fwd.h"
@@ -373,7 +374,9 @@ namespace art {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     result.clear();
     // We do *not* track whether consumes was called for a SelectorBase.
-    auto qr = principal_.getBySelector(WrappedTypeID::make<PROD>(), sel);
+    ProcessTag const processTag{"", md_.processName()};
+    auto qr =
+      principal_.getBySelector(WrappedTypeID::make<PROD>(), sel, processTag);
     result = Handle<PROD>{qr};
     bool const ok = qr.succeeded() && !qr.failed();
     if (recordParents_ && ok) {
@@ -407,15 +410,15 @@ namespace art {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     result.clear();
     auto const wrapped = WrappedTypeID::make<PROD>();
-    auto const& actualProcessName = getProcessName_(processName);
+    ProcessTag const processTag{processName, md_.processName()};
     ProductInfo const pinfo{ProductInfo::ConsumableType::Product,
                             wrapped.product_type,
                             moduleLabel,
                             productInstanceName,
-                            actualProcessName};
+                            processTag};
     ConsumesInfo::instance()->validateConsumedProduct(branchType_, md_, pinfo);
     GroupQueryResult qr = principal_.getByLabel(
-      wrapped, moduleLabel, productInstanceName, actualProcessName);
+      wrapped, moduleLabel, productInstanceName, processTag);
     result = Handle<PROD>{qr};
     bool const ok = qr.succeeded() && !qr.failed();
     if (recordParents_ && ok) {
@@ -496,8 +499,9 @@ namespace art {
       branchType_,
       md_,
       ProductInfo{ProductInfo::ConsumableType::Many, wrapped.product_type});
+    ProcessTag const processTag{"", md_.processName()};
     std::vector<Handle<PROD>> products;
-    for (auto const& qr : principal_.getMany(wrapped, sel)) {
+    for (auto const& qr : principal_.getMany(wrapped, sel, processTag)) {
       products.emplace_back(qr);
       if (recordParents_) {
         recordAsParent_(qr.result());

@@ -45,11 +45,14 @@ namespace art {
   }
 
   void
-  ModuleBase::sortConsumables()
+  ModuleBase::sortConsumables(std::string const& current_process_name)
   {
     // Now that we know we have seen all the consumes declarations,
     // sort the results for fast lookup later.
     for (auto& vecPI : consumables_) {
+      for (auto& pi : vecPI) {
+        pi.process_ = ProcessTag{pi.process_.name(), current_process_name};
+      }
       sort(vecPI.begin(), vecPI.end());
     }
   }

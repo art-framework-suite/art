@@ -20,6 +20,7 @@
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/OutputHandle.h"
+#include "art/Framework/Principal/ProcessTag.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
@@ -65,6 +66,7 @@ namespace art {
     using GroupCollection = std::map<ProductID, std::unique_ptr<Group>>;
     using const_iterator = GroupCollection::const_iterator;
     using GroupQueryResultVec = std::vector<GroupQueryResult>;
+    enum class allowed_processes { current_process, input_source, all };
 
     // MEMBER FUNCTIONS -- Special Member Functions
   public:
@@ -120,13 +122,15 @@ namespace art {
     GroupQueryResult getByProductID(ProductID const pid) const;
 
     GroupQueryResult getBySelector(WrappedTypeID const& wrapped,
-                                   SelectorBase const&) const;
+                                   SelectorBase const&,
+                                   ProcessTag const&) const;
     GroupQueryResult getByLabel(WrappedTypeID const& wrapped,
                                 std::string const& label,
                                 std::string const& productInstanceName,
-                                std::string const& processName) const;
+                                ProcessTag const& processTag) const;
     GroupQueryResultVec getMany(WrappedTypeID const& wrapped,
-                                SelectorBase const&) const;
+                                SelectorBase const&,
+                                ProcessTag const&) const;
 
     // Used only by DataViewImpl<T> to implement getView.
     // FIXME COMMENT: Return a vector of GroupQueryResult to products
@@ -316,6 +320,7 @@ namespace art {
     // Implementation of the DataViewImpl API.
     GroupQueryResultVec findGroupsForProduct(WrappedTypeID const& wrapped,
                                              SelectorBase const&,
+                                             ProcessTag const&,
                                              bool stopIfProcessHasMatch) const;
 
     // Note: Used only by canvas RefCoreStreamer.cc through

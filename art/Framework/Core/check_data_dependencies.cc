@@ -195,7 +195,7 @@ main(int argc, char** argv) try {
   // Get modules
   art::detail::collection_map_t modules{};
 
-  auto& source_info = modules["*source*"];
+  auto& source_info = modules["input_source"];
   if (!trigger_paths.empty()) {
     source_info.paths = path_names(trigger_paths);
   } else if (!end_path.empty()) {

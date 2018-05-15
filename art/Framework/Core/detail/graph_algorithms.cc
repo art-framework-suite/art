@@ -63,7 +63,7 @@ art::detail::make_trigger_path_subgraphs(
   ModuleGraph& module_graph)
 {
   std::map<path_name_t, ModuleGraph*> path_graphs;
-  auto const source_index = modInfos.vertex_index("*source*");
+  auto const source_index = modInfos.vertex_index("input_source");
   for (auto const& path : trigger_paths) {
     auto& path_graph = module_graph.create_subgraph();
     // Always include the source on the path.
@@ -130,7 +130,7 @@ art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
                                         configs_t const& end_path,
                                         ModuleGraph& graph)
 {
-  auto const source_index = modInfos.vertex_index("*source*");
+  auto const source_index = modInfos.vertex_index("input_source");
   auto sync_label = get(boost::edge_name, graph);
   if (!trigger_paths.empty()) {
     auto const tr_index = modInfos.vertex_index("TriggerResults");
@@ -290,7 +290,7 @@ art::detail::verify_in_order_dependencies(
     assert(module_position != end);
 
     for (auto const& dep : module.second.product_dependencies) {
-      if (dep == "*source*") {
+      if (dep == "input_source") {
         continue;
       }
       auto const dep_position = std::find_if(begin, end, name_matches{dep});
@@ -341,8 +341,8 @@ namespace {
     {
       auto const& name = modules_.name(v);
       auto const& info = modules_.info(v);
-      if (name == "*source*") {
-        os_ << "  \"*source*\"[shape=box label=source]";
+      if (name == "input_source") {
+        os_ << "  \"input_source\"[shape=box label=source]";
       } else if (name == "TriggerResults") {
         os_ << "  \"" << name << '\"';
         os_ << "[shape=box style=filled fillcolor=black label=\"\" height=0.1 "

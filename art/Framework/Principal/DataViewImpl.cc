@@ -336,6 +336,7 @@ namespace art {
     // Check that the consumesView<ELEMENT, BT>(InputTag),
     // or the mayConsumeView<ELEMENT, BT>(InputTag)
     // is actually present.
+    ProcessTag const processTag{processName, md_.processName()};
     ConsumesInfo::instance()->validateConsumedProduct(
       branchType_,
       md_,
@@ -343,12 +344,12 @@ namespace art {
                   typeID,
                   moduleLabel,
                   productInstanceName,
-                  processName});
+                  processTag});
     // Fetch the specified data products, which must be containers.
     auto qrs = principal_.getMatchingSequence(
       Selector{ModuleLabelSelector{moduleLabel} &&
                ProductInstanceNameSelector{productInstanceName} &&
-               ProcessNameSelector{processName}});
+               ProcessNameSelector{processTag.name()}});
     // Remove any containers which do not allow upcasting
     // of their element to the desired element type.
     qrs.erase(remove_if(qrs.begin(),

@@ -21,22 +21,18 @@ using namespace std;
 
 namespace art {
 
-  ProductInfo::~ProductInfo() {}
+  ProductInfo::~ProductInfo() = default;
 
   ProductInfo::ProductInfo(ConsumableType const consumableType,
                            TypeID const& tid)
-    : consumableType_{consumableType}
-    , typeID_{tid}
-    , label_{}
-    , instance_{}
-    , process_{}
+    : consumableType_{consumableType}, typeID_{tid}
   {}
 
   ProductInfo::ProductInfo(ConsumableType const consumableType,
                            TypeID const& tid,
                            string const& label,
                            string const& instance,
-                           string const& process)
+                           ProcessTag const& process)
     : consumableType_{consumableType}
     , typeID_{tid}
     , label_{label}
@@ -47,9 +43,15 @@ namespace art {
   bool
   operator<(ProductInfo const& a, ProductInfo const& b)
   {
-    return tie(
-             a.consumableType_, a.typeID_, a.label_, a.instance_, a.process_) <
-           tie(b.consumableType_, b.typeID_, b.label_, b.instance_, b.process_);
+    return tie(a.consumableType_,
+               a.typeID_,
+               a.label_,
+               a.instance_,
+               a.process_.name()) < tie(b.consumableType_,
+                                        b.typeID_,
+                                        b.label_,
+                                        b.instance_,
+                                        b.process_.name());
   }
 
   ostream&
@@ -76,7 +78,7 @@ namespace art {
        << "TypeID: " << info.typeID_ << '\n'
        << "Module label: " << info.label_ << '\n'
        << "Instance name: " << info.instance_ << '\n'
-       << "Process name: " << info.process_ << '\n';
+       << "Process name: " << info.process_.name() << '\n';
     return os;
   }
 
@@ -129,11 +131,11 @@ namespace art {
     // required (e.g.):
     //   "myLabel::myProcess"
     //   "myLabel::myInstance::myProcess"
-    if (!pi.process_.empty()) {
+    if (!pi.process_.name().empty()) {
       result += ':';
       result += pi.instance_;
       result += ':';
-      result += pi.process_;
+      result += pi.process_.name();
     } else if (!pi.instance_.empty()) {
       result += ':';
       result += pi.instance_;

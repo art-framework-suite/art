@@ -579,7 +579,7 @@ namespace art {
 
       // FIXME: we do this for only one of the module copies in the
       // case where we have replicated modules.
-      module->sortConsumables();
+      module->sortConsumables(processName_);
       ConsumesInfo::instance()->collectConsumes(module_label,
                                                 module->getConsumables());
     }
@@ -779,7 +779,7 @@ namespace art {
   {
     using namespace detail;
     collection_map_t result{};
-    auto& source_info = result["*source*"];
+    auto& source_info = result["input_source"];
     if (!protoTrigPathLabelMap_.empty()) {
       set<string> const path_names{cbegin(triggerPathNames_),
                                    cend(triggerPathNames_)};
@@ -801,9 +801,9 @@ namespace art {
           ConsumesInfo::instance()->consumables(module_name);
         for (auto const& per_branch_type : consumables) {
           for (auto const& prod_info : per_branch_type) {
-            if ((prod_info.process_ != processName_) &&
-                (prod_info.process_ != "*current_process*")) {
-              graph_info.product_dependencies.insert("*source*");
+            if ((prod_info.process_.name() != processName_) &&
+                (prod_info.process_.name() != "current_process")) {
+              graph_info.product_dependencies.insert("input_source");
             } else {
               graph_info.product_dependencies.insert(prod_info.label_);
             }

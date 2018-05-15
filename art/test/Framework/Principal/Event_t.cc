@@ -602,8 +602,10 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   BOOST_REQUIRE(currentEvent_->getByLabel(inputTag, h));
   BOOST_REQUIRE_EQUAL(h->value, 200);
 
-  GroupQueryResult bh{principal_->getByLabel(
-    WrappedTypeID::make<product_t>(), "modMulti", "int1", "LATE")};
+  GroupQueryResult bh{principal_->getByLabel(WrappedTypeID::make<product_t>(),
+                                             "modMulti",
+                                             "int1",
+                                             ProcessTag{"LATE", "CURRENT"})};
   h = handle_t{bh};
   BOOST_REQUIRE_EQUAL(h->value, 100);
 
@@ -612,8 +614,11 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   BOOST_REQUIRE_THROW(currentEvent_->getValidHandle<product_t>(earlyTag),
                       cet::exception);
 
-  GroupQueryResult bh2{principal_->getByLabel(
-    WrappedTypeID::make<product_t>(), "modMulti", "int1", "nomatch")};
+  GroupQueryResult bh2{
+    principal_->getByLabel(WrappedTypeID::make<product_t>(),
+                           "modMulti",
+                           "int1",
+                           ProcessTag{"nomatch", "CURRENT"})};
   BOOST_REQUIRE(!bh2.succeeded());
 }
 

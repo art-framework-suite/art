@@ -192,7 +192,8 @@ BOOST_AUTO_TEST_CASE(failgetbySelectorTest)
   auto const& wrapped = art::WrappedTypeID::make<art::ProductID>();
 
   art::ProcessNameSelector const pnsel{"PROD"};
-  auto const& h = pEvent_->getBySelector(wrapped, pnsel);
+  auto const& h =
+    pEvent_->getBySelector(wrapped, pnsel, ProcessTag{"PROD"s, "USER2"s});
   BOOST_CHECK(h.failed());
 }
 
@@ -204,7 +205,8 @@ BOOST_AUTO_TEST_CASE(failgetbyLabelTest)
 
   std::string const label{"this does not exist"};
 
-  auto const& h = pEvent_->getByLabel(wrapped, label, ""s, ""s);
+  auto const& h =
+    pEvent_->getByLabel(wrapped, label, ""s, ProcessTag{""s, "USER2"s});
   BOOST_CHECK(h.failed());
 }
 
@@ -215,7 +217,8 @@ BOOST_AUTO_TEST_CASE(failgetManyTest)
   auto const& wrapped = art::WrappedTypeID::make<art::ProductID>();
 
   art::ProcessNameSelector const sel{"PROD"};
-  auto const& query_results = pEvent_->getMany(wrapped, sel);
+  auto const& query_results =
+    pEvent_->getMany(wrapped, sel, ProcessTag{"PROD"s, "USER2"s});
   BOOST_CHECK(query_results.empty());
 }
 
@@ -227,8 +230,8 @@ BOOST_AUTO_TEST_CASE(failgetManybyTypeTest)
 
   // getManyByType is achieved by providing a selector that matches
   // everything.
-  auto const& query_results =
-    pEvent_->getMany(wrapped, art::MatchAllSelector{});
+  auto const& query_results = pEvent_->getMany(
+    wrapped, art::MatchAllSelector{}, ProcessTag{""s, "USER2"s});
   BOOST_CHECK(query_results.empty());
 }
 

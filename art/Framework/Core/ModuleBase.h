@@ -47,7 +47,7 @@ namespace art {
 
     std::array<std::vector<ProductInfo>, NumBranchTypes> const& getConsumables()
       const;
-    void sortConsumables();
+    void sortConsumables(std::string const& current_process_name);
 
   private:
     ModuleDescription md_{};
@@ -62,7 +62,7 @@ namespace art {
                                   TypeID{typeid(T)},
                                   tag.label(),
                                   tag.instance(),
-                                  tag.process());
+                                  ProcessTag{tag.process()});
     return ProductToken<T>{tag};
   }
 
@@ -74,7 +74,7 @@ namespace art {
                                   TypeID{typeid(T)},
                                   tag.label(),
                                   tag.instance(),
-                                  tag.process());
+                                  ProcessTag{tag.process()});
     return ViewToken<T>{tag};
   }
 
@@ -94,7 +94,7 @@ namespace art {
                                   TypeID{typeid(T)},
                                   tag.label(),
                                   tag.instance(),
-                                  tag.process());
+                                  ProcessTag{tag.process()});
     return ProductToken<T>{tag};
   }
 
@@ -106,7 +106,7 @@ namespace art {
                                   TypeID{typeid(T)},
                                   tag.label(),
                                   tag.instance(),
-                                  tag.process());
+                                  ProcessTag{tag.process()});
     return ViewToken<T>{tag};
   }
 
