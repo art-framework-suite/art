@@ -742,24 +742,26 @@ namespace art {
       auto whyFailed =
         std::make_shared<art::Exception>(art::errors::ProductNotFound);
       *whyFailed << "getByLabel: Found zero products matching all criteria\n"
-                 << "Looking for type: " << wrapped.product_type << "\n"
-                 << "Looking for module label: " << label << "\n"
+                 << "Looking for type: " << wrapped.product_type << '\n'
+                 << "Looking for module label: " << label << '\n'
                  << "Looking for productInstanceName: " << productInstanceName
-                 << "\n"
-                 << (processName.empty() ? "" : "Looking for process: ")
-                 << processName
                  << '\n';
+      if (!processName.empty()) {
+        *whyFailed << "Looking for process: " << processName << '\n';
+      }
       return GroupQueryResult{whyFailed};
     }
     if (results.size() > 1) {
-      throw art::Exception(art::errors::ProductNotFound)
-        << "getByLabel: Found " << results.size()
+      Exception e{errors::ProductNotFound};
+      e << "getByLabel: Found " << results.size()
         << " products rather than one which match all criteria\n"
-        << "Looking for type: " << wrapped.product_type << "\n"
-        << "Looking for module label: " << label << "\n"
-        << "Looking for productInstanceName: " << productInstanceName << "\n"
-        << (processName.empty() ? "" : "Looking for process: ") << processName
-        << "\n";
+        << "Looking for type: " << wrapped.product_type << '\n'
+        << "Looking for module label: " << label << '\n'
+        << "Looking for productInstanceName: " << productInstanceName << '\n';
+      if (!processName.empty()) {
+        e << "Looking for process: " << processName << '\n';
+      }
+      throw e;
     }
     return results[0];
   }
@@ -1303,7 +1305,7 @@ namespace art {
     auto whyFailed =
       make_shared<Exception>(errors::ProductNotFound, "InvalidID");
     *whyFailed << "Principal::getByProductID: no product with branch type: "
-               << branchType_ << " product id: " << pid << "\n";
+               << branchType_ << " product id: " << pid << '\n';
     return GroupQueryResult{whyFailed};
   }
 
