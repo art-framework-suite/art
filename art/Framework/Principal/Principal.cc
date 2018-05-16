@@ -338,7 +338,6 @@ namespace art {
     groups_[pd.productID()] = move(group);
   }
 
-  // Used by addToProcessHistory()
   void
   Principal::setProcessHistoryIDcombined(ProcessHistoryID const& phid)
   {
@@ -353,20 +352,16 @@ namespace art {
     }
   }
 
-  // Used by SourceHelper::makeRunPrincipal(RunAuxiliary const&
-  // runAux) const, SourceHelper::makeSubRunPrincipal(SubRunAuxiliary const&
-  // subRunAux) const, and SourceHelper::makeEventPrincipal(EventAuxiliary
-  // const& eventAux, std::unique_ptr<History>&& history) const.  FIXME:
-  // This breaks the purpose of the Principal::addToProcessHistory()
-  // compare_exchange_strong because of the temporal hole between when the
-  // history is changed and when the flag is set, this must be fixed!
+  // FIXME: This breaks the purpose of the
+  //        Principal::addToProcessHistory() compare_exchange_strong
+  //        because of the temporal hole between when the history is
+  //        changed and when the flag is set, this must be fixed!
   void
   Principal::markProcessHistoryAsModified()
   {
     processHistoryModified_ = true;
   }
 
-  // Note: Used by run, subrun, event, and results ProductGetter!
   // Note: LArSoft uses this extensively to create a Ptr by hand.
   EDProductGetter const*
   Principal::productGetter(ProductID const& pid) const
@@ -379,18 +374,16 @@ namespace art {
     return nullptr;
   }
 
-  // Note: Used only by canvas RefCoreStreamer.cc through
-  //       PrincipalBase::getEDProductGetter!
   EDProductGetter const*
   Principal::getEDProductGetter_(ProductID const& pid) const
   {
     return productGetter(pid);
   }
 
-  // Note: To make secondary file-reading thread-safe, we will need
-  //      to ensure that any adjustments to the secondaryPrincipals_
-  //      vector is done atomically with respect to any reading of
-  //      the vector.
+  // Note: To make secondary file-reading thread-safe, we will need to
+  //       ensure that any adjustments to the secondaryPrincipals_
+  //       vector is done atomically with respect to any reading of
+  //       the vector.
   void
   Principal::addSecondaryPrincipal(std::unique_ptr<Principal>&& val)
   {
@@ -433,13 +426,12 @@ namespace art {
     //
     // Note: The input source lock will be held when this routine is called.
     //
-    // FIXME: threading: For right now ignore the delay reading option
-    // FIXME: threading: for product provenance. If we do the delay
-    // FIXME: threading: reading then we must use a lock to
-    // FIXME: threading: interlock all fetches of provenance because
-    // FIXME: threading: the delay read fills the pp_by_pid_ one entry
-    // FIXME: threading: at a time, and we do not want other threads
-    // FIXME: threading: to find the info only partly there.
+    // MT-TODO: For right now ignore the delay reading option for
+    //          product provenance. If we do the delay reading then we
+    //          must use a lock to interlock all fetches of provenance
+    //          because the delay read fills the pp_by_pid_ one entry
+    //          at a time, and we do not want other threads to find
+    //          the info only partly there.
     hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
     for (auto const& pid_and_group : groups_) {
       auto group = pid_and_group.second.get();
@@ -450,10 +442,10 @@ namespace art {
   ProcessHistory const&
   Principal::processHistory() const
   {
-    // Note: threading: We make no attempt to protect callers who use this
-    // Note: threading: call to get access to the iteration interface of
-    // Note: threading: the process history.  See the threading notes there
-    // Note: threading: and here for the reasons why.
+    // MT note: We make no attempt to protect callers who use this
+    //          call to get access to the iteration interface of the
+    //          process history.  See the threading notes there and
+    //          here for the reasons why.
     return processHistory_;
   }
 
@@ -498,14 +490,14 @@ namespace art {
     return groups_.cend();
   }
 
-  // This is intended to be used by a module that fetches a very
-  // large data product, makes a copy, and would like to release
-  // the memory held by the original immediately.
+  // This is intended to be used by a module that fetches a very large
+  // data product, makes a copy, and would like to release the memory
+  // held by the original immediately.
   void
   Principal::removeCachedProduct(ProductID const pid) const
   {
-    // FIXME: May be called by a module task, need to protect
-    // FIXME: the group with a lock.
+    // MT-FIXME: May be called by a module task, need to protect the
+    //           group with a lock.
     if (auto g = getGroupLocal(pid)) {
       g->removeCachedProduct();
       return;
@@ -529,25 +521,20 @@ namespace art {
   Principal::insert_pp(Group* grp,
                        std::unique_ptr<ProductProvenance const>&& pp)
   {
-    // auto const& pid = pp->productID();
-    // auto g = getGroupLocal(pid);
-    // if (g.get() != nullptr) {
-    //  g->setProductProvenance(move(pp));
-    //}
     grp->setProductProvenance(move(pp));
   }
 
   cet::exempt_ptr<ProductProvenance const>
   Principal::branchToProductProvenance(ProductID const& pid) const
   {
-    // FIXME: threading: For right now ignore the delay reading option
-    // FIXME: threading: for product provenance. If we do the delay
-    // FIXME: threading: reading then we must use a lock to
-    // FIXME: threading: interlock all fetches of provenance because
-    // FIXME: threading: the delay read fills the pp_by_pid_ one entry
-    // FIXME: threading: at a time, and we do not want other threads
-    // FIXME: threading: to find the info only partly there.
-    // Note: This routine may lock the input source lock.
+    // Note: The input source lock will be held when this routine is called.
+    //
+    // MT-TODO: For right now ignore the delay reading option for
+    //          product provenance. If we do the delay reading then we
+    //          must use a lock to interlock all fetches of provenance
+    //          because the delay read fills the pp_by_pid_ one entry
+    //          at a time, and we do not want other threads to find
+    //          the info only partly there.
     cet::exempt_ptr<ProductProvenance const> ret;
     auto g = getGroupLocal(pid);
     if (g.get() != nullptr) {
@@ -556,7 +543,6 @@ namespace art {
     return ret;
   }
 
-  //
   // Note: threading: The solution chosen for the following
   // problems is to convert groups_ from type:
   //
@@ -668,14 +654,14 @@ namespace art {
   {
     bool expected = false;
     if (processHistoryModified_.compare_exchange_strong(expected, true)) {
-      // Note: threading: We have now locked out any other task trying to modify
-      // the process history. Now we have to block tasks that
-      // already have a pointer to the process history from
-      // accessing its internals while we update it. We
-      // do not protect the iteration interface, the begin(), end(), and size()
-      // are all separate calls and we cannot lock
-      // in each one because there is no way to
-      // automatically unlock.
+      // MT note: We have now locked out any other task trying to
+      //          modify the process history. Now we have to block
+      //          tasks that already have a pointer to the process
+      //          history from accessing its internals while we update
+      //          it. We do not protect the iteration interface, the
+      //          begin(), end(), and size() are all separate calls
+      //          and we cannot lock in each one because there is no
+      //          way to automatically unlock.
       RecursiveMutexSentry sentry{processHistory_.get_mutex(), __func__};
       string const& processName = processConfiguration_.processName();
       for (auto const& val : processHistory_) {
@@ -688,19 +674,21 @@ namespace art {
         }
       }
       processHistory_.push_back(processConfiguration_);
-      // OPTIMIZATION NOTE: As of 0_9_0_pre3 For very simple Sources
-      // (e.g. EmptyEvent) this routine takes up nearly 50% of the time
-      // per event, and 96% of the time for this routine is spent in
-      // computing the ProcessHistory id which happens because we are
-      // reconstructing the ProcessHistory for each event.  It would
-      // probably be better to move the ProcessHistory construction out to
-      // somewhere which persists for longer than one Event.
+      // Optimization note: As of 0_9_0_pre3 For very simple Sources
+      // (e.g. EmptyEvent) this routine takes up nearly 50% of the
+      // time per event, and 96% of the time for this routine is spent
+      // in computing the ProcessHistory id which happens because we
+      // are reconstructing the ProcessHistory for each event.  It
+      // would probably be better to move the ProcessHistory
+      // construction out to somewhere which persists for longer than
+      // one Event.
       auto const phid = processHistory_.id();
       ProcessHistoryRegistry::emplace(phid, processHistory_);
-      // Note: threading: We must protect processHistory_!  The id() call can
-      // modify it! Note: threading: We are modifying Run, SubRun, Event, and
-      // Results principals here, and their *Auxiliary Note: threading: and the
-      // event principal art::History.
+      // MT note: We must protect processHistory_!  The id() call can
+      //          modify it! Note: threading: We are modifying Run,
+      //          SubRun, Event, and Results principals here, and
+      //          their *Auxiliary Note: threading: and the event
+      //          principal art::History.
       setProcessHistoryIDcombined(processHistory_.id());
     }
   }
@@ -847,16 +835,14 @@ namespace art {
                         bool const stopIfProcessHasMatch,
                         TypeID const wanted_wrapper /*=TypeID()*/) const
   {
-    // Loop over processes in reverse time order.  Sometimes we want to
-    // stop after we find a process with matches so check for that at
-    // each step.
+    // Loop over processes in reverse time order.  Sometimes we want
+    // to stop after we find a process with matches so check for that
+    // at each step.
     std::size_t found{};
-    // Loop over processes in reverse time order.  Sometimes we want to stop
-    // after we find a process with matches so check for that at each step.
-    // Note: threading: We must protect the process history iterators here
-    // Note: threading: against possible invalidation by output modules
-    // inserting Note: threading: a process history entry while we are
-    // iterating.
+    // MT note: We must protect the process history iterators here
+    //          against possible invalidation by output modules
+    //          inserting a process history entry while we are
+    //          iterating.
     RecursiveMutexSentry sentry{processHistory_.get_mutex(), __func__};
     for (auto const& h : reverse_iteration(processHistory_)) {
       auto it = pl.find(h.processName());
@@ -1088,19 +1074,18 @@ namespace art {
     }
   }
 
-  // Used by RootOutputFile to fetch products being written to disk.
-  // Used by FileDumperOutput_module.
-  // Used by ProvenanceCheckerOutput_module.
   // We invoke the delay reader now if no user module has ever fetched them
   // for this principal if resolvedProd is true.
-  // Note: This attempts to resolve the product and converts
-  // Note: the resulting group into an OutputHandle.
-  // Note: threading: Right now this is single-threaded.  Be careful if this
-  // changes!!!
+  //
+  // Note: This attempts to resolve the product and converts the
+  //       resulting group into an OutputHandle.
+  //
+  // MT note: Right now this is single-threaded.  Be careful if this
+  //          changes!!!
   OutputHandle
   Principal::getForOutput(ProductID const& pid, bool resolveProd) const
   {
-    // FIXME: threading: Uses of group!
+    // MT-FIXME: Uses of group!
     auto g = getGroupTryAllFiles(pid);
     if (g.get() == nullptr) {
       return OutputHandle::invalid();
@@ -1160,8 +1145,6 @@ namespace art {
     return branchType_;
   }
 
-  // Used by RootOutputFile
-  // Used by Run
   RunAuxiliary const&
   Principal::runAux() const
   {
@@ -1240,7 +1223,6 @@ namespace art {
     return subRunAux_.beginTime();
   }
 
-  // Used by EventProcessor
   Timestamp const&
   Principal::endTime() const
   {
@@ -1298,11 +1280,6 @@ namespace art {
     return pd == nullptr ? false : pd->present();
   }
 
-  // Used by art::DataViewImpl<T>::get(ProductID const pid, Handle<T>& result)
-  // const. (easy user-facing api) Used by Principal::productGetter(ProductID
-  // const pid) const
-  //   Used by (Run,SubRun,Event,Results)::productGetter (advanced user-facing
-  //   api)
   GroupQueryResult
   Principal::getByProductID(ProductID const pid) const
   {
@@ -1324,17 +1301,6 @@ namespace art {
     return it != groups_.cend() ? it->second.get() : nullptr;
   }
 
-  // Used by Principal::getByProductID(ProductID const& pid) const
-  //   Used by art::DataViewImpl<T>::get(ProductID const pid, Handle<T>& result)
-  //   const. (easy user-facing api) Used by Principal::productGetter(ProductID
-  //   const pid) const
-  //     Used by (Run,SubRun,Event,Results)::productGetter (advanced user-facing
-  //     api)
-  // Used by Principal::getForOutput(ProductID const& pid, bool resolveProd)
-  // const
-  //   Used by RootOutputFile to fetch products being written to disk.
-  //   Used by FileDumperOutput_module.
-  //   Used by ProvenanceCheckerOutput_module.
   cet::exempt_ptr<Group const>
   Principal::getGroupTryAllFiles(ProductID const pid) const
   {
