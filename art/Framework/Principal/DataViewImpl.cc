@@ -331,12 +331,11 @@ namespace art {
   DataViewImpl::getContainerForView_(TypeID const& typeID,
                                      string const& moduleLabel,
                                      string const& productInstanceName,
-                                     string const& processName) const
+                                     ProcessTag const& processTag) const
   {
     // Check that the consumesView<ELEMENT, BT>(InputTag),
     // or the mayConsumeView<ELEMENT, BT>(InputTag)
     // is actually present.
-    ProcessTag const processTag{processName, md_.processName()};
     ConsumesInfo::instance()->validateConsumedProduct(
       branchType_,
       md_,
@@ -349,9 +348,10 @@ namespace art {
     auto qrs = principal_.getMatchingSequence(
       Selector{ModuleLabelSelector{moduleLabel} &&
                ProductInstanceNameSelector{productInstanceName} &&
-               ProcessNameSelector{processTag.name()}});
-    // Remove any containers which do not allow upcasting
-    // of their element to the desired element type.
+               ProcessNameSelector{processTag.name()}},
+      processTag);
+    // Remove any containers that do not allow upcasting of their
+    // elements to the desired element type.
     qrs.erase(remove_if(qrs.begin(),
                         qrs.end(),
                         [&typeID](auto const& qr) {
@@ -362,8 +362,7 @@ namespace art {
                             typeID.typeInfo());
                         }),
               qrs.end());
-    // Throw if we have no container to return,
-    // or more than one.
+    // Throw if there is not one and only one container to return.
     if (qrs.size() != 1) {
       Exception e{errors::ProductNotFound};
       e << "getView: Found "
@@ -372,8 +371,8 @@ namespace art {
         << "Looking for sequence of type: " << typeID << "\n"
         << "Looking for module label: " << moduleLabel << "\n"
         << "Looking for productInstanceName: " << productInstanceName << "\n";
-      if (!processName.empty()) {
-        e << "Looking for processName: " << processName << "\n";
+      if (!processTag.name().empty()) {
+        e << "Looking for processName: " << processTag.name() << "\n";
       }
       throw e;
     }

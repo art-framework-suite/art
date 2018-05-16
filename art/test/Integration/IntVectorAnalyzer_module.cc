@@ -19,36 +19,32 @@ using namespace fhicl;
 
 namespace arttest {
 
-  class IntVectorAnalyzer : public EDAnalyzer {
-    // Config
+  class IntVectorAnalyzer : public SharedAnalyzer {
   public:
     struct Config {
       Atom<string> input_label{Name("input_label")};
       Atom<size_t> nvalues{Name("nvalues")};
     };
     using Parameters = Table<Config>;
-    // Special Member Functions
-  public:
     explicit IntVectorAnalyzer(Parameters const& p);
-    // API
-  public:
-    void analyze(Event const&) override;
-    // Data Members
+
   private:
-    string moduleLabel_;
-    size_t nvalues_;
-    ViewToken<int> viewToken_;
+    void analyze(Event const&, ScheduleID) override;
+
+    string const moduleLabel_;
+    size_t const nvalues_;
+    ViewToken<int> const viewToken_;
   };
 
   IntVectorAnalyzer::IntVectorAnalyzer(Parameters const& p)
-    : EDAnalyzer{p}
+    : SharedAnalyzer{p}
     , moduleLabel_{p().input_label()}
     , nvalues_{p().nvalues()}
     , viewToken_{consumesView<int>(moduleLabel_)}
   {}
 
   void
-  IntVectorAnalyzer::analyze(Event const& e)
+  IntVectorAnalyzer::analyze(Event const& e, ScheduleID)
   {
     {
       vector<int const*> ptrs;

@@ -301,7 +301,7 @@ namespace art {
       TypeID const&,
       std::string const& moduleLabel,
       std::string const& productInstanceName,
-      std::string const& processName) const;
+      ProcessTag const& processTag) const;
 
     // MEMBER DATA
   private:
@@ -526,11 +526,10 @@ namespace art {
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     std::size_t const orig_size = result.size();
-    auto const& actualProcessName = getProcessName_(processName);
     auto grp = getContainerForView_(TypeID{typeid(ELEMENT)},
                                     moduleLabel,
                                     productInstanceName,
-                                    actualProcessName);
+                                    ProcessTag{processName, md_.processName()});
     if (recordParents_) {
       recordAsParent_(grp);
     }
@@ -580,11 +579,10 @@ namespace art {
                         View<ELEMENT>& result) const
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const& actualProcessName = getProcessName_(processName);
     auto grp = getContainerForView_(TypeID{typeid(ELEMENT)},
                                     moduleLabel,
                                     productInstanceName,
-                                    actualProcessName);
+                                    ProcessTag{processName, md_.processName()});
     if (recordParents_) {
       recordAsParent_(grp);
     }
@@ -633,11 +631,10 @@ namespace art {
                              PtrVector<ELEMENT>& result) const
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    auto const& actualProcessName = getProcessName_(processName);
     auto grp = getContainerForView_(TypeID{typeid(ELEMENT)},
                                     moduleLabel,
                                     productInstanceName,
-                                    actualProcessName);
+                                    ProcessTag{processName, md_.processName()});
     if (recordParents_) {
       recordAsParent_(grp);
     }

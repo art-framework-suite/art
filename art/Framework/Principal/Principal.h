@@ -137,7 +137,8 @@ namespace art {
     // which are sequences, have a nested type named 'value_type', and
     // where elementType the same as, or a public base of, this
     // value_type, and which match the given selector.
-    GroupQueryResultVec getMatchingSequence(SelectorBase const&) const;
+    GroupQueryResultVec getMatchingSequence(SelectorBase const&,
+                                            ProcessTag const&) const;
 
     // Note: Used only by DataViewImpl::ProductGetter!
     // Note: LArSoft uses this extensively to create a Ptr by hand.

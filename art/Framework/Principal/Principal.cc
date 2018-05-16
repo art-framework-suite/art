@@ -775,17 +775,24 @@ namespace art {
   }
 
   Principal::GroupQueryResultVec
-  Principal::getMatchingSequence(SelectorBase const& selector) const
+  Principal::getMatchingSequence(SelectorBase const& selector,
+                                 ProcessTag const& processTag) const
   {
     GroupQueryResultVec results;
     // Find groups from current process
-    if (enableLookupOfProducedProducts_.load()) {
+    if (processTag.current_process_search_allowed() &&
+        enableLookupOfProducedProducts_.load()) {
       if (findGroups(
             producedProducts_.load()->viewLookup, selector, results, true) !=
           0) {
         return results;
       }
     }
+
+    if (!processTag.input_source_search_allowed()) {
+      return results;
+    }
+
     // Look through currently opened input files
     if (results.empty()) {
       results = matchingSequenceFromInputFile(selector);
