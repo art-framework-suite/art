@@ -65,8 +65,6 @@ using fhicl::ParameterSet;
 namespace art {
 
   OutputModule::~OutputModule() noexcept = default;
-  SharedOutputModule::~SharedOutputModule() noexcept = default;
-  ReplicatedOutputModule::~ReplicatedOutputModule() noexcept = default;
 
   OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
                              ParameterSet const& containing_pset)
@@ -80,18 +78,6 @@ namespace art {
     , plugins_{makePlugins_(containing_pset)}
   {}
 
-  SharedOutputModule::SharedOutputModule(
-    fhicl::TableFragment<Config> const& config,
-    ParameterSet const& containing_pset)
-    : OutputModule{config, containing_pset}
-  {}
-
-  ReplicatedOutputModule::ReplicatedOutputModule(
-    fhicl::TableFragment<Config> const& config,
-    ParameterSet const& containing_pset)
-    : OutputModule{config, containing_pset}
-  {}
-
   OutputModule::OutputModule(ParameterSet const& pset)
     : Observer{pset}
     , groupSelectorRules_{pset.get<vector<string>>("outputCommands",
@@ -102,14 +88,6 @@ namespace art {
     , dataTier_{pset.get<string>("dataTier", "")}
     , streamName_{pset.get<string>("streamName", "")}
     , plugins_{makePlugins_(pset)}
-  {}
-
-  SharedOutputModule::SharedOutputModule(ParameterSet const& pset)
-    : OutputModule{pset}
-  {}
-
-  ReplicatedOutputModule::ReplicatedOutputModule(ParameterSet const& pset)
-    : OutputModule{pset}
   {}
 
   bool
@@ -220,21 +198,6 @@ namespace art {
   {
     serialize(SharedResourcesRegistry::kLegacy);
     createQueues();
-    beginJob();
-    cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
-  }
-
-  void
-  SharedOutputModule::doBeginJob()
-  {
-    createQueues();
-    beginJob();
-    cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
-  }
-
-  void
-  ReplicatedOutputModule::doBeginJob()
-  {
     beginJob();
     cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
   }

@@ -247,59 +247,6 @@ namespace art {
     PluginCollection_t plugins_;
   };
 
-  class SharedOutputModule : public art::OutputModule {
-    friend class WorkerT<OutputModule>;
-    friend class OutputWorker;
-
-  public: // TYPES
-    using ModuleType = OutputModule;
-    using WorkerType = OutputWorker;
-
-  private: // TYPES
-    using PluginCollection_t =
-      std::vector<std::unique_ptr<FileCatalogMetadataPlugin>>;
-
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    virtual ~SharedOutputModule() noexcept;
-    explicit SharedOutputModule(fhicl::ParameterSet const& pset);
-    explicit SharedOutputModule(fhicl::TableFragment<Config> const& pset,
-                                fhicl::ParameterSet const& containing_pset);
-    SharedOutputModule(SharedOutputModule const&) = delete;
-    SharedOutputModule(SharedOutputModule&&) = delete;
-    SharedOutputModule& operator=(SharedOutputModule const&) = delete;
-    SharedOutputModule& operator=(SharedOutputModule&&) = delete;
-
-  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
-    // and EndPathExecutor
-    void doBeginJob() override;
-  };
-
-  class ReplicatedOutputModule : public OutputModule {
-    friend class WorkerT<OutputModule>;
-    friend class OutputWorker;
-
-  public: // TYPES
-    using ModuleType = OutputModule;
-    using WorkerType = OutputWorker;
-
-  private: // TYPES
-    using PluginCollection_t =
-      std::vector<std::unique_ptr<FileCatalogMetadataPlugin>>;
-
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    virtual ~ReplicatedOutputModule() noexcept;
-    explicit ReplicatedOutputModule(fhicl::ParameterSet const& pset);
-    explicit ReplicatedOutputModule(fhicl::TableFragment<Config> const& pset,
-                                    fhicl::ParameterSet const& containing_pset);
-    ReplicatedOutputModule(ReplicatedOutputModule const&) = delete;
-    ReplicatedOutputModule(ReplicatedOutputModule&&) = delete;
-    ReplicatedOutputModule& operator=(ReplicatedOutputModule const&) = delete;
-    ReplicatedOutputModule& operator=(ReplicatedOutputModule&&) = delete;
-
-  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
-    // and EndPathExecutor
-    void doBeginJob() override;
-  };
 } // namespace art
 
 #endif /* art_Framework_Core_OutputModule_h */
