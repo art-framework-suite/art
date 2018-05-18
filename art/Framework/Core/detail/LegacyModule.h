@@ -13,6 +13,11 @@ namespace art {
 
     class LegacyModule : public SharedModule, private EngineCreator {
     public:
+      LegacyModule() = default;
+      LegacyModule(std::string const& module_label)
+        : EngineCreator{module_label, ScheduleID::first()}
+      {}
+
       auto
       scheduleID() const
       {
@@ -29,28 +34,7 @@ namespace art {
       using seed_t = EngineCreator::seed_t;
       using label_t = EngineCreator::label_t;
 
-      base_engine_t&
-      createEngine(fhicl::ParameterSet const& pset)
-      {
-        return EngineCreator::createEngine(ScheduleID::first(), pset);
-      }
-
-      base_engine_t&
-      createEngine(fhicl::ParameterSet const& pset,
-                   std::string const& kind_of_engine_to_make)
-      {
-        return EngineCreator::createEngine(
-          ScheduleID::first(), pset, kind_of_engine_to_make);
-      }
-
-      base_engine_t&
-      createEngine(fhicl::ParameterSet const& pset,
-                   std::string const& kind_of_engine_to_make,
-                   label_t const& engine_label)
-      {
-        return EngineCreator::createEngine(
-          ScheduleID::first(), pset, kind_of_engine_to_make, engine_label);
-      }
+      using EngineCreator::createEngine;
 
       class ScheduleIDSentry;
 

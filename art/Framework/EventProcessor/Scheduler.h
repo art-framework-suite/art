@@ -18,6 +18,7 @@ namespace art {
   public:
     struct Config {
       using Name = fhicl::Name;
+      using Comment = fhicl::Comment;
       fhicl::Atom<int> num_threads{Name{"num_threads"}};
       fhicl::Atom<int> num_schedules{Name{"num_schedules"}};
       fhicl::Atom<bool> handleEmptyRuns{Name{"handleEmptyRuns"}, true};
@@ -31,12 +32,16 @@ namespace art {
       fhicl::Atom<std::string> dataDependencyGraph{Name{"dataDependencyGraph"},
                                                    {}};
       struct DebugConfig {
-        fhicl::OptionalDelegatedParameter configOut{Name{"configOut"}};
-        fhicl::OptionalDelegatedParameter debugConfig{Name{"debugConfig"}};
-        fhicl::OptionalDelegatedParameter validateConfig{
-          Name{"validateConfig"}};
+        fhicl::Atom<std::string> fileName{Name{"fileName"}};
+        fhicl::Atom<std::string> option{Name{"option"}};
+        fhicl::Atom<std::string> printMode{Name{"printMode"}};
       };
-      fhicl::OptionalTable<DebugConfig> debug{Name{"debug"}};
+      fhicl::OptionalTable<DebugConfig> debug{
+        Name{"debug"},
+        Comment{
+          "The entries in the 'debug' table below are filled whenever the\n"
+          "command-line program options are parsed.  Any user-provided values\n"
+          "will be overriden by the command-line."}};
       fhicl::TableFragment<ActionTable::Config> actionTable{};
     };
     using Parameters = fhicl::Table<Config>;

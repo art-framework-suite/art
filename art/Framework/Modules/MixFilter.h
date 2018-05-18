@@ -652,9 +652,7 @@ private: // MEMBER DATA
 
 template <class T>
 art::MixFilter<T>::MixFilter(fhicl::ParameterSet const& p)
-  : helper_{initEngine_(p), *this}
-  , // See note below
-  detail_{p, helper_}
+  : EDFilter{p}, helper_{initEngine_(p), *this}, detail_{p, helper_}
 {
   // Note that the random number engine is created in the initializer
   // list by calling initEngine(). This enables the engine to be
@@ -816,7 +814,7 @@ art::MixFilter<T>::initEngine_(fhicl::ParameterSet const& p)
   // If we can't create one of these, the helper will deal with the
   // situation accordingly.
   if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
-    createEngine(p);
+    createEngine(p.get<long>("seed", -1));
   }
   return p;
 }

@@ -15,7 +15,7 @@ namespace art {
   TriggerResultInserter::TriggerResultInserter(fhicl::ParameterSet const& pset,
                                                ScheduleID const sid,
                                                HLTGlobalStatus& pathResults)
-    : pset_id_{pset.id()}, trptr_(&pathResults)
+    : ReplicatedProducer{pset, sid}, pset_id_{pset.id()}, trptr_(&pathResults)
   {
     {
       std::ostringstream msg;

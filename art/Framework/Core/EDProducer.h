@@ -19,6 +19,16 @@ namespace art {
     using ModuleType = EDProducer;
     using WorkerType = WorkerT<EDProducer>;
 
+    EDProducer() = default;
+    explicit EDProducer(fhicl::ParameterSet const& pset)
+      : detail::LegacyModule{pset.get<std::string>("module_label")}
+    {}
+
+    template <typename Config>
+    explicit EDProducer(Table<Config> const& config)
+      : EDProducer{config.get_PSet()}
+    {}
+
     using detail::LegacyModule::createEngine;
     using detail::LegacyModule::serialTaskQueueChain;
 
@@ -48,6 +58,21 @@ namespace art {
   public:
     using ModuleType = ReplicatedProducer;
     using WorkerType = WorkerT<ReplicatedProducer>;
+
+    // Only the TriggerResults module is allowed to have no
+    // module_label parameter.  We provide a default empty string for
+    // only that reason.
+    explicit ReplicatedProducer(fhicl::ParameterSet const& pset,
+                                ScheduleID const scheduleID)
+      : detail::EngineCreator{pset.get<std::string>("module_label", {}),
+                              scheduleID}
+    {}
+
+    template <typename Config>
+    explicit ReplicatedProducer(Table<Config> const& config,
+                                ScheduleID const scheduleID)
+      : ReplicatedProducer{config.get_PSet(), scheduleID}
+    {}
 
     using detail::EngineCreator::createEngine;
 

@@ -33,7 +33,16 @@ namespace art {
     using WorkerType = WorkerT<EDAnalyzer>;
     using ModuleType = EDAnalyzer;
 
-    using detail::Analyzer::Analyzer;
+    explicit EDAnalyzer(fhicl::ParameterSet const& pset)
+      : detail::Analyzer{pset}
+      , detail::LegacyModule{pset.get<std::string>("module_label")}
+    {}
+
+    template <typename Config>
+    explicit EDAnalyzer(Table<Config> const& config)
+      : EDAnalyzer{config.get_PSet()}
+    {}
+
     using detail::LegacyModule::createEngine;
     using detail::LegacyModule::serialTaskQueueChain;
 
@@ -66,7 +75,18 @@ namespace art {
     using WorkerType = WorkerT<ReplicatedAnalyzer>;
     using ModuleType = ReplicatedAnalyzer;
 
-    using detail::Analyzer::Analyzer;
+    explicit ReplicatedAnalyzer(fhicl::ParameterSet const& pset,
+                                ScheduleID const scheduleID)
+      : detail::Analyzer{pset}
+      , detail::EngineCreator{pset.get<std::string>("module_label"), scheduleID}
+    {}
+
+    template <typename Config>
+    explicit ReplicatedAnalyzer(Table<Config> const& config,
+                                ScheduleID const scheduleID)
+      : ReplicatedAnalyzer{config.get_PSet(), scheduleID}
+    {}
+
     using detail::EngineCreator::createEngine;
 
     std::string workerType() const;

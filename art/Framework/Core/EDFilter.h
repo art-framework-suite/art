@@ -25,6 +25,15 @@ namespace art {
     using ModuleType = EDFilter;
     using WorkerType = WorkerT<EDFilter>;
 
+    EDFilter() = default;
+    explicit EDFilter(fhicl::ParameterSet const& pset)
+      : detail::LegacyModule{pset.get<std::string>("module_label")}
+    {}
+
+    template <typename Config>
+    explicit EDFilter(Table<Config> const& config) : EDFilter{config.get_PSet()}
+    {}
+
     using detail::LegacyModule::createEngine;
     using detail::LegacyModule::serialTaskQueueChain;
 
@@ -56,6 +65,17 @@ namespace art {
     using WorkerType = WorkerT<ReplicatedFilter>;
 
     std::string workerType() const;
+
+    explicit ReplicatedFilter(fhicl::ParameterSet const& pset,
+                              ScheduleID const scheduleID)
+      : detail::EngineCreator{pset.get<std::string>("module_label"), scheduleID}
+    {}
+
+    template <typename Config>
+    explicit ReplicatedFilter(Table<Config> const& config,
+                              ScheduleID const scheduleID)
+      : ReplicatedFilter{config.get_PSet(), scheduleID}
+    {}
 
     using detail::EngineCreator::createEngine;
 

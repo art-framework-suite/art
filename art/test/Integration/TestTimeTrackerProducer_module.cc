@@ -13,8 +13,12 @@ namespace arttest {
 
   class TestTimeTrackerProducer : public art::ReplicatedProducer {
   public:
-    explicit TestTimeTrackerProducer(fhicl::ParameterSet const&,
-                                     art::ScheduleID)
+    struct Config {
+    };
+    using Parameters = Table<Config>;
+    explicit TestTimeTrackerProducer(Parameters const& p,
+                                     art::ScheduleID const sid)
+      : art::ReplicatedProducer{p, sid}
     {}
 
     void

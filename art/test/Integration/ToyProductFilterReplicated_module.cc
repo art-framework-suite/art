@@ -44,8 +44,10 @@ namespace arttest {
     bool filter(Event& e) override;
   };
 
-  ToyProductFilterReplicated::ToyProductFilterReplicated(Parameters const&,
-                                                         art::ScheduleID)
+  ToyProductFilterReplicated::ToyProductFilterReplicated(
+    Parameters const& p,
+    art::ScheduleID const sid)
+    : ReplicatedFilter{p, sid}
   {}
 
   bool
