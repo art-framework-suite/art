@@ -6,12 +6,19 @@
 namespace art {
   class PathContext {
   public:
+    static std::string
+    end_path()
+    {
+      return "end_path";
+    }
+
     explicit PathContext(ScheduleContext const& scheduleContext,
                          std::string const& pathName,
-                         bool const isEndPath)
+                         int const bitPosition)
       : scheduleContext_{scheduleContext}
       , pathName_{pathName}
-      , isEndPath_{isEndPath}
+      , isEndPath_{pathName == end_path()}
+      , bitPosition_{bitPosition}
     {}
 
     auto
@@ -29,11 +36,17 @@ namespace art {
     {
       return isEndPath_;
     }
+    int
+    bitPosition() const
+    {
+      return bitPosition_;
+    }
 
   private:
     ScheduleContext const scheduleContext_;
     std::string const pathName_;
     bool const isEndPath_;
+    int const bitPosition_;
   };
 }
 

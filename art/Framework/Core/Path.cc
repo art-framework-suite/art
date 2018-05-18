@@ -47,8 +47,6 @@ namespace art {
   {
     actionTable_ = nullptr;
     actReg_ = nullptr;
-    delete name_.load();
-    name_ = nullptr;
     delete workers_.load();
     workers_ = nullptr;
     delete waitingTasks_.load();
@@ -57,23 +55,18 @@ namespace art {
 
   Path::Path(ActionTable const& actions,
              ActivityRegistry const& actReg,
-             ScheduleContext const sc,
-             int const bitpos,
-             bool const isEndPath,
-             string const& path_name,
+             PathContext const& pc,
              vector<WorkerInPath>&& workers,
              HLTGlobalStatus* pathResults) noexcept
-    : pc_{sc, path_name, isEndPath}
+    : pc_{pc}, bitpos_{pc.bitPosition()}
   {
     {
       ostringstream msg;
       msg << "0x" << hex << ((unsigned long)this) << dec;
-      TDEBUG_FUNC_SI_MSG(4, "Path ctor", sc.id(), msg.str());
+      TDEBUG_FUNC_SI_MSG(4, "Path ctor", pc_.scheduleID(), msg.str());
     }
     actionTable_ = &actions;
     actReg_ = &actReg;
-    bitpos_ = bitpos;
-    name_ = new string(path_name);
     workers_ = new vector<WorkerInPath>{move(workers)};
     trptr_ = pathResults;
     waitingTasks_ = new WaitingTaskList;
@@ -93,13 +86,13 @@ namespace art {
   int
   Path::bitPosition() const
   {
-    return bitpos_.load();
+    return bitpos_;
   }
 
   string const&
   Path::name() const
   {
-    return *name_.load();
+    return pc_.pathName();
   }
 
   size_t
@@ -231,7 +224,7 @@ namespace art {
           state_ = hlt::Exception;
           if (trptr_.load()) {
             // Not the end path (no trigger results for end path!).
-            (*trptr_.load())[bitpos_.load()] = HLTPathStatus(state_, idx);
+            (*trptr_.load())[bitpos_] = HLTPathStatus(state_, idx);
           }
           TDEBUG_END_FUNC_SI_ERR(4,
                                  "Path::process_event_for_endpath",
@@ -257,7 +250,7 @@ namespace art {
         state_ = hlt::Exception;
         if (trptr_.load()) {
           // Not the end path (no trigger results for end path!).
-          (*trptr_.load())[bitpos_.load()] = HLTPathStatus(state_, idx);
+          (*trptr_.load())[bitpos_] = HLTPathStatus(state_, idx);
         }
         TDEBUG_END_FUNC_SI_ERR(4,
                                "Path::process_event_for_endpath",
@@ -286,7 +279,7 @@ namespace art {
       }
       if (trptr_.load()) {
         // Not the end path.
-        (*trptr_.load())[bitpos_.load()] = HLTPathStatus(state_, idx);
+        (*trptr_.load())[bitpos_] = HLTPathStatus(state_, idx);
       }
       HLTPathStatus const status(state_, idx);
       actReg_.load()->sPostProcessPath.invoke(pc_, status);
@@ -464,7 +457,7 @@ namespace art {
           state_ = hlt::Exception;
           if (trptr_.load()) {
             // Not the end path.
-            (*trptr_.load())[bitpos_.load()] = HLTPathStatus(state_, idx);
+            (*trptr_.load())[bitpos_] = HLTPathStatus(state_, idx);
           }
           auto art_ex = art::Exception{errors::ScheduleExecutionFailure,
                                        "Path: ProcessingStopped.",
@@ -489,7 +482,7 @@ namespace art {
         state_ = hlt::Exception;
         if (trptr_.load()) {
           // Not the end path.
-          (*trptr_.load())[bitpos_.load()] = HLTPathStatus(state_, idx);
+          (*trptr_.load())[bitpos_] = HLTPathStatus(state_, idx);
         }
         waitingTasks_.load()->doneWaiting(current_exception());
         TDEBUG_END_TASK_SI_ERR(
@@ -591,7 +584,7 @@ namespace art {
       }
       if (trptr_.load()) {
         // Not the end path.
-        (*trptr_.load())[bitpos_.load()] = HLTPathStatus(state_, idx);
+        (*trptr_.load())[bitpos_] = HLTPathStatus(state_, idx);
       }
       {
         HLTPathStatus const status(state_, idx);

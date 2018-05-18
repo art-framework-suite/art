@@ -401,7 +401,7 @@ namespace art {
   EndPathExecutor::writeEvent(EventPrincipal& ep)
   {
     auto const sid = sc_.id();
-    PathContext const pc{sc_, "end_path", true};
+    PathContext const pc{sc_, PathContext::end_path(), 0};
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : *outputWorkers_.load()) {
       auto const& md = ow->description();

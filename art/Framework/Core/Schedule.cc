@@ -420,7 +420,8 @@ namespace art {
         triggerPathsInfo_.load()->incrementPassedEventCount();
       }
       if (results_inserter_.load() != nullptr) {
-        PathContext const pc{sc_, "[art]", false};
+        // FIXME: not sure what the trigger bit should be
+        PathContext const pc{sc_, "[art]", -1};
         results_inserter_.load()->doWork_event(principal, pc);
       }
     }

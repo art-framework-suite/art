@@ -417,20 +417,15 @@ namespace art {
       auto& pinfo = triggerPathsInfo_[sid];
       pinfo.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
       int bitPos = 0;
+      ScheduleContext const sc{sid};
       for (auto const& val : protoTrigPathLabelMap_) {
         auto const& path_name = val.first;
         auto const& worker_config_infos = val.second;
-        vector<WorkerInPath> wips;
-        fillWorkers_(
-          sid, bitPos, worker_config_infos, modules, wips, pinfo.workers());
-        pinfo.paths().push_back(new Path{exceptActions_,
-                                         actReg_,
-                                         ScheduleContext{sid},
-                                         bitPos,
-                                         false,
-                                         path_name,
-                                         move(wips),
-                                         &pinfo.pathResults()});
+        PathContext const pc{sc, path_name, bitPos};
+        auto wips =
+          fillWorkers_(pc, worker_config_infos, modules, pinfo.workers());
+        pinfo.paths().push_back(new Path{
+          exceptActions_, actReg_, pc, move(wips), &pinfo.pathResults()});
         {
           ostringstream msg;
           msg << "Made path 0x" << hex << ((unsigned long)pinfo.paths().back())
@@ -447,16 +442,11 @@ namespace art {
 
       //  Create the end path and the workers on it.
       auto& einfo = endPathInfo_[sid];
-      vector<WorkerInPath> wips;
-      fillWorkers_(sid, 0, protoEndPathLabels_, modules, wips, einfo.workers());
-      einfo.paths().push_back(new Path{exceptActions_,
-                                       actReg_,
-                                       ScheduleContext{sid},
-                                       0,
-                                       true,
-                                       "end_path",
-                                       move(wips),
-                                       nullptr});
+      PathContext const pc{sc, PathContext::end_path(), 0};
+      auto wips =
+        fillWorkers_(pc, protoEndPathLabels_, modules, einfo.workers());
+      einfo.paths().push_back(
+        new Path{exceptActions_, actReg_, pc, move(wips), nullptr});
       {
         ostringstream msg;
         msg << "Made end path 0x" << hex
@@ -647,14 +637,15 @@ namespace art {
     return result;
   }
 
-  void
-  PathManager::fillWorkers_(ScheduleID const sid,
-                            int const pi,
+  vector<WorkerInPath>
+  PathManager::fillWorkers_(PathContext const& pc,
                             vector<WorkerInPath::ConfigInfo> const& wci_list,
                             ModulesByThreadingType const& modules,
-                            vector<WorkerInPath>& wips,
                             map<string, Worker*>& workers)
   {
+    auto const sid = pc.scheduleID();
+    auto const pi = pc.bitPosition();
+    vector<WorkerInPath> wips;
     for (auto const& wci : wci_list) {
       auto const& module_label = wci.label;
 
@@ -738,6 +729,7 @@ namespace art {
       workers.emplace(module_label, worker);
       wips.emplace_back(worker, filterAction);
     }
+    return wips;
   }
 
   ModuleType

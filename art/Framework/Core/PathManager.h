@@ -89,12 +89,11 @@ namespace art {
       fhicl::ParameterSet const& module_pset,
       ModuleDescription const& md,
       ScheduleID) const;
-    void fillWorkers_(ScheduleID,
-                      int pi,
-                      std::vector<WorkerInPath::ConfigInfo> const& wci_list,
-                      ModulesByThreadingType const& modules,
-                      std::vector<WorkerInPath>& wips,
-                      std::map<std::string, Worker*>& workers);
+    std::vector<WorkerInPath> fillWorkers_(
+      PathContext const& pc,
+      std::vector<WorkerInPath::ConfigInfo> const& wci_list,
+      ModulesByThreadingType const& modules,
+      std::map<std::string, Worker*>& workers);
     ModuleType loadModuleType_(std::string const& lib_spec);
     ModuleThreadingType loadModuleThreadingType_(std::string const& lib_spec);
     detail::collection_map_t getModuleGraphInfoCollection_();

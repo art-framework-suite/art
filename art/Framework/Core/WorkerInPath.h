@@ -28,7 +28,7 @@ namespace art {
   using module_label_t = std::string;
   class PathContext;
   class WorkerInPath {
-  public: // TYPES
+  public:
     enum FilterAction { Normal = 0, Ignore = 1, Veto = 2 };
     struct ConfigInfo {
       ConfigInfo(module_label_t const& lbl, FilterAction const action)
@@ -38,7 +38,6 @@ namespace art {
       FilterAction filterAction;
     };
 
-  public:
     // Special Member Functions
     ~WorkerInPath() noexcept;
     explicit WorkerInPath(Worker*) noexcept;
@@ -75,7 +74,7 @@ namespace art {
   private:
     std::atomic<Worker*> worker_;
     std::atomic<FilterAction> filterAction_;
-    //    ModuleContext const mc_;
+    //    ModuleContext mc_;
 
     // Per-schedule
     std::atomic<bool> returnCode_;

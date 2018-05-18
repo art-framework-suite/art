@@ -39,10 +39,7 @@ namespace art {
     ~Path();
     Path(ActionTable const&,
          ActivityRegistry const&,
-         ScheduleContext scheduleContext,
-         int bitpos,
-         bool isEndPath,
-         std::string const& path_name,
+         PathContext const&,
          std::vector<WorkerInPath>&&,
          HLTGlobalStatus*) noexcept;
     Path(Path const&) = delete;
@@ -92,8 +89,7 @@ namespace art {
     std::atomic<ActionTable const*> actionTable_;
     std::atomic<ActivityRegistry const*> actReg_;
     PathContext const pc_;
-    std::atomic<int> bitpos_;
-    std::atomic<std::string*> name_;
+    int const bitpos_;
     // Note: threading: We clear their counters.
     std::atomic<std::vector<WorkerInPath>*> workers_;
     // The PathManager trigger paths info actually owns this.
