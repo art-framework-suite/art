@@ -30,8 +30,8 @@ namespace art {
 
       using Name = fhicl::Name;
       using Comment = fhicl::Comment;
-      fhicl::Atom<int> num_threads{Name{"num_threads"}};
-      fhicl::Atom<int> num_schedules{Name{"num_schedules"}};
+      fhicl::Atom<int> num_threads{Name{"num_threads"}, 1};
+      fhicl::Atom<int> num_schedules{Name{"num_schedules"}, 1};
       fhicl::Atom<unsigned> stack_size{
         Name{"stack_size"},
         Comment{"The stack size (in bytes) that the TBB scheduler will use for "
