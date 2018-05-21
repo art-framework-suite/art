@@ -91,7 +91,6 @@ namespace art {
   private: // MEMBER DATA
     std::atomic<ActionTable const*> actionTable_;
     std::atomic<ActivityRegistry const*> actReg_;
-    std::atomic<ScheduleID> scheduleID_;
     PathContext const pc_;
     std::atomic<int> bitpos_;
     std::atomic<std::string*> name_;
