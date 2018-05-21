@@ -35,7 +35,7 @@ namespace art {
   };
 
   RandomNumberSaver::RandomNumberSaver(Parameters const& config)
-    : debug_{config().debug()}
+    : SharedProducer{config}, debug_{config().debug()}
   {
     produces<vector<RNGsnapshot>>();
     if (debug_) {

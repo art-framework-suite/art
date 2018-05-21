@@ -16,8 +16,8 @@
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "cetlib/map_vector.h"
 
+#include <atomic>
 #include <iomanip>
-#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -26,27 +26,32 @@ namespace arttest {
   class MixProducer;
 }
 
-class arttest::MixProducer : public art::EDProducer {
+class arttest::MixProducer : public art::SharedProducer {
 public:
-  explicit MixProducer(fhicl::ParameterSet const& p);
+  struct Config {
+  };
+  using Parameters = Table<Config>;
+  explicit MixProducer(Parameters const& p);
 
-  void produce(art::Event& e) override;
+private:
+  void produce(art::Event& e, art::ScheduleID) override;
   void endSubRun(art::SubRun& sr) override;
   void endRun(art::Run& r) override;
 
-private:
   using mv_t = cet::map_vector<unsigned int>;
   using mvv_t = mv_t::value_type;
   using mvm_t = mv_t::mapped_type;
 
   // Declare member data here.
-  size_t eventCounter_{};
-  size_t subrunCounter_{};
-  size_t runCounter_{};
+  std::atomic<size_t> eventCounter_{};
+  std::atomic<size_t> subrunCounter_{};
+  std::atomic<size_t> runCounter_{};
 };
 
-arttest::MixProducer::MixProducer(fhicl::ParameterSet const&)
+arttest::MixProducer::MixProducer(Parameters const& p) : art::SharedProducer{p}
 {
+  async<art::InEvent>();
+
   produces<double>("doubleLabel");
   produces<IntProduct>("IntProductLabel");
   produces<IntProduct>("SpottyProductLabel");
@@ -62,7 +67,7 @@ arttest::MixProducer::MixProducer(fhicl::ParameterSet const&)
 }
 
 void
-arttest::MixProducer::produce(art::Event& e)
+arttest::MixProducer::produce(art::Event& e, art::ScheduleID)
 {
   ++eventCounter_;
 

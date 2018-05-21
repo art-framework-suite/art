@@ -4,6 +4,7 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/HorizontalRule.h"
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/RecursiveMutex.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -175,10 +176,10 @@ namespace art {
                                         ModuleDescription const& md,
                                         ProductInfo const& productInfo)
   {
+
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    if (binary_search(consumables_[md.moduleLabel()][bt].cbegin(),
-                      consumables_[md.moduleLabel()][bt].cend(),
-                      productInfo)) {
+    if (cet::binary_search_all(consumables_[md.moduleLabel()][bt],
+                               productInfo)) {
       // Found it, everything is ok.
       return;
     }

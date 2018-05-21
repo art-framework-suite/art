@@ -30,19 +30,15 @@ namespace arttest {
   };
 
   class Reconstruction : public SharedFilter {
-    // Types -- Configuration.
   public:
-    using Parameters = EDFilter::Table<Config>;
-    // Special Member Functions
-  public:
+    using Parameters = Table<Config>;
     explicit Reconstruction(Parameters const&);
-    // API
-  public:
+
+  private:
     bool beginSubRun(SubRun&) override;
     bool endSubRun(SubRun&) override;
     bool filter(Event&, ScheduleID) override;
-    // Data Members -- Implementation details.
-  private:
+
     double const threshold_;
     ProductToken<vector<double>> const particleEnergiesTkn_;
     std::atomic<unsigned> numerator_;
@@ -50,7 +46,8 @@ namespace arttest {
   };
 
   Reconstruction::Reconstruction(Parameters const& config)
-    : threshold_{config().threshold()}
+    : SharedFilter{config}
+    , threshold_{config().threshold()}
     , particleEnergiesTkn_{consumes<vector<double>>(config().inputTag())}
   {
     // We must initialize these here because the thread sanitizer does not

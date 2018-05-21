@@ -54,11 +54,10 @@ namespace art {
     friend class WorkerT<OutputModule>;
     friend class OutputWorker;
 
-  public: // TYPES
+  public:
     using ModuleType = OutputModule;
     using WorkerType = OutputWorker;
 
-  private: // TYPES
     using PluginCollection_t =
       std::vector<std::unique_ptr<FileCatalogMetadataPlugin>>;
 
@@ -152,8 +151,7 @@ namespace art {
     bool doCloseFile();
     bool doOpenFile(FileBlock const& fb);
 
-  protected: // MEMBER FUNCTIONS -- Implementation API, intended to be
-             // provided by derived classes.
+    // Implementation API, intended to be provided by derived classes.
     std::string workerType() const;
     // Do the end-of-file tasks; this is only called internally, after
     // the appropriate tests have been done.
@@ -193,6 +191,7 @@ namespace art {
     void updateBranchParents(EventPrincipal& ep);
     void fillDependencyGraph();
     bool limitReached() const;
+
     // The following member functions are part of the Template Method
     // pattern, used for implementing doCloseFile() and maybeEndFile().
     virtual void startEndFile();
@@ -213,17 +212,16 @@ namespace art {
     virtual void writeProductDependencies();
     virtual void finishEndFile();
     PluginCollection_t makePlugins_(fhicl::ParameterSet const& top_pset);
-    // FIXME: Make these private data members.
-  protected: // MEMBER DATA -- For derived classes
+
     // TODO: Give OutputModule an interface (protected?) that supplies
     // client code with the needed functionality *without* giving away
     // implementation details ... don't just return a reference to
-    // keptProducts_, because we are looking to have the flexibility to
-    // change the implementation of keptProducts_ without modifying
+    // keptProducts_, because we are looking to have the flexibility
+    // to change the implementation of keptProducts_ without modifying
     // clients. When this change is made, we'll have a one-time-only
-    // task of modifying clients (classes derived from OutputModule) to
-    // use the newly-introduced interface.  TODO: Consider using shared
-    // pointers here?
+    // task of modifying clients (classes derived from OutputModule)
+    // to use the newly-introduced interface.  TODO: Consider using
+    // shared pointers here?
     //
     // keptProducts_ are BranchDescription objects OWNED BY VALUE
     // describing the branches we are to write.
@@ -242,6 +240,7 @@ namespace art {
     std::string streamName_;
     ServiceHandle<CatalogInterface> ci_{};
     cet::BasicPluginFactory pluginFactory_{};
+
     // For diagnostics.
     std::vector<std::string> pluginNames_{};
     PluginCollection_t plugins_;

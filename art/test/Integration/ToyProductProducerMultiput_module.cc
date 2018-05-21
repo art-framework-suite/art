@@ -16,17 +16,11 @@
 
 #include "art/test/TestObjects/ToyProducts.h"
 
-namespace fhicl {
-  class ParameterSet;
-}
-
 namespace {
-
   using namespace fhicl;
   struct Config {
     Atom<unsigned long> branchType{Name("branchType")};
   };
-
 } // namespace
 
 namespace art {
@@ -41,9 +35,9 @@ class art::test::ToyProductProducerMultiput : public EDProducer {
   BranchType const branchType_;
 
 public:
-  using Parameters = EDProducer::Table<Config>;
+  using Parameters = Table<Config>;
   explicit ToyProductProducerMultiput(Parameters const& p)
-    : branchType_{BranchType(p().branchType())}
+    : EDProducer{p}, branchType_{BranchType(p().branchType())}
   {
     run_time_produces<IntProduct>(this, branchType_);
   }

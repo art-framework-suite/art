@@ -27,7 +27,8 @@ namespace art {
 
     EDFilter() = default;
     explicit EDFilter(fhicl::ParameterSet const& pset)
-      : detail::LegacyModule{pset.get<std::string>("module_label")}
+      : detail::Filter{pset}
+      , detail::LegacyModule{pset.get<std::string>("module_label")}
     {}
 
     template <typename Config>
@@ -35,6 +36,7 @@ namespace art {
     {}
 
     using detail::LegacyModule::createEngine;
+    using detail::LegacyModule::scheduleID;
     using detail::LegacyModule::serialTaskQueueChain;
 
     std::string workerType() const;
@@ -49,6 +51,15 @@ namespace art {
   public:
     using ModuleType = SharedFilter;
     using WorkerType = WorkerT<SharedFilter>;
+
+    explicit SharedFilter(fhicl::ParameterSet const& pset)
+      : detail::Filter{pset}
+    {}
+
+    template <typename Config>
+    explicit SharedFilter(Table<Config> const& config)
+      : SharedFilter{config.get_PSet()}
+    {}
 
     std::string workerType() const;
 

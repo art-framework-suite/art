@@ -29,6 +29,12 @@ namespace art {
     Filter::Filter() = default;
     Filter::~Filter() noexcept = default;
 
+    Filter::Filter(fhicl::ParameterSet const&)
+    {
+      // This constructor will eventually be used to query the
+      // errorOnFailureToPut flag.
+    }
+
     void
     Filter::doBeginJob()
     {

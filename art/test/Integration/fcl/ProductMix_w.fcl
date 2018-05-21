@@ -1,11 +1,8 @@
 process_name: "SWRITE"
 
-physics:
-{
-  producers:
-  {
-    mixProducer:
-    {
+physics: {
+  producers: {
+    mixProducer: {
       module_type: MixProducer
       errorOnFailureToPut: false
     }
@@ -15,17 +12,14 @@ physics:
   e1: [ out ]
 }
 
-outputs:
-{
-  out:
-  {
+outputs: {
+  out: {
     module_type: RootOutput
     fileName: "mix.root"
   }
 }
 
-source:
-{
+source: {
   module_type: EmptyEvent
   numberEventsInRun: 500
   numberEventsInSubRun: 100

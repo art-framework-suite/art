@@ -572,8 +572,11 @@ namespace art {
 
       actReg_.sPostModuleConstruction.invoke(md);
 
-      // FIXME: we do this for only one of the module copies in the
-      // case where we have replicated modules.
+      // Since we store consumes information per module label, we only
+      // sort and collect it for one of the replicated-module copies.
+      // The only way this would be a problem is if someone decided to
+      // provided conditional consumes calls based on the ScheduleID
+      // presented to the replicated-module constructor.
       module->sortConsumables(processName_);
       ConsumesInfo::instance()->collectConsumes(module_label,
                                                 module->getConsumables());

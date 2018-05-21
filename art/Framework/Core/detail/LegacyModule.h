@@ -13,22 +13,10 @@ namespace art {
 
     class LegacyModule : public SharedModule, private EngineCreator {
     public:
-      LegacyModule() = default;
-      LegacyModule(std::string const& module_label)
-        : EngineCreator{module_label, ScheduleID::first()}
-      {}
+      explicit LegacyModule();
+      explicit LegacyModule(std::string const& module_label);
 
-      auto
-      scheduleID() const
-      {
-        return scheduleID_.load();
-      }
-
-      void
-      setScheduleID(ScheduleID const sid) noexcept
-      {
-        scheduleID_ = sid;
-      }
+      ScheduleID scheduleID() const noexcept;
 
       using base_engine_t = EngineCreator::base_engine_t;
       using seed_t = EngineCreator::seed_t;
@@ -39,6 +27,8 @@ namespace art {
       class ScheduleIDSentry;
 
     private:
+      void setScheduleID(ScheduleID const sid) noexcept;
+
       // The thread-sanitizer wants this to be atomic, even though
       // it's unlikely to be a problem in any practical scenario.
       std::atomic<ScheduleID> scheduleID_;
@@ -46,13 +36,9 @@ namespace art {
 
     class LegacyModule::ScheduleIDSentry {
     public:
-      ScheduleIDSentry(LegacyModule& mod, ScheduleID const sid) noexcept
-        : mod_{mod}
-      {
-        mod_.setScheduleID(sid);
-      }
-
-      ~ScheduleIDSentry() noexcept { mod_.setScheduleID(ScheduleID{}); }
+      explicit ScheduleIDSentry(LegacyModule& mod,
+                                ScheduleID const sid) noexcept;
+      ~ScheduleIDSentry() noexcept;
 
     private:
       LegacyModule& mod_;

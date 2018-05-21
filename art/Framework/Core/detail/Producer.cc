@@ -22,6 +22,12 @@ namespace art {
     Producer::Producer() = default;
     Producer::~Producer() noexcept = default;
 
+    Producer::Producer(fhicl::ParameterSet const&)
+    {
+      // This constructor will eventually be used to query the
+      // errorOnFailureToPut flag.
+    }
+
     void
     Producer::doRespondToOpenInputFile(FileBlock const& fb)
     {

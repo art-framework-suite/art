@@ -21,7 +21,8 @@ namespace art {
 
     EDProducer() = default;
     explicit EDProducer(fhicl::ParameterSet const& pset)
-      : detail::LegacyModule{pset.get<std::string>("module_label")}
+      : detail::Producer{pset}
+      , detail::LegacyModule{pset.get<std::string>("module_label")}
     {}
 
     template <typename Config>
@@ -30,6 +31,7 @@ namespace art {
     {}
 
     using detail::LegacyModule::createEngine;
+    using detail::LegacyModule::scheduleID;
     using detail::LegacyModule::serialTaskQueueChain;
 
     std::string workerType() const;
@@ -44,6 +46,15 @@ namespace art {
   public:
     using ModuleType = SharedProducer;
     using WorkerType = WorkerT<SharedProducer>;
+
+    explicit SharedProducer(fhicl::ParameterSet const& pset)
+      : detail::Producer{pset}
+    {}
+
+    template <typename Config>
+    explicit SharedProducer(Table<Config> const& config)
+      : SharedProducer{config.get_PSet()}
+    {}
 
     std::string workerType() const;
 

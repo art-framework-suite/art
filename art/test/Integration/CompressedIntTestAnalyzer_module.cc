@@ -3,8 +3,8 @@
 #include "art/test/TestObjects/ToyProducts.h"
 
 namespace arttest {
-  typedef GenericOneSimpleProductAnalyzer<int, CompressedIntProduct>
-    CompressedIntTestAnalyzer;
+  using CompressedIntTestAnalyzer =
+    GenericOneSimpleProductAnalyzer<int, CompressedIntProduct>;
 }
 
 DEFINE_ART_MODULE(arttest::CompressedIntTestAnalyzer)

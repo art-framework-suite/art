@@ -35,16 +35,20 @@ namespace arttest {
 
   class ToyProductFilterAsync : public SharedFilter {
   public:
-    explicit ToyProductFilterAsync(fhicl::ParameterSet const& pset);
+    struct Config {
+      fhicl::Atom<std::string> inputLabel{fhicl::Name{"inputLabel"}};
+    };
+    using Parameters = Table<Config>;
+    explicit ToyProductFilterAsync(Parameters const& p);
 
   private:
     bool filter(Event& e, ScheduleID) override;
 
-    string inputLabel_{};
+    string const inputLabel_{};
   };
 
-  ToyProductFilterAsync::ToyProductFilterAsync(fhicl::ParameterSet const& pset)
-    : inputLabel_{pset.get<std::string>("inputLabel")}
+  ToyProductFilterAsync::ToyProductFilterAsync(Parameters const& pset)
+    : SharedFilter{pset}, inputLabel_{pset().inputLabel()}
   {
     async<InEvent>();
   }

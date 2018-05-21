@@ -50,7 +50,7 @@ matches any (not all) of the patterns, the event is accepted.
 }
 
 // ==============================================
-class art::EventIDFilter final : public art::SharedFilter {
+class art::EventIDFilter : public SharedFilter {
 public:
   struct Config {
     Sequence<string> idsToMatch{Name{"idsToMatch"}, Comment{parameter_comment}};
@@ -59,14 +59,14 @@ public:
   using Parameters = Table<Config>;
   explicit EventIDFilter(Parameters const& p);
 
+private:
   bool filter(Event&, ScheduleID) override;
 
-private:
   EventIDMatcher const matcher_;
 };
 
 art::EventIDFilter::EventIDFilter(Parameters const& p)
-  : matcher_{p().idsToMatch()}
+  : SharedFilter{p}, matcher_{p().idsToMatch()}
 {
   async<InEvent>();
 }

@@ -4,6 +4,7 @@
 
 #include "art/Framework/Principal/Consumer.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductToken.h"
 #include "canvas/Utilities/TypeID.h"

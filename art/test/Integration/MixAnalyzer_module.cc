@@ -31,23 +31,22 @@ class arttest::MixAnalyzer : public art::EDAnalyzer {
 public:
   explicit MixAnalyzer(fhicl::ParameterSet const& p);
 
+private:
   void analyze(art::Event const& e) override;
 
-private:
   using mv_t = cet::map_vector<unsigned int>;
   using mvv_t = mv_t::value_type;
   using mvm_t = mv_t::mapped_type;
 
-  size_t eventCounter_;
+  size_t eventCounter_{};
   size_t nSecondaries_;
   std::string mixFilterLabel_;
 };
 
 arttest::MixAnalyzer::MixAnalyzer(fhicl::ParameterSet const& p)
-  : art::EDAnalyzer(p)
-  , eventCounter_(0)
-  , nSecondaries_(p.get<size_t>("numSecondaries", 1))
-  , mixFilterLabel_(p.get<std::string>("mixFilterLabel", "mixFilter"))
+  : art::EDAnalyzer{p}
+  , nSecondaries_{p.get<size_t>("numSecondaries", 1)}
+  , mixFilterLabel_{p.get<std::string>("mixFilterLabel", "mixFilter")}
 {}
 
 void

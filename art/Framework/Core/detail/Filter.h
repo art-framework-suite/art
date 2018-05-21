@@ -30,6 +30,7 @@ namespace art {
 
       virtual ~Filter() noexcept;
       Filter();
+      explicit Filter(fhicl::ParameterSet const&);
       Filter(Filter const&) = delete;
       Filter(Filter&&) = delete;
       Filter& operator=(Filter const&) = delete;

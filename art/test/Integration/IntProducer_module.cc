@@ -40,7 +40,8 @@ class arttest::IntProducer : public art::SharedProducer {
 public:
   using Parameters = art::SharedProducer::Table<Config>;
   explicit IntProducer(Parameters const& p)
-    : value_{p().ivalue()} // enums don't usually have a conversion from string
+    : art::SharedProducer{p}
+    , value_{p().ivalue()} // enums don't usually have a conversion from string
     , branchType_{art::BranchType(p().branchType())}
   {
     art::test::run_time_produces<IntProduct>(this, branchType_);

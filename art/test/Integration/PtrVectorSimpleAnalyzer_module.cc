@@ -17,25 +17,28 @@ namespace arttest {
   class PtrVectorSimpleAnalyzer;
 }
 
-class arttest::PtrVectorSimpleAnalyzer : public art::EDAnalyzer {
+class arttest::PtrVectorSimpleAnalyzer : public art::SharedAnalyzer {
 public:
-  explicit PtrVectorSimpleAnalyzer(fhicl::ParameterSet const& p);
-
-  void analyze(art::Event const& e) override;
+  struct Config {
+    fhicl::Atom<std::string> input_label{fhicl::Name{"input_label"}};
+  };
+  using Parameters = Table<Config>;
+  explicit PtrVectorSimpleAnalyzer(Parameters const& p);
 
 private:
-  std::string input_label_;
+  void analyze(art::Event const& e, art::ScheduleID) override;
+
+  std::string const input_label_;
 };
 
-arttest::PtrVectorSimpleAnalyzer::PtrVectorSimpleAnalyzer(
-  fhicl::ParameterSet const& p)
-  : art::EDAnalyzer(p), input_label_(p.get<std::string>("input_label"))
+arttest::PtrVectorSimpleAnalyzer::PtrVectorSimpleAnalyzer(Parameters const& p)
+  : art::SharedAnalyzer{p}, input_label_{p().input_label()}
 {}
 
 void
-arttest::PtrVectorSimpleAnalyzer::analyze(art::Event const& e)
+arttest::PtrVectorSimpleAnalyzer::analyze(art::Event const& e, art::ScheduleID)
 {
-  typedef art::PtrVector<arttest::Simple> SimplePtrVector;
+  using SimplePtrVector = art::PtrVector<arttest::Simple>;
 
   auto p = e.getPointerByLabel<SimplePtrVector>(input_label_);
   assert(p);
@@ -43,13 +46,13 @@ arttest::PtrVectorSimpleAnalyzer::analyze(art::Event const& e)
   // assert( p->pop_back()); // This fails to compile, because *p is const.
 
   art::Handle<SimplePtrVector> h;
-  bool status = e.getByLabel(input_label_, h);
+  bool const status = e.getByLabel(input_label_, h);
   assert(status);
 
   int const event_num = e.id().event();
   size_t const sz = h->size();
   size_t i = 0;
-  for (const auto ptr : *h) {
+  for (auto const ptr : *h) {
     assert((unsigned)ptr->key == sz - i + event_num);
     double const expect = 1.5 * i + 100.0;
     assert(ptr->value == expect);

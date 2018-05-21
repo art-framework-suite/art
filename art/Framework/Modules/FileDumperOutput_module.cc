@@ -132,8 +132,7 @@ private:
   bool wantPresentOnly_;
 }; // FileDumperOutput
 
-art::FileDumperOutput::FileDumperOutput(
-  art::FileDumperOutput::Parameters const& ps)
+art::FileDumperOutput::FileDumperOutput(Parameters const& ps)
   : OutputModule{ps().omConfig, ps.get_PSet()}
   , wantProductFullClassName_{ps().wantProductFullClassName()}
   , wantProductFriendlyClassName_{ps().wantProductFriendlyClassName()}

@@ -155,15 +155,14 @@ namespace art {
       std::map<std::string const,
                std::array<std::vector<ProductInfo>, NumBranchTypes>>;
 
-    std::array<std::vector<ProductInfo>, NumBranchTypes> const&
+    consumables_t::mapped_type const&
     consumables(std::string const& module_label) const
     {
       return consumables_.at(module_label);
     }
 
-    void collectConsumes(
-      std::string const& module_label,
-      std::array<std::vector<ProductInfo>, NumBranchTypes> const& consumables);
+    void collectConsumes(std::string const& module_label,
+                         consumables_t::mapped_type const& consumables);
 
     // This is used by get*() in DataViewImpl.
     void validateConsumedProduct(BranchType const,
@@ -181,10 +180,11 @@ namespace art {
 
     std::atomic<bool> requireConsumes_;
 
-    // Maps module label to run, per-branch consumes info.
-    std::map<std::string const,
-             std::array<std::vector<ProductInfo>, NumBranchTypes>>
-      consumables_;
+    // Maps module label to run, per-branch consumes info.  Note that
+    // there is only one entry per module label.  This is intentional
+    // so that we do not need to store consumes information for each
+    // replicated module object.
+    consumables_t consumables_;
 
     // Maps module label to run, per-branch missing product consumes info.
     std::map<std::string const,

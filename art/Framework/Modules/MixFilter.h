@@ -624,13 +624,11 @@ namespace art {
 
 template <class T>
 class art::MixFilter : public EDFilter {
-public: // TYPES
+public:
   using MixDetail = T;
-
-public: // MEMBER FUNCTIONS -- Special Member Functions
   explicit MixFilter(fhicl::ParameterSet const& p);
 
-public: // MEMBER FUNCTIONS -- API supported by EDFilter
+private:
   void beginJob() override;
   void respondToOpenInputFile(FileBlock const& fb) override;
   void respondToCloseInputFile(FileBlock const& fb) override;
@@ -642,10 +640,8 @@ public: // MEMBER FUNCTIONS -- API supported by EDFilter
   bool beginRun(Run& r) override;
   bool endRun(Run& r) override;
 
-private: // MEMBER FUNCTIONS -- Implementation details
   fhicl::ParameterSet const& initEngine_(fhicl::ParameterSet const& p);
 
-private: // MEMBER DATA
   MixHelper helper_;
   MixDetail detail_;
 };

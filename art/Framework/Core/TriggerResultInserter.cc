@@ -22,9 +22,7 @@ namespace art {
       msg << "0x" << std::hex << ((unsigned long)this) << std::dec;
       TDEBUG_FUNC_SI_MSG(5, "TriggerResultInserter ctor", sid, msg.str());
     }
-    if (sid == ScheduleID::first()) {
-      produces<TriggerResults>();
-    }
+    produces<TriggerResults>();
   }
 
   void

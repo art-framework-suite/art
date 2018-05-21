@@ -14,8 +14,9 @@ namespace arttest {
   public:
     struct Config {
     };
-    using Parameters = art::EDFilter::Table<Config>;
-    explicit TestTimeTrackerFilter(Parameters const&) {}
+    using Parameters = Table<Config>;
+    explicit TestTimeTrackerFilter(Parameters const& p) : art::SharedFilter{p}
+    {}
 
   private:
     bool

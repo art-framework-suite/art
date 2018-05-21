@@ -17,19 +17,19 @@ using art::Prescaler;
 
 // ======================================================================
 
-class art::Prescaler : public art::SharedFilter {
+class art::Prescaler : public SharedFilter {
 public:
   struct Config {
     Atom<size_t> prescaleFactor{Name("prescaleFactor")};
     Atom<size_t> prescaleOffset{Name("prescaleOffset")};
   };
 
-  using Parameters = EDFilter::Table<Config>;
+  using Parameters = Table<Config>;
   explicit Prescaler(Parameters const&);
 
+private:
   bool filter(Event&, ScheduleID) override;
 
-private:
   size_t count_{};
   size_t const n_; // accept one in n
   size_t const
@@ -41,7 +41,9 @@ private:
 // ======================================================================
 
 Prescaler::Prescaler(Parameters const& config)
-  : n_{config().prescaleFactor()}, offset_{config().prescaleOffset()}
+  : SharedFilter{config}
+  , n_{config().prescaleFactor()}
+  , offset_{config().prescaleOffset()}
 {
   // See note below.
   serialize();

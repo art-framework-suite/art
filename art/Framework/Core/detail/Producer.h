@@ -26,6 +26,7 @@ namespace art {
 
       virtual ~Producer() noexcept;
       Producer();
+      explicit Producer(fhicl::ParameterSet const&);
       Producer(Producer const&) = delete;
       Producer(Producer&&) = delete;
       Producer& operator=(Producer const&) = delete;

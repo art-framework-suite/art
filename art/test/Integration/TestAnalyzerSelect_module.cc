@@ -18,15 +18,13 @@ namespace {
 namespace arttest {
 
   class TestAnalyzerSelect : public EDAnalyzer {
-
   public:
     using Parameters = Table<Config>;
-
-  public:
-    explicit TestAnalyzerSelect(Table<Config> const& ps)
-      : EDAnalyzer(ps), num_pass_(ps().shouldPass()), total_(0)
+    explicit TestAnalyzerSelect(Parameters const& ps)
+      : EDAnalyzer{ps}, num_pass_{ps().shouldPass()}
     {}
 
+  private:
     void
     analyze(const Event&) override
     {
@@ -35,9 +33,8 @@ namespace arttest {
 
     void endJob() override;
 
-  private:
-    int num_pass_;
-    int total_;
+    int const num_pass_;
+    int total_{};
   };
 
   void

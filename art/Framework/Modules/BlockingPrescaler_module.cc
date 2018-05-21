@@ -33,12 +33,12 @@ public:
     Atom<size_t> offset{Name("offset"), 0};
   };
 
-  using Parameters = EDFilter::Table<Config>;
+  using Parameters = Table<Config>;
   explicit BlockingPrescaler(Parameters const&);
 
+private:
   bool filter(Event&, ScheduleID) override;
 
-private:
   size_t count_{};
   size_t const m_; // accept m in n (sequentially).
   size_t const n_;
@@ -49,7 +49,8 @@ private:
 // ======================================================================
 
 art::BlockingPrescaler::BlockingPrescaler(Parameters const& config)
-  : m_{config().blockSize()}
+  : SharedFilter{config}
+  , m_{config().blockSize()}
   , n_{config().stepSize()}
   , offset_{config().offset()}
 {
