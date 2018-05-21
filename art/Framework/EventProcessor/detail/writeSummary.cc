@@ -33,6 +33,12 @@ namespace {
     std::size_t except{};
   };
 
+  struct EndPathCounts {
+    std::size_t run{};
+    std::size_t success{};
+    std::size_t except{};
+  };
+
   struct WorkerInPathCounts {
     std::string moduleLabel{};
     std::size_t visited{};
@@ -69,19 +75,14 @@ namespace {
   }
 
   void
-  workersInEndPathTriggerReport(int const firstBit,
-                                int const bitPosition,
-                                WorkersInPath const& workersInPath)
+  workersInEndPathTriggerReport(WorkersInPathCounts const& workersInPathCounts)
   {
-    for (auto const& workerInPath : workersInPath) {
-      auto worker = workerInPath.getWorker();
+    for (auto const& wip_counts : workersInPathCounts) {
       LogPrint("ArtSummary")
-        << "TrigReport " << std::right << setw(5) << firstBit << std::right
-        << setw(5) << bitPosition << " " << std::right << setw(10)
-        << worker->timesRun() << " " // proxy for visited
-        << std::right << setw(10) << worker->timesPassed() << " " << std::right
-        << setw(10) << worker->timesExcept() << " "
-        << worker->description().moduleLabel();
+        << "TrigReport " << std::right << setw(5) << 0 << std::right << setw(5)
+        << 0 << " " << std::right << setw(10) << wip_counts.visited << " "
+        << std::right << setw(10) << wip_counts.passed << " " << std::right
+        << setw(10) << wip_counts.except << " " << wip_counts.moduleLabel;
     }
   }
 
@@ -92,10 +93,10 @@ art::detail::writeSummary(PathManager& pm,
                           bool const wantSummary,
                           cet::cpu_timer const& jobTimer)
 {
-  auto const& epi = pm.endPathInfo(ScheduleID::first());
+  auto const& epis = pm.endPathInfo();
   auto const& tpis = pm.triggerPathsInfo();
   LogPrint("ArtSummary") << "";
-  triggerReport(epi, tpis, wantSummary);
+  triggerReport(epis, tpis, wantSummary);
   LogPrint("ArtSummary") << "";
   timeReport(jobTimer);
   LogPrint("ArtSummary") << "";
@@ -103,10 +104,14 @@ art::detail::writeSummary(PathManager& pm,
 }
 
 void
-art::detail::triggerReport(PathsInfo const& epi,
+art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
                            PerScheduleContainer<PathsInfo> const& tpis,
                            bool const wantSummary)
 {
+  // Checking the first element is sufficient since the path
+  // structures are identical across schedules/end-path executors.
+  auto observers_enabled = !epis[ScheduleID::first()].paths().empty();
+
   SummaryCounts total_counts{};
   for (auto const& tpi : tpis) {
     total_counts.total += tpi.totalEvents();
@@ -121,6 +126,7 @@ art::detail::triggerReport(PathsInfo const& epi,
                          << " Events total = " << total_counts.total
                          << " passed = " << total_counts.passed
                          << " failed = " << total_counts.failed;
+
   if (wantSummary) {
     LogPrint("ArtSummary") << "";
     LogPrint("ArtSummary") << "TrigReport "
@@ -154,6 +160,7 @@ art::detail::triggerReport(PathsInfo const& epi,
         << setw(10) << counts.failed << " " << std::right << setw(10)
         << counts.except << " " << path_name;
     }
+
     LogPrint("ArtSummary") << "";
     LogPrint("ArtSummary") << "TrigReport "
                            << "-------End-Path   Summary ------------";
@@ -164,14 +171,23 @@ art::detail::triggerReport(PathsInfo const& epi,
                            << " " << std::right << setw(10) << "Error"
                            << " "
                            << "Name";
-    for (auto const& path : epi.paths()) {
+
+    if (observers_enabled) {
+      EndPathCounts epCounts{};
+      for (auto const& epi : epis) {
+        for (auto const& path : epi.paths()) {
+          epCounts.run += path->timesRun();
+          epCounts.success += path->timesPassed();
+          epCounts.except += path->timesExcept();
+        }
+      }
       LogPrint("ArtSummary")
         << "TrigReport " << std::right << setw(5) << 0 << std::right << setw(5)
-        << path->bitPosition() << " " << std::right << setw(10)
-        << path->timesRun() << " " << std::right << setw(10)
-        << path->timesPassed() << " " << std::right << setw(10)
-        << path->timesExcept() << " " << path->name();
+        << 0 << " " << std::right << setw(10) << epCounts.run << " "
+        << std::right << setw(10) << epCounts.success << " " << std::right
+        << setw(10) << epCounts.except << " " << PathContext::end_path();
     }
+
     // std::tuple<...> guarantees weak-ordering, so it is a suitable
     // key type for an std::map.
     using path_data_t = std::tuple<std::string, int>; // path-name, bit position
@@ -218,12 +234,34 @@ art::detail::triggerReport(PathsInfo const& epi,
       workersInPathTriggerReport(1, bit_position, worker_in_path_counts);
     }
   }
+
   // Printed even if summary not requested, per issue #1864.
-  for (auto const& path : epi.paths()) {
+  WorkersInPathCounts endPathWIPCounts;
+  for (auto const& epi : epis) {
+    for (auto const& path : epi.paths()) {
+      if (endPathWIPCounts.empty() && !path->workersInPath().empty()) {
+        endPathWIPCounts.resize(path->workersInPath().size());
+      }
+      std::size_t i{};
+      for (auto const& workerInPath : path->workersInPath()) {
+        auto const* worker = workerInPath.getWorker();
+        auto& counts = endPathWIPCounts[i];
+        if (counts.moduleLabel.empty()) {
+          counts.moduleLabel = worker->description().moduleLabel();
+        }
+        counts.visited += worker->timesRun(); // proxy for 'visited'
+        counts.passed += worker->timesPassed();
+        counts.except += worker->timesExcept();
+        ++i;
+      }
+    }
+  }
+
+  if (observers_enabled) {
     LogPrint("ArtSummary") << "";
     LogPrint("ArtSummary") << "TrigReport "
-                           << "------ Modules in End-Path: " << path->name()
-                           << " ------------";
+                           << "------ Modules in End-Path: "
+                           << PathContext::end_path() << " ------------";
     LogPrint("ArtSummary") << "TrigReport " << std::right << setw(10)
                            << "Trig Bit#"
                            << " " << std::right << setw(10) << "Run"
@@ -231,9 +269,9 @@ art::detail::triggerReport(PathsInfo const& epi,
                            << " " << std::right << setw(10) << "Error"
                            << " "
                            << "Name";
-    workersInEndPathTriggerReport(
-      0, path->bitPosition(), path->workersInPath());
+    workersInEndPathTriggerReport(endPathWIPCounts);
   }
+
   if (wantSummary) {
     // This table can arguably be removed since all summary
     // information is better described above.
@@ -249,18 +287,22 @@ art::detail::triggerReport(PathsInfo const& epi,
                            << " "
                            << "Name";
     std::map<std::string, ModuleCounts> counts_per_module;
-    for (auto const& tpi : tpis) {
-      for (auto const& pr : tpi.workers()) {
-        auto const& module_label = pr.first;
-        auto const& module_counts = *pr.second;
-        auto& counts = counts_per_module[module_label];
-        counts.visited += module_counts.timesVisited();
-        counts.run += module_counts.timesRun();
-        counts.passed += module_counts.timesPassed();
-        counts.failed += module_counts.timesFailed();
-        counts.except += module_counts.timesExcept();
+    auto update_counts = [&counts_per_module](auto const& pathInfos) {
+      for (auto const& pi : pathInfos) {
+        for (auto const& pr : pi.workers()) {
+          auto const& module_label = pr.first;
+          auto const& module_counts = *pr.second;
+          auto& counts = counts_per_module[module_label];
+          counts.visited += module_counts.timesVisited();
+          counts.run += module_counts.timesRun();
+          counts.passed += module_counts.timesPassed();
+          counts.failed += module_counts.timesFailed();
+          counts.except += module_counts.timesExcept();
+        }
       }
-    }
+    };
+    update_counts(tpis);
+    update_counts(epis);
     for (auto const& pr : counts_per_module) {
       auto const& module_label = pr.first;
       auto const& module_counts = pr.second;
@@ -270,18 +312,6 @@ art::detail::triggerReport(PathsInfo const& epi,
         << std::right << setw(10) << module_counts.passed << " " << std::right
         << setw(10) << module_counts.failed << " " << std::right << setw(10)
         << module_counts.except << " " << module_label;
-    }
-    for (auto const& val : epi.workers()) {
-      // Instead of timesVisited(), which is confusing for the user
-      // for end-path modules, we just report timesRun() as a proxy
-      // for visited.
-      LogPrint("ArtSummary")
-        << "TrigReport " << std::right << setw(10) << val.second->timesVisited()
-        << " " << std::right << setw(10) << val.second->timesRun() << " "
-        << std::right << setw(10) << val.second->timesPassed() << " "
-        << std::right << setw(10) << val.second->timesFailed() << " "
-        << std::right << setw(10) << val.second->timesExcept() << " "
-        << val.first;
     }
   }
 }

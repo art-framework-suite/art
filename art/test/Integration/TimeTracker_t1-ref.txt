@@ -145,10 +145,10 @@ TrigReport     0    0        100        100          0 mod2
 TrigReport ---------- Module Summary ------------
 TrigReport    Visited        Run     Passed     Failed      Error Name
 TrigReport        100        100         30         70          0 filt
-TrigReport        200        100        100          0          0 prod1
-TrigReport        100        100        100          0          0 prod2
 TrigReport        100         30         30          0          0 mod1
 TrigReport        100        100        100          0          0 mod2
+TrigReport        200        100        100          0          0 prod1
+TrigReport        100        100        100          0          0 prod2
 
 TimeReport ---------- Time  Summary ---[sec]----
 TimeReport CPU = <duration> Real = <duration>

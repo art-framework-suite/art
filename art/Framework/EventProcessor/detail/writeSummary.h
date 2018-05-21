@@ -20,7 +20,7 @@ namespace art {
     void writeSummary(PathManager& pm,
                       bool wantSummary,
                       cet::cpu_timer const& timer);
-    void triggerReport(PathsInfo const& endPathsInfo,
+    void triggerReport(PerScheduleContainer<PathsInfo> const& endPathInfo,
                        PerScheduleContainer<PathsInfo> const& triggerPathsInfo,
                        bool wantSummary);
     void timeReport(cet::cpu_timer const& timer);
