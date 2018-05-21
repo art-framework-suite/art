@@ -40,12 +40,11 @@ namespace art {
 
     // Special Member Functions
     ~WorkerInPath() noexcept;
-    explicit WorkerInPath(Worker*) noexcept;
-    WorkerInPath(Worker*, FilterAction) noexcept;
+    WorkerInPath(Worker*, FilterAction, ModuleContext const&);
     WorkerInPath(WorkerInPath const&) = delete;
-    WorkerInPath(WorkerInPath&&) noexcept;
+    WorkerInPath(WorkerInPath&&);
     WorkerInPath& operator=(WorkerInPath const&) = delete;
-    WorkerInPath& operator=(WorkerInPath&&) noexcept;
+    WorkerInPath& operator=(WorkerInPath&&);
 
     // API for user
     Worker* getWorker() const;
@@ -54,11 +53,10 @@ namespace art {
     // Used only by Path
     bool returnCode() const;
     std::string const& label() const;
-    bool runWorker(Transition, Principal&, PathContext const&);
-    void runWorker_event_for_endpath(EventPrincipal&, PathContext const&);
+    bool runWorker(Transition, Principal&);
+    void runWorker_event_for_endpath(EventPrincipal&);
     void runWorker_event(hep::concurrency::WaitingTask* workerDoneTask,
-                         EventPrincipal&,
-                         PathContext const&);
+                         EventPrincipal&);
     // Used only by Path
     void clearCounters();
 
@@ -74,7 +72,7 @@ namespace art {
   private:
     std::atomic<Worker*> worker_;
     std::atomic<FilterAction> filterAction_;
-    //    ModuleContext mc_;
+    ModuleContext moduleContext_;
 
     // Per-schedule
     std::atomic<bool> returnCode_;

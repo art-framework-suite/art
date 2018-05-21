@@ -672,6 +672,12 @@ namespace art {
           worker = iter->second;
         }
       }
+      ModuleDescription const md{
+        modPS.id(),
+        module_type,
+        module_label,
+        module_threading_type,
+        ProcessConfiguration{processName_, procPS_.id(), getReleaseVersion()}};
       if (worker == nullptr) {
         auto get_module =
           [&modules](std::string const& module_label,
@@ -685,13 +691,6 @@ namespace art {
             }
           };
 
-        ModuleDescription const md{modPS.id(),
-                                   module_type,
-                                   module_label,
-                                   module_threading_type,
-                                   ProcessConfiguration{processName_,
-                                                        procPS_.id(),
-                                                        getReleaseVersion()}};
         WorkerParams const wp{procPS_,
                               modPS,
                               outputCallbacks_,
@@ -727,7 +726,7 @@ namespace art {
                   << " label: " << module_label << "\n";
       }
       workers.emplace(module_label, worker);
-      wips.emplace_back(worker, filterAction);
+      wips.emplace_back(worker, filterAction, ModuleContext{pc, md});
     }
     return wips;
   }

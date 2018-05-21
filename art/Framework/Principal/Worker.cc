@@ -313,7 +313,7 @@ namespace art {
   bool
   Worker::doWork(Transition const trans,
                  Principal& principal,
-                 PathContext const& pc)
+                 ModuleContext const& mc)
   {
     switch (state_.load()) {
       case Ready:
@@ -345,7 +345,6 @@ namespace art {
           << "Product dependencies have invoked a module execution cycle.\n";
       }
       state_ = Working;
-      ModuleContext const mc{pc, *md_.load()};
       if (trans == Transition::BeginRun) {
         actReg_.load()->sPreModuleBeginRun.invoke(mc);
         rc = implDoBegin(dynamic_cast<RunPrincipal&>(principal), mc);
@@ -437,14 +436,13 @@ namespace art {
   // This is used to do trigger results insertion, and to run workers
   // on the end path.
   void
-  Worker::doWork_event(EventPrincipal& p, PathContext const& pc)
+  Worker::doWork_event(EventPrincipal& p, ModuleContext const& mc)
   {
     ++counts_visited_;
     returnCode_ = false;
     try {
       // Transition from Ready state to Working state.
       state_ = Working;
-      ModuleContext const mc{pc, description()};
       actReg_.load()->sPreModule.invoke(mc);
       // Note: Only filters ever return false, and when they do it means they
       // have rejected.
@@ -460,7 +458,7 @@ namespace art {
       auto action = actions_.load()->find(e.root_cause());
       // If we are processing an endPath, treat SkipEvent or FailPath as
       // FailModule, so any subsequent OutputModules are still run.
-      if (pc.isEndPath()) {
+      if (mc.onEndPath()) {
         if ((action == actions::SkipEvent) || (action == actions::FailPath)) {
           action = actions::FailModule;
         }
@@ -557,37 +555,31 @@ namespace art {
   namespace {
     class RunWorkerFunctor {
     public:
-      RunWorkerFunctor(Worker* w,
-                       EventPrincipal& p,
-                       ScheduleID const sid,
-                       PathContext const& pc)
-        : w_{w}, p_{p}, sid_{sid}, pc_{pc}
+      RunWorkerFunctor(Worker* w, EventPrincipal& p, ModuleContext const& mc)
+        : w_{w}, p_{p}, mc_{mc}
       {}
       void
       operator()() const
       {
-        w_->runWorker(p_, sid_, pc_);
+        w_->runWorker(p_, mc_);
       }
 
     private:
       Worker* w_;
       EventPrincipal& p_;
-      ScheduleID const sid_;
-      PathContext const pc_; // Must own because it is transient
+      ModuleContext const& mc_;
     };
   }
 
   void
-  Worker::runWorker(EventPrincipal& p,
-                    ScheduleID const sid,
-                    PathContext const& pc)
+  Worker::runWorker(EventPrincipal& p, ModuleContext const& mc)
   {
+    auto const sid = mc.scheduleID();
     TDEBUG_BEGIN_TASK_SI(4, "runWorker", sid);
     returnCode_ = false;
     try {
       // Transition from Ready state to Working state.
       state_ = Working;
-      ModuleContext const mc{pc, description()};
       actReg_.load()->sPreModule.invoke(mc);
       // Note: Only filters ever return false, and when they do it
       // means they have rejected.
@@ -602,7 +594,7 @@ namespace art {
       auto action = actions_.load()->find(e.root_cause());
       // If we are processing an endPath, treat SkipEvent or FailPath
       // as FailModule, so any subsequent OutputModules are still run.
-      if (pc.isEndPath()) {
+      if (mc.onEndPath()) {
         if ((action == actions::SkipEvent) || (action == actions::FailPath)) {
           action = actions::FailModule;
         }
@@ -713,9 +705,9 @@ namespace art {
   void
   Worker::doWork_event(WaitingTask* workerInPathDoneTask,
                        EventPrincipal& p,
-                       PathContext const& pc)
+                       ModuleContext const& mc)
   {
-    auto const sid = pc.scheduleID();
+    auto const sid = mc.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, "Worker::doWork_event", sid);
     // Note: We actually can have more than one entry in this
     // list because a worker may be one more than one path,
@@ -732,7 +724,7 @@ namespace art {
     ++counts_visited_;
     bool expected = false;
     if (workStarted_.compare_exchange_strong(expected, true)) {
-      RunWorkerFunctor runWorkerFunctor{this, p, sid, pc};
+      RunWorkerFunctor runWorkerFunctor{this, p, mc};
       auto chain = serialTaskQueueChain();
       if (chain) {
         // Must be a serialized shared module (including legacy).

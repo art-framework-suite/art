@@ -37,10 +37,15 @@ namespace art {
     {
       return md_.moduleName();
     }
+    bool
+    onEndPath() const
+    {
+      return pathName() == PathContext::end_path();
+    }
 
   private:
-    PathContext const& pathContext_;
-    ModuleDescription const& md_;
+    PathContext pathContext_;
+    ModuleDescription md_;
   };
 }
 

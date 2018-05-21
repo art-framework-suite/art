@@ -30,9 +30,10 @@ namespace art {
     waitingTasks_ = nullptr;
   }
 
-  WorkerInPath::WorkerInPath(Worker* w) noexcept : WorkerInPath{w, Normal} {}
-
-  WorkerInPath::WorkerInPath(Worker* w, FilterAction const fa) noexcept
+  WorkerInPath::WorkerInPath(Worker* w,
+                             FilterAction const fa,
+                             ModuleContext const& mc)
+    : moduleContext_{mc}
   {
     worker_ = w;
     filterAction_ = fa;
@@ -44,7 +45,8 @@ namespace art {
     counts_thrown_ = 0;
   }
 
-  WorkerInPath::WorkerInPath(WorkerInPath&& rhs) noexcept
+  WorkerInPath::WorkerInPath(WorkerInPath&& rhs)
+    : moduleContext_{std::move(rhs.moduleContext_)}
   {
     worker_ = rhs.worker_.load();
     rhs.worker_ = nullptr;
@@ -59,7 +61,7 @@ namespace art {
   }
 
   WorkerInPath&
-  WorkerInPath::operator=(WorkerInPath&& rhs) noexcept
+  WorkerInPath::operator=(WorkerInPath&& rhs)
   {
     worker_ = rhs.worker_.load();
     rhs.worker_ = nullptr;
@@ -71,6 +73,7 @@ namespace art {
     counts_passed_.store(rhs.counts_passed_.load());
     counts_failed_.store(rhs.counts_failed_.load());
     counts_thrown_.store(rhs.counts_thrown_.load());
+    moduleContext_ = rhs.moduleContext_;
     return *this;
   }
 
@@ -138,25 +141,22 @@ namespace art {
   }
 
   bool
-  WorkerInPath::runWorker(Transition const trans,
-                          Principal& principal,
-                          PathContext const& pc)
+  WorkerInPath::runWorker(Transition const trans, Principal& principal)
   {
     // Note: We ignore the return code because we do not process events here.
-    worker_.load()->doWork(trans, principal, pc);
+    worker_.load()->doWork(trans, principal, moduleContext_);
     return true;
   }
 
   void
-  WorkerInPath::runWorker_event_for_endpath(EventPrincipal& ep,
-                                            PathContext const& pc)
+  WorkerInPath::runWorker_event_for_endpath(EventPrincipal& ep)
   {
-    auto const scheduleID = pc.scheduleID();
+    auto const scheduleID = moduleContext_.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(
       4, "WorkerInPath::runWorker_event_for_endpath", scheduleID);
     ++counts_visited_;
     try {
-      worker_.load()->doWork_event(ep, pc);
+      worker_.load()->doWork_event(ep, moduleContext_);
     }
     catch (...) {
       ++counts_thrown_;
@@ -251,11 +251,9 @@ namespace art {
   }
 
   void
-  WorkerInPath::runWorker_event(WaitingTask* workerDoneTask,
-                                EventPrincipal& ep,
-                                PathContext const& pc)
+  WorkerInPath::runWorker_event(WaitingTask* workerDoneTask, EventPrincipal& ep)
   {
-    auto const scheduleID = pc.scheduleID();
+    auto const scheduleID = moduleContext_.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, "WorkerInPath::runWorker_event", scheduleID);
     // Reset the waiting task list so that it stops running tasks and switches
     // to holding them. Note: There will only ever be one entry in this list!
@@ -272,7 +270,7 @@ namespace art {
     auto workerInPathDoneTask = make_waiting_task(
       tbb::task::allocate_root(), WorkerInPathDoneFunctor{this, scheduleID});
     try {
-      worker_.load()->doWork_event(workerInPathDoneTask, ep, pc);
+      worker_.load()->doWork_event(workerInPathDoneTask, ep, moduleContext_);
     }
     catch (...) {
       ++counts_thrown_;

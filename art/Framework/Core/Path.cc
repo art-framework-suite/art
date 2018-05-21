@@ -162,7 +162,7 @@ namespace art {
          (I != E) && should_continue;
          ++I, ++idx) {
       try {
-        should_continue = I->runWorker(trans, principal, pc_);
+        should_continue = I->runWorker(trans, principal);
       }
       catch (cet::exception& e) {
         state_ = hlt::Exception;
@@ -211,7 +211,7 @@ namespace art {
     for (; should_continue && (idx < max_idx); ++idx) {
       auto& workerInPath = (*workers_.load())[idx];
       try {
-        workerInPath.runWorker_event_for_endpath(ep, pc_);
+        workerInPath.runWorker_event_for_endpath(ep);
       }
       catch (cet::exception& e) {
         // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
@@ -513,7 +513,7 @@ namespace art {
     auto workerDoneTask = make_waiting_task(
       tbb::task::allocate_root(), WorkerDoneFunctor{this, idx, max_idx, ep});
     auto& workerInPath = (*workers_.load())[idx];
-    workerInPath.runWorker_event(workerDoneTask, ep, pc_);
+    workerInPath.runWorker_event(workerDoneTask, ep);
     {
       ostringstream msg;
       msg << "idx: " << idx << " max_idx: " << max_idx;

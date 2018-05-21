@@ -27,9 +27,9 @@
 #include "art/Framework/Principal/ExecutionCounts.h"
 #include "art/Framework/Principal/MaybeIncrementCounts.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleType.h"
-#include "art/Persistency/Provenance/PathContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Utilities/Exception.h"
@@ -85,15 +85,15 @@ namespace art {
     void respondToCloseInputFile(FileBlock const& fb);
     void respondToOpenOutputFiles(FileBlock const& fb);
     void respondToCloseOutputFiles(FileBlock const& fb);
-    bool doWork(Transition, Principal&, PathContext const&);
+    bool doWork(Transition, Principal&, ModuleContext const&);
 
     void doWork_event(hep::concurrency::WaitingTask* workerInPathDoneTask,
                       EventPrincipal&,
-                      PathContext const&);
+                      ModuleContext const&);
 
     // This is used to do trigger results insertion,
     // and to run workers on the end path.
-    void doWork_event(EventPrincipal&, PathContext const&);
+    void doWork_event(EventPrincipal&, ModuleContext const&);
 
     ModuleDescription const& description() const;
     ModuleDescription const* descPtr() const;
@@ -125,7 +125,7 @@ namespace art {
     std::size_t timesExcept() const;
 
   public: // Tasking Structure
-    void runWorker(EventPrincipal&, ScheduleID, PathContext const&);
+    void runWorker(EventPrincipal&, ModuleContext const&);
 
   protected: // MEMBER FUNCTIONS -- API implementation classes must provide
     virtual std::string workerType() const = 0;

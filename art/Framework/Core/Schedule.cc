@@ -422,7 +422,8 @@ namespace art {
       if (results_inserter_.load() != nullptr) {
         // FIXME: not sure what the trigger bit should be
         PathContext const pc{sc_, "[art]", -1};
-        results_inserter_.load()->doWork_event(principal, pc);
+        ModuleContext const mc{pc, results_inserter_.load()->description()};
+        results_inserter_.load()->doWork_event(principal, mc);
       }
     }
     catch (cet::exception& e) {

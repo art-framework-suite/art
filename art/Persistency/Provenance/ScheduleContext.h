@@ -14,7 +14,7 @@ namespace art {
     }
 
   private:
-    ScheduleID const sid_;
+    ScheduleID sid_;
   };
 }
 

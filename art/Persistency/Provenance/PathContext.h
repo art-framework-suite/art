@@ -43,10 +43,10 @@ namespace art {
     }
 
   private:
-    ScheduleContext const scheduleContext_;
-    std::string const pathName_;
-    bool const isEndPath_;
-    int const bitPosition_;
+    ScheduleContext scheduleContext_;
+    std::string pathName_;
+    bool isEndPath_;
+    int bitPosition_;
   };
 }
 
