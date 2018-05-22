@@ -27,40 +27,4 @@ namespace art {
     return filter(e);
   }
 
-  string
-  SharedFilter::workerType() const
-  {
-    return "WorkerT<SharedFilter>";
-  }
-
-  void
-  SharedFilter::setupQueues()
-  {
-    createQueues();
-  }
-
-  bool
-  SharedFilter::filterWithScheduleID(Event& e, ScheduleID const sid)
-  {
-    return filter(e, sid);
-  }
-
-  string
-  ReplicatedFilter::workerType() const
-  {
-    return "WorkerT<ReplicatedFilter>";
-  }
-
-  void
-  ReplicatedFilter::setupQueues()
-  {
-    // For art 3.0, replicated modules will not have queues.
-  }
-
-  bool
-  ReplicatedFilter::filterWithScheduleID(Event& e, ScheduleID)
-  {
-    return filter(e);
-  }
-
 } // namespace art

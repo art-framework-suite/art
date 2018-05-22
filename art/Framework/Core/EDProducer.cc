@@ -13,18 +13,6 @@ namespace art {
     return "WorkerT<EDProducer>";
   }
 
-  string
-  SharedProducer::workerType() const
-  {
-    return "WorkerT<SharedProducer>";
-  }
-
-  string
-  ReplicatedProducer::workerType() const
-  {
-    return "WorkerT<ReplicatedProducer>";
-  }
-
   void
   EDProducer::setupQueues()
   {
@@ -33,33 +21,9 @@ namespace art {
   }
 
   void
-  SharedProducer::setupQueues()
-  {
-    createQueues();
-  }
-
-  void
-  ReplicatedProducer::setupQueues()
-  {
-    // For art 3.0, replicated modules will not have queues.
-  }
-
-  void
   EDProducer::produceWithScheduleID(Event& e, ScheduleID const sid)
   {
     ScheduleIDSentry sentry{*this, sid};
-    produce(e);
-  }
-
-  void
-  SharedProducer::produceWithScheduleID(Event& e, ScheduleID const sid)
-  {
-    produce(e, sid);
-  }
-
-  void
-  ReplicatedProducer::produceWithScheduleID(Event& e, ScheduleID)
-  {
     produce(e);
   }
 

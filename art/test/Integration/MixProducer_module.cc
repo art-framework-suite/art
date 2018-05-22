@@ -7,8 +7,8 @@
 // from art v0_06_02.
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/SharedProducer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/test/TestObjects/ProductWithPtrs.h"
 #include "art/test/TestObjects/ToyProducts.h"

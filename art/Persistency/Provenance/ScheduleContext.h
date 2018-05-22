@@ -18,4 +18,8 @@ namespace art {
   };
 }
 
-#endif
+#endif /* art_Persistency_Provenance_ScheduleContext_h */
+
+// Local Variables:
+// mode: c++
+// End:

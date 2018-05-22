@@ -2,7 +2,7 @@
 #define art_Framework_Core_PathManager_h
 // vim: set sw=2 expandtab :
 
-//
+// ======================================================================
 // PathManager.
 //
 // Class to handle the processing of the configuration of modules in
@@ -12,10 +12,10 @@
 // Intended to be constructed early, prior to services, since
 // TriggerNamesService will need some of the information herein at
 // construction time.
-//
+// ======================================================================
 
-#include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/PathsInfo.h"
+#include "art/Framework/Core/ReplicatedProducer.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"

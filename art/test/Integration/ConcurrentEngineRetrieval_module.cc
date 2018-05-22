@@ -14,8 +14,8 @@
 
 #include "cetlib/quiet_unit_test.hpp"
 
-#include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/ReplicatedAnalyzer.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Utilities/ScheduleID.h"

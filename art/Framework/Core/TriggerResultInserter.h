@@ -9,7 +9,7 @@
 // TriggerResults instance and insert it into the event.
 // ======================================================================
 
-#include "art/Framework/Core/EDProducer.h"
+#include "art/Framework/Core/ReplicatedProducer.h"
 #include "art/Framework/Principal/fwd.h"
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"

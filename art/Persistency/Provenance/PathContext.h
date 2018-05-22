@@ -50,4 +50,8 @@ namespace art {
   };
 }
 
-#endif
+#endif /* art_Persistency_Provenance_PathContext_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -1,11 +1,10 @@
 // vim: set sw=2 expandtab :
 //
-// Store state of the RandomNumberGenerator
-// service into the event.
+// Store state of the RandomNumberGenerator service into the event.
 //
 
-#include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/SharedProducer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -25,7 +24,7 @@ namespace art {
       Atom<bool> debug{Name{"debug"}, false};
     };
 
-    using Parameters = EDProducer::Table<Config>;
+    using Parameters = Table<Config>;
     explicit RandomNumberSaver(Parameters const&);
 
   private:

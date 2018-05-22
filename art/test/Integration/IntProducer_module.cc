@@ -1,11 +1,9 @@
 //--------------------------------------------------------------------
-//
 // Produces an IntProduct instance.
-//
 //--------------------------------------------------------------------
 
-#include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/SharedProducer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
@@ -38,7 +36,7 @@ using arttest::IntProducer;
 
 class arttest::IntProducer : public art::SharedProducer {
 public:
-  using Parameters = art::SharedProducer::Table<Config>;
+  using Parameters = Table<Config>;
   explicit IntProducer(Parameters const& p)
     : art::SharedProducer{p}
     , value_{p().ivalue()} // enums don't usually have a conversion from string

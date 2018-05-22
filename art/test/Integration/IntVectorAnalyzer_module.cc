@@ -1,7 +1,7 @@
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/SharedAnalyzer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/View.h"
 #include "cetlib_except/exception.h"

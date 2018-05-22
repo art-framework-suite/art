@@ -34,4 +34,8 @@ namespace art {
   };
 }
 
-#endif
+#endif /* art_Framework_Principal_ProcessTag_h */
+
+// Local Variables:
+// mode: c++
+// End:
