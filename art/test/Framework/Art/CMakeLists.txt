@@ -729,3 +729,39 @@ cet_test(FileCatalogOptions_18 HANDBUILT
   DATAFILES
   fcl/opt-empty.fcl
   )
+
+cet_test(MaxThreadsSpecified_t1 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c opt-empty.fcl --nthreads 2
+  TEST_PROPERTIES ENVIRONMENT OMP_NUM_THREADS=1
+  PASS_REGULAR_EXPRESSION
+  "The specified number of threads \\(2\\) exceeds the allowed number \\(1\\).*The allowed number of threads \\(1\\) will be used for this job."
+  DATAFILES fcl/opt-empty.fcl
+)
+
+cet_test(MaxThreadsSpecified_t2 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c opt-empty.fcl -j 2
+  TEST_PROPERTIES ENVIRONMENT OMP_NUM_THREADS=1
+  PASS_REGULAR_EXPRESSION
+  "The specified number of threads \\(2\\) exceeds the allowed number \\(1\\).*The allowed number of threads \\(1\\) will be used for this job."
+  DATAFILES fcl/opt-empty.fcl
+)
+
+cet_test(MaxThreadsSpecified_t3 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c opt-empty.fcl -j 2 -M stdout
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION
+  "TBB has been configured to use.*a maximum of 2 threads"
+  DATAFILES fcl/opt-empty.fcl
+)
+
+cet_test(MaxThreadsSpecified_t4 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c opt-empty.fcl -j 2 -M stdout
+  TEST_PROPERTIES ENVIRONMENT OMP_NUM_THREADS=17
+  PASS_REGULAR_EXPRESSION
+  "TBB has been configured to use.*a maximum of 2 threads"
+  DATAFILES fcl/opt-empty.fcl
+)
