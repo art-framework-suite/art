@@ -26,17 +26,20 @@ public:
   explicit PtrVectorSimpleAnalyzer(Parameters const& p);
 
 private:
-  void analyze(art::Event const& e, art::ScheduleID) override;
+  void analyze(art::Event const& e, art::Services const&) override;
 
   std::string const input_label_;
 };
 
 arttest::PtrVectorSimpleAnalyzer::PtrVectorSimpleAnalyzer(Parameters const& p)
   : art::SharedAnalyzer{p}, input_label_{p().input_label()}
-{}
+{
+  async<art::InEvent>();
+}
 
 void
-arttest::PtrVectorSimpleAnalyzer::analyze(art::Event const& e, art::ScheduleID)
+arttest::PtrVectorSimpleAnalyzer::analyze(art::Event const& e,
+                                          art::Services const&)
 {
   using SimplePtrVector = art::PtrVector<arttest::Simple>;
 

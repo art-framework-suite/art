@@ -37,7 +37,32 @@ namespace art {
 
   private:
     void setupQueues() override final;
-    bool filterWithScheduleID(Event&, ScheduleID) override final;
+    void beginJobWithServices(Services const&) override final;
+    void endJobWithServices(Services const&) override final;
+    void respondToOpenInputFileWithServices(FileBlock const&,
+                                            Services const&) override final;
+    void respondToCloseInputFileWithServices(FileBlock const&,
+                                             Services const&) override final;
+    void respondToOpenOutputFilesWithServices(FileBlock const&,
+                                              Services const&) override final;
+    void respondToCloseOutputFilesWithServices(FileBlock const&,
+                                               Services const&) override final;
+    bool beginRunWithServices(Run&, Services const&) override final;
+    bool endRunWithServices(Run&, Services const&) override final;
+    bool beginSubRunWithServices(SubRun&, Services const&) override final;
+    bool endSubRunWithServices(SubRun&, Services const&) override final;
+    bool filterWithServices(Event&, Services const&) override final;
+
+    virtual void beginJob();
+    virtual void endJob();
+    virtual void respondToOpenInputFile(FileBlock const&);
+    virtual void respondToCloseInputFile(FileBlock const&);
+    virtual void respondToOpenOutputFiles(FileBlock const&);
+    virtual void respondToCloseOutputFiles(FileBlock const&);
+    virtual bool beginRun(Run&);
+    virtual bool endRun(Run&);
+    virtual bool beginSubRun(SubRun&);
+    virtual bool endSubRun(SubRun&);
     virtual bool filter(Event&) = 0;
   };
 

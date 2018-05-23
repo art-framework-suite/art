@@ -35,9 +35,9 @@ namespace arttest {
     explicit Reconstruction(Parameters const&);
 
   private:
-    bool beginSubRun(SubRun&) override;
-    bool endSubRun(SubRun&) override;
-    bool filter(Event&, ScheduleID) override;
+    bool beginSubRun(SubRun&, Services const&) override;
+    bool endSubRun(SubRun&, Services const&) override;
+    bool filter(Event&, Services const&) override;
 
     double const threshold_;
     ProductToken<vector<double>> const particleEnergiesTkn_;
@@ -59,7 +59,7 @@ namespace arttest {
   }
 
   bool
-  Reconstruction::beginSubRun(SubRun& sr)
+  Reconstruction::beginSubRun(SubRun& sr, Services const&)
   {
     sr.put(make_unique<arttest::CalibConstants>(sr.subRun()),
            "CalibConstants",
@@ -68,7 +68,7 @@ namespace arttest {
   }
 
   bool
-  Reconstruction::endSubRun(SubRun& sr)
+  Reconstruction::endSubRun(SubRun& sr, Services const&)
   {
     sr.put(make_unique<arttest::TrackEfficiency>(numerator_.load(),
                                                  denominator_.load()),
@@ -80,7 +80,7 @@ namespace arttest {
   }
 
   bool
-  Reconstruction::filter(Event& e, ScheduleID)
+  Reconstruction::filter(Event& e, Services const&)
   {
     auto const& particleEnergies = *e.getValidHandle(particleEnergiesTkn_);
     bool pass = false;

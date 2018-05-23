@@ -25,110 +25,80 @@ namespace art {
     Analyzer::doBeginJob()
     {
       setupQueues();
-      beginJob();
+      Services const services{ScheduleID{}};
+      beginJobWithServices(services);
     }
-
-    void
-    Analyzer::beginJob()
-    {}
 
     void
     Analyzer::doEndJob()
     {
-      endJob();
+      Services const services{ScheduleID{}};
+      endJobWithServices(services);
     }
-
-    void
-    Analyzer::endJob()
-    {}
 
     void
     Analyzer::doRespondToOpenInputFile(FileBlock const& fb)
     {
-      respondToOpenInputFile(fb);
+      Services const services{ScheduleID{}};
+      respondToOpenInputFileWithServices(fb, services);
     }
-
-    void
-    Analyzer::respondToOpenInputFile(FileBlock const&)
-    {}
 
     void
     Analyzer::doRespondToCloseInputFile(FileBlock const& fb)
     {
-      respondToCloseInputFile(fb);
+      Services const services{ScheduleID{}};
+      respondToCloseInputFileWithServices(fb, services);
     }
-
-    void
-    Analyzer::respondToCloseInputFile(FileBlock const&)
-    {}
 
     void
     Analyzer::doRespondToOpenOutputFiles(FileBlock const& fb)
     {
-      respondToOpenOutputFiles(fb);
+      Services const services{ScheduleID{}};
+      respondToOpenOutputFilesWithServices(fb, services);
     }
-
-    void
-    Analyzer::respondToOpenOutputFiles(FileBlock const&)
-    {}
 
     void
     Analyzer::doRespondToCloseOutputFiles(FileBlock const& fb)
     {
-      respondToCloseOutputFiles(fb);
+      Services const services{ScheduleID{}};
+      respondToCloseOutputFilesWithServices(fb, services);
     }
 
-    void
-    Analyzer::respondToCloseOutputFiles(FileBlock const&)
-    {}
-
     bool
-    Analyzer::doBeginRun(RunPrincipal& rp, ModuleContext const&)
+    Analyzer::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
     {
       Run const r{rp, moduleDescription()};
-      beginRun(r);
+      Services const services{mc.scheduleID()};
+      beginRunWithServices(r, services);
       return true;
     }
 
-    void
-    Analyzer::beginRun(Run const&)
-    {}
-
     bool
-    Analyzer::doEndRun(RunPrincipal& rp, ModuleContext const&)
+    Analyzer::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
     {
       Run const r{rp, moduleDescription()};
-      endRun(r);
+      Services const services{mc.scheduleID()};
+      endRunWithServices(r, services);
       return true;
     }
-
-    void
-    Analyzer::endRun(Run const&)
-    {}
 
     bool
-    Analyzer::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const&)
+    Analyzer::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
       SubRun const sr{srp, moduleDescription()};
-      beginSubRun(sr);
+      Services const services{mc.scheduleID()};
+      beginSubRunWithServices(sr, services);
       return true;
     }
-
-    void
-    Analyzer::beginSubRun(SubRun const&)
-    {}
 
     bool
-    Analyzer::doEndSubRun(SubRunPrincipal& srp, ModuleContext const&)
+    Analyzer::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
       SubRun const sr{srp, moduleDescription()};
-      endSubRun(sr);
+      Services const services{mc.scheduleID()};
+      endSubRunWithServices(sr, services);
       return true;
     }
-
-    void
-    Analyzer::endSubRun(SubRun const&)
-    {}
 
     bool
     Analyzer::doEvent(EventPrincipal& ep,
@@ -141,7 +111,8 @@ namespace art {
       Event const e{ep, moduleDescription()};
       if (wantAllEvents() || wantEvent(e)) {
         ++counts_run;
-        analyzeWithScheduleID(e, mc.scheduleID());
+        Services const services{mc.scheduleID()};
+        analyzeWithServices(e, services);
         ++counts_passed;
       }
       return true;

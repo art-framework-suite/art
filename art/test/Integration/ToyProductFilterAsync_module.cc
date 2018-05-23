@@ -42,7 +42,7 @@ namespace arttest {
     explicit ToyProductFilterAsync(Parameters const& p);
 
   private:
-    bool filter(Event& e, ScheduleID) override;
+    bool filter(Event& e, Services const&) override;
 
     string const inputLabel_{};
   };
@@ -54,7 +54,7 @@ namespace arttest {
   }
 
   bool
-  ToyProductFilterAsync::filter(Event&, ScheduleID)
+  ToyProductFilterAsync::filter(Event&, Services const&)
   {
     double val = 0.0;
     use_cpu_time(val);

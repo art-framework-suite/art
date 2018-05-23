@@ -34,9 +34,9 @@ public:
   explicit MixProducer(Parameters const& p);
 
 private:
-  void produce(art::Event& e, art::ScheduleID) override;
-  void endSubRun(art::SubRun& sr) override;
-  void endRun(art::Run& r) override;
+  void produce(art::Event& e, art::Services const&) override;
+  void endSubRun(art::SubRun& sr, art::Services const&) override;
+  void endRun(art::Run& r, art::Services const&) override;
 
   using mv_t = cet::map_vector<unsigned int>;
   using mvv_t = mv_t::value_type;
@@ -67,7 +67,7 @@ arttest::MixProducer::MixProducer(Parameters const& p) : art::SharedProducer{p}
 }
 
 void
-arttest::MixProducer::produce(art::Event& e, art::ScheduleID)
+arttest::MixProducer::produce(art::Event& e, art::Services const&)
 {
   ++eventCounter_;
 
@@ -149,14 +149,14 @@ arttest::MixProducer::produce(art::Event& e, art::ScheduleID)
 }
 
 void
-arttest::MixProducer::endSubRun(art::SubRun& sr)
+arttest::MixProducer::endSubRun(art::SubRun& sr, art::Services const&)
 {
   ++subrunCounter_;
   sr.put(std::make_unique<double>(subrunCounter_), "DoubleSRLabel");
 }
 
 void
-arttest::MixProducer::endRun(art::Run& r)
+arttest::MixProducer::endRun(art::Run& r, art::Services const&)
 {
   ++runCounter_;
   r.put(std::make_unique<double>(runCounter_), "DoubleRLabel");

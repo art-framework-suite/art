@@ -18,7 +18,7 @@ namespace arttest {
 
   private:
     bool
-    filter(art::Event& e, art::ScheduleID) override
+    filter(art::Event& e, art::Services const&) override
     {
       bool const passesCuts = (e.event() % 10) < 3;
       return passesCuts;

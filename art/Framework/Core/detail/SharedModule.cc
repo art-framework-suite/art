@@ -5,10 +5,10 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
 
-#include <iomanip>
 #include <string>
 #include <vector>
 
+using namespace std::string_literals;
 using namespace hep::concurrency;
 
 namespace art {
@@ -20,7 +20,13 @@ namespace art {
       chain_ = nullptr;
     }
 
-    SharedModule::SharedModule() { chain_ = nullptr; }
+    SharedModule::SharedModule() : SharedModule{""s} {}
+
+    SharedModule::SharedModule(std::string const& moduleLabel)
+      : moduleLabel_{moduleLabel}
+    {
+      chain_ = nullptr;
+    }
 
     SerialTaskQueueChain*
     SharedModule::serialTaskQueueChain() const
@@ -52,14 +58,8 @@ namespace art {
     {
       // This is the situation where a shared module must be
       // serialized, but only wrt. itself--only one event call at a
-      // time.  We cannot use the module label because it has not been
-      // filled in yet; so we instead use the address of any instance.
-      // This is safe for a shared module, since there is guaranteed
-      // to be only one instance per module label.
-      std::ostringstream oss;
-      oss << cet::demangle_symbol(typeid(*this).name()) << ':' << std::hex
-          << this;
-      serialize_for_resource(oss.str());
+      // time.
+      serialize_for_resource(moduleLabel_);
     }
 
     void

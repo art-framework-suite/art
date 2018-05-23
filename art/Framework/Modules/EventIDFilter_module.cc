@@ -60,7 +60,7 @@ public:
   explicit EventIDFilter(Parameters const& p);
 
 private:
-  bool filter(Event&, ScheduleID) override;
+  bool filter(Event&, Services const&) override;
 
   EventIDMatcher const matcher_;
 };
@@ -72,7 +72,7 @@ art::EventIDFilter::EventIDFilter(Parameters const& p)
 }
 
 bool
-art::EventIDFilter::filter(Event& e, ScheduleID)
+art::EventIDFilter::filter(Event& e, Services const&)
 {
   return matcher_(e.id());
 }

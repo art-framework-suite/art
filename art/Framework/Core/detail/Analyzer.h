@@ -8,6 +8,7 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Observer.h"
+#include "art/Framework/Core/Services.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ImplicitConfigs.h"
 #include "art/Framework/Principal/fwd.h"
@@ -99,7 +100,7 @@ namespace art {
       void doRespondToCloseInputFile(FileBlock const& fb);
       void doRespondToOpenOutputFiles(FileBlock const& fb);
       void doRespondToCloseOutputFiles(FileBlock const& fb);
-      bool doBeginRun(RunPrincipal& rp, ModuleContext const&);
+      bool doBeginRun(RunPrincipal& rp, ModuleContext const& mc);
       bool doEndRun(RunPrincipal& rp, ModuleContext const& mc);
       bool doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc);
       bool doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc);
@@ -111,19 +112,21 @@ namespace art {
 
     private:
       virtual void setupQueues() = 0;
-      virtual void analyzeWithScheduleID(Event const&, ScheduleID) = 0;
-
-      // To be overridden by users
-      virtual void beginJob();
-      virtual void endJob();
-      virtual void respondToOpenInputFile(FileBlock const&);
-      virtual void respondToCloseInputFile(FileBlock const&);
-      virtual void respondToOpenOutputFiles(FileBlock const&);
-      virtual void respondToCloseOutputFiles(FileBlock const&);
-      virtual void beginRun(Run const&);
-      virtual void endRun(Run const&);
-      virtual void beginSubRun(SubRun const&);
-      virtual void endSubRun(SubRun const&);
+      virtual void analyzeWithServices(Event const&, Services const&) = 0;
+      virtual void beginJobWithServices(Services const&) = 0;
+      virtual void endJobWithServices(Services const&) = 0;
+      virtual void respondToOpenInputFileWithServices(FileBlock const&,
+                                                      Services const&) = 0;
+      virtual void respondToCloseInputFileWithServices(FileBlock const&,
+                                                       Services const&) = 0;
+      virtual void respondToOpenOutputFilesWithServices(FileBlock const&,
+                                                        Services const&) = 0;
+      virtual void respondToCloseOutputFilesWithServices(FileBlock const&,
+                                                         Services const&) = 0;
+      virtual void beginRunWithServices(Run const&, Services const&) = 0;
+      virtual void endRunWithServices(Run const&, Services const&) = 0;
+      virtual void beginSubRunWithServices(SubRun const&, Services const&) = 0;
+      virtual void endSubRunWithServices(SubRun const&, Services const&) = 0;
     };
 
     template <typename T>

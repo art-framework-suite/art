@@ -42,7 +42,32 @@ namespace art {
 
   private:
     void setupQueues() override final;
-    void analyzeWithScheduleID(Event const&, ScheduleID) override final;
+    void beginJobWithServices(Services const&) override final;
+    void endJobWithServices(Services const&) override final;
+    void respondToOpenInputFileWithServices(FileBlock const&,
+                                            Services const&) override final;
+    void respondToCloseInputFileWithServices(FileBlock const&,
+                                             Services const&) override final;
+    void respondToOpenOutputFilesWithServices(FileBlock const&,
+                                              Services const&) override final;
+    void respondToCloseOutputFilesWithServices(FileBlock const&,
+                                               Services const&) override final;
+    void beginRunWithServices(Run const&, Services const&) override final;
+    void endRunWithServices(Run const&, Services const&) override final;
+    void beginSubRunWithServices(SubRun const&, Services const&) override final;
+    void endSubRunWithServices(SubRun const&, Services const&) override final;
+    void analyzeWithServices(Event const&, Services const&) override final;
+
+    virtual void beginJob();
+    virtual void endJob();
+    virtual void respondToOpenInputFile(FileBlock const&);
+    virtual void respondToCloseInputFile(FileBlock const&);
+    virtual void respondToOpenOutputFiles(FileBlock const&);
+    virtual void respondToCloseOutputFiles(FileBlock const&);
+    virtual void beginRun(Run const&);
+    virtual void endRun(Run const&);
+    virtual void beginSubRun(SubRun const&);
+    virtual void endSubRun(SubRun const&);
     virtual void analyze(Event const&) = 0;
   };
 

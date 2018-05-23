@@ -28,7 +28,7 @@ namespace art {
                                    HLTGlobalStatus&);
 
   private:
-    void produce(Event&) override;
+    void produce(Event&, Services const&) override;
 
     fhicl::ParameterSetID pset_id_;
     cet::exempt_ptr<HLTGlobalStatus> trptr_;

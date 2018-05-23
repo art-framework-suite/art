@@ -28,7 +28,7 @@ namespace art {
     explicit RandomNumberSaver(Parameters const&);
 
   private:
-    void produce(Event&, ScheduleID) override;
+    void produce(Event&, Services const&) override;
     // When true makes produce call rng->print_().
     bool const debug_;
   };
@@ -47,9 +47,10 @@ namespace art {
   }
 
   void
-  RandomNumberSaver::produce(Event& e, ScheduleID const sid)
+  RandomNumberSaver::produce(Event& e, Services const& services)
   {
     ServiceHandle<RandomNumberGenerator const> rng;
+    auto const sid = services.scheduleID();
     e.put(make_unique<vector<RNGsnapshot>>(rng->accessSnapshot_(sid)));
     if (debug_) {
       rng->print_();

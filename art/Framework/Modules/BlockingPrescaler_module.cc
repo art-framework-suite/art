@@ -9,9 +9,9 @@
 // seen by this module, *not* the event number as recorded by EventID.
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Core/SharedFilter.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/SharedFilter.h"
 #include "fhiclcpp/types/Atom.h"
 
 using namespace fhicl;
@@ -37,7 +37,7 @@ public:
   explicit BlockingPrescaler(Parameters const&);
 
 private:
-  bool filter(Event&, ScheduleID) override;
+  bool filter(Event&, Services const&) override;
 
   size_t count_{};
   size_t const m_; // accept m in n (sequentially).
@@ -65,7 +65,7 @@ art::BlockingPrescaler::BlockingPrescaler(Parameters const& config)
 }
 
 bool
-art::BlockingPrescaler::filter(Event&, ScheduleID)
+art::BlockingPrescaler::filter(Event&, Services const&)
 {
   // This sequence of operations/comparisons must be serialized.
   // Changing 'count_' to be of type std::atomic<size_t> will not

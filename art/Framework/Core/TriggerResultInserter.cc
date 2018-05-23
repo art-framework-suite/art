@@ -26,7 +26,7 @@ namespace art {
   }
 
   void
-  TriggerResultInserter::produce(Event& e)
+  TriggerResultInserter::produce(Event& e, Services const&)
   {
     auto tr = std::make_unique<TriggerResults>(*trptr_, pset_id_);
     e.put(move(tr));

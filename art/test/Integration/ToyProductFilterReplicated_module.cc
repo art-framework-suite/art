@@ -41,7 +41,7 @@ namespace arttest {
     explicit ToyProductFilterReplicated(Parameters const& p, art::ScheduleID);
 
   private:
-    bool filter(Event& e) override;
+    bool filter(Event& e, Services const&) override;
   };
 
   ToyProductFilterReplicated::ToyProductFilterReplicated(
@@ -51,7 +51,7 @@ namespace arttest {
   {}
 
   bool
-  ToyProductFilterReplicated::filter(Event& /*e*/)
+  ToyProductFilterReplicated::filter(Event& /*e*/, Services const&)
   {
     double val = 0.0;
     use_cpu_time(val);

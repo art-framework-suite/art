@@ -40,123 +40,83 @@ namespace art {
     {
       setupQueues();
       failureToPutProducts(moduleDescription());
-      beginJob();
+      Services const services{ScheduleID{}};
+      beginJobWithServices(services);
     }
-
-    void
-    Filter::beginJob()
-    {}
 
     void
     Filter::doEndJob()
     {
-      endJob();
+      Services const services{ScheduleID{}};
+      endJobWithServices(services);
     }
-
-    void
-    Filter::endJob()
-    {}
 
     void
     Filter::doRespondToOpenInputFile(FileBlock const& fb)
     {
-      respondToOpenInputFile(fb);
+      Services const services{ScheduleID{}};
+      respondToOpenInputFileWithServices(fb, services);
     }
-
-    void
-    Filter::respondToOpenInputFile(FileBlock const&)
-    {}
 
     void
     Filter::doRespondToCloseInputFile(FileBlock const& fb)
     {
-      respondToCloseInputFile(fb);
+      Services const services{ScheduleID{}};
+      respondToCloseInputFileWithServices(fb, services);
     }
-
-    void
-    Filter::respondToCloseInputFile(FileBlock const&)
-    {}
 
     void
     Filter::doRespondToOpenOutputFiles(FileBlock const& fb)
     {
-      respondToOpenOutputFiles(fb);
+      Services const services{ScheduleID{}};
+      respondToOpenOutputFilesWithServices(fb, services);
     }
-
-    void
-    Filter::respondToOpenOutputFiles(FileBlock const&)
-    {}
 
     void
     Filter::doRespondToCloseOutputFiles(FileBlock const& fb)
     {
-      respondToCloseOutputFiles(fb);
+      Services const services{ScheduleID{}};
+      respondToCloseOutputFilesWithServices(fb, services);
     }
 
-    void
-    Filter::respondToCloseOutputFiles(FileBlock const&)
-    {}
-
     bool
-    Filter::doBeginRun(RunPrincipal& rp, ModuleContext const& mc[[gnu::unused]])
+    Filter::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
     {
       Run r{rp, moduleDescription(), RangeSet::forRun(rp.runID())};
-      bool const rc = beginRun(r);
+      Services const services{mc.scheduleID()};
+      bool const rc = beginRunWithServices(r, services);
       r.movePutProductsToPrincipal(rp);
       return rc;
     }
 
     bool
-    Filter::beginRun(Run&)
-    {
-      return true;
-    }
-
-    bool
-    Filter::doEndRun(RunPrincipal& rp, ModuleContext const& mc[[gnu::unused]])
+    Filter::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
     {
       Run r{rp, moduleDescription(), rp.seenRanges()};
-      bool const rc = endRun(r);
+      Services const services{mc.scheduleID()};
+      bool const rc = endRunWithServices(r, services);
       r.movePutProductsToPrincipal(rp);
       return rc;
     }
 
     bool
-    Filter::endRun(Run&)
-    {
-      return true;
-    }
-
-    bool
-    Filter::doBeginSubRun(SubRunPrincipal& srp,
-                          ModuleContext const& mc[[gnu::unused]])
+    Filter::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
       SubRun sr{srp, moduleDescription(), RangeSet::forSubRun(srp.subRunID())};
-      bool const rc = beginSubRun(sr);
+      Services const services{mc.scheduleID()};
+      bool const rc = beginSubRunWithServices(sr, services);
       sr.movePutProductsToPrincipal(srp);
       return rc;
     }
 
     bool
-    Filter::beginSubRun(SubRun&)
-    {
-      return true;
-    }
-
-    bool
-    Filter::doEndSubRun(SubRunPrincipal& srp,
-                        ModuleContext const& mc[[gnu::unused]])
+    Filter::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
       SubRun sr{srp, moduleDescription(), srp.seenRanges()};
-      bool const rc = endSubRun(sr);
+      Services const services{mc.scheduleID()};
+      bool const rc = endSubRunWithServices(sr, services);
       sr.movePutProductsToPrincipal(srp);
       return rc;
-    }
-
-    bool
-    Filter::endSubRun(SubRun&)
-    {
-      return true;
     }
 
     bool
@@ -168,8 +128,8 @@ namespace art {
     {
       Event e{ep, moduleDescription()};
       ++counts_run;
-      bool rc = false;
-      rc = filterWithScheduleID(e, mc.scheduleID());
+      Services const services{mc.scheduleID()};
+      bool const rc = filterWithServices(e, services);
       e.movePutProductsToPrincipal(
         ep, checkPutProducts_, &expectedProducts<InEvent>());
       if (rc) {

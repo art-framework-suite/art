@@ -29,7 +29,7 @@ namespace arttest {
     explicit IntVectorAnalyzer(Parameters const& p);
 
   private:
-    void analyze(Event const&, ScheduleID) override;
+    void analyze(Event const&, Services const&) override;
 
     string const moduleLabel_;
     size_t const nvalues_;
@@ -44,7 +44,7 @@ namespace arttest {
   {}
 
   void
-  IntVectorAnalyzer::analyze(Event const& e, ScheduleID)
+  IntVectorAnalyzer::analyze(Event const& e, Services const&)
   {
     {
       vector<int const*> ptrs;

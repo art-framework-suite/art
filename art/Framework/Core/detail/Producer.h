@@ -9,6 +9,7 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Modifier.h"
+#include "art/Framework/Core/Services.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
@@ -52,19 +53,21 @@ namespace art {
     private:
       void failureToPutProducts(ModuleDescription const& md);
       virtual void setupQueues() = 0;
-      virtual void produceWithScheduleID(Event&, ScheduleID) = 0;
-
-      // To be overridden by users
-      virtual void beginJob();
-      virtual void endJob();
-      virtual void respondToOpenInputFile(FileBlock const&);
-      virtual void respondToCloseInputFile(FileBlock const&);
-      virtual void respondToOpenOutputFiles(FileBlock const&);
-      virtual void respondToCloseOutputFiles(FileBlock const&);
-      virtual void beginRun(Run&);
-      virtual void endRun(Run&);
-      virtual void beginSubRun(SubRun&);
-      virtual void endSubRun(SubRun&);
+      virtual void beginJobWithServices(Services const&) = 0;
+      virtual void endJobWithServices(Services const&) = 0;
+      virtual void respondToOpenInputFileWithServices(FileBlock const&,
+                                                      Services const&) = 0;
+      virtual void respondToCloseInputFileWithServices(FileBlock const&,
+                                                       Services const&) = 0;
+      virtual void respondToOpenOutputFilesWithServices(FileBlock const&,
+                                                        Services const&) = 0;
+      virtual void respondToCloseOutputFilesWithServices(FileBlock const&,
+                                                         Services const&) = 0;
+      virtual void beginRunWithServices(Run&, Services const&) = 0;
+      virtual void endRunWithServices(Run&, Services const&) = 0;
+      virtual void beginSubRunWithServices(SubRun&, Services const&) = 0;
+      virtual void endSubRunWithServices(SubRun&, Services const&) = 0;
+      virtual void produceWithServices(Event&, Services const&) = 0;
 
       bool checkPutProducts_{true};
     };

@@ -20,7 +20,7 @@ namespace arttest {
     {}
 
     void
-    produce(art::Event&) override
+    produce(art::Event&, art::Services const&) override
     {}
   };
 

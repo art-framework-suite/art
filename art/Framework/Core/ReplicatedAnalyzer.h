@@ -42,8 +42,33 @@ namespace art {
 
   private:
     void setupQueues() override final;
-    void analyzeWithScheduleID(Event const&, ScheduleID) override final;
-    virtual void analyze(Event const&) = 0;
+    void beginJobWithServices(Services const&) override final;
+    void endJobWithServices(Services const&) override final;
+    void respondToOpenInputFileWithServices(FileBlock const&,
+                                            Services const&) override final;
+    void respondToCloseInputFileWithServices(FileBlock const&,
+                                             Services const&) override final;
+    void respondToOpenOutputFilesWithServices(FileBlock const&,
+                                              Services const&) override final;
+    void respondToCloseOutputFilesWithServices(FileBlock const&,
+                                               Services const&) override final;
+    void beginRunWithServices(Run const&, Services const&) override final;
+    void endRunWithServices(Run const&, Services const&) override final;
+    void beginSubRunWithServices(SubRun const&, Services const&) override final;
+    void endSubRunWithServices(SubRun const&, Services const&) override final;
+    void analyzeWithServices(Event const&, Services const&) override final;
+
+    virtual void beginJob(Services const&);
+    virtual void endJob(Services const&);
+    virtual void respondToOpenInputFile(FileBlock const&, Services const&);
+    virtual void respondToCloseInputFile(FileBlock const&, Services const&);
+    virtual void respondToOpenOutputFiles(FileBlock const&, Services const&);
+    virtual void respondToCloseOutputFiles(FileBlock const&, Services const&);
+    virtual void beginRun(Run const&, Services const&);
+    virtual void endRun(Run const&, Services const&);
+    virtual void beginSubRun(SubRun const&, Services const&);
+    virtual void endSubRun(SubRun const&, Services const&);
+    virtual void analyze(Event const&, Services const&) = 0;
   };
 
 } // namespace art

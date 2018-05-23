@@ -17,10 +17,127 @@ namespace art {
     // For art 3.0, replicated modules will not have queues.
   }
 
-  bool
-  ReplicatedFilter::filterWithScheduleID(Event& e, ScheduleID)
+  void
+  ReplicatedFilter::respondToOpenInputFileWithServices(FileBlock const& fb,
+                                                       Services const& services)
   {
-    return filter(e);
+    respondToOpenInputFile(fb, services);
+  }
+
+  void
+  ReplicatedFilter::respondToCloseInputFileWithServices(
+    FileBlock const& fb,
+    Services const& services)
+  {
+    respondToCloseInputFile(fb, services);
+  }
+
+  void
+  ReplicatedFilter::respondToOpenOutputFilesWithServices(
+    FileBlock const& fb,
+    Services const& services)
+  {
+    respondToOpenOutputFiles(fb, services);
+  }
+
+  void
+  ReplicatedFilter::respondToCloseOutputFilesWithServices(
+    FileBlock const& fb,
+    Services const& services)
+  {
+    respondToCloseOutputFiles(fb, services);
+  }
+
+  void
+  ReplicatedFilter::beginJobWithServices(Services const& services)
+  {
+    beginJob(services);
+  }
+
+  void
+  ReplicatedFilter::endJobWithServices(Services const& services)
+  {
+    endJob(services);
+  }
+
+  bool
+  ReplicatedFilter::beginRunWithServices(Run& r, Services const& services)
+  {
+    return beginRun(r, services);
+  }
+
+  bool
+  ReplicatedFilter::endRunWithServices(Run& r, Services const& services)
+  {
+    return endRun(r, services);
+  }
+
+  bool
+  ReplicatedFilter::beginSubRunWithServices(SubRun& sr,
+                                            Services const& services)
+  {
+    return beginSubRun(sr, services);
+  }
+
+  bool
+  ReplicatedFilter::endSubRunWithServices(SubRun& sr, Services const& services)
+  {
+    return endSubRun(sr, services);
+  }
+
+  bool
+  ReplicatedFilter::filterWithServices(Event& e, Services const& services)
+  {
+    return filter(e, services);
+  }
+
+  // Default implementations
+  void
+  ReplicatedFilter::beginJob(Services const&)
+  {}
+
+  void
+  ReplicatedFilter::endJob(Services const&)
+  {}
+
+  void
+  ReplicatedFilter::respondToOpenInputFile(FileBlock const&, Services const&)
+  {}
+
+  void
+  ReplicatedFilter::respondToCloseInputFile(FileBlock const&, Services const&)
+  {}
+
+  void
+  ReplicatedFilter::respondToOpenOutputFiles(FileBlock const&, Services const&)
+  {}
+
+  void
+  ReplicatedFilter::respondToCloseOutputFiles(FileBlock const&, Services const&)
+  {}
+
+  bool
+  ReplicatedFilter::beginRun(Run&, Services const&)
+  {
+    return true;
+  }
+
+  bool
+  ReplicatedFilter::endRun(Run&, Services const&)
+  {
+    return true;
+  }
+
+  bool
+  ReplicatedFilter::beginSubRun(SubRun&, Services const&)
+  {
+    return true;
+  }
+
+  bool
+  ReplicatedFilter::endSubRun(SubRun&, Services const&)
+  {
+    return true;
   }
 
 } // namespace art

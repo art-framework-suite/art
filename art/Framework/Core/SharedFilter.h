@@ -21,6 +21,7 @@ namespace art {
 
     explicit SharedFilter(fhicl::ParameterSet const& pset)
       : detail::Filter{pset}
+      , detail::SharedModule{pset.get<std::string>("module_label")}
     {}
 
     template <typename Config>
@@ -32,8 +33,33 @@ namespace art {
 
   private:
     void setupQueues() override final;
-    bool filterWithScheduleID(Event&, ScheduleID) override final;
-    virtual bool filter(Event&, ScheduleID) = 0;
+    void beginJobWithServices(Services const&) override final;
+    void endJobWithServices(Services const&) override final;
+    void respondToOpenInputFileWithServices(FileBlock const&,
+                                            Services const&) override final;
+    void respondToCloseInputFileWithServices(FileBlock const&,
+                                             Services const&) override final;
+    void respondToOpenOutputFilesWithServices(FileBlock const&,
+                                              Services const&) override final;
+    void respondToCloseOutputFilesWithServices(FileBlock const&,
+                                               Services const&) override final;
+    bool beginRunWithServices(Run&, Services const&) override final;
+    bool endRunWithServices(Run&, Services const&) override final;
+    bool beginSubRunWithServices(SubRun&, Services const&) override final;
+    bool endSubRunWithServices(SubRun&, Services const&) override final;
+    bool filterWithServices(Event&, Services const&) override final;
+
+    virtual void beginJob(Services const&);
+    virtual void endJob(Services const&);
+    virtual void respondToOpenInputFile(FileBlock const&, Services const&);
+    virtual void respondToCloseInputFile(FileBlock const&, Services const&);
+    virtual void respondToOpenOutputFiles(FileBlock const&, Services const&);
+    virtual void respondToCloseOutputFiles(FileBlock const&, Services const&);
+    virtual bool beginRun(Run&, Services const&);
+    virtual bool endRun(Run&, Services const&);
+    virtual bool beginSubRun(SubRun&, Services const&);
+    virtual bool endSubRun(SubRun&, Services const&);
+    virtual bool filter(Event&, Services const&) = 0;
   };
 
 } // namespace art

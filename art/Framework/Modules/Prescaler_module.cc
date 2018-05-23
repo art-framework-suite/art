@@ -28,7 +28,7 @@ public:
   explicit Prescaler(Parameters const&);
 
 private:
-  bool filter(Event&, ScheduleID) override;
+  bool filter(Event&, Services const&) override;
 
   size_t count_{};
   size_t const n_; // accept one in n
@@ -50,7 +50,7 @@ Prescaler::Prescaler(Parameters const& config)
 }
 
 bool
-Prescaler::filter(Event&, ScheduleID)
+Prescaler::filter(Event&, Services const&)
 {
   // The combination of incrementing, modulo dividing, and equality
   // comparing must be synchronized.  Changing count_ to the type

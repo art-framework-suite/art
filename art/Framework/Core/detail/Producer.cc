@@ -29,121 +29,88 @@ namespace art {
     }
 
     void
-    Producer::doRespondToOpenInputFile(FileBlock const& fb)
-    {
-      respondToOpenInputFile(fb);
-    }
-
-    void
-    Producer::respondToOpenInputFile(FileBlock const&)
-    {}
-
-    void
-    Producer::doRespondToCloseInputFile(FileBlock const& fb)
-    {
-      respondToCloseInputFile(fb);
-    }
-
-    void
-    Producer::respondToCloseInputFile(FileBlock const&)
-    {}
-
-    void
-    Producer::doRespondToOpenOutputFiles(FileBlock const& fb)
-    {
-      respondToOpenOutputFiles(fb);
-    }
-
-    void
-    Producer::respondToOpenOutputFiles(FileBlock const&)
-    {}
-
-    void
-    Producer::doRespondToCloseOutputFiles(FileBlock const& fb)
-    {
-      respondToCloseOutputFiles(fb);
-    }
-
-    void
-    Producer::respondToCloseOutputFiles(FileBlock const&)
-    {}
-
-    void
     Producer::doBeginJob()
     {
       setupQueues();
       failureToPutProducts(moduleDescription());
-      beginJob();
+      Services const services{ScheduleID{}};
+      beginJobWithServices(services);
     }
-
-    void
-    Producer::beginJob()
-    {}
 
     void
     Producer::doEndJob()
     {
-      endJob();
+      Services const services{ScheduleID{}};
+      endJobWithServices(services);
     }
 
     void
-    Producer::endJob()
-    {}
+    Producer::doRespondToOpenInputFile(FileBlock const& fb)
+    {
+      Services const services{ScheduleID{}};
+      respondToOpenInputFileWithServices(fb, services);
+    }
+
+    void
+    Producer::doRespondToCloseInputFile(FileBlock const& fb)
+    {
+      Services const services{ScheduleID{}};
+      respondToCloseInputFileWithServices(fb, services);
+    }
+
+    void
+    Producer::doRespondToOpenOutputFiles(FileBlock const& fb)
+    {
+      Services const services{ScheduleID{}};
+      respondToOpenOutputFilesWithServices(fb, services);
+    }
+
+    void
+    Producer::doRespondToCloseOutputFiles(FileBlock const& fb)
+    {
+      Services const services{ScheduleID{}};
+      respondToCloseOutputFilesWithServices(fb, services);
+    }
 
     bool
-    Producer::doBeginRun(RunPrincipal& rp,
-                         ModuleContext const& mc[[gnu::unused]])
+    Producer::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
     {
       Run r{rp, moduleDescription(), RangeSet::forRun(rp.runID())};
-      beginRun(r);
+      Services const services{mc.scheduleID()};
+      beginRunWithServices(r, services);
       r.movePutProductsToPrincipal(rp);
       return true;
     }
 
-    void
-    Producer::beginRun(Run&)
-    {}
-
     bool
-    Producer::doEndRun(RunPrincipal& rp, ModuleContext const& mc[[gnu::unused]])
+    Producer::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
     {
       Run r{rp, moduleDescription(), rp.seenRanges()};
-      endRun(r);
+      Services const services{mc.scheduleID()};
+      endRunWithServices(r, services);
       r.movePutProductsToPrincipal(rp);
       return true;
     }
 
-    void
-    Producer::endRun(Run&)
-    {}
-
     bool
-    Producer::doBeginSubRun(SubRunPrincipal& srp,
-                            ModuleContext const& mc[[gnu::unused]])
+    Producer::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
       SubRun sr{srp, moduleDescription(), RangeSet::forSubRun(srp.subRunID())};
-      beginSubRun(sr);
+      Services const services{mc.scheduleID()};
+      beginSubRunWithServices(sr, services);
       sr.movePutProductsToPrincipal(srp);
       return true;
     }
-
-    void
-    Producer::beginSubRun(SubRun&)
-    {}
 
     bool
-    Producer::doEndSubRun(SubRunPrincipal& srp,
-                          ModuleContext const& mc[[gnu::unused]])
+    Producer::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
       SubRun sr{srp, moduleDescription(), srp.seenRanges()};
-      endSubRun(sr);
+      Services const services{mc.scheduleID()};
+      endSubRunWithServices(sr, services);
       sr.movePutProductsToPrincipal(srp);
       return true;
     }
-
-    void
-    Producer::endSubRun(SubRun&)
-    {}
 
     bool
     Producer::doEvent(EventPrincipal& ep,
@@ -154,7 +121,8 @@ namespace art {
     {
       Event e{ep, moduleDescription()};
       ++counts_run;
-      produceWithScheduleID(e, mc.scheduleID());
+      Services const services{mc.scheduleID()};
+      produceWithServices(e, services);
       e.movePutProductsToPrincipal(
         ep, checkPutProducts_, &expectedProducts<InEvent>());
       ++counts_passed;

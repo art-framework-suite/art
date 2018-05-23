@@ -38,7 +38,7 @@ namespace art {
                                          ScheduleID);
 
     private:
-      void analyze(art::Event const&) override;
+      void analyze(art::Event const&, art::Services const&) override;
       CLHEP::RandFlat dist_;
     };
 
@@ -49,7 +49,7 @@ namespace art {
     {}
 
     void
-    ConcurrentEngineRetrieval::analyze(art::Event const&)
+    ConcurrentEngineRetrieval::analyze(art::Event const&, art::Services const&)
     {
       std::vector<std::size_t> numbers(5);
       std::size_t constexpr random_range{1000};

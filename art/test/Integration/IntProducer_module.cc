@@ -46,32 +46,31 @@ public:
     async<art::InEvent>();
   }
 
-  void produce(art::Event& e, art::ScheduleID) override;
-  void endSubRun(art::SubRun& sr) override;
-  void endRun(art::Run& r) override;
-
 private:
+  void produce(art::Event& e, art::Services const&) override;
+  void endSubRun(art::SubRun& sr, art::Services const&) override;
+  void endRun(art::Run& r, art::Services const&) override;
+
   int const value_;
   art::BranchType const branchType_;
-
 }; // IntProducer
 
 void
-IntProducer::produce(art::Event& e, art::ScheduleID)
+IntProducer::produce(art::Event& e, art::Services const&)
 {
   if (branchType_ == art::InEvent)
     e.put(std::make_unique<IntProduct>(value_));
 }
 
 void
-IntProducer::endSubRun(art::SubRun& sr)
+IntProducer::endSubRun(art::SubRun& sr, art::Services const&)
 {
   if (branchType_ == art::InSubRun)
     sr.put(std::make_unique<IntProduct>(value_), art::subRunFragment());
 }
 
 void
-IntProducer::endRun(art::Run& r)
+IntProducer::endRun(art::Run& r, art::Services const&)
 {
   if (branchType_ == art::InRun)
     r.put(std::make_unique<IntProduct>(value_), art::runFragment());
