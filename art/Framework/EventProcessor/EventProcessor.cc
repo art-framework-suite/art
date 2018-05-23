@@ -1559,7 +1559,6 @@ namespace art {
         actReg_->sPreBeginRun.invoke(run);
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-
         schedules_.at(sid).process(Transition::BeginRun, *runPrincipal_);
         endPathExecutors_.at(sid).process(Transition::BeginRun, *runPrincipal_);
       });
@@ -1653,7 +1652,6 @@ namespace art {
                                    runPrincipal_->endTime());
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-
         schedules_.at(sid).process(Transition::EndRun, *runPrincipal_);
         endPathExecutors_.at(sid).process(Transition::EndRun, *runPrincipal_);
       });
@@ -1737,7 +1735,6 @@ namespace art {
         actReg_->sPreBeginSubRun.invoke(srun);
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-
         schedules_.at(sid).process(Transition::BeginSubRun, *subRunPrincipal_);
         endPathExecutors_.at(sid).process(Transition::BeginSubRun,
                                           *subRunPrincipal_);
@@ -1901,7 +1898,6 @@ namespace art {
                                       subRunPrincipal_->endTime());
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-
         schedules_.at(sid).process(Transition::EndSubRun, *subRunPrincipal_);
         endPathExecutors_.at(sid).process(Transition::EndSubRun,
                                           *subRunPrincipal_);
