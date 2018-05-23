@@ -121,19 +121,19 @@ namespace art {
   {}
 
   void
-  ReplicatedProducer::beginRun(Run&, Services const&)
+  ReplicatedProducer::beginRun(Run const&, Services const&)
   {}
 
   void
-  ReplicatedProducer::endRun(Run&, Services const&)
+  ReplicatedProducer::endRun(Run const&, Services const&)
   {}
 
   void
-  ReplicatedProducer::beginSubRun(SubRun&, Services const&)
+  ReplicatedProducer::beginSubRun(SubRun const&, Services const&)
   {}
 
   void
-  ReplicatedProducer::endSubRun(SubRun&, Services const&)
+  ReplicatedProducer::endSubRun(SubRun const&, Services const&)
   {}
 
 } // namespace art

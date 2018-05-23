@@ -117,25 +117,25 @@ namespace art {
   {}
 
   bool
-  ReplicatedFilter::beginRun(Run&, Services const&)
+  ReplicatedFilter::beginRun(Run const&, Services const&)
   {
     return true;
   }
 
   bool
-  ReplicatedFilter::endRun(Run&, Services const&)
+  ReplicatedFilter::endRun(Run const&, Services const&)
   {
     return true;
   }
 
   bool
-  ReplicatedFilter::beginSubRun(SubRun&, Services const&)
+  ReplicatedFilter::beginSubRun(SubRun const&, Services const&)
   {
     return true;
   }
 
   bool
-  ReplicatedFilter::endSubRun(SubRun&, Services const&)
+  ReplicatedFilter::endSubRun(SubRun const&, Services const&)
   {
     return true;
   }
