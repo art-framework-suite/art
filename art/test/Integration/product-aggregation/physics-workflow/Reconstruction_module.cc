@@ -35,8 +35,8 @@ namespace arttest {
     explicit Reconstruction(Parameters const&);
 
   private:
-    bool beginSubRun(SubRun&, Services const&) override;
-    bool endSubRun(SubRun&, Services const&) override;
+    void beginSubRun(SubRun&, Services const&) override;
+    void endSubRun(SubRun&, Services const&) override;
     bool filter(Event&, Services const&) override;
 
     double const threshold_;
@@ -58,16 +58,15 @@ namespace arttest {
     produces<arttest::TrackEfficiency, InSubRun>("TrackEfficiency");
   }
 
-  bool
+  void
   Reconstruction::beginSubRun(SubRun& sr, Services const&)
   {
     sr.put(make_unique<arttest::CalibConstants>(sr.subRun()),
            "CalibConstants",
            fullSubRun());
-    return true;
   }
 
-  bool
+  void
   Reconstruction::endSubRun(SubRun& sr, Services const&)
   {
     sr.put(make_unique<arttest::TrackEfficiency>(numerator_.load(),
@@ -76,7 +75,6 @@ namespace arttest {
            subRunFragment());
     numerator_ = 0u;
     denominator_ = 0u;
-    return true;
   }
 
   bool

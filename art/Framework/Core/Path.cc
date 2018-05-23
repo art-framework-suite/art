@@ -561,8 +561,8 @@ namespace art {
     }
   }
 
-  // We come here as  as part of a runWorker task.
-  // Our parent task is the nullptr.
+  // We come here as as part of a runWorker task.  Our parent task is
+  // the nullptr.
   void
   Path::process_event_pathFinished(size_t const idx,
                                    EventPrincipal&,

@@ -60,25 +60,29 @@ namespace art {
   bool
   SharedFilter::beginRunWithServices(Run& r, Services const& services)
   {
-    return beginRun(r, services);
+    beginRun(r, services);
+    return true;
   }
 
   bool
   SharedFilter::endRunWithServices(Run& r, Services const& services)
   {
-    return endRun(r, services);
+    endRun(r, services);
+    return true;
   }
 
   bool
   SharedFilter::beginSubRunWithServices(SubRun& sr, Services const& services)
   {
-    return beginSubRun(sr, services);
+    beginSubRun(sr, services);
+    return true;
   }
 
   bool
   SharedFilter::endSubRunWithServices(SubRun& sr, Services const& services)
   {
-    return endSubRun(sr, services);
+    endSubRun(sr, services);
+    return true;
   }
 
   bool
@@ -112,28 +116,20 @@ namespace art {
   SharedFilter::respondToCloseOutputFiles(FileBlock const&, Services const&)
   {}
 
-  bool
+  void
   SharedFilter::beginRun(Run&, Services const&)
-  {
-    return true;
-  }
+  {}
 
-  bool
+  void
   SharedFilter::endRun(Run&, Services const&)
-  {
-    return true;
-  }
+  {}
 
-  bool
+  void
   SharedFilter::beginSubRun(SubRun&, Services const&)
-  {
-    return true;
-  }
+  {}
 
-  bool
+  void
   SharedFilter::endSubRun(SubRun&, Services const&)
-  {
-    return true;
-  }
+  {}
 
 } // namespace art

@@ -63,26 +63,30 @@ namespace art {
   bool
   ReplicatedFilter::beginRunWithServices(Run& r, Services const& services)
   {
-    return beginRun(r, services);
+    beginRun(r, services);
+    return true;
   }
 
   bool
   ReplicatedFilter::endRunWithServices(Run& r, Services const& services)
   {
-    return endRun(r, services);
+    endRun(r, services);
+    return true;
   }
 
   bool
   ReplicatedFilter::beginSubRunWithServices(SubRun& sr,
                                             Services const& services)
   {
-    return beginSubRun(sr, services);
+    beginSubRun(sr, services);
+    return true;
   }
 
   bool
   ReplicatedFilter::endSubRunWithServices(SubRun& sr, Services const& services)
   {
-    return endSubRun(sr, services);
+    endSubRun(sr, services);
+    return true;
   }
 
   bool
@@ -116,28 +120,20 @@ namespace art {
   ReplicatedFilter::respondToCloseOutputFiles(FileBlock const&, Services const&)
   {}
 
-  bool
+  void
   ReplicatedFilter::beginRun(Run const&, Services const&)
-  {
-    return true;
-  }
+  {}
 
-  bool
+  void
   ReplicatedFilter::endRun(Run const&, Services const&)
-  {
-    return true;
-  }
+  {}
 
-  bool
+  void
   ReplicatedFilter::beginSubRun(SubRun const&, Services const&)
-  {
-    return true;
-  }
+  {}
 
-  bool
+  void
   ReplicatedFilter::endSubRun(SubRun const&, Services const&)
-  {
-    return true;
-  }
+  {}
 
 } // namespace art

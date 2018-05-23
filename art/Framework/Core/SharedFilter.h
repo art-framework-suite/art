@@ -55,10 +55,10 @@ namespace art {
     virtual void respondToCloseInputFile(FileBlock const&, Services const&);
     virtual void respondToOpenOutputFiles(FileBlock const&, Services const&);
     virtual void respondToCloseOutputFiles(FileBlock const&, Services const&);
-    virtual bool beginRun(Run&, Services const&);
-    virtual bool endRun(Run&, Services const&);
-    virtual bool beginSubRun(SubRun&, Services const&);
-    virtual bool endSubRun(SubRun&, Services const&);
+    virtual void beginRun(Run&, Services const&);
+    virtual void endRun(Run&, Services const&);
+    virtual void beginSubRun(SubRun&, Services const&);
+    virtual void endSubRun(SubRun&, Services const&);
     virtual bool filter(Event&, Services const&) = 0;
   };
 
