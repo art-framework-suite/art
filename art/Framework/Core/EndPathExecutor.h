@@ -130,7 +130,7 @@ namespace art {
 
   private:
     // Protects runRangeSetHandler_, and subRunRangeSetHandler_.
-    static hep::concurrency::RecursiveMutex mutex_;
+    mutable hep::concurrency::RecursiveMutex mutex_{"EndPathExecutor::mutex_"};
     // Filled by ctor, const after that.
     ScheduleContext const sc_;
     std::atomic<ActionTable const*> actionTable_;
@@ -146,8 +146,6 @@ namespace art {
     std::atomic<PerScheduleContainer<RangeSetHandler*>*> subRunRangeSetHandler_;
 
     // Output File Switching
-    // Protects fileStatus_, outputWorkersToOpen_, and outputWorkersToClose_
-    static hep::concurrency::RecursiveMutex ofsMutex_;
     std::atomic<OutputFileStatus> fileStatus_;
     std::atomic<std::set<OutputWorker*>*> outputWorkersToOpen_;
     // Note: During an output file switch, after the closes happen, the entire

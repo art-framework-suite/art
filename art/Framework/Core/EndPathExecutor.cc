@@ -48,11 +48,6 @@ using namespace std;
 
 namespace art {
 
-  hep::concurrency::RecursiveMutex EndPathExecutor::mutex_{
-    "EndPathExecutor::mutex_"};
-  hep::concurrency::RecursiveMutex EndPathExecutor::ofsMutex_{
-    "EndPathExecutor::ofsMutex_"};
-
   EndPathExecutor::~EndPathExecutor()
   {
     delete outputWorkersToClose_.load();
@@ -466,7 +461,6 @@ namespace art {
   bool
   EndPathExecutor::outputsToClose() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{ofsMutex_, __func__};
     return !outputWorkersToClose_.load()->empty();
   }
 
@@ -484,7 +478,6 @@ namespace art {
   void
   EndPathExecutor::closeSomeOutputFiles()
   {
-    hep::concurrency::RecursiveMutexSentry sentry{ofsMutex_, __func__};
     setOutputFileStatus(OutputFileStatus::Switching);
     for (auto ow : *outputWorkersToClose_) {
       // Skip files that are already closed due to other end-path
@@ -506,7 +499,6 @@ namespace art {
   bool
   EndPathExecutor::outputsToOpen() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{ofsMutex_, __func__};
     return !outputWorkersToOpen_.load()->empty();
   }
 
@@ -517,7 +509,6 @@ namespace art {
   void
   EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{ofsMutex_, __func__};
     for (auto ow : *outputWorkersToOpen_.load()) {
       if (!ow->openFile(fb)) {
         continue;
@@ -541,7 +532,6 @@ namespace art {
   void
   EndPathExecutor::setOutputFileStatus(OutputFileStatus const ofs)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{ofsMutex_, __func__};
     for (auto ow : *outputWorkers_.load()) {
       ow->setFileStatus(ofs);
     }
@@ -553,7 +543,6 @@ namespace art {
   void
   EndPathExecutor::recordOutputClosureRequests(Granularity const atBoundary)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{ofsMutex_, __func__};
     for (auto ow : *outputWorkers_.load()) {
       if (atBoundary < ow->fileGranularity()) {
         // The boundary we are checking at is finer than the checks
@@ -575,7 +564,6 @@ namespace art {
   void
   EndPathExecutor::incrementInputFileNumber()
   {
-    hep::concurrency::RecursiveMutexSentry sentry{ofsMutex_, __func__};
     for (auto ow : *outputWorkers_.load()) {
       ow->incrementInputFileNumber();
     }
@@ -587,7 +575,6 @@ namespace art {
   bool
   EndPathExecutor::allAtLimit() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{ofsMutex_, __func__};
     if (outputWorkers_.load()->empty()) {
       return false;
     }
