@@ -7,6 +7,7 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
+#include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/ClosedRangeSetHandler.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -93,6 +94,7 @@ namespace art {
     outputWorkersToClose_ = new set<OutputWorker*>;
     for (auto const& val : endPathInfo_.load()->workers()) {
       auto w = val.second;
+      assert(sid == w->scheduleID());
       auto owp = dynamic_cast<OutputWorker*>(w);
       if (owp != nullptr) {
         outputWorkers_.load()->emplace_back(owp);
@@ -113,8 +115,11 @@ namespace art {
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.load()->workers()) {
-      auto& w = label_and_worker.second;
-      w->beginJob();
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      w.beginJob();
     }
   }
 
@@ -126,9 +131,12 @@ namespace art {
     // FIXME: There seems to be little value-added by the catch and rethrow
     // here.
     for (auto& label_and_worker : endPathInfo_.load()->workers()) {
-      auto& w = label_and_worker.second;
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
       try {
-        w->endJob();
+        w.endJob();
       }
       catch (cet::exception& e) {
         error << "cet::exception caught in Schedule::endJob\n"
@@ -165,8 +173,11 @@ namespace art {
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.load()->workers()) {
-      auto& w = label_and_worker.second;
-      w->respondToOpenInputFile(fb);
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      w.respondToOpenInputFile(fb);
     }
   }
 
@@ -175,8 +186,11 @@ namespace art {
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.load()->workers()) {
-      auto& w = label_and_worker.second;
-      w->respondToCloseInputFile(fb);
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      w.respondToCloseInputFile(fb);
     }
   }
 
@@ -185,8 +199,11 @@ namespace art {
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.load()->workers()) {
-      auto& w = label_and_worker.second;
-      w->respondToOpenOutputFiles(fb);
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      w.respondToOpenOutputFiles(fb);
     }
   }
 
@@ -195,8 +212,11 @@ namespace art {
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.load()->workers()) {
-      auto& w = label_and_worker.second;
-      w->respondToCloseOutputFiles(fb);
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      w.respondToCloseOutputFiles(fb);
     }
   }
 
@@ -304,8 +324,11 @@ namespace art {
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.load()->workers()) {
-      auto& w = label_and_worker.second;
-      w->reset(ScheduleID::first());
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      w.reset();
     }
     try {
       if (!endPathInfo_.load()->paths().empty()) {
@@ -345,7 +368,7 @@ namespace art {
     ++runningWorkerCnt_;
     for (auto& label_and_worker : endPathInfo_.load()->workers()) {
       auto& w = label_and_worker.second;
-      w->reset(sid);
+      w->reset();
     }
     endPathInfo_.load()->incrementTotalEventCount();
     try {

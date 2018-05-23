@@ -403,7 +403,7 @@ cet_test(ToyProductProducerFilter_t HANDBUILT
 
 cet_test(ToyProductProducerFilterReplicated_t HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --rethrow-all -c ToyProductProducerFilterReplicated_t.fcl
+  TEST_ARGS --rethrow-all -c ToyProductProducerFilterReplicated_t.fcl -j 10
   DATAFILES
   fcl/ToyProductProducerFilterReplicated_t.fcl
   )

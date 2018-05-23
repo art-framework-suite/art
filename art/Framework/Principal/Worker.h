@@ -95,33 +95,30 @@ namespace art {
     // and to run workers on the end path.
     void doWork_event(EventPrincipal&, ModuleContext const&);
 
+    ScheduleID
+    scheduleID() const
+    {
+      return scheduleID_;
+    }
     ModuleDescription const& description() const;
     ModuleDescription const* descPtr() const;
     std::string const& label() const;
 
     // Used only by WorkerInPath.
-    bool returnCode(ScheduleID const) const;
+    bool returnCode() const;
 
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
 
     // Used by EventProcessor
     // Used by Schedule
     // Used by EndPathExecutor
-    void reset(ScheduleID const);
+    void reset();
 
     // Used only by writeSummary
     std::size_t timesVisited() const;
-
-    // Used only by writeSummary
     std::size_t timesRun() const;
-
-    // Used only by writeSummary
     std::size_t timesPassed() const;
-
-    // Used only by writeSummary
     std::size_t timesFailed() const;
-
-    // Used only by writeSummary
     std::size_t timesExcept() const;
 
   public: // Tasking Structure
@@ -147,6 +144,7 @@ namespace art {
     virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
   private: // MEMBER DATA
+    ScheduleID const scheduleID_;
     std::atomic<ModuleDescription const*> md_;
     std::atomic<ActionTable const*> actions_;
     std::atomic<ActivityRegistry const*> actReg_;

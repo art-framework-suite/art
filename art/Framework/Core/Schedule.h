@@ -88,18 +88,20 @@ namespace art {
     void respondToOpenOutputFiles(FileBlock const&);
     void respondToCloseOutputFiles(FileBlock const&);
 
-  public: // Tasking Structure
+    // Tasking Structure
     void pathsDoneTask(hep::concurrency::WaitingTask* endPathTask,
                        tbb::task* eventLoopTask,
                        EventPrincipal&,
                        std::exception_ptr const*);
 
-  private: // Member Functions -- Implementation details.
+    // Implementation details.
     void process_event_pathsDone(hep::concurrency::WaitingTask* endPathTask,
                                  tbb::task* eventLoopTask,
                                  EventPrincipal&);
 
   private:
+    bool skipNonReplicated_(Worker const&);
+
     // const after ctor.
     ScheduleContext const sc_;
     std::atomic<ActionTable const*> actionTable_;

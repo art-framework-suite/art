@@ -10,6 +10,7 @@
 #include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
@@ -105,6 +106,9 @@ namespace art {
   {
     for (auto const& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
       w.beginJob();
     }
     if (results_inserter_.load() != nullptr) {
@@ -115,9 +119,12 @@ namespace art {
   void
   Schedule::endJob()
   {
-    Exception error(errors::EndJobFailure);
+    Exception error{errors::EndJobFailure};
     for (auto& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
       // FIXME: The catch and rethrow here seems to have little value added.
       try {
         w.endJob();
@@ -164,6 +171,9 @@ namespace art {
   {
     for (auto const& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
       w.respondToOpenInputFile(fb);
     }
     if (results_inserter_.load() != nullptr) {
@@ -176,6 +186,9 @@ namespace art {
   {
     for (auto const& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
       w.respondToCloseInputFile(fb);
     }
     if (results_inserter_.load() != nullptr) {
@@ -188,6 +201,9 @@ namespace art {
   {
     for (auto const& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
       w.respondToOpenOutputFiles(fb);
     }
     if (results_inserter_.load() != nullptr) {
@@ -200,6 +216,9 @@ namespace art {
   {
     for (auto const& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
       w.respondToCloseOutputFiles(fb);
     }
     if (results_inserter_.load() != nullptr) {
@@ -211,7 +230,11 @@ namespace art {
   Schedule::process(Transition const trans, Principal& principal)
   {
     for (auto const& val : triggerPathsInfo_.load()->workers()) {
-      val.second->reset(ScheduleID::first());
+      auto& w = *val.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      w.reset();
     }
     for (auto const& path : triggerPathsInfo_.load()->paths()) {
       path->process(trans, principal);
@@ -335,10 +358,10 @@ namespace art {
     ++runningWorkerCnt_;
     for (auto const& val : triggerPathsInfo_.load()->workers()) {
       auto& w = *val.second;
-      w.reset(scheduleID);
+      w.reset();
     }
     if (results_inserter_.load() != nullptr) {
-      results_inserter_.load()->reset(scheduleID);
+      results_inserter_.load()->reset();
     }
     triggerPathsInfo_.load()->pathResults().reset();
     triggerPathsInfo_.load()->incrementTotalEventCount();
@@ -453,5 +476,4 @@ namespace art {
     wth.doneWaiting(exception_ptr{});
     TDEBUG_END_FUNC_SI(4, "Schedule::process_event_pathsDone", scheduleID);
   }
-
 } // namespace art

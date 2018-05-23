@@ -9,8 +9,15 @@ physics: {
   filters: {
     f1: {
       module_type: ToyProductFilterReplicated
+      outputModuleConfigured: true
     }
   }
 
-  p1: [ f1 ]
+  p1: [f1]
+  e1: [o1]
+}
+
+outputs.o1: {
+  module_type: RootOutput
+  fileName: "/dev/null"
 }

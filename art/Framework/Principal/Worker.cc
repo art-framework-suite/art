@@ -75,6 +75,7 @@ namespace art {
   }
 
   Worker::Worker(ModuleDescription const& md, WorkerParams const& wp)
+    : scheduleID_{wp.scheduleID_}
   {
     {
       ostringstream msg;
@@ -117,7 +118,7 @@ namespace art {
 
   // Used only by WorkerInPath.
   bool
-  Worker::returnCode(ScheduleID const /*sid*/) const
+  Worker::returnCode() const
   {
     return returnCode_.load();
   }
@@ -132,7 +133,7 @@ namespace art {
   // Used by Schedule
   // Used by EndPathExecutor
   void
-  Worker::reset(ScheduleID const sid)
+  Worker::reset()
   {
     state_ = Ready;
     delete cached_exception_.load();
@@ -141,7 +142,7 @@ namespace art {
       ostringstream msg;
       msg << "0x" << hex << ((unsigned long)this) << dec
           << " Resetting waitingTasks_";
-      TDEBUG_FUNC_SI_MSG(6, "Worker::reset", sid, msg.str());
+      TDEBUG_FUNC_SI_MSG(6, "Worker::reset", scheduleID_, msg.str());
     }
     waitingTasks_.load()->reset();
     workStarted_ = false;

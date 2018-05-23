@@ -166,7 +166,7 @@ namespace art {
                              "because of EXCEPTION");
       throw;
     }
-    returnCode_ = worker_.load()->returnCode(scheduleID);
+    returnCode_ = worker_.load()->returnCode();
     {
       ostringstream msg;
       msg << "raw returnCode_: " << returnCode_.load();
@@ -221,7 +221,7 @@ namespace art {
         4, "workerInPathDoneTask", scheduleID, "because of EXCEPTION");
       return;
     }
-    returnCode_ = worker_.load()->returnCode(scheduleID);
+    returnCode_ = worker_.load()->returnCode();
     {
       ostringstream msg;
       msg << "raw returnCode_: " << returnCode_.load();

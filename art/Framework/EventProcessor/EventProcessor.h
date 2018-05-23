@@ -117,6 +117,7 @@ namespace art {
     // Level-specific member functions
     void beginJob();
     void endJob();
+    void endJobAllSchedules();
     void openInputFile();
     bool outputsToOpen();
     void openSomeOutputFiles();

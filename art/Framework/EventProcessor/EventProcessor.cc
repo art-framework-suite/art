@@ -1334,8 +1334,10 @@ namespace art {
                                   " processing the beginJob of the 'source'\n";
       throw;
     }
-    schedules_.at(ScheduleID::first()).beginJob();
-    endPathExecutors_.at(ScheduleID::first()).beginJob();
+    scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
+      schedules_.at(sid).beginJob();
+      endPathExecutors_.at(sid).beginJob();
+    });
     actReg_->sPostBeginJob.invoke();
     invokePostBeginJobWorkers_();
   }
@@ -1344,14 +1346,22 @@ namespace art {
   EventProcessor::endJob()
   {
     FDEBUG(1) << string(8, ' ') << "endJob\n";
-    ec_->call([this] { schedules_.at(ScheduleID::first()).endJob(); });
-    ec_->call([this] { endPathExecutors_.at(ScheduleID::first()).endJob(); });
+    ec_->call([this] { endJobAllSchedules(); });
     ec_->call([] { ConsumesInfo::instance()->showMissingConsumes(); });
     ec_->call([this] { input_->doEndJob(); });
     ec_->call([this] { actReg_->sPostEndJob.invoke(); });
     ec_->call([] { mf::LogStatistics(); });
     ec_->call([this] {
       detail::writeSummary(pathManager_, scheduler_->wantSummary(), timer_);
+    });
+  }
+
+  void
+  EventProcessor::endJobAllSchedules()
+  {
+    scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
+      schedules_.at(sid).endJob();
+      endPathExecutors_.at(sid).endJob();
     });
   }
 
@@ -1465,32 +1475,40 @@ namespace art {
   void
   EventProcessor::respondToOpenInputFile()
   {
-    schedules_.at(ScheduleID::first()).respondToOpenInputFile(*fb_);
-    endPathExecutors_.at(ScheduleID::first()).respondToOpenInputFile(*fb_);
+    scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
+      schedules_.at(sid).respondToOpenInputFile(*fb_);
+      endPathExecutors_.at(sid).respondToOpenInputFile(*fb_);
+    });
     FDEBUG(1) << string(8, ' ') << "respondToOpenInputFile\n";
   }
 
   void
   EventProcessor::respondToCloseInputFile()
   {
-    schedules_.at(ScheduleID::first()).respondToCloseInputFile(*fb_);
-    endPathExecutors_.at(ScheduleID::first()).respondToCloseInputFile(*fb_);
+    scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
+      schedules_.at(sid).respondToCloseInputFile(*fb_);
+      endPathExecutors_.at(sid).respondToCloseInputFile(*fb_);
+    });
     FDEBUG(1) << string(8, ' ') << "respondToCloseInputFile\n";
   }
 
   void
   EventProcessor::respondToOpenOutputFiles()
   {
-    schedules_.at(ScheduleID::first()).respondToOpenOutputFiles(*fb_);
-    endPathExecutors_.at(ScheduleID::first()).respondToOpenOutputFiles(*fb_);
+    scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
+      schedules_.at(sid).respondToOpenOutputFiles(*fb_);
+      endPathExecutors_.at(sid).respondToOpenOutputFiles(*fb_);
+    });
     FDEBUG(1) << string(8, ' ') << "respondToOpenOutputFiles\n";
   }
 
   void
   EventProcessor::respondToCloseOutputFiles()
   {
-    schedules_.at(ScheduleID::first()).respondToCloseOutputFiles(*fb_);
-    endPathExecutors_.at(ScheduleID::first()).respondToCloseOutputFiles(*fb_);
+    scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
+      schedules_.at(sid).respondToCloseOutputFiles(*fb_);
+      endPathExecutors_.at(sid).respondToCloseOutputFiles(*fb_);
+    });
     FDEBUG(1) << string(8, ' ') << "respondToCloseOutputFiles\n";
   }
 
@@ -1540,10 +1558,11 @@ namespace art {
         Run const run{*runPrincipal_, ModuleDescription{}};
         actReg_->sPreBeginRun.invoke(run);
       }
-      schedules_.at(ScheduleID::first())
-        .process(Transition::BeginRun, *runPrincipal_);
-      endPathExecutors_.at(ScheduleID::first())
-        .process(Transition::BeginRun, *runPrincipal_);
+      scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
+
+        schedules_.at(sid).process(Transition::BeginRun, *runPrincipal_);
+        endPathExecutors_.at(sid).process(Transition::BeginRun, *runPrincipal_);
+      });
       {
         Run const run{*runPrincipal_, ModuleDescription{}};
         actReg_->sPostBeginRun.invoke(run);
@@ -1633,10 +1652,11 @@ namespace art {
         actReg_->sPreEndRun.invoke(runPrincipal_->runID(),
                                    runPrincipal_->endTime());
       }
-      schedules_.at(ScheduleID::first())
-        .process(Transition::EndRun, *runPrincipal_);
-      endPathExecutors_.at(ScheduleID::first())
-        .process(Transition::EndRun, *runPrincipal_);
+      scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
+
+        schedules_.at(sid).process(Transition::EndRun, *runPrincipal_);
+        endPathExecutors_.at(sid).process(Transition::EndRun, *runPrincipal_);
+      });
       {
         Run const r{*runPrincipal_, ModuleDescription{}};
         actReg_->sPostEndRun.invoke(r);
@@ -1716,10 +1736,12 @@ namespace art {
         SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
         actReg_->sPreBeginSubRun.invoke(srun);
       }
-      schedules_.at(ScheduleID::first())
-        .process(Transition::BeginSubRun, *subRunPrincipal_);
-      endPathExecutors_.at(ScheduleID::first())
-        .process(Transition::BeginSubRun, *subRunPrincipal_);
+      scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
+
+        schedules_.at(sid).process(Transition::BeginSubRun, *subRunPrincipal_);
+        endPathExecutors_.at(sid).process(Transition::BeginSubRun,
+                                          *subRunPrincipal_);
+      });
       {
         SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
         actReg_->sPostBeginSubRun.invoke(srun);
@@ -1878,10 +1900,12 @@ namespace art {
         actReg_->sPreEndSubRun.invoke(subRunPrincipal_->subRunID(),
                                       subRunPrincipal_->endTime());
       }
-      schedules_.at(ScheduleID::first())
-        .process(Transition::EndSubRun, *subRunPrincipal_);
-      endPathExecutors_.at(ScheduleID::first())
-        .process(Transition::EndSubRun, *subRunPrincipal_);
+      scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
+
+        schedules_.at(sid).process(Transition::EndSubRun, *subRunPrincipal_);
+        endPathExecutors_.at(sid).process(Transition::EndSubRun,
+                                          *subRunPrincipal_);
+      });
       {
         SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
         actReg_->sPostEndSubRun.invoke(srun);
