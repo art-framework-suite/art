@@ -59,9 +59,10 @@ namespace art {
   class EventPrincipal;
 
   class Worker {
+
     friend class RunWorkerFunctor;
 
-  public:
+  public: // TYPES
     enum State : int {
       Ready = 0,
       Pass = 1,
@@ -70,13 +71,14 @@ namespace art {
       ExceptionThrown = 4
     };
 
-    // Special Member Functions
+  public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~Worker() noexcept;
     Worker(ModuleDescription const&, WorkerParams const&);
     Worker(Worker const&) = delete;
     Worker(Worker&) = delete;
 
-    // API exposed to EventProcessor, Schedule, and EndPathExecutor
+  public: // MEMBER FUNCTIONS -- API exposed to EventProcessor, Schedule,
+          // and EndPathExecutor
     void beginJob();
     void endJob();
     void respondToOpenInputFile(FileBlock const& fb);
@@ -89,8 +91,8 @@ namespace art {
                       EventPrincipal&,
                       ModuleContext const&);
 
-    // This is used to do trigger results insertion, and to run
-    // workers on the end path.
+    // This is used to do trigger results insertion,
+    // and to run workers on the end path.
     void doWork_event(EventPrincipal&, ModuleContext const&);
 
     ModuleDescription const& description() const;

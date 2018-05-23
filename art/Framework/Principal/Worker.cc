@@ -333,27 +333,17 @@ namespace art {
         rethrow_exception(*cached_exception_.load());
       }
       case Working:
-        // This can happen when two or more threads try to execute a
-        // module shared on more than one path.  In order to avoid
-        // data-dependency errors for subsequent modules, we stall
-        // here until the state_ bit is not 'Working'.  Once we use
-        // the consumes information to inform the scheduling, we can
-        // avoid the stall if subsequent modules do not depend on the
-        // data products produced by the module.
-        while (state_ == Working) {
-        }
-
-        // Because of the scheduling layout, we are guaranteed that
-        // the atomic variable state_ will *not* be 'Working' at this
-        // point.  The only options will be 'Pass', 'Fail', and
-        // 'ExceptionThrown'.  If the state is 'ExceptionThrown', we
-        // do not rethrow as that could wreak horrible havoc--instead
-        // we just return false.  It is thus sufficient only check if
-        // the state is set to 'Pass'.
-        return state_ == Pass;
+        break; // See below.
     }
     bool rc = false;
     try {
+      if (state_.load() == Working) {
+        // Not part of the switch statement above because we want the
+        // exception to be caught by our handling mechanism.
+        throw art::Exception(errors::ScheduleExecutionFailure)
+          << "A Module has been invoked while it is still being executed.\n"
+          << "Product dependencies have invoked a module execution cycle.\n";
+      }
       state_ = Working;
       if (trans == Transition::BeginRun) {
         actReg_.load()->sPreModuleBeginRun.invoke(mc);
@@ -448,9 +438,6 @@ namespace art {
   void
   Worker::doWork_event(EventPrincipal& p, ModuleContext const& mc)
   {
-    // Since the contexts in which this function is called do not
-    // allow for sharing a worker between paths, we do not worry about
-    // checking if the state is Working.
     ++counts_visited_;
     returnCode_ = false;
     try {
@@ -722,16 +709,17 @@ namespace art {
   {
     auto const sid = mc.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, "Worker::doWork_event", sid);
-    // Note: We actually can have more than one entry in this list
-    // because a worker may be on more than one path, and if both
-    // paths are running in parallel, then it is possible that they
-    // both attempt to run the same worker at nearly the same time.
-    // We arrange so that the worker itself only runs once, but we do
-    // have to notify all the paths that the worker has finished,
-    // hence the waiting list of notification tasks.
-
-    // MT note: More than one task can enter here in the case that
-    // paths running in parallel share the same worker.
+    // Note: We actually can have more than one entry in this
+    // list because a worker may be one more than one path,
+    // and if both paths are running in parallel, then it is
+    // possible that they both attempt to run the same worker
+    // at nearly the same time.  We arrange so that the worker
+    // itself only runs once, but we do have to notify all the
+    // paths that the worker has finished, hence the waiting
+    // list of notification tasks.
+    // Note: threading: More than one task can enter here in
+    // the case that paths running in parallel share the same
+    // worker.
     waitingTasks_.load()->add(workerInPathDoneTask);
     ++counts_visited_;
     bool expected = false;
@@ -756,21 +744,12 @@ namespace art {
       TDEBUG_END_FUNC_SI(4, "Worker::doWork_event", sid);
       return;
     }
-
-    // Worker is running on another path.  In order to avoid
-    // data-dependency errors for subsequent modules, we stall here
-    // until the state_ bit is *not* Working.  Once we use the
-    // consumes information to inform the scheduling, we can avoid the
-    // stall if subsequent modules do not depend on the data products
-    // produced by the module.
-    while (state_ == Working) {
-    }
-
+    // Worker is running on another path, exit without running the waiting
+    // worker done tasks.
     TDEBUG_END_FUNC_SI_ERR(4,
                            "Worker::doWork_event",
                            sid,
-                           "work already in progress on another path; waiting "
-                           "until the other path finishes");
+                           "work already in progress on another path");
   }
 
 } // namespace art
