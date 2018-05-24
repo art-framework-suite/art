@@ -97,7 +97,7 @@ namespace art {
     ~DataViewImpl();
     explicit DataViewImpl(BranchType bt,
                           Principal const& p,
-                          ModuleDescription const& md,
+                          ModuleContext const& mc,
                           bool recordParents,
                           RangeSet const& rs = RangeSet::invalid());
     DataViewImpl(DataViewImpl const&) = delete;
@@ -315,6 +315,9 @@ namespace art {
     // The principal we are operating on.
     Principal const& principal_;
 
+    // The context of the currently processing module.
+    ModuleContext const& mc_;
+
     // The module we were created for.
     ModuleDescription const& md_;
 
@@ -375,8 +378,8 @@ namespace art {
     result.clear();
     // We do *not* track whether consumes was called for a SelectorBase.
     ProcessTag const processTag{"", md_.processName()};
-    auto qr =
-      principal_.getBySelector(WrappedTypeID::make<PROD>(), sel, processTag);
+    auto qr = principal_.getBySelector(
+      mc_, WrappedTypeID::make<PROD>(), sel, processTag);
     result = Handle<PROD>{qr};
     bool const ok = qr.succeeded() && !qr.failed();
     if (recordParents_ && ok) {
@@ -418,7 +421,7 @@ namespace art {
                             processTag};
     ConsumesInfo::instance()->validateConsumedProduct(branchType_, md_, pinfo);
     GroupQueryResult qr = principal_.getByLabel(
-      wrapped, moduleLabel, productInstanceName, processTag);
+      mc_, wrapped, moduleLabel, productInstanceName, processTag);
     result = Handle<PROD>{qr};
     bool const ok = qr.succeeded() && !qr.failed();
     if (recordParents_ && ok) {
@@ -501,7 +504,7 @@ namespace art {
       ProductInfo{ProductInfo::ConsumableType::Many, wrapped.product_type});
     ProcessTag const processTag{"", md_.processName()};
     std::vector<Handle<PROD>> products;
-    for (auto const& qr : principal_.getMany(wrapped, sel, processTag)) {
+    for (auto const& qr : principal_.getMany(mc_, wrapped, sel, processTag)) {
       products.emplace_back(qr);
       if (recordParents_) {
         recordAsParent_(qr.result());

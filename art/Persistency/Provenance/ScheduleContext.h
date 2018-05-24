@@ -5,6 +5,8 @@
 
 namespace art {
   class ScheduleContext {
+    explicit ScheduleContext() = default;
+
   public:
     explicit ScheduleContext(ScheduleID const sid) : sid_{sid} {}
     auto
@@ -13,8 +15,14 @@ namespace art {
       return sid_;
     }
 
+    static ScheduleContext
+    invalid()
+    {
+      return ScheduleContext{};
+    }
+
   private:
-    ScheduleID sid_;
+    ScheduleID sid_{};
   };
 }
 

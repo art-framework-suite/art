@@ -44,7 +44,7 @@ namespace art {
 
     ~Event();
 
-    explicit Event(EventPrincipal const& ep, ModuleDescription const& md);
+    explicit Event(EventPrincipal const& ep, ModuleContext const& mc);
 
     Event(Event const&) = delete;
     Event(Event&&) = delete;

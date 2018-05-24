@@ -51,7 +51,6 @@
 namespace art {
 
   class ActivityRegistry;
-  class PathContext;
   class ModuleContext;
   class FileBlock;
   class RunPrincipal;

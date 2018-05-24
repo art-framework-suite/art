@@ -24,6 +24,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "canvas/Persistency/Common/PrincipalBase.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
@@ -121,14 +122,17 @@ namespace art {
     //   api)
     GroupQueryResult getByProductID(ProductID const pid) const;
 
-    GroupQueryResult getBySelector(WrappedTypeID const& wrapped,
+    GroupQueryResult getBySelector(ModuleContext const& mc,
+                                   WrappedTypeID const& wrapped,
                                    SelectorBase const&,
                                    ProcessTag const&) const;
-    GroupQueryResult getByLabel(WrappedTypeID const& wrapped,
+    GroupQueryResult getByLabel(ModuleContext const& mc,
+                                WrappedTypeID const& wrapped,
                                 std::string const& label,
                                 std::string const& productInstanceName,
                                 ProcessTag const& processTag) const;
-    GroupQueryResultVec getMany(WrappedTypeID const& wrapped,
+    GroupQueryResultVec getMany(ModuleContext const& mc,
+                                WrappedTypeID const& wrapped,
                                 SelectorBase const&,
                                 ProcessTag const&) const;
 
@@ -137,7 +141,8 @@ namespace art {
     // which are sequences, have a nested type named 'value_type', and
     // where elementType the same as, or a public base of, this
     // value_type, and which match the given selector.
-    GroupQueryResultVec getMatchingSequence(SelectorBase const&,
+    GroupQueryResultVec getMatchingSequence(ModuleContext const&,
+                                            SelectorBase const&,
                                             ProcessTag const&) const;
 
     // Note: Used only by DataViewImpl::ProductGetter!
@@ -149,7 +154,7 @@ namespace art {
     // This is intended to be used by a module that fetches a very
     // large data product, makes a copy, and would like to release
     // the memory held by the original immediately.
-    void removeCachedProduct(ProductID const) const;
+    void removeCachedProduct(ProductID) const;
 
     // MEMBER FUNCTIONS -- Interface for other parts of art
   public:
@@ -300,17 +305,21 @@ namespace art {
     void insert_pp(Group*, std::unique_ptr<ProductProvenance const>&&);
 
     GroupQueryResultVec matchingSequenceFromInputFile(
+      ModuleContext const&,
       SelectorBase const&) const;
-    size_t findGroupsFromInputFile(WrappedTypeID const& wrapped,
+    size_t findGroupsFromInputFile(ModuleContext const&,
+                                   WrappedTypeID const& wrapped,
                                    SelectorBase const&,
                                    GroupQueryResultVec& results,
                                    bool stopIfProcessHasMatch) const;
     size_t findGroups(ProcessLookup const&,
+                      ModuleContext const&,
                       SelectorBase const&,
                       GroupQueryResultVec& results,
                       bool stopIfProcessHasMatch,
                       TypeID wanted_wrapper = TypeID{}) const;
     size_t findGroupsForProcess(std::vector<ProductID> const& vpid,
+                                ModuleContext const& mc,
                                 SelectorBase const& selector,
                                 GroupQueryResultVec& results,
                                 TypeID wanted_wrapper) const;
@@ -319,7 +328,8 @@ namespace art {
     int tryNextSecondaryFile() const;
 
     // Implementation of the DataViewImpl API.
-    GroupQueryResultVec findGroupsForProduct(WrappedTypeID const& wrapped,
+    GroupQueryResultVec findGroupsForProduct(ModuleContext const& mc,
+                                             WrappedTypeID const& wrapped,
                                              SelectorBase const&,
                                              ProcessTag const&,
                                              bool stopIfProcessHasMatch) const;

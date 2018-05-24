@@ -3,6 +3,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Globals.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
@@ -100,7 +101,8 @@ arttest::TestBitsOutput::TestBitsOutput(
 void
 arttest::TestBitsOutput::write(art::EventPrincipal& ep)
 {
-  Event const ev{ep, moduleDescription_};
+  ModuleContext const mc{moduleDescription_};
+  Event const ev{ep, mc};
   // There should not be a TriggerResults object in the event if all
   // three of the following requirements are met:
   //
@@ -119,7 +121,7 @@ arttest::TestBitsOutput::write(art::EventPrincipal& ep)
       // throw doesn't happen until we dereference
       *prod;
     }
-    catch (const cet::exception&) {
+    catch (cet::exception const&) {
       // We did not find one as expected, nothing else to test.
       return;
     }

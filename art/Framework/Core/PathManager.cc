@@ -55,6 +55,19 @@ using fhicl::ParameterSet;
 
 namespace art {
 
+  namespace {
+    std::vector<std::string>
+    sorted_module_labels(std::vector<WorkerInPath::ConfigInfo> const& wcis)
+    {
+      std::vector<std::string> sorted_modules;
+      cet::transform_all(wcis,
+                         back_inserter(sorted_modules),
+                         [](auto const& wci) { return wci.label; });
+      std::sort(begin(sorted_modules), end(sorted_modules));
+      return sorted_modules;
+    }
+  }
+
   PathManager::~PathManager() noexcept
   {
     for (auto& label_and_workers : workers_) {
@@ -421,7 +434,8 @@ namespace art {
       for (auto const& val : protoTrigPathLabelMap_) {
         auto const& path_name = val.first;
         auto const& worker_config_infos = val.second;
-        PathContext const pc{sc, path_name, bitPos};
+        PathContext const pc{
+          sc, path_name, bitPos, sorted_module_labels(worker_config_infos)};
         auto wips =
           fillWorkers_(pc, worker_config_infos, modules, pinfo.workers());
         pinfo.paths().push_back(new Path{
@@ -442,7 +456,10 @@ namespace art {
 
       //  Create the end path and the workers on it.
       auto& einfo = endPathInfo_[sid];
-      PathContext const pc{sc, PathContext::end_path(), 0};
+      PathContext const pc{sc,
+                           PathContext::end_path(),
+                           0,
+                           sorted_module_labels(protoEndPathLabels_)};
       auto wips =
         fillWorkers_(pc, protoEndPathLabels_, modules, einfo.workers());
       einfo.paths().push_back(

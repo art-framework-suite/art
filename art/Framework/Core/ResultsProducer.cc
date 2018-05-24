@@ -47,49 +47,56 @@ namespace art {
   void
   ResultsProducer::doBeginRun(RunPrincipal const& rp)
   {
-    Run const r{rp, moduleDescription()};
+    ModuleContext const mc{moduleDescription()};
+    Run const r{rp, mc};
     beginRun(r);
   }
 
   void
   ResultsProducer::doEndRun(RunPrincipal const& rp)
   {
-    Run const r{rp, moduleDescription()};
+    ModuleContext const mc{moduleDescription()};
+    Run const r{rp, mc};
     endRun(r);
   }
 
   void
   ResultsProducer::doBeginSubRun(SubRunPrincipal const& srp)
   {
-    SubRun const sr{srp, moduleDescription()};
+    ModuleContext const mc{moduleDescription()};
+    SubRun const sr{srp, mc};
     beginSubRun(sr);
   }
 
   void
   ResultsProducer::doEndSubRun(SubRunPrincipal const& srp)
   {
-    SubRun const sr{srp, moduleDescription()};
+    ModuleContext const mc{moduleDescription()};
+    SubRun const sr{srp, mc};
     endSubRun(sr);
   }
 
   void
   ResultsProducer::doEvent(EventPrincipal const& ep)
   {
-    Event const e{ep, moduleDescription()};
+    ModuleContext const mc{moduleDescription()};
+    Event const e{ep, mc};
     event(e);
   }
 
   void
   ResultsProducer::doReadResults(ResultsPrincipal const& resp)
   {
-    Results const res{resp, moduleDescription()};
+    ModuleContext const mc{moduleDescription()};
+    Results const res{resp, mc};
     readResults(res);
   }
 
   void
   ResultsProducer::doWriteResults(ResultsPrincipal& resp)
   {
-    Results res{resp, moduleDescription()};
+    ModuleContext const mc{moduleDescription()};
+    Results res{resp, mc};
     writeResults(res);
     res.movePutProductsToPrincipal(resp);
   }

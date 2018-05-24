@@ -1,0 +1,31 @@
+# This configuration is used to verify that getMany invoked in a
+# module retrieves only the products that have been inserted by
+# modules on that path (or from the source file).
+
+BEGIN_PROLOG
+m1Number: 1
+m2Number: 7
+END_PROLOG
+
+physics: {
+  producers: {
+    m1: {
+      module_type: IntProducer
+      ivalue: @local::m1Number
+    }
+    m2: {
+      module_type: IntProducer
+      ivalue: @local::m2Number
+    }
+    getMany1: {
+      module_type: IntsVerifier
+      expectedValues: [@local::m1Number]
+    }
+    getMany2: {
+      module_type: IntsVerifier
+      expectedValues: [@local::m2Number]
+    }
+  }
+  p1: [m1, getMany1]
+  p2: [m2, getMany2]
+}

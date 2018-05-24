@@ -29,7 +29,7 @@ namespace art {
     ~SubRun();
 
     explicit SubRun(SubRunPrincipal const& srp,
-                    ModuleDescription const& md,
+                    ModuleContext const& mc,
                     RangeSet const& rs = RangeSet::invalid());
 
     SubRun(SubRun const&) = delete;

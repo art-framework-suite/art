@@ -2,9 +2,12 @@
 #define art_Persistency_Provenance_PathContext_h
 
 #include "art/Persistency/Provenance/ScheduleContext.h"
+#include "cetlib/container_algorithms.h"
 
 namespace art {
   class PathContext {
+    explicit PathContext() = default;
+
   public:
     static std::string
     end_path()
@@ -12,14 +15,27 @@ namespace art {
       return "end_path";
     }
 
+    static std::string
+    art_path()
+    {
+      return "[art]";
+    }
+
     explicit PathContext(ScheduleContext const& scheduleContext,
                          std::string const& pathName,
-                         int const bitPosition)
+                         int const bitPosition,
+                         std::vector<std::string> sortedModuleNames)
       : scheduleContext_{scheduleContext}
       , pathName_{pathName}
-      , isEndPath_{pathName == end_path()}
       , bitPosition_{bitPosition}
+      , sortedModuleLabels_{move(sortedModuleNames)}
     {}
+
+    static PathContext
+    invalid()
+    {
+      return PathContext{};
+    }
 
     auto
     scheduleID() const
@@ -31,22 +47,23 @@ namespace art {
     {
       return pathName_;
     }
-    bool
-    isEndPath() const
-    {
-      return isEndPath_;
-    }
     int
     bitPosition() const
     {
       return bitPosition_;
     }
 
+    bool
+    contains(std::string const& module_label) const
+    {
+      return cet::binary_search_all(sortedModuleLabels_, module_label);
+    }
+
   private:
-    ScheduleContext scheduleContext_;
-    std::string pathName_;
-    bool isEndPath_;
-    int bitPosition_;
+    ScheduleContext scheduleContext_{ScheduleContext::invalid()};
+    std::string pathName_{};
+    int bitPosition_{-1};
+    std::vector<std::string> sortedModuleLabels_{};
   };
 }
 

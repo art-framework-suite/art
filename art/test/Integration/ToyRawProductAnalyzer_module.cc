@@ -1,12 +1,3 @@
-////////////////////////////////////////////////////////////////////////
-// Class:       ToyRawProductAnalyzer
-// Module Type: analyzer
-// File:        ToyRawProductAnalyzer_module.cc
-//
-// Generated at Fri Apr  1 19:09:45 2011 by Chris Green using artmod
-// from art v0_06_00.
-////////////////////////////////////////////////////////////////////////
-
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
@@ -20,34 +11,36 @@ namespace arttest {
   class ToyRawProductAnalyzer;
 }
 
+using namespace fhicl;
+
 class arttest::ToyRawProductAnalyzer : public art::EDAnalyzer {
 public:
-  explicit ToyRawProductAnalyzer(fhicl::ParameterSet const& p);
+  struct Config {
+    Atom<bool> beginRun{Name{"beginRun"}, true};
+    Atom<bool> beginSubRun{Name{"beginSubRun"}, true};
+  };
+  using Parameters = Table<Config>;
+  explicit ToyRawProductAnalyzer(Parameters const& p);
 
+private:
   void analyze(art::Event const& e) override;
-
   void beginRun(art::Run const& r) override;
   void beginSubRun(art::SubRun const& sr) override;
 
-private:
-  // Declare member data here.
-  bool doBeginRun_;
-  bool doBeginSubRun_;
+  bool const doBeginRun_;
+  bool const doBeginSubRun_;
 };
 
-arttest::ToyRawProductAnalyzer::ToyRawProductAnalyzer(
-  fhicl::ParameterSet const& p)
-  // Initialize member data here.
-  : art::EDAnalyzer(p)
-  , doBeginRun_(p.get<bool>("beginRun", true))
-  , doBeginSubRun_(p.get<bool>("beginSubRun", true))
+arttest::ToyRawProductAnalyzer::ToyRawProductAnalyzer(Parameters const& p)
+  : art::EDAnalyzer{p}
+  , doBeginRun_{p().beginRun()}
+  , doBeginSubRun_{p().beginSubRun()}
 {}
 
 void
 arttest::ToyRawProductAnalyzer::analyze(art::Event const& e)
 {
   e.getRun(); // Will throw if subRun or run are unavailable.
-  // Implementation of required member function here.
   std::vector<art::Handle<int>> hv;
   e.getManyByType(hv);
   assert(hv.size() == 1u);
@@ -67,7 +60,6 @@ arttest::ToyRawProductAnalyzer::beginRun(art::Run const& r)
 {
   if (!doBeginRun_)
     return;
-  // Implementation of optional member function here.
   std::vector<art::Handle<double>> hv;
   r.getManyByType(hv);
   assert(hv.size() == 1u);
@@ -81,7 +73,6 @@ arttest::ToyRawProductAnalyzer::beginSubRun(art::SubRun const& sr)
   if (!doBeginSubRun_)
     return;
   sr.getRun(); // Will throw if not available.
-               // Implementation of optional member function here.
   std::vector<art::Handle<double>> hv;
   sr.getManyByType(hv);
   assert(hv.size() == 1u);

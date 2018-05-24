@@ -75,7 +75,7 @@ namespace art {
     bool
     Producer::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
     {
-      Run r{rp, moduleDescription(), RangeSet::forRun(rp.runID())};
+      Run r{rp, mc, RangeSet::forRun(rp.runID())};
       Services const services{mc.scheduleID()};
       beginRunWithServices(r, services);
       r.movePutProductsToPrincipal(rp);
@@ -85,7 +85,7 @@ namespace art {
     bool
     Producer::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
     {
-      Run r{rp, moduleDescription(), rp.seenRanges()};
+      Run r{rp, mc, rp.seenRanges()};
       Services const services{mc.scheduleID()};
       endRunWithServices(r, services);
       r.movePutProductsToPrincipal(rp);
@@ -95,7 +95,7 @@ namespace art {
     bool
     Producer::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
-      SubRun sr{srp, moduleDescription(), RangeSet::forSubRun(srp.subRunID())};
+      SubRun sr{srp, mc, RangeSet::forSubRun(srp.subRunID())};
       Services const services{mc.scheduleID()};
       beginSubRunWithServices(sr, services);
       sr.movePutProductsToPrincipal(srp);
@@ -105,7 +105,7 @@ namespace art {
     bool
     Producer::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
-      SubRun sr{srp, moduleDescription(), srp.seenRanges()};
+      SubRun sr{srp, mc, srp.seenRanges()};
       Services const services{mc.scheduleID()};
       endSubRunWithServices(sr, services);
       sr.movePutProductsToPrincipal(srp);
@@ -119,7 +119,7 @@ namespace art {
                       std::atomic<size_t>& counts_passed,
                       std::atomic<size_t>& /*counts_failed*/)
     {
-      Event e{ep, moduleDescription()};
+      Event e{ep, mc};
       ++counts_run;
       Services const services{mc.scheduleID()};
       produceWithServices(e, services);

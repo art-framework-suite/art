@@ -8,7 +8,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ProductSemantics.h"
@@ -46,12 +46,13 @@ namespace art {
 
   DataViewImpl::DataViewImpl(BranchType const bt,
                              Principal const& principal,
-                             ModuleDescription const& md,
+                             ModuleContext const& mc,
                              bool const recordParents,
                              RangeSet const& rs /* = RangeSet::invalid() */)
     : branchType_{bt}
     , principal_{principal}
-    , md_{md}
+    , mc_{mc}
+    , md_{mc.moduleDescription()}
     , recordParents_{recordParents}
     , rangeSet_{rs}
   {}
@@ -346,6 +347,7 @@ namespace art {
                   processTag});
     // Fetch the specified data products, which must be containers.
     auto qrs = principal_.getMatchingSequence(
+      mc_,
       Selector{ModuleLabelSelector{moduleLabel} &&
                ProductInstanceNameSelector{productInstanceName} &&
                ProcessNameSelector{processTag.name()}},

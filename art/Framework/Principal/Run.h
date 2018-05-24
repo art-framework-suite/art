@@ -23,8 +23,8 @@ namespace art {
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~Run();
 
-    explicit Run(RunPrincipal const&,
-                 ModuleDescription const&,
+    explicit Run(RunPrincipal const& principal,
+                 ModuleContext const& mc,
                  RangeSet const& rs = RangeSet::invalid());
 
     Run(Run const&) = delete;

@@ -26,7 +26,7 @@ namespace art {
   public:
     ~Results();
 
-    explicit Results(ResultsPrincipal const& p, ModuleDescription const& md);
+    explicit Results(ResultsPrincipal const& p, ModuleContext const& mc);
 
     Results(Results const&) = delete;
     Results(Results&&) = delete;

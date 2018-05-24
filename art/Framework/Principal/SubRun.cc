@@ -10,10 +10,10 @@ namespace art {
   SubRun::~SubRun() = default;
 
   SubRun::SubRun(SubRunPrincipal const& srp,
-                 ModuleDescription const& md,
+                 ModuleContext const& mc,
                  RangeSet const& rs /* = RangeSet::invalid() */)
-    : DataViewImpl{InSubRun, srp, md, false, rs}
-    , run_{srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), md} :
+    : DataViewImpl{InSubRun, srp, mc, false, rs}
+    , run_{srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), mc} :
                                          nullptr}
   {}
 

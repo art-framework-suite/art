@@ -444,8 +444,13 @@ namespace art {
       }
       if (results_inserter_.load() != nullptr) {
         // FIXME: not sure what the trigger bit should be
-        PathContext const pc{sc_, "[art]", -1};
-        ModuleContext const mc{pc, results_inserter_.load()->description()};
+        auto const& resultsInserterDesc =
+          results_inserter_.load()->description();
+        PathContext const pc{sc_,
+                             PathContext::art_path(),
+                             -1,
+                             {resultsInserterDesc.moduleLabel()}};
+        ModuleContext const mc{pc, resultsInserterDesc};
         results_inserter_.load()->doWork_event(principal, mc);
       }
     }

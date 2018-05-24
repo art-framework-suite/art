@@ -62,6 +62,7 @@ simple_plugin(IntVectorAnalyzer           "module"  NO_INSTALL)
 simple_plugin(IntVectorProducer           "module"  NO_INSTALL)
 simple_plugin(IntArrayAnalyzer            "module"  NO_INSTALL)
 simple_plugin(IntArrayProducer            "module"  NO_INSTALL)
+simple_plugin(IntsVerifier                "module"  NO_INSTALL)
 simple_plugin(MessagePrinter              "tool"    NO_INSTALL)
 simple_plugin(MixAnalyzer                 "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(MixFilterTest               "module"  NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
@@ -237,6 +238,26 @@ cet_test(test_view_01_t.sh PREBUILT
   fcl/test_simple_01r.fcl
   fcl/messageDefaults.fcl
 )
+
+cet_test(GetProductsCrossPaths_t1 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c getProductsCrossPaths_t1.fcl
+  DATAFILES
+  fcl/getProductsCrossPaths_t1.fcl)
+
+cet_test(GetProductsCrossPaths_t2 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c getProductsCrossPaths_t2.fcl
+  DATAFILES
+  fcl/getProductsCrossPaths_t1.fcl
+  fcl/getProductsCrossPaths_t2.fcl
+  TEST_PROPERTIES WILL_FAIL TRUE)
+
+cet_test(GetManyByType_t1 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c getManyByType_t1.fcl
+  DATAFILES
+  fcl/getManyByType_t1.fcl)
 
 cet_test(PersistStdArrays_w HANDBUILT
   TEST_EXEC art
@@ -1435,7 +1456,6 @@ cet_test(TestAnalyzerSelect HANDBUILT
   fcl/TestAnalyzerSelect.fcl
 )
 
-# Issue 5157
 cet_test(UnusedModule_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c FilterIgnore_t.fcl
@@ -1448,7 +1468,6 @@ SET_TESTS_PROPERTIES(UnusedModule_t PROPERTIES
   "not assigned to any path"
   )
 
-# Issue 5114
 cet_test(MissingModuleType_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c MissingModuleType_t.fcl
@@ -1459,7 +1478,6 @@ cet_test(MissingModuleType_t HANDBUILT
   fcl/MissingModuleType_t.fcl
 )
 
-# Issue 5424
 cet_test(rename-histfile_t_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c rename-histfile_t.fcl

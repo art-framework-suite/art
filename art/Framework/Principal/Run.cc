@@ -12,12 +12,12 @@ using fhicl::ParameterSetRegistry;
 
 namespace art {
 
-  Run::~Run() {}
+  Run::~Run() = default;
 
   Run::Run(RunPrincipal const& rp,
-           ModuleDescription const& md,
+           ModuleContext const& mc,
            RangeSet const& rs /*= RangeSet::invalid()*/)
-    : DataViewImpl{InRun, rp, md, false, rs}
+    : DataViewImpl{InRun, rp, mc, false, rs}
   {}
 
   RunID

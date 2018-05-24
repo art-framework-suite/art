@@ -694,11 +694,13 @@ namespace art {
   }
 
   GroupQueryResult
-  Principal::getBySelector(WrappedTypeID const& wrapped,
+  Principal::getBySelector(ModuleContext const& mc,
+                           WrappedTypeID const& wrapped,
                            SelectorBase const& sel,
                            ProcessTag const& processTag) const
   {
-    auto const& results = findGroupsForProduct(wrapped, sel, processTag, true);
+    auto const& results =
+      findGroupsForProduct(mc, wrapped, sel, processTag, true);
     if (results.empty()) {
       auto whyFailed =
         std::make_shared<art::Exception>(art::errors::ProductNotFound);
@@ -716,7 +718,8 @@ namespace art {
   }
 
   GroupQueryResult
-  Principal::getByLabel(WrappedTypeID const& wrapped,
+  Principal::getByLabel(ModuleContext const& mc,
+                        WrappedTypeID const& wrapped,
                         string const& label,
                         string const& productInstanceName,
                         ProcessTag const& processTag) const
@@ -725,7 +728,8 @@ namespace art {
     Selector const sel{ModuleLabelSelector{label} &&
                        ProductInstanceNameSelector{productInstanceName} &&
                        ProcessNameSelector{processName}};
-    auto const& results = findGroupsForProduct(wrapped, sel, processTag, true);
+    auto const& results =
+      findGroupsForProduct(mc, wrapped, sel, processTag, true);
     if (results.empty()) {
       auto whyFailed =
         std::make_shared<art::Exception>(art::errors::ProductNotFound);
@@ -755,24 +759,28 @@ namespace art {
   }
 
   Principal::GroupQueryResultVec
-  Principal::getMany(WrappedTypeID const& wrapped,
+  Principal::getMany(ModuleContext const& mc,
+                     WrappedTypeID const& wrapped,
                      SelectorBase const& sel,
                      ProcessTag const& processTag) const
   {
-    return findGroupsForProduct(wrapped, sel, processTag, false);
+    return findGroupsForProduct(mc, wrapped, sel, processTag, false);
   }
 
   Principal::GroupQueryResultVec
-  Principal::getMatchingSequence(SelectorBase const& selector,
+  Principal::getMatchingSequence(ModuleContext const& mc,
+                                 SelectorBase const& selector,
                                  ProcessTag const& processTag) const
   {
     GroupQueryResultVec results;
     // Find groups from current process
     if (processTag.current_process_search_allowed() &&
         enableLookupOfProducedProducts_.load()) {
-      if (findGroups(
-            producedProducts_.load()->viewLookup, selector, results, true) !=
-          0) {
+      if (findGroups(producedProducts_.load()->viewLookup,
+                     mc,
+                     selector,
+                     results,
+                     true) != 0) {
         return results;
       }
     }
@@ -783,12 +791,12 @@ namespace art {
 
     // Look through currently opened input files
     if (results.empty()) {
-      results = matchingSequenceFromInputFile(selector);
+      results = matchingSequenceFromInputFile(mc, selector);
       if (!results.empty()) {
         return results;
       }
       for (auto const& sp : secondaryPrincipals_) {
-        results = sp->matchingSequenceFromInputFile(selector);
+        results = sp->matchingSequenceFromInputFile(mc, selector);
         if (!results.empty()) {
           return results;
         }
@@ -808,7 +816,7 @@ namespace art {
         }
         assert(!secondaryPrincipals_.empty());
         auto& new_sp = secondaryPrincipals_.back();
-        results = new_sp->matchingSequenceFromInputFile(selector);
+        results = new_sp->matchingSequenceFromInputFile(mc, selector);
         if (!results.empty()) {
           return results;
         }
@@ -818,18 +826,21 @@ namespace art {
   }
 
   Principal::GroupQueryResultVec
-  Principal::matchingSequenceFromInputFile(SelectorBase const& selector) const
+  Principal::matchingSequenceFromInputFile(ModuleContext const& mc,
+                                           SelectorBase const& selector) const
   {
     GroupQueryResultVec results;
     if (!presentProducts_.load()) {
       return results;
     }
-    findGroups(presentProducts_.load()->viewLookup, selector, results, true);
+    findGroups(
+      presentProducts_.load()->viewLookup, mc, selector, results, true);
     return results;
   }
 
   std::size_t
   Principal::findGroups(ProcessLookup const& pl,
+                        ModuleContext const& mc,
                         SelectorBase const& sel,
                         GroupQueryResultVec& res,
                         bool const stopIfProcessHasMatch,
@@ -847,7 +858,7 @@ namespace art {
     for (auto const& h : reverse_iteration(processHistory_)) {
       auto it = pl.find(h.processName());
       if (it != pl.end()) {
-        found += findGroupsForProcess(it->second, sel, res, wanted_wrapper);
+        found += findGroupsForProcess(it->second, mc, sel, res, wanted_wrapper);
       }
       if (stopIfProcessHasMatch && !res.empty()) {
         break;
@@ -857,7 +868,8 @@ namespace art {
   }
 
   std::size_t
-  Principal::findGroupsFromInputFile(WrappedTypeID const& wrapped,
+  Principal::findGroupsFromInputFile(ModuleContext const& mc,
+                                     WrappedTypeID const& wrapped,
                                      SelectorBase const& selector,
                                      GroupQueryResultVec& results,
                                      bool const stopIfProcessHasMatch) const
@@ -871,6 +883,7 @@ namespace art {
       return 0;
     }
     return findGroups(it->second,
+                      mc,
                       selector,
                       results,
                       stopIfProcessHasMatch,
@@ -878,7 +891,8 @@ namespace art {
   }
 
   Principal::GroupQueryResultVec
-  Principal::findGroupsForProduct(WrappedTypeID const& wrapped,
+  Principal::findGroupsForProduct(ModuleContext const& mc,
+                                  WrappedTypeID const& wrapped,
                                   SelectorBase const& selector,
                                   ProcessTag const& processTag,
                                   bool const stopIfProcessHasMatch) const
@@ -892,6 +906,7 @@ namespace art {
       auto it = lookup.find(wrapped.product_type.friendlyClassName());
       if (it != lookup.end()) {
         ret += findGroups(it->second,
+                          mc,
                           selector,
                           results,
                           stopIfProcessHasMatch,
@@ -905,13 +920,13 @@ namespace art {
 
     // Look through currently opened input files
     ret += findGroupsFromInputFile(
-      wrapped, selector, results, stopIfProcessHasMatch);
+      mc, wrapped, selector, results, stopIfProcessHasMatch);
     if (ret) {
       return results;
     }
     for (auto const& sp : secondaryPrincipals_) {
       if (sp->findGroupsFromInputFile(
-            wrapped, selector, results, stopIfProcessHasMatch)) {
+            mc, wrapped, selector, results, stopIfProcessHasMatch)) {
         return results;
       }
     }
@@ -929,7 +944,7 @@ namespace art {
       assert(!secondaryPrincipals_.empty());
       auto& new_sp = secondaryPrincipals_.back();
       if (new_sp->findGroupsFromInputFile(
-            wrapped, selector, results, stopIfProcessHasMatch)) {
+            mc, wrapped, selector, results, stopIfProcessHasMatch)) {
         return results;
       }
     }
@@ -938,6 +953,7 @@ namespace art {
 
   std::size_t
   Principal::findGroupsForProcess(std::vector<ProductID> const& vpid,
+                                  ModuleContext const& mc,
                                   SelectorBase const& sel,
                                   GroupQueryResultVec& res,
                                   TypeID const wanted_wrapper) const
@@ -948,7 +964,15 @@ namespace art {
       if (!group) {
         continue;
       }
-      if (!sel.match(group->productDescription())) {
+      auto const& pd = group->productDescription();
+      // If we are processing a trigger path, the only visible
+      // produced products are those that originate from modules on
+      // the same path we're currently processing.
+      if (mc.onTriggerPath() && pd.produced() &&
+          !mc.onSamePathAs(pd.moduleLabel())) {
+        continue;
+      }
+      if (!sel.match(pd)) {
         continue;
       }
       if (!group->tryToResolveProduct(wanted_wrapper)) {
@@ -1083,7 +1107,7 @@ namespace art {
   // MT note: Right now this is single-threaded.  Be careful if this
   //          changes!!!
   OutputHandle
-  Principal::getForOutput(ProductID const& pid, bool resolveProd) const
+  Principal::getForOutput(ProductID const& pid, bool const resolveProd) const
   {
     // MT-FIXME: Uses of group!
     auto g = getGroupTryAllFiles(pid);

@@ -95,6 +95,8 @@ namespace art {
       mgr->addSystemService<FloatingPointControl>(fpcPSet, actReg);
       return mgr;
     }
+
+    auto const invalid_module_context = ModuleContext::invalid();
   }
 
   EventProcessor::EventProcessor(ParameterSet const& pset)
@@ -748,7 +750,7 @@ namespace art {
       eventPrincipals_->at(sid)->enableLookupOfProducedProducts(
         producedProductLookupTables_);
       {
-        Event const e{*eventPrincipals_->at(sid), ModuleDescription{}};
+        Event const e{*eventPrincipals_->at(sid), invalid_module_context};
         actReg_->sPostSourceEvent.invoke(e, sc);
       }
       FDEBUG(1) << string(8, ' ') << "readEvent...................("
@@ -881,7 +883,7 @@ namespace art {
                           EndPathFunctor{this, eventLoopTask, sid});
       {
         ScheduleContext const sc{sid};
-        Event const ev{*eventPrincipals_->at(sid), ModuleDescription{}};
+        Event const ev{*eventPrincipals_->at(sid), invalid_module_context};
         actReg_->sPreProcessEvent.invoke(ev, sc);
       }
       // Start the trigger paths running.  When they finish
@@ -1072,7 +1074,7 @@ namespace art {
     }
     {
       ScheduleContext const sc{sid};
-      Event const ev{*eventPrincipals_->at(sid), ModuleDescription{}};
+      Event const ev{*eventPrincipals_->at(sid), invalid_module_context};
       actReg_->sPostProcessEvent.invoke(ev, sc);
     }
     finishEventAsync(eventLoopTask, sid);
@@ -1537,7 +1539,7 @@ namespace art {
     psSignals_->sPostReadRun.invoke(*runPrincipal_);
     runPrincipal_->enableLookupOfProducedProducts(producedProductLookupTables_);
     {
-      Run const r{*runPrincipal_, ModuleDescription{}};
+      Run const r{*runPrincipal_, invalid_module_context};
       actReg_->sPostSourceRun.invoke(r);
     }
     FDEBUG(1) << string(8, ' ') << "readRun.....................("
@@ -1555,7 +1557,7 @@ namespace art {
     finalizeRunEnabled_ = true;
     try {
       {
-        Run const run{*runPrincipal_, ModuleDescription{}};
+        Run const run{*runPrincipal_, invalid_module_context};
         actReg_->sPreBeginRun.invoke(run);
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
@@ -1563,7 +1565,7 @@ namespace art {
         endPathExecutors_.at(sid).process(Transition::BeginRun, *runPrincipal_);
       });
       {
-        Run const run{*runPrincipal_, ModuleDescription{}};
+        Run const run{*runPrincipal_, invalid_module_context};
         actReg_->sPostBeginRun.invoke(run);
       }
     }
@@ -1656,7 +1658,7 @@ namespace art {
         endPathExecutors_.at(sid).process(Transition::EndRun, *runPrincipal_);
       });
       {
-        Run const r{*runPrincipal_, ModuleDescription{}};
+        Run const r{*runPrincipal_, invalid_module_context};
         actReg_->sPostEndRun.invoke(r);
       }
     }
@@ -1713,7 +1715,7 @@ namespace art {
     subRunPrincipal_->enableLookupOfProducedProducts(
       producedProductLookupTables_);
     {
-      SubRun const sr{*subRunPrincipal_, ModuleDescription{}};
+      SubRun const sr{*subRunPrincipal_, invalid_module_context};
       actReg_->sPostSourceSubRun.invoke(sr);
     }
     FDEBUG(1) << string(8, ' ') << "readSubRun..................("
@@ -1731,7 +1733,7 @@ namespace art {
     finalizeSubRunEnabled_ = true;
     try {
       {
-        SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
+        SubRun const srun{*subRunPrincipal_, invalid_module_context};
         actReg_->sPreBeginSubRun.invoke(srun);
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
@@ -1740,7 +1742,7 @@ namespace art {
                                           *subRunPrincipal_);
       });
       {
-        SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
+        SubRun const srun{*subRunPrincipal_, invalid_module_context};
         actReg_->sPostBeginSubRun.invoke(srun);
       }
     }
@@ -1903,7 +1905,7 @@ namespace art {
                                           *subRunPrincipal_);
       });
       {
-        SubRun const srun{*subRunPrincipal_, ModuleDescription{}};
+        SubRun const srun{*subRunPrincipal_, invalid_module_context};
         actReg_->sPostEndSubRun.invoke(srun);
       }
     }

@@ -13,12 +13,15 @@
 
 namespace art {
 
-  ProducingService::~ProducingService() noexcept {}
+  ProducingService::~ProducingService() noexcept = default;
 
   void
   ProducingService::setModuleDescription(ModuleDescription const& md)
   {
-    md_ = md;
+    // We choose the one-argument constructor since the path
+    // information is irrelevant when the doPostRead* functions are
+    // invoked.
+    mc_ = ModuleContext{md};
   }
 
   void
@@ -32,7 +35,7 @@ namespace art {
   void
   ProducingService::doPostReadRun(RunPrincipal& rp)
   {
-    Run r{rp, md_, RangeSet::forRun(rp.runID())};
+    Run r{rp, mc_, RangeSet::forRun(rp.runID())};
     postReadRun(r);
     r.movePutProductsToPrincipal(rp);
   }
@@ -40,7 +43,7 @@ namespace art {
   void
   ProducingService::doPostReadSubRun(SubRunPrincipal& srp)
   {
-    SubRun sr{srp, md_, RangeSet::forSubRun(srp.subRunID())};
+    SubRun sr{srp, mc_, RangeSet::forSubRun(srp.subRunID())};
     postReadSubRun(sr);
     sr.movePutProductsToPrincipal(srp);
   }
@@ -48,7 +51,7 @@ namespace art {
   void
   ProducingService::doPostReadEvent(EventPrincipal& ep)
   {
-    Event e{ep, md_};
+    Event e{ep, mc_};
     postReadEvent(e);
     e.movePutProductsToPrincipal(ep, true, &expectedProducts<InEvent>());
   }

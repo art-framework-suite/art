@@ -8,8 +8,8 @@ namespace art {
 
   Results::~Results() = default;
 
-  Results::Results(ResultsPrincipal const& p, ModuleDescription const& md)
-    : DataViewImpl{InResults, p, md, false, RangeSet::invalid()}
+  Results::Results(ResultsPrincipal const& p, ModuleContext const& mc)
+    : DataViewImpl{InResults, p, mc, false, RangeSet::invalid()}
   {}
 
 } // namespace art

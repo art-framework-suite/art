@@ -67,7 +67,7 @@ namespace art {
     bool
     Analyzer::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
     {
-      Run const r{rp, moduleDescription()};
+      Run const r{rp, mc};
       Services const services{mc.scheduleID()};
       beginRunWithServices(r, services);
       return true;
@@ -76,7 +76,7 @@ namespace art {
     bool
     Analyzer::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
     {
-      Run const r{rp, moduleDescription()};
+      Run const r{rp, mc};
       Services const services{mc.scheduleID()};
       endRunWithServices(r, services);
       return true;
@@ -85,7 +85,7 @@ namespace art {
     bool
     Analyzer::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
-      SubRun const sr{srp, moduleDescription()};
+      SubRun const sr{srp, mc};
       Services const services{mc.scheduleID()};
       beginSubRunWithServices(sr, services);
       return true;
@@ -94,7 +94,7 @@ namespace art {
     bool
     Analyzer::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
-      SubRun const sr{srp, moduleDescription()};
+      SubRun const sr{srp, mc};
       Services const services{mc.scheduleID()};
       endSubRunWithServices(sr, services);
       return true;
@@ -108,7 +108,7 @@ namespace art {
                       std::atomic<std::size_t>& /*counts_failed*/)
     {
       detail::PVSentry pvSentry{processAndEventSelectors()};
-      Event const e{ep, moduleDescription()};
+      Event const e{ep, mc};
       if (wantAllEvents() || wantEvent(e)) {
         ++counts_run;
         Services const services{mc.scheduleID()};

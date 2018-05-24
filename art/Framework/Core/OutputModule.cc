@@ -203,35 +203,35 @@ namespace art {
   }
 
   bool
-  OutputModule::doBeginRun(RunPrincipal const& rp, ModuleContext const&)
+  OutputModule::doBeginRun(RunPrincipal const& rp, ModuleContext const& mc)
   {
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp);
-    Run const r{rp, moduleDescription()};
+    Run const r{rp, mc};
     cet::for_all(plugins_, [&r](auto& p) { p->doBeginRun(r); });
     return true;
   }
 
   bool
   OutputModule::doBeginSubRun(SubRunPrincipal const& srp,
-                              ModuleContext const& mc[[gnu::unused]])
+                              ModuleContext const& mc)
   {
     FDEBUG(2) << "beginSubRun called\n";
     beginSubRun(srp);
-    SubRun const sr{srp, moduleDescription()};
+    SubRun const sr{srp, mc};
     cet::for_all(plugins_, [&sr](auto& p) { p->doBeginSubRun(sr); });
     return true;
   }
 
   bool
   OutputModule::doEvent(EventPrincipal const& ep,
-                        ModuleContext const& mc[[gnu::unused]],
+                        ModuleContext const& mc,
                         std::atomic<std::size_t>& counts_run,
                         std::atomic<std::size_t>& counts_passed,
                         std::atomic<std::size_t>& /*counts_failed*/)
   {
     FDEBUG(2) << "doEvent called\n";
-    Event const e{ep, moduleDescription()};
+    Event const e{ep, mc};
     if (wantAllEvents() || wantEvent(e)) {
       ++counts_run;
       event(ep);
@@ -245,7 +245,8 @@ namespace art {
   {
     detail::PVSentry clearTriggerResults{processAndEventSelectors()};
     FDEBUG(2) << "writeEvent called\n";
-    Event const e{ep, moduleDescription()};
+    ModuleContext const mc{moduleDescription()};
+    Event const e{ep, mc};
     if (wantAllEvents() || wantEvent(e)) {
       write(ep);
       // Declare that the event was selected for write to the catalog interface.
@@ -256,11 +257,7 @@ namespace art {
       ci_->eventSelected(
         moduleDescription().moduleLabel(), ep.eventID(), trRef);
       // ... and invoke the plugins:
-      // ... The transactional object presented to the plugins is
-      //     different since the relevant context information is not the
-      //     same for the consumes functionality.
-      Event const we{ep, moduleDescription()};
-      cet::for_all(plugins_, [&we](auto& p) { p->doCollectMetadata(we); });
+      cet::for_all(plugins_, [&e](auto& p) { p->doCollectMetadata(e); });
       updateBranchParents(ep);
       if (remainingEvents_ > 0) {
         --remainingEvents_;
@@ -275,12 +272,11 @@ namespace art {
   }
 
   bool
-  OutputModule::doEndSubRun(SubRunPrincipal const& srp,
-                            ModuleContext const& mc[[gnu::unused]])
+  OutputModule::doEndSubRun(SubRunPrincipal const& srp, ModuleContext const& mc)
   {
     FDEBUG(2) << "endSubRun called\n";
     endSubRun(srp);
-    SubRun const sr{srp, moduleDescription()};
+    SubRun const sr{srp, mc};
     cet::for_all(plugins_, [&sr](auto& p) { p->doEndSubRun(sr); });
     return true;
   }
@@ -300,12 +296,11 @@ namespace art {
   }
 
   bool
-  OutputModule::doEndRun(RunPrincipal const& rp,
-                         ModuleContext const& mc[[gnu::unused]])
+  OutputModule::doEndRun(RunPrincipal const& rp, ModuleContext const& mc)
   {
     FDEBUG(2) << "endRun called\n";
     endRun(rp);
-    Run const r{rp, moduleDescription()};
+    Run const r{rp, mc};
     cet::for_all(plugins_, [&r](auto& p) { p->doEndRun(r); });
     return true;
   }

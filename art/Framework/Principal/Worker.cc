@@ -13,7 +13,6 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Persistency/Provenance/PathContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Utilities/DebugMacros.h"

@@ -6,11 +6,23 @@
 
 namespace art {
   class ModuleContext {
+    explicit ModuleContext() = default;
+
   public:
     explicit ModuleContext(PathContext const& pathContext,
                            ModuleDescription const& md)
       : pathContext_{pathContext}, md_{md}
     {}
+
+    // This constructor is used in cases where the path context is
+    // unneeded.
+    explicit ModuleContext(ModuleDescription const& md) : md_{md} {}
+
+    static ModuleContext
+    invalid()
+    {
+      return ModuleContext{};
+    }
 
     auto
     scheduleID() const
@@ -42,10 +54,21 @@ namespace art {
     {
       return pathName() == PathContext::end_path();
     }
+    bool
+    onTriggerPath() const
+    {
+      return pathName() != PathContext::end_path() &&
+             pathName() != PathContext::art_path() && !pathName().empty();
+    }
+    bool
+    onSamePathAs(std::string const& module_label) const
+    {
+      return pathContext_.contains(module_label);
+    }
 
   private:
-    PathContext pathContext_;
-    ModuleDescription md_;
+    PathContext pathContext_{PathContext::invalid()};
+    ModuleDescription md_{};
   };
 }
 

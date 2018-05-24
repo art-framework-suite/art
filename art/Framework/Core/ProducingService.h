@@ -6,40 +6,39 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 
 namespace art {
 
+  class ModuleDescription;
   class ProducingServiceSignals;
 
   class ProducingService : private ProductRegistryHelper {
-  public: // Types
+  public:
     static constexpr bool service_handle_allowed{false};
 
-  public: // Special Member Functions
     virtual ~ProducingService() noexcept;
 
-  public: // API
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::registerProducts;
     void setModuleDescription(ModuleDescription const&);
     void registerCallbacks(ProducingServiceSignals&);
 
-  private: // The signal handlers to register.
+    // The signal handlers to register.
     void doPostReadRun(RunPrincipal&);
     void doPostReadSubRun(SubRunPrincipal&);
     void doPostReadEvent(EventPrincipal&);
 
-  private: // API derived classes can implement.
+  private:
+    // Derived classes can implement these.
     virtual void postReadRun(Run&);
     virtual void postReadSubRun(SubRun&);
     virtual void postReadEvent(Event&);
 
-  private: // Member Data
-    // The fake module description created by the service mgr
-    // which contains the service_type as the module label.
-    // We must copy it because it has no permanent existence.
-    ModuleDescription md_;
+    // The fake module description/context created by the service mgr
+    // which contains the service_type as the module label.  We must
+    // copy it because it has no permanent existence.
+    ModuleContext mc_{ModuleContext::invalid()};
   };
 
 } // namespace art

@@ -8,7 +8,7 @@
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "art/test/TestObjects/ToyProducts.h"
@@ -59,6 +59,8 @@ private:
     fhicl::ParameterSet const& moduleParams,
     std::string const& release = art::getReleaseVersion());
 };
+
+auto const invalid_module_context = ModuleContext::invalid();
 
 ProductTablesFixture::ProductTablesFixture()
 {
@@ -192,8 +194,8 @@ BOOST_AUTO_TEST_CASE(failgetbySelectorTest)
   auto const& wrapped = art::WrappedTypeID::make<art::ProductID>();
 
   art::ProcessNameSelector const pnsel{"PROD"};
-  auto const& h =
-    pEvent_->getBySelector(wrapped, pnsel, ProcessTag{"PROD"s, "USER2"s});
+  auto const& h = pEvent_->getBySelector(
+    invalid_module_context, wrapped, pnsel, ProcessTag{"PROD"s, "USER2"s});
   BOOST_CHECK(h.failed());
 }
 
@@ -205,8 +207,8 @@ BOOST_AUTO_TEST_CASE(failgetbyLabelTest)
 
   std::string const label{"this does not exist"};
 
-  auto const& h =
-    pEvent_->getByLabel(wrapped, label, ""s, ProcessTag{""s, "USER2"s});
+  auto const& h = pEvent_->getByLabel(
+    invalid_module_context, wrapped, label, ""s, ProcessTag{""s, "USER2"s});
   BOOST_CHECK(h.failed());
 }
 
@@ -217,8 +219,8 @@ BOOST_AUTO_TEST_CASE(failgetManyTest)
   auto const& wrapped = art::WrappedTypeID::make<art::ProductID>();
 
   art::ProcessNameSelector const sel{"PROD"};
-  auto const& query_results =
-    pEvent_->getMany(wrapped, sel, ProcessTag{"PROD"s, "USER2"s});
+  auto const& query_results = pEvent_->getMany(
+    invalid_module_context, wrapped, sel, ProcessTag{"PROD"s, "USER2"s});
   BOOST_CHECK(query_results.empty());
 }
 
@@ -230,8 +232,10 @@ BOOST_AUTO_TEST_CASE(failgetManybyTypeTest)
 
   // getManyByType is achieved by providing a selector that matches
   // everything.
-  auto const& query_results = pEvent_->getMany(
-    wrapped, art::MatchAllSelector{}, ProcessTag{""s, "USER2"s});
+  auto const& query_results = pEvent_->getMany(invalid_module_context,
+                                               wrapped,
+                                               art::MatchAllSelector{},
+                                               ProcessTag{""s, "USER2"s});
   BOOST_CHECK(query_results.empty());
 }
 

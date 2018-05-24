@@ -22,6 +22,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
@@ -225,6 +226,7 @@ public:
   std::unique_ptr<RunPrincipal> runPrincipal_{};
   std::unique_ptr<SubRunPrincipal> subRunPrincipal_{};
   std::unique_ptr<EventPrincipal> principal_{nullptr};
+  ModuleContext currentModuleContext_{ModuleContext::invalid()};
   std::unique_ptr<Event> currentEvent_{nullptr};
 };
 
@@ -286,8 +288,8 @@ EventTestFixture::EventTestFixture()
   principal_->createGroupsForProducedProducts(ptf().producedProducts_);
   principal_->enableLookupOfProducedProducts(ptf().producedProducts_);
 
-  currentEvent_ =
-    std::make_unique<Event>(*principal_, ptf().currentModuleDescription_);
+  currentModuleContext_ = ModuleContext{ptf().currentModuleDescription_};
+  currentEvent_ = std::make_unique<Event>(*principal_, currentModuleContext_);
 }
 
 // Add the given product, of type T, to the current event, as if it
@@ -308,7 +310,8 @@ EventTestFixture::addSourceProduct(std::unique_ptr<T>&& product,
     throw art::Exception(errors::LogicError)
       << "Failed to find a product lookup for tag: " << tag << '\n';
 
-  Event temporaryEvent{*principal_, description->second};
+  ModuleContext const tempMC{description->second};
+  Event temporaryEvent{*principal_, tempMC};
   ProductID const id{temporaryEvent.put(std::move(product), instanceName)};
 
   EDProducer::commitEvent(*principal_, temporaryEvent);
@@ -597,7 +600,8 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   BOOST_REQUIRE(currentEvent_->getByLabel(inputTag, h));
   BOOST_REQUIRE_EQUAL(h->value, 200);
 
-  GroupQueryResult bh{principal_->getByLabel(WrappedTypeID::make<product_t>(),
+  GroupQueryResult bh{principal_->getByLabel(currentModuleContext_,
+                                             WrappedTypeID::make<product_t>(),
                                              "modMulti",
                                              "int1",
                                              ProcessTag{"LATE", "CURRENT"})};
@@ -605,7 +609,8 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   BOOST_REQUIRE_EQUAL(h->value, 100);
 
   GroupQueryResult bh2{
-    principal_->getByLabel(WrappedTypeID::make<product_t>(),
+    principal_->getByLabel(currentModuleContext_,
+                           WrappedTypeID::make<product_t>(),
                            "modMulti",
                            "int1",
                            ProcessTag{"nomatch", "CURRENT"})};

@@ -27,9 +27,9 @@ namespace art {
 
   Event::~Event() = default;
 
-  Event::Event(EventPrincipal const& ep, ModuleDescription const& md)
-    : DataViewImpl{InEvent, ep, md, record_parents(this), RangeSet::invalid()}
-    , subRun_{ep.subRunPrincipalPtr() ? new SubRun{ep.subRunPrincipal(), md} :
+  Event::Event(EventPrincipal const& ep, ModuleContext const& mc)
+    : DataViewImpl{InEvent, ep, mc, record_parents(this), RangeSet::invalid()}
+    , subRun_{ep.subRunPrincipalPtr() ? new SubRun{ep.subRunPrincipal(), mc} :
                                         nullptr}
   {}
 

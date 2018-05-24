@@ -1,0 +1,35 @@
+# This configuration is used to verify that products created in one
+# path cannot be retrieved from another.  The 'IntReaderThenProducer'
+# module checks to see if a product is present, and if so, it adds to
+# it a delta value.  With the below configuration, we should get an
+# exception throw because of the cross-path dependencies.
+
+# However, even though the 'IntReaderThenProducer' uses the 'consumes'
+# interface, an exception is *not* thrown because the data-dependency
+# checker allows for the possibility of the product originating from
+# the source, which would not be an error.
+
+# To generate an error, the inputTag should have the 'current_process'
+# special process name included as the process name.
+
+source.module_type: EmptyEvent
+
+physics: {
+  producers: {
+    m1: {
+      module_type: IntReaderThenProducer
+      inputTag: "m2"
+      deltaValue: 0
+      shouldSucceed: false
+    }
+    m2: {
+      module_type: IntReaderThenProducer
+      inputTag: "m1"
+      deltaValue: 0
+      shouldSucceed: false
+    }
+  }
+
+  p1: [m1]
+  p2: [m2]
+}

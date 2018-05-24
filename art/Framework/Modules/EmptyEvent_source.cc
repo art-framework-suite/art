@@ -12,6 +12,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
@@ -264,7 +265,8 @@ art::EmptyEvent::readRun_()
   result = make_unique<RunPrincipal>(runAux, processConfiguration(), nullptr);
   assert(result.get() != nullptr);
   if (plugin_) {
-    Run const r{*result, moduleDescription()};
+    ModuleContext const mc{moduleDescription()};
+    Run const r{*result, mc};
     plugin_->doBeginRun(r);
   }
   return result;
@@ -286,7 +288,8 @@ art::EmptyEvent::readSubRun_(cet::exempt_ptr<RunPrincipal const> rp)
   assert(result.get() != nullptr);
   result->setRunPrincipal(rp);
   if (plugin_) {
-    SubRun const sr{*result, moduleDescription()};
+    ModuleContext const mc{moduleDescription()};
+    SubRun const sr{*result, mc};
     plugin_->doBeginSubRun(sr);
   }
   return result;

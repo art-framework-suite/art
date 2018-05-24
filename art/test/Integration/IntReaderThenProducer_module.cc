@@ -1,14 +1,5 @@
-////////////////////////////////////////////////////////////////////////
-// Class:       IntReaderThenProducer
-// Plugin Type: producer (art v2_09_03)
-// File:        IntReaderThenProducer_module.cc
-//
-// Generated at Fri Dec 15 11:27:09 2017 by Kyle Knoepfel using cetskelgen
-// from cetlib version v3_01_03.
-////////////////////////////////////////////////////////////////////////
-
-#include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/SharedProducer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/test/TestObjects/ToyProducts.h"
@@ -23,11 +14,19 @@ namespace art {
   }
 }
 
-class art::test::IntReaderThenProducer : public EDProducer {
+using namespace fhicl;
+
+class art::test::IntReaderThenProducer : public SharedProducer {
 public:
   struct Config {
-    fhicl::Atom<std::string> inputTag{fhicl::Name{"inputTag"}};
-    fhicl::Atom<int> deltaValue{fhicl::Name{"deltaValue"}};
+    Atom<std::string> inputTag{Name{"inputTag"}};
+    Atom<int> deltaValue{Name{"deltaValue"}};
+    Atom<bool> shouldSucceed{
+      Name{"shouldSucceed"},
+      Comment{
+        "The 'shouldSucceed' parameter indicates if the product retrieval,\n"
+        "corresponding to the above 'inputTag' value, should be successful."},
+      true};
   };
   using Parameters = Table<Config>;
   explicit IntReaderThenProducer(Parameters const& p);
@@ -38,27 +37,36 @@ public:
   IntReaderThenProducer& operator=(IntReaderThenProducer const&) = delete;
   IntReaderThenProducer& operator=(IntReaderThenProducer&&) = delete;
 
-  // Required functions.
-  void produce(Event& e) override;
-
 private:
+  void produce(Event& e, Services const&) override;
+
   ProductToken<arttest::IntProduct> const token_;
   int const deltaValue_;
+  bool const shouldSucceed_;
 };
 
 art::test::IntReaderThenProducer::IntReaderThenProducer(Parameters const& p)
-  : token_{consumes<arttest::IntProduct>(p().inputTag())}
+  : SharedProducer{p}
+  , token_{consumes<arttest::IntProduct>(p().inputTag())}
   , deltaValue_{p().deltaValue()}
+  , shouldSucceed_{p().shouldSucceed()}
 {
   produces<arttest::IntProduct>();
+  async<InEvent>();
 }
 
 void
-art::test::IntReaderThenProducer::produce(Event& e)
+art::test::IntReaderThenProducer::produce(Event& e, Services const&)
 {
-  // getValidHandle adds parent for the about-to-be-created IntProduct.
-  auto const ivalue = e.getValidHandle(token_)->value;
-  e.put(std::make_unique<arttest::IntProduct>(ivalue + deltaValue_));
+  // getByToken adds parent for the about-to-be-created IntProduct.
+  Handle<arttest::IntProduct> intH;
+  bool const fetched{e.getByToken(token_, intH)};
+  assert(shouldSucceed_ == fetched);
+  auto new_value = std::make_unique<arttest::IntProduct>(deltaValue_);
+  if (shouldSucceed_) {
+    new_value->value += intH->value;
+  }
+  e.put(move(new_value));
 }
 
 DEFINE_ART_MODULE(art::test::IntReaderThenProducer)
