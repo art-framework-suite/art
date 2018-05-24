@@ -56,6 +56,7 @@ namespace arttest {
     denominator_ = 0u;
     produces<arttest::CalibConstants, InSubRun>("CalibConstants");
     produces<arttest::TrackEfficiency, InSubRun>("TrackEfficiency");
+    async<InEvent>();
   }
 
   void

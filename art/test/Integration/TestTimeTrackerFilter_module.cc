@@ -14,7 +14,9 @@ namespace arttest {
     };
     using Parameters = Table<Config>;
     explicit TestTimeTrackerFilter(Parameters const& p) : art::SharedFilter{p}
-    {}
+    {
+      async<art::InEvent>();
+    }
 
   private:
     bool

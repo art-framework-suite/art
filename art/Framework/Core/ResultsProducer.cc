@@ -34,6 +34,7 @@ namespace art {
   void
   ResultsProducer::doBeginJob()
   {
+    serialize(SharedResourcesRegistry::kLegacy);
     createQueues();
     beginJob();
   }

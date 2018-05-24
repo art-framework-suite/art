@@ -37,15 +37,21 @@ namespace art {
     void
     SharedModule::createQueues()
     {
-      if (resourceNames_.empty())
-        return;
-
+      Exception e{errors::LogicError,
+                  "An error occurred while processing scheduling options for a "
+                  "module.\n"};
       if (asyncDeclared_) {
-        throw art::Exception{
-          art::errors::LogicError,
-          "An error occurred while processing scheduling options for a module."}
-          << "async<InEvent>() cannot be called in combination with any "
-             "serialize<InEvent>(...) calls.\n";
+        if (resourceNames_.empty()) {
+          return;
+        }
+        throw e << "async<art::InEvent>() cannot be called in combination with any "
+             "serialize<art::InEvent>(...) calls.\n";
+      }
+
+      if (resourceNames_.empty()) {
+        throw e << "Either 'async<art::InEvent>()' or "
+                   "'serialize<art::InEvent>(...)'\n"
+                   "must be called for a shared module.\n";
       }
       std::vector<std::string> const names(cbegin(resourceNames_),
                                            cend(resourceNames_));

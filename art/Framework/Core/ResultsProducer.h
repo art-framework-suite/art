@@ -102,7 +102,7 @@ namespace art {
   class SubRun;
 
   class ResultsProducer : public ModuleBase,
-                          public detail::SharedModule,
+                          private detail::SharedModule,
                           private ProductRegistryHelper {
   public:
     virtual ~ResultsProducer() noexcept = default;

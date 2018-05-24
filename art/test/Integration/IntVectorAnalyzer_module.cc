@@ -41,7 +41,9 @@ namespace arttest {
     , moduleLabel_{p().input_label()}
     , nvalues_{p().nvalues()}
     , viewToken_{consumesView<int>(moduleLabel_)}
-  {}
+  {
+    async<InEvent>();
+  }
 
   void
   IntVectorAnalyzer::analyze(Event const& e, Services const&)
