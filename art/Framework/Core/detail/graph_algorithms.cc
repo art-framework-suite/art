@@ -293,7 +293,8 @@ art::detail::verify_in_order_dependencies(
       if (dep.label == "input_source") {
         continue;
       }
-      auto const dep_position = std::find_if(begin, end, name_matches{dep.label});
+      auto const dep_position =
+        std::find_if(begin, end, name_matches{dep.label});
       assert(dep_position != end);
       if (dep_position < module_position) {
         continue;

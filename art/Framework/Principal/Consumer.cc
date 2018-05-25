@@ -44,15 +44,11 @@ namespace art {
   bool
   operator<(ProductInfo const& a, ProductInfo const& b)
   {
-    return tie(a.consumableType,
-               a.typeID,
-               a.label,
-               a.instance,
-               a.process.name()) < tie(b.consumableType,
-                                        b.typeID,
-                                        b.label,
-                                        b.instance,
-                                        b.process.name());
+    auto const& boundA =
+      tie(a.consumableType, a.typeID, a.label, a.instance, a.process.name());
+    auto const& boundB =
+      tie(b.consumableType, b.typeID, b.label, b.instance, b.process.name());
+    return boundA < boundB;
   }
 
   ostream&

@@ -44,7 +44,8 @@ namespace art {
         if (resourceNames_.empty()) {
           return;
         }
-        throw e << "async<art::InEvent>() cannot be called in combination with any "
+        throw e
+          << "async<art::InEvent>() cannot be called in combination with any "
              "serialize<art::InEvent>(...) calls.\n";
       }
 

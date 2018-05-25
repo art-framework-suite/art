@@ -790,10 +790,12 @@ namespace art {
     return mod_threading_type_func();
   }
 
-  detail::collection_map_t
+  // Module-graph implementation below
+  using namespace detail;
+
+  collection_map_t
   PathManager::getModuleGraphInfoCollection_()
   {
-    using namespace detail;
     collection_map_t result{};
     auto& source_info = result["input_source"];
     if (!protoTrigPathLabelMap_.empty()) {
@@ -804,64 +806,73 @@ namespace art {
     } else if (!protoEndPathLabels_.empty()) {
       source_info.paths = {"end_path"};
     }
-    auto fill_module_info = [this](string const& path_name,
+    for (auto const& path : protoTrigPathLabelMap_) {
+      fillModuleOnlyDeps_(path.first, path.second, result);
+    }
+    fillModuleOnlyDeps_("end_path", protoEndPathLabels_, result);
+    fillSelectEventsDeps_(protoEndPathLabels_, result);
+    return result;
+  }
+
+  void
+  PathManager::fillModuleOnlyDeps_(string const& path_name,
                                    configs_t const& worker_configs,
-                                   collection_map_t& info_collection) {
-      for (auto const& worker_config : worker_configs) {
-        auto const& module_name = worker_config.label;
-        auto const& mci = allModules_.at(module_name);
-        auto& graph_info = info_collection[module_name];
-        graph_info.paths.insert(path_name);
-        graph_info.module_type = mci.moduleType_;
-        auto const& consumables =
-          ConsumesInfo::instance()->consumables(module_name);
-        for (auto const& per_branch_type : consumables) {
-          for (auto const& prod_info : per_branch_type) {
-            if ((prod_info.process.name() != processName_) &&
-                (prod_info.process.name() != "current_process")) {
-              ProductInfo new_prod_info{prod_info};
-              new_prod_info.label = "input_source";
-              graph_info.product_dependencies.insert(move(new_prod_info));
-            } else {
-              graph_info.product_dependencies.insert(prod_info);
-            }
+                                   collection_map_t& info_collection) const
+  {
+    for (auto const& worker_config : worker_configs) {
+      auto const& module_name = worker_config.label;
+      auto const& mci = allModules_.at(module_name);
+      auto& graph_info = info_collection[module_name];
+      graph_info.paths.insert(path_name);
+      graph_info.module_type = mci.moduleType_;
+      auto const& consumables =
+        ConsumesInfo::instance()->consumables(module_name);
+      for (auto const& per_branch_type : consumables) {
+        for (auto const& prod_info : per_branch_type) {
+          if ((prod_info.process.name() != processName_) &&
+              (prod_info.process.name() != "current_process")) {
+            ProductInfo new_prod_info{prod_info};
+            new_prod_info.label = "input_source";
+            graph_info.product_dependencies.insert(move(new_prod_info));
+          } else {
+            graph_info.product_dependencies.insert(prod_info);
           }
         }
       }
-    };
-    static string const allowed_path_spec{R"([\*a-zA-Z_][\*\?\w]*)"};
-    static regex const regex{"(\\w+:)?(!|exception@)?(" + allowed_path_spec +
-                             ")(&noexception)?"};
-    auto fill_select_events_deps = [this](configs_t const& worker_configs,
-                                          collection_map_t& info_collection) {
-      for (auto const& worker_config : worker_configs) {
-        auto const& module_name = worker_config.label;
-        auto const& ps = allModules_.at(module_name).modPS_;
-        auto& graph_info = info_collection[module_name];
-        assert(is_observer(graph_info.module_type));
-        auto const path_specs = ps.get<vector<string>>("SelectEvents", {});
-        for (auto const& path_spec : path_specs) {
-          smatch matches;
-          regex_match(path_spec, matches, regex);
-          // By the time we have gotten here, all modules have been
-          // constructed, and it is guaranteed that the specified paths
-          // are in accord with the above regex.
-          //   0: Full match
-          //   1: Optional process name
-          //   2: Optional '!' or 'exception@'
-          //   3: Required path specification
-          //   4: Optional '&noexception'
-          assert(matches.size() == 5);
-          graph_info.select_events.insert(matches[3]);
-        }
-      }
-    };
-    for (auto const& path : protoTrigPathLabelMap_) {
-      fill_module_info(path.first, path.second, result);
     }
-    fill_module_info("end_path", protoEndPathLabels_, result);
-    fill_select_events_deps(protoEndPathLabels_, result);
-    return result;
+  }
+
+  namespace {
+    string const allowed_path_spec{R"([\*a-zA-Z_][\*\?\w]*)"};
+    regex const regex{"(\\w+:)?(!|exception@)?(" + allowed_path_spec +
+                      ")(&noexception)?"};
+  }
+
+  void
+  PathManager::fillSelectEventsDeps_(configs_t const& worker_configs,
+                                     collection_map_t& info_collection) const
+  {
+    for (auto const& worker_config : worker_configs) {
+      auto const& module_name = worker_config.label;
+      auto const& ps = allModules_.at(module_name).modPS_;
+      auto& graph_info = info_collection[module_name];
+      assert(is_observer(graph_info.module_type));
+      auto const path_specs = ps.get<vector<string>>("SelectEvents", {});
+      for (auto const& path_spec : path_specs) {
+        smatch matches;
+        regex_match(path_spec, matches, regex);
+        // By the time we have gotten here, all modules have been
+        // constructed, and it is guaranteed that the specified paths
+        // are in accord with the above regex.
+        //   0: Full match
+        //   1: Optional process name
+        //   2: Optional '!' or 'exception@'
+        //   3: Required path specification
+        //   4: Optional '&noexception'
+        assert(matches.size() == 5);
+        graph_info.select_events.insert(matches[3]);
+      }
+    }
   }
 
 } // namespace art

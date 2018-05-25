@@ -220,7 +220,7 @@ main(int argc, char** argv) try {
         if (mod().depends_on(deps)) {
           // Assume all the same type for simplicity...for now
           std::set<art::ProductInfo> sorted_deps;
-          for (auto const& module_label : deps ) {
+          for (auto const& module_label : deps) {
             sorted_deps.emplace(art::ProductInfo::ConsumableType::Product,
                                 art::TypeID{typeid(int)},
                                 module_label,
@@ -238,7 +238,7 @@ main(int argc, char** argv) try {
         if (mod().depends_on(deps)) {
           // Assume all the same type for simplicity...for now
           std::set<art::ProductInfo> sorted_deps;
-          for (auto const& module_label : deps ) {
+          for (auto const& module_label : deps) {
             sorted_deps.emplace(art::ProductInfo::ConsumableType::Product,
                                 art::TypeID{typeid(int)},
                                 module_label,

@@ -96,9 +96,16 @@ namespace art {
       std::map<std::string, Worker*>& workers);
     ModuleType loadModuleType_(std::string const& lib_spec);
     ModuleThreadingType loadModuleThreadingType_(std::string const& lib_spec);
-    detail::collection_map_t getModuleGraphInfoCollection_();
 
-  private: // Member Data
+    // Module-graph implementation
+    detail::collection_map_t getModuleGraphInfoCollection_();
+    void fillModuleOnlyDeps_(std::string const& path_name,
+                             detail::configs_t const& worker_configs,
+                             detail::collection_map_t& info_collection) const;
+    void fillSelectEventsDeps_(detail::configs_t const& worker_configs,
+                               detail::collection_map_t& info_collection) const;
+
+    // Member Data
     UpdateOutputCallbacks& outputCallbacks_;
     ActionTable const& exceptActions_;
     ActivityRegistry const& actReg_;
