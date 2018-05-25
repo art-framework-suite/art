@@ -27,4 +27,8 @@ namespace art {
   };
 }
 
-#endif
+#endif /* art_Framework_Core_Services_h */
+
+// Local Variables:
+// mode: c++
+// End:

@@ -8,4 +8,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Core_detail_skip_non_replicated_h */
+
+// Local Variables:
+// mode: c++
+// End:
