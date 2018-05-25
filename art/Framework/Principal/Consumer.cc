@@ -26,7 +26,9 @@ namespace art {
 
   ProductInfo::ProductInfo(ConsumableType const consumableType,
                            TypeID const& tid)
-    : consumableType{consumableType}, typeID{tid}
+    : consumableType{consumableType}
+    , typeID{tid}
+    , friendlyClassName{typeID.friendlyClassName()}
   {}
 
   ProductInfo::ProductInfo(ConsumableType const consumableType,
@@ -36,6 +38,19 @@ namespace art {
                            ProcessTag const& process)
     : consumableType{consumableType}
     , typeID{tid}
+    , friendlyClassName{typeID.friendlyClassName()}
+    , label{label}
+    , instance{instance}
+    , process{process}
+  {}
+
+  ProductInfo::ProductInfo(ConsumableType const consumableType,
+                           string const& friendlyClassName,
+                           string const& label,
+                           string const& instance,
+                           ProcessTag const& process)
+    : consumableType{consumableType}
+    , friendlyClassName{friendlyClassName}
     , label{label}
     , instance{instance}
     , process{process}
