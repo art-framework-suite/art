@@ -92,7 +92,7 @@ art::detail::make_product_dependency_edges(ModuleGraphInfoMap const& modInfos,
   auto edge_label = get(boost::edge_name, graph);
   for (Vertex u{}; u < modInfos.size(); ++u) {
     for (auto const& dep : modInfos.info(u).product_dependencies) {
-      auto const v = modInfos.vertex_index(dep);
+      auto const v = modInfos.vertex_index(dep.label);
       auto const edge = add_edge(u, v, graph);
       edge_label[edge.first] = "prod";
     }
@@ -290,15 +290,15 @@ art::detail::verify_in_order_dependencies(
     assert(module_position != end);
 
     for (auto const& dep : module.second.product_dependencies) {
-      if (dep == "input_source") {
+      if (dep.label == "input_source") {
         continue;
       }
-      auto const dep_position = std::find_if(begin, end, name_matches{dep});
+      auto const dep_position = std::find_if(begin, end, name_matches{dep.label});
       assert(dep_position != end);
       if (dep_position < module_position) {
         continue;
       }
-      illegal_module_orderings[module_name].insert(dep);
+      illegal_module_orderings[module_name].insert(dep.label);
     }
   }
 

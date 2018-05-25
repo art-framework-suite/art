@@ -96,7 +96,7 @@ namespace art {
   public: // TYPES
     enum class ConsumableType { Product = 0, ViewElement = 1, Many = 2 };
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
+  public:
     ~ProductInfo();
     explicit ProductInfo(ConsumableType const, TypeID const&);
     explicit ProductInfo(ConsumableType const,
@@ -105,28 +105,24 @@ namespace art {
                          std::string const& instance,
                          ProcessTag const& process);
 
-  public: // MEMBER DATA -- FIXME: Are these supposed to be public?
-    // FIXME: We need a way to tell whether this came from consumes or from may
-    // consume!!!
+    // Future need: We need a way to tell whether consumes* or
+    // mayConsume* was called.
 
     // Which kind of the DataViewImpl::get* functions we validate.
-    ConsumableType consumableType_{};
+    ConsumableType consumableType{};
 
     // Data product class type.
     // Part 1 of branch name.
-    TypeID typeID_;
+    TypeID typeID{};
 
-    // Note: This part is only provided and used by the DataViewImpl::get*
-    // functions. Data product module label. Part 2 of branch name.
-    std::string label_;
+    // Data product module label. Part 2 of branch name.
+    std::string label{};
 
-    // Note: This part is only provided and used by the DataViewImpl::get*
-    // functions. Data product instance name. Part 3 of branch name.
-    std::string instance_;
+    // Data product instance name. Part 3 of branch name.
+    std::string instance;
 
-    // Note: This part is only provided and used by the DataViewImpl::get*
-    // functions. Data product process name. Part 4 of branch name.
-    ProcessTag process_;
+    // Data product process name. Part 4 of branch name.
+    ProcessTag process;
   };
 
   bool operator<(ProductInfo const& a, ProductInfo const& b);

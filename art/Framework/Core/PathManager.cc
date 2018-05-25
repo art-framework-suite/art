@@ -817,11 +817,13 @@ namespace art {
           ConsumesInfo::instance()->consumables(module_name);
         for (auto const& per_branch_type : consumables) {
           for (auto const& prod_info : per_branch_type) {
-            if ((prod_info.process_.name() != processName_) &&
-                (prod_info.process_.name() != "current_process")) {
-              graph_info.product_dependencies.insert("input_source");
+            if ((prod_info.process.name() != processName_) &&
+                (prod_info.process.name() != "current_process")) {
+              ProductInfo new_prod_info{prod_info};
+              new_prod_info.label = "input_source";
+              graph_info.product_dependencies.insert(move(new_prod_info));
             } else {
-              graph_info.product_dependencies.insert(prod_info.label_);
+              graph_info.product_dependencies.insert(prod_info);
             }
           }
         }

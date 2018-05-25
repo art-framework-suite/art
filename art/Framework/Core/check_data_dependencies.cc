@@ -15,6 +15,7 @@
 #include <iostream>
 
 using namespace art::detail;
+using namespace std::string_literals;
 
 namespace {
   struct TopLevelTable {
@@ -217,8 +218,16 @@ main(int argc, char** argv) try {
         fhicl::Table<ModifierModuleConfig> mod{table};
         std::vector<std::string> deps;
         if (mod().depends_on(deps)) {
-          info.product_dependencies =
-            std::set<std::string>(cbegin(deps), cend(deps));
+          // Assume all the same type for simplicity...for now
+          std::set<art::ProductInfo> sorted_deps;
+          for (auto const& module_label : deps ) {
+            sorted_deps.emplace(art::ProductInfo::ConsumableType::Product,
+                                art::TypeID{typeid(int)},
+                                module_label,
+                                ""s,
+                                art::ProcessTag{});
+          }
+          info.product_dependencies = move(sorted_deps);
         }
       } else {
         auto const table_name = table_for_module_type(info.module_type);
@@ -227,8 +236,16 @@ main(int argc, char** argv) try {
         fhicl::Table<ObserverModuleConfig> mod{table};
         std::vector<std::string> deps;
         if (mod().depends_on(deps)) {
-          info.product_dependencies =
-            std::set<std::string>(cbegin(deps), cend(deps));
+          // Assume all the same type for simplicity...for now
+          std::set<art::ProductInfo> sorted_deps;
+          for (auto const& module_label : deps ) {
+            sorted_deps.emplace(art::ProductInfo::ConsumableType::Product,
+                                art::TypeID{typeid(int)},
+                                module_label,
+                                ""s,
+                                art::ProcessTag{});
+          }
+          info.product_dependencies = move(sorted_deps);
         }
         std::vector<std::string> sel;
         if (mod().select_events(sel)) {

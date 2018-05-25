@@ -26,7 +26,7 @@ namespace art {
 
   ProductInfo::ProductInfo(ConsumableType const consumableType,
                            TypeID const& tid)
-    : consumableType_{consumableType}, typeID_{tid}
+    : consumableType{consumableType}, typeID{tid}
   {}
 
   ProductInfo::ProductInfo(ConsumableType const consumableType,
@@ -34,25 +34,25 @@ namespace art {
                            string const& label,
                            string const& instance,
                            ProcessTag const& process)
-    : consumableType_{consumableType}
-    , typeID_{tid}
-    , label_{label}
-    , instance_{instance}
-    , process_{process}
+    : consumableType{consumableType}
+    , typeID{tid}
+    , label{label}
+    , instance{instance}
+    , process{process}
   {}
 
   bool
   operator<(ProductInfo const& a, ProductInfo const& b)
   {
-    return tie(a.consumableType_,
-               a.typeID_,
-               a.label_,
-               a.instance_,
-               a.process_.name()) < tie(b.consumableType_,
-                                        b.typeID_,
-                                        b.label_,
-                                        b.instance_,
-                                        b.process_.name());
+    return tie(a.consumableType,
+               a.typeID,
+               a.label,
+               a.instance,
+               a.process.name()) < tie(b.consumableType,
+                                        b.typeID,
+                                        b.label,
+                                        b.instance,
+                                        b.process.name());
   }
 
   ostream&
@@ -75,11 +75,11 @@ namespace art {
   ostream&
   operator<<(ostream& os, ProductInfo const& info)
   {
-    os << "Consumable type: " << info.consumableType_ << '\n'
-       << "TypeID: " << info.typeID_ << '\n'
-       << "Module label: " << info.label_ << '\n'
-       << "Instance name: " << info.instance_ << '\n'
-       << "Process name: " << info.process_.name() << '\n';
+    os << "Consumable type: " << info.consumableType << '\n'
+       << "TypeID: " << info.typeID << '\n'
+       << "Module label: " << info.label << '\n'
+       << "Instance name: " << info.instance << '\n'
+       << "Process name: " << info.process.name() << '\n';
     return os;
   }
 
@@ -100,7 +100,7 @@ namespace art {
   {
     string result;
     // Create "consumes" prefix
-    switch (pi.consumableType_) {
+    switch (pi.consumableType) {
       case ProductInfo::ConsumableType::Product:
         result += "consumes";
         break;
@@ -113,7 +113,7 @@ namespace art {
     }
     // .. now time for the template arguments
     result += '<';
-    result += pi.typeID_.className();
+    result += pi.typeID.className();
     if (bt != InEvent) {
       result += ", In";
       result += BranchTypeToString(bt);
@@ -122,24 +122,24 @@ namespace art {
     // Form "(...);" string with appropriate arguments.
     result += '(';
     // Early bail out for consumesMany.
-    if (pi.consumableType_ == ProductInfo::ConsumableType::Many) {
+    if (pi.consumableType == ProductInfo::ConsumableType::Many) {
       result += ");";
       return result;
     }
     result += '"';
-    result += pi.label_;
+    result += pi.label;
     // If the process name is non-empty, then all InputTag fields are
     // required (e.g.):
     //   "myLabel::myProcess"
     //   "myLabel::myInstance::myProcess"
-    if (!pi.process_.name().empty()) {
+    if (!pi.process.name().empty()) {
       result += ':';
-      result += pi.instance_;
+      result += pi.instance;
       result += ':';
-      result += pi.process_.name();
-    } else if (!pi.instance_.empty()) {
+      result += pi.process.name();
+    } else if (!pi.instance.empty()) {
       result += ':';
-      result += pi.instance_;
+      result += pi.instance;
     }
     result += "\");";
     return result;

@@ -49,11 +49,11 @@ namespace art {
   {
     // Now that we know we have seen all the consumes declarations,
     // sort the results for fast lookup later.
-    for (auto& vecPI : consumables_) {
-      for (auto& pi : vecPI) {
-        pi.process_ = ProcessTag{pi.process_.name(), current_process_name};
+    for (auto& perBTConsumables : consumables_) {
+      for (auto& pi : perBTConsumables) {
+        pi.process = ProcessTag{pi.process.name(), current_process_name};
       }
-      sort(vecPI.begin(), vecPI.end());
+      sort(begin(perBTConsumables), end(perBTConsumables));
     }
   }
 
