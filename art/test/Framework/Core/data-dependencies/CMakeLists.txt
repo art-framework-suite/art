@@ -51,6 +51,13 @@ cet_test(DataDeps_TwoPathsWithProducersWithDeps HANDBUILT
   two_paths_with_producers_with_deps.fcl
   OPTIONAL_GROUPS data-dependencies)
 
+cet_test(DataDeps_TwoPathsWithProducersWithCurrentProcessDeps HANDBUILT
+  TEST_EXEC check_data_dependencies
+  TEST_ARGS two_paths_with_producers_with_current_process_deps.fcl
+  DATAFILES
+  two_paths_with_producers_with_current_process_deps.fcl
+  OPTIONAL_GROUPS data-dependencies)
+
 cet_test(DataDeps_ThreePathsWithProducersWithDeps HANDBUILT
   TEST_EXEC check_data_dependencies
   TEST_ARGS three_paths_with_producers_with_deps.fcl
@@ -58,11 +65,31 @@ cet_test(DataDeps_ThreePathsWithProducersWithDeps HANDBUILT
   three_paths_with_producers_with_deps.fcl
   OPTIONAL_GROUPS data-dependencies)
 
-cet_test(DataDeps_OnePathWithProducersAndACircularity HANDBUILT
+cet_test(DataDeps_ThreePathsWithProducersWithInputSourceDeps HANDBUILT
   TEST_EXEC check_data_dependencies
-  TEST_ARGS one_path_with_producers_and_a_circularity.fcl
+  TEST_ARGS three_paths_with_producers_with_input_source_deps.fcl
   DATAFILES
-  one_path_with_producers_and_a_circularity.fcl)
+  three_paths_with_producers_with_input_source_deps.fcl
+  OPTIONAL_GROUPS data-dependencies)
+
+cet_test(DataDeps_ThreePathsWithProducersWithCurrentProcessDeps HANDBUILT
+  TEST_EXEC check_data_dependencies
+  TEST_ARGS three_paths_with_producers_with_current_process_deps.fcl
+  DATAFILES
+  three_paths_with_producers_with_current_process_deps.fcl
+  OPTIONAL_GROUPS data-dependencies)
+
+cet_test(DataDeps_OnePathWithProducersAndACurrentProcessCircularity HANDBUILT
+  TEST_EXEC check_data_dependencies
+  TEST_ARGS one_path_with_producers_and_a_current_process_circularity.fcl
+  DATAFILES
+  one_path_with_producers_and_a_current_process_circularity.fcl)
+
+cet_test(DataDeps_OnePathWithProducersAndAnApparentCircularity HANDBUILT
+  TEST_EXEC check_data_dependencies
+  TEST_ARGS one_path_with_producers_and_an_apparent_circularity.fcl
+  DATAFILES
+  one_path_with_producers_and_an_apparent_circularity.fcl)
 
 cet_test(DataDeps_OnePathWithProducersAndSelfCircularity HANDBUILT
   TEST_EXEC check_data_dependencies

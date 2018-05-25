@@ -1,6 +1,8 @@
 test_properties: {
-  graph_failure_expected: true
-  error_message: "Module p2 on path tp2 depends on(.|\\n)*Module p1 on path tp1"
+  # Since it is allowed for a producer to look up something in the
+  # input source, it is not an error for 'p2' to lookup 'p1' with *no*
+  # process name specified.
+  graph_failure_expected: false
 }
 
 process_name: test
@@ -8,7 +10,7 @@ process_name: test
 physics: {
   producers: {
     p1: {}
-    p2: { consumes: [["", "p1"]] }
+    p2: { consumes: [["int", "p1"]] }
   }
   tp1: [p1]
   tp2: [p2]

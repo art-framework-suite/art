@@ -831,6 +831,19 @@ namespace art {
         for (auto const& prod_info : per_branch_type) {
           if ((prod_info.process.name() != processName_) &&
               (prod_info.process.name() != "current_process")) {
+            // In cases where a user has not specified the current
+            // process name (or the literal "current_process"), we set
+            // the label of the module this worker depends upon to
+            // "input_source", solely for data-dependency checking.
+            // This permits users to specify only a module label in
+            // the input tag, and even though this might collide with
+            // a module label in the current process, it is not
+            // necessarily an error.
+            //
+            // In the future, we may wish to constrain the behavior so
+            // that if there is an ambiguity in module labels between
+            // processes, a user will be required to specify
+            // "current_process" or "input_source".
             ProductInfo new_prod_info{prod_info};
             new_prod_info.label = "input_source";
             graph_info.product_dependencies.insert(move(new_prod_info));

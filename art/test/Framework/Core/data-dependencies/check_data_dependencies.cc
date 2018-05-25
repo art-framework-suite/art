@@ -22,14 +22,34 @@ using namespace std::string_literals;
 using std::string;
 
 namespace {
+  void
+  throwIfEmpty(string const& friendlyName)
+  {
+    if (friendlyName.empty()) {
+      throw art::Exception{art::errors::Configuration,
+                           "There was an error processing typenames.\n"}
+        << "No friendly type name was provided.\n";
+    }
+  }
+
   // For producing products
   struct TypeAndInstance {
+    explicit TypeAndInstance(string friendlyName, string instance)
+      : friendlyClassName{(throwIfEmpty(friendlyName), move(friendlyName))}
+      , productInstanceName{move(instance)}
+    {}
+
     string friendlyClassName;
     string productInstanceName;
   };
 
   // For consuming products
   struct TypeAndTag {
+    explicit TypeAndTag(string friendlyName, art::InputTag tag)
+      : friendlyClassName{(throwIfEmpty(friendlyName), move(friendlyName))}
+      , inputTag{std::move(tag)}
+    {}
+
     string friendlyClassName;
     art::InputTag inputTag;
   };
@@ -198,17 +218,35 @@ namespace {
 
   template <typename T>
   std::set<art::ProductInfo>
-  sorted_dependencies(Table<T> const& module)
+  sorted_dependencies(Table<T> const& module,
+                      string const& current_process_name)
   {
     std::set<art::ProductInfo> sorted_deps;
     std::vector<TypeAndTag> deps;
     if (module().consumes(deps)) {
       for (auto const& dep : deps) {
+        art::ProcessTag const processTag{dep.inputTag.process(),
+                                         current_process_name};
+        // In cases where a user has not specified the current process
+        // name (or the literal "current_process"), we set the label
+        // of the module this worker depends upon to "input_source",
+        // solely for data-dependency checking.  This permits users to
+        // specify only a module label in the input tag, and even
+        // though this might collide with a module label in the
+        // current process, it is not necessarily an error.
+        //
+        // In the future, we may wish to constrain the behavior so
+        // that if there is an ambiguity in module labels between
+        // processes, a user will be required to specify
+        // "current_process" or "input_source".
+        std::string const label = (processTag.name() != current_process_name) ?
+                                    "input_source" :
+                                    dep.inputTag.label();
         sorted_deps.emplace(art::ProductInfo::ConsumableType::Product,
                             dep.friendlyClassName,
-                            dep.inputTag.label(),
+                            label,
                             dep.inputTag.instance(),
-                            art::ProcessTag{dep.inputTag.process(), "test"});
+                            processTag);
       }
     }
     return sorted_deps;
@@ -216,6 +254,7 @@ namespace {
 
   void
   fill_module_info(ParameterSet const& pset,
+                   string const& process_name,
                    string const& path_name,
                    configs_t const& module_configs,
                    art::detail::collection_map_t& modules)
@@ -230,10 +269,10 @@ namespace {
         pset.get<ParameterSet>(table_name + "." + module_name);
       if (is_modifier(info.module_type)) {
         Table<ModifierModuleConfig> const mod{table};
-        info.product_dependencies = sorted_dependencies(mod);
+        info.product_dependencies = sorted_dependencies(mod, process_name);
       } else {
         Table<ObserverModuleConfig> const mod{table};
-        info.product_dependencies = sorted_dependencies(mod);
+        info.product_dependencies = sorted_dependencies(mod, process_name);
         std::vector<string> sel;
         if (mod().select_events(sel)) {
           info.select_events = std::set<string>(cbegin(sel), cend(sel));
@@ -254,6 +293,7 @@ main(int argc, char** argv) try {
   cet::filepath_maker maker{};
   make_ParameterSet(filename, maker, pset);
   Table<TopLevelTable> table{pset};
+  auto const& process_name = table().process_name();
   auto const& test_properties = table().test_properties();
 
   ParameterSet physics;
@@ -280,14 +320,14 @@ main(int argc, char** argv) try {
   }
 
   for (auto const& path : trigger_paths) {
-    fill_module_info(pset, path.first, path.second, modules);
+    fill_module_info(pset, process_name, path.first, path.second, modules);
   }
 
   if (!trigger_paths.empty()) {
     modules["TriggerResults"] = ModuleGraphInfo{art::ModuleType::producer};
   }
 
-  fill_module_info(pset, "end_path", end_path, modules);
+  fill_module_info(pset, process_name, "end_path", end_path, modules);
 
   // Build the graph
   ModuleGraphInfoMap const modInfos{modules};
@@ -311,18 +351,17 @@ main(int argc, char** argv) try {
   int rc{};
   bool const graph_failure_expected = test_properties.graph_failure_expected();
   if (graph_failure != graph_failure_expected) {
-    std::cerr << " Graph failure value is not what is expected:\n"
-              << "   should be " << std::boolalpha << graph_failure_expected
-              << '\n'
-              << "   but it is " << graph_failure << '\n';
+    std::cerr << "Graph failure value is not correct:\n"
+              << "    " << std::boolalpha << graph_failure_expected << " (expected) vs. "
+              << graph_failure <<  " (actual)\n";
     rc = 1;
   }
-  std::string expected_msg;
+  string expected_msg;
   if (test_properties.error_message(expected_msg)) {
     auto const msg = oss.str();
     std::regex const re{expected_msg};
     if (!graph_failure) {
-      std::cerr << " An error message was generated even though there was no "
+      std::cerr << "An error message was generated even though there was no "
                    "graph failure.\n";
       rc = 2;
     } else if (!std::regex_search(msg, re)) {
