@@ -1,7 +1,14 @@
+test_properties: {
+  graph_failure_expected: true
+  error_message: "Module p2 on path tp2 depends on(.|\\n)*Module p1 on path tp1"
+}
+
+process_name: test
+
 physics: {
   producers: {
     p1: {}
-    p2: { depends_on: [p1] }
+    p2: { consumes: [["", "p1"]] }
   }
   tp1: [p1]
   tp2: [p2]

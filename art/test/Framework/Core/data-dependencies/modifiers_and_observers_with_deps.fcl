@@ -1,15 +1,21 @@
+test_properties: {
+  graph_failure_expected: false
+}
+
+process_name: test
+
 physics: {
   producers: {
     p1: {}
-    p2: { depends_on: [p1] }
+    p2: { consumes: [["", "p1"]] }
   }
   filters: {
     f1: {}
-    f2: { depends_on: [p2] }
+    f2: { consumes: [["", "p2"]] }
   }
   analyzers: {
     a1: {}
-    a2: { depends_on: [p2] }
+    a2: { consumes: [["", "p2"]] }
   }
 
   tp: [p1, f1, p2, f2]
@@ -17,5 +23,5 @@ physics: {
 }
 
 outputs: {
-  o1: { depends_on: [p1, p2] }
+  o1: { consumes: [["", "p1"], ["", "p2"]] }
 }

@@ -1,3 +1,9 @@
+test_properties: {
+  graph_failure_expected: false
+}
+
+process_name: test
+
 physics: {
   producers: {
     p1: {}
