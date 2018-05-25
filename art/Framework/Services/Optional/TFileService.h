@@ -49,10 +49,17 @@ namespace art {
     TFileService& operator=(TFileService const&) = delete;
     TFileService& operator=(TFileService&&) = delete;
 
-  public: // API for user
+    // API for user
+    static std::string const& resource_name()
+    {
+      static std::string const name{"TFileService"};
+      return name;
+    }
+
     void registerFileSwitchCallback(Callback_t);
     template <typename T>
     void registerFileSwitchCallback(T* provider, void (T::*)());
+
     TFile&
     file() const
     {
@@ -60,7 +67,7 @@ namespace art {
       return *file_;
     }
 
-  private: // Implementation details
+  private:
     // set current directory according to module name and prepare to create
     // directory
     void setDirectoryName_(art::ModuleDescription const&);

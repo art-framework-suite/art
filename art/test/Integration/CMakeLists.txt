@@ -285,23 +285,20 @@ cet_test(SimpleDerived_MissingConsumes_t HANDBUILT
 cet_test(SimpleDerived_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c test_simplederived_01a.fcl
-  DATAFILES
-  fcl/test_simplederived_01a.fcl
+  DATAFILES fcl/test_simplederived_01a.fcl
 )
 
 cet_test(SimpleDerived_01_r HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c test_simplederived_01b.fcl
-  DATAFILES
-  fcl/test_simplederived_01b.fcl
+  DATAFILES fcl/test_simplederived_01b.fcl
   TEST_PROPERTIES DEPENDS SimpleDerived_01_w
 )
 
 cet_test(SimpleDerived_02_r HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c SimpleDerived_02.fcl
-  DATAFILES
-  fcl/SimpleDerived_02.fcl
+  DATAFILES fcl/SimpleDerived_02.fcl
   TEST_PROPERTIES DEPENDS SimpleDerived_01_w
 )
 

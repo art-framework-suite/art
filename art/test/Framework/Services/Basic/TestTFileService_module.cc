@@ -3,7 +3,7 @@
 #include "TH1.h"
 #include "TH2.h"
 
-#include "art/Framework/Core/EDAnalyzer.h"
+#include "art/Framework/Core/SharedAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -13,7 +13,7 @@
 using namespace art;
 using namespace std;
 
-class TestTFileService : public art::EDAnalyzer {
+class TestTFileService : public art::SharedAnalyzer {
 public:
   struct Config {
   };
@@ -21,8 +21,8 @@ public:
   explicit TestTFileService(Parameters const&);
 
 private:
-  void analyze(Event const& e) override;
-  void respondToOpenInputFile(FileBlock const&) override;
+  void analyze(Event const& e, Services const&) override;
+  void respondToOpenInputFile(FileBlock const&, Services const&) override;
   void setRootObjects();
 
   // histograms
@@ -41,8 +41,9 @@ private:
 
 }; // TestTFileService
 
-TestTFileService::TestTFileService(Parameters const& p) : EDAnalyzer{p}
+TestTFileService::TestTFileService(Parameters const& p) : SharedAnalyzer{p}
 {
+  serialize(TFileService::resource_name());
   ServiceHandle<TFileService> fs;
   fs->registerFileSwitchCallback(this, &TestTFileService::setRootObjects);
   setRootObjects();
@@ -68,13 +69,13 @@ TestTFileService::setRootObjects()
 }
 
 void
-TestTFileService::respondToOpenInputFile(FileBlock const&)
+TestTFileService::respondToOpenInputFile(FileBlock const&, Services const&)
 {
   h_test3->Fill(3.);
 }
 
 void
-TestTFileService::analyze(Event const&)
+TestTFileService::analyze(Event const&, Services const&)
 {
   h_test1->Fill(50.);
   h_test2->Fill(60., 3.);
