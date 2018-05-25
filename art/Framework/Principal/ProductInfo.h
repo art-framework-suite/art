@@ -2,66 +2,64 @@
 #define art_Framework_Principal_ProductInfo_h
 // vim: set sw=2 expandtab :
 
-//#include "canvas/Persistency/Provenance/BranchType.h"
-//#include "canvas/Utilities/TypeID.h"
-//
-//#include <array>
-//#include <set>
-//#include <string>
-//#include <tuple>
-//#include <vector>
-//
-// namespace art {
-//
-// class ProductInfo {
-//
-// public: // TYPES
-//
-//  enum class ConsumableType {
-//      Product // 0
-//    , Many // 1
-//    , ViewElement // 2
-//  };
-//
-// public: // MEMBER FUNCTIONS -- Special Member Functions
-//
-//  explicit
-//  ProductInfo(ConsumableType const, TypeID const&);
-//
-//  explicit
-//  ProductInfo(ConsumableType const, TypeID const&, std::string const& label,
-//  std::string const& instance,
-//              std::string const& process);
-//
-// public: // MEMBER DATA -- FIXME: Are these supposed to be public?
-//
-//  ConsumableType
-//  consumableType_;
-//
-//  TypeID
-//  typeID_;
-//
-//  std::string
-//  label_{};
-//
-//  std::string
-//  instance_{};
-//
-//  std::string
-//  process_{};
-//
-//};
-//
-// bool
-// operator<(ProductInfo const& a, ProductInfo const& b);
-//
-// using ConsumableProductVectorPerBranch = std::vector<ProductInfo>;
-// using ConsumableProductSetPerBranch = std::set<ProductInfo>;
-// using ConsumableProducts = std::array<ConsumableProductVectorPerBranch,
-// NumBranchTypes>;  using ConsumableProductSets =
-// std::array<ConsumableProductSetPerBranch, NumBranchTypes>;
-//
-//} // namespace art
+#include "art/Framework/Principal/ProcessTag.h"
+#include "canvas/Utilities/TypeID.h"
+
+#include <string>
+
+namespace art {
+
+  class EventProcessor;
+  class Scheduler;
+
+  class ProductInfo {
+  public: // TYPES
+    enum class ConsumableType { Product = 0, ViewElement = 1, Many = 2 };
+
+  public:
+    ~ProductInfo();
+    explicit ProductInfo(ConsumableType const, TypeID const&);
+    explicit ProductInfo(ConsumableType const,
+                         TypeID const&,
+                         std::string const& label,
+                         std::string const& instance,
+                         ProcessTag const& process);
+
+    explicit ProductInfo(ConsumableType const,
+                         std::string const& friendlyName,
+                         std::string const& label,
+                         std::string const& instance,
+                         ProcessTag const& process);
+
+    // Future need: We need a way to tell whether consumes* or
+    // mayConsume* was called.
+
+    // Which kind of the DataViewImpl::get* functions we validate.
+    ConsumableType consumableType{};
+
+    // Data product class type.  Part 1 of branch name.  The friendly
+    // class name is member is for testing reasons, where the type is
+    // specified in string form.  In principle, this should be a
+    // variant object instead of two separate ones.
+    TypeID typeID{};
+    std::string friendlyClassName{};
+
+    // Data product module label. Part 2 of branch name.
+    std::string label{};
+
+    // Data product instance name. Part 3 of branch name.
+    std::string instance{};
+
+    // Data product process name. Part 4 of branch name.
+    ProcessTag process{};
+  };
+
+  bool operator<(ProductInfo const& a, ProductInfo const& b);
+  std::ostream& operator<<(std::ostream& os,
+                           ProductInfo::ConsumableType const ct);
+  std::ostream& operator<<(std::ostream& os, ProductInfo const& info);
+
+} // namespace art
 
 #endif /* art_Framework_Principal_ProductInfo_h */
 
