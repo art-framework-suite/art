@@ -1,5 +1,7 @@
 # The following configurations should succeed
 
+cet_make_exec(check_data_dependencies SOURCE check_data_dependencies.cc LIBRARIES canvas cetlib_except art_Framework_Core)
+
 cet_test(DataDeps_EmptyConfig HANDBUILT
   TEST_EXEC check_data_dependencies
   TEST_ARGS empty.fcl
