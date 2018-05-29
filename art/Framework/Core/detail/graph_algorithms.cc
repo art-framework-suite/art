@@ -41,14 +41,13 @@ art::detail::make_module_graph(ModuleGraphInfoMap const& modInfos,
   ModuleGraph module_graph{nmodules};
 
   make_trigger_path_subgraphs(modInfos, trigger_paths, module_graph);
-  auto const deps_err = make_product_dependency_edges(modInfos, module_graph);
+  make_product_dependency_edges(modInfos, module_graph);
   auto err = verify_no_interpath_dependencies(modInfos, module_graph);
   if (err.empty()) {
     // Cannot currently check intrapath dependencies unless the above
     // check is successful.
     err += verify_in_order_dependencies(modInfos, trigger_paths);
   }
-  err = deps_err + err;
 
   make_path_ordering_edges(modInfos, trigger_paths, module_graph);
   make_synchronization_edges(modInfos, trigger_paths, end_path, module_graph);
@@ -85,11 +84,10 @@ art::detail::make_trigger_path_subgraphs(
   }
 }
 
-std::string
+void
 art::detail::make_product_dependency_edges(ModuleGraphInfoMap const& modInfos,
                                            ModuleGraph& graph)
 {
-  std::string err_msg;
   auto edge_label = get(boost::edge_name, graph);
   for (Vertex u{}; u < modInfos.size(); ++u) {
     auto const& modu = modInfos.info(u);
@@ -97,45 +95,8 @@ art::detail::make_product_dependency_edges(ModuleGraphInfoMap const& modInfos,
       auto const v = modInfos.vertex_index(dep.label);
       auto const edge = add_edge(u, v, graph);
       edge_label[edge.first] = "prod";
-
-      if (dep.label == "input_source") {
-        continue;
-      }
-
-      // If we get this far, it is assumed that the consumed product
-      // originates from a module in this job.
-      auto product_match = [&dep](auto const& producedProd) {
-        return dep.friendlyClassName == producedProd.friendlyClassName &&
-               dep.instance == producedProd.instance;
-      };
-
-      auto const& modv = modInfos.info(v);
-      if (std::any_of(cbegin(modv.produced_products),
-                      cend(modv.produced_products),
-                      product_match)) {
-        continue;
-      }
-
-      std::ostringstream oss;
-      constexpr cet::HorizontalRule rule{78};
-      oss << rule('-') << '\n'
-          << "Module " << modInfos.name(u)
-          << " expects to consume a product from module " << dep.label
-          << " with the signature:\n"
-          << "  Friendly class name: " << dep.friendlyClassName << '\n'
-          << "  Instance name: " << dep.instance << '\n'
-          << "  Process name: " << dep.process.name() << '\n'
-          << "However, no product of that signature is provided by module "
-          << dep.label << ".\n";
-      err_msg += oss.str();
     }
   }
-  if (!err_msg.empty()) {
-    return "\nThe following represent data-dependency errors based on "
-           "'consumes' statements:\n" +
-           err_msg;
-  }
-  return {};
 }
 
 void

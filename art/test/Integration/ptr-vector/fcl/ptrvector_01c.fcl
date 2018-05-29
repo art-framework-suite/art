@@ -2,7 +2,6 @@ physics: {
   producers: {
     m1a: {
       module_type: IntVectorProducer
-      ivalue: 11
       nvalues: 16
     }
     m1b: {

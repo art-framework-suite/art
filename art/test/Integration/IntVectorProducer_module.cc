@@ -22,11 +22,14 @@ using arttest::IntVectorProducer;
 // ----------------------------------------------------------------------
 
 class arttest::IntVectorProducer : public art::EDProducer {
-public:
-  typedef std::vector<int> intvector_t;
+  using intvector_t = std::vector<int>;
 
-  explicit IntVectorProducer(fhicl::ParameterSet const& p)
-    : nvalues_(p.get<int>("nvalues"))
+public:
+  struct Config {
+    fhicl::Atom<unsigned> nvalues{fhicl::Name{"nvalues"}};
+  };
+  using Parameters = Table<Config>;
+  explicit IntVectorProducer(Parameters const& p) : nvalues_{p().nvalues()}
   {
     produces<intvector_t>();
   }
@@ -34,16 +37,15 @@ public:
   void
   produce(art::Event& e) override
   {
-    std::cerr << "IntVectorProducer::produce is running!\n";
-    int value_ = e.id().event();
-    std::unique_ptr<intvector_t> p(new intvector_t);
-    for (int k = 0; k != nvalues_; ++k)
-      p->push_back(value_ + k);
-    e.put(std::move(p));
+    auto const value = e.id().event();
+    auto p = std::make_unique<intvector_t>();
+    for (unsigned k = 0; k != nvalues_; ++k)
+      p->push_back(value + k);
+    e.put(move(p));
   }
 
 private:
-  int nvalues_;
+  unsigned const nvalues_;
 
 }; // IntVectorProducer
 

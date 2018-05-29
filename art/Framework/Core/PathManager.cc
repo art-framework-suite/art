@@ -821,6 +821,7 @@ namespace art {
   {
     // Prepare information for produced products
     std::map<std::string, std::set<ProductInfo>> produced_products_per_module;
+    std::map<std::string, std::set<std::string>> viewable_products_per_module;
     for (auto const& pd : productsToProduce_) {
       auto const& module_name = pd.moduleLabel();
       produced_products_per_module[module_name].emplace(
@@ -829,6 +830,13 @@ namespace art {
         pd.moduleLabel(),
         pd.productInstanceName(),
         ProcessTag{pd.processName(), pd.processName()});
+      if (pd.supportsView()) {
+        // We do not do any type-checking here due to lack of
+        // introspection abilities.  That will be performed during the
+        // actual product lookup.
+        viewable_products_per_module[module_name].insert(
+          pd.productInstanceName());
+      }
     }
 
     for (auto it = cbegin(worker_configs), end = cend(worker_configs);
@@ -857,22 +865,45 @@ namespace art {
             if ((prod_info.process.name() != processName_) &&
                 (prod_info.process.name() != "current_process")) {
               // In cases where a user has not specified the current
-              // process name (or the literal "current_process"), we set
-              // the label of the module this worker depends upon to
-              // "input_source", solely for data-dependency checking.
-              // This permits users to specify only a module label in
-              // the input tag, and even though this might collide with
-              // a module label in the current process, it is not
-              // necessarily an error.
+              // process name (or the literal "current_process"), we
+              // set the label of the module this worker depends upon
+              // to "input_source", solely for data-dependency
+              // checking.  This permits users to specify only a
+              // module label in the input tag, and even though this
+              // might collide with a module label in the current
+              // process, it is not necessarily an error.
               //
-              // In the future, we may wish to constrain the behavior so
-              // that if there is an ambiguity in module labels between
-              // processes, a user will be required to specify
+              // In the future, we may wish to constrain the behavior
+              // so that if there is an ambiguity in module labels
+              // between processes, a user will be required to specify
               // "current_process" or "input_source".
               ProductInfo new_prod_info{prod_info};
               new_prod_info.label = "input_source";
               graph_info.consumed_products.insert(move(new_prod_info));
             } else {
+              // Current process
+              auto product_match = [& dep = prod_info](auto const& pd)
+              {
+                return dep.label == pd.moduleLabel() &&
+                       dep.friendlyClassName == pd.friendlyClassName() &&
+                       dep.instance == pd.productInstanceName();
+              };
+
+              if (!std::any_of(cbegin(productsToProduce_),
+                               cend(productsToProduce_),
+                               product_match)) {
+                throw Exception{errors::Configuration}
+                  << "Module " << module_name
+                  << " expects to consume a product from module "
+                  << prod_info.label << " with the signature:\n"
+                  << "  Friendly class name: " << prod_info.friendlyClassName
+                  << '\n'
+                  << "  Instance name: " << prod_info.instance << '\n'
+                  << "  Process name: " << prod_info.process.name() << '\n'
+                  << "However, no product of that signature is provided by "
+                     "module "
+                  << prod_info.label << ".\n";
+              }
               graph_info.consumed_products.insert(prod_info);
             }
           }
@@ -898,6 +929,39 @@ namespace art {
                                [&class_name](auto const& pi) {
                                  return class_name == pi.friendlyClassName;
                                });
+            }
+          }
+          if (prod_info.consumableType ==
+              art::ProductInfo::ConsumableType::ViewElement) {
+            // The most we do here is throw.
+            if ((prod_info.process.name() == processName_) ||
+                (prod_info.process.name() == "current_process")) {
+              auto ml_found =
+                viewable_products_per_module.find(prod_info.label);
+              Exception e{errors::Configuration,
+                          "An error occurred while checking data-product "
+                          "dependencies for this job.\n"};
+              if (ml_found == cend(viewable_products_per_module)) {
+                throw e << "Module " << module_name
+                        << " expects to consume a view of type from module "
+                        << prod_info.label << ".\n"
+                        << "However, module " << prod_info.label
+                        << " does not produce a product\n"
+                        << "for which a view can be formed.\n";
+              }
+
+              auto prod_found = ml_found->second.find(prod_info.instance);
+              if (prod_found == cend(ml_found->second)) {
+                throw e << "Module " << module_name
+                        << " expects to consume a view with the following "
+                           "signature:\n"
+                        << "  Module label: " << prod_info.label << '\n'
+                        << "  Instance name: " << prod_info.instance << '\n'
+                        << "However, module " << prod_info.label
+                        << " does not produce a product for which such a view "
+                           "can be formed.\n";
+              }
+              graph_info.consumed_products.insert(prod_info);
             }
           }
         }
