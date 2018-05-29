@@ -13,7 +13,7 @@ add_subdirectory(tools)
 cet_test(make_tool_t USE_BOOST_UNIT LIBRARIES ${default_art_test_libraries})
 
 cet_test(ParameterSet_get_CLHEP_t
-  LIBRARIES ${default_art_test_libraries} ${CLHEP}
+  LIBRARIES ${default_art_test_libraries} CLHEP::Matrix CLHEP::Vector
   )
 
 cet_test(pointersEqual_t USE_BOOST_UNIT

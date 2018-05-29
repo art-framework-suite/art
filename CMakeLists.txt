@@ -46,9 +46,9 @@ set(TBB "TBB::tbb")
 find_package(CLHEP COMPONENTS Matrix Vector Random REQUIRED)
 include_directories(${CLHEP_INCLUDE_DIRS})
 find_package(ROOT REQUIRED COMPONENTS)
-find_package(Boost COMPONENTS thread REQUIRED)
+find_package(Boost COMPONENTS date_time filesystem program_options regex system unit_test_framework REQUIRED)
 
-cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
+cet_find_library(SQLITE3 NAMES sqlite3 REQUIRED)
 
 # macros for art_dictionary and simple_plugin
 include(ArtDictionary)

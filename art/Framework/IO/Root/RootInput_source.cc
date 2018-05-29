@@ -11,6 +11,7 @@
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Utilities/forceRootDynamicPathRescan.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Utilities/Exception.h"
 
@@ -65,7 +66,9 @@ RootInput::RootInput(RootInput::Parameters const& config,
       desc.productRegistry,
       processConfiguration())}
   , accessState_{}
-{}
+{
+  forceRootDynamicPathRescan();
+}
 
 void
 RootInput::endJob()

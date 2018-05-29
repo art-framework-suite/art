@@ -20,6 +20,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/ProductMetaData.h"
+#include "art/Utilities/forceRootDynamicPathRescan.h"
 #include "art/Utilities/parent_path.h"
 #include "art/Utilities/unique_filename.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
@@ -221,6 +222,8 @@ art::RootOutput::RootOutput(Parameters const& config)
       config().fileProperties())}
   , rpm_{config.get_PSet()}
 {
+  forceRootDynamicPathRescan();
+
   bool const dropAllEventsSet{config().dropAllEvents(dropAllEvents_)};
   dropAllEvents_ =
     detail::shouldDropEvents(dropAllEventsSet, dropAllEvents_, dropAllSubRuns_);
