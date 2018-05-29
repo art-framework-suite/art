@@ -16,7 +16,8 @@ namespace art {
 
     struct ModuleGraphInfo {
       ModuleType module_type{ModuleType::non_art};
-      std::set<ProductInfo> product_dependencies{};
+      std::set<ProductInfo> produced_products{};
+      std::set<ProductInfo> consumed_products{};
       // 'select_events' is only used for analyzers and output
       // modules.
       std::set<std::string> select_events{};

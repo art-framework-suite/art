@@ -2,6 +2,7 @@
 #include "boost/graph/graph_traits.hpp"
 #include "boost/graph/graph_utility.hpp"
 #include "canvas/Utilities/Exception.h"
+#include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
 
 #include <limits>
@@ -40,15 +41,14 @@ art::detail::make_module_graph(ModuleGraphInfoMap const& modInfos,
   ModuleGraph module_graph{nmodules};
 
   make_trigger_path_subgraphs(modInfos, trigger_paths, module_graph);
-  make_product_dependency_edges(modInfos, module_graph);
-
-  std::string err;
-  err += verify_no_interpath_dependencies(modInfos, module_graph);
+  auto const deps_err = make_product_dependency_edges(modInfos, module_graph);
+  auto err = verify_no_interpath_dependencies(modInfos, module_graph);
   if (err.empty()) {
     // Cannot currently check intrapath dependencies unless the above
     // check is successful.
     err += verify_in_order_dependencies(modInfos, trigger_paths);
   }
+  err = deps_err + err;
 
   make_path_ordering_edges(modInfos, trigger_paths, module_graph);
   make_synchronization_edges(modInfos, trigger_paths, end_path, module_graph);
@@ -85,18 +85,57 @@ art::detail::make_trigger_path_subgraphs(
   }
 }
 
-void
+std::string
 art::detail::make_product_dependency_edges(ModuleGraphInfoMap const& modInfos,
                                            ModuleGraph& graph)
 {
+  std::string err_msg;
   auto edge_label = get(boost::edge_name, graph);
   for (Vertex u{}; u < modInfos.size(); ++u) {
-    for (auto const& dep : modInfos.info(u).product_dependencies) {
+    auto const& modu = modInfos.info(u);
+    for (auto const& dep : modu.consumed_products) {
       auto const v = modInfos.vertex_index(dep.label);
       auto const edge = add_edge(u, v, graph);
       edge_label[edge.first] = "prod";
+
+      if (dep.label == "input_source") {
+        continue;
+      }
+
+      // If we get this far, it is assumed that the consumed product
+      // originates from a module in this job.
+      auto product_match = [&dep](auto const& producedProd) {
+        return dep.friendlyClassName == producedProd.friendlyClassName &&
+               dep.instance == producedProd.instance;
+      };
+
+      auto const& modv = modInfos.info(v);
+      if (std::any_of(cbegin(modv.produced_products),
+                      cend(modv.produced_products),
+                      product_match)) {
+        continue;
+      }
+
+      std::ostringstream oss;
+      constexpr cet::HorizontalRule rule{78};
+      oss << rule('-') << '\n'
+          << "Module " << modInfos.name(u)
+          << " expects to consume a product from module " << dep.label
+          << " with the signature:\n"
+          << "  Friendly class name: " << dep.friendlyClassName << '\n'
+          << "  Instance name: " << dep.instance << '\n'
+          << "  Process name: " << dep.process.name() << '\n'
+          << "However, no product of that signature is provided by module "
+          << dep.label << ".\n";
+      err_msg += oss.str();
     }
   }
+  if (!err_msg.empty()) {
+    return "\nThe following represent data-dependency errors based on "
+           "'consumes' statements:\n" +
+           err_msg;
+  }
+  return {};
 }
 
 void
@@ -230,7 +269,7 @@ art::detail::verify_no_interpath_dependencies(
   }
 
   std::ostringstream oss;
-  oss << "\nThe following represent data-dependency errors:\n";
+  oss << "\nThe following represent cross-path data-dependency errors:\n";
   for (auto const& mod : illegal_dependencies) {
     auto const mod_index = mod.first;
     auto const& module_name = modInfos.name(mod_index);
@@ -289,7 +328,7 @@ art::detail::verify_in_order_dependencies(
       std::find_if(begin, end, name_matches{module_name});
     assert(module_position != end);
 
-    for (auto const& dep : module.second.product_dependencies) {
+    for (auto const& dep : module.second.consumed_products) {
       if (dep.label == "input_source") {
         continue;
       }

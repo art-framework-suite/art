@@ -77,7 +77,7 @@ namespace art {
   operator<<(ostream& os, ProductInfo const& info)
   {
     os << "Consumable type: " << info.consumableType << '\n'
-       << "TypeID: " << info.typeID << '\n'
+       << "Friendly class name: " << info.friendlyClassName << '\n'
        << "Module label: " << info.label << '\n'
        << "Instance name: " << info.instance << '\n'
        << "Process name: " << info.process.name() << '\n';

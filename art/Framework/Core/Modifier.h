@@ -32,12 +32,11 @@ namespace art {
   class BranchDescription;
 
   class Modifier : public ModuleBase, private ProductRegistryHelper {
-  public: // CONFIGURATION
+  public:
     template <typename UserConfig, typename UserKeysToIgnore = void>
     using Table =
       ProducerTable<UserConfig, detail::ModuleConfig, UserKeysToIgnore>;
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~Modifier() noexcept;
 
     Modifier();
@@ -47,7 +46,6 @@ namespace art {
     Modifier& operator=(Modifier const&) = delete;
     Modifier& operator=(Modifier&&) = delete;
 
-  public: // MEMBER FUNCTIONS -- Product Registry Helper API
     using ProductRegistryHelper::expectedProducts;
     using ProductRegistryHelper::fillDescriptions;
     using ProductRegistryHelper::produces;

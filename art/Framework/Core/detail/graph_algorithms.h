@@ -23,8 +23,9 @@ namespace art {
                                      paths_to_modules_t const& trigger_paths,
                                      ModuleGraph& graph);
 
-    void make_product_dependency_edges(ModuleGraphInfoMap const& modInfos,
-                                       ModuleGraph& graph);
+    std::string make_product_dependency_edges(
+      ModuleGraphInfoMap const& modInfos,
+      ModuleGraph& graph);
 
     void make_path_ordering_edges(ModuleGraphInfoMap const& modInfos,
                                   paths_to_modules_t const& paths,

@@ -216,10 +216,27 @@ namespace {
     return result;
   }
 
+  std::set<art::ProductInfo>
+  produced_products(std::vector<TypeAndInstance> const& productsToProduce,
+                    string const& module_name,
+                    string const& current_process_name)
+  {
+    std::set<art::ProductInfo> result;
+    for (auto const& prod : productsToProduce) {
+      result.emplace(
+        art::ProductInfo::ConsumableType::Product,
+        prod.friendlyClassName,
+        module_name,
+        prod.productInstanceName,
+        art::ProcessTag{current_process_name, current_process_name});
+    }
+    return result;
+  }
+
   template <typename T>
   std::set<art::ProductInfo>
-  sorted_dependencies(Table<T> const& module,
-                      string const& current_process_name)
+  sorted_consumed_products(Table<T> const& module,
+                           string const& current_process_name)
   {
     std::set<art::ProductInfo> sorted_deps;
     std::vector<TypeAndTag> deps;
@@ -252,12 +269,42 @@ namespace {
     return sorted_deps;
   }
 
-  void
-  fill_module_info(ParameterSet const& pset,
+  art::ProductDescriptions
+  fillModifierInfo(ParameterSet const& pset,
                    string const& process_name,
                    string const& path_name,
                    configs_t const& module_configs,
-                   art::detail::collection_map_t& modules)
+                   collection_map_t& modules)
+  {
+    art::ProductDescriptions producedProducts;
+    for (auto const& config : module_configs) {
+      auto const& module_name = config.label;
+      auto& info = modules[module_name];
+      info.paths.insert(path_name);
+      info.module_type = module_found_with_type(module_name, pset);
+      auto const table_name = table_for_module_type(info.module_type);
+      auto const& table =
+        pset.get<ParameterSet>(table_name + "." + module_name);
+      if (is_observer(info.module_type))
+        continue;
+
+      Table<ModifierModuleConfig> const mod{table};
+      info.consumed_products = sorted_consumed_products(mod, process_name);
+      std::vector<TypeAndInstance> prods;
+      if (mod().produces(prods)) {
+        info.produced_products =
+          produced_products(prods, module_name, process_name);
+      }
+    }
+    return producedProducts;
+  }
+
+  void
+  fillObserverInfo(ParameterSet const& pset,
+                   string const& process_name,
+                   string const& path_name,
+                   configs_t const& module_configs,
+                   collection_map_t& modules)
   {
     for (auto const& config : module_configs) {
       auto const& module_name = config.label;
@@ -267,16 +314,14 @@ namespace {
       auto const table_name = table_for_module_type(info.module_type);
       auto const& table =
         pset.get<ParameterSet>(table_name + "." + module_name);
-      if (is_modifier(info.module_type)) {
-        Table<ModifierModuleConfig> const mod{table};
-        info.product_dependencies = sorted_dependencies(mod, process_name);
-      } else {
-        Table<ObserverModuleConfig> const mod{table};
-        info.product_dependencies = sorted_dependencies(mod, process_name);
-        std::vector<string> sel;
-        if (mod().select_events(sel)) {
-          info.select_events = std::set<string>(cbegin(sel), cend(sel));
-        }
+      if (is_modifier(info.module_type))
+        continue;
+
+      Table<ObserverModuleConfig> const mod{table};
+      info.consumed_products = sorted_consumed_products(mod, process_name);
+      std::vector<string> sel;
+      if (mod().select_events(sel)) {
+        info.select_events = std::set<string>(cbegin(sel), cend(sel));
       }
     }
   }
@@ -320,14 +365,14 @@ main(int argc, char** argv) try {
   }
 
   for (auto const& path : trigger_paths) {
-    fill_module_info(pset, process_name, path.first, path.second, modules);
+    fillModifierInfo(pset, process_name, path.first, path.second, modules);
   }
 
   if (!trigger_paths.empty()) {
     modules["TriggerResults"] = ModuleGraphInfo{art::ModuleType::producer};
   }
 
-  fill_module_info(pset, process_name, "end_path", end_path, modules);
+  fillObserverInfo(pset, process_name, "end_path", end_path, modules);
 
   // Build the graph
   ModuleGraphInfoMap const modInfos{modules};
@@ -350,10 +395,13 @@ main(int argc, char** argv) try {
   // Check if test properties have been satisfied
   int rc{};
   bool const graph_failure_expected = test_properties.graph_failure_expected();
-  if (graph_failure != graph_failure_expected) {
-    std::cerr << "Graph failure value is not correct:\n"
-              << "    " << std::boolalpha << graph_failure_expected << " (expected) vs. "
-              << graph_failure <<  " (actual)\n";
+  if (graph_failure && !graph_failure_expected) {
+    std::cerr << "Unexpected graph-construction failure.\n"
+              << "Error message:\n"
+              << err << '\n';
+    rc = 1;
+  } else if (!graph_failure && graph_failure_expected) {
+    std::cerr << "Unexpected graph-construction success.\n";
     rc = 1;
   }
   string expected_msg;

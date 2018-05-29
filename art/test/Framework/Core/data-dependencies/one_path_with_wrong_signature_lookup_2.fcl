@@ -1,0 +1,18 @@
+test_properties: {
+  graph_failure_expected: true
+  error_message: "Module p2 expects to consume a product from module p1 with the signature(.|\\n)*Friendly class name: double(.|\\n)*However, no product of that signature is provided by module p1"
+}
+
+process_name: test
+
+physics: {
+  producers: {
+    p1: { produces: [["int", "" ]] }
+    p2: { consumes: [["double", "p1::current_process"]] }
+  }
+  filters: {
+    f1: {}
+    f2: {}
+  }
+  path: [p1, f1, p2, f2]
+}
