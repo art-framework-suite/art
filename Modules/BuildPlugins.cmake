@@ -61,7 +61,7 @@ function(simple_plugin name type)
       fhiclcpp
       cetlib
       cetlib_except
-      ${ROOT_CORE}
+      ${ROOT_Core_LIBRARY}
       ${Boost_FILESYSTEM_LIBRARY}
       ${Boost_SYSTEM_LIBRARY}
       )

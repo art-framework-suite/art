@@ -1,3 +1,4 @@
+find_package(ROOT REQUIRED COMPONENTS Core RIO Tree Hist)
 add_subdirectory(RootDB)
 
 art_make_library(
@@ -18,9 +19,9 @@ art_make_library(
   art_Utilities
   canvas
   MF_MessageLogger
-  ${ROOT_CORE}
-  ${ROOT_RIO}
-  ${ROOT_TREE}
+  ${ROOT_Core_LIBRARY}
+  ${ROOT_RIO_LIBRARY}
+  ${ROOT_Tree_LIBRARY}
   )
 
 art_make_library(
@@ -61,8 +62,8 @@ art_make(EXCLUDE
   art_Framework_IO_Root_detail_sources
   cetlib
   canvas
-  ${ROOT_HIST}
-  ${ROOT_TREE}
+  ${ROOT_Hist_LIBRARY}
+  ${ROOT_Tree_LIBRARY}
 )
 
 simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Catalog)
@@ -80,8 +81,8 @@ art_make_exec( NAME config_dumper
   art_Utilities canvas
   art_Framework_Core
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${ROOT_TREE}
-  ${ROOT_RIO}
+  ${ROOT_Tree_LIBRARY}
+  ${ROOT_RIO_LIBRARY}
   )
 
 art_make_exec( NAME sam_metadata_dumper
@@ -89,7 +90,7 @@ art_make_exec( NAME sam_metadata_dumper
   art_Utilities canvas
   art_Framework_Core
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${ROOT_RIO}
+  ${ROOT_RIO_LIBRARY}
   )
 
 art_make_exec( NAME count_events
@@ -98,8 +99,8 @@ art_make_exec( NAME count_events
   art_Framework_Core
   art_Utilities canvas
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${ROOT_TREE}
-  ${ROOT_RIO}
+  ${ROOT_Tree_LIBRARY}
+  ${ROOT_RIO_LIBRARY}
   )
 
 art_make_exec(NAME file_info_dumper

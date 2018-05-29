@@ -1,3 +1,5 @@
+find_package(ROOT REQUIRED COMPONENTS Hist Tree)
+
 # Configure file to handle differences for Mac.
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/check_libs.cc.in
   ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc @ONLY
@@ -64,8 +66,8 @@ art_make_library(LIBRARY_NAME art_Framework_Art
   # The following are used for InitRootHandlers
   art_Framework_IO_Root
   art_Framework_IO_Root_RootDB
-  ${ROOT_HIST}
-  ${ROOT_TREE}
+  ${ROOT_Hist_LIBRARY}
+  ${ROOT_Tree_LIBRARY}
   )
 
 # Build an art exec.

@@ -1,7 +1,9 @@
+find_package(ROOT REQUIRED COMPONENTS Hist Graf)
+
 art_make_library(SOURCE fpc_utils.cc)
 
 simple_plugin(TestTFileService "module" NO_INSTALL
-  art_Framework_Services_Optional_TFileService_service ${ROOT_HIST} ${ROOT_GRAF})
+  art_Framework_Services_Optional_TFileService_service ${ROOT_Hist_LIBRARY} ${ROOT_Graf_LIBRARY})
 
 simple_plugin(TestTFileServiceNoRegister "module" NO_INSTALL
   art_Framework_Services_Optional_TFileService_service)

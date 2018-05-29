@@ -1,3 +1,5 @@
+find_package(ROOT REQUIRED COMPONENTS Hist Matrix MathCore Core RIO Thread Tree)
+
 set(art_Framework_Services_Optional_sources
   TFileDirectory.cc
   detail/RootDirectorySentry.cc)
@@ -10,11 +12,10 @@ endif()
 
 art_make_library(SOURCE ${art_Framework_Services_Optional_sources}
   LIBRARIES cetlib
-  ${ROOT_HIST}
-  ${ROOT_MATRIX}
-  ${ROOT_MATHCORE}
-  ${ROOT_CORE}
-  ${ROOT_CINT}
+  ${ROOT_Hist_LIBRARY}
+  ${ROOT_Matrix_LIBRARY}
+  ${ROOT_MathCore}
+  ${ROOT_Core_LIBRARY}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_REGEX_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
@@ -28,7 +29,7 @@ simple_plugin(RandomNumberGenerator "service"
   art_Persistency_Common
   MF_MessageLogger
   cetlib
-  ${CLHEP})
+  CLHEP::Random)
 
 simple_plugin(MemoryAdjuster "service"
   art_Framework_Services_Optional)
@@ -47,9 +48,9 @@ simple_plugin(TFileService "service"
   art_Framework_IO_detail
   art_Framework_Principal
   MF_MessageLogger
-  ${ROOT_RIO}
-  ${ROOT_THREAD}
-  ${ROOT_TREE})
+  ${ROOT_RIO_LIBRARY}
+  ${ROOT_Thread_LIBRARY}
+  ${ROOT_Tree_LIBRARY})
 
 simple_plugin(TimeTracker "service"
   art_Framework_Principal

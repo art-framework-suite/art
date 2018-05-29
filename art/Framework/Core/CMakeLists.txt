@@ -14,7 +14,6 @@ art_make(
   fhiclcpp
   cetlib
   canvas
-  ${CLHEP}
   ${TBB}
   )
 

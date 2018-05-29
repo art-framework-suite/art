@@ -1,6 +1,6 @@
 art_make_library(
   LIBRARIES
-  art_Framework_Core cetlib ${ROOT_CORE}
+  art_Framework_Core cetlib ${ROOT_Core_LIBRARY}
   SOURCE ClonedProd.cc
   NO_INSTALL
 )

@@ -9,8 +9,8 @@ art_make_library(
   LIBRARIES
   art_Utilities
   canvas
-  ${ROOT_RIO}
-  ${ROOT_CORE}
+  ${ROOT_RIO_LIBRARY}
+  ${ROOT_Core_LIBRARY}
   ${SQLITE3}
   )
 

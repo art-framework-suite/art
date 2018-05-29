@@ -12,18 +12,18 @@
 #  make package (builds distribution tarfile)
 # ======================================================================
 
+# Required to keep CMake happy.
+cmake_minimum_required(VERSION ${CMAKE_VERSION} FATAL_ERROR)
+# Actual version requirement.
+cmake_policy(VERSION 3.4)
 
-# use cmake 2.8 or later
-cmake_minimum_required (VERSION 2.8)
+# Project information.
+project(art VERSION 2.11.02 LANGUAGES C CXX)
 
-project(art)
+# cetmodules contains our cmake modules
+find_package(cetmodules REQUIRED)
 
-# cetbuildtools contains our cmake modules
-find_package(cetbuildtools REQUIRED)
-
-list(APPEND CMAKE_MODULE_PATH
-  $ENV{CANVAS_ROOT_IO_DIR}/Modules
-  ${CMAKE_CURRENT_SOURCE_DIR}/Modules)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/Modules)
 
 include(CetCMakeEnv)
 cet_cmake_env()
@@ -34,29 +34,20 @@ cet_set_compiler_flags(DIAGS VIGILANT
   EXTRA_FLAGS -pedantic
   EXTRA_CXX_FLAGS -Wnon-virtual-dtor -Wdelete-non-virtual-dtor)
 
-cet_have_qual(sse2 SSE2)
-if (SSE2)
-  cet_add_compiler_flags(CXX -msse2 -ftree-vectorizer-verbose=2)
-endif()
-
 cet_report_compiler_flags()
 
-# these are minimum required versions, not the actual product versions
-find_ups_product(canvas_root_io)
-find_ups_product(canvas v1_06_00)
-find_ups_product(messagefacility)
-find_ups_product(fhiclcpp)
-find_ups_product(cetlib v2_01_00)
-find_ups_product(cetlib_except v1_01_00)
-find_ups_product(clhep)
-find_ups_product(cppunit)
-find_ups_product(cetbuildtools v6_00_00) # LIBRARY_OUTPUT_DIRECTORY, etc.
-find_ups_product(sqlite)
-find_ups_product(range)
-find_ups_boost()
-find_ups_root()
+find_package(canvas_root_io REQUIRED)
+find_package(canvas REQUIRED)
+find_package(cetlib_except REQUIRED)
+find_package(fhiclcpp REQUIRED)
+find_package(messagefacility REQUIRED)
+find_package(TBB REQUIRED)
+set(TBB "TBB::tbb")
+find_package(CLHEP COMPONENTS Matrix Vector Random REQUIRED)
+include_directories(${CLHEP_INCLUDE_DIRS})
+find_package(ROOT REQUIRED COMPONENTS)
+find_package(Boost COMPONENTS thread REQUIRED)
 
-# SQLite
 cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
 
 # macros for art_dictionary and simple_plugin
@@ -81,6 +72,3 @@ add_subdirectory(ups)
 
 # CMake modules
 add_subdirectory(Modules)
-
-# packaging utility
-include(UseCPack)
