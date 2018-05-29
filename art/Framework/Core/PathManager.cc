@@ -831,15 +831,17 @@ namespace art {
         ProcessTag{pd.processName(), pd.processName()});
     }
 
-    for (auto const& worker_config : worker_configs) {
-      auto const& module_name = worker_config.label;
+    for (auto it = cbegin(worker_configs), end = cend(worker_configs);
+         it != end;
+         ++it) {
+      auto const& module_name = it->label;
       auto const& mci = allModules_.at(module_name);
       auto& graph_info = info_collection[module_name];
       graph_info.paths.insert(path_name);
       graph_info.module_type = mci.moduleType_;
 
-      auto it = produced_products_per_module.find(module_name);
-      if (it != cend(produced_products_per_module)) {
+      auto found = produced_products_per_module.find(module_name);
+      if (found != cend(produced_products_per_module)) {
         graph_info.produced_products =
           produced_products_per_module.at(module_name);
       }
@@ -850,7 +852,8 @@ namespace art {
       for (auto const& per_branch_type : consumables) {
         for (auto const& prod_info : per_branch_type) {
           // Handle consumes/mayConsume
-          if (prod_info.consumableType == art::ProductInfo::ConsumableType::Product) {
+          if (prod_info.consumableType ==
+              art::ProductInfo::ConsumableType::Product) {
             if ((prod_info.process.name() != processName_) &&
                 (prod_info.process.name() != "current_process")) {
               // In cases where a user has not specified the current
@@ -874,6 +877,29 @@ namespace art {
             }
           }
           // Handle consumesMany/mayConsumeMany
+          if (prod_info.consumableType ==
+              art::ProductInfo::ConsumableType::Many) {
+            // Loop through modules on this path, introducing
+            // product-lookup dependencies if the type of the product
+            // created by the module matches the type requested in the
+            // consumesMany call.
+            auto const& class_name = prod_info.friendlyClassName;
+            for (auto mit = cbegin(worker_configs); mit != it; ++mit) {
+              auto const& preceding_module_name = mit->label;
+              // Bail out early if no products produced for this module.
+              auto found =
+                produced_products_per_module.find(preceding_module_name);
+              if (found == cend(produced_products_per_module)) {
+                continue;
+              }
+              auto& consumed_prods = graph_info.consumed_products;
+              cet::copy_if_all(found->second,
+                               inserter(consumed_prods, begin(consumed_prods)),
+                               [&class_name](auto const& pi) {
+                                 return class_name == pi.friendlyClassName;
+                               });
+            }
+          }
         }
       }
     }

@@ -269,7 +269,8 @@ art::detail::verify_no_interpath_dependencies(
   }
 
   std::ostringstream oss;
-  oss << "\nThe following represent cross-path data-dependency errors:\n";
+  oss << "\nThe following represent cross-path data-dependency errors:\n"
+      << cet::HorizontalRule{60}('-') << '\n';
   for (auto const& mod : illegal_dependencies) {
     auto const mod_index = mod.first;
     auto const& module_name = modInfos.name(mod_index);
@@ -285,6 +286,15 @@ art::detail::verify_no_interpath_dependencies(
           << comma_separated_list(on_paths) << '\n';
     }
   }
+  oss << "\nSuch errors occur whenever a module on one path depends on the "
+         "data products\n"
+      << "from another.  Such dependencies can be subtle--for example, a "
+         "module that\n"
+      << "uses an event.getManyByType call cannot be shared across paths if "
+         "the modules\n"
+      << "that precede it in the paths do not give consistent result.  Please "
+         "check your\n"
+      << "configuration, or email artists@fnal.gov for assistance.\n";
   return oss.str();
 }
 

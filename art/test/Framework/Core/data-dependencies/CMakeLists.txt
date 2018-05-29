@@ -5,21 +5,27 @@ cet_make_exec(check_data_dependencies
 set(config_files
   empty.fcl
   modifiers_and_observers.fcl
-  modifiers_and_observers_with_deps.fcl
+  modifiers_and_observers_with_consumes.fcl
   one_path_with_producers_and_a_current_process_circularity.fcl
   one_path_with_producers_and_an_apparent_circularity.fcl
   one_path_with_producers_and_filters.fcl
-  one_path_with_producers_and_filters_with_deps.fcl
+  one_path_with_producers_and_filters_with_consumesMany.fcl
+  one_path_with_producers_and_filters_with_consumes.fcl
   one_path_with_wrong_signature_lookup_1.fcl
   one_path_with_wrong_signature_lookup_2.fcl
   one_path_with_wrong_signature_lookup_3.fcl
   one_path_with_producers_and_self_circularity.fcl
-  three_paths_with_producers_with_current_process_deps.fcl
-  three_paths_with_producers_with_deps.fcl
-  three_paths_with_producers_with_input_source_deps.fcl
-  two_paths_with_producers_and_filters_with_deps.fcl
-  two_paths_with_producers_with_current_process_deps.fcl
-  two_paths_with_producers_with_deps.fcl)
+  three_paths_with_producers_with_current_process_consumes.fcl
+  three_paths_with_producers_with_consumes.fcl
+  three_paths_with_producers_with_input_source_consumes.fcl
+  two_paths_with_producers_and_filters_with_consumes.fcl
+  two_paths_with_producers_with_current_process_consumes.fcl
+  two_paths_with_producers_with_consumes.fcl
+  two_paths_with_producers_with_different_consumesMany.fcl
+  two_paths_with_producers_with_shared_consumesMany_1.fcl
+  two_paths_with_producers_with_shared_consumesMany_2.fcl
+  two_paths_with_producers_with_shared_consumesMany_3.fcl
+  two_paths_with_producers_with_shared_consumesMany_4.fcl)
 
 function(capitalize str output)
   string(SUBSTRING ${str} 0 1 FIRST_LETTER)

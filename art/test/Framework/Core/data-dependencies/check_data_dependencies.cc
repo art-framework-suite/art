@@ -269,6 +269,39 @@ namespace {
     return sorted_deps;
   }
 
+  template <typename T>
+  std::set<art::ProductInfo>
+  consumes_many(Table<T> const& module,
+                configs_t::const_iterator mit,
+                configs_t::const_iterator const end,
+                collection_map_t const& modules)
+  {
+    std::set<art::ProductInfo> result;
+    std::vector<std::string> many;
+    if (module().consumesMany(many)) {
+      for (auto const& class_name : many) {
+        // Loop through modules on this path, introducing
+        // product-lookup dependencies if the type of the product
+        // created by the module matches the type requested in the
+        // consumesMany call.
+        for (; mit != end; ++mit) {
+          auto const& preceding_module_name = mit->label;
+          // Bail out early if no products produced for this module.
+          auto found = modules.find(preceding_module_name);
+          if (found == cend(modules)) {
+            continue;
+          }
+          cet::copy_if_all(found->second.produced_products,
+                           inserter(result, begin(result)),
+                           [&class_name](auto const& pi) {
+                             return class_name == pi.friendlyClassName;
+                           });
+        }
+      }
+    }
+    return result;
+  }
+
   art::ProductDescriptions
   fillModifierInfo(ParameterSet const& pset,
                    string const& process_name,
@@ -277,7 +310,9 @@ namespace {
                    collection_map_t& modules)
   {
     art::ProductDescriptions producedProducts;
-    for (auto const& config : module_configs) {
+    auto const begin = cbegin(module_configs);
+    for (auto it = begin, end = cend(module_configs); it != end; ++it) {
+      auto const& config = *it;
       auto const& module_name = config.label;
       auto& info = modules[module_name];
       info.paths.insert(path_name);
@@ -290,6 +325,8 @@ namespace {
 
       Table<ModifierModuleConfig> const mod{table};
       info.consumed_products = sorted_consumed_products(mod, process_name);
+      auto const& many = consumes_many(mod, begin, it, modules);
+      info.consumed_products.insert(cbegin(many), cend(many));
       std::vector<TypeAndInstance> prods;
       if (mod().produces(prods)) {
         info.produced_products =
@@ -306,7 +343,9 @@ namespace {
                    configs_t const& module_configs,
                    collection_map_t& modules)
   {
-    for (auto const& config : module_configs) {
+    auto const begin = cbegin(module_configs);
+    for (auto it = begin, end = cend(module_configs); it != end; ++it) {
+      auto const& config = *it;
       auto const& module_name = config.label;
       auto& info = modules[module_name];
       info.paths.insert(path_name);
@@ -319,6 +358,8 @@ namespace {
 
       Table<ObserverModuleConfig> const mod{table};
       info.consumed_products = sorted_consumed_products(mod, process_name);
+      auto const& many = consumes_many(mod, begin, it, modules);
+      info.consumed_products.insert(cbegin(many), cend(many));
       std::vector<string> sel;
       if (mod().select_events(sel)) {
         info.select_events = std::set<string>(cbegin(sel), cend(sel));
