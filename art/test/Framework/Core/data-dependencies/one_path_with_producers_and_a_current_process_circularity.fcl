@@ -9,7 +9,7 @@ physics: {
   producers: {
     p1: { consumes: [["int", "p3::current_process"]] }
     p2: {}
-    p3: {}
+    p3: { produces: [["int", ""]] }
   }
   tp: [p1, p2, p3]
 }

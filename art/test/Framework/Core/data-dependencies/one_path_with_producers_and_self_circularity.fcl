@@ -7,7 +7,10 @@ process_name: test
 
 physics: {
   producers: {
-    p1: { consumes: [["int", "p1::current_process"]] }
+    p1: {
+      produces: [["int", ""]]
+      consumes: [["int", "p1::current_process"]]
+    }
     p2: {}
     p3: {}
   }

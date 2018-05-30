@@ -1,3 +1,17 @@
+# The tests done here are meant to exercise the data-dependency graph
+# checking that is done by the framework.  Although this is largely
+# accomplished here, there are several weaknesses:
+#
+#   - Some of the checking done by the framework occurs before the
+#     graph is created.  This means that a parallel mechanism for
+#     preparing graph inputs exists wrt. the main framework.
+#
+#   - Data dependencies for consumesView are not done here due to the
+#     difficulty of type introspection.  Such introspection is
+#     available to the framework, through the BranchDescription class.
+#
+# Despite the weaknesses, the tests are still useful.
+
 cet_make_exec(check_data_dependencies
   SOURCE check_data_dependencies.cc
   LIBRARIES canvas cetlib_except art_Framework_Core)
