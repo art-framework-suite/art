@@ -66,6 +66,115 @@ namespace art {
       std::sort(begin(sorted_modules), end(sorted_modules));
       return sorted_modules;
     }
+
+    art::ProductInfo
+    consumes_dependency(art::ProductInfo const& prod_info,
+                        std::string const& module_name,
+                        std::string const& process_name,
+                        art::ProductDescriptions const& products_to_produce)
+    {
+      assert(prod_info.consumableType ==
+             art::ProductInfo::ConsumableType::Product);
+      if ((prod_info.process.name() != process_name) &&
+          (prod_info.process.name() != "current_process")) {
+        // In cases where a user has not specified the current process
+        // name (or the literal "current_process"), we set the label
+        // of the module this worker depends upon to "input_source",
+        // solely for data-dependency checking.  This permits users to
+        // specify only a module label in the input tag, and even
+        // though this might collide with a module label in the
+        // current process, it is not necessarily an error.
+        //
+        // In the future, we may wish to constrain the behavior so
+        // that if there is an ambiguity in module labels between
+        // processes, a user will be required to specify
+        // "current_process" or "input_source".
+        auto new_prod_info = prod_info;
+        new_prod_info.label = "input_source";
+        return new_prod_info;
+      }
+
+      // Current process
+      auto product_match = [& dep = prod_info](auto const& pd)
+      {
+        return dep.label == pd.moduleLabel() &&
+               dep.friendlyClassName == pd.friendlyClassName() &&
+               dep.instance == pd.productInstanceName();
+      };
+
+      if (std::any_of(cbegin(products_to_produce),
+                      cend(products_to_produce),
+                      product_match)) {
+        return prod_info;
+      }
+
+      throw art::Exception{art::errors::Configuration}
+        << "Module " << module_name
+        << " expects to consume a product from module " << prod_info.label
+        << " with the signature:\n"
+        << "  Friendly class name: " << prod_info.friendlyClassName << '\n'
+        << "  Instance name: " << prod_info.instance << '\n'
+        << "  Process name: " << prod_info.process.name() << '\n'
+        << "However, no product of that signature is provided by "
+           "module "
+        << prod_info.label << ".\n";
+    }
+  }
+
+  art::ProductInfo
+  consumes_view_dependency(
+    art::ProductInfo const& prod_info,
+    std::string const& module_name,
+    std::string const& process_name,
+    std::map<std::string, std::set<std::string>> const& viewable_products)
+  {
+    assert(prod_info.consumableType ==
+           art::ProductInfo::ConsumableType::ViewElement);
+    if ((prod_info.process.name() != process_name) &&
+        (prod_info.process.name() != "current_process")) {
+      // In cases where a user has not specified the current process
+      // name (or the literal "current_process"), we set the label of
+      // the module this worker depends upon to "input_source", solely
+      // for data-dependency checking.  This permits users to specify
+      // only a module label in the input tag, and even though this
+      // might collide with a module label in the current process, it
+      // is not necessarily an error.
+      //
+      // In the future, we may wish to constrain the behavior so
+      // that if there is an ambiguity in module labels between
+      // processes, a user will be required to specify
+      // "current_process" or "input_source".
+      auto new_prod_info = prod_info;
+      new_prod_info.label = "input_source";
+      return new_prod_info;
+    }
+
+    // Current process
+    auto ml_found = viewable_products.find(prod_info.label);
+    Exception e{errors::Configuration,
+                "An error occurred while checking data-product dependencies "
+                "for this job.\n"};
+    if (ml_found == cend(viewable_products)) {
+      throw e << "Module " << module_name
+              << " expects to consume a view of type from module "
+              << prod_info.label << ".\n"
+              << "However, module " << prod_info.label
+              << " does not produce a product\n"
+              << "for which a view can be formed.\n";
+    }
+
+    auto prod_found = ml_found->second.find(prod_info.instance);
+    if (prod_found == cend(ml_found->second)) {
+      throw e << "Module " << module_name
+              << " expects to consume a view with the following "
+                 "signature:\n"
+              << "  Module label: " << prod_info.label << '\n'
+              << "  Instance name: " << prod_info.instance << '\n'
+              << "However, module " << prod_info.label
+              << " does not produce a product for which such a view "
+                 "can be formed.\n";
+    }
+    return prod_info;
   }
 
   PathManager::~PathManager() noexcept
@@ -859,110 +968,40 @@ namespace art {
 
       for (auto const& per_branch_type : consumables) {
         for (auto const& prod_info : per_branch_type) {
-          // Handle consumes/mayConsume
-          if (prod_info.consumableType ==
-              art::ProductInfo::ConsumableType::Product) {
-            if ((prod_info.process.name() != processName_) &&
-                (prod_info.process.name() != "current_process")) {
-              // In cases where a user has not specified the current
-              // process name (or the literal "current_process"), we
-              // set the label of the module this worker depends upon
-              // to "input_source", solely for data-dependency
-              // checking.  This permits users to specify only a
-              // module label in the input tag, and even though this
-              // might collide with a module label in the current
-              // process, it is not necessarily an error.
-              //
-              // In the future, we may wish to constrain the behavior
-              // so that if there is an ambiguity in module labels
-              // between processes, a user will be required to specify
-              // "current_process" or "input_source".
-              ProductInfo new_prod_info{prod_info};
-              new_prod_info.label = "input_source";
-              graph_info.consumed_products.insert(move(new_prod_info));
-            } else {
-              // Current process
-              auto product_match = [& dep = prod_info](auto const& pd)
-              {
-                return dep.label == pd.moduleLabel() &&
-                       dep.friendlyClassName == pd.friendlyClassName() &&
-                       dep.instance == pd.productInstanceName();
-              };
-
-              if (!std::any_of(cbegin(productsToProduce_),
-                               cend(productsToProduce_),
-                               product_match)) {
-                throw Exception{errors::Configuration}
-                  << "Module " << module_name
-                  << " expects to consume a product from module "
-                  << prod_info.label << " with the signature:\n"
-                  << "  Friendly class name: " << prod_info.friendlyClassName
-                  << '\n'
-                  << "  Instance name: " << prod_info.instance << '\n'
-                  << "  Process name: " << prod_info.process.name() << '\n'
-                  << "However, no product of that signature is provided by "
-                     "module "
-                  << prod_info.label << ".\n";
-              }
-              graph_info.consumed_products.insert(prod_info);
+          switch (prod_info.consumableType) {
+            case art::ProductInfo::ConsumableType::Product: {
+              auto dep = consumes_dependency(
+                prod_info, module_name, processName_, productsToProduce_);
+              graph_info.consumed_products.insert(std::move(dep));
+              break;
             }
-          }
-          // Handle consumesMany/mayConsumeMany
-          if (prod_info.consumableType ==
-              art::ProductInfo::ConsumableType::Many) {
-            // Loop through modules on this path, introducing
-            // product-lookup dependencies if the type of the product
-            // created by the module matches the type requested in the
-            // consumesMany call.
-            auto const& class_name = prod_info.friendlyClassName;
-            for (auto mit = cbegin(worker_configs); mit != it; ++mit) {
-              auto const& preceding_module_name = mit->label;
-              // Bail out early if no products produced for this module.
-              auto found =
-                produced_products_per_module.find(preceding_module_name);
-              if (found == cend(produced_products_per_module)) {
-                continue;
+            case art::ProductInfo::ConsumableType::Many: {
+              // Loop through modules on this path, introducing
+              // product-lookup dependencies if the type of the product
+              // created by the module matches the type requested in the
+              // consumesMany call.
+              auto const& class_name = prod_info.friendlyClassName;
+              for (auto mit = cbegin(worker_configs); mit != it; ++mit) {
+                auto const& possible_products =
+                  info_collection.at(mit->label).produced_products;
+                auto& consumed_prods = graph_info.consumed_products;
+                cet::copy_if_all(
+                  possible_products,
+                  inserter(consumed_prods, begin(consumed_prods)),
+                  [&class_name](auto const& pi) {
+                    return class_name == pi.friendlyClassName;
+                  });
               }
-              auto& consumed_prods = graph_info.consumed_products;
-              cet::copy_if_all(found->second,
-                               inserter(consumed_prods, begin(consumed_prods)),
-                               [&class_name](auto const& pi) {
-                                 return class_name == pi.friendlyClassName;
-                               });
+              break;
             }
-          }
-          if (prod_info.consumableType ==
-              art::ProductInfo::ConsumableType::ViewElement) {
-            // The most we do here is throw.
-            if ((prod_info.process.name() == processName_) ||
-                (prod_info.process.name() == "current_process")) {
-              auto ml_found =
-                viewable_products_per_module.find(prod_info.label);
-              Exception e{errors::Configuration,
-                          "An error occurred while checking data-product "
-                          "dependencies for this job.\n"};
-              if (ml_found == cend(viewable_products_per_module)) {
-                throw e << "Module " << module_name
-                        << " expects to consume a view of type from module "
-                        << prod_info.label << ".\n"
-                        << "However, module " << prod_info.label
-                        << " does not produce a product\n"
-                        << "for which a view can be formed.\n";
-              }
-
-              auto prod_found = ml_found->second.find(prod_info.instance);
-              if (prod_found == cend(ml_found->second)) {
-                throw e << "Module " << module_name
-                        << " expects to consume a view with the following "
-                           "signature:\n"
-                        << "  Module label: " << prod_info.label << '\n'
-                        << "  Instance name: " << prod_info.instance << '\n'
-                        << "However, module " << prod_info.label
-                        << " does not produce a product for which such a view "
-                           "can be formed.\n";
-              }
-              graph_info.consumed_products.insert(prod_info);
+            case art::ProductInfo::ConsumableType::ViewElement: {
+              auto dep = consumes_view_dependency(prod_info,
+                                                  module_name,
+                                                  processName_,
+                                                  viewable_products_per_module);
+              graph_info.consumed_products.insert(std::move(dep));
             }
+              // No default case to allow compiler to warn.
           }
         }
       }
