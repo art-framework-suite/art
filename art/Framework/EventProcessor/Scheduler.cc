@@ -24,6 +24,9 @@ namespace {
     }
 
     auto const max_threads = std::stoi(p);
+    if (specified_num_threads == 0) {
+      return max_threads;
+    }
     if (specified_num_threads <= max_threads) {
       return specified_num_threads;
     }

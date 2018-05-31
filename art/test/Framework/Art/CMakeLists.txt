@@ -765,3 +765,12 @@ cet_test(MaxThreadsSpecified_t4 HANDBUILT
   "TBB has been configured to use.*a maximum of 2 threads"
   DATAFILES fcl/opt-empty.fcl
 )
+
+cet_test(MaxThreadsSpecified_t5 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c opt-empty.fcl -j 0 -M stdout
+  TEST_PROPERTIES ENVIRONMENT OMP_NUM_THREADS=17
+  PASS_REGULAR_EXPRESSION
+  "TBB has been configured to use.*a maximum of 17 threads"
+  DATAFILES fcl/opt-empty.fcl
+)
