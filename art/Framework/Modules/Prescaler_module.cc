@@ -9,6 +9,8 @@
 #include "art/Framework/Core/SharedFilter.h"
 #include "fhiclcpp/types/Atom.h"
 
+#include <mutex>
+
 namespace art {
   class Prescaler;
 }
@@ -31,10 +33,12 @@ private:
   bool filter(Event&, Services const&) override;
 
   size_t count_{};
-  size_t const n_; // accept one in n
-  size_t const
-    offset_; // with offset,
-             // i.e. sequence of events does not have to start at first event
+  // Accept one in n events.
+  size_t const n_;
+  // An offset is allowed--i.e. sequence of events does not have to
+  // start at first event.
+  size_t const offset_;
+  std::mutex mutex_{};
 
 }; // Prescaler
 
@@ -45,8 +49,7 @@ Prescaler::Prescaler(Parameters const& config)
   , n_{config().prescaleFactor()}
   , offset_{config().prescaleOffset()}
 {
-  // See note below.
-  serialize();
+  async<InEvent>();
 }
 
 bool
@@ -55,8 +58,13 @@ Prescaler::filter(Event&, Services const&)
   // The combination of incrementing, modulo dividing, and equality
   // comparing must be synchronized.  Changing count_ to the type
   // std::atomic<size_t> would not help since the entire combination
-  // of operations must be atomic.
-  return ++count_ % n_ == offset_;
+  // of operations must be atomic.  Using a mutex here is cheaper than
+  // calling serialize(), since that will also serialize any of the
+  // module-level service callbacks invoked before and after this
+  // function is called.
+  std::lock_guard<std::mutex> lock{mutex_};
+  ++count_;
+  return count_ % n_ == offset_;
 }
 
 DEFINE_ART_MODULE(Prescaler)

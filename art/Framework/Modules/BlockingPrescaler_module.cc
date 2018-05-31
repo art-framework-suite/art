@@ -14,6 +14,8 @@
 #include "art/Framework/Core/SharedFilter.h"
 #include "fhiclcpp/types/Atom.h"
 
+#include <mutex>
+
 using namespace fhicl;
 
 namespace art {
@@ -43,7 +45,7 @@ private:
   size_t const m_; // accept m in n (sequentially).
   size_t const n_;
   size_t const offset_; // First accepted event is 1 + offset.
-
+  std::mutex mutex_{};
 }; // BlockingPrescaler
 
 // ======================================================================
@@ -60,8 +62,7 @@ art::BlockingPrescaler::BlockingPrescaler(Parameters const& config)
       << "The specified step size (" << n_ << ") is less than the block size ("
       << m_ << ")\n";
   }
-  // See note below.
-  serialize();
+  async<InEvent>();
 }
 
 bool
@@ -69,7 +70,10 @@ art::BlockingPrescaler::filter(Event&, Services const&)
 {
   // This sequence of operations/comparisons must be serialized.
   // Changing 'count_' to be of type std::atomic<size_t> will not
-  // help.
+  // help.  Using a mutex here is cheaper than calling serialize(),
+  // since that will also serialize any of the module-level service
+  // callbacks invoked before and after this function is called.
+  std::lock_guard<std::mutex> lock{mutex_};
   bool const result{(count_ >= offset_) && ((count_ - offset_) % n_) < m_};
   ++count_;
   return result;
