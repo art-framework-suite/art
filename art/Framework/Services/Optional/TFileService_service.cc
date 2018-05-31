@@ -48,6 +48,19 @@ namespace art {
     ClosingCriteria::Config fpConfig;
     requireCallback_ = config().fileProperties(fpConfig);
     if (requireCallback_) {
+      // Not clear how file-switching can be enabled in a MT context.
+      auto const& globals = *Globals::instance();
+      if (globals.nthreads() != 1 && globals.nschedules() != 1) {
+        throw Exception{
+          errors::Configuration,
+          "An error occurred while creating the TFileService.\n"}
+          << "This art process is using " << globals.nthreads()
+          << " thread(s) and " << globals.nschedules() << " schedule(s).\n"
+          << "The TFileService's file-switching capabilities can be used only when 1 thread and 1 "
+             "schedule are specified.\n"
+          << "This is done by specifying '-j=1' at the command line.\n";
+      }
+
       detail::validateFileNamePattern(requireCallback_, filePattern_);
       fileSwitchCriteria_ = ClosingCriteria{fpConfig};
     }
