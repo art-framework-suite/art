@@ -95,11 +95,10 @@ namespace art {
       }
 
       // Current process
-      auto product_match = [& dep = prod_info](auto const& pd)
-      {
-        return dep.label == pd.moduleLabel() &&
-               dep.friendlyClassName == pd.friendlyClassName() &&
-               dep.instance == pd.productInstanceName();
+      auto product_match = [&prod_info](auto const& pd) {
+        return prod_info.label == pd.moduleLabel() &&
+               prod_info.friendlyClassName == pd.friendlyClassName() &&
+               prod_info.instance == pd.productInstanceName();
       };
 
       if (std::any_of(cbegin(products_to_produce),
