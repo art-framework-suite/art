@@ -25,51 +25,51 @@ namespace art {
     Analyzer::doBeginJob()
     {
       setupQueues();
-      Services const services{ScheduleID{}};
-      beginJobWithServices(services);
+      ProcessingFrame const frame{ScheduleID{}};
+      beginJobWithFrame(frame);
     }
 
     void
     Analyzer::doEndJob()
     {
-      Services const services{ScheduleID{}};
-      endJobWithServices(services);
+      ProcessingFrame const frame{ScheduleID{}};
+      endJobWithFrame(frame);
     }
 
     void
     Analyzer::doRespondToOpenInputFile(FileBlock const& fb)
     {
-      Services const services{ScheduleID{}};
-      respondToOpenInputFileWithServices(fb, services);
+      ProcessingFrame const frame{ScheduleID{}};
+      respondToOpenInputFileWithFrame(fb, frame);
     }
 
     void
     Analyzer::doRespondToCloseInputFile(FileBlock const& fb)
     {
-      Services const services{ScheduleID{}};
-      respondToCloseInputFileWithServices(fb, services);
+      ProcessingFrame const frame{ScheduleID{}};
+      respondToCloseInputFileWithFrame(fb, frame);
     }
 
     void
     Analyzer::doRespondToOpenOutputFiles(FileBlock const& fb)
     {
-      Services const services{ScheduleID{}};
-      respondToOpenOutputFilesWithServices(fb, services);
+      ProcessingFrame const frame{ScheduleID{}};
+      respondToOpenOutputFilesWithFrame(fb, frame);
     }
 
     void
     Analyzer::doRespondToCloseOutputFiles(FileBlock const& fb)
     {
-      Services const services{ScheduleID{}};
-      respondToCloseOutputFilesWithServices(fb, services);
+      ProcessingFrame const frame{ScheduleID{}};
+      respondToCloseOutputFilesWithFrame(fb, frame);
     }
 
     bool
     Analyzer::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
     {
       Run const r{rp, mc};
-      Services const services{mc.scheduleID()};
-      beginRunWithServices(r, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      beginRunWithFrame(r, frame);
       return true;
     }
 
@@ -77,8 +77,8 @@ namespace art {
     Analyzer::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
     {
       Run const r{rp, mc};
-      Services const services{mc.scheduleID()};
-      endRunWithServices(r, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      endRunWithFrame(r, frame);
       return true;
     }
 
@@ -86,8 +86,8 @@ namespace art {
     Analyzer::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
       SubRun const sr{srp, mc};
-      Services const services{mc.scheduleID()};
-      beginSubRunWithServices(sr, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      beginSubRunWithFrame(sr, frame);
       return true;
     }
 
@@ -95,8 +95,8 @@ namespace art {
     Analyzer::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
       SubRun const sr{srp, mc};
-      Services const services{mc.scheduleID()};
-      endSubRunWithServices(sr, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      endSubRunWithFrame(sr, frame);
       return true;
     }
 
@@ -111,8 +111,8 @@ namespace art {
       Event const e{ep, mc};
       if (wantAllEvents() || wantEvent(e)) {
         ++counts_run;
-        Services const services{mc.scheduleID()};
-        analyzeWithServices(e, services);
+        ProcessingFrame const frame{mc.scheduleID()};
+        analyzeWithFrame(e, frame);
         ++counts_passed;
       }
       return true;

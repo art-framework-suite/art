@@ -29,7 +29,7 @@ public:
       true};
   };
   using Parameters = Table<Config>;
-  explicit IntReaderThenProducer(Parameters const& p, Services const&);
+  explicit IntReaderThenProducer(Parameters const& p, ProcessingFrame const&);
 
   // Plugins should not be copied or assigned.
   IntReaderThenProducer(IntReaderThenProducer const&) = delete;
@@ -38,7 +38,7 @@ public:
   IntReaderThenProducer& operator=(IntReaderThenProducer&&) = delete;
 
 private:
-  void produce(Event& e, Services const&) override;
+  void produce(Event& e, ProcessingFrame const&) override;
 
   ProductToken<arttest::IntProduct> const token_;
   int const deltaValue_;
@@ -46,7 +46,7 @@ private:
 };
 
 art::test::IntReaderThenProducer::IntReaderThenProducer(Parameters const& p,
-                                                        Services const&)
+                                                        ProcessingFrame const&)
   : SharedProducer{p}
   , token_{consumes<arttest::IntProduct>(p().inputTag())}
   , deltaValue_{p().deltaValue()}
@@ -57,7 +57,7 @@ art::test::IntReaderThenProducer::IntReaderThenProducer(Parameters const& p,
 }
 
 void
-art::test::IntReaderThenProducer::produce(Event& e, Services const&)
+art::test::IntReaderThenProducer::produce(Event& e, ProcessingFrame const&)
 {
   // getByToken adds parent for the about-to-be-created IntProduct.
   Handle<arttest::IntProduct> intH;

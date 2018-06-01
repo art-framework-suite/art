@@ -36,10 +36,10 @@ public:
   };
 
   using Parameters = Table<Config>;
-  explicit BlockingPrescaler(Parameters const&, Services const&);
+  explicit BlockingPrescaler(Parameters const&, ProcessingFrame const&);
 
 private:
-  bool filter(Event&, Services const&) override;
+  bool filter(Event&, ProcessingFrame const&) override;
 
   size_t count_{};
   size_t const m_; // accept m in n (sequentially).
@@ -51,7 +51,7 @@ private:
 // ======================================================================
 
 art::BlockingPrescaler::BlockingPrescaler(Parameters const& config,
-                                          Services const&)
+                                          ProcessingFrame const&)
   : SharedFilter{config}
   , m_{config().blockSize()}
   , n_{config().stepSize()}
@@ -67,7 +67,7 @@ art::BlockingPrescaler::BlockingPrescaler(Parameters const& config,
 }
 
 bool
-art::BlockingPrescaler::filter(Event&, Services const&)
+art::BlockingPrescaler::filter(Event&, ProcessingFrame const&)
 {
   // This sequence of operations/comparisons must be serialized.
   // Changing 'count_' to be of type std::atomic<size_t> will not

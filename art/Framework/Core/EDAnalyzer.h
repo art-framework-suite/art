@@ -42,21 +42,26 @@ namespace art {
 
   private:
     void setupQueues() override final;
-    void beginJobWithServices(Services const&) override final;
-    void endJobWithServices(Services const&) override final;
-    void respondToOpenInputFileWithServices(FileBlock const&,
-                                            Services const&) override final;
-    void respondToCloseInputFileWithServices(FileBlock const&,
-                                             Services const&) override final;
-    void respondToOpenOutputFilesWithServices(FileBlock const&,
-                                              Services const&) override final;
-    void respondToCloseOutputFilesWithServices(FileBlock const&,
-                                               Services const&) override final;
-    void beginRunWithServices(Run const&, Services const&) override final;
-    void endRunWithServices(Run const&, Services const&) override final;
-    void beginSubRunWithServices(SubRun const&, Services const&) override final;
-    void endSubRunWithServices(SubRun const&, Services const&) override final;
-    void analyzeWithServices(Event const&, Services const&) override final;
+    void beginJobWithFrame(ProcessingFrame const&) override final;
+    void endJobWithFrame(ProcessingFrame const&) override final;
+    void respondToOpenInputFileWithFrame(FileBlock const&,
+                                         ProcessingFrame const&) override final;
+    void respondToCloseInputFileWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void respondToOpenOutputFilesWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void respondToCloseOutputFilesWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void beginRunWithFrame(Run const&, ProcessingFrame const&) override final;
+    void endRunWithFrame(Run const&, ProcessingFrame const&) override final;
+    void beginSubRunWithFrame(SubRun const&,
+                              ProcessingFrame const&) override final;
+    void endSubRunWithFrame(SubRun const&,
+                            ProcessingFrame const&) override final;
+    void analyzeWithFrame(Event const&, ProcessingFrame const&) override final;
 
     virtual void beginJob();
     virtual void endJob();

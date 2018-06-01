@@ -18,118 +18,121 @@ namespace art {
   }
 
   void
-  SharedFilter::respondToOpenInputFileWithServices(FileBlock const& fb,
-                                                   Services const& services)
+  SharedFilter::respondToOpenInputFileWithFrame(FileBlock const& fb,
+                                                ProcessingFrame const& frame)
   {
-    respondToOpenInputFile(fb, services);
+    respondToOpenInputFile(fb, frame);
   }
 
   void
-  SharedFilter::respondToCloseInputFileWithServices(FileBlock const& fb,
-                                                    Services const& services)
+  SharedFilter::respondToCloseInputFileWithFrame(FileBlock const& fb,
+                                                 ProcessingFrame const& frame)
   {
-    respondToCloseInputFile(fb, services);
+    respondToCloseInputFile(fb, frame);
   }
 
   void
-  SharedFilter::respondToOpenOutputFilesWithServices(FileBlock const& fb,
-                                                     Services const& services)
+  SharedFilter::respondToOpenOutputFilesWithFrame(FileBlock const& fb,
+                                                  ProcessingFrame const& frame)
   {
-    respondToOpenOutputFiles(fb, services);
+    respondToOpenOutputFiles(fb, frame);
   }
 
   void
-  SharedFilter::respondToCloseOutputFilesWithServices(FileBlock const& fb,
-                                                      Services const& services)
+  SharedFilter::respondToCloseOutputFilesWithFrame(FileBlock const& fb,
+                                                   ProcessingFrame const& frame)
   {
-    respondToCloseOutputFiles(fb, services);
+    respondToCloseOutputFiles(fb, frame);
   }
 
   void
-  SharedFilter::beginJobWithServices(Services const& services)
+  SharedFilter::beginJobWithFrame(ProcessingFrame const& frame)
   {
-    beginJob(services);
+    beginJob(frame);
   }
 
   void
-  SharedFilter::endJobWithServices(Services const& services)
+  SharedFilter::endJobWithFrame(ProcessingFrame const& frame)
   {
-    endJob(services);
+    endJob(frame);
   }
 
   bool
-  SharedFilter::beginRunWithServices(Run& r, Services const& services)
+  SharedFilter::beginRunWithFrame(Run& r, ProcessingFrame const& frame)
   {
-    beginRun(r, services);
+    beginRun(r, frame);
     return true;
   }
 
   bool
-  SharedFilter::endRunWithServices(Run& r, Services const& services)
+  SharedFilter::endRunWithFrame(Run& r, ProcessingFrame const& frame)
   {
-    endRun(r, services);
+    endRun(r, frame);
     return true;
   }
 
   bool
-  SharedFilter::beginSubRunWithServices(SubRun& sr, Services const& services)
+  SharedFilter::beginSubRunWithFrame(SubRun& sr, ProcessingFrame const& frame)
   {
-    beginSubRun(sr, services);
+    beginSubRun(sr, frame);
     return true;
   }
 
   bool
-  SharedFilter::endSubRunWithServices(SubRun& sr, Services const& services)
+  SharedFilter::endSubRunWithFrame(SubRun& sr, ProcessingFrame const& frame)
   {
-    endSubRun(sr, services);
+    endSubRun(sr, frame);
     return true;
   }
 
   bool
-  SharedFilter::filterWithServices(Event& e, Services const& services)
+  SharedFilter::filterWithFrame(Event& e, ProcessingFrame const& frame)
   {
-    return filter(e, services);
+    return filter(e, frame);
   }
 
   // Default implementations
   void
-  SharedFilter::beginJob(Services const&)
+  SharedFilter::beginJob(ProcessingFrame const&)
   {}
 
   void
-  SharedFilter::endJob(Services const&)
+  SharedFilter::endJob(ProcessingFrame const&)
   {}
 
   void
-  SharedFilter::respondToOpenInputFile(FileBlock const&, Services const&)
+  SharedFilter::respondToOpenInputFile(FileBlock const&, ProcessingFrame const&)
   {}
 
   void
-  SharedFilter::respondToCloseInputFile(FileBlock const&, Services const&)
+  SharedFilter::respondToCloseInputFile(FileBlock const&,
+                                        ProcessingFrame const&)
   {}
 
   void
-  SharedFilter::respondToOpenOutputFiles(FileBlock const&, Services const&)
+  SharedFilter::respondToOpenOutputFiles(FileBlock const&,
+                                         ProcessingFrame const&)
   {}
 
   void
-  SharedFilter::respondToCloseOutputFiles(FileBlock const&, Services const&)
+  SharedFilter::respondToCloseOutputFiles(FileBlock const&,
+                                          ProcessingFrame const&)
   {}
 
   void
-  SharedFilter::beginRun(Run&, Services const&)
+  SharedFilter::beginRun(Run&, ProcessingFrame const&)
   {}
 
   void
-  SharedFilter::endRun(Run&, Services const&)
+  SharedFilter::endRun(Run&, ProcessingFrame const&)
   {}
 
   void
-  SharedFilter::beginSubRun(SubRun&, Services const&)
+  SharedFilter::beginSubRun(SubRun&, ProcessingFrame const&)
   {}
 
   void
-  SharedFilter::endSubRun(SubRun&, Services const&)
+  SharedFilter::endSubRun(SubRun&, ProcessingFrame const&)
   {}
 
 } // namespace art

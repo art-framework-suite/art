@@ -18,122 +18,127 @@ namespace art {
   }
 
   void
-  ReplicatedFilter::respondToOpenInputFileWithServices(FileBlock const& fb,
-                                                       Services const& services)
-  {
-    respondToOpenInputFile(fb, services);
-  }
-
-  void
-  ReplicatedFilter::respondToCloseInputFileWithServices(
+  ReplicatedFilter::respondToOpenInputFileWithFrame(
     FileBlock const& fb,
-    Services const& services)
+    ProcessingFrame const& frame)
   {
-    respondToCloseInputFile(fb, services);
+    respondToOpenInputFile(fb, frame);
   }
 
   void
-  ReplicatedFilter::respondToOpenOutputFilesWithServices(
+  ReplicatedFilter::respondToCloseInputFileWithFrame(
     FileBlock const& fb,
-    Services const& services)
+    ProcessingFrame const& frame)
   {
-    respondToOpenOutputFiles(fb, services);
+    respondToCloseInputFile(fb, frame);
   }
 
   void
-  ReplicatedFilter::respondToCloseOutputFilesWithServices(
+  ReplicatedFilter::respondToOpenOutputFilesWithFrame(
     FileBlock const& fb,
-    Services const& services)
+    ProcessingFrame const& frame)
   {
-    respondToCloseOutputFiles(fb, services);
+    respondToOpenOutputFiles(fb, frame);
   }
 
   void
-  ReplicatedFilter::beginJobWithServices(Services const& services)
+  ReplicatedFilter::respondToCloseOutputFilesWithFrame(
+    FileBlock const& fb,
+    ProcessingFrame const& frame)
   {
-    beginJob(services);
+    respondToCloseOutputFiles(fb, frame);
   }
 
   void
-  ReplicatedFilter::endJobWithServices(Services const& services)
+  ReplicatedFilter::beginJobWithFrame(ProcessingFrame const& frame)
   {
-    endJob(services);
+    beginJob(frame);
+  }
+
+  void
+  ReplicatedFilter::endJobWithFrame(ProcessingFrame const& frame)
+  {
+    endJob(frame);
   }
 
   bool
-  ReplicatedFilter::beginRunWithServices(Run& r, Services const& services)
+  ReplicatedFilter::beginRunWithFrame(Run& r, ProcessingFrame const& frame)
   {
-    beginRun(r, services);
+    beginRun(r, frame);
     return true;
   }
 
   bool
-  ReplicatedFilter::endRunWithServices(Run& r, Services const& services)
+  ReplicatedFilter::endRunWithFrame(Run& r, ProcessingFrame const& frame)
   {
-    endRun(r, services);
+    endRun(r, frame);
     return true;
   }
 
   bool
-  ReplicatedFilter::beginSubRunWithServices(SubRun& sr,
-                                            Services const& services)
+  ReplicatedFilter::beginSubRunWithFrame(SubRun& sr,
+                                         ProcessingFrame const& frame)
   {
-    beginSubRun(sr, services);
+    beginSubRun(sr, frame);
     return true;
   }
 
   bool
-  ReplicatedFilter::endSubRunWithServices(SubRun& sr, Services const& services)
+  ReplicatedFilter::endSubRunWithFrame(SubRun& sr, ProcessingFrame const& frame)
   {
-    endSubRun(sr, services);
+    endSubRun(sr, frame);
     return true;
   }
 
   bool
-  ReplicatedFilter::filterWithServices(Event& e, Services const& services)
+  ReplicatedFilter::filterWithFrame(Event& e, ProcessingFrame const& frame)
   {
-    return filter(e, services);
+    return filter(e, frame);
   }
 
   // Default implementations
   void
-  ReplicatedFilter::beginJob(Services const&)
+  ReplicatedFilter::beginJob(ProcessingFrame const&)
   {}
 
   void
-  ReplicatedFilter::endJob(Services const&)
+  ReplicatedFilter::endJob(ProcessingFrame const&)
   {}
 
   void
-  ReplicatedFilter::respondToOpenInputFile(FileBlock const&, Services const&)
+  ReplicatedFilter::respondToOpenInputFile(FileBlock const&,
+                                           ProcessingFrame const&)
   {}
 
   void
-  ReplicatedFilter::respondToCloseInputFile(FileBlock const&, Services const&)
+  ReplicatedFilter::respondToCloseInputFile(FileBlock const&,
+                                            ProcessingFrame const&)
   {}
 
   void
-  ReplicatedFilter::respondToOpenOutputFiles(FileBlock const&, Services const&)
+  ReplicatedFilter::respondToOpenOutputFiles(FileBlock const&,
+                                             ProcessingFrame const&)
   {}
 
   void
-  ReplicatedFilter::respondToCloseOutputFiles(FileBlock const&, Services const&)
+  ReplicatedFilter::respondToCloseOutputFiles(FileBlock const&,
+                                              ProcessingFrame const&)
   {}
 
   void
-  ReplicatedFilter::beginRun(Run const&, Services const&)
+  ReplicatedFilter::beginRun(Run const&, ProcessingFrame const&)
   {}
 
   void
-  ReplicatedFilter::endRun(Run const&, Services const&)
+  ReplicatedFilter::endRun(Run const&, ProcessingFrame const&)
   {}
 
   void
-  ReplicatedFilter::beginSubRun(SubRun const&, Services const&)
+  ReplicatedFilter::beginSubRun(SubRun const&, ProcessingFrame const&)
   {}
 
   void
-  ReplicatedFilter::endSubRun(SubRun const&, Services const&)
+  ReplicatedFilter::endSubRun(SubRun const&, ProcessingFrame const&)
   {}
 
 } // namespace art

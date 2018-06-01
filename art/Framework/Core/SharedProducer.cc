@@ -18,115 +18,120 @@ namespace art {
   }
 
   void
-  SharedProducer::respondToOpenInputFileWithServices(FileBlock const& fb,
-                                                     Services const& services)
+  SharedProducer::respondToOpenInputFileWithFrame(FileBlock const& fb,
+                                                  ProcessingFrame const& frame)
   {
-    respondToOpenInputFile(fb, services);
+    respondToOpenInputFile(fb, frame);
   }
 
   void
-  SharedProducer::respondToCloseInputFileWithServices(FileBlock const& fb,
-                                                      Services const& services)
+  SharedProducer::respondToCloseInputFileWithFrame(FileBlock const& fb,
+                                                   ProcessingFrame const& frame)
   {
-    respondToCloseInputFile(fb, services);
+    respondToCloseInputFile(fb, frame);
   }
 
   void
-  SharedProducer::respondToOpenOutputFilesWithServices(FileBlock const& fb,
-                                                       Services const& services)
-  {
-    respondToOpenOutputFiles(fb, services);
-  }
-
-  void
-  SharedProducer::respondToCloseOutputFilesWithServices(
+  SharedProducer::respondToOpenOutputFilesWithFrame(
     FileBlock const& fb,
-    Services const& services)
+    ProcessingFrame const& frame)
   {
-    respondToCloseOutputFiles(fb, services);
+    respondToOpenOutputFiles(fb, frame);
   }
 
   void
-  SharedProducer::beginJobWithServices(Services const& services)
+  SharedProducer::respondToCloseOutputFilesWithFrame(
+    FileBlock const& fb,
+    ProcessingFrame const& frame)
   {
-    beginJob(services);
+    respondToCloseOutputFiles(fb, frame);
   }
 
   void
-  SharedProducer::endJobWithServices(Services const& services)
+  SharedProducer::beginJobWithFrame(ProcessingFrame const& frame)
   {
-    endJob(services);
+    beginJob(frame);
   }
 
   void
-  SharedProducer::beginRunWithServices(Run& r, Services const& services)
+  SharedProducer::endJobWithFrame(ProcessingFrame const& frame)
   {
-    beginRun(r, services);
+    endJob(frame);
   }
 
   void
-  SharedProducer::endRunWithServices(Run& r, Services const& services)
+  SharedProducer::beginRunWithFrame(Run& r, ProcessingFrame const& frame)
   {
-    endRun(r, services);
+    beginRun(r, frame);
   }
 
   void
-  SharedProducer::beginSubRunWithServices(SubRun& sr, Services const& services)
+  SharedProducer::endRunWithFrame(Run& r, ProcessingFrame const& frame)
   {
-    beginSubRun(sr, services);
+    endRun(r, frame);
   }
 
   void
-  SharedProducer::endSubRunWithServices(SubRun& sr, Services const& services)
+  SharedProducer::beginSubRunWithFrame(SubRun& sr, ProcessingFrame const& frame)
   {
-    endSubRun(sr, services);
+    beginSubRun(sr, frame);
   }
 
   void
-  SharedProducer::produceWithServices(Event& e, Services const& services)
+  SharedProducer::endSubRunWithFrame(SubRun& sr, ProcessingFrame const& frame)
   {
-    produce(e, services);
+    endSubRun(sr, frame);
+  }
+
+  void
+  SharedProducer::produceWithFrame(Event& e, ProcessingFrame const& frame)
+  {
+    produce(e, frame);
   }
 
   // Default implementations
   void
-  SharedProducer::beginJob(Services const&)
+  SharedProducer::beginJob(ProcessingFrame const&)
   {}
 
   void
-  SharedProducer::endJob(Services const&)
+  SharedProducer::endJob(ProcessingFrame const&)
   {}
 
   void
-  SharedProducer::respondToOpenInputFile(FileBlock const&, Services const&)
+  SharedProducer::respondToOpenInputFile(FileBlock const&,
+                                         ProcessingFrame const&)
   {}
 
   void
-  SharedProducer::respondToCloseInputFile(FileBlock const&, Services const&)
+  SharedProducer::respondToCloseInputFile(FileBlock const&,
+                                          ProcessingFrame const&)
   {}
 
   void
-  SharedProducer::respondToOpenOutputFiles(FileBlock const&, Services const&)
+  SharedProducer::respondToOpenOutputFiles(FileBlock const&,
+                                           ProcessingFrame const&)
   {}
 
   void
-  SharedProducer::respondToCloseOutputFiles(FileBlock const&, Services const&)
+  SharedProducer::respondToCloseOutputFiles(FileBlock const&,
+                                            ProcessingFrame const&)
   {}
 
   void
-  SharedProducer::beginRun(Run&, Services const&)
+  SharedProducer::beginRun(Run&, ProcessingFrame const&)
   {}
 
   void
-  SharedProducer::endRun(Run&, Services const&)
+  SharedProducer::endRun(Run&, ProcessingFrame const&)
   {}
 
   void
-  SharedProducer::beginSubRun(SubRun&, Services const&)
+  SharedProducer::beginSubRun(SubRun&, ProcessingFrame const&)
   {}
 
   void
-  SharedProducer::endSubRun(SubRun&, Services const&)
+  SharedProducer::endSubRun(SubRun&, ProcessingFrame const&)
   {}
 
 } // namespace art

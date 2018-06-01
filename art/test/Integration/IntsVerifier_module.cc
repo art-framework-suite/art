@@ -21,14 +21,14 @@ namespace {
           "are intended to be present whenever a getManyByType call is made."}};
     };
     using Parameters = Table<Config>;
-    explicit IntsVerifier(Parameters const&, art::Services const&);
+    explicit IntsVerifier(Parameters const&, art::ProcessingFrame const&);
 
   private:
-    void produce(art::Event&, art::Services const&) override;
+    void produce(art::Event&, art::ProcessingFrame const&) override;
     std::vector<int> expectedValues_;
   };
 
-  IntsVerifier::IntsVerifier(Parameters const& p, art::Services const&)
+  IntsVerifier::IntsVerifier(Parameters const& p, art::ProcessingFrame const&)
     : art::SharedProducer{p}, expectedValues_{p().expectedValues()}
   {
     std::sort(begin(expectedValues_), end(expectedValues_));
@@ -36,7 +36,7 @@ namespace {
   }
 
   void
-  IntsVerifier::produce(art::Event& e, art::Services const&)
+  IntsVerifier::produce(art::Event& e, art::ProcessingFrame const&)
   {
     std::vector<art::Handle<arttest::IntProduct>> products;
     e.getManyByType(products);

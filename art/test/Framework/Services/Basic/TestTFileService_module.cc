@@ -18,11 +18,12 @@ public:
   struct Config {
   };
   using Parameters = Table<Config>;
-  explicit TestTFileService(Parameters const&, Services const&);
+  explicit TestTFileService(Parameters const&, ProcessingFrame const& frame);
 
 private:
-  void analyze(Event const& e, Services const&) override;
-  void respondToOpenInputFile(FileBlock const&, Services const&) override;
+  void analyze(Event const& e, ProcessingFrame const&) override;
+  void respondToOpenInputFile(FileBlock const&,
+                              ProcessingFrame const& frame) override;
   void setRootObjects();
 
   // histograms
@@ -42,11 +43,11 @@ private:
 }; // TestTFileService
 
 TestTFileService::TestTFileService(Parameters const& p,
-                                   Services const& services)
+                                   ProcessingFrame const& frame)
   : SharedAnalyzer{p}
 {
   serialize(TFileService::resource_name());
-  auto const fs = services.getHandle<TFileService>();
+  auto const fs = frame.serviceHandle<TFileService>();
   fs->registerFileSwitchCallback(this, &TestTFileService::setRootObjects);
   setRootObjects();
 }
@@ -71,13 +72,14 @@ TestTFileService::setRootObjects()
 }
 
 void
-TestTFileService::respondToOpenInputFile(FileBlock const&, Services const&)
+TestTFileService::respondToOpenInputFile(FileBlock const&,
+                                         ProcessingFrame const&)
 {
   h_test3->Fill(3.);
 }
 
 void
-TestTFileService::analyze(Event const&, Services const&)
+TestTFileService::analyze(Event const&, ProcessingFrame const&)
 {
   h_test1->Fill(50.);
   h_test2->Fill(60., 3.);

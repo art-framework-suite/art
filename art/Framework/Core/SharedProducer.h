@@ -31,33 +31,40 @@ namespace art {
 
   private:
     void setupQueues() override final;
-    void beginJobWithServices(Services const&) override final;
-    void endJobWithServices(Services const&) override final;
-    void respondToOpenInputFileWithServices(FileBlock const&,
-                                            Services const&) override final;
-    void respondToCloseInputFileWithServices(FileBlock const&,
-                                             Services const&) override final;
-    void respondToOpenOutputFilesWithServices(FileBlock const&,
-                                              Services const&) override final;
-    void respondToCloseOutputFilesWithServices(FileBlock const&,
-                                               Services const&) override final;
-    void beginRunWithServices(Run&, Services const&) override final;
-    void endRunWithServices(Run&, Services const&) override final;
-    void beginSubRunWithServices(SubRun&, Services const&) override final;
-    void endSubRunWithServices(SubRun&, Services const&) override final;
-    void produceWithServices(Event&, Services const&) override final;
+    void beginJobWithFrame(ProcessingFrame const&) override final;
+    void endJobWithFrame(ProcessingFrame const&) override final;
+    void respondToOpenInputFileWithFrame(FileBlock const&,
+                                         ProcessingFrame const&) override final;
+    void respondToCloseInputFileWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void respondToOpenOutputFilesWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void respondToCloseOutputFilesWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void beginRunWithFrame(Run&, ProcessingFrame const&) override final;
+    void endRunWithFrame(Run&, ProcessingFrame const&) override final;
+    void beginSubRunWithFrame(SubRun&, ProcessingFrame const&) override final;
+    void endSubRunWithFrame(SubRun&, ProcessingFrame const&) override final;
+    void produceWithFrame(Event&, ProcessingFrame const&) override final;
 
-    virtual void beginJob(Services const&);
-    virtual void endJob(Services const&);
-    virtual void respondToOpenInputFile(FileBlock const&, Services const&);
-    virtual void respondToCloseInputFile(FileBlock const&, Services const&);
-    virtual void respondToOpenOutputFiles(FileBlock const&, Services const&);
-    virtual void respondToCloseOutputFiles(FileBlock const&, Services const&);
-    virtual void beginRun(Run&, Services const&);
-    virtual void endRun(Run&, Services const&);
-    virtual void beginSubRun(SubRun&, Services const&);
-    virtual void endSubRun(SubRun&, Services const&);
-    virtual void produce(Event&, Services const&) = 0;
+    virtual void beginJob(ProcessingFrame const&);
+    virtual void endJob(ProcessingFrame const&);
+    virtual void respondToOpenInputFile(FileBlock const&,
+                                        ProcessingFrame const&);
+    virtual void respondToCloseInputFile(FileBlock const&,
+                                         ProcessingFrame const&);
+    virtual void respondToOpenOutputFiles(FileBlock const&,
+                                          ProcessingFrame const&);
+    virtual void respondToCloseOutputFiles(FileBlock const&,
+                                           ProcessingFrame const&);
+    virtual void beginRun(Run&, ProcessingFrame const&);
+    virtual void endRun(Run&, ProcessingFrame const&);
+    virtual void beginSubRun(SubRun&, ProcessingFrame const&);
+    virtual void endSubRun(SubRun&, ProcessingFrame const&);
+    virtual void produce(Event&, ProcessingFrame const&) = 0;
   };
 
 } // namespace art

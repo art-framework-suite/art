@@ -26,17 +26,18 @@ namespace arttest {
       Atom<size_t> nvalues{Name("nvalues")};
     };
     using Parameters = Table<Config>;
-    explicit IntVectorAnalyzer(Parameters const& p, Services const&);
+    explicit IntVectorAnalyzer(Parameters const& p, ProcessingFrame const&);
 
   private:
-    void analyze(Event const&, Services const&) override;
+    void analyze(Event const&, ProcessingFrame const&) override;
 
     string const moduleLabel_;
     size_t const nvalues_;
     ViewToken<int> const viewToken_;
   };
 
-  IntVectorAnalyzer::IntVectorAnalyzer(Parameters const& p, Services const&)
+  IntVectorAnalyzer::IntVectorAnalyzer(Parameters const& p,
+                                       ProcessingFrame const&)
     : SharedAnalyzer{p}
     , moduleLabel_{p().input_label()}
     , nvalues_{p().nvalues()}
@@ -46,7 +47,7 @@ namespace arttest {
   }
 
   void
-  IntVectorAnalyzer::analyze(Event const& e, Services const&)
+  IntVectorAnalyzer::analyze(Event const& e, ProcessingFrame const&)
   {
     {
       vector<int const*> ptrs;

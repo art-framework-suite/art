@@ -1,6 +1,6 @@
 // vim: set sw=2 expandtab :
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/CurrentProcessingContext.h"
+#include "art/Utilities/CurrentProcessingFrame.h"
 #include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -47,7 +47,7 @@
 // void
 // test_default_ctor()
 //{
-//  art::CurrentProcessingContext ctx;
+//  art::CurrentProcessingFrame ctx;
 //  assert(ctx.moduleLabel() == 0);
 //  assert(ctx.moduleDescription() == 0);
 //  assert(ctx.slotInPath() == -1);
@@ -57,7 +57,7 @@
 // void
 // test_activate()
 //{
-//  art::CurrentProcessingContext ctx(p_pathName, pathNumber, false);
+//  art::CurrentProcessingFrame ctx(p_pathName, pathNumber, false);
 //  ctx.activate(slotInPath, p_moduleA);
 //  assert(ctx.moduleDescription() == p_moduleA);
 //  assert(ctx.moduleLabel());
@@ -69,7 +69,7 @@
 // void
 // test_deactivate()
 //{
-//  art::CurrentProcessingContext ctx(p_pathName, pathNumber, false);
+//  art::CurrentProcessingFrame ctx(p_pathName, pathNumber, false);
 //  ctx.activate(slotInPath, p_moduleA);
 //  ctx.deactivate();
 //  assert(ctx.moduleLabel() == 0);

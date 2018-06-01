@@ -21,73 +21,73 @@ namespace art {
   }
 
   void
-  EDAnalyzer::respondToOpenInputFileWithServices(FileBlock const& fb,
-                                                 Services const&)
+  EDAnalyzer::respondToOpenInputFileWithFrame(FileBlock const& fb,
+                                              ProcessingFrame const&)
   {
     respondToOpenInputFile(fb);
   }
 
   void
-  EDAnalyzer::respondToCloseInputFileWithServices(FileBlock const& fb,
-                                                  Services const&)
+  EDAnalyzer::respondToCloseInputFileWithFrame(FileBlock const& fb,
+                                               ProcessingFrame const&)
   {
     respondToCloseInputFile(fb);
   }
 
   void
-  EDAnalyzer::respondToOpenOutputFilesWithServices(FileBlock const& fb,
-                                                   Services const&)
+  EDAnalyzer::respondToOpenOutputFilesWithFrame(FileBlock const& fb,
+                                                ProcessingFrame const&)
   {
     respondToOpenOutputFiles(fb);
   }
 
   void
-  EDAnalyzer::respondToCloseOutputFilesWithServices(FileBlock const& fb,
-                                                    Services const&)
+  EDAnalyzer::respondToCloseOutputFilesWithFrame(FileBlock const& fb,
+                                                 ProcessingFrame const&)
   {
     respondToCloseOutputFiles(fb);
   }
 
   void
-  EDAnalyzer::beginJobWithServices(Services const&)
+  EDAnalyzer::beginJobWithFrame(ProcessingFrame const&)
   {
     beginJob();
   }
 
   void
-  EDAnalyzer::endJobWithServices(Services const&)
+  EDAnalyzer::endJobWithFrame(ProcessingFrame const&)
   {
     endJob();
   }
 
   void
-  EDAnalyzer::beginRunWithServices(Run const& r, Services const&)
+  EDAnalyzer::beginRunWithFrame(Run const& r, ProcessingFrame const&)
   {
     beginRun(r);
   }
 
   void
-  EDAnalyzer::endRunWithServices(Run const& r, Services const&)
+  EDAnalyzer::endRunWithFrame(Run const& r, ProcessingFrame const&)
   {
     endRun(r);
   }
 
   void
-  EDAnalyzer::beginSubRunWithServices(SubRun const& sr, Services const&)
+  EDAnalyzer::beginSubRunWithFrame(SubRun const& sr, ProcessingFrame const&)
   {
     beginSubRun(sr);
   }
 
   void
-  EDAnalyzer::endSubRunWithServices(SubRun const& sr, Services const&)
+  EDAnalyzer::endSubRunWithFrame(SubRun const& sr, ProcessingFrame const&)
   {
     endSubRun(sr);
   }
 
   void
-  EDAnalyzer::analyzeWithServices(Event const& e, Services const& services)
+  EDAnalyzer::analyzeWithFrame(Event const& e, ProcessingFrame const& frame)
   {
-    ScheduleIDSentry sentry{*this, services.scheduleID()};
+    ScheduleIDSentry sentry{*this, frame.scheduleID()};
     analyze(e);
   }
 

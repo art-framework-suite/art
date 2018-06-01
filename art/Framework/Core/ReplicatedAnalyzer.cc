@@ -18,123 +18,126 @@ namespace art {
   }
 
   void
-  ReplicatedAnalyzer::respondToOpenInputFileWithServices(
+  ReplicatedAnalyzer::respondToOpenInputFileWithFrame(
     FileBlock const& fb,
-    Services const& services)
+    ProcessingFrame const& frame)
   {
-    respondToOpenInputFile(fb, services);
+    respondToOpenInputFile(fb, frame);
   }
 
   void
-  ReplicatedAnalyzer::respondToCloseInputFileWithServices(
+  ReplicatedAnalyzer::respondToCloseInputFileWithFrame(
     FileBlock const& fb,
-    Services const& services)
+    ProcessingFrame const& frame)
   {
-    respondToCloseInputFile(fb, services);
+    respondToCloseInputFile(fb, frame);
   }
 
   void
-  ReplicatedAnalyzer::respondToOpenOutputFilesWithServices(
+  ReplicatedAnalyzer::respondToOpenOutputFilesWithFrame(
     FileBlock const& fb,
-    Services const& services)
+    ProcessingFrame const& frame)
   {
-    respondToOpenOutputFiles(fb, services);
+    respondToOpenOutputFiles(fb, frame);
   }
 
   void
-  ReplicatedAnalyzer::respondToCloseOutputFilesWithServices(
+  ReplicatedAnalyzer::respondToCloseOutputFilesWithFrame(
     FileBlock const& fb,
-    Services const& services)
+    ProcessingFrame const& frame)
   {
-    respondToCloseOutputFiles(fb, services);
+    respondToCloseOutputFiles(fb, frame);
   }
 
   void
-  ReplicatedAnalyzer::beginJobWithServices(Services const& services)
+  ReplicatedAnalyzer::beginJobWithFrame(ProcessingFrame const& frame)
   {
-    beginJob(services);
+    beginJob(frame);
   }
 
   void
-  ReplicatedAnalyzer::endJobWithServices(Services const& services)
+  ReplicatedAnalyzer::endJobWithFrame(ProcessingFrame const& frame)
   {
-    endJob(services);
+    endJob(frame);
   }
 
   void
-  ReplicatedAnalyzer::beginRunWithServices(Run const& r,
-                                           Services const& services)
+  ReplicatedAnalyzer::beginRunWithFrame(Run const& r,
+                                        ProcessingFrame const& frame)
   {
-    beginRun(r, services);
+    beginRun(r, frame);
   }
 
   void
-  ReplicatedAnalyzer::endRunWithServices(Run const& r, Services const& services)
+  ReplicatedAnalyzer::endRunWithFrame(Run const& r,
+                                      ProcessingFrame const& frame)
   {
-    endRun(r, services);
+    endRun(r, frame);
   }
 
   void
-  ReplicatedAnalyzer::beginSubRunWithServices(SubRun const& sr,
-                                              Services const& services)
+  ReplicatedAnalyzer::beginSubRunWithFrame(SubRun const& sr,
+                                           ProcessingFrame const& frame)
   {
-    beginSubRun(sr, services);
+    beginSubRun(sr, frame);
   }
 
   void
-  ReplicatedAnalyzer::endSubRunWithServices(SubRun const& sr,
-                                            Services const& services)
+  ReplicatedAnalyzer::endSubRunWithFrame(SubRun const& sr,
+                                         ProcessingFrame const& frame)
   {
-    endSubRun(sr, services);
+    endSubRun(sr, frame);
   }
 
   void
-  ReplicatedAnalyzer::analyzeWithServices(Event const& e,
-                                          Services const& services)
+  ReplicatedAnalyzer::analyzeWithFrame(Event const& e,
+                                       ProcessingFrame const& frame)
   {
-    analyze(e, services);
+    analyze(e, frame);
   }
 
   void
-  ReplicatedAnalyzer::beginJob(Services const&)
+  ReplicatedAnalyzer::beginJob(ProcessingFrame const&)
   {}
 
   void
-  ReplicatedAnalyzer::endJob(Services const&)
+  ReplicatedAnalyzer::endJob(ProcessingFrame const&)
   {}
 
   void
-  ReplicatedAnalyzer::respondToOpenInputFile(FileBlock const&, Services const&)
+  ReplicatedAnalyzer::respondToOpenInputFile(FileBlock const&,
+                                             ProcessingFrame const&)
   {}
 
   void
-  ReplicatedAnalyzer::respondToCloseInputFile(FileBlock const&, Services const&)
+  ReplicatedAnalyzer::respondToCloseInputFile(FileBlock const&,
+                                              ProcessingFrame const&)
   {}
 
   void
   ReplicatedAnalyzer::respondToOpenOutputFiles(FileBlock const&,
-                                               Services const&)
+                                               ProcessingFrame const&)
   {}
 
   void
   ReplicatedAnalyzer::respondToCloseOutputFiles(FileBlock const&,
-                                                Services const&)
+                                                ProcessingFrame const&)
   {}
 
   void
-  ReplicatedAnalyzer::beginRun(Run const&, Services const&)
+  ReplicatedAnalyzer::beginRun(Run const&, ProcessingFrame const&)
   {}
 
   void
-  ReplicatedAnalyzer::endRun(Run const&, Services const&)
+  ReplicatedAnalyzer::endRun(Run const&, ProcessingFrame const&)
   {}
 
   void
-  ReplicatedAnalyzer::beginSubRun(SubRun const&, Services const&)
+  ReplicatedAnalyzer::beginSubRun(SubRun const&, ProcessingFrame const&)
   {}
 
   void
-  ReplicatedAnalyzer::endSubRun(SubRun const&, Services const&)
+  ReplicatedAnalyzer::endSubRun(SubRun const&, ProcessingFrame const&)
   {}
 
 } // namespace art

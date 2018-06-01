@@ -35,21 +35,22 @@ namespace art {
     class ConcurrentEngineRetrieval : public ReplicatedAnalyzer {
     public:
       explicit ConcurrentEngineRetrieval(fhicl::ParameterSet const& p,
-                                         Services const&);
+                                         ProcessingFrame const&);
 
     private:
-      void analyze(art::Event const&, art::Services const&) override;
+      void analyze(art::Event const&, art::ProcessingFrame const&) override;
       CLHEP::RandFlat dist_;
     };
 
     ConcurrentEngineRetrieval::ConcurrentEngineRetrieval(
       fhicl::ParameterSet const& p,
-      Services const& services)
-      : ReplicatedAnalyzer{p, services}, dist_{createEngine(p.get<int>("seed"))}
+      ProcessingFrame const& frame)
+      : ReplicatedAnalyzer{p, frame}, dist_{createEngine(p.get<int>("seed"))}
     {}
 
     void
-    ConcurrentEngineRetrieval::analyze(art::Event const&, art::Services const&)
+    ConcurrentEngineRetrieval::analyze(art::Event const&,
+                                       art::ProcessingFrame const&)
     {
       std::vector<std::size_t> numbers(5);
       std::size_t constexpr random_range{1000};

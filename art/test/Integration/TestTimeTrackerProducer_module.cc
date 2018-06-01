@@ -15,12 +15,12 @@ namespace arttest {
     };
     using Parameters = Table<Config>;
     explicit TestTimeTrackerProducer(Parameters const& p,
-                                     art::Services const& services)
-      : art::ReplicatedProducer{p, services}
+                                     art::ProcessingFrame const& frame)
+      : art::ReplicatedProducer{p, frame}
     {}
 
     void
-    produce(art::Event&, art::Services const&) override
+    produce(art::Event&, art::ProcessingFrame const&) override
     {}
   };
 

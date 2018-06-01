@@ -1,17 +1,17 @@
-#ifndef art_Framework_Core_Services_h
-#define art_Framework_Core_Services_h
+#ifndef art_Framework_Core_ProcessingFrame_h
+#define art_Framework_Core_ProcessingFrame_h
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Utilities/ScheduleID.h"
 
 namespace art {
-  class Services {
+  class ProcessingFrame {
   public:
-    explicit Services(ScheduleID const sid) : scheduleID_{sid} {}
+    explicit ProcessingFrame(ScheduleID const sid) : scheduleID_{sid} {}
 
     template <typename T>
     ServiceHandle<T>
-    getHandle() const
+    serviceHandle() const
     {
       return ServiceHandle<T>{};
     }
@@ -27,7 +27,7 @@ namespace art {
   };
 }
 
-#endif /* art_Framework_Core_Services_h */
+#endif /* art_Framework_Core_ProcessingFrame_h */
 
 // Local Variables:
 // mode: c++

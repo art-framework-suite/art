@@ -36,18 +36,18 @@ public:
     Atom<unsigned long> branchType{Name("branchType"), art::InEvent};
   };
   using Parameters = Table<Config>;
-  explicit IntProducer(Parameters const& p, art::Services const&);
+  explicit IntProducer(Parameters const& p, art::ProcessingFrame const&);
 
 private:
-  void produce(art::Event& e, art::Services const&) override;
-  void endSubRun(art::SubRun& sr, art::Services const&) override;
-  void endRun(art::Run& r, art::Services const&) override;
+  void produce(art::Event& e, art::ProcessingFrame const&) override;
+  void endSubRun(art::SubRun& sr, art::ProcessingFrame const&) override;
+  void endRun(art::Run& r, art::ProcessingFrame const&) override;
 
   int const value_;
   art::BranchType const branchType_;
 }; // IntProducer
 
-IntProducer::IntProducer(Parameters const& p, art::Services const&)
+IntProducer::IntProducer(Parameters const& p, art::ProcessingFrame const&)
   : art::SharedProducer{p}
   , value_{p().ivalue()} // enums don't usually have a conversion from string
   , branchType_{art::BranchType(p().branchType())}
@@ -57,21 +57,21 @@ IntProducer::IntProducer(Parameters const& p, art::Services const&)
 }
 
 void
-IntProducer::produce(art::Event& e, art::Services const&)
+IntProducer::produce(art::Event& e, art::ProcessingFrame const&)
 {
   if (branchType_ == art::InEvent)
     e.put(std::make_unique<IntProduct>(value_));
 }
 
 void
-IntProducer::endSubRun(art::SubRun& sr, art::Services const&)
+IntProducer::endSubRun(art::SubRun& sr, art::ProcessingFrame const&)
 {
   if (branchType_ == art::InSubRun)
     sr.put(std::make_unique<IntProduct>(value_), art::subRunFragment());
 }
 
 void
-IntProducer::endRun(art::Run& r, art::Services const&)
+IntProducer::endRun(art::Run& r, art::ProcessingFrame const&)
 {
   if (branchType_ == art::InRun)
     r.put(std::make_unique<IntProduct>(value_), art::runFragment());

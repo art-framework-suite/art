@@ -21,73 +21,73 @@ namespace art {
   }
 
   void
-  EDFilter::respondToOpenInputFileWithServices(FileBlock const& fb,
-                                               Services const&)
+  EDFilter::respondToOpenInputFileWithFrame(FileBlock const& fb,
+                                            ProcessingFrame const&)
   {
     respondToOpenInputFile(fb);
   }
 
   void
-  EDFilter::respondToCloseInputFileWithServices(FileBlock const& fb,
-                                                Services const&)
+  EDFilter::respondToCloseInputFileWithFrame(FileBlock const& fb,
+                                             ProcessingFrame const&)
   {
     respondToCloseInputFile(fb);
   }
 
   void
-  EDFilter::respondToOpenOutputFilesWithServices(FileBlock const& fb,
-                                                 Services const&)
+  EDFilter::respondToOpenOutputFilesWithFrame(FileBlock const& fb,
+                                              ProcessingFrame const&)
   {
     respondToOpenOutputFiles(fb);
   }
 
   void
-  EDFilter::respondToCloseOutputFilesWithServices(FileBlock const& fb,
-                                                  Services const&)
+  EDFilter::respondToCloseOutputFilesWithFrame(FileBlock const& fb,
+                                               ProcessingFrame const&)
   {
     respondToCloseOutputFiles(fb);
   }
 
   void
-  EDFilter::beginJobWithServices(Services const&)
+  EDFilter::beginJobWithFrame(ProcessingFrame const&)
   {
     beginJob();
   }
 
   void
-  EDFilter::endJobWithServices(Services const&)
+  EDFilter::endJobWithFrame(ProcessingFrame const&)
   {
     endJob();
   }
 
   bool
-  EDFilter::beginRunWithServices(Run& r, Services const&)
+  EDFilter::beginRunWithFrame(Run& r, ProcessingFrame const&)
   {
     return beginRun(r);
   }
 
   bool
-  EDFilter::endRunWithServices(Run& r, Services const&)
+  EDFilter::endRunWithFrame(Run& r, ProcessingFrame const&)
   {
     return endRun(r);
   }
 
   bool
-  EDFilter::beginSubRunWithServices(SubRun& sr, Services const&)
+  EDFilter::beginSubRunWithFrame(SubRun& sr, ProcessingFrame const&)
   {
     return beginSubRun(sr);
   }
 
   bool
-  EDFilter::endSubRunWithServices(SubRun& sr, Services const&)
+  EDFilter::endSubRunWithFrame(SubRun& sr, ProcessingFrame const&)
   {
     return endSubRun(sr);
   }
 
   bool
-  EDFilter::filterWithServices(Event& e, Services const& services)
+  EDFilter::filterWithFrame(Event& e, ProcessingFrame const& frame)
   {
-    ScheduleIDSentry sentry{*this, services.scheduleID()};
+    ScheduleIDSentry sentry{*this, frame.scheduleID()};
     return filter(e);
   }
 

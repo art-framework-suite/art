@@ -15,9 +15,9 @@ namespace art {
   TriggerResultInserter::TriggerResultInserter(fhicl::ParameterSet const& pset,
                                                ScheduleID const sid,
                                                HLTGlobalStatus& pathResults)
-    : ReplicatedProducer{pset, Services{sid}}
+    : ReplicatedProducer{pset, ProcessingFrame{sid}}
     , pset_id_{pset.id()}
-    , trptr_(&pathResults)
+    , trptr_{&pathResults}
   {
     {
       std::ostringstream msg;
@@ -28,7 +28,7 @@ namespace art {
   }
 
   void
-  TriggerResultInserter::produce(Event& e, Services const&)
+  TriggerResultInserter::produce(Event& e, ProcessingFrame const&)
   {
     auto tr = std::make_unique<TriggerResults>(*trptr_, pset_id_);
     e.put(move(tr));

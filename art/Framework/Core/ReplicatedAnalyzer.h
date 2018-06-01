@@ -7,7 +7,7 @@
 // =====================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/Services.h"
+#include "art/Framework/Core/ProcessingFrame.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/Analyzer.h"
 #include "art/Framework/Core/detail/EngineCreator.h"
@@ -26,16 +26,16 @@ namespace art {
     using ModuleType = ReplicatedAnalyzer;
 
     explicit ReplicatedAnalyzer(fhicl::ParameterSet const& pset,
-                                Services const& services)
+                                ProcessingFrame const& frame)
       : detail::Analyzer{pset}
       , detail::EngineCreator{pset.get<std::string>("module_label"),
-                              services.scheduleID()}
+                              frame.scheduleID()}
     {}
 
     template <typename Config>
     explicit ReplicatedAnalyzer(Table<Config> const& config,
-                                Services const& services)
-      : ReplicatedAnalyzer{config.get_PSet(), services}
+                                ProcessingFrame const& frame)
+      : ReplicatedAnalyzer{config.get_PSet(), frame}
     {}
 
     using detail::EngineCreator::createEngine;
@@ -44,33 +44,42 @@ namespace art {
 
   private:
     void setupQueues() override final;
-    void beginJobWithServices(Services const&) override final;
-    void endJobWithServices(Services const&) override final;
-    void respondToOpenInputFileWithServices(FileBlock const&,
-                                            Services const&) override final;
-    void respondToCloseInputFileWithServices(FileBlock const&,
-                                             Services const&) override final;
-    void respondToOpenOutputFilesWithServices(FileBlock const&,
-                                              Services const&) override final;
-    void respondToCloseOutputFilesWithServices(FileBlock const&,
-                                               Services const&) override final;
-    void beginRunWithServices(Run const&, Services const&) override final;
-    void endRunWithServices(Run const&, Services const&) override final;
-    void beginSubRunWithServices(SubRun const&, Services const&) override final;
-    void endSubRunWithServices(SubRun const&, Services const&) override final;
-    void analyzeWithServices(Event const&, Services const&) override final;
+    void beginJobWithFrame(ProcessingFrame const&) override final;
+    void endJobWithFrame(ProcessingFrame const&) override final;
+    void respondToOpenInputFileWithFrame(FileBlock const&,
+                                         ProcessingFrame const&) override final;
+    void respondToCloseInputFileWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void respondToOpenOutputFilesWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void respondToCloseOutputFilesWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void beginRunWithFrame(Run const&, ProcessingFrame const&) override final;
+    void endRunWithFrame(Run const&, ProcessingFrame const&) override final;
+    void beginSubRunWithFrame(SubRun const&,
+                              ProcessingFrame const&) override final;
+    void endSubRunWithFrame(SubRun const&,
+                            ProcessingFrame const&) override final;
+    void analyzeWithFrame(Event const&, ProcessingFrame const&) override final;
 
-    virtual void beginJob(Services const&);
-    virtual void endJob(Services const&);
-    virtual void respondToOpenInputFile(FileBlock const&, Services const&);
-    virtual void respondToCloseInputFile(FileBlock const&, Services const&);
-    virtual void respondToOpenOutputFiles(FileBlock const&, Services const&);
-    virtual void respondToCloseOutputFiles(FileBlock const&, Services const&);
-    virtual void beginRun(Run const&, Services const&);
-    virtual void endRun(Run const&, Services const&);
-    virtual void beginSubRun(SubRun const&, Services const&);
-    virtual void endSubRun(SubRun const&, Services const&);
-    virtual void analyze(Event const&, Services const&) = 0;
+    virtual void beginJob(ProcessingFrame const&);
+    virtual void endJob(ProcessingFrame const&);
+    virtual void respondToOpenInputFile(FileBlock const&,
+                                        ProcessingFrame const&);
+    virtual void respondToCloseInputFile(FileBlock const&,
+                                         ProcessingFrame const&);
+    virtual void respondToOpenOutputFiles(FileBlock const&,
+                                          ProcessingFrame const&);
+    virtual void respondToCloseOutputFiles(FileBlock const&,
+                                           ProcessingFrame const&);
+    virtual void beginRun(Run const&, ProcessingFrame const&);
+    virtual void endRun(Run const&, ProcessingFrame const&);
+    virtual void beginSubRun(SubRun const&, ProcessingFrame const&);
+    virtual void endSubRun(SubRun const&, ProcessingFrame const&);
+    virtual void analyze(Event const&, ProcessingFrame const&) = 0;
   };
 
 } // namespace art

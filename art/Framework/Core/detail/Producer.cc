@@ -33,51 +33,51 @@ namespace art {
     {
       setupQueues();
       failureToPutProducts(moduleDescription());
-      Services const services{ScheduleID{}};
-      beginJobWithServices(services);
+      ProcessingFrame const frame{ScheduleID{}};
+      beginJobWithFrame(frame);
     }
 
     void
     Producer::doEndJob()
     {
-      Services const services{ScheduleID{}};
-      endJobWithServices(services);
+      ProcessingFrame const frame{ScheduleID{}};
+      endJobWithFrame(frame);
     }
 
     void
     Producer::doRespondToOpenInputFile(FileBlock const& fb)
     {
-      Services const services{ScheduleID{}};
-      respondToOpenInputFileWithServices(fb, services);
+      ProcessingFrame const frame{ScheduleID{}};
+      respondToOpenInputFileWithFrame(fb, frame);
     }
 
     void
     Producer::doRespondToCloseInputFile(FileBlock const& fb)
     {
-      Services const services{ScheduleID{}};
-      respondToCloseInputFileWithServices(fb, services);
+      ProcessingFrame const frame{ScheduleID{}};
+      respondToCloseInputFileWithFrame(fb, frame);
     }
 
     void
     Producer::doRespondToOpenOutputFiles(FileBlock const& fb)
     {
-      Services const services{ScheduleID{}};
-      respondToOpenOutputFilesWithServices(fb, services);
+      ProcessingFrame const frame{ScheduleID{}};
+      respondToOpenOutputFilesWithFrame(fb, frame);
     }
 
     void
     Producer::doRespondToCloseOutputFiles(FileBlock const& fb)
     {
-      Services const services{ScheduleID{}};
-      respondToCloseOutputFilesWithServices(fb, services);
+      ProcessingFrame const frame{ScheduleID{}};
+      respondToCloseOutputFilesWithFrame(fb, frame);
     }
 
     bool
     Producer::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
     {
       Run r{rp, mc, RangeSet::forRun(rp.runID())};
-      Services const services{mc.scheduleID()};
-      beginRunWithServices(r, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      beginRunWithFrame(r, frame);
       r.movePutProductsToPrincipal(rp);
       return true;
     }
@@ -86,8 +86,8 @@ namespace art {
     Producer::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
     {
       Run r{rp, mc, rp.seenRanges()};
-      Services const services{mc.scheduleID()};
-      endRunWithServices(r, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      endRunWithFrame(r, frame);
       r.movePutProductsToPrincipal(rp);
       return true;
     }
@@ -96,8 +96,8 @@ namespace art {
     Producer::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
       SubRun sr{srp, mc, RangeSet::forSubRun(srp.subRunID())};
-      Services const services{mc.scheduleID()};
-      beginSubRunWithServices(sr, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      beginSubRunWithFrame(sr, frame);
       sr.movePutProductsToPrincipal(srp);
       return true;
     }
@@ -106,8 +106,8 @@ namespace art {
     Producer::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
       SubRun sr{srp, mc, srp.seenRanges()};
-      Services const services{mc.scheduleID()};
-      endSubRunWithServices(sr, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      endSubRunWithFrame(sr, frame);
       sr.movePutProductsToPrincipal(srp);
       return true;
     }
@@ -121,8 +121,8 @@ namespace art {
     {
       Event e{ep, mc};
       ++counts_run;
-      Services const services{mc.scheduleID()};
-      produceWithServices(e, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      produceWithFrame(e, frame);
       e.movePutProductsToPrincipal(
         ep, checkPutProducts_, &expectedProducts<InEvent>());
       ++counts_passed;

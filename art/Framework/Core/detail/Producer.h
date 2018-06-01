@@ -9,7 +9,7 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Modifier.h"
-#include "art/Framework/Core/Services.h"
+#include "art/Framework/Core/ProcessingFrame.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
@@ -53,21 +53,23 @@ namespace art {
     private:
       void failureToPutProducts(ModuleDescription const& md);
       virtual void setupQueues() = 0;
-      virtual void beginJobWithServices(Services const&) = 0;
-      virtual void endJobWithServices(Services const&) = 0;
-      virtual void respondToOpenInputFileWithServices(FileBlock const&,
-                                                      Services const&) = 0;
-      virtual void respondToCloseInputFileWithServices(FileBlock const&,
-                                                       Services const&) = 0;
-      virtual void respondToOpenOutputFilesWithServices(FileBlock const&,
-                                                        Services const&) = 0;
-      virtual void respondToCloseOutputFilesWithServices(FileBlock const&,
-                                                         Services const&) = 0;
-      virtual void beginRunWithServices(Run&, Services const&) = 0;
-      virtual void endRunWithServices(Run&, Services const&) = 0;
-      virtual void beginSubRunWithServices(SubRun&, Services const&) = 0;
-      virtual void endSubRunWithServices(SubRun&, Services const&) = 0;
-      virtual void produceWithServices(Event&, Services const&) = 0;
+      virtual void beginJobWithFrame(ProcessingFrame const&) = 0;
+      virtual void endJobWithFrame(ProcessingFrame const&) = 0;
+      virtual void respondToOpenInputFileWithFrame(FileBlock const&,
+                                                   ProcessingFrame const&) = 0;
+      virtual void respondToCloseInputFileWithFrame(FileBlock const&,
+                                                    ProcessingFrame const&) = 0;
+      virtual void respondToOpenOutputFilesWithFrame(
+        FileBlock const&,
+        ProcessingFrame const&) = 0;
+      virtual void respondToCloseOutputFilesWithFrame(
+        FileBlock const&,
+        ProcessingFrame const&) = 0;
+      virtual void beginRunWithFrame(Run&, ProcessingFrame const&) = 0;
+      virtual void endRunWithFrame(Run&, ProcessingFrame const&) = 0;
+      virtual void beginSubRunWithFrame(SubRun&, ProcessingFrame const&) = 0;
+      virtual void endSubRunWithFrame(SubRun&, ProcessingFrame const&) = 0;
+      virtual void produceWithFrame(Event&, ProcessingFrame const&) = 0;
 
       bool checkPutProducts_{true};
     };

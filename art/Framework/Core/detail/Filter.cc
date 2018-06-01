@@ -40,51 +40,51 @@ namespace art {
     {
       setupQueues();
       failureToPutProducts(moduleDescription());
-      Services const services{ScheduleID{}};
-      beginJobWithServices(services);
+      ProcessingFrame const frame{ScheduleID{}};
+      beginJobWithFrame(frame);
     }
 
     void
     Filter::doEndJob()
     {
-      Services const services{ScheduleID{}};
-      endJobWithServices(services);
+      ProcessingFrame const frame{ScheduleID{}};
+      endJobWithFrame(frame);
     }
 
     void
     Filter::doRespondToOpenInputFile(FileBlock const& fb)
     {
-      Services const services{ScheduleID{}};
-      respondToOpenInputFileWithServices(fb, services);
+      ProcessingFrame const frame{ScheduleID{}};
+      respondToOpenInputFileWithFrame(fb, frame);
     }
 
     void
     Filter::doRespondToCloseInputFile(FileBlock const& fb)
     {
-      Services const services{ScheduleID{}};
-      respondToCloseInputFileWithServices(fb, services);
+      ProcessingFrame const frame{ScheduleID{}};
+      respondToCloseInputFileWithFrame(fb, frame);
     }
 
     void
     Filter::doRespondToOpenOutputFiles(FileBlock const& fb)
     {
-      Services const services{ScheduleID{}};
-      respondToOpenOutputFilesWithServices(fb, services);
+      ProcessingFrame const frame{ScheduleID{}};
+      respondToOpenOutputFilesWithFrame(fb, frame);
     }
 
     void
     Filter::doRespondToCloseOutputFiles(FileBlock const& fb)
     {
-      Services const services{ScheduleID{}};
-      respondToCloseOutputFilesWithServices(fb, services);
+      ProcessingFrame const frame{ScheduleID{}};
+      respondToCloseOutputFilesWithFrame(fb, frame);
     }
 
     bool
     Filter::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
     {
       Run r{rp, mc, RangeSet::forRun(rp.runID())};
-      Services const services{mc.scheduleID()};
-      bool const rc = beginRunWithServices(r, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      bool const rc = beginRunWithFrame(r, frame);
       r.movePutProductsToPrincipal(rp);
       return rc;
     }
@@ -93,8 +93,8 @@ namespace art {
     Filter::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
     {
       Run r{rp, mc, rp.seenRanges()};
-      Services const services{mc.scheduleID()};
-      bool const rc = endRunWithServices(r, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      bool const rc = endRunWithFrame(r, frame);
       r.movePutProductsToPrincipal(rp);
       return rc;
     }
@@ -103,8 +103,8 @@ namespace art {
     Filter::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
       SubRun sr{srp, mc, RangeSet::forSubRun(srp.subRunID())};
-      Services const services{mc.scheduleID()};
-      bool const rc = beginSubRunWithServices(sr, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      bool const rc = beginSubRunWithFrame(sr, frame);
       sr.movePutProductsToPrincipal(srp);
       return rc;
     }
@@ -113,8 +113,8 @@ namespace art {
     Filter::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
     {
       SubRun sr{srp, mc, srp.seenRanges()};
-      Services const services{mc.scheduleID()};
-      bool const rc = endSubRunWithServices(sr, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      bool const rc = endSubRunWithFrame(sr, frame);
       sr.movePutProductsToPrincipal(srp);
       return rc;
     }
@@ -128,8 +128,8 @@ namespace art {
     {
       Event e{ep, mc};
       ++counts_run;
-      Services const services{mc.scheduleID()};
-      bool const rc = filterWithServices(e, services);
+      ProcessingFrame const frame{mc.scheduleID()};
+      bool const rc = filterWithFrame(e, frame);
       e.movePutProductsToPrincipal(
         ep, checkPutProducts_, &expectedProducts<InEvent>());
       if (rc) {

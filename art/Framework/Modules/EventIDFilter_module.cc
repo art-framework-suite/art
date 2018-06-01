@@ -57,22 +57,22 @@ public:
   };
 
   using Parameters = Table<Config>;
-  explicit EventIDFilter(Parameters const& p, Services const&);
+  explicit EventIDFilter(Parameters const& p, ProcessingFrame const&);
 
 private:
-  bool filter(Event&, Services const&) override;
+  bool filter(Event&, ProcessingFrame const&) override;
 
   EventIDMatcher const matcher_;
 };
 
-art::EventIDFilter::EventIDFilter(Parameters const& p, Services const&)
+art::EventIDFilter::EventIDFilter(Parameters const& p, ProcessingFrame const&)
   : SharedFilter{p}, matcher_{p().idsToMatch()}
 {
   async<InEvent>();
 }
 
 bool
-art::EventIDFilter::filter(Event& e, Services const&)
+art::EventIDFilter::filter(Event& e, ProcessingFrame const&)
 {
   return matcher_(e.id());
 }

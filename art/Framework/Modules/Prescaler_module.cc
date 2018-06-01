@@ -27,10 +27,10 @@ public:
   };
 
   using Parameters = Table<Config>;
-  explicit Prescaler(Parameters const&, Services const&);
+  explicit Prescaler(Parameters const&, ProcessingFrame const&);
 
 private:
-  bool filter(Event&, Services const&) override;
+  bool filter(Event&, ProcessingFrame const&) override;
 
   size_t count_{};
   // Accept one in n events.
@@ -44,7 +44,7 @@ private:
 
 // ======================================================================
 
-Prescaler::Prescaler(Parameters const& config, Services const&)
+Prescaler::Prescaler(Parameters const& config, ProcessingFrame const&)
   : SharedFilter{config}
   , n_{config().prescaleFactor()}
   , offset_{config().prescaleOffset()}
@@ -53,7 +53,7 @@ Prescaler::Prescaler(Parameters const& config, Services const&)
 }
 
 bool
-Prescaler::filter(Event&, Services const&)
+Prescaler::filter(Event&, ProcessingFrame const&)
 {
   // The combination of incrementing, modulo dividing, and equality
   // comparing must be synchronized.  Changing count_ to the type

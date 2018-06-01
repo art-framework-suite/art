@@ -37,21 +37,24 @@ namespace art {
 
   private:
     void setupQueues() override final;
-    void beginJobWithServices(Services const&) override final;
-    void endJobWithServices(Services const&) override final;
-    void respondToOpenInputFileWithServices(FileBlock const&,
-                                            Services const&) override final;
-    void respondToCloseInputFileWithServices(FileBlock const&,
-                                             Services const&) override final;
-    void respondToOpenOutputFilesWithServices(FileBlock const&,
-                                              Services const&) override final;
-    void respondToCloseOutputFilesWithServices(FileBlock const&,
-                                               Services const&) override final;
-    bool beginRunWithServices(Run&, Services const&) override final;
-    bool endRunWithServices(Run&, Services const&) override final;
-    bool beginSubRunWithServices(SubRun&, Services const&) override final;
-    bool endSubRunWithServices(SubRun&, Services const&) override final;
-    bool filterWithServices(Event&, Services const&) override final;
+    void beginJobWithFrame(ProcessingFrame const&) override final;
+    void endJobWithFrame(ProcessingFrame const&) override final;
+    void respondToOpenInputFileWithFrame(FileBlock const&,
+                                         ProcessingFrame const&) override final;
+    void respondToCloseInputFileWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void respondToOpenOutputFilesWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void respondToCloseOutputFilesWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    bool beginRunWithFrame(Run&, ProcessingFrame const&) override final;
+    bool endRunWithFrame(Run&, ProcessingFrame const&) override final;
+    bool beginSubRunWithFrame(SubRun&, ProcessingFrame const&) override final;
+    bool endSubRunWithFrame(SubRun&, ProcessingFrame const&) override final;
+    bool filterWithFrame(Event&, ProcessingFrame const&) override final;
 
     virtual void beginJob();
     virtual void endJob();

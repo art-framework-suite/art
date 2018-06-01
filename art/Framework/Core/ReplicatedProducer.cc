@@ -18,122 +18,124 @@ namespace art {
   }
 
   void
-  ReplicatedProducer::respondToOpenInputFileWithServices(
+  ReplicatedProducer::respondToOpenInputFileWithFrame(
     FileBlock const& fb,
-    Services const& services)
+    ProcessingFrame const& frame)
   {
-    respondToOpenInputFile(fb, services);
+    respondToOpenInputFile(fb, frame);
   }
 
   void
-  ReplicatedProducer::respondToCloseInputFileWithServices(
+  ReplicatedProducer::respondToCloseInputFileWithFrame(
     FileBlock const& fb,
-    Services const& services)
+    ProcessingFrame const& frame)
   {
-    respondToCloseInputFile(fb, services);
+    respondToCloseInputFile(fb, frame);
   }
 
   void
-  ReplicatedProducer::respondToOpenOutputFilesWithServices(
+  ReplicatedProducer::respondToOpenOutputFilesWithFrame(
     FileBlock const& fb,
-    Services const& services)
+    ProcessingFrame const& frame)
   {
-    respondToOpenOutputFiles(fb, services);
+    respondToOpenOutputFiles(fb, frame);
   }
 
   void
-  ReplicatedProducer::respondToCloseOutputFilesWithServices(
+  ReplicatedProducer::respondToCloseOutputFilesWithFrame(
     FileBlock const& fb,
-    Services const& services)
+    ProcessingFrame const& frame)
   {
-    respondToCloseOutputFiles(fb, services);
+    respondToCloseOutputFiles(fb, frame);
   }
 
   void
-  ReplicatedProducer::beginJobWithServices(Services const& services)
+  ReplicatedProducer::beginJobWithFrame(ProcessingFrame const& frame)
   {
-    beginJob(services);
+    beginJob(frame);
   }
 
   void
-  ReplicatedProducer::endJobWithServices(Services const& services)
+  ReplicatedProducer::endJobWithFrame(ProcessingFrame const& frame)
   {
-    endJob(services);
+    endJob(frame);
   }
 
   void
-  ReplicatedProducer::beginRunWithServices(Run& r, Services const& services)
+  ReplicatedProducer::beginRunWithFrame(Run& r, ProcessingFrame const& frame)
   {
-    beginRun(r, services);
+    beginRun(r, frame);
   }
 
   void
-  ReplicatedProducer::endRunWithServices(Run& r, Services const& services)
+  ReplicatedProducer::endRunWithFrame(Run& r, ProcessingFrame const& frame)
   {
-    endRun(r, services);
+    endRun(r, frame);
   }
 
   void
-  ReplicatedProducer::beginSubRunWithServices(SubRun& sr,
-                                              Services const& services)
+  ReplicatedProducer::beginSubRunWithFrame(SubRun& sr,
+                                           ProcessingFrame const& frame)
   {
-    beginSubRun(sr, services);
+    beginSubRun(sr, frame);
   }
 
   void
-  ReplicatedProducer::endSubRunWithServices(SubRun& sr,
-                                            Services const& services)
+  ReplicatedProducer::endSubRunWithFrame(SubRun& sr,
+                                         ProcessingFrame const& frame)
   {
-    endSubRun(sr, services);
+    endSubRun(sr, frame);
   }
 
   void
-  ReplicatedProducer::produceWithServices(Event& e, Services const& services)
+  ReplicatedProducer::produceWithFrame(Event& e, ProcessingFrame const& frame)
   {
-    produce(e, services);
+    produce(e, frame);
   }
 
   // Default implementations
   void
-  ReplicatedProducer::beginJob(Services const&)
+  ReplicatedProducer::beginJob(ProcessingFrame const&)
   {}
 
   void
-  ReplicatedProducer::endJob(Services const&)
+  ReplicatedProducer::endJob(ProcessingFrame const&)
   {}
 
   void
-  ReplicatedProducer::respondToOpenInputFile(FileBlock const&, Services const&)
+  ReplicatedProducer::respondToOpenInputFile(FileBlock const&,
+                                             ProcessingFrame const&)
   {}
 
   void
-  ReplicatedProducer::respondToCloseInputFile(FileBlock const&, Services const&)
+  ReplicatedProducer::respondToCloseInputFile(FileBlock const&,
+                                              ProcessingFrame const&)
   {}
 
   void
   ReplicatedProducer::respondToOpenOutputFiles(FileBlock const&,
-                                               Services const&)
+                                               ProcessingFrame const&)
   {}
 
   void
   ReplicatedProducer::respondToCloseOutputFiles(FileBlock const&,
-                                                Services const&)
+                                                ProcessingFrame const&)
   {}
 
   void
-  ReplicatedProducer::beginRun(Run const&, Services const&)
+  ReplicatedProducer::beginRun(Run const&, ProcessingFrame const&)
   {}
 
   void
-  ReplicatedProducer::endRun(Run const&, Services const&)
+  ReplicatedProducer::endRun(Run const&, ProcessingFrame const&)
   {}
 
   void
-  ReplicatedProducer::beginSubRun(SubRun const&, Services const&)
+  ReplicatedProducer::beginSubRun(SubRun const&, ProcessingFrame const&)
   {}
 
   void
-  ReplicatedProducer::endSubRun(SubRun const&, Services const&)
+  ReplicatedProducer::endSubRun(SubRun const&, ProcessingFrame const&)
   {}
 
 } // namespace art

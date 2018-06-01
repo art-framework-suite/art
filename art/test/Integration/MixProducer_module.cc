@@ -31,12 +31,12 @@ public:
   struct Config {
   };
   using Parameters = Table<Config>;
-  explicit MixProducer(Parameters const& p, art::Services const&);
+  explicit MixProducer(Parameters const& p, art::ProcessingFrame const&);
 
 private:
-  void produce(art::Event& e, art::Services const&) override;
-  void endSubRun(art::SubRun& sr, art::Services const&) override;
-  void endRun(art::Run& r, art::Services const&) override;
+  void produce(art::Event& e, art::ProcessingFrame const&) override;
+  void endSubRun(art::SubRun& sr, art::ProcessingFrame const&) override;
+  void endRun(art::Run& r, art::ProcessingFrame const&) override;
 
   using mv_t = cet::map_vector<unsigned int>;
   using mvv_t = mv_t::value_type;
@@ -48,7 +48,8 @@ private:
   std::atomic<size_t> runCounter_{};
 };
 
-arttest::MixProducer::MixProducer(Parameters const& p, art::Services const&)
+arttest::MixProducer::MixProducer(Parameters const& p,
+                                  art::ProcessingFrame const&)
   : art::SharedProducer{p}
 {
   async<art::InEvent>();
@@ -68,7 +69,7 @@ arttest::MixProducer::MixProducer(Parameters const& p, art::Services const&)
 }
 
 void
-arttest::MixProducer::produce(art::Event& e, art::Services const&)
+arttest::MixProducer::produce(art::Event& e, art::ProcessingFrame const&)
 {
   ++eventCounter_;
 
@@ -150,14 +151,14 @@ arttest::MixProducer::produce(art::Event& e, art::Services const&)
 }
 
 void
-arttest::MixProducer::endSubRun(art::SubRun& sr, art::Services const&)
+arttest::MixProducer::endSubRun(art::SubRun& sr, art::ProcessingFrame const&)
 {
   ++subrunCounter_;
   sr.put(std::make_unique<double>(subrunCounter_), "DoubleSRLabel");
 }
 
 void
-arttest::MixProducer::endRun(art::Run& r, art::Services const&)
+arttest::MixProducer::endRun(art::Run& r, art::ProcessingFrame const&)
 {
   ++runCounter_;
   r.put(std::make_unique<double>(runCounter_), "DoubleRLabel");

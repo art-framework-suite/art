@@ -18,116 +18,121 @@ namespace art {
   }
 
   void
-  SharedAnalyzer::respondToOpenInputFileWithServices(FileBlock const& fb,
-                                                     Services const& services)
+  SharedAnalyzer::respondToOpenInputFileWithFrame(FileBlock const& fb,
+                                                  ProcessingFrame const& frame)
   {
-    respondToOpenInputFile(fb, services);
+    respondToOpenInputFile(fb, frame);
   }
 
   void
-  SharedAnalyzer::respondToCloseInputFileWithServices(FileBlock const& fb,
-                                                      Services const& services)
+  SharedAnalyzer::respondToCloseInputFileWithFrame(FileBlock const& fb,
+                                                   ProcessingFrame const& frame)
   {
-    respondToCloseInputFile(fb, services);
+    respondToCloseInputFile(fb, frame);
   }
 
   void
-  SharedAnalyzer::respondToOpenOutputFilesWithServices(FileBlock const& fb,
-                                                       Services const& services)
-  {
-    respondToOpenOutputFiles(fb, services);
-  }
-
-  void
-  SharedAnalyzer::respondToCloseOutputFilesWithServices(
+  SharedAnalyzer::respondToOpenOutputFilesWithFrame(
     FileBlock const& fb,
-    Services const& services)
+    ProcessingFrame const& frame)
   {
-    respondToCloseOutputFiles(fb, services);
+    respondToOpenOutputFiles(fb, frame);
   }
 
   void
-  SharedAnalyzer::beginJobWithServices(Services const& services)
+  SharedAnalyzer::respondToCloseOutputFilesWithFrame(
+    FileBlock const& fb,
+    ProcessingFrame const& frame)
   {
-    beginJob(services);
+    respondToCloseOutputFiles(fb, frame);
   }
 
   void
-  SharedAnalyzer::endJobWithServices(Services const& services)
+  SharedAnalyzer::beginJobWithFrame(ProcessingFrame const& frame)
   {
-    endJob(services);
+    beginJob(frame);
   }
 
   void
-  SharedAnalyzer::beginRunWithServices(Run const& r, Services const& services)
+  SharedAnalyzer::endJobWithFrame(ProcessingFrame const& frame)
   {
-    beginRun(r, services);
+    endJob(frame);
   }
 
   void
-  SharedAnalyzer::endRunWithServices(Run const& r, Services const& services)
+  SharedAnalyzer::beginRunWithFrame(Run const& r, ProcessingFrame const& frame)
   {
-    endRun(r, services);
+    beginRun(r, frame);
   }
 
   void
-  SharedAnalyzer::beginSubRunWithServices(SubRun const& sr,
-                                          Services const& services)
+  SharedAnalyzer::endRunWithFrame(Run const& r, ProcessingFrame const& frame)
   {
-    beginSubRun(sr, services);
+    endRun(r, frame);
   }
 
   void
-  SharedAnalyzer::endSubRunWithServices(SubRun const& sr,
-                                        Services const& services)
+  SharedAnalyzer::beginSubRunWithFrame(SubRun const& sr,
+                                       ProcessingFrame const& frame)
   {
-    endSubRun(sr, services);
+    beginSubRun(sr, frame);
   }
 
   void
-  SharedAnalyzer::analyzeWithServices(Event const& e, Services const& services)
+  SharedAnalyzer::endSubRunWithFrame(SubRun const& sr,
+                                     ProcessingFrame const& frame)
   {
-    analyze(e, services);
+    endSubRun(sr, frame);
   }
 
   void
-  SharedAnalyzer::beginJob(Services const&)
+  SharedAnalyzer::analyzeWithFrame(Event const& e, ProcessingFrame const& frame)
+  {
+    analyze(e, frame);
+  }
+
+  void
+  SharedAnalyzer::beginJob(ProcessingFrame const&)
   {}
 
   void
-  SharedAnalyzer::endJob(Services const&)
+  SharedAnalyzer::endJob(ProcessingFrame const&)
   {}
 
   void
-  SharedAnalyzer::respondToOpenInputFile(FileBlock const&, Services const&)
+  SharedAnalyzer::respondToOpenInputFile(FileBlock const&,
+                                         ProcessingFrame const&)
   {}
 
   void
-  SharedAnalyzer::respondToCloseInputFile(FileBlock const&, Services const&)
+  SharedAnalyzer::respondToCloseInputFile(FileBlock const&,
+                                          ProcessingFrame const&)
   {}
 
   void
-  SharedAnalyzer::respondToOpenOutputFiles(FileBlock const&, Services const&)
+  SharedAnalyzer::respondToOpenOutputFiles(FileBlock const&,
+                                           ProcessingFrame const&)
   {}
 
   void
-  SharedAnalyzer::respondToCloseOutputFiles(FileBlock const&, Services const&)
+  SharedAnalyzer::respondToCloseOutputFiles(FileBlock const&,
+                                            ProcessingFrame const&)
   {}
 
   void
-  SharedAnalyzer::beginRun(Run const&, Services const&)
+  SharedAnalyzer::beginRun(Run const&, ProcessingFrame const&)
   {}
 
   void
-  SharedAnalyzer::endRun(Run const&, Services const&)
+  SharedAnalyzer::endRun(Run const&, ProcessingFrame const&)
   {}
 
   void
-  SharedAnalyzer::beginSubRun(SubRun const&, Services const&)
+  SharedAnalyzer::beginSubRun(SubRun const&, ProcessingFrame const&)
   {}
 
   void
-  SharedAnalyzer::endSubRun(SubRun const&, Services const&)
+  SharedAnalyzer::endSubRun(SubRun const&, ProcessingFrame const&)
   {}
 
 } // namespace art

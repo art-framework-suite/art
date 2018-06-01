@@ -21,73 +21,73 @@ namespace art {
   }
 
   void
-  EDProducer::respondToOpenInputFileWithServices(FileBlock const& fb,
-                                                 Services const&)
+  EDProducer::respondToOpenInputFileWithFrame(FileBlock const& fb,
+                                              ProcessingFrame const&)
   {
     respondToOpenInputFile(fb);
   }
 
   void
-  EDProducer::respondToCloseInputFileWithServices(FileBlock const& fb,
-                                                  Services const&)
+  EDProducer::respondToCloseInputFileWithFrame(FileBlock const& fb,
+                                               ProcessingFrame const&)
   {
     respondToCloseInputFile(fb);
   }
 
   void
-  EDProducer::respondToOpenOutputFilesWithServices(FileBlock const& fb,
-                                                   Services const&)
+  EDProducer::respondToOpenOutputFilesWithFrame(FileBlock const& fb,
+                                                ProcessingFrame const&)
   {
     respondToOpenOutputFiles(fb);
   }
 
   void
-  EDProducer::respondToCloseOutputFilesWithServices(FileBlock const& fb,
-                                                    Services const&)
+  EDProducer::respondToCloseOutputFilesWithFrame(FileBlock const& fb,
+                                                 ProcessingFrame const&)
   {
     respondToCloseOutputFiles(fb);
   }
 
   void
-  EDProducer::beginJobWithServices(Services const&)
+  EDProducer::beginJobWithFrame(ProcessingFrame const&)
   {
     beginJob();
   }
 
   void
-  EDProducer::endJobWithServices(Services const&)
+  EDProducer::endJobWithFrame(ProcessingFrame const&)
   {
     endJob();
   }
 
   void
-  EDProducer::beginRunWithServices(Run& r, Services const&)
+  EDProducer::beginRunWithFrame(Run& r, ProcessingFrame const&)
   {
     beginRun(r);
   }
 
   void
-  EDProducer::endRunWithServices(Run& r, Services const&)
+  EDProducer::endRunWithFrame(Run& r, ProcessingFrame const&)
   {
     endRun(r);
   }
 
   void
-  EDProducer::beginSubRunWithServices(SubRun& sr, Services const&)
+  EDProducer::beginSubRunWithFrame(SubRun& sr, ProcessingFrame const&)
   {
     beginSubRun(sr);
   }
 
   void
-  EDProducer::endSubRunWithServices(SubRun& sr, Services const&)
+  EDProducer::endSubRunWithFrame(SubRun& sr, ProcessingFrame const&)
   {
     endSubRun(sr);
   }
 
   void
-  EDProducer::produceWithServices(Event& e, Services const& services)
+  EDProducer::produceWithFrame(Event& e, ProcessingFrame const& frame)
   {
-    ScheduleIDSentry sentry{*this, services.scheduleID()};
+    ScheduleIDSentry sentry{*this, frame.scheduleID()};
     produce(e);
   }
 

@@ -4,7 +4,7 @@
 //
 
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Core/Services.h"
+#include "art/Framework/Core/ProcessingFrame.h"
 #include "art/Framework/Core/SharedProducer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
@@ -24,16 +24,16 @@ namespace art {
       Atom<bool> debug{Name{"debug"}, false};
     };
     using Parameters = Table<Config>;
-    explicit RandomNumberSaver(Parameters const&, Services const&);
+    explicit RandomNumberSaver(Parameters const&, ProcessingFrame const&);
 
   private:
-    void produce(Event&, Services const&) override;
+    void produce(Event&, ProcessingFrame const&) override;
     // When true makes produce call rng->print_().
     bool const debug_;
   };
 
   RandomNumberSaver::RandomNumberSaver(Parameters const& config,
-                                       Services const&)
+                                       ProcessingFrame const&)
     : SharedProducer{config}, debug_{config().debug()}
   {
     produces<vector<RNGsnapshot>>();
@@ -47,10 +47,10 @@ namespace art {
   }
 
   void
-  RandomNumberSaver::produce(Event& e, Services const& services)
+  RandomNumberSaver::produce(Event& e, ProcessingFrame const& frame)
   {
-    auto const sid = services.scheduleID();
-    auto rng = services.getHandle<RandomNumberGenerator const>();
+    auto const sid = frame.scheduleID();
+    auto rng = frame.serviceHandle<RandomNumberGenerator const>();
     e.put(make_unique<vector<RNGsnapshot>>(rng->accessSnapshot_(sid)));
     if (debug_) {
       rng->print_();

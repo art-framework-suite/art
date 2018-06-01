@@ -31,12 +31,12 @@ namespace arttest {
       fhicl::Atom<double> threshold{fhicl::Name("energyThreshold")};
     };
     using Parameters = Table<Config>;
-    explicit Reconstruction(Parameters const&, Services const&);
+    explicit Reconstruction(Parameters const&, ProcessingFrame const&);
 
   private:
-    void beginSubRun(SubRun&, Services const&) override;
-    void endSubRun(SubRun&, Services const&) override;
-    bool filter(Event&, Services const&) override;
+    void beginSubRun(SubRun&, ProcessingFrame const&) override;
+    void endSubRun(SubRun&, ProcessingFrame const&) override;
+    bool filter(Event&, ProcessingFrame const&) override;
 
     double const threshold_;
     ProductToken<vector<double>> const particleEnergiesTkn_;
@@ -44,7 +44,8 @@ namespace arttest {
     std::atomic<unsigned> denominator_{};
   };
 
-  Reconstruction::Reconstruction(Parameters const& config, Services const&)
+  Reconstruction::Reconstruction(Parameters const& config,
+                                 ProcessingFrame const&)
     : SharedFilter{config}
     , threshold_{config().threshold()}
     , particleEnergiesTkn_{consumes<vector<double>>(config().inputTag())}
@@ -55,7 +56,7 @@ namespace arttest {
   }
 
   void
-  Reconstruction::beginSubRun(SubRun& sr, Services const&)
+  Reconstruction::beginSubRun(SubRun& sr, ProcessingFrame const&)
   {
     sr.put(make_unique<arttest::CalibConstants>(sr.subRun()),
            "CalibConstants",
@@ -63,7 +64,7 @@ namespace arttest {
   }
 
   void
-  Reconstruction::endSubRun(SubRun& sr, Services const&)
+  Reconstruction::endSubRun(SubRun& sr, ProcessingFrame const&)
   {
     sr.put(make_unique<arttest::TrackEfficiency>(numerator_.load(),
                                                  denominator_.load()),
@@ -74,7 +75,7 @@ namespace arttest {
   }
 
   bool
-  Reconstruction::filter(Event& e, Services const&)
+  Reconstruction::filter(Event& e, ProcessingFrame const&)
   {
     auto const& particleEnergies = *e.getValidHandle(particleEnergiesTkn_);
     bool pass = false;

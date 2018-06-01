@@ -8,7 +8,7 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Observer.h"
-#include "art/Framework/Core/Services.h"
+#include "art/Framework/Core/ProcessingFrame.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ImplicitConfigs.h"
 #include "art/Framework/Principal/fwd.h"
@@ -112,21 +112,25 @@ namespace art {
 
     private:
       virtual void setupQueues() = 0;
-      virtual void analyzeWithServices(Event const&, Services const&) = 0;
-      virtual void beginJobWithServices(Services const&) = 0;
-      virtual void endJobWithServices(Services const&) = 0;
-      virtual void respondToOpenInputFileWithServices(FileBlock const&,
-                                                      Services const&) = 0;
-      virtual void respondToCloseInputFileWithServices(FileBlock const&,
-                                                       Services const&) = 0;
-      virtual void respondToOpenOutputFilesWithServices(FileBlock const&,
-                                                        Services const&) = 0;
-      virtual void respondToCloseOutputFilesWithServices(FileBlock const&,
-                                                         Services const&) = 0;
-      virtual void beginRunWithServices(Run const&, Services const&) = 0;
-      virtual void endRunWithServices(Run const&, Services const&) = 0;
-      virtual void beginSubRunWithServices(SubRun const&, Services const&) = 0;
-      virtual void endSubRunWithServices(SubRun const&, Services const&) = 0;
+      virtual void analyzeWithFrame(Event const&, ProcessingFrame const&) = 0;
+      virtual void beginJobWithFrame(ProcessingFrame const&) = 0;
+      virtual void endJobWithFrame(ProcessingFrame const&) = 0;
+      virtual void respondToOpenInputFileWithFrame(FileBlock const&,
+                                                   ProcessingFrame const&) = 0;
+      virtual void respondToCloseInputFileWithFrame(FileBlock const&,
+                                                    ProcessingFrame const&) = 0;
+      virtual void respondToOpenOutputFilesWithFrame(
+        FileBlock const&,
+        ProcessingFrame const&) = 0;
+      virtual void respondToCloseOutputFilesWithFrame(
+        FileBlock const&,
+        ProcessingFrame const&) = 0;
+      virtual void beginRunWithFrame(Run const&, ProcessingFrame const&) = 0;
+      virtual void endRunWithFrame(Run const&, ProcessingFrame const&) = 0;
+      virtual void beginSubRunWithFrame(SubRun const&,
+                                        ProcessingFrame const&) = 0;
+      virtual void endSubRunWithFrame(SubRun const&,
+                                      ProcessingFrame const&) = 0;
     };
 
     template <typename T>
