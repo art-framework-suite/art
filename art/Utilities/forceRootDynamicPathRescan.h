@@ -1,5 +1,5 @@
-#ifndef UIYQWRTXVYWTEVQXYET
-#define UIYQWRTXVYWTEVQXYET
+#ifndef art_Utilities_forceRootDynamicPathRescan_h
+#define art_Utilities_forceRootDynamicPathRescan_h
 ////////////////////////////////////////////////////////////////////////
 // forceRootDynamicPathRescan()
 //
@@ -25,9 +25,16 @@ namespace art {
 inline
 void art::forceRootDynamicPathRescan()
 {
-  if (ROOT::Internal::gROOTLocal) {
-    gSystem->SetDynamicPath(nullptr);
-    gInterpreter->RescanLibraryMap();
-  }
+  // FIXME: Disabled pending Root investigations of issue with
+  // gInterpreter->RescanLibraryMap().
+  //
+  // if (ROOT::Internal::gROOTLocal) {
+  //   gSystem->SetDynamicPath(nullptr);
+  //   gInterpreter->RescanLibraryMap();
+  // }
 }
-#endif
+#endif /* art_Utilities_forceRootDynamicPathRescan_h */
+
+// Local Variables:
+// mode: c++
+// End:
