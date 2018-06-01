@@ -191,27 +191,28 @@ namespace art {
         producedProductDescriptions_, psSignals_, pc);
     }
     pathManager_->createModulesAndWorkers();
-    auto create = [&processName, &pset, &triggerPSet, this](
-                    ScheduleID const sid) {
-      endPathExecutors_.emplace(std::piecewise_construct,
-                                std::forward_as_tuple(sid),
-                                std::forward_as_tuple(sid,
-                                                      pathManager_,
-                                                      scheduler_->actionTable(),
-                                                      actReg_,
-                                                      outputCallbacks_));
-      schedules_.emplace(std::piecewise_construct,
-                         std::forward_as_tuple(sid),
-                         std::forward_as_tuple(sid,
-                                               pathManager_,
-                                               processName,
-                                               pset,
-                                               triggerPSet,
-                                               outputCallbacks_,
-                                               producedProductDescriptions_,
-                                               scheduler_->actionTable(),
-                                               actReg_));
-    };
+    auto create =
+      [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
+        endPathExecutors_->emplace(
+          std::piecewise_construct,
+          std::forward_as_tuple(sid),
+          std::forward_as_tuple(sid,
+                                pathManager_,
+                                scheduler_->actionTable(),
+                                actReg_,
+                                outputCallbacks_));
+        schedules_->emplace(std::piecewise_construct,
+                            std::forward_as_tuple(sid),
+                            std::forward_as_tuple(sid,
+                                                  pathManager_,
+                                                  processName,
+                                                  pset,
+                                                  triggerPSet,
+                                                  outputCallbacks_,
+                                                  producedProductDescriptions_,
+                                                  scheduler_->actionTable(),
+                                                  actReg_));
+      };
     scheduleIteration_.for_each_schedule(create);
     FDEBUG(2) << pset.to_string() << endl;
     // The input source must be created after the end path executor
@@ -306,7 +307,7 @@ namespace art {
     }
     if (nextLevel_.load() == L) {
       nextLevel_ = Level::ReadyToAdvance;
-      if (endPathExecutors_.at(ScheduleID::first()).outputsToClose()) {
+      if (endPathExecutors_->at(ScheduleID::first()).outputsToClose()) {
         setOutputFileStatus(OutputFileStatus::Switching);
         finalizeContainingLevels<L>();
         closeSomeOutputFiles();
@@ -440,7 +441,7 @@ namespace art {
   void
   EventProcessor::recordOutputModuleClosureRequests<Level::Run>()
   {
-    endPathExecutors_.at(ScheduleID::first())
+    endPathExecutors_->at(ScheduleID::first())
       .recordOutputClosureRequests(Granularity::Run);
   }
 
@@ -448,7 +449,7 @@ namespace art {
   void
   EventProcessor::recordOutputModuleClosureRequests<Level::SubRun>()
   {
-    endPathExecutors_.at(ScheduleID::first())
+    endPathExecutors_->at(ScheduleID::first())
       .recordOutputClosureRequests(Granularity::SubRun);
   }
 
@@ -456,7 +457,7 @@ namespace art {
   void
   EventProcessor::recordOutputModuleClosureRequests<Level::Event>()
   {
-    endPathExecutors_.at(ScheduleID::first())
+    endPathExecutors_->at(ScheduleID::first())
       .recordOutputClosureRequests(Granularity::Event);
   }
 
@@ -540,7 +541,7 @@ namespace art {
       finalizeContainingLevels<most_deeply_nested_level()>();
       respondToCloseOutputFiles();
       {
-        endPathExecutors_.at(ScheduleID::first()).closeSomeOutputFiles();
+        endPathExecutors_->at(ScheduleID::first()).closeSomeOutputFiles();
         FDEBUG(1) << string(8, ' ') << "closeSomeOutputFiles\n";
       }
       // We started the switch after advancing to the next item type;
@@ -712,7 +713,7 @@ namespace art {
         // and we must do that before dropping the lock on the input source
         // which is what is protecting us against a double-advance caused by
         // a different schedule.
-        auto mustClose = endPathExecutors_.at(sid).outputsToClose();
+        auto mustClose = endPathExecutors_->at(sid).outputsToClose();
         if (mustClose) {
           fileSwitchInProgress_ = true;
           TDEBUG_END_FUNC_SI_ERR(4,
@@ -890,7 +891,7 @@ namespace art {
       // they will spawn the endPathTask which will run the
       // end path, write the event, and start the next event
       // processing task.
-      schedules_.at(sid).process_event(
+      schedules_->at(sid).process_event(
         endPathTask, eventLoopTask, *eventPrincipals_->at(sid));
       // Once the trigger paths are running we are done, exit this task,
       // which does not end event processing because our parent is the
@@ -1009,7 +1010,7 @@ namespace art {
                                "tbb::task");
     tbb::task::self().set_parent(eventLoopTask);
     try {
-      endPathExecutors_.at(sid).process_event(*eventPrincipals_->at(sid));
+      endPathExecutors_->at(sid).process_event(*eventPrincipals_->at(sid));
     }
     catch (cet::exception& e) {
       // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
@@ -1140,7 +1141,7 @@ namespace art {
                          "EventProcessor::finishEventAsync",
                          sid,
                          "Calling endPathExecutors_->allAtLimit()");
-      if (endPathExecutors_.at(sid).allAtLimit()) {
+      if (endPathExecutors_->at(sid).allAtLimit()) {
         // Set to return to the File level.
         nextLevel_ = highest_level();
       }
@@ -1165,7 +1166,7 @@ namespace art {
                            "Calling endPathExecutors_->writeEvent(sid, "
                            "*eventPrincipals_->at(sid))");
         // Write the event.
-        endPathExecutors_.at(sid).writeEvent(*eventPrincipals_->at(sid));
+        endPathExecutors_->at(sid).writeEvent(*eventPrincipals_->at(sid));
         FDEBUG(1) << string(8, ' ') << "writeEvent..................("
                   << eventPrincipals_->at(sid)->eventID() << ")\n";
         // And delete the event principal.
@@ -1177,7 +1178,8 @@ namespace art {
                          sid,
                          "Calling endPathExecutors_->"
                          "recordOutputClosureRequests(Granularity::Event)");
-      endPathExecutors_.at(sid).recordOutputClosureRequests(Granularity::Event);
+      endPathExecutors_->at(sid).recordOutputClosureRequests(
+        Granularity::Event);
     }
     catch (cet::exception& e) {
       if (scheduler_->actionTable().find(e.root_cause()) !=
@@ -1337,8 +1339,8 @@ namespace art {
       throw;
     }
     scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-      schedules_.at(sid).beginJob();
-      endPathExecutors_.at(sid).beginJob();
+      schedules_->at(sid).beginJob();
+      endPathExecutors_->at(sid).beginJob();
     });
     actReg_->sPostBeginJob.invoke();
     invokePostBeginJobWorkers_();
@@ -1362,8 +1364,8 @@ namespace art {
   EventProcessor::endJobAllSchedules()
   {
     scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-      schedules_.at(sid).endJob();
-      endPathExecutors_.at(sid).endJob();
+      schedules_->at(sid).endJob();
+      endPathExecutors_->at(sid).endJob();
     });
   }
 
@@ -1395,15 +1397,15 @@ namespace art {
   void
   EventProcessor::closeInputFile()
   {
-    endPathExecutors_.at(ScheduleID::first()).incrementInputFileNumber();
+    endPathExecutors_->at(ScheduleID::first()).incrementInputFileNumber();
     // Output-file closing on input-file boundaries are tricky since
     // input files must outlive the output files, which often have data
     // copied forward from the input files.  That's why the
     // recordOutputClosureRequests call is made here instead of in a
     // specialization of recordOutputModuleClosureRequests<>.
-    endPathExecutors_.at(ScheduleID::first())
+    endPathExecutors_->at(ScheduleID::first())
       .recordOutputClosureRequests(Granularity::InputFile);
-    if (endPathExecutors_.at(ScheduleID::first()).outputsToClose()) {
+    if (endPathExecutors_->at(ScheduleID::first()).outputsToClose()) {
       closeSomeOutputFiles();
     }
     respondToCloseInputFile();
@@ -1416,11 +1418,11 @@ namespace art {
   void
   EventProcessor::closeAllOutputFiles()
   {
-    if (!endPathExecutors_.at(ScheduleID::first()).someOutputsOpen()) {
+    if (!endPathExecutors_->at(ScheduleID::first()).someOutputsOpen()) {
       return;
     }
     respondToCloseOutputFiles();
-    endPathExecutors_.at(ScheduleID::first()).closeAllOutputFiles();
+    endPathExecutors_->at(ScheduleID::first()).closeAllOutputFiles();
     FDEBUG(1) << string(8, ' ') << "closeAllOutputFiles\n";
   }
 
@@ -1430,7 +1432,7 @@ namespace art {
     bool outputs_to_open{false};
     auto check_outputs_to_open = [this,
                                   &outputs_to_open](ScheduleID const sid) {
-      if (endPathExecutors_.at(sid).outputsToOpen()) {
+      if (endPathExecutors_->at(sid).outputsToOpen()) {
         outputs_to_open = true;
       }
     };
@@ -1446,7 +1448,7 @@ namespace art {
     }
 
     auto open_some_outputs = [this](ScheduleID const sid) {
-      endPathExecutors_.at(sid).openSomeOutputFiles(*fb_);
+      endPathExecutors_->at(sid).openSomeOutputFiles(*fb_);
     };
     scheduleIteration_.for_each_schedule(open_some_outputs);
 
@@ -1457,7 +1459,7 @@ namespace art {
   void
   EventProcessor::setOutputFileStatus(OutputFileStatus const ofs)
   {
-    endPathExecutors_.at(ScheduleID::first()).setOutputFileStatus(ofs);
+    endPathExecutors_->at(ScheduleID::first()).setOutputFileStatus(ofs);
     FDEBUG(1) << string(8, ' ') << "setOutputFileStatus\n";
   }
 
@@ -1468,9 +1470,9 @@ namespace art {
     //               flagged as needing to close.  Otherwise,
     //               'respondtoCloseOutputFiles' will be needlessly
     //               called.
-    assert(endPathExecutors_.at(ScheduleID::first()).outputsToClose());
+    assert(endPathExecutors_->at(ScheduleID::first()).outputsToClose());
     respondToCloseOutputFiles();
-    endPathExecutors_.at(ScheduleID::first()).closeSomeOutputFiles();
+    endPathExecutors_->at(ScheduleID::first()).closeSomeOutputFiles();
     FDEBUG(1) << string(8, ' ') << "closeSomeOutputFiles\n";
   }
 
@@ -1478,8 +1480,8 @@ namespace art {
   EventProcessor::respondToOpenInputFile()
   {
     scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-      schedules_.at(sid).respondToOpenInputFile(*fb_);
-      endPathExecutors_.at(sid).respondToOpenInputFile(*fb_);
+      schedules_->at(sid).respondToOpenInputFile(*fb_);
+      endPathExecutors_->at(sid).respondToOpenInputFile(*fb_);
     });
     FDEBUG(1) << string(8, ' ') << "respondToOpenInputFile\n";
   }
@@ -1488,8 +1490,8 @@ namespace art {
   EventProcessor::respondToCloseInputFile()
   {
     scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-      schedules_.at(sid).respondToCloseInputFile(*fb_);
-      endPathExecutors_.at(sid).respondToCloseInputFile(*fb_);
+      schedules_->at(sid).respondToCloseInputFile(*fb_);
+      endPathExecutors_->at(sid).respondToCloseInputFile(*fb_);
     });
     FDEBUG(1) << string(8, ' ') << "respondToCloseInputFile\n";
   }
@@ -1498,8 +1500,8 @@ namespace art {
   EventProcessor::respondToOpenOutputFiles()
   {
     scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-      schedules_.at(sid).respondToOpenOutputFiles(*fb_);
-      endPathExecutors_.at(sid).respondToOpenOutputFiles(*fb_);
+      schedules_->at(sid).respondToOpenOutputFiles(*fb_);
+      endPathExecutors_->at(sid).respondToOpenOutputFiles(*fb_);
     });
     FDEBUG(1) << string(8, ' ') << "respondToOpenOutputFiles\n";
   }
@@ -1508,8 +1510,8 @@ namespace art {
   EventProcessor::respondToCloseOutputFiles()
   {
     scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-      schedules_.at(sid).respondToCloseOutputFiles(*fb_);
-      endPathExecutors_.at(sid).respondToCloseOutputFiles(*fb_);
+      schedules_->at(sid).respondToCloseOutputFiles(*fb_);
+      endPathExecutors_->at(sid).respondToCloseOutputFiles(*fb_);
     });
     FDEBUG(1) << string(8, ' ') << "respondToCloseOutputFiles\n";
   }
@@ -1526,7 +1528,7 @@ namespace art {
     auto rsh = input_->runRangeSetHandler();
     assert(rsh);
     auto seed_range_set = [this, &rsh](ScheduleID const sid) {
-      endPathExecutors_.at(sid).seedRunRangeSet(*rsh);
+      endPathExecutors_->at(sid).seedRunRangeSet(*rsh);
     };
     scheduleIteration_.for_each_schedule(seed_range_set);
     // The intended behavior here is that the producing services which
@@ -1561,8 +1563,9 @@ namespace art {
         actReg_->sPreBeginRun.invoke(run);
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-        schedules_.at(sid).process(Transition::BeginRun, *runPrincipal_);
-        endPathExecutors_.at(sid).process(Transition::BeginRun, *runPrincipal_);
+        schedules_->at(sid).process(Transition::BeginRun, *runPrincipal_);
+        endPathExecutors_->at(sid).process(Transition::BeginRun,
+                                           *runPrincipal_);
       });
       {
         Run const run{*runPrincipal_, invalid_module_context};
@@ -1599,20 +1602,20 @@ namespace art {
     assert(runPrincipal_);
     FDEBUG(1) << string(8, ' ') << "setRunAuxiliaryRangeSetID...("
               << runPrincipal_->runID() << ")\n";
-    if (endPathExecutors_.at(ScheduleID::first())
+    if (endPathExecutors_->at(ScheduleID::first())
           .runRangeSetHandler_.load()
           ->type() == RangeSetHandler::HandlerType::Open) {
       // We are using EmptyEvent source, need to merge
       // what the schedules have seen.
       RangeSet mergedRS;
       auto merge_range_sets = [this, &mergedRS](ScheduleID const sid) {
-        auto const rsh = endPathExecutors_.at(sid).runRangeSetHandler_.load();
+        auto const rsh = endPathExecutors_->at(sid).runRangeSetHandler_.load();
         mergedRS.merge(rsh->seenRanges());
       };
       scheduleIteration_.for_each_schedule(merge_range_sets);
       runPrincipal_->updateSeenRanges(mergedRS);
       auto update_executors = [this, &mergedRS](ScheduleID const sid) {
-        endPathExecutors_.at(sid).setRunAuxiliaryRangeSetID(mergedRS);
+        endPathExecutors_->at(sid).setRunAuxiliaryRangeSetID(mergedRS);
       };
       scheduleIteration_.for_each_schedule(update_executors);
       return;
@@ -1625,16 +1628,16 @@ namespace art {
     // the exactly the schedule that triggered the switch.  Do we need
     // to fix this?
     unique_ptr<RangeSetHandler> rshAtSwitch{
-      endPathExecutors_.at(ScheduleID::first())
+      endPathExecutors_->at(ScheduleID::first())
         .runRangeSetHandler_.load()
         ->clone()};
-    if (endPathExecutors_.at(ScheduleID::first()).fileStatus_.load() !=
+    if (endPathExecutors_->at(ScheduleID::first()).fileStatus_.load() !=
         OutputFileStatus::Switching) {
       // We are at the end of the job.
       rshAtSwitch->flushRanges();
     }
     runPrincipal_->updateSeenRanges(rshAtSwitch->seenRanges());
-    endPathExecutors_.at(ScheduleID::first())
+    endPathExecutors_->at(ScheduleID::first())
       .setRunAuxiliaryRangeSetID(rshAtSwitch->seenRanges());
   }
 
@@ -1654,8 +1657,8 @@ namespace art {
                                    runPrincipal_->endTime());
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-        schedules_.at(sid).process(Transition::EndRun, *runPrincipal_);
-        endPathExecutors_.at(sid).process(Transition::EndRun, *runPrincipal_);
+        schedules_->at(sid).process(Transition::EndRun, *runPrincipal_);
+        endPathExecutors_->at(sid).process(Transition::EndRun, *runPrincipal_);
       });
       {
         Run const r{*runPrincipal_, invalid_module_context};
@@ -1685,7 +1688,7 @@ namespace art {
     // Precondition: The RunID does not correspond to a flush ID.
     RunID const r{runPrincipal_->runID()};
     assert(!r.isFlush());
-    endPathExecutors_.at(ScheduleID::first()).writeRun(*runPrincipal_);
+    endPathExecutors_->at(ScheduleID::first()).writeRun(*runPrincipal_);
     FDEBUG(1) << string(8, ' ') << "writeRun....................(" << r
               << ")\n";
   }
@@ -1702,7 +1705,7 @@ namespace art {
     auto rsh = input_->subRunRangeSetHandler();
     assert(rsh);
     auto seed_range_set = [this, &rsh](ScheduleID const sid) {
-      endPathExecutors_.at(sid).seedSubRunRangeSet(*rsh);
+      endPathExecutors_->at(sid).seedSubRunRangeSet(*rsh);
     };
     scheduleIteration_.for_each_schedule(seed_range_set);
     // The intended behavior here is that the producing services which are
@@ -1737,9 +1740,9 @@ namespace art {
         actReg_->sPreBeginSubRun.invoke(srun);
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-        schedules_.at(sid).process(Transition::BeginSubRun, *subRunPrincipal_);
-        endPathExecutors_.at(sid).process(Transition::BeginSubRun,
-                                          *subRunPrincipal_);
+        schedules_->at(sid).process(Transition::BeginSubRun, *subRunPrincipal_);
+        endPathExecutors_->at(sid).process(Transition::BeginSubRun,
+                                           *subRunPrincipal_);
       });
       {
         SubRun const srun{*subRunPrincipal_, invalid_module_context};
@@ -1776,7 +1779,7 @@ namespace art {
     assert(subRunPrincipal_);
     FDEBUG(1) << string(8, ' ') << "setSubRunAuxiliaryRangeSetID("
               << subRunPrincipal_->subRunID() << ")\n";
-    if (endPathExecutors_.at(ScheduleID::first())
+    if (endPathExecutors_->at(ScheduleID::first())
           .subRunRangeSetHandler_.load()
           ->at(ScheduleID::first())
           ->type() == RangeSetHandler::HandlerType::Open) {
@@ -1785,14 +1788,14 @@ namespace art {
       RangeSet mergedRS;
       auto merge_range_sets = [this, &mergedRS](ScheduleID const sid) {
         auto const rsh =
-          endPathExecutors_.at(sid).subRunRangeSetHandler_.load()->at(
+          endPathExecutors_->at(sid).subRunRangeSetHandler_.load()->at(
             ScheduleID::first());
         mergedRS.merge(rsh->seenRanges());
       };
       scheduleIteration_.for_each_schedule(merge_range_sets);
       subRunPrincipal_->updateSeenRanges(mergedRS);
       auto update_executors = [this, &mergedRS](ScheduleID const sid) {
-        endPathExecutors_.at(sid).setSubRunAuxiliaryRangeSetID(mergedRS);
+        endPathExecutors_->at(sid).setSubRunAuxiliaryRangeSetID(mergedRS);
       };
       scheduleIteration_.for_each_schedule(update_executors);
       return;
@@ -1841,7 +1844,7 @@ namespace art {
     unsigned largestEvent = 1U;
     ScheduleID idxOfMax{ScheduleID::first()};
     ScheduleID idx{ScheduleID::first()};
-    for (auto& val : *endPathExecutors_.at(ScheduleID::first())
+    for (auto& val : *endPathExecutors_->at(ScheduleID::first())
                         .subRunRangeSetHandler_.load()) {
       auto rsh = dynamic_cast<ClosedRangeSetHandler*>(val);
       // Make sure the event number is a valid event number
@@ -1857,30 +1860,31 @@ namespace art {
       idx = idx.next();
     }
     unique_ptr<RangeSetHandler> rshAtSwitch{
-      endPathExecutors_.at(ScheduleID::first())
+      endPathExecutors_->at(ScheduleID::first())
         .subRunRangeSetHandler_.load()
         ->at(idxOfMax)
         ->clone()};
-    if (endPathExecutors_.at(ScheduleID::first()).fileStatus_.load() ==
+    if (endPathExecutors_->at(ScheduleID::first()).fileStatus_.load() ==
         OutputFileStatus::Switching) {
       rshAtSwitch->maybeSplitRange();
       unique_ptr<RangeSetHandler> runRSHAtSwitch{
-        endPathExecutors_.at(idxOfMax).runRangeSetHandler_.load()->clone()};
+        endPathExecutors_->at(idxOfMax).runRangeSetHandler_.load()->clone()};
       runRSHAtSwitch->maybeSplitRange();
-      auto& rsh = endPathExecutors_.at(ScheduleID::first()).runRangeSetHandler_;
+      auto& rsh =
+        endPathExecutors_->at(ScheduleID::first()).runRangeSetHandler_;
       delete rsh.load();
       rsh = runRSHAtSwitch->clone();
     } else {
       // We are at the end of the job.
       rshAtSwitch->flushRanges();
     }
-    for (auto& val : *endPathExecutors_.at(ScheduleID::first())
+    for (auto& val : *endPathExecutors_->at(ScheduleID::first())
                         .subRunRangeSetHandler_.load()) {
       delete val;
       val = rshAtSwitch->clone();
     }
     subRunPrincipal_->updateSeenRanges(rshAtSwitch->seenRanges());
-    endPathExecutors_.at(ScheduleID::first())
+    endPathExecutors_->at(ScheduleID::first())
       .setSubRunAuxiliaryRangeSetID(rshAtSwitch->seenRanges());
   }
 
@@ -1900,9 +1904,9 @@ namespace art {
                                       subRunPrincipal_->endTime());
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
-        schedules_.at(sid).process(Transition::EndSubRun, *subRunPrincipal_);
-        endPathExecutors_.at(sid).process(Transition::EndSubRun,
-                                          *subRunPrincipal_);
+        schedules_->at(sid).process(Transition::EndSubRun, *subRunPrincipal_);
+        endPathExecutors_->at(sid).process(Transition::EndSubRun,
+                                           *subRunPrincipal_);
       });
       {
         SubRun const srun{*subRunPrincipal_, invalid_module_context};
@@ -1932,7 +1936,7 @@ namespace art {
     // Precondition: The SubRunID does not correspond to a flush ID.
     SubRunID const& sr{subRunPrincipal_->subRunID()};
     assert(!sr.isFlush());
-    endPathExecutors_.at(ScheduleID::first()).writeSubRun(*subRunPrincipal_);
+    endPathExecutors_->at(ScheduleID::first()).writeSubRun(*subRunPrincipal_);
     FDEBUG(1) << string(8, ' ') << "writeSubRun.................(" << sr
               << ")\n";
   }

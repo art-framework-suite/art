@@ -2,9 +2,9 @@
 #define art_Framework_EventProcessor_EventProcessor_h
 // vim: set sw=2 expandtab :
 
-//
-//  The art framework master controller.
-//
+// ===========================
+// The art application object.
+// ===========================
 
 #include "art/Framework/Core/EndPathExecutor.h"
 #include "art/Framework/Core/FileBlock.h"
@@ -222,10 +222,10 @@ namespace art {
     tsan_unique_ptr<InputSource> input_{nullptr};
 
     // The trigger path runners.
-    std::map<ScheduleID, Schedule> schedules_{};
+    tsan<std::map<ScheduleID, Schedule>> schedules_{};
 
     // The end path runner.
-    std::map<ScheduleID, EndPathExecutor> endPathExecutors_{};
+    tsan<std::map<ScheduleID, EndPathExecutor>> endPathExecutors_{};
 
     tsan<hep::concurrency::SerialTaskQueue> endPathQueue_{};
 
