@@ -4,10 +4,10 @@
 //
 
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/Services.h"
 #include "art/Framework/Core/SharedProducer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/types/Atom.h"
 
 #include <memory>
@@ -23,9 +23,8 @@ namespace art {
     struct Config {
       Atom<bool> debug{Name{"debug"}, false};
     };
-
     using Parameters = Table<Config>;
-    explicit RandomNumberSaver(Parameters const&);
+    explicit RandomNumberSaver(Parameters const&, Services const&);
 
   private:
     void produce(Event&, Services const&) override;
@@ -33,7 +32,8 @@ namespace art {
     bool const debug_;
   };
 
-  RandomNumberSaver::RandomNumberSaver(Parameters const& config)
+  RandomNumberSaver::RandomNumberSaver(Parameters const& config,
+                                       Services const&)
     : SharedProducer{config}, debug_{config().debug()}
   {
     produces<vector<RNGsnapshot>>();
@@ -49,8 +49,8 @@ namespace art {
   void
   RandomNumberSaver::produce(Event& e, Services const& services)
   {
-    ServiceHandle<RandomNumberGenerator const> rng;
     auto const sid = services.scheduleID();
+    auto rng = services.getHandle<RandomNumberGenerator const>();
     e.put(make_unique<vector<RNGsnapshot>>(rng->accessSnapshot_(sid)));
     if (debug_) {
       rng->print_();

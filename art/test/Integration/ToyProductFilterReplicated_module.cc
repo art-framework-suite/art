@@ -40,7 +40,7 @@ namespace arttest {
         fhicl::Name{"outputModuleConfigured"}};
     };
     using Parameters = Table<Config>;
-    explicit ToyProductFilterReplicated(Parameters const& p, art::ScheduleID);
+    explicit ToyProductFilterReplicated(Parameters const& p, Services const&);
     ~ToyProductFilterReplicated();
 
   private:
@@ -71,8 +71,8 @@ namespace arttest {
 
   ToyProductFilterReplicated::ToyProductFilterReplicated(
     Parameters const& p,
-    art::ScheduleID const sid)
-    : ReplicatedFilter{p, sid}
+    Services const& services)
+    : ReplicatedFilter{p, services}
     , outputModuleConfigured_{p().outputModuleConfigured()}
   {}
 

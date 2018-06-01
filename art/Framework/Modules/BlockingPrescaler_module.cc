@@ -36,7 +36,7 @@ public:
   };
 
   using Parameters = Table<Config>;
-  explicit BlockingPrescaler(Parameters const&);
+  explicit BlockingPrescaler(Parameters const&, Services const&);
 
 private:
   bool filter(Event&, Services const&) override;
@@ -50,7 +50,8 @@ private:
 
 // ======================================================================
 
-art::BlockingPrescaler::BlockingPrescaler(Parameters const& config)
+art::BlockingPrescaler::BlockingPrescaler(Parameters const& config,
+                                          Services const&)
   : SharedFilter{config}
   , m_{config().blockSize()}
   , n_{config().stepSize()}

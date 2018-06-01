@@ -3,6 +3,7 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/Services.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/EngineCreator.h"
 #include "art/Framework/Core/detail/Producer.h"
@@ -22,15 +23,15 @@ namespace art {
     // module_label parameter.  We provide a default empty string for
     // only that reason.
     explicit ReplicatedProducer(fhicl::ParameterSet const& pset,
-                                ScheduleID const scheduleID)
+                                Services const& services)
       : detail::EngineCreator{pset.get<std::string>("module_label", {}),
-                              scheduleID}
+                              services.scheduleID()}
     {}
 
     template <typename Config>
     explicit ReplicatedProducer(Table<Config> const& config,
-                                ScheduleID const scheduleID)
-      : ReplicatedProducer{config.get_PSet(), scheduleID}
+                                Services const& services)
+      : ReplicatedProducer{config.get_PSet(), services}
     {}
 
     using detail::EngineCreator::createEngine;

@@ -18,13 +18,8 @@
 #include <iostream>
 #include <memory>
 
+using namespace fhicl;
 namespace {
-
-  using namespace fhicl;
-  struct Config {
-    Atom<int> ivalue{Name("ivalue")};
-    Atom<unsigned long> branchType{Name("branchType"), art::InEvent};
-  };
 
 } // namespace
 
@@ -36,15 +31,12 @@ using arttest::IntProducer;
 
 class arttest::IntProducer : public art::SharedProducer {
 public:
+  struct Config {
+    Atom<int> ivalue{Name("ivalue")};
+    Atom<unsigned long> branchType{Name("branchType"), art::InEvent};
+  };
   using Parameters = Table<Config>;
-  explicit IntProducer(Parameters const& p)
-    : art::SharedProducer{p}
-    , value_{p().ivalue()} // enums don't usually have a conversion from string
-    , branchType_{art::BranchType(p().branchType())}
-  {
-    art::test::run_time_produces<IntProduct>(this, branchType_);
-    async<art::InEvent>();
-  }
+  explicit IntProducer(Parameters const& p, art::Services const&);
 
 private:
   void produce(art::Event& e, art::Services const&) override;
@@ -54,6 +46,15 @@ private:
   int const value_;
   art::BranchType const branchType_;
 }; // IntProducer
+
+IntProducer::IntProducer(Parameters const& p, art::Services const&)
+  : art::SharedProducer{p}
+  , value_{p().ivalue()} // enums don't usually have a conversion from string
+  , branchType_{art::BranchType(p().branchType())}
+{
+  art::test::run_time_produces<IntProduct>(this, branchType_);
+  async<art::InEvent>();
+}
 
 void
 IntProducer::produce(art::Event& e, art::Services const&)

@@ -15,6 +15,7 @@
 //
 
 #include "art/Framework/Core/ModuleBase.h"
+#include "art/Framework/Core/Services.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ModuleTypeDeducer.h"
 #include "art/Framework/Principal/WorkerParams.h"
@@ -44,9 +45,9 @@ namespace art {
     template <typename T, typename = void>
     struct NewModule {
       static T*
-      make(fhicl::ParameterSet const& pset, ScheduleID)
+      make(fhicl::ParameterSet const& pset, Services const& services)
       {
-        return new T{pset};
+        return new T{pset, services};
       }
     };
 
@@ -54,11 +55,11 @@ namespace art {
     struct NewModule<T,
                      std::enable_if_t<ModuleThreadingTypeDeducer<
                                         typename T::ModuleType>::value ==
-                                      ModuleThreadingType::replicated>> {
+                                      ModuleThreadingType::legacy>> {
       static T*
-      make(fhicl::ParameterSet const& pset, ScheduleID const sid)
+      make(fhicl::ParameterSet const& pset, Services const&)
       {
-        return new T{pset, sid};
+        return new T{pset};
       }
     };
   }
@@ -72,7 +73,8 @@ namespace art {
   make_module(art::ModuleDescription const& md, art::WorkerParams const& wp)   \
   {                                                                            \
     using Base = klass::ModuleType;                                            \
-    Base* mod = art::detail::NewModule<klass>::make(wp.pset_, wp.scheduleID_); \
+    art::Services const services{wp.scheduleID_};                              \
+    Base* mod = art::detail::NewModule<klass>::make(wp.pset_, services);       \
     mod->setModuleDescription(md);                                             \
     return mod;                                                                \
   }                                                                            \

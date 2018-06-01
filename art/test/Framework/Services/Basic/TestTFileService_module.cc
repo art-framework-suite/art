@@ -3,8 +3,8 @@
 #include "TH1.h"
 #include "TH2.h"
 
-#include "art/Framework/Core/SharedAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/SharedAnalyzer.h"
 #include "art/Framework/Services/Optional/TFileService.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -18,7 +18,7 @@ public:
   struct Config {
   };
   using Parameters = Table<Config>;
-  explicit TestTFileService(Parameters const&);
+  explicit TestTFileService(Parameters const&, Services const&);
 
 private:
   void analyze(Event const& e, Services const&) override;
@@ -41,10 +41,12 @@ private:
 
 }; // TestTFileService
 
-TestTFileService::TestTFileService(Parameters const& p) : SharedAnalyzer{p}
+TestTFileService::TestTFileService(Parameters const& p,
+                                   Services const& services)
+  : SharedAnalyzer{p}
 {
   serialize(TFileService::resource_name());
-  ServiceHandle<TFileService> fs;
+  auto const fs = services.getHandle<TFileService>();
   fs->registerFileSwitchCallback(this, &TestTFileService::setRootObjects);
   setRootObjects();
 }

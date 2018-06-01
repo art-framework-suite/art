@@ -31,7 +31,7 @@ public:
   struct Config {
   };
   using Parameters = Table<Config>;
-  explicit MixProducer(Parameters const& p);
+  explicit MixProducer(Parameters const& p, art::Services const&);
 
 private:
   void produce(art::Event& e, art::Services const&) override;
@@ -48,7 +48,8 @@ private:
   std::atomic<size_t> runCounter_{};
 };
 
-arttest::MixProducer::MixProducer(Parameters const& p) : art::SharedProducer{p}
+arttest::MixProducer::MixProducer(Parameters const& p, art::Services const&)
+  : art::SharedProducer{p}
 {
   async<art::InEvent>();
 

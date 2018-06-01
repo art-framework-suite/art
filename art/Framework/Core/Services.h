@@ -10,10 +10,10 @@ namespace art {
     explicit Services(ScheduleID const sid) : scheduleID_{sid} {}
 
     template <typename T>
-    T const&
-    get() const
+    ServiceHandle<T>
+    getHandle() const
     {
-      return *ServiceHandle<T const>{};
+      return ServiceHandle<T>{};
     }
 
     auto

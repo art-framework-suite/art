@@ -7,6 +7,7 @@
 // =====================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/Services.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/Analyzer.h"
 #include "art/Framework/Core/detail/EngineCreator.h"
@@ -25,15 +26,16 @@ namespace art {
     using ModuleType = ReplicatedAnalyzer;
 
     explicit ReplicatedAnalyzer(fhicl::ParameterSet const& pset,
-                                ScheduleID const scheduleID)
+                                Services const& services)
       : detail::Analyzer{pset}
-      , detail::EngineCreator{pset.get<std::string>("module_label"), scheduleID}
+      , detail::EngineCreator{pset.get<std::string>("module_label"),
+                              services.scheduleID()}
     {}
 
     template <typename Config>
     explicit ReplicatedAnalyzer(Table<Config> const& config,
-                                ScheduleID const scheduleID)
-      : ReplicatedAnalyzer{config.get_PSet(), scheduleID}
+                                Services const& services)
+      : ReplicatedAnalyzer{config.get_PSet(), services}
     {}
 
     using detail::EngineCreator::createEngine;

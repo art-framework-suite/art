@@ -13,19 +13,25 @@ namespace arttest {
     struct Config {
     };
     using Parameters = Table<Config>;
-    explicit TestTimeTrackerFilter(Parameters const& p) : art::SharedFilter{p}
-    {
-      async<art::InEvent>();
-    }
+    explicit TestTimeTrackerFilter(Parameters const& p, art::Services const&);
 
   private:
-    bool
-    filter(art::Event& e, art::Services const&) override
-    {
-      bool const passesCuts = (e.event() % 10) < 3;
-      return passesCuts;
-    }
-  }; // TestTimeTrackerFilter
+    bool filter(art::Event& e, art::Services const&) override;
+  };
+
+  TestTimeTrackerFilter::TestTimeTrackerFilter(Parameters const& p,
+                                               art::Services const&)
+    : art::SharedFilter{p}
+  {
+    async<art::InEvent>();
+  }
+
+  bool
+  TestTimeTrackerFilter::filter(art::Event& e, art::Services const&)
+  {
+    bool const passesCuts = (e.event() % 10) < 3;
+    return passesCuts;
+  }
 
 } // namespace arttest
 

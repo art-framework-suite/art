@@ -27,7 +27,7 @@ public:
   };
 
   using Parameters = Table<Config>;
-  explicit Prescaler(Parameters const&);
+  explicit Prescaler(Parameters const&, Services const&);
 
 private:
   bool filter(Event&, Services const&) override;
@@ -44,7 +44,7 @@ private:
 
 // ======================================================================
 
-Prescaler::Prescaler(Parameters const& config)
+Prescaler::Prescaler(Parameters const& config, Services const&)
   : SharedFilter{config}
   , n_{config().prescaleFactor()}
   , offset_{config().prescaleOffset()}

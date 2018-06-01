@@ -35,7 +35,7 @@ namespace art {
     class ConcurrentEngineRetrieval : public ReplicatedAnalyzer {
     public:
       explicit ConcurrentEngineRetrieval(fhicl::ParameterSet const& p,
-                                         ScheduleID);
+                                         Services const&);
 
     private:
       void analyze(art::Event const&, art::Services const&) override;
@@ -44,8 +44,8 @@ namespace art {
 
     ConcurrentEngineRetrieval::ConcurrentEngineRetrieval(
       fhicl::ParameterSet const& p,
-      ScheduleID const sid)
-      : ReplicatedAnalyzer{p, sid}, dist_{createEngine(p.get<int>("seed"))}
+      Services const& services)
+      : ReplicatedAnalyzer{p, services}, dist_{createEngine(p.get<int>("seed"))}
     {}
 
     void

@@ -29,7 +29,7 @@ public:
       true};
   };
   using Parameters = Table<Config>;
-  explicit IntReaderThenProducer(Parameters const& p);
+  explicit IntReaderThenProducer(Parameters const& p, Services const&);
 
   // Plugins should not be copied or assigned.
   IntReaderThenProducer(IntReaderThenProducer const&) = delete;
@@ -45,7 +45,8 @@ private:
   bool const shouldSucceed_;
 };
 
-art::test::IntReaderThenProducer::IntReaderThenProducer(Parameters const& p)
+art::test::IntReaderThenProducer::IntReaderThenProducer(Parameters const& p,
+                                                        Services const&)
   : SharedProducer{p}
   , token_{consumes<arttest::IntProduct>(p().inputTag())}
   , deltaValue_{p().deltaValue()}

@@ -39,7 +39,7 @@ namespace arttest {
       fhicl::Atom<std::string> inputLabel{fhicl::Name{"inputLabel"}};
     };
     using Parameters = Table<Config>;
-    explicit ToyProductFilterAsync(Parameters const& p);
+    explicit ToyProductFilterAsync(Parameters const& p, Services const&);
 
   private:
     bool filter(Event& e, Services const&) override;
@@ -47,7 +47,8 @@ namespace arttest {
     string const inputLabel_{};
   };
 
-  ToyProductFilterAsync::ToyProductFilterAsync(Parameters const& pset)
+  ToyProductFilterAsync::ToyProductFilterAsync(Parameters const& pset,
+                                               Services const&)
     : SharedFilter{pset}, inputLabel_{pset().inputLabel()}
   {
     async<InEvent>();

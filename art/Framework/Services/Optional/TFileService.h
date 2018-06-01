@@ -50,7 +50,8 @@ namespace art {
     TFileService& operator=(TFileService&&) = delete;
 
     // API for user
-    static std::string const& resource_name()
+    static std::string const&
+    resource_name()
     {
       static std::string const name{"TFileService"};
       return name;

@@ -57,7 +57,7 @@ public:
   };
 
   using Parameters = Table<Config>;
-  explicit EventIDFilter(Parameters const& p);
+  explicit EventIDFilter(Parameters const& p, Services const&);
 
 private:
   bool filter(Event&, Services const&) override;
@@ -65,7 +65,7 @@ private:
   EventIDMatcher const matcher_;
 };
 
-art::EventIDFilter::EventIDFilter(Parameters const& p)
+art::EventIDFilter::EventIDFilter(Parameters const& p, Services const&)
   : SharedFilter{p}, matcher_{p().idsToMatch()}
 {
   async<InEvent>();

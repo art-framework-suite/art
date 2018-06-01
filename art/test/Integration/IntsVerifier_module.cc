@@ -21,14 +21,14 @@ namespace {
           "are intended to be present whenever a getManyByType call is made."}};
     };
     using Parameters = Table<Config>;
-    explicit IntsVerifier(Parameters const&);
+    explicit IntsVerifier(Parameters const&, art::Services const&);
 
   private:
     void produce(art::Event&, art::Services const&) override;
     std::vector<int> expectedValues_;
   };
 
-  IntsVerifier::IntsVerifier(Parameters const& p)
+  IntsVerifier::IntsVerifier(Parameters const& p, art::Services const&)
     : art::SharedProducer{p}, expectedValues_{p().expectedValues()}
   {
     std::sort(begin(expectedValues_), end(expectedValues_));

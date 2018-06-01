@@ -23,7 +23,7 @@ public:
     fhicl::Atom<std::string> input_label{fhicl::Name{"input_label"}};
   };
   using Parameters = Table<Config>;
-  explicit PtrVectorSimpleAnalyzer(Parameters const& p);
+  explicit PtrVectorSimpleAnalyzer(Parameters const& p, art::Services const&);
 
 private:
   void analyze(art::Event const& e, art::Services const&) override;
@@ -31,7 +31,8 @@ private:
   std::string const input_label_;
 };
 
-arttest::PtrVectorSimpleAnalyzer::PtrVectorSimpleAnalyzer(Parameters const& p)
+arttest::PtrVectorSimpleAnalyzer::PtrVectorSimpleAnalyzer(Parameters const& p,
+                                                          art::Services const&)
   : art::SharedAnalyzer{p}, input_label_{p().input_label()}
 {
   async<art::InEvent>();

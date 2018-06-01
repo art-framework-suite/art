@@ -15,8 +15,8 @@ namespace arttest {
     };
     using Parameters = Table<Config>;
     explicit TestTimeTrackerProducer(Parameters const& p,
-                                     art::ScheduleID const sid)
-      : art::ReplicatedProducer{p, sid}
+                                     art::Services const& services)
+      : art::ReplicatedProducer{p, services}
     {}
 
     void

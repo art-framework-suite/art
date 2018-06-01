@@ -24,15 +24,14 @@ using namespace std;
 
 namespace arttest {
 
-  struct Config {
-    fhicl::TupleAs<InputTag(string)> inputTag{fhicl::Name("inputTag")};
-    fhicl::Atom<double> threshold{fhicl::Name("energyThreshold")};
-  };
-
   class Reconstruction : public SharedFilter {
   public:
+    struct Config {
+      fhicl::TupleAs<InputTag(string)> inputTag{fhicl::Name("inputTag")};
+      fhicl::Atom<double> threshold{fhicl::Name("energyThreshold")};
+    };
     using Parameters = Table<Config>;
-    explicit Reconstruction(Parameters const&);
+    explicit Reconstruction(Parameters const&, Services const&);
 
   private:
     void beginSubRun(SubRun&, Services const&) override;
@@ -41,19 +40,15 @@ namespace arttest {
 
     double const threshold_;
     ProductToken<vector<double>> const particleEnergiesTkn_;
-    std::atomic<unsigned> numerator_;
-    std::atomic<unsigned> denominator_;
+    std::atomic<unsigned> numerator_{};
+    std::atomic<unsigned> denominator_{};
   };
 
-  Reconstruction::Reconstruction(Parameters const& config)
+  Reconstruction::Reconstruction(Parameters const& config, Services const&)
     : SharedFilter{config}
     , threshold_{config().threshold()}
     , particleEnergiesTkn_{consumes<vector<double>>(config().inputTag())}
   {
-    // We must initialize these here because the thread sanitizer does not
-    // handle ctor initializers properly.
-    numerator_ = 0u;
-    denominator_ = 0u;
     produces<arttest::CalibConstants, InSubRun>("CalibConstants");
     produces<arttest::TrackEfficiency, InSubRun>("TrackEfficiency");
     async<InEvent>();
