@@ -34,7 +34,7 @@ sub baseClasses {
 sub constructors {
   return [ {
             explicit => 1,
-            args => [ "fhicl::ParameterSet const & p" ],
+            args => [ "fhicl::ParameterSet const& p" ],
             initializers => [ "FileCatalogMetadataPlugin(p)" ]
            } ];
 }
@@ -55,11 +55,11 @@ sub optionalEntries {
     {
      beginJob => 'void beginJob() override',
      endJob => 'void endJob() override',
-     collectMetadata => 'void collectMetadata(art::Event const & e) override',
-     beginRun => 'void beginRun(art::Run const & r) override',
-     endRun => 'void endRun(art::Run const & r) override',
-     beginSubRun => 'void beginSubRun(art::SubRun const & sr) override',
-     endSubRun => 'void endSubRun(art::SubRun const & sr) override'
+     collectMetadata => 'void collectMetadata(art::Event const& e) override',
+     beginRun => 'void beginRun(art::Run const& r) override',
+     endRun => 'void endRun(art::Run const& r) override',
+     beginSubRun => 'void beginSubRun(art::SubRun const& sr) override',
+     endSubRun => 'void endSubRun(art::SubRun const& sr) override'
     };
 }
 

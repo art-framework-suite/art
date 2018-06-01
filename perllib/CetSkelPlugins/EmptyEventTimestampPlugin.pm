@@ -34,7 +34,7 @@ sub baseClasses {
 sub constructors {
   return [ {
             explicit => 1,
-            args => [ "fhicl::ParameterSet const & p" ],
+            args => [ "fhicl::ParameterSet const& p" ],
             initializers => [ "EmptyEventTimestampPlugin(p)" ]
            } ];
 }
@@ -62,10 +62,10 @@ sub optionalEntries {
     {
      beginJob => 'void beginJob() override',
      endJob => 'void endJob() override',
-     beginRun => 'void beginRun(art::Run const & r) override',
-     beginRunTimestamp => 'art::Timestamp beginRunTimestamp(art::RunID const & rid) override',
-     beginSubRun => 'void beginSubRun(art::SubRun const & sr) override',
-     beginSubRunTimestamp => 'art::Timestamp beginSubRunTimestamp(art::SubRunID const & srid) override',
+     beginRun => 'void beginRun(art::Run const& r) override',
+     beginRunTimestamp => 'art::Timestamp beginRunTimestamp(art::RunID const& rid) override',
+     beginSubRun => 'void beginSubRun(art::SubRun const& sr) override',
+     beginSubRunTimestamp => 'art::Timestamp beginSubRunTimestamp(art::SubRunID const& srid) override',
     };
 }
 
@@ -74,7 +74,7 @@ sub optionalEntries {
 sub requiredEntries {
   return
     {
-     eventTimestamp => 'art::Timestamp eventTimestamp(art::EventID const & eid) override',
+     eventTimestamp => 'art::Timestamp eventTimestamp(art::EventID const& eid) override',
      rewind => 'void rewind() override'
     };
 }

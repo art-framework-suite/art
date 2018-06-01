@@ -34,7 +34,7 @@ sub baseClasses {
 sub constructors {
   return [ {
             explicit => 1,
-            args => [ "fhicl::ParameterSet const & p" ],
+            args => [ "fhicl::ParameterSet const& p" ],
             comment => $fp_constructor_comment # From FilterProducerCommon.pm
            } ];
 }
@@ -51,15 +51,15 @@ sub optionalEntries {
   return
     {
      beginJob => "void beginJob() override",
-     beginRun => "bool beginRun(art::Run & r) override",
-     beginSubRun => "bool beginSubRun(art::SubRun & sr) override",
+     beginRun => "bool beginRun(art::Run& r) override",
+     beginSubRun => "bool beginSubRun(art::SubRun& sr) override",
      endJob => "void endJob() override",
-     endRun => "bool endRun(art::Run & r) override",
-     endSubRun => "bool endSubRun(art::SubRun & sr) override",
-     respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const & fb) override",
-     respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const & fb) override",
+     endRun => "bool endRun(art::Run& r) override",
+     endSubRun => "bool endSubRun(art::SubRun& sr) override",
+     respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const& fb) override",
+     respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const& fb) override",
      respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const  &fb) override",
-     respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const & fb) override"
+     respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const& fb) override"
     };
 }
 
@@ -68,7 +68,7 @@ sub optionalEntries {
 sub requiredEntries {
   return
     {
-     filter => "bool filter(art::Event & e) override"
+     filter => "bool filter(art::Event& e) override"
     };
 }
 

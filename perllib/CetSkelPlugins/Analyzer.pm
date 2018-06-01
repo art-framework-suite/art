@@ -34,7 +34,7 @@ sub baseClasses {
 sub constructors {
   return [ {
             explicit => 1,
-            args => [ "fhicl::ParameterSet const & p" ],
+            args => [ "fhicl::ParameterSet const& p" ],
             initializers => [ "EDAnalyzer(p)" ]
            } ];
 }
@@ -51,15 +51,15 @@ sub optionalEntries {
   return
     {
      beginJob => "void beginJob() override",
-     beginRun => "void beginRun(art::Run const & r) override",
-     beginSubRun => "void beginSubRun(art::SubRun const & sr) override",
+     beginRun => "void beginRun(art::Run const& r) override",
+     beginSubRun => "void beginSubRun(art::SubRun const& sr) override",
      endJob => "void endJob() override",
-     endRun => "void endRun(art::Run const & r) override",
-     endSubRun => "void endSubRun(art::SubRun const & sr) override",
-     respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const & fb) override",
-     respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const & fb) override",
-     respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const & fb) override",
-     respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const & fb) override"
+     endRun => "void endRun(art::Run const& r) override",
+     endSubRun => "void endSubRun(art::SubRun const& sr) override",
+     respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const& fb) override",
+     respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const& fb) override",
+     respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const& fb) override",
+     respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const& fb) override"
     };
 }
 
@@ -68,7 +68,7 @@ sub optionalEntries {
 sub requiredEntries {
   return
     {
-     analyze => "void analyze(art::Event const & e) override"
+     analyze => "void analyze(art::Event const& e) override"
     };
 }
 
