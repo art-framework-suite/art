@@ -183,17 +183,21 @@ cet_test(test_dropAllEventsSubruns_t.sh PREBUILT
   test_dropAllEventsSubruns_verify.cxx
 )
 
-cet_test(testOutputRanges_dropAllEventsSubruns HANDBUILT
-  TEST_EXEC file_info_dumper
-  TEST_ARGS
-  --range-of-validity
-  --file-index
+set(testOutputRanges_dropAllEventsSubruns_FILES
   "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEvents.root"
   "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEventsSubruns1.root"
   "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEventsSubruns2.root"
   "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEvents_r.root"
   "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEventsSubruns1_r.root"
   "../test_dropAllEventsSubruns_t.sh.d/out_dropAllEventsSubruns2_r.root"
+  )
+
+cet_test(testOutputRanges_dropAllEventsSubruns HANDBUILT
+  TEST_EXEC file_info_dumper
+  TEST_ARGS
+  --range-of-validity
+  --file-index ${testOutputRanges_dropAllEventsSubruns_FILES}
+  REQUIRED_FILES ${testOutputRanges_dropAllEventsSubruns_FILES}
   REF "${CMAKE_CURRENT_SOURCE_DIR}/testOutputRanges_dropAllEventsSubRuns-ref.txt"
   TEST_PROPERTIES DEPENDS test_dropAllEventsSubruns_t.sh
   )
