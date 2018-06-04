@@ -283,23 +283,5 @@ art::BasicOutputOptionsHandler::doProcessOptions(
     }
   }
 
-  // Init ROOT handlers facility
-  auto const unload_key = fhicl_key("scheduler", "unloadRootSigHandler");
-  auto const unloadRSHandler =
-    detail::exists_outside_prolog(raw_config, unload_key) ?
-      raw_config.get<bool>(unload_key) :
-      true;
-  if (unloadRSHandler) {
-    art::unloadRootSigHandler();
-  }
-
-  auto const reset_key = fhicl_key("scheduler", "resetRootErrHandler");
-  auto const maybe_reset =
-    detail::exists_outside_prolog(raw_config, reset_key) ?
-      raw_config.get<bool>(reset_key) :
-      true;
-  RootErrorHandlerSentry re_sentry{maybe_reset};
-  art::completeRootHandlers();
-
   return 0;
 }

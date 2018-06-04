@@ -196,7 +196,8 @@ namespace art {
   void
   completeRootHandlers()
   {
-    // Set ROOT parameters.
+    // Set ROOT parameters.  See note in EventProcessor about when
+    // EnableImplicitMT() should be called.
     ROOT::EnableThreadSafety();
     TTree::SetMaxTreeSize(kMaxLong64);
     TH1::AddDirectory(kFALSE);

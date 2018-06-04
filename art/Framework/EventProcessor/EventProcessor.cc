@@ -146,6 +146,10 @@ namespace art {
     // in their constructors, instead they must use the beginJob
     // callout.
     scheduler_->initialize_task_manager();
+    // Whenever we are ready to enable ROOT's implicit MT, which is
+    // equivalent to its use of TBB, the call should be made after our
+    // own TBB task manager has been initialized.
+    //    ROOT::EnableImplicitMT();
     auto const& processName{pset.get<string>("process_name")};
     Globals::instance()->setProcessName(processName);
     {
