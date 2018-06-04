@@ -37,6 +37,12 @@ my $ctor_args = { LEGACY => [ "fhicl::ParameterSet const& p" ],
                   REPLICATED => [ "fhicl::ParameterSet const& p",
                                   "art::Services const& services" ] };
 
+my $consumes_comment = "Call appropriate consumes<>() for any products to be retrieved by this module.";
+my $ctor_comments = { LEGACY => [ $consumes_comment ],
+                      SHARED => [ $consumes_comment,
+                                  "Call serialize<art::InEvent>(...) or async<art::InEvent>(...)." ],
+                      REPLICATED => [ $consumes_comment ] };
+
 my $base_initializers = { LEGACY => "EDAnalyzer{p}",
                           SHARED => "SharedAnalyzer{p}",
                           REPLICATED => "ReplicatedAnalyzer{p, services}" };
@@ -67,7 +73,8 @@ sub constructors {
   my $flavor = $self->{flavor};
   return [ { explicit => 1,
              args => $ctor_args->{$flavor},
-             initializers => [ $base_initializers->{$flavor} ]
+             initializers => [ $base_initializers->{$flavor} ],
+             comment => $ctor_comments->{$flavor}
            } ];
 }
 
