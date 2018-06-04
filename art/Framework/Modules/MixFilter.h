@@ -35,7 +35,7 @@
 //    // Further details may be found in
 //    // art/Framework/IO/ProductMix/MixHelper.h.
 //
-//    size_t nSecondaries() const;
+//    size_t nSecondaries();
 //
 //    // Provide the number of secondary events to be mixed into the
 //    // current primary event.
