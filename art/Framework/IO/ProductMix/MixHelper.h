@@ -165,7 +165,7 @@
 // combinations:
 //
 //   1. Provide an InputTag and a mixer that is a free function or
-//      function object.
+//      function object (wrapped as a MixFunc<PROD, OPROD>).
 //
 //   2. Provide an InputTag, an output instance label, and a mixer
 //      that is a free function or function object.
