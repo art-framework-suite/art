@@ -30,10 +30,11 @@
 //     randomLimReplace -- events unique within a primary event
 //     randomNoReplace -- events guaranteed to be used once only.
 //
-// FIXME: threading: What gets mixed is unpredictable when multiple
-// FIXME: threading: mixing modules run in parallel either because
-// FIXME: threading: of multiple trigger paths or because of streams
-// FIXME: threading: when the mixing mode is Mode::SEQUENTIAL.
+// MT note: What gets mixed is unpredictable when multiple mixing
+//          modules run in parallel either because of multiple trigger
+//          paths or because of streams when the mixing mode is
+//          Mode::SEQUENTIAL.  For art 3.0, mixing will be entirely
+//          serialized.
 //
 // coverageFraction (default 1.0).
 //

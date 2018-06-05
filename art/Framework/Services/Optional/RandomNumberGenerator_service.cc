@@ -1,27 +1,10 @@
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 // vim: set sw=2 expandtab :
 
-//
+// ======================================================================
 // Maintain multiple independent random number engines, including
 // saving and restoring state.
-//
-// Notes
-//
-// 0) These notes predate this version.
-//    TODO: review/apply/update these notes as/when time permits.
-//
-// 1) The CMS code on which is this modelled is available at
-//    http://cmslxr.fnal.gov/lxr/source/IOMC/RandomEngine/src/RandomNumberGenerator.cc
-//
-// 2) CLHEP specifies that state will be returned as vector<unsigned long>.
-//    The size of a long is machine dependent. If unsigned long is an
-//    8 byte variable, only the least significant 4 bytes are filled
-//    and the most significant 4 bytes are zero.  We need to store the
-//    state with a machine independent size, which we choose to be
-//    uint32_t. This conversion really belongs in the
-//    RandomEngineState class but we are at the moment constrained by
-//    the framework's HepRandomGenerator interface.
-//
+// ======================================================================
 
 #include "CLHEP/Random/DRand48Engine.h"
 #include "CLHEP/Random/DualRand.h"
@@ -143,8 +126,8 @@ namespace art {
     : restoreStateLabel_{config().restoreStateLabel()}
     , saveToFilename_{config().saveTo()}
     , restoreFromFilename_{config().restoreFrom()}
-    , nPrint_{config().nPrint()}
     , debug_{config().debug()}
+    , nPrint_{config().nPrint()}
   {
     actReg.sPostBeginJob.watch(this, &RandomNumberGenerator::postBeginJob);
     actReg.sPostEndJob.watch(this, &RandomNumberGenerator::postEndJob);

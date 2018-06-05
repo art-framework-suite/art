@@ -7,11 +7,6 @@
 // mixing products from a secondary event (or subrun, or run) stream
 // into the primary event.
 //
-// FIXME: threading: What gets mixed is unpredictable when multiple
-// FIXME: threading: mixing modules run in parallel either because
-// FIXME: threading: of multiple trigger paths or because of streams
-// FIXME: threading: when the mixing mode is Mode::SEQUENTIAL.
-//
 // The MixFilter class template requires the use of a type T as its
 // template parameter; this type T must supply the following non-static
 // member functions:

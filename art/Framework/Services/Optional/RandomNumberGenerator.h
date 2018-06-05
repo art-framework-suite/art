@@ -2,28 +2,38 @@
 #define art_Framework_Services_Optional_RandomNumberGenerator_h
 // vim: set sw=2 expandtab :
 
-//
-// A Service to maintain multiple independent random number engines.
-//
-// Introduction
+// ==================================================================
+// A service to maintain multiple independent random number engines.
+// ==================================================================
 //
 // Via this RandomNumberGenerator, the CLHEP random number engines are
 // made available such that a client module may establish and
 // subsequently employ any number of independent engines, each of any
-// of the CLHEP engine types.
+// of the CLHEP engine types.  Any created random number engines are
+// owned either by art, or by an external party.  There is no use case
+// of the RandomNumberGenerator service for which the user owns the
+// engine.
 //
-// Any producer, analyzer, or filter module may freely use this
-// Service as desired.  However, by design, source modules are
-// permitted to make no use of this Service.
+// Any producer, analyzer, or filter module of the legacy or
+// replicated threading types may use this service as needed (this
+// header file is implicitly included for any such modules).  However,
+// by design, source modules are permitted to make no use of this
+// service.  In addition, no output modules, nor any modules of the
+// shared threading type may use this service.
 //
 // Creating an engine
-//
-// MT FIXME: This will have to change because a module ctor currently
-//           has no way of knowing what schedule (if any) it is being
-//           created for.
+// ------------------
 //
 // Each engine to be used by a module must be created in that module's
-// constructor.  Creating an engine involves specifying:
+// constructor.  Any modules that desire to create an engine must
+// explicitly call the non-default base-class constructor (e.g.):
+//
+//   MyProducer(Parameters const& p,
+//              ProcessingFrame const& frame)
+//     : ReplicatedProducer{p, frame}
+//   {}
+//
+// Creating an engine involves specifying:
 //   - An integer seed value to initialize the engine's state
 //   - The desired kind of engine ("HepJamesRandom" by default)
 //   - A label string (empty by default)
@@ -39,25 +49,18 @@
 //   createEngine(seed, "HepJamesRandom")
 //   createEngine(seed, "HepJamesRandom", "")
 //
-// As a convenience, each such call returns a reference to the newly-
-// created engine; this is the same reference that would be returned
-// from each subsequent corresponding getEngine() call (see below).
-// Therefore, if it is convenient to do so, the reference returned
-// from a call to createEngine() can be safely used right away as
-// illustrated below.  If there is no immediate need for it, this
-// returned reference can instead be safely ignored.
-//
-// Note that the createEngine() function is implicitly available to
-// any producer, analyzer, or filter module; no additional header need
-// be #included.
-//
-// Here is an example of a recommended practice in which the result of
-// a createEngine() call is used right away (arguments elided for
-// clarity):
+// Each such call returns a non-const reference to the newly-created
+// engine, that is owned by the framework.  The returned reference can
+// be safely and immediately used by the CLHEP library to create a
+// random number distribution.  For example:
 //
 //   CLHEP::RandFlat dist{createEngine(...)};
 //
+// In rare circumstances, the reference to the engine may be stored as
+// a module-class data member.
+//
 // Creating the global engine
+// --------------------------
 //
 // CLHEP provides the notion of a global engine, and Geant4 makes use
 // of this feature.  It is recommended that the designated Geant4
@@ -71,6 +74,7 @@
 //   createEngine(seed, "G4Engine");
 //
 // Digression: obtaining a seed value
+// ----------------------------------
 //
 // As noted above, creating an engine involves specifying a seed
 // value.  Determining this value is at the discretion of the module
@@ -94,39 +98,41 @@
 //
 //       createEngine(pset.get<int>("seed", 13597));
 //
-// Service handles
+//   - For replicated modules, care must be taken *by the user* to
+//     ensure that each module copy is initialized with the desired
+//     seed.  If a module's configuration specifies a seed of 13597,
+//     then a reasonable engine creation may look like:
 //
-// To gain general access to this RandomNumberGenerator, a module uses
-// the facilities of the Service subsystem.  Thus, after #including
-// the RandomNumberGenerator header, a variable definition such as the
-// following will obtain a handle to this Service:
+//       createEngine(pset.get<int>("seed", 13597) +
+//                      frame.scheduleID().id());
 //
-//   art::ServiceHandle<art::RandomNumberGenerator> rng;
+//     where the 'frame' is passed in as a replicated-module
+//     constructor argument.  This way, each module copy for a
+//     configured replicated module is guaranteed to have a different
+//     seeds wrt. each other.
 //
-// Thereafter, most functionality of this Service is available via
-// this variable.  All handles to this Service are equivalent; a
-// client may define as many or as few handles as desired.
+// Accessing an engine through a service handle
+// --------------------------------------------
 //
-// A module that has no need for this Service need not obtain any such
-// handle at all.  Similarly, a module that creates an engine and
-// makes use of the reference returned by the createEngine() call will
-// also likely need obtain no handle.
+// An engine managed by the RandomNumberGenerator service can be
+// retrieved by calling the getEngine function through a service
+// handle.  Required function arguments are the ScheduleID, module
+// label, and engine label, which disambiguate the desired engine
+// wrt. all other art-managed ones:
 //
-// Accessing an engine
+//   ServiceHandle<art::RandomNumberGenerator> rng;
+//   auto& engine1 = rng->getEngine(scheduleID, moduleLabel);
+//   auto& engine2 = rng->getEngine(scheduleID, moduleLabel, engineLabel);
 //
-// To obtain access to a previously-established engine (see above),
-// call the Service's getEngine function.  The call takes a single
-// argument, namely the label that had been used when the engine was
-// established.  If omitted, an empty label is used by default:
-//
-//   auto& engine = rng->getEngine();
-//
-// Note that the Service automatically knows which module is making
-// the access request, and will return a reference to the proper
-// engine for the current module, using the label to disambiguate if
-// the module has established more than one engine.
+// Not specifying the the engine label is equivalent to specifying the
+// empty string, which corresponds to the default engine for a module.
+// In a future version of art, the getEngine function will be removed
+// because its functionality is unnecessary in the contexts in which
+// it can be called--createEngine(...) returns a reference to the
+// desire engine.
 //
 // Configuring the Service
+// -----------------------
 //
 // TODO: draft this section
 //
@@ -138,7 +144,7 @@
 // the event.  Then in a later process, the RandomNumberGenerator is
 // capable of restoring the state of the engines from the event in
 // order to be able to exactly reproduce the earlier process.
-//
+// ==================================================================
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
@@ -155,9 +161,7 @@
 #include <vector>
 
 namespace CLHEP {
-
   class HepRandomEngine;
-
 } // namespace CLHEP
 
 namespace art {
@@ -216,13 +220,42 @@ namespace art {
 
   public: // CONFIGURATION
     struct Config {
-      fhicl::Atom<std::string> restoreStateLabel{
-        fhicl::Name{"restoreStateLabel"},
+      template <typename T>
+      using Atom = fhicl::Atom<T>;
+      using Name = fhicl::Name;
+      using Comment = fhicl::Comment;
+      Atom<std::string> restoreStateLabel{
+        Name{"restoreStateLabel"},
+        Comment{
+          "The 'restoreStateLabel' parameter specifies the input tag used\n"
+          "to restore the random number engine states, as stored in the\n"
+          "data product produced by the RandomNumberSaver module.\n"},
         ""};
-      fhicl::Atom<std::string> saveTo{fhicl::Name{"saveTo"}, ""};
-      fhicl::Atom<std::string> restoreFrom{fhicl::Name{"restoreFrom"}, ""};
-      fhicl::Atom<unsigned> nPrint{fhicl::Name{"nPrint"}, 10u};
-      fhicl::Atom<bool> debug{fhicl::Name{"debug"}, false};
+      Atom<std::string> saveTo{
+        Name{"saveTo"},
+        Comment{
+          "The 'saveTo' and 'restoreFrom' parameters are filenames\n"
+          "that indicate where the engine states should be saved-to or\n"
+          "restored-from, respectively.  Engine states are saved at the\n"
+          "end of an art job.  This allows a user to (e.g.) send a Ctrl+C\n"
+          "signal during debugging, which will then save the engine states\n"
+          "to the specified file during a graceful shutdown.  The user can\n"
+          "then restore the engine states from the file and rerun the job,\n"
+          "skipping to the appropriate event, but with the correct random\n"
+          "engine states."},
+        ""};
+      Atom<std::string> restoreFrom{Name{"restoreFrom"}, ""};
+      Atom<bool> debug{
+        Name{"debug"},
+        Comment{"Enable printout of random engine states for debugging."},
+        false};
+      Atom<unsigned> nPrint{
+        Name{"nPrint"},
+        Comment{
+          "Limit the number of printouts to the specified value.\n"
+          "This parameter can be specified only if 'debug' above is true."},
+        [this] { return debug(); },
+        10u};
     };
 
     using Parameters = ServiceTable<Config>;
@@ -286,10 +319,8 @@ namespace art {
     std::string const restoreFromFilename_;
 
     // Tracing and debug controls
-    unsigned const nPrint_;
-
-    // Tracing and debug controls
     bool const debug_;
+    unsigned const nPrint_;
 
     // Guard against tardy engine creation
     bool engine_creation_is_okay_{true};

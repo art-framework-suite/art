@@ -9,6 +9,12 @@ namespace art {
   class EDAnalyzer;
   class EDFilter;
   class EDProducer;
+  class ReplicatedAnalyzer;
+  class ReplicatedFilter;
+  class ReplicatedProducer;
+  class SharedAnalyzer;
+  class SharedFilter;
+  class SharedProducer;
   class EndPathExecutor;
   class FileBlock;
   class InputSource;
@@ -21,7 +27,6 @@ namespace art {
   struct PathSummary;
   struct TriggerReport;
   struct WorkerSummary;
-
 } // namespace art
 
 #endif /* art_Framework_Core_Frameworkfwd_h */
