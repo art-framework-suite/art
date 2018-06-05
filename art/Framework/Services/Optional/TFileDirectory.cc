@@ -3,7 +3,6 @@
 
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/exception.h"
-#include "hep_concurrency/RecursiveMutex.h"
 
 #include "TFile.h"
 #include "TROOT.h"
@@ -16,11 +15,10 @@
 
 using namespace std;
 using namespace std::string_literals;
-using namespace hep::concurrency;
 
 namespace art {
 
-  TFileDirectory::~TFileDirectory() {}
+  TFileDirectory::~TFileDirectory() = default;
 
   TFileDirectory::TFileDirectory(string const& dir,
                                  string const& descr,
@@ -30,8 +28,7 @@ namespace art {
   {}
 
   TFileDirectory::TFileDirectory(TFileDirectory const& rhs)
-    : mutex_{"art::TFileDirectory::mutex_"}
-    , file_{rhs.file_}
+    : file_{rhs.file_}
     , dir_{rhs.dir_}
     , descr_{rhs.descr_}
     , requireCallback_{rhs.requireCallback_}
@@ -40,8 +37,7 @@ namespace art {
   {}
 
   TFileDirectory::TFileDirectory(TFileDirectory&& rhs)
-    : mutex_{"art::TFileDirectory::mutex_"}
-    , file_{move(rhs.file_)}
+    : file_{move(rhs.file_)}
     , dir_{move(rhs.dir_)}
     , descr_{move(rhs.descr_)}
     , requireCallback_{move(rhs.requireCallback_)}
@@ -52,7 +48,7 @@ namespace art {
   string
   TFileDirectory::fullPath() const
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard<std::recursive_mutex> lock{mutex_};
     string ret;
     if (path_.empty()) {
       ret = dir_;
@@ -65,7 +61,7 @@ namespace art {
   void
   TFileDirectory::cd() const
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard<std::recursive_mutex> lock{mutex_};
     auto const fpath = fullPath();
     if (requireCallback_) {
       auto iter = callbacks_.find(dir_);
@@ -111,7 +107,7 @@ namespace art {
   TFileDirectory
   TFileDirectory::mkdir(string const& dir, string const& descr)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard<std::recursive_mutex> lock{mutex_};
     detail::RootDirectorySentry rds;
     cd();
     return TFileDirectory{dir, descr, file_, fullPath()};
@@ -120,7 +116,7 @@ namespace art {
   void
   TFileDirectory::invokeCallbacks()
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard<std::recursive_mutex> lock{mutex_};
     for (auto const& dirAndvcallback : callbacks_) {
       dir_ = dirAndvcallback.first;
       for (auto cb : dirAndvcallback.second) {
@@ -132,7 +128,7 @@ namespace art {
   void
   TFileDirectory::registerCallback(Callback_t cb)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard<std::recursive_mutex> lock{mutex_};
     callbacks_[dir_].push_back(cb);
   }
 

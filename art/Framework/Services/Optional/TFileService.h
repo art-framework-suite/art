@@ -64,7 +64,7 @@ namespace art {
     TFile&
     file() const
     {
-      hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+      std::lock_guard<std::recursive_mutex> lock{mutex_};
       return *file_;
     }
 
@@ -104,7 +104,7 @@ namespace art {
   void
   TFileService::registerFileSwitchCallback(T* provider, void (T::*f)())
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard<std::recursive_mutex> lock{mutex_};
     registerFileSwitchCallback([provider, f] { return (provider->*f)(); });
   }
 

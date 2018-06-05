@@ -3,11 +3,11 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Services/Optional/detail/RootDirectorySentry.h"
-#include "hep_concurrency/RecursiveMutex.h"
 
 #include "TDirectory.h"
 
 #include <map>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -66,8 +66,7 @@ namespace art {
     // Member Data -- For derived classes
   protected:
     // Protects all data members, including derived classes.
-    mutable hep::concurrency::RecursiveMutex mutex_{
-      "art::TFileDirectory::mutex_"};
+    mutable std::recursive_mutex mutex_{};
     // The root file.
     TFile* file_;
     // Directory name in the root file.
@@ -91,10 +90,11 @@ namespace art {
   T*
   TFileDirectory::make(ARGS... args) const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+
+    std::lock_guard<std::recursive_mutex> lock{mutex_};
     detail::RootDirectorySentry rds;
     cd();
-    auto ret = new T{args...};
+    auto ret = new T(args...);
     return ret;
   }
 
@@ -104,10 +104,10 @@ namespace art {
                                   char const* title,
                                   ARGS... args) const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard<std::recursive_mutex> lock{mutex_};
     detail::RootDirectorySentry rds;
     cd();
-    auto ret = new T{args...};
+    auto ret = new T(args...);
     ret->SetName(name);
     ret->SetTitle(title);
     gDirectory->Append(ret);
@@ -120,7 +120,7 @@ namespace art {
                                   std::string const& title,
                                   ARGS... args) const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard<std::recursive_mutex> lock{mutex_};
     auto ret = makeAndRegister(name.c_str(), title.c_str(), args...);
     return ret;
   }

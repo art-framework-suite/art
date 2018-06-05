@@ -79,9 +79,6 @@ namespace art {
                      std::string const& name) const;
     // Data members
   private:
-    // Protects all data members.
-    // mutable hep::concurrency::RecursiveMutex
-    // mutex_{"art::TriggerNamesService::mutex_"};
     // Trigger path names, passed to ctor.
     std::vector<std::string> const triggerPathNames_;
     // The art process_name from the top pset.
