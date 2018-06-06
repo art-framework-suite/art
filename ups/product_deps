@@ -1,7 +1,7 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
 parent art	v3_00_00
-defaultqual	e15
+defaultqual	e17
 #
 fcldir -
 perllib  product_dir
