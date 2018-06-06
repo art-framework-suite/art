@@ -22,6 +22,8 @@
 ########################################################################
 include(BasicPlugin)
 
+find_package(Boost REQUIRED COMPONENTS filesystem system)
+
 cmake_policy(PUSH)
 cmake_policy(VERSION 3.3)
 

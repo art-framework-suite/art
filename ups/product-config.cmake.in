@@ -1,9 +1,14 @@
 @PACKAGE_INIT@
 
+set_and_check(@PROJECT_NAME@_MODULE_PATH "${PACKAGE_PREFIX_DIR}/Modules")
 set_and_check(@PROJECT_NAME@_LIBDIR "${PACKAGE_PREFIX_DIR}/lib")
 set_and_check(@PROJECT_NAME@_INCDIR "${PACKAGE_PREFIX_DIR}/include")
 @CONFIG_FIND_LIBRARY_COMMANDS@
 include_directories( ${@PROJECT_NAME@_INCDIR} )
+
+if (IS_DIRECTORY "${PACKAGE_PREFIX_DIR}/Modules")
+  list(APPEND CMAKE_MODULE_PATH "${PACKAGE_PREFIX_DIR}/Modules")
+endif()
 
 find_package(canvas_root_io)
 

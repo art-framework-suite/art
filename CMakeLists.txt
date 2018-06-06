@@ -67,8 +67,9 @@ add_subdirectory(tools)
 # source
 add_subdirectory(art)
 
+# CMake modules
+add_subdirectory(Modules)
+
 # ups - table and config files
 add_subdirectory(ups)
 
-# CMake modules
-add_subdirectory(Modules)
