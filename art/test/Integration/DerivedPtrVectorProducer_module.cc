@@ -1,7 +1,5 @@
 // ======================================================================
-//
 // Produces a PtrVector instance.
-//
 // ======================================================================
 
 #include "art/Framework/Core/EDProducer.h"
@@ -11,7 +9,7 @@
 #include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
 
 #include <iostream>
 #include <memory>
@@ -27,22 +25,26 @@ using arttest::DerivedPtrVectorProducer;
 
 class arttest::DerivedPtrVectorProducer : public art::EDProducer {
 public:
-  typedef std::vector<arttest::SimpleDerived> input_t;
-  typedef art::PtrVector<arttest::SimpleDerived> derived_t;
-  typedef art::PtrVector<arttest::Simple> base_t;
+  using input_t = std::vector<arttest::SimpleDerived>;
+  using derived_t = art::PtrVector<arttest::SimpleDerived>;
+  using base_t = art::PtrVector<arttest::Simple>;
 
-  explicit DerivedPtrVectorProducer(fhicl::ParameterSet const& p)
-    : input_label_(p.get<std::string>("input_label"))
+  struct Config {
+    fhicl::Atom<std::string> input_label{fhicl::Name{"input_label"}};
+  };
+  using Parameters = Table<Config>;
+  explicit DerivedPtrVectorProducer(Parameters const& p)
+    : inputToken_{
+        consumes<input_t>(art::InputTag{p().input_label(), "derived"})}
   {
     produces<derived_t>();
     produces<base_t>();
   }
 
+private:
   void produce(art::Event& e) override;
 
-private:
-  std::string input_label_;
-
+  art::ProductToken<input_t> const inputToken_;
 }; // DerivedPtrVectorProducer
 
 // ----------------------------------------------------------------------
@@ -50,23 +52,16 @@ private:
 void
 DerivedPtrVectorProducer::produce(art::Event& e)
 {
-  std::cerr << "DerivedPtrVectorProducer::produce is running!\n";
+  auto const& h = e.getValidHandle(inputToken_);
 
-  art::Handle<input_t> h;
-  e.getByLabel(input_label_, "derived", h);
-
-  std::unique_ptr<derived_t> prod(new derived_t);
-  for (int k = 0; k != 16; ++k) {
-    art::Ptr<SimpleDerived> p(h, k);
+  auto prod = std::make_unique<derived_t>();
+  for (std::size_t k = 0; k != 16; ++k) {
+    art::Ptr<SimpleDerived> p{h, k};
     prod->push_back(p);
   }
-  std::unique_ptr<base_t> base_prod(new base_t(*prod));
-  e.put(std::move(prod));
-  e.put(std::move(base_prod));
+  auto base_prod = std::make_unique<base_t>(*prod);
+  e.put(move(prod));
+  e.put(move(base_prod));
 }
 
-// ----------------------------------------------------------------------
-
 DEFINE_ART_MODULE(DerivedPtrVectorProducer)
-
-// ======================================================================

@@ -32,25 +32,30 @@ check_for_conversion(art::View<T> const& v)
   assert(v.vals().size() > 0);
 }
 
+// dummy is a type we can be sure is not used in any collections in
+// the Event; no dictionary exists for it.
+struct dummy {
+};
+
 //--------------------------------------------------------------------
 //
 // Produces a SimpleProduct product instance.
 //
 class arttest::SimpleDerivedAnalyzer : public art::EDAnalyzer {
 public:
-  using SimpleDerivedProduct = std::vector<arttest::SimpleDerived>;
+  using SimpleDerivedProduct = std::vector<SimpleDerived>;
 
   struct Config {
     fhicl::Atom<std::string> input_label{fhicl::Name{"input_label"}};
     fhicl::Atom<std::string> input_label2{fhicl::Name{"input_label2"}};
     fhicl::Atom<std::size_t> nvalues{fhicl::Name{"nvalues"}};
   };
-  using Parameters = art::EDAnalyzer::Table<Config>;
+  using Parameters = Table<Config>;
   explicit SimpleDerivedAnalyzer(Parameters const& p);
 
+private:
   void analyze(art::Event const& e) override;
 
-private:
   void test_getView(art::Event const& e) const;
   void test_getViewReturnFalse(art::Event const& e) const;
   void test_getViewThrowing(art::Event const& e) const;
@@ -68,17 +73,30 @@ private:
                       art::EventNumber_t event_num,
                       std::size_t nElements = expectedSize()) const;
 
-  std::string inputLabel_;
-  std::string inputLabel2_;
-  std::size_t nvalues_;
-
+  art::InputTag const tagWithInstance_;
+  art::InputTag const tagForCurrentProcess_;
+  std::size_t const nvalues_;
+  art::ProductToken<art::PtrVector<SimpleDerived>> const ptrVectorToken_;
+  art::ViewToken<dummy> const dummyToken_;
+  // The following tokens can be initialized from the above members.
+  art::ViewToken<Simple> const simpleToken_{
+    consumesView<Simple>(tagWithInstance_)};
+  art::ViewToken<Simple> const simpleCurrentToken_{
+    consumesView<Simple>(tagForCurrentProcess_)};
+  art::ViewToken<SimpleDerived> const simpleDerivedToken_{
+    consumesView<SimpleDerived>(tagWithInstance_)};
+  art::ViewToken<SimpleDerived> const simpleDerivedCurrentToken_{
+    consumesView<SimpleDerived>(tagForCurrentProcess_)};
 }; // SimpleDerivedAnalyzer
 
 SimpleDerivedAnalyzer::SimpleDerivedAnalyzer(Parameters const& p)
   : art::EDAnalyzer{p}
-  , inputLabel_{p().input_label()}
-  , inputLabel2_{p().input_label2()}
+  , tagWithInstance_{p().input_label(), "derived"}
+  , tagForCurrentProcess_{p().input_label(), "derived", "DEVEL"}
   , nvalues_{p().nvalues()}
+  , ptrVectorToken_{consumes<art::PtrVector<SimpleDerived>>(
+      art::InputTag{p().input_label2()})}
+  , dummyToken_{consumesView<dummy>(art::InputTag{p().input_label()})}
 {}
 
 void
@@ -91,12 +109,12 @@ SimpleDerivedAnalyzer::analyze(art::Event const& e)
   test_getViewThrowing(e);
   test_PtrVector(e);
   art::View<arttest::SimpleDerived> v;
-  art::View<arttest::Simple> vB;
-  art::InputTag tag(inputLabel_, "derived", "DEVEL");
-  e.getView(tag, v);
+  e.getView(simpleDerivedCurrentToken_, v);
   assert(v.isValid());
   check_for_conversion(v);
-  e.getView(tag, vB);
+
+  art::View<arttest::Simple> vB;
+  e.getView(simpleCurrentToken_, vB);
   assert(vB.isValid());
   check_for_conversion(vB);
 }
@@ -116,28 +134,28 @@ verify_elements(std::vector<T> const& ptrs,
   }
 }
 
-template <class T>
+template <typename T>
 void
 test_view(art::Event const& e,
-          std::string const& inputLabel,
+          art::ViewToken<T> const& token,
+          art::ViewToken<T> const& tokenForCurrentProcess,
           std::size_t const nvalues)
 {
   auto const event_num = e.id().event();
-  art::InputTag tag(inputLabel, "derived", "DEVEL");
   std::vector<T const*> ptrs;
-  auto sz = e.getView(inputLabel, "derived", ptrs);
+  auto sz = e.getView(token, ptrs);
   assert(sz == nvalues);
   verify_elements(ptrs, sz, event_num, nvalues);
   ptrs.clear();
-  sz = e.getView(tag, ptrs);
+  sz = e.getView(tokenForCurrentProcess, ptrs);
   assert(sz == nvalues);
   verify_elements(ptrs, sz, event_num, nvalues);
   art::View<T> v;
-  assert(e.getView(inputLabel, "derived", v));
+  assert(e.getView(token, v));
   assert(v.vals().size() == nvalues);
   verify_elements(v.vals(), v.vals().size(), event_num, nvalues);
   art::View<T> v2;
-  assert(e.getView(tag, v2));
+  assert(e.getView(tokenForCurrentProcess, v2));
   assert(v2.vals().size() == nvalues);
   verify_elements(v2.vals(), v2.vals().size(), event_num, nvalues);
   // Fill a PtrVector from the view... after zeroing the first
@@ -150,17 +168,12 @@ test_view(art::Event const& e,
   }
 }
 
-// dummy is a type we can be sure is not used in any collections in
-// the Event; no dictionary exists for it.
-struct dummy {
-};
-
 void
 SimpleDerivedAnalyzer::test_getView(art::Event const& e) const
 {
   // Make sure we can get views into products that are present.
-  test_view<Simple>(e, inputLabel_, nvalues_);
-  test_view<SimpleDerived>(e, inputLabel_, nvalues_);
+  test_view(e, simpleToken_, simpleCurrentToken_, nvalues_);
+  test_view(e, simpleDerivedToken_, simpleDerivedCurrentToken_, nvalues_);
 } // test_getView()
 
 void
@@ -186,7 +199,7 @@ SimpleDerivedAnalyzer::test_getViewThrowing(art::Event const& e) const
   //  fail correctly.
   std::vector<dummy const*> dummies;
   try {
-    e.getView(inputLabel_, dummies);
+    e.getView(dummyToken_, dummies);
     assert("Failed to throw required exception" == 0);
   }
   catch (art::Exception& e) {
@@ -205,7 +218,7 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const& e) const
   using base_product_t = art::PtrVector<arttest::Simple>;
 
   // Read the data.
-  auto const& d = e.getByLabel<product_t>(art::InputTag{inputLabel2_});
+  auto const& d = *e.getValidHandle(ptrVectorToken_);
   auto const sz = d.size();
   if (sz != expectedSize()) {
     throw cet::exception("SizeMismatch")
@@ -216,16 +229,16 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const& e) const
   test_PtrVector(d, event_num);
   // Construct from PtrVector<U>
   {
-    base_product_t s(d);
+    base_product_t s{d};
     test_PtrVector(s, event_num);
-    product_t p(s);
+    product_t p{s};
     test_PtrVector(p, event_num);
   }
   // Construct from initializer list.
   {
     auto i(d.cbegin());
     auto il = {*(i++), *i};
-    base_product_t s(il);
+    base_product_t s{il};
     test_PtrVector(s, event_num, 2);
     product_t p({s.front(), s.back()});
     test_PtrVector(p, event_num, 2);
@@ -251,29 +264,29 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const& e) const
   }
   // Assign from Ptr<U>.
   {
-    base_product_t s(d);
+    base_product_t s{d};
     s.assign(1, d.front());
     test_PtrVector(s, event_num, 1);
-    product_t p(s);
+    product_t p{s};
     p.assign(1, s.front());
     test_PtrVector(p, event_num, 1);
   }
   // Assign from iterators.
   {
-    base_product_t s(d);
+    base_product_t s{d};
     s.assign(d.cbegin(), d.cend());
     test_PtrVector(s, event_num);
-    product_t p(s);
+    product_t p{s};
     p.assign(s.cbegin(), s.cend());
     test_PtrVector(p, event_num);
   }
   // Assign from initializer list.
   {
     auto i(d.cbegin());
-    base_product_t s(d);
+    base_product_t s{d};
     s.assign({*(i++), *i});
     test_PtrVector(s, event_num, 2);
-    product_t p(s);
+    product_t p{s};
     p.assign({s.front(), s.back()});
     test_PtrVector(p, event_num, 2);
   }
@@ -306,7 +319,7 @@ SimpleDerivedAnalyzer::test_PtrVector(art::Event const& e) const
   }
   // Erase.
   {
-    base_product_t s(d);
+    base_product_t s{d};
     s.erase(s.end() - 1);
     test_PtrVector(s, event_num, expectedSize() - 1);
     s.erase(s.begin() + 1, s.end());

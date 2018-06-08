@@ -33,6 +33,7 @@ namespace {
   {
     std::sort(begin(expectedValues_), end(expectedValues_));
     async<art::InEvent>();
+    consumesMany<arttest::IntProduct>();
   }
 
   void

@@ -276,19 +276,9 @@ cet_test(PersistStdArrays_r HANDBUILT
   fcl/persistStdArrays_r.fcl
   TEST_PROPERTIES DEPENDS PersistStdArrays_w)
 
-# Test missing consumes
-cet_test(SimpleDerived_MissingConsumes_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --rethrow-all -c test_simplederived_01a.fcl --errorOnMissingConsumes --no-output
-  DATAFILES
-  fcl/test_simplederived_01a.fcl
-  TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "Consumer: an error occurred during validation of a retrieved product.*consumes<std::vector<arttest::SimpleDerived>>\\(\"m1a:derived\"\\)"
-)
-
 cet_test(SimpleDerived_01_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --rethrow-all -c test_simplederived_01a.fcl
+  TEST_ARGS --rethrow-all -c test_simplederived_01a.fcl --errorOnMissingConsumes
   DATAFILES fcl/test_simplederived_01a.fcl
 )
 
