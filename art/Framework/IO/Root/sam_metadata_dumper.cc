@@ -30,6 +30,7 @@ extern "C" {
 #include <string>
 #include <vector>
 
+using namespace std::string_literals;
 namespace bpo = boost::program_options;
 
 using art::ParameterSetBlob;
@@ -80,33 +81,31 @@ entryValue(std::string const& value)
 // Print the human-readable form of a single metadata entry.
 void
 print_one_fc_metadata_entry_hr(FileCatalogMetadataEntry const& ent,
-                               size_t idLen,
-                               size_t longestName,
+                               size_t const idLen,
+                               size_t const longestName,
                                ostream& output)
 {
   std::string const& name = ent.name;
-  constexpr size_t maxIDdigits = 5;
-  constexpr size_t maxNameSpacing = 20;
+  constexpr size_t maxIDdigits{5};
+  constexpr size_t maxNameSpacing{20};
 
   // right-justify SMDid (unless it is more than 5 digits)
-  int id = static_cast<int>(ent.SMDid);
-  size_t maxIDspace = std::min(idLen, maxIDdigits);
+  auto const maxIDspace = std::min(idLen, maxIDdigits);
   int nspaces = maxIDspace - 1;
-  for (int i = 0; (nspaces > 0) && (id > 0); ++i) {
-    id /= 10;
-    if (id > 0)
-      --nspaces;
+  {
+    auto id = static_cast<int>(ent.SMDid);
+    for (int i{}; (nspaces > 0) && (id > 0); ++i) {
+      id /= 10;
+      if (id > 0)
+        --nspaces;
+    }
   }
-  for (int i = 0; i < nspaces; ++i)
-    output << " ";
-  output << ent.SMDid << ": ";
 
-  output << name;
+  std::string const indent(nspaces, ' ');
+  output << indent << ent.SMDid << ": " << name;
 
   // right-justify value (unless name is more than 20 characters)
-  size_t nameSpacing = maxNameSpacing;
-  if (longestName < maxNameSpacing)
-    nameSpacing = longestName;
+  auto const nameSpacing = std::min(maxNameSpacing, longestName);
   nspaces = static_cast<int>(nameSpacing - name.size());
   while (nspaces > 0) {
     output << " ";
@@ -125,16 +124,14 @@ print_all_fc_metadata_entries_hr(
 {
   // For nice formatting, determine maximum id length and name size,
   // so that values can be lined up.
-  int maxID = 1;
-  size_t longestName = 1;
-  for (size_t i = 0; i < entries.size(); ++i) {
-    if (entries[i].SMDid > maxID)
-      maxID = entries[i].SMDid;
-    if (entries[i].name.size() > longestName)
-      longestName = entries[i].name.size();
+  int maxID{1};
+  size_t longestName{1};
+  for (auto const& entry : entries) {
+    maxID = std::max(entry.SMDid, maxID);
+    longestName = std::max(entry.name.size(), longestName);
   }
-  size_t idLen = 1;
-  for (int i = 0; (i < 5) && (maxID > 0); ++i) {
+  size_t idLen{1};
+  for (int i{}; (i < 5) && (maxID > 0); ++i) {
     maxID /= 10;
     if (maxID > 0)
       ++idLen;
@@ -149,9 +146,7 @@ void
 print_one_fc_metadata_entry_JSON(FileCatalogMetadataEntry const& ent,
                                  ostream& output)
 {
-  output << cet::canonical_string(ent.name) << ": ";
-
-  output << entryValue(ent.value);
+  output << cet::canonical_string(ent.name) << ": " << entryValue(ent.value);
 }
 
 void
@@ -219,16 +214,16 @@ read_all_fc_metadata_entries(
   return true;
 }
 
-// Extract the file catalog metadata from the given TFile.
-// The metadata entries are written to the stream output, and
-// error messages are written to the stream errors.
+// Extract the file catalog metadata from the given TFile.  The
+// metadata entries are written to the stream output, and error
+// messages are written to the stream errors.
 //
 // Returns 0 to indicate success, and 1 on failure.
 // Precondition: file.IsZombie() == false
 
-// Caution: We pass 'file' by non-const reference because the TFile interface
-// does not declare the functions we use to be const, even though they do not
-// modify the underlying file.
+// Caution: We pass 'file' by non-const reference because the TFile
+// interface does not declare the functions we use to be const, even
+// though they do not modify the underlying file.
 int
 print_fc_metadata_from_file(TFile& file,
                             ostream& output,
@@ -254,9 +249,9 @@ print_fc_metadata_from_file(TFile& file,
   return 0;
 }
 
-// Extract all the requested metadata tables (for from the named files.
-// The contents of the tables are written to the stream output, and
-// error messages are written to the stream errors.
+// Extract all the requested metadata tables (for from the named
+// files.  The contents of the tables are written to the stream
+// output, and error messages are written to the stream errors.
 //
 // The return value is the number of files in which errors were
 // encountered, and is thus 0 to indicate success.
@@ -313,7 +308,7 @@ RootErrorHandler(int level, bool die, char const* location, char const* message)
 {
   // Ignore dictionary errors.
   if (level == kWarning && (!die) && strcmp(location, "TClass::TClass") == 0 &&
-      std::string(message).find("no dictionary") != std::string::npos) {
+      std::string{message}.find("no dictionary") != std::string::npos) {
     return;
   } else {
     // Default behavior
