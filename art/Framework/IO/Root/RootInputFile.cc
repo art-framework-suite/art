@@ -92,8 +92,10 @@ namespace {
     }
     rc = sqlite3_finalize(stmt);
     if (rc != SQLITE_OK) {
-      throw art::Exception(art::errors::FileReadError)
-        << "Error interrogating SQLite3 DB in file " << filename << ".\n";
+      throw art::Exception{art::errors::FileReadError}
+        << "Unexpected status (" << rc
+        << ") when interrogating SQLite3 DB in file " << filename << ":\n"
+        << sqlite3_errmsg(db) << '\n';
     }
     return result;
   }
@@ -416,9 +418,9 @@ namespace art {
         int const finalize_status = sqlite3_finalize(stmt);
         if (finalize_status != SQLITE_OK) {
           throw art::Exception{art::errors::SQLExecutionError}
-            << "Unexpected status from DB status cleanup: "
-            << sqlite3_errmsg(*sqliteDB_) << " (0x" << finalize_status
-            << ").\n";
+            << "Unexpected status (" << finalize_status
+            << ") from DB status cleanup:\n"
+            << sqlite3_errmsg(*sqliteDB_) << '\n';
         }
         art::ServiceHandle<art::FileCatalogMetadata> {}
         ->setMetadataFromInput(md);

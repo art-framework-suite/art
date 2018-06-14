@@ -203,8 +203,9 @@ read_all_fc_metadata_entries(
   }
   int const finalize_status = sqlite3_finalize(stmt);
   if (finalize_status != SQLITE_OK) {
-    errors << "Unexpected status from DB status cleanup: "
-           << sqlite3_errmsg(sqliteDB) << " (0x" << finalize_status << ").\n";
+    errors << "Unexpected status (" << finalize_status
+           << ") from DB status cleanup:\n"
+           << sqlite3_errmsg(sqliteDB) << '\n';
   }
   if (!row_found) {
     errors

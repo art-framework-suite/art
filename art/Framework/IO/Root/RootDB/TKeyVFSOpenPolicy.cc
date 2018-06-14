@@ -21,8 +21,8 @@ art::TKeyVFSOpenPolicy::open(std::string const& key)
   if (rc != SQLITE_OK) {
     throw Exception{errors::FileOpenError}
       << "Failed to open requested DB, \"" << key << "\" of type, \""
-      << "tkeyvfs"
-      << "\" -- " << sqlite3_errmsg(db) << '\n';
+      << "tkeyvfs (unexpected status of " << rc << ")\n"
+      << sqlite3_errmsg(db) << '\n';
   }
   return db;
 }
