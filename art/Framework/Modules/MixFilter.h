@@ -140,10 +140,9 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/IO/ProductMix/MixTypes.h"
-#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
-#include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "cetlib/metaprogramming.h"
+#include "fhiclcpp/types/TableFragment.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <functional>
@@ -153,9 +152,25 @@ namespace art {
   template <class T>
   class MixFilter;
 
+  template <typename T>
+  class MixFilterTable {
+  public:
+    using value_type = T;
+
+    auto const&
+    operator()() const
+    {
+      return fragment_();
+    }
+
+  private:
+    fhicl::TableFragment<T> fragment_;
+  };
+
   namespace detail {
     // Template metaprogramming.
     using cet::enable_if_function_exists_t;
+    using cet::enable_if_type_exists_t;
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?
@@ -613,15 +628,46 @@ namespace art {
 
     ////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////
+    // Does the detail object have a Parameters type?
+    template <typename T, typename = void>
+    struct maybe_has_Parameters : std::false_type {
+    };
+
+    template <typename T>
+    struct maybe_has_Parameters<T,
+                                enable_if_type_exists_t<typename T::Parameters>>
+      : std::true_type {
+      using user_config_t = typename T::Parameters;
+      struct Config {
+        fhicl::TableFragment<MixHelper::Config> mixHelper;
+        user_config_t userConfig;
+      };
+      using Parameters = EDFilter::Table<Config>;
+    };
+
   } // namespace detail
 
 } // namespace art
 
 template <class T>
-class art::MixFilter : public EDFilter {
+class art::MixFilter : public EDFilter, public detail::maybe_has_Parameters<T> {
 public:
   using MixDetail = T;
-  explicit MixFilter(fhicl::ParameterSet const& p);
+
+  template <typename U>
+  static constexpr bool EnableConfigValidation_v{
+    detail::maybe_has_Parameters<U>::value};
+  template <typename U>
+  using Parameters_t = typename detail::maybe_has_Parameters<U>::Parameters;
+
+  template <class U = T>
+  explicit MixFilter(std::enable_if_t<!EnableConfigValidation_v<U>,
+                                      fhicl::ParameterSet> const& p);
+
+  template <class U = T>
+  explicit MixFilter(
+    std::enable_if_t<EnableConfigValidation_v<U>, Parameters_t<U>> const& p);
 
 private:
   void beginJob() override;
@@ -642,8 +688,34 @@ private:
 };
 
 template <class T>
-art::MixFilter<T>::MixFilter(fhicl::ParameterSet const& p)
-  : EDFilter{p}, helper_{initEngine_(p), *this}, detail_{p, helper_}
+template <class U>
+art::MixFilter<T>::MixFilter(
+  std::enable_if_t<!EnableConfigValidation_v<U>, fhicl::ParameterSet> const& p)
+  : EDFilter{p}
+  , helper_{p, p.template get<std::string>("module_label"), *this}
+  , detail_{p, helper_}
+{
+  // Note that the random number engine is created in the initializer
+  // list by calling initEngine(). This enables the engine to be
+  // obtained by the helper and or detail objects in their constructors
+  // via a service handle to the random number generator service. The
+  // initEngine() function returns a ParameterSet simply so that it may
+  // be called in this place without having to resort to comma-separated
+  // bundles to do the job.
+  std::conditional_t<detail::has_eventsToSkip<T>::value,
+                     detail::setup_eventsToSkip<T>,
+                     detail::do_not_setup_eventsToSkip<T>>{helper_, detail_};
+}
+
+template <class T>
+template <class U>
+art::MixFilter<T>::MixFilter(
+  std::enable_if_t<EnableConfigValidation_v<U>, Parameters_t<U>> const& p)
+  : EDFilter{p}
+  , helper_{p().mixHelper(),
+            p.get_PSet().template get<std::string>("module_label"),
+            *this}
+  , detail_{p().userConfig, helper_}
 {
   // Note that the random number engine is created in the initializer
   // list by calling initEngine(). This enables the engine to be
@@ -796,18 +868,6 @@ art::MixFilter<T>::endRun(Run& r)
     maybe_call_endRun;
   maybe_call_endRun(detail_, r);
   return true;
-}
-
-template <class T>
-fhicl::ParameterSet const&
-art::MixFilter<T>::initEngine_(fhicl::ParameterSet const& p)
-{
-  // If we can't create one of these, the helper will deal with the
-  // situation accordingly.
-  if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
-    createEngine(p.get<long>("seed", -1));
-  }
-  return p;
 }
 
 #endif /* art_Framework_Modules_MixFilter_h */

@@ -221,10 +221,13 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "art/Framework/Core/Modifier.h"
 #include "art/Framework/Core/PtrRemapper.h"
+#include "art/Framework/Core/detail/EngineCreator.h"
 #include "art/Framework/IO/ProductMix/MixOp.h"
 #include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "art/Framework/IO/ProductMix/ProdToProdMapBuilder.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
+#include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Utilities/fwd.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -235,6 +238,8 @@
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/value_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Sequence.h"
 
 #include <functional>
 #include <memory>
@@ -249,7 +254,7 @@ namespace art {
   class MixHelper;
 }
 
-class art::MixHelper {
+class art::MixHelper : public art::detail::EngineCreator {
 private:
   using ProviderFunc_ = std::function<std::string()>;
 
@@ -262,8 +267,23 @@ public:
     UNKNOWN
   };
 
+  struct Config {
+    fhicl::Sequence<std::string> filenames{fhicl::Name{"fileNames"}, {}};
+    fhicl::Atom<bool> compactMissingProducts{
+      fhicl::Name{"compactMissingProducts"},
+      false};
+    fhicl::Atom<std::string> readMode{fhicl::Name{"readMode"}, "sequential"};
+    fhicl::Atom<double> coverageFraction{fhicl::Name{"coverageFraction"}, 1.0};
+    fhicl::Atom<bool> wrapFiles{fhicl::Name{"wrapFiles"}, false};
+  };
+
   // Should probably pass in something like SharedModifier.
-  MixHelper(fhicl::ParameterSet const& pset, Modifier& producesProvider);
+  MixHelper(Config const& config,
+            std::string const& moduleLabel,
+            Modifier& producesProvider);
+  MixHelper(fhicl::ParameterSet const& pset,
+            std::string const& moduleLabel,
+            Modifier& producesProvider);
 
   // Returns the current mixing mode.
   Mode readMode() const;
@@ -361,6 +381,8 @@ private:
   MixHelper& operator=(MixHelper const&) = delete;
 
   using MixOpList = std::vector<std::unique_ptr<MixOpBase>>;
+
+  void initEngine_(fhicl::ParameterSet const& p);
 
   Mode initReadMode_(std::string const& mode) const;
 

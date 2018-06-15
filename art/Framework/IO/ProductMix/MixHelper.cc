@@ -85,15 +85,14 @@ EventIDLookup::operator()(argument_type entry) const
 
 namespace {
   double
-  initCoverageFraction(fhicl::ParameterSet const& pset)
+  initCoverageFraction(double fraction)
   {
-    auto result = pset.get<double>("coverageFraction", 1.0);
-    if (result > (1 + std::numeric_limits<double>::epsilon())) {
+    if (fraction > (1 + std::numeric_limits<double>::epsilon())) {
       mf::LogWarning("Configuration")
         << "coverageFraction > 1: treating as a percentage.\n";
-      result /= 100.0;
+      fraction /= 100.0;
     }
-    return result;
+    return fraction;
   }
 
   std::unique_ptr<CLHEP::RandFlat>
@@ -120,15 +119,32 @@ namespace {
 } // namespace
 
 art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
+                          std::string const& moduleLabel,
                           Modifier& producesProvider)
-  : producesProvider_{producesProvider}
+  : detail::EngineCreator{moduleLabel, art::ScheduleID::first()}
+  , producesProvider_{producesProvider}
   , filenames_{pset.get<std::vector<std::string>>("fileNames", {})}
   , compactMissingProducts_{pset.get<bool>("compactMissingProducts", false)}
   , fileIter_{filenames_.begin()}
   , readMode_{initReadMode_(pset.get<std::string>("readMode", "sequential"))}
-  , coverageFraction_{initCoverageFraction(pset)}
+  , coverageFraction_{initCoverageFraction(
+      pset.get<double>("coverageFraction", 1.0))}
   , canWrapFiles_{pset.get<bool>("wrapFiles", false)}
-  , dist_{initDist(pset.get<std::string>("module_label"), readMode_)}
+  , dist_{initDist(moduleLabel, readMode_)}
+{}
+
+art::MixHelper::MixHelper(Config const& config,
+                          std::string const& moduleLabel,
+                          Modifier& producesProvider)
+  : detail::EngineCreator{moduleLabel, art::ScheduleID::first()}
+  , producesProvider_{producesProvider}
+  , filenames_{config.filenames()}
+  , compactMissingProducts_{config.compactMissingProducts()}
+  , fileIter_{filenames_.begin()}
+  , readMode_{initReadMode_(config.readMode())}
+  , coverageFraction_{initCoverageFraction(config.coverageFraction())}
+  , canWrapFiles_{config.wrapFiles()}
+  , dist_{initDist(moduleLabel, readMode_)}
 {}
 
 void
@@ -229,11 +245,11 @@ art::MixHelper::generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
       // branch from the i/o buffer.
       // FIXME: -2 means entry number too big.
     }
-    // Note: Root will overwrite the old event
-    //       auxiliary with the new one.
+    // Note: Root will overwrite the old event auxiliary with the new
+    //       one.
     input::getEntry(auxBranch, entry);
-    // Note: We are intentionally making a copy here
-    //       of the fetched event auxiliary!
+    // Note: We are intentionally making a copy here of the fetched
+    //       event auxiliary!
     auxseq.push_back(*pAux);
   }
   // Disconnect the branch from the i/o buffer.
@@ -421,8 +437,6 @@ art::MixHelper::openAndReadMetaData_(std::string filename)
     std::random_device rd;
     std::mt19937 g(rd());
     std::shuffle(shuffledSequence_.begin(), shuffledSequence_.end(), g);
-    //[this](EntryNumberSequence::difference_type const& n) { return
-    // dist_.get()->fireInt(n); }
   }
 }
 
@@ -472,4 +486,12 @@ art::MixHelper::buildProductIDTransMap_(MixOpList& mixOps)
     transMap[mixOp->incomingProductID()] = mixOp->outgoingProductID();
   }
   return transMap;
+}
+
+void
+art::MixHelper::initEngine_(fhicl::ParameterSet const& p)
+{
+  if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
+    createEngine(p.get<long>("seed", -1));
+  }
 }

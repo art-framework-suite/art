@@ -13,9 +13,10 @@
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/map_vector.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
+#include "fhiclcpp/types/OptionalSequence.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
-#include "boost/noncopyable.hpp"
 
 #include <algorithm>
 #include <iostream>
@@ -46,22 +47,19 @@ namespace {
   class SecondaryFileNameProvider {
   public:
     SecondaryFileNameProvider(std::vector<std::string>&& fileNames)
-      : fileNames_(std::move(fileNames)), fileNameIter_(fileNames_.cbegin())
+      : fileNames_{move(fileNames)}, fileNameIter_{fileNames_.cbegin()}
     {}
-    SecondaryFileNameProvider(SecondaryFileNameProvider&&) = default;
-
-    SecondaryFileNameProvider& operator=(SecondaryFileNameProvider&&) = default;
 
     SecondaryFileNameProvider(SecondaryFileNameProvider const& other)
-      : fileNames_(other.fileNames_)
-      , fileNameIter_(fileNames_.cbegin() +
-                      (other.fileNameIter_ - other.fileNames_.cbegin()))
+      : fileNames_{other.fileNames_}
+      , fileNameIter_{fileNames_.cbegin() +
+                      (other.fileNameIter_ - other.fileNames_.cbegin())}
     {}
 
     SecondaryFileNameProvider&
     operator=(SecondaryFileNameProvider const& other)
     {
-      SecondaryFileNameProvider tmp(other);
+      SecondaryFileNameProvider tmp{other};
       std::swap(tmp, *this);
       return *this;
     }
@@ -72,7 +70,7 @@ namespace {
     operator()()
     {
       if (fileNameIter_ == fileNames_.end()) {
-        return std::string();
+        return {};
       } else {
         return *(fileNameIter_++);
       }
@@ -84,16 +82,36 @@ namespace {
   };
 } // namespace
 
+using namespace fhicl;
+
 class arttest::MixFilterTestDetail {
 public:
   using mv_t = cet::map_vector<unsigned int>;
   using mvv_t = mv_t::value_type;
   using mvm_t = mv_t::mapped_type;
 
+  struct Config {
+    Atom<size_t> numSecondaries{Name{"numSecondaries"}, 1};
+    Atom<bool> testRemapper{Name{"testRemapper"}, true};
+    Atom<bool> testZeroSecondaries{Name{"testZeroSecondaries"}, false};
+    Atom<bool> testPtrFailure{Name{"testPtrFailure"}, false};
+    Atom<bool> testEventOrdering{Name{"testEventOrdering"}, false};
+    Atom<bool> testNoLimEventDupes{Name{"testNoLimEventDupes"}, false};
+    Atom<bool> compactMissingProducts{Name{"compactMissingProducts"}, false};
+    Atom<size_t> expectedRespondFunctionCalls{
+      Name{"expectedRespondFunctionCalls"},
+      4ul};
+    OptionalSequence<std::string> fileNamesToProvide{
+      Name{"fileNamesToProvide"}};
+    Atom<std::string> mixProducerLabel{Name{"mixProducerLabel"}, "mixProducer"};
+  };
+
+  using Parameters = art::MixFilterTable<Config>;
+
   // Constructor is responsible for registering mix operations with
   // MixHelper::declareMixOp() and bookkeeping products with
-  // MixHelperproduces().
-  MixFilterTestDetail(fhicl::ParameterSet const& p, art::MixHelper& helper);
+  // MixHelper::produces().
+  MixFilterTestDetail(Parameters const& p, art::MixHelper& helper);
 
   MixFilterTestDetail(MixFilterTestDetail const&) = delete;
   MixFilterTestDetail& operator=(MixFilterTestDetail const&) = delete;
@@ -123,13 +141,13 @@ public:
 #endif
 
   // Optional processEventIDs(): after the generation of the event
-  // sequence, this function will be called if it exists to provide the
-  // sequence of EventIDs.
+  // sequence, this function will be called if it exists to provide
+  // the sequence of EventIDs.
   void processEventIDs(art::EventIDSequence const& seq);
 
-  // Optional processEventAuxiliaries(): after the generation of the event
-  // sequence, this function will be called if it exists to provide the
-  // sequence of EventAuxiliaries.
+  // Optional processEventAuxiliaries(): after the generation of the
+  // event sequence, this function will be called if it exists to
+  // provide the sequence of EventAuxiliaries.
   void processEventAuxiliaries(art::EventAuxiliarySequence const&);
 
   // Optional.finalizeEvent(): (eg) put bookkeeping products in
@@ -211,10 +229,10 @@ private:
   bool startEvent_called_{false};
   bool processEventIDs_called_{false};
   bool processEventAuxiliaries_called_{false};
-  size_t beginSubRunCounter_{0ull};
-  size_t endSubRunCounter_{0ull};
-  size_t beginRunCounter_{0ull};
-  size_t endRunCounter_{0ull};
+  size_t beginSubRunCounter_{};
+  size_t endSubRunCounter_{};
+  size_t beginRunCounter_{};
+  size_t endRunCounter_{};
   int currentEvent_{-1};
   bool const testZeroSecondaries_;
   bool const testPtrFailure_;
@@ -224,15 +242,15 @@ private:
   size_t const expectedRespondFunctionCalls_;
   art::MixHelper::Mode const readMode_;
 
-  size_t respondFunctionsSeen_{0};
+  size_t respondFunctionsSeen_{};
 
   // For testing no_replace mode only:
   std::vector<int> allEvents_{};
   std::unordered_set<int> uniqueEvents_{};
 
   // For testing run and subrun mixing.
-  double subRunInfo_{0.0};
-  double runInfo_{0.0};
+  double subRunInfo_{};
+  double runInfo_{};
 };
 
 template <typename COLL>
@@ -244,32 +262,30 @@ arttest::MixFilterTestDetail::verifyInSize(COLL const& in) const
     (currentEvent_ == 2 && testZeroSecondaries_) ? 0 : nSecondaries_);
 }
 
-arttest::MixFilterTestDetail::MixFilterTestDetail(fhicl::ParameterSet const& p,
+arttest::MixFilterTestDetail::MixFilterTestDetail(Parameters const& p,
                                                   art::MixHelper& helper)
-  : nSecondaries_(p.get<size_t>("numSecondaries", 1))
-  , testRemapper_(p.get<bool>("testRemapper", true))
-  , testZeroSecondaries_(p.get<bool>("testZeroSecondaries", false))
-  , testPtrFailure_(p.get<bool>("testPtrFailure", false))
-  , testEventOrdering_(p.get<bool>("testEventOrdering", false))
-  , testNoLimEventDupes_(p.get<bool>("testNoLimEventDupes", false))
-  , compactMissingProducts_(p.get<bool>("compactMissingProducts", false))
-  , expectedRespondFunctionCalls_(
-      p.get<size_t>("expectedRespondFunctionCalls", 4ul))
-  , readMode_(helper.readMode())
+  : nSecondaries_{p().numSecondaries()}
+  , testRemapper_{p().testRemapper()}
+  , testZeroSecondaries_{p().testZeroSecondaries()}
+  , testPtrFailure_{p().testPtrFailure()}
+  , testEventOrdering_{p().testEventOrdering()}
+  , testNoLimEventDupes_{p().testNoLimEventDupes()}
+  , compactMissingProducts_{p().compactMissingProducts()}
+  , expectedRespondFunctionCalls_{p().expectedRespondFunctionCalls()}
+  , readMode_{helper.readMode()}
 {
   std::vector<std::string> fnToProvide;
-  if (p.get_if_present("fileNamesToProvide", fnToProvide)) {
+  if (p().fileNamesToProvide(fnToProvide)) {
     std::cerr << "Calling registerSecondaryFileNameProvider.\n";
     std::copy(fnToProvide.cbegin(),
               fnToProvide.cend(),
               std::ostream_iterator<std::string>(std::cerr, ", "));
     std::cerr << "\n";
     helper.registerSecondaryFileNameProvider(
-      SecondaryFileNameProvider(std::move(fnToProvide)));
+      SecondaryFileNameProvider{move(fnToProvide)});
   }
 
-  std::string mixProducerLabel(
-    p.get<std::string>("mixProducerLabel", "mixProducer"));
+  auto const mixProducerLabel = p().mixProducerLabel();
   helper.produces<std::string>();           // "Bookkeeping"
   helper.produces<art::EventIDSequence>();  // "Bookkeeping"
   helper.produces<double, art::InSubRun>(); // SubRun product test.

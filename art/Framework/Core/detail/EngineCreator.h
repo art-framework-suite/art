@@ -2,7 +2,6 @@
 #define art_Framework_Core_detail_EngineCreator_h
 
 // ======================================================================
-//
 // EngineCreator - enable a derived class to access the
 //                 RandomNumberGenerator::createEngine()
 //
@@ -21,7 +20,6 @@
 //   A decision must be made if each instance should receive the same
 //   seed, or different ones.  I suspect they should be different so
 //   as to avoid undesirable over-sampling of fluctuations.
-//
 // ======================================================================
 
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
