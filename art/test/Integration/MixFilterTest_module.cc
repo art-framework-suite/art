@@ -285,6 +285,19 @@ arttest::MixFilterTestDetail::MixFilterTestDetail(Parameters const& p,
       SecondaryFileNameProvider{move(fnToProvide)});
   }
 
+  // Test createEngine when it should have already been created
+  if (readMode_ > art::MixHelper::Mode::SEQUENTIAL) {
+    helper.createEngine(123456);
+    helper.createEngine(123456, "HepJamesRandom");
+    helper.createEngine(123456, "HepJamesRandom", "");
+    // Cannot assign empty label to different type
+    BOOST_REQUIRE_THROW(helper.createEngine(123456, "MTwistEngine"),
+                        art::Exception);
+    // Cannot specify type that is not supported.
+    BOOST_REQUIRE_THROW(helper.createEngine(123456, "HEPJamesRandom", "Edna"),
+                        cet::exception);
+  }
+
   auto const mixProducerLabel = p().mixProducerLabel();
   helper.produces<std::string>();           // "Bookkeeping"
   helper.produces<art::EventIDSequence>();  // "Bookkeeping"

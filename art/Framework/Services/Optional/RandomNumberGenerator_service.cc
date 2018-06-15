@@ -218,7 +218,7 @@ namespace art {
                           << label << "\" with "
                           << ((seed == useDefaultSeed) ? "default seed " :
                                                          "seed ")
-                          << seed << ".\n";
+                          << seed << '.';
     assert(invariant_holds_(sid) &&
            "RNGservice::createEngine() invariant failed");
     return *eptr;

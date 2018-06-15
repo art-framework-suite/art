@@ -20,11 +20,14 @@
 #include <functional>
 #include <limits>
 #include <numeric>
+#include <ostream>
 #include <random>
 #include <regex>
 #include <unordered_set>
 
 #include "Rtypes.h"
+
+using namespace std::string_literals;
 
 namespace {
 
@@ -42,8 +45,19 @@ namespace {
 
   class EventIDLookup : public std::unary_function<Long64_t, art::EventID> {
   public:
-    EventIDLookup(art::EventIDIndex const& index);
-    result_type operator()(argument_type entry) const;
+    EventIDLookup(art::EventIDIndex const& index) : index_{index} {}
+
+    result_type
+    operator()(argument_type const entry) const
+    {
+      auto i = index_.find(entry);
+      if (i == cend(index_)) {
+        throw art::Exception(art::errors::LogicError)
+          << "MixHelper could not find entry number " << entry
+          << " in its own lookup table.\n";
+      }
+      return i->second;
+    }
 
   private:
     art::EventIDIndex const& index_;
@@ -65,25 +79,7 @@ namespace {
     }
     return result;
   }
-} // namespace
 
-inline EventIDLookup::EventIDLookup(art::EventIDIndex const& index)
-  : index_{index}
-{}
-
-EventIDLookup::result_type
-EventIDLookup::operator()(argument_type entry) const
-{
-  auto i = index_.find(entry);
-  if (i == cend(index_)) {
-    throw art::Exception(art::errors::LogicError)
-      << "MixHelper could not find entry number " << entry
-      << " in its own lookup table.\n";
-  }
-  return i->second;
-}
-
-namespace {
   double
   initCoverageFraction(double fraction)
   {
@@ -93,27 +89,6 @@ namespace {
       fraction /= 100.0;
     }
     return fraction;
-  }
-
-  std::unique_ptr<CLHEP::RandFlat>
-  initDist(std::string const& moduleLabel, art::MixHelper::Mode const readMode)
-  {
-    using namespace art;
-    std::unique_ptr<CLHEP::RandFlat> result;
-    if (readMode > MixHelper::Mode::SEQUENTIAL) {
-      if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
-        result = std::make_unique<CLHEP::RandFlat>(
-          ServiceHandle<RandomNumberGenerator> {}->getEngine(
-            ScheduleID::first(), moduleLabel));
-      } else {
-        throw Exception(errors::Configuration, "MixHelper")
-          << "Random event mixing selected but RandomNumberGenerator service "
-             "not loaded.\n"
-          << "Ensure service is loaded with: \n"
-          << "services.RandomNumberGenerator: {}\n";
-      }
-    }
-    return result;
   }
 
 } // namespace
@@ -130,7 +105,8 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
   , coverageFraction_{initCoverageFraction(
       pset.get<double>("coverageFraction", 1.0))}
   , canWrapFiles_{pset.get<bool>("wrapFiles", false)}
-  , dist_{initDist(moduleLabel, readMode_)}
+  , engine_{initEngine_(pset.get<long>("seed", -1), readMode_)}
+  , dist_{initDist_(engine_)}
 {}
 
 art::MixHelper::MixHelper(Config const& config,
@@ -144,18 +120,69 @@ art::MixHelper::MixHelper(Config const& config,
   , readMode_{initReadMode_(config.readMode())}
   , coverageFraction_{initCoverageFraction(config.coverageFraction())}
   , canWrapFiles_{config.wrapFiles()}
-  , dist_{initDist(moduleLabel, readMode_)}
+  , engine_{initEngine_(config.seed(), readMode_)}
+  , dist_{initDist_(engine_)}
 {}
+
+std::ostream&
+art::operator<<(std::ostream& os, MixHelper::Mode const mode)
+{
+  switch (mode) {
+    case MixHelper::Mode::SEQUENTIAL:
+      return os << "SEQUENTIAL";
+    case MixHelper::Mode::RANDOM_REPLACE:
+      return os << "RANDOM_REPLACE";
+    case MixHelper::Mode::RANDOM_LIM_REPLACE:
+      return os << "RANDOM_LIM_REPLACE";
+    case MixHelper::Mode::RANDOM_NO_REPLACE:
+      return os << "RANDOM_NO_REPLACE";
+    case MixHelper::Mode::UNKNOWN:
+      return os << "UNKNOWN";
+      // No default so compiler can warn.
+  }
+  return os;
+}
 
 void
 art::MixHelper::registerSecondaryFileNameProvider(ProviderFunc_ func)
 {
   if (!filenames_.empty()) {
-    throw Exception(errors::Configuration)
+    throw Exception{errors::Configuration}
       << "Provision of a secondary file name provider is incompatible"
       << " with a\nnon-empty fileNames parameter to the mix filter.\n";
   }
   providerFunc_ = func;
+}
+
+art::MixHelper::base_engine_t&
+art::MixHelper::createEngine(seed_t const seed)
+{
+  if (engine_ && consistentRequest_("HepJamesRandom", ""s)) {
+    return *engine_;
+  }
+  return detail::EngineCreator::createEngine(seed);
+}
+
+art::MixHelper::base_engine_t&
+art::MixHelper::createEngine(seed_t const seed,
+                             std::string const& kind_of_engine_to_make)
+{
+  if (engine_ && consistentRequest_(kind_of_engine_to_make, ""s)) {
+    return *engine_;
+  }
+  return detail::EngineCreator::createEngine(seed, kind_of_engine_to_make);
+}
+
+art::MixHelper::base_engine_t&
+art::MixHelper::createEngine(seed_t const seed,
+                             std::string const& kind_of_engine_to_make,
+                             label_t const& engine_label)
+{
+  if (engine_ && consistentRequest_(kind_of_engine_to_make, engine_label)) {
+    return *engine_;
+  }
+  return detail::EngineCreator::createEngine(
+    seed, kind_of_engine_to_make, engine_label);
 }
 
 bool
@@ -488,10 +515,49 @@ art::MixHelper::buildProductIDTransMap_(MixOpList& mixOps)
   return transMap;
 }
 
-void
-art::MixHelper::initEngine_(fhicl::ParameterSet const& p)
+bool
+art::MixHelper::consistentRequest_(std::string const& kind_of_engine_to_make,
+                                   label_t const& engine_label) const
 {
-  if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
-    createEngine(p.get<long>("seed", -1));
+  if (kind_of_engine_to_make == "HepJamesRandom"s && engine_label.empty()) {
+    mf::LogInfo{"RANDOM"} << "A random number engine has already been created "
+                             "since the read mode is "
+                          << readMode_ << '.';
+    return true;
   }
+  throw Exception{errors::Configuration,
+                  "An error occurred while creating a random number engine "
+                  "within a MixFilter detail class.\n"}
+    << "A random number engine with an empty label has already been created "
+       "with an engine type of HepJamesRandom.\n"
+    << "If you would like to use a different engine type, please supply a "
+       "different engine label.\n";
+}
+
+cet::exempt_ptr<art::MixHelper::base_engine_t>
+art::MixHelper::initEngine_(seed_t const seed, Mode const readMode)
+{
+  using namespace art;
+  if (readMode > MixHelper::Mode::SEQUENTIAL) {
+    if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
+      return cet::make_exempt_ptr(&detail::EngineCreator::createEngine(seed));
+    } else {
+      throw Exception{errors::Configuration, "MixHelper"}
+        << "Random event mixing selected but RandomNumberGenerator service "
+           "not loaded.\n"
+        << "Ensure service is loaded with: \n"
+        << "services.RandomNumberGenerator: {}\n";
+    }
+  }
+  return nullptr;
+}
+
+std::unique_ptr<CLHEP::RandFlat>
+art::MixHelper::initDist_(cet::exempt_ptr<base_engine_t> const engine) const
+{
+  std::unique_ptr<CLHEP::RandFlat> result{nullptr};
+  if (engine) {
+    result = std::make_unique<CLHEP::RandFlat>(*engine);
+  }
+  return result;
 }
