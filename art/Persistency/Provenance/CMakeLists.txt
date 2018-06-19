@@ -2,7 +2,7 @@ art_make(SUBDIRS detail
   LIB_LIBRARIES
   art_Utilities
   canvas
-  ${TBB}
+  TBB::tbb
   )
 
 install_headers(SUBDIRS detail)
