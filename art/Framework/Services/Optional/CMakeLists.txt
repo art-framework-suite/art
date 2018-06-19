@@ -56,7 +56,7 @@ simple_plugin(TimeTracker "service"
   art_Framework_Principal
   canvas
   cetlib
-  ${TBB}
+  TBB::tbb
   ${RT}
   ${SQLITE3})
 

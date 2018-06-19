@@ -14,7 +14,7 @@ art_make(
   fhiclcpp
   cetlib
   canvas
-  ${TBB}
+  TBB::tbb
   )
 
 install_headers(SUBDIRS detail)
