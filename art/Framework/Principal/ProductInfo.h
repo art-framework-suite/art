@@ -16,16 +16,17 @@ namespace art {
   public: // TYPES
     enum class ConsumableType { Product = 0, ViewElement = 1, Many = 2 };
 
-  public:
     ~ProductInfo();
-    explicit ProductInfo(ConsumableType const, TypeID const&);
-    explicit ProductInfo(ConsumableType const,
+    explicit ProductInfo(ConsumableType, TypeID const&);
+    explicit ProductInfo(ConsumableType, std::string const& friendlyName);
+
+    explicit ProductInfo(ConsumableType,
                          TypeID const&,
                          std::string const& label,
                          std::string const& instance,
                          ProcessTag const& process);
 
-    explicit ProductInfo(ConsumableType const,
+    explicit ProductInfo(ConsumableType,
                          std::string const& friendlyName,
                          std::string const& label,
                          std::string const& instance,

@@ -8,7 +8,7 @@
 namespace {
   using namespace fhicl;
   struct Config {
-    Atom<int> acceptValue{Name("acceptValue"), 1};
+    Atom<unsigned> acceptValue{Name("acceptValue"), 1};
     Atom<bool> onlyOne{Name("onlyOne"), false};
   };
 } // namespace
@@ -19,24 +19,23 @@ namespace arttest {
 
 class arttest::TestFilter : public art::EDFilter {
 public:
-  using Parameters = EDFilter::Table<Config>;
-  explicit TestFilter(EDFilter::Table<Config> const&);
-
-  bool filter(art::Event& e) override;
-  void endJob() override;
+  using Parameters = Table<Config>;
+  explicit TestFilter(Parameters const&);
 
 private:
-  int count_;
-  int accept_rate_; // how many out of 100 will be accepted?
-  bool onlyOne_;
+  bool filter(art::Event& e) override;
+
+  unsigned count_{};
+  unsigned const acceptRate_; // how many out of 100 will be accepted?
+  bool const onlyOne_;
 };
 
 // -------
 
 // -----------------------------------------------------------------
 
-arttest::TestFilter::TestFilter(EDFilter::Table<Config> const& ps)
-  : count_(), accept_rate_(ps().acceptValue()), onlyOne_(ps().onlyOne())
+arttest::TestFilter::TestFilter(Parameters const& ps)
+  : acceptRate_{ps().acceptValue()}, onlyOne_{ps().onlyOne()}
 {}
 
 bool
@@ -44,13 +43,9 @@ arttest::TestFilter::filter(art::Event&)
 {
   ++count_;
   if (onlyOne_)
-    return count_ % accept_rate_ == 0;
+    return count_ % acceptRate_ == 0;
   else
-    return count_ % 100 <= accept_rate_;
+    return count_ % 100 <= acceptRate_;
 }
-
-void
-arttest::TestFilter::endJob()
-{}
 
 DEFINE_ART_MODULE(arttest::TestFilter)

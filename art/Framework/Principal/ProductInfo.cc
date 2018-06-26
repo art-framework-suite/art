@@ -16,6 +16,11 @@ namespace art {
   {}
 
   ProductInfo::ProductInfo(ConsumableType const consumableType,
+                           std::string const& friendlyName)
+    : consumableType{consumableType}, friendlyClassName{friendlyName}
+  {}
+
+  ProductInfo::ProductInfo(ConsumableType const consumableType,
                            TypeID const& tid,
                            string const& label,
                            string const& instance,

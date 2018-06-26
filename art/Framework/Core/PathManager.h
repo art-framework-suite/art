@@ -18,6 +18,7 @@
 #include "art/Framework/Core/ReplicatedProducer.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Core/detail/ModuleConfigInfo.h"
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/PerScheduleContainer.h"
@@ -37,20 +38,13 @@ namespace cet {
 } // namespace cet
 
 namespace art {
+
   class ActionTable;
   class ActivityRegistry;
   class ModuleBase;
   class UpdateOutputCallbacks;
-  class PathManager {
-  private: // Types
-    struct ModuleConfigInfo {
-      std::string configTableName_;
-      ModuleType moduleType_;
-      ModuleThreadingType moduleThreadingType_;
-      fhicl::ParameterSet modPS_;
-      std::string libSpec_;
-    };
 
+  class PathManager {
   public: // Special Member Functions
     ~PathManager() noexcept;
     PathManager(fhicl::ParameterSet const& procPS,
@@ -99,9 +93,12 @@ namespace art {
 
     // Module-graph implementation
     detail::collection_map_t getModuleGraphInfoCollection_();
-    void fillModuleOnlyDeps_(std::string const& path_name,
-                             detail::configs_t const& worker_configs,
-                             detail::collection_map_t& info_collection) const;
+    void fillModuleOnlyDeps_(
+      std::string const& path_name,
+      detail::configs_t const& worker_configs,
+      std::map<std::string, std::set<ProductInfo>> const& produced_products,
+      std::map<std::string, std::set<std::string>> const& viewable_products,
+      detail::collection_map_t& info_collection) const;
     void fillSelectEventsDeps_(detail::configs_t const& worker_configs,
                                detail::collection_map_t& info_collection) const;
 
@@ -129,7 +126,7 @@ namespace art {
     //  started.  We can move them back to the ctor once that is
     //  fixed.
     std::string processName_{};
-    std::map<std::string, ModuleConfigInfo> allModules_{};
+    std::map<std::string, detail::ModuleConfigInfo> allModules_{};
     std::unique_ptr<std::set<std::string>> trigger_paths_config_{};
     std::unique_ptr<std::set<std::string>> end_paths_config_{};
     std::map<std::string, std::vector<WorkerInPath::ConfigInfo>>
