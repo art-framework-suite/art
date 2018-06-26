@@ -10,6 +10,7 @@
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
+#include "art/Framework/Core/detail/consumed_products.h"
 #include "art/Framework/Core/detail/graph_algorithms.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
@@ -66,115 +67,7 @@ namespace art {
       std::sort(begin(sorted_modules), end(sorted_modules));
       return sorted_modules;
     }
-
-    art::ProductInfo
-    consumes_dependency(art::ProductInfo const& prod_info,
-                        std::string const& module_name,
-                        std::string const& process_name,
-                        art::ProductDescriptions const& products_to_produce)
-    {
-      assert(prod_info.consumableType ==
-             art::ProductInfo::ConsumableType::Product);
-      if ((prod_info.process.name() != process_name) &&
-          (prod_info.process.name() != "current_process")) {
-        // In cases where a user has not specified the current process
-        // name (or the literal "current_process"), we set the label
-        // of the module this worker depends upon to "input_source",
-        // solely for data-dependency checking.  This permits users to
-        // specify only a module label in the input tag, and even
-        // though this might collide with a module label in the
-        // current process, it is not necessarily an error.
-        //
-        // In the future, we may wish to constrain the behavior so
-        // that if there is an ambiguity in module labels between
-        // processes, a user will be required to specify
-        // "current_process" or "input_source".
-        auto new_prod_info = prod_info;
-        new_prod_info.label = "input_source";
-        return new_prod_info;
-      }
-
-      // Current process
-      auto product_match = [&prod_info](auto const& pd) {
-        return prod_info.label == pd.moduleLabel() &&
-               prod_info.friendlyClassName == pd.friendlyClassName() &&
-               prod_info.instance == pd.productInstanceName();
-      };
-
-      if (std::any_of(cbegin(products_to_produce),
-                      cend(products_to_produce),
-                      product_match)) {
-        return prod_info;
-      }
-
-      throw art::Exception{art::errors::Configuration}
-        << "Module " << module_name
-        << " expects to consume a product from module " << prod_info.label
-        << " with the signature:\n"
-        << "  Friendly class name: " << prod_info.friendlyClassName << '\n'
-        << "  Instance name: " << prod_info.instance << '\n'
-        << "  Process name: " << prod_info.process.name() << '\n'
-        << "However, no product of that signature is provided by "
-           "module "
-        << prod_info.label << ".\n";
-    }
-  }
-
-  art::ProductInfo
-  consumes_view_dependency(
-    art::ProductInfo const& prod_info,
-    std::string const& module_name,
-    std::string const& process_name,
-    std::map<std::string, std::set<std::string>> const& viewable_products)
-  {
-    assert(prod_info.consumableType ==
-           art::ProductInfo::ConsumableType::ViewElement);
-    if ((prod_info.process.name() != process_name) &&
-        (prod_info.process.name() != "current_process")) {
-      // In cases where a user has not specified the current process
-      // name (or the literal "current_process"), we set the label of
-      // the module this worker depends upon to "input_source", solely
-      // for data-dependency checking.  This permits users to specify
-      // only a module label in the input tag, and even though this
-      // might collide with a module label in the current process, it
-      // is not necessarily an error.
-      //
-      // In the future, we may wish to constrain the behavior so
-      // that if there is an ambiguity in module labels between
-      // processes, a user will be required to specify
-      // "current_process" or "input_source".
-      auto new_prod_info = prod_info;
-      new_prod_info.label = "input_source";
-      return new_prod_info;
-    }
-
-    // Current process
-    auto ml_found = viewable_products.find(prod_info.label);
-    Exception e{errors::Configuration,
-                "An error occurred while checking data-product dependencies "
-                "for this job.\n"};
-    if (ml_found == cend(viewable_products)) {
-      throw e << "Module " << module_name
-              << " expects to consume a view of type from module "
-              << prod_info.label << ".\n"
-              << "However, module " << prod_info.label
-              << " does not produce a product\n"
-              << "for which a view can be formed.\n";
-    }
-
-    auto prod_found = ml_found->second.find(prod_info.instance);
-    if (prod_found == cend(ml_found->second)) {
-      throw e << "Module " << module_name
-              << " expects to consume a view with the following "
-                 "signature:\n"
-              << "  Module label: " << prod_info.label << '\n'
-              << "  Instance name: " << prod_info.instance << '\n'
-              << "However, module " << prod_info.label
-              << " does not produce a product for which such a view "
-                 "can be formed.\n";
-    }
-    return prod_info;
-  }
+  } // anonymous namespace
 
   PathManager::~PathManager() noexcept
   {
@@ -240,11 +133,11 @@ namespace art {
                  << " but defined in code as a " << to_string(actualModType)
                  << ".\n";
             }
-            ModuleConfigInfo mci{path_table_name,
-                                 module_type,
-                                 loadModuleThreadingType_(lib_spec),
-                                 module_pset,
-                                 lib_spec};
+            detail::ModuleConfigInfo mci{path_table_name,
+                                         module_type,
+                                         loadModuleThreadingType_(lib_spec),
+                                         module_pset,
+                                         lib_spec};
             auto result = allModules_.emplace(module_label, move(mci));
             if (!result.second) {
               es << "  ERROR: Module label " << module_label
@@ -284,7 +177,7 @@ namespace art {
       // vector<string> by value, so we must make sure to iterate over
       // the same returned object.
       auto const physics_names = physics.get_names();
-      set<string> const special_parms = {
+      set<string> const special_parms{
         "producers"s, "filters"s, "analyzers"s, "trigger_paths"s, "end_paths"s};
       vector<string> path_names;
       set_difference(physics_names.cbegin(),
@@ -465,7 +358,7 @@ namespace art {
         if (num_end_paths > 1) {
           mf::LogInfo("PathConfiguration")
             << "Multiple end paths have been combined into one end path,\n"
-            << "\"end_path\" since order is irrelevant.\n";
+            << "\"end_path\" since order is irrelevant.";
         }
       }
       //
@@ -914,20 +807,8 @@ namespace art {
     } else if (!protoEndPathLabels_.empty()) {
       source_info.paths = {"end_path"};
     }
-    for (auto const& path : protoTrigPathLabelMap_) {
-      fillModuleOnlyDeps_(path.first, path.second, result);
-    }
-    fillModuleOnlyDeps_("end_path", protoEndPathLabels_, result);
-    fillSelectEventsDeps_(protoEndPathLabels_, result);
-    return result;
-  }
 
-  void
-  PathManager::fillModuleOnlyDeps_(string const& path_name,
-                                   configs_t const& worker_configs,
-                                   collection_map_t& info_collection) const
-  {
-    // Prepare information for produced products
+    // Prepare information for produced and viewable products
     std::map<std::string, std::set<ProductInfo>> produced_products_per_module;
     std::map<std::string, std::set<std::string>> viewable_products_per_module;
     for (auto const& pd : productsToProduce_) {
@@ -947,8 +828,33 @@ namespace art {
       }
     }
 
-    for (auto it = cbegin(worker_configs), end = cend(worker_configs);
-         it != end;
+    for (auto const& path : protoTrigPathLabelMap_) {
+      fillModuleOnlyDeps_(path.first,
+                          path.second,
+                          produced_products_per_module,
+                          viewable_products_per_module,
+                          result);
+    }
+    fillModuleOnlyDeps_("end_path",
+                        protoEndPathLabels_,
+                        produced_products_per_module,
+                        viewable_products_per_module,
+                        result);
+    fillSelectEventsDeps_(protoEndPathLabels_, result);
+    return result;
+  }
+
+  void
+  PathManager::fillModuleOnlyDeps_(
+    string const& path_name,
+    configs_t const& worker_configs,
+    std::map<std::string, std::set<ProductInfo>> const& produced_products,
+    std::map<std::string, std::set<std::string>> const& viewable_products,
+    collection_map_t& info_collection) const
+  {
+    auto const worker_config_begin = cbegin(worker_configs);
+
+    for (auto it = worker_config_begin, end = cend(worker_configs); it != end;
          ++it) {
       auto const& module_name = it->label;
       auto const& mci = allModules_.at(module_name);
@@ -956,54 +862,20 @@ namespace art {
       graph_info.paths.insert(path_name);
       graph_info.module_type = mci.moduleType_;
 
-      auto found = produced_products_per_module.find(module_name);
-      if (found != cend(produced_products_per_module)) {
-        graph_info.produced_products =
-          produced_products_per_module.at(module_name);
+      auto found = produced_products.find(module_name);
+      if (found != cend(produced_products)) {
+        graph_info.produced_products = produced_products.at(module_name);
       }
 
       auto const& consumables =
         ConsumesInfo::instance()->consumables(module_name);
-
-      for (auto const& per_branch_type : consumables) {
-        for (auto const& prod_info : per_branch_type) {
-          switch (prod_info.consumableType) {
-            case art::ProductInfo::ConsumableType::Product: {
-              auto dep = consumes_dependency(
-                prod_info, module_name, processName_, productsToProduce_);
-              graph_info.consumed_products.insert(std::move(dep));
-              break;
-            }
-            case art::ProductInfo::ConsumableType::Many: {
-              // Loop through modules on this path, introducing
-              // product-lookup dependencies if the type of the product
-              // created by the module matches the type requested in the
-              // consumesMany call.
-              auto const& class_name = prod_info.friendlyClassName;
-              for (auto mit = cbegin(worker_configs); mit != it; ++mit) {
-                auto const& possible_products =
-                  info_collection.at(mit->label).produced_products;
-                auto& consumed_prods = graph_info.consumed_products;
-                cet::copy_if_all(
-                  possible_products,
-                  inserter(consumed_prods, begin(consumed_prods)),
-                  [&class_name](auto const& pi) {
-                    return class_name == pi.friendlyClassName;
-                  });
-              }
-              break;
-            }
-            case art::ProductInfo::ConsumableType::ViewElement: {
-              auto dep = consumes_view_dependency(prod_info,
-                                                  module_name,
-                                                  processName_,
-                                                  viewable_products_per_module);
-              graph_info.consumed_products.insert(std::move(dep));
-            }
-              // No default case to allow compiler to warn.
-          }
-        }
-      }
+      graph_info.consumed_products =
+        detail::consumed_products_for_module(processName_,
+                                             consumables,
+                                             produced_products,
+                                             viewable_products,
+                                             worker_config_begin,
+                                             it);
     }
   }
 

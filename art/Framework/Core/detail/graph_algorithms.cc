@@ -14,6 +14,7 @@ using art::detail::ModuleGraphInfoMap;
 using art::detail::Vertex;
 using art::detail::module_name_t;
 using art::detail::name_set_t;
+using art::detail::path_name_t;
 
 namespace {
   std::string
@@ -340,31 +341,30 @@ art::detail::verify_in_order_dependencies(
   return oss.str();
 }
 
+using EdgePair = std::pair<Vertex, Vertex>;
+
 namespace {
   class graph_printer : public boost::dfs_visitor<> {
   public:
-    explicit graph_printer(std::ostream& os, ModuleGraphInfoMap const& modules)
-      : os_{os}, modules_{modules}
+    explicit graph_printer(
+      ModuleGraphInfoMap const& modules,
+      std::set<Vertex>& vertices,
+      std::map<path_name_t, std::set<EdgePair>>& path_edges,
+      std::map<path_name_t, std::set<EdgePair>>& filter_edges,
+      std::set<EdgePair>& trigger_path_edges,
+      std::map<EdgePair, unsigned>& product_edges)
+      : modules_{modules}
+      , vertices_{vertices}
+      , path_edges_{path_edges}
+      , filter_edges_{filter_edges}
+      , trigger_path_edges_{trigger_path_edges}
+      , product_edges_{product_edges}
     {}
 
     void
     discover_vertex(Vertex const v, ModuleGraph const&)
     {
-      auto const& name = modules_.name(v);
-      auto const& info = modules_.info(v);
-      if (name == "input_source") {
-        os_ << "  \"input_source\"[shape=box label=source]";
-      } else if (name == "TriggerResults") {
-        os_ << "  \"" << name << '\"';
-        os_ << "[shape=box style=filled fillcolor=black label=\"\" height=0.1 "
-               "width=2]";
-      } else {
-        os_ << "  \"" << name << '\"';
-        if (info.module_type == art::ModuleType::filter) {
-          os_ << "[style=filled fillcolor=pink]";
-        }
-      }
-      os_ << ";\n";
+      vertices_.insert(v);
     }
 
     void
@@ -386,50 +386,74 @@ namespace {
     }
 
   private:
+    enum class arrow_style { path, sync, source, filter, prod };
+
+    static arrow_style
+    arrow_style_for(std::string const& edge_name)
+    {
+      auto pos = edge_name.find("path:");
+      if (pos == 0) {
+        return arrow_style::path;
+      }
+      pos = edge_name.find("sync");
+      if (pos == 0) {
+        return arrow_style::sync;
+      }
+      pos = edge_name.find("source:");
+      if (pos == 0) {
+        return arrow_style::source;
+      }
+      pos = edge_name.find("filter:");
+      if (pos == 0) {
+        return arrow_style::filter;
+      }
+      if (edge_name == "prod") {
+        return arrow_style::prod;
+      }
+      throw art::Exception{
+        art::errors::LogicError,
+        "An occurred while printing the DOT file for this process.\n"}
+        << "The edge name '" << edge_name << "' is not recognized.";
+    }
+
     void
     print_edge(Edge const e, ModuleGraph const& g)
     {
       auto const u = source(e, g);
       auto const v = target(e, g);
+      auto const vertex_pair = std::make_pair(u, v);
       auto const& edge_name = get(boost::edge_name, g, e);
-      os_ << "  \"" << modules_.name(u) << "\" -> \"" << modules_.name(v)
-          << '\"';
-      fill_label(os_, edge_name);
-      os_ << ";\n";
+      switch (arrow_style_for(edge_name)) {
+        case arrow_style::path: {
+          auto path_name = edge_name.substr(5); // Removes 'path:' prefix
+          path_edges_[path_name].insert(vertex_pair);
+          break;
+        }
+        case arrow_style::sync: {
+          trigger_path_edges_.insert(vertex_pair);
+          break;
+        }
+        case arrow_style::source: {
+          auto path_name = edge_name.substr(7); // Remove 'source:' prefix
+          path_edges_[path_name].insert(vertex_pair);
+          break;
+        }
+        case arrow_style::filter: {
+          auto path_name = edge_name.substr(7); // Removes 'filter:' prefix
+          filter_edges_[path_name].insert(vertex_pair);
+          break;
+        }
+        case arrow_style::prod:
+          ++product_edges_[vertex_pair];
+      }
     }
 
-    static void
-    fill_label(std::ostream& os, std::string const& edge_name)
-    {
-      auto pos = edge_name.find("path:");
-      if (pos == 0) {
-        os << "[label=\"" << edge_name.substr(pos + 5) << "\" color=gray]";
-        return;
-      }
-      pos = edge_name.find("sync");
-      if (pos == 0) {
-        os << "[style=invisible arrowhead=none]";
-        return;
-      }
-      pos = edge_name.find("source:");
-      if (pos == 0) {
-        os << "[label=\"" << edge_name.substr(pos + 7) << "\" color=gray]";
-        return;
-      }
-      pos = edge_name.find("filter:");
-      if (pos == 0) {
-        os << "[label=\"" << edge_name.substr(pos + 7) << "\" color=red]";
-        return;
-      }
-      if (edge_name == "prod") {
-        os << "[color=black]";
-        return;
-      }
-      os << "[style=dotted]";
-    }
-
-    std::ostream& os_;
     ModuleGraphInfoMap const& modules_;
+    std::set<Vertex>& vertices_;
+    std::map<path_name_t, std::set<EdgePair>>& path_edges_;
+    std::map<path_name_t, std::set<EdgePair>>& filter_edges_;
+    std::set<EdgePair>& trigger_path_edges_;
+    std::map<EdgePair, unsigned>& product_edges_;
   };
 }
 
@@ -438,9 +462,76 @@ art::detail::print_module_graph(std::ostream& os,
                                 ModuleGraphInfoMap const& info_map,
                                 ModuleGraph const& graph)
 {
+  std::set<Vertex> vertices;
+  std::map<path_name_t, std::set<EdgePair>> path_edges;
+  std::map<path_name_t, std::set<EdgePair>> filter_edges;
+  std::set<EdgePair> trigger_path_edges;
+  std::map<EdgePair, unsigned> product_edges;
+  graph_printer printer{info_map,
+                        vertices,
+                        path_edges,
+                        filter_edges,
+                        trigger_path_edges,
+                        product_edges};
+  boost::depth_first_search(graph, visitor(printer));
   os << "digraph {\n"
      << "  rankdir=BT\n";
-  graph_printer vis{os, info_map};
-  boost::depth_first_search(graph, visitor(vis));
+  // Vertices
+  for (auto const& v : vertices) {
+    auto const& name = info_map.name(v);
+    auto const& info = info_map.info(v);
+    if (name == "input_source") {
+      os << "  \"input_source\"[shape=box label=source]";
+    } else if (name == "TriggerResults") {
+      os << "  \"" << name << '\"';
+      os << "[shape=box style=filled fillcolor=black label=\"\" height=0.1 "
+            "width=2]";
+    } else {
+      os << "  \"" << name << '\"';
+      if (info.module_type == art::ModuleType::filter) {
+        os << "[style=filled fillcolor=pink]";
+      }
+    }
+    os << ";\n";
+  }
+
+  // Path edges
+  for (auto const& pr : path_edges) {
+    auto const& path_name = pr.first;
+    for (auto const& edge_pair : pr.second) {
+      os << "  \"" << info_map.name(edge_pair.first) << "\" -> \""
+         << info_map.name(edge_pair.second) << '\"' << "[label=\"" << path_name
+         << "\" color=gray];\n";
+    }
+  }
+
+  // Filter edges
+  for (auto const& pr : filter_edges) {
+    auto const& path_name = pr.first;
+    for (auto const& edge_pair : pr.second) {
+      os << "  \"" << info_map.name(edge_pair.first) << "\" -> \""
+         << info_map.name(edge_pair.second) << '\"' << "[label=\"" << path_name
+         << "\" color=red];\n";
+    }
+  }
+
+  // Trigger-path edges
+  for (auto const& edge_pair : trigger_path_edges) {
+    os << "  \"" << info_map.name(edge_pair.first) << "\" -> \""
+       << info_map.name(edge_pair.second) << '\"'
+       << "[style=invisible arrowhead=none];\n";
+  }
+
+  // Product edges
+  for (auto const& pr : product_edges) {
+    auto const& edge_pair = pr.first;
+    auto const multiplicity = pr.second;
+    os << "  \"" << info_map.name(edge_pair.first) << "\" -> \""
+       << info_map.name(edge_pair.second) << '\"';
+    if (multiplicity > 1) {
+      os << "[label=\"" << multiplicity << "\" color=black]";
+    }
+    os << ";\n";
+  }
   os << "}\n";
 }
