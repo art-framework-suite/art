@@ -1,6 +1,8 @@
 #include "art/Framework/Core/detail/ModuleGraph.h"
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
+#include "art/Framework/Core/detail/consumed_products.h"
 #include "art/Framework/Core/detail/graph_algorithms.h"
+#include "art/Framework/Principal/Consumer.h"
 #include "art/test/Framework/Core/data-dependencies/Configs.h"
 #include "boost/graph/graph_utility.hpp"
 #include "canvas/Utilities/Exception.h"
@@ -156,7 +158,7 @@ namespace {
   }
 
   std::set<art::ProductInfo>
-  produced_products(
+  sorted_produced_products(
     std::vector<art::test::TypeAndInstance> const& productsToProduce,
     string const& module_name,
     string const& current_process_name)
@@ -174,107 +176,45 @@ namespace {
   }
 
   template <typename T>
-  std::set<art::ProductInfo>
-  sorted_consumed_products(Table<T> const& module,
-                           string const& module_name,
-                           string const& current_process_name,
-                           collection_map_t const& modules)
+  auto
+  consumables_for_module(Table<T> const& module,
+                         string const& current_process_name)
   {
-    std::set<art::ProductInfo> sorted_deps;
+    std::vector<art::ProductInfo> sorted_deps;
     std::vector<art::test::TypeAndTag> deps;
     if (module().consumes(deps)) {
       for (auto const& dep : deps) {
         art::ProcessTag const processTag{dep.inputTag.process(),
                                          current_process_name};
-        // In cases where a user has not specified the current process
-        // name (or the literal "current_process"), we set the label
-        // of the module this worker depends upon to "input_source",
-        // solely for data-dependency checking.  This permits users to
-        // specify only a module label in the input tag, and even
-        // though this might collide with a module label in the
-        // current process, it is not necessarily an error.
-        //
-        // In the future, we may wish to constrain the behavior so
-        // that if there is an ambiguity in module labels between
-        // processes, a user will be required to specify
-        // "current_process" or "input_source".
-        std::string const label = (processTag.name() != current_process_name) ?
-                                    "input_source" :
-                                    dep.inputTag.label();
-        if (label != "input_source") {
-          auto const& mod_info = modules.at(dep.inputTag.label());
-          // Current process
-          auto product_match = [&dep](auto const& pi) {
-            return dep.friendlyClassName == pi.friendlyClassName &&
-                   dep.inputTag.instance() == pi.instance;
-          };
-
-          if (!std::any_of(cbegin(mod_info.produced_products),
-                           cend(mod_info.produced_products),
-                           product_match)) {
-            throw art::Exception{art::errors::Configuration}
-              << "Module " << module_name
-              << " expects to consume a product from module "
-              << dep.inputTag.label() << " with the signature:\n"
-              << "  Friendly class name: " << dep.friendlyClassName << '\n'
-              << "  Instance name: " << dep.inputTag.instance() << '\n'
-              << "  Process name: " << dep.inputTag.process() << '\n'
-              << "However, no product of that signature is provided by "
-                 "module "
-              << dep.inputTag.label() << ".\n";
-          }
-        }
-        sorted_deps.emplace(art::ProductInfo::ConsumableType::Product,
-                            dep.friendlyClassName,
-                            label,
-                            dep.inputTag.instance(),
-                            processTag);
+        sorted_deps.emplace_back(art::ProductInfo::ConsumableType::Product,
+                                 dep.friendlyClassName,
+                                 dep.inputTag.label(),
+                                 dep.inputTag.instance(),
+                                 processTag);
       }
     }
-    return sorted_deps;
-  }
-
-  template <typename T>
-  std::set<art::ProductInfo>
-  consumes_many(Table<T> const& module,
-                configs_t::const_iterator mit,
-                configs_t::const_iterator const end,
-                collection_map_t const& modules)
-  {
-    std::set<art::ProductInfo> result;
     std::vector<std::string> many;
     if (module().consumesMany(many)) {
       for (auto const& class_name : many) {
-        // Loop through modules on this path, introducing
-        // product-lookup dependencies if the type of the product
-        // created by the module matches the type requested in the
-        // consumesMany call.
-        for (; mit != end; ++mit) {
-          auto const& preceding_module_name = mit->label;
-          // Bail out early if no products produced for this module.
-          auto found = modules.find(preceding_module_name);
-          if (found == cend(modules)) {
-            continue;
-          }
-          cet::copy_if_all(found->second.produced_products,
-                           inserter(result, begin(result)),
-                           [&class_name](auto const& pi) {
-                             return class_name == pi.friendlyClassName;
-                           });
-        }
+        sorted_deps.emplace_back(art::ProductInfo::ConsumableType::Many,
+                                 class_name);
       }
     }
+    cet::sort_all(sorted_deps);
+    art::ConsumesInfo::consumables_t::mapped_type result{{}};
+    result[art::InEvent] = std::move(sorted_deps);
     return result;
   }
 
-  art::ProductDescriptions
-  fillProducesInfo(ParameterSet const& pset,
-                   string const& process_name,
-                   string const& path_name,
-                   configs_t const& module_configs,
-                   collection_map_t& modules)
+  void
+  fillProducesInfo(
+    ParameterSet const& pset,
+    string const& process_name,
+    string const& path_name,
+    configs_t const& module_configs,
+    std::map<std::string, std::set<art::ProductInfo>>& produced_products,
+    collection_map_t& modules)
   {
-    art::ProductDescriptions producedProducts;
     auto const begin = cbegin(module_configs);
     for (auto it = begin, end = cend(module_configs); it != end; ++it) {
       auto const& config = *it;
@@ -292,18 +232,20 @@ namespace {
       std::vector<art::test::TypeAndInstance> prods;
       if (mod().produces(prods)) {
         info.produced_products =
-          produced_products(prods, module_name, process_name);
+          sorted_produced_products(prods, module_name, process_name);
+        produced_products[module_name] = info.produced_products;
       }
     }
-    return producedProducts;
   }
 
   void
-  fillModifierInfo(ParameterSet const& pset,
-                   string const& process_name,
-                   string const& path_name,
-                   configs_t const& module_configs,
-                   collection_map_t& modules)
+  fillModifierInfo(
+    ParameterSet const& pset,
+    string const& process_name,
+    string const& path_name,
+    configs_t const& module_configs,
+    std::map<std::string, std::set<art::ProductInfo>> const& produced_products,
+    collection_map_t& modules)
   {
     auto const begin = cbegin(module_configs);
     for (auto it = begin, end = cend(module_configs); it != end; ++it) {
@@ -319,19 +261,20 @@ namespace {
         continue;
 
       Table<art::test::ModifierModuleConfig> const mod{table};
-      info.consumed_products =
-        sorted_consumed_products(mod, module_name, process_name, modules);
-      auto const& many = consumes_many(mod, begin, it, modules);
-      info.consumed_products.insert(cbegin(many), cend(many));
+      auto const consumables = consumables_for_module(mod, process_name);
+      info.consumed_products = consumed_products_for_module(
+        process_name, consumables, produced_products, {}, begin, it);
     }
   }
 
   void
-  fillObserverInfo(ParameterSet const& pset,
-                   string const& process_name,
-                   string const& path_name,
-                   configs_t const& module_configs,
-                   collection_map_t& modules)
+  fillObserverInfo(
+    ParameterSet const& pset,
+    string const& process_name,
+    string const& path_name,
+    configs_t const& module_configs,
+    std::map<std::string, std::set<art::ProductInfo>> const& produced_products,
+    collection_map_t& modules)
   {
     auto const begin = cbegin(module_configs);
     for (auto it = begin, end = cend(module_configs); it != end; ++it) {
@@ -347,10 +290,9 @@ namespace {
         continue;
 
       Table<art::test::ObserverModuleConfig> const mod{table};
-      info.consumed_products =
-        sorted_consumed_products(mod, module_name, process_name, modules);
-      auto const& many = consumes_many(mod, begin, it, modules);
-      info.consumed_products.insert(cbegin(many), cend(many));
+      auto const consumables = consumables_for_module(mod, process_name);
+      info.consumed_products = consumed_products_for_module(
+        process_name, consumables, produced_products, {}, begin, it);
       std::vector<string> sel;
       if (mod().select_events(sel)) {
         info.select_events = std::set<string>(cbegin(sel), cend(sel));
@@ -397,8 +339,10 @@ main(int argc, char** argv) try {
   }
 
   // Assemble all the information for products to be produced.
+  std::map<std::string, std::set<art::ProductInfo>> produced_products{};
   for (auto const& path : trigger_paths) {
-    fillProducesInfo(pset, process_name, path.first, path.second, modules);
+    fillProducesInfo(
+      pset, process_name, path.first, path.second, produced_products, modules);
   }
 
   // Now go through an assemble the rest of the graph info objects,
@@ -414,14 +358,20 @@ main(int argc, char** argv) try {
   bool graph_failure{false};
   try {
     for (auto const& path : trigger_paths) {
-      fillModifierInfo(pset, process_name, path.first, path.second, modules);
+      fillModifierInfo(pset,
+                       process_name,
+                       path.first,
+                       path.second,
+                       produced_products,
+                       modules);
     }
 
     if (!trigger_paths.empty()) {
       modules["TriggerResults"] = ModuleGraphInfo{art::ModuleType::producer};
     }
 
-    fillObserverInfo(pset, process_name, "end_path", end_path, modules);
+    fillObserverInfo(
+      pset, process_name, "end_path", end_path, produced_products, modules);
   }
   catch (cet::exception const& e) {
     err_msg += e.what();
