@@ -21,23 +21,6 @@ namespace art {
       std::map<std::string, std::set<std::string>> const& viewable_products,
       config_const_iterator const config_begin,
       config_const_iterator const config_it);
-
-    bool product_match_found(
-      std::map<std::string, std::set<ProductInfo>> const& produced_products,
-      ProductInfo const& info);
-
-    ProductInfo consumes_dependency(
-      config_const_iterator const firstModuleOnPath,
-      config_const_iterator const moduleConfig,
-      ProductInfo const& prod_info,
-      std::string const& current_process,
-      std::map<std::string, std::set<ProductInfo>> const& produced_products);
-
-    ProductInfo consumes_view_dependency(
-      ProductInfo const& prod_info,
-      std::string const& module_name,
-      std::string const& current_process,
-      std::map<std::string, std::set<std::string>> const& viewable_products);
   }
 }
 
