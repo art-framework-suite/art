@@ -185,16 +185,14 @@ namespace art {
     servicesManager_->forceCreation();
     ServiceHandle<FileCatalogMetadata> {}
     ->addMetadataString("process_name", processName);
-    {
-      // Now that the service module instances have been created
-      // we can set the callbacks, set the module description, and
-      // register the products for each service module instance.
-      ProcessConfiguration const pc{
-        processName, pset.id(), getReleaseVersion()};
-      servicesManager_->registerProducts(
-        producedProductDescriptions_, psSignals_, pc);
-    }
-    pathManager_->createModulesAndWorkers();
+
+    // Now that the service module instances have been created we can
+    // set the callbacks, set the module description, and register the
+    // products for each service module instance.
+    ProcessConfiguration const pc{processName, pset.id(), getReleaseVersion()};
+    auto const producing_services = servicesManager_->registerProducts(
+      producedProductDescriptions_, psSignals_, pc);
+    pathManager_->createModulesAndWorkers(producing_services);
     auto create =
       [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
         endPathExecutors_->emplace(
