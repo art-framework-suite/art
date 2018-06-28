@@ -10,11 +10,12 @@
 namespace art {
   namespace detail {
     struct ModuleConfigInfo {
-      std::string configTableName_;
-      ModuleType moduleType_;
-      ModuleThreadingType moduleThreadingType_;
-      fhicl::ParameterSet modPS_;
-      std::string libSpec_;
+      std::string moduleLabel;
+      std::string configTableName;
+      ModuleType moduleType;
+      ModuleThreadingType moduleThreadingType;
+      fhicl::ParameterSet modPS;
+      std::string libSpec;
     };
   }
 }

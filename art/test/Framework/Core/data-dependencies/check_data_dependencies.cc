@@ -1,3 +1,4 @@
+#include "art/Framework/Core/detail/ModuleConfigInfo.h"
 #include "art/Framework/Core/detail/ModuleGraph.h"
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Framework/Core/detail/consumed_products.h"
@@ -25,8 +26,58 @@ using namespace std::string_literals;
 using std::string;
 
 namespace {
+  names_t const all_tables{"physics.producers",
+                           "physics.filters",
+                           "physics.analyzers",
+                           "outputs"};
+  names_t const tables_with_modifiers{all_tables[0], all_tables[1]};
+  names_t const tables_with_observers{all_tables[2], all_tables[3]};
+
+  art::ModuleType
+  module_type_for_table(string const& table)
+  {
+    if (table == "physics.producers")
+      return art::ModuleType::producer;
+    if (table == "physics.filters")
+      return art::ModuleType::filter;
+    if (table == "physics.analyzers")
+      return art::ModuleType::analyzer;
+    if (table == "outputs")
+      return art::ModuleType::output_module;
+    return art::ModuleType::non_art;
+  }
+
+  auto
+  get_module_configs(ParameterSet const& pset)
+  {
+    std::map<std::string, ModuleConfigInfo> result;
+    for (auto const& name : all_tables) {
+      if (!pset.has_key(name))
+        continue;
+
+      if (!pset.is_key_to_table(name))
+        continue;
+
+      auto const table_pset = pset.get<fhicl::ParameterSet>(name);
+      auto const modules_in_table = table_pset.get_pset_names();
+      auto const module_type = module_type_for_table(name);
+      for (auto const& module_name : modules_in_table) {
+        ModuleConfigInfo info{module_name,
+                              name,
+                              module_type,
+                              art::ModuleThreadingType::shared,
+                              table_pset.get<fhicl::ParameterSet>(module_name),
+                              module_name}; // Use module-name for libspec
+        result.emplace(module_name, std::move(info));
+      }
+    }
+    return result;
+  }
+
   paths_to_modules_t
-  get_paths_to_modules(ParameterSet const& physics)
+  get_paths_to_modules(
+    ParameterSet const& physics,
+    std::map<std::string, ModuleConfigInfo> const& module_configs)
   {
     paths_to_modules_t result;
     for (auto const& name : physics.get_names()) {
@@ -34,16 +85,16 @@ namespace {
         continue;
       auto const tmp = physics.get<std::vector<string>>(name);
       configs_t configs;
-      cet::transform_all(tmp, back_inserter(configs), [](auto const& str) {
-        return art::WorkerInPath::ConfigInfo{str, art::WorkerInPath::Normal};
-      });
+      cet::transform_all(
+        tmp, back_inserter(configs), [&module_configs](auto const& label) {
+          auto const& info = module_configs.at(label);
+          return art::WorkerInPath::ConfigInfo{cet::make_exempt_ptr(&info),
+                                               art::WorkerInPath::Normal};
+        });
       result[name] = configs;
     }
     return result;
   }
-
-  names_t const tables_with_modifiers{"physics.producers", "physics.filters"};
-  names_t const tables_with_observers{"physics.analyzers", "outputs"};
 
   inline bool
   module_found_in_table(string const& module_name,
@@ -112,16 +163,17 @@ namespace {
       bool first_module{true};
       bool present{true};
       for (auto const& module : modules) {
+        auto const& module_label = module.moduleConfigInfo->moduleLabel;
         if (first_module) {
           first_module = false;
-          present = module_found_in_tables(module.label, pset, tables);
+          present = module_found_in_tables(module_label, pset, tables);
         } else if (present !=
-                   module_found_in_tables(module.label, pset, tables)) {
+                   module_found_in_tables(module_label, pset, tables)) {
           // The presence of the first module determines what the
           // remaining modules should be.
           throw art::Exception{art::errors::LogicError}
             << "There is an inconsistency in path " << path_name << ".\n"
-            << "Module " << module.label
+            << "Module " << module_label
             << " is a modifier/observer whereas the other modules\n"
             << "on the path are the opposite.";
         }
@@ -217,8 +269,7 @@ namespace {
   {
     auto const begin = cbegin(module_configs);
     for (auto it = begin, end = cend(module_configs); it != end; ++it) {
-      auto const& config = *it;
-      auto const& module_name = config.label;
+      auto const& module_name = it->moduleConfigInfo->moduleLabel;
       auto& info = modules[module_name];
       info.paths.insert(path_name);
       info.module_type = module_found_with_type(module_name, pset);
@@ -249,8 +300,7 @@ namespace {
   {
     auto const begin = cbegin(module_configs);
     for (auto it = begin, end = cend(module_configs); it != end; ++it) {
-      auto const& config = *it;
-      auto const& module_name = config.label;
+      auto const& module_name = it->moduleConfigInfo->moduleLabel;
       auto& info = modules[module_name];
       info.paths.insert(path_name);
       info.module_type = module_found_with_type(module_name, pset);
@@ -278,8 +328,7 @@ namespace {
   {
     auto const begin = cbegin(module_configs);
     for (auto it = begin, end = cend(module_configs); it != end; ++it) {
-      auto const& config = *it;
-      auto const& module_name = config.label;
+      auto const& module_name = it->moduleConfigInfo->moduleLabel;
       auto& info = modules[module_name];
       info.paths.insert(path_name);
       info.module_type = module_found_with_type(module_name, pset);
@@ -321,7 +370,8 @@ main(int argc, char** argv) try {
   }
 
   // Form the paths
-  auto paths_to_modules = get_paths_to_modules(physics);
+  auto module_configs = get_module_configs(pset);
+  auto paths_to_modules = get_paths_to_modules(physics, module_configs);
   auto const trigger_paths =
     select_paths(pset, tables_with_modifiers, paths_to_modules);
   auto end_paths = paths_to_modules;

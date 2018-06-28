@@ -1,5 +1,15 @@
 #include "art/Framework/Core/detail/consumed_products.h"
+#include "art/Framework/Core/detail/ModuleConfigInfo.h"
 #include "canvas/Utilities/Exception.h"
+
+namespace {
+  auto
+  product_from_input_source(art::ProductInfo info)
+  {
+    info.label = "input_source";
+    return info;
+  }
+}
 
 bool
 art::detail::product_match_found(
@@ -36,31 +46,32 @@ art::detail::consumes_dependency(
 {
   assert(prod_info.consumableType == ProductInfo::ConsumableType::Product);
 
+  auto const mci = moduleConfig->moduleConfigInfo;
+  assert(mci);
+
   // User has not specified the process name.
   if (prod_info.process.name().empty()) {
     if (!product_match_found(produced_products, prod_info)) {
-      auto new_prod_info = prod_info;
-      new_prod_info.label = "input_source";
-      return new_prod_info;
+      return product_from_input_source(prod_info);
     }
 
-    auto found_on_path = std::find_if(
-      firstModuleOnPath, moduleConfig, [&prod_info](auto const& config) {
-        return config.label == prod_info.label;
-      });
-    if (found_on_path == moduleConfig) {
-      auto new_prod_info = prod_info;
-      new_prod_info.label = "input_source";
-      return new_prod_info;
+    // This is a necessary requirement if the consumes clause is on a
+    // trigger path.
+    if (is_modifier(mci->moduleType)) {
+      auto found_on_path = std::find_if(
+        firstModuleOnPath, moduleConfig, [&prod_info](auto const& config) {
+          return config.moduleConfigInfo->moduleLabel == prod_info.label;
+        });
+      if (found_on_path == moduleConfig) {
+        return product_from_input_source(prod_info);
+      }
     }
     return prod_info;
   }
 
   // If we get here, the user has specified a process name.
   if (prod_info.process.name() != current_process) {
-    auto new_prod_info = prod_info;
-    new_prod_info.label = "input_source";
-    return new_prod_info;
+    return product_from_input_source(prod_info);
   }
 
   // The user has specified the current process name.
@@ -69,7 +80,7 @@ art::detail::consumes_dependency(
   }
 
   throw Exception{errors::Configuration}
-    << "Module " << moduleConfig->label
+    << "Module " << moduleConfig->moduleConfigInfo->moduleLabel
     << " expects to consume a product from module " << prod_info.label
     << " with the signature:\n"
     << "  Friendly class name: " << prod_info.friendlyClassName << '\n'
@@ -92,16 +103,12 @@ art::detail::consumes_view_dependency(
   if (prod_info.process.name().empty()) {
     auto ml_found = viewable_products.find(prod_info.label);
     if (ml_found == cend(viewable_products)) {
-      auto new_prod_info = prod_info;
-      new_prod_info.label = "input_source";
-      return new_prod_info;
+      return product_from_input_source(prod_info);
     }
 
     auto prod_found = ml_found->second.find(prod_info.instance);
     if (prod_found == cend(ml_found->second)) {
-      auto new_prod_info = prod_info;
-      new_prod_info.label = "input_source";
-      return new_prod_info;
+      return product_from_input_source(prod_info);
     }
 
     // The correct module has been found for which a view can be
@@ -111,9 +118,7 @@ art::detail::consumes_view_dependency(
 
   // If we get here, the user has specified a process name.
   if (prod_info.process.name() != current_process) {
-    auto new_prod_info = prod_info;
-    new_prod_info.label = "input_source";
-    return new_prod_info;
+    return product_from_input_source(prod_info);
   }
 
   // Current process
@@ -152,7 +157,7 @@ art::detail::consumed_products_for_module(
   config_const_iterator const config_begin,
   config_const_iterator const config_it)
 {
-  auto const& module_name = config_it->label;
+  auto const& module_name = config_it->moduleConfigInfo->moduleLabel;
   std::set<ProductInfo> result;
   for (auto const& per_branch_type : consumables) {
     for (auto const& prod_info : per_branch_type) {
@@ -173,7 +178,8 @@ art::detail::consumed_products_for_module(
           // consumesMany call.
           auto const& class_name = prod_info.friendlyClassName;
           for (auto mit = config_begin; mit != config_it; ++mit) {
-            auto possible_products = produced_products.find(mit->label);
+            auto possible_products =
+              produced_products.find(mit->moduleConfigInfo->moduleLabel);
             if (possible_products == cend(produced_products)) {
               continue;
             }

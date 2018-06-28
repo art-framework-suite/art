@@ -19,8 +19,8 @@ services: {
   # from another service cannot be looked up.
   LastDoubleProducingService: {
     value: @local::double_value
-    source_input_label: "makeInt"
-    service_input_label: "IntProducingService"
+    source_input_label: "makeInt::input_source"
+    service_input_label: "IntProducingService::current_process"
     branchType: @local::branch_type
   }
 }
@@ -29,7 +29,7 @@ physics: {
   analyzers: {
     a1: {
       module_type: IntTestAnalyzer
-      input_label: "IntProducingService"
+      input_label: "IntProducingService::current_process"
       branch_type: @local::branch_type
       expected_value: @local::int_value
     }
