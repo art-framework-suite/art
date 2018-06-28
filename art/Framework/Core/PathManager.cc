@@ -417,7 +417,8 @@ namespace art {
   }
 
   void
-  PathManager::createModulesAndWorkers()
+  PathManager::createModulesAndWorkers(
+    std::vector<std::string> const& producing_services)
   {
     // For each configured schedule, create the trigger paths and the
     // workers on each path.
@@ -480,7 +481,8 @@ namespace art {
     schedule_iteration.for_each_schedule(fill_workers);
 
     using namespace detail;
-    auto const graph_info_collection = getModuleGraphInfoCollection_();
+    auto const graph_info_collection =
+      getModuleGraphInfoCollection_(producing_services);
     ModuleGraphInfoMap const modInfos{graph_info_collection};
     auto const module_graph =
       make_module_graph(modInfos, protoTrigPathLabelMap_, protoEndPathLabels_);
@@ -799,7 +801,8 @@ namespace art {
   using namespace detail;
 
   collection_map_t
-  PathManager::getModuleGraphInfoCollection_()
+  PathManager::getModuleGraphInfoCollection_(
+    std::vector<std::string> const& producing_services)
   {
     collection_map_t result{};
     auto& source_info = result["input_source"];
@@ -830,6 +833,19 @@ namespace art {
         viewable_products_per_module[module_name].insert(
           pd.productInstanceName());
       }
+    }
+
+    // Handle producing services, which do not currently support 'consumes'.
+    for (auto const& service_name : producing_services) {
+      auto& graph_info = result[service_name];
+      graph_info.module_type = ModuleType::producing_service;
+
+      auto found = produced_products_per_module.find(service_name);
+      if (found == cend(produced_products_per_module)) {
+        continue;
+      }
+
+      graph_info.produced_products = found->second;
     }
 
     for (auto const& path : protoTrigPathLabelMap_) {
@@ -868,7 +884,7 @@ namespace art {
 
       auto found = produced_products.find(module_name);
       if (found != cend(produced_products)) {
-        graph_info.produced_products = produced_products.at(module_name);
+        graph_info.produced_products = found->second;
       }
 
       auto const& consumables =

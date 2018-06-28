@@ -77,11 +77,12 @@ namespace art {
     }
   }
 
-  void
+  std::vector<std::string>
   ServicesManager::registerProducts(ProductDescriptions& productsToProduce,
                                     ProducingServiceSignals& signals,
                                     ProcessConfiguration const& pc)
   {
+    std::vector<std::string> producing_services;
     for (auto& pr : factory_) {
       auto& serviceEntry = pr.second;
 
@@ -102,10 +103,18 @@ namespace art {
         continue;
       }
 
+      auto const before = productsToProduce.size();
       ModuleDescription const md{
         pset.id(), moduleLabel, moduleLabel, ModuleThreadingType::shared, pc};
       serviceEntry.registerProducts(productsToProduce, signals, md);
+      if (productsToProduce.size() != before) {
+        // Registering the products for this service has changed the
+        // size of productsToProduce.  We make the reasonable
+        // assumption that productsToProduce has increased in size.
+        producing_services.push_back(moduleLabel);
+      }
     }
+    return producing_services;
   }
 
   ServicesManager::ServicesManager(ParameterSet&& servicesPSet,

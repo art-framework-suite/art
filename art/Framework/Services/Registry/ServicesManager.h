@@ -59,16 +59,19 @@ namespace art {
     bool
     isAvailable() const
     {
-      return factory_.find(TypeID(typeid(T))) != factory_.end();
+      return factory_.find(TypeID{typeid(T)}) != cend(factory_);
     }
 
     void getParameterSets(std::vector<fhicl::ParameterSet>& out) const;
 
     void forceCreation();
 
-    void registerProducts(ProductDescriptions& productsToProduce,
-                          ProducingServiceSignals& signals,
-                          ProcessConfiguration const& pc);
+    // Returns vector of names corresponding to services that produce
+    // products.
+    std::vector<std::string> registerProducts(
+      ProductDescriptions& productsToProduce,
+      ProducingServiceSignals& signals,
+      ProcessConfiguration const& pc);
 
     template <typename T>
     T& get();

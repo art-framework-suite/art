@@ -60,7 +60,8 @@ namespace art {
 
   public: // API
     std::vector<std::string> const& triggerPathNames() const;
-    void createModulesAndWorkers();
+    void createModulesAndWorkers(
+      std::vector<std::string> const& producing_services);
     PathsInfo& triggerPathsInfo(ScheduleID);
     PerScheduleContainer<PathsInfo>& triggerPathsInfo();
     PathsInfo& endPathInfo(ScheduleID);
@@ -92,7 +93,8 @@ namespace art {
     ModuleThreadingType loadModuleThreadingType_(std::string const& lib_spec);
 
     // Module-graph implementation
-    detail::collection_map_t getModuleGraphInfoCollection_();
+    detail::collection_map_t getModuleGraphInfoCollection_(
+      std::vector<std::string> const& producing_services);
     void fillModuleOnlyDeps_(
       std::string const& path_name,
       detail::configs_t const& worker_configs,
