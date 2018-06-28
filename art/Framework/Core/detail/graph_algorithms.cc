@@ -1,4 +1,5 @@
 #include "art/Framework/Core/detail/graph_algorithms.h"
+#include "art/Framework/Core/detail/ModuleConfigInfo.h"
 #include "boost/graph/graph_traits.hpp"
 #include "boost/graph/graph_utility.hpp"
 #include "canvas/Utilities/Exception.h"
@@ -30,6 +31,12 @@ namespace {
       result += *i;
     }
     return result;
+  }
+
+  inline std::string const&
+  module_label(art::WorkerInPath::ConfigInfo const& wci)
+  {
+    return wci.moduleConfigInfo->moduleLabel;
   }
 }
 
@@ -115,8 +122,8 @@ art::detail::make_path_ordering_edges(ModuleGraphInfoMap const& modInfos,
     auto curr = prev + 1;
     auto const end = cend(modules);
     while (curr != end) {
-      auto const pi = modInfos.vertex_index(prev->label);
-      auto const ci = modInfos.vertex_index(curr->label);
+      auto const pi = modInfos.vertex_index(module_label(*prev));
+      auto const ci = modInfos.vertex_index(module_label(*curr));
       auto const edge = add_edge(ci, pi, graph);
       path_label[edge.first] = "path:" + path.first;
       prev = curr;
@@ -140,21 +147,23 @@ art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
       if (modules.empty()) {
         continue;
       }
-      auto const front_index = modInfos.vertex_index(modules.front().label);
-      auto const back_index = modInfos.vertex_index(modules.back().label);
+      auto const front_index =
+        modInfos.vertex_index(module_label(modules.front()));
+      auto const back_index =
+        modInfos.vertex_index(module_label(modules.back()));
       auto const edge1 = add_edge(front_index, source_index, graph);
       sync_label[edge1.first] = "source:" + path.first;
       auto const edge2 = add_edge(tr_index, back_index, graph);
       sync_label[edge2.first] = "sync";
     }
     for (auto const& module : end_path) {
-      auto const index = modInfos.vertex_index(module.label);
+      auto const index = modInfos.vertex_index(module_label(module));
       auto const edge = add_edge(index, tr_index, graph);
       sync_label[edge.first] = "sync";
     }
   } else if (!end_path.empty()) {
     for (auto const& module : end_path) {
-      auto const index = modInfos.vertex_index(module.label);
+      auto const index = modInfos.vertex_index(module_label(module));
       auto const edge = add_edge(index, source_index, graph);
       sync_label[edge.first] = "sync";
     }
@@ -166,7 +175,7 @@ art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
   for (auto const& path : trigger_paths) {
     auto preceding_filter_index = invalid;
     for (auto const& module : path.second) {
-      auto const index = modInfos.vertex_index(module.label);
+      auto const index = modInfos.vertex_index(module_label(module));
       auto const& info = modInfos.info(index);
       if (preceding_filter_index != invalid) {
         auto const edge = add_edge(index, preceding_filter_index, graph);
@@ -186,7 +195,7 @@ art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
   // been specified.  Treat it as a filter.
   auto const tr_index = modInfos.vertex_index("TriggerResults");
   for (auto const& module : end_path) {
-    auto const index = modInfos.vertex_index(module.label);
+    auto const index = modInfos.vertex_index(module_label(module));
     auto const& info = modInfos.info(index);
     for (auto const& path : info.select_events) {
       auto const edge = add_edge(index, tr_index, graph);
@@ -267,7 +276,7 @@ namespace {
     bool
     operator()(art::WorkerInPath::ConfigInfo const& info) const
     {
-      return info.label == module_name;
+      return module_label(info) == module_name;
     }
   };
 }

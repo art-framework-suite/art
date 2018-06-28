@@ -16,6 +16,7 @@
 #include "art/Framework/Principal/Worker.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/Transition.h"
+#include "cetlib/exempt_ptr.h"
 #include "hep_concurrency/WaitingTask.h"
 
 #include <atomic>
@@ -26,15 +27,22 @@
 
 namespace art {
   using module_label_t = std::string;
+
+  namespace detail {
+    class ModuleConfigInfo;
+  }
+
   class PathContext;
+
   class WorkerInPath {
   public:
     enum FilterAction { Normal = 0, Ignore = 1, Veto = 2 };
     struct ConfigInfo {
-      ConfigInfo(module_label_t const& lbl, FilterAction const action)
-        : label{lbl}, filterAction{action}
+      ConfigInfo(cet::exempt_ptr<detail::ModuleConfigInfo const> const info,
+                 FilterAction const action)
+        : moduleConfigInfo{info}, filterAction{action}
       {}
-      module_label_t label;
+      cet::exempt_ptr<detail::ModuleConfigInfo const> moduleConfigInfo;
       FilterAction filterAction;
     };
 

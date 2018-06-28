@@ -61,9 +61,10 @@ namespace art {
     sorted_module_labels(std::vector<WorkerInPath::ConfigInfo> const& wcis)
     {
       std::vector<std::string> sorted_modules;
-      cet::transform_all(wcis,
-                         back_inserter(sorted_modules),
-                         [](auto const& wci) { return wci.label; });
+      cet::transform_all(
+        wcis, back_inserter(sorted_modules), [](auto const& wci) {
+          return wci.moduleConfigInfo->moduleLabel;
+        });
       std::sort(begin(sorted_modules), end(sorted_modules));
       return sorted_modules;
     }
@@ -133,7 +134,8 @@ namespace art {
                  << " but defined in code as a " << to_string(actualModType)
                  << ".\n";
             }
-            detail::ModuleConfigInfo mci{path_table_name,
+            detail::ModuleConfigInfo mci{module_label,
+                                         path_table_name,
                                          module_type,
                                          loadModuleThreadingType_(lib_spec),
                                          module_pset,
@@ -141,9 +143,8 @@ namespace art {
             auto result = allModules_.emplace(module_label, move(mci));
             if (!result.second) {
               es << "  ERROR: Module label " << module_label
-                 << " has been used in "
-                 << result.first->second.configTableName_ << " and "
-                 << path_table_name << ".\n";
+                 << " has been used in " << result.first->second.configTableName
+                 << " and " << path_table_name << ".\n";
             }
           }
           catch (exception const& e) {
@@ -271,9 +272,9 @@ namespace art {
               continue;
             }
             // map<string, ModuleConfigInfo>
-            auto& mci = iter->second;
-            auto mtype = is_observer(mci.moduleType_) ? mod_cat_t::OBSERVER :
-                                                        mod_cat_t::MODIFIER;
+            auto const& mci = iter->second;
+            auto mtype = is_observer(mci.moduleType) ? mod_cat_t::OBSERVER :
+                                                       mod_cat_t::MODIFIER;
             if ((cat != mod_cat_t::UNSET) && (cat != mtype)) {
               // Warn on mixed module types.
               es << "  ERROR: Entry " << modname_filterAction << " in path "
@@ -337,18 +338,19 @@ namespace art {
             } else if (modname_filterAction[0] == '-') {
               filteract = WorkerInPath::FilterAction::Ignore;
             }
-            if (mci.moduleType_ != ModuleType::filter &&
+            if (mci.moduleType != ModuleType::filter &&
                 filteract != WorkerInPath::Normal) {
               es << "  ERROR: Module " << label << " in path " << path_name
                  << " is" << (cat == mod_cat_t::OBSERVER ? " an " : " a ")
-                 << to_string(mci.moduleType_)
+                 << to_string(mci.moduleType)
                  << " and cannot have a '!' or '-' prefix.\n";
             }
+            auto const mci_p = cet::make_exempt_ptr(&mci);
             if (cat == mod_cat_t::MODIFIER) {
               // Trigger path.
-              protoTrigPathLabelMap_[path_name].emplace_back(label, filteract);
+              protoTrigPathLabelMap_[path_name].emplace_back(mci_p, filteract);
             } else {
-              protoEndPathLabels_.emplace_back(label, filteract);
+              protoEndPathLabels_.emplace_back(mci_p, filteract);
             }
           }
           if (cat == mod_cat_t::OBSERVER) {
@@ -479,7 +481,6 @@ namespace art {
 
     using namespace detail;
     auto const graph_info_collection = getModuleGraphInfoCollection_();
-    allModules_.clear();
     ModuleGraphInfoMap const modInfos{graph_info_collection};
     auto const module_graph =
       make_module_graph(modInfos, protoTrigPathLabelMap_, protoEndPathLabels_);
@@ -495,6 +496,11 @@ namespace art {
     if (!err.empty()) {
       throw Exception{errors::Configuration} << err << '\n';
     }
+
+    // No longer need worker/module config objects.
+    protoTrigPathLabelMap_.clear();
+    protoEndPathLabels_.clear();
+    allModules_.clear();
   }
 
   PathsInfo&
@@ -543,9 +549,9 @@ namespace art {
     for (auto const& pr : allModules_) {
       auto const& module_label = pr.first;
       auto const& mci = pr.second;
-      auto const& modPS = mci.modPS_;
-      auto const& module_type = mci.libSpec_;
-      auto const& module_threading_type = mci.moduleThreadingType_;
+      auto const& modPS = mci.modPS;
+      auto const module_type = mci.libSpec;
+      auto const module_threading_type = mci.moduleThreadingType;
 
       ModuleDescription const md{
         modPS.id(),
@@ -624,7 +630,7 @@ namespace art {
     std::pair<ModuleBase*, std::string> result;
     auto const& module_type = md.moduleName();
     try {
-      detail::ModuleMaker_t* module_factory_func = nullptr;
+      detail::ModuleMaker_t* module_factory_func{nullptr};
       try {
         lm_.getSymbolByLibspec(module_type, "make_module", module_factory_func);
       }
@@ -668,18 +674,18 @@ namespace art {
     auto const pi = pc.bitPosition();
     vector<WorkerInPath> wips;
     for (auto const& wci : wci_list) {
-      auto const& module_label = wci.label;
+      auto const& mci = *wci.moduleConfigInfo;
+      auto const filterAction = wci.filterAction;
+      auto const& module_label = mci.moduleLabel;
 
       if (workers_.find(module_label) == cend(workers_)) {
         workers_[module_label].expand_to_num_schedules();
       }
 
-      auto const& filterAction = wci.filterAction;
-      auto const& mci = allModules_.at(module_label);
-      auto const& modPS = mci.modPS_;
-      auto const& module_type = mci.libSpec_;
-      auto const& module_threading_type = mci.moduleThreadingType_;
-      Worker* worker = nullptr;
+      auto const& modPS = mci.modPS;
+      auto const module_type = mci.libSpec;
+      auto const module_threading_type = mci.moduleThreadingType;
+      Worker* worker{nullptr};
       // Workers which are present on multiple paths should be shared so
       // that their work is only done once per schedule.
       {
@@ -740,8 +746,6 @@ namespace art {
         auto module = get_module(module_label, module_threading_type, sid);
         worker = worker_from_module_factory_func(module, md, wp);
         workers_[module_label][sid] = worker;
-
-        // workerSet_.emplace(module_label, worker);
         TDEBUG(5) << "Made worker 0x" << hex << ((unsigned long)worker) << dec
                   << " (" << sid << ") path: " << pi << " type: " << module_type
                   << " label: " << module_label << "\n";
@@ -755,7 +759,7 @@ namespace art {
   ModuleType
   PathManager::loadModuleType_(string const& lib_spec)
   {
-    detail::ModuleTypeFunc_t* mod_type_func = nullptr;
+    detail::ModuleTypeFunc_t* mod_type_func{nullptr};
     try {
       lm_.getSymbolByLibspec(lib_spec, "moduleType", mod_type_func);
     }
@@ -774,7 +778,7 @@ namespace art {
   ModuleThreadingType
   PathManager::loadModuleThreadingType_(string const& lib_spec)
   {
-    detail::ModuleThreadingTypeFunc_t* mod_threading_type_func = nullptr;
+    detail::ModuleThreadingTypeFunc_t* mod_threading_type_func{nullptr};
     try {
       lm_.getSymbolByLibspec(
         lib_spec, "moduleThreadingType", mod_threading_type_func);
@@ -835,7 +839,7 @@ namespace art {
                           viewable_products_per_module,
                           result);
     }
-    fillModuleOnlyDeps_("end_path",
+    fillModuleOnlyDeps_(PathContext::end_path(),
                         protoEndPathLabels_,
                         produced_products_per_module,
                         viewable_products_per_module,
@@ -856,11 +860,11 @@ namespace art {
 
     for (auto it = worker_config_begin, end = cend(worker_configs); it != end;
          ++it) {
-      auto const& module_name = it->label;
-      auto const& mci = allModules_.at(module_name);
+      auto const& mci = *it->moduleConfigInfo;
+      auto const& module_name = mci.moduleLabel;
       auto& graph_info = info_collection[module_name];
       graph_info.paths.insert(path_name);
-      graph_info.module_type = mci.moduleType_;
+      graph_info.module_type = mci.moduleType;
 
       auto found = produced_products.find(module_name);
       if (found != cend(produced_products)) {
@@ -890,8 +894,9 @@ namespace art {
                                      collection_map_t& info_collection) const
   {
     for (auto const& worker_config : worker_configs) {
-      auto const& module_name = worker_config.label;
-      auto const& ps = allModules_.at(module_name).modPS_;
+      auto const& mci = *worker_config.moduleConfigInfo;
+      auto const& module_name = mci.moduleLabel;
+      auto const& ps = mci.modPS;
       auto& graph_info = info_collection[module_name];
       assert(is_observer(graph_info.module_type));
       auto const path_specs = ps.get<vector<string>>("SelectEvents", {});
