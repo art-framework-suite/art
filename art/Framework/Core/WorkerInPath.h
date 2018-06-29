@@ -29,7 +29,7 @@ namespace art {
   using module_label_t = std::string;
 
   namespace detail {
-    class ModuleConfigInfo;
+    struct ModuleConfigInfo;
   }
 
   class PathContext;
