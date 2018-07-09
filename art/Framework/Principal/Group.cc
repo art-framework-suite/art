@@ -15,6 +15,8 @@ using namespace std;
 
 namespace art {
 
+  using namespace detail;
+
   Group::~Group()
   {
     delete productProvenance_.load();
@@ -31,13 +33,12 @@ namespace art {
     partnerBaseProduct_ = nullptr;
   }
 
-  // normal
   Group::Group(DelayedReader* reader,
                BranchDescription const& bd,
                unique_ptr<RangeSet>&& rs,
-               TypeID const& wrapper_type,
+               grouptype const gt,
                unique_ptr<EDProduct>&& edp /*= nullptr*/)
-    : branchDescription_{bd}, delayedReader_{reader}, wrapperType_{wrapper_type}
+    : branchDescription_{bd}, delayedReader_{reader}, grpType_{gt}
   {
     productProvenance_ = nullptr;
     product_ = edp.release();
@@ -46,95 +47,6 @@ namespace art {
     baseProduct_ = nullptr;
     partnerBaseProduct_ = nullptr;
   }
-
-  // normal, put
-  Group::Group(DelayedReader* reader,
-               BranchDescription const& bd,
-               unique_ptr<RangeSet>&& rs,
-               unique_ptr<EDProduct>&& edp,
-               TypeID const& wrapper_type)
-    : Group{reader, bd, move(rs), wrapper_type, move(edp)}
-  {}
-
-  // assns
-  Group::Group(DelayedReader* reader,
-               BranchDescription const& bd,
-               unique_ptr<RangeSet>&& rs,
-               TypeID const& primary_wrapper_type,
-               TypeID const& partner_wrapper_type,
-               unique_ptr<EDProduct>&& edp /*= nullptr*/)
-    : branchDescription_{bd}
-    , delayedReader_{reader}
-    , grpType_{grouptype::assns}
-    , wrapperType_{primary_wrapper_type}
-    , partnerWrapperType_{partner_wrapper_type}
-  {
-    productProvenance_ = nullptr;
-    product_ = edp.release();
-    rangeSet_ = rs.release();
-    partnerProduct_ = nullptr;
-    baseProduct_ = nullptr;
-    partnerBaseProduct_ = nullptr;
-  }
-
-  // assns, put
-  Group::Group(DelayedReader* reader,
-               BranchDescription const& bd,
-               unique_ptr<RangeSet>&& rs,
-               unique_ptr<EDProduct>&& edp,
-               TypeID const& primary_wrapper_type,
-               TypeID const& partner_wrapper_type)
-    : Group{reader,
-            bd,
-            move(rs),
-            primary_wrapper_type,
-            partner_wrapper_type,
-            move(edp)}
-  {}
-
-  // assnsWithData
-  Group::Group(DelayedReader* reader,
-               BranchDescription const& bd,
-               unique_ptr<RangeSet>&& rs,
-               TypeID const& primary_wrapper_type,
-               TypeID const& partner_wrapper_type,
-               TypeID const& base_wrapper_type,
-               TypeID const& partner_base_wrapper_type,
-               unique_ptr<EDProduct>&& edp /*= nullptr*/)
-    : branchDescription_{bd}
-    , delayedReader_{reader}
-    , grpType_{grouptype::assnsWithData}
-    , wrapperType_{primary_wrapper_type}
-    , partnerWrapperType_{partner_wrapper_type}
-    , baseWrapperType_{base_wrapper_type}
-    , partnerBaseWrapperType_{partner_base_wrapper_type}
-  {
-    productProvenance_ = nullptr;
-    product_ = edp.release();
-    rangeSet_ = rs.release();
-    partnerProduct_ = nullptr;
-    baseProduct_ = nullptr;
-    partnerBaseProduct_ = nullptr;
-  }
-
-  // assnsWithData, put
-  Group::Group(DelayedReader* reader,
-               BranchDescription const& bd,
-               unique_ptr<RangeSet>&& rs,
-               unique_ptr<EDProduct>&& edp,
-               TypeID const& primary_wrapper_type,
-               TypeID const& partner_wrapper_type,
-               TypeID const& base_wrapper_type,
-               TypeID const& partner_base_wrapper_type)
-    : Group{reader,
-            bd,
-            move(rs),
-            primary_wrapper_type,
-            partner_wrapper_type,
-            base_wrapper_type,
-            partner_base_wrapper_type,
-            move(edp)}
-  {}
 
   EDProduct const*
   Group::getIt_() const
@@ -188,22 +100,32 @@ namespace art {
   Group::uniqueProduct(TypeID const& wanted_wrapper_type) const
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    if (product_.load() == nullptr) {
+      return nullptr;
+    }
     if (grpType_ == grouptype::normal) {
       return product_.load();
     }
+
+    auto assns_type_ids = product_.load()->getTypeIDs();
     if (grpType_ == grouptype::assns) {
-      if (wanted_wrapper_type == partnerWrapperType_) {
+      assert(assns_type_ids.size() == 2ull);
+      if (wanted_wrapper_type ==
+          assns_type_ids.at(product_metatype::RightLeft)) {
         return partnerProduct_.load();
       }
       return product_.load();
     }
-    if (wanted_wrapper_type == partnerBaseWrapperType_) {
+
+    assert(assns_type_ids.size() == 4ull);
+    if (wanted_wrapper_type == assns_type_ids.at(product_metatype::RightLeft)) {
       return partnerBaseProduct_.load();
     }
-    if (wanted_wrapper_type == baseWrapperType_) {
+    if (wanted_wrapper_type == assns_type_ids.at(product_metatype::LeftRight)) {
       return baseProduct_.load();
     }
-    if (wanted_wrapper_type == partnerWrapperType_) {
+    if (wanted_wrapper_type ==
+        assns_type_ids.at(product_metatype::RightLeftData)) {
       return partnerProduct_.load();
     }
     return product_.load();
@@ -373,33 +295,6 @@ namespace art {
   Group::resolveProductIfAvailable(
     TypeID wanted_wrapper_type /*= TypeID{}*/) const
   {
-    // Validate wanted_wrapper_type.
-    auto throwResolveLogicError = [this, &wanted_wrapper_type] {
-      throw Exception(errors::LogicError, "INTERNAL ERROR: ")
-        << cet::demangle_symbol(typeid(*this).name())
-        << " cannot resolve wanted product of type "
-        << wanted_wrapper_type.className() << ".\n";
-    };
-    if (!wanted_wrapper_type) {
-      wanted_wrapper_type = wrapperType_;
-    }
-    if (grpType_ == grouptype::normal) {
-      if (wanted_wrapper_type != wrapperType_) {
-        throwResolveLogicError();
-      }
-    } else if (grpType_ == grouptype::assns) {
-      if ((wanted_wrapper_type != wrapperType_) &&
-          (wanted_wrapper_type != partnerWrapperType_)) {
-        throwResolveLogicError();
-      }
-    } else {
-      if ((wanted_wrapper_type != wrapperType_) &&
-          (wanted_wrapper_type != partnerWrapperType_) &&
-          (wanted_wrapper_type != baseWrapperType_) &&
-          (wanted_wrapper_type != partnerBaseWrapperType_)) {
-        throwResolveLogicError();
-      }
-    }
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     // Now try to get the master product.
     if (product_.load() == nullptr) {
@@ -414,8 +309,8 @@ namespace art {
       }
       // Now try to read it.
       // Note: This may call back to us to update the product
-      // provenance if run or subRun data product merging
-      // creates a new provenance.
+      // provenance if run or subRun data product merging creates a
+      // new provenance.
       product_ =
         delayedReader_
           ->getProduct(this, branchDescription_.productID(), *rangeSet_.load())
@@ -425,11 +320,34 @@ namespace art {
         return false;
       }
     }
-    if (wanted_wrapper_type == wrapperType_) {
-      // They wanted the master product and we just got it, all done.
+
+    if (!wanted_wrapper_type) {
+      // The type of the product is not known, therefore the on-disk
+      // representation is sufficient.
       return true;
     }
-    if (wanted_wrapper_type == partnerWrapperType_) {
+
+    if (grpType_ == grouptype::normal) {
+      // If we get here, we have successfully read a normal product.
+      return true;
+    }
+
+    assert(grpType_ != grouptype::normal);
+    auto normal_metatype = (grpType_ == grouptype::assns) ?
+                             product_metatype::LeftRight :
+                             product_metatype::LeftRightData;
+
+    auto assns_type_ids = product_.load()->getTypeIDs();
+    assert(!assns_type_ids.empty());
+
+    if (wanted_wrapper_type == assns_type_ids.at(normal_metatype)) {
+      return true;
+    }
+
+    auto partner_metatype = (grpType_ == grouptype::assns) ?
+                              product_metatype::RightLeft :
+                              product_metatype::RightLeftData;
+    if (wanted_wrapper_type == assns_type_ids.at(partner_metatype)) {
       if (partnerProduct_.load() != nullptr) {
         // They wanted the partner product, and we have already made it, done.
         return true;
@@ -440,7 +358,10 @@ namespace art {
         product_.load()->makePartner(wanted_wrapper_type.typeInfo()).release();
       return partnerProduct_.load() != nullptr;
     }
-    if (wanted_wrapper_type == baseWrapperType_) {
+
+    assert(grpType_ == grouptype::assnsWithData);
+
+    if (wanted_wrapper_type == assns_type_ids.at(product_metatype::LeftRight)) {
       if (baseProduct_.load() != nullptr) {
         // They wanted the base product, and we have already made it, done.
         return true;
@@ -465,16 +386,10 @@ namespace art {
   Group::tryToResolveProduct(TypeID const& wanted_wrapper)
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    if (wanted_wrapper) {
-      resolveProductIfAvailable(wanted_wrapper);
-    } else {
-      resolveProductIfAvailable();
-    }
+    resolveProductIfAvailable(wanted_wrapper);
+
     // If the product is a dummy filler, it will now be marked unavailable.
-    if (!productAvailable()) {
-      return false;
-    }
-    return true;
+    return productAvailable();
   }
 
 } // namespace art

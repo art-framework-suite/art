@@ -16,6 +16,7 @@ art_make_library(
   art_Framework_IO_Root_RootDB
   art_Utilities
   canvas
+  canvas_root_io
   MF_MessageLogger
   ${ROOT_CORE}
   ${ROOT_RIO}

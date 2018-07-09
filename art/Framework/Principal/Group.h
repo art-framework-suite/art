@@ -30,61 +30,16 @@
 namespace art {
 
   class Group final : public EDProductGetter {
-  private: // TYPES
-    enum class grouptype { normal = 0, assns = 1, assnsWithData = 2 };
-
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~Group();
 
-    // normal
+    enum class grouptype { normal = 0, assns = 1, assnsWithData = 2 };
+
     Group(DelayedReader*,
           BranchDescription const&,
           std::unique_ptr<RangeSet>&&,
-          TypeID const& wrapper_type,
+          grouptype const gt,
           std::unique_ptr<EDProduct>&& edp = nullptr);
-
-    // normal, put
-    Group(DelayedReader*,
-          BranchDescription const&,
-          std::unique_ptr<RangeSet>&&,
-          std::unique_ptr<EDProduct>&&,
-          art::TypeID const& wrapper_type);
-
-    // assns
-    Group(DelayedReader*,
-          BranchDescription const&,
-          std::unique_ptr<RangeSet>&&,
-          TypeID const& primary_wrapper_type,
-          TypeID const& partner_wrapper_type,
-          std::unique_ptr<EDProduct>&& edp = nullptr);
-
-    // assns, put
-    Group(DelayedReader*,
-          BranchDescription const&,
-          std::unique_ptr<RangeSet>&&,
-          std::unique_ptr<EDProduct>&&,
-          TypeID const& primary_wrapper_type,
-          TypeID const& partner_wrapper_type);
-
-    // assnsWithData
-    Group(DelayedReader*,
-          BranchDescription const&,
-          std::unique_ptr<RangeSet>&&,
-          TypeID const& primary_wrapper_type,
-          TypeID const& partner_wrapper_type,
-          TypeID const& base_wrapper_type,
-          TypeID const& partner_base_wrapper_type,
-          std::unique_ptr<EDProduct>&& edp = nullptr);
-
-    // assnsWithData, put
-    Group(DelayedReader*,
-          BranchDescription const&,
-          std::unique_ptr<RangeSet>&&,
-          std::unique_ptr<EDProduct>&&,
-          TypeID const& primary_wrapper_type,
-          TypeID const& partner_wrapper_type,
-          TypeID const& base_wrapper_type,
-          TypeID const& partner_base_wrapper_type);
 
     Group(Group const&) = delete;
     Group(Group&&) = delete;
@@ -155,13 +110,8 @@ namespace art {
     // Are we normal, assns, or assnsWithData?
     grouptype const grpType_{grouptype::normal};
     //
-    //  Normal Group
-    //
-    TypeID const wrapperType_{};
-    //
     //  AssnsGroup
     //
-    TypeID const partnerWrapperType_{};
     // Note: Modified by setProduct (called by Principal put).
     // Note: Modified by removeCachedProduct.
     // Note: Modified by resolveProductIfAvailable.
@@ -169,8 +119,6 @@ namespace art {
     //
     //  AssnsGroupWithData
     //
-    TypeID const baseWrapperType_{};
-    TypeID const partnerBaseWrapperType_{};
     // Note: Modified by setProduct.
     // Note: Modified by removeCachedProduct.
     // Note: Modified by resolveProductIfAvailable.

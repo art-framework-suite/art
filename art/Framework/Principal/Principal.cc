@@ -35,7 +35,6 @@
 #include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedClassName.h"
 #include "canvas/Utilities/WrappedTypeID.h"
-#include "canvas_root_io/Utilities/getWrapperTIDs.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "hep_concurrency/RecursiveMutex.h"
@@ -94,38 +93,16 @@ namespace art {
     unique_ptr<Group>
     create_group(DelayedReader* reader, BranchDescription const& bd)
     {
-      unique_ptr<Group> result;
-      auto tids = root::getWrapperTIDs(bd.producedClassName());
-      switch (tids.size()) {
-        case 1ull:
-          // Standard Group.
-          result =
-            make_unique<Group>(reader, bd, make_unique<RangeSet>(), tids[0]);
-          break;
-        case 2ull:
-          // Assns<A, B, void>.
-          result = make_unique<Group>(
-            reader, bd, make_unique<RangeSet>(), tids[0], tids[1]);
-          break;
-        case 4ull:
-          // Assns<A, B, D>.
-          result = make_unique<Group>(reader,
-                                      bd,
-                                      make_unique<RangeSet>(),
-                                      tids[0],
-                                      tids[1],
-                                      tids[2],
-                                      tids[3]);
-          break;
-        default:
-          // throw internal error exception
-          throw Exception(errors::LogicError, "INTERNAL ART ERROR")
-            << "While making groups, internal function getWrapperTIDs() "
-               "returned "
-               "an unexpected answer of size "
-            << tids.size() << ".\n";
+      auto const& class_name = bd.producedClassName();
+      auto gt = Group::grouptype::normal;
+      if (is_assns(class_name)) {
+        if (name_of_template_arg(class_name, 2) == "void"s) {
+          gt = Group::grouptype::assns;
+        } else {
+          gt = Group::grouptype::assnsWithData;
+        }
       }
-      return result;
+      return make_unique<Group>(reader, bd, make_unique<RangeSet>(), gt);
     }
 
   } // unnamed namespace
