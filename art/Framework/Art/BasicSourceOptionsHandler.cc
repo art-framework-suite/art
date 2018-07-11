@@ -78,16 +78,17 @@ art::BasicSourceOptionsHandler::processSourceListArg_(
 {
   bool result = !!vm.count("source-list");
   if (result) {
-    if (source_list.size()) {
+    if (!source_list.empty()) {
       throw Exception(errors::Configuration)
         << "--source-list (-S) and --source (-s) or non-option arguments are "
         << "incompatible due to ordering ambiguities.\n";
     }
-    std::ifstream flist(vm["source-list"].as<std::string>().c_str());
+    auto const filename = vm["source-list"].as<std::string>();
+    std::ifstream flist{filename};
     if (!flist) {
       throw Exception(errors::Configuration)
-        << "Specified source-list file \""
-        << vm["source-list"].as<std::string>() << "\" cannot be read.\n";
+        << "Specified source-list file \"" << filename
+        << "\" cannot be read.\n";
     }
     art::detail::fillSourceList(flist, source_list);
   }
