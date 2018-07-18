@@ -160,6 +160,7 @@
 //
 // ======================================================================
 
+#include "CLHEP/Random/RandomEngine.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Utilities/ScheduleID.h"
@@ -188,10 +189,6 @@ namespace art {
   }
 
   class RandomNumberGenerator;
-}
-
-namespace CLHEP {
-  class HepRandomEngine;
 }
 
 // ======================================================================
