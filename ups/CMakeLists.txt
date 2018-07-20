@@ -1,6 +1,2 @@
-
-# create package configuration and version files
-
-process_ups_files()
-
+# Create package configuration and version files.
 cet_cmake_config()
