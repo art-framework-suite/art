@@ -40,11 +40,11 @@ public:
   void produce(art::Event& e) override;
 
 private:
-  std::string myLabel_;
+  std::string const myLabel_;
   CLHEP::RandFlat dist_;
-  size_t dieOnNthEvent_;
+  size_t const dieOnNthEvent_;
   size_t eventN_{};
-  bool genUnsaved_;
+  bool const genUnsaved_;
 };
 
 std::ostream&
