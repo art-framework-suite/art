@@ -27,15 +27,17 @@ class arttest::ESSecondaryProducer : public art::EDProducer {
 public:
   explicit ESSecondaryProducer(fhicl::ParameterSet const& p);
 
+private:
   void produce(art::Event& e) override;
 
-private:
   std::string const label_;
   size_t const index_;
 };
 
 arttest::ESSecondaryProducer::ESSecondaryProducer(fhicl::ParameterSet const& p)
-  : label_(p.get<std::string>("moduleLabel")), index_(p.get<size_t>("index"))
+  : EDProducer{p}
+  , label_(p.get<std::string>("moduleLabel"))
+  , index_(p.get<size_t>("index"))
 {
   produces<arttest::ESPtrSimple>();
   produces<arttest::IntProduct>();

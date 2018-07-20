@@ -22,11 +22,12 @@ namespace {
   public:
     using Parameters = EDProducer::Table<Config>;
     explicit AssembleProducts(Parameters const& config)
-      : particlesTag_{config().particlesTag()}
+      : EDProducer{config}, particlesTag_{config().particlesTag()}
     {
       produces<unsigned, art::InSubRun>("seenParticles");
     }
 
+  private:
     void
     produce(art::Event& e) override
     {
@@ -44,7 +45,6 @@ namespace {
       seenParticles_ = 0u;
     }
 
-  private:
     InputTag const particlesTag_;
     std::atomic<unsigned> seenParticles_{};
 

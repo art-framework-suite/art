@@ -9,17 +9,20 @@ namespace arttest {
 
 class arttest::U_S : public art::EDProducer {
 public:
-  explicit U_S(fhicl::ParameterSet const&) { produces<IntProduct>(); }
+  struct Config {
+  };
+  using Parameters = Table<Config>;
+  explicit U_S(Parameters const& ps) : EDProducer{ps}
+  {
+    produces<IntProduct>();
+  }
 
+private:
   void
   produce(art::Event& e) override
   {
-    std::unique_ptr<IntProduct> p(new IntProduct(1));
-    e.put(std::move(p));
+    e.put(std::make_unique<IntProduct>(1));
   }
-  void
-  endJob() override
-  {}
 };
 
 DEFINE_ART_MODULE(arttest::U_S)

@@ -48,7 +48,7 @@ private:
 };
 
 PtrMakerProducer::PtrMakerProducer(fhicl::ParameterSet const& p)
-  : fInputLabel(p.get<std::string>("input_label"))
+  : EDProducer{p}, fInputLabel(p.get<std::string>("input_label"))
 {
   produces<intPtrvector_t>();
 }

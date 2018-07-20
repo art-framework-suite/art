@@ -56,7 +56,8 @@ namespace {
 } // namespace
 
 arttest::AssnsProducer::AssnsProducer(fhicl::ParameterSet const& ps)
-  : wantVoid_{ps.get<std::string>("wantVoid", "ALL")}
+  : EDProducer{ps}
+  , wantVoid_{ps.get<std::string>("wantVoid", "ALL")}
   , wantMV_{ps.get<bool>("wantMV", true)}
   , wantMany_{ps.get<bool>("wantMany", true)}
   , dinkVoid_{ps.get<bool>("dinkVoid", false)}

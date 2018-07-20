@@ -19,7 +19,16 @@ namespace art {
     using ModuleType = EDFilter;
     using WorkerType = WorkerT<EDFilter>;
 
-    EDFilter() = default;
+    [[deprecated("\n\nart warning: The default constructor for EDFilter has "
+                 "been deprecated.\n"
+                 "             Please call the non-default constructor as the "
+                 "first argument\n"
+                 "             in the initialization list of your module:\n\n"
+                 "               MyFilter(ParameterSet const& ps) : "
+                 "art::EDFilter{ps}, ... {} // or\n"
+                 "               MyFilter(Parameters const& ps) : "
+                 "art::EDFilter{ps}, ... {}\n\n")]] EDFilter() = default;
+
     explicit EDFilter(fhicl::ParameterSet const& pset)
       : detail::Filter{pset}
       , detail::LegacyModule{pset.get<std::string>("module_label")}

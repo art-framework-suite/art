@@ -27,13 +27,13 @@ class arttest::DeferredIsReadyWithAssnsProducer : public art::EDProducer {
 public:
   explicit DeferredIsReadyWithAssnsProducer(fhicl::ParameterSet const& p);
 
-  void produce(art::Event& e) override;
-
 private:
+  void produce(art::Event& e) override;
 };
 
 arttest::DeferredIsReadyWithAssnsProducer::DeferredIsReadyWithAssnsProducer(
-  fhicl::ParameterSet const&)
+  fhicl::ParameterSet const& ps)
+  : EDProducer{ps}
 {
   produces<std::vector<std::string>>();
   produces<std::vector<size_t>>();

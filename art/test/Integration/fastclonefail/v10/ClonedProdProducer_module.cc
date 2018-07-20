@@ -14,21 +14,25 @@ using namespace std;
 namespace arttest {
 
   class ClonedProdProducer : public EDProducer {
-
   public:
-    explicit ClonedProdProducer(ParameterSet const& /*pset*/)
-    {
-      produces<ClonedProd>();
-    }
+    struct Config {
+    };
+    using Parameters = Table<Config>;
+    explicit ClonedProdProducer(Parameters const&);
 
+  private:
     void produce(Event&) override;
   };
+
+  ClonedProdProducer::ClonedProdProducer(Parameters const& ps) : EDProducer{ps}
+  {
+    produces<ClonedProd>();
+  }
 
   void
   ClonedProdProducer::produce(art::Event& e)
   {
-    unique_ptr<ClonedProd> prod(new ClonedProd);
-    e.put(move(prod));
+    e.put(std::make_unique<ClonedProd>());
   }
 
 } // namespace arttest

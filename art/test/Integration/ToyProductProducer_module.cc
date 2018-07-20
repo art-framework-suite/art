@@ -26,7 +26,7 @@ namespace arttest {
     };
     using Parameters = art::EDProducer::Table<Config>;
 
-    explicit ToyProductProducer(Parameters const&)
+    explicit ToyProductProducer(Parameters const& ps) : EDProducer{ps}
     {
       produces<StringProduct, art::InRun>();
       produces<StringProduct, art::InRun>("bgnRun");

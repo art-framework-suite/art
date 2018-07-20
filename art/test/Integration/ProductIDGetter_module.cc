@@ -24,10 +24,9 @@ namespace art {
 } // namespace art
 
 class art::test::ProductIDGetter : public EDProducer {
+public:
   struct Config {
   };
-
-public:
   using Parameters = Table<Config>;
   explicit ProductIDGetter(Parameters const&);
 
@@ -36,7 +35,8 @@ private:
   void produce(art::Event&) override;
 };
 
-art::test::ProductIDGetter::ProductIDGetter(Parameters const&)
+art::test::ProductIDGetter::ProductIDGetter(Parameters const& ps)
+  : EDProducer{ps}
 {
   produces<std::vector<int>, art::InSubRun>();
   produces<art::Ptr<int>, art::InSubRun>();

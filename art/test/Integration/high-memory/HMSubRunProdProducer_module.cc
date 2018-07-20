@@ -19,6 +19,8 @@
 
 #include <memory>
 
+using namespace std::string_literals;
+
 namespace arttest {
   class HMSubRunProdProducer;
 }
@@ -26,15 +28,18 @@ namespace arttest {
 class arttest::HMSubRunProdProducer : public art::EDProducer {
 public:
   explicit HMSubRunProdProducer(fhicl::ParameterSet const&);
+
+private:
   void produce(art::Event&) override{};
   void endSubRun(art::SubRun& sr) override;
 };
 
-arttest::HMSubRunProdProducer::HMSubRunProdProducer(fhicl::ParameterSet const&)
+arttest::HMSubRunProdProducer::HMSubRunProdProducer(
+  fhicl::ParameterSet const& ps)
+  : EDProducer{ps}
 {
   for (unsigned short i = 0; i < N_BLOCKS; ++i) {
-    produces<HMLargeData, art::InSubRun>(std::string("block") +
-                                         std::to_string(i));
+    produces<HMLargeData, art::InSubRun>("block"s + std::to_string(i));
   }
 }
 
@@ -46,9 +51,8 @@ arttest::HMSubRunProdProducer::endSubRun(art::SubRun& sr)
 
   for (unsigned short i = 0; i < N_BLOCKS; ++i) {
     auto prod = std::make_unique<HMLargeData>(*stencil);
-    sr.put(std::move(prod),
-           std::string("block") + std::to_string(i),
-           art::subRunFragment());
+    sr.put(
+      std::move(prod), "block"s + std::to_string(i), art::subRunFragment());
   }
 }
 

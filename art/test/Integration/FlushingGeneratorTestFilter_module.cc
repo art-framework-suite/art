@@ -25,18 +25,18 @@ class arttest::FlushingGeneratorTestFilter : public art::EDFilter {
 public:
   explicit FlushingGeneratorTestFilter(fhicl::ParameterSet const& p);
 
+private:
   bool filter(art::Event&) override;
 
   bool beginRun(art::Run& r) override;
   bool beginSubRun(art::SubRun& sr) override;
   bool endRun(art::Run& r) override;
   bool endSubRun(art::SubRun& sr) override;
-
-private:
 };
 
 arttest::FlushingGeneratorTestFilter::FlushingGeneratorTestFilter(
-  fhicl::ParameterSet const&)
+  fhicl::ParameterSet const& ps)
+  : EDFilter{ps}
 {}
 
 bool

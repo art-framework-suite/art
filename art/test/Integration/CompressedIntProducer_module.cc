@@ -28,7 +28,8 @@ using arttest::CompressedIntProducer;
 class arttest::CompressedIntProducer : public art::EDProducer {
 public:
   explicit CompressedIntProducer(fhicl::ParameterSet const& p)
-    : value_(p.get<int>("ivalue"))
+    : EDProducer{p}
+    , value_(p.get<int>("ivalue"))
     ,
     // enums don't usually have a conversion from string
     branchType_(
@@ -37,25 +38,19 @@ public:
     art::test::run_time_produces<CompressedIntProduct>(this, branchType_);
   }
 
-  explicit CompressedIntProducer(int i) : value_(i)
-  {
-    produces<CompressedIntProduct>();
-  }
-
+private:
   void produce(art::Event& e) override;
   void endSubRun(art::SubRun& sr) override;
   void endRun(art::Run& r) override;
 
-private:
-  int value_;
-  art::BranchType branchType_;
+  int const value_;
+  art::BranchType const branchType_;
 
 }; // CompressedIntProducer
 
 void
 CompressedIntProducer::produce(art::Event& e)
 {
-  std::cerr << "Holy cow, CompressedIntProducer::produce is running!\n";
   if (branchType_ == art::InEvent)
     e.put(std::make_unique<CompressedIntProduct>(value_));
 }
@@ -63,7 +58,6 @@ CompressedIntProducer::produce(art::Event& e)
 void
 CompressedIntProducer::endSubRun(art::SubRun& sr)
 {
-  std::cerr << "Holy cow, CompressedIntProducer::endSubRun is running!\n";
   if (branchType_ == art::InSubRun)
     sr.put(std::make_unique<CompressedIntProduct>(value_),
            art::subRunFragment());
@@ -72,7 +66,6 @@ CompressedIntProducer::endSubRun(art::SubRun& sr)
 void
 CompressedIntProducer::endRun(art::Run& r)
 {
-  std::cerr << "Holy cow, CompressedIntProducer::endRun is running!\n";
   if (branchType_ == art::InRun)
     r.put(std::make_unique<CompressedIntProduct>(value_), art::runFragment());
 }

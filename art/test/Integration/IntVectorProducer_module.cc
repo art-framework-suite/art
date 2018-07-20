@@ -29,11 +29,13 @@ public:
     fhicl::Atom<unsigned> nvalues{fhicl::Name{"nvalues"}};
   };
   using Parameters = Table<Config>;
-  explicit IntVectorProducer(Parameters const& p) : nvalues_{p().nvalues()}
+  explicit IntVectorProducer(Parameters const& p)
+    : EDProducer{p}, nvalues_{p().nvalues()}
   {
     produces<intvector_t>();
   }
 
+private:
   void
   produce(art::Event& e) override
   {
@@ -44,7 +46,6 @@ public:
     e.put(move(p));
   }
 
-private:
   unsigned const nvalues_;
 
 }; // IntVectorProducer

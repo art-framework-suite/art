@@ -61,7 +61,8 @@ namespace {
   }; // AssembleMoreProducts
 
   AssembleMoreProducts::AssembleMoreProducts(Parameters const& config)
-    : trkEffTag_{config().trkEffTag()}
+    : EDProducer{config}
+    , trkEffTag_{config().trkEffTag()}
     , nParticlesTag_{config().nParticlesTag()}
     , seenParticlesTag_{config().seenParticlesTag()}
     , expectedEff_{config().trkEff()}

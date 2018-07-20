@@ -24,18 +24,18 @@ public:
   using Parameters = EDFilter::Table<Config>;
 
   explicit TestFilterSpecificEvents(Parameters const& ps)
-    : eventsToAccept_{ps().eventsToAccept()}
+    : EDFilter{ps}, eventsToAccept_{ps().eventsToAccept()}
   {
     cet::sort_all(eventsToAccept_);
   }
 
+private:
   bool
   filter(art::Event& e) override
   {
     return cet::binary_search_all(eventsToAccept_, e.event());
   }
 
-private:
   std::vector<unsigned> eventsToAccept_;
 };
 

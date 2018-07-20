@@ -49,7 +49,7 @@ private:
 };
 
 AssnsIterProducer1::AssnsIterProducer1(fhicl::ParameterSet const& p)
-  : fInputLabel(p.get<std::string>("input_label"))
+  : EDProducer{p}, fInputLabel(p.get<std::string>("input_label"))
 {
   produces<intvec_t>();
   produces<strvec_t>();

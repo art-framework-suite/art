@@ -17,7 +17,16 @@ namespace art {
     using ModuleType = EDProducer;
     using WorkerType = WorkerT<EDProducer>;
 
-    EDProducer() = default;
+    [[deprecated("\n\nart warning: The default constructor for EDProducer has "
+                 "been deprecated.\n"
+                 "             Please call the non-default constructor as the "
+                 "first argument\n"
+                 "             in the initialization list of your module:\n\n"
+                 "               MyProducer(ParameterSet const& ps) : "
+                 "art::EDProducer{ps}, ... {} // or\n"
+                 "               MyProducer(Parameters const& ps) : "
+                 "art::EDProducer{ps}, ... {}\n\n")]] EDProducer() = default;
+
     explicit EDProducer(fhicl::ParameterSet const& pset)
       : detail::Producer{pset}
       , detail::LegacyModule{pset.get<std::string>("module_label")}

@@ -21,13 +21,16 @@ public:
   };
   using Parameters = EDProducer::Table<Config>;
   explicit AssnsMultipleProduces(Parameters const&);
+
+private:
   void produce(art::Event&) override{};
 };
 
 using std::size_t;
 using std::string;
 
-art::test::AssnsMultipleProduces::AssnsMultipleProduces(Parameters const&)
+art::test::AssnsMultipleProduces::AssnsMultipleProduces(Parameters const& ps)
+  : EDProducer{ps}
 {
   produces<Assns<size_t, string>>();
   produces<Assns<string, size_t>>();

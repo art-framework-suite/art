@@ -34,7 +34,8 @@ public:
   };
   using Parameters = Table<Config>;
   explicit DerivedPtrVectorProducer(Parameters const& p)
-    : inputToken_{
+    : EDProducer{p}
+    , inputToken_{
         consumes<input_t>(art::InputTag{p().input_label(), "derived"})}
   {
     produces<derived_t>();

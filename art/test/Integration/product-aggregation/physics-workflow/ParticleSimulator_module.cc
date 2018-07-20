@@ -41,12 +41,14 @@ namespace {
   public:
     using Parameters = EDProducer::Table<Config>;
     explicit ParticleSimulator(Parameters const& config)
-      : genParticlesTkn_{consumes<std::vector<int>>(config().inputTag())}
+      : EDProducer{config}
+      , genParticlesTkn_{consumes<std::vector<int>>(config().inputTag())}
     {
       produces<std::vector<double>>("particleEnergies");
       produces<arttest::Geometry, art::InRun>("Geometry");
     }
 
+  private:
     void
     beginRun(art::Run& r) override
     {

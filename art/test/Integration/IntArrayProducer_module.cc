@@ -23,8 +23,12 @@ public:
   struct Config {
   };
   using Parameters = Table<Config>;
-  explicit IntArrayProducer(Parameters const&) { produces<IntArray<sz>>(); }
+  explicit IntArrayProducer(Parameters const& ps) : EDProducer{ps}
+  {
+    produces<IntArray<sz>>();
+  }
 
+private:
   void
   produce(art::Event& e) override
   {

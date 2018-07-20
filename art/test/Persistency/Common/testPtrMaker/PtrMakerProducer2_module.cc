@@ -39,7 +39,7 @@ private:
 };
 
 PtrMakerProducer2::PtrMakerProducer2(Parameters const& p)
-  : nvalues_{p().nvalues()}
+  : EDProducer{p}, nvalues_{p().nvalues()}
 {
   produces<intvector_t>();
   produces<intPtrvector_t>();

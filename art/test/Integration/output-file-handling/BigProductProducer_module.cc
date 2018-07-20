@@ -18,11 +18,12 @@ namespace arttest {
   public:
     using coll_t = std::vector<double>;
 
-    explicit BigProductsMaker(fhicl::ParameterSet const&)
+    explicit BigProductsMaker(fhicl::ParameterSet const& ps) : EDProducer{ps}
     {
       produces<coll_t>();
     }
 
+  private:
     void
     produce(art::Event& e) override
     {

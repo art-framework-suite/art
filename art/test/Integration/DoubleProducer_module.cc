@@ -21,25 +21,21 @@ namespace arttest {
 class arttest::DoubleProducer : public art::EDProducer {
 public:
   explicit DoubleProducer(fhicl::ParameterSet const& p)
-    : value_(p.get<double>("dvalue"))
+    : EDProducer{p}, value_(p.get<double>("dvalue"))
   {
     produces<DoubleProduct>();
   }
 
-  explicit DoubleProducer(double d) : value_(d) { produces<DoubleProduct>(); }
-
+private:
   void produce(art::Event& e) override;
 
-private:
-  double value_;
+  double const value_;
 }; // DoubleProducer
 
 void
 arttest::DoubleProducer::produce(art::Event& e)
 {
-  std::cerr << "Holy cow, DoubleProducer::produce is running!\n";
-  std::unique_ptr<DoubleProduct> p(new DoubleProduct(value_));
-  e.put(std::move(p));
+  e.put(std::make_unique<DoubleProduct>(value_));
 }
 
 DEFINE_ART_MODULE(arttest::DoubleProducer)

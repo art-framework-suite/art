@@ -6,30 +6,11 @@ source: {
 }
 
 physics: {
+  filters: {
+    f1: {
+      module_type: ToyProductFilter
+    }
+  }
 
-   producers: {
-      #prod: {
-      #   module_type: ToyProductProducer
-      #}
-   }
-
-   filters: {
-      f1: {
-         module_type: ToyProductFilter
-         inputLabel: "prod"
-      }
-   }
-
-   p1: [ f1 ]
-   #e1: [ out1 ]
+  p1: [ f1 ]
 }
-
-outputs: {
-
-   #out1: {
-   #   module_type: RootOutput
-   #   fileName: "out1.root"
-   #}
-
-}
-

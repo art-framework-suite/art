@@ -70,7 +70,8 @@ namespace {
 
   AssembleMoreProductsRobust::AssembleMoreProductsRobust(
     Parameters const& config)
-    : trkEffTag_{config().trkEffTag()}
+    : EDProducer{config}
+    , trkEffTag_{config().trkEffTag()}
     , expTrkEff_{config().trkEff()}
     , nParticlesTag_{config().nParticlesTag()}
     , seenParticlesTag_{config().seenParticlesTag()}

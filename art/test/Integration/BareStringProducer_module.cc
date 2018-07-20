@@ -28,9 +28,11 @@ public:
                                           art::InEvent};
   };
 
-  using Parameters = art::EDProducer::Table<Config>;
+  using Parameters = Table<Config>;
   explicit BareStringProducer(Parameters const& p)
-    : value_{p().value()}, branchType_{art::BranchType(p().branchType())}
+    : EDProducer{p}
+    , value_{p().value()}
+    , branchType_{art::BranchType(p().branchType())}
   {
     art::test::run_time_produces<std::string>(this, branchType_);
   }

@@ -38,7 +38,7 @@ namespace {
     struct Config {
     };
     using Parameters = EDProducer::Table<Config>;
-    explicit EventGenerator(Parameters const&)
+    explicit EventGenerator(Parameters const& ps) : EDProducer{ps}
     {
       produces<std::vector<int>>("GenParticles");
       produces<unsigned, art::InSubRun>("nParticles");

@@ -16,11 +16,13 @@ namespace arttest {
 class arttest::UnputtingProducer : public art::EDProducer {
 public:
   explicit UnputtingProducer(fhicl::ParameterSet const&);
+
+private:
   void produce(art::Event& e) override;
 };
 
-arttest::UnputtingProducer::UnputtingProducer(fhicl::ParameterSet const&)
-  : art::EDProducer()
+arttest::UnputtingProducer::UnputtingProducer(fhicl::ParameterSet const& ps)
+  : art::EDProducer{ps}
 {
   produces<std::string>();
 }

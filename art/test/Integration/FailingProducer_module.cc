@@ -14,10 +14,12 @@ namespace arttest {
 //
 class arttest::FailingProducer : public art::EDProducer {
 public:
-  explicit FailingProducer(fhicl::ParameterSet const&)
+  explicit FailingProducer(fhicl::ParameterSet const& ps) : EDProducer{ps}
   {
     produces<arttest::IntProduct>();
   }
+
+private:
   void produce(art::Event& e) override;
 };
 

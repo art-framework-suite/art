@@ -27,15 +27,15 @@ class arttest::DropTestParentageFaker : public art::EDProducer {
 public:
   explicit DropTestParentageFaker(fhicl::ParameterSet const& p);
 
+private:
   void produce(art::Event& e) override;
 
-private:
-  std::string inputLabel_;
+  std::string const inputLabel_;
 };
 
 arttest::DropTestParentageFaker::DropTestParentageFaker(
   fhicl::ParameterSet const& p)
-  : inputLabel_(p.get<std::string>("input_label"))
+  : EDProducer{p}, inputLabel_(p.get<std::string>("input_label"))
 {
   produces<std::string>();
 }

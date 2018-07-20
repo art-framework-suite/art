@@ -42,7 +42,8 @@ public:
 private:
 };
 
-arttest::BadAssnsProducer::BadAssnsProducer(fhicl::ParameterSet const&)
+arttest::BadAssnsProducer::BadAssnsProducer(fhicl::ParameterSet const& ps)
+  : EDProducer{ps}
 {
   produces<art::Assns<StringProduct, DummyProduct>>();
 }

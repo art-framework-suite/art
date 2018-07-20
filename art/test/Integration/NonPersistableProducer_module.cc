@@ -27,7 +27,7 @@ public:
   };
   using Parameters = Table<Config>;
 
-  explicit NonPersistableProducer(Parameters const&)
+  explicit NonPersistableProducer(Parameters const& ps) : EDProducer{ps}
   {
     produces<arttest::PtrToNonPersistable>();
   }

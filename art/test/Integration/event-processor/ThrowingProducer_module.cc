@@ -9,18 +9,20 @@ namespace art {
 
     class ThrowingProducer : public EDProducer {
       unsigned count_{};
-      unsigned threshold_;
+      unsigned const threshold_;
 
     public:
-      using Parameters = EDProducer::Table<ThrowAfterConfig>;
+      using Parameters = Table<ThrowAfterConfig>;
 
-      ThrowingProducer(Parameters const& p) : threshold_{p().throwAfter()}
+      ThrowingProducer(Parameters const& p)
+        : EDProducer{p}, threshold_{p().throwAfter()}
       {
         if (p().throwFromCtor()) {
           throw Exception{errors::OtherArt} << "Throw from c'tor.\n";
         }
       }
 
+    private:
       void
       produce(Event&) override
       {

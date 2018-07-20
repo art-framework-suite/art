@@ -35,7 +35,7 @@ private:
 // -----------------------------------------------------------------
 
 arttest::TestFilter::TestFilter(Parameters const& ps)
-  : acceptRate_{ps().acceptValue()}, onlyOne_{ps().onlyOne()}
+  : EDFilter{ps}, acceptRate_{ps().acceptValue()}, onlyOne_{ps().onlyOne()}
 {}
 
 bool

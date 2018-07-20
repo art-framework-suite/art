@@ -24,22 +24,22 @@ using arttest::MockClusterListProducer;
 
 class arttest::MockClusterListProducer : public art::EDProducer {
 public:
-  typedef std::vector<arttest::SimpleDerived> input_t;
-  typedef arttest::MockClusterList product_t;
+  using input_t = std::vector<arttest::SimpleDerived>;
+  using product_t = arttest::MockClusterList;
 
   explicit MockClusterListProducer(fhicl::ParameterSet const& p)
-    : input_label_(p.get<std::string>("input_label"))
+    : EDProducer{p}
+    , input_label_(p.get<std::string>("input_label"))
     , nvalues_(p.get<int>("nvalues"))
   {
     produces<product_t>();
   }
 
+private:
   void produce(art::Event& e) override;
 
-private:
-  std::string input_label_;
-  unsigned nvalues_;
-
+  std::string const input_label_;
+  unsigned const nvalues_;
 }; // MockClusterListProducer
 
 // ----------------------------------------------------------------------
@@ -47,8 +47,6 @@ private:
 void
 MockClusterListProducer::produce(art::Event& e)
 {
-  std::cerr << "MockClusterListProducer::produce is running!\n";
-
   art::Handle<input_t> h;
   e.getByLabel(input_label_, "derived", h);
 
@@ -74,8 +72,4 @@ MockClusterListProducer::produce(art::Event& e)
   e.put(std::move(prod));
 }
 
-// ----------------------------------------------------------------------
-
 DEFINE_ART_MODULE(MockClusterListProducer)
-
-// ======================================================================

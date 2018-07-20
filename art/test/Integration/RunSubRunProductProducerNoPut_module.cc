@@ -20,17 +20,16 @@ namespace arttest {
 
   class RunSubRunProducerNoPut : public art::EDProducer {
   public:
-    explicit RunSubRunProducerNoPut(fhicl::ParameterSet const&)
+    explicit RunSubRunProducerNoPut(fhicl::ParameterSet const& ps)
+      : EDProducer{ps}
     {
       produces<int, art::InRun>("bgnRun");
       produces<int, art::InSubRun>("bgnSubRun");
     }
 
-    ~RunSubRunProducerNoPut() override = default;
-
+  private:
     // We are not putting the products on the Run or SubRun -- i.e. no
     // overrides for beginRun and beginSubRun.
-
     void
     produce(art::Event&) override
     {}

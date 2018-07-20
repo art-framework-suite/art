@@ -25,25 +25,25 @@ using arttest::SimpleDerivedProducer;
 //
 class arttest::SimpleDerivedProducer : public art::EDProducer {
 public:
-  typedef std::vector<arttest::SimpleDerived> SimpleDerivedProduct;
+  using SimpleDerivedProduct = std::vector<arttest::SimpleDerived>;
 
   explicit SimpleDerivedProducer(fhicl::ParameterSet const& p)
-    : size_(p.get<int>("nvalues"))
+    : EDProducer{p}, size_(p.get<int>("nvalues"))
   {
     produces<SimpleDerivedProduct>("derived");
   }
 
+private:
   void produce(art::Event& e) override;
 
-private:
-  int size_; // number of Simples to put in the collection
+  int const size_; // number of Simples to put in the collection
 };
 
 void
 SimpleDerivedProducer::produce(art::Event& e)
 {
   // Fill up a collection of SimpleDerived objects
-  std::unique_ptr<SimpleDerivedProduct> prod(new SimpleDerivedProduct);
+  auto prod = std::make_unique<SimpleDerivedProduct>();
   int event_num = e.id().event();
   for (int i = 0; i != size_; ++i) {
     SimpleDerived sd;

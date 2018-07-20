@@ -42,7 +42,7 @@ private:
   void produce(art::Event& e) override;
 };
 
-AssnsProducer1::AssnsProducer1(fhicl::ParameterSet const&)
+AssnsProducer1::AssnsProducer1(fhicl::ParameterSet const& ps) : EDProducer{ps}
 {
   produces<intvec_t>();
   produces<strvec_t>();

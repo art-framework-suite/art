@@ -26,19 +26,19 @@ using arttest::PtrVectorProducer;
 
 class arttest::PtrVectorProducer : public art::EDProducer {
 public:
-  typedef std::vector<int> intvector_t;
-  typedef art::PtrVector<int> product_t;
+  using intvector_t = std::vector<int>;
+  using product_t = art::PtrVector<int>;
 
   explicit PtrVectorProducer(fhicl::ParameterSet const& p)
-    : input_label_(p.get<std::string>("input_label"))
+    : EDProducer{p}, input_label_(p.get<std::string>("input_label"))
   {
     produces<product_t>();
   }
 
+private:
   void produce(art::Event& e) override;
 
-private:
-  std::string input_label_;
+  std::string const input_label_;
 
 }; // PtrVectorProducer
 

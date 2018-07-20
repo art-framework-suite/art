@@ -10,17 +10,17 @@ using namespace fhicl;
 
 namespace {
 
-  struct Config {
-    DelegatedParameter tool_table{Name("addIntsImpl")};
-    Sequence<std::string> labels{Name("labels")};
-  };
-
   class AddIntsProducer : public art::EDProducer {
   public:
+    struct Config {
+      DelegatedParameter tool_table{Name("addIntsImpl")};
+      Sequence<std::string> labels{Name("labels")};
+    };
     using Parameters = art::EDProducer::Table<Config>;
 
     explicit AddIntsProducer(Parameters const& p)
-      : labels_{p().labels()}
+      : EDProducer{p}
+      , labels_{p().labels()}
       , addInts_{art::make_tool<void(int&, int)>(
           p().tool_table.get<fhicl::ParameterSet>(),
           "addInts")}
@@ -28,10 +28,10 @@ namespace {
       produces<arttest::IntProduct>();
     }
 
+  private:
     void produce(art::Event& e) override;
 
-  private:
-    std::vector<std::string> labels_;
+    std::vector<std::string> const labels_;
     // Test tool invocation from within module.
     std::function<void(int&, int)> addInts_;
   };

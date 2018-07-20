@@ -19,7 +19,9 @@ namespace arttest {
     struct Config {
     };
     using Parameters = art::EDProducer::Table<Config>;
-    explicit TestSimpleMemoryCheckProducer(Parameters const&) {}
+    explicit TestSimpleMemoryCheckProducer(Parameters const& ps)
+      : EDProducer{ps}
+    {}
 
   private:
     void produce(art::Event&) override;

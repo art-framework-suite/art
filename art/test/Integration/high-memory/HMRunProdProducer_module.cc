@@ -28,17 +28,20 @@ namespace arttest {
 class arttest::HMRunProdProducer : public art::EDProducer {
 public:
   explicit HMRunProdProducer(fhicl::ParameterSet const& p);
+
+private:
   void produce(art::Event&) override{};
   void endSubRun(art::SubRun& sr) override;
   void endRun(art::Run& r) override;
 
-private:
-  std::string inputLabel_;
+  std::string const inputLabel_;
   std::vector<std::unique_ptr<HMLargeData>> data_;
 };
 
 arttest::HMRunProdProducer::HMRunProdProducer(fhicl::ParameterSet const& p)
-  : inputLabel_(p.get<std::string>("inputLabel")), data_(N_BLOCKS)
+  : EDProducer{p}
+  , inputLabel_(p.get<std::string>("inputLabel"))
+  , data_(N_BLOCKS)
 {
   for (unsigned short i = 0; i < N_BLOCKS; ++i) {
     std::string const instance_name = "block" + std::to_string(i);

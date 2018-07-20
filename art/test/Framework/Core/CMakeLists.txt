@@ -28,8 +28,6 @@ cet_test(PathManager_t USE_BOOST_UNIT
   cetlib
   )
 
-simple_plugin(TestMod module NO_INSTALL)
-
 foreach(cpp_test
     EventSelector_t
     EventSelWildcard_t

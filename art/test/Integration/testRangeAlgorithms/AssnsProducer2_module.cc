@@ -16,7 +16,6 @@
 #include "art/Persistency/Common/PtrMaker.h"
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace arttest {
   class AssnsProducer2;
@@ -28,20 +27,14 @@ class arttest::AssnsProducer2 : public art::EDProducer {
 public:
   explicit AssnsProducer2(fhicl::ParameterSet const& p);
 
-  // Plugins should not be copied or assigned.
-  AssnsProducer2(AssnsProducer2 const&) = delete;
-  AssnsProducer2(AssnsProducer2&&) = delete;
-  AssnsProducer2& operator=(AssnsProducer2 const&) = delete;
-  AssnsProducer2& operator=(AssnsProducer2&&) = delete;
-
 private:
   void produce(art::Event& e) override;
 
-  std::string fInputLabel;
+  std::string const fInputLabel;
 };
 
 AssnsProducer2::AssnsProducer2(fhicl::ParameterSet const& p)
-  : fInputLabel(p.get<std::string>("input_label"))
+  : EDProducer{p}, fInputLabel(p.get<std::string>("input_label"))
 {
   produces<art::Assns<int, std::string>>();
 }

@@ -35,29 +35,24 @@ namespace {
 namespace arttest {
 
   class ToyProductFilter : public EDFilter {
-
   public:
-    explicit ToyProductFilter(fhicl::ParameterSet const& pset);
+    struct Config {
+    };
+    using Parameters = Table<Config>;
+    explicit ToyProductFilter(Parameters const& pset);
 
   private:
     bool filter(Event& e) override;
-
-  private:
-    string inputLabel_{};
   };
 
-  ToyProductFilter::ToyProductFilter(fhicl::ParameterSet const& pset)
-    : EDFilter(), inputLabel_(pset.get<std::string>("inputLabel"))
-  {}
+  ToyProductFilter::ToyProductFilter(Parameters const& pset) : EDFilter{pset} {}
 
   bool
   ToyProductFilter::filter(Event& /*e*/)
   {
-    // e.getValidHandle<StringProduct>(inputLabel_);
-    double val = 0.0;
+    double val{};
     use_cpu_time(val);
-    // cout << val << endl;
-    return 1;
+    return true;
   }
 
 } // namespace arttest

@@ -27,28 +27,16 @@ using arttest::AssnsIterProducer2;
 class arttest::AssnsIterProducer2 : public art::EDProducer {
 public:
   explicit AssnsIterProducer2(fhicl::ParameterSet const& p);
-  // The compiler-generated destructor is fine for non-base
-  // classes without bare pointers or other resource use.
-
-  // Plugins should not be copied or assigned.
-  AssnsIterProducer2(AssnsIterProducer2 const&) = delete;
-  AssnsIterProducer2(AssnsIterProducer2&&) = delete;
-  AssnsIterProducer2& operator=(AssnsIterProducer2 const&) = delete;
-  AssnsIterProducer2& operator=(AssnsIterProducer2&&) = delete;
-
-  // Required functions.
-  void produce(art::Event& e) override;
 
 private:
-  std::string fInputLabel;
-  // Declare member data here.
+  void produce(art::Event& e) override;
+
+  std::string const fInputLabel;
 };
 
 AssnsIterProducer2::AssnsIterProducer2(fhicl::ParameterSet const& p)
-  : fInputLabel(p.get<std::string>("input_label"))
-// Initialize member data here.
+  : EDProducer{p}, fInputLabel(p.get<std::string>("input_label"))
 {
-  // Call appropriate produces<>() functions here.
   produces<art::Assns<int, float, std::string>>();
 }
 

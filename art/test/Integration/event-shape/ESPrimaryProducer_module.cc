@@ -27,12 +27,12 @@ class arttest::ESPrimaryProducer : public art::EDProducer {
 public:
   explicit ESPrimaryProducer(fhicl::ParameterSet const&);
 
-  void produce(art::Event& e) override;
-
 private:
+  void produce(art::Event& e) override;
 };
 
-arttest::ESPrimaryProducer::ESPrimaryProducer(fhicl::ParameterSet const&)
+arttest::ESPrimaryProducer::ESPrimaryProducer(fhicl::ParameterSet const& ps)
+  : EDProducer{ps}
 {
   produces<arttest::VSimpleProduct>();
 }
@@ -40,14 +40,15 @@ arttest::ESPrimaryProducer::ESPrimaryProducer(fhicl::ParameterSet const&)
 void
 arttest::ESPrimaryProducer::produce(art::Event& e)
 {
-  static size_t constexpr vspSize{5};
-  static double constexpr vspVal = {1.5};
-  std::unique_ptr<VSimpleProduct> vsp(new VSimpleProduct(vspSize));
+  constexpr size_t vspSize{5};
+  constexpr double vspVal{1.5};
+  auto vsp = std::make_unique<VSimpleProduct>(vspSize);
 
-  size_t count{0};
+  size_t count{};
   for (auto& s : *vsp) {
     s.key = count;
-    s.value = count++ * vspVal;
+    s.value = count * vspVal;
+    ++count;
   }
   e.put(std::move(vsp));
 }

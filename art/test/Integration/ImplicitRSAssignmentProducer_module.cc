@@ -80,7 +80,7 @@ namespace arttest {
   class ImplicitRSAssigmentProducer : public art::EDProducer {
   public:
     using Parameters = art::EDProducer::Table<Config>;
-    explicit ImplicitRSAssigmentProducer(Parameters const&)
+    explicit ImplicitRSAssigmentProducer(Parameters const& ps) : EDProducer{ps}
     {
       produces<unsigned, art::InRun>("bgnRunNum");
       produces<unsigned, art::InRun>("bgnRunDenom");

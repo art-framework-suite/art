@@ -21,13 +21,15 @@ public:
   };
   using Parameters = EDProducer::Table<Config>;
   explicit AssnsWrongPut(Parameters const&);
+
+private:
   void produce(art::Event&) override;
 };
 
 using std::size_t;
 using std::string;
 
-art::test::AssnsWrongPut::AssnsWrongPut(Parameters const&)
+art::test::AssnsWrongPut::AssnsWrongPut(Parameters const& ps) : EDProducer{ps}
 {
   produces<Assns<size_t, string>>();
 }

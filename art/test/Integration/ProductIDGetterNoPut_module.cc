@@ -23,11 +23,14 @@ namespace art {
 class art::test::ProductIDGetterNoPut : public EDProducer {
 public:
   explicit ProductIDGetterNoPut(fhicl::ParameterSet const&);
+
+private:
   void produce(art::Event&) override;
 };
 
 art::test::ProductIDGetterNoPut::ProductIDGetterNoPut(
-  fhicl::ParameterSet const&)
+  fhicl::ParameterSet const& ps)
+  : EDProducer{ps}
 {
   produces<int>();
   produces<int>("i1");

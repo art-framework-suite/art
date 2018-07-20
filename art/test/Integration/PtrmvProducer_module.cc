@@ -33,10 +33,11 @@ public:
   using Parameters = Table<Config>;
   explicit PtrmvProducer(Parameters const&);
 
+private:
   void produce(art::Event& e) override;
 };
 
-arttest::PtrmvProducer::PtrmvProducer(Parameters const&)
+arttest::PtrmvProducer::PtrmvProducer(Parameters const& ps) : EDProducer{ps}
 {
   produces<mv_t>();
   produces<art::Ptr<std::string>>();
