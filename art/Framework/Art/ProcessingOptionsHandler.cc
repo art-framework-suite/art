@@ -83,9 +83,11 @@ art::ProcessingOptionsHandler::ProcessingOptionsHandler(
     options,
     "errorOnFailureToPut",
     bpo::value<bool>()->implicit_value(true, "true"),
+    "*** DEPRECATED ***\n"
     "Global flag that controls the behavior upon failure to 'put' a "
     "product (declared by 'produces') onto the Event.  If 'true', per-module "
-    "flags can override the value of the global flag.");
+    "flags can override the value of the global flag.\n"
+    "*** Will be removed in art 3.02. ***");
   add_opt(
     options,
     "errorOnMissingConsumes",
