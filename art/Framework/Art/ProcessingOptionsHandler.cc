@@ -164,9 +164,12 @@ art::ProcessingOptionsHandler::doProcessOptions(
 
   if (vm.count("errorOnFailureToPut") > 0) {
     std::ostringstream oss;
-    oss << "\nart warning: Your configuration uses the global 'errorOnFailureToPut' parameter,\n"
-        << "             which is deprecated.  Please adjust your configuration or command-line\n"
-        << "             invocation so that you do not use it--the global 'errorOnFailureToPut'\n"
+    oss << "\nart warning: Your configuration uses the global "
+           "'errorOnFailureToPut' parameter,\n"
+        << "             which is deprecated.  Please adjust your "
+           "configuration or command-line\n"
+        << "             invocation so that you do not use it--the global "
+           "'errorOnFailureToPut'\n"
         << "             parameter will be removed as of art 3.02.\n\n";
     std::cerr << detail::bold_fontify(oss.str());
   }

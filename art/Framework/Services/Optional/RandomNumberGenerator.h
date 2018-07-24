@@ -221,7 +221,6 @@ namespace art {
     };
 
   public:
-
     // Configuration
     struct Config {
       template <typename T>
@@ -272,18 +271,22 @@ namespace art {
     RandomNumberGenerator& operator=(RandomNumberGenerator&&) = delete;
 
     // API -- Engine access
-    [[deprecated("\n\nart warning: The getEngine function has been deprecated. To retrieve\n"
-                 "             the engine for a particular module, the module class should have\n"
-                 "             a data member that is a reference to the art-managed engine, which\n"
-                 "             is assigned whenever createEngine is called:\n\n"
-                 "               MyProducer(Parameters const& ps)\n"
-                 "                 : EDProducer{ps}, engine_{createEngine(...)}\n"
-                 "               {}\n\n"
-                 "             where 'engine_' is of type 'CLHEP::HepRandomEngine&'.\n\n")]]
-    CLHEP::HepRandomEngine& getEngine(
-      ScheduleID sid,
-      std::string const& module_label,
-      std::string const& engine_label = {}) const;
+    [[deprecated(
+      "\n\nart warning: The getEngine function has been deprecated. To "
+      "retrieve\n"
+      "             the engine for a particular module, the module class "
+      "should have\n"
+      "             a data member that is a reference to the art-managed "
+      "engine, which\n"
+      "             is assigned whenever createEngine is called:\n\n"
+      "               MyProducer(Parameters const& ps)\n"
+      "                 : EDProducer{ps}, engine_{createEngine(...)}\n"
+      "               {}\n\n"
+      "             where 'engine_' is of type "
+      "'CLHEP::HepRandomEngine&'.\n\n")]] CLHEP::HepRandomEngine&
+    getEngine(ScheduleID sid,
+              std::string const& module_label,
+              std::string const& engine_label = {}) const;
 
   private:
     // Engine establishment
