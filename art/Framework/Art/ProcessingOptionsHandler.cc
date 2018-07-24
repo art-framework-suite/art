@@ -2,6 +2,7 @@
 
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
+#include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
@@ -37,12 +38,12 @@ namespace {
             std::string const& fhicl_key,
             bpo::variables_map const& vm,
             fhicl::intermediate_table& config,
-            bool const flag_value)
+            bool const default_value)
   {
     if (vm.count(bpo_key)) {
       config.put(fhicl_key, vm[bpo_key].as<bool>());
     } else if (!exists_outside_prolog(config, fhicl_key)) {
-      config.put(fhicl_key, flag_value);
+      config.put(fhicl_key, default_value);
     }
   }
 
@@ -159,6 +160,15 @@ art::ProcessingOptionsHandler::doProcessOptions(
       raw_config.putEmptySequence(fhicl_key(scheduler_key, "FailModule"));
       raw_config.putEmptySequence(fhicl_key(scheduler_key, "FailPath"));
     }
+  }
+
+  if (vm.count("errorOnFailureToPut") > 0) {
+    std::ostringstream oss;
+    oss << "\nart warning: Your configuration uses the global 'errorOnFailureToPut' parameter,\n"
+        << "             which is deprecated.  Please adjust your configuration or command-line\n"
+        << "             invocation so that you do not use it--the global 'errorOnFailureToPut'\n"
+        << "             parameter will be removed as of art 3.02.\n\n";
+    std::cerr << detail::bold_fontify(oss.str());
   }
 
   fillTable("errorOnFailureToPut",
