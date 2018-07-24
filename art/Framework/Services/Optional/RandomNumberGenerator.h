@@ -114,6 +114,8 @@
 // Accessing an engine through a service handle
 // --------------------------------------------
 //
+// ** DEPRECATED in art 3.01; will be removed in art 3.02 **
+//
 // An engine managed by the RandomNumberGenerator service can be
 // retrieved by calling the getEngine function through a service
 // handle.  Required function arguments are the ScheduleID, module
@@ -218,7 +220,9 @@ namespace art {
       std::vector<RNGsnapshot> snapshot_{};
     };
 
-  public: // CONFIGURATION
+  public:
+
+    // Configuration
     struct Config {
       template <typename T>
       using Atom = fhicl::Atom<T>;
@@ -260,22 +264,29 @@ namespace art {
 
     using Parameters = ServiceTable<Config>;
 
-  public: // Special Member Functions
+    // Special Member Functions
     RandomNumberGenerator(Parameters const&, ActivityRegistry&);
     RandomNumberGenerator(RandomNumberGenerator const&) = delete;
     RandomNumberGenerator(RandomNumberGenerator&&) = delete;
     RandomNumberGenerator& operator=(RandomNumberGenerator const&) = delete;
     RandomNumberGenerator& operator=(RandomNumberGenerator&&) = delete;
 
-  public: // API -- Engine access
-    // Note: Could remove if we do not need to support access from engines
-    // restored from file.
+    // API -- Engine access
+    [[deprecated("\n\nart warning: The getEngine function has been deprecated. To retrieve\n"
+                 "             the engine for a particular module, the module class should have\n"
+                 "             a data member that is a reference to the art-managed engine, which\n"
+                 "             is assigned whenever createEngine is called:\n\n"
+                 "               MyProducer(Parameters const& ps)\n"
+                 "                 : EDProducer{ps}, engine_{createEngine(...)}\n"
+                 "               {}\n\n"
+                 "             where 'engine_' is of type 'CLHEP::HepRandomEngine&'.\n\n")]]
     CLHEP::HepRandomEngine& getEngine(
       ScheduleID sid,
       std::string const& module_label,
       std::string const& engine_label = {}) const;
 
-  private: // Engine establishment
+  private:
+    // Engine establishment
     // Accessible to user modules through friendship. Should only be used in
     // ctors.
     CLHEP::HepRandomEngine& createEngine(
@@ -285,27 +296,26 @@ namespace art {
       std::string const& kind_of_engine_to_make = defaultEngineKind,
       std::string const& engine_label = {});
 
-  private: // Snapshot management helpers
+    // Snapshot management helpers
     void takeSnapshot_(ScheduleID);
     void restoreSnapshot_(ScheduleID, Event const&);
     std::vector<RNGsnapshot> const& accessSnapshot_(ScheduleID) const;
 
-  private: // File management helpers
+    // File management helpers
     // TODO: Determine if this facility is necessary.
     void saveToFile_();
     void restoreFromFile_();
 
-  private: // Debugging helpers
+    // Debugging helpers
     void print_() const;
     bool invariant_holds_(ScheduleID);
 
-  private: // Callbacks from the framework
+    // Callbacks from the framework
     void preProcessEvent(Event const&, ScheduleContext);
     void postProcessEvent(Event const&, ScheduleContext);
     void postBeginJob();
     void postEndJob();
 
-  private:
     // Protects all data members.
     mutable hep::concurrency::RecursiveMutex mutex_{"art::rng::mutex_"};
 
