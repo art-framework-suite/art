@@ -5,7 +5,7 @@ int
 main() try {
   for (auto const& pr : art::Suffixes::all()) {
     art::detail::print_available_plugins(
-      pr.first, true, "art/test/Framework/Art/PrintAvailable/.*");
+      pr.second, "art/test/Framework/Art/PrintAvailable/.*", true);
   }
 
   // Message facility is special

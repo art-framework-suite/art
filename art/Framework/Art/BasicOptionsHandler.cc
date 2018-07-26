@@ -91,16 +91,16 @@ art::BasicOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
   }
   bool const status_bar = vm.count("status-bar") > 0;
   if (vm.count("print-available")) {
-    detail::print_available_plugins(
-      Suffixes::get(vm["print-available"].as<std::string>()), status_bar);
+    detail::print_available_plugins(vm["print-available"].as<std::string>(),
+                                    status_bar);
     return detail::info_success();
   }
   if (vm.count("print-available-modules")) {
-    detail::print_available_plugins(suffix_type::module, status_bar);
+    detail::print_available_plugins(Suffixes::module(), status_bar);
     return detail::info_success();
   }
   if (vm.count("print-available-services")) {
-    detail::print_available_plugins(suffix_type::service, status_bar);
+    detail::print_available_plugins(Suffixes::service(), status_bar);
     return detail::info_success();
   }
   if (status_bar) {

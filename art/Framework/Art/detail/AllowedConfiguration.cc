@@ -25,10 +25,10 @@ namespace {
   {
     std::vector<PluginMetadata> result;
     auto collect_metadata = [&result,
-                             &instance_pattern](art::suffix_type const st) {
-      auto mc = get_MetadataCollector(st);
+                             &instance_pattern](std::string const& suffix) {
+      auto mc = get_MetadataCollector(suffix);
       cet::transform_all(
-        get_LibraryInfoCollection(st, instance_pattern),
+        get_LibraryInfoCollection(suffix, instance_pattern),
         std::back_inserter(result),
         [&mc](auto const& info) { return mc->collect(info, indent__2()); });
     };
@@ -36,27 +36,27 @@ namespace {
     if (specified_plugin_type.empty()) {
       // Search through all plugin types if the user has not specified one.
       for (auto const& pr : art::Suffixes::all()) {
-        collect_metadata(pr.first);
+        collect_metadata(pr.second);
       }
     } else {
-      collect_metadata(art::Suffixes::get(specified_plugin_type));
+      collect_metadata(specified_plugin_type);
     }
     return result;
   }
 
   using Duplicates_t = std::map<std::string, std::vector<std::string>>;
   void
-  duplicates_message(art::suffix_type const st, Duplicates_t const& duplicates)
+  duplicates_message(std::string const& suffix, Duplicates_t const& duplicates)
   {
     using namespace art;
     std::string const type_spec =
-      (st == suffix_type::plugin) ? "plugin_type" : "module_type";
+      (suffix == Suffixes::plugin()) ? "plugin_type" : "module_type";
     cout
-      << indent0() << "The " << Suffixes::get(st)
+      << indent0() << "The " << suffix
       << "s marked '*' above are degenerate--i.e. specifying the short\n"
       << indent0() << type_spec
       << " value leads to an ambiguity.  In order to use a degenerate\n"
-      << indent0() << Suffixes::get(st)
+      << indent0() << suffix
       << ", in your configuration file, give the long specification (as\n"
       << indent0()
       << "shown in the table below), surrounded by quotation (\") marks.\n\n";
@@ -80,20 +80,22 @@ namespace {
 } // namespace
 
 void
-art::detail::print_available_plugins(suffix_type const st,
-                                     bool const verbose,
-                                     std::string const& spec)
+art::detail::print_available_plugins(std::string const& suffix,
+                                     std::string const& spec,
+                                     bool const verbose)
 {
-  auto coll = get_LibraryInfoCollection(st, spec, verbose);
-  if (coll.empty())
+  auto coll = get_LibraryInfoCollection(suffix, spec, verbose);
+  if (coll.empty()) {
+    cout << "Unable to find any plugins with suffix '" << suffix << "'.\n";
     return;
+  }
 
-  auto ms = get_MetadataSummary(st, coll);
+  auto ms = get_MetadataSummary(suffix, coll);
 
   cet::HorizontalRule const rule{rule_size(ms->widths())};
-  cout << "\n"
-       << rule('=') << "\n\n"
-       << ms->header() << "\n"
+  cout << '\n'
+       << rule('=') << '\n'
+       << ms->header() << '\n'
        << rule('-') << '\n';
 
   std::size_t i{};
@@ -104,22 +106,22 @@ art::detail::print_available_plugins(suffix_type const st,
     if (summary.is_duplicate)
       duplicates[info.short_spec()].push_back(info.long_spec());
   }
-  cout << "\n" << rule('=') << "\n\n";
+  cout << rule('=') << "\n\n";
 
   if (duplicates.empty())
     return;
 
-  duplicates_message(st, duplicates);
-  cout << "\n\n";
+  duplicates_message(suffix, duplicates);
+  cout << '\n';
 }
 
 bool
-art::detail::supports_key(suffix_type const st,
+art::detail::supports_key(std::string const& suffix,
                           std::string const& spec,
                           std::string const& key)
 {
   art::Exception e{art::errors::LogicError, "art::detail::has_key"};
-  auto coll = get_LibraryInfoCollection(st, spec);
+  auto coll = get_LibraryInfoCollection(suffix, spec);
   if (coll.empty()) {
     throw e << (spec.empty() ? "[Missing specification]" : bold_fontify(spec))
             << " did not match any plugin.\n";

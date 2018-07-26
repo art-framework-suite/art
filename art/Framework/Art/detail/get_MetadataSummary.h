@@ -11,7 +11,7 @@ namespace art {
   namespace detail {
 
     std::unique_ptr<MetadataSummary> get_MetadataSummary(
-      suffix_type st,
+      std::string const& suffix,
       LibraryInfoCollection const& coll);
   }
 } // namespace art

@@ -259,8 +259,8 @@ art::BasicOutputOptionsHandler::doProcessOptions(
   if (!tmpDir_.empty()) {
     std::string const& tfile_key = fhicl_key("services", "TFileService");
     if (detail::exists_outside_prolog(raw_config, tfile_key)) {
-      assert(detail::supports_key(
-        art::suffix_type::service, "TFileService", "tmpDir"));
+      assert(
+        detail::supports_key(Suffixes::service(), "TFileService", "tmpDir"));
       raw_config.put(fhicl_key(tfile_key, "tmpDir"), tmpDir_);
     }
 
@@ -275,7 +275,7 @@ art::BasicOutputOptionsHandler::doProcessOptions(
           continue;
 
         auto const& spec = raw_config.get<std::string>(module_type);
-        if (!detail::supports_key(art::suffix_type::module, spec, "tmpDir"))
+        if (!detail::supports_key(Suffixes::module(), spec, "tmpDir"))
           continue;
 
         raw_config.put(fhicl_key(module_label, "tmpDir"), tmpDir_);

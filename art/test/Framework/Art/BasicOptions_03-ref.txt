@@ -1,13 +1,11 @@
 
 <separator (=)>
-
    module_type      Type        Source location
 <separator (-)>
 1. DummyAnalyzer    analyzer    <path>/DummyAnalyzer_module.cc
 2. DummyFilter      filter      <path>/DummyFilter_module.cc
 3.*DummyProducer    producer    <path>/DummyProducer_module.cc
 4.*DummyProducer    producer    <path>/DummyProducer_module.cc
-
 <separator (=)>
 
    The modules marked '*' above are degenerate--i.e. specifying the short
@@ -21,43 +19,36 @@
    ""               art/test/Framework/Art/PrintAvailable/DummyProducer
 
 
-
 <separator (=)>
-
    plugin_type             Type               Source location
 <separator (-)>
 1. DummyResultsProducer    ResultsProducer    <path>/DummyResultsProducer_plugin.cc
-
 <separator (=)>
 
 
 <separator (=)>
-
    Service         Provider    Source location
 <separator (-)>
 1. DummyService    art         <path>/DummyService_service.cc
-
 <separator (=)>
 
 
 <separator (=)>
-
    module_type    Provider    Source location
 <separator (-)>
 1. DummySource    art         <path>/DummySource_source.cc
-
 <separator (=)>
 
 
 <separator (=)>
-
    tool_type            Type     Source location
 <separator (-)>
 1. DummyClassTool       class    <path>/DummyClassTool_tool.cc
 2. DummyFunctionTool    num      <path>/DummyFunctionTool_tool.cc
-
 <separator (=)>
 
+Unable to find any plugins with suffix 'mfPlugin'.
+Unable to find any plugins with suffix 'mfStatsPlugin'.
 
 <separator (=)>
 

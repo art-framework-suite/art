@@ -14,15 +14,15 @@ namespace cet {
 namespace art {
   namespace detail {
 
-    constexpr const char*
+    constexpr char const*
     dflt_spec_pattern()
     {
       return "[A-Za-z0-9]+";
     }
 
-    LibraryInfoCollection get_LibraryInfoCollection(suffix_type suffix,
+    LibraryInfoCollection get_LibraryInfoCollection(std::string const& suffix,
                                                     std::string const& pattern,
-                                                    bool const verbose = false);
+                                                    bool verbose = false);
 
   } // namespace detail
 } // namespace art
