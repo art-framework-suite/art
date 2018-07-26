@@ -51,14 +51,14 @@
 
 #include "canvas/Utilities/Exception.h"
 
-#include <map>
 #include <ostream>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 namespace art {
 
-  enum class suffix_type {
+  enum class suffix_type : std::size_t {
     module,
     plugin,
     service,
@@ -75,79 +75,66 @@ namespace art {
   }
 
   class Suffixes {
+    static constexpr auto
+    index_for(suffix_type const st)
+    {
+      return static_cast<std::underlying_type_t<suffix_type>>(st);
+    }
+
   public:
     static std::string const&
     module()
     {
-      return suffixes_[suffix_type::module];
+      return suffixes_[index_for(suffix_type::module)];
     }
     static std::string const&
     plugin()
     {
-      return suffixes_[suffix_type::plugin];
+      return suffixes_[index_for(suffix_type::plugin)];
     }
     static std::string const&
     service()
     {
-      return suffixes_[suffix_type::service];
+      return suffixes_[index_for(suffix_type::service)];
     }
     static std::string const&
     source()
     {
-      return suffixes_[suffix_type::source];
+      return suffixes_[index_for(suffix_type::source)];
     }
     static std::string const&
     tool()
     {
-      return suffixes_[suffix_type::tool];
+      return suffixes_[index_for(suffix_type::tool)];
     }
     static std::string const&
     mfPlugin()
     {
-      return suffixes_[suffix_type::mfPlugin];
+      return suffixes_[index_for(suffix_type::mfPlugin)];
     }
     static std::string const&
     mfStatsPlugin()
     {
-      return suffixes_[suffix_type::mfStatsPlugin];
-    }
-
-    static std::string const&
-    get(suffix_type st)
-    {
-      return suffixes_[st];
+      return suffixes_[index_for(suffix_type::mfStatsPlugin)];
     }
 
     static std::string
     print()
     {
       std::string result;
-      for (auto const& pr : suffixes_)
-        result += "\n    '" + pr.second + "'";
+      for (auto const& suffix : suffixes_)
+        result += "\n    '" + suffix + "'";
       return result;
     }
 
-    static suffix_type
-    get(std::string const& suffix)
-    {
-      auto it = rSuffixes_.find(suffix);
-      if (it == rSuffixes_.cend()) {
-        throw art::Exception(art::errors::NotFound)
-          << " The suffix '" << suffix << "' is not supported.\n"
-          << " Please choose from:" << print();
-      }
-      return it->second;
-    }
-
-    static std::map<suffix_type, std::string> const&
+    static std::vector<std::string> const&
     all()
     {
       return suffixes_;
     }
 
   private:
-    static std::map<suffix_type, std::string> suffixes_;
-    static std::map<std::string, suffix_type> rSuffixes_;
+    static std::vector<std::string> const suffixes_;
   };
 
 } // namespace art

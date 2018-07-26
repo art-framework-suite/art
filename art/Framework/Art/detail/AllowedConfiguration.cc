@@ -34,9 +34,10 @@ namespace {
     };
 
     if (specified_plugin_type.empty()) {
-      // Search through all plugin types if the user has not specified one.
-      for (auto const& pr : art::Suffixes::all()) {
-        collect_metadata(pr.second);
+      // Search through all plugin types known to art if the user has
+      // not specified one.
+      for (auto const& suffix : art::Suffixes::all()) {
+        collect_metadata(suffix);
       }
     } else {
       collect_metadata(specified_plugin_type);
