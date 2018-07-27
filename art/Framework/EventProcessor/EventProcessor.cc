@@ -6,10 +6,9 @@
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
+#include "art/Framework/Core/InputSourceMutex.h"
 #include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
-#include "art/Framework/IO/Root/InitRootHandlers.h"
-#include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
@@ -45,8 +44,6 @@
 #include "tbb/task.h"
 #include "tbb/task_arena.h"
 
-#include "TError.h"
-
 #include <algorithm>
 #include <cassert>
 #include <exception>
@@ -76,7 +73,6 @@ namespace art {
     ParentageRegistry::instance(true);
     ProcessConfigurationRegistry::instance(true);
     ProcessHistoryRegistry::instance(true);
-    SetErrorHandler(DefaultErrorHandler);
     TypeID::shutdown();
     ANNOTATE_THREAD_IGNORE_END;
   }
@@ -127,12 +123,6 @@ namespace art {
       //        thread only, and have it use sigwaitinfo() to suspend
       //        itselt and wait for those signals.
       setupSignals(scheduler_pset.get<bool>("enableSigInt", true));
-      if (scheduler_pset.get<bool>("unloadRootSigHandler", true)) {
-        unloadRootSigHandler();
-      }
-      setRootErrorHandler(
-        scheduler_pset.get<bool>("resetRootErrHandler", true));
-      completeRootHandlers();
     }
     ParentageRegistry::instance();
     ProcessConfigurationRegistry::instance();
@@ -661,7 +651,7 @@ namespace art {
     // input source lock held; however event-processing must not
     // serialized.
     {
-      input::RootMutexSentry lock_input;
+      InputSourceMutexSentry lock_input;
       auto do_switch = fileSwitchInProgress_.load();
       if (do_switch) {
         // We must avoid advancing the iterator after a schedule has

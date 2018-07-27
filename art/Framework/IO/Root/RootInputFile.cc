@@ -572,7 +572,6 @@ namespace art {
   void
   RootInputFile::fillAuxiliary_Event(EntryNumber const entry)
   {
-    input::RootMutexSentry sentry;
     auto auxbr = treePointers_[InEvent]->auxBranch();
     auto pAux = &eventAux_;
     auxbr->SetAddress(&pAux);
@@ -582,7 +581,6 @@ namespace art {
   void
   RootInputFile::fillAuxiliary_SubRun(EntryNumber const entry)
   {
-    input::RootMutexSentry sentry;
     auto auxbr = treePointers_[InSubRun]->auxBranch();
     auto pAux = &subRunAux_;
     auxbr->SetAddress(&pAux);
@@ -592,7 +590,6 @@ namespace art {
   void
   RootInputFile::fillAuxiliary_Run(EntryNumber const entry)
   {
-    input::RootMutexSentry sentry;
     auto auxbr = treePointers_[InRun]->auxBranch();
     auto pAux = &runAux_;
     auxbr->SetAddress(&pAux);
@@ -602,7 +599,6 @@ namespace art {
   void
   RootInputFile::fillAuxiliary_Results(EntryNumber const entry)
   {
-    input::RootMutexSentry sentry;
     auto auxbr = treePointers_[InResults]->auxBranch();
     auto pAux = &resultsAux_;
     auxbr->SetAddress(&pAux);
@@ -614,7 +610,6 @@ namespace art {
   {
     SubRunAuxiliary auxResult{};
     {
-      input::RootMutexSentry sentry;
       auto auxbr = treePointers_[InSubRun]->auxBranch();
       auto pAux = &auxResult;
       auxbr->SetAddress(&pAux);
@@ -635,7 +630,6 @@ namespace art {
     for (auto i = entries.cbegin() + 1, e = entries.cend(); i != e; ++i) {
       SubRunAuxiliary tmpAux{};
       {
-        input::RootMutexSentry sentry;
         auto auxbr = treePointers_[InSubRun]->auxBranch();
         auto pAux = &tmpAux;
         auxbr->SetAddress(&pAux);
@@ -655,7 +649,6 @@ namespace art {
   {
     RunAuxiliary auxResult{};
     {
-      input::RootMutexSentry sentry;
       auto auxbr = treePointers_[InRun]->auxBranch();
       auto pAux = &auxResult;
       auxbr->SetAddress(&pAux);
@@ -676,7 +669,6 @@ namespace art {
     for (auto i = entries.cbegin() + 1, e = entries.cend(); i != e; ++i) {
       RunAuxiliary tmpAux{};
       {
-        input::RootMutexSentry sentry;
         auto auxbr = treePointers_[InRun]->auxBranch();
         auto pAux = &tmpAux;
         auxbr->SetAddress(&pAux);
@@ -782,7 +774,6 @@ namespace art {
     //
     //  Auxiliary routine for the constructor.
     //
-    input::RootMutexSentry sentry;
     auto parentageTree = static_cast<TTree*>(
       filePtr_->Get(rootNames::parentageTreeName().c_str()));
     if (!parentageTree) {
@@ -1016,7 +1007,6 @@ namespace art {
   void
   RootInputFile::fillHistory(EntryNumber const entry, History& history)
   {
-    input::RootMutexSentry sentry;
     // We could consider doing delayed reading, but because we have to
     // store this History object in a different tree than the event
     // data tree, this is too hard to do in this first version.

@@ -4,6 +4,7 @@
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "art/Framework/IO/Root/InitRootHandlers.h"
+#include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/RootHandlers.h"
 #include "art/Utilities/ensureTable.h"
 #include "canvas/Utilities/Exception.h"
@@ -282,6 +283,24 @@ art::BasicOutputOptionsHandler::doProcessOptions(
       }
     }
   }
+
+  // Init ROOT handlers facility
+  auto const unload_key = fhicl_key("scheduler", "unloadRootSigHandler");
+  auto const unloadRSHandler =
+    detail::exists_outside_prolog(raw_config, unload_key) ?
+      raw_config.get<bool>(unload_key) :
+      true;
+  if (unloadRSHandler) {
+    unloadRootSigHandler();
+  }
+
+  auto const reset_key = fhicl_key("scheduler", "resetRootErrHandler");
+  auto const maybe_reset =
+    detail::exists_outside_prolog(raw_config, reset_key) ?
+      raw_config.get<bool>(reset_key) :
+      true;
+  RootErrorHandlerSentry re_sentry{maybe_reset};
+  completeRootHandlers();
 
   return 0;
 }

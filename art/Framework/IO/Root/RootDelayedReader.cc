@@ -1,6 +1,7 @@
 #include "art/Framework/IO/Root/RootDelayedReader.h"
 // vim: sw=2 expandtab :
 
+#include "art/Framework/Core/InputSourceMutex.h"
 #include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
@@ -28,7 +29,7 @@ using namespace std;
 
 namespace art {
 
-  RootDelayedReader::~RootDelayedReader() {}
+  RootDelayedReader::~RootDelayedReader() = default;
 
   RootDelayedReader::RootDelayedReader(
     FileFormatVersion const version,
@@ -65,7 +66,7 @@ namespace art {
   std::vector<ProductProvenance>
   RootDelayedReader::readProvenance_() const
   {
-    input::RootMutexSentry sentry;
+    InputSourceMutexSentry sentry;
     vector<ProductProvenance> ppv;
     auto p_ppv = &ppv;
     provenanceBranch_->SetAddress(&p_ppv);
@@ -94,7 +95,7 @@ namespace art {
       return true;
     }
     {
-      input::RootMutexSentry sentry;
+      InputSourceMutexSentry sentry;
       for (auto I = entrySet_.cbegin(), E = entrySet_.cend(); I != E; ++I) {
         vector<ProductProvenance> ppv;
         ProductProvenance const* prov = nullptr;
@@ -148,7 +149,7 @@ namespace art {
     }
     // Note: threading: The configure ref core streamer and the related i/o
     // operations must be done with the source lock held!
-    input::RootMutexSentry sentry;
+    InputSourceMutexSentry sentry;
     configureProductIDStreamer(branchIDLists_);
     configureRefCoreStreamer(principal_.get());
     TClass* cl = TClass::GetClass(pd.wrappedName().c_str());

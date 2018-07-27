@@ -15,7 +15,6 @@ art_make_library(
   ${art_Framework_EventProcessor_sources}
   LIBRARIES
   art_Framework_Core
-  art_Framework_IO_Root
   art_Framework_Services_System_FileCatalogMetadata_service
   art_Framework_Services_System_FloatingPointControl_service
   art_Framework_Services_System_TriggerNamesService_service

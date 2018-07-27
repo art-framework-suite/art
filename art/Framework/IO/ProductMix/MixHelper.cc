@@ -1,9 +1,8 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
-
+#include "art/Framework/Core/InputSourceMutex.h"
 #include "art/Framework/IO/Root/GetFileFormatEra.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
-
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -258,7 +257,7 @@ void
 art::MixHelper::generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
                                                EventAuxiliarySequence& auxseq)
 {
-  input::RootMutexSentry sentry;
+  InputSourceMutexSentry sentry;
   auto const eventTree = currentDataTrees_[InEvent];
   auto auxBranch =
     eventTree->GetBranch(BranchTypeToAuxiliaryBranchName(InEvent).c_str());

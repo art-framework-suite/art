@@ -12,6 +12,7 @@ art_make_library(
   detail/rootFileSizeTools.cc
   detail/rootOutputConfigurationTools.cc
   LIBRARIES
+  art_Framework_Core
   art_Framework_Principal
   art_Framework_IO_Root_RootDB
   art_Utilities

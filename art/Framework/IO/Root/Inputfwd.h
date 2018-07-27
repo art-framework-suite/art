@@ -3,7 +3,6 @@
 // vim: set sw=2 expandtab :
 
 #include "Rtypes.h"
-#include "hep_concurrency/RecursiveMutex.h"
 
 #include <map>
 #include <vector>
@@ -49,26 +48,6 @@ namespace art {
     Int_t getEntry(TTree* tree,
                    EntryNumber entryNumber,
                    unsigned long long& ticks);
-
-    class RootMutexSentry {
-      friend class AutoRootMutexSentryShutdown;
-
-    private:
-      static hep::concurrency::RecursiveMutex* rootMutex_;
-
-    public:
-      static hep::concurrency::RecursiveMutex* startup();
-      static void shutdown();
-
-    public:
-      ~RootMutexSentry();
-      RootMutexSentry();
-      RootMutexSentry(RootMutexSentry const&) = delete;
-      RootMutexSentry& operator=(RootMutexSentry const&) = delete;
-
-    private:
-      hep::concurrency::RecursiveMutexSentry sentry_;
-    };
 
   } // namespace input
 } // namespace art

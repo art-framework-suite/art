@@ -2,6 +2,7 @@
 #define art_Framework_IO_Root_detail_readMetadata_h
 
 #include "TBranch.h"
+#include "art/Framework/Core/InputSourceMutex.h"
 #include "art/Framework/IO/Root/detail/getObjectRequireDict.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/TypeID.h"
@@ -12,7 +13,7 @@ namespace art {
     T
     readMetadata(TTree* md, bool const requireDict = true)
     {
-      input::RootMutexSentry sentry;
+      InputSourceMutexSentry sentry;
       auto branch = md->GetBranch(art::rootNames::metaBranchRootName<T>());
       assert(branch != nullptr);
       auto mdField = requireDict ? root::getObjectRequireDict<T>() : T{};
@@ -27,7 +28,7 @@ namespace art {
     bool
     readMetadata(TTree* md, T& field, bool const requireDict = true)
     {
-      input::RootMutexSentry sentry;
+      InputSourceMutexSentry sentry;
       auto branch = md->GetBranch(art::rootNames::metaBranchRootName<T>());
       if (branch == nullptr) {
         return false;

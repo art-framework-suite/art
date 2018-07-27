@@ -5,6 +5,7 @@
 // Template encapsulating all the attributes and functionality of a
 // product mixing operation.
 
+#include "art/Framework/Core/InputSourceMutex.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/IO/ProductMix/detail/checkForMissingDictionaries.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
@@ -226,7 +227,8 @@ namespace art {
         // Need new product.
         inProducts_.emplace_back(new Wrapper<PROD>);
         Wrapper<PROD>* wp = inProducts_.back().get();
-        input::RootMutexSentry sentry;
+        // MT-FIXME
+        InputSourceMutexSentry sentry;
         branchInfo_.branch()->SetAddress(&wp);
         input::getEntry(branchInfo_.branch(), *i);
       } else {
