@@ -58,11 +58,7 @@ art_make_library(LIBRARY_NAME art_Framework_Art
   art_Version
   MF_MessageLogger
   # The following are used for InitRootHandlers
-  art_Framework_IO_Root
-  art_Framework_IO_Root_RootDB
-  ${ROOT_HIST}
-  ${ROOT_TREE}
-  )
+  art_Framework_IO_Root)
 
 # Build an art exec.
 macro(art_exec TARGET_STEM IN_STEM MAIN_FUNC)

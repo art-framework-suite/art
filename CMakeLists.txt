@@ -13,8 +13,8 @@
 # ======================================================================
 
 
-# use cmake 2.8 or later
-cmake_minimum_required (VERSION 2.8)
+# use cmake 3.11 or later
+cmake_minimum_required (VERSION 3.11)
 
 project(art)
 
@@ -40,24 +40,14 @@ if (SSE2)
 endif()
 
 if($ENV{CET_SANITIZE_ADDRESS})
-  #message(STATUS "CET_SANITIZE_ADDRESS=$ENV{CET_SANITIZE_ADDRESS}")
   if(NOT "$ENV{GCC_FQ_DIR}" STREQUAL "")
-    #message(STATUS "GCC_FQ_DIR=$ENV{GCC_FQ_DIR}")
     find_file(ASAN_LIB libasan.so NO_DEFAULT_PATH PATHS $ENV{GCC_FQ_DIR}/lib64)
-    if(NOT ASAN_LIB STREQUAL "ASAN_LIB-NOTFOUND")
-      #message(STATUS "ASAN_LIB=${ASAN_LIB}")
-    endif()
   endif()
 endif()
 
 if($ENV{CET_SANITIZE_THREAD})
-  #message(STATUS "CET_SANITIZE_THREAD=$ENV{CET_SANITIZE_THREAD}")
   if(NOT "$ENV{GCC_FQ_DIR}" STREQUAL "")
-    #message(STATUS "GCC_FQ_DIR=$ENV{GCC_FQ_DIR}")
     find_file(TSAN_LIB libtsan.so NO_DEFAULT_PATH PATHS $ENV{GCC_FQ_DIR}/lib64)
-    if(NOT TSAN_LIB STREQUAL "TSAN_LIB-NOTFOUND")
-      #message(STATUS "TSAN_LIB=${TSAN_LIB}")
-    endif()
   endif()
 endif()
 
