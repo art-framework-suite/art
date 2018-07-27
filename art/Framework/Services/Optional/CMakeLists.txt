@@ -54,7 +54,6 @@ simple_plugin(TimeTracker "service"
   canvas
   cetlib
   ${TBB}
-  ${RT}
   ${SQLITE3})
 
 simple_plugin(Tracer "service" art_Framework_Principal canvas)

@@ -92,10 +92,6 @@ cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
 include(ArtDictionary)
 include(BuildPlugins)
 
-if (NOT APPLE)
-  set(RT -lrt)
-endif()
-
 # Plugin skeleton generators for cetskelgen.
 add_subdirectory(perllib)
 
