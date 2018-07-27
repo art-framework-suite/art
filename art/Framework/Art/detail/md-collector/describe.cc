@@ -1,4 +1,4 @@
-#include "art/Framework/Art/detail/describe.h"
+#include "art/Framework/Art/detail/md-collector/describe.h"
 #include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
 #include "fhiclcpp/types/detail/optional_parameter_message.h"
 

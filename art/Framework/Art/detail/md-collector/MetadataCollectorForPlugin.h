@@ -2,9 +2,9 @@
 #define art_Framework_Art_detail_md_collector_MetadataCollectorForPlugin_h
 
 #include "art/Framework/Art/detail/MetadataCollector.h"
-#include "art/Framework/Art/detail/MetadataRegexHelpers.h"
 #include "art/Framework/Art/detail/PluginMetadata.h"
 #include "art/Framework/Art/detail/PrintFormatting.h"
+#include "art/Framework/Art/detail/md-collector/print_description_blocks.h"
 #include "art/Utilities/PluginSuffixes.h"
 
 #include <regex>
@@ -16,26 +16,17 @@ namespace art {
     class MetadataCollectorFor<suffix_type::plugin> : public MetadataCollector {
     public:
       PluginMetadata
-      doCollect(LibraryInfo const& li, std::string const& prefix) const override
+      doCollect(LibraryInfo const& li,
+                std::string const& prefix,
+                std::string const& header_label,
+                std::string const& param_to_replace) const override
       {
-        return {header_(li), details_(li), allowed_configuration_(li, prefix)};
+        return {print_header(li, header_label),
+                details_(li),
+                print_allowed_configuration(li, prefix, param_to_replace)};
       }
 
     private:
-      std::string
-      header_(LibraryInfo const& li) const
-      {
-        std::ostringstream result;
-        std::string const long_spec =
-          li.long_spec().empty() ?
-            " [ No alternate specification available ] " :
-            li.long_spec();
-        result << indent_1() << "plugin_type: " << bold_fontify(li.short_spec())
-               << " (or \"" << long_spec << "\")"
-               << "\n\n";
-        return result.str();
-      }
-
       std::string
       details_(LibraryInfo const& li) const
       {
@@ -44,22 +35,6 @@ namespace art {
                << indent__2() << "type    : " << li.plugin_type() << "\n"
                << indent__2() << "source  : " << li.path() << "\n"
                << indent__2() << "library : " << li.so_name() << "\n\n";
-        return result.str();
-      }
-
-      std::string
-      allowed_configuration_(LibraryInfo const& li,
-                             std::string const& prefix) const
-      {
-        std::ostringstream result;
-        result << indent_1() << "Allowed configuration\n"
-               << indent_1() << "---------------------\n";
-
-        std::string printedConfig{describe(li.allowed_config(), prefix)};
-        replace_type(
-          printedConfig, li.short_spec(), regex_for_spec("plugin_type"));
-
-        result << printedConfig;
         return result.str();
       }
     };

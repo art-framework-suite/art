@@ -2,9 +2,9 @@
 #define art_Framework_Art_detail_md_collector_MetadataCollectorForService_h
 
 #include "art/Framework/Art/detail/MetadataCollector.h"
-#include "art/Framework/Art/detail/MetadataRegexHelpers.h"
 #include "art/Framework/Art/detail/PluginMetadata.h"
 #include "art/Framework/Art/detail/PrintFormatting.h"
+#include "art/Framework/Art/detail/md-collector/print_description_blocks.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/bold_fontify.h"
 
@@ -19,9 +19,14 @@ namespace art {
       : public MetadataCollector {
     public:
       PluginMetadata
-      doCollect(LibraryInfo const& li, std::string const& prefix) const override
+      doCollect(LibraryInfo const& li,
+                std::string const& prefix,
+                std::string const& header_label[[gnu::unused]],
+                std::string const& param_to_replace) const override
       {
-        return {header_(li), details_(li), allowed_configuration_(li, prefix)};
+        return {header_(li),
+                details_(li),
+                print_allowed_configuration(li, prefix, param_to_replace)};
       }
 
     private:
@@ -42,17 +47,6 @@ namespace art {
         result << indent__2() << "provider: " << li.provider() << "\n"
                << indent__2() << "source  : " << li.path() << "\n"
                << indent__2() << "library : " << li.so_name() << "\n\n";
-        return result.str();
-      }
-
-      std::string
-      allowed_configuration_(LibraryInfo const& li,
-                             std::string const& prefix) const
-      {
-        std::ostringstream result;
-        result << indent_1() << "Allowed configuration\n"
-               << indent_1() << "---------------------\n";
-        result << describe(li.allowed_config(), prefix);
         return result.str();
       }
     };

@@ -17,6 +17,16 @@ using std::cout;
 
 namespace {
 
+  std::map<std::string,
+           std::pair<std::string, std::string>> const block_parameters = {
+    {art::Suffixes::module(), {"module_type", "module_type"}},
+    {art::Suffixes::service(), {"", ""}},
+    {art::Suffixes::source(), {"module_type", "module_type"}},
+    {art::Suffixes::mfPlugin(), {"Destination type ", "type"}},
+    {art::Suffixes::mfStatsPlugin(), {"Statistics destination type ", "type"}},
+    {art::Suffixes::plugin(), {"plugin_type", "plugin_type"}},
+    {art::Suffixes::tool(), {"tool_type", "tool_type"}}};
+
   constexpr cet::HorizontalRule fixed_rule{100};
 
   std::vector<art::detail::PluginMetadata>
@@ -27,10 +37,21 @@ namespace {
     auto collect_metadata = [&result,
                              &instance_pattern](std::string const& suffix) {
       auto mc = get_MetadataCollector(suffix);
+      // FIXME: Should the header label and and param_to_replace have
+      // defaults?
+      std::string header_label{"plugin_type"};
+      std::string param_to_replace{"plugin_type"};
+      auto params = block_parameters.find(suffix);
+      if (params != cend(block_parameters)) {
+        header_label = params->second.first;
+        param_to_replace = params->second.second;
+      }
       cet::transform_all(
         get_LibraryInfoCollection(suffix, instance_pattern),
-        std::back_inserter(result),
-        [&mc](auto const& info) { return mc->collect(info, indent__2()); });
+        back_inserter(result),
+        [&mc, &header_label, &param_to_replace](auto const& info) {
+          return mc->collect(info, indent__2(), header_label, param_to_replace);
+        });
     };
 
     if (specified_plugin_type.empty()) {
@@ -121,7 +142,7 @@ art::detail::supports_key(std::string const& suffix,
                           std::string const& spec,
                           std::string const& key)
 {
-  art::Exception e{art::errors::LogicError, "art::detail::has_key"};
+  art::Exception e{art::errors::LogicError, "art::detail::supports_key"};
   auto coll = get_LibraryInfoCollection(suffix, spec);
   if (coll.empty()) {
     throw e << (spec.empty() ? "[Missing specification]" : bold_fontify(spec))
@@ -173,8 +194,7 @@ namespace {
       }
       instance_pattern = spec.substr(pos + 1);
     }
-    return std::make_pair(std::move(specified_plugin_type),
-                          std::move(instance_pattern));
+    return std::make_pair(move(specified_plugin_type), move(instance_pattern));
   }
 } // namespace
 

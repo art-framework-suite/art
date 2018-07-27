@@ -42,10 +42,11 @@ set(art_Framework_Art_sources
   detail/AllowedConfiguration.cc
   detail/PluginSymbolResolvers.cc
   detail/fillSourceList.cc
-  detail/describe.cc
   detail/get_LibraryInfoCollection.cc
   detail/get_MetadataCollector.cc
   detail/get_MetadataSummary.cc
+  detail/md-collector/describe.cc
+  detail/md-collector/print_description_blocks.cc
   detail/prune_configuration.cc
   )
 

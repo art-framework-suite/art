@@ -21,15 +21,21 @@ namespace art {
     class MetadataCollector {
     public:
       PluginMetadata
-      collect(LibraryInfo const& li, std::string const& prefix) const
+      collect(LibraryInfo const& li,
+              std::string const& prefix,
+              std::string const& header_label,
+              std::string const& param_to_replace) const
       {
-        return doCollect(li, prefix);
+        return doCollect(li, prefix, header_label, param_to_replace);
       }
       virtual ~MetadataCollector() = default;
 
     private:
-      virtual PluginMetadata doCollect(LibraryInfo const& li,
-                                       std::string const& prefix) const = 0;
+      virtual PluginMetadata doCollect(
+        LibraryInfo const& li,
+        std::string const& prefix,
+        std::string const& header_label,
+        std::string const& param_to_replace) const = 0;
     };
 
   } // namespace detail
