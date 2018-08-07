@@ -1717,6 +1717,12 @@ cet_test(CmdLineTmpDir_t HANDBUILT
 
 add_subdirectory(AssnsReaderTest)
 
+cet_test(PruneConfig_t_01 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c prune_config_t_01.fcl --prune-config
+  DATAFILES fcl/prune_config_t_01.fcl
+  TEST_PROPERTIES WILL_FAIL TRUE)
+
 cet_test(DataFlowDumper_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c data_flow_dumper_t.fcl -n 1
