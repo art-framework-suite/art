@@ -18,5 +18,4 @@ physics:
     }
   }
   e1: [ a1 ]
-  end_paths: [ e1 ]
 }

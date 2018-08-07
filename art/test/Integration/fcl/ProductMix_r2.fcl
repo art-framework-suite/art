@@ -17,7 +17,6 @@ physics:
   }
 
   e1: [ mixAnalyzer ]
-  end_paths: [ e1 ]
 }
 
 source:

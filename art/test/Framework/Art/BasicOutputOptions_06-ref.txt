@@ -1,6 +1,4 @@
-physics: {
-   end_paths: []
-}
+physics: {}
 process_name: "OptSimpleOut"
 services: {
    CatalogInterface: {
