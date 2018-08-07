@@ -20,6 +20,65 @@ using art::detail::modules_t;
 
 namespace {
 
+  auto module_tables = {"physics.producers",
+                        "physics.filters",
+                        "physics.analyzers",
+                        "outputs"};
+  auto modifier_tables = {"physics.producers", "physics.filters"};
+  auto observer_tables = {"physics.analyzers", "outputs"};
+
+  enum class ModuleCategory { modifier, observer, unset };
+
+  std::ostream&
+  operator<<(std::ostream& os, ModuleCategory const cat)
+  {
+    switch (cat) {
+      case ModuleCategory::modifier:
+        os << "modifier";
+        break;
+      case ModuleCategory::observer:
+        os << "observer";
+        break;
+      case ModuleCategory::unset:
+        os << "unset";
+    }
+    return os;
+  }
+
+  ModuleCategory
+  opposite(ModuleCategory const cat)
+  {
+    auto result = ModuleCategory::unset;
+    switch (cat) {
+      case ModuleCategory::modifier:
+        result = ModuleCategory::observer;
+        break;
+      case ModuleCategory::observer:
+        result = ModuleCategory::modifier;
+        break;
+      case ModuleCategory::unset: {
+        throw art::Exception{art::errors::LogicError}
+          << "The " << cat << " category has no opposite.\n";
+      }
+    }
+    return result;
+  }
+
+  auto
+  module_category(std::string const& full_module_key)
+  {
+    // For a full module key (e.g. physics.analyzers.a), we strip off
+    // the module name ('a') to determine its module category.
+    auto table = full_module_key.substr(0, full_module_key.find_last_of('.'));
+    if (cet::search_all(modifier_tables, table)) {
+      return ModuleCategory::modifier;
+    } else if (cet::search_all(observer_tables, table)) {
+      return ModuleCategory::observer;
+    } else {
+      return ModuleCategory::unset;
+    }
+  }
+
   // module name => full module key
   modules_t
   declared_modules(intermediate_table const& config,
@@ -87,29 +146,66 @@ namespace {
 
   modules_per_path_t
   paths_for_tables(modules_per_path_t& all_paths,
-                   intermediate_table const& config,
-                   std::initializer_list<char const*> tables)
+                   modules_t const& modules,
+                   ModuleCategory const category)
   {
     using table_t = fhicl::extended_value::table_t;
     modules_per_path_t result;
     std::vector<std::string> paths_to_remove;
     for (auto const& pr : all_paths) {
       auto const& pathname = pr.first;
-      std::vector<std::string> mods;
+      // Skip over special path names, which are handled later.
+      if (pathname == "trigger_paths" || pathname == "end_paths") {
+        continue;
+      }
+      std::vector<std::string> right_modules;
+      std::vector<std::string> wrong_modules;
       for (auto const& modname : pr.second) {
-        for (auto const table : tables) {
-          auto const key = art::detail::fhicl_key(table, modname);
-          if (art::detail::exists_outside_prolog(config, key)) {
-            mods.push_back(modname);
-            break;
-          }
+        auto full_module_key_it = modules.find(modname);
+        if (full_module_key_it == cend(modules)) {
+          throw art::Exception{art::errors::Configuration,
+                               "The following error was encountered while "
+                               "processing a path configuration:\n"}
+            << "Entry " << modname << " in path " << pathname
+            << " does not have a module configuration.\n";
+        }
+        auto const& full_module_key = full_module_key_it->second;
+        auto const module_cat = module_category(full_module_key);
+        assert(module_cat != ModuleCategory::unset);
+        if (module_cat == category) {
+          right_modules.push_back(modname);
+        } else {
+          wrong_modules.push_back(modname);
         }
       }
-      if (mods.size() == pr.second.size()) {
-        result.emplace(pathname, move(mods));
+
+      if (right_modules.empty()) {
+        // None of the modules in the path was of the correct
+        // category.  This means that all modules were of the opposite
+        // category--we can safely skip it.
+        continue;
+      }
+
+      if (right_modules.size() == pr.second.size()) {
+        result.emplace(pathname, move(right_modules));
         // Cannot immediately erase since range-for will attempt to
         // increment an invalid iterator corresponding to pathname.
         paths_to_remove.push_back(pathname);
+      } else {
+        // This is the case where a path contains a mixture of
+        // modifiers and observers.
+        art::Exception e{art::errors::Configuration,
+                         "An error was encountered while "
+                         "processing a path configuration.\n"};
+        e << "The following entries in path " << pathname << " are "
+          << opposite(category)
+          << "s when all other\n"
+             "entries are "
+          << category << "s:\n";
+        for (auto const& modname : wrong_modules) {
+          e << "  '" << modname << "'\n";
+        }
+        throw e;
       }
     }
     for (auto const& path : paths_to_remove) {
@@ -152,22 +248,19 @@ namespace {
 std::pair<modules_per_path_t, modules_t>
 art::detail::detect_unused_configuration(intermediate_table& config)
 {
-  auto module_tables = {
-    "physics.producers", "physics.filters", "physics.analyzers", "outputs"};
   auto const modules = declared_modules(config, module_tables);
 
   auto paths = all_paths(config);
 
   auto trigger_paths = explicitly_declared_paths(paths, "trigger_paths");
-  auto modifier_tables = {"physics.producers", "physics.filters"};
   auto enabled_trigger_paths =
     trigger_paths ? *trigger_paths :
-                    paths_for_tables(paths, config, modifier_tables);
+                    paths_for_tables(paths, modules, ModuleCategory::modifier);
 
   auto end_paths = explicitly_declared_paths(paths, "end_paths");
-  auto observer_tables = {"physics.analyzers", "outputs"};
   auto enabled_end_paths =
-    end_paths ? *end_paths : paths_for_tables(paths, config, observer_tables);
+    end_paths ? *end_paths :
+                paths_for_tables(paths, modules, ModuleCategory::observer);
 
   // The only paths left are those that are not enabled for execution.
   if (!paths.empty()) {
