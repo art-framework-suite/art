@@ -10,7 +10,6 @@ physics:
     }
   }
   e1: [ am1 ]
-  end_paths: [ e1 ]
 }
 
 source:

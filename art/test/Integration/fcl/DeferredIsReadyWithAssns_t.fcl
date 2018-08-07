@@ -27,5 +27,4 @@ physics:
   p1: [ ap1 ]
 
   e1: [ aa1 ]
-  end_paths: [ e1 ]
 }

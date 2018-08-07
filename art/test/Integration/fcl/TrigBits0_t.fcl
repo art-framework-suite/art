@@ -22,8 +22,6 @@ physics:
 
   e1: [ a1 ]
   e2: [ testout1 ]
-
-  end_paths: [ e1, e2 ]
 }
 
 outputs:

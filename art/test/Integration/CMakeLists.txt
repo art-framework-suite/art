@@ -286,6 +286,7 @@ cet_test(SimpleDerived_01_r HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c test_simplederived_01b.fcl
   DATAFILES fcl/test_simplederived_01b.fcl
+  REQUIRED_FILES "../SimpleDerived_01_w.d/out.root"
   TEST_PROPERTIES DEPENDS SimpleDerived_01_w
 )
 
@@ -448,6 +449,7 @@ cet_test(ToyRawInput_r1 HANDBUILT
   TEST_ARGS --rethrow-all -c ToyRawInput_r1.fcl
   DATAFILES
   fcl/ToyRawInput_r1.fcl
+  REQUIRED_FILES "../ToyRawInput_w.d/out.root"
   TEST_PROPERTIES DEPENDS ToyRawInput_w
 )
 
@@ -457,6 +459,7 @@ cet_test(ToyRawInput_r2 HANDBUILT
   DATAFILES
   fcl/ToyRawInput_r2.fcl
   fcl/ToyRawInput_r1.fcl
+  REQUIRED_FILES "../ToyRawInput_w.d/out.root"
   TEST_PROPERTIES DEPENDS ToyRawInput_w
 )
 
@@ -466,6 +469,7 @@ cet_test(ToyRawInput_r3 HANDBUILT
   DATAFILES
   fcl/ToyRawInput_r3.fcl
   fcl/ToyRawInput_r1.fcl
+  REQUIRED_FILES "../ToyRawInput_w.d/out.root"
   TEST_PROPERTIES DEPENDS ToyRawInput_w
 )
 
@@ -625,6 +629,7 @@ cet_test(BareString_r HANDBUILT
   TEST_ARGS --rethrow-all -c BareString_r.fcl
   DATAFILES
   fcl/BareString_r.fcl
+  REQUIRED_FILES "../BareString_w.d/out.root"
   TEST_PROPERTIES DEPENDS BareString_w
 )
 
@@ -633,6 +638,7 @@ cet_test(ValidHandleTester HANDBUILT
   TEST_ARGS --rethrow-all -c ValidHandleTester.fcl
   DATAFILES
   fcl/ValidHandleTester.fcl
+  REQUIRED_FILES "../BareString_w.d/out.root"
   TEST_PROPERTIES DEPENDS BareString_w
 )
 
@@ -949,6 +955,7 @@ foreach(num RANGE 1 4)
     DATAFILES
     fcl/DropOnOutput_r_01.fcl
     fcl/DropOnOutput_r_0${num}.fcl
+    REQUIRED_FILES "../DropOnOutput_wA_0${num}.d/out.root"
     TEST_PROPERTIES DEPENDS DropOnOutput_wA_0${num}
     )
 

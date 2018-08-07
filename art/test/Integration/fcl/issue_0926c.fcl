@@ -18,8 +18,6 @@ physics:
   }
 
   e1: [ ana1 ]
-
-  end_paths: [ e1 ]
 }
 
 source:

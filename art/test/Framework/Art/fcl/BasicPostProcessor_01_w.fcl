@@ -5,10 +5,7 @@ physics:
   analyzers: { a1: { } }
 
   path1: [ p1, f1 ]
-  epath1: [ a1, p1 ]
-
-  trigger_paths: [ path1 ]
-  end_paths: [ epath1 ]
+  epath1: [ a1, o1 ]
 }
 
 outputs:

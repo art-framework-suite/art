@@ -3,7 +3,6 @@ process_name: DEVEL
 physics:
 {
   e1: [ out1 ]
-  end_paths: [ e1 ]
 }
 
 outputs:
