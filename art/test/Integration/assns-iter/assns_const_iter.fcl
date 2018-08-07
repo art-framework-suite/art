@@ -1,0 +1,28 @@
+physics: {
+  producers: {
+    pm1: {
+      module_type: AssnsIterProducer1
+    }
+    pm2: {
+      module_type: AssnsIterProducer2
+      input_label: pm1
+    }
+  }
+
+  analyzers: {
+    am: {
+      module_type: ConstAssnsIterAnalyzer
+      input_label: pm2
+    }
+  }
+
+   p1: [ pm1, pm2 ]
+   e1: [ am ]
+}
+
+source: {
+  module_type: EmptyEvent
+  maxEvents: 3
+}
+
+process_name: DEVEL1

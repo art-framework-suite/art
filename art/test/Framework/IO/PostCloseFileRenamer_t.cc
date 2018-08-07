@@ -43,14 +43,14 @@ BOOST_AUTO_TEST_CASE(constructor)
 
 BOOST_AUTO_TEST_CASE(testSubstitutions)
 {
-  std::vector<std::string> patterns{{"f/stem_%r_%s_%R_%S.root"},
-                                    {"f/stem_%l.root"},
-                                    {"f/stem_%p.root"},
-                                    {"f/stem_%5R_%2S.root"}};
-  std::vector<std::string> answers{{"f/stem_1_0_2_3.root"},
-                                   {"f/stem_label.root"},
-                                   {"f/stem_DEVEL.root"},
-                                   {"f/stem_00002_03.root"}};
+  std::vector<std::string> const patterns{"f/stem_%r_%s_%R_%S.root"s,
+                                          "f/stem_%l.root"s,
+                                          "f/stem_%p.root"s,
+                                          "f/stem_%5R_%2S.root"s};
+  std::vector<std::string> const answers{"f/stem_1_0_2_3.root"s,
+                                         "f/stem_label.root"s,
+                                         "f/stem_DEVEL.root"s,
+                                         "f/stem_00002_03.root"s};
   simulateJob();
   PostCloseFileRenamer fr{fstats};
   for (size_t i{0}, e = patterns.size(); i != e; ++i) {

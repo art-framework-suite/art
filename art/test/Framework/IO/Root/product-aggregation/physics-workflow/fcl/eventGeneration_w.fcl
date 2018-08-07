@@ -1,0 +1,30 @@
+source: {
+  module_type: EmptyEvent
+  maxEvents: 200
+  numberEventsInSubRun: 100
+}
+
+physics: {
+
+  producers: {
+    prod: {
+      module_type: "art/test/Framework/IO/Root/product-aggregation/physics-workflow/EventGenerator"
+    }
+  }
+
+  p1: [prod]
+  e1: [out]
+}
+
+outputs: {
+
+  out: {
+    module_type: RootOutput
+    fileName: "evtGen_%#.root"
+    fileProperties: {
+      maxEvents: 50
+    }
+  }
+}
+
+process_name: eventGen

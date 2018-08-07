@@ -18,14 +18,7 @@ physics: {
   }
 
   p1: [ prod ]
-  e1: [ analyzer, out1 ]
-}
-
-outputs: {
-  out1: {
-    module_type: RootOutput
-    fileName: "out1.root"
-  }
+  e1: [ analyzer ]
 }
 
 process_name: ProductAnalyzerTest

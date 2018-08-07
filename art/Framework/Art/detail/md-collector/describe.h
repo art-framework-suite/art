@@ -1,5 +1,5 @@
-#ifndef art_Framework_Art_detail_describe_h
-#define art_Framework_Art_detail_describe_h
+#ifndef art_Framework_Art_detail_md_collector_describe_h
+#define art_Framework_Art_detail_md_collector_describe_h
 
 #include "fhiclcpp/types/ConfigurationTable.h"
 
@@ -15,4 +15,4 @@ namespace art {
 // Local variables:
 // mode: c++
 // End:
-#endif /* art_Framework_Art_detail_describe_h */
+#endif /* art_Framework_Art_detail_md_collector_describe_h */

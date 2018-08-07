@@ -1,0 +1,17 @@
+physics: {
+  analyzers: {
+    am1: {
+      module_type: PtrMakerAnalyzer
+      input_label: pm2
+      nvalues: 16
+    }
+  }
+  e1: [ am1 ]
+}
+
+source: {
+  module_type: RootInput
+  fileNames: [ "../PtrMaker_t1.d/out.root" ]
+}
+
+process_name: DEVEL3

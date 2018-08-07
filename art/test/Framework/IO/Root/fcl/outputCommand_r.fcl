@@ -1,0 +1,56 @@
+#include "messageDefaults.fcl"
+
+services:
+{
+  # Always-present services; configuration optional.
+  FloatingPointControl: { }
+
+  scheduler:  # options block in the old system
+  {
+    Rethrow: ['OtherArt','StdException','Unknown','BadAlloc',
+              'BadExceptionType','ProductNotFound','DictionaryNotFound',
+              'ProductPutFailure','Configuration','LogicError','UnimplementedFeature',
+              'InvalidReference','NullPointerError','NoProductSpecified','EventTimeout',
+              'DataCorruption','ScheduleExecutionFailure','EventProcessorFailure',
+              'FileInPathError','FileOpenError','FileReadError','FatalRootError',
+              'MismatchedInputFiles','ProductDoesNotSupportViews',
+              'ProductDoesNotSupportPtr','NotFound']
+    wantSummary: true
+  }
+}
+
+services.message: @local::messageDefaults
+physics:
+{
+  producers:
+  {
+  }
+
+  filters:
+  {
+  }
+
+  analyzers:
+  {
+    a1:
+    {
+      module_type: IntTestAnalyzer
+      input_label: m1a
+      expected_value: 2
+    }
+  }
+
+  e1: [ a1 ]
+}
+
+outputs:
+{
+}
+
+source:
+{
+  module_type: RootInput
+  fileNames: [ "out.root" ]
+}
+
+process_name: DEVELr

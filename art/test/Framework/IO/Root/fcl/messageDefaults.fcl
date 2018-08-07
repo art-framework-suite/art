@@ -1,0 +1,17 @@
+BEGIN_PROLOG
+messageDefaults:
+{
+  destinations:
+  {
+    STDOUT:
+    {
+      type: cout
+      threshold: INFO
+      categories:
+      {
+        default: { limit: -1 }
+      }
+    }
+  }
+}
+END_PROLOG

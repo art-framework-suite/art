@@ -10,14 +10,6 @@ physics: {
   }
 
   p1: [ unputter ]
-  e1: [ o1 ]
-}
-
-outputs: {
-  o1: {
-    module_type: RootOutput
-    fileName:  "unputting.root"
-  }
 }
 
 source: {

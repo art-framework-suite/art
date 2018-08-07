@@ -1,0 +1,16 @@
+physics: {
+  analyzers: {
+    am: {
+      module_type: AssnsAnalyzerFEG
+      input_label: pm2
+    }
+  }
+  e1: [am]
+}
+
+source: {
+  module_type: RootInput
+  fileNames: [ "../for_each_group_1.d/out.root" ]
+}
+
+process_name: DEVEL3

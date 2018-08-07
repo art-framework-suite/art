@@ -1,28 +1,23 @@
 # Configure file to handle differences for Mac.
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/check_libs.cc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc @ONLY
-  )
+  ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc @ONLY)
 
 ####################################
 # Configure for desired default exception handling.
 SET(ART_MAIN_FUNC artapp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.h @ONLY
-  )
+  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.h @ONLY)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY
-  )
+  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY)
 
 SET(ART_MAIN_FUNC mu2eapp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.h @ONLY
-  )
+  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.h @ONLY)
 
 SET(ART_RETHROW_DEFAULT TRUE)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY
-  )
+  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY)
 ####################################
 
 set(art_Framework_Art_sources
@@ -47,8 +42,7 @@ set(art_Framework_Art_sources
   detail/get_MetadataSummary.cc
   detail/md-collector/describe.cc
   detail/md-collector/print_description_blocks.cc
-  detail/prune_configuration.cc
-  )
+  detail/prune_configuration.cc)
 
 art_make_library(LIBRARY_NAME art_Framework_Art
                  SOURCE ${art_Framework_Art_sources}
@@ -66,16 +60,14 @@ macro(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
   cet_parse_args(AE "LIBRARIES" "" ${ARGN})
   set(ART_MAIN_FUNC ${MAIN_FUNC})
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${IN_STEM}.cc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc @ONLY
-    )
+    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc @ONLY)
   art_make_exec(NAME ${TARGET_STEM}
     SOURCE ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc
     ${AE_DEFAULT_ARGS}
     LIBRARIES
     ${AE_LIBRARIES}
     art_Framework_Art
-    MF_MessageLogger
-    )
+    MF_MessageLogger)
   # Enable plugins to access symbols exported by the exec (CMake policy CMP0065).
   set_property(TARGET ${TARGET_STEM} PROPERTY ENABLE_EXPORTS TRUE)
 endmacro()
@@ -106,8 +98,7 @@ art_make_exec(NAME check_libs
   SOURCE ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc
   LIBRARIES
   art_Utilities canvas
-  cetlib
-  )
+  cetlib)
 
 install_headers(SUBDIRS detail detail/md-collector detail/md-summary)
 install_source(SUBDIRS detail)
