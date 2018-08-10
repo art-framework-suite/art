@@ -6,7 +6,7 @@
 #include "art/Framework/IO/ClosingCriteria.h"
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/PostCloseFileRenamer.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art/Framework/IO/Root/Services/TFileDirectory.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"

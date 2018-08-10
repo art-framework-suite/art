@@ -2,6 +2,7 @@ cet_test(GetFileFormatVersion SOURCES test_GetFileFormatVersion.cpp
   LIBRARIES art_Framework_IO_RootVersion)
 
 add_subdirectory(AssnsReaderTest)
+add_subdirectory(Services)
 add_subdirectory(bad-assns)
 add_subdirectory(event-shape)
 add_subdirectory(fastclonefail)

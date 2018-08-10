@@ -1,4 +1,4 @@
-#include "art/Framework/Services/Optional/detail/RootDirectorySentry.h"
+#include "art/Framework/IO/Root/Services/detail/RootDirectorySentry.h"
 // vim: set sw=2 expandtab :
 
 #include "TH1.h"

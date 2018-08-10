@@ -1,4 +1,4 @@
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art/Framework/IO/Root/Services/TFileDirectory.h"
 // vim: set sw=2 expandtab :
 
 #include "canvas/Utilities/Exception.h"
