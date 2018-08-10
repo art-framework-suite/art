@@ -1,6 +1,11 @@
 cet_test(GetFileFormatVersion SOURCES test_GetFileFormatVersion.cpp
   LIBRARIES art_Framework_IO_RootVersion)
 
+cet_make_library(LIBRARY_NAME art_test_Framework_IO_Root_TH1Data
+  SOURCE TH1Data.cc
+  LIBRARIES ${ROOT_HIST} ${ROOT_CORE})
+art_dictionary(DICTIONARY_LIBRARIES art_test_Framework_IO_Root_TH1Data)
+
 add_subdirectory(AssnsReaderTest)
 add_subdirectory(Services)
 add_subdirectory(bad-assns)
@@ -41,7 +46,7 @@ cet_test(RootOutputClosingCriteria_t
 
 ## All ROOT-dependent tests from art/art/test/Integration
 
-simple_plugin(TH1DataProducer "module"  NO_INSTALL art_test_TestObjects)
+simple_plugin(TH1DataProducer "module" NO_INSTALL art_test_Framework_IO_Root_TH1Data)
 
 cet_test(TH1Data_t HANDBUILT
   TEST_EXEC art

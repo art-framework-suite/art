@@ -1,0 +1,6 @@
+<lcgdict>
+ <class name="arttest::TH1Data" ClassVersion="10">
+  <version ClassVersion="10" checksum="3907138095"/>
+ </class>
+ <class name="art::Wrapper<arttest::TH1Data>"/>
+</lcgdict>

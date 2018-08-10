@@ -1,7 +1,6 @@
 #include "art/test/TestObjects/AssnTestData.h"
 #include "art/test/TestObjects/MockCluster.h"
 #include "art/test/TestObjects/ProductWithPtrs.h"
-#include "art/test/TestObjects/TH1Data.h"
 #include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/Ptr.h"
