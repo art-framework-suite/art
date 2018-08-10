@@ -1,5 +1,5 @@
-#ifndef art_Framework_Services_Optional_TFileService_h
-#define art_Framework_Services_Optional_TFileService_h
+#ifndef art_Framework_IO_Root_Services_TFileService_h
+#define art_Framework_IO_Root_Services_TFileService_h
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/OutputFileGranularity.h"
@@ -112,7 +112,7 @@ namespace art {
 
 DECLARE_ART_SERVICE(art::TFileService, LEGACY)
 
-#endif /* art_Framework_Services_Optional_TFileService_h */
+#endif /* art_Framework_IO_Root_Services_TFileService_h */
 
 // Local Variables:
 // mode: c++

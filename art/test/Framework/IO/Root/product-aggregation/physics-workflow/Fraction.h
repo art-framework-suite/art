@@ -1,5 +1,5 @@
-#ifndef art_test_Integration_product_aggregation_physics_workflow_Fraction_h
-#define art_test_Integration_product_aggregation_physics_workflow_Fraction_h
+#ifndef art_test_Framework_IO_Root_product_aggregation_physics_workflow_Fraction_h
+#define art_test_Framework_IO_Root_product_aggregation_physics_workflow_Fraction_h
 
 namespace arttest {
 
@@ -37,7 +37,7 @@ namespace arttest {
 
 } // namespace arttest
 
-#endif /* art_test_Integration_product_aggregation_physics_workflow_Fraction_h */
+#endif /* art_test_Framework_IO_Root_product_aggregation_physics_workflow_Fraction_h */
 
 // Local variables:
 // mode: c++

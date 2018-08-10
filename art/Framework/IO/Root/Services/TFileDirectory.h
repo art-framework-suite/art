@@ -1,17 +1,17 @@
-#ifndef art_Framework_Services_Optional_TFileDirectory_h
-#define art_Framework_Services_Optional_TFileDirectory_h
+#ifndef art_Framework_IO_Root_Services_TFileDirectory_h
+#define art_Framework_IO_Root_Services_TFileDirectory_h
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/IO/Root/Services/detail/RootDirectorySentry.h"
 
 #include "TDirectory.h"
 
+#include <functional>
 #include <map>
 #include <mutex>
 #include <string>
-#include <vector>
-#include <functional>
 #include <utility>
+#include <vector>
 
 class TFile;
 
@@ -118,7 +118,7 @@ namespace art {
 
 } // namespace art
 
-#endif /* art_Framework_Services_Optional_TFileDirectory_h */
+#endif /* art_Framework_IO_Root_Services_TFileDirectory_h */
 
 // Local Variables: -
 // mode: c++ -

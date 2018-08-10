@@ -47,8 +47,7 @@ BOOST_AUTO_TEST_CASE(testParallelism1)
 
 BOOST_AUTO_TEST_CASE(testParallelism2)
 {
-  char const* strings[] = {
-    "artapp_t", "--config", "empty.fcl", "--nthreads=1"};
+  char const* strings[] = {"artapp_t", "--config", "empty.fcl", "--nthreads=1"};
   BOOST_REQUIRE(artapp(4, const_cast<char**>(strings)) == 0);
 }
 

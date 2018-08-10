@@ -41,8 +41,7 @@ namespace art {
   } // namespace detail
 } // namespace art
 
-#endif /* art_Framework_Art_detail_md_collector_MetadataCollectorForSource_h   \
-        */
+#endif /* art_Framework_Art_detail_md_collector_MetadataCollectorForSource_h */
 
 // Local variables:
 // mode: c++
