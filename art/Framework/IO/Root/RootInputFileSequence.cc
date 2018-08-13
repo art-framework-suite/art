@@ -6,6 +6,7 @@
 #include "art/Framework/IO/Catalog/InputFileCatalog.h"
 #include "art/Framework/IO/Root/RootFileBlock.h"
 #include "art/Framework/IO/Root/RootInputFile.h"
+#include "art/Framework/IO/Root/setup.h"
 #include "art/Framework/IO/detail/logFileAction.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -58,6 +59,8 @@ namespace art {
     , processConfiguration_{processConfig}
     , outputCallbacks_{outputCallbacks}
   {
+    root::setup();
+
     auto const& primaryFileNames = catalog_.fileSources();
 
     map<string const, vector<string> const> secondaryFilesMap;

@@ -12,6 +12,7 @@ art_make_library(SOURCE ${art_Framework_IO_Root_Services_sources}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_REGEX_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
+  art_Framework_IO_Root
   art_Framework_Services_Registry
   art_Utilities
   canvas

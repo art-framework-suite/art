@@ -1,5 +1,5 @@
-#include "art/Framework/IO/Root/InitRootHandlers.h"
 #include "art/Framework/IO/Root/RootDB/tkeyvfs.h"
+#include "art/Framework/IO/Root/setup.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas_root_io/Streamers/BranchDescriptionStreamer.h"
 #include "canvas_root_io/Streamers/CacheStreamers.h"
@@ -7,6 +7,7 @@
 #include "canvas_root_io/Streamers/RefCoreStreamer.h"
 #include "canvas_root_io/Streamers/TransientStreamer.h"
 #include "canvas_root_io/Streamers/setPtrVectorBaseStreamer.h"
+#include "hep_concurrency/RecursiveMutex.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "TError.h"
@@ -17,6 +18,8 @@
 
 #include <sstream>
 #include <string.h>
+
+using namespace hep::concurrency;
 
 namespace {
 
@@ -163,55 +166,39 @@ namespace {
       mf::LogInfo("Root_Information") << el_location << el_message;
     }
   }
+
+  RecursiveMutex mutex{"art::root::setup"};
+  bool initialized{false};
+
 } // namespace
 
-namespace art {
-
-  void
-  unloadRootSigHandler()
-  {
-    // Deactivate all the Root signal handlers and restore the system defaults
-    gSystem->ResetSignal(kSigChild);
-    gSystem->ResetSignal(kSigBus);
-    gSystem->ResetSignal(kSigSegmentationViolation);
-    gSystem->ResetSignal(kSigIllegalInstruction);
-    gSystem->ResetSignal(kSigSystem);
-    gSystem->ResetSignal(kSigPipe);
-    gSystem->ResetSignal(kSigAlarm);
-    gSystem->ResetSignal(kSigUrgent);
-    gSystem->ResetSignal(kSigFloatingException);
-    gSystem->ResetSignal(kSigWindowChanged);
+void
+art::root::setup()
+{
+  RecursiveMutexSentry lock{mutex};
+  if (initialized) {
+    return;
   }
 
-  void
-  setRootErrorHandler(bool const want_custom)
-  {
-    if (want_custom) {
-      SetErrorHandler(RootErrorHandler);
-    } else {
-      SetErrorHandler(DefaultErrorHandler);
-    }
-  }
+  // Set error handler
+  gSystem->ResetSignals();
+  SetErrorHandler(RootErrorHandler);
 
-  void
-  completeRootHandlers()
-  {
-    // Set ROOT parameters.  See note in EventProcessor about when
-    // EnableImplicitMT() should be called.
-    ROOT::EnableThreadSafety();
-    TTree::SetMaxTreeSize(kMaxLong64);
-    TH1::AddDirectory(kFALSE);
+  // Set ROOT parameters.  See note in EventProcessor about when
+  // EnableImplicitMT() should be called.
+  ROOT::EnableThreadSafety();
+  TTree::SetMaxTreeSize(kMaxLong64);
+  TH1::AddDirectory(kFALSE);
 
-    // Initialize tkeyvfs sqlite3 extension for ROOT.
-    tkeyvfs_init();
+  // Initialize tkeyvfs sqlite3 extension for ROOT.
+  tkeyvfs_init();
 
-    // Set custom streamers.
-    setCacheStreamers();
-    setProvenanceTransientStreamers();
-    detail::setBranchDescriptionStreamer();
-    detail::setPtrVectorBaseStreamer();
-    configureProductIDStreamer();
-    configureRefCoreStreamer();
-  }
-
-} // art
+  // Set custom streamers.
+  setCacheStreamers();
+  setProvenanceTransientStreamers();
+  detail::setBranchDescriptionStreamer();
+  detail::setPtrVectorBaseStreamer();
+  configureProductIDStreamer();
+  configureRefCoreStreamer();
+  initialized = true;
+}

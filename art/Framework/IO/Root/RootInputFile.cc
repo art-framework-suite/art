@@ -122,12 +122,11 @@ namespace art {
 
   } // namespace detail
 
-  RootInputFile::RootInputTree::~RootInputTree() {}
+  RootInputFile::RootInputTree::~RootInputTree() = default;
 
   RootInputFile::RootInputTree::RootInputTree(
     cet::exempt_ptr<TFile> filePtr,
     BranchType const branchType,
-    int64_t /*saveMemoryObjectThreshold*/,
     cet::exempt_ptr<RootInputFile> /*primaryFile*/,
     bool const missingOK /*=false*/)
   {
@@ -241,7 +240,7 @@ namespace art {
     branch = nullptr;
   }
 
-  RootInputFile::~RootInputFile() {}
+  RootInputFile::~RootInputFile() = default;
 
   RootInputFile::RootInputFile(string const& fileName,
                                string const& catalogName,
@@ -249,21 +248,21 @@ namespace art {
                                string const& logicalFileName,
                                unique_ptr<TFile>&& filePtr,
                                EventID const& origEventID,
-                               unsigned int eventsToSkip,
+                               unsigned int const eventsToSkip,
                                bool const compactSubRunRanges,
                                FastCloningInfoProvider const& fcip,
-                               unsigned int treeCacheSize,
-                               int64_t treeMaxVirtualSize,
-                               int64_t saveMemoryObjectThreshold,
-                               bool delayedReadEventProducts,
-                               bool delayedReadSubRunProducts,
-                               bool delayedReadRunProducts,
-                               InputSource::ProcessingMode processingMode,
-                               int forcedRunOffset,
-                               bool noEventSort,
+                               unsigned int const treeCacheSize,
+                               int64_t const treeMaxVirtualSize,
+                               int64_t const saveMemoryObjectThreshold,
+                               bool const delayedReadEventProducts,
+                               bool const delayedReadSubRunProducts,
+                               bool const delayedReadRunProducts,
+                               InputSource::ProcessingMode const processingMode,
+                               int const forcedRunOffset,
+                               bool const noEventSort,
                                GroupSelectorRules const& groupSelectorRules,
                                shared_ptr<DuplicateChecker> duplicateChecker,
-                               bool dropDescendants,
+                               bool const dropDescendants,
                                bool const readIncomingParameterSets,
                                exempt_ptr<RootInputFile> primaryFile,
                                vector<string> const& secondaryFileNames,
@@ -279,22 +278,18 @@ namespace art {
     , compactSubRunRanges_{compactSubRunRanges}
     , treePointers_{{make_unique<RootInputTree>(filePtr_.get(),
                                                 InEvent,
-                                                saveMemoryObjectThreshold,
                                                 this,
                                                 false),
                      make_unique<RootInputTree>(filePtr_.get(),
                                                 InSubRun,
-                                                saveMemoryObjectThreshold,
                                                 this,
                                                 false),
                      make_unique<RootInputTree>(filePtr_.get(),
                                                 InRun,
-                                                saveMemoryObjectThreshold,
                                                 this,
                                                 false),
                      make_unique<RootInputTree>(filePtr_.get(),
                                                 InResults,
-                                                saveMemoryObjectThreshold,
                                                 this,
                                                 true)}}
     , delayedReadEventProducts_{delayedReadEventProducts}

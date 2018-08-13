@@ -82,13 +82,13 @@ namespace art {
       void setRootFileForLastReadEvent(std::shared_ptr<RootInputFile> const&);
 
     private:
-      State state_;
-      EventID lastReadEventID_;
-      std::shared_ptr<RootInputFile> rootFileForLastReadEvent_;
-      EventID wantedEventID_;
+      State state_{SEQUENTIAL};
+      EventID lastReadEventID_{};
+      std::shared_ptr<RootInputFile> rootFileForLastReadEvent_{nullptr};
+      EventID wantedEventID_{};
     };
 
-    typedef input::EntryNumber EntryNumber;
+    using EntryNumber = input::EntryNumber;
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     ~RootInput();

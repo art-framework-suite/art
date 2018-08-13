@@ -22,14 +22,8 @@
 using namespace art;
 using namespace std;
 
-RootInput::AccessState::~AccessState() {}
-
-RootInput::AccessState::AccessState()
-  : state_(SEQUENTIAL)
-  , lastReadEventID_()
-  , rootFileForLastReadEvent_()
-  , wantedEventID_()
-{}
+RootInput::AccessState::~AccessState() = default;
+RootInput::AccessState::AccessState() = default;
 
 RootInput::AccessState::State
 RootInput::AccessState::state() const
@@ -86,7 +80,7 @@ RootInput::AccessState::setRootFileForLastReadEvent(
   rootFileForLastReadEvent_ = ptr;
 }
 
-RootInput::~RootInput() {}
+RootInput::~RootInput() = default;
 
 RootInput::RootInput(RootInput::Parameters const& config,
                      InputSourceDescription& desc)

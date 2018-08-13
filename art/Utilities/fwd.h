@@ -13,7 +13,6 @@ namespace art {
   class InputTag;
   struct MallocOpts;
   class MallocOptionsSetter; // MallocOpts.h
-  class RootHandlers;
   class TypeID;
 } // namespace art
 #endif /* art_Utilities_fwd_h */

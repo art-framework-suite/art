@@ -3,9 +3,7 @@
 #include "art/Framework/Art/detail/AllowedConfiguration.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
-#include "art/Framework/IO/Root/InitRootHandlers.h"
-#include "art/Framework/IO/Root/Inputfwd.h"
-#include "art/Framework/IO/Root/RootHandlers.h"
+#include "art/Framework/IO/Root/setup.h"
 #include "art/Utilities/ensureTable.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/canonical_string.h"
@@ -13,8 +11,6 @@
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/parse.h"
-
-#include "TError.h"
 
 #include <iostream>
 #include <regex>
@@ -226,15 +222,6 @@ namespace {
       processSpecifiedOutputs(raw_config, vm["output"].as<stringvec>());
     }
   }
-
-  struct RootErrorHandlerSentry {
-    RootErrorHandlerSentry(bool const reset)
-    {
-      art::setRootErrorHandler(reset);
-    }
-    ~RootErrorHandlerSentry() { SetErrorHandler(DefaultErrorHandler); }
-  };
-
 } // namespace
 
 int
@@ -284,23 +271,7 @@ art::BasicOutputOptionsHandler::doProcessOptions(
     }
   }
 
-  // Init ROOT handlers facility
-  auto const unload_key = fhicl_key("scheduler", "unloadRootSigHandler");
-  auto const unloadRSHandler =
-    detail::exists_outside_prolog(raw_config, unload_key) ?
-      raw_config.get<bool>(unload_key) :
-      true;
-  if (unloadRSHandler) {
-    unloadRootSigHandler();
-  }
-
-  auto const reset_key = fhicl_key("scheduler", "resetRootErrHandler");
-  auto const maybe_reset =
-    detail::exists_outside_prolog(raw_config, reset_key) ?
-      raw_config.get<bool>(reset_key) :
-      true;
-  RootErrorHandlerSentry re_sentry{maybe_reset};
-  completeRootHandlers();
+  root::setup();
 
   return 0;
 }

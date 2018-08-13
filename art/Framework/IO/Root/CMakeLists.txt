@@ -19,16 +19,15 @@ art_make_library(
   art_Utilities
   canvas
   canvas_root_io
+  hep_concurrency
   MF_MessageLogger
   ${ROOT_CORE}
   ${ROOT_RIO}
-  ${ROOT_TREE}
-  )
+  ${ROOT_TREE})
 
 art_make_library(
   LIBRARY_NAME art_Framework_IO_RootVersion
-  SOURCE GetFileFormatEra.cc GetFileFormatVersion.cc
-  )
+  SOURCE GetFileFormatEra.cc GetFileFormatVersion.cc)
 
 art_make_library(
   LIBRARY_NAME art_Framework_IO_Root_file_info_dumper
@@ -38,8 +37,7 @@ art_make_library(
   art_Framework_IO_Root_detail_sources
   art_Framework_IO_Root_RootDB
   canvas
-  cetlib
-  )
+  cetlib)
 
 art_make(EXCLUDE
   GetFileFormatEra.cc
@@ -65,52 +63,46 @@ art_make(EXCLUDE
   cetlib
   canvas
   ${ROOT_HIST}
-  ${ROOT_TREE}
-)
+  ${ROOT_TREE})
 
 simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Catalog)
 simple_plugin(RootOutput "module" art_Framework_IO_Root)
 
-art_make_exec( NAME product_sizes_dumper
+art_make_exec(NAME product_sizes_dumper
   LIBRARIES
   art_Framework_IO_Root
   cetlib
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  )
+  ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
-art_make_exec( NAME config_dumper
+art_make_exec(NAME config_dumper
   LIBRARIES art_Framework_IO_Root
   art_Utilities canvas
   art_Framework_Core
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${ROOT_TREE}
-  ${ROOT_RIO}
-  )
+  ${ROOT_RIO})
 
-art_make_exec( NAME sam_metadata_dumper
+art_make_exec(NAME sam_metadata_dumper
   LIBRARIES art_Framework_IO_Root
   art_Utilities canvas
   art_Framework_Core
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  ${ROOT_RIO}
-  )
+  ${ROOT_RIO})
 
-art_make_exec( NAME count_events
+art_make_exec(NAME count_events
   LIBRARIES
   art_Framework_IO_Root
   art_Framework_Core
   art_Utilities canvas
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   ${ROOT_TREE}
-  ${ROOT_RIO}
-  )
+  ${ROOT_RIO})
 
 art_make_exec(NAME file_info_dumper
   LIBRARIES art_Framework_IO_Root
   art_Framework_IO_Root_file_info_dumper
   art_Framework_Principal
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  )
+  ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 cet_make_completions(product_sizes_dumper)
 cet_make_completions(config_dumper)

@@ -21,6 +21,9 @@ namespace art {
   class TFileDirectory {
   public:
     virtual ~TFileDirectory();
+
+    // These constructors may be deleted once C++17 is adopted,
+    // relying on copy elision requirements.
     TFileDirectory(TFileDirectory const&);
     TFileDirectory(TFileDirectory&&);
     TFileDirectory& operator=(TFileDirectory const&) = delete;

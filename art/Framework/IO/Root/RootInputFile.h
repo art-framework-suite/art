@@ -64,7 +64,6 @@ namespace art {
       ~RootInputTree();
       RootInputTree(cet::exempt_ptr<TFile>,
                     BranchType,
-                    int64_t saveMemoryObjectThreshold,
                     cet::exempt_ptr<RootInputFile>,
                     bool missingOK = false);
       RootInputTree(RootInputTree const&) = delete;

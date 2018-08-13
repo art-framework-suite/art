@@ -11,6 +11,7 @@
 #include "art/Framework/IO/Root/RootFileBlock.h"
 #include "art/Framework/IO/Root/RootOutputFile.h"
 #include "art/Framework/IO/Root/detail/rootOutputConfigurationTools.h"
+#include "art/Framework/IO/Root/setup.h"
 #include "art/Framework/IO/detail/logFileAction.h"
 #include "art/Framework/IO/detail/validateFileNamePattern.h"
 #include "art/Framework/Principal/Event.h"
@@ -213,8 +214,8 @@ namespace art {
     , dropAllEvents_{false}
     , dropAllSubRuns_{config().dropAllSubRuns()}
     , moduleLabel_{config.get_PSet().get<string>("module_label")}
-    , inputFileCount_{0}
-    , rootOutputFile_{}
+    , inputFileCount_{}
+    , rootOutputFile_{nullptr}
     , fstats_{moduleLabel_, processName()}
     , fRenamer_{fstats_}
     , filePattern_{config().omConfig().fileName()}
@@ -239,6 +240,9 @@ namespace art {
     , producedResultsProducts_{ProductTables::invalid()}
     , rpm_{config.get_PSet()}
   {
+    // Setup the streamers and error handlers.
+    root::setup();
+
     bool const dropAllEventsSet{config().dropAllEvents(dropAllEvents_)};
     dropAllEvents_ = detail::shouldDropEvents(
       dropAllEventsSet, dropAllEvents_, dropAllSubRuns_);

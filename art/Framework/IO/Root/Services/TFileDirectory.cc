@@ -1,4 +1,5 @@
 #include "art/Framework/IO/Root/Services/TFileDirectory.h"
+#include "art/Framework/IO/Root/setup.h"
 // vim: set sw=2 expandtab :
 
 #include "canvas/Utilities/Exception.h"
@@ -24,7 +25,7 @@ namespace art {
                                  string const& descr,
                                  TFile* file,
                                  string const& path)
-    : file_{file}, dir_{dir}, descr_{descr}, path_{path}
+    : file_{(root::setup(), file)}, dir_{dir}, descr_{descr}, path_{path}
   {}
 
   TFileDirectory::TFileDirectory(TFileDirectory const& rhs)
