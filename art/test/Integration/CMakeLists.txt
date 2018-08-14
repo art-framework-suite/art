@@ -5,15 +5,6 @@ art_make_library(SOURCE
   fhiclcpp
   NO_INSTALL)
 
-set_source_files_properties(MixFilterTestETS_module.cc
-  PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=0)
-
-set_source_files_properties(MixFilterTestETSc_module.cc
-  PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=1)
-
-set_source_files_properties(MixFilterTestNoStartEvent_module.cc
-  PROPERTIES COMPILE_DEFINITIONS ART_TEST_NO_STARTEVENT)
-
 simple_plugin(AddIntsProducer             "module" NO_INSTALL)
 simple_plugin(AssnsAnalyzer               "module" NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(AssnsMultipleProduces       "module" NO_INSTALL)
@@ -51,12 +42,6 @@ simple_plugin(IntArrayAnalyzer            "module" NO_INSTALL)
 simple_plugin(IntArrayProducer            "module" NO_INSTALL)
 simple_plugin(IntsVerifier                "module" NO_INSTALL)
 simple_plugin(MessagePrinter              "tool"   NO_INSTALL)
-simple_plugin(MixAnalyzer                 "module" NO_INSTALL USE_BOOST_UNIT)
-simple_plugin(MixFilterTest               "module" NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
-simple_plugin(MixFilterTestETS            "module" NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
-simple_plugin(MixFilterTestETSc           "module" NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
-simple_plugin(MixFilterTestNoStartEvent   "module" NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
-simple_plugin(MixProducer                 "module" NO_INSTALL)
 simple_plugin(MockClusterListAnalyzer     "module" NO_INSTALL)
 simple_plugin(MockClusterListProducer     "module" NO_INSTALL)
 simple_plugin(ProductIDGetter             "module" NO_INSTALL USE_BOOST_UNIT)

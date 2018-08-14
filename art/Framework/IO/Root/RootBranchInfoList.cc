@@ -8,15 +8,15 @@
 #include "TIterator.h"
 #include "TObjArray.h"
 
-art::RootBranchInfoList::RootBranchInfoList() : data_() {}
+art::RootBranchInfoList::RootBranchInfoList() = default;
 
-art::RootBranchInfoList::RootBranchInfoList(TTree* tree) : data_()
+art::RootBranchInfoList::RootBranchInfoList(TTree* const tree)
 {
   reset(tree);
 }
 
 void
-art::RootBranchInfoList::reset(TTree* tree)
+art::RootBranchInfoList::reset(TTree* const tree)
 {
   if (!tree) {
     throw Exception(errors::NullPointerError)
@@ -29,8 +29,8 @@ art::RootBranchInfoList::reset(TTree* tree)
   TIter it(branches, kIterBackward);
   // Load the list backward, then searches can take place in the forward
   // direction.
-  while (TBranch* b = dynamic_cast<TBranch*>(it.Next())) {
-    data_.push_back(RootBranchInfo(b));
+  while (auto b = dynamic_cast<TBranch*>(it.Next())) {
+    data_.emplace_back(b);
   }
   if (nBranches != data_.size()) {
     throw Exception(errors::DataCorruption, "RootBranchInfoList")

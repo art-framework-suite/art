@@ -27,6 +27,22 @@ add_subdirectory(test_tiered_input_05)
 add_subdirectory(test_tiered_input_06)
 add_subdirectory(test_tiered_input_07)
 
+set_source_files_properties(MixFilterTestETS_module.cc
+  PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=0)
+
+set_source_files_properties(MixFilterTestETSc_module.cc
+  PROPERTIES COMPILE_DEFINITIONS ART_TEST_EVENTS_TO_SKIP_CONST=1)
+
+set_source_files_properties(MixFilterTestNoStartEvent_module.cc
+  PROPERTIES COMPILE_DEFINITIONS ART_TEST_NO_STARTEVENT)
+
+simple_plugin(MixAnalyzer                 "module" NO_INSTALL USE_BOOST_UNIT)
+simple_plugin(MixFilterTest               "module" NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix art_Framework_IO_Root)
+simple_plugin(MixFilterTestETS            "module" NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix art_Framework_IO_Root)
+simple_plugin(MixFilterTestETSc           "module" NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix art_Framework_IO_Root)
+simple_plugin(MixFilterTestNoStartEvent   "module" NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix art_Framework_IO_Root)
+simple_plugin(MixProducer                 "module" NO_INSTALL)
+
 simple_plugin(SeekToEventClient "service" NO_INSTALL art_Framework_IO_Root_RootInput_source)
 
 foreach (mode M S P)

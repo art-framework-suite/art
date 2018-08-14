@@ -63,7 +63,10 @@ art_make(EXCLUDE
   cetlib
   canvas
   ${ROOT_HIST}
-  ${ROOT_TREE})
+  ${ROOT_TREE}
+  DICT_LIBRARIES
+  art_Persistency_Provenance
+  canvas)
 
 simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Catalog)
 simple_plugin(RootOutput "module" art_Framework_IO_Root)

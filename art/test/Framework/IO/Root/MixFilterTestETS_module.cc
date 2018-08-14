@@ -4,6 +4,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/IO/ProductMix/MixHelper.h"
+#include "art/Framework/IO/Root/RootIOPolicy.h"
 #include "art/Framework/Modules/MixFilter.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Common/CollectionUtilities.h"
@@ -37,7 +38,7 @@ namespace arttest {
 // Normal case
 #define ART_MFT MixFilterTest
 #endif
-  using ART_MFT = art::MixFilter<MixFilterTestDetail>;
+  using ART_MFT = art::MixFilter<MixFilterTestDetail, art::RootIOPolicy>;
 }
 
 namespace {

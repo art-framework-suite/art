@@ -7,7 +7,9 @@
 // mixing products from a secondary event (or subrun, or run) stream
 // into the primary event.
 //
-// The MixFilter class template requires the use of a type T as its
+// The MixFilter class template requires two template arguments:
+//
+//    - the use of a type T as its
 // template parameter; this type T must supply the following non-static
 // member functions:
 //
@@ -146,10 +148,11 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <functional>
+#include <memory>
 #include <type_traits>
 
 namespace art {
-  template <class T>
+  template <class T, class IOPolicy>
   class MixFilter;
 
   template <typename T>
@@ -174,14 +177,6 @@ namespace art {
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?
-    template <typename T>
-    struct do_not_call_startEvent {
-      do_not_call_startEvent(Event const&) {}
-      void
-      operator()(T&)
-      {}
-    };
-    //////////
 
     template <typename T, typename = void>
     struct has_startEvent : std::false_type {
@@ -195,17 +190,13 @@ namespace art {
     };
 
     template <typename T>
-    struct call_startEvent {
-    public:
-      call_startEvent(Event const& e) : e_{e} {}
-      void
-      operator()(T& t)
-      {
-        t.startEvent(e_);
-      }
+    struct do_not_call_startEvent {
+      explicit do_not_call_startEvent(T&, Event const&) {}
+    };
 
-    private:
-      Event const& e_;
+    template <typename T>
+    struct call_startEvent {
+      explicit call_startEvent(T& t, Event const& e) { t.startEvent(e); }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -233,22 +224,14 @@ namespace art {
 
     template <typename T>
     struct do_not_setup_eventsToSkip {
-      do_not_setup_eventsToSkip(MixHelper&, T&) {}
+      explicit do_not_setup_eventsToSkip(MixHelper&, T&) {}
     };
 
     template <typename T>
-    size_t
-    call_eventsToSkip(T& t)
-    {
-      return t.eventsToSkip();
-    }
-
-    template <typename T>
     struct setup_eventsToSkip {
-      setup_eventsToSkip(MixHelper& helper, T& t)
+      explicit setup_eventsToSkip(MixHelper& helper, T& t)
       {
-        helper.setEventsToSkipFunction(
-          std::bind(&detail::call_eventsToSkip<T>, std::ref(t)));
+        helper.setEventsToSkipFunction([&t] { return t.eventsToSkip(); });
       }
     };
 
@@ -271,15 +254,12 @@ namespace art {
 
     template <typename T>
     struct do_not_call_processEventIDs {
-      void
-      operator()(T&, EventIDSequence const&)
-      {}
+      explicit do_not_call_processEventIDs(T&, EventIDSequence const&) {}
     };
 
     template <typename T>
     struct call_processEventIDs {
-      void
-      operator()(T& t, EventIDSequence const& seq)
+      explicit call_processEventIDs(T& t, EventIDSequence const& seq)
       {
         t.processEventIDs(seq);
       }
@@ -305,22 +285,19 @@ namespace art {
 
     template <typename T>
     struct do_not_call_processEventAuxiliaries {
-      void
-      operator()(T&, MixHelper&, EntryNumberSequence const&, size_t)
+      explicit do_not_call_processEventAuxiliaries(T&,
+                                                   MixHelper&,
+                                                   EntryNumberSequence const&)
       {}
     };
 
     template <typename T>
     struct call_processEventAuxiliaries {
-      void
-      operator()(T& t,
-                 MixHelper& h,
-                 EntryNumberSequence const& enseq,
-                 size_t nSecondaries)
+      explicit call_processEventAuxiliaries(T& t,
+                                            MixHelper& h,
+                                            EntryNumberSequence const& enseq)
       {
-        EventAuxiliarySequence auxseq;
-        auxseq.reserve(nSecondaries);
-        h.generateEventAuxiliarySequence(enseq, auxseq);
+        auto const auxseq = h.generateEventAuxiliarySequence(enseq);
         t.processEventAuxiliaries(auxseq);
       }
     };
@@ -342,18 +319,12 @@ namespace art {
 
     template <typename T>
     struct do_not_call_finalizeEvent {
-      void
-      operator()(T&, Event&)
-      {}
+      explicit do_not_call_finalizeEvent(T&, Event&) {}
     };
 
     template <typename T>
     struct call_finalizeEvent {
-      void
-      operator()(T& t, Event& e)
-      {
-        t.finalizeEvent(e);
-      }
+      explicit call_finalizeEvent(T& t, Event& e) { t.finalizeEvent(e); }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -373,18 +344,12 @@ namespace art {
 
     template <typename T>
     struct do_not_call_beginSubRun {
-      void
-      operator()(T&, SubRun const&)
-      {}
+      explicit do_not_call_beginSubRun(T&, SubRun const&) {}
     };
 
     template <typename T>
     struct call_beginSubRun {
-      void
-      operator()(T& t, SubRun const& sr)
-      {
-        t.beginSubRun(sr);
-      }
+      explicit call_beginSubRun(T& t, SubRun const& sr) { t.beginSubRun(sr); }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -404,18 +369,12 @@ namespace art {
 
     template <typename T>
     struct do_not_call_endSubRun {
-      void
-      operator()(T&, SubRun&)
-      {}
+      explicit do_not_call_endSubRun(T&, SubRun&) {}
     };
 
     template <typename T>
     struct call_endSubRun {
-      void
-      operator()(T& t, SubRun& sr)
-      {
-        t.endSubRun(sr);
-      }
+      explicit call_endSubRun(T& t, SubRun& sr) { t.endSubRun(sr); }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -435,18 +394,12 @@ namespace art {
 
     template <typename T>
     struct do_not_call_beginRun {
-      void
-      operator()(T&, Run const&)
-      {}
+      explicit do_not_call_beginRun(T&, Run const&) {}
     };
 
     template <typename T>
     struct call_beginRun {
-      void
-      operator()(T& t, Run const& r)
-      {
-        t.beginRun(r);
-      }
+      explicit call_beginRun(T& t, Run const& r) { t.beginRun(r); }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -466,18 +419,12 @@ namespace art {
 
     template <typename T>
     struct do_not_call_endRun {
-      void
-      operator()(T&, Run&)
-      {}
+      explicit do_not_call_endRun(T&, Run&) {}
     };
 
     template <typename T>
     struct call_endRun {
-      void
-      operator()(T& t, Run& r)
-      {
-        t.endRun(r);
-      }
+      explicit call_endRun(T& t, Run& r) { t.endRun(r); }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -492,12 +439,12 @@ namespace art {
 
     template <typename T>
     struct do_not_call_respondToXXX {
-      do_not_call_respondToXXX(T&, FileBlock const&) {}
+      explicit do_not_call_respondToXXX(T&, FileBlock const&) {}
     };
 
     template <typename T>
     struct call_respondToOpenInputFile {
-      call_respondToOpenInputFile(T& t, FileBlock const& fb)
+      explicit call_respondToOpenInputFile(T& t, FileBlock const& fb)
       {
         t.respondToOpenInputFile(fb);
       }
@@ -505,7 +452,7 @@ namespace art {
 
     template <typename T>
     struct call_respondToCloseInputFile {
-      call_respondToCloseInputFile(T& t, FileBlock const& fb)
+      explicit call_respondToCloseInputFile(T& t, FileBlock const& fb)
       {
         t.respondToCloseInputFile(fb);
       }
@@ -513,7 +460,7 @@ namespace art {
 
     template <typename T>
     struct call_respondToOpenOutputFiles {
-      call_respondToOpenOutputFiles(T& t, FileBlock const& fb)
+      explicit call_respondToOpenOutputFiles(T& t, FileBlock const& fb)
       {
         t.respondToOpenOutputFiles(fb);
       }
@@ -521,7 +468,7 @@ namespace art {
 
     template <typename T>
     struct call_respondToCloseOutputFiles {
-      call_respondToCloseOutputFiles(T& t, FileBlock const& fb)
+      explicit call_respondToCloseOutputFiles(T& t, FileBlock const& fb)
       {
         t.respondToCloseOutputFiles(fb);
       }
@@ -603,27 +550,23 @@ namespace art {
 
 } // namespace art
 
-template <class T>
-class art::MixFilter : public EDFilter, public detail::maybe_has_Parameters<T> {
+template <class T, class IOPolicy>
+class art::MixFilter : public EDFilter {
 public:
   using MixDetail = T;
 
   template <typename U>
-  static constexpr bool EnableConfigValidation_v{
-    detail::maybe_has_Parameters<U>::value};
-  template <typename U>
   using Parameters_t = typename detail::maybe_has_Parameters<U>::Parameters;
 
   template <class U = T>
-  explicit MixFilter(std::enable_if_t<!EnableConfigValidation_v<U>,
+  explicit MixFilter(std::enable_if_t<!detail::maybe_has_Parameters<U>::value,
                                       fhicl::ParameterSet> const& p);
 
   template <class U = T>
-  explicit MixFilter(
-    std::enable_if_t<EnableConfigValidation_v<U>, Parameters_t<U>> const& p);
+  explicit MixFilter(std::enable_if_t<detail::maybe_has_Parameters<U>::value,
+                                      Parameters_t<U>> const& p);
 
 private:
-  void beginJob() override;
   void respondToOpenInputFile(FileBlock const& fb) override;
   void respondToCloseInputFile(FileBlock const& fb) override;
   void respondToOpenOutputFiles(FileBlock const& fb) override;
@@ -634,105 +577,88 @@ private:
   bool beginRun(Run& r) override;
   bool endRun(Run& r) override;
 
-  fhicl::ParameterSet const& initEngine_(fhicl::ParameterSet const& p);
-
   MixHelper helper_;
   MixDetail detail_;
 };
 
-template <class T>
+template <class T, class IOPolicy>
 template <class U>
-art::MixFilter<T>::MixFilter(
-  std::enable_if_t<!EnableConfigValidation_v<U>, fhicl::ParameterSet> const& p)
+art::MixFilter<T, IOPolicy>::MixFilter(
+  std::enable_if_t<!detail::maybe_has_Parameters<U>::value,
+                   fhicl::ParameterSet> const& p)
   : EDFilter{p}
-  , helper_{p, p.template get<std::string>("module_label"), *this}
+  , helper_{p,
+            p.template get<std::string>("module_label"),
+            *this,
+            std::make_unique<IOPolicy>()}
   , detail_{p, helper_}
 {
-  // Note that the random number engine is created in the initializer
-  // list by calling initEngine(). This enables the engine to be
-  // obtained by the helper and or detail objects in their constructors
-  // via a service handle to the random number generator service. The
-  // initEngine() function returns a ParameterSet simply so that it may
-  // be called in this place without having to resort to comma-separated
-  // bundles to do the job.
   std::conditional_t<detail::has_eventsToSkip<T>::value,
                      detail::setup_eventsToSkip<T>,
                      detail::do_not_setup_eventsToSkip<T>>{helper_, detail_};
 }
 
-template <class T>
+template <class T, class IOPolicy>
 template <class U>
-art::MixFilter<T>::MixFilter(
-  std::enable_if_t<EnableConfigValidation_v<U>, Parameters_t<U>> const& p)
+art::MixFilter<T, IOPolicy>::MixFilter(
+  std::enable_if_t<detail::maybe_has_Parameters<U>::value,
+                   Parameters_t<U>> const& p)
   : EDFilter{p}
   , helper_{p().mixHelper(),
             p.get_PSet().template get<std::string>("module_label"),
-            *this}
+            *this,
+            std::make_unique<IOPolicy>()}
   , detail_{p().userConfig, helper_}
 {
-  // Note that the random number engine is created in the initializer
-  // list by calling initEngine(). This enables the engine to be
-  // obtained by the helper and or detail objects in their constructors
-  // via a service handle to the random number generator service. The
-  // initEngine() function returns a ParameterSet simply so that it may
-  // be called in this place without having to resort to comma-separated
-  // bundles to do the job.
   std::conditional_t<detail::has_eventsToSkip<T>::value,
                      detail::setup_eventsToSkip<T>,
                      detail::do_not_setup_eventsToSkip<T>>{helper_, detail_};
 }
 
-template <class T>
+template <class T, class IOPolicy>
 void
-art::MixFilter<T>::beginJob()
-{}
-
-template <class T>
-void
-art::MixFilter<T>::respondToOpenInputFile(FileBlock const& fb)
+art::MixFilter<T, IOPolicy>::respondToOpenInputFile(FileBlock const& fb)
 {
   std::conditional_t<detail::has_respondToOpenInputFile<T>::value,
                      detail::call_respondToOpenInputFile<T>,
-                     detail::do_not_call_respondToXXX<T>>(detail_, fb);
+                     detail::do_not_call_respondToXXX<T>>{detail_, fb};
 }
 
-template <class T>
+template <class T, class IOPolicy>
 void
-art::MixFilter<T>::respondToCloseInputFile(FileBlock const& fb)
+art::MixFilter<T, IOPolicy>::respondToCloseInputFile(FileBlock const& fb)
 {
   std::conditional_t<detail::has_respondToCloseInputFile<T>::value,
                      detail::call_respondToCloseInputFile<T>,
-                     detail::do_not_call_respondToXXX<T>>(detail_, fb);
+                     detail::do_not_call_respondToXXX<T>>{detail_, fb};
 }
 
-template <class T>
+template <class T, class IOPolicy>
 void
-art::MixFilter<T>::respondToOpenOutputFiles(FileBlock const& fb)
+art::MixFilter<T, IOPolicy>::respondToOpenOutputFiles(FileBlock const& fb)
 {
   std::conditional_t<detail::has_respondToOpenOutputFiles<T>::value,
                      detail::call_respondToOpenOutputFiles<T>,
-                     detail::do_not_call_respondToXXX<T>>(detail_, fb);
+                     detail::do_not_call_respondToXXX<T>>{detail_, fb};
 }
 
-template <class T>
+template <class T, class IOPolicy>
 void
-art::MixFilter<T>::respondToCloseOutputFiles(FileBlock const& fb)
+art::MixFilter<T, IOPolicy>::respondToCloseOutputFiles(FileBlock const& fb)
 {
   std::conditional_t<detail::has_respondToCloseOutputFiles<T>::value,
                      detail::call_respondToCloseOutputFiles<T>,
                      detail::do_not_call_respondToXXX<T>>{detail_, fb};
 }
 
-template <class T>
+template <class T, class IOPolicy>
 bool
-art::MixFilter<T>::filter(Event& e)
+art::MixFilter<T, IOPolicy>::filter(Event& e)
 {
   // 1. Call detail object's startEvent() if it exists.
   std::conditional_t<detail::has_startEvent<T>::value,
                      detail::call_startEvent<T>,
-                     detail::do_not_call_startEvent<T>>
-    maybe_call_startEvent{e};
-  maybe_call_startEvent(detail_);
+                     detail::do_not_call_startEvent<T>>{detail_, e};
 
   // 2. Ask detail object how many events to read.
   size_t const nSecondaries = detail_.nSecondaries();
@@ -751,16 +677,13 @@ art::MixFilter<T>::filter(Event& e)
   // 4. Give the event ID sequence to the detail object.
   std::conditional_t<detail::has_processEventIDs<T>::value,
                      detail::call_processEventIDs<T>,
-                     detail::do_not_call_processEventIDs<T>>
-    maybe_call_processEventIDs;
-  maybe_call_processEventIDs(detail_, eIDseq);
+                     detail::do_not_call_processEventIDs<T>>{detail_, eIDseq};
 
   // 5. Give the event auxiliary sequence to the detail object.
   std::conditional_t<detail::has_processEventAuxiliaries<T>::value,
                      detail::call_processEventAuxiliaries<T>,
-                     detail::do_not_call_processEventAuxiliaries<T>>
-    maybe_call_processEventAuxiliaries;
-  maybe_call_processEventAuxiliaries(detail_, helper_, enSeq, nSecondaries);
+                     detail::do_not_call_processEventAuxiliaries<T>>{
+    detail_, helper_, enSeq};
 
   // 6. Make the MixHelper read info into all the products, invoke the
   //    mix functions and put the products into the event.
@@ -769,57 +692,47 @@ art::MixFilter<T>::filter(Event& e)
   // 7. Call detail object's finalizeEvent() if it exists.
   std::conditional_t<detail::has_finalizeEvent<T>::value,
                      detail::call_finalizeEvent<T>,
-                     detail::do_not_call_finalizeEvent<T>>
-    maybe_call_finalizeEvent;
-  maybe_call_finalizeEvent(detail_, e);
+                     detail::do_not_call_finalizeEvent<T>>{detail_, e};
   return true;
 }
 
-template <class T>
+template <class T, class IOPolicy>
 bool
-art::MixFilter<T>::beginSubRun(SubRun& sr)
+art::MixFilter<T, IOPolicy>::beginSubRun(SubRun& sr)
 {
   std::conditional_t<detail::has_beginSubRun<T>::value,
                      detail::call_beginSubRun<T>,
-                     detail::do_not_call_beginSubRun<T>>
-    maybe_call_beginSubRun;
-  maybe_call_beginSubRun(detail_, sr);
+                     detail::do_not_call_beginSubRun<T>>{detail_, sr};
   return true;
 }
 
-template <class T>
+template <class T, class IOPolicy>
 bool
-art::MixFilter<T>::endSubRun(SubRun& sr)
+art::MixFilter<T, IOPolicy>::endSubRun(SubRun& sr)
 {
   std::conditional_t<detail::has_endSubRun<T>::value,
                      detail::call_endSubRun<T>,
-                     detail::do_not_call_endSubRun<T>>
-    maybe_call_endSubRun;
-  maybe_call_endSubRun(detail_, sr);
+                     detail::do_not_call_endSubRun<T>>{detail_, sr};
   return true;
 }
 
-template <class T>
+template <class T, class IOPolicy>
 bool
-art::MixFilter<T>::beginRun(Run& r)
+art::MixFilter<T, IOPolicy>::beginRun(Run& r)
 {
   std::conditional_t<detail::has_beginRun<T>::value,
                      detail::call_beginRun<T>,
-                     detail::do_not_call_beginRun<T>>
-    maybe_call_beginRun;
-  maybe_call_beginRun(detail_, r);
+                     detail::do_not_call_beginRun<T>>{detail_, r};
   return true;
 }
 
-template <class T>
+template <class T, class IOPolicy>
 bool
-art::MixFilter<T>::endRun(Run& r)
+art::MixFilter<T, IOPolicy>::endRun(Run& r)
 {
   std::conditional_t<detail::has_endRun<T>::value,
                      detail::call_endRun<T>,
-                     detail::do_not_call_endRun<T>>
-    maybe_call_endRun;
-  maybe_call_endRun(detail_, r);
+                     detail::do_not_call_endRun<T>>{detail_, r};
   return true;
 }
 

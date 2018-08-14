@@ -4,6 +4,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/IO/ProductMix/MixHelper.h"
+#include "art/Framework/IO/Root/RootIOPolicy.h"
 #include "art/Framework/Modules/MixFilter.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Common/CollectionUtilities.h"
@@ -13,8 +14,6 @@
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/map_vector.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
-#include "boost/noncopyable.hpp"
 
 #include <algorithm>
 #include <iterator>
@@ -37,7 +36,7 @@ namespace arttest {
 // Normal case
 #define ART_MFT MixFilterTest
 #endif
-  using ART_MFT = art::MixFilter<MixFilterTestDetail>;
+  using ART_MFT = art::MixFilter<MixFilterTestDetail, art::RootIOPolicy>;
 }
 
 namespace {

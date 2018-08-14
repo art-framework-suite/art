@@ -1,5 +1,5 @@
-#ifndef art_test_TestObjects_TH1Data_h
-#define art_test_TestObjects_TH1Data_h
+#ifndef art_test_Framework_IO_Root_TH1Data_h
+#define art_test_Framework_IO_Root_TH1Data_h
 
 #include "TH1D.h"
 
@@ -17,7 +17,7 @@ struct arttest::TH1Data {
   }
 };
 
-#endif /* art_test_TestObjects_TH1Data_h */
+#endif /* art_test_Framework_IO_Root_TH1Data_h */
 
 // Local Variables:
 // mode: c++

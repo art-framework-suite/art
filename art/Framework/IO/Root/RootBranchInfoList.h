@@ -27,7 +27,7 @@ public:
                       RootBranchInfo& rbInfo) const;
 
 private:
-  std::vector<RootBranchInfo> data_;
+  std::vector<RootBranchInfo> data_{};
 };
 
 template <class PROD>

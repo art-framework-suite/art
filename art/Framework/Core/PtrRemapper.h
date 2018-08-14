@@ -240,8 +240,6 @@ namespace art {
 
 class art::PtrRemapper {
 public:
-  PtrRemapper() = default;
-
   //////////////////////////////////////////////////////////////////////
   // Signatures for operator() -- see documentation at top of header.
 
@@ -348,7 +346,7 @@ art::PtrRemapper::operator()(Ptr<PROD> const& oldPtr,
       throw Exception(errors::LogicError)
         << "PtrRemapper: cannot create output "
         << TypeID{typeid(art::Ptr<PROD>)}.className()
-        << "with ProductID: " << iter->second
+        << " with ProductID: " << iter->second
         << "\nbecause the product is not known.  Perhaps the output product "
            "was misspecified for product mixing.\n";
     }

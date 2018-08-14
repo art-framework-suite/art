@@ -3,7 +3,6 @@
 #include "art/Framework/Art/detail/AllowedConfiguration.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
-#include "art/Framework/IO/Root/setup.h"
 #include "art/Utilities/ensureTable.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/canonical_string.h"
@@ -270,8 +269,6 @@ art::BasicOutputOptionsHandler::doProcessOptions(
       }
     }
   }
-
-  root::setup();
 
   return 0;
 }

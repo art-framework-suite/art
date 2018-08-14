@@ -1,16 +1,11 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
 #include "art/Framework/Core/InputSourceMutex.h"
-#include "art/Framework/IO/Root/GetFileFormatEra.h"
-#include "art/Framework/IO/Root/detail/readFileIndex.h"
-#include "art/Framework/IO/Root/detail/readMetadata.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/History.h"
-#include "canvas/Persistency/Provenance/rootNames.h"
-#include "canvas_root_io/Streamers/ProductIDStreamer.h"
 #include "cetlib/container_algorithms.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -24,12 +19,9 @@
 #include <regex>
 #include <unordered_set>
 
-#include "Rtypes.h"
-
 using namespace std::string_literals;
 
 namespace {
-
   art::EventIDIndex
   buildEventIDIndex(art::FileIndex const& fileIndex)
   {
@@ -42,12 +34,25 @@ namespace {
     return result;
   }
 
-  class EventIDLookup : public std::unary_function<Long64_t, art::EventID> {
-  public:
-    EventIDLookup(art::EventIDIndex const& index) : index_{index} {}
+  art::ProdToProdMapBuilder::ProductIDTransMap
+  buildProductIDTransMap(art::MixOpList const& mixOps)
+  {
+    art::ProdToProdMapBuilder::ProductIDTransMap transMap;
+    for (auto const& mixOp : mixOps) {
+      auto const bt = mixOp->branchType();
+      if (bt != art::InEvent)
+        continue;
+      transMap[mixOp->incomingProductID()] = mixOp->outgoingProductID();
+    }
+    return transMap;
+  }
 
-    result_type
-    operator()(argument_type const entry) const
+  class EventIDLookup {
+  public:
+    explicit EventIDLookup(art::EventIDIndex const& index) : index_{index} {}
+
+    art::EventID
+    operator()(art::FileIndex::EntryNumber_t const entry) const
     {
       auto i = index_.find(entry);
       if (i == cend(index_)) {
@@ -61,23 +66,6 @@ namespace {
   private:
     art::EventIDIndex const& index_;
   };
-
-  std::array<cet::exempt_ptr<TTree>, art::NumBranchTypes>
-  initDataTrees(cet::value_ptr<TFile> const& currentFile)
-  {
-    std::array<cet::exempt_ptr<TTree>, art::NumBranchTypes> result;
-    for (auto bt = 0; bt != art::NumBranchTypes; ++bt) {
-      result[bt].reset(static_cast<TTree*>(currentFile->Get(
-        art::rootNames::dataTreeName(static_cast<art::BranchType>(bt))
-          .c_str())));
-      if (result[bt].get() == nullptr and bt != art::InResults) {
-        throw art::Exception(art::errors::FileReadError)
-          << "Unable to read event tree from secondary event stream file "
-          << currentFile->GetName() << ".\n";
-      }
-    }
-    return result;
-  }
 
   double
   initCoverageFraction(double fraction)
@@ -94,7 +82,8 @@ namespace {
 
 art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
                           std::string const& moduleLabel,
-                          Modifier& producesProvider)
+                          Modifier& producesProvider,
+                          std::unique_ptr<MixIOPolicy> ioHandle)
   : detail::EngineCreator{moduleLabel, art::ScheduleID::first()}
   , producesProvider_{producesProvider}
   , filenames_{pset.get<std::vector<std::string>>("fileNames", {})}
@@ -106,11 +95,13 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
   , canWrapFiles_{pset.get<bool>("wrapFiles", false)}
   , engine_{initEngine_(pset.get<long>("seed", -1), readMode_)}
   , dist_{initDist_(engine_)}
+  , ioHandle_{move(ioHandle)}
 {}
 
 art::MixHelper::MixHelper(Config const& config,
                           std::string const& moduleLabel,
-                          Modifier& producesProvider)
+                          Modifier& producesProvider,
+                          std::unique_ptr<MixIOPolicy> ioHandle)
   : detail::EngineCreator{moduleLabel, art::ScheduleID::first()}
   , producesProvider_{producesProvider}
   , filenames_{config.filenames()}
@@ -121,6 +112,7 @@ art::MixHelper::MixHelper(Config const& config,
   , canWrapFiles_{config.wrapFiles()}
   , engine_{initEngine_(config.seed(), readMode_)}
   , dist_{initDist_(engine_)}
+  , ioHandle_{move(ioHandle)}
 {}
 
 std::ostream&
@@ -191,14 +183,13 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
 {
   assert(enSeq.empty());
   assert(eIDseq.empty());
-  assert(nEventsInFile_ >= 0);
-  bool over_threshold =
+  auto const nEventsInFile = ioHandle_->nEventsInFile();
+  bool const over_threshold =
     (readMode_ == Mode::SEQUENTIAL || readMode_ == Mode::RANDOM_NO_REPLACE) ?
+      ((nEventsReadThisFile_ + nSecondaries) > nEventsInFile) :
       ((nEventsReadThisFile_ + nSecondaries) >
-       static_cast<size_t>(nEventsInFile_)) :
-      ((nEventsReadThisFile_ + nSecondaries) >
-       (nEventsInFile_ * coverageFraction_));
-  if (over_threshold || (!ffVersion_.isValid())) {
+       (nEventsInFile * coverageFraction_));
+  if (over_threshold || !ioHandle_->fileOpen()) {
     if (openNextFile_()) {
       return generateEventSequence(nSecondaries, enSeq, eIDseq);
     } else {
@@ -207,28 +198,25 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
   }
   switch (readMode_) {
     case Mode::SEQUENTIAL:
-      enSeq.reserve(nSecondaries);
-      for (size_t i = nEventsReadThisFile_,
-                  end = nEventsReadThisFile_ + nSecondaries;
-           i < end;
-           ++i) {
-        enSeq.push_back(i);
-      }
+      enSeq.resize(nSecondaries);
+      std::iota(begin(enSeq), end(enSeq), nEventsReadThisFile_);
       break;
     case Mode::RANDOM_REPLACE:
-      std::generate_n(std::back_inserter(enSeq), nSecondaries, [this] {
-        return dist_.get()->fireInt(nEventsInFile_);
-      });
+      std::generate_n(
+        std::back_inserter(enSeq), nSecondaries, [this, nEventsInFile] {
+          return dist_.get()->fireInt(nEventsInFile);
+        });
       std::sort(enSeq.begin(), enSeq.end());
       break;
     case Mode::RANDOM_LIM_REPLACE: {
       std::unordered_set<EntryNumberSequence::value_type>
         entries; // Guaranteed unique.
       while (entries.size() < nSecondaries) {
-        std::generate_n(
-          std::inserter(entries, entries.begin()),
-          nSecondaries - entries.size(),
-          [this] { return dist_.get()->fireInt(nEventsInFile_); });
+        std::generate_n(std::inserter(entries, entries.begin()),
+                        nSecondaries - entries.size(),
+                        [this, nEventsInFile] {
+                          return dist_.get()->fireInt(nEventsInFile);
+                        });
       }
       enSeq.assign(cbegin(entries), cend(entries));
       std::sort(begin(enSeq), end(enSeq));
@@ -253,33 +241,14 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
   return true;
 }
 
-void
-art::MixHelper::generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
-                                               EventAuxiliarySequence& auxseq)
+art::EventAuxiliarySequence
+art::MixHelper::generateEventAuxiliarySequence(EntryNumberSequence const& enSeq)
 {
-  InputSourceMutexSentry sentry;
-  auto const eventTree = currentDataTrees_[InEvent];
-  auto auxBranch =
-    eventTree->GetBranch(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
-  auto aux = std::make_unique<EventAuxiliary>();
-  auto pAux = aux.get();
-  auxBranch->SetAddress(&pAux);
-  for (auto const entry : enseq) {
-    auto err = eventTree->LoadTree(entry);
-    if (err == -2) {
-      // FIXME: Throw an error here, taking care to disconnect the
-      // branch from the i/o buffer.
-      // FIXME: -2 means entry number too big.
-    }
-    // Note: Root will overwrite the old event auxiliary with the new
-    //       one.
-    input::getEntry(auxBranch, entry);
-    // Note: We are intentionally making a copy here of the fetched
-    //       event auxiliary!
-    auxseq.push_back(*pAux);
-  }
-  // Disconnect the branch from the i/o buffer.
-  auxBranch->SetAddress(nullptr);
+  return ioHandle_->generateEventAuxiliarySequence(enSeq);
+}
+
+namespace {
+  art::PtrRemapper const nopRemapper{};
 }
 
 void
@@ -287,63 +256,62 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
                           EventIDSequence const& eIDseq,
                           Event& e)
 {
-  // Populate the remapper in case we need to remap any Ptrs.
-  ptpBuilder_.populateRemapper(ptrRemapper_, e);
-
   // Create required info only if we're likely to need it.
   EntryNumberSequence subRunEntries;
   EntryNumberSequence runEntries;
+  auto const& fileIndex = ioHandle_->fileIndex();
   if (haveSubRunMixOps_) {
     subRunEntries.reserve(eIDseq.size());
     for (auto const& eID : eIDseq) {
-      auto const it = currentFileIndex_.findPosition(eID.subRunID(), true);
-      if (it != std::cend(currentFileIndex_)) {
+      auto const it = fileIndex.findPosition(eID.subRunID(), true);
+      if (it != std::cend(fileIndex)) {
         subRunEntries.emplace_back(it->entry_);
       } else {
         throw Exception(errors::NotFound, "NO_SUBRUN")
           << "- Unable to find an entry in the SubRun tree corresponding to "
              "event ID "
-          << eID << " in secondary mixing input file "
-          << currentFile_->GetName() << ".\n";
+          << eID << " in secondary mixing input file " << *fileIter_ << ".\n";
       }
     }
   }
   if (haveRunMixOps_) {
     runEntries.reserve(eIDseq.size());
     for (auto const& eID : eIDseq) {
-      auto const it = currentFileIndex_.findPosition(eID.runID(), true);
-      if (it != std::cend(currentFileIndex_)) {
+      auto const it = fileIndex.findPosition(eID.runID(), true);
+      if (it != std::cend(fileIndex)) {
         runEntries.emplace_back(it->entry_);
       } else {
         throw Exception(errors::NotFound, "NO_RUN")
           << "- Unable to find an entry in the Run tree corresponding to "
              "event ID "
-          << eID << " in secondary mixing input file "
-          << currentFile_->GetName() << ".\n";
+          << eID << " in secondary mixing input file " << *fileIter_ << ".\n";
       }
     }
   }
 
-  // Dummy remapper in case we need it.
-  static PtrRemapper const nopRemapper;
+  // Populate the remapper in case we need to remap any Ptrs.
+  ptrRemapper_ = ptpBuilder_.getRemapper(e);
 
   // Do the branch-wise read, mix and put.
   for (auto const& op : mixOps_) {
     switch (op->branchType()) {
-      case InEvent:
-        op->readFromFile(eventEntries, branchIDLists_.get());
-        op->mixAndPut(e, ptrRemapper_);
+      case InEvent: {
+        auto const inProducts = ioHandle_->readFromFile(*op, eventEntries);
+        op->mixAndPut(e, inProducts, ptrRemapper_);
         break;
-      case InSubRun:
-        op->readFromFile(subRunEntries, nullptr);
-        // No Ptrs in subrun products.
-        op->mixAndPut(e, nopRemapper);
+      }
+      case InSubRun: {
+        auto const inProducts = ioHandle_->readFromFile(*op, subRunEntries);
+        // Ptrs not supported for subrun product mixing.
+        op->mixAndPut(e, inProducts, nopRemapper);
         break;
-      case InRun:
-        op->readFromFile(runEntries, nullptr);
-        // No Ptrs in run products.
-        op->mixAndPut(e, nopRemapper);
+      }
+      case InRun: {
+        auto const inProducts = ioHandle_->readFromFile(*op, runEntries);
+        // Ptrs not support for run product mixing.
+        op->mixAndPut(e, inProducts, nopRemapper);
         break;
+      }
       default:
         throw Exception(errors::LogicError, "Unsupported BranchType")
           << "- MixHelper::mixAndPut() attempted to handle unsupported branch "
@@ -389,83 +357,6 @@ art::MixHelper::initReadMode_(std::string const& mode) const -> Mode
     << "  randomNoReplace.\n";
 }
 
-void
-art::MixHelper::openAndReadMetaData_(std::string filename)
-{
-  // Open file.
-  try {
-    // FIXME: threading: This is not thread-safe!!!
-    currentFile_.reset(TFile::Open(filename.c_str()));
-  }
-  catch (std::exception const& e) {
-    throw Exception(errors::FileOpenError, e.what())
-      << "Unable to open specified secondary event stream file " << filename
-      << ".\n";
-  }
-  if (!currentFile_ || currentFile_->IsZombie()) {
-    throw Exception(errors::FileOpenError)
-      << "Unable to open specified secondary event stream file " << filename
-      << ".\n";
-  }
-  // Obtain meta data tree.
-  currentMetaDataTree_.reset(static_cast<TTree*>(
-    currentFile_->Get(rootNames::metaDataTreeName().c_str())));
-  if (currentMetaDataTree_.get() == nullptr) {
-    throw Exception(errors::FileReadError)
-      << "Unable to read meta data tree from secondary event stream file "
-      << filename << ".\n";
-  }
-  currentDataTrees_ = initDataTrees(currentFile_);
-  nEventsInFile_ = currentDataTrees_[InEvent]->GetEntries();
-
-  ffVersion_ =
-    detail::readMetadata<FileFormatVersion>(currentMetaDataTree_.get());
-
-  // Read file index
-  FileIndex* fileIndexPtr = &currentFileIndex_;
-  detail::readFileIndex(
-    currentFile_.get(), currentMetaDataTree_.get(), fileIndexPtr);
-
-  // To support files that contain BranchIDLists
-  BranchIDLists branchIDLists{};
-  if (detail::readMetadata(currentMetaDataTree_.get(), branchIDLists)) {
-    branchIDLists_ = std::make_unique<BranchIDLists>(std::move(branchIDLists));
-    configureProductIDStreamer(branchIDLists_.get());
-  }
-
-  // Check file format era.
-  std::string const expected_era = getFileFormatEra();
-  if (ffVersion_.era_ != expected_era) {
-    throw Exception(errors::FileReadError)
-      << "Can only read files written during the \"" << expected_era
-      << "\" era: "
-      << "Era of "
-      << "\"" << filename << "\" was "
-      << (ffVersion_.era_.empty() ? "not set" :
-                                    ("set to \"" + ffVersion_.era_ + "\" "))
-      << ".\n";
-  }
-  auto dbCount = 0;
-  for (auto const tree : currentDataTrees_) {
-    if (tree.get()) {
-      dataBranches_[dbCount].reset(tree.get());
-    }
-    ++dbCount;
-  }
-
-  eventIDIndex_ = buildEventIDIndex(currentFileIndex_);
-  auto transMap = buildProductIDTransMap_(mixOps_);
-  ptpBuilder_.prepareTranslationTables(transMap);
-  if (readMode_ == Mode::RANDOM_NO_REPLACE) {
-    // Prepare shuffled event sequence.
-    shuffledSequence_.resize(static_cast<size_t>(nEventsInFile_));
-    std::iota(shuffledSequence_.begin(), shuffledSequence_.end(), 0);
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(shuffledSequence_.begin(), shuffledSequence_.end(), g);
-  }
-}
-
 bool
 art::MixHelper::openNextFile_()
 {
@@ -478,7 +369,7 @@ art::MixHelper::openNextFile_()
   } else if (filenames_.empty()) {
     return false;
   } else {
-    if (ffVersion_.isValid()) { // Already seen one file.
+    if (ioHandle_->fileOpen()) { // Already seen one file.
       ++fileIter_;
     }
     if (fileIter_ == filenames_.end()) {
@@ -496,22 +387,22 @@ art::MixHelper::openNextFile_()
   nEventsReadThisFile_ = (readMode_ == Mode::SEQUENTIAL && eventsToSkip_) ?
                            eventsToSkip_() :
                            0; // Reset for this file.
-  openAndReadMetaData_(filename);
-  return true;
-}
+  ioHandle_->openAndReadMetaData(filename, mixOps_);
 
-art::ProdToProdMapBuilder::ProductIDTransMap
-art::MixHelper::buildProductIDTransMap_(MixOpList& mixOps)
-{
-  ProdToProdMapBuilder::ProductIDTransMap transMap;
-  for (auto& mixOp : mixOps) {
-    auto const bt = mixOp->branchType();
-    mixOp->initializeBranchInfo(dataBranches_[bt]);
-    if (bt != InEvent)
-      continue;
-    transMap[mixOp->incomingProductID()] = mixOp->outgoingProductID();
+  eventIDIndex_ = buildEventIDIndex(ioHandle_->fileIndex());
+  auto transMap = buildProductIDTransMap(mixOps_);
+  ptpBuilder_.prepareTranslationTables(transMap);
+
+  if (readMode_ == Mode::RANDOM_NO_REPLACE) {
+    // Prepare shuffled event sequence.
+    shuffledSequence_.resize(ioHandle_->nEventsInFile());
+    std::iota(shuffledSequence_.begin(), shuffledSequence_.end(), 0);
+    std::random_device rd;
+    std::mt19937 g{rd()};
+    std::shuffle(shuffledSequence_.begin(), shuffledSequence_.end(), g);
   }
-  return transMap;
+
+  return true;
 }
 
 bool

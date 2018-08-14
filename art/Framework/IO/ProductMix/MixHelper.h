@@ -222,21 +222,17 @@
 #include "art/Framework/Core/Modifier.h"
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/Core/detail/EngineCreator.h"
+#include "art/Framework/IO/ProductMix/MixIOPolicy.h"
 #include "art/Framework/IO/ProductMix/MixOp.h"
 #include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "art/Framework/IO/ProductMix/ProdToProdMapBuilder.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
-#include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Utilities/fwd.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
-#include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/exempt_ptr.h"
-#include "cetlib/value_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"
@@ -247,14 +243,9 @@
 #include <string>
 #include <vector>
 
-#include "Rtypes.h"
-#include "TFile.h"
-#include "TTree.h"
-
 namespace art {
 
   class MixHelper : private detail::EngineCreator {
-  private:
     using ProviderFunc_ = std::function<std::string()>;
 
   public:
@@ -281,10 +272,12 @@ namespace art {
     // Should probably pass in something like SharedModifier.
     explicit MixHelper(Config const& config,
                        std::string const& moduleLabel,
-                       Modifier& producesProvider);
+                       Modifier& producesProvider,
+                       std::unique_ptr<MixIOPolicy> ioHandle);
     explicit MixHelper(fhicl::ParameterSet const& pset,
                        std::string const& moduleLabel,
-                       Modifier& producesProvider);
+                       Modifier& producesProvider,
+                       std::unique_ptr<MixIOPolicy> ioHandle);
 
     // Returns the current mixing mode.
     Mode readMode() const;
@@ -378,8 +371,8 @@ namespace art {
     bool generateEventSequence(size_t nSecondaries,
                                EntryNumberSequence& enSeq,
                                EventIDSequence& eIDseq);
-    void generateEventAuxiliarySequence(EntryNumberSequence const&,
-                                        EventAuxiliarySequence&);
+    EventAuxiliarySequence generateEventAuxiliarySequence(
+      EntryNumberSequence const&);
     void mixAndPut(EntryNumberSequence const& enSeq,
                    EventIDSequence const& eIDseq,
                    Event& e);
@@ -396,10 +389,7 @@ namespace art {
       cet::exempt_ptr<base_engine_t> engine) const;
     bool consistentRequest_(std::string const& kind_of_engine_to_make,
                             label_t const& engine_label) const;
-
     Mode initReadMode_(std::string const& mode) const;
-
-    void openAndReadMetaData_(std::string fileName);
     bool openNextFile_();
 
     ProdToProdMapBuilder::ProductIDTransMap buildProductIDTransMap_(
@@ -414,13 +404,9 @@ namespace art {
     std::vector<std::string>::const_iterator fileIter_;
     Mode const readMode_;
     double const coverageFraction_;
-    Long64_t nEventsReadThisFile_{};
-    Long64_t nEventsInFile_{};
-    Long64_t totalEventsRead_{};
+    std::size_t nEventsReadThisFile_{};
+    std::size_t totalEventsRead_{};
     bool const canWrapFiles_;
-    FileFormatVersion ffVersion_{};
-    std::unique_ptr<art::BranchIDLists> branchIDLists_{
-      nullptr}; // For backwards compatibility
     ProdToProdMapBuilder ptpBuilder_{};
     cet::exempt_ptr<base_engine_t> engine_;
     std::unique_ptr<CLHEP::RandFlat> dist_;
@@ -428,16 +414,9 @@ namespace art {
     EntryNumberSequence shuffledSequence_{}; // RANDOM_NO_REPLACE only.
     bool haveSubRunMixOps_{false};
     bool haveRunMixOps_{false};
-
-    // Root-specific state.
-    cet::value_ptr<TFile> currentFile_{};
-    cet::exempt_ptr<TTree> currentMetaDataTree_{nullptr};
-    std::array<cet::exempt_ptr<TTree>, art::BranchType::NumBranchTypes>
-      currentDataTrees_{{nullptr}};
-    FileIndex currentFileIndex_{};
-    std::array<RootBranchInfoList, art::BranchType::NumBranchTypes>
-      dataBranches_{{}};
     EventIDIndex eventIDIndex_{};
+
+    std::unique_ptr<MixIOPolicy> ioHandle_{nullptr};
   };
 
   std::ostream& operator<<(std::ostream&, MixHelper::Mode);

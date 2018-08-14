@@ -20,12 +20,13 @@ art::ProdToProdMapBuilder::prepareTranslationTables(ProductIDTransMap& transMap)
   }
 }
 
-void
-art::ProdToProdMapBuilder::populateRemapper(PtrRemapper& mapper,
-                                            Event const& e) const
+art::PtrRemapper
+art::ProdToProdMapBuilder::getRemapper(Event const& e) const
 {
-  mapper.event_ = cet::make_exempt_ptr(&e);
+  PtrRemapper result;
+  result.event_ = cet::make_exempt_ptr(&e);
   // Check translation map to see if output product IDs are supported
   // for given event.
-  mapper.prodTransMap_ = productIDTransMap_;
+  result.prodTransMap_ = productIDTransMap_;
+  return result;
 }
