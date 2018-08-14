@@ -174,59 +174,12 @@ namespace art {
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?
-    template <typename T, typename = void>
-    struct has_old_startEvent : std::false_type {
-    };
-
     template <typename T>
-    struct has_old_startEvent<
-      T,
-      enable_if_function_exists_t<void (T::*)(), &T::startEvent>>
-      : std::true_type {
-    };
-
-    template <typename T>
-    struct do_call_old_startEvent {
-    public:
-      void
-      operator()(T& t)
-      {
-        static bool need_warning = true;
-        if (need_warning) {
-          mf::LogWarning("Deprecated")
-            << "Mixing driver function has signature startEvent(), which is "
-               "deprecated.\n"
-            << "Please update your code to define startEvent(Event const&).\n"
-            << "In a future version of ART the old method will no longer be "
-               "called.";
-          need_warning = false;
-        }
-        t.startEvent();
-      }
-    };
-
-    template <typename T>
-    struct do_not_call_old_startEvent {
+    struct do_not_call_startEvent {
+      do_not_call_startEvent(Event const&) {}
       void
       operator()(T&)
       {}
-    };
-
-    template <typename T>
-    struct do_not_call_startEvent {
-    public:
-      do_not_call_startEvent(Event const&) {}
-      void
-      operator()(T& t)
-      {
-        std::conditional_t<has_old_startEvent<T>::value,
-                           do_call_old_startEvent<T>,
-                           do_not_call_old_startEvent<T>>
-          maybe_call_old_startEvent;
-        maybe_call_old_startEvent(t);
-      }
-
-    private:
     };
     //////////
 

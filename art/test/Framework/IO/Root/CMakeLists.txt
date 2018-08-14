@@ -1007,16 +1007,6 @@ cet_test(ProductMix_r1d1 HANDBUILT
   fcl/ProductMix_r1d1.fcl
   TEST_PROPERTIES DEPENDS ProductMix_w)
 
-# Mix the events from ProductMix_w, testing that things behave properly
-# with an old-signature startEvent function.
-cet_test(ProductMix_r1d2 HANDBUILT
-  TEST_EXEC art_ut
-  TEST_ARGS -- --rethrow-all -c "ProductMix_r1d2.fcl"
-  DATAFILES
-  fcl/ProductMix_r1.fcl
-  fcl/ProductMix_r1d2.fcl
-  TEST_PROPERTIES DEPENDS ProductMix_w)
-
 # Mix the events from ProductMix_w, testing that the secondary event
 # selection is as specified. Order is:
 #   SEQUENTIAL

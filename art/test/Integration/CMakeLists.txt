@@ -14,9 +14,6 @@ set_source_files_properties(MixFilterTestETSc_module.cc
 set_source_files_properties(MixFilterTestNoStartEvent_module.cc
   PROPERTIES COMPILE_DEFINITIONS ART_TEST_NO_STARTEVENT)
 
-set_source_files_properties(MixFilterTestOldStartEvent_module.cc
-  PROPERTIES COMPILE_DEFINITIONS ART_TEST_OLD_STARTEVENT)
-
 simple_plugin(AddIntsProducer             "module" NO_INSTALL)
 simple_plugin(AssnsAnalyzer               "module" NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(AssnsMultipleProduces       "module" NO_INSTALL)
@@ -59,7 +56,6 @@ simple_plugin(MixFilterTest               "module" NO_INSTALL USE_BOOST_UNIT art
 simple_plugin(MixFilterTestETS            "module" NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
 simple_plugin(MixFilterTestETSc           "module" NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
 simple_plugin(MixFilterTestNoStartEvent   "module" NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
-simple_plugin(MixFilterTestOldStartEvent  "module" NO_INSTALL USE_BOOST_UNIT art_Framework_IO_ProductMix)
 simple_plugin(MixProducer                 "module" NO_INSTALL)
 simple_plugin(MockClusterListAnalyzer     "module" NO_INSTALL)
 simple_plugin(MockClusterListProducer     "module" NO_INSTALL)
