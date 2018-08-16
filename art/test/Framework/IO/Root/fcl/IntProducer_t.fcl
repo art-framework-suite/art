@@ -1,9 +1,0 @@
-physics: {
-  producers: {
-    makeInt: {
-      module_type: IntProducer
-      ivalue: 3
-    }
-  }
-  p1: [makeInt]
-}

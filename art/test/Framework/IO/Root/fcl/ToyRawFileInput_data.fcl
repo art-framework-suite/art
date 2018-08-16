@@ -1,3 +1,0 @@
-#include "ToyRawInput_wr_f1.fcl"
-
-data: @local::f1

@@ -1,8 +1,0 @@
-#include "AssnsReaderTest_4.fcl"
-
-#include "AssnsReaderTest_r.fcl"
-
-source: @erase
-
-physics.analyzers.a1.process: ASSNSW2
-physics.analyzers.a2.process: ASSNSW2

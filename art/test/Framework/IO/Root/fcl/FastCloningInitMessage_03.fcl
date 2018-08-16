@@ -1,3 +1,0 @@
-#include "FastCloningInitMessage_01.fcl"
-
-outputs.o1.fastCloning: false

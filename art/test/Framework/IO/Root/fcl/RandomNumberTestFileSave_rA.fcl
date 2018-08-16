@@ -1,8 +1,0 @@
-#include "RandomNumberTestEventSave_r.fcl"
-
-services.RandomNumberGenerator: { restoreFrom: "../RandomNumberTestFileSave_wA.d/state.txt" }
-
-physics.producers.randomTester.genUnsaved: false
-
-source.skipEvents: 9
-source.maxEvents: 1

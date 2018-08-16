@@ -1,6 +1,0 @@
-process_name: PROD1
-physics.filters.f1: {
-  module_type: TestFilterSpecificEvents
-  eventsToAccept: [1,4,5,8,9]
-}
-physics.p1: [f1]

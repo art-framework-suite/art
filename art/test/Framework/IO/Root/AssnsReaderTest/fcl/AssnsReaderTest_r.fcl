@@ -1,5 +1,0 @@
-process_name: ASSNSR
-
-physics.analyzers.a1: { module_type: AssnsReaderTest inputLabel: ap1 process: ASSNSW @table::moduleOptions }
-physics.analyzers.a2: { module_type: AssnsReaderTest inputLabel: ap2 process: ASSNSW @table::moduleOptions }
-physics.e1: [ a1, a2 ]

@@ -7,13 +7,13 @@ fcldir -
 perllib  product_dir
 #
 product		version
-canvas_root_io	v1_01_07
+canvas          v3_04_00
 hep_concurrency v1_01_00
 cetbuildtools	v7_05_01	-	only_for_build
 catch		v2_2_2		-nq-	only_for_build
 end_product_list
 
-qualifier	canvas_root_io	hep_concurrency	notes
+qualifier	canvas          hep_concurrency	notes
 e15:debug	e15:debug       e15:debug
 e15:prof	e15:prof        e15:prof
 e17:debug	e17:debug       e17:debug
@@ -28,11 +28,6 @@ table_fragment_begin
     sourceRequired(${ART_FQ_DIR}/bin/lar_completions, NO_UPS_ENV)
     sourceRequired(${ART_FQ_DIR}/bin/gm2_completions, NO_UPS_ENV)
     sourceRequired(${ART_FQ_DIR}/bin/mu2e_completions, NO_UPS_ENV)
-    sourceRequired(${ART_FQ_DIR}/bin/sam_metadata_dumper_completions, NO_UPS_ENV)
-    sourceRequired(${ART_FQ_DIR}/bin/product_sizes_dumper_completions, NO_UPS_ENV)
-    sourceRequired(${ART_FQ_DIR}/bin/config_dumper_completions, NO_UPS_ENV)
-    sourceRequired(${ART_FQ_DIR}/bin/count_events_completions, NO_UPS_ENV)
-    sourceRequired(${ART_FQ_DIR}/bin/file_info_dumper_completions, NO_UPS_ENV)
 table_fragment_end
 
 # Local Variables:

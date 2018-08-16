@@ -1,9 +1,0 @@
-physics.producers.doNotPersistProduct.module_type: NonPersistableProducer
-physics.p1: [doNotPersistProduct]
-physics.e1: [o1]
-
-outputs.o1: {
-  module_type: RootOutput
-  fileName: "out.root"
-  outputCommands: ["keep *"]
-}

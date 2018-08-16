@@ -1,8 +1,0 @@
-#include "RandomNumberTestEventSave_r.fcl"
-
-services.RandomNumberGenerator.saveTo: "state.txt"
-
-physics.producers.randomTester.genUnsaved: false
-
-source.skipEvents: 8
-source.maxEvents: 1

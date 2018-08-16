@@ -1,6 +1,0 @@
-#include "RandomNumberTestEventSave_r.fcl"
-
-services.RandomNumberGenerator.saveTo: "state.txt"
-
-physics.producers.randomTester.dieOnNthEvent: 10
-physics.producers.randomTester.genUnsaved: false

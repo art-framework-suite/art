@@ -1,2 +1,0 @@
-../TFileService_t_05.d/out_1.root 6
-../TFileService_t_05.d/out_2.root 3

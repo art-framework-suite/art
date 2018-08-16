@@ -1,3 +1,0 @@
-#include "ProductMix_r1e.fcl"
-
-physics.filters.mixFilter.readMode: randomNoReplace

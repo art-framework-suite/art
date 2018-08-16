@@ -1,4 +1,0 @@
-#include "DropOnInput_t_02.fcl"
-
-process_name: DOIr
-source.inputCommands: [ "keep *" ]

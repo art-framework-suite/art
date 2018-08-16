@@ -1,7 +1,5 @@
 cet_enable_asserts()
 
-# add_definitions(-DART_NO_MIX_PTRVECTOR)
-
 # Make sure tests have correct environment settings.
 include(CetTest)
 # If you explicitly include CetTest in a subdirectory, you will need to
@@ -13,8 +11,6 @@ add_subdirectory(Framework/Art)
 add_subdirectory(Framework/Core)
 add_subdirectory(Framework/EventProcessor)
 add_subdirectory(Framework/IO)
-add_subdirectory(Framework/IO/Root)
-add_subdirectory(Framework/IO/Root/RootDB)
 add_subdirectory(Framework/Principal)
 add_subdirectory(Framework/Services/Optional)
 add_subdirectory(Framework/Services/Registry)
@@ -23,5 +19,5 @@ add_subdirectory(Framework/Services/Basic)
 add_subdirectory(Integration)
 add_subdirectory(Persistency/Provenance)
 add_subdirectory(TestObjects)
-add_subdirectory(Version)
 add_subdirectory(Utilities)
+add_subdirectory(Version)

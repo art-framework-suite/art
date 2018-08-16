@@ -1,9 +1,0 @@
-physics: {
-  analyzers: {
-    readArray: {
-      module_type: IntArrayAnalyzer
-      moduleLabel: makeArray
-    }
-  }
-  e1: [readArray]
-}

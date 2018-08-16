@@ -1,8 +1,0 @@
-BEGIN_PROLOG
-moduleOptions: {
-  wantVoid: "SOME"
-  wantMany: false
-  wantMV: false
-  wantAmbiguous: true
-}
-END_PROLOG

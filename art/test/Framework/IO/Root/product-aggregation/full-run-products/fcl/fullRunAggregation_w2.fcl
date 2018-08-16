@@ -1,3 +1,0 @@
-#include "fullRunAggregation_w.fcl"
-source.firstSubRun: 2
-physics.producers.makeString.value: "Bob"

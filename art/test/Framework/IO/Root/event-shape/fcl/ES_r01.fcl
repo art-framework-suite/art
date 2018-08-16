@@ -1,3 +1,0 @@
-process_name: ESR
-
-source.inputCommands: ["drop *", "keep arttest::IntProduct_*_*_*" ]

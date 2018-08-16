@@ -1,5 +1,0 @@
-#include "ProvenanceDumper_r1.fcl"
-
-outputs.out1.expectRunProducts: false
-
-source.inputCommands: [ "keep *", "drop *_m2_*_*" ]

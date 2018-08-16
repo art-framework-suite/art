@@ -1,6 +1,0 @@
-<lcgdict>
-  <class name="arttest::ClonedProd" ClassVersion="10">
-   <version ClassVersion="10" checksum="951405678"/>
-  </class>
-  <class name="art::Wrapper<arttest::ClonedProd>"/>
-</lcgdict>

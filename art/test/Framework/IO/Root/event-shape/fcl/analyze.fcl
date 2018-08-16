@@ -1,5 +1,0 @@
-physics.analyzers.a1: {
-  module_type: ProductIDGetterAnalyzer
-  input_label: p1
-}
-physics.path: [a1]

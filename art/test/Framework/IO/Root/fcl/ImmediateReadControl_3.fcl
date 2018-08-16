@@ -1,4 +1,0 @@
-#include "ImmediateReadControl_1.fcl"
-
-source.delayedReadSubRunProducts: false
-outputs.out1.expectSubRunProducts: true

@@ -1,7 +1,0 @@
-#include "EmptyPSetRegistryChecker_w1.fcl"
-
-outputs.o1: {
-  @table::outputs.o1
-  fileName: "out_without_psets.root"
-  writeParameterSets: false
-}

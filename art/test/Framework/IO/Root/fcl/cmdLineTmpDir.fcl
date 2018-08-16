@@ -1,5 +1,0 @@
-process_name: ImmediateReadControl
-services.TFileService: {}
-
-outputs.out1.module_type: TestReadImmediateControl
-outputs.out2.module_type: RootOutput

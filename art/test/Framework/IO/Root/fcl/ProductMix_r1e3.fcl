@@ -1,5 +1,0 @@
-#include "ProductMix_r1e.fcl"
-
-physics.filters.mixFilter.readMode: randomLimReplace
-physics.filters.mixFilter.numSecondaries: 990
-physics.filters.mixFilter.testNoLimEventDupes: true
