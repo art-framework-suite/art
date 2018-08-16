@@ -89,8 +89,6 @@ simple_plugin(ValidHandleTester           "module" NO_INSTALL)
 simple_plugin(Wanted                      "service" NO_INSTALL)
 simple_plugin(addInts                     "tool"   NO_INSTALL)
 
-art_dictionary(DICTIONARY_LIBRARIES cetlib NO_INSTALL)
-
 ########################################################################
 # Old tests converted from CMS FWCore/Framework/test
 set(test_list

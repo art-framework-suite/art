@@ -48,22 +48,20 @@ function(simple_plugin name type)
       cetlib
       cetlib_except
       ${Boost_FILESYSTEM_LIBRARY}
-      ${Boost_SYSTEM_LIBRARY}
-      )
+      ${Boost_SYSTEM_LIBRARY})
   elseif("${type}" STREQUAL "module" OR "${type}" STREQUAL "source")
     list(INSERT simple_plugin_liblist 0
       art_Framework_Core
       art_Framework_Principal
       art_Persistency_Common
+      art_Persistency_Provenance
       art_Utilities
       canvas
       fhiclcpp
       cetlib
       cetlib_except
-      ${ROOT_CORE}
       ${Boost_FILESYSTEM_LIBRARY}
-      ${Boost_SYSTEM_LIBRARY}
-      )
+      ${Boost_SYSTEM_LIBRARY})
   elseif("${type}" STREQUAL "tool")
     list(INSERT simple_plugin_liblist 0
       art_Utilities
@@ -71,15 +69,13 @@ function(simple_plugin name type)
       cetlib
       cetlib_except
       ${Boost_FILESYSTEM_LIBRARY}
-      ${Boost_SYSTEM_LIBRARY}
-      )
+      ${Boost_SYSTEM_LIBRARY})
   endif()
   if ("${type}" STREQUAL "source")
     list(INSERT simple_plugin_liblist 0
       art_Framework_IO_Sources
       ${Boost_FILESYSTEM_LIBRARY}
-      ${Boost_SYSTEM_LIBRARY}
-      )
+      ${Boost_SYSTEM_LIBRARY})
   endif()
   check_ups_version(cetbuildtools ${cetbuildtools_UPS_VERSION} v4_05_00 PRODUCT_MATCHES_VAR BP_HAS_SOURCE)
   if(SP_SOURCE)

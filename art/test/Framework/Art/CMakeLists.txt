@@ -71,21 +71,8 @@ add_subdirectory(PrintAvailable)
 
 ####################################
 # BasicOutputOptionsHandler.
-
-# Should pass and provide config output file for comparison in
-# BasicOutputOptions_01_r against reference.  Use ART_DEBUG_CONFIG
-# environment variable instead of --debug-config to test its
-# functionality.
-cet_test(BasicOutputOptions_01_w HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS --TFileName hist.root
-  -o out.root
-  --tmpdir /tmp
-  -c empty.fcl
-  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
-  DATAFILES fcl/empty.fcl)
-config_test_pass(BasicOutputOptions_01_w)
-config_ref_test(BasicOutputOptions_01)
+# FIXME: Tests 1 and 12 have moved to art_root_io; they should be
+# brought back to art.
 
 # Detect ambiguity and exit with error.
 cet_test(BasicOutputOptions_02_w HANDBUILT
@@ -186,18 +173,6 @@ cet_test(BasicOutputOptions_11_w HANDBUILT
   DATAFILES fcl/no-end_paths-multiout.fcl)
 config_test_debug_pass(BasicOutputOptions_11_w)
 config_ref_test(BasicOutputOptions_11)
-
-# Specified stream name with empty outputs.
-cet_test(BasicOutputOptions_12_w HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS
-  -o myOut:out.root
-  --tmpDir /tmp
-  -c empty.fcl
-  --debug-config=config.out
-  DATAFILES fcl/empty.fcl)
-config_test_debug_pass(BasicOutputOptions_12_w)
-config_ref_test(BasicOutputOptions_12)
 
 # Should pass -- multi-out.
 cet_test(BasicOutputOptions_13_w HANDBUILT

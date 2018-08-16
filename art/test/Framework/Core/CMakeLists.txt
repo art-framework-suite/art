@@ -1,5 +1,3 @@
-art_dictionary(NO_INSTALL)
-
 set(default_test_libraries
   art_Framework_Services_Registry
   art_Framework_Core

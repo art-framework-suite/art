@@ -105,7 +105,6 @@
 #
 ########################################################################
 
-include(ArtDictionary)
 include(CetMake)
 include(CetTest)
 include(CMakeParseArguments)
@@ -361,6 +360,9 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
   FILE(GLOB dictionary_header classes.h )
   FILE(GLOB dictionary_xml classes_def.xml )
   if( dictionary_header AND dictionary_xml )
+    if (NOT COMMAND art_dictionary)
+      message(FATAL_ERROR "ART_MAKE: If you wish art_make to create a dictionary, you must invoke include(ArtDictionary) in your CMakeLists.txt file.")
+    endif()
     set(art_file_list ${art_file_list} ${dictionary_xml} ${dictionary_header} )
     if (have_library)
       set(art_make_dict_libraries ${art_make_library_name})

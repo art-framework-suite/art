@@ -1,5 +1,3 @@
-art_dictionary(NO_INSTALL)
-
 set(test_Framework_Principal_libraries
   art_Framework_Principal
   art_Persistency_Provenance
