@@ -6,8 +6,7 @@ cet_test(EP_throwing_01_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS --rethrow-all -c test_01.fcl
   DATAFILES
-  fcl/test_01.fcl
-  )
+  fcl/test_01.fcl)
 
 foreach(num RANGE 2 4)
   cet_test(EP_throwing_0${num}_t HANDBUILT
@@ -16,8 +15,7 @@ foreach(num RANGE 2 4)
     DATAFILES
     fcl/test_0${num}.fcl
     TEST_PROPERTIES
-    PASS_REGULAR_EXPRESSION "Throw from c'tor."
-    )
+    PASS_REGULAR_EXPRESSION "Throw from c'tor.")
 endforeach()
 
 cet_script(graceful_shutdown_t.sh NO_INSTALL)
@@ -28,5 +26,4 @@ cet_test(graceful_shutdown_from_exception_t HANDBUILT
   REF "${CMAKE_CURRENT_SOURCE_DIR}/graceful_shutdown_from_exception_t-ref.txt"
   OUTPUT_FILTERS "filter-timeTracker-output" "DEFAULT"
   DATAFILES
-  fcl/test_graceful_shutdown.fcl
-  )
+  fcl/test_graceful_shutdown.fcl)
