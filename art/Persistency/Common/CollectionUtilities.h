@@ -183,20 +183,18 @@ namespace art {
 // No user-serviceable parts below.
 ////////////////////////////////////////////////////////////////////////
 
-namespace art {
-  namespace detail {
-    // A. Verify a collection of PtrVector const*
-    template <typename T>
-    bool verifyPtrCollection(std::vector<art::PtrVector<T> const*> const& in);
+namespace art::detail {
+  // A. Verify a collection of PtrVector const*
+  template <typename T>
+  bool verifyPtrCollection(std::vector<art::PtrVector<T> const*> const& in);
 
-    // B. Verify a collection (including PtrVector) of Ptrs.
-    template <typename iterator>
-    bool verifyPtrCollection(iterator beg,
-                             iterator end,
-                             art::ProductID id = {},
-                             art::EDProductGetter const* getter = nullptr);
-  } // namespace detail
-} // namespace art
+  // B. Verify a collection (including PtrVector) of Ptrs.
+  template <typename iterator>
+  bool verifyPtrCollection(iterator beg,
+                           iterator end,
+                           art::ProductID id = {},
+                           art::EDProductGetter const* getter = nullptr);
+}
 
 // A.
 template <typename T>

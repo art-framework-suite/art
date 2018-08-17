@@ -30,39 +30,37 @@ namespace fhicl {
   class ParameterSet;
 }
 
-namespace art {
-  namespace detail {
-    class EngineCreator {
-      using RNGservice = RandomNumberGenerator;
+namespace art::detail {
+  class EngineCreator {
+    using RNGservice = RandomNumberGenerator;
 
-    public:
-      // --- CLHEP engine characteristics:
-      using base_engine_t = CLHEP::HepRandomEngine;
-      using label_t = RNGsnapshot::label_t;
-      using seed_t = long;
-      using engine_state_t = RNGsnapshot::engine_state_t;
+  public:
+    // --- CLHEP engine characteristics:
+    using base_engine_t = CLHEP::HepRandomEngine;
+    using label_t = RNGsnapshot::label_t;
+    using seed_t = long;
+    using engine_state_t = RNGsnapshot::engine_state_t;
 
-      // We keep a default c'tor for backwards compatibility.  It will
-      // go away once the default constructors for EDProducer and
-      // EDFilter are removed.
-      EngineCreator() = default;
-      explicit EngineCreator(std::string const& label, ScheduleID sid);
+    // We keep a default c'tor for backwards compatibility.  It will
+    // go away once the default constructors for EDProducer and
+    // EDFilter are removed.
+    EngineCreator() = default;
+    explicit EngineCreator(std::string const& label, ScheduleID sid);
 
-      base_engine_t& createEngine(seed_t seed);
-      base_engine_t& createEngine(seed_t seed,
-                                  std::string const& kind_of_engine_to_make);
-      base_engine_t& createEngine(seed_t seed,
-                                  std::string const& kind_of_engine_to_make,
-                                  label_t const& engine_label);
+    base_engine_t& createEngine(seed_t seed);
+    base_engine_t& createEngine(seed_t seed,
+                                std::string const& kind_of_engine_to_make);
+    base_engine_t& createEngine(seed_t seed,
+                                std::string const& kind_of_engine_to_make,
+                                label_t const& engine_label);
 
-    private:
-      static ServiceHandle<RandomNumberGenerator>& rng();
-      void requireValid(); // Can remove once default c'tor is gone.
-      std::string const moduleLabel_{};
-      ScheduleID const sid_{};
-    }; // EngineCreator
-  }    // detail
-} // art
+  private:
+    static ServiceHandle<RandomNumberGenerator>& rng();
+    void requireValid(); // Can remove once default c'tor is gone.
+    std::string const moduleLabel_{};
+    ScheduleID const sid_{};
+  }; // EngineCreator
+}
 
 #endif /* art_Framework_Core_detail_EngineCreator_h */
 

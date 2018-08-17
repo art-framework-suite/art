@@ -304,7 +304,7 @@ namespace art {
   }
 
   void
-  TimeTracker::preEventProcessing(Event const& e[[gnu::unused]],
+  TimeTracker::preEventProcessing(Event const& e[[maybe_unused]],
                                   ScheduleContext const sc)
   {
     auto& d = data_[key(sc.id())];

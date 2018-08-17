@@ -189,16 +189,6 @@ namespace art {
       : std::true_type {
     };
 
-    template <typename T>
-    struct do_not_call_startEvent {
-      explicit do_not_call_startEvent(T&, Event const&) {}
-    };
-
-    template <typename T>
-    struct call_startEvent {
-      explicit call_startEvent(T& t, Event const& e) { t.startEvent(e); }
-    };
-
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
@@ -221,20 +211,6 @@ namespace art {
       enable_if_function_exists_t<size_t (T::*)() const, &T::eventsToSkip>>
       : std::true_type {
     };
-
-    template <typename T>
-    struct do_not_setup_eventsToSkip {
-      explicit do_not_setup_eventsToSkip(MixHelper&, T&) {}
-    };
-
-    template <typename T>
-    struct setup_eventsToSkip {
-      explicit setup_eventsToSkip(MixHelper& helper, T& t)
-      {
-        helper.setEventsToSkipFunction([&t] { return t.eventsToSkip(); });
-      }
-    };
-
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
@@ -250,19 +226,6 @@ namespace art {
       T,
       enable_if_function_exists_t<void (T::*)(EventIDSequence const&),
                                   &T::processEventIDs>> : std::true_type {
-    };
-
-    template <typename T>
-    struct do_not_call_processEventIDs {
-      explicit do_not_call_processEventIDs(T&, EventIDSequence const&) {}
-    };
-
-    template <typename T>
-    struct call_processEventIDs {
-      explicit call_processEventIDs(T& t, EventIDSequence const& seq)
-      {
-        t.processEventIDs(seq);
-      }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -283,25 +246,6 @@ namespace art {
       : std::true_type {
     };
 
-    template <typename T>
-    struct do_not_call_processEventAuxiliaries {
-      explicit do_not_call_processEventAuxiliaries(T&,
-                                                   MixHelper&,
-                                                   EntryNumberSequence const&)
-      {}
-    };
-
-    template <typename T>
-    struct call_processEventAuxiliaries {
-      explicit call_processEventAuxiliaries(T& t,
-                                            MixHelper& h,
-                                            EntryNumberSequence const& enseq)
-      {
-        auto const auxseq = h.generateEventAuxiliarySequence(enseq);
-        t.processEventAuxiliaries(auxseq);
-      }
-    };
-
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
@@ -315,16 +259,6 @@ namespace art {
       T,
       enable_if_function_exists_t<void (T::*)(Event&), &T::finalizeEvent>>
       : std::true_type {
-    };
-
-    template <typename T>
-    struct do_not_call_finalizeEvent {
-      explicit do_not_call_finalizeEvent(T&, Event&) {}
-    };
-
-    template <typename T>
-    struct call_finalizeEvent {
-      explicit call_finalizeEvent(T& t, Event& e) { t.finalizeEvent(e); }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -342,16 +276,6 @@ namespace art {
       : std::true_type {
     };
 
-    template <typename T>
-    struct do_not_call_beginSubRun {
-      explicit do_not_call_beginSubRun(T&, SubRun const&) {}
-    };
-
-    template <typename T>
-    struct call_beginSubRun {
-      explicit call_beginSubRun(T& t, SubRun const& sr) { t.beginSubRun(sr); }
-    };
-
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
@@ -365,16 +289,6 @@ namespace art {
       T,
       enable_if_function_exists_t<void (T::*)(SubRun&), &T::endSubRun>>
       : std::true_type {
-    };
-
-    template <typename T>
-    struct do_not_call_endSubRun {
-      explicit do_not_call_endSubRun(T&, SubRun&) {}
-    };
-
-    template <typename T>
-    struct call_endSubRun {
-      explicit call_endSubRun(T& t, SubRun& sr) { t.endSubRun(sr); }
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -392,16 +306,6 @@ namespace art {
       : std::true_type {
     };
 
-    template <typename T>
-    struct do_not_call_beginRun {
-      explicit do_not_call_beginRun(T&, Run const&) {}
-    };
-
-    template <typename T>
-    struct call_beginRun {
-      explicit call_beginRun(T& t, Run const& r) { t.beginRun(r); }
-    };
-
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
@@ -417,16 +321,6 @@ namespace art {
       : std::true_type {
     };
 
-    template <typename T>
-    struct do_not_call_endRun {
-      explicit do_not_call_endRun(T&, Run&) {}
-    };
-
-    template <typename T>
-    struct call_endRun {
-      explicit call_endRun(T& t, Run& r) { t.endRun(r); }
-    };
-
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
@@ -436,43 +330,6 @@ namespace art {
 
     template <typename T, respond_to_file<T>>
     struct respondToXXX_function;
-
-    template <typename T>
-    struct do_not_call_respondToXXX {
-      explicit do_not_call_respondToXXX(T&, FileBlock const&) {}
-    };
-
-    template <typename T>
-    struct call_respondToOpenInputFile {
-      explicit call_respondToOpenInputFile(T& t, FileBlock const& fb)
-      {
-        t.respondToOpenInputFile(fb);
-      }
-    };
-
-    template <typename T>
-    struct call_respondToCloseInputFile {
-      explicit call_respondToCloseInputFile(T& t, FileBlock const& fb)
-      {
-        t.respondToCloseInputFile(fb);
-      }
-    };
-
-    template <typename T>
-    struct call_respondToOpenOutputFiles {
-      explicit call_respondToOpenOutputFiles(T& t, FileBlock const& fb)
-      {
-        t.respondToOpenOutputFiles(fb);
-      }
-    };
-
-    template <typename T>
-    struct call_respondToCloseOutputFiles {
-      explicit call_respondToCloseOutputFiles(T& t, FileBlock const& fb)
-      {
-        t.respondToCloseOutputFiles(fb);
-      }
-    };
 
     // has_respondToOpenInputFile
     template <typename T, typename = void>
@@ -593,9 +450,9 @@ art::MixFilter<T, IOPolicy>::MixFilter(
             std::make_unique<IOPolicy>()}
   , detail_{p, helper_}
 {
-  std::conditional_t<detail::has_eventsToSkip<T>::value,
-                     detail::setup_eventsToSkip<T>,
-                     detail::do_not_setup_eventsToSkip<T>>{helper_, detail_};
+  if constexpr (detail::has_eventsToSkip<T>::value) {
+    helper_.setEventsToSkipFunction([this] { return detail_.eventsToSkip(); });
+  }
 }
 
 template <class T, class IOPolicy>
@@ -610,45 +467,45 @@ art::MixFilter<T, IOPolicy>::MixFilter(
             std::make_unique<IOPolicy>()}
   , detail_{p().userConfig, helper_}
 {
-  std::conditional_t<detail::has_eventsToSkip<T>::value,
-                     detail::setup_eventsToSkip<T>,
-                     detail::do_not_setup_eventsToSkip<T>>{helper_, detail_};
+  if constexpr (detail::has_eventsToSkip<T>::value) {
+    helper_.setEventsToSkipFunction([this] { return detail_.eventsToSkip(); });
+  }
 }
 
 template <class T, class IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToOpenInputFile(FileBlock const& fb)
 {
-  std::conditional_t<detail::has_respondToOpenInputFile<T>::value,
-                     detail::call_respondToOpenInputFile<T>,
-                     detail::do_not_call_respondToXXX<T>>{detail_, fb};
+  if constexpr (detail::has_respondToOpenInputFile<T>::value) {
+    detail_.respondToOpenInputFile(fb);
+  }
 }
 
 template <class T, class IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToCloseInputFile(FileBlock const& fb)
 {
-  std::conditional_t<detail::has_respondToCloseInputFile<T>::value,
-                     detail::call_respondToCloseInputFile<T>,
-                     detail::do_not_call_respondToXXX<T>>{detail_, fb};
+  if constexpr (detail::has_respondToCloseInputFile<T>::value) {
+    detail_.respondToCloseInputFile(fb);
+  }
 }
 
 template <class T, class IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToOpenOutputFiles(FileBlock const& fb)
 {
-  std::conditional_t<detail::has_respondToOpenOutputFiles<T>::value,
-                     detail::call_respondToOpenOutputFiles<T>,
-                     detail::do_not_call_respondToXXX<T>>{detail_, fb};
+  if constexpr (detail::has_respondToOpenOutputFiles<T>::value) {
+    detail_.respondToOpenOutputFiles(fb);
+  }
 }
 
 template <class T, class IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToCloseOutputFiles(FileBlock const& fb)
 {
-  std::conditional_t<detail::has_respondToCloseOutputFiles<T>::value,
-                     detail::call_respondToCloseOutputFiles<T>,
-                     detail::do_not_call_respondToXXX<T>>{detail_, fb};
+  if constexpr (detail::has_respondToCloseOutputFiles<T>::value) {
+    detail_.respondToCloseOutputFiles(fb);
+  }
 }
 
 template <class T, class IOPolicy>
@@ -656,9 +513,9 @@ bool
 art::MixFilter<T, IOPolicy>::filter(Event& e)
 {
   // 1. Call detail object's startEvent() if it exists.
-  std::conditional_t<detail::has_startEvent<T>::value,
-                     detail::call_startEvent<T>,
-                     detail::do_not_call_startEvent<T>>{detail_, e};
+  if constexpr (detail::has_startEvent<T>::value) {
+    detail_.startEvent(e);
+  }
 
   // 2. Ask detail object how many events to read.
   size_t const nSecondaries = detail_.nSecondaries();
@@ -675,24 +532,24 @@ art::MixFilter<T, IOPolicy>::filter(Event& e)
   }
 
   // 4. Give the event ID sequence to the detail object.
-  std::conditional_t<detail::has_processEventIDs<T>::value,
-                     detail::call_processEventIDs<T>,
-                     detail::do_not_call_processEventIDs<T>>{detail_, eIDseq};
+  if constexpr (detail::has_processEventIDs<T>::value) {
+    detail_.processEventIDs(eIDseq);
+  }
 
   // 5. Give the event auxiliary sequence to the detail object.
-  std::conditional_t<detail::has_processEventAuxiliaries<T>::value,
-                     detail::call_processEventAuxiliaries<T>,
-                     detail::do_not_call_processEventAuxiliaries<T>>{
-    detail_, helper_, enSeq};
+  if constexpr (detail::has_processEventAuxiliaries<T>::value) {
+    auto const auxseq = helper_.generateEventAuxiliarySequence(enSeq);
+    detail_.processEventAuxiliaries(auxseq);
+  }
 
   // 6. Make the MixHelper read info into all the products, invoke the
   //    mix functions and put the products into the event.
   helper_.mixAndPut(enSeq, eIDseq, e);
 
   // 7. Call detail object's finalizeEvent() if it exists.
-  std::conditional_t<detail::has_finalizeEvent<T>::value,
-                     detail::call_finalizeEvent<T>,
-                     detail::do_not_call_finalizeEvent<T>>{detail_, e};
+  if constexpr (detail::has_finalizeEvent<T>::value) {
+    detail_.finalizeEvent(e);
+  }
   return true;
 }
 
@@ -700,9 +557,9 @@ template <class T, class IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::beginSubRun(SubRun& sr)
 {
-  std::conditional_t<detail::has_beginSubRun<T>::value,
-                     detail::call_beginSubRun<T>,
-                     detail::do_not_call_beginSubRun<T>>{detail_, sr};
+  if constexpr (detail::has_beginSubRun<T>::value) {
+    detail_.beginSubRun(sr);
+  }
   return true;
 }
 
@@ -710,9 +567,9 @@ template <class T, class IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::endSubRun(SubRun& sr)
 {
-  std::conditional_t<detail::has_endSubRun<T>::value,
-                     detail::call_endSubRun<T>,
-                     detail::do_not_call_endSubRun<T>>{detail_, sr};
+  if constexpr (detail::has_endSubRun<T>::value) {
+    detail_.endSubRun(sr);
+  }
   return true;
 }
 
@@ -720,9 +577,9 @@ template <class T, class IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::beginRun(Run& r)
 {
-  std::conditional_t<detail::has_beginRun<T>::value,
-                     detail::call_beginRun<T>,
-                     detail::do_not_call_beginRun<T>>{detail_, r};
+  if constexpr (detail::has_beginRun<T>::value) {
+    detail_.beginRun(r);
+  }
   return true;
 }
 
@@ -730,9 +587,9 @@ template <class T, class IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::endRun(Run& r)
 {
-  std::conditional_t<detail::has_endRun<T>::value,
-                     detail::call_endRun<T>,
-                     detail::do_not_call_endRun<T>>{detail_, r};
+  if constexpr (detail::has_endRun<T>::value) {
+    detail_.endRun(r);
+  }
   return true;
 }
 

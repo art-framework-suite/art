@@ -7,14 +7,12 @@
 
 #include <memory>
 
-namespace art {
-  namespace detail {
+namespace art::detail {
 
-    std::unique_ptr<MetadataSummary> get_MetadataSummary(
-      std::string const& suffix,
-      LibraryInfoCollection const& coll);
-  }
-} // namespace art
+  std::unique_ptr<MetadataSummary> get_MetadataSummary(
+    std::string const& suffix,
+    LibraryInfoCollection const& coll);
+}
 
 #endif /* art_Framework_Art_detail_get_MetadataSummary_h */
 

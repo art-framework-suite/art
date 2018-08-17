@@ -3,11 +3,9 @@
 
 #include <string>
 
-namespace art {
-  namespace detail {
-    void logFileAction(const char* msg, std::string const& file);
-  }
-} // namespace art
+namespace art::detail {
+  void logFileAction(const char* msg, std::string const& file);
+}
 
 #endif /* art_Framework_IO_detail_logFileAction_h */
 

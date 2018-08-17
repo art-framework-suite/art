@@ -9,21 +9,19 @@ namespace cet {
   class LibraryManager;
 }
 
-namespace art {
-  namespace detail {
+namespace art::detail {
 
-    std::string getFilePath(cet::LibraryManager const& lm,
-                            std::string const& fullspec);
+  std::string getFilePath(cet::LibraryManager const& lm,
+                          std::string const& fullspec);
 
-    std::string getType(cet::LibraryManager const&,
-                        std::string const& /*fullSpec*/);
+  std::string getType(cet::LibraryManager const&,
+                      std::string const& /*fullSpec*/);
 
-    std::unique_ptr<fhicl::ConfigurationTable> getAllowedConfiguration(
-      cet::LibraryManager const& lm,
-      std::string const& fullSpec,
-      std::string const& name);
-  } // namespace detail
-} // namespace art
+  std::unique_ptr<fhicl::ConfigurationTable> getAllowedConfiguration(
+    cet::LibraryManager const& lm,
+    std::string const& fullSpec,
+    std::string const& name);
+} // namespace art::detail
 
 #endif /* art_Framework_Art_detail_PluginSymbolResolvers_h */
 

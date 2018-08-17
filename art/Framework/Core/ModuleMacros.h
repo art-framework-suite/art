@@ -30,39 +30,36 @@
 #include <string>
 #include <type_traits>
 
-namespace art {
-  namespace detail {
-    using ModuleMaker_t = ModuleBase*(art::ModuleDescription const&,
-                                      WorkerParams const&);
-    using WorkerFromModuleMaker_t = Worker*(std::shared_ptr<ModuleBase>,
-                                            ModuleDescription const&,
-                                            WorkerParams const&);
-    using WorkerMaker_t = Worker*(WorkerParams const&,
-                                  ModuleDescription const&);
-    using ModuleTypeFunc_t = ModuleType();
-    using ModuleThreadingTypeFunc_t = ModuleThreadingType();
+namespace art::detail {
+  using ModuleMaker_t = ModuleBase*(art::ModuleDescription const&,
+                                    WorkerParams const&);
+  using WorkerFromModuleMaker_t = Worker*(std::shared_ptr<ModuleBase>,
+                                          ModuleDescription const&,
+                                          WorkerParams const&);
+  using WorkerMaker_t = Worker*(WorkerParams const&, ModuleDescription const&);
+  using ModuleTypeFunc_t = ModuleType();
+  using ModuleThreadingTypeFunc_t = ModuleThreadingType();
 
-    template <typename T, typename = void>
-    struct NewModule {
-      static T*
-      make(fhicl::ParameterSet const& pset, ProcessingFrame const& frame)
-      {
-        return new T{pset, frame};
-      }
-    };
+  template <typename T, typename = void>
+  struct NewModule {
+    static T*
+    make(fhicl::ParameterSet const& pset, ProcessingFrame const& frame)
+    {
+      return new T{pset, frame};
+    }
+  };
 
-    template <typename T>
-    struct NewModule<T,
-                     std::enable_if_t<ModuleThreadingTypeDeducer<
-                                        typename T::ModuleType>::value ==
-                                      ModuleThreadingType::legacy>> {
-      static T*
-      make(fhicl::ParameterSet const& pset, ProcessingFrame const&)
-      {
-        return new T{pset};
-      }
-    };
-  }
+  template <typename T>
+  struct NewModule<T,
+                   std::enable_if_t<ModuleThreadingTypeDeducer<
+                                      typename T::ModuleType>::value ==
+                                    ModuleThreadingType::legacy>> {
+    static T*
+    make(fhicl::ParameterSet const& pset, ProcessingFrame const&)
+    {
+      return new T{pset};
+    }
+  };
 }
 
 #define DEFINE_ART_MODULE(klass)                                               \

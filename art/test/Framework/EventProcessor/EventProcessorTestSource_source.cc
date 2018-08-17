@@ -30,6 +30,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 
+#include <fstream>
 #include <string>
 #include <vector>
 

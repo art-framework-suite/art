@@ -52,12 +52,10 @@ namespace fhicl {
   class ParameterSet;
 }
 
-namespace art {
-  namespace detail {
-    bool get_failureToPut_flag(fhicl::ParameterSet const& scheduler_pset,
-                               fhicl::ParameterSet const& module_pset);
-  }
-} // namespace art
+namespace art::detail {
+  bool get_failureToPut_flag(fhicl::ParameterSet const& scheduler_pset,
+                             fhicl::ParameterSet const& module_pset);
+}
 
 #endif /* art_Framework_Core_detail_get_failureToPut_flag_h */
 

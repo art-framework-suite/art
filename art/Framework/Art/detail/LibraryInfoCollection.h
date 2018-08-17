@@ -6,12 +6,9 @@
 #include <set>
 #include <string>
 
-namespace art {
-  namespace detail {
-
-    using LibraryInfoCollection = std::multiset<LibraryInfo>;
-  }
-} // namespace art
+namespace art::detail {
+  using LibraryInfoCollection = std::multiset<LibraryInfo>;
+}
 
 #endif /* art_Framework_Art_detail_LibraryInfoCollection_h */
 

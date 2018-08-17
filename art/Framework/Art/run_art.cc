@@ -98,7 +98,8 @@ namespace {
     if (!scheduler_pset.has_key("debug"))
       return debug_processing::none;
 
-    auto processing_options = {"config-out", "debug-config", "validate-config"};
+    auto const processing_options = {
+      "config-out", "debug-config", "validate-config"};
 
     auto const& debug_pset = scheduler_pset.get<fhicl::ParameterSet>("debug");
 

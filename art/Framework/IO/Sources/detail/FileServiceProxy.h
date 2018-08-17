@@ -11,11 +11,9 @@
 #include <string>
 #include <vector>
 
-namespace art {
-  namespace detail {
-    class FileServiceProxy;
-  }
-} // namespace art
+namespace art::detail {
+  class FileServiceProxy;
+}
 
 class art::detail::FileServiceProxy {
 public:
@@ -31,20 +29,16 @@ private:
   std::string obtainURI_();
   std::string obtainFileFromURI_();
 
-  ServiceHandle<CatalogInterface> ci_;
-  ServiceHandle<FileTransfer> ft_;
+  ServiceHandle<CatalogInterface> ci_{};
+  ServiceHandle<FileTransfer> ft_{};
   struct FileEntity {
-    explicit FileEntity(size_t attempts)
-      : uri()
-      , pfn()
-      , uriStatus(FileDeliveryStatus::PENDING)
-      , ftStatus(FileTransferStatus::PENDING)
-      , attemptsRemaining(attempts)
+    explicit FileEntity(size_t const attempts) noexcept
+      : attemptsRemaining{attempts}
     {}
-    std::string uri;
-    std::string pfn;
-    FileDeliveryStatus uriStatus;
-    FileTransferStatus ftStatus;
+    std::string uri{};
+    std::string pfn{};
+    FileDeliveryStatus uriStatus{FileDeliveryStatus::PENDING};
+    FileTransferStatus ftStatus{FileTransferStatus::PENDING};
     size_t attemptsRemaining;
   } currentItem_;
   size_t const attemptsPerPhase_;

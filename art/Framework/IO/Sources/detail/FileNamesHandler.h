@@ -6,44 +6,41 @@
 #include <string>
 #include <vector>
 
-namespace art {
-  namespace detail {
+namespace art::detail {
 
-    template <bool wantFileServices>
-    class FileNamesHandler;
+  template <bool wantFileServices>
+  class FileNamesHandler;
 
-    // Handle files when we want to use the official services.
-    template <>
-    class FileNamesHandler<true> {
-    public:
-      explicit FileNamesHandler(std::vector<std::string>&& fileNames,
-                                size_t attempts = 5,
-                                double waitBetweenAttempts = 5.0);
+  // Handle files when we want to use the official services.
+  template <>
+  class FileNamesHandler<true> {
+  public:
+    explicit FileNamesHandler(std::vector<std::string>&& fileNames,
+                              size_t attempts = 5,
+                              double waitBetweenAttempts = 5.0);
 
-      std::string next();
-      void finish();
+    std::string next();
+    void finish();
 
-    private:
-      FileServiceProxy fp_;
-    };
+  private:
+    FileServiceProxy fp_;
+  };
 
-    // Handle files when we don't.
-    template <>
-    class FileNamesHandler<false> {
-    public:
-      explicit FileNamesHandler(std::vector<std::string>&& fileNames,
-                                size_t = 0);
+  // Handle files when we don't.
+  template <>
+  class FileNamesHandler<false> {
+  public:
+    explicit FileNamesHandler(std::vector<std::string>&& fileNames, size_t = 0);
 
-      std::string next();
-      void finish();
+    std::string next();
+    void finish();
 
-    private:
-      std::vector<std::string> fileNames_;
-      std::vector<std::string>::const_iterator currentFile_;
-      std::vector<std::string>::const_iterator end_;
-    };
-  } // namespace detail
-} // namespace art
+  private:
+    std::vector<std::string> fileNames_;
+    std::vector<std::string>::const_iterator currentFile_;
+    std::vector<std::string>::const_iterator end_;
+  };
+} // namespace art::detail
 
 art::detail::FileNamesHandler<true>::FileNamesHandler(
   std::vector<std::string>&& fileNames,

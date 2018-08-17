@@ -5,12 +5,10 @@
 
 #include <memory>
 
-namespace art {
-  namespace detail {
-    std::unique_ptr<MetadataCollector> get_MetadataCollector(
-      std::string const& suffix);
-  }
-} // namespace art
+namespace art::detail {
+  std::unique_ptr<MetadataCollector> get_MetadataCollector(
+    std::string const& suffix);
+}
 
 #endif /* art_Framework_Art_detail_get_MetadataCollector_h */
 

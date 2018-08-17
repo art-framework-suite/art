@@ -3,13 +3,11 @@
 
 #include <limits>
 
-namespace art {
-  namespace detail {
-    constexpr int
-    info_success()
-    {
-      return std::numeric_limits<int>::max();
-    }
+namespace art::detail {
+  constexpr int
+  info_success()
+  {
+    return std::numeric_limits<int>::max();
   }
 }
 

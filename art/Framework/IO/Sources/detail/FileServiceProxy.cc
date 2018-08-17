@@ -1,15 +1,12 @@
 #include "art/Framework/IO/Sources/detail/FileServiceProxy.h"
-#include "cetlib/compiler_macros.h"
 
 art::detail::FileServiceProxy::FileServiceProxy(
   std::vector<std::string>&& fileNames,
-  size_t attempts,
-  double waitBetweenAttempts)
-  : ci_()
-  , ft_()
-  , currentItem_(attempts)
-  , attemptsPerPhase_(attempts)
-  , waitBetweenAttempts_(waitBetweenAttempts)
+  size_t const attempts,
+  double const waitBetweenAttempts)
+  : currentItem_{attempts}
+  , attemptsPerPhase_{attempts}
+  , waitBetweenAttempts_{waitBetweenAttempts}
 {
   ci_->configure(std::move(fileNames));
 }
@@ -41,10 +38,10 @@ art::detail::FileServiceProxy::obtainURI_()
   double wait = 0.0;
   switch (currentItem_.uriStatus) {
     case FileDeliveryStatus::TRY_AGAIN_LATER:
-      FALLTHROUGH;
+      [[fallthrough]];
     case FileDeliveryStatus::UNAVAILABLE:
       wait = waitBetweenAttempts_;
-      FALLTHROUGH;
+      [[fallthrough]];
     case FileDeliveryStatus::PENDING:
       if (!currentItem_.attemptsRemaining--) {
         throw Exception(errors::CatalogServiceError)
@@ -75,7 +72,7 @@ art::detail::FileServiceProxy::obtainFileFromURI_()
   switch (currentItem_.ftStatus) {
     case FileTransferStatus::UNAVAILABLE:
       sleep(waitBetweenAttempts_);
-      FALLTHROUGH;
+      [[fallthrough]];
     case FileTransferStatus::PENDING:
       if (!currentItem_.attemptsRemaining--) {
         throw Exception(errors::CatalogServiceError)

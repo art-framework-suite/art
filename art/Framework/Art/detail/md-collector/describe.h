@@ -5,12 +5,10 @@
 
 #include <string>
 
-namespace art {
-  namespace detail {
-    std::string describe(cet::exempt_ptr<fhicl::ConfigurationTable const> pb,
-                         std::string const& prefix);
-  }
-} // namespace art
+namespace art::detail {
+  std::string describe(cet::exempt_ptr<fhicl::ConfigurationTable const> pb,
+                       std::string const& prefix);
+}
 
 // Local variables:
 // mode: c++

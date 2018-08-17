@@ -6,40 +6,33 @@
 
 #include <string>
 
-namespace art {
-  namespace detail {
-    class LibraryInfo;
+namespace art::detail {
+  class LibraryInfo;
 
-    template <art::suffix_type S>
-    class MetadataCollectorFor;
-  } // namespace detail
-} // namespace art
+  template <art::suffix_type S>
+  class MetadataCollectorFor;
 
-namespace art {
-  namespace detail {
+  class MetadataCollector {
+  public:
+    PluginMetadata
+    collect(LibraryInfo const& li,
+            std::string const& prefix,
+            std::string const& header_label,
+            std::string const& param_to_replace) const
+    {
+      return doCollect(li, prefix, header_label, param_to_replace);
+    }
+    virtual ~MetadataCollector() = default;
 
-    class MetadataCollector {
-    public:
-      PluginMetadata
-      collect(LibraryInfo const& li,
-              std::string const& prefix,
-              std::string const& header_label,
-              std::string const& param_to_replace) const
-      {
-        return doCollect(li, prefix, header_label, param_to_replace);
-      }
-      virtual ~MetadataCollector() = default;
+  private:
+    virtual PluginMetadata doCollect(
+      LibraryInfo const& li,
+      std::string const& prefix,
+      std::string const& header_label,
+      std::string const& param_to_replace) const = 0;
+  };
 
-    private:
-      virtual PluginMetadata doCollect(
-        LibraryInfo const& li,
-        std::string const& prefix,
-        std::string const& header_label,
-        std::string const& param_to_replace) const = 0;
-    };
-
-  } // namespace detail
-} // namespace art
+} // namespace art::detail
 
 #endif /* art_Framework_Art_detail_MetadataCollector_h */
 

@@ -151,14 +151,14 @@ namespace art {
           // Here, we take care to merge the BranchDescription objects
           // if one was already present in the keptProducts list.
           auto& keptProducts = keptProducts_[bt];
-          auto it = keptProducts.find(pd.productID());
-          if (it == end(keptProducts)) {
-            // New product
-            keptProducts.emplace(pd.productID(), pd);
-          } else {
+          if (auto it = keptProducts.find(pd.productID());
+              it != end(keptProducts)) {
             auto& found_pd = it->second;
             assert(combinable(found_pd, pd));
             found_pd.merge(pd);
+          } else {
+            // New product
+            keptProducts.emplace(pd.productID(), pd);
           }
           continue;
         }
@@ -644,8 +644,8 @@ namespace art {
     size_t count{0};
     try {
       for (auto const& pset : psets) {
-        pluginNames_.emplace_back(pset.get<string>("plugin_type"));
-        auto const& libspec = pluginNames_.back();
+        auto const& libspec =
+          pluginNames_.emplace_back(pset.get<string>("plugin_type"));
         auto const pluginType = pluginFactory_.pluginType(libspec);
         if (pluginType !=
             cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {

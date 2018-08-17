@@ -6,51 +6,47 @@
 #include <string>
 #include <vector>
 
-namespace art {
-  namespace detail {
-    class LibraryInfo;
+namespace art::detail {
+  class LibraryInfo;
 
-    template <art::suffix_type S>
-    class MetadataSummaryFor;
-  } // namespace detail
-} // namespace art
+  template <art::suffix_type S>
+  class MetadataSummaryFor;
+}
 
-namespace art {
-  namespace detail {
+namespace art::detail {
 
-    struct Summary {
-      std::string message;
-      bool is_duplicate;
-    };
+  struct Summary {
+    std::string message;
+    bool is_duplicate;
+  };
 
-    class MetadataSummary {
-    public:
-      std::string
-      header() const
-      {
-        return doHeader();
-      }
-      Summary
-      summary(LibraryInfo const& li, std::size_t const entry) const
-      {
-        return doSummary(li, entry);
-      }
-      std::vector<std::size_t> const&
-      widths() const
-      {
-        return doWidths();
-      }
-      virtual ~MetadataSummary() = default;
+  class MetadataSummary {
+  public:
+    std::string
+    header() const
+    {
+      return doHeader();
+    }
+    Summary
+    summary(LibraryInfo const& li, std::size_t const entry) const
+    {
+      return doSummary(li, entry);
+    }
+    std::vector<std::size_t> const&
+    widths() const
+    {
+      return doWidths();
+    }
+    virtual ~MetadataSummary() = default;
 
-    private:
-      virtual std::string doHeader() const = 0;
-      virtual Summary doSummary(LibraryInfo const& li,
-                                std::size_t entry) const = 0;
-      virtual std::vector<std::size_t> const& doWidths() const = 0;
-    };
+  private:
+    virtual std::string doHeader() const = 0;
+    virtual Summary doSummary(LibraryInfo const& li,
+                              std::size_t entry) const = 0;
+    virtual std::vector<std::size_t> const& doWidths() const = 0;
+  };
 
-  } // namespace detail
-} // namespace art
+} // namespace art::detail
 
 #endif /* art_Framework_Art_detail_MetadataSummary_h */
 

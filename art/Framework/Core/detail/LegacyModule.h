@@ -8,42 +8,39 @@
 
 #include <atomic>
 
-namespace art {
-  namespace detail {
+namespace art::detail {
 
-    class LegacyModule : public SharedModule, private EngineCreator {
-    public:
-      explicit LegacyModule();
-      explicit LegacyModule(std::string const& module_label);
+  class LegacyModule : public SharedModule, private EngineCreator {
+  public:
+    explicit LegacyModule();
+    explicit LegacyModule(std::string const& module_label);
 
-      ScheduleID scheduleID() const noexcept;
+    ScheduleID scheduleID() const noexcept;
 
-      using base_engine_t = EngineCreator::base_engine_t;
-      using seed_t = EngineCreator::seed_t;
-      using label_t = EngineCreator::label_t;
+    using base_engine_t = EngineCreator::base_engine_t;
+    using seed_t = EngineCreator::seed_t;
+    using label_t = EngineCreator::label_t;
 
-      using EngineCreator::createEngine;
+    using EngineCreator::createEngine;
 
-      class ScheduleIDSentry;
+    class ScheduleIDSentry;
 
-    private:
-      void setScheduleID(ScheduleID const sid) noexcept;
+  private:
+    void setScheduleID(ScheduleID const sid) noexcept;
 
-      // The thread-sanitizer wants this to be atomic, even though
-      // it's unlikely to be a problem in any practical scenario.
-      std::atomic<ScheduleID> scheduleID_;
-    };
+    // The thread-sanitizer wants this to be atomic, even though
+    // it's unlikely to be a problem in any practical scenario.
+    std::atomic<ScheduleID> scheduleID_;
+  };
 
-    class LegacyModule::ScheduleIDSentry {
-    public:
-      explicit ScheduleIDSentry(LegacyModule& mod,
-                                ScheduleID const sid) noexcept;
-      ~ScheduleIDSentry() noexcept;
+  class LegacyModule::ScheduleIDSentry {
+  public:
+    explicit ScheduleIDSentry(LegacyModule& mod, ScheduleID const sid) noexcept;
+    ~ScheduleIDSentry() noexcept;
 
-    private:
-      LegacyModule& mod_;
-    };
-  }
+  private:
+    LegacyModule& mod_;
+  };
 }
 
   // Local Variables:

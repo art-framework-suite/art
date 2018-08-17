@@ -4,41 +4,39 @@
 #include <set>
 #include <string>
 
-namespace art {
-  namespace detail {
+namespace art::detail {
 
-    struct ModuleConfig {
-      static fhicl::Name
-      plugin_type()
+  struct ModuleConfig {
+    static fhicl::Name
+    plugin_type()
+    {
+      return fhicl::Name{"module_type"};
+    }
+    struct IgnoreKeys {
+      std::set<std::string>
+      operator()()
       {
-        return fhicl::Name{"module_type"};
+        return {"module_label"};
       }
-      struct IgnoreKeys {
-        std::set<std::string>
-        operator()()
-        {
-          return {"module_label"};
-        }
-      };
     };
+  };
 
-    struct PluginConfig {
-      static fhicl::Name
-      plugin_type()
+  struct PluginConfig {
+    static fhicl::Name
+    plugin_type()
+    {
+      return fhicl::Name{"plugin_type"};
+    }
+    struct IgnoreKeys {
+      std::set<std::string>
+      operator()()
       {
-        return fhicl::Name{"plugin_type"};
+        return {"plugin_label"};
       }
-      struct IgnoreKeys {
-        std::set<std::string>
-        operator()()
-        {
-          return {"plugin_label"};
-        }
-      };
     };
+  };
 
-  } // namespace detail
-} // namespace art
+} // namespace art::detail
 
 #endif /* art_Framework_Core_detail_ImplicitConfigs_h */
 

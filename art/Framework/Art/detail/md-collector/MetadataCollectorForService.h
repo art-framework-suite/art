@@ -11,48 +11,45 @@
 #include <regex>
 #include <string>
 
-namespace art {
-  namespace detail {
+namespace art::detail {
 
-    template <>
-    class MetadataCollectorFor<suffix_type::service>
-      : public MetadataCollector {
-    public:
-      PluginMetadata
-      doCollect(LibraryInfo const& li,
-                std::string const& prefix,
-                std::string const& header_label[[gnu::unused]],
-                std::string const& param_to_replace) const override
-      {
-        return {header_(li),
-                details_(li),
-                print_allowed_configuration(li, prefix, param_to_replace)};
-      }
+  template <>
+  class MetadataCollectorFor<suffix_type::service> : public MetadataCollector {
+  public:
+    PluginMetadata
+    doCollect(LibraryInfo const& li,
+              std::string const& prefix,
+              std::string const& header_label[[maybe_unused]],
+              std::string const& param_to_replace) const override
+    {
+      return {header_(li),
+              details_(li),
+              print_allowed_configuration(li, prefix, param_to_replace)};
+    }
 
-    private:
-      std::string
-      header_(LibraryInfo const& li) const
-      {
-        std::string const& printed_name = li.short_spec();
-        std::ostringstream result;
-        result << indent_1() << "service : " << bold_fontify(printed_name)
-               << "\n\n";
-        return result.str();
-      }
+  private:
+    std::string
+    header_(LibraryInfo const& li) const
+    {
+      std::string const& printed_name = li.short_spec();
+      std::ostringstream result;
+      result << indent_1() << "service : " << bold_fontify(printed_name)
+             << "\n\n";
+      return result.str();
+    }
 
-      std::string
-      details_(LibraryInfo const& li) const
-      {
-        std::ostringstream result;
-        result << indent__2() << "provider: " << li.provider() << "\n"
-               << indent__2() << "source  : " << li.path() << "\n"
-               << indent__2() << "library : " << li.so_name() << "\n\n";
-        return result.str();
-      }
-    };
+    std::string
+    details_(LibraryInfo const& li) const
+    {
+      std::ostringstream result;
+      result << indent__2() << "provider: " << li.provider() << "\n"
+             << indent__2() << "source  : " << li.path() << "\n"
+             << indent__2() << "library : " << li.so_name() << "\n\n";
+      return result.str();
+    }
+  };
 
-  } // namespace detail
-} // namespace art
+}
 
 #endif /* art_Framework_Art_detail_md_collector_MetadataCollectorForService_h */
 

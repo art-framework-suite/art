@@ -21,8 +21,7 @@ namespace art {
   public: // Types
     using id_type = uint16_t;
     // Must be unsigned type, enforce this.
-    static_assert(std::is_unsigned<id_type>::value,
-                  "ScheduleID::id_type must be unsigned!");
+    static_assert(std::is_unsigned<id_type>::value);
     using size_type = id_type;
 
   private: // Types

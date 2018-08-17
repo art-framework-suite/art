@@ -389,7 +389,7 @@ template <template <typename, typename = void> class FM>
 void
 arttest::AssnsAnalyzer::testMany(art::Event const& e) const
 {
-  static constexpr bool isFMP[[gnu::unused]] =
+  static constexpr bool isFMP[[maybe_unused]] =
     std::is_same<typename FM<B_t>::value_type,
                  art::Ptr<typename FM<B_t>::assoc_t>>::value;
   art::Handle<std::vector<A_t>> hAcoll;

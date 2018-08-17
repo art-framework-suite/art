@@ -155,7 +155,7 @@ namespace art {
     Globals::instance()->setTriggerPathNames(pathManager_->triggerPathNames());
     eventPrincipals_->expand_to_num_schedules();
     auto annotate_principal = [this](ScheduleID const sid) {
-      auto ep[[gnu::unused]] = &eventPrincipals_->at(sid);
+      auto ep[[maybe_unused]] = &eventPrincipals_->at(sid);
       ANNOTATE_BENIGN_RACE_SIZED(
         ep, sizeof(EventPrincipal*), "EventPrincipal ptr");
     };

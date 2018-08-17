@@ -13,66 +13,64 @@
 #include <utility>
 #include <vector>
 
-namespace art {
-  namespace detail {
-    // Match events based on the trigger results from a given process name.
-    class ProcessAndEventSelector {
-    public: // Special Member Functions
-      ~ProcessAndEventSelector();
-      explicit ProcessAndEventSelector(std::string const& process,
-                                       EventSelector const&);
+namespace art::detail {
+  // Match events based on the trigger results from a given process name.
+  class ProcessAndEventSelector {
+  public: // Special Member Functions
+    ~ProcessAndEventSelector();
+    explicit ProcessAndEventSelector(std::string const& process,
+                                     EventSelector const&);
 
-    public: // API
-      void loadTriggerResults(Event const&);
-      art::Handle<art::TriggerResults> triggerResults() const;
-      bool match();
-      void clearTriggerResults();
+  public: // API
+    void loadTriggerResults(Event const&);
+    art::Handle<art::TriggerResults> triggerResults() const;
+    bool match();
+    void clearTriggerResults();
 
-    private: // Member Data -- Implementation details
-      ProcessNameSelector processNameSelector_;
-      EventSelector eventSelector_;
-      art::Handle<art::TriggerResults> triggerResults_;
-    };
-    // Handle the SelectEvents configuration parameter
-    // of modules on the end path.
-    class ProcessAndEventSelectors {
-    public: // Special Member Functions
-      ~ProcessAndEventSelectors();
-      ProcessAndEventSelectors();
-      ProcessAndEventSelectors(ProcessAndEventSelectors const&) = delete;
-      ProcessAndEventSelectors(ProcessAndEventSelectors&&) = delete;
-      ProcessAndEventSelectors& operator=(ProcessAndEventSelectors const&) =
-        delete;
-      ProcessAndEventSelectors& operator=(ProcessAndEventSelectors&&) = delete;
+  private: // Member Data -- Implementation details
+    ProcessNameSelector processNameSelector_;
+    EventSelector eventSelector_;
+    art::Handle<art::TriggerResults> triggerResults_;
+  };
+  // Handle the SelectEvents configuration parameter
+  // of modules on the end path.
+  class ProcessAndEventSelectors {
+  public: // Special Member Functions
+    ~ProcessAndEventSelectors();
+    ProcessAndEventSelectors();
+    ProcessAndEventSelectors(ProcessAndEventSelectors const&) = delete;
+    ProcessAndEventSelectors(ProcessAndEventSelectors&&) = delete;
+    ProcessAndEventSelectors& operator=(ProcessAndEventSelectors const&) =
+      delete;
+    ProcessAndEventSelectors& operator=(ProcessAndEventSelectors&&) = delete;
 
-    public: // API
-      void setupDefault(std::vector<std::string> const& trigger_names);
-      void setup(
-        std::vector<std::pair<std::string, std::string>> const& path_specs,
-        std::vector<std::string> const& trigger_names,
-        std::string const& process_name);
-      bool wantEvent(Event const&);
-      art::Handle<art::TriggerResults> getOneTriggerResults(Event const&);
-      void clearTriggerResults();
+  public: // API
+    void setupDefault(std::vector<std::string> const& trigger_names);
+    void setup(
+      std::vector<std::pair<std::string, std::string>> const& path_specs,
+      std::vector<std::string> const& trigger_names,
+      std::string const& process_name);
+    bool wantEvent(Event const&);
+    art::Handle<art::TriggerResults> getOneTriggerResults(Event const&);
+    void clearTriggerResults();
 
-    private: // Member Data -- Implementation details
-      std::vector<ProcessAndEventSelector> sel_;
-      bool loadDone_{false};
-      unsigned long numberFound_{};
-    };
-    class PVSentry {
-    public:
-      ~PVSentry();
-      explicit PVSentry(ProcessAndEventSelectors&);
-      PVSentry(PVSentry const&) = delete;
-      PVSentry(PVSentry&&) = delete;
-      PVSentry& operator=(PVSentry&&) = delete;
+  private: // Member Data -- Implementation details
+    std::vector<ProcessAndEventSelector> sel_;
+    bool loadDone_{false};
+    unsigned long numberFound_{};
+  };
+  class PVSentry {
+  public:
+    ~PVSentry();
+    explicit PVSentry(ProcessAndEventSelectors&);
+    PVSentry(PVSentry const&) = delete;
+    PVSentry(PVSentry&&) = delete;
+    PVSentry& operator=(PVSentry&&) = delete;
 
-    private:
-      ProcessAndEventSelectors& sel_;
-    };
-  } // namespace detail
-} // namespace art
+  private:
+    ProcessAndEventSelectors& sel_;
+  };
+} // namespace art::detail
 
 #endif /* art_Framework_Core_ProcessAndEventSelectors_h */
 

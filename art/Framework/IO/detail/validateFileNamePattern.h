@@ -3,10 +3,8 @@
 
 #include <string>
 
-namespace art {
-  namespace detail {
-    void validateFileNamePattern(bool do_check, std::string const& pattern);
-  }
+namespace art::detail {
+  void validateFileNamePattern(bool do_check, std::string const& pattern);
 }
 
 #endif /* art_Framework_IO_detail_validateFileNamePattern_h */

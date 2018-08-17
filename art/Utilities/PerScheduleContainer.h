@@ -14,8 +14,7 @@ namespace art {
   template <typename T>
   class PerScheduleContainer {
 
-    static_assert(ScheduleID::first().id() == 0,
-                  "First allowed ScheduleID value is not 0.");
+    static_assert(ScheduleID::first().id() == 0);
 
   public:
     PerScheduleContainer() = default;

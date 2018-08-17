@@ -7,17 +7,15 @@
 
 #include <string>
 
-namespace art {
-  namespace detail {
-    struct ModuleConfigInfo {
-      std::string moduleLabel;
-      std::string configTableName;
-      ModuleType moduleType;
-      ModuleThreadingType moduleThreadingType;
-      fhicl::ParameterSet modPS;
-      std::string libSpec;
-    };
-  }
+namespace art::detail {
+  struct ModuleConfigInfo {
+    std::string moduleLabel;
+    std::string configTableName;
+    ModuleType moduleType;
+    ModuleThreadingType moduleThreadingType;
+    fhicl::ParameterSet modPS;
+    std::string libSpec;
+  };
 }
 
 #endif /* art_Framework_Core_detail_ModuleConfigInfo_h */

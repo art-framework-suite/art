@@ -23,26 +23,24 @@
 #include <utility>
 #include <vector>
 
-namespace art {
-  namespace detail {
+namespace art::detail {
 
-    class FileNameComponents {
-    public:
-      void add(std::string const& prefix, std::string const& digitFormat);
+  class FileNameComponents {
+  public:
+    void add(std::string const& prefix, std::string const& digitFormat);
 
-      void setSuffix(std::string suffix);
+    void setSuffix(std::string suffix);
 
-      std::string fileNameWithIndex(std::size_t index) const;
+    std::string fileNameWithIndex(std::size_t index) const;
 
-      bool operator<(FileNameComponents const& fnc) const;
+    bool operator<(FileNameComponents const& fnc) const;
 
-    private:
-      std::vector<std::pair<std::string, std::string>> components_;
-      std::string suffix_{};
-    };
+  private:
+    std::vector<std::pair<std::string, std::string>> components_;
+    std::string suffix_{};
+  };
 
-    FileNameComponents componentsFromPattern(std::string const& pattern);
-  }
+  FileNameComponents componentsFromPattern(std::string const& pattern);
 }
 
 #endif /* art_Framework_IO_detail_FileNameComponents_h */

@@ -10,11 +10,9 @@
 
 #include "tbb/task.h"
 
-namespace art {
-  namespace detail {
-    class ScheduleTask;
-  }
-} // namespace art
+namespace art::detail {
+  class ScheduleTask;
+}
 
 class art::detail::ScheduleTask : public tbb::task {
 public:
