@@ -3,7 +3,6 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
-#include "art/Utilities/SAMMetadataTranslators.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/assert_only_one_thread.h"
 #include "cetlib/canonical_string.h"
@@ -17,8 +16,8 @@ IGNORE_FALLTHROUGH_START
 #include "rapidjson/error/en.h"
 IGNORE_FALLTHROUGH_END
 
+#include <set>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 using namespace std;
@@ -27,11 +26,19 @@ using namespace hep::concurrency;
 namespace art {
 
   namespace {
+    detail::OldToNew const oldToNew{};
+    set<string> const supported_sam_keys{
+      "file_name",  "file_type",   "file_size",      "checksum",
+      "crc",        "file_format", "content_status", "group",
+      "data_tier",  "event_count", "first_event",    "last_event",
+      "start_time", "end_time",    "file_partition", "application",
+      "process_id", "data_stream", "runs",           "lum_block_ranges",
+      "parents",    "params"};
 
     vector<string>
     maybeTranslate(vector<string> names)
     {
-      cet::transform_all(names, names.begin(), NewToOld{});
+      cet::transform_all(names, names.begin(), oldToNew);
       cet::sort_all(names);
       return names;
     }
@@ -39,9 +46,8 @@ namespace art {
     bool
     search_translated_all(vector<string> const& s, string const& md)
     {
-      return cet::search_all(s, NewToOld{}(md));
+      return cet::search_all(s, oldToNew(md));
     }
-
   } // unnamed namespace
 
   FileCatalogMetadata::FileCatalogMetadata(
@@ -51,12 +57,13 @@ namespace art {
   {
     string appFam;
     if (config().applicationFamily(appFam)) {
-      addMetadataString("applicationFamily", appFam);
+      addMetadataString("application.family", appFam);
     }
     string appVer;
     if (config().applicationVersion(appVer)) {
-      addMetadataString("applicationVersion", appVer);
+      addMetadataString("application.version", appVer);
     }
+
     // Always write out fileType -- either by inheriting from the input
     // file or by overriding via the FHiCL parameter "fileType".
     if (!search_translated_all(mdToInherit_, "file_type")) {
@@ -114,7 +121,15 @@ namespace art {
           << (nSpaces ? string(nSpaces, '-') : "") << "^\n";
       }
     }
-    md_.emplace_back(key, value);
+
+    // If a top-level key is supplied, make sure that it is allowed by
+    // SAM.  Otherwise, preface it with "art.".
+    if (key.find_first_of(".") == string::npos &&
+        supported_sam_keys.find(key) == cend(supported_sam_keys)) {
+      md_.emplace_back("art." + key, value);
+    } else {
+      md_.emplace_back(key, value);
+    }
   }
 
   void
@@ -129,9 +144,8 @@ namespace art {
     } else {
       imd_->check_values(mdFromInput);
     }
-    OldToNew const translator;
     for (auto const& pr : imd_->entries()) {
-      addMetadataString(translator(pr.first), pr.second);
+      addMetadataString(oldToNew(pr.first), pr.second);
     }
   }
 

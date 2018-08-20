@@ -301,12 +301,14 @@ art::FileCatalogOptionsHandler::doProcessOptions(
   } else {
     vector<string> md;
     if (vm.count("sam-inherit-file-type") > 0) {
-      md.emplace_back("fileType");
+      md.emplace_back("file_type");
       specifyDataTier = true;
       raw_config.erase(fhicl_key(fcmdLocation, "fileType"));
     }
     if (vm.count("sam-inherit-run-type") > 0) {
-      md.emplace_back("runType");
+      // 'run_type' is not supported by SAM as a top-level field; we
+      // thus preface it with 'art.'
+      md.emplace_back("art.run_type");
       raw_config.erase(fhicl_key(fcmdLocation, "runType"));
     }
     if (!md.empty()) {

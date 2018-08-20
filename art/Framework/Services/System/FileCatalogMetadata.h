@@ -4,7 +4,7 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
-#include "art/Utilities/SAMMetadataTranslators.h"
+#include "art/Framework/Services/System/detail/SAMMetadataTranslators.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/assert_only_one_thread.h"
 #include "cetlib/canonical_string.h"
@@ -100,7 +100,7 @@ namespace art {
       InheritedMetadata(std::vector<std::string> const& sortedMdToInherit,
                         collection_type const& coll)
       {
-        NewToOld const translator;
+        detail::OldToNew const translator;
         for (auto const& pr : coll) {
           if (cet::search_all(sortedMdToInherit, translator(pr.first))) {
             inputmd_.insert(pr);
