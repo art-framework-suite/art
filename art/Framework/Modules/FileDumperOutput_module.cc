@@ -3,7 +3,8 @@
 // FileDumperOutput.cc: "dump contents of a file"
 //
 // Proposed output format (Feature #941):
-// Process Name | Module Label | Process Label | Data Product type | size
+// Process Name | Module Label | Process Label | Data Product type | (ProductID
+// |) size
 //
 // ======================================================================
 
@@ -33,6 +34,7 @@ namespace art {
       std::string instance_name;
       std::string product_type;
       std::string friendly_type;
+      std::string product_id;
       std::string str_size;
     };
   } // namespace detail
@@ -51,13 +53,15 @@ namespace {
   {
     return "PROCESS NAME";
   }
+
   auto
   dummyInfo()
   {
-    return art::detail::ProductInfo{"MODULE_LABEL",
+    return art::detail::ProductInfo{"MODULE LABEL",
                                     "PRODUCT INSTANCE NAME",
                                     "DATA PRODUCT TYPE",
                                     "PRODUCT FRIENDLY TYPE",
+                                    "PRODUCT ID",
                                     "SIZE"};
   }
 
@@ -104,6 +108,7 @@ public:
     fhicl::Atom<bool> wantProductFriendlyClassName{
       fhicl::Name("wantProductFriendlyClassName"),
       wantProductFullClassName()};
+    fhicl::Atom<bool> wantProductID{fhicl::Name{"wantProductID"}, false};
     fhicl::Atom<bool> resolveProducts{fhicl::Name("resolveProducts"), true};
     fhicl::Atom<bool> onlyIfPresent{fhicl::Name("onlyIfPresent"), false};
   };
@@ -126,16 +131,18 @@ private:
                         std::string const& processName,
                         detail::ProductInfo const& pi) const;
 
-  bool wantProductFullClassName_;
-  bool wantProductFriendlyClassName_;
-  bool wantResolveProducts_;
-  bool wantPresentOnly_;
+  bool const wantProductFullClassName_;
+  bool const wantProductFriendlyClassName_;
+  bool const wantProductID_;
+  bool const wantResolveProducts_;
+  bool const wantPresentOnly_;
 }; // FileDumperOutput
 
 art::FileDumperOutput::FileDumperOutput(Parameters const& ps)
   : OutputModule{ps().omConfig, ps.get_PSet()}
   , wantProductFullClassName_{ps().wantProductFullClassName()}
   , wantProductFriendlyClassName_{ps().wantProductFriendlyClassName()}
+  , wantProductID_{ps().wantProductID()}
   , wantResolveProducts_{ps().resolveProducts()}
   , wantPresentOnly_{ps().onlyIfPresent()}
 {}
@@ -181,8 +188,8 @@ art::FileDumperOutput::printPrincipal(P const& p)
 
   for (auto const& pr : p) {
     auto const& g = *pr.second;
-    auto const& oh =
-      p.getForOutput(g.productDescription().productID(), wantResolveProducts_);
+    auto const& pd = g.productDescription();
+    auto const& oh = p.getForOutput(pd.productID(), wantResolveProducts_);
 
     EDProduct const* product = oh.isValid() ? oh.wrapper() : nullptr;
     bool const productPresent = product != nullptr && product->isPresent();
@@ -194,14 +201,13 @@ art::FileDumperOutput::printPrincipal(P const& p)
     }
 
     if (!wantPresentOnly_ || productPresent) {
-      auto pi =
-        detail::ProductInfo{g.productDescription().moduleLabel(),
-                            g.productDescription().productInstanceName(),
-                            g.productDescription().producedClassName(),
-                            g.productDescription().friendlyClassName(),
-                            product_size(product, productPresent)};
-      products[g.productDescription().processName()].emplace_back(
-        std::move(pi));
+      auto pi = detail::ProductInfo{pd.moduleLabel(),
+                                    pd.productInstanceName(),
+                                    pd.producedClassName(),
+                                    pd.friendlyClassName(),
+                                    std::to_string(pd.productID().value()),
+                                    product_size(product, productPresent)};
+      products[pd.processName()].emplace_back(std::move(pi));
     }
   }
 
@@ -218,6 +224,7 @@ art::FileDumperOutput::printPrincipal(P const& p)
       products, &detail::ProductInfo::product_type, dinfo.product_type),
     columnWidth(
       products, &detail::ProductInfo::friendly_type, dinfo.friendly_type),
+    columnWidth(products, &detail::ProductInfo::product_id, dinfo.product_id),
     columnWidth(products, &detail::ProductInfo::str_size, dinfo.str_size)};
 
   // Print banner
@@ -243,11 +250,16 @@ art::FileDumperOutput::printProductInfo(std::vector<std::size_t> const& widths,
   oss << cet::rpad(processName, widths[0], '.') << " | "
       << cet::rpad(pi.module_label, widths[1], '.') << " | "
       << cet::rpad(pi.instance_name, widths[2], '.') << " | ";
-  if (wantProductFullClassName_)
+  if (wantProductFullClassName_) {
     oss << cet::rpad(pi.product_type, widths[3], '.') << " | ";
-  if (wantProductFriendlyClassName_)
+  }
+  if (wantProductFriendlyClassName_) {
     oss << cet::rpad(pi.friendly_type, widths[4], '.') << " | ";
-  oss << cet::lpad(pi.str_size, widths[5], '.');
+  }
+  if (wantProductID_) {
+    oss << cet::rpad(pi.product_id, widths[5], '.') << " | ";
+  }
+  oss << cet::lpad(pi.str_size, widths[6], '.');
   std::cout << oss.str() << '\n';
 }
 
