@@ -27,14 +27,6 @@ namespace art {
 
   namespace {
     detail::OldToNew const oldToNew{};
-    set<string> const supported_sam_keys{
-      "file_name",  "file_type",   "file_size",      "checksum",
-      "crc",        "file_format", "content_status", "group",
-      "data_tier",  "event_count", "first_event",    "last_event",
-      "start_time", "end_time",    "file_partition", "application",
-      "process_id", "data_stream", "runs",           "lum_block_ranges",
-      "parents",    "params"};
-
     vector<string>
     maybeTranslate(vector<string> names)
     {
@@ -72,7 +64,7 @@ namespace art {
     string rt;
     if (!search_translated_all(mdToInherit_, "run_type") &&
         config().runType(rt)) {
-      addMetadataString("run_type", rt);
+      addMetadataString("art.run_type", rt);
     }
     string grp;
     if (config().group(grp)) {
@@ -87,7 +79,6 @@ namespace art {
   bool
   FileCatalogMetadata::wantCheckSyntax() const
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
     return checkSyntax_;
   }
 
@@ -121,15 +112,7 @@ namespace art {
           << (nSpaces ? string(nSpaces, '-') : "") << "^\n";
       }
     }
-
-    // If a top-level key is supplied, make sure that it is allowed by
-    // SAM.  Otherwise, preface it with "art.".
-    if (key.find_first_of(".") == string::npos &&
-        supported_sam_keys.find(key) == cend(supported_sam_keys)) {
-      md_.emplace_back("art." + key, value);
-    } else {
-      md_.emplace_back(key, value);
-    }
+    md_.emplace_back(key, value);
   }
 
   void

@@ -14,8 +14,8 @@ namespace art {
     oldToNewName()
     {
       return {{"fileType", "file_type"},
-          {"dataTier", "data_tier"},
-            {"streamName", "data_stream"},
+              {"dataTier", "data_tier"},
+              {"streamName", "data_stream"},
               {"runType", "run_type"}};
     }
 

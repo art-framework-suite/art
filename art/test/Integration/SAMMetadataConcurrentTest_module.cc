@@ -22,7 +22,7 @@ namespace {
     art::FileCatalogMetadata::collection_type result;
     for (unsigned i{}; i != 10; ++i) {
       auto const str_index = std::to_string(i);
-      result.emplace_back("art.k" + str_index, "v" + str_index);
+      result.emplace_back("k" + str_index, "v" + str_index);
     }
     return result;
   }
@@ -76,7 +76,8 @@ namespace {
       coll.erase(file_type_it);
 
       auto process_name_it = cet::find_in_all(
-        coll, value_type{"art.process_name", cet::canonical_string(process_name)});
+        coll,
+        value_type{"art.process_name", cet::canonical_string(process_name)});
       BOOST_REQUIRE(process_name_it != coll.cend());
       coll.erase(process_name_it);
 

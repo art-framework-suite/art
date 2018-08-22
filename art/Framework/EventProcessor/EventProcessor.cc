@@ -174,7 +174,7 @@ namespace art {
     // create them.
     servicesManager_->forceCreation();
     ServiceHandle<FileCatalogMetadata> {}
-    ->addMetadataString("process_name", processName);
+    ->addMetadataString("art.process_name", processName);
 
     // Now that the service module instances have been created we can
     // set the callbacks, set the module description, and register the
