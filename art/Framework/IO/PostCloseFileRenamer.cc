@@ -24,6 +24,14 @@ namespace {
     "%[lp]|%(\\d+)?([#rRsS])|%t([ocrRsS])|%if([bnedp])|%"
     "ifs%([^%]*)%([^%]*)%([ig]*)%|%.",
     ECMAScript};
+  std::string
+  to_string(art::Timestamp const ts)
+  {
+    if (ts == art::Timestamp::invalidTimestamp()) {
+      return "-";
+    }
+    return art::to_iso_string_assuming_unix_epoch(ts);
+  }
 }
 
 art::PostCloseFileRenamer::PostCloseFileRenamer(FileStatsCollector const& stats)
@@ -181,18 +189,16 @@ art::PostCloseFileRenamer::subTimestamp_(boost::smatch const& match) const
       result = boost::posix_time::to_iso_string(stats_.outputFileCloseTime());
       break;
     case 'r': // Start of Run with lowest number.
-      result = to_iso_string_assuming_unix_epoch(stats_.lowestRunStartTime());
+      result = to_string(stats_.lowestRunStartTime());
       break;
     case 'R': // Start of Run with highest number.
-      result = to_iso_string_assuming_unix_epoch(stats_.highestRunStartTime());
+      result = to_string(stats_.highestRunStartTime());
       break;
     case 's': // Start of SubRun with lowest number.
-      result =
-        to_iso_string_assuming_unix_epoch(stats_.lowestSubRunStartTime());
+      result = to_string(stats_.lowestSubRunStartTime());
       break;
     case 'S': // Start of SubRun with highest number.
-      result =
-        to_iso_string_assuming_unix_epoch(stats_.highestSubRunStartTime());
+      result = to_string(stats_.highestSubRunStartTime());
       break;
     default: // INTERNAL ERROR.
       throw Exception(errors::LogicError)

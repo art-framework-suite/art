@@ -28,8 +28,10 @@ public:
   void recordFileOpen();
   void recordInputFile(std::string const& inputFileName);
   void recordEvent(EventID const& id);
-  void recordRun(RunID const& id, Timestamp const startTime = Timestamp::invalidTimestamp());
-  void recordSubRun(SubRunID const& id, Timestamp const startTime = Timestamp::invalidTimestamp());
+  void recordRun(RunID const& id,
+                 Timestamp const startTime = Timestamp::invalidTimestamp());
+  void recordSubRun(SubRunID const& id,
+                    Timestamp const startTime = Timestamp::invalidTimestamp());
   void recordFileClose();
 
   std::string const& moduleLabel() const;

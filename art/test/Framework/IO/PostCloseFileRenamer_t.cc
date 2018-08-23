@@ -4,6 +4,7 @@
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/PostCloseFileRenamer.h"
 #include "boost/filesystem.hpp"
+#include "canvas/Persistency/Provenance/Timestamp.h"
 
 extern "C" {
 #include <sys/stat.h> // mkdir().
@@ -25,12 +26,16 @@ namespace {
   TestFixture::simulateJob()
   {
     fstats.recordFileOpen();
-    std::vector<art::EventID> eIDs{{1, 0, 7}, {1, 1, 3}, {2, 3, 1}};
-    for (auto const& eID : eIDs) {
-      fstats.recordEvent(eID);
-      fstats.recordSubRun(eID.subRunID());
-      fstats.recordRun(eID.runID());
-    }
+    art::EventID const e1{1, 0, 7};
+    fstats.recordEvent(e1);
+    fstats.recordSubRun(e1.subRunID());
+    art::EventID const e2{1, 1, 3};
+    fstats.recordEvent(e2);
+    fstats.recordSubRun(e2.subRunID(), art::Timestamp::invalidTimestamp());
+    fstats.recordRun(e2.runID(), art::Timestamp{123});
+    art::EventID const e3{2, 3, 1};
+    fstats.recordSubRun(e3.subRunID(), art::Timestamp{123457});
+    fstats.recordRun(e3.runID(), art::Timestamp{123456});
     fstats.recordFileClose();
   }
 
@@ -106,6 +111,20 @@ BOOST_AUTO_TEST_CASE(Runs_subruns)
   BOOST_CHECK_EQUAL(fr.applySubstitutions(pattern), "07_00_7_5"s);
   fstats.recordRun(art::RunID{9});
   BOOST_CHECK_EQUAL(fr.applySubstitutions(pattern), "07_00_9_-"s);
+}
+
+BOOST_AUTO_TEST_CASE(StartTimesRunsSubruns)
+{
+  PostCloseFileRenamer fr{fstats};
+  BOOST_CHECK_EQUAL(fr.applySubstitutions("r%r:%tr"), "r-:-"s);
+  BOOST_CHECK_EQUAL(fr.applySubstitutions("s%s:%ts"), "s-:-"s);
+  BOOST_CHECK_EQUAL(fr.applySubstitutions("R%R:%tR"), "R-:-"s);
+  BOOST_CHECK_EQUAL(fr.applySubstitutions("S%S:%tS"), "S-:-"s);
+  simulateJob();
+  BOOST_CHECK_EQUAL(fr.applySubstitutions("r%r:%tr"), "r1:19700101T000203"s);
+  BOOST_CHECK_EQUAL(fr.applySubstitutions("s%s:%ts"), "s0:-"s);
+  BOOST_CHECK_EQUAL(fr.applySubstitutions("R%R:%tR"), "R2:19700102T101736"s);
+  BOOST_CHECK_EQUAL(fr.applySubstitutions("S%S:%tS"), "S3:19700102T101737"s);
 }
 
 BOOST_AUTO_TEST_CASE(SeqNo1)
