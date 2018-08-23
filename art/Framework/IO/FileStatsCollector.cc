@@ -33,43 +33,53 @@ void
 art::FileStatsCollector::recordEvent(EventID const& id)
 {
   ++nEvents_;
-  // Actually saw a real event that we've been asked to write, so
-  // EventID should be valid.
-  if (!lowestEventIDSeen_.isValid() || id < lowestEventIDSeen_) {
+  if (!lowestEventIDSeen_.isValid()) {
+    lowestEventIDSeen_ = highestEventIDSeen_ = id;
+  } else if (id < lowestEventIDSeen_) {
     lowestEventIDSeen_ = id;
-  }
-  if (id > highestEventIDSeen_) {
-    // Sort-invalid-first gives the correct answer.
+  } else if (id > highestEventIDSeen_) {
     highestEventIDSeen_ = id;
   }
-  // Record that we have seen this SubRunID too.
-  recordSubRun(id.subRunID());
 }
 
 void
-art::FileStatsCollector::recordRun(RunID const& id)
+art::FileStatsCollector::recordRun(RunID const& id, Timestamp const ts)
 {
-  if ((!lowestSubRun_.runID().isValid()) || id < lowestSubRun_.runID()) {
-    lowestSubRun_ = SubRunID::invalidSubRun(id);
+  if (!lowestRun_.isValid()) {
+    lowestRun_ = highestRun_ = id;
+    lowestRunStartTime_ = highestRunStartTime_ = ts;
+    return;
   }
-  if (id > highestSubRun_.runID()) {
-    // Sort-invalid-first gives the correct answer.
-    highestSubRun_ = SubRunID::invalidSubRun(id);
+
+  if (id < lowestRun_) {
+    lowestRun_ = id;
+    lowestRunStartTime_ = ts;
+    if (lowestSubRun_.runID() != lowestRun_) {
+      lowestSubRun_ = SubRunID{};
+      lowestSubRunStartTime_ = Timestamp::invalidTimestamp();
+    }
+  } else if (id > highestRun_) {
+    highestRun_ = id;
+    highestRunStartTime_ = ts;
+    if (highestSubRun_.runID() != highestRun_) {
+      highestSubRun_ = SubRunID{};
+      highestSubRunStartTime_ = Timestamp::invalidTimestamp();
+    }
   }
 }
 
 void
-art::FileStatsCollector::recordSubRun(SubRunID const& id)
+art::FileStatsCollector::recordSubRun(SubRunID const& id, Timestamp const ts)
 {
-  recordRun(id.runID());
-  if (id.runID() == lowestSubRun_.runID() &&
-      (id.isValid() && ((!lowestSubRun_.isValid()) || // No valid subrun yet.
-                        id < lowestSubRun_))) {
+  if (!lowestSubRun_.isValid()) {
+    lowestSubRun_ = highestSubRun_ = id;
+    lowestSubRunStartTime_ = highestSubRunStartTime_ = ts;
+  } else if (id < lowestSubRun_) {
     lowestSubRun_ = id;
-  }
-  if (id > highestSubRun_) {
-    // Sort-invalid-first gives the correct answer.
+    lowestSubRunStartTime_ = ts;
+  } else if (id > highestSubRun_) {
     highestSubRun_ = id;
+    highestSubRunStartTime_ = ts;
   }
   subRunsSeen_.emplace(id);
 }
@@ -82,7 +92,7 @@ art::FileStatsCollector::recordFileClose()
 }
 
 std::vector<std::string>
-art::FileStatsCollector::parents(bool want_basename) const
+art::FileStatsCollector::parents(bool const want_basename) const
 {
   std::vector<std::string> result;
   if (want_basename) {
@@ -100,7 +110,8 @@ art::FileStatsCollector::parents(bool want_basename) const
 void
 art::FileStatsCollector::resetStatistics_()
 {
-  fo_ = fc_ = boost::posix_time::ptime();
+  fo_ = fc_ = boost::posix_time::ptime{};
+  lowestRun_ = highestRun_ = RunID{};
   lowestSubRun_ = highestSubRun_ = SubRunID{};
   inputFilesSeen_.clear();
   nEvents_ = 0ul;

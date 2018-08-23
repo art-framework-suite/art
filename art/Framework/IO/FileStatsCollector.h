@@ -9,6 +9,7 @@
 
 #include "boost/date_time/posix_time/posix_time_types.hpp"
 #include "canvas/Persistency/Provenance/EventID.h"
+#include "canvas/Persistency/Provenance/Timestamp.h"
 
 #include <cstddef> // For std::size_t.
 #include <set>
@@ -27,14 +28,20 @@ public:
   void recordFileOpen();
   void recordInputFile(std::string const& inputFileName);
   void recordEvent(EventID const& id);
-  void recordRun(RunID const& id);
-  void recordSubRun(SubRunID const& id);
+  void recordRun(RunID const& id, Timestamp const startTime = Timestamp::invalidTimestamp());
+  void recordSubRun(SubRunID const& id, Timestamp const startTime = Timestamp::invalidTimestamp());
   void recordFileClose();
 
   std::string const& moduleLabel() const;
   std::string const& processName() const;
   boost::posix_time::ptime outputFileOpenTime() const;
   boost::posix_time::ptime outputFileCloseTime() const;
+  Timestamp lowestRunStartTime() const;
+  Timestamp highestRunStartTime() const;
+  Timestamp lowestSubRunStartTime() const;
+  Timestamp highestSubRunStartTime() const;
+  RunID lowestRunID() const;
+  RunID highestRunID() const;
   SubRunID const& lowestSubRunID() const;
   SubRunID const& highestSubRunID() const;
   EventID const& lowestEventID() const;
@@ -50,12 +57,18 @@ private:
 
   std::string const moduleLabel_;
   std::string const processName_;
+  RunID lowestRun_{};
+  RunID highestRun_{};
   SubRunID lowestSubRun_{};
   SubRunID highestSubRun_{};
   EventID lowestEventIDSeen_{};
   EventID highestEventIDSeen_{};
   boost::posix_time::ptime fo_{};
   boost::posix_time::ptime fc_{};
+  Timestamp lowestRunStartTime_{};
+  Timestamp highestRunStartTime_{};
+  Timestamp lowestSubRunStartTime_{};
+  Timestamp highestSubRunStartTime_{};
   bool fileCloseRecorded_{false};
   std::string lastOpenedInputFile_{};
   std::vector<std::string> inputFilesSeen_{};
@@ -85,6 +98,42 @@ inline boost::posix_time::ptime
 art::FileStatsCollector::outputFileCloseTime() const
 {
   return fc_;
+}
+
+inline art::Timestamp
+art::FileStatsCollector::lowestRunStartTime() const
+{
+  return lowestRunStartTime_;
+}
+
+inline art::Timestamp
+art::FileStatsCollector::highestRunStartTime() const
+{
+  return highestRunStartTime_;
+}
+
+inline art::Timestamp
+art::FileStatsCollector::lowestSubRunStartTime() const
+{
+  return lowestSubRunStartTime_;
+}
+
+inline art::Timestamp
+art::FileStatsCollector::highestSubRunStartTime() const
+{
+  return highestSubRunStartTime_;
+}
+
+inline art::RunID
+art::FileStatsCollector::lowestRunID() const
+{
+  return lowestRun_;
+}
+
+inline art::RunID
+art::FileStatsCollector::highestRunID() const
+{
+  return highestRun_;
 }
 
 inline art::SubRunID const&

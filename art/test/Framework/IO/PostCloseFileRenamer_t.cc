@@ -28,6 +28,8 @@ namespace {
     std::vector<art::EventID> eIDs{{1, 0, 7}, {1, 1, 3}, {2, 3, 1}};
     for (auto const& eID : eIDs) {
       fstats.recordEvent(eID);
+      fstats.recordSubRun(eID.subRunID());
+      fstats.recordRun(eID.runID());
     }
     fstats.recordFileClose();
   }
@@ -99,6 +101,8 @@ BOOST_AUTO_TEST_CASE(Runs_subruns)
   fstats.recordSubRun(art::SubRunID{7, 0});
   BOOST_CHECK_EQUAL(fr.applySubstitutions(pattern), "07_00_7_0"s);
   fstats.recordSubRun(art::SubRunID{7, 5});
+  BOOST_CHECK_EQUAL(fr.applySubstitutions(pattern), "07_00_7_5"s);
+  fstats.recordRun(art::RunID{7});
   BOOST_CHECK_EQUAL(fr.applySubstitutions(pattern), "07_00_7_5"s);
   fstats.recordRun(art::RunID{9});
   BOOST_CHECK_EQUAL(fr.applySubstitutions(pattern), "07_00_9_-"s);
