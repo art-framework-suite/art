@@ -1,6 +1,0 @@
-# See notes in the included FHiCL file.
-
-#include "getProductsCrossPaths_t1.fcl"
-
-physics.producers.m1.inputTag: "m2::current_process"
-physics.producers.m2.inputTag: "m1::current_process"

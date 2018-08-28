@@ -1,2 +1,0 @@
-#include "signal_base.fcl"
-physics.analyzers.pa.signal: SIGQUIT

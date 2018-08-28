@@ -1,3 +1,0 @@
-process_name: AssnsWrongPut
-physics.producers.assnsPutter.module_type: AssnsWrongPut
-physics.p1: [assnsPutter]

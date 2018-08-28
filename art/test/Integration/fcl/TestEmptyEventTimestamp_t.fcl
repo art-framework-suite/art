@@ -1,9 +1,0 @@
-process_name: DEVEL
-
-source: {
-  module_type: EmptyEvent
-  timestampPlugin: { plugin_type: TestEmptyEventTimestamp }
-  numberEventsInRun: 4
-  numberEventsInSubRun: 2
-  maxEvents: 6
-}

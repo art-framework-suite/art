@@ -1,9 +1,0 @@
-BEGIN_PROLOG
-standard_configuration: {
-  FluxType: mono
-  FluxFile: "standard_filename"
-}
-my_new_configuration: @local::standard_configuration
-my_new_configuration.FluxFile: "new_filename"
-
-END_PROLOG

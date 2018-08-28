@@ -1,8 +1,0 @@
-services.Tracer: {}
-
-physics.analyzers.pa: {
-  module_type: SigIntAnalyzer
-  signal: @nil
-}
-
-physics.p1: [ pa ]

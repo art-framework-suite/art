@@ -1,8 +1,0 @@
-source.module_type: EmptyEvent
-source.maxEvents: 7
-
-physics.analyzers.a1: {
-  module_type: ThrowingAnalyzer
-  throwAfter: 5
-}
-physics.e1: [a1]
