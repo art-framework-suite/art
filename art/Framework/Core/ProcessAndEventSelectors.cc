@@ -24,7 +24,7 @@ namespace art::detail {
 
   ProcessAndEventSelector::ProcessAndEventSelector(string const& nm,
                                                    EventSelector const& es)
-    : processNameSelector_{nm}, eventSelector_{es}, triggerResults_{}
+    : processNameSelector_{nm}, eventSelector_{es}
   {}
 
   void
@@ -51,11 +51,8 @@ namespace art::detail {
     return eventSelector_.acceptEvent(*triggerResults_);
   }
 
-  ProcessAndEventSelectors::~ProcessAndEventSelectors() {}
-
-  ProcessAndEventSelectors::ProcessAndEventSelectors()
-    : sel_{}, loadDone_{false}, numberFound_{}
-  {}
+  ProcessAndEventSelectors::~ProcessAndEventSelectors() = default;
+  ProcessAndEventSelectors::ProcessAndEventSelectors() = default;
 
   void
   ProcessAndEventSelectors::setupDefault(
@@ -64,7 +61,7 @@ namespace art::detail {
     // Setup to accept everything.
     vector<string> paths;
     EventSelector es{paths, trigger_path_names};
-    sel_.emplace_back(""s, es);
+    sel_.emplace_back(""s, std::move(es));
   }
 
   void
@@ -82,9 +79,7 @@ namespace art::detail {
     }
     // Now go through all the process names found, and create an event
     // selector for each one.
-    for (auto const& pr : paths_for_process) {
-      auto const& pname = pr.first;
-      auto const& paths = pr.second;
+    for (auto const & [pname, paths] : paths_for_process) {
       if (pname == process_name) {
         // For the passed process name we have been given the trigger names.
         sel_.emplace_back(pname, EventSelector{paths, triggernames});

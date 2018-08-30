@@ -12,18 +12,18 @@
 #include <vector>
 
 namespace art {
-  namespace evtSel {
-    // possible return codes for the testSelectionOverlap
-    // method defined below.
-    enum OverlapResult {
-      InvalidSelection = 0,
-      NoOverlap = 1,
-      PartialOverlap = 2,
-      ExactMatch = 3
-    };
-  } // namespace evtSel
   class EventSelector {
-  private: // TYPES
+  public:
+    EventSelector(std::vector<std::string> const& pathspecs,
+                  std::vector<std::string> const& trigger_path_names);
+    explicit EventSelector(std::vector<std::string> const& pathspecs);
+
+    bool wantAll() const;
+    bool acceptEvent(TriggerResults const&);
+    std::shared_ptr<TriggerResults> maskTriggerResults(
+      TriggerResults const& inputResults);
+
+  private:
     struct BitInfo {
       BitInfo(unsigned const pos, bool const state)
         : pos_{pos}, accept_state_{state}
@@ -32,18 +32,6 @@ namespace art {
       bool accept_state_{false};
     };
 
-  public: // Special Member Functions
-    EventSelector(std::vector<std::string> const& pathspecs,
-                  std::vector<std::string> const& trigger_path_names);
-    explicit EventSelector(std::vector<std::string> const& pathspecs);
-
-  public: // API
-    bool wantAll() const;
-    bool acceptEvent(TriggerResults const&);
-    std::shared_ptr<TriggerResults> maskTriggerResults(
-      TriggerResults const& inputResults);
-
-  private: // Member Functions -- Implementation details
     void init(std::vector<std::string> const& paths,
               std::vector<std::string> const& triggernames);
     bool acceptOneBit(std::vector<BitInfo> const&,
@@ -54,7 +42,6 @@ namespace art {
     bool containsExceptions(HLTGlobalStatus const&) const;
     bool selectionDecision(HLTGlobalStatus const&) const;
 
-  private: // Member Functions -- Static interface -- Implementation details
     static std::vector<std::vector<std::string>::const_iterator>
     matching_triggers(std::vector<std::string> const& trigs,
                       std::string const&);
@@ -70,7 +57,6 @@ namespace art {
     static std::vector<bool> combine(std::vector<bool> const&,
                                      std::vector<bool> const&);
 
-  private: // MEMBER DATA -- Implementation details
     bool accept_all_{false};
     std::vector<BitInfo> absolute_acceptors_{};
     std::vector<BitInfo> conditional_acceptors_{};

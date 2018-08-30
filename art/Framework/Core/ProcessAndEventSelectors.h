@@ -16,26 +16,26 @@
 namespace art::detail {
   // Match events based on the trigger results from a given process name.
   class ProcessAndEventSelector {
-  public: // Special Member Functions
+  public:
     ~ProcessAndEventSelector();
     explicit ProcessAndEventSelector(std::string const& process,
                                      EventSelector const&);
 
-  public: // API
     void loadTriggerResults(Event const&);
     art::Handle<art::TriggerResults> triggerResults() const;
     bool match();
     void clearTriggerResults();
 
-  private: // Member Data -- Implementation details
+  private:
     ProcessNameSelector processNameSelector_;
     EventSelector eventSelector_;
-    art::Handle<art::TriggerResults> triggerResults_;
+    art::Handle<art::TriggerResults> triggerResults_{};
   };
+
   // Handle the SelectEvents configuration parameter
   // of modules on the end path.
   class ProcessAndEventSelectors {
-  public: // Special Member Functions
+  public:
     ~ProcessAndEventSelectors();
     ProcessAndEventSelectors();
     ProcessAndEventSelectors(ProcessAndEventSelectors const&) = delete;
@@ -44,7 +44,6 @@ namespace art::detail {
       delete;
     ProcessAndEventSelectors& operator=(ProcessAndEventSelectors&&) = delete;
 
-  public: // API
     void setupDefault(std::vector<std::string> const& trigger_names);
     void setup(
       std::vector<std::pair<std::string, std::string>> const& path_specs,
@@ -54,11 +53,12 @@ namespace art::detail {
     art::Handle<art::TriggerResults> getOneTriggerResults(Event const&);
     void clearTriggerResults();
 
-  private: // Member Data -- Implementation details
-    std::vector<ProcessAndEventSelector> sel_;
+  private:
+    std::vector<ProcessAndEventSelector> sel_{};
     bool loadDone_{false};
     unsigned long numberFound_{};
   };
+
   class PVSentry {
   public:
     ~PVSentry();

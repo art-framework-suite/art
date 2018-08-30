@@ -28,35 +28,12 @@ namespace art {
 
   EventSelector::EventSelector(vector<string> const& pathspecs,
                                vector<string> const& trigger_path_names)
-    : accept_all_{false}
-    , absolute_acceptors_{}
-    , conditional_acceptors_{}
-    , exception_acceptors_{}
-    , all_must_fail_{}
-    , all_must_fail_noex_{}
-    , force_results_from_current_process_{true}
-    , psetID_initialized_{false}
-    , psetID_{}
-    , pathspecs_{}
-    , nTriggerNames_{0}
-    , notStarPresent_{false}
   {
     init(pathspecs, trigger_path_names);
   }
 
   EventSelector::EventSelector(vector<string> const& pathspecs)
-    : accept_all_{false}
-    , absolute_acceptors_{}
-    , conditional_acceptors_{}
-    , exception_acceptors_{}
-    , all_must_fail_{}
-    , all_must_fail_noex_{}
-    , force_results_from_current_process_{false}
-    , psetID_initialized_{false}
-    , psetID_{}
-    , pathspecs_(pathspecs)
-    , nTriggerNames_{0}
-    , notStarPresent_{false}
+    : force_results_from_current_process_{false}, pathspecs_{pathspecs}
   {}
 
   bool

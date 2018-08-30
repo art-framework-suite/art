@@ -18,8 +18,16 @@
 
 namespace art {
   class ModuleDescription;
+
   class Observer : public ModuleBase {
-  protected: // TYPES
+  public:
+    ~Observer() noexcept;
+    Observer(Observer const&) = delete;
+    Observer(Observer&&) = delete;
+    Observer& operator=(Observer const&) = delete;
+    Observer& operator=(Observer&&) = delete;
+
+  protected:
     struct EOConfig {
       fhicl::Sequence<std::string> selectEvents{
         fhicl::Name("SelectEvents"),
@@ -28,14 +36,6 @@ namespace art {
         std::vector<std::string>{}};
     };
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    ~Observer() noexcept;
-    Observer(Observer const&) = delete;
-    Observer(Observer&&) = delete;
-    Observer& operator=(Observer const&) = delete;
-    Observer& operator=(Observer&&) = delete;
-
-  protected: // MEMBER FUNCTIONS -- Special Member Functions
     explicit Observer(fhicl::ParameterSet const& config);
     explicit Observer(std::vector<std::string> const& paths,
                       fhicl::ParameterSet const& config);
@@ -54,10 +54,9 @@ namespace art {
   protected:
     detail::ProcessAndEventSelectors& processAndEventSelectors();
 
-  private: // MEMBER FUNCTIONS -- Implementation details.
+  private:
     void init_(std::vector<std::string> const& paths);
 
-  private: // MEMBER DATA
     // True if no selectors configured.
     bool wantAllEvents_{false};
     // The process and event selectors, as specified by the SelectEvents
