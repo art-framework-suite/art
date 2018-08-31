@@ -1,5 +1,5 @@
-#ifndef art_Utilities_SAMMetadataTranslators_h
-#define art_Utilities_SAMMetadataTranslators_h
+#ifndef art_Framework_Services_System_detail_SAMMetadataTranslators_h
+#define art_Framework_Services_System_detail_SAMMetadataTranslators_h
 
 #include <map>
 #include <string>
@@ -35,7 +35,7 @@ namespace art {
   } // namespace detail
 } // namespace art
 
-#endif /* art_Utilities_SAMMetadataTranslators_h */
+#endif /* art_Framework_Services_System_detail_SAMMetadataTranslators_h */
 
 // Local variables:
 // mode: c++
