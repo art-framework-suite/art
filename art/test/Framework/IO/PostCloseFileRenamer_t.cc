@@ -11,8 +11,12 @@ extern "C" {
 #include <unistd.h>   // chdir().
 }
 
+#include <chrono>
+#include <thread>
+
 using art::FileStatsCollector;
 using art::PostCloseFileRenamer;
+using namespace std::chrono_literals;
 using namespace std::string_literals;
 
 namespace {
@@ -29,13 +33,15 @@ namespace {
     art::EventID const e1{1, 0, 7};
     fstats.recordEvent(e1);
     fstats.recordSubRun(e1.subRunID());
+    // Warning, this sleep is used for multiple tests below.
+    std::this_thread::sleep_for(1s);
     art::EventID const e2{1, 1, 3};
     fstats.recordEvent(e2);
-    fstats.recordSubRun(e2.subRunID(), art::Timestamp::invalidTimestamp());
-    fstats.recordRun(e2.runID(), art::Timestamp{123});
-    art::EventID const e3{2, 3, 1};
-    fstats.recordSubRun(e3.subRunID(), art::Timestamp{123457});
-    fstats.recordRun(e3.runID(), art::Timestamp{123456});
+    fstats.recordSubRun(e2.subRunID());
+    fstats.recordRun(e2.runID());
+    art::SubRunID const sr{2, 3};
+    fstats.recordSubRun(sr);
+    fstats.recordRun(sr.runID());
     fstats.recordFileClose();
   }
 
@@ -73,7 +79,7 @@ BOOST_AUTO_TEST_CASE(resetFileOpen)
   PostCloseFileRenamer fr{fstats};
   std::string const pattern{"%to"};
   auto const before = fr.applySubstitutions(pattern);
-  sleep(1);
+  std::this_thread::sleep_for(1s);
   fstats.recordFileOpen();
   fstats.recordFileClose();
   auto const after = fr.applySubstitutions(pattern);
@@ -116,15 +122,15 @@ BOOST_AUTO_TEST_CASE(Runs_subruns)
 BOOST_AUTO_TEST_CASE(StartTimesRunsSubruns)
 {
   PostCloseFileRenamer fr{fstats};
-  BOOST_CHECK_EQUAL(fr.applySubstitutions("r%r:%tr"), "r-:-"s);
-  BOOST_CHECK_EQUAL(fr.applySubstitutions("s%s:%ts"), "s-:-"s);
-  BOOST_CHECK_EQUAL(fr.applySubstitutions("R%R:%tR"), "R-:-"s);
-  BOOST_CHECK_EQUAL(fr.applySubstitutions("S%S:%tS"), "S-:-"s);
+  BOOST_CHECK_EQUAL(fr.applySubstitutions("%tr"), "-"s);
+  BOOST_CHECK_EQUAL(fr.applySubstitutions("%ts"), "-"s);
+  BOOST_CHECK_EQUAL(fr.applySubstitutions("%tR"), "-"s);
+  BOOST_CHECK_EQUAL(fr.applySubstitutions("%tS"), "-"s);
   simulateJob();
-  BOOST_CHECK_EQUAL(fr.applySubstitutions("r%r:%tr"), "r1:19700101T000203"s);
-  BOOST_CHECK_EQUAL(fr.applySubstitutions("s%s:%ts"), "s0:-"s);
-  BOOST_CHECK_EQUAL(fr.applySubstitutions("R%R:%tR"), "R2:19700102T101736"s);
-  BOOST_CHECK_EQUAL(fr.applySubstitutions("S%S:%tS"), "S3:19700102T101737"s);
+  BOOST_CHECK_NE(fr.applySubstitutions("%tr"), "-"s);
+  BOOST_CHECK_NE(fr.applySubstitutions("%ts"), "-"s);
+  BOOST_CHECK_NE(fr.applySubstitutions("%tR"), "-"s);
+  BOOST_CHECK_NE(fr.applySubstitutions("%tS"), "-"s);
 }
 
 BOOST_AUTO_TEST_CASE(SeqNo1)

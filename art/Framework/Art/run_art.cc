@@ -304,10 +304,12 @@ namespace art {
     // space devoted to per-thread heaps!!!
     mallopt(M_ARENA_MAX, 1);
 #endif // __linux__
-    auto const& services_pset =
+
+    auto const services_pset =
       main_pset.get<fhicl::ParameterSet>("services", {});
-    auto const& scheduler_pset =
+    auto const scheduler_pset =
       services_pset.get<fhicl::ParameterSet>("scheduler", {});
+
     // Handle early configuration-debugging
     auto const debug_processing_mode =
       maybe_output_config(main_pset, scheduler_pset);

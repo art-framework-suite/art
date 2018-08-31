@@ -4,6 +4,11 @@
 
 #include <string>
 
+using boost::posix_time::ptime;
+namespace {
+  auto now = boost::posix_time::second_clock::universal_time;
+}
+
 art::FileStatsCollector::FileStatsCollector(std::string const& moduleLabel,
                                             std::string const& processName)
   : moduleLabel_{moduleLabel}, processName_{processName}
@@ -16,7 +21,7 @@ art::FileStatsCollector::recordFileOpen()
   if (!inputFilesSeen_.empty()) {
     inputFilesSeen_.emplace_back(lastOpenedInputFile_);
   }
-  fo_ = boost::posix_time::second_clock::universal_time();
+  fo_ = now();
   fileCloseRecorded_ = false;
 }
 
@@ -43,43 +48,43 @@ art::FileStatsCollector::recordEvent(EventID const& id)
 }
 
 void
-art::FileStatsCollector::recordRun(RunID const& id, Timestamp const ts)
+art::FileStatsCollector::recordRun(RunID const& id)
 {
   if (!lowestRun_.isValid()) {
     lowestRun_ = highestRun_ = id;
-    lowestRunStartTime_ = highestRunStartTime_ = ts;
+    lowestRunStartTime_ = highestRunStartTime_ = now();
     return;
   }
 
   if (id < lowestRun_) {
     lowestRun_ = id;
-    lowestRunStartTime_ = ts;
+    lowestRunStartTime_ = now();
     if (lowestSubRun_.runID() != lowestRun_) {
       lowestSubRun_ = SubRunID{};
-      lowestSubRunStartTime_ = Timestamp::invalidTimestamp();
+      lowestSubRunStartTime_ = ptime{};
     }
   } else if (id > highestRun_) {
     highestRun_ = id;
-    highestRunStartTime_ = ts;
+    highestRunStartTime_ = now();
     if (highestSubRun_.runID() != highestRun_) {
       highestSubRun_ = SubRunID{};
-      highestSubRunStartTime_ = Timestamp::invalidTimestamp();
+      highestSubRunStartTime_ = ptime{};
     }
   }
 }
 
 void
-art::FileStatsCollector::recordSubRun(SubRunID const& id, Timestamp const ts)
+art::FileStatsCollector::recordSubRun(SubRunID const& id)
 {
   if (!lowestSubRun_.isValid()) {
     lowestSubRun_ = highestSubRun_ = id;
-    lowestSubRunStartTime_ = highestSubRunStartTime_ = ts;
+    lowestSubRunStartTime_ = highestSubRunStartTime_ = now();
   } else if (id < lowestSubRun_) {
     lowestSubRun_ = id;
-    lowestSubRunStartTime_ = ts;
+    lowestSubRunStartTime_ = now();
   } else if (id > highestSubRun_) {
     highestSubRun_ = id;
-    highestSubRunStartTime_ = ts;
+    highestSubRunStartTime_ = now();
   }
   subRunsSeen_.emplace(id);
 }
@@ -87,7 +92,7 @@ art::FileStatsCollector::recordSubRun(SubRunID const& id, Timestamp const ts)
 void
 art::FileStatsCollector::recordFileClose()
 {
-  fc_ = boost::posix_time::second_clock::universal_time();
+  fc_ = now();
   fileCloseRecorded_ = true;
 }
 
@@ -110,9 +115,11 @@ art::FileStatsCollector::parents(bool const want_basename) const
 void
 art::FileStatsCollector::resetStatistics_()
 {
-  fo_ = fc_ = boost::posix_time::ptime{};
+  fo_ = fc_ = ptime{};
   lowestRun_ = highestRun_ = RunID{};
   lowestSubRun_ = highestSubRun_ = SubRunID{};
+  lowestRunStartTime_ = highestRunStartTime_ = ptime{};
+  lowestSubRunStartTime_ = highestSubRunStartTime_ = ptime{};
   inputFilesSeen_.clear();
   nEvents_ = 0ul;
   subRunsSeen_.clear();

@@ -24,13 +24,14 @@ namespace {
     "%[lp]|%(\\d+)?([#rRsS])|%t([ocrRsS])|%if([bnedp])|%"
     "ifs%([^%]*)%([^%]*)%([ig]*)%|%.",
     ECMAScript};
+
   std::string
-  to_string(art::Timestamp const ts)
+  to_string(boost::posix_time::ptime const& pt)
   {
-    if (ts == art::Timestamp::invalidTimestamp()) {
+    if (pt == boost::posix_time::ptime{}) {
       return "-";
     }
-    return art::to_iso_string_assuming_unix_epoch(ts);
+    return boost::posix_time::to_iso_string(pt);
   }
 }
 
@@ -183,10 +184,10 @@ art::PostCloseFileRenamer::subTimestamp_(boost::smatch const& match) const
   std::string result;
   switch (*(match[3].first)) {
     case 'o': // Open.
-      result = boost::posix_time::to_iso_string(stats_.outputFileOpenTime());
+      result = to_string(stats_.outputFileOpenTime());
       break;
     case 'c': // Close.
-      result = boost::posix_time::to_iso_string(stats_.outputFileCloseTime());
+      result = to_string(stats_.outputFileCloseTime());
       break;
     case 'r': // Start of Run with lowest number.
       result = to_string(stats_.lowestRunStartTime());
