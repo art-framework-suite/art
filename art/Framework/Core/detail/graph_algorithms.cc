@@ -457,7 +457,11 @@ namespace {
       }
     }
 
-    ModuleGraphInfoMap const& modules_;
+    ModuleGraphInfoMap const& modules_
+#if CLANG_IS_AT_LEAST(6, 0, 0)
+ [[maybe_unused]]
+#endif
+;
     std::set<Vertex>& vertices_;
     std::map<path_name_t, std::set<EdgePair>>& path_edges_;
     std::map<path_name_t, std::set<EdgePair>>& filter_edges_;
