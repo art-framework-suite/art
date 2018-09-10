@@ -27,14 +27,13 @@ namespace art {
     // ActivityRegistry&, use it. Otherwise, call a one-argument
     // constructor taking fhicl::ParameterSet const& only.
     template <typename T>
-    std::enable_if_t<std::is_constructible<T,
-                                           fhicl::ParameterSet const&,
-                                           ActivityRegistry&>::value,
-                     std::shared_ptr<T>>
+    std::enable_if_t<
+      std::is_constructible_v<T, fhicl::ParameterSet const&, ActivityRegistry&>,
+      std::shared_ptr<T>>
     makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
     {
       static_assert(
-        !std::is_base_of<ProducingService, T>::value,
+        !std::is_base_of_v<ProducingService, T>,
         "\n\nart-error: A service that inherits from art::ProducingService\n"
         "           cannot have a constructor that takes an ActivityRegistry&\n"
         "           argument.  Contact artists@fnal.gov for guidance.\n");
@@ -42,9 +41,9 @@ namespace art {
     }
 
     template <typename T>
-    std::enable_if_t<!std::is_constructible<T,
-                                            fhicl::ParameterSet const&,
-                                            ActivityRegistry&>::value,
+    std::enable_if_t<!std::is_constructible_v<T,
+                                              fhicl::ParameterSet const&,
+                                              ActivityRegistry&>,
                      std::shared_ptr<T>>
     makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry&)
     {
@@ -53,7 +52,6 @@ namespace art {
 
     template <typename T, art::ServiceScope SCOPE>
     class ServiceWrapper : public ServiceWrapperBase {
-
     public:
       ServiceWrapper(ServiceWrapper const&) = delete;
       ServiceWrapper& operator=(ServiceWrapper const&) = delete;
@@ -73,7 +71,7 @@ namespace art {
       }
 
       template <typename U,
-                typename = std::enable_if_t<std::is_base_of<U, T>::value>>
+                typename = std::enable_if_t<std::is_base_of_v<U, T>>>
       ServiceWrapper<U, SCOPE>*
       getAs() const
       {
@@ -82,30 +80,16 @@ namespace art {
       }
 
     private:
-      template <typename U = T>
-      std::enable_if_t<std::is_base_of<ProducingService, U>::value>
-      doRegisterProducts(ProductDescriptions& productsToProduce,
-                         ProducingServiceSignals& signals,
-                         ModuleDescription const& md)
-      {
-        service_ptr_->registerCallbacks(signals);
-        service_ptr_->setModuleDescription(md);
-        service_ptr_->registerProducts(productsToProduce, md);
-      }
-
-      template <typename U = T>
-      std::enable_if_t<!std::is_base_of<ProducingService, U>::value>
-      doRegisterProducts(ProductDescriptions&,
-                         ProducingServiceSignals&,
-                         ModuleDescription const&)
-      {}
-
       void
       registerProducts(ProductDescriptions& productsToProduce,
                        ProducingServiceSignals& signals,
                        ModuleDescription const& md) override
       {
-        doRegisterProducts(productsToProduce, signals, md);
+        if constexpr (std::is_base_of_v<ProducingService, T>) {
+          service_ptr_->registerCallbacks(signals);
+          service_ptr_->setModuleDescription(md);
+          service_ptr_->registerProducts(productsToProduce, md);
+        }
       }
 
       std::shared_ptr<T> service_ptr_;

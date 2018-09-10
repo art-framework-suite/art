@@ -8,14 +8,14 @@
 namespace art::detail {
 
   template <typename T>
-  std::enable_if_t<std::is_convertible<T, std::string>::value, std::string>
+  std::enable_if_t<std::is_convertible_v<T, std::string>, std::string>
   fhicl_key(T const& name)
   {
     return name;
   }
 
   template <typename H, typename... T>
-  std::enable_if_t<std::is_convertible<H, std::string>::value, std::string>
+  std::enable_if_t<std::is_convertible_v<H, std::string>, std::string>
   fhicl_key(H const& hname, T const&... tnames)
   {
     std::string const head{hname};

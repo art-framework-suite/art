@@ -57,21 +57,15 @@ namespace art {
   class Wrapper;
 
   namespace detail {
-
-    inline void
-    throw_if_invalid(std::string const&)
-    {}
-
-    template <typename H, typename... T>
+    template <typename... T>
     void
-    throw_if_invalid(std::string const& msg, H const& h, T const&... t)
+    throw_if_invalid(std::string const& msg, T const&... t)
     {
-      if (!h.isValid()) {
+      bool const all_valid = true && (... && t.isValid());
+      if (!all_valid) {
         throw Exception{art::errors::NullPointerError} << msg << '\n';
       }
-      throw_if_invalid(msg, t...);
     }
-
   } // namespace detail
 
   template <class T>

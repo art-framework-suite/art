@@ -13,9 +13,6 @@
 #include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
-using namespace hep::concurrency;
-using namespace std;
-
 namespace art::detail {
 
   Producer::Producer() = default;

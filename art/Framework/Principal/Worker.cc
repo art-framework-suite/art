@@ -49,13 +49,19 @@ namespace art {
                      cet::exception& e)
     {
       e << md.moduleName() << "/" << md.moduleLabel() << " ";
-      auto bt = principal.branchType();
-      if (bt == InRun) {
-        e << principal.runID();
-      } else if (bt == InSubRun) {
-        e << principal.subRunID();
-      } else if (bt == InEvent) {
-        e << principal.eventID();
+      auto const bt = principal.branchType();
+      switch (bt) {
+        case InRun:
+          e << principal.runID();
+          break;
+        case InSubRun:
+          e << principal.subRunID();
+          break;
+        case InEvent:
+          e << principal.eventID();
+          break;
+        default: {
+        }
       }
       e << "\n";
       return e;

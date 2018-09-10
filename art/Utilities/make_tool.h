@@ -52,17 +52,14 @@ namespace art {
   }
 
   template <typename T, typename TableConfig>
-  inline std::enable_if_t<std::is_class<T>::value, tool_return_type<T>>
-  make_tool(TableConfig const& tc)
-  {
-    return make_tool<T>(tc.get_PSet());
-  }
-
-  template <typename T, typename TableConfig>
-  inline std::enable_if_t<std::is_function<T>::value, tool_return_type<T>>
+  tool_return_type<T>
   make_tool(TableConfig const& tc, std::string const& function_tool_type)
   {
-    return make_tool<T>(tc.get_PSet(), function_tool_type);
+    if constexpr (std::is_class_v<T>) {
+      return make_tool<T>(tc.get_PSet());
+    } else if (std::is_function_v<T>) {
+      return make_tool<T>(tc.get_PSet(), function_tool_type);
+    }
   }
 
 } // namespace art

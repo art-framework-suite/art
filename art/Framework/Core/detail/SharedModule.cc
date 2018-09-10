@@ -60,16 +60,16 @@ namespace art::detail {
   }
 
   void
-  SharedModule::serialize_for_resource()
+  SharedModule::implicit_serialize()
   {
     // This is the situation where a shared module must be
     // serialized, but only wrt. itself--only one event call at a
     // time.
-    serialize_for_resource(moduleLabel_);
+    serialize_for(moduleLabel_);
   }
 
   void
-  SharedModule::serialize_for_resource(std::string const& resourceName)
+  SharedModule::serialize_for(std::string const& resourceName)
   {
     auto result = resourceNames_.emplace(resourceName);
     if (result.second) {

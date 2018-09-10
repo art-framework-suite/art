@@ -40,26 +40,17 @@ namespace art::detail {
   using ModuleTypeFunc_t = ModuleType();
   using ModuleThreadingTypeFunc_t = ModuleThreadingType();
 
-  template <typename T, typename = void>
-  struct NewModule {
-    static T*
-    make(fhicl::ParameterSet const& pset, ProcessingFrame const& frame)
-    {
+  template <typename T>
+  T*
+  make_module(fhicl::ParameterSet const& pset, ProcessingFrame const& frame)
+  {
+    if constexpr (ModuleThreadingTypeDeducer<typename T::ModuleType>::value ==
+                  ModuleThreadingType::legacy) {
+      return new T{pset};
+    } else {
       return new T{pset, frame};
     }
-  };
-
-  template <typename T>
-  struct NewModule<T,
-                   std::enable_if_t<ModuleThreadingTypeDeducer<
-                                      typename T::ModuleType>::value ==
-                                    ModuleThreadingType::legacy>> {
-    static T*
-    make(fhicl::ParameterSet const& pset, ProcessingFrame const&)
-    {
-      return new T{pset};
-    }
-  };
+  }
 }
 
 #define DEFINE_ART_MODULE(klass)                                               \
@@ -71,7 +62,7 @@ namespace art::detail {
   {                                                                            \
     using Base = klass::ModuleType;                                            \
     art::ProcessingFrame const frame{wp.scheduleID_};                          \
-    Base* mod = art::detail::NewModule<klass>::make(wp.pset_, frame);          \
+    Base* mod = art::detail::make_module<klass>(wp.pset_, frame);              \
     mod->setModuleDescription(md);                                             \
     return mod;                                                                \
   }                                                                            \

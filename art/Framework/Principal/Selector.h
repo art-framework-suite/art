@@ -44,20 +44,19 @@ for every event.
 namespace art {
 
   template <class A, class B>
-  std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value &&
-                     std::is_base_of<art::SelectorBase, B>::value,
+  std::enable_if_t<std::is_base_of_v<art::SelectorBase, A> &&
+                     std::is_base_of_v<art::SelectorBase, B>,
                    art::AndHelper<A, B>>
   operator&&(A const& a, B const& b);
 
   template <class A, class B>
-  std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value &&
-                     std::is_base_of<art::SelectorBase, B>::value,
+  std::enable_if_t<std::is_base_of_v<art::SelectorBase, A> &&
+                     std::is_base_of_v<art::SelectorBase, B>,
                    art::OrHelper<A, B>>
   operator||(A const& a, B const& b);
 
   template <class A>
-  std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value,
-                   art::NotHelper<A>>
+  std::enable_if_t<std::is_base_of_v<art::SelectorBase, A>, art::NotHelper<A>>
   operator!(A const& a);
 } // namespace art
 
@@ -204,8 +203,8 @@ private:
 };
 
 template <class A, class B>
-std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value &&
-                   std::is_base_of<art::SelectorBase, B>::value,
+std::enable_if_t<std::is_base_of_v<art::SelectorBase, A> &&
+                   std::is_base_of_v<art::SelectorBase, B>,
                  art::AndHelper<A, B>>
 art::operator&&(A const& a, B const& b)
 {
@@ -240,8 +239,8 @@ private:
 };
 
 template <class A, class B>
-std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value &&
-                   std::is_base_of<art::SelectorBase, B>::value,
+std::enable_if_t<std::is_base_of_v<art::SelectorBase, A> &&
+                   std::is_base_of_v<art::SelectorBase, B>,
                  art::OrHelper<A, B>>
 art::operator||(A const& a, B const& b)
 {
@@ -274,8 +273,7 @@ private:
 };
 
 template <class A>
-std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value,
-                 art::NotHelper<A>>
+std::enable_if_t<std::is_base_of_v<art::SelectorBase, A>, art::NotHelper<A>>
   art::operator!(A const& a)
 {
   return art::NotHelper<A>(a);

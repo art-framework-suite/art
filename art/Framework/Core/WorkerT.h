@@ -90,32 +90,16 @@ namespace art {
 
   namespace detail {
     class SharedModule;
-    template <typename T, typename = void>
-    struct MaybeSharedModule {
-      static std::nullptr_t
-      chain(std::shared_ptr<T> const&)
-      {
-        return nullptr;
-      }
-    };
-
-    template <typename T>
-    struct MaybeSharedModule<
-      T,
-      std::enable_if_t<std::is_base_of<SharedModule, T>::value>> {
-      static hep::concurrency::SerialTaskQueueChain*
-      chain(std::shared_ptr<T> const& mod)
-      {
-        return mod->serialTaskQueueChain();
-      }
-    };
   }
 
   template <typename T>
   hep::concurrency::SerialTaskQueueChain*
   WorkerT<T>::implSerialTaskQueueChain() const
   {
-    return detail::MaybeSharedModule<T>::chain(module_);
+    if constexpr (std::is_base_of_v<detail::SharedModule, T>) {
+      return module_->serialTaskQueueChain();
+    }
+    return nullptr;
   }
 
   template <typename T>

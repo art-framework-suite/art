@@ -262,27 +262,16 @@ namespace art {
   void
   EventProcessor::invokePostBeginJobWorkers_()
   {
+    using cet::transform_all;
     // Need to convert multiple lists of workers into a long list that
     // the postBeginJobWorkers callbacks can understand.
     vector<Worker*> allWorkers;
-    {
-      auto const& workers =
-        pathManager_->triggerPathsInfo(ScheduleID::first()).workers();
-      for_each(workers.cbegin(),
-               workers.cend(),
-               [&allWorkers](auto const& label_And_worker) {
-                 allWorkers.push_back(label_And_worker.second);
-               });
-    }
-    {
-      auto const& workers =
-        pathManager_->endPathInfo(ScheduleID::first()).workers();
-      for_each(workers.cbegin(),
-               workers.cend(),
-               [&allWorkers](auto const& label_And_worker) {
-                 allWorkers.push_back(label_And_worker.second);
-               });
-    }
+    transform_all(pathManager_->triggerPathsInfo(ScheduleID::first()).workers(),
+                  back_inserter(allWorkers),
+                  [](auto const& pr) { return pr.second; });
+    transform_all(pathManager_->endPathInfo(ScheduleID::first()).workers(),
+                  back_inserter(allWorkers),
+                  [](auto const& pr) { return pr.second; });
     actReg_->sPostBeginJobWorkers.invoke(input_, allWorkers);
   }
 
@@ -1644,18 +1633,14 @@ namespace art {
     RunID const run{runPrincipal_->runID()};
     assert(!run.isFlush());
     try {
-      {
-        actReg_->sPreEndRun.invoke(runPrincipal_->runID(),
-                                   runPrincipal_->endTime());
-      }
+      actReg_->sPreEndRun.invoke(runPrincipal_->runID(),
+                                 runPrincipal_->endTime());
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedules_->at(sid).process(Transition::EndRun, *runPrincipal_);
         endPathExecutors_->at(sid).process(Transition::EndRun, *runPrincipal_);
       });
-      {
-        Run const r{*runPrincipal_, invalid_module_context};
-        actReg_->sPostEndRun.invoke(r);
-      }
+      Run const r{*runPrincipal_, invalid_module_context};
+      actReg_->sPostEndRun.invoke(r);
     }
     catch (cet::exception& ex) {
       throw Exception{
@@ -1891,19 +1876,15 @@ namespace art {
     SubRunID const sr{subRunPrincipal_->subRunID()};
     assert(!sr.isFlush());
     try {
-      {
-        actReg_->sPreEndSubRun.invoke(subRunPrincipal_->subRunID(),
-                                      subRunPrincipal_->endTime());
-      }
+      actReg_->sPreEndSubRun.invoke(subRunPrincipal_->subRunID(),
+                                    subRunPrincipal_->endTime());
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedules_->at(sid).process(Transition::EndSubRun, *subRunPrincipal_);
         endPathExecutors_->at(sid).process(Transition::EndSubRun,
                                            *subRunPrincipal_);
       });
-      {
-        SubRun const srun{*subRunPrincipal_, invalid_module_context};
-        actReg_->sPostEndSubRun.invoke(srun);
-      }
+      SubRun const srun{*subRunPrincipal_, invalid_module_context};
+      actReg_->sPostEndSubRun.invoke(srun);
     }
     catch (cet::exception& ex) {
       throw Exception{

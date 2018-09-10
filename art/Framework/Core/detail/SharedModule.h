@@ -35,16 +35,18 @@ namespace art::detail {
     }
 
   private:
-    void serialize_for_resource();
-    void serialize_for_resource(std::string const&);
+    void implicit_serialize();
+    void serialize_for(std::string const&);
 
-    template <typename H, typename... T>
-    std::enable_if_t<std::is_same<std::string, H>::value>
-    serialize_for_resource(H const& head, T const&... tail)
+    template <typename... T>
+    void
+    serialize_for_resource(T const&... t)
     {
-      serialize_for_resource(head);
-      if (sizeof...(tail) != 0) {
-        serialize_for_resource(tail...);
+      static_assert(true && (... && std::is_same_v<std::string, T>));
+      if (sizeof...(t) == 0) {
+        implicit_serialize();
+      } else {
+        (serialize_for(t), ...);
       }
     }
 

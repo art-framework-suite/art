@@ -101,10 +101,6 @@ namespace art {
       [this](auto const& tables) { this->selectProducts(tables); });
   }
 
-  //
-  //  MEMBER FUNCTIONS -- Begin/End Job
-  //
-
   void
   EndPathExecutor::beginJob()
   {
@@ -149,10 +145,6 @@ namespace art {
       }
     }
   }
-
-  //
-  //  MEMBER FUNCTIONS -- Input File Open/Close.
-  //
 
   void
   EndPathExecutor::selectProducts(ProductTables const& tables)
@@ -236,10 +228,6 @@ namespace art {
     }
   }
 
-  //
-  //  MEMBER FUNCTIONS -- Begin/End Run
-  //
-
   void
   EndPathExecutor::seedRunRangeSet(RangeSetHandler const& rsh)
   {
@@ -267,12 +255,6 @@ namespace art {
     }
   }
 
-  //
-  //  MEMBER FUNCTIONS -- Begin/End SubRun
-  //
-
-  // Called by EventProcessor::readSubRun() just after
-  // reading the subrun.
   void
   EndPathExecutor::seedSubRunRangeSet(RangeSetHandler const& rsh)
   {
@@ -283,8 +265,6 @@ namespace art {
     }
   }
 
-  // Called by EventProcessor::finalize<Level::SubRun>()
-  // just before endSubRun() and writeSubRun().
   void
   EndPathExecutor::setSubRunAuxiliaryRangeSetID(RangeSet const& rs)
   {
@@ -342,10 +322,6 @@ namespace art {
     }
     endPathInfo_.load()->incrementPassedEventCount();
   }
-
-  //
-  //  MEMBER FUNCTIONS -- Process Event
-  //
 
   // Note: We come here as part of the endPath task, our
   // parent task is the eventLoop task.
@@ -445,27 +421,12 @@ namespace art {
       ->update(eid, lastInSubRun);
   }
 
-  //
-  //  MEMBER FUNCTIONS -- Output File Switching API
-  //
-  //  See also:
-  //
-  //    respondToOpenOutputFiles(FileBlock const& fb);
-  //    respondToCloseOutputFiles(FileBlock const& fb);
-  //
-
-  // Called by EventProcessor::closeSomeOutputFiles(), which is called when
-  // output file switching is happening. Note: This is really returns
-  // !outputWorkersToClose_.load()->empty()
   bool
   EndPathExecutor::outputsToClose() const
   {
     return !outputWorkersToClose_.load()->empty();
   }
 
-  // Called by EventProcessor::closeSomeOutputFiles(), which is called when
-  // output file switching is happening.
-  //
   // MT note: This is where we need to get all the schedules
   //          synchronized, and then have all schedules do the file
   //          close, and then the file open, then the schedules can
@@ -492,19 +453,12 @@ namespace art {
     *outputWorkersToOpen_.load() = move(*outputWorkersToClose_.load());
   }
 
-  // Called by EventProcessor::openSomeOutputFiles(), which is called when
-  // output file switching is happening. Note: This really just returns
-  // !outputWorkersToOpen_.load()->empty()
   bool
   EndPathExecutor::outputsToOpen() const
   {
     return !outputWorkersToOpen_.load()->empty();
   }
 
-  // Called by EventProcessor::openSomeOutputFiles(), which is called when
-  // output file switching is happening. Note this also calls:
-  //   setOutputFileStatus(OutputFileStatus::Open);
-  //   outputWorkersToOpen_.load()->clear();
   void
   EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
   {
@@ -537,8 +491,6 @@ namespace art {
     fileStatus_ = ofs;
   }
 
-  // Note: What this is really used for is to push workers into
-  //       the outputWorkersToClose_ data member.
   void
   EndPathExecutor::recordOutputClosureRequests(Granularity const atBoundary)
   {
@@ -555,11 +507,6 @@ namespace art {
     }
   }
 
-  // Used by file switching.
-  // Called by EventProcessor::closeInputFile()
-  // What this really does is cause RootOutputFile to call
-  // RootOutputClosingCriteria::update<Granularity::InputFile>() which counts
-  // how many times we have crossed a file boundary.
   void
   EndPathExecutor::incrementInputFileNumber()
   {
@@ -568,9 +515,6 @@ namespace art {
     }
   }
 
-  // Called by EventProcessor::readAndProcessEventFunctor(...)
-  // Return whether or not all of the output workers have
-  // reached their maximum limit of work to do.
   bool
   EndPathExecutor::allAtLimit() const
   {
