@@ -19,7 +19,7 @@ namespace art {
 
 } // namespace art
 
-  // ======================================================================
+// ======================================================================
 
 #endif /* art_Persistency_Provenance_ProcessConfigurationRegistry_h */
 

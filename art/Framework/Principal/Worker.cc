@@ -60,8 +60,7 @@ namespace art {
         case InEvent:
           e << principal.eventID();
           break;
-        default: {
-        }
+        default: {}
       }
       e << "\n";
       return e;

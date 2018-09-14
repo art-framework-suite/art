@@ -26,8 +26,7 @@ namespace art {
   class TrivialFileTransfer : public FileTransfer {
     // Configuration
   public:
-    struct Config {
-    };
+    struct Config {};
     using Parameters = ServiceTable<Config>;
     // Special Member Functions
   public:

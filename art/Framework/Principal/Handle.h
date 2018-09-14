@@ -90,8 +90,7 @@ template <typename T>
 class art::Handle {
 public:
   using element_type = T;
-  class HandleTag {
-  };
+  class HandleTag {};
 
   ~Handle() = default;
   explicit constexpr Handle() =
@@ -251,8 +250,7 @@ template <typename T>
 class art::ValidHandle {
 public:
   typedef T element_type;
-  class HandleTag {
-  };
+  class HandleTag {};
 
   ~ValidHandle() = default;
   ValidHandle() = delete;

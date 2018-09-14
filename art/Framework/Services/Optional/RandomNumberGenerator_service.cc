@@ -55,8 +55,7 @@ namespace art {
 
   namespace {
 
-    struct G4Engine {
-    };
+    struct G4Engine {};
 
     string
     qualify_engine_label(ScheduleID const sid,

@@ -44,8 +44,7 @@ namespace art {
     ServiceHandle() try : instance {
       &ServiceRegistry::instance().get<std::remove_const_t<T>>()
     }
-    {
-    }
+    {}
     catch (Exception const& x)
     {
       throw Exception(errors::ServiceNotFound)

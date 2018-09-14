@@ -3,11 +3,9 @@
 // Types for dictionary generation.
 namespace arttest {
   template <typename T>
-  class ProdTypeA {
-  };
+  class ProdTypeA {};
   template <typename T>
-  class ProdTypeB {
-  };
+  class ProdTypeB {};
 } // namespace arttest
 #endif /* art_test_Framework_Core_GroupSelector_t_h */
 

@@ -5,16 +5,11 @@
 #include "art/Utilities/pointersEqual.h"
 BOOST_AUTO_TEST_SUITE(pointersEqual_t)
 
-class A {
-};
-class B {
-};
-class C : public A, public B {
-};
-struct D : public C {
-};
-class E : public A {
-};
+class A {};
+class B {};
+class C : public A, public B {};
+struct D : public C {};
+class E : public A {};
 
 BOOST_AUTO_TEST_CASE(basic_types)
 {

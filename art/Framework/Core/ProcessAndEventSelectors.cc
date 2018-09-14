@@ -79,7 +79,7 @@ namespace art::detail {
     }
     // Now go through all the process names found, and create an event
     // selector for each one.
-    for (auto const & [pname, paths] : paths_for_process) {
+    for (auto const& [pname, paths] : paths_for_process) {
       if (pname == process_name) {
         // For the passed process name we have been given the trigger names.
         sel_.emplace_back(pname, EventSelector{paths, triggernames});

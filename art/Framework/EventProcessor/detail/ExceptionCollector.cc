@@ -17,8 +17,7 @@ namespace {
 } // namespace
 
 [[noreturn]] void
-art::detail::ExceptionCollector::rethrow()
-{
+art::detail::ExceptionCollector::rethrow() {
   assert(!empty());
 
   auto top_e =

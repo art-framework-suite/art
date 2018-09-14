@@ -150,9 +150,9 @@ namespace art {
   };
 } // namespace art
 
-  // Local Variables:
-  // mode: c++
-  // End:
+// Local Variables:
+// mode: c++
+// End:
 
 #endif /* art_Framework_Principal_Consumer_h */
 

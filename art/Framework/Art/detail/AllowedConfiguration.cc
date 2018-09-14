@@ -203,7 +203,7 @@ art::detail::print_descriptions(std::vector<std::string> const& specs)
 {
   cout << '\n' << fixed_rule('=') << "\n\n";
   for (auto const& spec : specs) {
-    auto const[plugin_type, instance_pattern] = parse_specified_plugin(spec);
+    auto const [plugin_type, instance_pattern] = parse_specified_plugin(spec);
 
     auto matches = matchesBySpec(plugin_type, instance_pattern);
     if (matches.empty()) {

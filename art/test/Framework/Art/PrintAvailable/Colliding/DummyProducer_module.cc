@@ -19,8 +19,7 @@ namespace art {
 
 class art::test::CollidingDummyProducer : public EDProducer {
 public:
-  struct Config {
-  };
+  struct Config {};
   using Parameters = EDProducer::Table<Config>;
   explicit CollidingDummyProducer(Parameters const& ps) : EDProducer{ps} {}
 

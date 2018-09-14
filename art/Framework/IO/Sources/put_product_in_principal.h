@@ -73,11 +73,11 @@ namespace art {
     }
 
     std::unique_ptr<EDProduct> wp = std::make_unique<Wrapper<T>>(move(product));
-    principal.put(*desc,
-                  std::make_unique<ProductProvenance const>(
-                    pid, productstatus::present()),
-                  move(wp),
-                  std::make_unique<RangeSet>());
+    principal.put(
+      *desc,
+      std::make_unique<ProductProvenance const>(pid, productstatus::present()),
+      move(wp),
+      std::make_unique<RangeSet>());
   }
 
   template <typename T, typename P>
@@ -122,11 +122,11 @@ namespace art {
       rs = rangeSetFor(principal);
     }
     std::unique_ptr<EDProduct> wp = std::make_unique<Wrapper<T>>(move(product));
-    principal.put(*desc,
-                  std::make_unique<ProductProvenance const>(
-                    pid, productstatus::present()),
-                  move(wp),
-                  std::make_unique<RangeSet>(rs));
+    principal.put(
+      *desc,
+      std::make_unique<ProductProvenance const>(pid, productstatus::present()),
+      move(wp),
+      std::make_unique<RangeSet>(rs));
   }
 
 } // namespace art

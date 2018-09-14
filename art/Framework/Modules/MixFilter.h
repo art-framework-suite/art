@@ -179,15 +179,13 @@ namespace art {
     // Does the detail object have a method void startEvent()?
 
     template <typename T, typename = void>
-    struct has_startEvent : std::false_type {
-    };
+    struct has_startEvent : std::false_type {};
 
     template <typename T>
     struct has_startEvent<
       T,
       enable_if_function_exists_t<void (T::*)(Event const&), &T::startEvent>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     ////////////////////////////////////////////////////////////////////
 
@@ -195,22 +193,19 @@ namespace art {
     // Does the detail object have a method size_t eventsToSkip() const?
 
     template <typename T, typename = void>
-    struct has_eventsToSkip : std::false_type {
-    };
+    struct has_eventsToSkip : std::false_type {};
 
     template <typename T>
     struct has_eventsToSkip<
       T,
       enable_if_function_exists_t<size_t (T::*)(), &T::eventsToSkip>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     template <typename T>
     struct has_eventsToSkip<
       T,
       enable_if_function_exists_t<size_t (T::*)() const, &T::eventsToSkip>>
-      : std::true_type {
-    };
+      : std::true_type {};
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
@@ -218,15 +213,13 @@ namespace art {
     // processEventIDs(EventIDSequence const&)?
 
     template <typename T, typename = void>
-    struct has_processEventIDs : std::false_type {
-    };
+    struct has_processEventIDs : std::false_type {};
 
     template <typename T>
     struct has_processEventIDs<
       T,
       enable_if_function_exists_t<void (T::*)(EventIDSequence const&),
-                                  &T::processEventIDs>> : std::true_type {
-    };
+                                  &T::processEventIDs>> : std::true_type {};
 
     ////////////////////////////////////////////////////////////////////
 
@@ -235,91 +228,79 @@ namespace art {
     // processEventAuxiliaries(EventAuxiliarySequence const&)?
 
     template <typename T, typename = void>
-    struct has_processEventAuxiliaries : std::false_type {
-    };
+    struct has_processEventAuxiliaries : std::false_type {};
 
     template <typename T>
     struct has_processEventAuxiliaries<
       T,
       enable_if_function_exists_t<void (T::*)(EventAuxiliarySequence const&),
                                   &T::processEventAuxiliaries>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void finalizeEvent(Event&)?
     template <typename T, typename = void>
-    struct has_finalizeEvent : std::false_type {
-    };
+    struct has_finalizeEvent : std::false_type {};
 
     template <typename T>
     struct has_finalizeEvent<
       T,
       enable_if_function_exists_t<void (T::*)(Event&), &T::finalizeEvent>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginSubRun(SubRun const&)?
     template <typename T, typename = void>
-    struct has_beginSubRun : std::false_type {
-    };
+    struct has_beginSubRun : std::false_type {};
 
     template <typename T>
     struct has_beginSubRun<
       T,
       enable_if_function_exists_t<void (T::*)(SubRun const&), &T::beginSubRun>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void endSubRun(SubRun&)?
     template <typename T, typename = void>
-    struct has_endSubRun : std::false_type {
-    };
+    struct has_endSubRun : std::false_type {};
 
     template <typename T>
     struct has_endSubRun<
       T,
       enable_if_function_exists_t<void (T::*)(SubRun&), &T::endSubRun>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginRun(Run const&)?
     template <typename T, typename = void>
-    struct has_beginRun : std::false_type {
-    };
+    struct has_beginRun : std::false_type {};
 
     template <typename T>
     struct has_beginRun<
       T,
       enable_if_function_exists_t<void (T::*)(Run const&), &T::beginRun>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void endRun(Run&)?
     template <typename T, typename = void>
-    struct has_endRun : std::false_type {
-    };
+    struct has_endRun : std::false_type {};
 
     template <typename T>
     struct has_endRun<
       T,
       enable_if_function_exists_t<void (T::*)(Run&), &T::endRun>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     ////////////////////////////////////////////////////////////////////
 
@@ -333,63 +314,54 @@ namespace art {
 
     // has_respondToOpenInputFile
     template <typename T, typename = void>
-    struct has_respondToOpenInputFile : std::false_type {
-    };
+    struct has_respondToOpenInputFile : std::false_type {};
 
     template <typename T>
     struct has_respondToOpenInputFile<
       T,
       enable_if_function_exists_t<respond_to_file<T>,
                                   &T::respondToOpenInputFile>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     // has_respondToCloseInputFile
     template <typename T, typename = void>
-    struct has_respondToCloseInputFile : std::false_type {
-    };
+    struct has_respondToCloseInputFile : std::false_type {};
 
     template <typename T>
     struct has_respondToCloseInputFile<
       T,
       enable_if_function_exists_t<respond_to_file<T>,
                                   &T::respondToCloseInputFile>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     // has_respondToOpenOutputFiles
     template <typename T, typename = void>
-    struct has_respondToOpenOutputFiles : std::false_type {
-    };
+    struct has_respondToOpenOutputFiles : std::false_type {};
 
     template <typename T>
     struct has_respondToOpenOutputFiles<
       T,
       enable_if_function_exists_t<respond_to_file<T>,
                                   &T::respondToOpenOutputFiles>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     // has_respondToCloseOutputFiles
     template <typename T, typename = void>
-    struct has_respondToCloseOutputFiles : std::false_type {
-    };
+    struct has_respondToCloseOutputFiles : std::false_type {};
 
     template <typename T>
     struct has_respondToCloseOutputFiles<
       T,
       enable_if_function_exists_t<respond_to_file<T>,
                                   &T::respondToCloseOutputFiles>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a Parameters type?
     template <typename T, typename = void>
-    struct maybe_has_Parameters : std::false_type {
-    };
+    struct maybe_has_Parameters : std::false_type {};
 
     template <typename T>
     struct maybe_has_Parameters<T,

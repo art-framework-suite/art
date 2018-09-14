@@ -475,7 +475,6 @@ namespace art {
         TDEBUG_FUNC_SI_MSG(
           5, "PathManager::createModulesAndWorkers", 0, msg.str());
       }
-
     };
     ScheduleIteration schedule_iteration{nschedules};
     schedule_iteration.for_each_schedule(fill_workers);

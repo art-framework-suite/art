@@ -9,13 +9,13 @@
 #include <limits>
 
 using art::detail::Edge;
+using art::detail::module_name_t;
 using art::detail::ModuleGraph;
 using art::detail::ModuleGraphInfo;
 using art::detail::ModuleGraphInfoMap;
-using art::detail::Vertex;
-using art::detail::module_name_t;
 using art::detail::name_set_t;
 using art::detail::path_name_t;
+using art::detail::Vertex;
 
 namespace {
   std::string
