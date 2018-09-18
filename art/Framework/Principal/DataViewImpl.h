@@ -6,8 +6,10 @@
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/ProcessTag.h"
+#include "art/Framework/Principal/RangeSetsSupported.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
+#include "art/Framework/Principal/detail/type_label_for.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Common/fwd.h"
@@ -869,27 +871,15 @@ namespace art {
     }
     auto const& bd = getProductDescription_(tid, instance, true);
     assert(bd.productID() != ProductID::invalid());
-    std::unique_ptr<TypeLabel> typeLabel;
-    if (md_.isEmulatedModule()) {
-      typeLabel = std::make_unique<TypeLabel>(
-        tid, instance, SupportsView<PROD>::value, md_.moduleLabel());
-    } else {
-      typeLabel = std::make_unique<TypeLabel>(
-        tid, instance, SupportsView<PROD>::value, false);
-    }
+    auto const typeLabel =
+      detail::type_label_for(tid, instance, SupportsView<PROD>::value, md_);
     auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
-    bool result = false;
-    if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
-      rangeSet_.collapse();
-      result =
-        putProducts_.emplace(*typeLabel, PMValue{std::move(wp), bd, rangeSet_})
-          .second;
-    } else {
-      result =
-        putProducts_
-          .emplace(*typeLabel, PMValue{std::move(wp), bd, RangeSet::invalid()})
-          .second;
-    }
+    auto const& rs = detail::range_sets_supported(branchType_) ?
+                       rangeSet_.collapse() :
+                       RangeSet::invalid();
+    bool const result =
+      putProducts_.try_emplace(typeLabel, PMValue{std::move(wp), bd, rs})
+        .second;
     if (!result) {
       cet::HorizontalRule rule{30};
       throw art::Exception(errors::ProductPutFailure)
@@ -923,17 +913,12 @@ namespace art {
     }
     auto const& bd = getProductDescription_(tid, instance, true);
     assert(bd.productID() != ProductID::invalid());
-    std::unique_ptr<TypeLabel> typeLabel;
-    if (md_.isEmulatedModule()) {
-      typeLabel = std::make_unique<TypeLabel>(
-        tid, instance, SupportsView<PROD>::value, md_.moduleLabel());
-    } else {
-      typeLabel = std::make_unique<TypeLabel>(
-        tid, instance, SupportsView<PROD>::value, false);
-    }
+    auto const typeLabel =
+      detail::type_label_for(tid, instance, SupportsView<PROD>::value, md_);
     auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
     auto result =
-      putProducts_.emplace(*typeLabel, PMValue{std::move(wp), bd, rs}).second;
+      putProducts_.try_emplace(typeLabel, PMValue{std::move(wp), bd, rs})
+        .second;
     if (!result) {
       cet::HorizontalRule rule{30};
       throw art::Exception(errors::ProductPutFailure)

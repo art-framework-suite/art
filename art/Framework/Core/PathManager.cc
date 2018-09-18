@@ -100,13 +100,11 @@ namespace art {
     {
       vector<string> tmp;
       if (procPS_.get_if_present("physics.trigger_paths", tmp)) {
-        trigger_paths_config_.reset(new set<string>);
-        trigger_paths_config_->insert(tmp.cbegin(), tmp.cend());
+        trigger_paths_config_ = std::set<string>(tmp.cbegin(), tmp.cend());
       }
       tmp.clear();
       if (procPS_.get_if_present("physics.end_paths", tmp)) {
-        end_paths_config_.reset(new set<string>);
-        end_paths_config_->insert(tmp.cbegin(), tmp.cend());
+        end_paths_config_ = std::set<string>(tmp.cbegin(), tmp.cend());
       }
     }
     //
@@ -140,7 +138,7 @@ namespace art {
                                          loadModuleThreadingType_(lib_spec),
                                          module_pset,
                                          lib_spec};
-            auto result = allModules_.emplace(module_label, move(mci));
+            auto result = allModules_.try_emplace(module_label, move(mci));
             if (!result.second) {
               es << "  ERROR: Module label " << module_label
                  << " has been used in " << result.first->second.configTableName

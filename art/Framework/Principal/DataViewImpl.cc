@@ -238,15 +238,10 @@ namespace art {
         pp = make_unique<ProductProvenance const>(pmvalue.bd_.productID(),
                                                   productstatus::present());
       }
-      if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
-        principal.put(pmvalue.bd_,
-                      move(pp),
-                      move(pmvalue.prod_),
-                      make_unique<RangeSet>(pmvalue.rs_));
-      } else {
-        principal.put(
-          pmvalue.bd_, move(pp), move(pmvalue.prod_), make_unique<RangeSet>());
-      }
+      auto rs = detail::range_sets_supported(branchType_) ?
+                  make_unique<RangeSet>(pmvalue.rs_) :
+                  make_unique<RangeSet>();
+      principal.put(pmvalue.bd_, move(pp), move(pmvalue.prod_), move(rs));
     };
     putProducts_.clear();
   }

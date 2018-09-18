@@ -3,17 +3,15 @@
 
 #include "canvas/Persistency/Provenance/BranchType.h"
 
-namespace art {
-  namespace detail {
-    template <BranchType>
-    struct RangeSetsSupported : std::false_type {};
+#include <type_traits>
 
-    template <>
-    struct RangeSetsSupported<InRun> : std::true_type {};
-    template <>
-    struct RangeSetsSupported<InSubRun> : std::true_type {};
-  } // namespace detail
-} // namespace art
+namespace art::detail {
+  constexpr bool
+  range_sets_supported(BranchType const bt)
+  {
+    return bt == InRun || bt == InSubRun;
+  }
+}
 
 #endif /* art_Framework_Principal_RangeSetsSupported_h */
 

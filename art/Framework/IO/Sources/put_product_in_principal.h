@@ -10,6 +10,7 @@
 // require parentage information to be filled in.
 //
 
+#include "art/Framework/Principal/RangeSetsSupported.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Common/EDProduct.h"
@@ -38,7 +39,7 @@ namespace art {
   }
 
   template <typename T, typename P>
-  std::enable_if_t<(P::branch_type == InEvent) || (P::branch_type == InResults)>
+  std::enable_if_t<!detail::range_sets_supported(P::branch_type)>
   put_product_in_principal(std::unique_ptr<T>&& product,
                            P& principal,
                            std::string const& module_label,
@@ -81,7 +82,7 @@ namespace art {
   }
 
   template <typename T, typename P>
-  std::enable_if_t<(P::branch_type == InSubRun) || (P::branch_type == InRun)>
+  std::enable_if_t<detail::range_sets_supported(P::branch_type)>
   put_product_in_principal(std::unique_ptr<T>&& product,
                            P& principal,
                            std::string const& module_label,

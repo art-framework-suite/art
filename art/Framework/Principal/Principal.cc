@@ -6,6 +6,7 @@
 #include "art/Framework/Principal/OutputHandle.h"
 #include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/Provenance.h"
+#include "art/Framework/Principal/RangeSetsSupported.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
@@ -1055,7 +1056,7 @@ namespace art {
                  unique_ptr<RangeSet>&& rs)
   {
     assert(edp);
-    if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
+    if (detail::range_sets_supported(branchType_)) {
       // Note: We intentionally allow group and provenance replacement
       //       for run and subrun products.
       auto group = getGroupLocal(bd.productID());
