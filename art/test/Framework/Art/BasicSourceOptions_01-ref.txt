@@ -45,6 +45,8 @@ source: {
       "f0.txt"
    ]
    firstEvent: 5
+   firstRun: 1
+   firstSubRun: 0
    maxEvents: 4
    module_label: "source"
    module_type: "RootInput"

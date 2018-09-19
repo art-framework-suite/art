@@ -47,6 +47,8 @@ source: {
       "f3.root"
    ]
    firstEvent: 5
+   firstRun: 1
+   firstSubRun: 0
    maxEvents: 4
    module_label: "source"
    module_type: "RootInput"
