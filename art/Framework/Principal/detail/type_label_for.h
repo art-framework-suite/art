@@ -16,7 +16,7 @@ namespace art::detail {
       return TypeLabel{typeID, instance, supportsView, md.moduleLabel()};
     }
     return TypeLabel{typeID, instance, supportsView, false};
-  };
+  }
 }
 
 #endif
