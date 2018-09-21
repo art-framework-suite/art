@@ -36,6 +36,7 @@ set(art_Framework_Art_sources
   detail/MetadataRegexHelpers.cc
   detail/AllowedConfiguration.cc
   detail/PluginSymbolResolvers.cc
+  detail/event_start.cc
   detail/fillSourceList.cc
   detail/get_LibraryInfoCollection.cc
   detail/get_MetadataCollector.cc

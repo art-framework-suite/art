@@ -1,13 +1,7 @@
-cet_test(artapp_t USE_BOOST_UNIT
-  LIBRARIES art_Framework_Art
-  DATAFILES fcl/empty.fcl)
-
-cet_test(artapp_basicSourceOptions_t
-  USE_BOOST_UNIT
-  LIBRARIES art_Framework_Art)
-
-cet_test(fhicl_key_t USE_BOOST_UNIT
-  LIBRARIES art_Framework_Art)
+cet_test(artapp_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
+cet_test(artapp_basicSourceOptions_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
+cet_test(event_start_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
+cet_test(fhicl_key_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
 
 ########################################################################
 # OptionsHandler tests.
@@ -50,12 +44,11 @@ endmacro()
 # BasicOptionsHandler.
 cet_test(BasicOptions_01_t HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c empty.fcl
+  TEST_ARGS -c /dev/null
   --process-name TEST
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
   PASS_REGULAR_EXPRESSION "ART_DEBUG_CONFIG is defined"
-  PASS_REGULAR_EXPRESSION "Config output follows"
-  DATAFILES fcl/empty.fcl)
+  PASS_REGULAR_EXPRESSION "Config output follows")
 
 cet_test(BasicOptions_02_t HANDBUILT
   TEST_EXEC art
@@ -78,19 +71,17 @@ add_subdirectory(PrintAvailable)
 cet_test(BasicOutputOptions_02_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --no-output -o f.root
-  -c empty.fcl
+  -c /dev/null
   --debug-config=config.out
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "\n  Output configuration is ambiguous: command-line specifies --output and --no-output simultaneously\\."
-  DATAFILES fcl/empty.fcl)
+  PASS_REGULAR_EXPRESSION "\n  Output configuration is ambiguous: command-line specifies --output and --no-output simultaneously\\.")
 
 # Should pass -- NOP
 cet_test(BasicOutputOptions_03_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --no-output
-  -c empty.fcl
-  --debug-config=config.out
-  DATAFILES fcl/empty.fcl)
+  -c /dev/null
+  --debug-config=config.out)
 config_test_debug_pass(BasicOutputOptions_03_w)
 config_ref_test(BasicOutputOptions_03)
 
@@ -98,9 +89,8 @@ config_ref_test(BasicOutputOptions_03)
 cet_test(BasicOutputOptions_04_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS -o /dev/null
-  -c empty.fcl
-  --debug-config=config.out
-  DATAFILES fcl/empty.fcl)
+  -c /dev/null
+  --debug-config=config.out)
 config_test_debug_pass(BasicOutputOptions_04_w)
 config_ref_test(BasicOutputOptions_04)
 
@@ -188,10 +178,9 @@ config_ref_test(BasicOutputOptions_13)
 cet_test(BasicOutputOptions_14_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS -o junk9.out -o junk8.out
-  -c empty.fcl
+  -c /dev/null
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "only the first specified output may omit the stream specification"
-  DATAFILES fcl/empty.fcl)
+  PASS_REGULAR_EXPRESSION "only the first specified output may omit the stream specification")
 
 # Should pass -- command-line and file multi-out with stream specs.
 cet_test(BasicOutputOptions_15_w HANDBUILT
@@ -207,10 +196,9 @@ config_ref_test(BasicOutputOptions_15)
 cet_test(BasicOutputOptions_16_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS -o o2:junk9.out -o junk8.out
-  -c empty.fcl
+  -c /dev/null
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "only the first specified output may omit the stream specification"
-  DATAFILES fcl/empty.fcl)
+  PASS_REGULAR_EXPRESSION "only the first specified output may omit the stream specification")
 
 ####################################
 # BasicSourceOptionsHandler.
@@ -220,10 +208,9 @@ cet_test(BasicOutputOptions_16_w HANDBUILT
 cet_test(BasicSourceOptions_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --estart 5 --nevts 4 --nskip 2
-  -c empty.fcl
+  -c /dev/null
   -s f0.txt
-  --debug-config=config.out
-  DATAFILES fcl/empty.fcl)
+  --debug-config=config.out)
 
 config_test_debug_pass(BasicSourceOptions_01_w)
 
@@ -243,14 +230,13 @@ cet_test(BasicSourceOptions_02 HANDBUILT
 cet_test(BasicSourceOptions_03 HANDBUILT
   TEST_EXEC art
   TEST_ARGS --estart 5 --nevts 4 --nskip 2
-  -c empty.fcl
+  -c /dev/null
   -s f0.txt
   -S BasicSourceOptions-srclist.txt
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
   "--source-list \\(-S\\) and --source \\(-s\\) or non-option arguments are incompatible due to ordering ambiguities\\."
-  DATAFILES fcl/empty.fcl
-  BasicSourceOptions-srclist.txt)
+  DATAFILES BasicSourceOptions-srclist.txt)
 
 cet_test(BasicSourceOptions_04_w HANDBUILT
   TEST_EXEC art
@@ -305,8 +291,7 @@ cet_test(DebugOptions_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS --trace --memcheck --rethrow-default
   --debug-config config.out
-  -c empty.fcl
-  DATAFILES fcl/empty.fcl)
+  -c /dev/null)
 
 config_test_debug_pass(DebugOptions_01_w)
 
@@ -322,18 +307,15 @@ cet_test(DebugOptions_02_t HANDBUILT
 # TimeTracker enabling
 cet_test(DebugOptionsTimeTracker_01 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --timing --rethrow-default -c empty.fcl
-  DATAFILES fcl/empty.fcl)
+  TEST_ARGS --timing --rethrow-default -c /dev/null)
 
 cet_test(DebugOptionsTimeTracker_02 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --timing-db=timing.db --rethrow-default -c empty.fcl
-  DATAFILES fcl/empty.fcl)
+  TEST_ARGS --timing-db=timing.db --rethrow-default -c /dev/null)
 
 cet_test(DebugOptionsTimeTracker_03 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --timing-db=timing.db --no-timing --rethrow-default -c empty.fcl
-  DATAFILES fcl/empty.fcl
+  TEST_ARGS --timing-db=timing.db --no-timing --rethrow-default -c /dev/null
   TEST_PROPERTIES WILL_FAIL TRUE)
 
 ####################################
@@ -343,24 +325,22 @@ cet_test(DebugOptionsTimeTracker_03 HANDBUILT
 cet_test(FileCatalogOptions_01 HANDBUILT
   TEST_EXEC art
   TEST_ARGS --sam-web-uri=http://example.com
-  -c empty.fcl
+  -c /dev/null
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
   PASS_REGULAR_EXPRESSION
   "  configurations services\\.CatalogInterface\\.webURI \\(--sam-web-uri\\) and
   services\\.FileCatalogMetadata\\.processID \\(--sam-process-id\\) must be specified
-  together or not at all\\."
-  DATAFILES fcl/empty.fcl)
+  together or not at all\\.")
 
 # Should exit 1 after printing config -- no output means no metadata required.
 cet_test(FileCatalogOptions_02 HANDBUILT
   TEST_EXEC art
   TEST_ARGS --sam-web-uri=http://example.com
   --sam-process-id=778213
-  -c empty.fcl
+  -c /dev/null
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
   PASS_REGULAR_EXPRESSION "ART_DEBUG_CONFIG is defined"
-  PASS_REGULAR_EXPRESSION "Config output follows"
-  DATAFILES fcl/empty.fcl)
+  PASS_REGULAR_EXPRESSION "Config output follows")
 
 # Should fail due to missing metadata.
 cet_test(FileCatalogOptions_03 HANDBUILT
@@ -368,11 +348,10 @@ cet_test(FileCatalogOptions_03 HANDBUILT
   TEST_ARGS --sam-web-uri=http://example.com
   --sam-process-id=778213
   -o out.root
-  -c empty.fcl
+  -c /dev/null
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
   PASS_REGULAR_EXPRESSION
-  "  Output \"out\" must be configured with dataTier \\(--sam-data-tier=out:<tier>\\) and streamName \\(--sam-stream-name=out:<stream>\\)\\.\n"
-  DATAFILES fcl/empty.fcl)
+  "  Output \"out\" must be configured with dataTier \\(--sam-data-tier=out:<tier>\\) and streamName \\(--sam-stream-name=out:<stream>\\)\\.\n")
 
 # Should fail due to missing / default process name.
 cet_test(FileCatalogOptions_04 HANDBUILT
@@ -380,15 +359,14 @@ cet_test(FileCatalogOptions_04 HANDBUILT
   TEST_ARGS --sam-web-uri=http://example.com
   --sam-process-id=778213
   -o out.root
-  -c empty.fcl
+  -c /dev/null
   --sam-application-family "Ethel"
   --sam-application-version "v0.00.01a"
   --sam-file-type "MC"
   --sam-data-tier "The one with the thickest frosting"
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "Non-empty / default process_name required for SAM metadata\\."
-  DATAFILES fcl/empty.fcl)
+  "Non-empty / default process_name required for SAM metadata\\.")
 
 # Should pass and provide config output file for comparison in
 # FileCatalogOptions_05_r.
@@ -397,14 +375,13 @@ cet_test(FileCatalogOptions_05_w HANDBUILT
   TEST_ARGS --sam-web-uri=http://example.com
   --sam-process-id=778213
   -o out.root
-  -c empty.fcl
+  -c /dev/null
   --process-name=SAMTEST
   --sam-application-family "Ethel"
   --sam-application-version "v0.00.01a"
   --sam-file-type "MC"
   --sam-data-tier "The one with the thickest frosting"
-  --debug-config=config.out
-  DATAFILES fcl/empty.fcl)
+  --debug-config=config.out)
 
 config_test_debug_pass(FileCatalogOptions_05_w)
 
@@ -418,15 +395,14 @@ cet_test(FileCatalogOptions_06_w HANDBUILT
   TEST_ARGS --sam-web-uri=http://example.com
   --sam-process-id=778213
   -o out.root
-  -c empty.fcl
+  -c /dev/null
   --process-name=SAMTEST
   --sam-application-family "Ethel"
   --sam-application-version "v0.00.01a"
   --sam-file-type "MC"
   --sam-data-tier "The one with the thickest frosting"
   --sam-stream-name "wannasweetie"
-  --debug-config=config.out
-  DATAFILES fcl/empty.fcl)
+  --debug-config=config.out)
 
 config_test_debug_pass(FileCatalogOptions_06_w)
 
@@ -440,7 +416,7 @@ cet_test(FileCatalogOptions_07_w HANDBUILT
   TEST_ARGS --sam-web-uri=http://example.com
   --sam-process-id=778213
   -o out.root
-  -c empty.fcl
+  -c /dev/null
   --process-name=SAMTEST
   --sam-application-family "Ethel"
   --sam-application-version "v0.00.01a"
@@ -448,8 +424,7 @@ cet_test(FileCatalogOptions_07_w HANDBUILT
   --sam-data-tier "The one with the thickest frosting"
   --sam-stream-name "out:wannabikkit"
   --sam-stream-name "wannasweetie"
-  --debug-config=config.out
-  DATAFILES fcl/empty.fcl)
+  --debug-config=config.out)
 
 config_test_debug_pass(FileCatalogOptions_07_w)
 
@@ -593,14 +568,13 @@ cet_test(FileCatalogOptions_14_w HANDBUILT
   TEST_ARGS --sam-web-uri=http://example.com
   --sam-process-id=778213
   -o out.root
-  -c empty.fcl
+  -c /dev/null
   --process-name=SAMTEST
   --sam-application-family "Ethel"
   --sam-application-version "v0.00.01a"
   --sam-file-type "MC"
   --sam-data-tier "The one with the thickest frosting"
-  --debug-config=config.out
-  DATAFILES fcl/empty.fcl)
+  --debug-config=config.out)
 
 config_test_debug_pass(FileCatalogOptions_14_w)
 
@@ -612,79 +586,69 @@ cet_test(FileCatalogOptions_15 HANDBUILT
   TEST_EXEC art
   TEST_ARGS --sam-inherit-file-type
   --sam-file-type "Chicken"
-  -c empty.fcl
+  -c /dev/null
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "  The options '--sam-inherit-file-type' and '--sam-file-type' are mutually exclusive\\."
-  DATAFILES fcl/empty.fcl)
+  "  The options '--sam-inherit-file-type' and '--sam-file-type' are mutually exclusive\\.")
 
 cet_test(FileCatalogOptions_16 HANDBUILT
   TEST_EXEC art
   TEST_ARGS --sam-inherit-run-type
   --sam-run-type "Turkey"
-  -c empty.fcl
+  -c /dev/null
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "  The options '--sam-inherit-run-type' and '--sam-run-type' are mutually exclusive\\."
-  DATAFILES fcl/empty.fcl)
+  "  The options '--sam-inherit-run-type' and '--sam-run-type' are mutually exclusive\\.")
 
 cet_test(FileCatalogOptions_17 HANDBUILT
   TEST_EXEC art
   TEST_ARGS --sam-inherit-metadata
   --sam-file-type "Duck"
-  -c empty.fcl
+  -c /dev/null
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "  The options '--sam-inherit-metadata' and '--sam-file-type' are mutually exclusive\\."
-  DATAFILES
-  fcl/empty.fcl)
+  "  The options '--sam-inherit-metadata' and '--sam-file-type' are mutually exclusive\\.")
 
 cet_test(FileCatalogOptions_18 HANDBUILT
   TEST_EXEC art
   TEST_ARGS --sam-inherit-metadata
   --sam-run-type "Turducken"
-  -c empty.fcl
+  -c /dev/null
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "  The options '--sam-inherit-metadata' and '--sam-run-type' are mutually exclusive\\."
-  DATAFILES fcl/empty.fcl)
+  "  The options '--sam-inherit-metadata' and '--sam-run-type' are mutually exclusive\\.")
 
 cet_test(MaxThreadsSpecified_t1 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c empty.fcl --nthreads 2
+  TEST_ARGS -c /dev/null --nthreads 2
   TEST_PROPERTIES ENVIRONMENT OMP_NUM_THREADS=1
   PASS_REGULAR_EXPRESSION
-  "The specified number of threads \\(2\\) exceeds the allowed number \\(1\\).*The allowed number of threads \\(1\\) will be used for this job."
-  DATAFILES fcl/empty.fcl)
+  "The specified number of threads \\(2\\) exceeds the allowed number \\(1\\).*The allowed number of threads \\(1\\) will be used for this job.")
 
 cet_test(MaxThreadsSpecified_t2 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c empty.fcl -j 2
+  TEST_ARGS -c /dev/null -j 2
   TEST_PROPERTIES ENVIRONMENT OMP_NUM_THREADS=1
   PASS_REGULAR_EXPRESSION
-  "The specified number of threads \\(2\\) exceeds the allowed number \\(1\\).*The allowed number of threads \\(1\\) will be used for this job."
-  DATAFILES fcl/empty.fcl)
+  "The specified number of threads \\(2\\) exceeds the allowed number \\(1\\).*The allowed number of threads \\(1\\) will be used for this job.")
 
 cet_test(MaxThreadsSpecified_t3 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c empty.fcl -j 2 -M stdout
+  TEST_ARGS -c /dev/null -j 2 -M stdout
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
-  "TBB has been configured to use.*a maximum of 2 threads"
-  DATAFILES fcl/empty.fcl)
+  "TBB has been configured to use.*a maximum of 2 threads")
 
 cet_test(MaxThreadsSpecified_t4 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c empty.fcl -j 2 -M stdout
+  TEST_ARGS -c /dev/null -j 2 -M stdout
   TEST_PROPERTIES ENVIRONMENT OMP_NUM_THREADS=3
   PASS_REGULAR_EXPRESSION
-  "TBB has been configured to use.*a maximum of 2 threads"
-  DATAFILES fcl/empty.fcl)
+  "TBB has been configured to use.*a maximum of 2 threads")
 
 cet_test(MaxThreadsSpecified_t5 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c empty.fcl -j 0 -M stdout
+  TEST_ARGS -c /dev/null -j 0 -M stdout
   TEST_PROPERTIES ENVIRONMENT OMP_NUM_THREADS=3
   PASS_REGULAR_EXPRESSION
-  "TBB has been configured to use.*a maximum of 3 threads"
-  DATAFILES fcl/empty.fcl)
+  "TBB has been configured to use.*a maximum of 3 threads")

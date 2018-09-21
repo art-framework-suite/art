@@ -1,5 +1,6 @@
 #include "art/Framework/Art/BasicSourceOptionsHandler.h"
 
+#include "art/Framework/Art/detail/event_start.h"
 #include "art/Framework/Art/detail/fillSourceList.h"
 #include "boost/algorithm/string.hpp"
 #include "canvas/Persistency/Provenance/IDNumber.h"
@@ -31,7 +32,8 @@ art::BasicSourceOptionsHandler::BasicSourceOptionsHandler(
   add_opt(options,
           "estart,e",
           bpo::value<std::string>(),
-          "Event # of first event to process.");
+          "EventID of first event to process (e.g. '1:2:4' starts event "
+          "processing at run 1, subrun2, event 4");
   add_opt(
     options, "nevts,n", bpo::value<int>(), "Number of events to process.");
   add_opt(
@@ -43,64 +45,6 @@ int
 art::BasicSourceOptionsHandler::doCheckOptions(bpo::variables_map const&)
 {
   return 0;
-}
-
-namespace {
-  std::string const context{"An error was encountered while processing the "
-                            "-e|--estart program option.\n"};
-
-  template <typename T>
-  std::enable_if_t<std::is_arithmetic_v<T>, T>
-  safe_conversion(std::string const& str_num)
-  {
-    unsigned long long num{-1ull};
-    try {
-      num = std::stoull(str_num);
-    }
-    catch (std::exception const& e) {
-      throw art::Exception{art::errors::Configuration, context}
-        << "The following std::exception was thrown while attempting to "
-           "convert '"
-        << str_num << "':\n"
-        << e.what() << "\n";
-    }
-    if (num > std::numeric_limits<T>::max()) {
-      throw art::Exception{art::errors::Configuration, context}
-        << "The value " << str_num << " is not representable in an EventID.\n"
-        << "Please choose a value in the half-closed interval:\n"
-        << "  [" << std::numeric_limits<T>::min() << ", "
-        << std::numeric_limits<T>::max() << ")\n";
-    }
-    return static_cast<T>(num);
-  }
-
-  auto
-  starting_event(std::string const& event_spec)
-  {
-    std::vector<std::string> parts;
-    boost::split(parts, event_spec, boost::is_any_of(":"));
-    if (parts.size() == 1ull) {
-      std::cerr
-        << "\nSpecifying an event number of " << parts[0]
-        << " is now deprecated when using\n"
-        << "the -e|--estart program option.  Please explicitly specify the\n"
-        << "run and subrun numbers (e.g.):\n"
-        << "   -e \"1:0:" << parts[0] << "\"\n\n";
-      auto const e = safe_conversion<art::EventNumber_t>(parts[0]);
-      return std::make_tuple(art::IDNumber<art::Level::Run>::first(),
-                             art::IDNumber<art::Level::SubRun>::first(),
-                             e);
-    } else if (parts.size() == 3ull) {
-      auto const r = safe_conversion<art::RunNumber_t>(parts[0]);
-      auto const sr = safe_conversion<art::SubRunNumber_t>(parts[1]);
-      auto const e = safe_conversion<art::EventNumber_t>(parts[2]);
-      return std::make_tuple(r, sr, e);
-    }
-    throw art::Exception{art::errors::Configuration, context}
-      << "It is illegal to specify an event with " << parts.size()
-      << " colons.\n"
-      << "Please use the format \"run:subrun:event\".\n";
-  }
 }
 
 int
@@ -123,7 +67,7 @@ art::BasicSourceOptionsHandler::doProcessOptions(
   }
   if (vm.count("estart")) {
     auto const [run, subRun, event] =
-      starting_event(vm["estart"].as<std::string>());
+      detail::event_start(vm["estart"].as<std::string>());
     raw_config.put("source.firstRun", run);
     raw_config.put("source.firstSubRun", subRun);
     raw_config.put("source.firstEvent", event);

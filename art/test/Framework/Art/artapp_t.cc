@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(testBadConfigOption)
 
 BOOST_AUTO_TEST_CASE(testEmptyConfig)
 {
-  char const* strings[] = {"artapp_t", "--config", "empty.fcl"};
+  char const* strings[] = {"artapp_t", "--config", "/dev/null"};
   BOOST_REQUIRE(artapp(3, const_cast<char**>(strings)) == 0);
 }
 
@@ -41,41 +41,41 @@ BOOST_AUTO_TEST_CASE(testNonesuchConfig)
 // Processing options
 BOOST_AUTO_TEST_CASE(testParallelism1)
 {
-  char const* strings[] = {"artapp_t", "--config", "empty.fcl", "-j4"};
+  char const* strings[] = {"artapp_t", "--config", "/dev/null", "-j4"};
   BOOST_REQUIRE(artapp(4, const_cast<char**>(strings)) == 0);
 }
 
 BOOST_AUTO_TEST_CASE(testParallelism2)
 {
-  char const* strings[] = {"artapp_t", "--config", "empty.fcl", "--nthreads=1"};
+  char const* strings[] = {"artapp_t", "--config", "/dev/null", "--nthreads=1"};
   BOOST_REQUIRE(artapp(4, const_cast<char**>(strings)) == 0);
 }
 
 BOOST_AUTO_TEST_CASE(testParallelism3)
 {
   char const* strings[] = {
-    "artapp_t", "--config", "empty.fcl", "--nschedules=1"};
+    "artapp_t", "--config", "/dev/null", "--nschedules=1"};
   BOOST_REQUIRE(artapp(4, const_cast<char**>(strings)) == 0);
 }
 
 BOOST_AUTO_TEST_CASE(testParallelism4)
 {
   char const* strings[] = {
-    "artapp_t", "--config", "empty.fcl", "--nschedules=1", "--nthreads=1"};
+    "artapp_t", "--config", "/dev/null", "--nschedules=1", "--nthreads=1"};
   BOOST_REQUIRE(artapp(5, const_cast<char**>(strings)) == 0);
 }
 
 BOOST_AUTO_TEST_CASE(testParallelism5)
 {
   char const* strings[] = {
-    "artapp_t", "--config", "empty.fcl", "-j1", "--nschedules=1"};
+    "artapp_t", "--config", "/dev/null", "-j1", "--nschedules=1"};
   BOOST_REQUIRE(artapp(5, const_cast<char**>(strings)) == 89);
 }
 
 BOOST_AUTO_TEST_CASE(testParallelism6)
 {
   char const* strings[] = {
-    "artapp_t", "--config", "empty.fcl", "-j1", "--nthreads=1"};
+    "artapp_t", "--config", "/dev/null", "-j1", "--nthreads=1"};
   BOOST_REQUIRE(artapp(5, const_cast<char**>(strings)) == 89);
 }
 

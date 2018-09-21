@@ -4,6 +4,7 @@
 #include "boost/graph/graph_utility.hpp"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
+#include "cetlib/compiler_macros.h"
 #include "cetlib/container_algorithms.h"
 
 #include <limits>
@@ -457,11 +458,7 @@ namespace {
       }
     }
 
-    ModuleGraphInfoMap const& modules_
-#if CLANG_IS_AT_LEAST(6, 0, 0)
-      [[maybe_unused]]
-#endif
-      ;
+    ModuleGraphInfoMap const& modules_ UNUSED_PRIVATE_FIELD;
     std::set<Vertex>& vertices_;
     std::map<path_name_t, std::set<EdgePair>>& path_edges_;
     std::map<path_name_t, std::set<EdgePair>>& filter_edges_;
