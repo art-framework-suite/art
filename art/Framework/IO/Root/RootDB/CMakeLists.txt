@@ -9,6 +9,7 @@ art_make_library(
   LIBRARIES
   art_Utilities
   canvas
+  ${CMAKE_DL_LIBS}
   ${ROOT_RIO}
   ${ROOT_CORE}
   ${SQLITE3}
