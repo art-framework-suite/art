@@ -1,0 +1,13 @@
+physics: {
+  producers: {
+    p: { module_type: "art/test/Framework/Art/PrintAvailable/DummyProducer" }
+  }
+  filters: {
+    f: { module_type: DummyFilter }
+  }
+  analyzers: {
+    a: { module_type: DummyAnalyzer }
+  }
+  tp1: [p, f]
+  tp2: [p, a]
+}
