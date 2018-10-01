@@ -74,7 +74,7 @@ art::BlockingPrescaler::filter(Event&, ProcessingFrame const&)
   // help.  Using a mutex here is cheaper than calling serialize(),
   // since that will also serialize any of the module-level service
   // callbacks invoked before and after this function is called.
-  std::lock_guard<std::mutex> lock{mutex_};
+  std::lock_guard lock{mutex_};
   bool const result{(count_ >= offset_) && ((count_ - offset_) % n_) < m_};
   ++count_;
   return result;

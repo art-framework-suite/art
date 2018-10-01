@@ -60,105 +60,105 @@ namespace art {
   RunID
   DataViewImpl::runID() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.runID();
   }
 
   SubRunID
   DataViewImpl::subRunID() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.subRunID();
   }
 
   EventID
   DataViewImpl::eventID() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.eventID();
   }
 
   RunNumber_t
   DataViewImpl::run() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.run();
   }
 
   SubRunNumber_t
   DataViewImpl::subRun() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.subRun();
   }
 
   EventNumber_t
   DataViewImpl::event() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.event();
   }
 
   Timestamp const&
   DataViewImpl::beginTime() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.beginTime();
   }
 
   Timestamp const&
   DataViewImpl::endTime() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.endTime();
   }
 
   Timestamp
   DataViewImpl::time() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.time();
   }
 
   bool
   DataViewImpl::isRealData() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.isReal();
   }
 
   EventAuxiliary::ExperimentType
   DataViewImpl::experimentType() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.ExperimentType();
   }
 
   History const&
   DataViewImpl::history() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.history();
   }
 
   ProcessHistoryID const&
   DataViewImpl::processHistoryID() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.history().processHistoryID();
   }
 
   ProcessHistory const&
   DataViewImpl::processHistory() const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.processHistory();
   }
 
   EDProductGetter const*
   DataViewImpl::productGetter(ProductID const pid) const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     return principal_.productGetter(pid);
   }
 
@@ -166,7 +166,7 @@ namespace art {
   DataViewImpl::getProcessParameterSet(string const& processName,
                                        fhicl::ParameterSet& ps) const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     if (branchType_ != InEvent) {
       return false;
     }
@@ -199,7 +199,7 @@ namespace art {
     bool const checkProducts,
     map<TypeLabel, BranchDescription> const* expectedProducts)
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     if (checkProducts) {
       vector<string> missing;
       for (auto const& typeLabel_and_bd : *expectedProducts) {
@@ -249,7 +249,7 @@ namespace art {
   void
   DataViewImpl::movePutProductsToPrincipal(Principal& principal)
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     for (auto& type_label_and_pmvalue : putProducts_) {
       auto& pmvalue = type_label_and_pmvalue.second;
       unique_ptr<ProductProvenance const> pp =
@@ -281,7 +281,7 @@ namespace art {
     string const& instance,
     bool const alwaysEnableLookupOfProducedProducts /*= false*/) const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     auto const& product_name = canonicalProductName(
       type.friendlyClassName(), md_.moduleLabel(), instance, md_.processName());
     ProductID const pid{product_name};

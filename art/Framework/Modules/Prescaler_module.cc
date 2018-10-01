@@ -62,7 +62,7 @@ Prescaler::filter(Event&, ProcessingFrame const&)
   // calling serialize(), since that will also serialize any of the
   // module-level service callbacks invoked before and after this
   // function is called.
-  std::lock_guard<std::mutex> lock{mutex_};
+  std::lock_guard lock{mutex_};
   ++count_;
   return count_ % n_ == offset_;
 }

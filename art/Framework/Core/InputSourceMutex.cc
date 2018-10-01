@@ -16,7 +16,7 @@ namespace art {
   InputSourceMutexSentry::startup()
   {
     static mutex guard_mutex;
-    lock_guard<mutex> sentry(guard_mutex);
+    lock_guard sentry{guard_mutex};
     inputSourceMutex_ = new RecursiveMutex{"art::inputSourceMutex_"};
     return inputSourceMutex_;
   }

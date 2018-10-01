@@ -348,7 +348,7 @@ namespace art {
   ProductID
   DataViewImpl::getProductID(std::string const& instance /* = "" */) const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     TypeID const type{typeid(PROD)};
     auto const& product_name = canonicalProductName(
       type.friendlyClassName(), md_.moduleLabel(), instance, md_.processName());
@@ -376,7 +376,7 @@ namespace art {
   bool
   DataViewImpl::get(SelectorBase const& sel, Handle<PROD>& result) const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     result.clear();
     // We do *not* track whether consumes was called for a SelectorBase.
     ProcessTag const processTag{"", md_.processName()};
@@ -394,7 +394,7 @@ namespace art {
   bool
   DataViewImpl::get(ProductID const pid, Handle<PROD>& result) const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     result.clear();
     auto qr = principal_.getByProductID(pid);
     result = Handle<PROD>{qr};
@@ -412,7 +412,7 @@ namespace art {
                            std::string const& processName,
                            Handle<PROD>& result) const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     result.clear();
     auto const wrapped = WrappedTypeID::make<PROD>();
     ProcessTag const processTag{processName, md_.processName()};
@@ -498,7 +498,7 @@ namespace art {
   DataViewImpl::getMany(SelectorBase const& sel,
                         std::vector<Handle<PROD>>& results) const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     auto const wrapped = WrappedTypeID::make<PROD>();
     ConsumesInfo::instance()->validateConsumedProduct(
       branchType_,
@@ -529,7 +529,7 @@ namespace art {
                         std::string const& processName,
                         std::vector<ELEMENT const*>& result) const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     std::size_t const orig_size = result.size();
     auto grp = getContainerForView_(TypeID{typeid(ELEMENT)},
                                     moduleLabel,
@@ -583,7 +583,7 @@ namespace art {
                         std::string const& processName,
                         View<ELEMENT>& result) const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     auto grp = getContainerForView_(TypeID{typeid(ELEMENT)},
                                     moduleLabel,
                                     productInstanceName,
@@ -635,7 +635,7 @@ namespace art {
                              std::string const& processName,
                              PtrVector<ELEMENT>& result) const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     auto grp = getContainerForView_(TypeID{typeid(ELEMENT)},
                                     moduleLabel,
                                     productInstanceName,
@@ -728,7 +728,7 @@ namespace art {
                     std::string const& instance,
                     FragmentSemantic<Level::Run>)
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     static_assert(
       detail::CanBeAggregated<PROD>::value,
       "\n\n"
@@ -755,7 +755,7 @@ namespace art {
                     std::string const& instance,
                     RangedFragmentSemantic<Level::Run> semantic)
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     static_assert(
       detail::CanBeAggregated<PROD>::value,
       "\n\n"
@@ -812,7 +812,7 @@ namespace art {
                     std::string const& instance,
                     FragmentSemantic<Level::SubRun>)
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     static_assert(
       detail::CanBeAggregated<PROD>::value,
       "\n\n"
@@ -839,7 +839,7 @@ namespace art {
                     std::string const& instance,
                     RangedFragmentSemantic<Level::SubRun> semantic)
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     static_assert(
       detail::CanBeAggregated<PROD>::value,
       "\n\n"
@@ -861,7 +861,7 @@ namespace art {
   ProductID
   DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     TypeID const tid{typeid(PROD)};
     if (edp.get() == nullptr) {
       throw art::Exception(errors::NullPointerError)
@@ -898,7 +898,7 @@ namespace art {
                     std::string const& instance,
                     RangeSet const& rs)
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     TypeID const tid{typeid(PROD)};
     if (edp.get() == nullptr) {
       throw art::Exception(errors::NullPointerError)
@@ -935,7 +935,7 @@ namespace art {
   bool
   DataViewImpl::removeCachedProduct(Handle<PROD>& h) const
   {
-    std::lock_guard<std::recursive_mutex> lock{mutex_};
+    std::lock_guard lock{mutex_};
     bool result{false};
     if (h.isValid() && !h.provenance()->produced()) {
       principal_.removeCachedProduct(h.id());
