@@ -33,7 +33,7 @@ art::BasicSourceOptionsHandler::BasicSourceOptionsHandler(
           "estart,e",
           bpo::value<std::string>(),
           "EventID of first event to process (e.g. '1:2:4' starts event "
-          "processing at run 1, subrun2, event 4");
+          "processing at run 1, subrun2, event 4).");
   add_opt(
     options, "nevts,n", bpo::value<int>(), "Number of events to process.");
   add_opt(
