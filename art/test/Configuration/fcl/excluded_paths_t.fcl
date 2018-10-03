@@ -1,0 +1,10 @@
+physics: {
+  producers: {
+    prod: {
+      module_type: "art/test/Framework/Art/PrintAvailable/DummyProducer"
+    }
+  }
+  tp1: [prod]
+  tp2: [prod]
+  trigger_paths: [tp1]
+}

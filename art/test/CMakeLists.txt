@@ -7,6 +7,7 @@ include(CetTest)
 cet_test_env("FHICL_FILE_PATH=.")
 
 # build Persistency libraries
+add_subdirectory(Configuration)
 add_subdirectory(Framework/Art)
 add_subdirectory(Framework/Core)
 add_subdirectory(Framework/EventProcessor)

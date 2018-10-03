@@ -252,7 +252,7 @@ namespace art {
         }
         return spec.substr(pos);
       };
-      set<string> specified_modules;
+      map<string, unsigned> specified_modules;
       {
         enum class mod_cat_t { UNSET, OBSERVER, MODIFIER };
         size_t num_end_paths = 0;
@@ -261,7 +261,7 @@ namespace art {
           auto const path = physics.get<vector<string>>(path_name);
           for (auto const& modname_filterAction : path) {
             auto const label = remove_filter_action(modname_filterAction);
-            specified_modules.insert(label);
+            ++specified_modules[label];
             auto iter = allModules_.find(label);
             if (iter == allModules_.end()) {
               es << "  ERROR: Entry " << modname_filterAction << " in path "
@@ -297,7 +297,12 @@ namespace art {
                     << "parameter \"physics.trigger_paths\". Path will be "
                        "ignored.";
                   for (auto const& mod : path) {
-                    specified_modules.erase(remove_filter_action(mod));
+                    auto found = specified_modules.find(remove_filter_action(mod));
+                    if (found == end(specified_modules)) continue;
+
+                    auto& counter = found->second;
+                    assert(counter != 0);
+                    --counter;
                   }
                   break;
                 }
@@ -317,7 +322,12 @@ namespace art {
                     << "parameter \"physics.end_paths\". "
                     << "Path will be ignored.";
                   for (auto const& mod : path) {
-                    specified_modules.erase(remove_filter_action(mod));
+                    auto found = specified_modules.find(remove_filter_action(mod));
+                    if (found == end(specified_modules)) continue;
+
+                    auto& counter = found->second;
+                    assert(counter != 0);
+                    --counter;
                   }
                   break;
                 }
@@ -370,11 +380,14 @@ namespace art {
           all_module_labels.insert(val.first);
         }
         vector<string> unused_modules;
-        set_difference(all_module_labels.cbegin(),
-                       all_module_labels.cend(),
-                       specified_modules.cbegin(),
-                       specified_modules.cend(),
-                       back_inserter(unused_modules));
+        for (auto const& [label, counter] : specified_modules) {
+          if (counter == 0) {
+            // Only flag as unused if the number of times the module
+            // shows up in an actual used path is 0.
+            unused_modules.push_back(label);
+          }
+        }
+
         if (!unused_modules.empty()) {
           ostringstream us;
           us << "The following module label"
