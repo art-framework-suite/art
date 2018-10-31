@@ -24,8 +24,8 @@
 //  example, to create a PtrMaker for an std::vector<A> in an event
 //  evt, and current module, we will use the PtrMaker as follows:
 //
-//    PtrMaker<A> make_Aptr{evt, *this}; // or
-//    auto make_Aptr = PtrMaker<A>::create<std::vector<A>>(evt, *this);
+//    PtrMaker<A> make_Aptr{evt}; // or
+//    auto make_Aptr = PtrMaker<A>::create<std::vector<A>>(evt);
 //
 //  If a container other std::vector<A> is desired, the static function
 //  'create' must be used instead of one of the constructors.
