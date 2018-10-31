@@ -88,7 +88,7 @@ art::ProcessingOptionsHandler::ProcessingOptionsHandler(
     "Global flag that controls the behavior upon failure to 'put' a "
     "product (declared by 'produces') onto the Event.  If 'true', per-module "
     "flags can override the value of the global flag.\n"
-    "*** Will be removed in art 3.02. ***");
+    "*** Will be removed in art 3.03. ***");
   add_opt(
     options,
     "errorOnMissingConsumes",
@@ -170,7 +170,7 @@ art::ProcessingOptionsHandler::doProcessOptions(
            "configuration or command-line\n"
         << "             invocation so that you do not use it--the global "
            "'errorOnFailureToPut'\n"
-        << "             parameter will be removed as of art 3.02.\n\n";
+        << "             parameter will be removed as of art 3.03.\n\n";
     std::cerr << detail::bold_fontify(oss.str());
   }
 

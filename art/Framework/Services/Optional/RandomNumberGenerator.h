@@ -114,7 +114,7 @@
 // Accessing an engine through a service handle
 // --------------------------------------------
 //
-// ** DEPRECATED in art 3.01; will be removed in art 3.02 **
+// ** DEPRECATED in art 3.02; will be removed in art 3.03 **
 //
 // An engine managed by the RandomNumberGenerator service can be
 // retrieved by calling the getEngine function through a service
