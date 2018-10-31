@@ -197,11 +197,12 @@ namespace art {
     using detail::exists_outside_prolog;
     assert(exists_outside_prolog(raw_config, "services.scheduler"));
     try {
-      auto const result = detail::detect_unused_configuration(raw_config);
+      auto const [unused_paths, unused_modules] =
+        detail::detect_unused_configuration(raw_config);
       std::string const pruneConfig{"services.scheduler.pruneConfig"};
       if (exists_outside_prolog(raw_config, pruneConfig) &&
           raw_config.get<bool>(pruneConfig)) {
-        detail::prune_configuration(result.first, result.second, raw_config);
+        detail::prune_configuration(unused_paths, unused_modules, raw_config);
       }
     }
     catch (Exception const& e) {

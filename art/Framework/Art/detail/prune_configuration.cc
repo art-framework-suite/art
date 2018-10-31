@@ -8,6 +8,7 @@
 
 #include <initializer_list>
 #include <iostream>
+#include <optional>
 #include <set>
 
 using namespace fhicl;
@@ -214,17 +215,18 @@ namespace {
     return result;
   }
 
-  std::unique_ptr<modules_per_path_t>
+  std::optional<modules_per_path_t>
   explicitly_declared_paths(modules_per_path_t& modules_per_path,
                             std::string const& controlling_sequence)
   {
     auto const it = modules_per_path.find(controlling_sequence);
     if (it == cend(modules_per_path)) {
-      return std::unique_ptr<modules_per_path_t>{nullptr};
+      return std::nullopt;
     }
 
     std::ostringstream os;
-    auto result = std::make_unique<modules_per_path_t>();
+    modules_per_path_t result;
+    std::set<std::string> paths_to_erase;
     for (auto const& pathname : it->second) {
       auto res = modules_per_path.find(pathname);
       if (res == cend(modules_per_path)) {
@@ -232,8 +234,12 @@ namespace {
            << controlling_sequence << ".\n";
         continue;
       }
-      result->insert(*res);
-      modules_per_path.erase(res);
+      result.insert(*res);
+      paths_to_erase.insert(pathname);
+    }
+
+    for (auto const& path_to_erase : paths_to_erase) {
+      modules_per_path.erase(path_to_erase);
     }
     modules_per_path.erase(it); // Remove controlling sequence
 
@@ -241,7 +247,7 @@ namespace {
     if (!err.empty()) {
       throw art::Exception{art::errors::Configuration} << err;
     }
-    return result;
+    return std::make_optional<modules_per_path_t>(std::move(result));
   }
 }
 
@@ -280,12 +286,11 @@ art::detail::detect_unused_configuration(intermediate_table& config)
   }
 
   std::map<std::string, std::string> unused_modules;
-  std::copy_if(cbegin(modules),
-               cend(modules),
-               inserter(unused_modules, end(unused_modules)),
-               [& emods = enabled_modules](auto const& mod) {
-                 return emods.find(mod.first) == cend(emods);
-               });
+  cet::copy_if_all(modules,
+                   inserter(unused_modules, end(unused_modules)),
+                   [& emods = enabled_modules](auto const& mod) {
+                     return emods.find(mod.first) == cend(emods);
+                   });
 
   if (!unused_modules.empty()) {
     std::ostringstream os;

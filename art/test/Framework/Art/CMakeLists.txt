@@ -267,6 +267,18 @@ config_test_debug_pass(BasicSourceOptions_05_w)
 config_ref_test(BasicSourceOptions_05)
 
 ####################################
+# Test empty paths
+cet_test(EmptyPaths_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c empty-paths.fcl
+  DATAFILES fcl/empty-paths.fcl)
+
+cet_test(EmptyRepeatedPaths_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c empty-repeated-paths.fcl
+  DATAFILES fcl/empty-repeated-paths.fcl)
+
+####################################
 # BasicPostProcessor.
 
 # Should pass and provide config output file for comparison in
