@@ -297,8 +297,10 @@ namespace art {
                     << "parameter \"physics.trigger_paths\". Path will be "
                        "ignored.";
                   for (auto const& mod : path) {
-                    auto found = specified_modules.find(remove_filter_action(mod));
-                    if (found == end(specified_modules)) continue;
+                    auto found =
+                      specified_modules.find(remove_filter_action(mod));
+                    if (found == end(specified_modules))
+                      continue;
 
                     auto& counter = found->second;
                     assert(counter != 0);
@@ -322,8 +324,10 @@ namespace art {
                     << "parameter \"physics.end_paths\". "
                     << "Path will be ignored.";
                   for (auto const& mod : path) {
-                    auto found = specified_modules.find(remove_filter_action(mod));
-                    if (found == end(specified_modules)) continue;
+                    auto found =
+                      specified_modules.find(remove_filter_action(mod));
+                    if (found == end(specified_modules))
+                      continue;
 
                     auto& counter = found->second;
                     assert(counter != 0);

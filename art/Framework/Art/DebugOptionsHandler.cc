@@ -2,6 +2,7 @@
 
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
+#include "art/Framework/Art/detail/output_to.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
@@ -24,11 +25,21 @@ namespace {
     if (debug_config == nullptr)
       return std::make_pair("", false);
 
+    std::cerr << '\n'
+              << "art-warning: The ART_DEBUG_CONFIG environment variable is "
+                 "deprecated.\n"
+              << "             Please specify the '--debug-config=<filename>' "
+                 "program option\n"
+              << "             to write to a file, or '--debug-config=STDOUT' "
+                 "to write\n"
+              << "             to the terminal.\n\n";
     try {
       // Check if the provided character string is a file name
       std::string fn;
       if (std::regex_match(debug_config, std::regex("[[:alpha:]/\\.].*"))) {
         fn = debug_config;
+      } else {
+        fn = "STDERR";
       }
       std::cerr << "** ART_DEBUG_CONFIG is defined **\n";
       return std::make_pair(fn, true);
@@ -261,13 +272,7 @@ art::DebugOptionsHandler::doProcessOptions(
 
   if (vm.count("mt-diagnostics") > 0) {
     auto const dest = vm["mt-diagnostics"].as<std::string>();
-    std::regex const re_stdout{R"((STDOUT|cout))",
-                               std::regex_constants::ECMAScript |
-                                 std::regex_constants::icase};
-    std::regex const re_stderr{R"((STDERR|cerr))",
-                               std::regex_constants::ECMAScript |
-                                 std::regex_constants::icase};
-    if (std::regex_match(dest, re_stdout)) {
+    if (detail::output_to_stdout(dest)) {
       // Special handling since the 'cout' destination is already the
       // default per above.
       raw_config.put(
@@ -276,7 +281,7 @@ art::DebugOptionsHandler::doProcessOptions(
     }
 
     auto const mt_dest_key = fhicl_key(dests_key, "MTdiagnostics");
-    if (std::regex_match(dest, re_stderr)) {
+    if (detail::output_to_stderr(dest)) {
       raw_config.put(fhicl_key(mt_dest_key, "type"), "cerr");
     } else {
       raw_config.put(fhicl_key(mt_dest_key, "type"), "file");

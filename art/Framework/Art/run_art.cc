@@ -6,6 +6,7 @@
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "art/Framework/Art/detail/info_success.h"
+#include "art/Framework/Art/detail/output_to.h"
 #include "art/Framework/Art/detail/prune_configuration.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Utilities/ExceptionMessages.h"
@@ -47,8 +48,11 @@ namespace {
   cet::ostream_handle
   make_ostream_handle(std::string const& filename)
   {
-    if (filename.empty()) {
+    assert(!filename.empty());
+    if (art::detail::output_to_stderr(filename)) {
       return cet::ostream_handle{std::cerr};
+    } else if (art::detail::output_to_stdout(filename)) {
+      return cet::ostream_handle{std::cout};
     } else {
       auto os = cet::ostream_handle{filename};
       if (!os) {
@@ -78,8 +82,10 @@ namespace {
   banner(std::string const& filename)
   {
     std::string result = "** Config output ";
+    bool const to_terminal = art::detail::output_to_stderr(filename) ||
+                             art::detail::output_to_stdout(filename);
     result +=
-      filename.empty() ? "follows" : std::string("to file '" + filename + "'");
+      to_terminal ? "follows" : std::string("to file '" + filename + "'");
     result += " **\n";
     return result;
   }
