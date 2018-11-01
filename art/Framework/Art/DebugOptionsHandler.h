@@ -11,8 +11,7 @@ namespace art {
 
 class art::DebugOptionsHandler : public art::OptionsHandler {
 public:
-  explicit DebugOptionsHandler(bpo::options_description& desc,
-                               std::string const& basename);
+  explicit DebugOptionsHandler(bpo::options_description& desc);
 
 private:
   // Check selected options for consistency.

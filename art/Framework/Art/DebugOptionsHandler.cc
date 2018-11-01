@@ -9,6 +9,7 @@
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/parse.h"
 
+#include <optional>
 #include <regex>
 #include <string>
 #include <tuple>
@@ -18,12 +19,13 @@ using art::detail::fhicl_key;
 using table_t = fhicl::extended_value::table_t;
 
 namespace {
-  std::pair<std::string, bool>
+
+  std::optional<std::string>
   destination_via_env()
   {
     char const* debug_config{getenv("ART_DEBUG_CONFIG")};
     if (debug_config == nullptr)
-      return std::make_pair("", false);
+      return std::nullopt;
 
     std::cerr << '\n'
               << "art-warning: The ART_DEBUG_CONFIG environment variable is "
@@ -42,17 +44,16 @@ namespace {
         fn = "STDERR";
       }
       std::cerr << "** ART_DEBUG_CONFIG is defined **\n";
-      return std::make_pair(fn, true);
+      return std::make_optional(move(fn));
     }
     catch (std::regex_error const& e) {
       std::cerr << "REGEX ERROR: " << e.code() << ".\n";
     }
-    return std::make_pair("", false);
+    return std::nullopt;
   }
 }
 
-art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc,
-                                              std::string const& basename)
+art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc)
 {
   bpo::options_description debug_options{"Debugging options"};
   auto options = debug_options.add_options();
@@ -93,13 +94,10 @@ art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc,
     "Output post-processed configuration to <file>; call constructors of all "
     "sources, modules and services, performing extra configuration "
     "verification.  Exit just before processing the event loop.");
-  add_opt(
-    options,
-    "debug-config",
-    bpo::value<std::string>(),
-    ("Output post-processed configuration to <file> and exit. Equivalent to env ART_DEBUG_CONFIG=<file> "s +
-     basename + " ...")
-      .c_str());
+  add_opt(options,
+          "debug-config",
+          bpo::value<std::string>(),
+          "Output post-processed configuration to <file> and exit.");
   add_opt(
     options,
     "config-out",
@@ -179,8 +177,8 @@ art::DebugOptionsHandler::doProcessOptions(
 
   // Get ART_DEBUG_CONFIG value
   auto const result = destination_via_env();
-  if (result.second) {
-    tie(option, fn) = make_tuple("debug-config"s, result.first);
+  if (result) {
+    tie(option, fn) = make_tuple("debug-config"s, *result);
   }
 
   // "validate-config" and "debug-config" win over ART_DEBUG_CONFIG

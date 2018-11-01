@@ -46,7 +46,7 @@ int
   handlers.emplace_back(new art::BasicSourceOptionsHandler{all_desc});
   handlers.emplace_back(new art::BasicOutputOptionsHandler{all_desc});
   handlers.emplace_back(new art::ProcessingOptionsHandler{all_desc, ART_RETHROW_DEFAULT});
-  handlers.emplace_back(new art::DebugOptionsHandler{all_desc, boost::filesystem::path(argv[0]).filename().native()});
+  handlers.emplace_back(new art::DebugOptionsHandler{all_desc});
   handlers.emplace_back(new art::FileCatalogOptionsHandler{all_desc});
   auto ret = art::run_art(argc, argv, all_desc, lookupPolicy, move(handlers));
   return ret;
