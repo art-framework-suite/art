@@ -72,11 +72,11 @@ namespace art {
 
       template <typename U,
                 typename = std::enable_if_t<std::is_base_of_v<U, T>>>
-      ServiceWrapper<U, SCOPE>*
+      std::unique_ptr<ServiceWrapper<U, SCOPE>>
       getAs() const
       {
-        return new ServiceWrapper<U, SCOPE>{
-          std::static_pointer_cast<U>(service_ptr_)};
+        return std::make_unique<ServiceWrapper<U, SCOPE>>(
+          std::static_pointer_cast<U>(service_ptr_));
       }
 
     private:

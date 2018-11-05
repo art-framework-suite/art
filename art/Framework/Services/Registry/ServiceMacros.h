@@ -83,7 +83,7 @@
 // Multi-schedule-aware service declarations.
 
 // Declare and define a service.
-#define DECLARE_ART_SERVICE(svc, scope) DECLARE_ART_SERVICE_DETAIL(svc, scope)
+#define DECLARE_ART_SERVICE(svc, scope) ART_DETAIL_DECLARE_SERVICE(svc, scope)
 
 #define DEFINE_ART_SERVICE(svc)                                                \
   DEFINE_ART_SH_CREATE(svc)                                                    \
@@ -102,7 +102,7 @@
                                         "           be constructed.  Please "  \
                                         "contact artists@fnal.gov for "        \
                                         "guidance.\n");                        \
-  DECLARE_ART_SERVICE_INTERFACE_DETAIL(svc, scope)
+  ART_DETAIL_DECLARE_SERVICE_INTERFACE(svc, scope)
 
 // Declare and define a service implementing an interface.
 #define DECLARE_ART_SERVICE_INTERFACE_IMPL(svc, iface, scope)                  \
@@ -116,7 +116,7 @@
                                         "           be constructed.  Please "  \
                                         "contact artists@fnal.gov for "        \
                                         "guidance.\n");                        \
-  DECLARE_ART_SERVICE_INTERFACE_IMPL_DETAIL(svc, iface, scope)
+  ART_DETAIL_DECLARE_SERVICE_INTERFACE_IMPL(svc, iface, scope)
 
 #define DEFINE_ART_SERVICE_INTERFACE_IMPL(svc, iface)                          \
   DEFINE_ART_SERVICE(svc)                                                      \
@@ -126,7 +126,7 @@
 // since they have no maker function.
 
 #define DECLARE_ART_SYSTEM_SERVICE(svc, scope)                                 \
-  DECLARE_ART_SYSTEM_SERVICE_DETAIL(svc, scope)
+  ART_DETAIL_DECLARE_SYSTEM_SERVICE(svc, scope)
 
 //
 // Note that it makes very little sense to have a system service

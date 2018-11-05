@@ -6,7 +6,6 @@
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
-#include "cetlib/compiler_macros.h"
 
 ////////////////////////////////////////////////////////////////////////
 // Utility for including the service type in a static_assert
@@ -39,8 +38,8 @@
   void* retrieve(std::shared_ptr<ServiceWrapperBase>& swb)                     \
     const final override                                                       \
   {                                                                            \
-    return &dynamic_cast<ServiceWrapper<svc, ServiceScope::GLOBAL>*>(          \
-              swb.get())                                                       \
+    return &std::dynamic_pointer_cast<                                         \
+              ServiceWrapper<svc, ServiceScope::GLOBAL>>(swb)                  \
               ->get();                                                         \
   }
 
@@ -72,7 +71,7 @@
   }
 
 // Declare a service with scope.
-#define DECLARE_ART_SERVICE_DETAIL(svc, scopeArg)                              \
+#define ART_DETAIL_DECLARE_SERVICE(svc, scopeArg)                              \
   namespace art::detail {                                                      \
     template <>                                                                \
     struct ServiceHelper<svc> : public ServiceImplHelper,                      \
@@ -91,7 +90,7 @@
   }
 
 // Declare an interface for a service with scope.
-#define DECLARE_ART_SERVICE_INTERFACE_DETAIL(iface, scopeArg)                  \
+#define ART_DETAIL_DECLARE_SERVICE_INTERFACE(iface, scopeArg)                  \
   namespace art::detail {                                                      \
     template <>                                                                \
     struct ServiceHelper<iface> : public ServiceInterfaceHelper,               \
@@ -103,7 +102,7 @@
   }
 
 // Define a service with scope implementing an interface.
-#define DECLARE_ART_SERVICE_INTERFACE_IMPL_DETAIL(svc, iface, scopeArg)        \
+#define ART_DETAIL_DECLARE_SERVICE_INTERFACE_IMPL(svc, iface, scopeArg)        \
   namespace art::detail {                                                      \
     template <>                                                                \
     struct ServiceHelper<svc> : public ServiceInterfaceImplHelper,             \
@@ -121,11 +120,8 @@
       convert(                                                                 \
         std::shared_ptr<ServiceWrapperBase> const& swb) const final override   \
       {                                                                        \
-        return std::unique_ptr<art::detail::ServiceWrapperBase>(               \
-          static_cast<art::detail::ServiceWrapperBase*>(                       \
-            std::dynamic_pointer_cast<                                         \
-              ServiceWrapper<svc, ServiceScope::scopeArg>>(swb)                \
-              ->getAs<iface>()));                                              \
+        return std::dynamic_pointer_cast<ServiceWrapper<svc, scope_val>>(swb)  \
+          ->getAs<iface>();                                                    \
       }                                                                        \
       static_assert(scope_val == ServiceHelper<iface>::scope_val,              \
                     "Scope mismatch between interface " #iface                 \
@@ -135,7 +131,7 @@
 
 // Declare a system service (requires support code in Event Processor)
 // since system services have no maker function.
-#define DECLARE_ART_SYSTEM_SERVICE_DETAIL(svc, scopeArg)                       \
+#define ART_DETAIL_DECLARE_SYSTEM_SERVICE(svc, scopeArg)                       \
   namespace art::detail {                                                      \
     template <>                                                                \
     struct ServiceHelper<svc> : public ServiceImplHelper,                      \

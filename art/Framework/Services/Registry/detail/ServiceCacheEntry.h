@@ -7,6 +7,7 @@
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cassert>
@@ -55,13 +56,14 @@ namespace art {
 
       ServiceScope serviceScope() const;
 
-    private: // MEMBER FUNCTIONS -- Implementation details
-      void makeAndCacheService(art::ActivityRegistry& reg) const;
+    private:
+      std::shared_ptr<ServiceWrapperBase> makeService(
+        art::ActivityRegistry& reg) const;
 
       void createService(art::ActivityRegistry& reg,
                          ServiceStack& creationOrder) const;
 
-      void convertService(std::shared_ptr<ServiceWrapperBase>& swb) const;
+      std::shared_ptr<ServiceWrapperBase> convertService() const;
 
     private: // MEMBER DATA
       fhicl::ParameterSet config_{};
@@ -69,8 +71,7 @@ namespace art {
       std::unique_ptr<ServiceHelperBase> helper_;
 
       mutable std::shared_ptr<ServiceWrapperBase> service_{};
-
-      ServiceCacheEntry const* const interface_impl_{nullptr};
+      cet::exempt_ptr<ServiceCacheEntry const> const interface_impl_{nullptr};
     };
 
     template <typename T>
