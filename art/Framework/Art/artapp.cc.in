@@ -10,7 +10,6 @@
 #include "art/Framework/Art/run_art.h"
 #include "cetlib/filepath_maker.h"
 
-#include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 
 #include <iostream>

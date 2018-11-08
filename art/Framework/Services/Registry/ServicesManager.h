@@ -39,27 +39,21 @@ namespace art {
   class ProducingServiceSignals;
 
   class ServicesManager {
-
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    ~ServicesManager();
-
+  public:
     explicit ServicesManager(fhicl::ParameterSet&& servicesPSet,
                              ActivityRegistry& actReg);
+    ~ServicesManager();
 
     ServicesManager(ServicesManager const&) = delete;
-
     ServicesManager(ServicesManager&&) = delete;
-
     ServicesManager& operator=(ServicesManager const&) = delete;
-
     ServicesManager& operator=(ServicesManager&&) = delete;
 
-  public: // MEMBER FUNCTIONS -- Public API
     template <class T>
     bool
     isAvailable() const
     {
-      return factory_.find(TypeID{typeid(T)}) != cend(factory_);
+      return services_.find(TypeID{typeid(T)}) != cend(services_);
     }
 
     void getParameterSets(std::vector<fhicl::ParameterSet>& out) const;
@@ -84,16 +78,11 @@ namespace art {
 
   private:
     ActivityRegistry& actReg_;
-
     cet::LibraryManager lm_{Suffixes::service()};
-
-    std::map<TypeID, detail::ServiceCacheEntry> factory_{};
-
+    std::map<TypeID, detail::ServiceCacheEntry> services_{};
     std::vector<TypeID> requestedCreationOrder_{};
-
     std::stack<std::shared_ptr<detail::ServiceWrapperBase>>
       actualCreationOrder_{};
-
     std::vector<std::string> configErrMsgs_{};
   };
 
@@ -101,8 +90,8 @@ namespace art {
   T&
   ServicesManager::get()
   {
-    auto it = factory_.find(TypeID{typeid(T)});
-    if (it == factory_.end()) {
+    auto it = services_.find(TypeID{typeid(T)});
+    if (it == services_.end()) {
       throw Exception(errors::ServiceNotFound)
         << "ServicesManager unable to find the service of type '"
         << cet::demangle_symbol(typeid(T).name()) << "'.\n";
@@ -117,8 +106,8 @@ namespace art {
     std::unique_ptr<detail::ServiceHelperBase> service_helper(
       new detail::ServiceHelper<T>);
     TypeID const id{typeid(T)};
-    auto it = factory_.find(id);
-    if (it != factory_.end()) {
+    auto it = services_.find(id);
+    if (it != services_.end()) {
       throw Exception(errors::LogicError, "Service")
         << "The system has manually added service of type "
         << cet::demangle_symbol(id.name())
@@ -129,7 +118,7 @@ namespace art {
       new detail::ServiceWrapper<T, detail::ServiceHelper<T>::scope_val>(
         std::move(premade_service))};
     actualCreationOrder_.push(swb);
-    factory_.emplace(
+    services_.emplace(
       id, detail::ServiceCacheEntry(std::move(swb), std::move(service_helper)));
   }
 

@@ -7,11 +7,9 @@
 
 #include <map>
 
-namespace art {
-  namespace detail {
-    using ServiceCache = std::map<TypeID, detail::ServiceCacheEntry>;
-  } // namespace detail
-} // namespace art
+namespace art::detail {
+  using ServiceCache = std::map<TypeID, ServiceCacheEntry>;
+}
 
 #endif /* art_Framework_Services_Registry_detail_ServiceCache_h */
 

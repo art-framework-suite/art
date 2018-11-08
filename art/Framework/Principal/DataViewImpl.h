@@ -483,7 +483,7 @@ namespace art {
   {
     Handle<PROD> h;
     getByLabel(tag, h);
-    return ValidHandle<PROD>(h.product(), *h.provenance());
+    return ValidHandle{h.product(), *h.provenance()};
   }
 
   template <typename PROD>
@@ -597,7 +597,7 @@ namespace art {
     for (auto p : view) {
       castedView.push_back(static_cast<ELEMENT const*>(p));
     }
-    result = View<ELEMENT>{castedView, grp->productID(), grp->uniqueProduct()};
+    result = View{castedView, grp->productID(), grp->uniqueProduct()};
     return true;
   }
 
@@ -647,10 +647,9 @@ namespace art {
     grp->uniqueProduct()->fillView(view);
     std::size_t i{0};
     for (auto p : view) {
-      result.push_back(
-        Ptr<ELEMENT>{grp->productID(),
-                     const_cast<ELEMENT*>(static_cast<ELEMENT const*>(p)),
-                     i++});
+      result.emplace_back(grp->productID(),
+                          static_cast<ELEMENT const*>(p),
+                          i++);
     }
   }
 
@@ -686,7 +685,7 @@ namespace art {
   ProductID
   DataViewImpl::put(std::unique_ptr<PROD>&& edp)
   {
-    return put<PROD>(std::move(edp), "");
+    return put(move(edp), "");
   }
 
   template <typename PROD>
@@ -694,7 +693,7 @@ namespace art {
   DataViewImpl::put(std::unique_ptr<PROD>&& edp,
                     FullSemantic<Level::Run> const semantic)
   {
-    return put<PROD>(std::move(edp), "", semantic);
+    return put(move(edp), "", semantic);
   }
 
   template <typename PROD>
@@ -702,7 +701,7 @@ namespace art {
   DataViewImpl::put(std::unique_ptr<PROD>&& edp,
                     FragmentSemantic<Level::Run> const semantic)
   {
-    return put<PROD>(std::move(edp), "", semantic);
+    return put(move(edp), "", semantic);
   }
 
   template <typename PROD>
@@ -710,7 +709,7 @@ namespace art {
   DataViewImpl::put(std::unique_ptr<PROD>&& edp,
                     RangedFragmentSemantic<Level::Run> semantic)
   {
-    return put<PROD>(std::move(edp), "", std::move(semantic));
+    return put(move(edp), "", std::move(semantic));
   }
 
   template <typename PROD>
@@ -719,7 +718,7 @@ namespace art {
                     std::string const& instance,
                     FullSemantic<Level::Run>)
   {
-    return put<PROD>(std::move(edp), instance, RangeSet::forRun(runID()));
+    return put(move(edp), instance, RangeSet::forRun(runID()));
   }
 
   template <typename PROD>
@@ -746,7 +745,7 @@ namespace art {
         << "   art::runFragment(art::RangeSet const&)\n"
         << "or contact artists@fnal.gov for assistance.\n";
     }
-    return put<PROD>(std::move(edp), instance, rangeSet_);
+    return put(move(edp), instance, rangeSet_);
   }
 
   template <typename PROD>
@@ -770,7 +769,7 @@ namespace art {
         << "   art::fullRun()\n"
         << "or contact artists@fnal.gov for assistance.\n";
     }
-    return put<PROD>(std::move(edp), instance, semantic.rs);
+    return put(move(edp), instance, semantic.rs);
   }
 
   template <typename PROD>
@@ -778,7 +777,7 @@ namespace art {
   DataViewImpl::put(std::unique_ptr<PROD>&& edp,
                     FullSemantic<Level::SubRun> const semantic)
   {
-    return put<PROD>(std::move(edp), "", semantic);
+    return put(move(edp), "", semantic);
   }
 
   template <typename PROD>
@@ -786,7 +785,7 @@ namespace art {
   DataViewImpl::put(std::unique_ptr<PROD>&& edp,
                     FragmentSemantic<Level::SubRun> const semantic)
   {
-    return put<PROD>(std::move(edp), "", semantic);
+    return put(move(edp), "", semantic);
   }
 
   template <typename PROD>
@@ -794,7 +793,7 @@ namespace art {
   DataViewImpl::put(std::unique_ptr<PROD>&& edp,
                     RangedFragmentSemantic<Level::SubRun> semantic)
   {
-    return put<PROD>(std::move(edp), "", std::move(semantic));
+    return put(move(edp), "", std::move(semantic));
   }
 
   template <typename PROD>
@@ -803,7 +802,7 @@ namespace art {
                     std::string const& instance,
                     FullSemantic<Level::SubRun>)
   {
-    return put<PROD>(std::move(edp), instance, RangeSet::forSubRun(subRunID()));
+    return put(move(edp), instance, RangeSet::forSubRun(subRunID()));
   }
 
   template <typename PROD>
@@ -830,7 +829,7 @@ namespace art {
         << "   art::subRunFragment(art::RangeSet const&)\n"
         << "or contact artists@fnal.gov for assistance.\n";
     }
-    return put<PROD>(std::move(edp), instance, rangeSet_);
+    return put(move(edp), instance, rangeSet_);
   }
 
   template <typename PROD>
@@ -854,7 +853,7 @@ namespace art {
         << "   art::fullSubRun()\n"
         << "or contact artists@fnal.gov for assistance.\n";
     }
-    return put<PROD>(std::move(edp), instance, semantic.rs);
+    return put(move(edp), instance, semantic.rs);
   }
 
   template <typename PROD>
@@ -873,7 +872,7 @@ namespace art {
     assert(bd.productID() != ProductID::invalid());
     auto const typeLabel =
       detail::type_label_for(tid, instance, SupportsView<PROD>::value, md_);
-    auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
+    auto wp = std::make_unique<Wrapper<PROD>>(move(edp));
     auto const& rs = detail::range_sets_supported(branchType_) ?
                        rangeSet_.collapse() :
                        RangeSet::invalid();
@@ -915,12 +914,12 @@ namespace art {
     assert(bd.productID() != ProductID::invalid());
     auto const typeLabel =
       detail::type_label_for(tid, instance, SupportsView<PROD>::value, md_);
-    auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
+    auto wp = std::make_unique<Wrapper<PROD>>(move(edp));
     auto result =
-      putProducts_.try_emplace(typeLabel, PMValue{std::move(wp), bd, rs})
+      putProducts_.try_emplace(typeLabel, PMValue{move(wp), bd, rs})
         .second;
     if (!result) {
-      cet::HorizontalRule rule{30};
+      constexpr cet::HorizontalRule rule{30};
       throw art::Exception(errors::ProductPutFailure)
         << "Event::put: Attempt to put multiple products with the\n"
         << "            following description onto the Event.\n"

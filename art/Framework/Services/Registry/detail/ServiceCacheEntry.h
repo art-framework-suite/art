@@ -22,8 +22,7 @@ namespace art {
   namespace detail {
 
     class ServiceCacheEntry {
-
-    public: // MEMBER FUNCTIONS -- Special Member Functions
+    public:
       ServiceCacheEntry(fhicl::ParameterSet const& pset,
                         std::unique_ptr<ServiceHelperBase>&& helper);
 
@@ -34,13 +33,11 @@ namespace art {
       ServiceCacheEntry(std::shared_ptr<ServiceWrapperBase> premade_service,
                         std::unique_ptr<ServiceHelperBase>&& helper);
 
-    public: // MEMBER FUNCTIONS -- Public API
       std::shared_ptr<ServiceWrapperBase> getService(
         art::ActivityRegistry& reg,
         ServiceStack& creationOrder) const;
 
       void forceCreation(art::ActivityRegistry& reg) const;
-
       fhicl::ParameterSet const& getParameterSet() const;
 
       template <typename T>
@@ -51,9 +48,7 @@ namespace art {
                             ModuleDescription const& md);
 
       bool is_impl() const;
-
       bool is_interface() const;
-
       ServiceScope serviceScope() const;
 
     private:
@@ -65,11 +60,8 @@ namespace art {
 
       std::shared_ptr<ServiceWrapperBase> convertService() const;
 
-    private: // MEMBER DATA
       fhicl::ParameterSet config_{};
-
       std::unique_ptr<ServiceHelperBase> helper_;
-
       mutable std::shared_ptr<ServiceWrapperBase> service_{};
       cet::exempt_ptr<ServiceCacheEntry const> const interface_impl_{nullptr};
     };

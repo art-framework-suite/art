@@ -61,17 +61,11 @@ namespace art {
 
   ServicesManager::~ServicesManager()
   {
-    // Force the Service destructors to execute in the reverse order of
-    // construction.  Note that services passed in by a token are not
-    // included in this loop and do not get destroyed until the
-    // ServicesManager object that created them is destroyed which
-    // occurs after the body of this destructor is executed (the correct
-    // order).  Services directly passed in by a put and not created in
-    // the constructor may or may not be detroyed in the desired order
-    // because this class does not control their creation (as I'm
-    // writing this comment everything in a standard fw executable is
-    // destroyed in the desired order).
-    factory_.clear();
+    // Force the Service destructors to execute in the reverse order
+    // of construction.  We first clear the the services cache, which
+    // is safe to do as the services owned by it are co-owned by the
+    // actualCreationOrder_ data member.
+    services_.clear();
     while (!actualCreationOrder_.empty()) {
       actualCreationOrder_.pop();
     }
@@ -83,7 +77,7 @@ namespace art {
                                     ProcessConfiguration const& pc)
   {
     std::vector<std::string> producing_services;
-    for (auto& pr : factory_) {
+    for (auto& pr : services_) {
       auto& serviceEntry = pr.second;
 
       // Per-schedule services cannot register products
@@ -136,9 +130,9 @@ namespace art {
     }
     using SHBCREATOR_t = std::unique_ptr<detail::ServiceHelperBase> (*)();
     for (auto const& ps : psets) {
-      string const service_name{ps.get<string>("service_type")};
-      string const service_provider{
-        ps.get<string>("service_provider", service_name)};
+      auto const service_name = ps.get<string>("service_type");
+      auto const service_provider =
+        ps.get<string>("service_provider", service_name);
       // Get the helper from the library.
       unique_ptr<detail::ServiceHelperBase> service_helper{
         lm_.getSymbolByLibspec<SHBCREATOR_t>(service_provider,
@@ -201,14 +195,14 @@ namespace art {
       // Need temporary because we can't guarantee the order of evaluation
       // of the arguments to make_pair() below.
       TypeID const sType{service_helper->get_typeid()};
-      auto svc = factory_.emplace(
+      auto svc = services_.emplace(
         sType, detail::ServiceCacheEntry(ps, move(service_helper)));
 
       if (iface_helper) {
         // Need temporary because we can't guarantee the order of evaluation
         // of the arguments to make_pair() below.
         TypeID const iType{iface_helper->get_typeid()};
-        factory_.emplace(
+        services_.emplace(
           iType,
           detail::ServiceCacheEntry(ps, move(iface_helper), svc.first->second));
       }
@@ -220,7 +214,7 @@ namespace art {
   ServicesManager::getParameterSets(std::vector<fhicl::ParameterSet>& out) const
   {
     std::vector<fhicl::ParameterSet> tmp;
-    for (auto const& typeID_and_ServiceCacheEntry : factory_) {
+    for (auto const& typeID_and_ServiceCacheEntry : services_) {
       auto const& sce = typeID_and_ServiceCacheEntry.second;
       tmp.push_back(sce.getParameterSet());
     }
@@ -231,9 +225,8 @@ namespace art {
   ServicesManager::forceCreation()
   {
     for (auto const& typeID : requestedCreationOrder_) {
-      auto I = factory_.find(typeID);
-      if (I != factory_.end()) {
-        auto const& sce = I->second;
+      if (auto it = services_.find(typeID); it != services_.end()) {
+        auto const& sce = it->second;
         sce.forceCreation(actReg_);
       }
     }
