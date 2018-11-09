@@ -647,9 +647,8 @@ namespace art {
     grp->uniqueProduct()->fillView(view);
     std::size_t i{0};
     for (auto p : view) {
-      result.emplace_back(grp->productID(),
-                          static_cast<ELEMENT const*>(p),
-                          i++);
+      result.emplace_back(
+        grp->productID(), static_cast<ELEMENT const*>(p), i++);
     }
   }
 
@@ -916,8 +915,7 @@ namespace art {
       detail::type_label_for(tid, instance, SupportsView<PROD>::value, md_);
     auto wp = std::make_unique<Wrapper<PROD>>(move(edp));
     auto result =
-      putProducts_.try_emplace(typeLabel, PMValue{move(wp), bd, rs})
-        .second;
+      putProducts_.try_emplace(typeLabel, PMValue{move(wp), bd, rs}).second;
     if (!result) {
       constexpr cet::HorizontalRule rule{30};
       throw art::Exception(errors::ProductPutFailure)
