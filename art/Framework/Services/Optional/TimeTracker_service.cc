@@ -383,5 +383,5 @@ namespace art {
 
 } // namespace art
 
-DECLARE_ART_SERVICE(art::TimeTracker, LEGACY)
+DECLARE_ART_SERVICE(art::TimeTracker, GLOBAL)
 DEFINE_ART_SERVICE(art::TimeTracker)

@@ -130,7 +130,7 @@ namespace art {
 
 } // namespace art
 
-DECLARE_ART_SERVICE_INTERFACE(art::CatalogInterface, LEGACY)
+DECLARE_ART_SERVICE_INTERFACE(art::CatalogInterface, GLOBAL)
 
 #endif /* art_Framework_Services_FileServiceInterfaces_CatalogInterface_h */
 

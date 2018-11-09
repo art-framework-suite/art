@@ -435,5 +435,5 @@ namespace art {
 
 } // namespace art
 
-DECLARE_ART_SERVICE(art::MemoryTracker, LEGACY)
+DECLARE_ART_SERVICE(art::MemoryTracker, GLOBAL)
 DEFINE_ART_SERVICE(art::MemoryTracker)

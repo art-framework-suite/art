@@ -50,12 +50,10 @@
 namespace art {
 
   class FloatingPointControl {
-    // Types
   public:
     using precision_t = fp_detail::precision_t;
     using mask_t = unsigned short int;
-    // Configuration
-  public:
+
     struct Config {
       fhicl::Atom<bool> enableDivByZeroEx{fhicl::Name{"enableDivByZeroEx"},
                                           false};
@@ -69,23 +67,19 @@ namespace art {
       fhicl::Atom<bool> reportSettings{fhicl::Name{"reportSettings"}, false};
     };
     using Parameters = ServiceTable<Config>;
-    // Special Member Functions
-  public:
+
     explicit FloatingPointControl(Parameters const&, ActivityRegistry&);
     FloatingPointControl(FloatingPointControl const&) = delete;
     FloatingPointControl& operator=(FloatingPointControl const&) = delete;
-    // API
-  public:
+
     // Return the precision as an enum (SINGLE, DOUBLE, EXTENDED).
     precision_t getPrecision() const;
     // Return the exception mask (can be ANDed with e.g. FE_DIVBYZERO to
     // look for specific exception bits).
     mask_t getMask() const;
-    // Implementation Details
+
   private:
     void postEndJob();
-    // Member Data
-  private:
     bool enableDivByZeroEx_;
     bool enableInvalidEx_;
     bool enableOverFlowEx_;
@@ -98,7 +92,7 @@ namespace art {
 
 } // namespace art
 
-DECLARE_ART_SYSTEM_SERVICE(art::FloatingPointControl, LEGACY)
+DECLARE_ART_SYSTEM_SERVICE(art::FloatingPointControl, GLOBAL)
 
 #endif /* art_Framework_Services_System_FloatingPointControl_h */
 

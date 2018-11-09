@@ -46,7 +46,7 @@ namespace art {
 
 DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileTransfer,
                                    art::FileTransfer,
-                                   LEGACY)
+                                   GLOBAL)
 
 #endif /* art_Framework_Services_Optional_TrivialFileTransfer_h */
 

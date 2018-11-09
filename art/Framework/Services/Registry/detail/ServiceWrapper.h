@@ -60,9 +60,7 @@ namespace art {
         : service_ptr_{makeServiceFrom<T>(ps, areg)}
       {}
 
-      explicit ServiceWrapper(std::shared_ptr<T>&& p)
-        : service_ptr_{std::move(p)}
-      {}
+      explicit ServiceWrapper(std::shared_ptr<T>&& p) : service_ptr_{move(p)} {}
 
       T&
       get()

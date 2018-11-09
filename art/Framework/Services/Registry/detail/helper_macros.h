@@ -6,6 +6,7 @@
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
+#include "art/Framework/Services/Registry/detail/ensure_only_one_thread.h"
 
 ////////////////////////////////////////////////////////////////////////
 // Utility for including the service type in a static_assert
@@ -49,6 +50,7 @@
                                            ActivityRegistry& reg)              \
     const final override                                                       \
   {                                                                            \
+    art::detail::ensure_only_one_thread(cfg);                                  \
     return std::make_unique<ServiceWrapper<svc, ServiceScope::LEGACY>>(cfg,    \
                                                                        reg);   \
   }

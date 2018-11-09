@@ -167,7 +167,7 @@ namespace art {
 
 } // namespace art
 
-DECLARE_ART_SERVICE(art::FileCatalogMetadata, LEGACY)
+DECLARE_ART_SERVICE(art::FileCatalogMetadata, GLOBAL)
 
 #endif /* art_Framework_Services_System_FileCatalogMetadata_h */
 
