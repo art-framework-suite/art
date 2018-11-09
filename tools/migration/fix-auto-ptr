@@ -1,9 +1,0 @@
-#!/bin/bash
-
-# Fix auto_ptr in interface.
-ack -l 'auto_ptr' | grep -v InputDriver | xargs perl -wapi\~ -e 's&((?:^|[\(,\s])\s*(?:std::)?)auto_ptr(\s*<[A-Za-z_1-9 :]*<(?:<.*?>)*[A-Za-z_1-9 :]*>\s*)([^,=()]*[,\)])&${1}unique_ptr${2}${3}&g'
-ack -l 'auto_ptr' | grep -v InputDriver | xargs perl -wapi\~ -e 's&((?:^|[\(,\s])\s*(?:std::)?)auto_ptr(\s*<[A-Za-z_1-9 :]*<(?:<.*?>)*[A-Za-z_1-9 :]*>\s*)([^\& ,=()]*[,\)])&${1}unique_ptr${2}\&\& ${3}&g'
-# Fix other auto_ptr.
-ack -l 'auto_ptr' | grep -v InputDriver | xargs perl -wapi\~ -e 's&((?:^|\s)\s*(?:::)?std::)?auto_ptr(\s*<[A-Za-z_1-9 :]*<(?:<.*?>)*[A-Za-z_1-9 :]*>\s*)&${1}unique_ptr${2}&g'
-# Fix calls to put
-ack -l 'put\s*\(' | grep -v InputDriver | xargs perl -wapi\~ -e 's&((?:\be|\w+vent|evt|(?:[Ss]ub)?[Rr]un|s|r|sr)(?:_)?\s*(?:\.|->)\s*put\s*\()([\w_]+?)(\s*[,\)])&${1}std::move(${2})${3}&g'
