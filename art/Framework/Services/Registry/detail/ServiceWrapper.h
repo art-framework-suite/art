@@ -3,7 +3,9 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
+#include "art/Framework/Services/Registry/detail/ServiceHandleAllowed.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
+#include "art/Utilities/SharedResourcesRegistry.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/metaprogramming.h"
 
@@ -58,7 +60,13 @@ namespace art {
 
       ServiceWrapper(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
         : service_ptr_{makeServiceFrom<T>(ps, areg)}
-      {}
+      {
+        if constexpr (SCOPE == ServiceScope::GLOBAL &&
+                      detail::handle_allowed_v<T>) {
+          SharedResourcesRegistry::instance()->registerSharedResource(
+            SharedResource<T>);
+        }
+      }
 
       explicit ServiceWrapper(std::shared_ptr<T>&& p) : service_ptr_{move(p)} {}
 

@@ -23,16 +23,11 @@ namespace art {
   class ActivityRegistry;
 
   class FileCatalogMetadata {
-
-    // Types
   public:
     using collection_type = std::vector<std::pair<std::string, std::string>>;
     using value_type = collection_type::value_type;
 
-    // Configuration
-  public:
     struct Config {
-
       fhicl::Atom<bool> checkSyntax{fhicl::Name("checkSyntax"), false};
       fhicl::OptionalAtom<std::string> applicationFamily{
         fhicl::Name("applicationFamily")};
@@ -71,11 +66,8 @@ namespace art {
 
     using Parameters = ServiceTable<Config>;
 
-    // Special Member Functions
-  public:
     explicit FileCatalogMetadata(Parameters const& config);
 
-  public:
     // Add a new value to the metadata store.
     void addMetadata(std::string const& key, std::string const& value);
 
@@ -94,8 +86,6 @@ namespace art {
     // Types
   private:
     class InheritedMetadata {
-
-      // Special Member Functions
     public:
       InheritedMetadata(std::vector<std::string> const& sortedMdToInherit,
                         collection_type const& coll)
@@ -109,8 +99,6 @@ namespace art {
         }
       }
 
-      // API
-    public:
       auto const&
       entries() const
       {
@@ -138,13 +126,11 @@ namespace art {
         }
       }
 
-      // Member Data
     private:
       collection_type orderedmd_;
       std::unordered_map<std::string, std::string> inputmd_;
     };
 
-    // Member Data
   private:
     // Protects all data members.
     mutable hep::concurrency::RecursiveMutex mutex_{

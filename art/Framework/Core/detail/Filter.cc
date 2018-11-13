@@ -2,7 +2,6 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Core/detail/get_failureToPut_flag.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -12,6 +11,7 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
+#include "art/Utilities/SharedResourcesRegistry.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"

@@ -2,6 +2,7 @@
 #define art_Framework_Core_detail_SharedModule_h
 // vim: set sw=2 expandtab :
 
+#include "art/Utilities/SharedResource.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "hep_concurrency/SerialTaskQueueChain.h"
 
@@ -24,6 +25,9 @@ namespace art::detail {
     template <BranchType BT = InEvent, typename... T>
     void serialize(T const&...);
 
+    template <BranchType BT = InEvent, typename... T>
+    void serializeExternal(T const&...);
+
     template <BranchType BT = InEvent>
     void
     async()
@@ -36,17 +40,31 @@ namespace art::detail {
 
   private:
     void implicit_serialize();
-    void serialize_for(std::string const&);
+    void serialize_for(detail::SharedResource_t const&);
+    void serialize_for_external(std::string const&);
 
     template <typename... T>
     void
     serialize_for_resource(T const&... t)
     {
-      static_assert(true && (... && std::is_same_v<std::string, T>));
+      static_assert(true &&
+                    (... && std::is_same_v<detail::SharedResource_t, T>));
       if (sizeof...(t) == 0) {
         implicit_serialize();
       } else {
         (serialize_for(t), ...);
+      }
+    }
+
+    template <typename... T>
+    void
+    serialize_for_external_resource(T const&... t)
+    {
+      static_assert(true && (... && std::is_same_v<std::string, T>));
+      if (sizeof...(t) == 0) {
+        implicit_serialize();
+      } else {
+        (serialize_for_external(t), ...);
       }
     }
 
@@ -61,6 +79,13 @@ namespace art::detail {
   SharedModule::serialize(T const&... resources)
   {
     serialize_for_resource(resources...);
+  }
+
+  template <BranchType, typename... T>
+  void
+  SharedModule::serializeExternal(T const&... resources)
+  {
+    serialize_for_external_resource(resources...);
   }
 }
 

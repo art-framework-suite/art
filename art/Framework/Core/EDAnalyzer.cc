@@ -1,8 +1,6 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/SharedResourcesRegistry.h"
-
 using namespace std;
 
 namespace art {
@@ -16,7 +14,6 @@ namespace art {
   void
   EDAnalyzer::setupQueues()
   {
-    serialize(SharedResourcesRegistry::kLegacy);
     createQueues();
   }
 

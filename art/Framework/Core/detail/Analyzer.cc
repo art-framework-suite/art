@@ -2,12 +2,12 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
+#include "art/Utilities/SharedResourcesRegistry.h"
 
 #include <ostream>
 

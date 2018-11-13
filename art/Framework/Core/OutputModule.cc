@@ -9,7 +9,6 @@
 #include "art/Framework/Core/Observer.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
-#include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Handle.h"
@@ -27,6 +26,7 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/Selections.h"
+#include "art/Utilities/SharedResourcesRegistry.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
@@ -74,7 +74,9 @@ namespace art {
     , dataTier_{config().dataTier()}
     , streamName_{config().streamName()}
     , plugins_{makePlugins_(containing_pset)}
-  {}
+  {
+    serialize(SharedResourcesRegistry::Legacy);
+  }
 
   OutputModule::OutputModule(ParameterSet const& pset)
     : Observer{pset}
@@ -86,7 +88,9 @@ namespace art {
     , dataTier_{pset.get<string>("dataTier", "")}
     , streamName_{pset.get<string>("streamName", "")}
     , plugins_{makePlugins_(pset)}
-  {}
+  {
+    serialize(SharedResourcesRegistry::Legacy);
+  }
 
   bool
   OutputModule::fileIsOpen() const
@@ -194,7 +198,6 @@ namespace art {
   void
   OutputModule::doBeginJob()
   {
-    serialize(SharedResourcesRegistry::kLegacy);
     createQueues();
     beginJob();
     cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });

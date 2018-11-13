@@ -1,11 +1,11 @@
 #include "art/Framework/Core/Observer.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Core/detail/parse_path_spec.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Utilities/Globals.h"
+#include "art/Utilities/SharedResourcesRegistry.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 

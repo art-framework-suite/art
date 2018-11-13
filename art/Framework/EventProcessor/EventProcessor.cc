@@ -7,7 +7,6 @@
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
 #include "art/Framework/Core/InputSourceMutex.h"
-#include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -25,6 +24,7 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/SharedResourcesRegistry.h"
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Utilities/bold_fontify.h"
@@ -127,6 +127,7 @@ namespace art {
     ParentageRegistry::instance();
     ProcessConfigurationRegistry::instance();
     ProcessHistoryRegistry::instance();
+    SharedResourcesRegistry::instance();
     ServiceRegistry::instance().setManager(servicesManager_.get());
     // We do this late because the floating point control word, signal
     // masks, etc., are per-thread and inherited from the master
@@ -206,6 +207,8 @@ namespace art {
                                                   actReg_));
       };
     scheduleIteration_.for_each_schedule(create);
+    SharedResourcesRegistry::instance()->freeze();
+
     FDEBUG(2) << pset.to_string() << endl;
     // The input source must be created after the end path executor
     // because the end path executor registers a callback that must

@@ -3,11 +3,11 @@
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/RPWorkerT.h"
-#include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Results.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Utilities/SharedResourcesRegistry.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -31,10 +31,14 @@ namespace art {
     setModuleDescription(md);
   }
 
+  ResultsProducer::ResultsProducer() noexcept(false)
+  {
+    serialize(SharedResourcesRegistry::Legacy);
+  }
+
   void
   ResultsProducer::doBeginJob()
   {
-    serialize(SharedResourcesRegistry::kLegacy);
     createQueues();
     beginJob();
   }

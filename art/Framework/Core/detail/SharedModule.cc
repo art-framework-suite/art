@@ -1,7 +1,7 @@
 #include "art/Framework/Core/detail/SharedModule.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/SharedResourcesRegistry.h"
+#include "art/Utilities/SharedResourcesRegistry.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
 
@@ -62,14 +62,26 @@ namespace art::detail {
   void
   SharedModule::implicit_serialize()
   {
-    // This is the situation where a shared module must be
-    // serialized, but only wrt. itself--only one event call at a
-    // time.
-    serialize_for(moduleLabel_);
+    // This is the situation where a shared module must be serialized,
+    // but only wrt. itself--i.e. only one event call at a time.
+    // Because the shared-resources registry is not prepopulated with
+    // module names, we call the 'serialize_for_external' function to
+    // insert an entry into the registry.  This is safe to do as only
+    // this module will refer to the shared resource.
+    serialize_for_external(moduleLabel_);
   }
 
   void
-  SharedModule::serialize_for(std::string const& resourceName)
+  SharedModule::serialize_for(detail::SharedResource_t const& resource)
+  {
+    auto result = resourceNames_.emplace(resource.name);
+    if (result.second) {
+      SharedResourcesRegistry::instance()->updateSharedResource(resource.name);
+    }
+  }
+
+  void
+  SharedModule::serialize_for_external(std::string const& resourceName)
   {
     auto result = resourceNames_.emplace(resourceName);
     if (result.second) {

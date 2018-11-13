@@ -107,6 +107,8 @@ namespace art {
   public:
     virtual ~ResultsProducer() noexcept = default;
 
+    ResultsProducer() noexcept(false);
+
     template <typename UserConfig, typename KeysToIgnore = void>
     using Table = ProducerTable<UserConfig, detail::PluginConfig, KeysToIgnore>;
 

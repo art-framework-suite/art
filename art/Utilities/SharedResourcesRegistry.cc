@@ -1,6 +1,7 @@
-#include "art/Framework/Core/SharedResourcesRegistry.h"
+#include "art/Utilities/SharedResourcesRegistry.h"
 // vim: set sw=2 expandtab :
 
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "hep_concurrency/RecursiveMutex.h"
 #include "hep_concurrency/SerialTaskQueue.h"
@@ -18,19 +19,15 @@
 
 using namespace hep::concurrency;
 using namespace std;
+using namespace std::string_literals;
 
 namespace art {
 
-  string const SharedResourcesRegistry::kLegacy{"__legacy__"};
-
-  SharedResourcesRegistry::QueueAndCounter::~QueueAndCounter()
-  {
-    queue_.reset();
-  }
+  detail::SharedResource_t const SharedResourcesRegistry::Legacy{"__legacy__",
+                                                                 false};
 
   SharedResourcesRegistry::QueueAndCounter::QueueAndCounter()
   {
-    queue_ = std::make_shared<hep::concurrency::SerialTaskQueue>();
     counter_ = 0UL;
   }
 
@@ -49,14 +46,6 @@ namespace art {
     return me;
   }
 
-  SharedResourcesRegistry::~SharedResourcesRegistry()
-  {
-    ANNOTATE_THREAD_IGNORE_BEGIN;
-    delete resourceMap_;
-    resourceMap_ = nullptr;
-    ANNOTATE_THREAD_IGNORE_END;
-  }
-
   class AutoShutdownSharedResourcesRegistry {
   public:
     ~AutoShutdownSharedResourcesRegistry()
@@ -68,26 +57,55 @@ namespace art {
 
   namespace {
     AutoShutdownSharedResourcesRegistry doAutoShutdown;
+    std::string
+    error_context(std::string const& name)
+    {
+      return "An error occurred while attempting to register the shared resource '"s +
+             name + "'.\n";
+    }
   } // unnamed namespace
 
   SharedResourcesRegistry::SharedResourcesRegistry()
   {
-    resourceMap_ = new map<string, QueueAndCounter>;
+    frozen_ = false;
     nLegacy_ = 0U;
+    // Propulate queues for known shared resources.  Creating these
+    // slots does *not* automatically introduce synchronization.
+    // Synchronization is enabled based on the resource-names argument
+    // presented to the 'createQueues' member function.
+    registerSharedResource(Legacy);
   }
 
   void
-  SharedResourcesRegistry::registerSharedResource(string const& name)
+  SharedResourcesRegistry::updateSharedResource(string const& name) noexcept(
+    false)
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    // Note: This has the intended side-effect of creating the entry
-    // if it does not yet exist.
-    auto& queueAndCounter = (*resourceMap_)[name];
-    if (name == kLegacy) {
+    if (frozen_) {
+      throw art::Exception{art::errors::LogicError, error_context(name)}
+        << "The shared-resources registry has been frozen.  All 'serialize' "
+           "calls\n"
+        << "must be made in the constructor of a shared module and no later.\n";
+    }
+    auto it = resourceMap_.find(name);
+    if (it == cend(resourceMap_)) {
+      throw art::Exception{art::errors::LogicError, error_context(name)}
+        << "A 'serialize' call was made for a resource that has not been "
+           "registered.\n"
+        << "If the resource is an art-based service, make sure that the "
+           "service\n"
+        << "has been configured for this job.  Otherwise, use the "
+           "'serializeExternal'\n"
+        << "function call.  If neither of these approaches is appropriate, "
+           "contact\n"
+        << "artists@fnal.gov.\n";
+    }
+    auto& queueAndCounter = it->second;
+    if (name == Legacy.name) {
       ++nLegacy_;
       // Make sure all non-legacy resources have a higher count, which
       // makes legacy always the first queue.
-      for (auto& keyAndVal : *resourceMap_) {
+      for (auto& keyAndVal : resourceMap_) {
         // Note: keyAndVal.first  is a string (name of resource)
         // Note: keyAndVal.second is a QueueAndCounter
         ++keyAndVal.second.counter_;
@@ -105,11 +123,36 @@ namespace art {
     }
   }
 
+  void
+  SharedResourcesRegistry::registerSharedResource(
+    detail::SharedResource_t const& resource)
+  {
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    resourceMap_[resource.name];
+  }
+
+  void
+  SharedResourcesRegistry::registerSharedResource(string const& name) noexcept(
+    false)
+  {
+    RecursiveMutexSentry sentry{mutex_, __func__};
+    // Note: This has the intended side-effect of creating the entry
+    // if it does not yet exist.
+    resourceMap_[name];
+    updateSharedResource(name);
+  }
+
+  void
+  SharedResourcesRegistry::freeze()
+  {
+    frozen_ = true;
+  }
+
   vector<shared_ptr<SerialTaskQueue>>
   SharedResourcesRegistry::createQueues(string const& resourceName) const
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
-    vector<string> names{resourceName};
+    vector const names{resourceName};
     return createQueues(names);
   }
 
@@ -119,15 +162,13 @@ namespace art {
   {
     RecursiveMutexSentry sentry{mutex_, __func__};
     map<pair<unsigned, string>, shared_ptr<SerialTaskQueue>> sortedResources;
-    if (cet::search_all(resourceNames, kLegacy)) {
+    if (cet::search_all(resourceNames, Legacy.name)) {
       // This acquirer is for a legacy module, get the queues for all
       // resources.
       // Note: We do not trust legacy modules, they may be accessing
       // one of the shared resources without our knowledge, so we
       // isolate them from the one modules as well as each other.
-      for (auto const& keyAndVal : *resourceMap_) {
-        auto const& key = keyAndVal.first;
-        auto const& queueAndCounter = keyAndVal.second;
+      for (auto const& [key, queueAndCounter] : resourceMap_) {
         sortedResources.emplace(make_pair(queueAndCounter.counter_.load(), key),
                                 atomic_load(&queueAndCounter.queue_));
       }
@@ -135,10 +176,9 @@ namespace art {
       // Not for a legacy module, get the queues for the named
       // resources.
       for (auto const& name : resourceNames) {
-        auto iter = resourceMap_->find(name);
-        assert(iter != resourceMap_->end());
-        auto const& key = iter->first;
-        auto const& queueAndCounter = iter->second;
+        auto iter = resourceMap_.find(name);
+        assert(iter != resourceMap_.end());
+        auto const& [key, queueAndCounter] = *iter;
         sortedResources.emplace(make_pair(queueAndCounter.counter_.load(), key),
                                 atomic_load(&queueAndCounter.queue_));
       }

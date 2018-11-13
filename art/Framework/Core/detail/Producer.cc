@@ -1,7 +1,6 @@
 #include "art/Framework/Core/detail/Producer.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/SharedResourcesRegistry.h"
 #include "art/Framework/Core/detail/get_failureToPut_flag.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -11,6 +10,7 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/SharedResourcesRegistry.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace art::detail {

@@ -12,6 +12,8 @@ art_make_library(
     PluginSuffixes.cc
     RegexMatch.cc
     ScheduleID.cc
+    SharedResource.cc
+    SharedResourcesRegistry.cc
     unique_filename.cc
     UnixSignalHandlers.cc
     $<$<PLATFORM_ID:Linux>:LinuxProcMgr.cc>
