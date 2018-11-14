@@ -114,6 +114,8 @@ namespace art {
 
   class TimeTracker {
   public:
+    static constexpr bool service_handle_allowed{false};
+
     struct Config {
       fhicl::Atom<bool> printSummary{fhicl::Name{"printSummary"}, true};
       struct DBoutput {

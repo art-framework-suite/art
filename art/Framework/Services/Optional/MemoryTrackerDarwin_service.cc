@@ -15,6 +15,8 @@ namespace art {
 
   class MemoryTracker {
   public:
+    static constexpr bool service_handle_allowed{false};
+
     MemoryTracker(fhicl::ParameterSet const&)
     {
       mf::LogAbsolute("MemoryTracker")

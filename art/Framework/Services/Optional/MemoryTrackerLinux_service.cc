@@ -105,6 +105,8 @@ namespace art {
                                                 int>;
 
   public:
+    static constexpr bool service_handle_allowed{false};
+
     struct Config {
       template <typename T>
       using Atom = fhicl::Atom<T>;
