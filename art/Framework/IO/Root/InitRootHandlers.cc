@@ -129,6 +129,15 @@ namespace {
       el_severity = SeverityLevel::kInfo;
     }
 
+    // Enable XRootD retries
+    if ((el_location.find("TUnixSystem::GetHostByName") != npos) ||
+        // Allowed to downgrade severity of the error comes from
+        // TNetXNGFile::Open and is *not* fatal.
+        (el_location.find("TNetXNGFile::Open") != npos &&
+         el_message.find("[FATAL]") == npos)) {
+      el_severity = SeverityLevel::kInfo;
+    }
+
     if (el_severity == SeverityLevel::kInfo) {
       // Don't throw if the message is just informational.
       die = false;

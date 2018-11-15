@@ -131,7 +131,7 @@ public:
   {
     return productDescription().produced();
   }
-  ProductStatus const&
+  ProductStatus
   productStatus() const
   {
     return productProvenance().productStatus();

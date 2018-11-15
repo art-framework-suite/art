@@ -298,7 +298,7 @@ art::BasicOutputOptionsHandler::doProcessOptions(
     detail::exists_outside_prolog(raw_config, reset_key) ?
       raw_config.get<bool>(reset_key) :
       true;
-  RootErrorHandlerSentry re_sentry{maybe_reset};
+  art::setRootErrorHandler(maybe_reset);
   art::completeRootHandlers();
 
   return 0;
