@@ -55,25 +55,9 @@ namespace art {
       for (auto const& pr : p) {
         Group const& g = *pr.second;
         if (resolveProducts_) {
-          try {
-            if (!g.productAvailable()) {
-              Exception e{errors::ProductNotFound, "InaccessibleProduct"};
-              e << "resolveProduct: product is not accessible\n"
-                << g.productDescription().branchName() << '\n';
-              throw e;
-            }
-            if (!g.resolveProductIfAvailable()) {
-              throw Exception(errors::DataCorruption, "data corruption");
-            }
-          }
-          catch (art::Exception const& e) {
-            if (e.category() != "ProductNotFound") {
-              throw;
-            }
-            if (g.anyProduct())
-              throw art::Exception(errors::LogicError, "ProvenanceDumper", e)
-                << "Product reported as not present, but is pointed to "
-                   "nonetheless!";
+          bool const resolved_product = g.resolveProductIfAvailable();
+          if (!resolved_product) {
+            continue;
           }
         }
         bool wantCallFunc = true;

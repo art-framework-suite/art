@@ -148,6 +148,7 @@
 // order to be able to exactly reproduce the earlier process.
 // ==================================================================
 
+#include "CLHEP/Random/RandomEngine.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
@@ -195,30 +196,9 @@ namespace art {
     static long constexpr maxCLHEPSeed{900000000};
     static long constexpr useDefaultSeed{-1};
     using base_engine_t = CLHEP::HepRandomEngine;
+    using seed_t = long;
 
   private: // TYPES
-    // Per-schedule data
-    struct ScheduleData {
-      // The labeled random number engines for this stream.
-      // Indexed by engine label.
-      std::map<std::string, std::shared_ptr<CLHEP::HepRandomEngine>> dict_{};
-
-      // The most recent source of the labeled random number engines for this
-      // stream. Indexed by engine label. When EngineSource == Seed, this means
-      // an engine with the given label has been created by createEngine(sid,
-      // seed, ...). When EngineSource == File, this means the engine was
-      // created by restoring it from a file. When EngineSource == Product, this
-      // means the engine was created by restoring it from a snapshot data
-      // product with module label "restoreStateLabel".
-      std::map<std::string, EngineSource> tracker_{};
-
-      // The requested engine kind for each labeled random number engine for
-      // this stream. Indexed by engine label.
-      std::map<std::string, std::string> kind_{};
-
-      // The random engine number state snapshots taken for this stream.
-      std::vector<RNGsnapshot> snapshot_{};
-    };
 
   public:
     // Configuration
@@ -339,6 +319,27 @@ namespace art {
     bool engine_creation_is_okay_{true};
 
     // Per-schedule data
+    struct ScheduleData {
+      // The labeled random number engines for this stream.
+      // Indexed by engine label.
+      std::map<std::string, std::shared_ptr<CLHEP::HepRandomEngine>> dict_{};
+
+      // The most recent source of the labeled random number engines for this
+      // stream. Indexed by engine label. When EngineSource == Seed, this means
+      // an engine with the given label has been created by createEngine(sid,
+      // seed, ...). When EngineSource == File, this means the engine was
+      // created by restoring it from a file. When EngineSource == Product, this
+      // means the engine was created by restoring it from a snapshot data
+      // product with module label "restoreStateLabel".
+      std::map<std::string, EngineSource> tracker_{};
+
+      // The requested engine kind for each labeled random number engine for
+      // this stream. Indexed by engine label.
+      std::map<std::string, std::string> kind_{};
+
+      // The random engine number state snapshots taken for this stream.
+      std::vector<RNGsnapshot> snapshot_{};
+    };
     PerScheduleContainer<ScheduleData> data_;
   };
 

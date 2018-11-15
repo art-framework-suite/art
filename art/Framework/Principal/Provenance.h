@@ -65,7 +65,7 @@ namespace art {
     bool isValid() const;
     bool isPresent() const;
     bool produced() const;
-    ProductStatus const& productStatus() const;
+    ProductStatus productStatus() const;
 
     // General utilities
     bool equals(Provenance const&) const;

@@ -91,7 +91,7 @@ namespace art {
     return productDescription().inputTag();
   }
 
-  ProductStatus const&
+  ProductStatus
   Provenance::productStatus() const
   {
     return productProvenance().productStatus();
