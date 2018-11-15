@@ -30,7 +30,6 @@ art::Group::status() const
   if (product_.get()) {
     // Product has already been delay read, use the present flag
     // from the wrapper.
-    // FIXME: Old CMS note said backward compatibility only?
     if (product_->isPresent()) {
       pp->setPresent();
     } else {
