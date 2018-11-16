@@ -39,8 +39,8 @@ namespace CLHEP {
   }
 }
 
-  // Local variables:
-  // mode: c++
-  // End:
+// Local variables:
+// mode: c++
+// End:
 
 #endif /* art_Utilities_ParameterSetHelpers_CLHEP_ps_h */

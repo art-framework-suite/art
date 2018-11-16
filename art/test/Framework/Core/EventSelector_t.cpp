@@ -19,7 +19,7 @@ using namespace fhicl;
 const size_t numBits = 5;
 const int numPatterns = 11;
 const int numMasks = 9;
-const int numAns[[gnu::unused]] = numPatterns * numMasks;
+const int numAns [[gnu::unused]] = numPatterns * numMasks;
 
 typedef bool Answers[numPatterns][numMasks];
 typedef std::vector<std::string> Strings;
@@ -177,10 +177,10 @@ main()
   std::array<bool, numBits> t6 = {{true, true, true, true, true}};
   std::array<bool, numBits> t7 = {{true, true, true, true, false}};
   std::array<bool, numBits> t8 = {{false, false, false, false, true}};
-  std::array<bool, numBits> t9 =
-    {{false, false, false, false, false}}; // for t9 only, above the
-                                           // first is reset to ready
-                                           // last is reset to exception
+  std::array<bool, numBits> t9 = {
+    {false, false, false, false, false}}; // for t9 only, above the
+                                          // first is reset to ready
+                                          // last is reset to exception
 
   VBools testmasks(numMasks);
   testmasks[0].insert(testmasks[0].end(), t1.begin(), t1.end());

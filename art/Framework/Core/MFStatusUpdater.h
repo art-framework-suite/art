@@ -23,7 +23,7 @@
 #define MFSU_1_ARG_UPDATER_DEFN(cb)                                            \
   typename decltype(ActivityRegistry::s##cb)::result_type                      \
     MFStatusUpdater::updateStatusTo##cb(typename decltype(                     \
-      ActivityRegistry::s##cb)::slot_type::argument_type arg1[[gnu::unused]])
+      ActivityRegistry::s##cb)::slot_type::argument_type arg1 [[gnu::unused]])
 
 #define MFSU_2_ARG_UPDATER_DECL(cb)                                            \
   typename decltype(ActivityRegistry::s##cb)::result_type updateStatusTo##cb(  \
@@ -36,11 +36,11 @@
   typename decltype(ActivityRegistry::s##cb)::result_type                      \
     MFStatusUpdater::updateStatusTo##cb(                                       \
       typename decltype(                                                       \
-        ActivityRegistry::s##cb)::slot_type::first_argument_type               \
-        arg1[[gnu::unused]],                                                   \
+        ActivityRegistry::s##cb)::slot_type::first_argument_type arg1          \
+      [[gnu::unused]],                                                         \
       typename decltype(                                                       \
-        ActivityRegistry::s##cb)::slot_type::second_argument_type              \
-        arg2[[gnu::unused]])
+        ActivityRegistry::s##cb)::slot_type::second_argument_type arg2         \
+      [[gnu::unused]])
 
 namespace art {
 

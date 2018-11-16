@@ -839,9 +839,9 @@ namespace art {
   }
 
   unique_ptr<SubRunPrincipal>
-  RootInputFile::readCurrentSubRun(
-    EntryNumbers const& entryNumbers,
-    cet::exempt_ptr<RunPrincipal> rp[[gnu::unused]])
+  RootInputFile::readCurrentSubRun(EntryNumbers const& entryNumbers,
+                                   cet::exempt_ptr<RunPrincipal> rp
+                                   [[gnu::unused]])
   {
     subRunRangeSetHandler_ = fillAuxiliary<InSubRun>(entryNumbers);
     assert(subRunAux().id() == fiIter_->eventID_.subRunID());

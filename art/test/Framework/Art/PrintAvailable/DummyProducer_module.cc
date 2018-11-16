@@ -19,8 +19,7 @@ namespace art {
 
 class art::test::DummyProducer : public EDProducer {
 public:
-  struct Config {
-  };
+  struct Config {};
   using Parameters = EDProducer::Table<Config>;
   explicit DummyProducer(Parameters const&) {}
 

@@ -33,9 +33,9 @@
 #include <vector>
 
 using namespace cet;
-using std::chrono::steady_clock;
 using std::setw;
 using std::string;
+using std::chrono::steady_clock;
 
 namespace {
 
@@ -337,7 +337,7 @@ art::TimeTracker::postEventReading(Event const& e)
 
 //======================================================================
 void
-art::TimeTracker::preEventProcessing(Event const& e[[gnu::unused]])
+art::TimeTracker::preEventProcessing(Event const& e [[gnu::unused]])
 {
   // MT-TODO: Placeholder until we're multi-threaded
   auto const sid = ScheduleID::first().id();

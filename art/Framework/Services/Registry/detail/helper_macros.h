@@ -71,8 +71,8 @@ public                                                                         \
 // class instead of a base.
 #define DEFINE_ART_SERVICE_SCOPE(scopeArg)                                     \
   ServiceScope scope() const override { return ServiceScope::scopeArg; }       \
-  static constexpr ServiceScope scope_val[[gnu::unused]]{                      \
-    ServiceScope::scopeArg};
+  static constexpr ServiceScope scope_val                                      \
+    [[gnu::unused]]{ServiceScope::scopeArg};
 
 ////////////////////////////////////////////////////////////////////////
 // Define a member function to retrieve the desired service.

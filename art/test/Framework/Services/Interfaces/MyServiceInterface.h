@@ -6,8 +6,7 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
 namespace arttest {
-  class MyServiceInterface {
-  };
+  class MyServiceInterface {};
 }
 
 DECLARE_ART_SERVICE_INTERFACE(arttest::MyServiceInterface, LEGACY)

@@ -105,7 +105,7 @@ namespace {
                std::string const& process)
   {
     using namespace std::string_literals;
-    static constexpr bool isVoid[[gnu::unused]] = std::is_same<D, void>::value;
+    static constexpr bool isVoid [[gnu::unused]] = std::is_same<D, void>::value;
     std::size_t wanted = 0ull;
     wanted += 1ull;
     if (isVoid && wantVoid != "ALL"s && wantAmbiguous) {

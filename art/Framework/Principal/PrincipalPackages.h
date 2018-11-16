@@ -259,7 +259,7 @@ namespace art {
   using End = typename BeginEndPackage<L>::End;
 }
 
-  // ======================================================================
+// ======================================================================
 
 #endif /* art_Framework_Principal_PrincipalPackages_h */
 

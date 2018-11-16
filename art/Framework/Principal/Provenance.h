@@ -170,7 +170,7 @@ art::operator==(art::Provenance const& a, art::Provenance const& b)
   return a.equals(b);
 }
 
-  // ======================================================================
+// ======================================================================
 
 #endif /* art_Framework_Principal_Provenance_h */
 

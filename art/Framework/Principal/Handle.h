@@ -99,8 +99,7 @@ template <typename T>
 class art::Handle {
 public:
   using element_type = T;
-  class HandleTag {
-  };
+  class HandleTag {};
 
   // c'tors:
   explicit constexpr Handle() =
@@ -257,8 +256,7 @@ template <typename T>
 class art::ValidHandle {
 public:
   typedef T element_type;
-  class HandleTag {
-  };
+  class HandleTag {};
 
   ValidHandle() = delete;
   explicit ValidHandle(T const* prod, Provenance prov);

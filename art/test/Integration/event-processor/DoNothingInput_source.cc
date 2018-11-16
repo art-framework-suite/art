@@ -35,7 +35,10 @@ namespace art {
                      SourceHelper const&)
       {}
 
-      ~DoNothingInput() { ServiceHandle<Wanted> shouldNotThrow[[gnu::unused]]; }
+      ~DoNothingInput()
+      {
+        ServiceHandle<Wanted> shouldNotThrow [[gnu::unused]];
+      }
 
       void
       readFile(std::string const&, art::FileBlock*&)

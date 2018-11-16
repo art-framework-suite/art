@@ -197,7 +197,7 @@ art::ServicesManager::put(std::vector<SP>&& premade_services)
     id, detail::ServiceCacheEntry(std::move(swb), std::move(service_helper)));
 }
 
-  // ======================================================================
+// ======================================================================
 
 #endif /* art_Framework_Services_Registry_ServicesManager_h */
 

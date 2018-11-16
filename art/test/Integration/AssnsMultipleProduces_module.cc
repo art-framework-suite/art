@@ -17,8 +17,7 @@ namespace art {
 
 class art::test::AssnsMultipleProduces : public EDProducer {
 public:
-  struct Config {
-  };
+  struct Config {};
   using Parameters = EDProducer::Table<Config>;
   explicit AssnsMultipleProduces(Parameters const&);
   void produce(art::Event&) override{};

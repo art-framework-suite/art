@@ -20,8 +20,7 @@ namespace arttest {
 
 class arttest::IntArrayProducer : public art::EDProducer {
 public:
-  struct Config {
-  };
+  struct Config {};
   using Parameters = Table<Config>;
   explicit IntArrayProducer(Parameters const&) { produces<IntArray<sz>>(); }
 

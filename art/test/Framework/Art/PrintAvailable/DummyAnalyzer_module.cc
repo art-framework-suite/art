@@ -19,8 +19,7 @@ namespace art {
 
 class art::test::DummyAnalyzer : public EDAnalyzer {
 public:
-  struct Config {
-  };
+  struct Config {};
   using Parameters = EDAnalyzer::Table<Config>;
   explicit DummyAnalyzer(Parameters const& p) : EDAnalyzer{p} {}
 

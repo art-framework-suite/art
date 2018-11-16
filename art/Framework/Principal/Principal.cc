@@ -71,7 +71,7 @@ Principal::Principal(ProcessConfiguration const& pc,
   }
   assert(!ProcessHistoryRegistry::empty());
   ProcessHistory ph;
-  bool const found[[gnu::unused]]{ProcessHistoryRegistry::get(hist, ph)};
+  bool const found [[gnu::unused]]{ProcessHistoryRegistry::get(hist, ph)};
   assert(found);
   std::swap(processHistory_, ph);
 }

@@ -4,8 +4,7 @@
 #include <iostream>
 
 namespace {
-  struct Config {
-  };
+  struct Config {};
 }
 
 namespace arttest {

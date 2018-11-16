@@ -31,7 +31,7 @@ namespace art {
   class MemoryAdjuster {
   public:
     using Parameters = ServiceTable<Config>;
-    MemoryAdjuster(ServiceTable<Config> const& config[[gnu::unused]])
+    MemoryAdjuster(ServiceTable<Config> const& config [[gnu::unused]])
     {
 #ifndef __linux__
       mf::LogAbsolute("MemoryAdjuster")
