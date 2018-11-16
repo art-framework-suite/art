@@ -1,15 +1,10 @@
 process_name: "SR2"
 
-services: {
-  RandomNumberGenerator: { }
-}
+services.RandomNumberGenerator: {}
 
-physics:
-{
-  analyzers:
-  {
-    mixAnalyzer:
-    {
+physics: {
+  analyzers: {
+    mixAnalyzer: {
       module_type: MixAnalyzer
       numSecondaries: 5
       mixFilterLabel: mixFilter
@@ -17,11 +12,9 @@ physics:
   }
 
   e1: [ mixAnalyzer ]
-  end_paths: [ e1 ]
 }
 
-source:
-{
+source: {
   module_type: RootInput
   fileNames: [ "../ProductMix_r1.d/out.root" ]
 }

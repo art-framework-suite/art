@@ -1,11 +1,8 @@
 process_name: "SREAD"
 
-physics:
-{
-  filters:
-  {
-    mixFilter:
-    {
+physics: {
+  filters: {
+    mixFilter: {
       module_type: MixFilterTest
       numSecondaries: 5
       mixProducerLabel: mixProducer
@@ -14,10 +11,8 @@ physics:
     }
   }
 
-  analyzers:
-  {
-    mixAnalyzer:
-    {
+  analyzers: {
+    mixAnalyzer: {
       module_type: MixAnalyzer
       numSecondaries: 5
       mixFilterLabel: mixFilter
@@ -28,17 +23,12 @@ physics:
   e1: [ mixAnalyzer, out ]
 }
 
-outputs:
-{
-  out:
-  {
-    module_type: RootOutput
-    fileName: "out.root"
-  }
+outputs.out: {
+  module_type: RootOutput
+  fileName: "out.root"
 }
 
-source:
-{
+source: {
   module_type: EmptyEvent
   maxEvents: 200
 }
