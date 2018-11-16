@@ -664,6 +664,20 @@ cet_test(ProductMix_r1c3 HANDBUILT
   TEST_PROPERTIES DEPENDS ProductMix_w
 )
 
+# Mix the events from ProductMix_w, testing that things behave
+# properly with secondary input file wrapping where the number of
+# secondaries exceeds the number in the mixing file.
+cet_test(ProductMix_r1c4 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- --rethrow-all -c "ProductMix_r1c4.fcl"
+  DATAFILES
+  fcl/ProductMix_r1.fcl
+  fcl/ProductMix_r1c.fcl
+  fcl/ProductMix_r1c4.fcl
+  TEST_PROPERTIES DEPENDS ProductMix_w
+  PASS_REGULAR_EXPRESSION "The number of requested secondaries.*exceeds the number of events"
+)
+
 # Mix the events from ProductMix_w, testing that things behave properly
 # with no startEvent function.
 cet_test(ProductMix_r1d1 HANDBUILT

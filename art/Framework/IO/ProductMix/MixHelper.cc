@@ -20,6 +20,7 @@
 #include <functional>
 #include <limits>
 #include <numeric>
+#include <ostream>
 #include <regex>
 #include <unordered_set>
 
@@ -147,19 +148,33 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
   assert(enSeq.empty());
   assert(eIDseq.empty());
   assert(nEventsInFile_ >= 0);
+
   bool over_threshold =
     (readMode_ == Mode::SEQUENTIAL || readMode_ == Mode::RANDOM_NO_REPLACE) ?
       ((nEventsReadThisFile_ + nSecondaries) >
        static_cast<size_t>(nEventsInFile_)) :
       ((nEventsReadThisFile_ + nSecondaries) >
        (nEventsInFile_ * coverageFraction_));
-  if (over_threshold || (!ffVersion_.isValid())) {
+  if (over_threshold || !ffVersion_.isValid()) {
+    if (!providerFunc_) {
+      ++nOpensOverThreshold_;
+      if (nOpensOverThreshold_ > filenames_.size()) {
+        throw Exception{errors::UnimplementedFeature,
+                        "An error occurred while preparing product-mixing for the current event.\n"}
+          << "The number of requested secondaries (" << nSecondaries << ") exceeds the number of events in any\n"
+          << "of the files specified for product mixing.  For a read mode of '" << readMode_ << "',\n"
+          << "the framework does not currently allow product-mixing to span multiple secondary\n"
+          << "input files for a given event.  Please contact artists@fnal.gov for more information.\n";
+      }
+    }
     if (openNextFile_()) {
       return generateEventSequence(nSecondaries, enSeq, eIDseq);
     } else {
       return false;
     }
   }
+
+  nOpensOverThreshold_ = {};
   switch (readMode_) {
     case Mode::SEQUENTIAL:
       enSeq.reserve(nSecondaries);
@@ -312,6 +327,19 @@ art::MixHelper::setEventsToSkipFunction(std::function<size_t()> eventsToSkip)
   eventsToSkip_ = eventsToSkip;
 }
 
+std::ostream&
+art::operator<<(std::ostream& os, MixHelper::Mode const m)
+{
+  switch(m) {
+  case MixHelper::Mode::SEQUENTIAL: os << "SEQUENTIAL"; break;
+  case MixHelper::Mode::RANDOM_REPLACE: os << "RANDOM_REPLACE"; break;
+  case MixHelper::Mode::RANDOM_LIM_REPLACE: os << "RANDOM_LIM_REPLACE"; break;
+  case MixHelper::Mode::RANDOM_NO_REPLACE: os << "RANDOM_NO_REPLACE"; break;
+  case MixHelper::Mode::UNKNOWN: os << "UNKNOWN";
+  }
+  return os;
+}
+
 auto
 art::MixHelper::initReadMode_(std::string const& mode) const -> Mode
 {
@@ -459,12 +487,6 @@ art::MixHelper::buildProductIDTransMap_(
   for (auto& mixOp : mixOps_) {
     auto const bt = mixOp->branchType();
     mixOp->initializeBranchInfo(dataBranches_[bt]);
-#if ART_DEBUG_PTRREMAPPER
-    std::cerr << "BranchIDTransMap: " << std::hex << std::setfill('0')
-              << std::setw(8) << mixOp->incomingProductID() << " -> "
-              << std::setw(8) << mixOp->outgoingProductID() << std::dec
-              << ".\n";
-#endif
     if (bt == InEvent) {
       transMap[mixOp->incomingProductID()] = mixOp->outgoingProductID();
     }

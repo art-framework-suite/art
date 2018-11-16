@@ -228,6 +228,7 @@
 #include "cetlib/value_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 
+#include <iosfwd>
 #include <functional>
 #include <memory>
 #include <string>
@@ -242,8 +243,7 @@ namespace art {
 }
 
 class art::MixHelper {
-private:
-  typedef std::function<std::string()> ProviderFunc_;
+  using ProviderFunc_ = std::function<std::string()>;
 
 public:
   enum class Mode {
@@ -251,7 +251,7 @@ public:
     RANDOM_REPLACE,
     RANDOM_LIM_REPLACE,
     RANDOM_NO_REPLACE,
-    UKNOWN
+    UNKNOWN
   };
 
   // Constructor.
@@ -374,6 +374,7 @@ private:
   Long64_t nEventsInFile_{};
   Long64_t totalEventsRead_{};
   bool const canWrapFiles_;
+  unsigned nOpensOverThreshold_{};
   FileFormatVersion ffVersion_{};
   std::unique_ptr<art::BranchIDLists> branchIDLists_{
     nullptr}; // For backwards compatibility
@@ -394,6 +395,10 @@ private:
     {}};
   EventIDIndex eventIDIndex_{};
 };
+
+namespace art {
+  std::ostream& operator<<(std::ostream& os, MixHelper::Mode);
+}
 
 inline auto
 art::MixHelper::readMode() const -> Mode
