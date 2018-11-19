@@ -23,7 +23,7 @@
 #define MFSU_1_ARG_UPDATER_DEFN(cb)                                            \
   decltype(ActivityRegistry::s##cb)::result_type                               \
     MFStatusUpdater::updateStatusTo##cb(decltype(                              \
-      ActivityRegistry::s##cb)::slot_argument_type<0> arg1[[maybe_unused]])
+      ActivityRegistry::s##cb)::slot_argument_type<0> arg1 [[maybe_unused]])
 
 #define MFSU_2_ARG_UPDATER_DECL(cb)                                            \
   decltype(ActivityRegistry::s##cb)::result_type updateStatusTo##cb(           \
@@ -33,10 +33,10 @@
 #define MFSU_2_ARG_UPDATER_DEFN(cb)                                            \
   decltype(ActivityRegistry::s##cb)::result_type                               \
     MFStatusUpdater::updateStatusTo##cb(                                       \
-      decltype(                                                                \
-        ActivityRegistry::s##cb)::slot_argument_type<0> arg1[[maybe_unused]],  \
-      decltype(                                                                \
-        ActivityRegistry::s##cb)::slot_argument_type<1> arg2[[maybe_unused]])
+      decltype(ActivityRegistry::s##cb)::slot_argument_type<0> arg1            \
+      [[maybe_unused]],                                                        \
+      decltype(ActivityRegistry::s##cb)::slot_argument_type<1> arg2            \
+      [[maybe_unused]])
 
 namespace art {
 

@@ -13,7 +13,7 @@ namespace {
   template <class F>
   int
   exceptionCatcher(F func,
-                   std::string const& funcName[[maybe_unused]],
+                   std::string const& funcName [[maybe_unused]],
                    int failureCode)
   {
     try {

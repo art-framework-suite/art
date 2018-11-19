@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(TestSignal0_t)
   // output_test_stream::result_type (in Boost <=1.53.0 at least)
   // screwing up std::ref's attempt to determine whether
   // output_test_stream is a callable entity.
-  std::ostringstream& osr[[maybe_unused]]{os};
+  std::ostringstream& osr [[maybe_unused]]{os};
   s.watch([&osr, &test_text] { testCallback<0>(osr, test_text); });
   BOOST_CHECK_NO_THROW(s.invoke());
   BOOST_CHECK(os.is_equal(test_text));

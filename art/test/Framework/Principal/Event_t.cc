@@ -65,17 +65,22 @@ using product_t = arttest::IntProduct;
 namespace {
 
   [[maybe_unused]] art::EventID
-  make_id() {
+  make_id()
+  {
     return art::EventID{2112, 47, 25};
   }
 
-    [[maybe_unused]] constexpr art::Timestamp make_timestamp()
+  [[maybe_unused]] constexpr art::Timestamp
+  make_timestamp()
   {
     return art::Timestamp{1};
   }
 
   [[maybe_unused]] std::string
-  module_class_name() { return "IntProducer"; }
+  module_class_name()
+  {
+    return "IntProducer";
+  }
 
 } // namespace
 

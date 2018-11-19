@@ -199,7 +199,6 @@ namespace art {
     using seed_t = long;
 
   private: // TYPES
-
   public:
     // Configuration
     struct Config {

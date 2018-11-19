@@ -31,7 +31,7 @@ namespace {
   std::string const context{"An error was encountered while processing the "
                             "-e|--estart program option.\n"};
 
-  constexpr auto article[[maybe_unused]](art::Level const L)
+  constexpr auto article [[maybe_unused]] (art::Level const L)
   {
     return (L == art::Level::InputFile || L == art::Level::Event) ? "an" : "a";
   }
