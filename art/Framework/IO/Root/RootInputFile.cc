@@ -293,10 +293,14 @@ namespace art {
     fiEnd_ = fileIndex_.end();
     readEventHistoryTree(treeCacheSize);
 
+    // Read the BranchChildren, necessary for dropping descendent products
+    auto const branchChildren =
+      detail::readMetadata<BranchChildren>(metaDataTree);
+
     // Read the ProductList
     productListHolder_ = detail::readMetadata<ProductRegistry>(metaDataTree);
     auto& prodList = productListHolder_.productList_;
-    dropOnInput(groupSelectorRules, dropDescendants, prodList);
+    dropOnInput(groupSelectorRules, branchChildren, dropDescendants, prodList);
 
     auto availableProducts = fillPerBranchTypePresenceFlags(prodList);
     // Add branches
@@ -1023,15 +1027,14 @@ namespace art {
 
   void
   RootInputFile::dropOnInput(GroupSelectorRules const& rules,
+                             BranchChildren const& children,
                              bool const dropDescendants,
                              ProductList& prodList)
   {
     // This is the selector for drop on input.
     GroupSelector const groupSelector{rules, prodList};
     // Do drop on input. On the first pass, just fill in a set of
-    // branches to be dropped.  Use the BranchChildren class to
-    // assemble list of children to drop.
-    BranchChildren children;
+    // branches to be dropped.
     set<ProductID> branchesToDrop;
     for (auto const& prod : prodList) {
       auto const& pd = prod.second;

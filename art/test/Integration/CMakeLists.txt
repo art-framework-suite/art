@@ -39,6 +39,7 @@ simple_plugin(CompressedIntTestAnalyzer   "module"  NO_INSTALL)
 simple_plugin(ConcurrentEngineRetrieval   "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(DeferredIsReadyWithAssnsAnalyzer "module"  NO_INSTALL)
 simple_plugin(DeferredIsReadyWithAssnsProducer "module"  NO_INSTALL)
+simple_plugin(DerivedPtrVectorAnalyzer    "module"  NO_INSTALL)
 simple_plugin(DerivedPtrVectorProducer    "module"  NO_INSTALL)
 simple_plugin(DifferentHistoriesAnalyzer  "module"  NO_INSTALL USE_BOOST_UNIT)
 simple_plugin(DoubleProducer              "module"  NO_INSTALL)
@@ -863,6 +864,13 @@ cet_test(DeferredIsReadyWithAssns_t HANDBUILT
   DATAFILES
   fcl/DeferredIsReadyWithAssns_t.fcl
   )
+
+cet_test(DropDescendentProducts_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c DropDescendentProducts_t.fcl
+  REQUIRED_FILES "../ProvenanceDumper_w.d/out.root"
+  DATAFILES fcl/DropDescendentProducts_t.fcl
+  TEST_PROPERTIES DEPENDS ProvenanceDumper_w)
 
 # Use the file from Ptrmv_w to test DropOnInput and outputCommand drops.
 #

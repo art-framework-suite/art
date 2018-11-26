@@ -41,6 +41,7 @@
 
 namespace art {
 
+  class BranchChildren;
   class DuplicateChecker;
   class EventRangeHandler;
   class GroupSelectorRules;
@@ -310,6 +311,7 @@ namespace art {
     void overrideRunNumber(EventID& id, bool isRealData);
 
     void dropOnInput(GroupSelectorRules const& rules,
+                     BranchChildren const& children,
                      bool dropDescendants,
                      ProductList& branchDescriptions);
 

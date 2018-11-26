@@ -1,0 +1,20 @@
+# The input file for this test has had the 'm1a' products dropped
+# during the RootOutput stage of the ProvenanceDumper_w process.  The
+# purpose of this test is to demonstrate that dropping 'm1a' during
+# RootInput should result in dropping any dependent products
+# (e.g. 'm1b').
+
+process_name: DropDescendentProducts
+
+source: {
+  module_type: RootInput
+  fileNames: [ "../ProvenanceDumper_w.d/out.root" ]
+  inputCommands: [ "keep *", "drop *_m1a_*_*" ]
+}
+
+physics.analyzers.a1: {
+  module_type: DerivedPtrVectorAnalyzer
+  input_tag: "m1b"
+  require_presence: false
+}
+physics.ep: [a1]
