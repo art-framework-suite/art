@@ -408,6 +408,7 @@ namespace art {
     std::size_t nEventsReadThisFile_{};
     std::size_t totalEventsRead_{};
     bool const canWrapFiles_;
+    unsigned nOpensOverThreshold_{};
     ProdToProdMapBuilder ptpBuilder_{};
     cet::exempt_ptr<base_engine_t> engine_;
     std::unique_ptr<CLHEP::RandFlat> dist_;

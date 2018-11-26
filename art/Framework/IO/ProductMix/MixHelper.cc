@@ -190,12 +190,30 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
       ((nEventsReadThisFile_ + nSecondaries) >
        (nEventsInFile * coverageFraction_));
   if (over_threshold || !ioHandle_->fileOpen()) {
+    if (!providerFunc_) {
+      ++nOpensOverThreshold_;
+      if (nOpensOverThreshold_ > filenames_.size()) {
+        throw Exception{errors::UnimplementedFeature,
+                        "An error occurred while preparing product-mixing for "
+                        "the current event.\n"}
+          << "The number of requested secondaries (" << nSecondaries
+          << ") exceeds the number of events in any\n"
+          << "of the files specified for product mixing.  For a read mode of '"
+          << readMode_ << "',\n"
+          << "the framework does not currently allow product-mixing to span "
+             "multiple secondary\n"
+          << "input files for a given event.  Please contact artists@fnal.gov "
+             "for more information.\n";
+      }
+    }
     if (openNextFile_()) {
       return generateEventSequence(nSecondaries, enSeq, eIDseq);
     } else {
       return false;
     }
   }
+
+  nOpensOverThreshold_ = {};
   switch (readMode_) {
     case Mode::SEQUENTIAL:
       enSeq.resize(nSecondaries);
