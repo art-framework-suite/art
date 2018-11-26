@@ -19,8 +19,7 @@ namespace art {
 
 class art::test::DummyFilter : public EDFilter {
 public:
-  struct Config {
-  };
+  struct Config {};
   using Parameters = EDFilter::Table<Config>;
   explicit DummyFilter(Parameters const&) {}
 

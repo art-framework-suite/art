@@ -31,8 +31,7 @@ namespace art {
   class TrivialFileDelivery : public CatalogInterface {
   public:
     // configuration
-    struct Config {
-    };
+    struct Config {};
     using Parameters = ServiceTable<Config>;
 
     // ctor -- the services factory will expect this signature

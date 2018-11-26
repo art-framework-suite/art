@@ -35,8 +35,7 @@ namespace {
     std::atomic<unsigned> nParticles_{};
 
   public:
-    struct Config {
-    };
+    struct Config {};
     using Parameters = EDProducer::Table<Config>;
     explicit EventGenerator(Parameters const&)
     {

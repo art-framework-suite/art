@@ -117,22 +117,19 @@ namespace art {
     using cet::enable_if_function_exists_t;
 
     template <typename T, typename = void>
-    struct has_hasMoreData : std::false_type {
-    };
+    struct has_hasMoreData : std::false_type {};
 
     template <typename T>
     struct has_hasMoreData<
       T,
       enable_if_function_exists_t<bool (T::*)(), &T::hasMoreData>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     template <typename T>
     struct has_hasMoreData<
       T,
       enable_if_function_exists_t<bool (T::*)() const, &T::hasMoreData>>
-      : std::true_type {
-    };
+      : std::true_type {};
 
     template <typename T>
     struct do_call_hasMoreData {

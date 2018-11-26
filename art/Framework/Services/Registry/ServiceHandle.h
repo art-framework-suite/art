@@ -53,8 +53,7 @@ public:
   ServiceHandle() try : instance {
     &ServiceRegistry::instance().get<std::remove_const_t<T>>()
   }
-  {
-  }
+  {}
   catch (art::Exception const& x)
   {
     throw art::Exception(art::errors::ServiceNotFound)
@@ -89,8 +88,7 @@ public:
   explicit ServiceHandle(ScheduleID const sID) try : instance {
     &ServiceRegistry::instance().get<std::remove_const_t<T>>(sID)
   }
-  {
-  }
+  {}
   catch (art::Exception const& x)
   {
     throw art::Exception(art::errors::ServiceNotFound)

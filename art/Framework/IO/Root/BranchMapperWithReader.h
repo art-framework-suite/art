@@ -57,7 +57,7 @@ art::BranchMapperWithReader::readProvenance_() const
   }
 }
 
-  // ======================================================================
+// ======================================================================
 
 #endif /* art_Framework_IO_Root_BranchMapperWithReader_h */
 

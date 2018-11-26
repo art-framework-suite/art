@@ -22,8 +22,7 @@ namespace arttest {
 
   class ToyProductProducer : public art::EDProducer {
   public:
-    struct Config {
-    };
+    struct Config {};
     using Parameters = art::EDProducer::Table<Config>;
 
     explicit ToyProductProducer(Parameters const&)

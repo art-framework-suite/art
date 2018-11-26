@@ -8,7 +8,7 @@
 #include <algorithm>
 
 namespace {
-  constexpr auto invalid_eid[[gnu::unused]] =
+  constexpr auto invalid_eid [[gnu::unused]] =
     art::IDNumber<art::Level::Event>::invalid();
 }
 

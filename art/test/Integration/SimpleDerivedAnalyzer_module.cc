@@ -152,8 +152,7 @@ test_view(art::Event const& e,
 
 // dummy is a type we can be sure is not used in any collections in
 // the Event; no dictionary exists for it.
-struct dummy {
-};
+struct dummy {};
 
 void
 SimpleDerivedAnalyzer::test_getView(art::Event const& e) const

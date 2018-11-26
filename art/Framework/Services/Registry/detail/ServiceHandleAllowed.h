@@ -15,13 +15,11 @@
 namespace art {
   namespace detail {
     template <typename T, typename = void>
-    struct handle_allowed : std::true_type {
-    };
+    struct handle_allowed : std::true_type {};
 
     template <typename T>
     struct handle_allowed<T, std::enable_if_t<!T::service_handle_allowed>>
-      : std::false_type {
-    };
+      : std::false_type {};
 
     template <typename T>
     bool constexpr handle_allowed_v{handle_allowed<T>::value};

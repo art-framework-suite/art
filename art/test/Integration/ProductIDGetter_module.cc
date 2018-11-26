@@ -24,8 +24,7 @@ namespace art {
 }
 
 class art::test::ProductIDGetter : public EDProducer {
-  struct Config {
-  };
+  struct Config {};
 
 public:
   using Parameters = Table<Config>;

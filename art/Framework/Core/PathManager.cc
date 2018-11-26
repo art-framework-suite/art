@@ -213,7 +213,7 @@ art::PathManager::vstring
 art::PathManager::processPathConfigs_()
 {
   vstring trigger_path_names;
-  auto nSchedules[[gnu::unused]] =
+  auto nSchedules [[gnu::unused]] =
     procPS_.get<size_t>("services.scheduler.num_schedules", 1);
   // Identify and process paths.
   std::set<std::string> known_pars{

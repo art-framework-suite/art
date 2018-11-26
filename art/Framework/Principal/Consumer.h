@@ -85,8 +85,7 @@ namespace art {
   class ModuleDescription;
 
   class Consumer {
-    struct InvalidTag {
-    };
+    struct InvalidTag {};
 
   public:
     explicit Consumer() = default;

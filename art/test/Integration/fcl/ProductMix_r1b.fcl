@@ -2,8 +2,8 @@
 
 physics.filters.mixFilter.fileNames[1]: " ../ProductMix_w.d/mix.root"
 physics.filters.mixFilter.expectedRespondFunctionCalls: 2
-physics.analyzers: {}
-outputs: {}
-physics.e1: []
-physics.end_paths: []
+physics.analyzers: @erase
+outputs: @erase
+physics.e1: @erase
+physics.end_paths: @erase
 source.maxEvents: 210

@@ -163,7 +163,7 @@ art::Path::process(typename T::MyPrincipal& ep)
   T::postPathSignal(actReg_, name_, status);
 }
 
-  // ======================================================================
+// ======================================================================
 
 #endif /* art_Framework_Core_Path_h */
 
