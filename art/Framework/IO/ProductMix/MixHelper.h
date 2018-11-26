@@ -45,8 +45,9 @@
 //
 //   Re-start from fileNames[0] after secondary events are
 //   exhausted. If this is false, exhausting the secondary file stream
-//   will result in the filter returning false for the remainder of
-//   the job.
+//   will result in the filter throwing an exception that is handled
+//   based on the configured handling policy for FileReadError
+//   exceptions.
 //
 // compactMissingProducts (default false).
 //

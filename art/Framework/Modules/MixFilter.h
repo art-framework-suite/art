@@ -125,7 +125,7 @@
 //      responsibility of the user's mixing function to deal with the
 //      provided information appropriately. We recommend making use of
 //      the optional processEventIDs(...) and
-//      prodcessEventAuxiliaries(...) functions to avoid unintentional
+//      processEventAuxiliaries(...) functions to avoid unintentional
 //      double-counting of information.
 //
 //    * The mix operation may generate event-level data for the primary
