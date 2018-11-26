@@ -228,8 +228,8 @@
 #include "cetlib/value_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 
-#include <iosfwd>
 #include <functional>
+#include <iosfwd>
 #include <memory>
 #include <string>
 #include <vector>

@@ -160,11 +160,16 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
       ++nOpensOverThreshold_;
       if (nOpensOverThreshold_ > filenames_.size()) {
         throw Exception{errors::UnimplementedFeature,
-                        "An error occurred while preparing product-mixing for the current event.\n"}
-          << "The number of requested secondaries (" << nSecondaries << ") exceeds the number of events in any\n"
-          << "of the files specified for product mixing.  For a read mode of '" << readMode_ << "',\n"
-          << "the framework does not currently allow product-mixing to span multiple secondary\n"
-          << "input files for a given event.  Please contact artists@fnal.gov for more information.\n";
+                        "An error occurred while preparing product-mixing for "
+                        "the current event.\n"}
+          << "The number of requested secondaries (" << nSecondaries
+          << ") exceeds the number of events in any\n"
+          << "of the files specified for product mixing.  For a read mode of '"
+          << readMode_ << "',\n"
+          << "the framework does not currently allow product-mixing to span "
+             "multiple secondary\n"
+          << "input files for a given event.  Please contact artists@fnal.gov "
+             "for more information.\n";
       }
     }
     if (openNextFile_()) {
@@ -330,12 +335,21 @@ art::MixHelper::setEventsToSkipFunction(std::function<size_t()> eventsToSkip)
 std::ostream&
 art::operator<<(std::ostream& os, MixHelper::Mode const m)
 {
-  switch(m) {
-  case MixHelper::Mode::SEQUENTIAL: os << "SEQUENTIAL"; break;
-  case MixHelper::Mode::RANDOM_REPLACE: os << "RANDOM_REPLACE"; break;
-  case MixHelper::Mode::RANDOM_LIM_REPLACE: os << "RANDOM_LIM_REPLACE"; break;
-  case MixHelper::Mode::RANDOM_NO_REPLACE: os << "RANDOM_NO_REPLACE"; break;
-  case MixHelper::Mode::UNKNOWN: os << "UNKNOWN";
+  switch (m) {
+    case MixHelper::Mode::SEQUENTIAL:
+      os << "SEQUENTIAL";
+      break;
+    case MixHelper::Mode::RANDOM_REPLACE:
+      os << "RANDOM_REPLACE";
+      break;
+    case MixHelper::Mode::RANDOM_LIM_REPLACE:
+      os << "RANDOM_LIM_REPLACE";
+      break;
+    case MixHelper::Mode::RANDOM_NO_REPLACE:
+      os << "RANDOM_NO_REPLACE";
+      break;
+    case MixHelper::Mode::UNKNOWN:
+      os << "UNKNOWN";
   }
   return os;
 }
