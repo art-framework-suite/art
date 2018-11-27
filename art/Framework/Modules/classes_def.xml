@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="art::SampledEventID" ClassVersion="10">
+   <version ClassVersion="10" checksum="4245016335"/>
+  </class>
+  <class name="art::Wrapper<art::SampledEventID>"/>
+</lcgdict>

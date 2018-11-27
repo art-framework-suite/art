@@ -1,0 +1,11 @@
+#include "sampling_input_w.fcl"
+
+process_name: "SamplingInputWriteSignal"
+
+source.firstRun: 14
+source.firstSubRun: 3
+source.firstEvent: 9
+
+physics.producers.p1.ivalue: 14
+
+outputs.out.fileName: "out.root"

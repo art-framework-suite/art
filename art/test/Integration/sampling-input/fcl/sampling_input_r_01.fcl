@@ -1,0 +1,12 @@
+# The purpose of this test is to verify that any products written in
+# the SamplingInput process are peristed correctly to an output file
+# and can be read as expected via RootInput.
+
+#include "sampling_input_t_01.fcl"
+
+process_name: SamplingInputReadingTest02
+
+source: {
+  module_type: RootInput
+  fileNames: [ "../SamplingInput_t_01.d/out.root" ]
+}

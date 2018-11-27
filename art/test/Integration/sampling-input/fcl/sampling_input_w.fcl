@@ -1,0 +1,25 @@
+source: {
+  module_type: EmptyEvent
+  firstRun: @nil
+  firstSubRun: @nil
+  firstEvent: @nil
+}
+
+physics: {
+  producers: {
+    p1: {
+      module_type: IntProducer
+      ivalue: @nil
+    }
+    p2: {
+      module_type: PtrmvProducer
+    }
+  }
+}
+physics.tp @protect_error: [p1, p2]
+physics.ep @protect_error: [out]
+
+outputs.out: {
+  module_type: RootOutput
+  fileName: @nil
+}

@@ -1,0 +1,9 @@
+# This configuration is ill-formed: at least one dataset must be
+# specified for the SamplingInput source.
+
+process_name: ShuffleEventsTest01
+
+source: {
+  module_type: SamplingInput
+  dataSets: {}
+}

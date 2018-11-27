@@ -19,22 +19,13 @@ namespace art {
   class ModuleDescription;
 
   struct InputSourceDescription {
-    InputSourceDescription(ModuleDescription const&,
-                           MasterProductRegistry&,
-                           ActivityRegistry&);
+    InputSourceDescription(InputSourceDescription const&) = delete;
+    InputSourceDescription(InputSourceDescription&&) = delete;
 
     ModuleDescription const& moduleDescription;
     MasterProductRegistry& productRegistry;
     ActivityRegistry& activityRegistry;
   };
-
-  inline InputSourceDescription::InputSourceDescription(
-    ModuleDescription const& md,
-    MasterProductRegistry& preg,
-    ActivityRegistry& areg)
-    : moduleDescription(md), productRegistry(preg), activityRegistry(areg)
-  {}
-
 } // art
 
 #endif /* art_Framework_Core_InputSourceDescription_h */

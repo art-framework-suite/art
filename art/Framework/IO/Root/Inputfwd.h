@@ -2,12 +2,13 @@
 #define art_Framework_IO_Root_Inputfwd_h
 
 // ======================================================================
-//
 // Inputfwd
-//
 // ======================================================================
 
+#include "canvas/Persistency/Provenance/BranchKey.h"
+
 #include "Rtypes.h"
+
 #include <map>
 #include <vector>
 

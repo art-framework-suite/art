@@ -1,0 +1,37 @@
+process_name: SamplingInputTest01
+
+source: {
+  module_type: SamplingInput
+  summary: true
+  dataSets: {
+    signal: {
+      weight: 0.35
+      fileName: "../SamplingInput_w_signal.d/out.root"
+    }
+    bkgd: {
+      weight: 0.82
+      fileName: "../SamplingInput_w_bkgd.d/out.root"
+    }
+  }
+}
+
+physics: {
+  analyzers: {
+    checkInts: {
+      module_type: SamplingAnalyzer
+      int_label: "p1"
+      ptrmv_label: "p2"
+      datasets: {
+        signal: {
+          sampled_run: 14
+          ivalue: 14
+        }
+        bkgd: {
+          sampled_run: 4
+          ivalue: 4
+        }
+      }
+    }
+  }
+  ep: [checkInts]
+}

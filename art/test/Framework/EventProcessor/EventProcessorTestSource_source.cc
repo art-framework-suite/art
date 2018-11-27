@@ -25,6 +25,7 @@
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Utilities/Exception.h"
@@ -88,7 +89,7 @@ namespace arttest {
     EventProcessorTestSource(fhicl::ParameterSet const& ps,
                              art::InputSourceDescription& isd)
       : InputSource{isd.moduleDescription}
-      , isd_{isd}
+      , pc_{isd.moduleDescription.processConfiguration()}
       , fileNames_{ps.get<std::vector<std::string>>("fileNames")}
     {}
 
@@ -150,8 +151,7 @@ namespace arttest {
     readRun() override
     {
       art::RunAuxiliary const aux{run_, nullTimestamp(), nullTimestamp()};
-      auto rp = std::make_unique<art::RunPrincipal>(
-        aux, isd_.moduleDescription.processConfiguration(), nullptr);
+      auto rp = std::make_unique<art::RunPrincipal>(aux, pc_, nullptr);
       return rp;
     }
 
@@ -159,8 +159,7 @@ namespace arttest {
     readSubRun(cet::exempt_ptr<art::RunPrincipal const> rp) override
     {
       art::SubRunAuxiliary const aux{subRun_, nullTimestamp(), nullTimestamp()};
-      auto srp = std::make_unique<art::SubRunPrincipal>(
-        aux, isd_.moduleDescription.processConfiguration(), nullptr);
+      auto srp = std::make_unique<art::SubRunPrincipal>(aux, pc_, nullptr);
       srp->setRunPrincipal(rp);
       return srp;
     }
@@ -169,8 +168,7 @@ namespace arttest {
     readEvent(cet::exempt_ptr<art::SubRunPrincipal const> srp) override
     {
       art::EventAuxiliary const aux{event_, nullTimestamp(), true};
-      auto ep = std::make_unique<art::EventPrincipal>(
-        aux, isd_.moduleDescription.processConfiguration(), nullptr);
+      auto ep = std::make_unique<art::EventPrincipal>(aux, pc_, nullptr);
       ep->setSubRunPrincipal(srp);
       return ep;
     }
@@ -188,7 +186,7 @@ namespace arttest {
     }
 
   private:
-    art::InputSourceDescription const isd_;
+    art::ProcessConfiguration const pc_;
     std::ifstream inputFile_{};
     std::string currentName_{};
     std::vector<std::string> fileNames_{};

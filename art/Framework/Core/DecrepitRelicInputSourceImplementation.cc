@@ -8,6 +8,7 @@
 
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceDescription.h"
+#include "art/Framework/Core/detail/issue_reports.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Run.h"
@@ -19,34 +20,10 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <cassert>
-#include <ctime>
 
 using fhicl::ParameterSet;
 
-// ----------------------------------------------------------------------
-
 namespace art {
-
-  namespace {
-    std::string const&
-    suffix(int count)
-    {
-      static std::string const st("st");
-      static std::string const nd("nd");
-      static std::string const rd("rd");
-      static std::string const th("th");
-      // *0, *4 - *9 use "th".
-      int lastDigit = count % 10;
-      if (lastDigit >= 4 || lastDigit == 0)
-        return th;
-      // *11, *12, or *13 use "th".
-      if (count % 100 - lastDigit == 10)
-        return th;
-      return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
-    }
-  } // namespace
-
-  // ----------------------------------------------------------------------
 
   DecrepitRelicInputSourceImplementation::
     ~DecrepitRelicInputSourceImplementation() noexcept
@@ -303,13 +280,7 @@ namespace art {
   void
   DecrepitRelicInputSourceImplementation::issueReports(EventID const& eventID)
   {
-    time_t t = time(0);
-    char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-    strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
-    mf::LogVerbatim("ArtReport")
-      << "Begin processing the " << readCount_ << suffix(readCount_)
-      << " record. " << eventID << " at " << ts;
-    // At some point we may want to initiate checkpointing here
+    detail::issue_reports(readCount_, eventID);
   }
 
   void
