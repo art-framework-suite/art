@@ -87,7 +87,7 @@ namespace {
       }
       catch (fhicl::detail::validationException const& e) {
         throw art::Exception(art::errors::Configuration)
-          << "\n\nModule label: " << art::detail::bold_fontify(md.moduleLabel())
+          << "\nModule label: " << art::detail::bold_fontify(md.moduleLabel())
           << "\nmodule_type : " << art::detail::bold_fontify(md.moduleName())
           << "\n\n"
           << e.what();
@@ -254,7 +254,9 @@ art::EventProcessor::levelsToProcess()
     return false;
   }
 
-  throw Exception{errors::LogicError} << "Incorrect level hierarchy.";
+  throw Exception{errors::LogicError} << "Incorrect level hierarchy.\n"
+                                      << "  Current level: " << L
+                                      << "  Next level: " << nextLevel_;
 }
 
 namespace art {
