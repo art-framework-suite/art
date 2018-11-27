@@ -66,13 +66,6 @@ namespace art {
       return moduleDescription_.processConfiguration();
     }
 
-    // Return the Event specified by the given EventID, or the next
-    // one in the input sequence after the given EventID if one with
-    // the given id can not be found. Derived classes that can not
-    // perform random access should not implement this function; the
-    // default implementation will throw an exception.
-    virtual std::unique_ptr<EventPrincipal> readEvent(EventID const& id);
-
     // Skip forward (or backward, if n<0) n events. Derived classes
     // that can not perform random access should not implement this
     // function; the default implementation will throw an exception.

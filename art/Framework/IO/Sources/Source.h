@@ -167,7 +167,6 @@ public:
   std::unique_ptr<FileBlock> readFile() override;
   void closeFile() override;
 
-  using InputSource::readEvent;
   std::unique_ptr<RunPrincipal> readRun() override;
   std::unique_ptr<SubRunPrincipal> readSubRun(
     cet::exempt_ptr<RunPrincipal const> rp) override;

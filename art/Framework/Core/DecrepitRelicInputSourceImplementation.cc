@@ -294,15 +294,6 @@ namespace art {
     return std::move(eventPrincipal_);
   }
 
-  std::unique_ptr<EventPrincipal>
-  DecrepitRelicInputSourceImplementation::readEvent(EventID const&)
-  {
-    throw art::Exception(art::errors::LogicError)
-      << "DecrepitRelicInputSourceImplementation::readEvent()\n"
-      << "Random access is not implemented for this type of Input Source\n"
-      << "Contact a Framework Developer\n";
-  }
-
   void
   DecrepitRelicInputSourceImplementation::skipEvents(int offset)
   {

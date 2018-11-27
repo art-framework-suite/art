@@ -56,7 +56,6 @@ private:
     return nullptr;
   }
 
-  using art::InputSource::readEvent;
   std::unique_ptr<art::EventPrincipal>
   readEvent(cet::exempt_ptr<art::SubRunPrincipal const>) override
   {

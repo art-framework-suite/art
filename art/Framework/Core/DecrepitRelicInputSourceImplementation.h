@@ -105,9 +105,6 @@ namespace art {
     std::unique_ptr<EventPrincipal> readEvent(
       cet::exempt_ptr<SubRunPrincipal const> srp) override;
 
-    /// Read a specific event
-    std::unique_ptr<EventPrincipal> readEvent(EventID const&) override;
-
     /// Read next subRun
     std::unique_ptr<SubRunPrincipal> readSubRun(
       cet::exempt_ptr<RunPrincipal const> rp) override;
