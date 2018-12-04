@@ -79,7 +79,7 @@ namespace art {
   }
 }
 
-#endif /* art_Framework_Core_ProducerBase_h */
+#endif /* art_Framework_Core_ProducerTable_h */
 
 // Local Variables:
 // mode: c++

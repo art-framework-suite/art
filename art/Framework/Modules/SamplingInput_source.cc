@@ -7,7 +7,7 @@
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceMacros.h"
 #include "art/Framework/Core/detail/issue_reports.h"
-#include "art/Framework/Modules/SampledEventID.h"
+#include "art/Framework/Modules/SampledInfo.h"
 #include "art/Framework/Modules/detail/DataSetSampler.h"
 #include "art/Framework/Modules/detail/SamplingInputFile.h"
 #include "art/Framework/Principal/EventPrincipal.h"
@@ -19,6 +19,8 @@
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
+#include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
@@ -38,6 +40,7 @@
 #include <vector>
 
 using namespace fhicl;
+using namespace std::string_literals;
 
 namespace art {
 
@@ -48,6 +51,7 @@ namespace art {
       Atom<unsigned> maxEvents{Name{"maxEvents"}, 1u};
       Atom<bool> delayedReadEventProducts{Name{"delayedReadEventProducts"},
                                           true};
+      Atom<bool> readParameterSets{Name{"readParameterSets"}, true};
       OptionalAtom<RunNumber_t> run{
         Name{"run"},
         Comment{
@@ -120,8 +124,11 @@ namespace art {
     unsigned totalCounts_{};
     bool const summary_;
     bool const delayedReadEventProducts_;
+    bool const readParameterSets_;
     std::map<std::string, detail::SamplingInputFile> files_;
-    BranchDescription pdForSampledEventID_;
+    ProductDescriptions sampledInfoDescriptions_;
+    ProductTable subRunPresentProducts_;
+    ProductTable runPresentProducts_;
     cet::exempt_ptr<std::string const> currentDataset_{nullptr};
     input::EntryNumber currentEntryInCurrentDataset_{
       std::numeric_limits<input::EntryNumber>::max()};
@@ -145,7 +152,19 @@ art::SamplingInput::SamplingInput(Parameters const& config,
   , dataSetSampler_{config().dataSets.get<ParameterSet>()}
   , summary_{config().summary()}
   , delayedReadEventProducts_{config().delayedReadEventProducts()}
+  , readParameterSets_{config().readParameterSets()}
 {
+  if (!readParameterSets_) {
+    mf::LogWarning("PROVENANCE")
+      << "Source parameter readParameterSets was set to false: parameter set "
+         "provenance\n"
+      << "will NOT be available in this or subsequent jobs using output from "
+         "this job.\n"
+      << "Check your experiment's policy on this issue to avoid future "
+         "problems\n"
+      << "with analysis reproducibility.";
+  }
+
   RunNumber_t r{};
   bool const haveFirstRun = config().run(r);
   runID_ = haveFirstRun ? RunID{r} : RunID::firstRun();
@@ -218,13 +237,32 @@ art::SamplingInput::SamplingInput(Parameters const& config,
     }
   }
 
-  // Register SampledEventID data product
-  TypeLabel const typeWithLabel{
-    TypeID{typeid(SampledEventID)}, {}, false, std::string{"SamplingInput"}};
-  pdForSampledEventID_ =
-    BranchDescription{InEvent, typeWithLabel, isd.moduleDescription};
-  ProductDescriptions pds{pdForSampledEventID_};
-  preg_.addProductsFromModule(std::move(pds));
+  // Register SampledRunInfo, SampledSubRunInfo, and SampledEventInfo data
+  // products. N.B. Order is important!
+  auto const emulated_module_name = "SamplingInput"s;
+  sampledInfoDescriptions_.emplace_back(
+    InEvent,
+    TypeLabel{
+      TypeID{typeid(SampledEventInfo)}, {}, false, emulated_module_name},
+    isd.moduleDescription);
+  assert(sampledInfoDescriptions_[InEvent].branchType() == InEvent);
+  sampledInfoDescriptions_.emplace_back(
+    InSubRun,
+    TypeLabel{
+      TypeID{typeid(SampledSubRunInfo)}, {}, false, emulated_module_name},
+    isd.moduleDescription);
+  assert(sampledInfoDescriptions_[InSubRun].branchType() == InSubRun);
+  sampledInfoDescriptions_.emplace_back(
+    InRun,
+    TypeLabel{TypeID{typeid(SampledRunInfo)}, {}, false, emulated_module_name},
+    isd.moduleDescription);
+  assert(sampledInfoDescriptions_[InRun].branchType() == InRun);
+  preg_.addProductsFromModule(ProductDescriptions{sampledInfoDescriptions_});
+
+  // Specify present products for SubRuns and Runs.  Only the
+  // Sampled(Sub)RunInfo products are present for the (Sub)Runs.
+  subRunPresentProducts_ = ProductTable{sampledInfoDescriptions_, InSubRun};
+  runPresentProducts_ = ProductTable{sampledInfoDescriptions_, InRun};
 }
 
 std::unique_ptr<art::FileBlock>
@@ -238,7 +276,8 @@ art::SamplingInput::readFile()
                                   dataSetSampler_.fileName(name),
                                   dataSetSampler_.weight(name),
                                   dataSetSampler_.probability(name),
-                                  pdForSampledEventID_,
+                                  sampledInfoDescriptions_,
+                                  readParameterSets_,
                                   preg_});
     }
     catch (Exception const& e) {
@@ -297,15 +336,49 @@ std::unique_ptr<art::RunPrincipal>
 art::SamplingInput::readRun()
 {
   art::RunAuxiliary const aux{runID_, nullTimestamp(), nullTimestamp()};
-  return std::make_unique<art::RunPrincipal>(aux, pc_, nullptr);
+  auto rp = std::make_unique<art::RunPrincipal>(
+    aux, pc_, cet::make_exempt_ptr(&runPresentProducts_));
+  auto sampledRunInfo = std::make_unique<SampledRunInfo>();
+  for (auto const& pr : files_) {
+    auto const& dataset = pr.first;
+    auto const& file = pr.second;
+    sampledRunInfo->emplace(dataset, file.fillRun(*rp));
+  }
+
+  // Place sampled run info onto the run
+  auto wp = std::make_unique<Wrapper<SampledRunInfo>>(move(sampledRunInfo));
+  auto const& pd = sampledInfoDescriptions_[InRun];
+  rp->put(std::move(wp),
+          pd,
+          std::make_unique<ProductProvenance const>(pd.productID(),
+                                                    productstatus::present()),
+          RangeSet::forRun(runID_));
+  return rp;
 }
 
 std::unique_ptr<art::SubRunPrincipal>
 art::SamplingInput::readSubRun(cet::exempt_ptr<art::RunPrincipal const> rp)
 {
   art::SubRunAuxiliary const aux{subRunID_, nullTimestamp(), nullTimestamp()};
-  auto srp = std::make_unique<art::SubRunPrincipal>(aux, pc_, nullptr);
+  auto srp = std::make_unique<SubRunPrincipal>(
+    aux, pc_, cet::make_exempt_ptr(&subRunPresentProducts_));
+  auto sampledSubRunInfo = std::make_unique<SampledSubRunInfo>();
+  for (auto const& pr : files_) {
+    auto const& dataset = pr.first;
+    auto const& file = pr.second;
+    sampledSubRunInfo->emplace(dataset, file.fillSubRun(*srp));
+  }
   srp->setRunPrincipal(rp);
+
+  // Place sampled subrun info onto the subrun
+  auto wp =
+    std::make_unique<Wrapper<SampledSubRunInfo>>(move(sampledSubRunInfo));
+  auto const& pd = sampledInfoDescriptions_[InSubRun];
+  srp->put(std::move(wp),
+           pd,
+           std::make_unique<ProductProvenance const>(pd.productID(),
+                                                     productstatus::present()),
+           RangeSet::forSubRun(subRunID_));
   return srp;
 }
 

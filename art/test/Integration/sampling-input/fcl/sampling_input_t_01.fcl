@@ -24,10 +24,12 @@ physics: {
       datasets: {
         signal: {
           sampled_run: 14
+          sampled_subrun: 3
           ivalue: 14
         }
         bkgd: {
           sampled_run: 4
+          sampled_subrun: 0
           ivalue: 4
         }
       }

@@ -2,6 +2,7 @@
 #define art_Framework_Modules_detail_SamplingInputFile_h
 
 #include "art/Framework/IO/Root/Inputfwd.h"
+#include "art/Framework/Modules/SampledInfo.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
@@ -13,6 +14,7 @@
 #include "canvas/Persistency/Provenance/ProductRegistry.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "cetlib/exempt_ptr.h"
+#include "cetlib/sqlite/Connection.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -27,13 +29,17 @@ namespace art {
   namespace detail {
     class SamplingInputFile {
     public:
-      explicit SamplingInputFile(std::string const& dataset,
-                                 std::string const& filename,
-                                 double weight,
-                                 double probability,
-                                 BranchDescription const& pdForSampledEventID,
-                                 MasterProductRegistry& mpr);
+      explicit SamplingInputFile(
+        std::string const& dataset,
+        std::string const& filename,
+        double weight,
+        double probability,
+        ProductDescriptions const& sampledInfoDescriptions,
+        bool readIncomingParameterSets,
+        MasterProductRegistry& mpr);
       bool entryForNextEvent(input::EntryNumber& entry);
+      SampledInfo<RunID> fillRun(RunPrincipal& rp) const;
+      SampledInfo<SubRunID> fillSubRun(SubRunPrincipal& srp) const;
       std::unique_ptr<EventPrincipal> readEvent(input::EntryNumber entry,
                                                 EventID const& eventID,
                                                 ProcessConfiguration const& pc);
@@ -46,6 +52,7 @@ namespace art {
       std::unique_ptr<TFile> file_;
       double const weight_;
       double const probability_;
+      cet::sqlite::Connection sqliteDB_{}; // Start with invalid connection.
       FileIndex fileIndex_{};
       FileFormatVersion fileFormatVersion_{};
       FileIndex::const_iterator fiIter_{fileIndex_.cbegin()};
@@ -56,7 +63,7 @@ namespace art {
       TBranch* productProvenanceBranch_{nullptr};
       TTree* eventHistoryTree_{nullptr};
       input::BranchMap branches_{};
-      BranchDescription const& pdForSampledEventID_;
+      ProductDescriptions const& sampledInfoDescriptions_;
       ProductRegistry productListHolder_{};
       ProductTables presentProducts_{ProductTables::invalid()};
       std::unique_ptr<BranchIDLists> branchIDLists_{
@@ -66,3 +73,7 @@ namespace art {
 }
 
 #endif /* art_Framework_Modules_detail_SamplingInputFile_h */
+
+// Local Variables:
+// mode: c++
+// End:

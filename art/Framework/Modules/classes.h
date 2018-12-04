@@ -1,2 +1,2 @@
-#include "art/Framework/Modules/SampledEventID.h"
+#include "art/Framework/Modules/SampledInfo.h"
 #include "canvas/Persistency/Common/Wrapper.h"

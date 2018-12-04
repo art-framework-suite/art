@@ -1,12 +1,16 @@
 #include "art/Framework/Modules/detail/SamplingInputFile.h"
 
 #include "art/Framework/IO/Root/BranchMapperWithReader.h"
+#include "art/Framework/IO/Root/RootDB/TKeyVFSOpenPolicy.h"
+#include "art/Framework/IO/Root/RootDB/have_table.h"
 #include "art/Framework/IO/Root/checkDictionaries.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
 #include "art/Framework/IO/Root/rootErrMsgs.h"
-#include "art/Framework/Modules/SampledEventID.h"
+#include "art/Framework/Modules/SampledInfo.h"
 #include "art/Framework/Modules/detail/SamplingDelayedReader.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
@@ -14,6 +18,7 @@
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas_root_io/Streamers/ProductIDStreamer.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace detail = art::detail;
 
@@ -22,13 +27,14 @@ detail::SamplingInputFile::SamplingInputFile(
   std::string const& filename,
   double const weight,
   double const probability,
-  BranchDescription const& pdForSampledEventID,
+  ProductDescriptions const& sampledInfoDescriptions,
+  bool const readIncomingParameterSets,
   MasterProductRegistry& mpr)
   : dataset_{dataset}
   , file_{std::make_unique<TFile>(filename.c_str())}
   , weight_{weight}
   , probability_{probability}
-  , pdForSampledEventID_{pdForSampledEventID}
+  , sampledInfoDescriptions_{sampledInfoDescriptions}
 {
   // Read metadata tree
   auto metaDataTree =
@@ -46,6 +52,16 @@ detail::SamplingInputFile::SamplingInputFile(
 
   // Read file format version
   fileFormatVersion_ = detail::readMetadata<FileFormatVersion>(metaDataTree);
+
+  // Also need to check RootFileDB if we have one.
+  if (fileFormatVersion_.value_ >= 5) {
+    sqliteDB_ = ServiceHandle<DatabaseConnection> {}
+    ->get<TKeyVFSOpenPolicy>("RootFileDB", file_.get());
+    if (readIncomingParameterSets &&
+        have_table(sqliteDB_, "ParameterSets", dataset_)) {
+      fhicl::ParameterSetRegistry::importFrom(sqliteDB_);
+    }
+  }
 
   // Read file index
   auto findexPtr = &fileIndex_;
@@ -88,21 +104,16 @@ detail::SamplingInputFile::SamplingInputFile(
   // Read the ProductList
   std::array<AvailableProducts_t, NumBranchTypes> availableProducts{{}};
   productListHolder_ = detail::readMetadata<ProductRegistry>(metaDataTree);
-  auto& eventProductList = productListHolder_.productList_;
+  auto& productList = productListHolder_.productList_;
   //  dropOnInput(groupSelectorRules, branchChildren, dropDescendants,
   //  prodList);
 
-  for (auto& pr : eventProductList) {
+  for (auto& pr : productList) {
     auto& pd = pr.second;
-    if (pd.branchType() != InEvent) {
-      eventProductList.erase(pr.first);
-      continue;
-    }
-
     auto branch = eventTree_->GetBranch(pd.branchName().c_str());
     bool const present{branch != nullptr};
     if (present) {
-      availableProducts[InEvent].emplace(pd.productID());
+      availableProducts[pd.branchType()].emplace(pd.productID());
       checkDictionaries(pd);
     }
 
@@ -113,15 +124,16 @@ detail::SamplingInputFile::SamplingInputFile(
     branches_.emplace(pr.first, input::BranchInfo{pd, branch});
   }
 
-  mpr.updateFromInputFile(eventProductList);
+  mpr.updateFromInputFile(productList);
 
-  // Register SampledEventID data product
-  availableProducts[InEvent].emplace(pdForSampledEventID_.productID());
-  checkDictionaries(pdForSampledEventID_);
-  eventProductList.emplace(BranchKey{pdForSampledEventID_},
-                           pdForSampledEventID_);
-  presentProducts_ = ProductTables{make_product_descriptions(eventProductList),
-                                   availableProducts};
+  // Register newly created data product
+  for (auto const& pd : sampledInfoDescriptions_) {
+    availableProducts[pd.branchType()].emplace(pd.productID());
+    checkDictionaries(pd);
+    productList.emplace(BranchKey{pd}, pd);
+  }
+  presentProducts_ =
+    ProductTables{make_product_descriptions(productList), availableProducts};
 }
 
 bool
@@ -138,6 +150,43 @@ detail::SamplingInputFile::entryForNextEvent(art::input::EntryNumber& entry)
   entry = fiIter_->entry_;
   ++fiIter_;
   return true;
+}
+
+art::SampledInfo<art::RunID>
+detail::SamplingInputFile::fillRun(RunPrincipal& rp [[gnu::unused]]) const
+{
+  // We use a set because it is okay for multiple entries of the same
+  // Run to be present in the FileIndex--these correspond to Run
+  // fragments.  However, we do not want these to appear as separate
+  // entries in the SampledInfo object.
+  std::set<RunID> ids;
+  for (auto const& element : fileIndex_) {
+    if (element.getEntryType() != FileIndex::kRun) {
+      continue;
+    }
+    ids.emplace(element.eventID_.run());
+  }
+  return SampledInfo<RunID>{
+    weight_, probability_, std::vector<RunID>(cbegin(ids), cend(ids))};
+}
+
+art::SampledInfo<art::SubRunID>
+detail::SamplingInputFile::fillSubRun(SubRunPrincipal& srp
+                                      [[gnu::unused]]) const
+{
+  // We use a set because it is okay for multiple entries of the same
+  // SubRun to be present in the FileIndex--these correspond to SubRun
+  // fragments.  However, we do not want these to appear as separate
+  // entries in the SampledInfo object.
+  std::set<SubRunID> ids;
+  for (auto const& element : fileIndex_) {
+    if (element.getEntryType() != FileIndex::kSubRun) {
+      continue;
+    }
+    ids.emplace(element.eventID_.run(), element.eventID_.subRun());
+  }
+  return SampledInfo<SubRunID>{
+    weight_, probability_, std::vector<SubRunID>(cbegin(ids), cend(ids))};
 }
 
 std::unique_ptr<art::EventPrincipal>
@@ -162,7 +211,7 @@ detail::SamplingInputFile::readEvent(input::EntryNumber const entry,
     std::make_shared<History>(std::move(history)),
     std::make_unique<BranchMapperWithReader>(productProvenanceBranch_, entry),
     std::make_unique<SamplingDelayedReader>(fileFormatVersion_,
-                                            nullptr,
+                                            sqliteDB_,
                                             input::EntryNumbers{entry},
                                             branches_,
                                             eventTree_,
@@ -176,13 +225,14 @@ detail::SamplingInputFile::readEvent(input::EntryNumber const entry,
   }
 
   // Place sampled EventID onto event
-  auto sampledEventID = std::make_unique<SampledEventID>(
-    SampledEventID{on_disk_id, dataset_, weight_, probability_});
-  auto wp = std::make_unique<Wrapper<SampledEventID>>(move(sampledEventID));
+  auto sampledEventID = std::make_unique<SampledEventInfo>(
+    SampledEventInfo{on_disk_id, dataset_, weight_, probability_});
+  auto wp = std::make_unique<Wrapper<SampledEventInfo>>(move(sampledEventID));
+  auto const& pd = sampledInfoDescriptions_[InEvent];
   ep->put(std::move(wp),
-          pdForSampledEventID_,
-          std::make_unique<ProductProvenance const>(
-            pdForSampledEventID_.productID(), productstatus::present()));
+          pd,
+          std::make_unique<ProductProvenance const>(pd.productID(),
+                                                    productstatus::present()));
   return ep;
 }
 

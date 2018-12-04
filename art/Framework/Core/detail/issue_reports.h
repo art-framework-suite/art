@@ -12,4 +12,4 @@ namespace art {
 // mode: c++
 // End:
 
-#endif
+#endif /* art_Framework_Core_detail_issue_reports_h */

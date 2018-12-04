@@ -23,4 +23,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_Modules_SampledEventID_h */
+
+// Local Variables:
+// mode: c++
+// End:
