@@ -22,7 +22,7 @@
 
 namespace art {
   class MasterProductRegistry;
-  class ProcessConfiguration;
+  struct ProcessConfiguration;
 
   namespace detail {
     class SamplingInputFile {
