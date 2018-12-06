@@ -2,7 +2,9 @@
 
 #include "art/Framework/Art/detail/AllowedConfiguration.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
+#include "art/Framework/Art/detail/get_LibraryInfoCollection.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
+#include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ensureTable.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/canonical_string.h"
@@ -158,8 +160,12 @@ namespace {
 
       if (outputs_table.find(streamName) == outputs_table.cend()) {
         new_path_entry = true;
+        std::string const defaultOutputModule =
+          art::detail::get_LibraryInfoCollection(art::Suffixes::module(),
+                                                 "RootOutput").empty() ?
+          "FileDumperOutput" : "RootOutput";
         raw_config.put(outputsKey + '.' + streamName + '.' + "module_type",
-                       "RootOutput");
+                       defaultOutputModule);
       }
       std::string out_table_path(outputsKey);
       out_table_path += '.' + streamName;
@@ -246,8 +252,9 @@ art::BasicOutputOptionsHandler::doProcessOptions(
   if (!tmpDir_.empty()) {
     std::string const& tfile_key = fhicl_key("services", "TFileService");
     if (detail::exists_outside_prolog(raw_config, tfile_key)) {
-      assert(
-        detail::supports_key(Suffixes::service(), "TFileService", "tmpDir"));
+      auto has_tmpDir [[maybe_unused]] =
+        detail::supports_key(Suffixes::service(), "TFileService", "tmpDir");
+      assert(has_tmpDir); // Should never happen.
       raw_config.put(fhicl_key(tfile_key, "tmpDir"), tmpDir_);
     }
 

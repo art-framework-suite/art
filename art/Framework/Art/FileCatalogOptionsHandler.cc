@@ -120,16 +120,13 @@ namespace {
       if (!stream.empty()) {
         raw_config.put(stream_name_key, stream);
       }
-      if (raw_config.get<string>(fhicl_key(
-            outputs_stem, output.first, "module_type")) == "RootOutput") {
-        if (!(exists_outside_prolog(raw_config, tier_spec_key) &&
-              exists_outside_prolog(raw_config, stream_name_key))) {
-          throw art::Exception(art::errors::Configuration)
-            << "Output \"" << output.first << "\" must be configured with "
-            << tier_spec_stem << " (--sam-data-tier=" << output.first
-            << ":<tier>) and " << stream_name_stem
-            << " (--sam-stream-name=" << output.first << ":<stream>).\n";
-        }
+      if (!(exists_outside_prolog(raw_config, tier_spec_key) &&
+            exists_outside_prolog(raw_config, stream_name_key))) {
+        throw art::Exception(art::errors::Configuration)
+          << "Output \"" << output.first << "\" must be configured with "
+          << tier_spec_stem << " (--sam-data-tier=" << output.first
+          << ":<tier>) and " << stream_name_stem
+          << " (--sam-stream-name=" << output.first << ":<stream>).\n";
       }
     }
   }

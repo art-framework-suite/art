@@ -2,8 +2,7 @@ outputs: {
    out: {
       fileName: "out.root"
       module_label: "out"
-      module_type: "RootOutput"
-      tmpDir: "/tmp"
+      module_type: "FileDumperOutput"
    }
 }
 physics: {
@@ -20,11 +19,6 @@ services: {
    FileTransfer: {
       service_provider: "TrivialFileTransfer"
       service_type: "FileTransfer"
-   }
-   TFileService: {
-      fileName: "hist.root"
-      service_type: "TFileService"
-      tmpDir: "/tmp"
    }
    message: {
       destinations: {

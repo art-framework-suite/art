@@ -2,17 +2,17 @@ outputs: {
    o1: {
       fileName: "junk.out"
       module_label: "o1"
-      module_type: "RootOutput"
+      module_type: "FileDumperOutput"
    }
    o2: {
       fileName: "junk9.out"
       module_label: "o2"
-      module_type: "RootOutput"
+      module_type: "FileDumperOutput"
    }
    o3: {
       fileName: "junk21.out"
       module_label: "o3"
-      module_type: "RootOutput"
+      module_type: "FileDumperOutput"
    }
 }
 physics: {

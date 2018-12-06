@@ -18,7 +18,7 @@ endmacro()
 # functionality.
 cet_test(BasicOutputOptions_01_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --TFileName hist.root
+  TEST_ARGS
   -o out.root
   --tmpdir /tmp
   -c /dev/null

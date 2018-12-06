@@ -3,7 +3,7 @@ outputs: {
       dataTier: "The one with the thickest frosting"
       fileName: "out.root"
       module_label: "out"
-      module_type: "RootOutput"
+      module_type: "FileDumperOutput"
       streamName: "wannabikkit"
    }
 }

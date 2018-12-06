@@ -2,7 +2,7 @@ outputs: {
    out: {
       fileName: "/dev/null"
       module_label: "out"
-      module_type: "RootOutput"
+      module_type: "FileDumperOutput"
    }
 }
 physics: {

@@ -2,8 +2,7 @@ outputs: {
    myOut: {
       fileName: "out.root"
       module_label: "myOut"
-      module_type: "RootOutput"
-      tmpDir: "/tmp"
+      module_type: "FileDumperOutput"
    }
 }
 physics: {
