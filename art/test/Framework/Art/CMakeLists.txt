@@ -7,20 +7,6 @@ cet_test(fhicl_key_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
 # OptionsHandler tests.
 
 ####################################
-# config_ref_test
-#
-# Make reference comparisons easier.
-
-macro(config_ref_test TNAME)
-  cet_test(${TNAME}_r HANDBUILT
-    TEST_EXEC diff
-    TEST_ARGS -u ${TNAME}-ref.txt
-    ../${TNAME}_w.d/config.out
-    DATAFILES ${TNAME}-ref.txt
-    TEST_PROPERTIES DEPENDS ${TNAME}_w)
-endmacro()
-
-####################################
 # config_file_pass
 #
 # Ensure the config file has been written out to pass the test.
@@ -64,8 +50,7 @@ add_subdirectory(PrintAvailable)
 
 ####################################
 # BasicOutputOptionsHandler.
-# FIXME: Tests 1 and 12 have moved to art_root_io; they should be
-# brought back to art.
+# FIXME: Tests 1 and 12 have moved to test/Configuration.
 
 # Detect ambiguity and exit with error.
 cet_test(BasicOutputOptions_02_w HANDBUILT
@@ -92,7 +77,8 @@ cet_test(BasicOutputOptions_04_w HANDBUILT
   -c /dev/null
   --debug-config=config.out)
 config_test_debug_pass(BasicOutputOptions_04_w)
-config_ref_test(BasicOutputOptions_04)
+config_ref_test(BasicOutputOptions_04
+  OUTPUT_FILTERS DEFAULT ${filterOutputModule})
 
 # Should pass -- simple.
 cet_test(BasicOutputOptions_05_w HANDBUILT
@@ -190,7 +176,8 @@ cet_test(BasicOutputOptions_15_w HANDBUILT
   --debug-config=config.out
   DATAFILES fcl/multiout.fcl)
 config_test_debug_pass(BasicOutputOptions_15_w)
-config_ref_test(BasicOutputOptions_15)
+config_ref_test(BasicOutputOptions_15
+  OUTPUT_FILTERS DEFAULT ${filterOutputModule})
 
 # Should fail -- command-line multi-out with late no-stream spec.
 cet_test(BasicOutputOptions_16_w HANDBUILT
@@ -398,7 +385,8 @@ cet_test(FileCatalogOptions_05_w HANDBUILT
 config_test_debug_pass(FileCatalogOptions_05_w)
 
 # Compare output from FileCatalogOptions_05_w against reference.
-config_ref_test(FileCatalogOptions_05)
+config_ref_test(FileCatalogOptions_05
+  OUTPUT_FILTERS DEFAULT ${filterOutputModule})
 
 # Should pass and provide config output file for comparison in
 # FileCatalogOptions_06_r.
@@ -418,8 +406,9 @@ cet_test(FileCatalogOptions_06_w HANDBUILT
 
 config_test_debug_pass(FileCatalogOptions_06_w)
 
-# Compare output from FileCatalogOptions_07_w against reference.
-config_ref_test(FileCatalogOptions_06)
+# Compare output from FileCatalogOptions_06_w against reference.
+config_ref_test(FileCatalogOptions_06
+  OUTPUT_FILTERS DEFAULT ${filterOutputModule})
 
 # Should pass and provide config output file for comparison in
 # FileCatalogOptions_07_r.
@@ -441,7 +430,8 @@ cet_test(FileCatalogOptions_07_w HANDBUILT
 config_test_debug_pass(FileCatalogOptions_07_w)
 
 # Compare output from FileCatalogOptions_07_w against reference.
-config_ref_test(FileCatalogOptions_07)
+config_ref_test(FileCatalogOptions_07
+  OUTPUT_FILTERS DEFAULT ${filterOutputModule})
 
 # Should pass and provide config output file for comparison in
 # FileCatalogOptions_08_r.
@@ -591,7 +581,8 @@ cet_test(FileCatalogOptions_14_w HANDBUILT
 config_test_debug_pass(FileCatalogOptions_14_w)
 
 # Compare output from FileCatalogOptions_14_w against reference.
-config_ref_test(FileCatalogOptions_14)
+config_ref_test(FileCatalogOptions_14
+  OUTPUT_FILTERS DEFAULT ${filterOutputModule})
 
 # Should all fail due to conflicting options
 cet_test(FileCatalogOptions_15 HANDBUILT

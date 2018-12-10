@@ -6,6 +6,27 @@ include(CetTest)
 # re-initialize the test environment.
 cet_test_env("FHICL_FILE_PATH=.")
 
+########################################################################
+# For use in subdirectories as necessary.
+
+####################################
+# config_ref_test
+#
+# Make reference comparisons easier.
+
+function(config_ref_test TNAME)
+  cet_test(${TNAME}_r HANDBUILT
+    TEST_EXEC cat
+    TEST_ARGS ../${TNAME}_w.d/config.out
+    DATAFILES ${TNAME}-ref.txt
+    REF ${TNAME}-ref.txt
+    TEST_PROPERTIES DEPENDS ${TNAME}_w
+    ${ARGN})
+endfunction()
+
+set(filterOutputModule "${CMAKE_CURRENT_SOURCE_DIR}/filterOutputModule")
+########################################################################
+
 # build Persistency libraries
 add_subdirectory(Configuration)
 add_subdirectory(Framework/Art)

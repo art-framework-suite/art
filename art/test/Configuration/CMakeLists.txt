@@ -1,17 +1,3 @@
-####################################
-# config_ref_test
-#
-# Make reference comparisons easier.
-
-macro(config_ref_test TNAME)
-  cet_test(${TNAME}_r HANDBUILT
-    TEST_EXEC diff
-    TEST_ARGS -u ${TNAME}-ref.txt
-    ../${TNAME}_w.d/config.out
-    DATAFILES ${TNAME}-ref.txt
-    TEST_PROPERTIES DEPENDS ${TNAME}_w)
-endmacro()
-
 # Should pass and provide config output file for comparison in
 # BasicOutputOptions_01_r against reference.  Use ART_DEBUG_CONFIG
 # environment variable instead of --debug-config to test its
@@ -24,7 +10,8 @@ cet_test(BasicOutputOptions_01_w HANDBUILT
   -c /dev/null
   TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
   PASS_REGULAR_EXPRESSION "\\*\\* ART_DEBUG_CONFIG is defined.*\\*\\* Config output to file")
-config_ref_test(BasicOutputOptions_01)
+config_ref_test(BasicOutputOptions_01
+ OUTPUT_FILTERS DEFAULT ${filterOutputModule})
 
 # Specified stream name with empty outputs.
 cet_test(BasicOutputOptions_12_w HANDBUILT
@@ -36,7 +23,8 @@ cet_test(BasicOutputOptions_12_w HANDBUILT
   --debug-config=config.out
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "Config output to file")
-config_ref_test(BasicOutputOptions_12)
+config_ref_test(BasicOutputOptions_12
+ OUTPUT_FILTERS DEFAULT ${filterOutputModule})
 ########################################################################
 
 # Must make sure that excluded paths that share modules with
