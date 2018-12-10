@@ -43,6 +43,10 @@ namespace art {
                             EventID const& id,
                             bool compactSubRunRanges);
 
+      std::unique_ptr<EDProduct> getProduct(BranchKey const&,
+                                            std::string const& wrappedType,
+                                            RangeSet&) const;
+
     private:
       std::unique_ptr<EDProduct> getProduct_(BranchKey const&,
                                              TypeID const&,

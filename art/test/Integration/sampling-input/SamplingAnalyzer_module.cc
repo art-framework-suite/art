@@ -9,12 +9,13 @@
 
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Modules/SampledInfo.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/test/TestObjects/ToyProducts.h"
+#include "canvas/Persistency/Common/Sampled.h"
+#include "canvas/Persistency/Provenance/SampledInfo.h"
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Atom.h"
@@ -102,7 +103,9 @@ namespace {
 class art::test::SamplingAnalyzer : public EDAnalyzer {
 public:
   struct Config {
-    Atom<std::string> int_label{Name{"int_label"}};
+    Atom<std::string> run_int_label{Name{"run_int_label"}};
+    Atom<std::string> subrun_int_label{Name{"subrun_int_label"}};
+    Atom<std::string> event_int_label{Name{"event_int_label"}};
     Atom<std::string> ptrmv_label{Name{"ptrmv_label"}};
     DelegatedParameter datasets{
       Name{"datasets"},
@@ -138,14 +141,18 @@ private:
   void beginRun(art::Run const& r) override;
   void beginSubRun(art::SubRun const& sr) override;
   void analyze(art::Event const& e) override;
-  InputTag const intTag_;
+  InputTag const runIntTag_;
+  InputTag const subRunIntTag_;
+  InputTag const eventIntTag_;
   InputTag const ptrmvTag_;
   datasets_t const expectedValues_;
 };
 
 art::test::SamplingAnalyzer::SamplingAnalyzer(Parameters const& p)
   : EDAnalyzer{p}
-  , intTag_{p().int_label()}
+  , runIntTag_{p().run_int_label()}
+  , subRunIntTag_{p().subrun_int_label()}
+  , eventIntTag_{p().event_int_label()}
   , ptrmvTag_{p().ptrmv_label()}
   , expectedValues_{convert(p().datasets.get<ParameterSet>())}
 {}
@@ -153,7 +160,7 @@ art::test::SamplingAnalyzer::SamplingAnalyzer(Parameters const& p)
 void
 art::test::SamplingAnalyzer::beginRun(Run const& r)
 {
-  auto const& hSampledInfo = r.getValidHandle<SampledRunInfo>("SamplingInput");
+  auto const hSampledInfo = r.getValidHandle<SampledRunInfo>("SamplingInput");
   auto const& sampledInfoProv = *hSampledInfo.provenance();
   assert(sampledInfoProv.isValid());
   assert(sampledInfoProv.isPresent());
@@ -172,12 +179,26 @@ art::test::SamplingAnalyzer::beginRun(Run const& r)
                  [&validated](auto const& id) { validated.markID(id); });
     validated.assert_no_errors();
   }
+
+  // Read Run products from different datasets.
+  auto const sampledInts =
+    r.getValidHandle<Sampled<arttest::IntProduct>>(runIntTag_);
+  std::size_t successes{};
+  for (auto const& pr : *sampledInts) {
+    auto const& dataset = pr.first;
+    auto const& values = pr.second;
+    assert(values.size() == 1ul);
+    auto const expected_int = expectedValues_.at(dataset).sampled_run;
+    assert(static_cast<unsigned int>(values[0].value) == expected_int);
+    ++successes;
+  }
+  assert(successes == 2ul);
 }
 
 void
 art::test::SamplingAnalyzer::beginSubRun(SubRun const& sr)
 {
-  auto const& hSampledInfo =
+  auto const hSampledInfo =
     sr.getValidHandle<SampledSubRunInfo>("SamplingInput");
   auto const& sampledInfoProv = *hSampledInfo.provenance();
   assert(sampledInfoProv.isValid());
@@ -205,8 +226,7 @@ void
 art::test::SamplingAnalyzer::analyze(Event const& e)
 {
   // Test that provenance is available for injected product
-  auto const& hSampledInfo =
-    e.getValidHandle<SampledEventInfo>("SamplingInput");
+  auto const hSampledInfo = e.getValidHandle<SampledEventInfo>("SamplingInput");
   auto const& sampledInfoProv = *hSampledInfo.provenance();
   assert(sampledInfoProv.isValid());
   assert(sampledInfoProv.isPresent());
@@ -218,7 +238,7 @@ art::test::SamplingAnalyzer::analyze(Event const& e)
   assert(expected.sampled_run == sampledInfo.id.run());
 
   // Verify that persisted event products are stored correctly
-  auto const& hInt = e.getValidHandle<arttest::IntProduct>(intTag_);
+  auto const hInt = e.getValidHandle<arttest::IntProduct>(eventIntTag_);
   assert(expected.ivalue == hInt->value);
 
   // Check that provenance is available
@@ -227,7 +247,7 @@ art::test::SamplingAnalyzer::analyze(Event const& e)
   assert(provenance.isPresent());
 
   // Verify that persisted art::Ptrs are stored correctly
-  auto const& hPtr = e.getValidHandle<art::Ptr<std::string>>(ptrmvTag_);
+  auto const hPtr = e.getValidHandle<art::Ptr<std::string>>(ptrmvTag_);
   assert(**hPtr == "TWO");
 }
 

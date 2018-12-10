@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="std::vector<arttest::IntProduct>"/>
+  <class name="std::map<std::string,std::vector<arttest::IntProduct>>"/>
+  <class name="art::Sampled<arttest::IntProduct>"/>
+  <class name="art::Wrapper<art::Sampled<arttest::IntProduct>>"/>
+</lcgdict>

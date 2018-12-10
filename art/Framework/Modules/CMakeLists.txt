@@ -1,5 +1,3 @@
-art_dictionary()
-
 simple_plugin(BlockingPrescaler       "module")
 simple_plugin(DataFlowDumper          "module")
 simple_plugin(EmptyEvent              "source")

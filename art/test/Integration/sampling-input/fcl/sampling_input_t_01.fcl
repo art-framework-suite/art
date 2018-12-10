@@ -19,18 +19,20 @@ physics: {
   analyzers: {
     checkInts: {
       module_type: SamplingAnalyzer
-      int_label: "p1"
-      ptrmv_label: "p2"
+      run_int_label: "makeRunInt"
+      subrun_int_label: "makeSubRunInt"
+      event_int_label: "makeEventInt"
+      ptrmv_label: "makePtrs"
       datasets: {
         signal: {
           sampled_run: 14
           sampled_subrun: 3
-          ivalue: 14
+          ivalue: 9
         }
         bkgd: {
           sampled_run: 4
           sampled_subrun: 0
-          ivalue: 4
+          ivalue: 1
         }
       }
     }

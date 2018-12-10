@@ -7,7 +7,6 @@
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
 #include "art/Framework/IO/Root/rootErrMsgs.h"
-#include "art/Framework/Modules/SampledInfo.h"
 #include "art/Framework/Modules/detail/SamplingDelayedReader.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
@@ -15,26 +14,36 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "canvas/Persistency/Provenance/SampledInfo.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
+#include "canvas/Utilities/WrappedClassName.h"
+#include "canvas/Utilities/uniform_type_name.h"
 #include "canvas_root_io/Streamers/ProductIDStreamer.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace detail = art::detail;
+
+using RunEntries_t = detail::SamplingInputFile::RunEntries_t;
+using SubRunEntries_t = detail::SamplingInputFile::SubRunEntries_t;
+using Products_t = detail::SamplingInputFile::Products_t;
 
 detail::SamplingInputFile::SamplingInputFile(
   std::string const& dataset,
   std::string const& filename,
   double const weight,
   double const probability,
-  ProductDescriptions const& sampledInfoDescriptions,
+  BranchDescription const& sampledEventInfoDesc,
+  std::map<BranchKey, BranchDescription>& oldKeyToSampledProductDescription,
+  ModuleDescription const& md,
   bool const readIncomingParameterSets,
   MasterProductRegistry& mpr)
   : dataset_{dataset}
   , file_{std::make_unique<TFile>(filename.c_str())}
   , weight_{weight}
   , probability_{probability}
-  , sampledInfoDescriptions_{sampledInfoDescriptions}
+  , sampledEventInfoDesc_{sampledEventInfoDesc}
 {
   // Read metadata tree
   auto metaDataTree =
@@ -99,41 +108,65 @@ detail::SamplingInputFile::SamplingInputFile(
     productProvenanceBranch_ =
       eventMetaTree_->GetBranch(productProvenanceBranchName(InEvent).c_str());
   }
+
+  // Read (sub)run data trees
+  subRunTree_ = dynamic_cast<TTree*>(
+    file_->Get(BranchTypeToProductTreeName(InSubRun).c_str()));
+  runTree_ = dynamic_cast<TTree*>(
+    file_->Get(BranchTypeToProductTreeName(InRun).c_str()));
   // Add checks for pointers above
 
   // Read the ProductList
   std::array<AvailableProducts_t, NumBranchTypes> availableProducts{{}};
   productListHolder_ = detail::readMetadata<ProductRegistry>(metaDataTree);
-  auto& productList = productListHolder_.productList_;
+  auto& eventProductList = productListHolder_.productList_;
   //  dropOnInput(groupSelectorRules, branchChildren, dropDescendants,
   //  prodList);
 
-  for (auto& pr : productList) {
+  for (auto& pr : eventProductList) {
+    auto const& key = pr.first;
     auto& pd = pr.second;
-    auto branch = eventTree_->GetBranch(pd.branchName().c_str());
-    bool const present{branch != nullptr};
-    if (present) {
-      availableProducts[pd.branchType()].emplace(pd.productID());
-      checkDictionaries(pd);
+    auto const bt = pd.branchType();
+    auto branch = treeForBranchType_(bt)->GetBranch(pd.branchName().c_str());
+    if (bt == InSubRun || bt == InRun) {
+      std::string const wrapped_product{"art::Sampled<" +
+                                        pd.producedClassName() + ">"};
+      BranchDescription sampledDesc{bt,
+                                    pd.moduleLabel(),
+                                    md.processName(),
+                                    uniform_type_name(wrapped_product),
+                                    pd.productInstanceName(),
+                                    md.parameterSetID(),
+                                    md.processConfigurationID(),
+                                    false,
+                                    false};
+      oldKeyToSampledProductDescription.emplace(key, std::move(sampledDesc));
+    } else {
+      bool const present{branch != nullptr};
+      if (present) {
+        availableProducts[InEvent].emplace(pd.productID());
+        checkDictionaries(pd);
+      }
+
+      auto const validity = present ?
+                              BranchDescription::Transients::PresentFromSource :
+                              BranchDescription::Transients::Dropped;
+      pd.setValidity(validity);
     }
 
-    auto const validity = present ?
-                            BranchDescription::Transients::PresentFromSource :
-                            BranchDescription::Transients::Dropped;
-    pd.setValidity(validity);
     branches_.emplace(pr.first, input::BranchInfo{pd, branch});
   }
 
-  mpr.updateFromInputFile(productList);
+  mpr.updateFromInputFile(eventProductList);
 
   // Register newly created data product
-  for (auto const& pd : sampledInfoDescriptions_) {
-    availableProducts[pd.branchType()].emplace(pd.productID());
-    checkDictionaries(pd);
-    productList.emplace(BranchKey{pd}, pd);
-  }
-  presentProducts_ =
-    ProductTables{make_product_descriptions(productList), availableProducts};
+  availableProducts[InEvent].emplace(sampledEventInfoDesc_.productID());
+  checkDictionaries(sampledEventInfoDesc_);
+  eventProductList.emplace(BranchKey{sampledEventInfoDesc_},
+                           sampledEventInfoDesc_);
+
+  presentProducts_ = ProductTables{make_product_descriptions(eventProductList),
+                                   availableProducts};
 }
 
 bool
@@ -152,38 +185,74 @@ detail::SamplingInputFile::entryForNextEvent(art::input::EntryNumber& entry)
   return true;
 }
 
-art::SampledInfo<art::RunID>
-detail::SamplingInputFile::fillRun(RunPrincipal& rp [[gnu::unused]]) const
+RunEntries_t
+detail::SamplingInputFile::runEntries()
 {
-  // We use a set because it is okay for multiple entries of the same
-  // Run to be present in the FileIndex--these correspond to Run
-  // fragments.  However, we do not want these to appear as separate
-  // entries in the SampledInfo object.
-  std::set<RunID> ids;
+  RunEntries_t entries;
   for (auto const& element : fileIndex_) {
     if (element.getEntryType() != FileIndex::kRun) {
       continue;
     }
-    ids.emplace(element.eventID_.run());
+    entries[element.eventID_.runID()].push_back(element.entry_);
   }
-  return SampledInfo<RunID>{
-    weight_, probability_, std::vector<RunID>(cbegin(ids), cend(ids))};
+  return entries;
+}
+
+Products_t
+detail::SamplingInputFile::runProducts(RunEntries_t const& entries)
+{
+  Products_t result;
+  for (auto const& pr : entries) {
+    auto const& id = pr.first;
+    auto const& tree_entries = pr.second;
+
+    SamplingDelayedReader const reader{fileFormatVersion_,
+                                       sqliteDB_,
+                                       tree_entries,
+                                       branches_,
+                                       runTree_,
+                                       -1 /* saveMemoryObjectThreshold */,
+                                       branchIDLists_.get(),
+                                       InRun,
+                                       EventID::invalidEvent(id),
+                                       false /* compact range sets */};
+    for (auto const& pr : productListHolder_.productList_) {
+      auto const& key = pr.first;
+      auto const& bd = pr.second;
+      if (bd.branchType() != InRun)
+        continue;
+      RangeSet rs{RangeSet::invalid()};
+      auto const class_name = uniform_type_name(bd.producedClassName());
+      auto product = reader.getProduct(key, wrappedClassName(class_name), rs);
+      result[key].push_back(move(product));
+    }
+  }
+  return result;
+}
+
+SubRunEntries_t
+detail::SamplingInputFile::subRunEntries()
+{
+  SubRunEntries_t entries;
+  for (auto const& element : fileIndex_) {
+    if (element.getEntryType() != FileIndex::kSubRun) {
+      continue;
+    }
+    entries[element.eventID_.subRunID()].push_back(element.entry_);
+  }
+  return entries;
 }
 
 art::SampledInfo<art::SubRunID>
-detail::SamplingInputFile::fillSubRun(SubRunPrincipal& srp
-                                      [[gnu::unused]]) const
+detail::SamplingInputFile::subRunInfo(SubRunEntries_t const& entries)
 {
   // We use a set because it is okay for multiple entries of the same
   // SubRun to be present in the FileIndex--these correspond to SubRun
   // fragments.  However, we do not want these to appear as separate
   // entries in the SampledInfo object.
   std::set<SubRunID> ids;
-  for (auto const& element : fileIndex_) {
-    if (element.getEntryType() != FileIndex::kSubRun) {
-      continue;
-    }
-    ids.emplace(element.eventID_.run(), element.eventID_.subRun());
+  for (auto const& pr : entries) {
+    ids.insert(pr.first);
   }
   return SampledInfo<SubRunID>{
     weight_, probability_, std::vector<SubRunID>(cbegin(ids), cend(ids))};
@@ -228,12 +297,29 @@ detail::SamplingInputFile::readEvent(input::EntryNumber const entry,
   auto sampledEventID = std::make_unique<SampledEventInfo>(
     SampledEventInfo{on_disk_id, dataset_, weight_, probability_});
   auto wp = std::make_unique<Wrapper<SampledEventInfo>>(move(sampledEventID));
-  auto const& pd = sampledInfoDescriptions_[InEvent];
+  auto const& pd = sampledEventInfoDesc_;
   ep->put(std::move(wp),
           pd,
           std::make_unique<ProductProvenance const>(pd.productID(),
                                                     productstatus::present()));
   return ep;
+}
+
+TTree*
+detail::SamplingInputFile::treeForBranchType_(BranchType const bt) const
+{
+  switch (bt) {
+    case InEvent:
+      return eventTree_;
+    case InSubRun:
+      return subRunTree_;
+    case InRun:
+      return runTree_;
+    default: {
+      throw Exception{errors::LogicError}
+        << "Cannot call treeForBranchType_ for a branch type of " << bt;
+    }
+  }
 }
 
 art::EventAuxiliary

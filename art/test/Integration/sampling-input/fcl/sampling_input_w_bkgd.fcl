@@ -1,11 +1,13 @@
 #include "sampling_input_w.fcl"
 
-process_name: "SamplingInputWriteBkgd"
+process_name: "SamplingInputWrite"
 
 source.firstRun: 4
 source.firstSubRun: 0
 source.firstEvent: 1
 
-physics.producers.p1.ivalue: 4
+physics.producers.makeRunInt.ivalue: 4
+physics.producers.makeSubRunInt.ivalue: 0
+physics.producers.makeEventInt.ivalue: 1
 
 outputs.out.fileName: "out.root"

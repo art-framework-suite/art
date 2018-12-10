@@ -1,5 +1,7 @@
 simple_plugin(SamplingAnalyzer "module")
 
+art_dictionary(NO_INSTALL)
+
 cet_test(SamplingInput_config_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c sampling_input_config_t.fcl

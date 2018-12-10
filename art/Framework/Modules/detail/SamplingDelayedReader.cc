@@ -5,6 +5,8 @@
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Utilities/TypeID.h"
+#include "canvas/Utilities/WrappedClassName.h"
+#include "canvas/Utilities/uniform_type_name.h"
 #include "canvas_root_io/Streamers/ProductIDStreamer.h"
 #include "canvas_root_io/Streamers/RefCoreStreamer.h"
 #include "cetlib/crc32.h"
@@ -55,6 +57,14 @@ namespace art {
                                        TypeID const& ty,
                                        RangeSet& rs) const
     {
+      return getProduct(bk, uniform_type_name(ty.className()), rs);
+    }
+
+    unique_ptr<EDProduct>
+    SamplingDelayedReader::getProduct(BranchKey const& bk,
+                                      std::string const& wrapped_class_name,
+                                      RangeSet& rs) const
+    {
       auto iter = branches_.find(bk);
       assert(iter != branches_.end());
 
@@ -64,7 +74,7 @@ namespace art {
 
       configureProductIDStreamer(branchIDLists_);
       configureRefCoreStreamer(groupFinder_);
-      TClass* cl{TClass::GetClass(ty.typeInfo())};
+      TClass* cl{TClass::GetClass(wrapped_class_name.c_str())};
 
       auto get_product = [this, cl, br](auto entry) {
         tree_->LoadTree(entry);

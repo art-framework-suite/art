@@ -7,16 +7,26 @@ source: {
 
 physics: {
   producers: {
-    p1: {
+    makeRunInt: {
+      module_type: IntProducer
+      ivalue: @nil
+      branchType: 2
+    }
+    makeSubRunInt: {
+      module_type: IntProducer
+      ivalue: @nil
+      branchType: 1
+    }
+    makeEventInt: {
       module_type: IntProducer
       ivalue: @nil
     }
-    p2: {
+    makePtrs: {
       module_type: PtrmvProducer
     }
   }
 }
-physics.tp @protect_error: [p1, p2]
+physics.tp @protect_error: [makeRunInt, makeSubRunInt, makeEventInt, makePtrs]
 physics.ep @protect_error: [out]
 
 outputs.out: {
