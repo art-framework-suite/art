@@ -2,11 +2,11 @@
 
 # Homogenize config output for variations in choice of output module
 # based on build environment.
-exec sed -e 's&\(\bmodule_type[ 	]*:[ 	]*"\)RootOutput&\1FileDumperOutput&
+exec sed -e 's/\(module_type[ 	]*:[ 	]*"\)RootOutput/\1FileDumperOutput/
 # Only look for a tmpDir line to delete if we have matched above.
 t delTmpDir
 b
 : delTmpDir
 n
-/\btmpDir[ 	]*:/d'
+/tmpDir[ 	]*:/d'
 
