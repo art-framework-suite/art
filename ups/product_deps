@@ -6,7 +6,7 @@ defaultqual	e17
 fcldir -
 perllib  product_dir
 #
-product		version		<format=2>
+product		version
 canvas          v3_05_00
 hep_concurrency v1_02_00
 cetbuildtools	v7_08_00	-	only_for_build
