@@ -116,7 +116,7 @@ detail::SamplingInputFile::SamplingInputFile(
   // Add checks for pointers above
 
   // Read the ProductList
-  std::array<AvailableProducts_t, NumBranchTypes> availableProducts{{}};
+  AvailableProducts_t availableEventProducts{};
   productListHolder_ = detail::readMetadata<ProductRegistry>(metaDataTree);
   auto& eventProductList = productListHolder_.productList_;
   //  dropOnInput(groupSelectorRules, branchChildren, dropDescendants,
@@ -143,7 +143,7 @@ detail::SamplingInputFile::SamplingInputFile(
     } else {
       bool const present{branch != nullptr};
       if (present) {
-        availableProducts[InEvent].emplace(pd.productID());
+        availableEventProducts.emplace(pd.productID());
         checkDictionaries(pd);
       }
 
@@ -159,13 +159,15 @@ detail::SamplingInputFile::SamplingInputFile(
   mpr.updateFromInputFile(eventProductList);
 
   // Register newly created data product
-  availableProducts[InEvent].emplace(sampledEventInfoDesc_.productID());
+  availableEventProducts.emplace(sampledEventInfoDesc_.productID());
   checkDictionaries(sampledEventInfoDesc_);
   eventProductList.emplace(BranchKey{sampledEventInfoDesc_},
                            sampledEventInfoDesc_);
 
-  presentProducts_ = ProductTables{make_product_descriptions(eventProductList),
-                                   availableProducts};
+  presentEventProducts_ =
+    ProductTable{make_product_descriptions(eventProductList),
+                 InEvent,
+                 availableEventProducts};
 }
 
 bool
@@ -267,7 +269,7 @@ detail::SamplingInputFile::readEvent(input::EntryNumber const entry,
   auto ep = std::make_unique<art::EventPrincipal>(
     aux,
     pc,
-    &presentProducts_.get(InEvent),
+    &presentEventProducts_,
     std::make_shared<History>(std::move(history)),
     std::make_unique<BranchMapperWithReader>(productProvenanceBranch_, entry),
     std::make_unique<SamplingDelayedReader>(fileFormatVersion_,

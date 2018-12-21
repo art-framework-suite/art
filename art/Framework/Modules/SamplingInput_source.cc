@@ -188,8 +188,8 @@ namespace art {
     BranchDescription sampledRunInfoDesc_;
     BranchDescription sampledSubRunInfoDesc_;
     BranchDescription sampledEventInfoDesc_;
-    ProductTable subRunPresentProducts_;
-    ProductTable runPresentProducts_;
+    ProductTable presentSubRunProducts_;
+    ProductTable presentRunProducts_;
     cet::exempt_ptr<std::string const> currentDataset_{nullptr};
     input::EntryNumber currentEntryInCurrentDataset_{
       std::numeric_limits<input::EntryNumber>::max()};
@@ -363,8 +363,8 @@ art::SamplingInput::SamplingInput(Parameters const& config,
 
   // Specify present products for SubRuns and Runs.  Only the
   // Sampled(Sub)RunInfo products are present for the (Sub)Runs.
-  subRunPresentProducts_ = ProductTable{presentSampledProducts, InSubRun};
-  runPresentProducts_ = ProductTable{presentSampledProducts, InRun};
+  presentSubRunProducts_ = ProductTable{presentSampledProducts, InSubRun};
+  presentRunProducts_ = ProductTable{presentSampledProducts, InRun};
 
   preg_.addProductsFromModule(ProductDescriptions{presentSampledProducts});
 }
@@ -439,7 +439,7 @@ art::SamplingInput::readRun()
   art::RunAuxiliary const aux{runID_, nullTimestamp(), nullTimestamp()};
 
   // Read all run products into memory
-  Products_t read_run_products;
+  Products_t read_products;
   auto sampledRunInfo = std::make_unique<SampledRunInfo>();
   for (auto& pr : files_) {
     auto const& dataset = pr.first;
@@ -451,7 +451,7 @@ art::SamplingInput::readRun()
       auto const& old_key = pr.first;
       auto&& eps = pr.second;
       assert(!eps.empty());
-      auto& datasets_with_product = read_run_products[old_key];
+      auto& datasets_with_product = read_products[old_key];
       datasets_with_product[dataset] = std::move(eps);
     }
 
@@ -472,9 +472,9 @@ art::SamplingInput::readRun()
   }
 
   auto rp = std::make_unique<art::RunPrincipal>(
-    aux, pc_, cet::make_exempt_ptr(&runPresentProducts_));
+    aux, pc_, cet::make_exempt_ptr(&presentRunProducts_));
 
-  putSampledProductsInto_(*rp, read_run_products);
+  putSampledProductsInto_(*rp, read_products);
 
   // Place sampled run info onto the run
   auto wp = std::make_unique<Wrapper<SampledRunInfo>>(move(sampledRunInfo));
@@ -491,7 +491,7 @@ art::SamplingInput::readSubRun(cet::exempt_ptr<art::RunPrincipal const> rp)
 {
   art::SubRunAuxiliary const aux{subRunID_, nullTimestamp(), nullTimestamp()};
   // Read all run products into memory
-  Products_t read_subrun_products;
+  Products_t read_products;
   auto sampledSubRunInfo = std::make_unique<SampledSubRunInfo>();
   for (auto& pr : files_) {
     auto const& dataset = pr.first;
@@ -503,7 +503,7 @@ art::SamplingInput::readSubRun(cet::exempt_ptr<art::RunPrincipal const> rp)
       auto const& old_key = pr.first;
       auto&& eps = pr.second;
       assert(!eps.empty());
-      auto& datasets_with_product = read_subrun_products[old_key];
+      auto& datasets_with_product = read_products[old_key];
       datasets_with_product[dataset] = std::move(eps);
     }
 
@@ -524,10 +524,10 @@ art::SamplingInput::readSubRun(cet::exempt_ptr<art::RunPrincipal const> rp)
   }
 
   auto srp = std::make_unique<SubRunPrincipal>(
-    aux, pc_, cet::make_exempt_ptr(&subRunPresentProducts_));
+    aux, pc_, cet::make_exempt_ptr(&presentSubRunProducts_));
   srp->setRunPrincipal(rp);
 
-  putSampledProductsInto_(*srp, read_subrun_products);
+  putSampledProductsInto_(*srp, read_products);
 
   // Place sampled run info onto the run
   auto wp =

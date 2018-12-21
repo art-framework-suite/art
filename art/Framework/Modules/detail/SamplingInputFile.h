@@ -83,7 +83,7 @@ namespace art {
       input::BranchMap branches_{};
       BranchDescription const& sampledEventInfoDesc_;
       ProductRegistry productListHolder_{};
-      ProductTables presentProducts_{ProductTables::invalid()};
+      ProductTable presentEventProducts_{};
       std::unique_ptr<BranchIDLists> branchIDLists_{
         nullptr}; // Only used for maintaining backwards compatibility
     };
