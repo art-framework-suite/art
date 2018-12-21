@@ -6,11 +6,11 @@ source: {
   dataSets: {
     signal: {
       weight: 0.35
-      fileName: "../SamplingInput_w_signal.d/out.root"
+      fileNames: ["../SamplingInput_w_signal.d/out.root"]
     }
     bkgd: {
       weight: 0.82
-      fileName: "../SamplingInput_w_bkgd.d/out.root"
+      fileNames: ["../SamplingInput_w_bkgd.d/out.root"]
     }
   }
 }

@@ -4,6 +4,7 @@
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Table.h"
 
 #include <iterator>
@@ -12,9 +13,17 @@ using namespace fhicl;
 
 namespace {
   struct DataSetConfig {
-    Atom<std::string> fileName{Name{"fileName"}};
+    Sequence<std::string> fileNames{Name{"fileNames"}};
     Atom<double> weight{Name{"weight"}};
   };
+
+  auto make_exception_for(std::string const& dataset)
+  {
+    return art::Exception{art::errors::Configuration}
+        << "\nModule label: " << art::detail::bold_fontify("source")
+        << "\nmodule_type : " << art::detail::bold_fontify("SamplingInput")
+        << "\ndataset     : " << art::detail::bold_fontify(dataset);
+  }
 }
 
 art::detail::DataSetSampler::DataSetSampler(ParameterSet const& pset) noexcept(
@@ -38,13 +47,17 @@ art::detail::DataSetSampler::DataSetSampler(ParameterSet const& pset) noexcept(
       Table<DataSetConfig> table{dataset_pset};
       datasetNames_.push_back(dataset);
       weights_.push_back(table().weight());
-      fileNames_.push_back(table().fileName());
+      auto const filenames = table().fileNames();
+      if (filenames.size() != 1ull) {
+        throw make_exception_for(dataset) << "\n\n"
+          "The 'fileNames' sequence must contain 1 and only 1 filename.\n"
+          "The ability to specify multiple file names may be possible in the future.\n"
+          "Please contact artists@fnal.gov for guidance.";
+      }
+      fileNames_.push_back(filenames.front());
     }
     catch (fhicl::detail::validationException const& e) {
-      throw Exception{errors::Configuration}
-        << "\nModule label: " << art::detail::bold_fontify("source")
-        << "\nmodule_type : " << art::detail::bold_fontify("SamplingInput")
-        << "\ndataset     : " << art::detail::bold_fontify(dataset) << "\n\n"
+      throw make_exception_for(dataset) << "\n\n"
         << e.what();
     }
   }

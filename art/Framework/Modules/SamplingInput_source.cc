@@ -122,18 +122,19 @@ namespace art {
           "The value of the 'dataSets' parameter is a table of the form:\n\n"
           "  dataSets: {\n"
           "    <dataset name>: {\n"
-          "      fileName: <string>\n"
+          "      fileNames: [<string>]\n"
           "      weight: <double>\n"
           "    }\n"
           "    ...\n"
           "  }\n\n"
           "where the '<dataset name>' parameter labels a particular\n"
-          "dataset (e.g. 'signal'), the 'fileName' refers to the file\n"
+          "dataset (e.g. 'signal'), the 'fileNames' refers to the files\n"
           "that contains events of the dataset, and the 'weight'\n"
           "is a floating-point number used to determine the frequency\n"
           "with which events from this dataset are sampled, relative to\n"
           "the sum of weights across all datasets.\n\n"
-          "The ellipsis indicates that multiple datasets can be configured."}};
+          "The ellipsis indicates that multiple datasets can be configured.\n\n"
+          "N.B. Only one file per dataset is currently allowed."}};
       Atom<bool> summary{Name{"summary"}, false};
 
       struct KeysToIgnore {
