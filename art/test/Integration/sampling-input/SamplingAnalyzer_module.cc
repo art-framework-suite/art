@@ -220,6 +220,20 @@ art::test::SamplingAnalyzer::beginSubRun(SubRun const& sr)
                  [&validated](auto const& id) { validated.markID(id); });
     validated.assert_no_errors();
   }
+
+  // Read Run products from different datasets.
+  auto const sampledInts =
+    sr.getValidHandle<Sampled<arttest::IntProduct>>(subRunIntTag_);
+  std::size_t successes{};
+  for (auto const& pr : *sampledInts) {
+    auto const& dataset = pr.first;
+    auto const& values = pr.second;
+    assert(values.size() == 1ul);
+    auto const expected_int = expectedValues_.at(dataset).sampled_subrun;
+    assert(static_cast<unsigned int>(values[0].value) == expected_int);
+    ++successes;
+  }
+  assert(successes == 2ul);
 }
 
 void

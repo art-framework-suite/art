@@ -35,8 +35,7 @@ namespace art {
 
     class SamplingInputFile {
     public:
-      using RunEntries_t = std::map<RunID, input::EntryNumbers>;
-      using SubRunEntries_t = std::map<SubRunID, input::EntryNumbers>;
+      using EntriesForID_t = std::map<EventID, input::EntryNumbers>;
       using Products_t =
         std::map<BranchKey, std::vector<std::unique_ptr<EDProduct>>>;
 
@@ -53,10 +52,8 @@ namespace art {
 
       bool entryForNextEvent(input::EntryNumber& entry);
 
-      RunEntries_t runEntries();
-      SubRunEntries_t subRunEntries();
-      Products_t runProducts(RunEntries_t const& entries);
-      SampledInfo<SubRunID> subRunInfo(SubRunEntries_t const& entries);
+      EntriesForID_t treeEntries(BranchType);
+      Products_t productsFor(EntriesForID_t const& entries, BranchType);
 
       std::unique_ptr<EventPrincipal> readEvent(input::EntryNumber entry,
                                                 EventID const& eventID,

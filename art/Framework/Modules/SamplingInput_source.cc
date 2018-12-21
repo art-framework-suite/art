@@ -31,6 +31,7 @@
 #include "art/Framework/Modules/detail/SamplingInputFile.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
+#include "art/Framework/Principal/RangeSetsSupported.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
@@ -57,10 +58,42 @@
 
 #include <iomanip>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 using namespace fhicl;
 using namespace std::string_literals;
+
+namespace {
+  using Products_t = std::map<
+    art::BranchKey,
+    std::map<std::string, std::vector<std::unique_ptr<art::EDProduct>>>>;
+
+  std::unique_ptr<art::EDProduct>
+  make_sampled_product(Products_t& read_products,
+                       art::BranchKey const& original_key)
+  {
+    art::InputTag const tag{original_key.moduleLabel_,
+                            original_key.productInstanceName_,
+                            original_key.processName_};
+
+    auto& datasets_with_product = read_products.at(original_key);
+
+    auto const first_entry = begin(datasets_with_product);
+    auto const& products = first_entry->second;
+    assert(!products.empty());
+
+    auto sampled_product = products[0]->createEmptySampledProduct(tag);
+    for (auto&& pr : datasets_with_product) {
+      auto const& dataset = pr.first;
+      auto&& products = std::move(pr.second);
+      for (auto&& product : products) {
+        sampled_product->insertIfSampledProduct(dataset, move(product));
+      }
+    }
+    return sampled_product;
+  }
+}
 
 namespace art {
 
@@ -117,6 +150,10 @@ namespace art {
                            InputSourceDescription& isd);
 
   private:
+    template <typename T>
+    std::enable_if_t<detail::RangeSetsSupported<T::branch_type>::value>
+    putSampledProductsInto_(T& principal, Products_t& read_products) const;
+
     input::ItemType nextItemType() override;
     std::unique_ptr<FileBlock> readFile() override;
     void closeFile() override;
@@ -376,22 +413,40 @@ art::SamplingInput::nextItemType()
   return input::IsEvent;
 }
 
+template <typename T>
+std::enable_if_t<art::detail::RangeSetsSupported<T::branch_type>::value>
+art::SamplingInput::putSampledProductsInto_(T& principal,
+                                            Products_t& read_products) const
+{
+  for (auto const& pr : oldKeyToSampledProductDescription_) {
+    auto const& old_key = pr.first;
+    if (old_key.branchType_ != principal.branchType())
+      continue;
+
+    auto const& sampled_pd = pr.second;
+
+    principal.put(make_sampled_product(read_products, old_key),
+                  sampled_pd,
+                  std::make_unique<ProductProvenance const>(
+                    sampled_pd.productID(), productstatus::present()),
+                  RangeSet::forRun(runID_));
+  }
+}
+
 std::unique_ptr<art::RunPrincipal>
 art::SamplingInput::readRun()
 {
   art::RunAuxiliary const aux{runID_, nullTimestamp(), nullTimestamp()};
 
   // Read all run products into memory
-  std::map<BranchKey,
-           std::map<std::string, std::vector<std::unique_ptr<EDProduct>>>>
-    read_run_products;
+  Products_t read_run_products;
   auto sampledRunInfo = std::make_unique<SampledRunInfo>();
   for (auto& pr : files_) {
     auto const& dataset = pr.first;
     auto& file = pr.second;
-    auto const entries = file.runEntries();
+    auto const entries = file.treeEntries(InRun);
 
-    auto products = file.runProducts(entries);
+    auto products = file.productsFor(entries, InRun);
     for (auto& pr : products) {
       auto const& old_key = pr.first;
       auto&& eps = pr.second;
@@ -406,7 +461,8 @@ art::SamplingInput::readRun()
     // separate entries in the SampledInfo object.
     std::set<RunID> ids;
     for (auto const& pr : entries) {
-      ids.insert(pr.first);
+      auto const& invalid_event_id = pr.first;
+      ids.insert(invalid_event_id.runID());
     }
 
     SampledInfo<RunID> info{dataSetSampler_.weight(dataset),
@@ -418,35 +474,7 @@ art::SamplingInput::readRun()
   auto rp = std::make_unique<art::RunPrincipal>(
     aux, pc_, cet::make_exempt_ptr(&runPresentProducts_));
 
-  // Package run products into SampledProducts
-  for (auto& pr : read_run_products) {
-    auto const& old_key = pr.first;
-    auto const& sampled_pd = oldKeyToSampledProductDescription_.at(old_key);
-
-    auto& datasets_with_product = pr.second;
-    if (datasets_with_product.empty())
-      continue;
-
-    auto const first_entry = begin(datasets_with_product);
-    auto const& products = first_entry->second;
-    assert(!products.empty());
-
-    InputTag const tag{
-      old_key.moduleLabel_, old_key.productInstanceName_, old_key.processName_};
-    auto sampled_product = products[0]->createEmptySampledProduct(tag);
-    for (auto&& pr : datasets_with_product) {
-      auto const& dataset = pr.first;
-      auto&& products = std::move(pr.second);
-      for (auto&& product : products) {
-        sampled_product->insertIfSampledProduct(dataset, move(product));
-      }
-    }
-    rp->put(move(sampled_product),
-            sampled_pd,
-            std::make_unique<ProductProvenance const>(sampled_pd.productID(),
-                                                      productstatus::present()),
-            RangeSet::forRun(runID_));
-  }
+  putSampledProductsInto_(*rp, read_run_products);
 
   // Place sampled run info onto the run
   auto wp = std::make_unique<Wrapper<SampledRunInfo>>(move(sampledRunInfo));
@@ -462,25 +490,52 @@ std::unique_ptr<art::SubRunPrincipal>
 art::SamplingInput::readSubRun(cet::exempt_ptr<art::RunPrincipal const> rp)
 {
   art::SubRunAuxiliary const aux{subRunID_, nullTimestamp(), nullTimestamp()};
-  auto srp = std::make_unique<SubRunPrincipal>(
-    aux, pc_, cet::make_exempt_ptr(&subRunPresentProducts_));
+  // Read all run products into memory
+  Products_t read_subrun_products;
   auto sampledSubRunInfo = std::make_unique<SampledSubRunInfo>();
   for (auto& pr : files_) {
     auto const& dataset = pr.first;
     auto& file = pr.second;
-    auto const entries = file.subRunEntries();
-    sampledSubRunInfo->emplace(dataset, file.subRunInfo(entries));
+    auto const entries = file.treeEntries(InSubRun);
+
+    auto products = file.productsFor(entries, InSubRun);
+    for (auto& pr : products) {
+      auto const& old_key = pr.first;
+      auto&& eps = pr.second;
+      assert(!eps.empty());
+      auto& datasets_with_product = read_subrun_products[old_key];
+      datasets_with_product[dataset] = std::move(eps);
+    }
+
+    // We use a set because it is okay for multiple entries of the
+    // same Run to be present in the FileIndex--these correspond to
+    // Run fragments.  However, we do not want these to appear as
+    // separate entries in the SampledInfo object.
+    std::set<SubRunID> ids;
+    for (auto const& pr : entries) {
+      auto const& invalid_event_id = pr.first;
+      ids.insert(invalid_event_id.subRunID());
+    }
+
+    SampledInfo<SubRunID> info{dataSetSampler_.weight(dataset),
+                               dataSetSampler_.probability(dataset),
+                               std::vector<SubRunID>(cbegin(ids), cend(ids))};
+    sampledSubRunInfo->emplace(dataset, std::move(info));
   }
+
+  auto srp = std::make_unique<SubRunPrincipal>(
+    aux, pc_, cet::make_exempt_ptr(&subRunPresentProducts_));
   srp->setRunPrincipal(rp);
 
-  // Place sampled subrun info onto the subrun
+  putSampledProductsInto_(*srp, read_subrun_products);
+
+  // Place sampled run info onto the run
   auto wp =
     std::make_unique<Wrapper<SampledSubRunInfo>>(move(sampledSubRunInfo));
-  auto const& pd = sampledSubRunInfoDesc_;
   srp->put(std::move(wp),
-           pd,
-           std::make_unique<ProductProvenance const>(pd.productID(),
-                                                     productstatus::present()),
+           sampledSubRunInfoDesc_,
+           std::make_unique<ProductProvenance const>(
+             sampledSubRunInfoDesc_.productID(), productstatus::present()),
            RangeSet::forSubRun(subRunID_));
   return srp;
 }

@@ -25,8 +25,7 @@
 
 namespace detail = art::detail;
 
-using RunEntries_t = detail::SamplingInputFile::RunEntries_t;
-using SubRunEntries_t = detail::SamplingInputFile::SubRunEntries_t;
+using EntriesForID_t = detail::SamplingInputFile::EntriesForID_t;
 using Products_t = detail::SamplingInputFile::Products_t;
 
 detail::SamplingInputFile::SamplingInputFile(
@@ -185,21 +184,41 @@ detail::SamplingInputFile::entryForNextEvent(art::input::EntryNumber& entry)
   return true;
 }
 
-RunEntries_t
-detail::SamplingInputFile::runEntries()
+namespace art {
+  namespace {
+    constexpr FileIndex::EntryType
+    to_entry_type(BranchType const bt)
+    {
+      switch (bt) {
+        case InRun:
+          return FileIndex::kRun;
+        case InSubRun:
+          return FileIndex::kSubRun;
+        case InEvent:
+          return FileIndex::kEvent;
+        default:
+          return FileIndex::kEnd;
+      }
+    }
+  }
+}
+
+EntriesForID_t
+detail::SamplingInputFile::treeEntries(BranchType const bt)
 {
-  RunEntries_t entries;
+  EntriesForID_t entries;
   for (auto const& element : fileIndex_) {
-    if (element.getEntryType() != FileIndex::kRun) {
+    if (element.getEntryType() != to_entry_type(bt)) {
       continue;
     }
-    entries[element.eventID_.runID()].push_back(element.entry_);
+    entries[element.eventID_].push_back(element.entry_);
   }
   return entries;
 }
 
 Products_t
-detail::SamplingInputFile::runProducts(RunEntries_t const& entries)
+detail::SamplingInputFile::productsFor(EntriesForID_t const& entries,
+                                       BranchType const bt)
 {
   Products_t result;
   for (auto const& pr : entries) {
@@ -210,16 +229,16 @@ detail::SamplingInputFile::runProducts(RunEntries_t const& entries)
                                        sqliteDB_,
                                        tree_entries,
                                        branches_,
-                                       runTree_,
+                                       treeForBranchType_(bt),
                                        -1 /* saveMemoryObjectThreshold */,
                                        branchIDLists_.get(),
-                                       InRun,
-                                       EventID::invalidEvent(id),
+                                       bt,
+                                       id,
                                        false /* compact range sets */};
     for (auto const& pr : productListHolder_.productList_) {
       auto const& key = pr.first;
       auto const& bd = pr.second;
-      if (bd.branchType() != InRun)
+      if (bd.branchType() != bt)
         continue;
       RangeSet rs{RangeSet::invalid()};
       auto const class_name = uniform_type_name(bd.producedClassName());
@@ -228,34 +247,6 @@ detail::SamplingInputFile::runProducts(RunEntries_t const& entries)
     }
   }
   return result;
-}
-
-SubRunEntries_t
-detail::SamplingInputFile::subRunEntries()
-{
-  SubRunEntries_t entries;
-  for (auto const& element : fileIndex_) {
-    if (element.getEntryType() != FileIndex::kSubRun) {
-      continue;
-    }
-    entries[element.eventID_.subRunID()].push_back(element.entry_);
-  }
-  return entries;
-}
-
-art::SampledInfo<art::SubRunID>
-detail::SamplingInputFile::subRunInfo(SubRunEntries_t const& entries)
-{
-  // We use a set because it is okay for multiple entries of the same
-  // SubRun to be present in the FileIndex--these correspond to SubRun
-  // fragments.  However, we do not want these to appear as separate
-  // entries in the SampledInfo object.
-  std::set<SubRunID> ids;
-  for (auto const& pr : entries) {
-    ids.insert(pr.first);
-  }
-  return SampledInfo<SubRunID>{
-    weight_, probability_, std::vector<SubRunID>(cbegin(ids), cend(ids))};
 }
 
 std::unique_ptr<art::EventPrincipal>
