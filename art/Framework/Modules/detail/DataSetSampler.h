@@ -1,6 +1,8 @@
 #ifndef art_Framework_Modules_detail_DataSetSampler_h
 #define art_Framework_Modules_detail_DataSetSampler_h
 
+#include "canvas/Persistency/Provenance/EventID.h"
+
 #include <cassert>
 #include <numeric>
 #include <random>
@@ -52,12 +54,19 @@ namespace art {
         return fileNames_[index_for(dataset)];
       }
 
+      EventID
+      firstEvent(std::string const& dataset) const
+      {
+        return firstEvents_[index_for(dataset)];
+      }
+
     private:
       std::size_t index_for(std::string const& dataset) const;
 
       std::vector<std::string> datasetNames_{};
       std::vector<double> weights_{};
       std::vector<std::string> fileNames_{};
+      std::vector<EventID> firstEvents_{};
       std::default_random_engine engine_{};
       std::discrete_distribution<unsigned> dist_{};
     };

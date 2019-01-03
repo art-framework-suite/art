@@ -15,7 +15,8 @@ simple_plugin(SamplingInput "source"
   SamplingInput_source.cc
   detail/DataSetSampler.cc
   detail/SamplingDelayedReader.cc
-  detail/SamplingInputFile.cc)
+  detail/SamplingInputFile.cc
+  detail/event_start.cc)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

@@ -43,6 +43,7 @@ namespace art {
                                  std::string const& filename,
                                  double weight,
                                  double probability,
+                                 EventID const& firstEvent,
                                  BranchDescription const& sampledEventInfoDesc,
                                  std::map<BranchKey, BranchDescription>&
                                    oldKeyToSampledProductDescription,
@@ -50,29 +51,33 @@ namespace art {
                                  bool readIncomingParameterSets,
                                  MasterProductRegistry& mpr);
 
-      bool entryForNextEvent(input::EntryNumber& entry);
+      EventID nextEvent() const;
+      bool readyForNextEvent();
 
       EntriesForID_t treeEntries(BranchType);
       Products_t productsFor(EntriesForID_t const& entries, BranchType);
 
-      std::unique_ptr<EventPrincipal> readEvent(input::EntryNumber entry,
-                                                EventID const& eventID,
+      std::unique_ptr<EventPrincipal> readEvent(EventID const& eventID,
                                                 ProcessConfiguration const& pc);
 
     private:
-      TTree* treeForBranchType_(BranchType) const;
-      EventAuxiliary auxiliaryForEntry_(input::EntryNumber);
-      History historyForEntry_(input::EntryNumber);
+      bool updateEventEntry_(FileIndex::const_iterator& iter,
+                             input::EntryNumber& entry) const;
+      TTree* treeForBranchType_(BranchType bt) const;
+      EventAuxiliary auxiliaryForEntry_(input::EntryNumber entry);
+      History historyForEntry_(input::EntryNumber entry);
 
       std::string const dataset_;
       std::unique_ptr<TFile> file_;
       double const weight_;
       double const probability_;
+      EventID const firstEvent_;
       cet::sqlite::Connection sqliteDB_{}; // Start with invalid connection.
       FileIndex fileIndex_{};
       FileFormatVersion fileFormatVersion_{};
       FileIndex::const_iterator fiIter_{fileIndex_.cbegin()};
       FileIndex::const_iterator fiEnd_{fileIndex_.cend()};
+      input::EntryNumber currentEventEntry_{-1};
       TTree* runTree_{nullptr};
       TTree* subRunTree_{nullptr};
       TTree* eventTree_{nullptr};

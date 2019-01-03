@@ -124,6 +124,7 @@ namespace art {
           "    <dataset name>: {\n"
           "      fileNames: [<string>]\n"
           "      weight: <double>\n"
+          "      skipToEvent: \"\"  #default\n"
           "    }\n"
           "    ...\n"
           "  }\n\n"
@@ -133,6 +134,16 @@ namespace art {
           "is a floating-point number used to determine the frequency\n"
           "with which events from this dataset are sampled, relative to\n"
           "the sum of weights across all datasets.\n\n"
+          "The 'skipToEvent' parameter specifies the first event that\n"
+          "should be used when sampling from a specific input file.  The\n"
+          "correct specification is via the triplet \"run:subrun:event\".\n"
+          "For example, to begin sampling at run 3, subrun 2, event 39\n"
+          "from this dataset, the user should specify:\n\n"
+          "  skipToEvent: \"3:2:39\"\n\n"
+          "Specifying the empty string (the default) is equivalent to\n"
+          "beginning at the first event of the file.  All other\n"
+          "specifications are ill-formed and will result in an exception\n"
+          "throw at the beginning of the job.\n\n"
           "The ellipsis indicates that multiple datasets can be configured.\n\n"
           "N.B. Only one file per dataset is currently allowed."}};
       Atom<bool> summary{Name{"summary"}, false};
@@ -165,7 +176,6 @@ namespace art {
       cet::exempt_ptr<SubRunPrincipal const> srp) override;
     std::unique_ptr<RangeSetHandler> runRangeSetHandler() override;
     std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() override;
-    void doEndJob() override;
 
     ModuleDescription const md_;
     ProcessConfiguration const& pc_;
@@ -192,8 +202,6 @@ namespace art {
     ProductTable presentSubRunProducts_;
     ProductTable presentRunProducts_;
     cet::exempt_ptr<std::string const> currentDataset_{nullptr};
-    input::EntryNumber currentEntryInCurrentDataset_{
-      std::numeric_limits<input::EntryNumber>::max()};
   };
 }
 
@@ -331,6 +339,7 @@ art::SamplingInput::SamplingInput(Parameters const& config,
                                   dataSetSampler_.fileName(name),
                                   dataSetSampler_.weight(name),
                                   dataSetSampler_.probability(name),
+                                  dataSetSampler_.firstEvent(name),
                                   sampledEventInfoDesc_,
                                   oldKeyToSampledDescription,
                                   md_,
@@ -380,6 +389,78 @@ art::SamplingInput::readFile()
 void
 art::SamplingInput::closeFile()
 {
+  if (!summary_)
+    return;
+
+  std::string const spaces(4, ' ');
+  std::string const dataset_field{"Dataset"};
+  std::size_t width_of_dataset_field{dataset_field.size()};
+  cet::for_all(counts_, [& w = width_of_dataset_field](auto const& pr) {
+    w = std::max(w, pr.first.size());
+  });
+
+  std::string const counts_field{"Counts"};
+  std::size_t width_of_counts_field{counts_field.size()};
+  cet::for_all(counts_, [& w = width_of_counts_field](auto const& pr) {
+    w = std::max(w, std::to_string(pr.second).size());
+  });
+
+  auto const two_column_width =
+    width_of_dataset_field + 4 + width_of_counts_field;
+
+  std::string const fraction_field{"fraction"};
+  std::size_t const width_of_fraction_field{fraction_field.size()};
+
+  std::string const prob_field{"fraction"};
+  std::size_t const width_of_prob_field{prob_field.size()};
+
+  std::string const specified_field{"Specified"};
+  std::string const weight_field{"weight"};
+  std::size_t const width_of_weight_field{specified_field.size()};
+
+  std::string const next_event_field{"Next event"};
+  std::size_t const width_of_next_event_field{35u};
+  cet::HorizontalRule const rule{
+    two_column_width + 4 + width_of_fraction_field + 4 + width_of_prob_field +
+    1 + width_of_weight_field + 3 + width_of_next_event_field};
+
+  mf::LogInfo log{"SamplingInput"};
+  log << "The 'SamplingInput' source sampled the following events:\n\n";
+  log << std::string(two_column_width, ' ') << spaces << std::left
+      << std::setw(width_of_fraction_field) << "Sample"
+      << " | " << std::left << std::setw(width_of_prob_field) << "Expected"
+      << "  " << std::left << "Specified\n";
+  log << std::setw(width_of_dataset_field) << std::left << dataset_field
+      << spaces << std::setw(width_of_counts_field) << std::right
+      << counts_field << spaces << std::setw(width_of_fraction_field)
+      << fraction_field << " | " << std::setw(width_of_prob_field) << prob_field
+      << "  " << std::setw(width_of_weight_field) << weight_field << "   "
+      << next_event_field << '\n';
+  log << rule('-');
+
+  for (auto const& pr : counts_) {
+    auto const& dataset = pr.first;
+    auto const k = pr.second;
+    auto const f = static_cast<double>(k) / totalCounts_;
+    auto const id = files_.at(dataset).nextEvent();
+    log << '\n'
+        << std::setw(width_of_dataset_field) << std::left << dataset << spaces
+        << std::setw(width_of_counts_field) << std::right << k << spaces
+        << std::setw(width_of_fraction_field) << std::right << f << " | "
+        << std::setw(width_of_prob_field) << std::right
+        << dataSetSampler_.probability(dataset) << "  "
+        << std::setw(width_of_weight_field) << std::right
+        << dataSetSampler_.weight(dataset) << "   ";
+    if (id.isValid()) {
+      log << id;
+    } else {
+      log << "(no more available)";
+    }
+  }
+  log << '\n' << rule('-');
+  log << '\n'
+      << std::setw(width_of_dataset_field) << std::left << "Total" << spaces
+      << std::setw(width_of_counts_field) << std::right << totalCounts_;
   files_.clear();
 }
 
@@ -403,8 +484,7 @@ art::SamplingInput::nextItemType()
   }
 
   currentDataset_ = &dataSetSampler_.sample();
-  bool const anotherEvent = files_.at(*currentDataset_)
-                              .entryForNextEvent(currentEntryInCurrentDataset_);
+  bool const anotherEvent = files_.at(*currentDataset_).readyForNextEvent();
 
   // If the sampled data set has no more events, stop.
   if (!anotherEvent) {
@@ -549,7 +629,7 @@ art::SamplingInput::readEvent(cet::exempt_ptr<art::SubRunPrincipal const> srp)
   detail::issue_reports(totalCounts_, eventID_);
 
   auto& file = files_.at(*currentDataset_);
-  auto ep = file.readEvent(currentEntryInCurrentDataset_, eventID_, pc_);
+  auto ep = file.readEvent(eventID_, pc_);
   ep->setSubRunPrincipal(srp);
   if (!delayedReadEventProducts_) {
     ep->readImmediate();
@@ -568,73 +648,6 @@ std::unique_ptr<art::RangeSetHandler>
 art::SamplingInput::subRunRangeSetHandler()
 {
   return std::make_unique<art::OpenRangeSetHandler>(subRunID_.run());
-}
-
-void
-art::SamplingInput::doEndJob()
-{
-  if (!summary_)
-    return;
-
-  std::string const spaces(4, ' ');
-  std::string const dataset_field{"Dataset"};
-  std::size_t width_of_dataset_field{dataset_field.size()};
-  cet::for_all(counts_, [& w = width_of_dataset_field](auto const& pr) {
-    w = std::max(w, pr.first.size());
-  });
-
-  std::string const counts_field{"Counts"};
-  std::size_t width_of_counts_field{counts_field.size()};
-  cet::for_all(counts_, [& w = width_of_counts_field](auto const& pr) {
-    w = std::max(w, std::to_string(pr.second).size());
-  });
-
-  std::string const fraction_field{"fraction"};
-  std::size_t const width_of_fraction_field{fraction_field.size()};
-
-  std::string const prob_field{"fraction"};
-  std::size_t const width_of_prob_field{prob_field.size()};
-
-  std::string const weight_field{"weight"};
-  std::string const specified_field{"Specified"};
-  std::size_t const width_of_weight_field{specified_field.size()};
-  auto const two_column_width =
-    width_of_dataset_field + 4 + width_of_counts_field;
-
-  cet::HorizontalRule const rule{
-    two_column_width + 4 + width_of_fraction_field + 4 + width_of_prob_field +
-    1 + width_of_weight_field};
-
-  mf::LogInfo log{"SamplingInput"};
-  log << "The 'SamplingInput' source sampled the following events:\n\n";
-  log << std::string(two_column_width, ' ') << spaces << std::left
-      << std::setw(width_of_fraction_field) << "Sample"
-      << " | " << std::left << std::setw(width_of_prob_field) << "Expected"
-      << "  " << std::left << "Specified\n";
-  log << std::setw(width_of_dataset_field) << std::left << dataset_field
-      << spaces << std::setw(width_of_counts_field) << std::right
-      << counts_field << spaces << std::setw(width_of_fraction_field)
-      << fraction_field << " | " << std::setw(width_of_prob_field) << prob_field
-      << "  " << std::setw(width_of_weight_field) << weight_field << '\n';
-  log << rule('-');
-
-  for (auto const& pr : counts_) {
-    auto const& dataset = pr.first;
-    auto const k = pr.second;
-    auto const f = static_cast<double>(k) / totalCounts_;
-    log << '\n'
-        << std::setw(width_of_dataset_field) << std::left << dataset << spaces
-        << std::setw(width_of_counts_field) << std::right << k << spaces
-        << std::setw(width_of_fraction_field) << std::right << f << " | "
-        << std::setw(width_of_prob_field) << std::right
-        << dataSetSampler_.probability(dataset) << "  "
-        << std::setw(width_of_weight_field) << std::right
-        << dataSetSampler_.weight(dataset);
-  }
-  log << '\n' << rule('-');
-  log << '\n'
-      << std::setw(width_of_dataset_field) << std::left << "Total" << spaces
-      << std::setw(width_of_counts_field) << std::right << totalCounts_;
 }
 
 DEFINE_ART_INPUT_SOURCE(art::SamplingInput)

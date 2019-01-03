@@ -7,6 +7,7 @@ source: {
     signal: {
       weight: 0.35
       fileNames: ["../SamplingInput_w_signal.d/out.root"]
+      skipToEvent: "14:3:11"
     }
     bkgd: {
       weight: 0.82

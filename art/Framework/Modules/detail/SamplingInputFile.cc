@@ -33,6 +33,7 @@ detail::SamplingInputFile::SamplingInputFile(
   std::string const& filename,
   double const weight,
   double const probability,
+  EventID const& firstEvent,
   BranchDescription const& sampledEventInfoDesc,
   std::map<BranchKey, BranchDescription>& oldKeyToSampledProductDescription,
   ModuleDescription const& md,
@@ -42,6 +43,7 @@ detail::SamplingInputFile::SamplingInputFile(
   , file_{std::make_unique<TFile>(filename.c_str())}
   , weight_{weight}
   , probability_{probability}
+  , firstEvent_{firstEvent}
   , sampledEventInfoDesc_{sampledEventInfoDesc}
 {
   // Read metadata tree
@@ -171,19 +173,39 @@ detail::SamplingInputFile::SamplingInputFile(
 }
 
 bool
-detail::SamplingInputFile::entryForNextEvent(art::input::EntryNumber& entry)
+detail::SamplingInputFile::updateEventEntry_(FileIndex::const_iterator& it,
+                                             input::EntryNumber& entry) const
 {
-  while (fiIter_ != fiEnd_ && fiIter_->getEntryType() != FileIndex::kEvent) {
+  for (;; ++it) {
+    if (it == fiEnd_) return false;
+
+    if (it->getEntryType() != art::FileIndex::kEvent ||
+        it->eventID_ < firstEvent_) {
+      continue;
+    }
+
+    entry = it->entry_;
+    return true;
+  }
+}
+
+art::EventID
+detail::SamplingInputFile::nextEvent() const
+{
+  auto local_it = fiIter_;
+  input::EntryNumber entry;
+  return updateEventEntry_(local_it, entry) ? local_it->eventID_ :
+                                              EventID::invalidEvent();
+}
+
+bool
+detail::SamplingInputFile::readyForNextEvent()
+{
+  bool const another_one = updateEventEntry_(fiIter_, currentEventEntry_);
+  if (another_one) {
     ++fiIter_;
   }
-
-  if (fiIter_ == fiEnd_) {
-    return false;
-  }
-
-  entry = fiIter_->entry_;
-  ++fiIter_;
-  return true;
+  return another_one;
 }
 
 namespace art {
@@ -252,12 +274,11 @@ detail::SamplingInputFile::productsFor(EntriesForID_t const& entries,
 }
 
 std::unique_ptr<art::EventPrincipal>
-detail::SamplingInputFile::readEvent(input::EntryNumber const entry,
-                                     EventID const& eventID,
+detail::SamplingInputFile::readEvent(EventID const& eventID,
                                      ProcessConfiguration const& pc)
 {
-  auto const on_disk_aux = auxiliaryForEntry_(entry);
-  auto history = historyForEntry_(entry);
+  auto const on_disk_aux = auxiliaryForEntry_(currentEventEntry_);
+  auto history = historyForEntry_(currentEventEntry_);
 
   // We do *not* keep the on-disk EventID for the primary event; we
   // instead create it as an event product.
@@ -271,17 +292,19 @@ detail::SamplingInputFile::readEvent(input::EntryNumber const entry,
     pc,
     &presentEventProducts_,
     std::make_shared<History>(std::move(history)),
-    std::make_unique<BranchMapperWithReader>(productProvenanceBranch_, entry),
-    std::make_unique<SamplingDelayedReader>(fileFormatVersion_,
-                                            sqliteDB_,
-                                            input::EntryNumbers{entry},
-                                            branches_,
-                                            eventTree_,
-                                            -1,
-                                            branchIDLists_.get(),
-                                            InEvent,
-                                            on_disk_id,
-                                            false));
+    std::make_unique<BranchMapperWithReader>(productProvenanceBranch_,
+                                             currentEventEntry_),
+    std::make_unique<SamplingDelayedReader>(
+      fileFormatVersion_,
+      sqliteDB_,
+      input::EntryNumbers{currentEventEntry_},
+      branches_,
+      eventTree_,
+      -1 /* saveMemoryObjectThreshold */,
+      branchIDLists_.get(),
+      InEvent,
+      on_disk_id,
+      false));
   for (auto const& pr : branches_) {
     ep->fillGroup(pr.second.branchDescription_);
   }
