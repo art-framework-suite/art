@@ -13,6 +13,7 @@ simple_plugin(SamplingInput "source"
   ${ROOT_TREE}
   SOURCE
   SamplingInput_source.cc
+  detail/DataSetBroker.cc
   detail/DataSetSampler.cc
   detail/SamplingDelayedReader.cc
   detail/SamplingInputFile.cc

@@ -1,6 +1,7 @@
 #ifndef art_Framework_Modules_detail_DataSetSampler_h
 #define art_Framework_Modules_detail_DataSetSampler_h
 
+#include "art/Framework/Modules/detail/SamplingInputFile.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 
 #include <cassert>
@@ -20,7 +21,9 @@ namespace art {
     // for the facilities used here.
     class DataSetSampler {
     public:
-      explicit DataSetSampler(fhicl::ParameterSet const& pset) noexcept(false);
+      explicit DataSetSampler(
+        std::vector<std::string> const& datasetNames,
+        std::vector<double> const& weights) noexcept(false);
 
       auto const&
       sample()
@@ -48,27 +51,13 @@ namespace art {
         return dist_.probabilities()[index_for(dataset)];
       }
 
-      auto const&
-      fileName(std::string const& dataset) const
-      {
-        return fileNames_[index_for(dataset)];
-      }
-
-      EventID
-      firstEvent(std::string const& dataset) const
-      {
-        return firstEvents_[index_for(dataset)];
-      }
-
     private:
       std::size_t index_for(std::string const& dataset) const;
 
-      std::vector<std::string> datasetNames_{};
-      std::vector<double> weights_{};
-      std::vector<std::string> fileNames_{};
-      std::vector<EventID> firstEvents_{};
+      std::vector<std::string> datasetNames_;
+      std::vector<double> weights_;
       std::default_random_engine engine_{};
-      std::discrete_distribution<unsigned> dist_{};
+      std::discrete_distribution<unsigned> dist_;
     };
   }
 }

@@ -25,6 +25,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace art {
   class MasterProductRegistry;
@@ -57,8 +58,13 @@ namespace art {
       EntriesForID_t treeEntries(BranchType);
       Products_t productsFor(EntriesForID_t const& entries, BranchType);
 
-      std::unique_ptr<EventPrincipal> readEvent(EventID const& eventID,
-                                                ProcessConfiguration const& pc);
+      template <typename T>
+      SampledInfo<T> sampledInfoFor(EntriesForID_t const& entries);
+
+      std::unique_ptr<EventPrincipal> readEvent(
+        EventID const& eventID,
+        ProcessConfigurations const& sampled_pcs,
+        ProcessConfiguration const& current_pc);
 
     private:
       bool updateEventEntry_(FileIndex::const_iterator& iter,
@@ -92,6 +98,42 @@ namespace art {
       std::unique_ptr<BranchIDLists> branchIDLists_{
         nullptr}; // Only used for maintaining backwards compatibility
     };
+
+    template <typename T>
+    T id_for(EventID const& id);
+
+    template <>
+    inline RunID
+    id_for<RunID>(EventID const& id)
+    {
+      return id.runID();
+    }
+
+    template <>
+    inline SubRunID
+    id_for<SubRunID>(EventID const& id)
+    {
+      return id.subRunID();
+    }
+
+    template <typename T>
+    SampledInfo<T>
+    SamplingInputFile::sampledInfoFor(EntriesForID_t const& entries)
+    {
+      // We use a set because it is okay for multiple entries of the
+      // same (sub)run to be present in the FileIndex--these correspond
+      // to (sub)run fragments.  However, we do not want these to appear
+      // as separate entries in the SampledInfo object.
+      std::set<T> ids;
+      for (auto const& pr : entries) {
+        auto const& invalid_event_id = pr.first;
+        ids.insert(id_for<T>(invalid_event_id));
+      }
+
+      return SampledInfo<T>{
+        weight_, probability_, std::vector<T>(cbegin(ids), cend(ids))};
+    }
+
   }
 }
 

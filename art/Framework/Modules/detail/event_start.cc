@@ -18,8 +18,10 @@ namespace {
   }
 
   std::string const number{R"(\s*\d+\s*)"};
-  std::regex const re_event_id{group(number) + ":" + group(number) + ":" + group(number)};
-  std::string const context{"An error was encountered while processing the 'skipToEvent' parameter.\n"};
+  std::regex const re_event_id{group(number) + ":" + group(number) + ":" +
+                               group(number)};
+  std::string const context{
+    "An error was encountered while processing the 'skipToEvent' parameter.\n"};
 
   constexpr auto article [[gnu::unused]] (art::Level const L)
   {

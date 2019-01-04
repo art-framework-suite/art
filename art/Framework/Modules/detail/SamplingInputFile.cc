@@ -132,13 +132,16 @@ detail::SamplingInputFile::SamplingInputFile(
     if (bt == InSubRun || bt == InRun) {
       std::string const wrapped_product{"art::Sampled<" +
                                         pd.producedClassName() + ">"};
+      ProcessConfiguration const pc{"SampledFrom" + pd.processName(),
+                                    md.parameterSetID(),
+                                    md.releaseVersion()};
       BranchDescription sampledDesc{bt,
                                     pd.moduleLabel(),
-                                    md.processName(),
+                                    pc.processName(),
                                     uniform_type_name(wrapped_product),
                                     pd.productInstanceName(),
-                                    md.parameterSetID(),
-                                    md.processConfigurationID(),
+                                    pc.parameterSetID(),
+                                    pc.id(),
                                     false,
                                     false};
       oldKeyToSampledProductDescription.emplace(key, std::move(sampledDesc));
@@ -176,9 +179,7 @@ bool
 detail::SamplingInputFile::updateEventEntry_(FileIndex::const_iterator& it,
                                              input::EntryNumber& entry) const
 {
-  for (;; ++it) {
-    if (it == fiEnd_) return false;
-
+  for (; it != fiEnd_; ++it) {
     if (it->getEntryType() != art::FileIndex::kEvent ||
         it->eventID_ < firstEvent_) {
       continue;
@@ -187,6 +188,8 @@ detail::SamplingInputFile::updateEventEntry_(FileIndex::const_iterator& it,
     entry = it->entry_;
     return true;
   }
+
+  return false;
 }
 
 art::EventID
@@ -275,10 +278,23 @@ detail::SamplingInputFile::productsFor(EntriesForID_t const& entries,
 
 std::unique_ptr<art::EventPrincipal>
 detail::SamplingInputFile::readEvent(EventID const& eventID,
-                                     ProcessConfiguration const& pc)
+                                     ProcessConfigurations const& sampled_pcs,
+                                     ProcessConfiguration const& current_pc)
 {
   auto const on_disk_aux = auxiliaryForEntry_(currentEventEntry_);
   auto history = historyForEntry_(currentEventEntry_);
+
+  ProcessHistory ph;
+  bool const found [[gnu::unused]]{
+    ProcessHistoryRegistry::get(history.processHistoryID(), ph)};
+  assert(found);
+
+  for (auto const& sampled_pc : sampled_pcs) {
+    ph.push_back(sampled_pc);
+  }
+  auto const id = ph.id();
+  ProcessHistoryRegistry::emplace(id, ph);
+  history.setProcessHistoryID(id);
 
   // We do *not* keep the on-disk EventID for the primary event; we
   // instead create it as an event product.
@@ -289,7 +305,7 @@ detail::SamplingInputFile::readEvent(EventID const& eventID,
   auto const on_disk_id = on_disk_aux.id();
   auto ep = std::make_unique<art::EventPrincipal>(
     aux,
-    pc,
+    current_pc,
     &presentEventProducts_,
     std::make_shared<History>(std::move(history)),
     std::make_unique<BranchMapperWithReader>(productProvenanceBranch_,
