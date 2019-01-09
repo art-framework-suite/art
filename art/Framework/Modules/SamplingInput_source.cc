@@ -211,9 +211,6 @@ namespace art {
     SubRunID subRunID_;
     EventID nextEventID_;
     input::ItemType currentItemType_{input::IsInvalid};
-    bool inputFileIsSet_{false};
-    bool runIsSet_{false};
-    bool subRunIsSet_{false};
     unsigned eventsLeft_;
     unsigned totalCounts_{};
     detail::DataSetBroker dataSetBroker_;
