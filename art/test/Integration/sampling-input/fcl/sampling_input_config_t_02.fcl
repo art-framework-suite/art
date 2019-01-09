@@ -1,0 +1,12 @@
+# This configuration is ill-formed: only one filename can currently be
+# specified per dataset.
+
+source: {
+  module_type: SamplingInput
+  dataSets: {
+    tooManyFiles: {
+      weight: 0.01
+      fileNames: ["a", "b"]
+    }
+  }
+}

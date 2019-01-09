@@ -20,7 +20,9 @@
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/DelegatedParameter.h"
+#include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Table.h"
+#include "fhiclcpp/types/TupleAs.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <cassert>
@@ -32,19 +34,25 @@ namespace art {
   }
 }
 
+using namespace art;
 using namespace fhicl;
 
 namespace {
   struct DataSetConfig {
-    Atom<unsigned int> sampled_run{Name{"sampled_run"}};
-    Atom<unsigned int> sampled_subrun{Name{"sampled_subrun"}};
-    Atom<int> ivalue{Name{"ivalue"}};
+    Atom<std::string> process_name{Name{"process_name"}};
+    Sequence<TupleAs<SubRunID(unsigned int, unsigned int)>> sampled_subruns{
+      Name{"sampled_subruns"}};
+    Sequence<int> run_values{Name{"run_values"}};
+    Sequence<int> subrun_values{Name{"subrun_values"}};
+    Sequence<int> event_values{Name{"event_values"}};
   };
 
   struct DataSetInfo {
-    unsigned int sampled_run;
-    unsigned int sampled_subrun;
-    int ivalue;
+    std::string process_name;
+    std::vector<SubRunID> sampled_subruns;
+    std::vector<int> run_values;
+    std::vector<int> subrun_values;
+    std::vector<int> event_values;
   };
 
   using datasets_t = std::map<std::string, DataSetInfo>;
@@ -58,27 +66,55 @@ namespace {
       auto const pset = datasets.get<ParameterSet>(name);
       Table<DataSetConfig> table{pset};
       result.emplace(name,
-                     DataSetInfo{table().sampled_run(),
-                                 table().sampled_subrun(),
-                                 table().ivalue()});
+                     DataSetInfo{table().process_name(),
+                                 table().sampled_subruns(),
+                                 table().run_values(),
+                                 table().subrun_values(),
+                                 table().event_values()});
     }
     return result;
   }
 
   template <typename T>
-  struct ValidatedIDs {
-    explicit ValidatedIDs(std::set<T> expectedIDs)
-      : missingIDs{move(expectedIDs)}
+  auto to_ids(DataSetInfo const& info);
+
+  template <>
+  auto
+  to_ids<RunID>(DataSetInfo const& info)
+  {
+    std::set<RunID> result;
+    for (auto const& id : info.sampled_subruns) {
+      result.insert(id.runID());
+    }
+    return result;
+  }
+
+  template <>
+  auto
+  to_ids<SubRunID>(DataSetInfo const& info)
+  {
+    return std::set<SubRunID>{cbegin(info.sampled_subruns),
+                              cend(info.sampled_subruns)};
+  }
+
+  template <typename T>
+  class ValidatedIDs {
+  public:
+    explicit ValidatedIDs(DataSetInfo const& info) : missingIDs{to_ids<T>(info)}
     {}
+
     void
-    markID(T const& r)
+    assert_correct_ids(std::vector<T> const& ids)
     {
-      auto const numErased = missingIDs.erase(r);
-      if (numErased == 0) {
-        extraIDs.insert(r);
+      for (auto const& id : ids) {
+        if (missingIDs.erase(id) == 0) {
+          extraIDs.insert(id);
+        }
       }
+      assert_no_errors();
     }
 
+  private:
     void
     assert_no_errors() const
     {
@@ -98,6 +134,57 @@ namespace {
     std::set<T> missingIDs;
     std::set<T> extraIDs;
   };
+
+  template <typename T>
+  void
+  assert_correct_ids(
+    std::map<std::string, SampledInfo<T>> const& infoForDataset,
+    datasets_t const& expectedValues)
+  {
+    for (auto const& pr : infoForDataset) {
+      auto const& dataset = pr.first;
+      auto it = expectedValues.find(dataset);
+      assert(it != cend(expectedValues));
+
+      auto const& expected_ids = it->second;
+      ValidatedIDs<T> validated{expected_ids};
+      validated.assert_correct_ids(pr.second.ids);
+    }
+  }
+
+  template <typename DataContainer>
+  void
+  assert_correct_products(DataContainer const& dc,
+                          InputTag const& original_tag,
+                          datasets_t const& datasets,
+                          unsigned const expected_retrievals)
+  {
+    InputTag const sampled_tag{original_tag.label(),
+                               original_tag.instance(),
+                               sampled_from(original_tag.process())};
+    auto const& sampledInts =
+      *dc.template getValidHandle<Sampled<arttest::IntProduct>>(sampled_tag);
+    assert(sampledInts.originalInputTag() == original_tag);
+
+    std::size_t successes{};
+    for (auto const& pr : sampledInts) {
+      auto const& dataset = pr.first;
+      auto const& actual_values = pr.second;
+      auto const& dataset_values = datasets.at(dataset);
+      auto const& expected_values = std::is_same<Run, DataContainer>::value ?
+                                      dataset_values.run_values :
+                                      dataset_values.subrun_values;
+      auto const length = actual_values.size();
+      assert(length == expected_values.size());
+      for (std::size_t i{}; i != length; ++i) {
+        auto const expected_int = expected_values[i];
+        auto const actual_int = actual_values[i].value;
+        assert(expected_int == actual_int);
+        ++successes;
+      }
+    }
+    assert(successes == expected_retrievals);
+  }
 }
 
 class art::test::SamplingAnalyzer : public EDAnalyzer {
@@ -114,9 +201,13 @@ public:
         "table for each dataset to be read.  It should have the form:\n\n"
         "datasets: {\n"
         "  <dataset>: {\n"
-        "    sampled_run: <unsigned int>\n"
-        "    sampled_subrun: <unsigned int>\n"
-        "    ivalue: <int> \n"
+        "    sampled_subruns: [\n"
+        "      [<unsigned int>, <unsigned int>],\n"
+        "      ...\n"
+        "    ]\n"
+        "    run_value: <int> \n"
+        "    subrun_value: <int> \n"
+        "    event_value: <int> \n"
         "  }\n"
         "}\n\n"
         "where '<dataset>' is a string with the correct dataset name,\n"
@@ -141,8 +232,9 @@ private:
   void beginRun(art::Run const& r) override;
   void beginSubRun(art::SubRun const& sr) override;
   void analyze(art::Event const& e) override;
-  InputTag const runIntTag_;
-  InputTag const subRunIntTag_;
+  std::string const runIntLabel_;
+  std::string const subRunIntLabel_;
+
   InputTag const eventIntTag_;
   InputTag const ptrmvTag_;
   datasets_t const expectedValues_;
@@ -150,8 +242,8 @@ private:
 
 art::test::SamplingAnalyzer::SamplingAnalyzer(Parameters const& p)
   : EDAnalyzer{p}
-  , runIntTag_{p().run_int_label()}
-  , subRunIntTag_{p().subrun_int_label()}
+  , runIntLabel_{p().run_int_label()}
+  , subRunIntLabel_{p().subrun_int_label()}
   , eventIntTag_{p().event_int_label()}
   , ptrmvTag_{p().ptrmv_label()}
   , expectedValues_{convert(p().datasets.get<ParameterSet>())}
@@ -164,35 +256,15 @@ art::test::SamplingAnalyzer::beginRun(Run const& r)
   auto const& sampledInfoProv = *hSampledInfo.provenance();
   assert(sampledInfoProv.isValid());
   assert(sampledInfoProv.isPresent());
+  assert_correct_ids(*hSampledInfo, expectedValues_);
 
-  // Verify that datasets present in the product are expected.
-  for (auto const& pr : *hSampledInfo) {
-    auto const& dataset = pr.first;
-    auto it = expectedValues_.find(dataset);
-    assert(it != cend(expectedValues_));
+  InputTag const original_signal_and_background_tag{
+    runIntLabel_, {}, "SamplingInputWrite"};
+  assert_correct_products(
+    r, original_signal_and_background_tag, expectedValues_, 2u);
 
-    std::set<RunID> expectedRunIDs{RunID{it->second.sampled_run}};
-    ValidatedIDs<RunID> validated{move(expectedRunIDs)};
-    auto const& runInfo = pr.second;
-    // Verify correct run numbers for each dataset
-    cet::for_all(runInfo.ids,
-                 [&validated](auto const& id) { validated.markID(id); });
-    validated.assert_no_errors();
-  }
-
-  // Read Run products from different datasets.
-  auto const sampledInts =
-    r.getValidHandle<Sampled<arttest::IntProduct>>(runIntTag_);
-  std::size_t successes{};
-  for (auto const& pr : *sampledInts) {
-    auto const& dataset = pr.first;
-    auto const& values = pr.second;
-    assert(values.size() == 1ul);
-    auto const expected_int = expectedValues_.at(dataset).sampled_run;
-    assert(static_cast<unsigned int>(values[0].value) == expected_int);
-    ++successes;
-  }
-  assert(successes == 2ul);
+  InputTag const original_noise_tag{runIntLabel_, {}, "RandomNoise"};
+  assert_correct_products(r, original_noise_tag, expectedValues_, 1u);
 }
 
 void
@@ -203,37 +275,15 @@ art::test::SamplingAnalyzer::beginSubRun(SubRun const& sr)
   auto const& sampledInfoProv = *hSampledInfo.provenance();
   assert(sampledInfoProv.isValid());
   assert(sampledInfoProv.isPresent());
+  assert_correct_ids(*hSampledInfo, expectedValues_);
 
-  // Verify that datasets present in the product are expected.
-  for (auto const& pr : *hSampledInfo) {
-    auto const& dataset = pr.first;
-    auto it = expectedValues_.find(dataset);
-    assert(it != cend(expectedValues_));
+  InputTag const original_signal_and_background_tag{
+    subRunIntLabel_, {}, "SamplingInputWrite"};
+  assert_correct_products(
+    sr, original_signal_and_background_tag, expectedValues_, 3u);
 
-    auto const& expected = it->second;
-    std::set<SubRunID> expectedSubRunIDs{
-      SubRunID{expected.sampled_run, expected.sampled_subrun}};
-    ValidatedIDs<SubRunID> validated{move(expectedSubRunIDs)};
-    auto const& subRunInfo = pr.second;
-    // Verify correct run numbers for each dataset
-    cet::for_all(subRunInfo.ids,
-                 [&validated](auto const& id) { validated.markID(id); });
-    validated.assert_no_errors();
-  }
-
-  // Read Run products from different datasets.
-  auto const sampledInts =
-    sr.getValidHandle<Sampled<arttest::IntProduct>>(subRunIntTag_);
-  std::size_t successes{};
-  for (auto const& pr : *sampledInts) {
-    auto const& dataset = pr.first;
-    auto const& values = pr.second;
-    assert(values.size() == 1ul);
-    auto const expected_int = expectedValues_.at(dataset).sampled_subrun;
-    assert(static_cast<unsigned int>(values[0].value) == expected_int);
-    ++successes;
-  }
-  assert(successes == 2ul);
+  InputTag const original_noise_tag{subRunIntLabel_, {}, "RandomNoise"};
+  assert_correct_products(sr, original_noise_tag, expectedValues_, 1u);
 }
 
 void
@@ -249,11 +299,11 @@ art::test::SamplingAnalyzer::analyze(Event const& e)
   auto const& expected = expectedValues_.at(sampledInfo.dataset);
 
   // Test injected SampledEventInfo from input source
-  assert(expected.sampled_run == sampledInfo.id.run());
+  assert(cet::search_all(expected.sampled_subruns, sampledInfo.id.subRunID()));
 
   // Verify that persisted event products are stored correctly
   auto const hInt = e.getValidHandle<arttest::IntProduct>(eventIntTag_);
-  assert(expected.ivalue == hInt->value);
+  assert(expected.event_values[0] == hInt->value);
 
   // Check that provenance is available
   auto const& provenance = *hInt.provenance();

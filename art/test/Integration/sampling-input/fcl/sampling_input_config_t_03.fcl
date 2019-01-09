@@ -1,0 +1,13 @@
+# This configuration is ill-formed: the correct skipToEvent
+# specification is "run:subrun:event"
+
+source: {
+  module_type: SamplingInput
+  dataSets: {
+    wrongSkipToEvent: {
+      weight: 0.01
+      fileNames: ["a"]
+      skipToEvent: "3"
+    }
+  }
+}

@@ -83,6 +83,7 @@ detail::DataSetBroker::DataSetBroker(fhicl::ParameterSet const& pset) noexcept(
     try {
       Table<DataSetConfig> table{pset.get<fhicl::ParameterSet>(dataset)};
       datasetNames.push_back(dataset);
+      counts_[dataset] = 0;
       weights.push_back(table().weight());
       auto const filenames = table().fileNames();
       if (filenames.size() != 1ull) {
@@ -91,7 +92,7 @@ detail::DataSetBroker::DataSetBroker(fhicl::ParameterSet const& pset) noexcept(
              "The 'fileNames' sequence must contain 1 and only 1 filename.\n"
              "The ability to specify multiple file names may be possible in "
              "the future.\n"
-             "Please contact artists@fnal.gov for guidance.";
+             "Please contact artists@fnal.gov for guidance.\n\n";
       }
 
       auto const firstEvent = table().skipToEvent();
@@ -99,9 +100,6 @@ detail::DataSetBroker::DataSetBroker(fhicl::ParameterSet const& pset) noexcept(
                        Config{filenames.front(), first_event_id(firstEvent)});
     }
     catch (fhicl::detail::validationException const& e) {
-      throw make_exception_for(dataset) << "\n\n" << e.what();
-    }
-    catch (art::Exception const& e) {
       throw make_exception_for(dataset) << "\n\n" << e.what();
     }
   }

@@ -5,6 +5,7 @@ process_name: "SamplingInputWrite"
 source.firstRun: 4
 source.firstSubRun: 0
 source.firstEvent: 1
+source.numberEventsInSubRun: 5
 
 physics.producers.makeRunInt.ivalue: 4
 physics.producers.makeSubRunInt.ivalue: 0

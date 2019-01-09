@@ -13,6 +13,15 @@ source: {
       weight: 0.82
       fileNames: ["../SamplingInput_w_bkgd.d/out.root"]
     }
+    noise: {
+      # Choosing a weight of 0 tests that the (sub)run products are
+      # still accessible even if the events are never sampled, and it
+      # also tests for proper printout in the summary (there should be
+      # an entry in the printed out table even if no events are
+      # sampled),
+      weight: 0.00
+      fileNames: ["../SamplingInput_w_noise.d/out.root"]
+    }
   }
 }
 
@@ -26,14 +35,25 @@ physics: {
       ptrmv_label: "makePtrs"
       datasets: {
         signal: {
-          sampled_run: 14
-          sampled_subrun: 3
-          ivalue: 9
+          process_name: "SamplingInputWrite"
+          sampled_subruns: [[14, 3]]
+          run_values: [14]
+          subrun_values: [3]
+          event_values: [9]
         }
         bkgd: {
-          sampled_run: 4
-          sampled_subrun: 0
-          ivalue: 1
+          process_name: "SamplingInputWrite"
+          sampled_subruns: [[4, 0], [4, 1]]
+          run_values: [4]
+          subrun_values: [0, 0]
+          event_values: [1]
+        }
+        noise: {
+          process_name: "RandomNoise"
+          sampled_subruns: [[5, 92]]
+          run_values: [5]
+          subrun_values: [92]
+          event_values: [17]
         }
       }
     }

@@ -10,4 +10,8 @@ namespace art {
   }
 }
 
-#endif
+#endif /* art_Framework_IO_Root_detail_dropBranch_h */
+
+// Local Variables:
+// mode: c++
+// End:

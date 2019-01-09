@@ -1,0 +1,16 @@
+#include "sampling_input_w.fcl"
+
+# This file purposely uses a different process name than the 'signal'
+# and 'background' configurations do.
+
+process_name: "RandomNoise"
+
+source.firstRun: 5
+source.firstSubRun: 92
+source.firstEvent: 17
+
+physics.producers.makeRunInt.ivalue: 5
+physics.producers.makeSubRunInt.ivalue: 92
+physics.producers.makeEventInt.ivalue: 17
+
+outputs.out.fileName: "out.root"
