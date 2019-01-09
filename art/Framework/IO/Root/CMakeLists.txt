@@ -6,6 +6,7 @@ art_make_library(
   detail/DummyProductCache.cc
   detail/KeptProvenance.cc
   detail/RangeSetInfo.cc
+  detail/dropBranch.cc
   detail/getEntry.cc
   detail/getObjectRequireDict.cc
   detail/rangeSetFromFileIndex.cc

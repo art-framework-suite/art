@@ -1,9 +1,11 @@
 #include "art/Framework/Modules/detail/SamplingInputFile.h"
 
+#include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/IO/Root/BranchMapperWithReader.h"
 #include "art/Framework/IO/Root/RootDB/TKeyVFSOpenPolicy.h"
 #include "art/Framework/IO/Root/RootDB/have_table.h"
 #include "art/Framework/IO/Root/checkDictionaries.h"
+#include "art/Framework/IO/Root/detail/dropBranch.h"
 #include "art/Framework/IO/Root/detail/readFileIndex.h"
 #include "art/Framework/IO/Root/detail/readMetadata.h"
 #include "art/Framework/IO/Root/rootErrMsgs.h"
@@ -12,6 +14,7 @@
 #include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/ModuleDescription.h"
@@ -22,11 +25,45 @@
 #include "canvas/Utilities/uniform_type_name.h"
 #include "canvas_root_io/Streamers/ProductIDStreamer.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include <set>
+#include <string>
 
 namespace detail = art::detail;
 
 using EntriesForID_t = detail::SamplingInputFile::EntriesForID_t;
 using Products_t = detail::SamplingInputFile::Products_t;
+using namespace std::string_literals;
+
+namespace {
+  TTree*
+  get_tree(TFile& file, std::string const& treeName)
+  {
+    auto result = dynamic_cast<TTree*>(file.Get(treeName.c_str()));
+    if (result == nullptr) {
+      throw art::Exception{art::errors::FileReadError,
+                           "An error occurred while trying to read "s +
+                             file.GetName()}
+        << art::couldNotFindTree(treeName);
+    }
+    return result;
+  }
+
+  TTree*
+  get_tree(TFile& file,
+           std::string const& treeName,
+           unsigned int const treeCacheSize,
+           int64_t const treeMaxVirtualSize)
+  {
+    auto result = get_tree(file, treeName);
+    result->SetCacheSize(static_cast<Long64_t>(treeCacheSize));
+    if (treeMaxVirtualSize >= 0) {
+      result->SetMaxVirtualSize(static_cast<Long64_t>(treeMaxVirtualSize));
+    }
+    return result;
+  }
+}
 
 detail::SamplingInputFile::SamplingInputFile(
   std::string const& dataset,
@@ -34,6 +71,11 @@ detail::SamplingInputFile::SamplingInputFile(
   double const weight,
   double const probability,
   EventID const& firstEvent,
+  GroupSelectorRules const& groupSelectorRules,
+  bool const dropDescendants,
+  unsigned int const treeCacheSize,
+  int64_t const treeMaxVirtualSize,
+  int64_t const saveMemoryObjectThreshold,
   BranchDescription const& sampledEventInfoDesc,
   std::map<BranchKey, BranchDescription>& oldKeyToSampledProductDescription,
   ModuleDescription const& md,
@@ -44,15 +86,10 @@ detail::SamplingInputFile::SamplingInputFile(
   , weight_{weight}
   , probability_{probability}
   , firstEvent_{firstEvent}
+  , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
   , sampledEventInfoDesc_{sampledEventInfoDesc}
 {
-  // Read metadata tree
-  auto metaDataTree =
-    dynamic_cast<TTree*>(file_->Get(rootNames::metaDataTreeName().c_str()));
-  if (!metaDataTree) {
-    throw Exception{errors::FileReadError}
-      << couldNotFindTree(rootNames::metaDataTreeName());
-  }
+  auto metaDataTree = get_tree(*file_, rootNames::metaDataTreeName());
 
   // Read the ProcessHistory
   {
@@ -86,45 +123,41 @@ detail::SamplingInputFile::SamplingInputFile(
     configureProductIDStreamer(branchIDLists_.get());
   }
 
-  // Read event history tree
-  eventHistoryTree_ =
-    static_cast<TTree*>(file_->Get(rootNames::eventHistoryTreeName().c_str()));
-  if (!eventHistoryTree_) {
-    throw art::Exception{errors::DataCorruption}
-      << "Failed to find the event history tree.\n";
-  }
-  // eventHistoryTree_->SetCacheSize(static_cast<Long64_t>(treeCacheSize));
+  // Event-level trees
+  eventHistoryTree_ = get_tree(*file_, rootNames::eventHistoryTreeName());
+  eventTree_ = get_tree(*file_,
+                        BranchTypeToProductTreeName(InEvent),
+                        treeCacheSize,
+                        treeMaxVirtualSize);
+  auxBranch_ =
+    eventTree_->GetBranch(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
 
-  // Read event (meta)data trees
-  eventTree_ = dynamic_cast<TTree*>(
-    file_->Get(BranchTypeToProductTreeName(InEvent).c_str()));
-  eventMetaTree_ = dynamic_cast<TTree*>(
-    file_->Get(BranchTypeToMetaDataTreeName(InEvent).c_str()));
+  eventMetaTree_ = get_tree(*file_, BranchTypeToMetaDataTreeName(InEvent));
+  productProvenanceBranch_ =
+    eventMetaTree_->GetBranch(productProvenanceBranchName(InEvent).c_str());
 
-  if (eventTree_) {
-    auxBranch_ =
-      eventTree_->GetBranch(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
-  }
-  if (eventMetaTree_) {
-    productProvenanceBranch_ =
-      eventMetaTree_->GetBranch(productProvenanceBranchName(InEvent).c_str());
-  }
+  // Higher-level trees
+  subRunTree_ = get_tree(*file_,
+                         BranchTypeToProductTreeName(InSubRun),
+                         treeCacheSize,
+                         treeMaxVirtualSize);
+  runTree_ = get_tree(*file_,
+                      BranchTypeToProductTreeName(InRun),
+                      treeCacheSize,
+                      treeMaxVirtualSize);
 
-  // Read (sub)run data trees
-  subRunTree_ = dynamic_cast<TTree*>(
-    file_->Get(BranchTypeToProductTreeName(InSubRun).c_str()));
-  runTree_ = dynamic_cast<TTree*>(
-    file_->Get(BranchTypeToProductTreeName(InRun).c_str()));
-  // Add checks for pointers above
+  // Read the BranchChildren, necessary for dropping descendent products
+  auto const branchChildren =
+    detail::readMetadata<BranchChildren>(metaDataTree);
 
   // Read the ProductList
-  AvailableProducts_t availableEventProducts{};
   productListHolder_ = detail::readMetadata<ProductRegistry>(metaDataTree);
-  auto& eventProductList = productListHolder_.productList_;
-  //  dropOnInput(groupSelectorRules, branchChildren, dropDescendants,
-  //  prodList);
+  auto& productList = productListHolder_.productList_;
+  dropOnInput_(
+    groupSelectorRules, branchChildren, dropDescendants, productList);
 
-  for (auto& pr : eventProductList) {
+  AvailableProducts_t availableEventProducts{};
+  for (auto& pr : productList) {
     auto const& key = pr.first;
     auto& pd = pr.second;
     auto const bt = pd.branchType();
@@ -149,7 +182,6 @@ detail::SamplingInputFile::SamplingInputFile(
       bool const present{branch != nullptr};
       if (present) {
         availableEventProducts.emplace(pd.productID());
-        checkDictionaries(pd);
       }
 
       auto const validity = present ?
@@ -161,18 +193,15 @@ detail::SamplingInputFile::SamplingInputFile(
     branches_.emplace(pr.first, input::BranchInfo{pd, branch});
   }
 
-  mpr.updateFromInputFile(eventProductList);
+  mpr.updateFromInputFile(productList);
 
   // Register newly created data product
   availableEventProducts.emplace(sampledEventInfoDesc_.productID());
   checkDictionaries(sampledEventInfoDesc_);
-  eventProductList.emplace(BranchKey{sampledEventInfoDesc_},
-                           sampledEventInfoDesc_);
+  productList.emplace(BranchKey{sampledEventInfoDesc_}, sampledEventInfoDesc_);
 
-  presentEventProducts_ =
-    ProductTable{make_product_descriptions(eventProductList),
-                 InEvent,
-                 availableEventProducts};
+  presentEventProducts_ = ProductTable{
+    make_product_descriptions(productList), InEvent, availableEventProducts};
 }
 
 bool
@@ -257,7 +286,7 @@ detail::SamplingInputFile::productsFor(EntriesForID_t const& entries,
                                        tree_entries,
                                        branches_,
                                        treeForBranchType_(bt),
-                                       -1 /* saveMemoryObjectThreshold */,
+                                       saveMemoryObjectThreshold_,
                                        branchIDLists_.get(),
                                        bt,
                                        id,
@@ -335,6 +364,58 @@ detail::SamplingInputFile::readEvent(EventID const& eventID,
           std::make_unique<ProductProvenance const>(pd.productID(),
                                                     productstatus::present()));
   return ep;
+}
+
+void
+detail::SamplingInputFile::dropOnInput_(GroupSelectorRules const& rules,
+                                        BranchChildren const& children,
+                                        bool const dropDescendants,
+                                        ProductList& prodList)
+{
+  // FIXME: The functionality below is a near duplicate to that
+  //        provided in RootInput.
+
+  GroupSelector const groupSelector{rules, prodList};
+  // Do drop on input. On the first pass, just fill in a set of
+  // branches to be dropped.
+
+  // FIXME: ProductID does not include BranchType, so this algorithm
+  //        may be problematic.
+  std::set<ProductID> branchesToDrop;
+  for (auto const& prod : prodList) {
+    auto const& pd = prod.second;
+    // We explicitly do not support results products for the Sampling
+    // input source.
+    if (pd.branchType() == InResults || !groupSelector.selected(pd)) {
+      if (dropDescendants) {
+        children.appendToDescendants(pd.productID(), branchesToDrop);
+      } else {
+        branchesToDrop.insert(pd.productID());
+      }
+    }
+  }
+  // On this pass, actually drop the branches.
+  auto branchesToDropEnd = branchesToDrop.cend();
+  for (auto I = prodList.begin(), E = prodList.end(); I != E;) {
+    auto const& pd = I->second;
+    bool drop = branchesToDrop.find(pd.productID()) != branchesToDropEnd;
+    if (!drop) {
+      ++I;
+      checkDictionaries(pd);
+      continue;
+    }
+    if (groupSelector.selected(pd)) {
+      mf::LogWarning("SamplingInputFile")
+        << "Branch '" << pd.branchName()
+        << "' is being dropped from the input\n"
+        << "of file '" << file_->GetName()
+        << "' because it is dependent on a branch\n"
+        << "that was explicitly dropped.\n";
+    }
+    dropBranch(treeForBranchType_(pd.branchType()), pd.branchName());
+    auto icopy = I++;
+    prodList.erase(icopy);
+  }
 }
 
 TTree*

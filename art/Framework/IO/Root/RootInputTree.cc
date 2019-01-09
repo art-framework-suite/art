@@ -6,6 +6,7 @@
 #include "TLeaf.h"
 #include "TTree.h"
 #include "art/Framework/IO/Root/RootDelayedReader.h"
+#include "art/Framework/IO/Root/detail/dropBranch.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include <cstdint>
@@ -76,29 +77,7 @@ namespace art {
   void
   RootInputTree::dropBranch(std::string const& branchName)
   {
-    TBranch* branch = tree_->GetBranch(branchName.c_str());
-    if (!branch) {
-      return;
-    }
-    TObjArray* leaves = tree_->GetListOfLeaves();
-    int entries = leaves->GetEntries();
-    for (int i = 0; i < entries; ++i) {
-      auto leaf = reinterpret_cast<TLeaf*>((*leaves)[i]);
-      if (leaf == nullptr) {
-        continue;
-      }
-      TBranch* br = leaf->GetBranch();
-      if (br == nullptr) {
-        continue;
-      }
-      if (br->GetMother() == branch) {
-        leaves->Remove(leaf);
-      }
-    }
-    leaves->Compress();
-    tree_->GetListOfBranches()->Remove(branch);
-    tree_->GetListOfBranches()->Compress();
-    delete branch;
+    detail::dropBranch(tree_, branchName);
   }
 
   std::unique_ptr<DelayedReader>

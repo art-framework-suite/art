@@ -28,6 +28,8 @@
 #include <vector>
 
 namespace art {
+  class BranchChildren;
+  class GroupSelectorRules;
   class MasterProductRegistry;
   class ModuleDescription;
   struct ProcessConfiguration;
@@ -45,6 +47,11 @@ namespace art {
                                  double weight,
                                  double probability,
                                  EventID const& firstEvent,
+                                 GroupSelectorRules const& groupSelectorRules,
+                                 bool dropDescendants,
+                                 unsigned int treeCacheSize,
+                                 int64_t treeMaxVirtualSize,
+                                 int64_t saveMemoryObjectThreshold,
                                  BranchDescription const& sampledEventInfoDesc,
                                  std::map<BranchKey, BranchDescription>&
                                    oldKeyToSampledProductDescription,
@@ -67,6 +74,10 @@ namespace art {
         ProcessConfiguration const& current_pc);
 
     private:
+      void dropOnInput_(GroupSelectorRules const& rules,
+                        BranchChildren const& children,
+                        bool dropDescendants,
+                        ProductList& productList);
       bool updateEventEntry_(FileIndex::const_iterator& iter,
                              input::EntryNumber& entry) const;
       TTree* treeForBranchType_(BranchType bt) const;
@@ -79,6 +90,7 @@ namespace art {
       double const probability_;
       EventID const firstEvent_;
       cet::sqlite::Connection sqliteDB_{}; // Start with invalid connection.
+      int64_t saveMemoryObjectThreshold_;
       FileIndex fileIndex_{};
       FileFormatVersion fileFormatVersion_{};
       FileIndex::const_iterator fiIter_{fileIndex_.cbegin()};

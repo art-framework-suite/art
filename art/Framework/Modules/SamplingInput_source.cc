@@ -130,6 +130,11 @@ namespace art {
       Atom<unsigned> maxEvents{Name{"maxEvents"}, 1u};
       Atom<bool> delayedReadEventProducts{Name{"delayedReadEventProducts"},
                                           true};
+      Sequence<std::string> inputCommands{Name{"inputCommands"},
+                                          std::vector<std::string>{"keep *"}};
+      Atom<bool> dropDescendantsOfDroppedBranches{
+        Name{"dropDescendantsOfDroppedBranches"},
+        true};
       Atom<bool> readParameterSets{Name{"readParameterSets"}, true};
       OptionalAtom<RunNumber_t> run{
         Name{"run"},
@@ -139,9 +144,13 @@ namespace art {
           "generated in a given art job.  If no values are specified, default\n"
           "values of 1 and 0 are chosen for the run and subrun, "
           "respectively."}};
-      OptionalAtom<SubRunNumber_t> subRun{Name("subRun")};
-      OptionalAtom<EventNumber_t> firstEvent{Name("firstEvent")};
-
+      OptionalAtom<SubRunNumber_t> subRun{Name{"subRun"}};
+      OptionalAtom<EventNumber_t> firstEvent{Name{"firstEvent"}};
+      Atom<unsigned> treeCacheSize{Name("treeCacheSize"), 0u};
+      Atom<std::int64_t> treeMaxVirtualSize{Name("treeMaxVirtualSize"), -1};
+      Atom<int64_t> saveMemoryObjectThreshold{Name{"saveMemoryObjectThreshold"},
+                                              -1};
+      Atom<bool> summary{Name{"summary"}, false};
       DelegatedParameter dataSets{
         Name{"dataSets"},
         Comment{
@@ -172,7 +181,6 @@ namespace art {
           "throw at the beginning of the job.\n\n"
           "The ellipsis indicates that multiple datasets can be configured.\n\n"
           "N.B. Only one file per dataset is currently allowed."}};
-      Atom<bool> summary{Name{"summary"}, false};
 
       struct KeysToIgnore {
         std::set<std::string>
@@ -298,8 +306,16 @@ art::SamplingInput::SamplingInput(Parameters const& config,
     isd.moduleDescription);
   sampledRunInfoDesc_ = presentSampledProducts.back();
 
-  oldKeyToSampledProductDescription_ = dataSetBroker_.openInputFiles(
-    sampledEventInfoDesc_, md_, readParameterSets, isd.productRegistry);
+  oldKeyToSampledProductDescription_ =
+    dataSetBroker_.openInputFiles(config().inputCommands(),
+                                  config().dropDescendantsOfDroppedBranches(),
+                                  config().treeCacheSize(),
+                                  config().treeMaxVirtualSize(),
+                                  config().saveMemoryObjectThreshold(),
+                                  sampledEventInfoDesc_,
+                                  md_,
+                                  readParameterSets,
+                                  isd.productRegistry);
 
   sampledProcessConfigs_ =
     sampled_process_configurations(oldKeyToSampledProductDescription_, pc_);

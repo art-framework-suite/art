@@ -1,4 +1,5 @@
 #include "art/Framework/Modules/detail/DataSetBroker.h"
+#include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/Modules/detail/event_start.h"
 #include "art/Utilities/bold_fontify.h"
 #include "cetlib/HorizontalRule.h"
@@ -167,11 +168,18 @@ detail::DataSetBroker::DataSetBroker(fhicl::ParameterSet const& pset) noexcept(
 
 std::map<BranchKey, BranchDescription>
 detail::DataSetBroker::openInputFiles(
+  std::vector<std::string> const& inputCommands,
+  bool const dropDescendants,
+  unsigned int const treeCacheSize,
+  int64_t const treeMaxVirtualSize,
+  int64_t const saveMemoryObjectThreshold,
   BranchDescription const& sampledEventInfoDesc,
   ModuleDescription const& md,
   bool const readParameterSets,
   MasterProductRegistry& preg)
 {
+  GroupSelectorRules const groupSelectorRules{
+    inputCommands, "inputCommands", "InputSource"};
   std::map<BranchKey, BranchDescription> oldKeyToSampledDescription;
   for (auto const& pr : configs_) {
     auto const& name = pr.first;
@@ -184,6 +192,11 @@ detail::DataSetBroker::openInputFiles(
                                   dataSetSampler_->weight(name),
                                   dataSetSampler_->probability(name),
                                   config.firstEvent,
+                                  groupSelectorRules,
+                                  dropDescendants,
+                                  treeCacheSize,
+                                  treeMaxVirtualSize,
+                                  saveMemoryObjectThreshold,
                                   sampledEventInfoDesc,
                                   oldKeyToSampledDescription,
                                   md,

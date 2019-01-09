@@ -22,6 +22,11 @@ namespace art {
       explicit DataSetBroker(fhicl::ParameterSet const& pset);
 
       std::map<BranchKey, BranchDescription> openInputFiles(
+        std::vector<std::string> const& inputCommands,
+        bool dropDescendants,
+        unsigned int treeCacheSize,
+        int64_t treeMaxVirtualSize,
+        int64_t saveMemoryObjectThreshold,
         BranchDescription const& sampledEventInfoDesc,
         ModuleDescription const& md,
         bool const readParameterSets,
