@@ -79,12 +79,21 @@ detail::DataSetBroker::DataSetBroker(fhicl::ParameterSet const& pset) noexcept(
   std::vector<double> weights;
   datasetNames.reserve(ndatasets);
   weights.reserve(ndatasets);
+  double sum_of_weights{};
   for (auto const& dataset : dataset_names) {
     try {
       Table<DataSetConfig> table{pset.get<fhicl::ParameterSet>(dataset)};
       datasetNames.push_back(dataset);
       counts_[dataset] = 0;
-      weights.push_back(table().weight());
+      auto const weight = table().weight();
+      if (weight < 0) {
+        throw make_exception_for(dataset)
+          << "\n\n"
+             "It is illegal to specify a negative weight ("
+          << weight << ").\n\n";
+      }
+      sum_of_weights += weight;
+      weights.push_back(weight);
       auto const filenames = table().fileNames();
       if (filenames.size() != 1ull) {
         throw make_exception_for(dataset)
@@ -103,6 +112,14 @@ detail::DataSetBroker::DataSetBroker(fhicl::ParameterSet const& pset) noexcept(
       throw make_exception_for(dataset) << "\n\n" << e.what();
     }
   }
+  if (sum_of_weights < std::numeric_limits<double>::epsilon()) {
+    throw art::Exception{
+      art::errors::Configuration,
+      "An error was encountered while creating the SamplingInput source.\n"}
+      << "The sum of weights over all datasets must be greater than 0.\n"
+         "Please look at the configured weights to ensure this.\n";
+  }
+
   dataSetSampler_ = std::make_unique<DataSetSampler>(datasetNames, weights);
 
   mf::LogInfo log{"SamplingInput"};
@@ -172,6 +189,7 @@ detail::DataSetBroker::openInputFiles(
   int64_t const treeMaxVirtualSize,
   int64_t const saveMemoryObjectThreshold,
   BranchDescription const& sampledEventInfoDesc,
+  bool const compactRangeSetsForReading,
   ModuleDescription const& md,
   bool const readParameterSets,
   MasterProductRegistry& preg)
@@ -196,6 +214,7 @@ detail::DataSetBroker::openInputFiles(
                                   treeMaxVirtualSize,
                                   saveMemoryObjectThreshold,
                                   sampledEventInfoDesc,
+                                  compactRangeSetsForReading,
                                   oldKeyToSampledDescription,
                                   md,
                                   readParameterSets,

@@ -77,6 +77,7 @@ detail::SamplingInputFile::SamplingInputFile(
   int64_t const treeMaxVirtualSize,
   int64_t const saveMemoryObjectThreshold,
   BranchDescription const& sampledEventInfoDesc,
+  bool const compactRangeSets,
   std::map<BranchKey, BranchDescription>& oldKeyToSampledProductDescription,
   ModuleDescription const& md,
   bool const readIncomingParameterSets,
@@ -88,6 +89,7 @@ detail::SamplingInputFile::SamplingInputFile(
   , firstEvent_{firstEvent}
   , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
   , sampledEventInfoDesc_{sampledEventInfoDesc}
+  , compactRangeSets_{compactRangeSets}
 {
   auto metaDataTree = get_tree(*file_, rootNames::metaDataTreeName());
 
@@ -290,7 +292,7 @@ detail::SamplingInputFile::productsFor(EntriesForID_t const& entries,
                                        branchIDLists_.get(),
                                        bt,
                                        id,
-                                       false /* compact range sets */};
+                                       compactRangeSets_};
     for (auto const& pr : productListHolder_.productList_) {
       auto const& key = pr.first;
       auto const& bd = pr.second;

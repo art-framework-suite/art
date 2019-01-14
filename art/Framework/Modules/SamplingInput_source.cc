@@ -128,14 +128,6 @@ namespace art {
     struct Config {
       Atom<std::string> module_type{Name{"module_type"}};
       Atom<unsigned> maxEvents{Name{"maxEvents"}, 1u};
-      Atom<bool> delayedReadEventProducts{Name{"delayedReadEventProducts"},
-                                          true};
-      Sequence<std::string> inputCommands{Name{"inputCommands"},
-                                          std::vector<std::string>{"keep *"}};
-      Atom<bool> dropDescendantsOfDroppedBranches{
-        Name{"dropDescendantsOfDroppedBranches"},
-        true};
-      Atom<bool> readParameterSets{Name{"readParameterSets"}, true};
       OptionalAtom<RunNumber_t> run{
         Name{"run"},
         Comment{
@@ -146,11 +138,6 @@ namespace art {
           "respectively."}};
       OptionalAtom<SubRunNumber_t> subRun{Name{"subRun"}};
       OptionalAtom<EventNumber_t> firstEvent{Name{"firstEvent"}};
-      Atom<unsigned> treeCacheSize{Name("treeCacheSize"), 0u};
-      Atom<std::int64_t> treeMaxVirtualSize{Name("treeMaxVirtualSize"), -1};
-      Atom<int64_t> saveMemoryObjectThreshold{Name{"saveMemoryObjectThreshold"},
-                                              -1};
-      Atom<bool> summary{Name{"summary"}, false};
       DelegatedParameter dataSets{
         Name{"dataSets"},
         Comment{
@@ -181,6 +168,30 @@ namespace art {
           "throw at the beginning of the job.\n\n"
           "The ellipsis indicates that multiple datasets can be configured.\n\n"
           "N.B. Only one file per dataset is currently allowed."}};
+      Atom<bool> summary{Name{"summary"}, true};
+      Atom<bool> delayedReadEventProducts{Name{"delayedReadEventProducts"},
+                                          true};
+      Sequence<std::string> inputCommands{Name{"inputCommands"},
+                                          std::vector<std::string>{"keep *"}};
+      Atom<bool> dropDescendantsOfDroppedBranches{
+        Name{"dropDescendantsOfDroppedBranches"},
+        true};
+      Atom<bool> readParameterSets{Name{"readParameterSets"}, true};
+      Atom<unsigned> treeCacheSize{Name("treeCacheSize"), 0u};
+      Atom<std::int64_t> treeMaxVirtualSize{Name("treeMaxVirtualSize"), -1};
+      Atom<int64_t> saveMemoryObjectThreshold{Name{"saveMemoryObjectThreshold"},
+                                              -1};
+      Atom<bool> compactRanges{
+        Name{"compactRanges"},
+        Comment{
+          "The 'compactRanges' parameter can be set to 'true'\n"
+          "if the user can guarantee that a SubRun is not spread across\n"
+          "multiple input files.  Setting it to 'true' can yield some\n"
+          "memory savings when reading input files created before art 2.01,\n"
+          "but it can also modify the provenance of the workflow.  Please\n"
+          "consult your experiment's policy on provenance before setting this\n"
+          "parameter to 'true'."},
+        false};
 
       struct KeysToIgnore {
         std::set<std::string>
@@ -313,6 +324,7 @@ art::SamplingInput::SamplingInput(Parameters const& config,
                                   config().treeMaxVirtualSize(),
                                   config().saveMemoryObjectThreshold(),
                                   sampledEventInfoDesc_,
+                                  config().compactRanges(),
                                   md_,
                                   readParameterSets,
                                   isd.productRegistry);

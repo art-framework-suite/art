@@ -23,6 +23,20 @@ cet_test(SamplingInput_config_t_03 HANDBUILT
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "The specification '3' is not a valid EventID")
 
+cet_test(SamplingInput_config_t_04 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c sampling_input_config_t_04.fcl
+  DATAFILES fcl/sampling_input_config_t_04.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "It is illegal to specify a negative weight \\(\\-")
+
+cet_test(SamplingInput_config_t_05 HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c sampling_input_config_t_05.fcl
+  DATAFILES fcl/sampling_input_config_t_05.fcl
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "The sum of weights over all datasets must be greater than 0")
+
 # Create two output files that have different (Sub)Run numbers and can
 # be used to test the event sampling.
 cet_test(SamplingInput_w_signal HANDBUILT

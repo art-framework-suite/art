@@ -1,0 +1,12 @@
+# This configuration is ill-formed: a negative weight cannot be
+# specified.
+
+source: {
+  module_type: SamplingInput
+  dataSets: {
+    negativeWeight: {
+      weight: -0.01
+      fileNames: ["a"]
+    }
+  }
+}

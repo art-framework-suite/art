@@ -1,0 +1,15 @@
+# This configuration is ill-formed: the sum of weights must be greater than 0.
+
+source: {
+  module_type: SamplingInput
+  dataSets: {
+    nullDataSet1: {
+      weight: 0
+      fileNames: ["a"]
+    }
+    nullDataSet2: {
+      weight: 0
+      fileNames: ["b"]
+    }
+  }
+}

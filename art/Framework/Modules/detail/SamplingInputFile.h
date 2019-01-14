@@ -53,6 +53,7 @@ namespace art {
                                  int64_t treeMaxVirtualSize,
                                  int64_t saveMemoryObjectThreshold,
                                  BranchDescription const& sampledEventInfoDesc,
+                                 bool compactRangeSets,
                                  std::map<BranchKey, BranchDescription>&
                                    oldKeyToSampledProductDescription,
                                  ModuleDescription const& moduleDescription,
@@ -105,6 +106,7 @@ namespace art {
       TTree* eventHistoryTree_{nullptr};
       input::BranchMap branches_{};
       BranchDescription const& sampledEventInfoDesc_;
+      bool compactRangeSets_;
       ProductRegistry productListHolder_{};
       ProductTable presentEventProducts_{};
       std::unique_ptr<BranchIDLists> branchIDLists_{
