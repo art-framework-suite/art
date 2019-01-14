@@ -70,7 +70,6 @@ if (CETSKEL)
 
   # Library containing code for service interface.
   art_make_library(SOURCE ${CMAKE_CURRENT_BINARY_DIR}/ToolsTestServiceInterface.cc
-    LIBRARIES ${Boost_SYSTEM_LIBRARY}
     NO_INSTALL)
 
   # Service interface implementation.

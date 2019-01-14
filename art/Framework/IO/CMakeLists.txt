@@ -4,8 +4,7 @@ art_make(LIB_LIBRARIES
   cetlib_except
   ${Boost_DATE_TIME_LIBRARY}
   ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_REGEX_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY})
+  ${Boost_REGEX_LIBRARY})
 
 install_headers()
 install_source()
