@@ -21,12 +21,15 @@ namespace art {
 
     [[deprecated("\n\nart warning: The default constructor for EDFilter has "
                  "been deprecated.\n"
-                 "             Please call the non-default constructor as the "
-                 "first argument\n"
-                 "             in the initialization list of your module:\n\n"
-                 "               MyFilter(ParameterSet const& ps) : "
+                 "             For any module that calls createEngine, it is "
+                 "an error to use\n"
+                 "             the default constructor. Please call the "
+                 "non-default constructor\n"
+                 "             as the first argument in the initialization "
+                 "list of your module:\n\n"
+                 "               MyProducer(ParameterSet const& ps) : "
                  "art::EDFilter{ps}, ... {} // or\n"
-                 "               MyFilter(Parameters const& ps) : "
+                 "               MyProducer(Parameters const& ps) : "
                  "art::EDFilter{ps}, ... {}\n\n")]] EDFilter() = default;
 
     explicit EDFilter(fhicl::ParameterSet const& pset)

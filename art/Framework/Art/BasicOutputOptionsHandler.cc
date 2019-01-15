@@ -2,8 +2,8 @@
 
 #include "art/Framework/Art/detail/AllowedConfiguration.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
-#include "art/Framework/Art/detail/get_LibraryInfoCollection.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
+#include "art/Framework/Art/detail/get_LibraryInfoCollection.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ensureTable.h"
 #include "canvas/Utilities/Exception.h"
@@ -162,8 +162,10 @@ namespace {
         new_path_entry = true;
         std::string const defaultOutputModule =
           art::detail::get_LibraryInfoCollection(art::Suffixes::module(),
-                                                 "RootOutput").empty() ?
-          "FileDumperOutput" : "RootOutput";
+                                                 "RootOutput")
+              .empty() ?
+            "FileDumperOutput" :
+            "RootOutput";
         raw_config.put(outputsKey + '.' + streamName + '.' + "module_type",
                        defaultOutputModule);
       }

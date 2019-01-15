@@ -8,6 +8,7 @@
 #include "art/Framework/Core/detail/EngineCreator.h"
 #include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
+#include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <utility>
@@ -58,11 +59,17 @@ EngineCreator::requireValid()
   if (sid_.isValid() && !moduleLabel_.empty()) {
     return;
   }
-  throw Exception{errors::LogicError,
-                  "An error occurred while creating a random-number engine.\n"}
+  throw Exception{
+    errors::LogicError,
+    "An error occurred while creating a random-number engine.\n\n"}
     << "No module label or schedule ID available to create engine.\n"
     << "Please ensure that your module calls the correct base-class\n"
-       "constructor.  For example, if your module is a filter:\n\n"
+       "constructor.  The module class and module label can be determined\n"
+       "by looking for the '<module class>:<module label>@Construction' "
+       "string\n"
+       "in the message context a few lines above.  For example, if your\n"
+       "module is a filter with class name 'MyFilter' please make the\n"
+       "following change to your constructor:\n\n"
     << "  Wrong:  MyFilter(ParameterSet const& ps) :\n"
     << "            dataMembers_, ...\n"
     << "          {}\n\n"
