@@ -301,7 +301,7 @@ detail::SamplingInputFile::productsFor(EntriesForID_t const& entries,
       RangeSet rs{RangeSet::invalid()};
       auto const class_name = uniform_type_name(bd.producedClassName());
       auto product = reader.getProduct(key, wrappedClassName(class_name), rs);
-      result[key].push_back(move(product));
+      result[key].emplace(id.subRunID(), move(product));
     }
   }
   return result;

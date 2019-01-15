@@ -61,20 +61,20 @@ cet_test(SamplingInput_w_noise HANDBUILT
   fcl/sampling_input_w_noise.fcl)
 
 # SamplingInput proper tests
-cet_test(SamplingInput_t_01 HANDBUILT
+cet_test(SamplingInput_t HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c sampling_input_t_01.fcl -n 20 -o out.root
-  DATAFILES fcl/sampling_input_t_01.fcl)
+  TEST_ARGS -c sampling_input_t.fcl -n 20 -o out.root
+  DATAFILES fcl/sampling_input_t.fcl)
 
-cet_test(SamplingInput_r_01 HANDBUILT
+cet_test(SamplingInput_r HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c sampling_input_r_01.fcl
+  TEST_ARGS -c sampling_input_r.fcl
   DATAFILES
-  fcl/sampling_input_t_01.fcl
-  fcl/sampling_input_r_01.fcl
-  REQUIRED_FILES ../SamplingInput_t_01.d/out.root
-  TEST_PROPERTIES DEPENDS SamplingInput_t_01)
+  fcl/sampling_input_t.fcl
+  fcl/sampling_input_r.fcl
+  REQUIRED_FILES ../SamplingInput_t.d/out.root
+  TEST_PROPERTIES DEPENDS SamplingInput_t)
 
-set_tests_properties(SamplingInput_t_01
+set_tests_properties(SamplingInput_t
   PROPERTIES
   DEPENDS "SamplingInput_w_signal;SamplingInput_w_bkgd;SamplingInput_w_noise")

@@ -4,6 +4,7 @@
 #include "art/Framework/Modules/detail/DataSetSampler.h"
 #include "art/Framework/Modules/detail/SamplingInputFile.h"
 #include "canvas/Persistency/Provenance/ProcessHistoryID.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
 
 #include <map>
 #include <memory>
@@ -13,9 +14,9 @@
 namespace art {
   namespace detail {
 
-    using Products_t =
-      std::map<BranchKey,
-               std::map<std::string, std::vector<std::unique_ptr<EDProduct>>>>;
+    using Products_t = std::map<
+      BranchKey,
+      std::map<std::string, std::map<SubRunID, std::unique_ptr<EDProduct>>>>;
 
     class DataSetBroker {
     public:

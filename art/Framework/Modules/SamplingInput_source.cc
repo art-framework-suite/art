@@ -79,12 +79,14 @@ namespace {
     auto const& products = first_entry->second;
     assert(!products.empty());
 
-    auto sampled_product = products[0]->createEmptySampledProduct(tag);
+    auto sampled_product =
+      cbegin(products)->second->createEmptySampledProduct(tag);
     for (auto&& pr : datasets_with_product) {
       auto const& dataset = pr.first;
-      auto&& products = std::move(pr.second);
-      for (auto&& product : products) {
-        sampled_product->insertIfSampledProduct(dataset, move(product));
+      auto&& products_per_id = std::move(pr.second);
+      for (auto&& pr2 : products_per_id) {
+        sampled_product->insertIfSampledProduct(
+          dataset, pr2.first, move(pr2.second));
       }
     }
     return sampled_product;

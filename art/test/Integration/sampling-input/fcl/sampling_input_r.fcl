@@ -2,11 +2,11 @@
 # the SamplingInput process are peristed correctly to an output file
 # and can be read as expected via RootInput.
 
-#include "sampling_input_t_01.fcl"
+#include "sampling_input_t.fcl"
 
-process_name: SamplingInputReadingTest02
+process_name: SamplingInputReadingTest
 
 source: {
   module_type: RootInput
-  fileNames: [ "../SamplingInput_t_01.d/out.root" ]
+  fileNames: [ "../SamplingInput_t.d/out.root" ]
 }

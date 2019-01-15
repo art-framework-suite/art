@@ -42,16 +42,16 @@ namespace {
     Atom<std::string> process_name{Name{"process_name"}};
     Sequence<TupleAs<SubRunID(unsigned int, unsigned int)>> sampled_subruns{
       Name{"sampled_subruns"}};
-    Sequence<int> run_values{Name{"run_values"}};
-    Sequence<int> subrun_values{Name{"subrun_values"}};
+    Sequence<Tuple<unsigned, int>> run_values{Name{"run_values"}};
+    Sequence<Tuple<Tuple<unsigned, unsigned>, int>> subrun_values{
+      Name{"subrun_values"}};
     Sequence<int> event_values{Name{"event_values"}};
   };
 
   struct DataSetInfo {
-    std::string process_name;
     std::vector<SubRunID> sampled_subruns;
-    std::vector<int> run_values;
-    std::vector<int> subrun_values;
+    std::map<RunID, int> run_values;
+    std::map<SubRunID, int> subrun_values;
     std::vector<int> event_values;
   };
 
@@ -65,11 +65,24 @@ namespace {
     for (auto const& name : names) {
       auto const pset = datasets.get<ParameterSet>(name);
       Table<DataSetConfig> table{pset};
+      auto run_value_tuples = table().run_values();
+      auto subrun_value_tuples = table().subrun_values();
+      std::map<RunID, int> run_values;
+      for (auto const tup : run_value_tuples) {
+        run_values.emplace(std::get<0>(tup), std::get<1>(tup));
+      }
+      std::map<SubRunID, int> subrun_values;
+      for (auto const tup : subrun_value_tuples) {
+        auto const& subrun_tup = std::get<0>(tup);
+        subrun_values.emplace(
+          SubRunID{std::get<0>(subrun_tup), std::get<1>(subrun_tup)},
+          std::get<1>(tup));
+      }
+
       result.emplace(name,
-                     DataSetInfo{table().process_name(),
-                                 table().sampled_subruns(),
-                                 table().run_values(),
-                                 table().subrun_values(),
+                     DataSetInfo{table().sampled_subruns(),
+                                 move(run_values),
+                                 move(subrun_values),
                                  table().event_values()});
     }
     return result;
@@ -153,6 +166,20 @@ namespace {
   }
 
   template <typename DataContainer>
+  auto const&
+  expected_values_for(DataSetInfo const& info)
+  {
+    return info.run_values;
+  }
+
+  template <>
+  auto const&
+  expected_values_for<SubRun>(DataSetInfo const& info)
+  {
+    return info.subrun_values;
+  }
+
+  template <typename DataContainer>
   void
   assert_correct_products(DataContainer const& dc,
                           InputTag const& original_tag,
@@ -167,19 +194,28 @@ namespace {
     assert(sampledInts.originalInputTag() == original_tag);
 
     std::size_t successes{};
-    for (auto const& pr : sampledInts) {
+    for (auto const& pr : datasets) {
       auto const& dataset = pr.first;
-      auto const& actual_values = pr.second;
-      auto const& dataset_values = datasets.at(dataset);
-      auto const& expected_values = std::is_same<Run, DataContainer>::value ?
-                                      dataset_values.run_values :
-                                      dataset_values.subrun_values;
-      auto const length = actual_values.size();
-      assert(length == expected_values.size());
-      for (std::size_t i{}; i != length; ++i) {
-        auto const expected_int = expected_values[i];
-        auto const actual_int = actual_values[i].value;
-        assert(expected_int == actual_int);
+      auto const& dataset_values = pr.second;
+      auto const& expected_values =
+        expected_values_for<DataContainer>(dataset_values);
+      for (auto const& pr2 : expected_values) {
+        auto const& id = pr2.first;
+        auto const expected_int = pr2.second;
+        auto const actual_int = sampledInts.get(dataset, id);
+        if (!actual_int) {
+          // Could not find product for this dataset/id.  This is not
+          // necessarily an error.  Due to us looping through the
+          // datasets, there are some datasets that do not have
+          // products with a certain signature.  The purpose of the
+          // 'successes' counter is to check that we get the correct
+          // number of retrieved values for a given product signature.
+          // A better design would be to make sure that not only do we
+          // get the right number of values, but they correspond to
+          // the correct dataset.
+          continue;
+        }
+        assert(actual_int->value == expected_int);
         ++successes;
       }
     }

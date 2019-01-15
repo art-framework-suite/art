@@ -1,4 +1,4 @@
-process_name: SamplingInputTest01
+process_name: SamplingInputTest
 
 source: {
   module_type: SamplingInput
@@ -37,22 +37,35 @@ physics: {
         signal: {
           process_name: "SamplingInputWrite"
           sampled_subruns: [[14, 3]]
-          run_values: [14]
-          subrun_values: [3]
+          run_values: [
+            [14, 14]
+          ]
+          subrun_values: [
+            [[14, 3], 3]
+          ]
           event_values: [9]
         }
         bkgd: {
           process_name: "SamplingInputWrite"
           sampled_subruns: [[4, 0], [4, 1]]
-          run_values: [4]
-          subrun_values: [0, 0]
+          run_values: [
+            [4, 4]
+          ]
+          subrun_values: [
+            [[4, 0], 0],
+            [[4, 1], 0]
+          ]
           event_values: [1]
         }
         noise: {
           process_name: "RandomNoise"
           sampled_subruns: [[5, 92]]
-          run_values: [5]
-          subrun_values: [92]
+          run_values: [
+            [5, 5]
+          ]
+          subrun_values: [
+            [[5, 92], 92]
+          ]
           event_values: [17]
         }
       }

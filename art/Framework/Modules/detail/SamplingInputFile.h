@@ -40,7 +40,7 @@ namespace art {
     public:
       using EntriesForID_t = std::map<EventID, input::EntryNumbers>;
       using Products_t =
-        std::map<BranchKey, std::vector<std::unique_ptr<EDProduct>>>;
+        std::map<BranchKey, std::map<SubRunID, std::unique_ptr<EDProduct>>>;
 
       explicit SamplingInputFile(std::string const& dataset,
                                  std::string const& filename,
