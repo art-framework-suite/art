@@ -33,7 +33,7 @@
 namespace detail = art::detail;
 
 using EntriesForID_t = detail::SamplingInputFile::EntriesForID_t;
-using Products_t = detail::SamplingInputFile::Products_t;
+using ProductsForKey_t = detail::SamplingInputFile::ProductsForKey_t;
 using namespace std::string_literals;
 
 namespace {
@@ -274,11 +274,11 @@ detail::SamplingInputFile::treeEntries(BranchType const bt)
   return entries;
 }
 
-Products_t
+ProductsForKey_t
 detail::SamplingInputFile::productsFor(EntriesForID_t const& entries,
                                        BranchType const bt)
 {
-  Products_t result;
+  ProductsForKey_t result;
   for (auto const& pr : entries) {
     auto const& id = pr.first;
     auto const& tree_entries = pr.second;

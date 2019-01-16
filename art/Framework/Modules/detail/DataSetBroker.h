@@ -14,9 +14,9 @@
 namespace art {
   namespace detail {
 
-    using Products_t = std::map<
-      BranchKey,
-      std::map<std::string, std::map<SubRunID, std::unique_ptr<EDProduct>>>>;
+    using ProductsForDataset_t =
+      std::map<std::string, SamplingInputFile::InstanceForID_t>;
+    using Products_t = std::map<BranchKey, ProductsForDataset_t>;
 
     class DataSetBroker {
     public:

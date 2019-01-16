@@ -39,8 +39,8 @@ namespace art {
     class SamplingInputFile {
     public:
       using EntriesForID_t = std::map<EventID, input::EntryNumbers>;
-      using Products_t =
-        std::map<BranchKey, std::map<SubRunID, std::unique_ptr<EDProduct>>>;
+      using InstanceForID_t = std::map<SubRunID, std::unique_ptr<EDProduct>>;
+      using ProductsForKey_t = std::map<BranchKey, InstanceForID_t>;
 
       explicit SamplingInputFile(std::string const& dataset,
                                  std::string const& filename,
@@ -64,7 +64,7 @@ namespace art {
       bool readyForNextEvent();
 
       EntriesForID_t treeEntries(BranchType);
-      Products_t productsFor(EntriesForID_t const& entries, BranchType);
+      ProductsForKey_t productsFor(EntriesForID_t const& entries, BranchType);
 
       template <typename T>
       SampledInfo<T> sampledInfoFor(EntriesForID_t const& entries);
