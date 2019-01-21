@@ -21,6 +21,8 @@ namespace art {
     EventAuxiliary const& aux,
     ProcessConfiguration const& pc,
     cet::exempt_ptr<ProductTable const> presentProducts,
+    bool const parentageEnabled,
+    bool const rangesEnabled,
     std::shared_ptr<History> history,
     std::unique_ptr<BranchMapper>&& mapper,
     std::unique_ptr<DelayedReader>&& rtrv,
@@ -33,6 +35,8 @@ namespace art {
     , aux_{aux}
     , history_{history}
     , lastInSubRun_{lastInSubRun}
+    , parentageEnabled_{parentageEnabled}
+    , rangesEnabled_{rangesEnabled}
   {
     productReader().setGroupFinder(
       cet::exempt_ptr<EDProductGetterFinder const>{this});

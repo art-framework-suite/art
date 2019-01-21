@@ -1,12 +1,13 @@
 #ifndef art_Framework_IO_Root_detail_readFileIndex_h
 #define art_Framework_IO_Root_detail_readFileIndex_h
 
-#include "TFile.h"
-#include "TTree.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
 #include "art/Framework/IO/Root/rootErrMsgs.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
+
+#include "TFile.h"
+#include "TTree.h"
 
 #include <memory>
 
@@ -24,14 +25,14 @@ namespace art {
             rootNames::metaBranchRootName<FileIndex>())) {
         branch->SetAddress(&findexPtr);
         input::getEntry(branch, 0);
-        branch->SetAddress(nullptr);
+        branch->ResetAddress();
       } else {
         std::unique_ptr<TTree> fileIndexTree{static_cast<TTree*>(
           file->Get(rootNames::fileIndexTreeName().c_str()))};
-        if (!fileIndexTree)
+        if (!fileIndexTree) {
           throw Exception{errors::FileReadError}
             << couldNotFindTree(rootNames::fileIndexTreeName());
-
+        }
         FileIndex::Element element;
         auto elemPtr = &element;
         fileIndexTree->SetBranchAddress(
@@ -40,12 +41,15 @@ namespace art {
           input::getEntry(fileIndexTree.get(), i);
           findexPtr->addEntryOnLoad(elemPtr->eventID_, elemPtr->entry_);
         }
-        fileIndexTree->SetBranchAddress(
-          rootNames::metaBranchRootName<FileIndex::Element>(), nullptr);
+        {
+          auto br = fileIndexTree->GetBranch(
+            rootNames::metaBranchRootName<FileIndex::Element>());
+          br->ResetAddress();
+        }
       }
     }
-  }
-}
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_IO_Root_detail_readFileIndex_h */
 

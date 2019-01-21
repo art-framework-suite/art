@@ -44,7 +44,8 @@ namespace art {
                       cet::exempt_ptr<BranchIDLists const> branchIDLists,
                       BranchType branchType,
                       EventID,
-                      bool compactSubRunRanges);
+                      bool compactSubRunRanges,
+                      bool const rangesEnabled);
 
   private: // MEMBER FUNCTIONS
     std::unique_ptr<EDProduct> getProduct_(BranchKey const&,
@@ -67,6 +68,7 @@ namespace art {
     BranchType branchType_;
     EventID eventID_;
     bool const compactSubRunRanges_;
+    bool const rangesEnabled_{true};
   };
 
 } // namespace art

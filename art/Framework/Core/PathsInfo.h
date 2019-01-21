@@ -20,7 +20,10 @@ public:
                      MasterProductRegistry& preg,
                      ProductDescriptions& productsToProduce,
                      ActionTable& actions,
-                     ActivityRegistry& areg);
+                     ActivityRegistry& areg,
+                     bool const parentageEnabled,
+                     bool const rangesEnabled,
+                     bool const dbEnabled);
 
   HLTGlobalStatus& pathResults();
   using ModInfos = std::vector<detail::ModuleInPathInfo>;
@@ -57,6 +60,9 @@ private:
   ActionTable& exceptActions_;
   ActivityRegistry& areg_;
   std::vector<std::string> configErrMsgs_;
+  bool const parentageEnabled_{true};
+  bool const rangesEnabled_{true};
+  bool const dbEnabled_{true};
 };
 
 inline art::HLTGlobalStatus&

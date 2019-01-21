@@ -29,8 +29,10 @@ void
 art::detail::issue_reports(unsigned const count, EventID const& id)
 {
   time_t t = time(0);
-  char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-  strftime(ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
+  constexpr char tsOutput[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
+  constexpr size_t tsmax = (sizeof tsOutput) + 1;
+  char ts[tsmax];
+  strftime(ts, tsmax, "%d-%b-%Y %H:%M:%S %Z", localtime(&t));
   mf::LogVerbatim{"ArtReport"} << "Begin processing the " << count
                                << suffix(count) << " record. " << id << " at "
                                << ts;

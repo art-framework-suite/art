@@ -17,6 +17,7 @@
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
+#include "cetlib/BasicPluginFactory.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib_except/demangle.h"
@@ -190,7 +191,9 @@ art::OutputModule::doWriteEvent(EventPrincipal& ep)
     Event const we{ep, moduleDescription_, Consumer::non_module_context()};
     cet::for_all(plugins_, [&we](auto& p) { p->doCollectMetadata(we); });
     // Finish.
-    updateBranchParents(ep);
+    if (moduleDescription_.parentageEnabled()) {
+      updateBranchParents(ep);
+    }
     if (remainingEvents_ > 0) {
       --remainingEvents_;
     }
@@ -304,7 +307,9 @@ art::OutputModule::doCloseFile()
 void
 art::OutputModule::reallyCloseFile()
 {
-  fillDependencyGraph();
+  if (moduleDescription_.parentageEnabled()) {
+    fillDependencyGraph();
+  }
   startEndFile();
   writeFileFormatVersion();
   writeFileIdentifier();
@@ -557,15 +562,16 @@ art::OutputModule::makePlugins_(ParameterSet const& top_pset)
   PluginCollection_t result;
   result.reserve(psets.size());
   size_t count{0};
+  cet::BasicPluginFactory pluginFactory;
   try {
     for (auto const& pset : psets) {
       pluginNames_.emplace_back(pset.get<string>("plugin_type"));
       auto const& libspec = pluginNames_.back();
-      auto const pluginType = pluginFactory_.pluginType(libspec);
+      auto const pluginType = pluginFactory.pluginType(libspec);
       if (pluginType ==
           cet::PluginTypeDeducer<FileCatalogMetadataPlugin>::value) {
         result.emplace_back(
-          pluginFactory_.makePlugin<std::unique_ptr<FileCatalogMetadataPlugin>>(
+          pluginFactory.makePlugin<std::unique_ptr<FileCatalogMetadataPlugin>>(
             libspec, pset));
       } else {
         throw Exception(errors::Configuration, "OutputModule: ")

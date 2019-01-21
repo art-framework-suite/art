@@ -1,6 +1,6 @@
 #ifndef art_Framework_IO_Root_RootOutputTree_h
 #define art_Framework_IO_Root_RootOutputTree_h
-// vim: set sw=2:
+// vim: set sw=2 expandtab :
 
 // Used by ROOT output modules.
 
@@ -125,6 +125,12 @@ namespace art {
       return unclonedReadBranchNames_.find(branchName) !=
              unclonedReadBranchNames_.end();
     }
+
+  private: // IMPLEMENTATION DETAILS
+    void fillTree_metaTreePart();
+    void fillTree_producedBranchesPart();
+    void fillTree_unclonedReadBranchesPart();
+    void fillTree_readBranchesPart();
 
   private: // MEMBER DATA
     cet::exempt_ptr<TFile> filePtr_;

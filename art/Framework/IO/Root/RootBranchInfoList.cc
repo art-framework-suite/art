@@ -5,6 +5,7 @@
 
 #include <regex>
 
+#include "TBranch.h"
 #include "TIterator.h"
 #include "TObjArray.h"
 
@@ -30,6 +31,7 @@ art::RootBranchInfoList::reset(TTree* tree)
   // Load the list backward, then searches can take place in the forward
   // direction.
   while (TBranch* b = dynamic_cast<TBranch*>(it.Next())) {
+    b->SetAddress(nullptr);
     data_.push_back(RootBranchInfo(b));
   }
   if (nBranches != data_.size()) {

@@ -433,12 +433,12 @@ art::DataViewImpl::getMany(SelectorBase const& sel,
     products.push_back(result);
   }
   results.swap(products);
-
-  if (!recordParents_)
+  if (!recordParents_) {
     return;
-
-  for (auto const& h : results)
+  }
+  for (auto const& h : results) {
     recordAsParent(*h.provenance());
+  }
 }
 
 template <typename PROD>
@@ -533,12 +533,12 @@ art::DataViewImpl::fillView_(GroupQueryResult& bh,
 {
   std::vector<void const*> erased_ptrs;
   auto product = bh.result()->uniqueProduct();
-
   // The lookups and the checking done in getView_ ensure that the
   // retrieved product supports the requested view.
   product->fillView(erased_ptrs);
-  recordAsParent(Provenance{bh.result()});
-
+  if (recordParents_) {
+    recordAsParent(Provenance{bh.result()});
+  }
   std::vector<ELEMENT const*> vals;
   cet::transform_all(erased_ptrs, std::back_inserter(vals), [](auto p) {
     return static_cast<ELEMENT const*>(p);

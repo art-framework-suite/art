@@ -206,6 +206,8 @@ private:
   bool haveSRLimit_{false};
   EventNumber_t remainingEvents_{1};
   bool haveEventLimit_{false};
+  bool const parentageEnabled_{true};
+  bool const rangesEnabled_{true};
 
   // Called in the constructor, to finish the process of product
   // registration.
@@ -242,10 +244,12 @@ template <class T>
 art::Source<T>::Source(fhicl::ParameterSet const& p, InputSourceDescription& d)
   : InputSource{d.moduleDescription}
   , act_{&d.activityRegistry}
-  , sourceHelper_{d.moduleDescription}
+  , sourceHelper_{d.moduleDescription, d.parentageEnabled_, d.rangesEnabled_}
   , detail_{p, h_, sourceHelper_}
-  , fh_{
-      p.get<std::vector<std::string>>("fileNames", std::vector<std::string>())}
+  , fh_{p.get<std::vector<std::string>>("fileNames",
+                                        std::vector<std::string>())}
+  , parentageEnabled_{d.parentageEnabled_}
+  , rangesEnabled_{d.rangesEnabled_}
 {
   // Handle maxSubRuns parameter.
   int64_t maxSubRuns_par = p.get<int64_t>("maxSubRuns", -1);
@@ -650,6 +654,8 @@ art::Source<T>::finishProductRegistration_(InputSourceDescription& d)
                       "_NAMEERROR_",
                       "_LABELERROR_",
                       d.moduleDescription.processConfiguration(),
+                      d.moduleDescription.parentageEnabled(),
+                      d.moduleDescription.rangesEnabled(),
                       ModuleDescription::invalidID()});
   presentProducts_ = ProductTables{descriptions};
   sourceHelper_.setPresentProducts(cet::make_exempt_ptr(&presentProducts_));

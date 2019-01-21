@@ -15,6 +15,8 @@
 #include "TTreeCloner.h"
 
 #include <functional>
+#include <iomanip>
+#include <iostream>
 #include <limits>
 
 using namespace cet;
@@ -38,6 +40,9 @@ namespace art {
     // Turn off autosave because it leaves too many deleted tree
     // keys in the output file.
     tree->SetAutoSave(numeric_limits<Long64_t>::max());
+    // Disable the file cache.
+    // TODO: Allow this to be tuned same as the input file!
+    tree->SetCacheSize(0);
     return tree;
   }
 
@@ -145,19 +150,48 @@ namespace art {
   }
 
   void
-  RootOutputTree::fillTree()
+  RootOutputTree::fillTree_metaTreePart()
   {
     fillTreeBranches(
       metaTree_, metaBranches_, false, saveMemoryObjectThreshold_);
-    bool saveMemory = (saveMemoryObjectThreshold_ > -1);
-    fillTreeBranches(
-      tree_, producedBranches_, saveMemory, saveMemoryObjectThreshold_);
+  }
+
+  void
+  RootOutputTree::fillTree_producedBranchesPart()
+  {
+    fillTreeBranches(tree_,
+                     producedBranches_,
+                     saveMemoryObjectThreshold_ > -1,
+                     saveMemoryObjectThreshold_);
+  }
+
+  void
+  RootOutputTree::fillTree_unclonedReadBranchesPart()
+  {
+    fillTreeBranches(tree_,
+                     unclonedReadBranches_,
+                     saveMemoryObjectThreshold_ > -1,
+                     saveMemoryObjectThreshold_);
+  }
+
+  void
+  RootOutputTree::fillTree_readBranchesPart()
+  {
+    fillTreeBranches(tree_,
+                     readBranches_,
+                     saveMemoryObjectThreshold_ > -1,
+                     saveMemoryObjectThreshold_);
+  }
+
+  void
+  RootOutputTree::fillTree()
+  {
+    fillTree_metaTreePart();
+    fillTree_producedBranchesPart();
     if (fastCloningEnabled_) {
-      fillTreeBranches(
-        tree_, unclonedReadBranches_, saveMemory, saveMemoryObjectThreshold_);
+      fillTree_unclonedReadBranchesPart();
     } else {
-      fillTreeBranches(
-        tree_, readBranches_, saveMemory, saveMemoryObjectThreshold_);
+      fillTree_readBranchesPart();
     }
     ++nEntries_;
   }
@@ -222,14 +256,12 @@ namespace art {
                                     &pProd,
                                     bsize,
                                     splitlvl);
-
     // Note that root will have just allocated a dummy product as the
     // I/O buffer for the branch we have created.  We will replace
     // this I/O buffer in RootOutputFile::fillBranches() with the
     // actual product or our own dummy using
     // TBranchElement::SetAddress(), which will cause root to
     // automatically delete the dummy product it allocated here.
-
     pProd = nullptr;
     delete prod;
     if (pd.compression() != BranchDescription::invalidCompression) {

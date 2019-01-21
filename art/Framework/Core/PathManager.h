@@ -45,7 +45,10 @@ public:
               MasterProductRegistry& preg,
               ProductDescriptions& productsToProduce,
               ActionTable& exceptActions,
-              ActivityRegistry& areg);
+              ActivityRegistry& areg,
+              bool const parentageEnabled,
+              bool const rangesEnabled,
+              bool const dbEnabled);
 
   vstring const& triggerPathNames() const;
 
@@ -71,6 +74,9 @@ private:
   ProductDescriptions& productsToProduce_;
   ActionTable& exceptActions_;
   ActivityRegistry& areg_;
+  bool const parentageEnabled_{true};
+  bool const rangesEnabled_{true};
+  bool const dbEnabled_{true};
 
   // Cached parameters.
 

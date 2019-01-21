@@ -78,6 +78,9 @@ public:
                                           false};
     Atom<std::string> dropMetaData{Name("dropMetaData"), "NONE"};
     Atom<bool> writeParameterSets{Name("writeParameterSets"), true};
+    Atom<bool> enableLargeFileCatalogMetadata{
+      Name("enableLargeFileCatalogMetadata"),
+      true};
     fhicl::Table<ClosingCriteria::Config> fileProperties{
       Name("fileProperties")};
 
@@ -165,6 +168,7 @@ private:
   bool dropAllEvents_{false};
   bool dropAllSubRuns_;
   std::string const moduleLabel_;
+  bool enableLargeFileCatalogMetadata_{true};
   int inputFileCount_{0};
   std::unique_ptr<RootOutputFile> rootOutputFile_{nullptr};
   FileStatsCollector fstats_;
@@ -202,7 +206,8 @@ art::RootOutput::RootOutput(Parameters const& config)
   , catalog_{config().catalog()}
   , dropAllSubRuns_{config().dropAllSubRuns()}
   , moduleLabel_{config.get_PSet().get<string>("module_label")}
-  , fstats_{moduleLabel_, processName()}
+  , enableLargeFileCatalogMetadata_{config().enableLargeFileCatalogMetadata()}
+  , fstats_{moduleLabel_, processName(), enableLargeFileCatalogMetadata_}
   , filePattern_{config().omConfig().fileName()}
   , tmpDir_{config().tmpDir() == default_tmpDir ? parent_path(filePattern_) :
                                                   config().tmpDir()}
@@ -233,7 +238,6 @@ art::RootOutput::RootOutput(Parameters const& config)
   bool const fastCloningSet{config().fastCloning(fastCloningEnabled_)};
   fastCloningEnabled_ = detail::shouldFastClone(
     fastCloningSet, fastCloningEnabled_, wantAllEvents(), fileProperties_);
-
   if (!writeParameterSets_) {
     mf::LogWarning("PROVENANCE")
       << "Output module " << moduleLabel_
@@ -459,6 +463,8 @@ art::RootOutput::doRegisterProducts(MasterProductRegistry& mpr,
                         params.rpPluginType,
                         md.moduleLabel() + '#' + params.rpLabel,
                         md.processConfiguration(),
+                        md.parentageEnabled(),
+                        md.rangesEnabled(),
                         ModuleDescription::invalidID()});
     w.rp().registerProducts(mpr, producedProducts, w.moduleDescription());
   });
@@ -520,7 +526,10 @@ art::RootOutput::doOpenFile()
                                      basketSize_,
                                      dropMetaData_,
                                      dropMetaDataForDroppedData_,
-                                     fastCloningEnabled_);
+                                     fastCloningEnabled_,
+                                     description().parentageEnabled(),
+                                     description().rangesEnabled(),
+                                     description().dbEnabled());
   fstats_.recordFileOpen();
   detail::logFileAction("Opened output file with pattern ", filePattern_);
 }

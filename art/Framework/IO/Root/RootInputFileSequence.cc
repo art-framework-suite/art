@@ -1,5 +1,5 @@
 #include "art/Framework/IO/Root/RootInputFileSequence.h"
-// vim: set sw=2:
+// vim: set sw=2 expandtab :
 
 #include "TFile.h"
 #include "art/Framework/IO/Catalog/FileCatalog.h"
@@ -15,8 +15,11 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include <cassert>
 #include <ctime>
+#include <iostream>
 #include <map>
+#include <memory>
 #include <set>
 #include <stack>
 #include <string>
@@ -33,7 +36,9 @@ namespace art {
     FastCloningInfoProvider const& fcip,
     InputSource::ProcessingMode pMode,
     MasterProductRegistry& mpr,
-    ProcessConfiguration const& processConfig)
+    ProcessConfiguration const& processConfig,
+    bool const parentageEnabled,
+    bool const rangesEnabled)
     : catalog_{catalog}
     , fileIndexes_(fileCatalogItems().size())
     , eventsToSkip_{config().skipEvents()}
@@ -55,6 +60,8 @@ namespace art {
     , processingMode_{pMode}
     , processConfiguration_{processConfig}
     , mpr_{mpr}
+    , parentageEnabled_{parentageEnabled}
+    , rangesEnabled_{rangesEnabled}
   {
     auto const& primaryFileNames = catalog_.fileSources();
 
@@ -348,7 +355,7 @@ namespace art {
     detail::logFileAction("Opened input file ",
                           catalog_.currentFile().fileName());
     vector<string> empty_vs;
-    rootFile_ = make_shared<RootInputFile>(
+    rootFile_ = make_unique<RootInputFile>(
       catalog_.currentFile().fileName(),
       catalog_.url(),
       processConfiguration(),
@@ -376,7 +383,9 @@ namespace art {
         empty_vs :
         secondaryFileNames_.at(catalog_.currentIndex()),
       this,
-      mpr_);
+      mpr_,
+      parentageEnabled_,
+      rangesEnabled_);
 
     assert(catalog_.currentIndex() != InputFileCatalog::indexEnd);
     if (catalog_.currentIndex() + 1 > fileIndexes_.size()) {
@@ -433,7 +442,9 @@ namespace art {
                                            primaryFile,
                                            empty_secondary_filenames,
                                            this,
-                                           mpr_);
+                                           mpr_,
+                                           parentageEnabled_,
+                                           rangesEnabled_);
   }
 
   bool
@@ -477,7 +488,7 @@ namespace art {
     // Attempt to find event in currently open input file.
     bool found = rootFile_->setEntry<InEvent>(id, exact);
     if (found) {
-      rootFileForLastReadEvent_ = rootFile_;
+      rootFileForLastReadEvent_ = rootFile_.get();
       unique_ptr<EventPrincipal> eptr(readEvent_());
       return eptr;
     }
@@ -496,7 +507,7 @@ namespace art {
         // Now get the event from the correct file.
         found = rootFile_->setEntry<InEvent>(id, exact);
         assert(found);
-        rootFileForLastReadEvent_ = rootFile_;
+        rootFileForLastReadEvent_ = rootFile_.get();
         unique_ptr<EventPrincipal> ep(readEvent_());
         return ep;
       }
@@ -506,7 +517,7 @@ namespace art {
       initFile(/*skipBadFiles=*/false);
       found = rootFile_->setEntry<InEvent>(id, exact);
       if (found) {
-        rootFileForLastReadEvent_ = rootFile_;
+        rootFileForLastReadEvent_ = rootFile_.get();
         unique_ptr<EventPrincipal> ep(readEvent_());
         return ep;
       }
@@ -530,19 +541,21 @@ namespace art {
     // the branch containing this EDProduct. That will be done by the
     // Delayed Reader when it is asked to do so.
     //
-    rootFileForLastReadEvent_ = rootFile_;
+    rootFileForLastReadEvent_ = rootFile_.get();
     return rootFile_->readEvent();
   }
 
   std::unique_ptr<RangeSetHandler>
   RootInputFileSequence::runRangeSetHandler()
   {
+    assert(rangesEnabled_);
     return rootFile_->runRangeSetHandler();
   }
 
   std::unique_ptr<RangeSetHandler>
   RootInputFileSequence::subRunRangeSetHandler()
   {
+    assert(rangesEnabled_);
     return rootFile_->subRunRangeSetHandler();
   }
 

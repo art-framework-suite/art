@@ -10,6 +10,8 @@ art::ResultsPrincipal::ResultsPrincipal(
   ResultsAuxiliary const& aux,
   ProcessConfiguration const& pc,
   cet::exempt_ptr<ProductTable const> presentProducts,
+  bool const parentageEnabled,
+  bool const rangesEnabled,
   std::unique_ptr<BranchMapper>&& mapper,
   std::unique_ptr<DelayedReader>&& rtrv)
   : Principal{pc,
@@ -18,6 +20,8 @@ art::ResultsPrincipal::ResultsPrincipal(
               std::move(mapper),
               std::move(rtrv)}
   , aux_{aux}
+  , parentageEnabled_{parentageEnabled}
+  , rangesEnabled_{rangesEnabled}
 {
   productReader().setGroupFinder(
     cet::exempt_ptr<EDProductGetterFinder const>{this});

@@ -42,7 +42,6 @@ public:
   void for_each_RPWorker(on_rpworker_t wfunc);
 
 private:
-  cet::BasicPluginFactory pf_;
   RPMap_t rpmap_;
   std::size_t size_;
 

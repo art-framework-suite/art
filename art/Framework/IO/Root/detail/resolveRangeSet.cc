@@ -54,8 +54,9 @@ art::detail::resolveRangeSetInfo(sqlite3* db,
                                  bool const compact)
 {
   // Invalid rangeSetID check
-  if (rangeSetID == std::numeric_limits<unsigned>::max())
+  if ((db == nullptr) || (rangeSetID == std::numeric_limits<unsigned>::max())) {
     return RangeSetInfo::invalid();
+  }
 
   sqlite3_stmt* stmt{nullptr};
   std::string const run_ddl{

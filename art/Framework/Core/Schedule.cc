@@ -33,13 +33,17 @@ art::Schedule::Schedule(ScheduleID const sID,
                         MasterProductRegistry& mpr,
                         ProductDescriptions& productsToProduce,
                         ActionTable& actions,
-                        ActivityRegistry& areg)
+                        ActivityRegistry& areg,
+                        bool const parentageEnabled,
+                        bool const rangesEnabled)
   : sID_{sID}
   , process_pset_{proc_pset}
   , act_table_{&actions}
   , processName_{tns.getProcessName()}
   , triggerPathsInfo_{pm.triggerPathsInfo(sID_)}
   , pathsEnabled_(triggerPathsInfo_.pathPtrs().size(), true)
+  , parentageEnabled_{parentageEnabled}
+  , rangesEnabled_{rangesEnabled}
 {
   if (!triggerPathsInfo_.pathPtrs().empty()) {
     makeTriggerResultsInserter_(
@@ -119,12 +123,13 @@ art::Schedule::makeTriggerResultsInserter_(
                                productsToProduce,
                                *act_table_,
                                processName_};
-  ModuleDescription md(trig_pset.id(),
-                       "TriggerResultInserter",
-                       "TriggerResults",
-                       ProcessConfiguration(processName_,
-                                            process_pset_.id(),
-                                            getReleaseVersion()));
+  ModuleDescription md(
+    trig_pset.id(),
+    "TriggerResultInserter",
+    "TriggerResults",
+    ProcessConfiguration(processName_, process_pset_.id(), getReleaseVersion()),
+    parentageEnabled_,
+    rangesEnabled_);
   areg.sPreModuleConstruction.invoke(md);
   auto producer = std::make_unique<TriggerResultInserter>(
     trig_pset, triggerPathsInfo_.pathResults());

@@ -255,7 +255,7 @@ EventTestFixture::EventTestFixture()
   auto history = std::make_shared<History>();
   const_cast<ProcessHistoryID&>(history->processHistoryID()) = processHistoryID;
   principal_ = std::make_unique<EventPrincipal>(
-    eventAux, pc, &gf().presentProducts_, history);
+    eventAux, pc, &gf().presentProducts_, true, true, history);
   principal_->setSubRunPrincipal(srp.get());
   principal_->setProducedProducts(gf().producedProducts_);
 

@@ -10,130 +10,66 @@
 #include "boost/date_time/posix_time/posix_time_types.hpp"
 #include "canvas/Persistency/Provenance/EventID.h"
 
-#include <cstddef> // For std::size_t.
+#include <cstddef>
 #include <set>
 #include <string>
 #include <vector>
 
 namespace art {
-  class FileStatsCollector;
-}
 
-class art::FileStatsCollector {
-public:
-  FileStatsCollector(std::string const& moduleLabel,
-                     std::string const& processName);
+  class FileStatsCollector {
+    // Special Member Functions
+  public:
+    ~FileStatsCollector();
+    FileStatsCollector(std::string const& moduleLabel,
+                       std::string const& processName,
+                       bool const enableLargeFileCatalogMetadata = true);
 
-  void recordFileOpen();
-  void recordInputFile(std::string const& inputFileName);
-  void recordEvent(EventID const& id);
-  void recordRun(RunID const& id);
-  void recordSubRun(SubRunID const& id);
-  void recordFileClose();
+    // API
+  public:
+    void recordFileOpen();
+    void recordInputFile(std::string const& inputFileName);
+    void recordEvent(EventID const& id);
+    void recordRun(RunID const& id);
+    void recordSubRun(SubRunID const& id);
+    void recordFileClose();
+    std::string const& moduleLabel() const;
+    std::string const& processName() const;
+    boost::posix_time::ptime outputFileOpenTime() const;
+    boost::posix_time::ptime outputFileCloseTime() const;
+    SubRunID const& lowestSubRunID() const;
+    SubRunID const& highestSubRunID() const;
+    EventID const& lowestEventID() const;
+    EventID const& highestEventID() const;
+    std::string const& lastOpenedInputFile() const;
+    std::vector<std::string> parents(bool want_basename = true) const;
+    bool fileCloseRecorded() const;
+    std::size_t eventsThisFile() const;
+    std::set<SubRunID> const& seenSubRuns() const;
 
-  std::string const& moduleLabel() const;
-  std::string const& processName() const;
-  boost::posix_time::ptime outputFileOpenTime() const;
-  boost::posix_time::ptime outputFileCloseTime() const;
-  SubRunID const& lowestSubRunID() const;
-  SubRunID const& highestSubRunID() const;
-  EventID const& lowestEventID() const;
-  EventID const& highestEventID() const;
-  std::string const& lastOpenedInputFile() const;
-  std::vector<std::string> parents(bool want_basename = true) const;
-  bool fileCloseRecorded() const;
-  std::size_t eventsThisFile() const;
-  std::set<SubRunID> const& seenSubRuns() const;
+    // Implementation Details
+  private:
+    void resetStatistics_(); // Does not rename.
 
-private:
-  void resetStatistics_(); // Does not rename.
+    // Member Data
+  private:
+    std::string const moduleLabel_;
+    std::string const processName_;
+    SubRunID lowestSubRun_{};
+    SubRunID highestSubRun_{};
+    EventID lowestEventIDSeen_{};
+    EventID highestEventIDSeen_{};
+    boost::posix_time::ptime fo_{};
+    boost::posix_time::ptime fc_{};
+    bool fileCloseRecorded_{false};
+    std::string lastOpenedInputFile_{};
+    std::vector<std::string> inputFilesSeen_{};
+    std::size_t nEvents_{};
+    std::set<SubRunID> subRunsSeen_{};
+    bool enableLargeFileCatalogMetadata_{true};
+  };
 
-  std::string const moduleLabel_;
-  std::string const processName_;
-  SubRunID lowestSubRun_{};
-  SubRunID highestSubRun_{};
-  EventID lowestEventIDSeen_{};
-  EventID highestEventIDSeen_{};
-  boost::posix_time::ptime fo_{};
-  boost::posix_time::ptime fc_{};
-  bool fileCloseRecorded_{false};
-  std::string lastOpenedInputFile_{};
-  std::vector<std::string> inputFilesSeen_{};
-  std::size_t nEvents_{};
-  std::set<SubRunID> subRunsSeen_{};
-};
-
-inline std::string const&
-art::FileStatsCollector::moduleLabel() const
-{
-  return moduleLabel_;
-}
-
-inline std::string const&
-art::FileStatsCollector::processName() const
-{
-  return processName_;
-}
-
-inline boost::posix_time::ptime
-art::FileStatsCollector::outputFileOpenTime() const
-{
-  return fo_;
-}
-
-inline boost::posix_time::ptime
-art::FileStatsCollector::outputFileCloseTime() const
-{
-  return fc_;
-}
-
-inline art::SubRunID const&
-art::FileStatsCollector::lowestSubRunID() const
-{
-  return lowestSubRun_;
-}
-
-inline art::SubRunID const&
-art::FileStatsCollector::highestSubRunID() const
-{
-  return highestSubRun_;
-}
-
-inline art::EventID const&
-art::FileStatsCollector::lowestEventID() const
-{
-  return lowestEventIDSeen_;
-}
-
-inline art::EventID const&
-art::FileStatsCollector::highestEventID() const
-{
-  return highestEventIDSeen_;
-}
-
-inline std::string const&
-art::FileStatsCollector::lastOpenedInputFile() const
-{
-  return lastOpenedInputFile_;
-}
-
-inline bool
-art::FileStatsCollector::fileCloseRecorded() const
-{
-  return fileCloseRecorded_;
-}
-
-inline std::size_t
-art::FileStatsCollector::eventsThisFile() const
-{
-  return nEvents_;
-}
-
-inline std::set<art::SubRunID> const&
-art::FileStatsCollector::seenSubRuns() const
-{
-  return subRunsSeen_;
-}
+} // namespace art
 
 #endif /* art_Framework_IO_FileStatsCollector_h */
 

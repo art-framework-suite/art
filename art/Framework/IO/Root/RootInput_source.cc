@@ -20,12 +20,7 @@
 
 using namespace art;
 
-RootInput::AccessState::AccessState()
-  : state_(SEQUENTIAL)
-  , lastReadEventID_()
-  , rootFileForLastReadEvent_()
-  , wantedEventID_()
-{}
+RootInput::AccessState::AccessState() {}
 
 void
 RootInput::AccessState::setState(State state)
@@ -46,8 +41,7 @@ RootInput::AccessState::setWantedEventID(EventID const& eid)
 }
 
 void
-RootInput::AccessState::setRootFileForLastReadEvent(
-  std::shared_ptr<RootInputFile> const& ptr)
+RootInput::AccessState::setRootFileForLastReadEvent(RootInputFile* ptr)
 {
   rootFileForLastReadEvent_ = ptr;
 }
@@ -63,7 +57,9 @@ RootInput::RootInput(RootInput::Parameters const& config,
       FastCloningInfoProvider(cet::exempt_ptr<RootInput>(this)),
       processingMode(),
       desc.productRegistry,
-      processConfiguration())}
+      processConfiguration(),
+      desc.parentageEnabled_,
+      desc.rangesEnabled_)}
   , accessState_{}
 {}
 

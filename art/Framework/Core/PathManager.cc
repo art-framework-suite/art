@@ -109,12 +109,18 @@ art::PathManager::PathManager(ParameterSet const& procPS,
                               MasterProductRegistry& preg,
                               ProductDescriptions& productsToProduce,
                               ActionTable& exceptActions,
-                              ActivityRegistry& areg)
+                              ActivityRegistry& areg,
+                              bool const parentageEnabled,
+                              bool const rangesEnabled,
+                              bool const dbEnabled)
   : procPS_{procPS}
   , preg_{preg}
   , productsToProduce_{productsToProduce}
   , exceptActions_{exceptActions}
   , areg_{areg}
+  , parentageEnabled_{parentageEnabled}
+  , rangesEnabled_{rangesEnabled}
+  , dbEnabled_{dbEnabled}
   , trigger_paths_config_{findLegacyConfig(procPS_, "physics.trigger_paths")}
   , end_paths_config_{findLegacyConfig(procPS_, "physics.end_paths")}
   , allModules_{fillAllModules_()}
@@ -125,7 +131,10 @@ art::PathManager::PathManager(ParameterSet const& procPS,
                  preg_,
                  productsToProduce_,
                  exceptActions_,
-                 areg_}
+                 areg_,
+                 parentageEnabled_,
+                 rangesEnabled_,
+                 dbEnabled_}
 {}
 
 art::PathsInfo&
@@ -154,7 +163,10 @@ art::PathManager::triggerPathsInfo(ScheduleID const sID)
                             preg_,
                             productsToProduce_,
                             exceptActions_,
-                            areg_})
+                            areg_,
+                            parentageEnabled_,
+                            rangesEnabled_,
+                            dbEnabled_})
          .first;
   auto& pathsInfo = it->second;
 

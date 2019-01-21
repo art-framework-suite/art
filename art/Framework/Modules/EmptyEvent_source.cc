@@ -24,6 +24,7 @@
 #include "fhiclcpp/types/OptionalDelegatedParameter.h"
 #include "fhiclcpp/types/TableFragment.h"
 
+#include <cassert>
 #include <cstdint>
 #include <memory>
 
@@ -140,6 +141,8 @@ private:
 
   cet::BasicPluginFactory pluginFactory_{};
   std::unique_ptr<EmptyEventTimestampPlugin> plugin_;
+  bool parentageEnabled_{true};
+  bool rangesEnabled_{true};
 }; // EmptyEvent
 
 using namespace art;
@@ -156,6 +159,8 @@ art::EmptyEvent::EmptyEvent(art::EmptyEvent::Parameters const& config,
   , eventCreationDelay_{config().eventCreationDelay()}
   , resetEventOnSubRun_{config().resetEventOnSubRun()}
   , plugin_{makePlugin_(config().timestampPlugin)}
+  , parentageEnabled_{desc.parentageEnabled_}
+  , rangesEnabled_{desc.rangesEnabled_}
 {
 
   RunNumber_t firstRun{};
@@ -183,8 +188,8 @@ art::EmptyEvent::readRun_()
   RunAuxiliary const runAux{
     eventID_.runID(), ts, Timestamp::invalidTimestamp()};
   newRun_ = false;
-  auto rp_ptr =
-    std::make_unique<RunPrincipal>(runAux, processConfiguration(), nullptr);
+  auto rp_ptr = std::make_unique<RunPrincipal>(
+    runAux, processConfiguration(), nullptr, parentageEnabled_, rangesEnabled_);
   if (plugin_) {
     Run const r{*rp_ptr, moduleDescription(), Consumer::non_module_context()};
     plugin_->doBeginRun(r);
@@ -195,6 +200,7 @@ art::EmptyEvent::readRun_()
 std::unique_ptr<RangeSetHandler>
 art::EmptyEvent::runRangeSetHandler()
 {
+  assert(rangesEnabled_);
   return std::make_unique<OpenRangeSetHandler>(eventID_.run());
 }
 
@@ -207,8 +213,11 @@ EmptyEvent::readSubRun_()
                       Timestamp::invalidTimestamp();
   SubRunAuxiliary const subRunAux{
     eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
-  auto srp_ptr = std::make_unique<SubRunPrincipal>(
-    subRunAux, processConfiguration(), nullptr);
+  auto srp_ptr = std::make_unique<SubRunPrincipal>(subRunAux,
+                                                   processConfiguration(),
+                                                   nullptr,
+                                                   parentageEnabled_,
+                                                   rangesEnabled_);
   if (plugin_) {
     SubRun const sr{
       *srp_ptr, moduleDescription(), Consumer::non_module_context()};
@@ -221,6 +230,7 @@ EmptyEvent::readSubRun_()
 std::unique_ptr<RangeSetHandler>
 art::EmptyEvent::subRunRangeSetHandler()
 {
+  assert(rangesEnabled_);
   return std::make_unique<OpenRangeSetHandler>(eventID_.run());
 }
 
@@ -260,6 +270,8 @@ art::EmptyEvent::reallyReadEvent(bool const lastEventInSubRun)
   ep_ = std::make_unique<EventPrincipal>(eventAux,
                                          processConfiguration(),
                                          nullptr,
+                                         parentageEnabled_,
+                                         rangesEnabled_,
                                          std::make_shared<History>(),
                                          std::make_unique<BranchMapper>(),
                                          std::make_unique<NoDelayedReader>(),

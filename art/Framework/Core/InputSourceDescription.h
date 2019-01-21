@@ -21,11 +21,32 @@ namespace art {
   struct InputSourceDescription {
     InputSourceDescription(InputSourceDescription const&) = delete;
     InputSourceDescription(InputSourceDescription&&) = delete;
+    InputSourceDescription(ModuleDescription const&,
+                           MasterProductRegistry&,
+                           ActivityRegistry&,
+                           bool const parentageEnabled,
+                           bool const rangesEnabled);
 
     ModuleDescription const& moduleDescription;
     MasterProductRegistry& productRegistry;
     ActivityRegistry& activityRegistry;
+    bool const parentageEnabled_{true};
+    bool const rangesEnabled_{true};
   };
+
+  inline InputSourceDescription::InputSourceDescription(
+    ModuleDescription const& md,
+    MasterProductRegistry& preg,
+    ActivityRegistry& areg,
+    bool const parentageEnabled,
+    bool const rangesEnabled)
+    : moduleDescription(md)
+    , productRegistry(preg)
+    , activityRegistry(areg)
+    , parentageEnabled_(parentageEnabled)
+    , rangesEnabled_(rangesEnabled)
+  {}
+
 } // art
 
 #endif /* art_Framework_Core_InputSourceDescription_h */

@@ -22,13 +22,16 @@ namespace art {
   namespace {
     // It only makes sense to track parents when putting a product
     // onto the event.  That requires a non-const Event object.
-    constexpr bool
-    record_parents(Event*)
+    bool
+    should_record_parents(EventPrincipal const& ep, Event*)
     {
-      return true;
+      if (ep.parentageEnabled()) {
+        return true;
+      }
+      return false;
     }
     [[gnu::unused]] constexpr bool
-    record_parents(Event const*)
+    should_record_parents(EventPrincipal const& /*ep*/, Event const*)
     {
       return false;
     }
@@ -54,7 +57,7 @@ namespace art {
   Event::Event(EventPrincipal const& ep,
                ModuleDescription const& md,
                cet::exempt_ptr<Consumer> consumer)
-    : DataViewImpl{ep, md, InEvent, record_parents(this), consumer}
+    : DataViewImpl{ep, md, InEvent, should_record_parents(ep, this), consumer}
     , aux_{ep.aux()}
     , subRun_{newSubRun(ep, md, consumer)}
     , eventPrincipal_{ep}
@@ -122,20 +125,26 @@ namespace art {
                 bool const checkProducts,
                 std::set<TypeLabel> const& expectedProducts)
   {
-    // Check addresses only since type of 'ep' will hopefully change to
-    // Principal&.
     assert(&ep == &eventPrincipal_);
     checkPutProducts(checkProducts, expectedProducts, putProducts());
-
-    auto const& parents = retrievedProductIDs();
-    for (auto& elem : putProducts()) {
-      auto const& pd = elem.second.pd;
-      auto productProvenancePtr = make_unique<ProductProvenance const>(
-        pd.productID(), productstatus::present(), parents);
-      ep.put(std::move(elem.second.prod), pd, std::move(productProvenancePtr));
-    };
-
-    // the cleanup is all or none
+    if (ep.parentageEnabled()) {
+      auto const& parents = retrievedProductIDs();
+      for (auto& elem : putProducts()) {
+        auto const& pd = elem.second.pd;
+        auto productProvenancePtr = make_unique<ProductProvenance const>(
+          pd.productID(), productstatus::present(), parents);
+        ep.put(
+          std::move(elem.second.prod), pd, std::move(productProvenancePtr));
+      }
+    } else {
+      for (auto& elem : putProducts()) {
+        auto const& pd = elem.second.pd;
+        auto productProvenancePtr = make_unique<ProductProvenance const>(
+          pd.productID(), productstatus::present());
+        ep.put(
+          std::move(elem.second.prod), pd, std::move(productProvenancePtr));
+      }
+    }
     putProducts().clear();
   }
 

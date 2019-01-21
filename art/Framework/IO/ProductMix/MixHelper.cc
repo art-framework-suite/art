@@ -253,7 +253,7 @@ art::MixHelper::generateEventAuxiliarySequence(EntryNumberSequence const& enseq,
     auxseq.push_back(*pAux);
   }
   // Disconnect the branch from the i/o buffer.
-  auxBranch->SetAddress(nullptr);
+  auxBranch->ResetAddress();
 }
 
 void

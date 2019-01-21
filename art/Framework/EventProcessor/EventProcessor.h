@@ -96,7 +96,6 @@ private:
   recordOutputModuleClosureRequests()
   {}
 
-  void markLevelAsProcessed();
   Level advanceItemType();
 
   // Level-specific member functions
@@ -140,7 +139,6 @@ private:
   void setOutputFileStatus(OutputFileStatus);
 
   Level nextLevel_{Level::ReadyToAdvance};
-  std::vector<Level> activeLevels_{highest_level()};
   detail::ExceptionCollector ec_{};
   cet::cpu_timer timer_{};
 
@@ -180,6 +178,9 @@ private:
   ServiceToken serviceToken_{ServiceToken::createInvalid()};
   tbb::task_scheduler_init tbbManager_{tbb::task_scheduler_init::deferred};
   std::unique_ptr<ServiceRegistry::Operate> servicesSentry_{};
+  bool const parentageEnabled_{true};
+  bool const rangesEnabled_{true};
+  bool const dbEnabled_{true};
   PathManager pathManager_; // Must outlive schedules.
   ServiceDirector serviceDirector_;
   std::unique_ptr<InputSource> input_{nullptr};

@@ -14,75 +14,73 @@
 #include <vector>
 
 namespace art {
-  // defined below:
-  class GroupSelectorRules;
 
-  // forward declarations:
   class BranchDescription;
   class GroupSelector;
-}
 
-// ----------------------------------------------------------------------
-
-class art::GroupSelectorRules {
-public:
-  GroupSelectorRules(std::vector<std::string> const& commands,
-                     std::string const& parameterName,
-                     std::string const& parameterOwnerName);
-
-  //--------------------------------------------------
-  // BranchSelectState associates a BranchDescription
-  // (*desc) with a bool indicating whether or not the branch with
-  // that name is to be selected.  Note that parameter pd may not be null.
-  struct BranchSelectState {
-    BranchDescription const* desc;
-    bool selectMe{false};
-
-    // N.B.: We assume pd is not null.
-    explicit BranchSelectState(BranchDescription const* pd) : desc{pd} {}
-  }; // BranchSelectState
-
-  void applyToAll(std::vector<BranchSelectState>& branchstates) const;
-
-  bool
-  keepAll() const
-  {
-    return keepAll_;
-  }
-
-private:
-  class Rule {
+  class GroupSelectorRules {
   public:
-    Rule(std::string const& s,
-         std::string const& parameterName,
-         std::string const& owner);
+    GroupSelectorRules(std::vector<std::string> const& commands,
+                       std::string const& parameterName,
+                       std::string const& parameterOwnerName);
 
-    // Apply the rule to all the given branch states. This may modify
-    // the given branch states.
+    // BranchSelectState associates a BranchDescription
+    // (*desc) with a bool indicating whether or not the branch with
+    // that name is to be selected.  Note that parameter pd may not be null.
+    struct BranchSelectState {
+      BranchDescription const* desc;
+      bool selectMe{false};
+
+      // N.B.: We assume pd is not null.
+      explicit BranchSelectState(BranchDescription const* pd) : desc{pd} {}
+    };
+
     void applyToAll(std::vector<BranchSelectState>& branchstates) const;
 
-    // If this rule applies to the given BranchDescription, then
-    // modify 'result' to match the rule's select flag. If the rule does
-    // not apply, do not modify 'result'.
-    void applyToOne(BranchDescription const* branch, bool& result) const;
-
-    // Return the answer to the question: "Does the rule apply to this
-    // BranchDescription?"
-    bool appliesTo(BranchDescription const* branch) const;
+    bool
+    keepAll() const
+    {
+      return keepAll_;
+    }
 
   private:
-    // selectflag_ carries the value to which we should set the 'select
-    // bit' if this rule matches.
-    bool selectflag_{false};
-    BranchKey components_;
-  }; // Rule
+    class Rule {
+    public:
+      ~Rule();
+      Rule(std::string const& s,
+           std::string const& parameterName,
+           std::string const& owner);
+      Rule(Rule const&) = delete;
+      Rule& operator=(Rule const&) = delete;
+      Rule(Rule&&);
+      Rule& operator=(Rule&&) = delete;
 
-private:
-  std::vector<Rule> rules_{};
-  bool keepAll_;
-}; // GroupSelectorRules
+      // Apply the rule to all the given branch states. This may modify
+      // the given branch states.
+      void applyToAll(std::vector<BranchSelectState>& branchstates) const;
 
-// ======================================================================
+      // If this rule applies to the given BranchDescription, then
+      // modify 'result' to match the rule's select flag. If the rule does
+      // not apply, do not modify 'result'.
+      void applyToOne(BranchDescription const* branch, bool& result) const;
+
+      // Return the answer to the question: "Does the rule apply to this
+      // BranchDescription?"
+      bool appliesTo(BranchDescription const* branch) const;
+
+    private:
+      // selectflag_ carries the value to which we should set the 'select
+      // bit' if this rule matches.
+      bool selectflag_{false};
+      BranchKey components_;
+    };
+
+  private:
+    std::vector<Rule> rules_{};
+    bool keepAll_;
+  };
+
+} // namespace art
 
 #endif /* art_Framework_Core_GroupSelectorRules_h */
 

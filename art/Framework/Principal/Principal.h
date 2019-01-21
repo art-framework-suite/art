@@ -187,6 +187,10 @@ namespace art {
 
     virtual RangeSet seenRanges() const = 0;
 
+    virtual bool parentageEnabled() const = 0;
+
+    virtual bool rangesEnabled() const = 0;
+
   protected: // MEMBER FUNCTIONS
     BranchMapper&
     branchMapper()
@@ -266,6 +270,9 @@ namespace art {
     }
 
     ProcessHistory processHistory_{};
+    static ProcessHistory previousProcessHistory_;
+    static ProcessHistory pendingProcessHistory_;
+    static int pendingProcessHistorySet_;
 
     ProcessConfiguration const& processConfiguration_;
     cet::exempt_ptr<ProductTable const> presentProducts_;

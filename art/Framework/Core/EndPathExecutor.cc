@@ -1,9 +1,11 @@
 #include "art/Framework/Core/EndPathExecutor.h"
+// vim: set sw=2 expandtab :
 
 #include "art/Persistency/Provenance/MasterProductRegistry.h"
 #include "art/Utilities/OutputFileInfo.h"
 #include "cetlib/container_algorithms.h"
 
+#include <cassert>
 #include <memory>
 #include <type_traits>
 #include <utility>
@@ -26,7 +28,9 @@ namespace {
 art::EndPathExecutor::EndPathExecutor(PathManager& pm,
                                       ActionTable& actions,
                                       ActivityRegistry& areg,
-                                      MasterProductRegistry& mpr)
+                                      MasterProductRegistry& mpr,
+                                      bool const parentageEnabled,
+                                      bool const rangesEnabled)
   : endPathInfo_{pm.endPathInfo()}
   , act_table_{&actions}
   , actReg_{areg}
@@ -36,6 +40,8 @@ art::EndPathExecutor::EndPathExecutor(PathManager& pm,
       std::end(outputWorkers_)) // seed with all output workers
   , workersEnabled_(endPathInfo_.workers().size(), true)
   , outputWorkersEnabled_(outputWorkers_.size(), true)
+  , parentageEnabled_{parentageEnabled}
+  , rangesEnabled_{rangesEnabled}
 {
   mpr.registerProductListUpdatedCallback(
     [this](auto const& productList) { this->selectProducts(productList); });
@@ -110,8 +116,10 @@ void
 art::EndPathExecutor::writeRun(RunPrincipal& rp)
 {
   doForAllEnabledOutputWorkers_([&rp](auto w) { w->writeRun(rp); });
-  if (fileStatus_ == OutputFileStatus::Switching) {
-    runRangeSetHandler_->rebase();
+  if (rangesEnabled_) {
+    if (fileStatus_ == OutputFileStatus::Switching) {
+      runRangeSetHandler_->rebase();
+    }
   }
 }
 
@@ -119,8 +127,10 @@ void
 art::EndPathExecutor::writeSubRun(SubRunPrincipal& srp)
 {
   doForAllEnabledOutputWorkers_([&srp](auto w) { w->writeSubRun(srp); });
-  if (fileStatus_ == OutputFileStatus::Switching) {
-    subRunRangeSetHandler_->rebase();
+  if (rangesEnabled_) {
+    if (fileStatus_ == OutputFileStatus::Switching) {
+      subRunRangeSetHandler_->rebase();
+    }
   }
 }
 
@@ -133,27 +143,32 @@ art::EndPathExecutor::writeEvent(EventPrincipal& ep)
     w->writeEvent(ep);
     actReg_.sPostWriteEvent.invoke(md);
   });
-  auto const& eid = ep.id();
-  bool const lastInSubRun{ep.isLastInSubRun()};
-  runRangeSetHandler_->update(eid, lastInSubRun);
-  subRunRangeSetHandler_->update(eid, lastInSubRun);
+  if (rangesEnabled_) {
+    auto const& eid = ep.id();
+    bool const lastInSubRun{ep.isLastInSubRun()};
+    runRangeSetHandler_->update(eid, lastInSubRun);
+    subRunRangeSetHandler_->update(eid, lastInSubRun);
+  }
 }
 
 void
 art::EndPathExecutor::seedRunRangeSet(std::unique_ptr<RangeSetHandler> rsh)
 {
+  assert(rangesEnabled_);
   runRangeSetHandler_ = std::move(rsh);
 }
 
 void
 art::EndPathExecutor::seedSubRunRangeSet(std::unique_ptr<RangeSetHandler> rsh)
 {
+  assert(rangesEnabled_);
   subRunRangeSetHandler_ = std::move(rsh);
 }
 
 void
 art::EndPathExecutor::setAuxiliaryRangeSetID(SubRunPrincipal& srp)
 {
+  assert(rangesEnabled_);
   assert(subRunRangeSetHandler_);
   assert(runRangeSetHandler_);
   // Ranges are split/flushed only for a RangeSetHandler whose dynamic
@@ -191,6 +206,7 @@ art::EndPathExecutor::setAuxiliaryRangeSetID(SubRunPrincipal& srp)
 void
 art::EndPathExecutor::setAuxiliaryRangeSetID(RunPrincipal& rp)
 {
+  assert(rangesEnabled_);
   assert(runRangeSetHandler_);
   if (fileStatus_ != OutputFileStatus::Switching) {
     runRangeSetHandler_->flushRanges();

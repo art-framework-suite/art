@@ -1,10 +1,11 @@
 #ifndef art_Framework_IO_Root_detail_readMetadata_h
 #define art_Framework_IO_Root_detail_readMetadata_h
 
-#include "TBranch.h"
 #include "art/Framework/IO/Root/detail/getObjectRequireDict.h"
 #include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/TypeID.h"
+
+#include "TBranch.h"
 
 namespace art {
   namespace detail {
@@ -14,12 +15,11 @@ namespace art {
     {
       auto branch = md->GetBranch(art::rootNames::metaBranchRootName<T>());
       assert(branch != nullptr);
-
       auto mdField = requireDict ? root::getObjectRequireDict<T>() : T{};
       auto field_ptr = &mdField;
       branch->SetAddress(&field_ptr);
       input::getEntry(branch, 0);
-      branch->SetAddress(nullptr);
+      branch->ResetAddress();
       return mdField;
     }
 
@@ -31,18 +31,16 @@ namespace art {
       if (branch == nullptr) {
         return false;
       }
-
       auto mdField = requireDict ? root::getObjectRequireDict<T>() : T{};
       auto field_ptr = &mdField;
       branch->SetAddress(&field_ptr);
       input::getEntry(branch, 0);
-      branch->SetAddress(nullptr);
+      branch->ResetAddress();
       std::swap(mdField, field);
-
       return true;
     }
-  }
-}
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_IO_Root_detail_readMetadata_h */
 

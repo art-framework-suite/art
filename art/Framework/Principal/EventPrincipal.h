@@ -36,6 +36,8 @@ namespace art {
       EventAuxiliary const& aux,
       ProcessConfiguration const& pc,
       cet::exempt_ptr<ProductTable const> presentProducts,
+      bool const parentageEnabled = true,
+      bool const rangesEnabled = true,
       std::shared_ptr<History> history = std::make_shared<History>(),
       std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
       std::unique_ptr<DelayedReader>&& rtrv =
@@ -131,6 +133,18 @@ namespace art {
       return RangeSet::invalid();
     }
 
+    bool
+    parentageEnabled() const override
+    {
+      return parentageEnabled_;
+    }
+
+    bool
+    rangesEnabled() const override
+    {
+      return rangesEnabled_;
+    }
+
   private:
     void throwIfExistingGroup(BranchDescription const& pd) const;
 
@@ -148,10 +162,11 @@ namespace art {
 
   private:
     EventAuxiliary aux_;
-
     cet::exempt_ptr<SubRunPrincipal const> subRunPrincipal_{nullptr};
     std::shared_ptr<History> history_;
     bool lastInSubRun_{false};
+    bool parentageEnabled_{true};
+    bool rangesEnabled_{true};
   };
 
 } // namespace art

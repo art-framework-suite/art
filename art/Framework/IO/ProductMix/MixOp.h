@@ -219,6 +219,7 @@ art::MixOp<PROD, OPROD>::readFromFile(
       Wrapper<PROD>* wp = inProducts_.back().get();
       branchInfo_.branch()->SetAddress(&wp);
       branchInfo_.branch()->GetEntry(*i);
+      branchInfo_.branch()->ResetAddress();
     } else { // Already have one: find and use.
       auto pit = cbegin(inProducts_);
       std::advance(pit, std::distance(b, fit));

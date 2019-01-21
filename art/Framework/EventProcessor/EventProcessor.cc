@@ -1,4 +1,5 @@
 #include "art/Framework/EventProcessor/EventProcessor.h"
+// vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/Breakpoints.h"
 #include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
@@ -36,9 +37,12 @@
 #include <cassert>
 #include <exception>
 #include <iomanip>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
+
+using namespace std;
 
 using fhicl::ParameterSet;
 
@@ -57,7 +61,9 @@ namespace {
   makeInput(ParameterSet const& params,
             std::string const& processName,
             art::MasterProductRegistry& preg,
-            art::ActivityRegistry& areg)
+            art::ActivityRegistry& areg,
+            bool const parentageEnabled,
+            bool const rangesEnabled)
   {
     ParameterSet defaultEmptySource;
     setupAsDefaultEmptySource(defaultEmptySource);
@@ -78,9 +84,12 @@ namespace {
         main_input.get<std::string>("module_type"),
         main_input.get<std::string>("module_label"),
         art::ProcessConfiguration{
-          processName, params.id(), art::getReleaseVersion()}};
+          processName, params.id(), art::getReleaseVersion()},
+        parentageEnabled,
+        rangesEnabled};
       sourceSpecified = true;
-      art::InputSourceDescription isd{md, preg, areg};
+      art::InputSourceDescription isd{
+        md, preg, areg, parentageEnabled, rangesEnabled};
       try {
         auto source = art::InputSourceFactory::make(main_input, isd);
         return source;
@@ -122,7 +131,18 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
   : act_table_{pset.get<ParameterSet>("services.scheduler")}
   , actReg_()
   , mfStatusUpdater_{actReg_}
-  , pathManager_{pset, preg_, productsToProduce_, act_table_, actReg_}
+  , parentageEnabled_{pset.get<bool>("services.scheduler.parentageEnabled",
+                                     true)}
+  , rangesEnabled_{pset.get<bool>("services.scheduler.rangesEnabled", true)}
+  , dbEnabled_{pset.get<bool>("services.scheduler.dbEnabled", true)}
+  , pathManager_{pset,
+                 preg_,
+                 productsToProduce_,
+                 act_table_,
+                 actReg_,
+                 parentageEnabled_,
+                 rangesEnabled_,
+                 dbEnabled_}
   , serviceDirector_{initServices_(pset, actReg_, serviceToken_)}
   , handleEmptyRuns_{pset.get<bool>("services.scheduler.handleEmptyRuns", true)}
   , handleEmptySubRuns_{
@@ -140,12 +160,17 @@ art::EventProcessor::EventProcessor(ParameterSet const& pset)
   ServiceHandle<art::FileCatalogMetadata> {}
   ->addMetadataString("process_name", processName);
 
-  input_ = makeInput(pset, processName, preg_, actReg_);
+  input_ = makeInput(
+    pset, processName, preg_, actReg_, parentageEnabled_, rangesEnabled_);
   actReg_.sPostSourceConstruction.invoke(input_->moduleDescription());
 
   initSchedules_(pset);
-  endPathExecutor_ =
-    std::make_unique<EndPathExecutor>(pathManager_, act_table_, actReg_, preg_);
+  endPathExecutor_ = std::make_unique<EndPathExecutor>(pathManager_,
+                                                       act_table_,
+                                                       actReg_,
+                                                       preg_,
+                                                       parentageEnabled_,
+                                                       rangesEnabled_);
   preg_.finalizeForProcessing();
   ProductMetaData::create_instance(preg_);
 
@@ -206,7 +231,9 @@ art::EventProcessor::initSchedules_(ParameterSet const& pset)
                                preg_,
                                productsToProduce_,
                                act_table_,
-                               actReg_);
+                               actReg_,
+                               parentageEnabled_,
+                               rangesEnabled_);
 }
 
 void
@@ -240,7 +267,6 @@ art::EventProcessor::levelsToProcess()
   }
 
   if (nextLevel_ == L) {
-    activeLevels_.push_back(nextLevel_);
     nextLevel_ = Level::ReadyToAdvance;
     if (endPathExecutor_->outputsToClose()) {
       setOutputFileStatus(OutputFileStatus::Switching);
@@ -320,18 +346,20 @@ namespace art {
   EventProcessor::finalize<Level::SubRun>()
   {
     assert(subRunPrincipal_);
-    if (!finalizeSubRunEnabled_)
+    if (!finalizeSubRunEnabled_) {
       return;
-    if (subRunPrincipal_->id().isFlush())
+    }
+    if (subRunPrincipal_->id().isFlush()) {
       return;
-
+    }
     openSomeOutputFiles();
-    setSubRunAuxiliaryRangeSetID();
+    if (rangesEnabled_) {
+      setSubRunAuxiliaryRangeSetID();
+    }
     if (beginSubRunCalled_) {
       endSubRun();
     }
     writeSubRun();
-
     finalizeSubRunEnabled_ = false;
   }
 
@@ -340,18 +368,20 @@ namespace art {
   EventProcessor::finalize<Level::Run>()
   {
     assert(runPrincipal_);
-    if (!finalizeRunEnabled_)
+    if (!finalizeRunEnabled_) {
       return;
-    if (runPrincipal_->id().isFlush())
+    }
+    if (runPrincipal_->id().isFlush()) {
       return;
-
+    }
     openSomeOutputFiles();
-    setRunAuxiliaryRangeSetID();
+    if (rangesEnabled_) {
+      setRunAuxiliaryRangeSetID();
+    }
     if (beginRunCalled_) {
       endRun();
     }
     writeRun();
-
     finalizeRunEnabled_ = false;
   }
 
@@ -448,10 +478,7 @@ art::EventProcessor::process()
 
   while (shutdown_flag == 0 && ec_.empty() &&
          levelsToProcess<level_down(L)>()) {
-    ec_.call([this] {
-      process<level_down(L)>();
-      markLevelAsProcessed();
-    });
+    ec_.call([this] { process<level_down(L)>(); });
   }
   ec_.call([this] {
     finalize<L>();
@@ -479,13 +506,6 @@ art::EventProcessor::runToCompletion()
   }
 
   return returnCode;
-}
-
-void
-art::EventProcessor::markLevelAsProcessed()
-{
-  assert(!activeLevels_.empty());
-  activeLevels_.pop_back();
 }
 
 art::Level
@@ -711,9 +731,11 @@ art::EventProcessor::readRun()
   {
     actReg_.sPreSourceRun.invoke();
     runPrincipal_ = input_->readRun();
-    // Seeding the RangeSet is necessary here in case
-    // 'sPostReadRun.invoke()' throws.
-    endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
+    if (rangesEnabled_) {
+      // Seeding the RangeSet is necessary here in case
+      // 'sPostReadRun.invoke()' throws.
+      endPathExecutor_->seedRunRangeSet(input_->runRangeSetHandler());
+    }
     assert(runPrincipal_);
     psSignals_.sPostReadRun.invoke(*runPrincipal_);
   }
@@ -751,6 +773,7 @@ void
 art::EventProcessor::setRunAuxiliaryRangeSetID()
 {
   assert(runPrincipal_);
+  assert(rangesEnabled_);
   endPathExecutor_->setAuxiliaryRangeSetID(*runPrincipal_);
   FDEBUG(1) << spaces(8) << "setRunAuxiliaryRangeSetID...("
             << runPrincipal_->id() << ")\n";
@@ -791,9 +814,11 @@ art::EventProcessor::readSubRun()
   {
     actReg_.sPreSourceSubRun.invoke();
     subRunPrincipal_ = input_->readSubRun(runPrincipal_.get());
-    // Seeding the RangeSet is necessary here in case
-    // 'sPostSubRun.invoke()' throws.
-    endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
+    if (rangesEnabled_) {
+      // Seeding the RangeSet is necessary here in case
+      // 'sPostSubRun.invoke()' throws.
+      endPathExecutor_->seedSubRunRangeSet(input_->subRunRangeSetHandler());
+    }
     assert(subRunPrincipal_);
     psSignals_.sPostReadSubRun.invoke(*subRunPrincipal_);
   }
@@ -831,6 +856,7 @@ void
 art::EventProcessor::setSubRunAuxiliaryRangeSetID()
 {
   assert(subRunPrincipal_);
+  assert(rangesEnabled_);
   endPathExecutor_->setAuxiliaryRangeSetID(*subRunPrincipal_);
   FDEBUG(1) << spaces(8) << "setSubRunAuxiliaryRangeSetID("
             << subRunPrincipal_->id() << ")\n";

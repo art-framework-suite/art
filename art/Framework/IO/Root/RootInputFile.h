@@ -85,7 +85,9 @@ namespace art {
                   cet::exempt_ptr<RootInputFile> primaryFile,
                   std::vector<std::string> const& secondaryFileNames,
                   RootInputFileSequence* rifSequence,
-                  MasterProductRegistry& mpr);
+                  MasterProductRegistry& mpr,
+                  bool const parentageEnabled,
+                  bool const rangesEnabled);
 
     void reportOpened();
 
@@ -379,6 +381,8 @@ namespace art {
     cet::exempt_ptr<SubRunPrincipal> primarySRP_{};
     std::unique_ptr<RangeSetHandler> subRunRangeSetHandler_{nullptr};
     std::unique_ptr<RangeSetHandler> runRangeSetHandler_{nullptr};
+    bool const parentageEnabled_{true};
+    bool const rangesEnabled_{true};
   };
 
 } // namespace art

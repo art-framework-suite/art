@@ -12,6 +12,8 @@
 #include <regex>
 #include <string>
 
+#include <fnmatch.h>
+
 using namespace art;
 using namespace cet;
 using namespace fhicl;
@@ -26,11 +28,11 @@ namespace {
   // components of the branch description, with appropriate wildcard
   // rules.
   inline bool
-  partial_match(string const& regularExpression, string const& branchstring)
+  partial_match(regex* regularExpression, string const& branchstring)
   {
-    return regularExpression.empty() ?
+    return (regularExpression == nullptr) ?
              branchstring == "" :
-             std::regex_match(branchstring, std::regex(regularExpression));
+             std::regex_match(branchstring, *regularExpression);
   }
 
   inline bool
@@ -76,10 +78,10 @@ namespace {
     }
     selectflag = (ruleMatch[1].str() == "keep");
     if (ruleMatch[2].str() == "*") { // special case for wildcard
-      components.friendlyClassName_ = ".*";
-      components.moduleLabel_ = ".*";
-      components.productInstanceName_ = ".*";
-      components.processName_ = ".*";
+      components.friendlyClassName_ = "*";
+      components.moduleLabel_ = "*";
+      components.productInstanceName_ = "*";
+      components.processName_ = "*";
     } else {
       std::string errMsg;
 
@@ -100,14 +102,6 @@ namespace {
           << ".\n"
           << rulesMsg;
       }
-      boost::replace_all(components.friendlyClassName_, "*", ".*");
-      boost::replace_all(components.friendlyClassName_, "?", ".");
-      boost::replace_all(components.moduleLabel_, "*", ".*");
-      boost::replace_all(components.moduleLabel_, "?", ".");
-      boost::replace_all(components.productInstanceName_, "*", ".*");
-      boost::replace_all(components.productInstanceName_, "?", ".");
-      boost::replace_all(components.processName_, "*", ".*");
-      boost::replace_all(components.processName_, "?", ".");
     }
     if ((ruleMatch[3].length() > 0) && // Have a BranchType specification.
         (ruleMatch[3] != "*")) {       // Wildcard is NOP, here.
@@ -139,44 +133,61 @@ namespace {
   }
 }
 
+GroupSelectorRules::Rule::~Rule() {}
+
 GroupSelectorRules::Rule::Rule(string const& s,
                                string const& parameterName,
                                string const& owner)
   : components_{parseComponents(s, parameterName, owner, selectflag_)}
 {}
 
+GroupSelectorRules::Rule::Rule(GroupSelectorRules::Rule&& rhs)
+  : selectflag_(rhs.selectflag_), components_(move(rhs.components_))
+{
+  rhs.selectflag_ = false;
+}
+
 void
 GroupSelectorRules::Rule::applyToAll(
   vector<BranchSelectState>& branchstates) const
 {
-  for (auto& state : branchstates)
+  for (auto& state : branchstates) {
     applyToOne(state.desc, state.selectMe);
+  }
 }
 
 void
 GroupSelectorRules::applyToAll(vector<BranchSelectState>& branchstates) const
 {
-  for (auto const& rule : rules_)
+  for (auto const& rule : rules_) {
     rule.applyToAll(branchstates);
+  }
 }
 
 void
 GroupSelectorRules::Rule::applyToOne(BranchDescription const* branch,
                                      bool& result) const
 {
-  if (this->appliesTo(branch))
+  if (this->appliesTo(branch)) {
     result = selectflag_;
+  }
 }
 
 bool
 GroupSelectorRules::Rule::appliesTo(BranchDescription const* branch) const
 {
-  return partial_match(components_.friendlyClassName_,
-                       branch->friendlyClassName()) &&
-         partial_match(components_.moduleLabel_, branch->moduleLabel()) &&
-         partial_match(components_.productInstanceName_,
-                       branch->productInstanceName()) &&
-         partial_match(components_.processName_, branch->processName()) &&
+  return (fnmatch(components_.friendlyClassName_.c_str(),
+                  branch->friendlyClassName().c_str(),
+                  0) == 0) &&
+         (fnmatch(components_.moduleLabel_.c_str(),
+                  branch->moduleLabel().c_str(),
+                  0) == 0) &&
+         (fnmatch(components_.productInstanceName_.c_str(),
+                  branch->productInstanceName().c_str(),
+                  0) == 0) &&
+         (fnmatch(components_.processName_.c_str(),
+                  branch->processName().c_str(),
+                  0) == 0) &&
          partial_match(static_cast<BranchType>(components_.branchType_),
                        branch->branchType());
 }
@@ -191,5 +202,3 @@ GroupSelectorRules::GroupSelectorRules(vector<string> const& commands,
   }
   keepAll_ = commands.size() == 1 && commands[0] == "keep *";
 }
-
-// ======================================================================

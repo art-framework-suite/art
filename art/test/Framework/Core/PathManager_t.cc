@@ -199,7 +199,8 @@ BOOST_AUTO_TEST_CASE(Construct)
     fhicl::ParameterSet ps;
     make_ParameterSet(std::get<0>(test), ps);
     try {
-      PathManager sHelper(ps, preg, productsToProduce, atable, areg);
+      PathManager sHelper(
+        ps, preg, productsToProduce, atable, areg, true, true, true);
     }
     catch (art::Exception const& e) {
       if (!verifyException(e, std::get<1>(test), std::get<2>(test))) {

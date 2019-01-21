@@ -1,16 +1,18 @@
 #include "art/Framework/IO/Root/Inputfwd.h"
-// vim: set sw=2:
+// vim: set sw=2 expandtab :
+
+#include "canvas/Utilities/Exception.h"
 
 #include "TBranch.h"
 #include "TTree.h"
-#include "canvas/Utilities/Exception.h"
 
 namespace art {
   namespace input {
 
     Int_t
     getEntry(TBranch* branch, EntryNumber entryNumber) try {
-      return branch->GetEntry(entryNumber);
+      auto ret = branch->GetEntry(entryNumber);
+      return ret;
     }
     catch (cet::exception& e) {
       throw art::Exception(art::errors::FileReadError)
@@ -19,7 +21,8 @@ namespace art {
 
     Int_t
     getEntry(TTree* tree, EntryNumber entryNumber) try {
-      return tree->GetEntry(entryNumber);
+      auto ret = tree->GetEntry(entryNumber);
+      return ret;
     }
     catch (cet::exception& e) {
       throw art::Exception(art::errors::FileReadError)

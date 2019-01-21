@@ -8,6 +8,7 @@
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
+#include "art/Framework/IO/Root/RootInputFile.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunID.h"
@@ -36,7 +37,6 @@ namespace art {
   class RootInputFileSequence {
 
   public: // TYPES
-    using RootInputFileSharedPtr = std::shared_ptr<RootInputFile>;
     using EntryNumber = input::EntryNumber;
 
   public: // MEMBER FUNCTIONS
@@ -112,7 +112,9 @@ namespace art {
                           FastCloningInfoProvider const&,
                           InputSource::ProcessingMode,
                           MasterProductRegistry&,
-                          ProcessConfiguration const&);
+                          ProcessConfiguration const&,
+                          bool const parentageEnabled,
+                          bool const rangesEnabled);
     void endJob();
 
     std::unique_ptr<FileBlock> readFile_();
@@ -146,16 +148,16 @@ namespace art {
 
     std::unique_ptr<EventPrincipal> readEvent_();
 
-    RootInputFileSharedPtr
+    RootInputFile*
     rootFileForLastReadEvent() const
     {
       return rootFileForLastReadEvent_;
     }
 
-    RootInputFileSharedPtr
+    RootInputFile*
     rootFile() const
     {
-      return rootFile_;
+      return rootFile_.get();
     }
 
     std::unique_ptr<RangeSetHandler> runRangeSetHandler();
@@ -247,7 +249,7 @@ namespace art {
   private: // MEMBER DATA
     InputFileCatalog& catalog_;
     bool firstFile_{true};
-    RootInputFileSharedPtr rootFile_{nullptr};
+    std::unique_ptr<RootInputFile> rootFile_;
     std::vector<std::shared_ptr<FileIndex>> fileIndexes_;
     EventID origEventID_{};
     EventNumber_t eventsToSkip_;
@@ -266,13 +268,15 @@ namespace art {
     std::shared_ptr<DuplicateChecker> duplicateChecker_{nullptr};
     bool const dropDescendants_;
     bool const readParameterSets_;
-    RootInputFileSharedPtr rootFileForLastReadEvent_;
+    RootInputFile* rootFileForLastReadEvent_{nullptr};
     FastCloningInfoProvider fastCloningInfo_;
     InputSource::ProcessingMode processingMode_;
     ProcessConfiguration const& processConfiguration_;
     std::vector<std::vector<std::string>> secondaryFileNames_{};
     MasterProductRegistry& mpr_;
     bool pendingClose_{false};
+    bool parentageEnabled_{true};
+    bool rangesEnabled_{true};
   };
 
 } // namespace art

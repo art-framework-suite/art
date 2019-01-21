@@ -50,6 +50,7 @@ art::BranchMapperWithReader::readProvenance_() const
 
   branchPtr_->SetAddress(&pInfoVector);
   input::getEntry(branchPtr_, entryNumber_);
+  branchPtr_->ResetAddress();
 
   auto me = const_cast<BranchMapperWithReader*>(this);
   for (auto const& info : infoVector) {

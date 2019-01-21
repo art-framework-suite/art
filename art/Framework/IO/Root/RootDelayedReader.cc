@@ -31,7 +31,8 @@ namespace art {
     cet::exempt_ptr<BranchIDLists const> bidLists,
     BranchType const branchType,
     EventID const eID,
-    bool const compactSubRunRanges)
+    bool const compactSubRunRanges,
+    bool const rangesEnabled)
     : fileFormatVersion_{version}
     , db_{db}
     , entrySet_{entrySet}
@@ -43,6 +44,7 @@ namespace art {
     , branchType_{branchType}
     , eventID_{eID}
     , compactSubRunRanges_{compactSubRunRanges}
+    , rangesEnabled_{rangesEnabled}
   {}
 
   void
@@ -78,6 +80,7 @@ namespace art {
           (bytesRead > saveMemoryObjectThreshold_)) {
         br->DropBaskets("all");
       }
+      br->ResetAddress();
       return p;
     };
 
@@ -89,7 +92,8 @@ namespace art {
 
       // Products from files that did not support RangeSets are
       // assigned RangeSets that correspond to the entire run/subrun.
-      if (fileFormatVersion_.value_ < 9) {
+      if ((fileFormatVersion_.value_ < 9) || !rangesEnabled_ ||
+          (db_ == nullptr)) {
         if (branchType_ == InRun) {
           rs = RangeSet::forRun(eventID_.runID());
         } else {

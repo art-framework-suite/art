@@ -63,6 +63,20 @@ art::ProcessingOptionsHandler::ProcessingOptionsHandler(
           "Number of threads to use for event processing (default = 1, 0 = all "
           "cores)");
   add_opt(options,
+          "parentageEnabled",
+          bpo::value<bool>(),
+          "Track and record the parentage of data products (true or false)");
+  add_opt(options,
+          "rangesEnabled",
+          bpo::value<bool>(),
+          "Track and record the event ranges seen per run and subrun (true or "
+          "false)");
+  add_opt(options,
+          "dbEnabled",
+          bpo::value<bool>(),
+          "Track and record the event ranges seen per run and subrun and file "
+          "catalog metadata (true or false)");
+  add_opt(options,
           "default-exceptions",
           "Some exceptions may be handled differently by default (e.g. "
           "ProductNotFound).");
@@ -151,5 +165,17 @@ art::ProcessingOptionsHandler::doProcessOptions(
   auto const nthreads =
     (nt == 0) ? tbb::task_scheduler_init::default_num_threads() : nt;
   raw_config.put(fhicl_key(scheduler_key, "num_threads"), nthreads);
+  if (vm.count("parentageEnabled") == 1) {
+    raw_config.put(fhicl_key(scheduler_key, "parentageEnabled"),
+                   vm["parentageEnabled"].as<bool>());
+  }
+  if (vm.count("rangesEnabled") == 1) {
+    raw_config.put(fhicl_key(scheduler_key, "rangesEnabled"),
+                   vm["rangesEnabled"].as<bool>());
+  }
+  if (vm.count("dbEnabled") == 1) {
+    raw_config.put(fhicl_key(scheduler_key, "dbEnabled"),
+                   vm["dbEnabled"].as<bool>());
+  }
   return 0;
 }

@@ -7,7 +7,11 @@
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 
-art::SourceHelper::SourceHelper(ModuleDescription const& md) : md_{md} {}
+art::SourceHelper::SourceHelper(ModuleDescription const& md,
+                                bool const parentageEnabled,
+                                bool const rangesEnabled)
+  : md_{md}, parentageEnabled_{parentageEnabled}, rangesEnabled_{rangesEnabled}
+{}
 
 void
 art::SourceHelper::throwIfProductsNotRegistered_() const
@@ -36,8 +40,11 @@ art::RunPrincipal*
 art::SourceHelper::makeRunPrincipal(RunAuxiliary const& runAux) const
 {
   throwIfProductsNotRegistered_();
-  return new RunPrincipal{
-    runAux, md_.processConfiguration(), &presentProducts_->get(InRun)};
+  return new RunPrincipal{runAux,
+                          md_.processConfiguration(),
+                          &presentProducts_->get(InRun),
+                          parentageEnabled_,
+                          rangesEnabled_};
 }
 
 art::RunPrincipal*
@@ -59,8 +66,11 @@ art::SubRunPrincipal*
 art::SourceHelper::makeSubRunPrincipal(SubRunAuxiliary const& subRunAux) const
 {
   throwIfProductsNotRegistered_();
-  return new SubRunPrincipal{
-    subRunAux, md_.processConfiguration(), &presentProducts_->get(InSubRun)};
+  return new SubRunPrincipal{subRunAux,
+                             md_.processConfiguration(),
+                             &presentProducts_->get(InSubRun),
+                             parentageEnabled_,
+                             rangesEnabled_};
 }
 
 art::SubRunPrincipal*
@@ -87,6 +97,8 @@ art::SourceHelper::makeEventPrincipal(EventAuxiliary const& eventAux,
   return new EventPrincipal{eventAux,
                             md_.processConfiguration(),
                             &presentProducts_->get(InEvent),
+                            parentageEnabled_,
+                            rangesEnabled_,
                             history};
 }
 
@@ -99,8 +111,11 @@ art::SourceHelper::makeEventPrincipal(
 {
   throwIfProductsNotRegistered_();
   EventAuxiliary const eventAux{e, startTime, isRealData, eType};
-  return new EventPrincipal{
-    eventAux, md_.processConfiguration(), &presentProducts_->get(InEvent)};
+  return new EventPrincipal{eventAux,
+                            md_.processConfiguration(),
+                            &presentProducts_->get(InEvent),
+                            parentageEnabled_,
+                            rangesEnabled_};
 }
 
 art::EventPrincipal*

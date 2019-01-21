@@ -53,6 +53,7 @@ find_ups_product(cppunit)
 find_ups_product(cetbuildtools v6_00_00) # LIBRARY_OUTPUT_DIRECTORY, etc.
 find_ups_product(sqlite)
 find_ups_product(range)
+find_ups_product(tbb)
 find_ups_boost()
 find_ups_root()
 

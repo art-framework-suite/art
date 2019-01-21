@@ -87,7 +87,10 @@ public: // MEMBER FUNCTIONS
                           int const basketSize,
                           DropMetaData dropMetaData,
                           bool dropMetaDataForDroppedData,
-                          bool fastCloningRequested);
+                          bool fastCloningRequested,
+                          bool const parentageEnabled,
+                          bool const rangesEnabled,
+                          bool const dbEnabled);
 
   void writeTTrees();
 
@@ -132,6 +135,12 @@ public: // MEMBER FUNCTIONS
   bool maxSizeReached(unsigned const maxFileSize) const;
 
 private: // MEMBER FUNCTIONS
+  void writeRun_FileIndexPart(RunPrincipal const&);
+  void writeSubRun_FileIndexPart(SubRunPrincipal const&);
+  void writeOneEvent_EventPart(EventPrincipal const&);
+  void writeOneEvent_HistoryPart(EventPrincipal const&);
+  void writeOneEvent_FileIndexPart(EventPrincipal const&);
+
   void createDatabaseTables();
 
   template <BranchType>
@@ -150,6 +159,9 @@ private: // MEMBER FUNCTIONS
   getProduct(OutputHandle const&,
              RangeSet const& productRS,
              std::string const& wrappedName); // Defined in source.
+  void insertParents(std::set<ProductProvenance>&,
+                     Principal const&,
+                     std::vector<ProductID> const&);
 
 private: // MEMBER DATA
   OutputModule const* om_;
@@ -202,6 +214,9 @@ private: // MEMBER DATA
   unsigned runRSID_{-1u};
   std::chrono::steady_clock::time_point beginTime_{
     std::chrono::steady_clock::now()};
+  bool const parentageEnabled_{true};
+  bool const rangesEnabled_{true};
+  bool const dbEnabled_{true};
 };
 
 // Local Variables:

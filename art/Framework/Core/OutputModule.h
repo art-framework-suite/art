@@ -29,7 +29,6 @@
 #include "canvas/Persistency/Provenance/ParentageID.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
-#include "cetlib/BasicPluginFactory.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalTable.h"
@@ -175,7 +174,6 @@ private:
   std::string streamName_;
   ServiceHandle<CatalogInterface> ci_{};
 
-  cet::BasicPluginFactory pluginFactory_{};
   std::vector<std::string> pluginNames_{}; // For diagnostics.
 
   using PluginCollection_t =

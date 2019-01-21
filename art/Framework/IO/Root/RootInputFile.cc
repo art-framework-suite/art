@@ -48,6 +48,7 @@
 #include "TTree.h"
 
 #include <algorithm>
+#include <cassert>
 #include <utility>
 
 extern "C" {
@@ -88,7 +89,9 @@ namespace art {
                                exempt_ptr<RootInputFile> primaryFile,
                                vector<string> const& secondaryFileNames,
                                RootInputFileSequence* rifSequence,
-                               MasterProductRegistry& mpr)
+                               MasterProductRegistry& mpr,
+                               bool const parentageEnabled,
+                               bool const rangesEnabled)
     : fileName_{fileName}
     , catalog_{catalogName}
     , processConfiguration_{processConfiguration}
@@ -103,25 +106,29 @@ namespace art {
                                                      saveMemoryObjectThreshold,
                                                      this,
                                                      compactSubRunRanges_,
-                                                     false),
+                                                     false,
+                                                     rangesEnabled),
                      std::make_unique<RootInputTree>(filePtr_.get(),
                                                      InSubRun,
                                                      saveMemoryObjectThreshold,
                                                      this,
                                                      compactSubRunRanges_,
-                                                     false),
+                                                     false,
+                                                     rangesEnabled),
                      std::make_unique<RootInputTree>(filePtr_.get(),
                                                      InRun,
                                                      saveMemoryObjectThreshold,
                                                      this,
                                                      compactSubRunRanges_,
-                                                     false),
+                                                     false,
+                                                     rangesEnabled),
                      std::make_unique<RootInputTree>(filePtr_.get(),
                                                      InResults,
                                                      saveMemoryObjectThreshold,
                                                      this,
                                                      compactSubRunRanges_,
-                                                     true /* missingOK */)}}
+                                                     true /* missingOK */,
+                                                     rangesEnabled)}}
     , delayedReadEventProducts_{delayedReadEventProducts}
     , delayedReadSubRunProducts_{delayedReadSubRunProducts}
     , delayedReadRunProducts_{delayedReadRunProducts}
@@ -132,6 +139,8 @@ namespace art {
     , primaryFile_{primaryFile ? primaryFile : this}
     , secondaryFileNames_{secondaryFileNames}
     , rifSequence_{rifSequence}
+    , parentageEnabled_{parentageEnabled}
+    , rangesEnabled_{rangesEnabled}
   {
     secondaryFiles_.resize(secondaryFileNames_.size());
     eventTree().setCacheSize(treeCacheSize);
@@ -161,6 +170,7 @@ namespace art {
     // Read file index
     auto findexPtr = &fileIndex_;
     detail::readFileIndex(filePtr_.get(), metaDataTree, findexPtr);
+    fileIndex_.sortBy_Run_SubRun_Event();
 
     // To support files that contain BranchIDLists
     BranchIDLists branchIDLists{};
@@ -213,7 +223,8 @@ namespace art {
     }
 
     // Also need to check RootFileDB if we have one.
-    if (fileFormatVersion_.value_ >= 5) {
+    if ((fileFormatVersion_.value_ >= 5) &&
+        (filePtr_->FindKey("RootFileDB") != nullptr)) {
       sqliteDB_ = ServiceHandle<DatabaseConnection> {}
       ->get<TKeyVFSOpenPolicy>("RootFileDB", filePtr_.get());
       if (readIncomingParameterSets &&
@@ -319,9 +330,19 @@ namespace art {
     parentageTree->SetCacheSize(static_cast<Long64_t>(treeCacheSize));
     auto idBuffer = root::getObjectRequireDict<ParentageID>();
     auto pidBuffer = &idBuffer;
+    {
+      auto branch =
+        parentageTree->GetBranch(rootNames::parentageIDBranchName().c_str());
+      branch->SetAddress(nullptr);
+    }
     parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(),
                                     &pidBuffer);
 
+    {
+      auto branch =
+        parentageTree->GetBranch(rootNames::parentageBranchName().c_str());
+      branch->SetAddress(nullptr);
+    }
     auto parentageBuffer = root::getObjectRequireDict<Parentage>();
     auto pParentageBuffer = &parentageBuffer;
     parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(),
@@ -338,11 +359,16 @@ namespace art {
       }
       ParentageRegistry::emplace(parentageBuffer.id(), parentageBuffer);
     }
-
-    parentageTree->SetBranchAddress(rootNames::parentageIDBranchName().c_str(),
-                                    nullptr);
-    parentageTree->SetBranchAddress(rootNames::parentageBranchName().c_str(),
-                                    nullptr);
+    {
+      auto br =
+        parentageTree->GetBranch(rootNames::parentageIDBranchName().c_str());
+      br->ResetAddress();
+    }
+    {
+      auto br =
+        parentageTree->GetBranch(rootNames::parentageBranchName().c_str());
+      br->ResetAddress();
+    }
   }
 
   EventID
@@ -555,6 +581,7 @@ namespace art {
     }
     eventHistoryBranch->SetAddress(&pHistory);
     input::getEntry(eventHistoryTree_, eventTree().entryNumber());
+    eventHistoryBranch->ResetAddress();
   }
 
   int
@@ -629,6 +656,8 @@ namespace art {
       eventAux(),
       processConfiguration_,
       &presentProducts_.get(InEvent),
+      parentageEnabled_,
+      rangesEnabled_,
       history_,
       eventTree().makeBranchMapper(),
       eventTree().makeDelayedReader(
@@ -666,6 +695,8 @@ namespace art {
       eventAux(),
       processConfiguration_,
       &presentProducts_.get(InEvent),
+      parentageEnabled_,
+      rangesEnabled_,
       history_,
       eventTree().makeBranchMapper(),
       eventTree().makeDelayedReader(
@@ -683,6 +714,7 @@ namespace art {
   unique_ptr<RangeSetHandler>
   RootInputFile::runRangeSetHandler()
   {
+    assert(rangesEnabled_);
     return std::move(runRangeSetHandler_);
   }
 
@@ -707,7 +739,11 @@ namespace art {
   unique_ptr<RunPrincipal>
   RootInputFile::readCurrentRun(EntryNumbers const& entryNumbers)
   {
-    runRangeSetHandler_ = fillAuxiliary<InRun>(entryNumbers);
+    if (rangesEnabled_) {
+      runRangeSetHandler_ = fillAuxiliary<InRun>(entryNumbers);
+    } else {
+      fillAuxiliary<InRun>(entryNumbers[0]);
+    }
     assert(runAux().id() == fiIter_->eventID_.runID());
     overrideRunNumber(runAux().id_);
     if (runAux().beginTime() == Timestamp::invalidTimestamp()) {
@@ -725,6 +761,8 @@ namespace art {
       runAux(),
       processConfiguration_,
       &presentProducts_.get(InRun),
+      parentageEnabled_,
+      rangesEnabled_,
       runTree().makeBranchMapper(),
       runTree().makeDelayedReader(fileFormatVersion_,
                                   sqliteDB_,
@@ -754,7 +792,11 @@ namespace art {
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kRun);
     assert(fiIter_->eventID_.runID().isValid());
-    runRangeSetHandler_ = fillAuxiliary<InRun>(entryNumbers);
+    if (rangesEnabled_) {
+      runRangeSetHandler_ = fillAuxiliary<InRun>(entryNumbers);
+    } else {
+      fillAuxiliary<InRun>(entryNumbers[0]);
+    }
     assert(runAux().id() == fiIter_->eventID_.runID());
     overrideRunNumber(runAux().id_);
     if (runAux().beginTime() == Timestamp::invalidTimestamp()) {
@@ -772,6 +814,8 @@ namespace art {
       runAux(),
       processConfiguration_,
       &presentProducts_.get(InRun),
+      parentageEnabled_,
+      rangesEnabled_,
       runTree().makeBranchMapper(),
       runTree().makeDelayedReader(fileFormatVersion_,
                                   sqliteDB_,
@@ -790,6 +834,7 @@ namespace art {
   unique_ptr<RangeSetHandler>
   RootInputFile::subRunRangeSetHandler()
   {
+    assert(rangesEnabled_);
     return std::move(subRunRangeSetHandler_);
   }
 
@@ -815,7 +860,11 @@ namespace art {
                                    cet::exempt_ptr<RunPrincipal> rp
                                    [[gnu::unused]])
   {
-    subRunRangeSetHandler_ = fillAuxiliary<InSubRun>(entryNumbers);
+    if (rangesEnabled_) {
+      subRunRangeSetHandler_ = fillAuxiliary<InSubRun>(entryNumbers);
+    } else {
+      fillAuxiliary<InSubRun>(entryNumbers[0]);
+    }
     assert(subRunAux().id() == fiIter_->eventID_.subRunID());
     overrideRunNumber(subRunAux().id_);
     assert(subRunAux().runID() == rp->id());
@@ -830,11 +879,12 @@ namespace art {
       subRunAux().beginTime_ = eventAux().time();
       subRunAux().endTime_ = Timestamp::invalidTimestamp();
     }
-
     auto srp = std::make_unique<SubRunPrincipal>(
       subRunAux(),
       processConfiguration_,
       &presentProducts_.get(InSubRun),
+      parentageEnabled_,
+      rangesEnabled_,
       subRunTree().makeBranchMapper(),
       subRunTree().makeDelayedReader(fileFormatVersion_,
                                      sqliteDB_,
@@ -863,7 +913,11 @@ namespace art {
     auto const& entryNumbers = getEntryNumbers(InSubRun).first;
     assert(fiIter_ != fiEnd_);
     assert(fiIter_->getEntryType() == FileIndex::kSubRun);
-    subRunRangeSetHandler_ = fillAuxiliary<InSubRun>(entryNumbers);
+    if (rangesEnabled_) {
+      subRunRangeSetHandler_ = fillAuxiliary<InSubRun>(entryNumbers);
+    } else {
+      fillAuxiliary<InSubRun>(entryNumbers[0]);
+    }
     assert(subRunAux().id() == fiIter_->eventID_.subRunID());
     overrideRunNumber(subRunAux().id_);
     if (subRunAux().beginTime() == Timestamp::invalidTimestamp()) {
@@ -881,6 +935,8 @@ namespace art {
       subRunAux(),
       processConfiguration_,
       &presentProducts_.get(InSubRun),
+      parentageEnabled_,
+      rangesEnabled_,
       subRunTree().makeBranchMapper(),
       subRunTree().makeDelayedReader(fileFormatVersion_,
                                      sqliteDB_,
@@ -941,6 +997,13 @@ namespace art {
         << "Failed to find the event history tree.\n";
     }
     eventHistoryTree_->SetCacheSize(static_cast<Long64_t>(treeCacheSize));
+    auto eventHistoryBranch =
+      eventHistoryTree_->GetBranch(rootNames::eventHistoryBranchName().c_str());
+    if (!eventHistoryBranch) {
+      throw art::Exception{errors::DataCorruption}
+        << "Failed to find history branch in event history tree.\n";
+    }
+    eventHistoryBranch->SetAddress(nullptr);
   }
 
   void
@@ -1058,13 +1121,18 @@ namespace art {
         resultsAux(),
         processConfiguration_,
         &presentProducts_.get(InResults),
+        parentageEnabled_,
+        rangesEnabled_,
         resultsTree().makeBranchMapper(),
         resultsTree().makeDelayedReader(
           fileFormatVersion_, nullptr, InResults, entryNumbers, EventID{}));
       resultsTree().fillGroups(*resp);
     } else { // Empty
-      resp = std::make_unique<ResultsPrincipal>(
-        ResultsAuxiliary{}, processConfiguration_, nullptr);
+      resp = std::make_unique<ResultsPrincipal>(ResultsAuxiliary{},
+                                                processConfiguration_,
+                                                nullptr,
+                                                parentageEnabled_,
+                                                rangesEnabled_);
     }
     return resp;
   }

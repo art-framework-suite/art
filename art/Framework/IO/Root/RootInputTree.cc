@@ -1,14 +1,16 @@
 #include "art/Framework/IO/Root/RootInputTree.h"
 // vim: set sw=2:
 
-#include "TBranch.h"
-#include "TFile.h"
-#include "TLeaf.h"
-#include "TTree.h"
 #include "art/Framework/IO/Root/RootDelayedReader.h"
 #include "art/Framework/IO/Root/detail/dropBranch.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+
+#include "TBranch.h"
+#include "TFile.h"
+#include "TLeaf.h"
+#include "TTree.h"
+
 #include <cstdint>
 #include <string>
 #include <utility>
@@ -20,12 +22,14 @@ namespace art {
                                int64_t saveMemoryObjectThreshold,
                                cet::exempt_ptr<RootInputFile> primaryFile,
                                bool const compactSubRunRanges,
-                               bool const missingOK)
+                               bool const missingOK,
+                               bool const rangesEnabled)
     : filePtr_{filePtr}
     , branchType_{branchType}
     , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
     , primaryFile_{primaryFile}
     , compactSubRunRanges_{compactSubRunRanges}
+    , rangesEnabled_{rangesEnabled}
   {
     if (filePtr_) {
       tree_ = static_cast<TTree*>(
@@ -36,11 +40,13 @@ namespace art {
     if (tree_) {
       auxBranch_ =
         tree_->GetBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str());
+      auxBranch_->SetAddress(nullptr);
       entries_ = tree_->GetEntries();
     }
     if (metaTree_) {
       productProvenanceBranch_ =
         metaTree_->GetBranch(productProvenanceBranchName(branchType_).c_str());
+      productProvenanceBranch_->SetAddress(nullptr);
     }
     if (!(missingOK || isValid())) {
       throw Exception(errors::FileReadError)
@@ -70,6 +76,9 @@ namespace art {
     assert(isValid());
     TBranch* branch = tree_->GetBranch(pd.branchName().c_str());
     assert(pd.present() == (branch != nullptr));
+    if (branch != nullptr) {
+      branch->SetAddress(nullptr);
+    }
     input::BranchInfo info{pd, branch};
     branches_.emplace(key, std::move(info));
   }
@@ -111,7 +120,8 @@ namespace art {
                                                branchIDLists,
                                                branchType,
                                                eID,
-                                               compactSubRunRanges_);
+                                               compactSubRunRanges_,
+                                               rangesEnabled_);
   }
 
   void

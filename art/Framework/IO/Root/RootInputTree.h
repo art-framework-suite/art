@@ -82,7 +82,8 @@ namespace art {
                   int64_t saveMemoryObjectThreshold,
                   cet::exempt_ptr<RootInputFile>,
                   bool compactSubRunRanges = false,
-                  bool missingOK = false);
+                  bool missingOK = false,
+                  bool rangesEnabled = true);
     RootInputTree(RootInputTree const&) = delete;
     RootInputTree& operator=(RootInputTree const&) = delete;
 
@@ -178,6 +179,7 @@ namespace art {
       auxBranch_->SetAddress(&pAux);
       setEntryNumber(entry);
       input::getEntry(auxBranch_, entry);
+      auxBranch_->ResetAddress();
       return *aux;
     }
 
@@ -191,7 +193,7 @@ namespace art {
             AUX& aux)
     {
       auto auxResult = getAux<AUX>(entries[0]);
-      if (fileFormatVersion.value_ < 9) {
+      if ((fileFormatVersion.value_ < 9) || (db == nullptr)) {
         auxResult.setRangeSetID(-1u);
         auto const& rs = detail::rangeSetFromFileIndex(
           fileIndex, auxResult.id(), compactSubRunRanges_);
@@ -257,6 +259,7 @@ namespace art {
     BranchMap branches_{};
     cet::exempt_ptr<RootInputFile> primaryFile_;
     bool const compactSubRunRanges_;
+    bool const rangesEnabled_{true};
   };
 
 } // namespace art

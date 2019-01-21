@@ -68,7 +68,9 @@ namespace art {
              MasterProductRegistry&,
              ProductDescriptions&,
              ActionTable&,
-             ActivityRegistry&);
+             ActivityRegistry&,
+             bool const parentageEnabled,
+             bool const rangesEnabled);
 
     template <typename T>
     void process(typename T::MyPrincipal&);
@@ -112,6 +114,8 @@ namespace art {
     PathsInfo& triggerPathsInfo_;
     std::vector<unsigned char> pathsEnabled_;
     std::unique_ptr<Worker> results_inserter_{nullptr};
+    bool const parentageEnabled_{true};
+    bool const rangesEnabled_{true};
   };
 
   template <typename T>

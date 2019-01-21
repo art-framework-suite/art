@@ -88,17 +88,17 @@ namespace art {
         return wantedEventID_;
       }
       void setWantedEventID(EventID const& eid);
-      std::shared_ptr<RootInputFile>
+      RootInputFile*
       rootFileForLastReadEvent() const
       {
         return rootFileForLastReadEvent_;
       }
-      void setRootFileForLastReadEvent(std::shared_ptr<RootInputFile> const&);
+      void setRootFileForLastReadEvent(RootInputFile*);
 
     private:
-      State state_;
+      State state_{SEQUENTIAL};
       EventID lastReadEventID_;
-      std::shared_ptr<RootInputFile> rootFileForLastReadEvent_;
+      RootInputFile* rootFileForLastReadEvent_{nullptr};
       EventID wantedEventID_;
     }; // class AccessState
     typedef input::EntryNumber EntryNumber;

@@ -127,16 +127,23 @@ detail::SamplingInputFile::SamplingInputFile(
 
   // Event-level trees
   eventHistoryTree_ = get_tree(*file_, rootNames::eventHistoryTreeName());
+  {
+    auto eventHistoryBranch =
+      eventHistoryTree_->GetBranch(rootNames::eventHistoryBranchName().c_str());
+    eventHistoryBranch->SetAddress(nullptr);
+  }
   eventTree_ = get_tree(*file_,
                         BranchTypeToProductTreeName(InEvent),
                         treeCacheSize,
                         treeMaxVirtualSize);
   auxBranch_ =
     eventTree_->GetBranch(BranchTypeToAuxiliaryBranchName(InEvent).c_str());
+  auxBranch_->SetAddress(nullptr);
 
   eventMetaTree_ = get_tree(*file_, BranchTypeToMetaDataTreeName(InEvent));
   productProvenanceBranch_ =
     eventMetaTree_->GetBranch(productProvenanceBranchName(InEvent).c_str());
+  productProvenanceBranch_->SetAddress(nullptr);
 
   // Higher-level trees
   subRunTree_ = get_tree(*file_,
@@ -164,6 +171,7 @@ detail::SamplingInputFile::SamplingInputFile(
     auto& pd = pr.second;
     auto const bt = pd.branchType();
     auto branch = treeForBranchType_(bt)->GetBranch(pd.branchName().c_str());
+    branch->SetAddress(nullptr);
     if (bt == InSubRun || bt == InRun) {
       std::string const wrapped_product{"art::Sampled<" +
                                         pd.producedClassName() + ">"};
@@ -338,6 +346,8 @@ detail::SamplingInputFile::readEvent(EventID const& eventID,
     aux,
     current_pc,
     &presentEventProducts_,
+    true,
+    true,
     std::make_shared<History>(std::move(history)),
     std::make_unique<BranchMapperWithReader>(productProvenanceBranch_,
                                              currentEventEntry_),

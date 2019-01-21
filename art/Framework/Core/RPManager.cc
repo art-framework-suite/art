@@ -19,9 +19,7 @@ namespace {
 }
 
 art::RPManager::RPManager(fhicl::ParameterSet const& ps)
-  : pf_(Suffixes::plugin(), "makeRP")
-  , rpmap_(makeRPs_(ps))
-  , size_(countProducers(rpmap_))
+  : rpmap_(makeRPs_(ps)), size_(countProducers(rpmap_))
 {}
 
 namespace {
@@ -114,13 +112,14 @@ art::RPManager::makeRPs_(fhicl::ParameterSet const& ps) -> decltype(rpmap_)
       << "Errors encountered while configuring ResultsProducers:\n"
       << errMsg;
   }
+  cet::BasicPluginFactory pf{Suffixes::plugin(), "makeRP"};
   for (auto const& path : paths) {
     auto ins_res = rpmap_.emplace(path.first, decltype(rpmap_)::mapped_type{});
     std::transform(path.second.cbegin(),
                    path.second.cend(),
                    std::back_inserter(ins_res.first->second),
                    std::bind(&pathLoader,
-                             std::ref(pf_),
+                             std::ref(pf),
                              std::cref(producers),
                              std::placeholders::_1,
                              std::cref(omLabel),

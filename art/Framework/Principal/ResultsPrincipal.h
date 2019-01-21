@@ -34,6 +34,8 @@ public:
     ResultsAuxiliary const&,
     ProcessConfiguration const&,
     cet::exempt_ptr<ProductTable const> presentProducts,
+    bool const parentageEnabled = true,
+    bool const rangesEnabled = true,
     std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
     std::unique_ptr<DelayedReader>&& rtrv =
       std::make_unique<NoDelayedReader>());
@@ -57,12 +59,26 @@ public:
     return RangeSet::invalid();
   }
 
+  bool
+  parentageEnabled() const override
+  {
+    return parentageEnabled_;
+  }
+
+  bool
+  rangesEnabled() const override
+  {
+    return rangesEnabled_;
+  }
+
 private:
   ProcessHistoryID const& processHistoryID() const override;
 
   void setProcessHistoryID(ProcessHistoryID const& phid) override;
 
   ResultsAuxiliary aux_;
+  bool const parentageEnabled_{true};
+  bool const rangesEnabled_{true};
 };
 
 #endif /* art_Framework_Principal_ResultsPrincipal_h */

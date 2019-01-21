@@ -217,6 +217,7 @@ art::detail::InfoDumperInputFile::getAuxiliary(TTree* tree,
   auxBranch->SetAddress(&pAux);
   tree->LoadTree(entry);
   auxBranch->GetEntry(entry);
+  auxBranch->ResetAddress();
   return *aux;
 }
 

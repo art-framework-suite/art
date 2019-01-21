@@ -34,6 +34,8 @@ namespace art {
       SubRunAuxiliary const&,
       ProcessConfiguration const&,
       cet::exempt_ptr<ProductTable const> presentProducts,
+      bool const parentageEnabled = true,
+      bool const rangesEnabled = true,
       std::unique_ptr<BranchMapper>&& = std::make_unique<BranchMapper>(),
       std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
 
@@ -111,6 +113,18 @@ namespace art {
       return branch_type;
     }
 
+    bool
+    parentageEnabled() const override
+    {
+      return parentageEnabled_;
+    }
+
+    bool
+    rangesEnabled() const override
+    {
+      return rangesEnabled_;
+    }
+
   private:
     ProcessHistoryID const& processHistoryID() const override;
     void setProcessHistoryID(ProcessHistoryID const& phid) override;
@@ -118,6 +132,8 @@ namespace art {
     SubRunAuxiliary aux_;
     cet::exempt_ptr<RunPrincipal const> runPrincipal_{nullptr};
     RangeSet rangeSet_{RangeSet::invalid()};
+    bool const parentageEnabled_{true};
+    bool const rangesEnabled_{true};
   };
 
 } // namespace art

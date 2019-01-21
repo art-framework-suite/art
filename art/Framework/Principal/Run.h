@@ -10,6 +10,7 @@
 // ======================================================================
 
 #include "art/Framework/Principal/DataViewImpl.h"
+#include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/ProductInfo.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ProductSemantics.h"
@@ -261,7 +262,7 @@ art::Run::put_(std::unique_ptr<PROD>&& product,
       << "'.\n";
   }
 
-  if (!rs.is_valid()) {
+  if (principal_.rangesEnabled() && !rs.is_valid()) {
     throw Exception{errors::ProductPutFailure, "Run::put"}
       << "\nCannot put a product with an invalid RangeSet.\n"
       << "Please contact artists@fnal.gov.\n";

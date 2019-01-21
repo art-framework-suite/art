@@ -56,6 +56,10 @@ namespace {
   }
 }
 
+ProcessHistory Principal::pendingProcessHistory_;
+ProcessHistory Principal::previousProcessHistory_;
+int Principal::pendingProcessHistorySet_{0};
+
 Principal::Principal(ProcessConfiguration const& pc,
                      ProcessHistoryID const& hist,
                      cet::exempt_ptr<ProductTable const> presentProducts,
@@ -66,14 +70,21 @@ Principal::Principal(ProcessConfiguration const& pc,
   , branchMapperPtr_{std::move(mapper)}
   , store_{std::move(reader)}
 {
-  if (!hist.isValid()) {
-    return;
+  if (hist.isValid()) {
+    assert(!ProcessHistoryRegistry::empty());
+    ProcessHistory ph;
+    bool const found [[gnu::unused]]{ProcessHistoryRegistry::get(hist, ph)};
+    assert(found);
+    std::swap(processHistory_, ph);
   }
-  assert(!ProcessHistoryRegistry::empty());
-  ProcessHistory ph;
-  bool const found [[gnu::unused]]{ProcessHistoryRegistry::get(hist, ph)};
-  assert(found);
-  std::swap(processHistory_, ph);
+  if ((pendingProcessHistorySet_ == 0) ||
+      (processHistory_ != previousProcessHistory_)) {
+    previousProcessHistory_ = processHistory_;
+    pendingProcessHistory_ = processHistory_;
+    pendingProcessHistory_.push_back(processConfiguration_);
+    (void)pendingProcessHistory_.id();
+    ++pendingProcessHistorySet_;
+  }
 }
 
 void
@@ -92,16 +103,15 @@ Principal::addToProcessHistory()
         << "distinct process name.\n";
     }
   }
-  processHistory_.push_back(processConfiguration_);
-  // OPTIMIZATION NOTE: As of 0_9_0_pre3 For very simple Sources
-  // (e.g. EmptyEvent) this routine takes up nearly 50% of the time
-  // per event, and 96% of the time for this routine is spent in
-  // computing the ProcessHistory id which happens because we are
-  // reconstructing the ProcessHistory for each event.  It would
-  // probably be better to move the ProcessHistory construction out to
-  // somewhere which persists for longer than one Event.
-  auto const phid = processHistory_.id();
-  ProcessHistoryRegistry::emplace(phid, processHistory_);
+  auto phid = pendingProcessHistory_.id();
+  if (phid.isValid()) {
+    ProcessHistoryRegistry::emplace(phid, pendingProcessHistory_);
+  } else {
+    pendingProcessHistory_.push_back(processConfiguration_);
+    phid = pendingProcessHistory_.id();
+    ProcessHistoryRegistry::emplace(phid, pendingProcessHistory_);
+  }
+  processHistory_ = pendingProcessHistory_;
   setProcessHistoryID(phid);
   processHistoryModified_ = true;
 }

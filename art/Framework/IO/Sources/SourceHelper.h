@@ -36,7 +36,9 @@ namespace art {
 
 class art::SourceHelper {
 public:
-  explicit SourceHelper(ModuleDescription const& md);
+  explicit SourceHelper(ModuleDescription const& md,
+                        bool const parentageEnabled,
+                        bool const rangesEnabled);
 
   // Copying/moving is disallowed--the helper object that art creates
   // is intended to be passed to the user by reference for their use.
@@ -95,6 +97,8 @@ private:
   void setPresentProducts(cet::exempt_ptr<ProductTables const> presentProducts);
   cet::exempt_ptr<ProductTables const> presentProducts_{nullptr};
   ModuleDescription md_;
+  bool const parentageEnabled_{true};
+  bool const rangesEnabled_{true};
 };
 
 template <typename T>

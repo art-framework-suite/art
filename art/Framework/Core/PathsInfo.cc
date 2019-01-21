@@ -14,7 +14,10 @@ art::PathsInfo::PathsInfo(std::size_t const numPaths,
                           MasterProductRegistry& preg,
                           ProductDescriptions& productsToProduce,
                           ActionTable& actions,
-                          ActivityRegistry& areg)
+                          ActivityRegistry& areg,
+                          bool const parentageEnabled,
+                          bool const rangesEnabled,
+                          bool const dbEnabled)
   : pathResults_{numPaths}
   , fact_{factory}
   , procPS_{procPS}
@@ -22,6 +25,9 @@ art::PathsInfo::PathsInfo(std::size_t const numPaths,
   , productsToProduce_{productsToProduce}
   , exceptActions_{actions}
   , areg_{areg}
+  , parentageEnabled_{parentageEnabled}
+  , rangesEnabled_{rangesEnabled}
+  , dbEnabled_{dbEnabled}
 {}
 
 // Precondition: !modInfos.empty();
@@ -91,7 +97,10 @@ art::PathsInfo::makeWorker_(detail::ModuleConfigInfo const& mci)
       moduleConfig.id(),
       p.pset_.get<std::string>("module_type"),
       p.pset_.get<std::string>("module_label"),
-      ProcessConfiguration{p.processName_, procPS_.id(), getReleaseVersion()}};
+      ProcessConfiguration{p.processName_, procPS_.id(), getReleaseVersion()},
+      parentageEnabled_,
+      rangesEnabled_,
+      dbEnabled_};
     areg_.sPreModuleConstruction.invoke(md);
     try {
       auto worker = fact_.makeWorker(p, md);

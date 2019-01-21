@@ -43,7 +43,9 @@ public:
   EndPathExecutor(PathManager& pm,
                   ActionTable& actions,
                   ActivityRegistry& areg,
-                  MasterProductRegistry& mpr);
+                  MasterProductRegistry& mpr,
+                  bool const parentageEnabled,
+                  bool const rangesEnabled);
 
   template <typename T>
   void process(typename T::MyPrincipal& principal);
@@ -111,6 +113,8 @@ private:
   OutputFileStatus fileStatus_{OutputFileStatus::Closed};
   std::unique_ptr<RangeSetHandler> runRangeSetHandler_{nullptr};
   std::unique_ptr<RangeSetHandler> subRunRangeSetHandler_{nullptr};
+  bool const parentageEnabled_{true};
+  bool const rangesEnabled_{true};
 };
 
 template <typename T>
