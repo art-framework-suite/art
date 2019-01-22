@@ -28,14 +28,6 @@ namespace {
   // components of the branch description, with appropriate wildcard
   // rules.
   inline bool
-  partial_match(regex* regularExpression, string const& branchstring)
-  {
-    return (regularExpression == nullptr) ?
-             branchstring == "" :
-             std::regex_match(branchstring, *regularExpression);
-  }
-
-  inline bool
   partial_match(art::BranchType wanted, art::BranchType candidate)
   {
     bool result = (wanted == art::NumBranchTypes) || (wanted == candidate);

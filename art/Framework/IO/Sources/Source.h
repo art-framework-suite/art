@@ -656,6 +656,7 @@ art::Source<T>::finishProductRegistration_(InputSourceDescription& d)
                       d.moduleDescription.processConfiguration(),
                       d.moduleDescription.parentageEnabled(),
                       d.moduleDescription.rangesEnabled(),
+                      d.moduleDescription.dbEnabled(),
                       ModuleDescription::invalidID()});
   presentProducts_ = ProductTables{descriptions};
   sourceHelper_.setPresentProducts(cet::make_exempt_ptr(&presentProducts_));

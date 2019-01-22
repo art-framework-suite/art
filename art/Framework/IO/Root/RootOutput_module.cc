@@ -465,6 +465,7 @@ art::RootOutput::doRegisterProducts(MasterProductRegistry& mpr,
                         md.processConfiguration(),
                         md.parentageEnabled(),
                         md.rangesEnabled(),
+                        md.dbEnabled(),
                         ModuleDescription::invalidID()});
     w.rp().registerProducts(mpr, producedProducts, w.moduleDescription());
   });
