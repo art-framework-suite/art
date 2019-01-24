@@ -3,6 +3,7 @@
 
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceDescription.h"
+#include "art/Framework/Core/detail/issue_reports.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Run.h"
@@ -22,29 +23,6 @@ using namespace std;
 using fhicl::ParameterSet;
 
 namespace art {
-
-  namespace {
-
-    string const&
-    suffix(int count)
-    {
-      static string const st("st");
-      static string const nd("nd");
-      static string const rd("rd");
-      static string const th("th");
-      // *0, *4 - *9 use "th".
-      int lastDigit = count % 10;
-      if (lastDigit >= 4 || lastDigit == 0) {
-        return th;
-      }
-      // *11, *12, or *13 use "th".
-      if (count % 100 - lastDigit == 10) {
-        return th;
-      }
-      return ((lastDigit == 1) ? st : ((lastDigit == 2) ? nd : rd));
-    }
-
-  } // unnamed namespace
 
   DecrepitRelicInputSourceImplementation::Config::~Config() {}
 
@@ -119,7 +97,7 @@ namespace art {
       }
     }
     auto newState = getNextItemType();
-    while (1) {
+    while (true) {
       if ((newState == input::IsEvent) &&
           (processingMode_ != RunsSubRunsAndEvents)) {
         newState = getNextItemType();
@@ -257,15 +235,6 @@ namespace art {
   DecrepitRelicInputSourceImplementation::endJob()
   {}
 
-  unique_ptr<EventPrincipal>
-  DecrepitRelicInputSourceImplementation::readEvent(EventID const&)
-  {
-    throw art::Exception(art::errors::LogicError)
-      << "DecrepitRelicInputSourceImplementation::readEvent()\n"
-      << "Random access is not implemented for this type of Input Source\n"
-      << "Contact a Framework Developer\n";
-  }
-
   void
   DecrepitRelicInputSourceImplementation::skipEvents(int offset)
   {
@@ -350,15 +319,7 @@ namespace art {
   void
   DecrepitRelicInputSourceImplementation::issueReports(EventID const& eventID)
   {
-    time_t t = time(0);
-    char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-    struct tm localtm;
-    strftime(
-      ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime_r(&t, &localtm));
-    mf::LogVerbatim("ArtReport")
-      << "Begin processing the " << numberOfEventsRead_
-      << suffix(numberOfEventsRead_) << " record. " << eventID << " at " << ts;
-    // At some point we may want to initiate checkpointing here
+    detail::issue_reports(numberOfEventsRead_, eventID);
   }
 
   input::ItemType

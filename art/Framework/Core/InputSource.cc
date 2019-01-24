@@ -20,17 +20,6 @@ namespace art {
     return moduleDescription_.processConfiguration();
   }
 
-  std::unique_ptr<EventPrincipal>
-  InputSource::readEvent(EventID const&)
-  {
-    throw Exception(errors::Configuration)
-      << "The application has tried to peform random access on an input "
-         "source\n"
-      << "that does not support random access. Please reconfigure the program\n"
-      << "to use an input source that supports random access (e.g. "
-         "RootInput)\n";
-  }
-
   void
   InputSource::skipEvents(int)
   {

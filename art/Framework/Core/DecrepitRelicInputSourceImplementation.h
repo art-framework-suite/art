@@ -144,9 +144,6 @@ namespace art {
     virtual void doEndJob() override;
 
   public: // MEMBER FUNCTIONS -- Random Access Interface
-    // Read a specific event
-    virtual std::unique_ptr<EventPrincipal> readEvent(EventID const&) override;
-
     // Skip the number of events specified.
     // Offset may be negative.
     virtual void skipEvents(int offset) override;
