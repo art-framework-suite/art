@@ -1,4 +1,4 @@
-simple_plugin(SamplingAnalyzer "module")
+simple_plugin(SamplingAnalyzer "module" NO_INSTALL)
 
 art_dictionary(NO_INSTALL)
 
