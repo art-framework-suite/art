@@ -23,6 +23,9 @@ namespace art {
                            UpdateOutputCallbacks&,
                            ActivityRegistry const&);
 
+    InputSourceDescription(InputSourceDescription const&) = delete;
+    InputSourceDescription(InputSourceDescription&&) = delete;
+
     ModuleDescription const& moduleDescription;
     UpdateOutputCallbacks& productRegistry;
     ActivityRegistry const& activityRegistry;

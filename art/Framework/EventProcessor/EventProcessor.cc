@@ -302,7 +302,9 @@ namespace art {
     } else if (nextLevel_.load() == highest_level()) {
       return false;
     }
-    throw Exception{errors::LogicError} << "Incorrect level hierarchy.";
+    throw Exception{errors::LogicError} << "Incorrect level hierarchy.\n"
+                                        << "  Current level: " << L
+                                        << "  Next level: " << nextLevel_;
   }
 
   // Specializations for process function template

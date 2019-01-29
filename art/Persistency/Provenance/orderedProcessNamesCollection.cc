@@ -50,5 +50,11 @@ art::detail::orderedProcessNamesCollection(ProcessHistoryMap const& histories)
     result.push_back(std::move(process_names));
   }
 
+  // It is possible for two non-overlapping histories to have the same
+  // process name.  We thus need to erase duplicate names.
+  cet::sort_all(result);
+  auto const e = end(result);
+  auto const new_end = std::unique(begin(result), e);
+  result.erase(new_end, e);
   return result;
 }
