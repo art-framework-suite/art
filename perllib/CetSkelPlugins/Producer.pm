@@ -33,9 +33,9 @@ my $base_classes = { LEGACY => "art::EDProducer",
 
 my $ctor_args = { LEGACY => [ "fhicl::ParameterSet const& p" ],
                   SHARED => [ "fhicl::ParameterSet const& p",
-                              "art::Services const& services" ],
+                              "art::ProcessingFrame const& frame" ],
                   REPLICATED => [ "fhicl::ParameterSet const& p",
-                                  "art::Services const& services" ] };
+                                  "art::ProcessingFrame const& frame" ] };
 
 my $produces_comment = "Call appropriate produces<>() functions here.";
 my $consumes_comment = "Call appropriate consumes<>() for any products to be retrieved by this module.";
@@ -46,13 +46,13 @@ my $ctor_comments = { LEGACY => [ $produces_comment, $consumes_comment ],
 
 my $base_initializers = { LEGACY => "EDProducer{p}",
                           SHARED => "SharedProducer{p}",
-                          REPLICATED => "ReplicatedProducer{p, services}" };
+                          REPLICATED => "ReplicatedProducer{p, frame}" };
 
 sub module_fn_args {
   my $flavor = shift;
   my @args = @_;
   if ($flavor ne "LEGACY") {
-      push @args, "art::Services const& services";
+      push @args, "art::ProcessingFrame const& frame";
   }
   return join(', ', @args);
 }

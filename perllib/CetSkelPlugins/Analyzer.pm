@@ -33,9 +33,9 @@ my $base_classes = { LEGACY => "art::EDAnalyzer",
 
 my $ctor_args = { LEGACY => [ "fhicl::ParameterSet const& p" ],
                   SHARED => [ "fhicl::ParameterSet const& p",
-                              "art::Services const& services" ],
+                              "art::ProcessingFrame const& frame" ],
                   REPLICATED => [ "fhicl::ParameterSet const& p",
-                                  "art::Services const& services" ] };
+                                  "art::ProcessingFrame const& frame" ] };
 
 my $consumes_comment = "Call appropriate consumes<>() for any products to be retrieved by this module.";
 my $ctor_comments = { LEGACY => [ $consumes_comment ],
@@ -45,13 +45,13 @@ my $ctor_comments = { LEGACY => [ $consumes_comment ],
 
 my $base_initializers = { LEGACY => "EDAnalyzer{p}",
                           SHARED => "SharedAnalyzer{p}",
-                          REPLICATED => "ReplicatedAnalyzer{p, services}" };
+                          REPLICATED => "ReplicatedAnalyzer{p, frame}" };
 
 sub module_fn_args {
   my $flavor = shift;
   my @args = @_;
   if ($flavor ne "LEGACY") {
-      push @args, "art::Services const& services";
+      push @args, "art::ProcessingFrame const& frame";
   }
   return join(', ', @args);
 }
