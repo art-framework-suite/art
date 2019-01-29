@@ -11,6 +11,7 @@
 #include "cetlib/exempt_ptr.h"
 
 #include <array>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -51,7 +52,7 @@ namespace art {
     void sortConsumables(std::string const& current_process_name);
 
   private:
-    ModuleDescription md_{};
+    std::optional<ModuleDescription> md_{std::nullopt};
     std::array<std::vector<ProductInfo>, NumBranchTypes> consumables_{};
   };
 

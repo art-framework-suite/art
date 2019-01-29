@@ -10,7 +10,6 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Globals.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -33,7 +32,7 @@ namespace art {
   class MixOp : public MixOpBase {
   public:
     template <typename FUNC>
-    MixOp(ModuleDescription const* md,
+    MixOp(std::string const& moduleLabel,
           InputTag const& inputTag,
           std::string const& outputInstanceLabel,
           FUNC mixFunc,
@@ -71,7 +70,7 @@ namespace art {
     TypeID const inputType_;
     MixFunc<Prod, OProd> const mixFunc_;
     std::string const processName_;
-    ModuleDescription const* md_;
+    std::string const moduleLabel_;
     bool const outputProduct_;
     bool const compactMissingProducts_;
     BranchType const branchType_;
@@ -80,7 +79,7 @@ namespace art {
 
   template <typename Prod, typename OProd>
   template <typename FUNC>
-  MixOp<Prod, OProd>::MixOp(ModuleDescription const* md,
+  MixOp<Prod, OProd>::MixOp(std::string const& moduleLabel,
                             InputTag const& inputTag,
                             std::string const& outputInstanceLabel,
                             FUNC mixFunc,
@@ -92,7 +91,7 @@ namespace art {
     , inputType_{typeid(Prod)}
     , mixFunc_{mixFunc}
     , processName_{Globals::instance()->processName()}
-    , md_{md}
+    , moduleLabel_{moduleLabel}
     , outputProduct_{outputProduct}
     , compactMissingProducts_{compactMissingProducts}
     , branchType_{bt}
@@ -157,7 +156,7 @@ namespace art {
       // Note: Outgoing product must be InEvent.
       auto const productName =
         canonicalProductName(outputType.friendlyClassName(),
-                             md_->moduleLabel(),
+                             moduleLabel_,
                              outputInstanceLabel_,
                              processName_);
       result = ProductID{productName};
