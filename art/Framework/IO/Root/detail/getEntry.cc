@@ -35,25 +35,9 @@ namespace art {
     Int_t
     getEntry(TBranch* branch,
              EntryNumber entryNumber,
-             unsigned long long& ticks)
+             unsigned long long& ticks [[maybe_unused]])
     {
-      RootMutexSentry sentry;
-      try {
-        unsigned tsc_begin_cpuidx = 0;
-        auto tsc_begin = getTSCP(tsc_begin_cpuidx);
-        unsigned tsc_end_cpuidx = tsc_begin_cpuidx;
-        auto tsc_end = tsc_begin;
-        auto ret = branch->GetEntry(entryNumber);
-        tsc_end = getTSCP(tsc_end_cpuidx);
-        ticks = tsc_end - tsc_begin;
-        // Show the amount of time spent doing the I/O.
-        // cerr << "-----> " << __func__ << ": ticks: " << ticks << "\n";
-        return ret;
-      }
-      catch (cet::exception& e) {
-        throw art::Exception(art::errors::FileReadError)
-          << e.explain_self() << "\n";
-      }
+      return getEntry(branch, entryNumber);
     }
 
     Int_t
@@ -70,25 +54,11 @@ namespace art {
     }
 
     Int_t
-    getEntry(TTree* tree, EntryNumber entryNumber, unsigned long long& ticks)
+    getEntry(TTree* tree,
+             EntryNumber entryNumber,
+             unsigned long long& ticks [[maybe_unused]])
     {
-      RootMutexSentry sentry;
-      try {
-        unsigned tsc_begin_cpuidx = 0;
-        auto tsc_begin = getTSCP(tsc_begin_cpuidx);
-        unsigned tsc_end_cpuidx = tsc_begin_cpuidx;
-        auto tsc_end = tsc_begin;
-        auto ret = tree->GetEntry(entryNumber);
-        tsc_end = getTSCP(tsc_end_cpuidx);
-        ticks = tsc_end - tsc_begin;
-        // Show the amount of time spent doing the I/O.
-        // cerr << "-----> " << __func__ << ": ticks: " << ticks << "\n";
-        return ret;
-      }
-      catch (cet::exception& e) {
-        throw art::Exception(art::errors::FileReadError)
-          << e.explain_self() << "\n";
-      }
+      return getEntry(tree, entryNumber);
     }
 
     RecursiveMutex*

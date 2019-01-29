@@ -42,10 +42,14 @@ namespace art {
     using EntryNumber = Long64_t;
     using EntryNumbers = std::vector<EntryNumber>;
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
+    Int_t getEntry(TTree* tree, EntryNumber entryNumber);
+
+    // Overloads for tracking CPU time spent getting an entry.  At the
+    // moment, there is no functional difference between the above
+    // calls and the ones below--the third argument is ignored.
     Int_t getEntry(TBranch* branch,
                    EntryNumber entryNumber,
                    unsigned long long& ticks);
-    Int_t getEntry(TTree* tree, EntryNumber entryNumber);
     Int_t getEntry(TTree* tree,
                    EntryNumber entryNumber,
                    unsigned long long& ticks);
