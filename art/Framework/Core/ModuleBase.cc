@@ -14,10 +14,6 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
 using namespace hep::concurrency;
 using namespace std;
 
@@ -29,7 +25,19 @@ namespace art {
   ModuleDescription const&
   ModuleBase::moduleDescription() const
   {
-    return md_;
+    if (md_.has_value()) {
+      return *md_;
+    }
+
+    throw Exception{errors::LogicError,
+                    "There was an error while calling moduleDescription().\n"}
+      << "The moduleDescription() base-class member function cannot be called\n"
+         "during module construction.  To determine which module is "
+         "responsible\n"
+         "for calling it, find the '<module type>:<module "
+         "label>@Construction'\n"
+         "tag in the message prefix above.  Please contact artists@fnal.gov\n"
+         "for guidance.\n";
   }
 
   void

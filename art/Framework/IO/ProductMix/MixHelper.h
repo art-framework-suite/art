@@ -371,6 +371,7 @@ private:
     MixOpList& mixOps);
 
   Modifier& producesProvider_;
+  std::string const moduleLabel_;
   std::vector<std::string> const filenames_;
   bool compactMissingProducts_;
   ProviderFunc_ providerFunc_{};
@@ -452,14 +453,13 @@ art::MixHelper::declareMixOp(InputTag const& inputTag,
   } else if (B == art::InRun) {
     haveRunMixOps_ = true;
   }
-  mixOps_.emplace_back(
-    new MixOp<PROD, OPROD>(&producesProvider_.moduleDescription(),
-                           inputTag,
-                           outputInstanceLabel,
-                           mixFunc,
-                           outputProduct,
-                           compactMissingProducts_,
-                           B));
+  mixOps_.emplace_back(new MixOp<PROD, OPROD>(moduleLabel_,
+                                              inputTag,
+                                              outputInstanceLabel,
+                                              mixFunc,
+                                              outputProduct,
+                                              compactMissingProducts_,
+                                              B));
 }
 
 // 3.

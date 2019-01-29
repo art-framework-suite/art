@@ -122,13 +122,14 @@ namespace {
 art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
                           Modifier& producesProvider)
   : producesProvider_{producesProvider}
+  , moduleLabel_{pset.get<std::string>("module_label")}
   , filenames_{pset.get<std::vector<std::string>>("fileNames", {})}
   , compactMissingProducts_{pset.get<bool>("compactMissingProducts", false)}
   , fileIter_{filenames_.begin()}
   , readMode_{initReadMode_(pset.get<std::string>("readMode", "sequential"))}
   , coverageFraction_{initCoverageFraction(pset)}
   , canWrapFiles_{pset.get<bool>("wrapFiles", false)}
-  , dist_{initDist(pset.get<std::string>("module_label"), readMode_)}
+  , dist_{initDist(moduleLabel_, readMode_)}
 {}
 
 void

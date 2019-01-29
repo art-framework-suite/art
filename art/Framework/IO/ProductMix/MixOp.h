@@ -12,7 +12,6 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/Globals.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
@@ -35,7 +34,7 @@ namespace art {
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     template <typename FUNC>
-    MixOp(ModuleDescription const* md,
+    MixOp(std::string const& moduleLabel,
           InputTag const& inputTag,
           std::string const& outputInstanceLabel,
           FUNC mixFunc,
@@ -80,7 +79,7 @@ namespace art {
 
     std::string const processName_;
 
-    ModuleDescription const* md_;
+    std::string const moduleLabel_;
 
     RootBranchInfo branchInfo_{};
 
@@ -93,7 +92,7 @@ namespace art {
 
   template <typename PROD, typename OPROD>
   template <typename FUNC>
-  MixOp<PROD, OPROD>::MixOp(ModuleDescription const* md,
+  MixOp<PROD, OPROD>::MixOp(std::string const& moduleLabel,
                             InputTag const& inputTag,
                             std::string const& outputInstanceLabel,
                             FUNC mixFunc,
@@ -105,7 +104,7 @@ namespace art {
     , outputInstanceLabel_{outputInstanceLabel}
     , mixFunc_{mixFunc}
     , processName_{Globals::instance()->processName()}
-    , md_{md}
+    , moduleLabel_{moduleLabel}
     , outputProduct_{outputProduct}
     , compactMissingProducts_{compactMissingProducts}
     , branchType_{bt}
@@ -196,7 +195,7 @@ namespace art {
       // Note: Outgoing product must be InEvent.
       auto const productName =
         canonicalProductName(outputType.friendlyClassName(),
-                             md_->moduleLabel(),
+                             moduleLabel_,
                              outputInstanceLabel_,
                              processName_);
       result = ProductID{productName};
