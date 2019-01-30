@@ -1,5 +1,6 @@
 #ifndef art_Framework_Services_Optional_TrivialFileTransfer_h
 #define art_Framework_Services_Optional_TrivialFileTransfer_h
+// vim: set sw=2 expandtab :
 
 // ==========================================================================
 // TrivialFileTransfer
@@ -16,31 +17,37 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "fhiclcpp/ParameterSet.h"
+
+#include <iosfwd>
 #include <string>
 
 namespace art {
-  class TrivialFileTransfer;
-}
 
-namespace art {
   class TrivialFileTransfer : public FileTransfer {
+    // Configuration
   public:
-    // configuration
-    struct Config{};
+    struct Config {};
     using Parameters = ServiceTable<Config>;
-
+    // Special Member Functions
+  public:
+    ~TrivialFileTransfer();
     TrivialFileTransfer(Parameters const& pset);
-
+    TrivialFileTransfer(TrivialFileTransfer const&);
+    TrivialFileTransfer(TrivialFileTransfer&&);
+    TrivialFileTransfer& operator=(TrivialFileTransfer const&);
+    TrivialFileTransfer& operator=(TrivialFileTransfer&&);
+    // Implementation -- Required by base class
   private:
-
-    int doTranslateToLocalFilename(std::string const& uri, std::string& fileFQname) override;
-
-    int stripURI(std::string const& uri, std::string& inFileName) const;
-    int copyFile(std::ifstream& in, std::ofstream& out) const;
+    int doTranslateToLocalFilename(std::string const& uri,
+                                   std::string& fileFQname) override;
   };
-} // end of art namespace
 
-DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileTransfer, art::FileTransfer, LEGACY)
+} // namespace art
+
+DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileTransfer,
+                                   art::FileTransfer,
+                                   GLOBAL)
+
 #endif /* art_Framework_Services_Optional_TrivialFileTransfer_h */
 
 // Local Variables:

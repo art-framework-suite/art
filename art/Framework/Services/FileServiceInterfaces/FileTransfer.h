@@ -1,5 +1,6 @@
 #ifndef art_Framework_Services_FileServiceInterfaces_FileTransfer_h
 #define art_Framework_Services_FileServiceInterfaces_FileTransfer_h
+// vim: set sw=2 expandtab :
 
 // ====================================================================
 // FileTransfer
@@ -16,32 +17,29 @@
 #include <string>
 
 namespace art {
-  class FileTransfer;
-}
 
-class art::FileTransfer {
-public:
-  virtual ~FileTransfer() noexcept = default;
+  class FileTransfer {
+  public:
+    virtual ~FileTransfer() noexcept = default;
+    int translateToLocalFilename(std::string const& uri,
+                                 std::string& fileFQname);
 
-  int translateToLocalFilename(std::string const& uri,
-                               std::string& fileFQname);
+  private:
+    virtual int doTranslateToLocalFilename(std::string const& uri,
+                                           std::string& fileFQname) = 0;
+  };
 
-private:
+  inline int
+  FileTransfer::translateToLocalFilename(std::string const& uri,
+                                         std::string& fileFQname)
+  {
+    return doTranslateToLocalFilename(uri, fileFQname);
+  }
 
-  virtual int doTranslateToLocalFilename(std::string const& uri,
-                                         std::string& fileFQname) = 0;
-};
+} // namespace art
 
-inline
-int
-art::FileTransfer::translateToLocalFilename(std::string const& uri,
-                                            std::string& fileFQname)
-{
-  CET_ASSERT_ONLY_ONE_THREAD();
-  return doTranslateToLocalFilename(uri, fileFQname);
-}
+DECLARE_ART_SERVICE_INTERFACE(art::FileTransfer, GLOBAL)
 
-DECLARE_ART_SERVICE_INTERFACE(art::FileTransfer,LEGACY)
 #endif /* art_Framework_Services_FileServiceInterfaces_FileTransfer_h */
 
 // Local Variables:

@@ -1,0 +1,6 @@
+physics: {
+  tp: []
+  ep: []
+  trigger_paths: [tp, tp]
+  end_paths: [ep, ep]
+}

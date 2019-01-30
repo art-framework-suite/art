@@ -1,50 +1,54 @@
 #ifndef art_Framework_Principal_WorkerParams_h
 #define art_Framework_Principal_WorkerParams_h
+// vim: set sw=2 expandtab :
 
+//
 // This struct is used to communicate parameters into the worker factory.
+//
 
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "canvas/Persistency/Provenance/PassID.h"
-#include "canvas/Utilities/GetPassID.h"
+#include "art/Utilities/ScheduleID.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "fhiclcpp/ParameterSet.h"
+
 #include <string>
 
 namespace art {
+
   class ActionTable;
+  class ActivityRegistry;
+  class UpdateOutputCallbacks;
 
-  struct WorkerParams;
-}
+  struct WorkerParams {
 
-struct art::WorkerParams {
-  WorkerParams(fhicl::ParameterSet const & procPset,
-               fhicl::ParameterSet const & pset,
-               MasterProductRegistry & reg,
-               ActionTable & actions,
-               std::string const & processName);
+    WorkerParams(fhicl::ParameterSet const& procPset,
+                 fhicl::ParameterSet const& pset,
+                 UpdateOutputCallbacks& reg,
+                 ProductDescriptions& producedProducts,
+                 ActivityRegistry const& actReg,
+                 ActionTable const& actions,
+                 std::string const& processName,
+                 ScheduleID const sid)
+      : procPset_{procPset}
+      , pset_{pset}
+      , reg_{reg}
+      , producedProducts_{producedProducts}
+      , actReg_{actReg}
+      , actions_{actions}
+      , processName_{processName}
+      , scheduleID_{sid}
+    {}
 
-  fhicl::ParameterSet const & procPset_;
-  fhicl::ParameterSet const pset_;
-  MasterProductRegistry & reg_;
-  ActionTable & actions_;
-  std::string const processName_;
-};
+    fhicl::ParameterSet const& procPset_;
+    fhicl::ParameterSet const pset_;
+    UpdateOutputCallbacks& reg_;
+    ProductDescriptions& producedProducts_;
+    ActivityRegistry const& actReg_;
+    ActionTable const& actions_;
+    std::string const processName_;
+    ScheduleID scheduleID_;
+  };
 
-inline
-art::WorkerParams::
-WorkerParams(fhicl::ParameterSet const & procPset,
-             fhicl::ParameterSet const & pset,
-             MasterProductRegistry & reg,
-             ActionTable & actions,
-             std::string const & processName)
-  :
-  procPset_(procPset),
-  pset_(pset),
-  reg_(reg),
-  actions_(actions),
-  processName_(processName)
-{
-}
-
+} // namespace art
 #endif /* art_Framework_Principal_WorkerParams_h */
 
 // Local Variables:

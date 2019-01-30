@@ -1,45 +1,29 @@
 #include "art/Framework/Principal/Run.h"
+// vim: set sw=2 expandtab :
+
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
-#include <vector>
-
 using fhicl::ParameterSet;
 using fhicl::ParameterSetID;
 using fhicl::ParameterSetRegistry;
 
-art::Run::Run(RunPrincipal const& rp, ModuleDescription const& md, RangeSet const& rs) :
-  DataViewImpl{rp, md, InRun},
-  aux_{rp.aux()},
-  productRangeSet_{rs}
-{}
+namespace art {
 
-bool
-art::Run::getProcessParameterSet(std::string const& /*processName*/,
-                                 std::vector<ParameterSet>& /*psets*/) const
-{
-  // Unimplemented
-  return false;
-}
+  Run::~Run() = default;
 
-void
-art::Run::commit_(RunPrincipal& rp)
-{
-  auto put_in_principal = [&rp](auto& elem) {
+  Run::Run(RunPrincipal const& rp,
+           ModuleContext const& mc,
+           RangeSet const& rs /*= RangeSet::invalid()*/)
+    : DataViewImpl{InRun, rp, mc, false, rs}
+  {}
 
-    auto const& bd = elem.second.bd;
-    auto runProductProvenancePtr = std::make_unique<ProductProvenance const>(bd.branchID(),
-                                                                             productstatus::present());
-    rp.put(std::move(elem.second.prod),
-           bd,
-           std::move(runProductProvenancePtr),
-           std::move(elem.second.rs));
-  };
+  RunID
+  Run::id() const
+  {
+    return DataViewImpl::runID();
+  }
 
-  cet::for_all(putProducts(), put_in_principal);
-
-  // the cleanup is all or none
-  putProducts().clear();
-}
+} // namespace art

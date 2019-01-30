@@ -1,38 +1,35 @@
 #ifndef art_Framework_Services_Registry_detail_ServiceWrapperBase_h
 #define art_Framework_Services_Registry_detail_ServiceWrapperBase_h
+// vim: set sw=2 expandtab :
 
-////////////////////////////////////////////////////////////////////////
-// ServiceWrapperBase
-//
-// Base class through which the framework manages the lifetime of
-// ServiceWrapper<T> objects.
-//
-////////////////////////////////////////////////////////////////////////
-
-#include "art/Framework/Services/Registry/ServiceScope.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 
 #include <memory>
 
 namespace art {
+  class ModuleDescription;
+  class ProducingServiceSignals;
   namespace detail {
-    class ServiceWrapperBase;
-    using WrapperBase_ptr = std::shared_ptr<detail::ServiceWrapperBase>;
-  }
-}
 
-class art::detail::ServiceWrapperBase {
-public:
+    class ServiceWrapperBase {
+    public:
+      virtual ~ServiceWrapperBase() = default;
+      explicit ServiceWrapperBase() = default;
 
-  explicit ServiceWrapperBase() = default;
+      ServiceWrapperBase(ServiceWrapperBase const&) = delete;
+      ServiceWrapperBase(ServiceWrapperBase&&) = delete;
+      ServiceWrapperBase& operator=(ServiceWrapperBase const&) = delete;
+      ServiceWrapperBase& operator=(ServiceWrapperBase&&) = delete;
 
-  // Noncopyable
-  ServiceWrapperBase(ServiceWrapperBase const&) = delete;
-  ServiceWrapperBase& operator = (ServiceWrapperBase const&) = delete;
+      virtual void registerProducts(ProductDescriptions&,
+                                    ProducingServiceSignals&,
+                                    ModuleDescription const&) = 0;
+    };
 
-  virtual ~ServiceWrapperBase() = default;
+    using WrapperBase_ptr = std::shared_ptr<ServiceWrapperBase>;
 
-};  // ServiceWrapperBase
+  } // namespace detail
+} // namespace art
 
 #endif /* art_Framework_Services_Registry_detail_ServiceWrapperBase_h */
 

@@ -1,31 +1,15 @@
-art_dictionary(NO_INSTALL)
-
-# Library link requirements for tests here
 set(default_test_libraries
   art_Framework_Services_Registry
   art_Framework_Core
   art_Framework_Principal
   art_Utilities
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${ROOT_CINTEX}
-  ${ROOT_TREE}
-  ${ROOT_HIST}
-  ${ROOT_MATRIX}
-  ${ROOT_NET}
-  ${ROOT_MATHCORE}
-  ${ROOT_RIO}
-  ${ROOT_THREAD}
-	${ROOT_CORE}
-  ${ROOT_CINT}
-	${ROOT_REFLEX}
   ${CPPUNIT}
   ${CMAKE_DL_LIBS}
  )
 
-#########################################################################
-# New tests (post-ART fork).
-####################################
-# cet_test macro
+cet_make_library(LIBRARY_NAME set_manager_for_tests
+  SOURCE set_manager_for_tests.cc
+  LIBRARIES art_Framework_Services_Registry)
 
 foreach (type Analyzer Filter Output Producer)
   SET_SOURCE_FILES_PROPERTIES(PMTest${type}_module.cc
@@ -42,46 +26,19 @@ cet_test(PathManager_t USE_BOOST_UNIT
   cetlib
   )
 
-#########################################################################
-# Old (pre-ART fork) tests.
-
-simple_plugin(TestMod module NO_INSTALL ${CPPUNIT})
-
-# cppunit tests en masse.
-file(GLOB cppunit_files *.cppunit.cc)
-
-########################################################################
-# If any cppunit tests require more libraries than the default, specify
-# them in a ${target}_libs variable.
-
-# We invoke MasterProductRegistry so we need some dictionaries.
-set(maker2_t_libs
-  canvas_Persistency_WrappedStdDictionaries_dict
-  canvas_Persistency_StdDictionaries_dict
-  canvas_Persistency_Common_dict
-  )
-########################################################################
-
-foreach(cppunit_source ${cppunit_files})
-  get_filename_component(test_name ${cppunit_source} NAME_WE )
-  cet_test(${test_name} SOURCES testRunner.cpp ${cppunit_source}
-    LIBRARIES ${${test_name}_libs} ${default_test_libraries} ${CPPUNIT}
-    )
-endforeach()
-
 foreach(cpp_test
     EventSelector_t
     EventSelWildcard_t
     EventSelExc_t
-    CurrentProcessingContext_t
-    CPCSentry_t
     RegistryTemplate_t
-    OutputModuleUtilities_t)
+    parse_path_spec_t)
   cet_test(${cpp_test} SOURCES ${cpp_test}.cpp
-    LIBRARIES ${default_test_libraries}
+    LIBRARIES ${default_test_libraries} set_manager_for_tests
     )
 endforeach()
 
 cet_test(GroupSelector_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
 )
+
+add_subdirectory(data-dependencies)

@@ -1,3 +1,0 @@
-#include "DropOnOutput_wB_01.fcl"
-
-outputs.o1.outputCommands: [ "drop *" ]

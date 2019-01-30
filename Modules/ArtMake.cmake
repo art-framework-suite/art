@@ -12,8 +12,8 @@
 #
 # * art_make() tries very hard to be intelligent, but it doesn't fit
 # every need. In which case, you might need to call art_make_library(),
-# art_make_exec(), art_make_test(), art_dictionary()
-# (art/Modules/ArtDictionary.cmake) and/or simple_plugin()
+# art_make_exec(), cet_test() (CetTest.cmake), art_dictionary()
+# (canvas_root_io/Modules/ArtDictionary.cmake) and/or simple_plugin()
 # (art/Modules/BuildPlugins.cmake) separately.
 #
 # * If art_make() doesn't quite fit your needs (different plugins of the
@@ -92,12 +92,11 @@
 #                [USE_BOOST_UNIT]
 #                [NO_INSTALL] )
 #
-# art_make_test( NAME <executable name>
-#                [SOURCE <source code list>]
-#                [LIBRARIES <library link list>]
-#                [USE_BOOST_UNIT]
-#                [INSTALL|NO_INSTALL]
-#                [NO_AUTO] )
+# art_make_test() is deprecated: it is now a thin wrapper around
+# cet_test(), with the old INSTALL option translated to the equivalent
+# INSTALL_BIN option to cet_test(). One is advised to call cet_test()
+# directly. See the documentation in CetTest.cmake for details on the
+# many features of cet_test().
 #
 ####################################
 #
@@ -106,9 +105,9 @@
 #
 ########################################################################
 
-include(ArtDictionary)
 include(CetMake)
-include(CetParseArgs)
+include(CetTest)
+include(CMakeParseArguments)
 include(InstallSource)
 
 macro (_debug_message)
@@ -147,23 +146,19 @@ endmacro( art_make_exec )
 ####################################
 # art_make_test
 ####################################
-macro( art_make_test )
-  cet_parse_args( AMT "" "INSTALL;NO_INSTALL;NO_AUTO" ${ARGN})
-  list(REMOVE_ITEM ARGN INSTALL NO_INSTALL NO_AUTO)
-  if (NOT AMT_INSTALL)
-    list(APPEND ARGN NO_INSTALL)
+function( art_make_test )
+  cmake_parse_arguments(AMT "INSTALL" "" "" ${ARGN})
+  if (AMT_INSTALL)
+    set(AMT_INSTALL INSTALL_BIN)
   endif()
-  cet_make_exec( ${ARGN} )
-  if (NOT AMT_NO_AUTO)
-    add_test(${AMT_NAME} ${EXECUTABLE_OUTPUT_PATH}/${AMT_NAME})
-  endif()
-endmacro( art_make_test )
+  cet_test(${AMT_UNPARSED_ARGUMENTS} ${AMT_INSTALL})
+endfunction( art_make_test )
 
 ####################################
 # art_make_library
 ####################################
 function( art_make_library )
-  cet_parse_args( AML "LIBRARY_NAME;LIBRARY_NAME_VAR;LIBRARIES;SOURCE" "USE_PRODUCT_NAME" ${ARGN})
+  cmake_parse_arguments( AML "USE_PRODUCT_NAME" "LIBRARY_NAME;LIBRARY_NAME_VAR" "LIBRARIES;SOURCE" ${ARGN})
   set(art_make_library_usage "USAGE: art_make_library( SOURCE <source code list> [LIBRARY_NAME <library name>] [LIBRARIES <library list>] [WITH_STATIC_LIBRARY] [NO_INSTALL] [USE_PRODUCT_NAME] [LIBRARY_NAME_VAR <var>])")
 
   # use either LIBRARY_NAME or USE_PRODUCT_NAME, not both
@@ -195,7 +190,7 @@ function( art_make_library )
     cet_make_library(LIBRARY_NAME ${art_make_lib_name}
       SOURCE ${AML_SOURCE}
       ${al} ${AML_LIBRARIES}
-      ${AML_DEFAULT_ARGS}
+      ${AML_UNPARSED_ARGUMENTS}
       )
     if (AML_LIBRARY_NAME_VAR)
       set (${AML_LIBRARY_NAME_VAR} ${art_make_lib_name} PARENT_SCOPE)
@@ -365,6 +360,9 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
   FILE(GLOB dictionary_header classes.h )
   FILE(GLOB dictionary_xml classes_def.xml )
   if( dictionary_header AND dictionary_xml )
+    if (NOT COMMAND art_dictionary)
+      message(FATAL_ERROR "ART_MAKE: If you wish art_make to create a dictionary, you must invoke include(ArtDictionary) in your CMakeLists.txt file.")
+    endif()
     set(art_file_list ${art_file_list} ${dictionary_xml} ${dictionary_header} )
     if (have_library)
       set(art_make_dict_libraries ${art_make_library_name})

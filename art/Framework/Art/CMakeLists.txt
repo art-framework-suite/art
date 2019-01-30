@@ -1,33 +1,24 @@
 # Configure file to handle differences for Mac.
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/check_libs.cc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc @ONLY
-  )
+  ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc @ONLY)
 
 ####################################
 # Configure for desired default exception handling.
 SET(ART_MAIN_FUNC artapp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.h @ONLY
-  )
+  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.h @ONLY)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY
-  )
+  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY)
 
 SET(ART_MAIN_FUNC mu2eapp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.h @ONLY
-  )
+  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.h @ONLY)
 
 SET(ART_RETHROW_DEFAULT TRUE)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY
-  )
+  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY)
 ####################################
-
-add_subdirectory(detail)
-add_subdirectory(detail/md-collector)
-add_subdirectory(detail/md-summary)
 
 set(art_Framework_Art_sources
   BasicOptionsHandler.cc
@@ -35,9 +26,8 @@ set(art_Framework_Art_sources
   BasicSourceOptionsHandler.cc
   BasicOutputOptionsHandler.cc
   DebugOptionsHandler.cc
-  EventProcessingOptionsHandler.cc
+  ProcessingOptionsHandler.cc
   FileCatalogOptionsHandler.cc
-  InitRootHandlers.cc
   OptionsHandler.cc
   ${CMAKE_CURRENT_BINARY_DIR}/artapp.cc
   ${CMAKE_CURRENT_BINARY_DIR}/mu2eapp.cc
@@ -46,65 +36,43 @@ set(art_Framework_Art_sources
   detail/MetadataRegexHelpers.cc
   detail/AllowedConfiguration.cc
   detail/PluginSymbolResolvers.cc
-  detail/ServiceNames.cc
+  detail/event_start.cc
   detail/fillSourceList.cc
-  detail/describe.cc
   detail/get_LibraryInfoCollection.cc
   detail/get_MetadataCollector.cc
   detail/get_MetadataSummary.cc
-  detail/handle_deprecated_configs.cc
-  )
+  detail/md-collector/describe.cc
+  detail/md-collector/print_description_blocks.cc
+  detail/output_to.cc
+  detail/prune_configuration.cc)
 
-art_make_library( LIBRARY_NAME art_Framework_Art
-                  SOURCE ${art_Framework_Art_sources}
-                  LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  art_Framework_IO_Root
+art_make_library(LIBRARY_NAME art_Framework_Art
+                 SOURCE ${art_Framework_Art_sources}
+                 LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
   art_Framework_EventProcessor
   art_Framework_Core
-  art_Framework_Services_Registry
-  art_Persistency_Common
-  art_Persistency_Provenance canvas
-  art_Utilities canvas
+  art_Utilities
   art_Version
-  ${ROOT_HIST}
-  ${ROOT_MATRIX}
-  )
-
-set (ART_EXEC_ROOT_LIBS
-  ${ROOT_CINTEX}
-  ${ROOT_PHYSICS}
-  ${ROOTSYS}/lib/libGraf.so
-  ${ROOT_TREE}
-  ${ROOT_HIST}
-  ${ROOT_MATRIX}
-  ${ROOT_NET}
-  ${ROOT_MATHCORE}
-  ${ROOT_RIO}
-  ${ROOT_THREAD}
-  ${ROOT_CORE}
-  ${ROOT_CINT}
-  ${ROOT_REFLEX}
-)
+  MF_MessageLogger)
 
 # Build an art exec.
 macro(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
   cet_parse_args(AE "LIBRARIES" "" ${ARGN})
   set(ART_MAIN_FUNC ${MAIN_FUNC})
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${IN_STEM}.cc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc @ONLY
-    )
+    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc @ONLY)
   art_make_exec(NAME ${TARGET_STEM}
     SOURCE ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc
     ${AE_DEFAULT_ARGS}
     LIBRARIES
     ${AE_LIBRARIES}
     art_Framework_Art
-    # ROOT libraries added for use convenience ONLY -- they will go away
-    # eventually.
-    ${ART_EXEC_ROOT_LIBS}
-    MF_MessageLogger
-    )
+    MF_MessageLogger)
+  # Enable plugins to access symbols exported by the exec (CMake policy CMP0065).
+  set_property(TARGET ${TARGET_STEM} PROPERTY ENABLE_EXPORTS TRUE)
 endmacro()
+
+cet_make_exec(get-loadable-libraries SOURCE get-loadable-libraries.cc LIBRARIES cetlib)
 
 # Standard execs
 art_exec(art art artapp)
@@ -120,12 +88,17 @@ art_exec(lar_ut art_ut artapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 art_exec(mu2e_ut art_ut mu2eapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 art_exec(nova_ut art_ut artapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
+cet_make_completions(art ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
+cet_make_completions(gm2 ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
+cet_make_completions(lar ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
+cet_make_completions(mu2e ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
+cet_make_completions(nova ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
+
 art_make_exec(NAME check_libs
   SOURCE ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc
   LIBRARIES
   art_Utilities canvas
-  cetlib
-  )
+  cetlib)
 
-install_headers()
-install_source()
+install_headers(SUBDIRS detail detail/md-collector detail/md-summary)
+install_source(SUBDIRS detail)

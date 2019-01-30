@@ -1,3 +1,0 @@
-#include "ToyRawInput_r2.fcl"
-
-source.fileNames: [ "../ToyRawFileInput_w.d/out.root" ]

@@ -1,8 +1,0 @@
-<lcgdict>
-  <class name="arttest::Geometry"/>
-  <class name="arttest::CalibConstants"/>
-  <class name="arttest::TrackEfficiency"/>
-  <class name="art::Wrapper<arttest::Geometry>"/>
-  <class name="art::Wrapper<arttest::CalibConstants>"/>
-  <class name="art::Wrapper<arttest::TrackEfficiency>"/>
-</lcgdict>

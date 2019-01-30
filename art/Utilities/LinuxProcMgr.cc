@@ -4,16 +4,18 @@
 //
 // ============================================================
 
-#include "art/Utilities/LinuxProcData.h"
 #include "art/Utilities/LinuxProcMgr.h"
+#include "art/Utilities/LinuxProcData.h"
+#include "art/Utilities/ScheduleID.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/assert_only_one_thread.h"
 
+#include <cerrno>
+#include <cstring>
 #include <regex>
 #include <sstream>
 
 extern "C" {
-#include <fcntl.h>
 #include <unistd.h>
 }
 
@@ -25,91 +27,95 @@ namespace {
     unsigned ntokens_;
   };
 
-  std::istream& operator>>(std::istream& is, token_ignore const&& ig)
+  std::istream&
+  operator>>(std::istream& is, token_ignore const&& ig)
   {
     std::string tmp;
-    unsigned i {};
-    while (i++ < ig.ntokens_) is >> tmp;
+    unsigned i{};
+    while (i++ < ig.ntokens_)
+      is >> tmp;
     return is;
   }
 
-} // anon. namespace
+  // NB: fclose must be called on the returned file descriptor.
+  auto
+  new_proc_file_descriptor(pid_t const pid)
+  {
+    std::ostringstream ost;
+    ost << "/proc/" << pid << "/stat";
+
+    auto file = fopen(ost.str().c_str(), "r");
+    if (file == nullptr) {
+      throw art::Exception{art::errors::Configuration}
+        << " Failed to open: " << ost.str() << '\n'
+        << " errno: " << errno << " (" << std::strerror(errno) << ")\n";
+    }
+    return file;
+  }
+
+} // namespace
 
 namespace art {
 
-  //=======================================================
-  LinuxProcMgr::LinuxProcMgr(sid_size_type const nSchedules)
+  LinuxProcMgr::LinuxProcMgr() noexcept(false)
     : pid_{getpid()}
     , pgSize_{sysconf(_SC_PAGESIZE)}
-  {
-    std::ostringstream ost;
-    ost << "/proc/" << pid_ << "/stat";
+    , file_{new_proc_file_descriptor(pid_)}
+  {}
 
-    for (sid_size_type i {}; i < nSchedules; ++i) {
-      auto fd = open(ost.str().c_str(), O_RDONLY);
-      if (fd < 0) {
-        throw Exception{errors::Configuration}
-        << " Failed to open: " << ost.str() << " for schedule: " << i << '\n';
-      }
-      fileDescriptors_.push_back(fd);
-    }
-  }
-
-  //=======================================================
-  LinuxProcMgr::~LinuxProcMgr() noexcept
-  {
-    for (auto const fd : fileDescriptors_) {
-      close(fd);
-    }
-  }
+  LinuxProcMgr::~LinuxProcMgr() noexcept { fclose(file_); }
 
   //=======================================================
   LinuxProcData::proc_tuple
-  LinuxProcMgr::getCurrentData(sid_size_type const sid) const
+  LinuxProcMgr::getCurrentData() const noexcept(false)
   {
-    auto& fd = fileDescriptors_[sid];
+    CET_ASSERT_ONLY_ONE_THREAD();
 
-    lseek(fd, 0, SEEK_SET);
+    int const seek_result{fseek(file_, 0, SEEK_SET)};
+    if (seek_result != 0) {
+      throw Exception{errors::FileReadError,
+                      "Error while retrieving Linux proc data."}
+        << "\nCould not reset position indicator while retrieving proc "
+           "stat information.\n";
+    }
 
     char buf[400];
-    ssize_t const cnt {read(fd, buf, sizeof(buf))};
+    size_t const cnt{fread(buf, 1, sizeof(buf), file_)};
 
-    auto data = LinuxProcData::make_proc_tuple();
-
-    if (cnt < 0) {
-      perror("Read of Proc file failed:");
+    if (cnt == 0) {
+      throw Exception{errors::FileReadError,
+                      "Error while retrieving Linux proc data."}
+        << "\nCould not read proc stat information.\n";
     }
-    else if (cnt > 0) {
-      buf[cnt] = '\0';
 
-      LinuxProcData::vsize_t::value_type vsize;
-      LinuxProcData::rss_t::value_type rss;
+    buf[cnt] = '\0';
 
-      std::istringstream iss {buf};
-      iss >> token_ignore(22) >> vsize >> rss;
+    LinuxProcData::vsize_t::value_type vsize;
+    LinuxProcData::rss_t::value_type rss;
 
-      data = LinuxProcData::make_proc_tuple(vsize, rss*pgSize_);
-    }
-    return data;
+    std::istringstream iss{buf};
+    iss >> token_ignore(22) >> vsize >> rss;
+
+    return LinuxProcData::make_proc_tuple(vsize, rss * pgSize_);
   }
 
   //=======================================================
   double
-  LinuxProcMgr::getStatusData_(std::string const& field) const
+  LinuxProcMgr::getStatusData_(std::string const& field) const noexcept(false)
   {
     CET_ASSERT_ONLY_ONE_THREAD();
 
     std::ostringstream ost;
-    ost << "cat /proc/" << pid_ << "/status";
+    ost << "/proc/" << pid_ << "/status";
 
-    FILE* file = popen(ost.str().c_str(), "r");
+    auto file = fopen(ost.str().c_str(), "r");
     if (file == nullptr) {
-      throw Exception{errors::Configuration}
-      << " Failed to open: " << ost.str() << std::endl;
+      throw Exception{errors::Configuration} << " Failed to open: " << ost.str()
+                                             << std::endl;
     }
 
-    double value {};
-    std::regex const pattern {"^"+field+R"(:\s*(\d+)\s*kB)"};
+    double value{};
+    std::regex const pattern{"^" + field + R"(:\s*(\d+)\s*kB)"};
     while (!feof(file)) {
       char buffer[128];
       if (fgets(buffer, sizeof(buffer), file) != nullptr) {
@@ -117,11 +123,12 @@ namespace art {
         if (std::regex_search(buffer, cm, pattern)) {
           // Reported value from proc (although labeled 'kB') is
           // actually in KiB.  Will convert to base-10 MB.
-          value = std::stod(cm.str(1))*LinuxProcData::KiB/LinuxProcData::MB;
+          value = std::stod(cm.str(1)) * LinuxProcData::KiB / LinuxProcData::MB;
           break;
         }
       }
     }
+    fclose(file);
     return value;
   }
 

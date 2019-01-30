@@ -4,11 +4,12 @@
 //
 // ======================================================================
 
-
-#include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/SharedFilter.h"
 #include "fhiclcpp/types/Atom.h"
+
+#include <mutex>
 
 namespace art {
   class Prescaler;
@@ -18,38 +19,52 @@ using art::Prescaler;
 
 // ======================================================================
 
-class art::Prescaler : public EDFilter {
+class art::Prescaler : public SharedFilter {
 public:
-
   struct Config {
-    Atom<int> prescaleFactor { Name("prescaleFactor") };
-    Atom<int> prescaleOffset { Name("prescaleOffset") };
+    Atom<size_t> prescaleFactor{Name("prescaleFactor")};
+    Atom<size_t> prescaleOffset{Name("prescaleOffset")};
   };
 
-  using Parameters = EDFilter::Table<Config>;
-  explicit Prescaler(Parameters const&);
-
-  bool filter(Event&) override;
+  using Parameters = Table<Config>;
+  explicit Prescaler(Parameters const&, ProcessingFrame const&);
 
 private:
-  int count_ {};
-  int const n_;      // accept one in n
-  int const offset_; // with offset,
-                     // i.e. sequence of events does not have to start at first event
+  bool filter(Event&, ProcessingFrame const&) override;
 
-};  // Prescaler
+  size_t count_{};
+  // Accept one in n events.
+  size_t const n_;
+  // An offset is allowed--i.e. sequence of events does not have to
+  // start at first event.
+  size_t const offset_;
+  std::mutex mutex_{};
+
+}; // Prescaler
 
 // ======================================================================
 
-Prescaler::Prescaler(Parameters const& config)
-  : n_{config().prescaleFactor()}
+Prescaler::Prescaler(Parameters const& config, ProcessingFrame const&)
+  : SharedFilter{config}
+  , n_{config().prescaleFactor()}
   , offset_{config().prescaleOffset()}
-{ }
+{
+  async<InEvent>();
+}
 
 bool
-Prescaler::filter(Event&)
+Prescaler::filter(Event&, ProcessingFrame const&)
 {
-  return ++count_ % n_ == offset_;
+  // The combination of incrementing, modulo dividing, and equality
+  // comparing must be synchronized.  Changing count_ to the type
+  // std::atomic<size_t> would not help since the entire combination
+  // of operations must be atomic.  Using a mutex here is cheaper than
+  // calling serialize(), since that will also serialize any of the
+  // module-level service callbacks invoked before and after this
+  // function is called.
+  std::lock_guard lock{mutex_};
+  ++count_;
+  return count_ % n_ == offset_;
 }
 
 DEFINE_ART_MODULE(Prescaler)

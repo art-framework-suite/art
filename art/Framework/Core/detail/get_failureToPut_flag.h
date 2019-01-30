@@ -48,13 +48,13 @@
 
 */
 
-namespace art {
+namespace fhicl {
+  class ParameterSet;
+}
 
-  class ModuleDescription;
-
-  namespace detail {
-    bool get_failureToPut_flag(ModuleDescription const& md);
-  }
+namespace art::detail {
+  bool get_failureToPut_flag(fhicl::ParameterSet const& scheduler_pset,
+                             fhicl::ParameterSet const& module_pset);
 }
 
 #endif /* art_Framework_Core_detail_get_failureToPut_flag_h */

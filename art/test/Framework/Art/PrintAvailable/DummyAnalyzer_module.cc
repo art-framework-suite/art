@@ -15,15 +15,18 @@ namespace art {
   namespace test {
     class DummyAnalyzer;
   }
-}
+} // namespace art
 
 class art::test::DummyAnalyzer : public EDAnalyzer {
 public:
   struct Config {};
   using Parameters = EDAnalyzer::Table<Config>;
   explicit DummyAnalyzer(Parameters const& p) : EDAnalyzer{p} {}
+
 private:
-  void analyze(Event const&) override {}
+  void
+  analyze(Event const&) override
+  {}
 };
 
 DEFINE_ART_MODULE(art::test::DummyAnalyzer)

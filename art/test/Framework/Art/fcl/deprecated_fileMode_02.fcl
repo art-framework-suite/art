@@ -1,8 +1,0 @@
-process_name: nomerge
-services.scheduler.fileMode: NOMERGE
-
-outputs: {
-   o1: { module_type: RootOutput fileName: "o1.root"}
-   o2: { module_type: RootOutput fileName: "o2_%#_works.root" }
-   o3: { module_type: MyUnsupportedOutput } # no extra config should be placed in this module
-}

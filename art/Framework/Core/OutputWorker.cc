@@ -1,8 +1,5 @@
-/*----------------------------------------------------------------------
-
-----------------------------------------------------------------------*/
-
 #include "art/Framework/Core/OutputWorker.h"
+// vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/OutputModule.h"
@@ -10,30 +7,35 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace art {
-  OutputWorker::OutputWorker(std::unique_ptr<OutputModule> && mod,
+
+  OutputWorker::~OutputWorker() = default;
+
+  // This is called directly by the make_worker function created
+  // by the DEFINE_ART_MODULE macro.
+  OutputWorker::OutputWorker(std::shared_ptr<OutputModule> mod,
                              ModuleDescription const& md,
-                             WorkerParams const& wp):
-    WorkerT<OutputModule>(std::move(mod), md, wp),
-    ci_()
+                             WorkerParams const& wp)
+    : WorkerT<OutputModule>{mod, md, wp}
   {
-    ci_->outputModuleInitiated(label(),
-                               fhicl::ParameterSetRegistry::get(description().parameterSetID()));
+    ci_->outputModuleInitiated(
+      label(),
+      fhicl::ParameterSetRegistry::get(description().parameterSetID()));
   }
 
-  OutputWorker::~OutputWorker() {
-  }
-
-  std::string const &
-  OutputWorker::
-  lastClosedFileName() const
+  std::string const&
+  OutputWorker::lastClosedFileName() const
   {
     return module().lastClosedFileName();
   }
 
-  void
-  OutputWorker::closeFile() {
-    module().doCloseFile();
-    ci_->outputFileClosed(description().moduleLabel(), module().lastClosedFileName());
+  bool
+  OutputWorker::closeFile()
+  {
+    bool const didCloseFile{module().doCloseFile()};
+    if (didCloseFile) {
+      ci_->outputFileClosed(description().moduleLabel(), lastClosedFileName());
+    }
+    return didCloseFile;
   }
 
   void
@@ -43,53 +45,91 @@ namespace art {
   }
 
   bool
-  OutputWorker::requestsToCloseFile() const {
+  OutputWorker::requestsToCloseFile() const
+  {
     return module().requestsToCloseFile();
   }
 
-  void
-  OutputWorker::openFile(FileBlock const& fb) {
-    module().doOpenFile(fb);
-    ci_->outputFileOpened(description().moduleLabel());
+  bool
+  OutputWorker::openFile(FileBlock const& fb)
+  {
+    bool const didOpenFile{module().doOpenFile(fb)};
+    if (didOpenFile) {
+      ci_->outputFileOpened(description().moduleLabel());
+    }
+    return didOpenFile;
   }
 
   void
-  OutputWorker::writeRun(RunPrincipal & rp) {
+  OutputWorker::writeRun(RunPrincipal& rp)
+  {
     module().doWriteRun(rp);
   }
 
   void
-  OutputWorker::writeSubRun(SubRunPrincipal & srp) {
+  OutputWorker::writeSubRun(SubRunPrincipal& srp)
+  {
     module().doWriteSubRun(srp);
   }
 
   void
-  OutputWorker::writeEvent(EventPrincipal& srp) {
+  OutputWorker::writeEvent(EventPrincipal& srp)
+  {
     module().doWriteEvent(srp);
   }
 
   void
-  OutputWorker::setRunAuxiliaryRangeSetID(RangeSet const& rs) {
+  OutputWorker::setRunAuxiliaryRangeSetID(RangeSet const& rs)
+  {
     module().doSetRunAuxiliaryRangeSetID(rs);
   }
 
   void
-  OutputWorker::setSubRunAuxiliaryRangeSetID(RangeSet const& rs) {
+  OutputWorker::setSubRunAuxiliaryRangeSetID(RangeSet const& rs)
+  {
     module().doSetSubRunAuxiliaryRangeSetID(rs);
   }
 
-  bool OutputWorker::fileIsOpen() const {return module().fileIsOpen();}
+  bool
+  OutputWorker::fileIsOpen() const
+  {
+    return module().fileIsOpen();
+  }
 
-  void OutputWorker::setFileStatus(OutputFileStatus const ofs) { return module().setFileStatus(ofs); }
+  void
+  OutputWorker::setFileStatus(OutputFileStatus const ofs)
+  {
+    return module().setFileStatus(ofs);
+  }
 
-  bool OutputWorker::wantAllEvents() const {return module().wantAllEvents();}
+  bool
+  OutputWorker::wantAllEvents() const
+  {
+    return module().wantAllEvents();
+  }
 
-  bool OutputWorker::limitReached() const {return module().limitReached();}
+  bool
+  OutputWorker::limitReached() const
+  {
+    return module().limitReached();
+  }
 
-  void OutputWorker::configure(OutputModuleDescription const& desc) {module().configure(desc);}
+  void
+  OutputWorker::configure(OutputModuleDescription const& desc)
+  {
+    module().configure(desc);
+  }
 
-  void OutputWorker::selectProducts(FileBlock const& fb) { module().selectProducts(fb); }
+  void
+  OutputWorker::selectProducts(ProductTables const& tables)
+  {
+    module().selectProducts(tables);
+  }
 
-  Granularity OutputWorker::fileGranularity() const { return module().fileGranularity(); }
+  Granularity
+  OutputWorker::fileGranularity() const
+  {
+    return module().fileGranularity();
+  }
 
-}
+} // namespace art

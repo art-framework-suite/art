@@ -1,166 +1,395 @@
 #include "art/Framework/Principal/Group.h"
-// vim: set sw=2:
+// vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/PrincipalPackages.h"
 #include "art/Framework/Principal/Worker.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
-#include "canvas/Persistency/Provenance/BranchKey.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
-#include "canvas/Persistency/Provenance/TypeTools.h"
 #include "cetlib_except/demangle.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "hep_concurrency/RecursiveMutex.h"
 
+#include <iostream>
 #include <string>
 
-art::ProductStatus
-art::Group::
-status() const
-{
-  if (dropped()) {
-    return productstatus::dropped();
+using namespace std;
+
+namespace art {
+
+  using namespace detail;
+
+  Group::~Group()
+  {
+    delete productProvenance_.load();
+    productProvenance_ = nullptr;
+    delete product_.load();
+    product_ = nullptr;
+    delete rangeSet_.load();
+    rangeSet_ = nullptr;
+    delete partnerProduct_.load();
+    partnerProduct_ = nullptr;
+    delete baseProduct_.load();
+    baseProduct_ = nullptr;
+    delete partnerBaseProduct_.load();
+    partnerBaseProduct_ = nullptr;
   }
-  cet::exempt_ptr<ProductProvenance const> pp(productProvenancePtr());
-  if (!pp) {
-    // No provenance, must be new.
-    if (product_.get()) {
-      if (product_->isPresent()) {
-        return productstatus::present();
+
+  Group::Group(DelayedReader* reader,
+               BranchDescription const& bd,
+               unique_ptr<RangeSet>&& rs,
+               grouptype const gt,
+               unique_ptr<EDProduct>&& edp /*= nullptr*/)
+    : branchDescription_{bd}, delayedReader_{reader}, grpType_{gt}
+  {
+    productProvenance_ = nullptr;
+    product_ = edp.release();
+    rangeSet_ = rs.release();
+    partnerProduct_ = nullptr;
+    baseProduct_ = nullptr;
+    partnerBaseProduct_ = nullptr;
+  }
+
+  EDProduct const*
+  Group::getIt_() const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    if (grpType_ == grouptype::normal) {
+      resolveProductIfAvailable();
+      return product_.load();
+    }
+    return uniqueProduct();
+  }
+
+  EDProduct const*
+  Group::anyProduct() const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    if (grpType_ == grouptype::normal) {
+      return product_.load();
+    }
+    EDProduct* result = product_.load();
+    if (result == nullptr) {
+      result = partnerProduct_.load();
+    }
+    if (grpType_ == grouptype::assns) {
+      return result;
+    }
+    if (result != nullptr) {
+      return result;
+    }
+    result = baseProduct_.load();
+    if (result == nullptr) {
+      result = partnerBaseProduct_.load();
+    }
+    return result;
+  }
+
+  EDProduct const*
+  Group::uniqueProduct() const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    if (grpType_ == grouptype::normal) {
+      return product_.load();
+    }
+    throw Exception(errors::LogicError, "AmbiguousProduct")
+      << cet::demangle_symbol(typeid(*this).name())
+      << " was asked for a held product (uniqueProduct()) "
+      << "without specifying which one was wanted.\n";
+  }
+
+  EDProduct const*
+  Group::uniqueProduct(TypeID const& wanted_wrapper_type) const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    if (product_.load() == nullptr) {
+      return nullptr;
+    }
+    if (grpType_ == grouptype::normal) {
+      return product_.load();
+    }
+
+    auto assns_type_ids = product_.load()->getTypeIDs();
+    if (grpType_ == grouptype::assns) {
+      assert(assns_type_ids.size() == 2ull);
+      if (wanted_wrapper_type ==
+          assns_type_ids.at(product_metatype::RightLeft)) {
+        return partnerProduct_.load();
       }
-      return productstatus::neverCreated();
+      return product_.load();
     }
-    return productstatus::unknown();
-  }
-  if (product_.get()) {
-    // Product has already been delay read, use the present flag
-    // from the wrapper.
-    // FIXME: Old CMS note said backward compatibility only?
-    if (product_->isPresent()) {
-      pp->setPresent();
+
+    assert(assns_type_ids.size() == 4ull);
+    if (wanted_wrapper_type == assns_type_ids.at(product_metatype::RightLeft)) {
+      return partnerBaseProduct_.load();
     }
-    else {
-      pp->setNotPresent();
+    if (wanted_wrapper_type == assns_type_ids.at(product_metatype::LeftRight)) {
+      return baseProduct_.load();
     }
-  }
-  // Not new, and not yet read, use the status from the provenance.
-  return pp->productStatus();
-}
-
-bool
-art::Group::
-resolveProduct(TypeID const& wanted_wrapper_type) const
-{
-  if (!productUnavailable()) {
-    return resolveProductIfAvailable(wanted_wrapper_type);
-  }
-  art::Exception e {errors::ProductNotFound, "InaccessibleProduct"};
-  e << "resolveProduct: product is not accessible\n"
-    << productDescription()
-    << '\n';
-  if (productProvenancePtr()) {
-    e << *productProvenancePtr() << '\n';
-  }
-  throw e;
-}
-
-bool
-art::Group::
-resolveProductIfAvailable(TypeID const& wanted_wrapper_type) const
-{
-  if (wanted_wrapper_type != wrapperType_) {
-    throwResolveLogicError(wanted_wrapper_type);
-  }
-  bool result = product_.get();
-  if (!(result || productUnavailable())) {
-    std::unique_ptr<EDProduct> edp {obtainDesiredProduct(wanted_wrapper_type)};
-    if ((result = edp.get())) {
-      setProduct(std::move(edp));
+    if (wanted_wrapper_type ==
+        assns_type_ids.at(product_metatype::RightLeftData)) {
+      return partnerProduct_.load();
     }
+    return product_.load();
   }
-  return result;
-}
 
-std::unique_ptr<art::EDProduct>
-art::Group::
-obtainDesiredProduct(TypeID const& wanted_wrapper_type) const
-{
-  BranchKey const bk {productDescription()};
-  return productResolver_->getProduct(bk,
-                                      wanted_wrapper_type,
-                                      rangeOfValidity_);
-}
-
-bool
-art::Group::
-productUnavailable() const
-{
-  if (dropped()) {
-    return true;
+  BranchDescription const&
+  Group::productDescription() const
+  {
+    return branchDescription_;
   }
-  if (productstatus::unknown(status())) {
-    return false;
+
+  ProductID
+  Group::productID() const
+  {
+    return branchDescription_.productID();
   }
-  return !productstatus::present(status());
-}
 
-cet::exempt_ptr<art::ProductProvenance const>
-art::Group::
-productProvenancePtr() const
-{
-  if (!ppResolver_) {
-    return cet::exempt_ptr<ProductProvenance const>();
+  RangeSet const&
+  Group::rangeOfValidity() const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    return *rangeSet_.load();
   }
-  return ppResolver_->branchToProductProvenance(branchDescription_->branchID());
-}
 
-void
-art::Group::
-removeCachedProduct() const
-{
-  // This check should already have been done by the surrounding art
-  // code, therefore this is a precondition and valid for an assertion
-  // rather than a runtime check and throw.
-  assert(!(branchDescription_ && branchDescription_->produced()));
-  product_.reset();
-}
+  cet::exempt_ptr<ProductProvenance const>
+  Group::productProvenance() const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    return productProvenance_.load();
+  }
 
-void
-art::Group::
-setProduct(std::unique_ptr<EDProduct>&& prod) const
-{
-  assert(!product_.get());
-  product_ = std::move(prod);
-}
+  // Called by Principal::ctor_read_provenance()
+  // Called by Principal::insert_pp
+  //   Called by RootDelayedReader::getProduct_
+  void
+  Group::setProductProvenance(unique_ptr<ProductProvenance const>&& pp)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    delete productProvenance_.load();
+    productProvenance_ = pp.release();
+  }
 
-void
-art::Group::
-throwResolveLogicError(TypeID const & wanted_wrapper_type) const
-{
-  throw Exception(errors::LogicError, "INTERNAL ERROR: ")
-    << cet::demangle_symbol(typeid(*this).name())
-    << " cannot resolve wanted product of type "
-    << wanted_wrapper_type.className()
-    << ".\n";
-}
+  // Called by Principal::put
+  void
+  Group::setProductAndProvenance(unique_ptr<ProductProvenance const>&& pp,
+                                 unique_ptr<EDProduct>&& edp,
+                                 unique_ptr<RangeSet>&& rs)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    delete productProvenance_.load();
+    productProvenance_ = pp.release();
+    delete product_.load();
+    product_ = edp.release();
+    delete rangeSet_.load();
+    rangeSet_ = rs.release();
+  }
 
-bool
-art::Group::
-dropped() const
-{
-  if ( !branchDescription_ ) return false;
-  if (  ProductMetaData::instance().produced( branchDescription_->branchType(),
-                                              branchDescription_->branchID() ) ) return false;
+  void
+  Group::removeCachedProduct()
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    if (branchDescription_.produced()) {
+      throw Exception(errors::LogicError, "Group::removeCachedProduct():")
+        << "Attempt to remove a produced product!\n"
+        << "This routine should only be used to remove large data products "
+        << "read from disk (like raw digits).\n";
+    }
+    delete product_.load();
+    product_ = nullptr;
+    if (grpType_ == grouptype::normal) {
+      return;
+    }
+    delete partnerProduct_.load();
+    partnerProduct_ = nullptr;
+    if (grpType_ == grouptype::assns) {
+      return;
+    }
+    delete baseProduct_.load();
+    baseProduct_ = nullptr;
+    delete partnerBaseProduct_.load();
+    partnerBaseProduct_ = nullptr;
+    delete rangeSet_.load();
+    rangeSet_ = new RangeSet{};
+  }
 
-  std::size_t const index = ProductMetaData::instance().presentWithFileIdx( branchDescription_->branchType(),
-                                                                            branchDescription_->branchID() );
-  return index == MasterProductRegistry::DROPPED;
-}
+  bool
+  Group::productAvailable() const
+  {
+    if (branchDescription_.dropped()) {
+      // Not a product we are producing this time around, and it is not
+      // present in any of the input files we have opened so far.
+      return false;
+    }
+    assert(branchDescription_.present() || branchDescription_.produced());
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    bool availableAfterCombine{false};
+    if ((branchDescription_.branchType() == InSubRun) ||
+        (branchDescription_.branchType() == InRun)) {
+      availableAfterCombine =
+        delayedReader_->isAvailableAfterCombine(branchDescription_.productID());
+    }
+    auto status = productstatus::uninitialized();
+    if (productProvenance_.load() == nullptr) {
+      // No provenance, must be a produced product which has not been
+      // put yet, or a non-produced product that is available after
+      // combine (agggregation) and not yet read, or a non-produced
+      // product in a secondary file that has not yet been opened.
+      if (!branchDescription_.produced()) {
+        if (availableAfterCombine) {
+          // No provenance, not produced, but we can get it from the
+          // input, we just have not done so yet.  Claim the product is
+          // available.
+          return true;
+        }
+        // Not produced, not availableAfterCombine, must be in a
+        // secondary file that has not yet been opened. We report it as
+        // not available so that the Principal getBy* routines will try
+        // the next secondary file.
+        return false;
+      }
+      if (product_.load()) {
+        throw Exception(errors::LogicError, "Group::status():")
+          << "We have a produced product, the product has been put(), but "
+             "there is no provenance!\n";
+      }
+      // We have a product product which has not been put(), and has no
+      // provenance (as it should be).
+      status = productstatus::neverCreated();
+    } else {
+      // Not a produced product, and not yet delay read, use the status
+      // from the on-file provenance.
+      status = productProvenance_.load()->productStatus();
+    }
+    if ((branchDescription_.branchType() == InSubRun) ||
+        (branchDescription_.branchType() == InRun)) {
+      if (!availableAfterCombine) {
+        // We know this is a produced run or subrun product which is not
+        // present in any fragments.
+        return status == productstatus::present();
+      }
+    }
+    // We now know we are either an event or results product, or we are
+    // a run or subrun product that can become valid through product
+    // combination (aggregation).
+    if (status == productstatus::dummyToPreventDoubleCount()) {
+      // We now know that we are a run or subrun product that can become
+      // valid through product combination (aggregation).  Special case
+      // this and report the product as available even though the the
+      // provenance product status is a special flag that is not the
+      // present status.
+      // This is here to allow fetching of a product specially marked by
+      // RootOutputFile as a dummy with an invalid range set created to
+      // prevent double-counting when combining run/subrun products.  We
+      // allow the fetch to happen because the call to
+      // isPossiblyAvailable above determined that the fetch will result
+      // in a valid and present product, even though this particular
+      // dummy one is not.
+      return true;
+    }
+    // Note: Technically this is not necessary since the Wrapper present
+    //       flag covers this case, but this way we never do the I/O on
+    //       the product if we already have the provenance.
+    return status == productstatus::present();
+  }
 
-void
-art::Group::
-write(std::ostream& os) const
-{
-  // This is grossly inadequate. It is also not critical for the
-  // first pass.
-  os << "Group for product with ID: " << pid_;
-}
+  bool
+  Group::resolveProductIfAvailable(
+    TypeID wanted_wrapper_type /*= TypeID{}*/) const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    // Now try to get the master product.
+    if (product_.load() == nullptr) {
+      // Not already resolved.
+      if (branchDescription_.produced()) {
+        // Never produced, hopeless.
+        return false;
+      }
+      if (!productAvailable()) {
+        // Not possible to get it, hopeless.
+        return false;
+      }
+      // Now try to read it.
+      // Note: This may call back to us to update the product
+      // provenance if run or subRun data product merging creates a
+      // new provenance.
+      product_ =
+        delayedReader_
+          ->getProduct(this, branchDescription_.productID(), *rangeSet_.load())
+          .release();
+      if (product_.load() == nullptr) {
+        // We failed to get the master product, hopeless.
+        return false;
+      }
+    }
+
+    if (!wanted_wrapper_type) {
+      // The type of the product is not known, therefore the on-disk
+      // representation is sufficient.
+      return true;
+    }
+
+    if (grpType_ == grouptype::normal) {
+      // If we get here, we have successfully read a normal product.
+      return true;
+    }
+
+    assert(grpType_ != grouptype::normal);
+    auto normal_metatype = (grpType_ == grouptype::assns) ?
+                             product_metatype::LeftRight :
+                             product_metatype::LeftRightData;
+
+    auto assns_type_ids = product_.load()->getTypeIDs();
+    assert(!assns_type_ids.empty());
+
+    if (wanted_wrapper_type == assns_type_ids.at(normal_metatype)) {
+      return true;
+    }
+
+    auto partner_metatype = (grpType_ == grouptype::assns) ?
+                              product_metatype::RightLeft :
+                              product_metatype::RightLeftData;
+    if (wanted_wrapper_type == assns_type_ids.at(partner_metatype)) {
+      if (partnerProduct_.load() != nullptr) {
+        // They wanted the partner product, and we have already made it, done.
+        return true;
+      }
+      // They want the partner product, ask the wrapper to make it for us,
+      // who ends up asking the assns to do it.
+      partnerProduct_ =
+        product_.load()->makePartner(wanted_wrapper_type.typeInfo()).release();
+      return partnerProduct_.load() != nullptr;
+    }
+
+    assert(grpType_ == grouptype::assnsWithData);
+
+    if (wanted_wrapper_type == assns_type_ids.at(product_metatype::LeftRight)) {
+      if (baseProduct_.load() != nullptr) {
+        // They wanted the base product, and we have already made it, done.
+        return true;
+      }
+      // They want the base, ask the wrapper to make it for us,
+      // who ends up asking the assns to do it.
+      baseProduct_ =
+        product_.load()->makePartner(wanted_wrapper_type.typeInfo()).release();
+      return baseProduct_.load() != nullptr;
+    }
+    if (partnerBaseProduct_.load() != nullptr) {
+      // They wanted the partner base product, and we have already made it,
+      // done.
+      return true;
+    }
+    partnerBaseProduct_ =
+      product_.load()->makePartner(wanted_wrapper_type.typeInfo()).release();
+    return partnerBaseProduct_.load() != nullptr;
+  }
+
+  bool
+  Group::tryToResolveProduct(TypeID const& wanted_wrapper)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    resolveProductIfAvailable(wanted_wrapper);
+
+    // If the product is a dummy filler, it will now be marked unavailable.
+    return productAvailable();
+  }
+
+} // namespace art

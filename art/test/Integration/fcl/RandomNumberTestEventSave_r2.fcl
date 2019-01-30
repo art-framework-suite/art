@@ -1,3 +1,0 @@
-#include "RandomNumberSaveTest_r.fcl"
-
-services.RandomNumberGenerator: { }

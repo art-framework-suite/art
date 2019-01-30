@@ -1,4 +1,0 @@
-#include "TestEmptyEventTimestamp_t.fcl"
-
-source.timestampPlugin.plugin_type: TestEmptyEventTimestampNoRSRTS
-

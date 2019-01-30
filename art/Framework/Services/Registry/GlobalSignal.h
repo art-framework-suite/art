@@ -10,6 +10,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "art/Framework/Principal/Consumer.h"
 #include "art/Framework/Services/Registry/detail/SignalResponseType.h"
 #include "art/Framework/Services/Registry/detail/makeWatchFunc.h"
 
@@ -17,116 +18,123 @@
 #include <functional>
 
 namespace art {
-  template <detail::SignalResponseType, typename ResultType, typename... Args> class GlobalSignal;
+  template <detail::SignalResponseType, typename ResultType, typename... Args>
+  class GlobalSignal;
 
   // Only supported template definition is a partial specialization on
   // a function type--i.e. and instantiation of GlobalSignal must look
   // like (e.g.):
   //     GlobalSignal<LIFO, void(std::string const&)> s;
-  template <detail::SignalResponseType SRTYPE, typename ResultType, typename... Args>
+  template <detail::SignalResponseType SRTYPE,
+            typename ResultType,
+            typename... Args>
   class GlobalSignal<SRTYPE, ResultType(Args...)> {
+    using tuple_type = std::tuple<Args...>;
+
   public:
-    // Typedefs
     using slot_type = std::function<ResultType(Args...)>;
     using result_type = ResultType;
+    template <std::size_t I>
+    using slot_argument_type = std::tuple_element_t<I, tuple_type>;
 
     // 1. Free function or functor (or pre-bound member function).
-    void
-    watch(std::function<ResultType(Args...)> slot);
+    void watch(std::function<ResultType(Args...)> slot);
     // 2a. Non-const member function.
     template <typename T>
-    void
-    watch(ResultType(T::*slot)(Args...), T& t);
+    void watch(ResultType (T::*slot)(Args...), T& t);
     // 2b. Non-const member function (legacy).
     template <typename T>
-    void
-    watch(T* t, ResultType(T::*slot)(Args...));
+    void watch(T* t, ResultType (T::*slot)(Args...));
     // 3a. Const member function.
     template <typename T>
-    void
-    watch(ResultType(T::*slot)(Args...) const, T const& t);
+    void watch(ResultType (T::*slot)(Args...) const, T const& t);
     // 3b. Const member function (legacy).
     template <typename T>
-    void
-    watch(T const* t, ResultType(T::*slot)(Args...) const);
+    void watch(T const* t, ResultType (T::*slot)(Args...) const);
 
-    void invoke(Args&&... args) const; // Discard ResultType.
-
-    void clear();
+    void invoke(Args const&... args) const; // Discard ResultType.
 
   private:
     std::deque<slot_type> signal_;
   };
 
   // 1.
-  template <detail::SignalResponseType SRTYPE, typename ResultType, typename... Args>
+  template <detail::SignalResponseType SRTYPE,
+            typename ResultType,
+            typename... Args>
   void
-  GlobalSignal<SRTYPE, ResultType(Args...)>::
-  watch(std::function<ResultType(Args...)> slot)
+  GlobalSignal<SRTYPE, ResultType(Args...)>::watch(
+    std::function<ResultType(Args...)> slot)
   {
     detail::connect_to_signal<SRTYPE>(signal_, slot);
   }
 
   // 2a.
-  template <detail::SignalResponseType SRTYPE, typename ResultType, typename... Args>
+  template <detail::SignalResponseType SRTYPE,
+            typename ResultType,
+            typename... Args>
   template <typename T>
   void
-  GlobalSignal<SRTYPE, ResultType(Args...)>::
-  watch(ResultType(T::*slot)(Args...), T& t)
+  GlobalSignal<SRTYPE, ResultType(Args...)>::watch(
+    ResultType (T::*slot)(Args...),
+    T& t)
   {
     watch(detail::makeWatchFunc(slot, t));
   }
 
   // 2b.
-  template <detail::SignalResponseType SRTYPE, typename ResultType, typename... Args>
+  template <detail::SignalResponseType SRTYPE,
+            typename ResultType,
+            typename... Args>
   template <typename T>
   void
-  GlobalSignal<SRTYPE, ResultType(Args...)>::
-  watch(T* t, ResultType(T::*slot)(Args...))
+  GlobalSignal<SRTYPE, ResultType(Args...)>::watch(
+    T* t,
+    ResultType (T::*slot)(Args...))
   {
     watch(detail::makeWatchFunc(slot, *t));
   }
 
   // 3a.
-  template <detail::SignalResponseType SRTYPE, typename ResultType, typename... Args>
+  template <detail::SignalResponseType SRTYPE,
+            typename ResultType,
+            typename... Args>
   template <typename T>
   void
-  GlobalSignal<SRTYPE, ResultType(Args...)>::
-  watch(ResultType(T::*slot)(Args...) const, T const& t)
+  GlobalSignal<SRTYPE, ResultType(Args...)>::watch(
+    ResultType (T::*slot)(Args...) const,
+    T const& t)
   {
     watch(detail::makeWatchFunc(slot, t));
   }
 
   // 3b.
-  template <detail::SignalResponseType SRTYPE, typename ResultType, typename... Args>
+  template <detail::SignalResponseType SRTYPE,
+            typename ResultType,
+            typename... Args>
   template <typename T>
   void
-  GlobalSignal<SRTYPE, ResultType(Args...)>::
-  watch(T const* t, ResultType(T::*slot)(Args...) const)
+  GlobalSignal<SRTYPE, ResultType(Args...)>::watch(
+    T const* t,
+    ResultType (T::*slot)(Args...) const)
   {
     watch(detail::makeWatchFunc(slot, *t));
   }
 
-  template <detail::SignalResponseType SRTYPE, typename ResultType, typename... Args>
+  template <detail::SignalResponseType SRTYPE,
+            typename ResultType,
+            typename... Args>
   void
-  GlobalSignal<SRTYPE, ResultType(Args...)>::
-  invoke(Args&&... args) const
+  GlobalSignal<SRTYPE, ResultType(Args...)>::invoke(Args const&... args) const
   {
     for (auto f : signal_) {
-      f(std::forward<Args>(args)...);
+      f(args...);
     }
   }
 
-  template <detail::SignalResponseType SRTYPE, typename ResultType, typename... Args>
-  void
-  GlobalSignal<SRTYPE, ResultType(Args...)>::
-  clear()
-  {
-    signal_.clear();
-  }
-}
+} // namespace art
 #endif /* art_Framework_Services_Registry_GlobalSignal_h */
 
-  // Local Variables:
-  // mode: c++
-  // End:
+// Local Variables:
+// mode: c++
+// End:

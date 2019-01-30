@@ -1,38 +1,56 @@
 #ifndef art_Framework_Principal_Actions_h
 #define art_Framework_Principal_Actions_h
+// vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Principal/ActionCodes.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/Sequence.h"
 
 #include <map>
 #include <string>
-
-namespace fhicl { class ParameterSet; }
+#include <vector>
 
 namespace art {
   namespace actions {
-    const char* actionName(ActionCodes code);
-  }  // actions
-}
+    char const* actionName(ActionCodes code);
+  }
 
-class art::ActionTable {
-public:
+  class ActionTable {
+  public:
+    ~ActionTable();
+    ActionTable();
 
-  ActionTable();
-  explicit ActionTable(const fhicl::ParameterSet&);
+    struct Config {
+      using Name = fhicl::Name;
+      fhicl::Atom<bool> defaultExceptions{Name{"defaultExceptions"}, true};
+      fhicl::Sequence<std::string> ignoreCompletely{Name{"IgnoreCompletely"},
+                                                    {}};
+      fhicl::Sequence<std::string> rethrow{Name{"Rethrow"}, {}};
+      fhicl::Sequence<std::string> skipEvent{Name{"SkipEvent"}, {}};
+      fhicl::Sequence<std::string> failModule{Name{"FailModule"}, {}};
+      fhicl::Sequence<std::string> failPath{Name{"FailPath"}, {}};
+    };
 
-  // use compiler-generated copy c'tor, copy assignment, and d'tor
+    explicit ActionTable(Config const&);
 
-  void add(const std::string& category, actions::ActionCodes code);
-  actions::ActionCodes find(const std::string& category) const;
+    ActionTable(ActionTable const&) = delete;
+    ActionTable(ActionTable&&) = delete;
+    ActionTable& operator=(ActionTable const&) = delete;
+    ActionTable& operator=(ActionTable&&) = delete;
 
-private:
-  using ActionMap = std::map<std::string, actions::ActionCodes>;
+    // Accessors
+    actions::ActionCodes find(std::string const& category) const;
 
-  void addDefaults_();
-  void install_(actions::ActionCodes code, fhicl::ParameterSet const& scheduler);
+    // Modifiers
+    void add(std::string const& category, actions::ActionCodes);
 
-  ActionMap map_;
-};  // ActionTable
+  private:
+    void addDefaults_();
+    void install_(actions::ActionCodes, std::vector<std::string> const&);
+
+    std::map<std::string, actions::ActionCodes> map_{};
+  };
+} // namespace art
 
 #endif /* art_Framework_Principal_Actions_h */
 

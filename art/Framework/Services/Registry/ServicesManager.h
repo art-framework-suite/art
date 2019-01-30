@@ -1,184 +1,147 @@
 #ifndef art_Framework_Services_Registry_ServicesManager_h
 #define art_Framework_Services_Registry_ServicesManager_h
-
-////////////////////////////////////////////////////////////////////////
-// ServicesManager
-//
-// ======================================================================
+// vim: set sw=2 expandtab :
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
-#include "art/Framework/Services/Registry/detail/ServiceCache.h"
 #include "art/Framework/Services/Registry/detail/ServiceCacheEntry.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
-#include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
+#include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
+#include "art/Utilities/PluginSuffixes.h"
+#include "art/Utilities/bold_fontify.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
+#include "cetlib/HorizontalRule.h"
+#include "cetlib/LibraryManager.h"
 #include "cetlib_except/demangle.h"
+#include "fhiclcpp/types/detail/validationException.h"
 
 #include <map>
 #include <memory>
+#include <stack>
 #include <string>
 #include <utility>
 #include <vector>
 
 namespace cet {
   class LibraryManager;
-}
-
-namespace art {
-  class ActivityRegistry;
-  class ServicesManager;
-}
+} // namespace cet
 
 namespace fhicl {
   class ParameterSet;
-}
+} // namespace fhicl
 
-class art::ServicesManager {
-public:
-  // non-copyable:
-  ServicesManager(ServicesManager const&) = delete;
-  ServicesManager& operator= (ServicesManager const&) = delete;
+namespace art {
 
-  using ParameterSets = std::vector<fhicl::ParameterSet>;
+  class ActivityRegistry;
+  class ProcessConfiguration;
+  class ProducingServiceSignals;
 
-  explicit ServicesManager(ParameterSets const&,
-                           cet::LibraryManager const&,
-                           ActivityRegistry&);
-  ~ServicesManager();
+  class ServicesManager {
+  public:
+    explicit ServicesManager(fhicl::ParameterSet&& servicesPSet,
+                             ActivityRegistry& actReg);
+    ~ServicesManager();
 
-  template <typename T,
-            typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>>
-  T& get();
+    ServicesManager(ServicesManager const&) = delete;
+    ServicesManager(ServicesManager&&) = delete;
+    ServicesManager& operator=(ServicesManager const&) = delete;
+    ServicesManager& operator=(ServicesManager&&) = delete;
 
-  template <typename T,
-            typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val == ServiceScope::PER_SCHEDULE>>
-  T& get(ScheduleID);
+    template <class T>
+    bool
+    isAvailable() const
+    {
+      return services_.find(TypeID{typeid(T)}) != cend(services_);
+    }
 
-  // Returns true of the particular service is accessible -- that is, it
-  // either can be made (if requested) or has already been made.
-  template<class T>
-  bool
-  isAvailable() const
+    void getParameterSets(std::vector<fhicl::ParameterSet>& out) const;
+
+    void forceCreation();
+
+    // Returns vector of names corresponding to services that produce
+    // products.
+    std::vector<std::string> registerProducts(
+      ProductDescriptions& productsToProduce,
+      ProducingServiceSignals& signals,
+      ProcessConfiguration const& pc);
+
+    template <typename T>
+    T& get();
+
+    template <typename T>
+    void put(std::unique_ptr<T>&& premade_service);
+
+    template <typename SERVICE, typename... ARGS>
+    void addSystemService(ARGS&&... args);
+
+  private:
+    ActivityRegistry& actReg_;
+    cet::LibraryManager lm_{Suffixes::service()};
+    std::map<TypeID, detail::ServiceCacheEntry> services_{};
+    std::vector<TypeID> requestedCreationOrder_{};
+    std::stack<std::shared_ptr<detail::ServiceWrapperBase>>
+      actualCreationOrder_{};
+    std::vector<std::string> configErrMsgs_{};
+  };
+
+  template <typename T>
+  T&
+  ServicesManager::get()
   {
-    return factory_.find(TypeID(typeid(T))) != factory_.end();
+    auto it = services_.find(TypeID{typeid(T)});
+    if (it == services_.end()) {
+      throw Exception(errors::ServiceNotFound)
+        << "ServicesManager unable to find the service of type '"
+        << cet::demangle_symbol(typeid(T).name()) << "'.\n";
+    }
+    return it->second.get<T>(actReg_, actualCreationOrder_);
   }
 
-  template <typename T,
-            typename = std::enable_if_t<detail::ServiceHelper<T>::scope_val != ServiceScope::PER_SCHEDULE>>
-  void put(std::unique_ptr<T>&& premade_service);
-
-  // SP<T> must be convertible to std::shared_ptr<T>.
-  template <typename SP,
-            typename = std::enable_if_t<detail::ServiceHelper<typename SP::element_type>::scope_val == ServiceScope::PER_SCHEDULE>>
-  void put(std::vector<SP>&& premade_services);  // force all the services that are not alrady made into existance
-
-  // using 'reg'.  The order of creation will be the registration order.
-  void forceCreation();
-
-  void getParameterSets(ParameterSets& out) const;
-
-private:
-
-  using SHBCREATOR_t = std::unique_ptr<detail::ServiceHelperBase>(*)();
-  using NameIndex = std::map<std::string, detail::ServiceCache::iterator>;
-  using TypeIDs = std::vector<TypeID>;
-
-  void fillCache_(ParameterSets const& psets, cet::LibraryManager const& lm);
-
-  std::pair<detail::ServiceCache::iterator, bool>
-  insertImpl_(fhicl::ParameterSet const& pset,
-              std::unique_ptr<detail::ServiceHelperBase>&& helper);
-
+  template <typename T>
   void
-  insertInterface_(fhicl::ParameterSet const& pset,
-                   std::unique_ptr<detail::ServiceHelperBase>&& helper,
-                   detail::ServiceCache::iterator implEntry);
-
-  // these are real things that we use.
-  art::ActivityRegistry& registry_;
-  detail::ServiceCache factory_ {};
-  NameIndex index_ {};
-
-  TypeIDs requestedCreationOrder_ {};
-  detail::ServiceStack actualCreationOrder_ {};
-  std::vector<std::string> configErrMsgs_ {};
-
-};  // ServicesManager
-
-// ----------------------------------------------------------------------
-
-template <typename T, typename>
-T&
-art::ServicesManager::get()
-{
-  // Find the correct ServiceCacheEntry object.
-  auto it = factory_.find(TypeID{typeid(T)});
-  if (it == factory_.end())
-    throw art::Exception(art::errors::ServiceNotFound, "Service")
-        << " unable to find requested service with compiler type name '"
-        << cet::demangle_symbol(typeid(T).name()) << "'.\n";
-  return it->second.get<T>(registry_, actualCreationOrder_);
-}  // get<>()
-
-template <typename T, typename>
-T&
-art::ServicesManager::get(ScheduleID const sID)
-{
-  // Find the correct ServiceCacheEntry object.
-  auto it = factory_.find(TypeID{typeid(T)});
-  if (it == factory_.end())
-    throw art::Exception(art::errors::ServiceNotFound, "Service")
-        << " unable to find requested service with compiler type name '"
-        << cet::demangle_symbol(typeid(T).name()) << "'.\n";
-  return it->second.get<T>(registry_, actualCreationOrder_, sID);
-}  // get<>()
-
-template <typename T, typename>
-void
-art::ServicesManager::put(std::unique_ptr<T>&& premade_service)
-{
-  std::unique_ptr<detail::ServiceHelperBase>
-    service_helper(new detail::ServiceHelper<T>);
-  TypeID const id {typeid(T)};
-  detail::ServiceCache::const_iterator it = factory_.find(id);
-  if (it != factory_.end()) {
-    throw art::Exception(art::errors::LogicError, "Service")
+  ServicesManager::put(std::unique_ptr<T>&& premade_service)
+  {
+    std::unique_ptr<detail::ServiceHelperBase> service_helper(
+      new detail::ServiceHelper<T>);
+    TypeID const id{typeid(T)};
+    auto it = services_.find(id);
+    if (it != services_.end()) {
+      throw Exception(errors::LogicError, "Service")
         << "The system has manually added service of type "
         << cet::demangle_symbol(id.name())
-        << ", but the service system already has a configured service"
-        << " of that type\n";
+        << ", but the service system already has a configured service of that "
+           "type\n";
+    }
+    detail::WrapperBase_ptr swb{
+      new detail::ServiceWrapper<T, detail::ServiceHelper<T>::scope_val>(
+        std::move(premade_service))};
+    actualCreationOrder_.push(swb);
+    services_.emplace(
+      id, detail::ServiceCacheEntry(std::move(swb), std::move(service_helper)));
   }
-  detail::WrapperBase_ptr swb(new detail::ServiceWrapper<T, detail::ServiceHelper<T>::scope_val>(std::move(premade_service)));
-  actualCreationOrder_.push(swb);
-  factory_.emplace(id, detail::ServiceCacheEntry(std::move(swb),
-                                                 std::move(service_helper)));
-}
 
-template <typename SP, typename>
-void
-art::ServicesManager::put(std::vector<SP>&& premade_services)
-{
-  using element_type = typename SP::element_type;
-  std::unique_ptr<detail::ServiceHelperBase>
-    service_helper(new detail::ServiceHelper<element_type>);
-  TypeID const id {typeid(element_type)};
-  detail::ServiceCache::const_iterator it = factory_.find(id);
-  if (it != factory_.end()) {
-    throw art::Exception(art::errors::LogicError, "Service:")
-        << "The system has manually added service of type "
-        << cet::demangle_symbol(id.name())
-        << ", but the service system already has a configured service"
-        << " of that type\n";
+  template <typename SERVICE, typename... ARGS>
+  void
+  ServicesManager::addSystemService(ARGS&&... args) try {
+    put(std::make_unique<SERVICE>(std::forward<ARGS>(args)...));
   }
-  detail::WrapperBase_ptr swb(new detail::ServiceWrapper<element_type, detail::ServiceHelper<element_type>::scope_val>(std::move(premade_services)));
-  actualCreationOrder_.push(swb);
-  factory_.emplace(id, detail::ServiceCacheEntry(std::move(swb),
-                                                 std::move(service_helper)));
-}
+  catch (fhicl::detail::validationException const& e) {
+    constexpr cet::HorizontalRule rule{100};
+    throw Exception(errors::Configuration)
+      << "\n"
+      << rule('=') << "\n\n"
+      << "!! The following service has been misconfigured: !!"
+      << "\n\n"
+      << rule('-') << "\n\nservice_type: "
+      << detail::bold_fontify(cet::demangle_symbol(typeid(SERVICE).name()))
+      << "\n\n"
+      << e.what() << "\n"
+      << rule('=') << "\n\n";
+  }
 
-// ======================================================================
+} // namespace art
 
 #endif /* art_Framework_Services_Registry_ServicesManager_h */
 

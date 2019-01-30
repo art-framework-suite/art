@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(compare)
 
 BOOST_AUTO_TEST_CASE(id)
 {
-  art::ScheduleID sID {61};
+  art::ScheduleID sID{61};
   BOOST_CHECK(sID.id() == 61);
 }
 

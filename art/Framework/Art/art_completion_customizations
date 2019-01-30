@@ -1,0 +1,18 @@
+# Check if print-description is enabled in any of the words prior
+# to the last one.  If so, then only the loadable libraries should
+# be included in the bash-completion set.
+for opt in ${COMP_WORDS[@]::${#COMP_WORDS[@]}-1}
+do
+    if [[ ${opt} == "--print-description" ]]; then
+        COMPREPLY=($(compgen -W "$(get-loadable-libraries '(module|plugin|service|source|tool)' ${cur})" -- ${cur}))
+        return 0
+    fi
+done
+
+# Only module suffixes are allowed for --print-available.
+case $prev in
+    --print-available)
+        COMPREPLY=($(compgen -W "module plugin service source tool" -- ${cur}))
+        return 0
+        ;;
+esac

@@ -7,13 +7,13 @@
 // collections. In all the below signatures, the following variables are
 // used:
 //
-//   std::vector<COLLECTION<PROD> const *> const &in
+//   std::vector<COLLECTION<PROD> const*> const& in
 //
-//   COLLECTION<PROD> &out
+//   COLLECTION<PROD>& out
 //
-//   OFFSET_CONTAINER<COLLECTION::size_type> &offsets; // Output.
+//   OFFSET_CONTAINER<COLLECTION::size_type>& offsets; // Output.
 //
-//   OFFSET_CONTAINER<COLLECTION::size_type> const &offsets; // Input.
+//   OFFSET_CONTAINER<COLLECTION::size_type> const& offsets; // Input.
 //
 // OFFSET_CONTAINER and COLLECTION are arbitrary (and not necessarily
 // identical) container types which satisfy the constraints as specified
@@ -71,8 +71,8 @@
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
-#include "cetlib/detail/metaprogramming.h"
 #include "cetlib/map_vector.h"
+#include "cetlib/metaprogramming.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -84,132 +84,144 @@ namespace art {
 
   // Template metaprogramming.
   namespace detail {
-    using cet::detail::no_tag;
-    using cet::detail::yes_tag;
+    using cet::no_tag;
+    using cet::yes_tag;
 
-    template <typename T, typename InIter, void (T::*)(InIter, InIter)> struct two_arg_insert_func;
-    template <typename T, typename I> no_tag has_two_arg_insert_helper(...);
-    template <typename T, typename I> yes_tag has_two_arg_insert_helper(two_arg_insert_func<T, I, &T::insert> *dummy);
+    template <typename T, typename InIter, void (T::*)(InIter, InIter)>
+    struct two_arg_insert_func;
+    template <typename T, typename I>
+    no_tag has_two_arg_insert_helper(...);
+    template <typename T, typename I>
+    yes_tag has_two_arg_insert_helper(
+      two_arg_insert_func<T, I, &T::insert>* dummy);
     template <typename T>
     struct has_two_arg_insert {
       static bool constexpr value =
-        sizeof(has_two_arg_insert_helper<T, typename T::const_iterator>(0)) == sizeof(yes_tag);
+        sizeof(has_two_arg_insert_helper<T, typename T::const_iterator>(0)) ==
+        sizeof(yes_tag);
     };
 
-    template <typename T, typename RET, typename OutIter, typename InIter, RET (T::*)(OutIter, InIter, InIter)> struct three_arg_insert_func;
-    template <typename T, typename R, typename O, typename I> no_tag has_three_arg_insert_helper(...);
-    template <typename T, typename R, typename O, typename I> yes_tag has_three_arg_insert_helper(three_arg_insert_func<T, R, O, I, &T::insert> *dummy);
+    template <typename T,
+              typename RET,
+              typename OutIter,
+              typename InIter,
+              RET (T::*)(OutIter, InIter, InIter)>
+    struct three_arg_insert_func;
+    template <typename T, typename R, typename O, typename I>
+    no_tag has_three_arg_insert_helper(...);
+    template <typename T, typename R, typename O, typename I>
+    yes_tag has_three_arg_insert_helper(
+      three_arg_insert_func<T, R, O, I, &T::insert>* dummy);
     template <typename T>
     struct has_three_arg_insert {
       static bool constexpr value =
-        sizeof(has_three_arg_insert_helper<T, void, typename T::iterator, typename T::const_iterator>(0)) == sizeof(yes_tag) ||
-        sizeof(has_three_arg_insert_helper<T, typename T::iterator, typename T::const_iterator, typename T::const_iterator>(0)) == sizeof(yes_tag);
+        sizeof(has_three_arg_insert_helper<T,
+                                           void,
+                                           typename T::iterator,
+                                           typename T::const_iterator>(0)) ==
+          sizeof(yes_tag) ||
+        sizeof(has_three_arg_insert_helper<T,
+                                           typename T::iterator,
+                                           typename T::const_iterator,
+                                           typename T::const_iterator>(0)) ==
+          sizeof(yes_tag);
     };
 
     template <typename C>
     struct mix_offset {
-      static
-      size_t
-      (C::* offset)() const;
+      static size_t
+      offset(C const& c)
+      {
+        return c.size();
+      }
     };
 
-    template<>
     template <typename P>
-    struct mix_offset<cet::map_vector<P> > {
-      static
-      size_t
-      (cet::map_vector<P>::* offset)() const;
+    struct mix_offset<cet::map_vector<P>> {
+      static size_t
+      offset(cet::map_vector<P> const& mv)
+      {
+        return mv.delta();
+      }
     };
-  }
-
-  template <typename C>
-  size_t (C::* art::detail::mix_offset<C>::offset)() const = &C::size;
-
-  template <typename P>
-  size_t (cet::map_vector<P>::* art::detail::mix_offset<cet::map_vector<P> >::offset)() const  = &cet::map_vector<P>::delta;
+  } // namespace detail
 
   // Append container in to container out.
   // I.
   template <typename CONTAINER>
   std::enable_if_t<detail::has_two_arg_insert<CONTAINER>::value>
-  concatContainers(CONTAINER &out, CONTAINER const &in);
+  concatContainers(CONTAINER& out, CONTAINER const& in);
   // II.
   template <typename CONTAINER>
   std::enable_if_t<detail::has_three_arg_insert<CONTAINER>::value>
-  concatContainers(CONTAINER &out, CONTAINER const &in);
+  concatContainers(CONTAINER& out, CONTAINER const& in);
 
   // 1.
   template <typename COLLECTION>
-  void
-  flattenCollections(std::vector<COLLECTION const *> const &in,
-                     COLLECTION &out);
+  void flattenCollections(std::vector<COLLECTION const*> const& in,
+                          COLLECTION& out);
 
   // 2.
   template <typename COLLECTION, typename OFFSETS>
-  void
-  flattenCollections(std::vector<COLLECTION const *> const &in,
-                     COLLECTION &out,
-                     OFFSETS &offsets);
+  void flattenCollections(std::vector<COLLECTION const*> const& in,
+                          COLLECTION& out,
+                          OFFSETS& offsets);
 
   // 3.
   template <typename T>
-  void
-  flattenCollections(std::vector<PtrVector<T> const *> const &in,
-                     PtrVector<T> &out);
+  void flattenCollections(std::vector<PtrVector<T> const*> const& in,
+                          PtrVector<T>& out);
 
   // 4.
   template <typename T, typename OFFSETS>
-  void
-  flattenCollections(std::vector<PtrVector<T> const *> const &in,
-                     PtrVector<T> &out,
-                     OFFSETS &offsets);
-}
+  void flattenCollections(std::vector<PtrVector<T> const*> const& in,
+                          PtrVector<T>& out,
+                          OFFSETS& offsets);
+} // namespace art
 
 ////////////////////////////////////////////////////////////////////////
 // No user-serviceable parts below.
 ////////////////////////////////////////////////////////////////////////
 
-namespace art {
-  namespace detail {
-    // A. Verify a collection of PtrVector const *
-    template <typename T>
-    bool
-    verifyPtrCollection(std::vector<art::PtrVector<T> const *> const &in);
+namespace art::detail {
+  // A. Verify a collection of PtrVector const*
+  template <typename T>
+  bool verifyPtrCollection(std::vector<art::PtrVector<T> const*> const& in);
 
-    // B. Verify a collection (including PtrVector) of Ptrs.
-    template <typename iterator>
-    bool
-    verifyPtrCollection(iterator beg,
-                        iterator end,
-                        art::ProductID id = art::ProductID(),
-                        art::EDProductGetter const *getter = 0);
-  }
+  // B. Verify a collection (including PtrVector) of Ptrs.
+  template <typename iterator>
+  bool verifyPtrCollection(iterator beg,
+                           iterator end,
+                           art::ProductID id = {},
+                           art::EDProductGetter const* getter = nullptr);
 }
 
 // A.
 template <typename T>
 bool
-art::detail::verifyPtrCollection(std::vector<art::PtrVector<T> const *> const &in) {
+art::detail::verifyPtrCollection(
+  std::vector<art::PtrVector<T> const*> const& in)
+{
   return verifyPtrCollection(in.begin(), in.end());
 }
 
 // B.
 template <typename iterator>
 bool
-art::detail::verifyPtrCollection(iterator beg,
-                                 iterator end,
-                                 art::ProductID id,
-                                 art::EDProductGetter const *getter) {
-  if (beg == end) return true;
+art::detail::verifyPtrCollection(iterator const beg,
+                                 iterator const end,
+                                 art::ProductID const id,
+                                 art::EDProductGetter const* getter)
+{
+  if (beg == end)
+    return true;
   if (!id.isValid()) {
     id = (*beg).id();
   }
   if (!getter) {
     getter = (*beg).productGetter();
   }
-  for (iterator i = beg;
-       i != end;
-       ++i) {
+  for (iterator i = beg; i != end; ++i) {
     if ((*i) != nullptr &&
         !((*i)->productGetter() && (*i)->productGetter() == getter &&
           (*i)->id().isValid() && (*i)->id() == id)) {
@@ -219,24 +231,56 @@ art::detail::verifyPtrCollection(iterator beg,
   return true;
 }
 
+namespace art {
+  namespace detail {
+    template <typename CONTAINER>
+    struct TwoArgInsert {
+      static void
+      concatenate(CONTAINER& out, CONTAINER const& in)
+      {
+        out.insert(in.begin(), in.end());
+      }
+    };
+
+    template <typename T>
+    struct TwoArgInsert<cet::map_vector<T>> {
+      using mv_t = cet::map_vector<T>;
+      static void
+      concatenate(mv_t& out, mv_t in)
+      {
+        // The offset is necessary for concatenating map_vectors so
+        // that all elements will be preserved.
+        auto const d = detail::mix_offset<mv_t>::offset(out);
+        for (auto& pr : in) {
+          pr.first = cet::map_vector_key{pr.first.asInt() + d};
+        }
+        out.insert(in.begin(), in.end());
+      }
+    };
+  }
+}
+
 // I.
 template <typename CONTAINER>
 std::enable_if_t<art::detail::has_two_arg_insert<CONTAINER>::value>
-art::concatContainers(CONTAINER &out, CONTAINER const &in) {
-  (void) out.insert(in.begin(), in.end());
+art::concatContainers(CONTAINER& out, CONTAINER const& in)
+{
+  detail::TwoArgInsert<CONTAINER>::concatenate(out, in);
 }
 // II.
 template <typename CONTAINER>
 std::enable_if_t<art::detail::has_three_arg_insert<CONTAINER>::value>
-art::concatContainers(CONTAINER &out, CONTAINER const &in) {
+art::concatContainers(CONTAINER& out, CONTAINER const& in)
+{
   out.insert(out.end(), in.begin(), in.end());
 }
 
 // 1.
 template <typename COLLECTION>
 void
-art::flattenCollections(std::vector<COLLECTION const *> const &in,
-                        COLLECTION &out) {
+art::flattenCollections(std::vector<COLLECTION const*> const& in,
+                        COLLECTION& out)
+{
   typename COLLECTION::size_type total_size = 0;
   for (auto collptr : in) {
     if (collptr != nullptr) {
@@ -254,19 +298,20 @@ art::flattenCollections(std::vector<COLLECTION const *> const &in,
 // 2.
 template <typename COLLECTION, typename OFFSETS>
 void
-art::flattenCollections(std::vector<COLLECTION const *> const &in,
-                        COLLECTION &out,
-                        OFFSETS &offsets) {
+art::flattenCollections(std::vector<COLLECTION const*> const& in,
+                        COLLECTION& out,
+                        OFFSETS& offsets)
+{
   offsets.clear();
   offsets.reserve(in.size());
-  typename COLLECTION::size_type current_offset = 0;
-  for (auto collptr : in ) {
-    if (collptr != nullptr) {
-      typename COLLECTION::size_type delta =
-        (collptr->*detail::mix_offset<COLLECTION>::offset)();
-      offsets.push_back(current_offset);
-      current_offset += delta;
-    }
+  typename COLLECTION::size_type current_offset{};
+  for (auto collptr : in) {
+    if (collptr == nullptr)
+      continue;
+
+    auto const delta = detail::mix_offset<COLLECTION>::offset(*collptr);
+    offsets.push_back(current_offset);
+    current_offset += delta;
   }
   flattenCollections<COLLECTION>(in, out); // 1.
 }
@@ -274,8 +319,9 @@ art::flattenCollections(std::vector<COLLECTION const *> const &in,
 // 3.
 template <typename T>
 void
-art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
-                        PtrVector<T> &out) {
+art::flattenCollections(std::vector<PtrVector<T> const*> const& in,
+                        PtrVector<T>& out)
+{
   // Extra checks are required to verify that the PtrVectors are
   // compatible.
   if (!detail::verifyPtrCollection(in)) {
@@ -283,15 +329,16 @@ art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
       << "Attempt to flatten incompatible PtrVectors "
       << "referring to different ProductIDs.\n";
   }
-  flattenCollections<PtrVector<T> >(in, out); // 1
+  flattenCollections<PtrVector<T>>(in, out); // 1
 }
 
 // 4.
 template <typename T, typename OFFSETS>
 void
-art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
-                        PtrVector<T> &out,
-                        OFFSETS &offsets) {
+art::flattenCollections(std::vector<PtrVector<T> const*> const& in,
+                        PtrVector<T>& out,
+                        OFFSETS& offsets)
+{
   // Extra checks are required to verify that the PtrVectors are
   // compatible.
   if (!detail::verifyPtrCollection(in)) {
@@ -299,7 +346,7 @@ art::flattenCollections(std::vector<PtrVector<T> const *> const &in,
       << "Attempt to flatten incompatible PtrVectors "
       << "referring to different ProductIDs.\n";
   }
-  flattenCollections<PtrVector<T> >(in, out, offsets); // 2.
+  flattenCollections<PtrVector<T>>(in, out, offsets); // 2.
 }
 
 #endif /* art_Persistency_Common_CollectionUtilities_h */

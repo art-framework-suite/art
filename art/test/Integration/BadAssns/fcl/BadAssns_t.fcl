@@ -1,1 +1,0 @@
-physics: { producers: { p1: { module_type: BadAssnsProducer } } t1: [ p1 ] }

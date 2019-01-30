@@ -6,21 +6,15 @@
 
 // These headers are required to forward-declare adequately types and
 // contain *only* what is required so to do.
-#include "canvas/Utilities/Exception.h"
-#include "art/Utilities/JobMode.h"
 #include "art/Utilities/Verbosity.h"
+#include "canvas/Utilities/Exception.h"
 
 namespace art {
-  class debugavlue; // DebugMacros.h
-  class FirstAbsoluteOrLookupWithDotPolicy;
-  typedef long long int HRTimeDiffType; // HRRealTime.h
-  typedef unsigned long long int HRTimeType; // HRRealTime.h
   class InputTag;
-  class MallocOpts;
+  struct MallocOpts;
   class MallocOptionsSetter; // MallocOpts.h
-  class RootHandlers;
   class TypeID;
-}
+} // namespace art
 #endif /* art_Utilities_fwd_h */
 
 // Local Variables:

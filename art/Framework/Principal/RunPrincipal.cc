@@ -1,66 +1,23 @@
 #include "art/Framework/Principal/RunPrincipal.h"
-// vim: set sw=2:
+// vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/Group.h"
-#include "art/Framework/Principal/GroupFactory.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
+using namespace std;
 
 namespace art {
 
-  RunPrincipal::
-  RunPrincipal(RunAuxiliary const& aux,
-               ProcessConfiguration const& pc,
-               std::unique_ptr<BranchMapper>&& mapper,
-               std::unique_ptr<DelayedReader>&& rtrv,
-               int const idx,
-               cet::exempt_ptr<RunPrincipal const> primaryPrincipal)
-    : Principal{pc, aux.processHistoryID_, std::move(mapper), std::move(rtrv), idx, primaryPrincipal}
-    , aux_{aux}
-  {
-    if (ProductMetaData::instance().productProduced(InRun)) {
-      addToProcessHistory();
-    }
-  }
+  class DelayedReader;
+  class ProcessConfiguration;
+  class RunAuxiliary;
 
-  ProcessHistoryID const&
-  RunPrincipal::
-  processHistoryID() const
-  {
-    return aux().processHistoryID_;
-  }
+  RunPrincipal::~RunPrincipal() {}
 
-  void
-  RunPrincipal::
-  setProcessHistoryID(ProcessHistoryID const& phid)
-  {
-    return aux().setProcessHistoryID(phid);
-  }
-
-  void
-  RunPrincipal::
-  fillGroup(BranchDescription const& bd)
-  {
-    Principal::fillGroup(gfactory::make_group(bd,
-                                              ProductID{},
-                                              RangeSet::invalid()));
-  }
-
-  void
-  RunPrincipal::
-  put(std::unique_ptr<EDProduct>&& edp,
-      BranchDescription const& bd,
-      std::unique_ptr<ProductProvenance const>&& productProvenance,
-      RangeSet&& rs)
-  {
-    assert(edp);
-    branchMapper().insert(std::move(productProvenance));
-    Principal::fillGroup(gfactory::make_group(bd,
-                                              ProductID{},
-                                              std::move(rs),
-                                              std::move(edp)));
-
-  }
+  RunPrincipal::RunPrincipal(
+    RunAuxiliary const& aux,
+    ProcessConfiguration const& pc,
+    cet::exempt_ptr<ProductTable const> presentProducts,
+    std::unique_ptr<DelayedReader>&&
+      reader /*= std::make_unique<NoDelayedReader>()*/)
+    : Principal{aux, pc, presentProducts, move(reader)}
+  {}
 
 } // namespace art

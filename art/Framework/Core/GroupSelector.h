@@ -15,38 +15,31 @@
 namespace art {
   // defined herein:
   class GroupSelector;
-  std::ostream&
-    operator<< (std::ostream& os, const GroupSelector& gs);
+  std::ostream& operator<<(std::ostream& os, const GroupSelector& gs);
 
   // used herein:
   class BranchDescription;
   class GroupSelectorRules;
-}
+} // namespace art
 
 // ----------------------------------------------------------------------
 
-class art::GroupSelector
-{
+class art::GroupSelector {
 public:
-  GroupSelector();
-
   // N.B.: we assume there are not null pointers in the vector allBranches.
-  void initialize(GroupSelectorRules const& rules,
-                  ProductList const &branchDescriptions);
+  explicit GroupSelector(GroupSelectorRules const& rules,
+                         ProductDescriptionsByID const& descriptions);
 
   bool selected(BranchDescription const& desc) const;
 
   // Printout intended for debugging purposes.
   void print(std::ostream& os) const;
 
-  bool initialized() const {return initialized_;}
-
 private:
-
   // Keep a sorted collection indicating which groups are to be selected.
-  std::vector<BranchDescription const *>  groupsToSelect_;
-  bool initialized_;
-};  // GroupSelector
+  std::vector<BranchDescription const*> groupsToSelect_{};
+
+}; // GroupSelector
 
 // ======================================================================
 

@@ -6,10 +6,10 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
 namespace arttest {
-  class MyServiceInterface { };
-}
+  class MyServiceInterface {};
+} // namespace arttest
 
-DECLARE_ART_SERVICE_INTERFACE(arttest::MyServiceInterface,LEGACY)
+DECLARE_ART_SERVICE_INTERFACE(arttest::MyServiceInterface, LEGACY)
 #endif /* art_test_Framework_Services_Interfaces_MyServiceInterface_h */
 
 // Local Variables:

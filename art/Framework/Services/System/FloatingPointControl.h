@@ -1,5 +1,6 @@
 #ifndef art_Framework_Services_System_FloatingPointControl_h
 #define art_Framework_Services_System_FloatingPointControl_h
+// vim: set sw=2 expandtab :
 
 // ======================================================================
 //
@@ -41,62 +42,58 @@
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "art/Framework/Services/System/detail/fpControl.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/types/Atom.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include <fenv.h>
-#include <map>
-#include <stack>
-
-#ifdef __linux__
-#ifdef __i386__
-#include <fpu_control.h>
-#endif
-#endif
 
 namespace art {
-  class FloatingPointControl;
-}
 
-// ----------------------------------------------------------------------
+  class FloatingPointControl {
+  public:
+    using precision_t = fp_detail::precision_t;
+    using mask_t = unsigned short int;
 
-class art::FloatingPointControl {
-  FloatingPointControl(FloatingPointControl const&) = delete;
-  FloatingPointControl& operator=(FloatingPointControl const&) = delete;
-public:
+    struct Config {
+      fhicl::Atom<bool> enableDivByZeroEx{fhicl::Name{"enableDivByZeroEx"},
+                                          false};
+      fhicl::Atom<bool> enableInvalidEx{fhicl::Name{"enableInvalidEx"}, false};
+      fhicl::Atom<bool> enableOverFlowEx{fhicl::Name{"enableOverFlowEx"},
+                                         false};
+      fhicl::Atom<bool> enableUnderFlowEx{fhicl::Name{"enableUnderFlowEx"},
+                                          false};
+      fhicl::Atom<bool> setPrecisionDouble{fhicl::Name{"setPrecisionDouble"},
+                                           true};
+      fhicl::Atom<bool> reportSettings{fhicl::Name{"reportSettings"}, false};
+    };
+    using Parameters = ServiceTable<Config>;
 
-  struct Config {
-    fhicl::Atom<bool> enableDivByZeroEx {fhicl::Name{"enableDivByZeroEx"}, false};
-    fhicl::Atom<bool> enableInvalidEx {fhicl::Name{"enableInvalidEx"}, false};
-    fhicl::Atom<bool> enableOverFlowEx {fhicl::Name{"enableOverFlowEx"}, false};
-    fhicl::Atom<bool> enableUnderFlowEx {fhicl::Name{"enableUnderFlowEx"}, false};
-    fhicl::Atom<bool> setPrecisionDouble {fhicl::Name{"setPrecisionDouble"}, true};
-    fhicl::Atom<bool> reportSettings {fhicl::Name{"reportSettings"}, false};
+    explicit FloatingPointControl(Parameters const&, ActivityRegistry&);
+    FloatingPointControl(FloatingPointControl const&) = delete;
+    FloatingPointControl& operator=(FloatingPointControl const&) = delete;
+
+    // Return the precision as an enum (SINGLE, DOUBLE, EXTENDED).
+    precision_t getPrecision() const;
+    // Return the exception mask (can be ANDed with e.g. FE_DIVBYZERO to
+    // look for specific exception bits).
+    mask_t getMask() const;
+
+  private:
+    void postEndJob();
+    bool enableDivByZeroEx_;
+    bool enableInvalidEx_;
+    bool enableOverFlowEx_;
+    bool enableUnderFlowEx_;
+    bool setPrecisionDouble_;
+    bool reportSettings_;
+    // OS's fpu state on job startup
+    fp_detail::fp_control_t OSdefault_{};
   };
 
-  using Parameters = ServiceTable<Config>;
-  explicit FloatingPointControl(Parameters const&, ActivityRegistry&);
+} // namespace art
 
-private:
+DECLARE_ART_SYSTEM_SERVICE(art::FloatingPointControl, GLOBAL)
 
-  void postEndJob();
-  void controlFpe(fenv_t&);
-  void echoState();
-
-  bool enableDivByZeroEx_;
-  bool enableInvalidEx_;
-  bool enableOverFlowEx_;
-  bool enableUnderFlowEx_;
-  bool setPrecisionDouble_;
-  bool reportSettings_;
-
-  fenv_t OSdefault_ {}; // OS's fpu state on job startup
-
-};  // FloatingPointControl
-
-// ======================================================================
-
-DECLARE_ART_SYSTEM_SERVICE(art::FloatingPointControl, LEGACY)
 #endif /* art_Framework_Services_System_FloatingPointControl_h */
 
 // Local Variables:

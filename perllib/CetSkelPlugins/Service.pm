@@ -26,7 +26,7 @@ sub source { return __FILE__; }
 sub constructors {
   return [ {
             explicit => 1,
-            args => [ "fhicl::ParameterSet const & p", "art::ActivityRegistry & areg" ],
+            args => [ "fhicl::ParameterSet const& p", "art::ActivityRegistry& areg" ],
            } ];
 }
 

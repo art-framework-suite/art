@@ -34,7 +34,7 @@ sub baseClasses {
 sub constructors {
   return [ {
             explicit => 1,
-            args => [ "fhicl::ParameterSet const & p" ],
+            args => [ "fhicl::ParameterSet const& p" ],
             initializers => [ "OutputModule(p)" ]
            } ];
 }
@@ -56,25 +56,23 @@ sub optionalEntries {
   return
     {
      beginJob => "void beginJob() override",
-     beginRun => "void beginRun(art::RunPrincipal const & r) override",
-     beginSubRun => "void beginSubRun(art::SubRunPrincipal const & sr) override",
+     beginRun => "void beginRun(art::RunPrincipal const& r) override",
+     beginSubRun => "void beginSubRun(art::SubRunPrincipal const& sr) override",
      doOpenFile => "void doOpenFile() override",
-     doWriteFileCatalogMetadata => "void doWriteFileCatalogMetadata(art::FileCatalogMetadata::collection_type const & md) override",
+     doWriteFileCatalogMetadata => "void doWriteFileCatalogMetadata(art::FileCatalogMetadata::collection_type const& md) override",
      endJob => "void endJob() override",
-     endRun => "void endRun(art::RunPrincipal const & r) override",
-     endSubRun => "void endSubRun(art::SubRunPrincipal const & sr) override",
+     endRun => "void endRun(art::RunPrincipal const& r) override",
+     endSubRun => "void endSubRun(art::SubRunPrincipal const& sr) override",
      finishEndFile => "void finishEndFile() override",
      isFileOpen => "bool isFileOpen() const override",
-     openFile => "void openFile(art::FileBlock const & fb) override",
-     reconfigure => "void reconfigure(fhicl::ParameterSet const & p) override",
-     respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const & fb) override",
-     respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const & fb) override",
-     respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const & fb) override",
-     respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const & fb) override",
+     openFile => "void openFile(art::FileBlock const& fb) override",
+     respondToCloseInputFile => "void respondToCloseInputFile(art::FileBlock const& fb) override",
+     respondToCloseOutputFiles => "void respondToCloseOutputFiles(art::FileBlock const& fb) override",
+     respondToOpenInputFile => "void respondToOpenInputFile(art::FileBlock const& fb) override",
+     respondToOpenOutputFiles => "void respondToOpenOutputFiles(art::FileBlock const& fb) override",
      shouldWeCloseFile => "bool shouldWeCloseFile() const override",
      startEndFile => "void startEndFile() override",
-     writeBranchIDListRegistry => "void writeBranchIDListRegistry() override",
-     writeBranchMapper => "void writeBranchMapper() override",
+     #writeBranchMapper => "void writeBranchMapper() override",
      writeEventHistory => "void writeEventHistory() override",
      writeFileFormatVersion => "void writeFileFormatVersion() override",
      writeFileIdentifier => "void writeFileIdentifier() override",
@@ -93,9 +91,9 @@ sub optionalEntries {
 sub requiredEntries {
   return
     {
-     write => "void write(art::EventPrincipal & e) override",
-     writeRun => "void writeRun(art::RunPrincipal & r) override",
-     writeSubRun => "void writeSubRun(art::SubRunPrincipal & sr) override"
+     write => "void write(art::EventPrincipal& e) override",
+     writeRun => "void writeRun(art::RunPrincipal& r) override",
+     writeSubRun => "void writeSubRun(art::SubRunPrincipal& sr) override"
     };
 }
 

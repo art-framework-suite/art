@@ -9,10 +9,8 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
-namespace art {
-  namespace test {
-    class DummyService;
-  }
+namespace art::test {
+  class DummyService;
 }
 
 class art::test::DummyService {

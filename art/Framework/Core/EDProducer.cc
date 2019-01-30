@@ -1,108 +1,132 @@
 #include "art/Framework/Core/EDProducer.h"
+// vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/CPCSentry.h"
-#include "art/Framework/Core/detail/get_failureToPut_flag.h"
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/Run.h"
-#include "art/Framework/Principal/RunPrincipal.h"
-#include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Principal/SubRunPrincipal.h"
-#include "canvas/Utilities/Exception.h"
-#include "cetlib_except/demangle.h"
-#include "fhiclcpp/ParameterSetRegistry.h"
+using namespace std;
 
-namespace art
-{
+namespace art {
 
-  bool
-  EDProducer::doEvent(EventPrincipal& ep,
-                      CPC_exempt_ptr cpc,
-                      CountingStatistics& counts) {
-    detail::CPCSentry sentry {current_context_, cpc};
-    Event e {ep, moduleDescription_};
-    counts.increment<stats::Run>();
-    produce(e);
-    e.commit_(ep, checkPutProducts_, expectedProducts());
-    counts.increment<stats::Passed>();
-    return true;
+  string
+  EDProducer::workerType() const
+  {
+    return "WorkerT<EDProducer>";
   }
 
   void
-  EDProducer::doBeginJob() {
-    // 'checkPutProducts_' cannot be set during the c'tor
-    // initialization list since 'moduleDescription_' is empty there.
-    checkPutProducts_ = detail::get_failureToPut_flag(moduleDescription_);
-    beginJob();
+  EDProducer::setupQueues()
+  {
+    createQueues();
   }
 
   void
-  EDProducer::doEndJob() {
-    endJob();
-  }
-
-  bool
-  EDProducer::doBeginRun(RunPrincipal & rp,
-                         CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry {current_context_, cpc};
-    Run r {rp, moduleDescription_, RangeSet::forRun(rp.id())};
-    beginRun(r);
-    r.commit_(rp);
-    return true;
-  }
-
-  bool
-  EDProducer::doEndRun(RunPrincipal & rp,
-                       CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry {current_context_, cpc};
-    Run r {rp, moduleDescription_, rp.seenRanges()};
-    endRun(r);
-    r.commit_(rp);
-    return true;
-  }
-
-  bool
-  EDProducer::doBeginSubRun(SubRunPrincipal & srp,
-                            CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry {current_context_, cpc};
-    SubRun sr {srp, moduleDescription_, RangeSet::forSubRun(srp.id())};
-    beginSubRun(sr);
-    sr.commit_(srp);
-    return true;
-  }
-
-  bool
-  EDProducer::doEndSubRun(SubRunPrincipal & srp,
-                          CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry {current_context_, cpc};
-    SubRun sr {srp, moduleDescription_, srp.seenRanges()};
-    endSubRun(sr);
-    sr.commit_(srp);
-    return true;
-  }
-
-  void
-  EDProducer::doRespondToOpenInputFile(FileBlock const& fb) {
+  EDProducer::respondToOpenInputFileWithFrame(FileBlock const& fb,
+                                              ProcessingFrame const&)
+  {
     respondToOpenInputFile(fb);
   }
 
   void
-  EDProducer::doRespondToCloseInputFile(FileBlock const& fb) {
+  EDProducer::respondToCloseInputFileWithFrame(FileBlock const& fb,
+                                               ProcessingFrame const&)
+  {
     respondToCloseInputFile(fb);
   }
 
   void
-  EDProducer::doRespondToOpenOutputFiles(FileBlock const& fb) {
+  EDProducer::respondToOpenOutputFilesWithFrame(FileBlock const& fb,
+                                                ProcessingFrame const&)
+  {
     respondToOpenOutputFiles(fb);
   }
 
   void
-  EDProducer::doRespondToCloseOutputFiles(FileBlock const& fb) {
+  EDProducer::respondToCloseOutputFilesWithFrame(FileBlock const& fb,
+                                                 ProcessingFrame const&)
+  {
     respondToCloseOutputFiles(fb);
   }
 
-  CurrentProcessingContext const*
-  EDProducer::currentContext() const {
-    return current_context_.get();
+  void
+  EDProducer::beginJobWithFrame(ProcessingFrame const&)
+  {
+    beginJob();
   }
 
-}  // art
+  void
+  EDProducer::endJobWithFrame(ProcessingFrame const&)
+  {
+    endJob();
+  }
+
+  void
+  EDProducer::beginRunWithFrame(Run& r, ProcessingFrame const&)
+  {
+    beginRun(r);
+  }
+
+  void
+  EDProducer::endRunWithFrame(Run& r, ProcessingFrame const&)
+  {
+    endRun(r);
+  }
+
+  void
+  EDProducer::beginSubRunWithFrame(SubRun& sr, ProcessingFrame const&)
+  {
+    beginSubRun(sr);
+  }
+
+  void
+  EDProducer::endSubRunWithFrame(SubRun& sr, ProcessingFrame const&)
+  {
+    endSubRun(sr);
+  }
+
+  void
+  EDProducer::produceWithFrame(Event& e, ProcessingFrame const& frame)
+  {
+    ScheduleIDSentry sentry{*this, frame.scheduleID()};
+    produce(e);
+  }
+
+  // Default implementations
+  void
+  EDProducer::beginJob()
+  {}
+
+  void
+  EDProducer::endJob()
+  {}
+
+  void
+  EDProducer::respondToOpenInputFile(FileBlock const&)
+  {}
+
+  void
+  EDProducer::respondToCloseInputFile(FileBlock const&)
+  {}
+
+  void
+  EDProducer::respondToOpenOutputFiles(FileBlock const&)
+  {}
+
+  void
+  EDProducer::respondToCloseOutputFiles(FileBlock const&)
+  {}
+
+  void
+  EDProducer::beginRun(Run&)
+  {}
+
+  void
+  EDProducer::endRun(Run&)
+  {}
+
+  void
+  EDProducer::beginSubRun(SubRun&)
+  {}
+
+  void
+  EDProducer::endSubRun(SubRun&)
+  {}
+
+} // namespace art

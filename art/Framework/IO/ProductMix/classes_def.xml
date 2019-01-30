@@ -1,4 +1,0 @@
-<lcgdict>
- <class name="art::EventIDSequence"/>
- <class name="art::Wrapper<art::EventIDSequence>"/>
-</lcgdict>

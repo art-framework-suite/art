@@ -1,6 +1,0 @@
-process_name: EventFilter
-physics.filters.f1: {
-  module_type: EventIDFilter
-  idsToMatch: ["1:0:4,6"]
-}
-physics.p1: [f1]

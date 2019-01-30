@@ -1,77 +1,62 @@
-// ======================================================================
+// vim: set sw=2 expandtab :
 //
-// RandomNumberSaver_plugin:  Store state of the RandomNumberGenerator
-//                            service into the event.
+// Store state of the RandomNumberGenerator service into the event.
 //
-// ======================================================================
 
-#include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/ProcessingFrame.h"
+#include "art/Framework/Core/SharedProducer.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/types/Atom.h"
 
 #include <memory>
-#include <mutex>
+#include <vector>
+
+using namespace std;
+using namespace fhicl;
 
 namespace art {
-  class RandomNumberSaver;
-}
 
-using namespace fhicl;
-using art::RandomNumberSaver;
+  class RandomNumberSaver : public SharedProducer {
+  public:
+    struct Config {
+      Atom<bool> debug{Name{"debug"}, false};
+    };
+    using Parameters = Table<Config>;
+    explicit RandomNumberSaver(Parameters const&, ProcessingFrame const&);
 
-// ======================================================================
-
-class art::RandomNumberSaver : public EDProducer {
-  using RNGservice = RandomNumberGenerator;
-
-public:
-  // --- Characteristics:
-  using label_t    = RNGservice::label_t;
-  using snapshot_t = RNGservice::snapshot_t;
-
-  // --- Configuration
-  struct Config {
-    Atom<bool> debug {Name{"debug"}, false};
+  private:
+    void produce(Event&, ProcessingFrame const&) override;
+    // When true makes produce call rng->print_().
+    bool const debug_;
   };
 
-  using Parameters = EDProducer::Table<Config>;
-  explicit RandomNumberSaver(Parameters const&);
-
-  void produce(Event&) override;
-
-private:
-  bool debug_;
-  std::mutex m_ {};
-};  // RandomNumberSaver
-
-// ======================================================================
-
-RandomNumberSaver::
-RandomNumberSaver(Parameters const& config)
-  : debug_{config().debug()}
-{
-  produces<snapshot_t>();
-}
-
-// ----------------------------------------------------------------------
-
-void
-RandomNumberSaver::produce(Event& e)
-{
-  // MT-TODO: Placeholder until we're multithreaded.
-  auto const sid = ScheduleID::first();
-  ServiceHandle<RNGservice const> rng;
-  e.put(std::make_unique<snapshot_t>(rng->accessSnapshot_(sid)));
-
-  if (debug_) {
-    // Only take out the lock if running in debug mode.
-    std::lock_guard<std::mutex> hold {m_};
-    rng->print_();
+  RandomNumberSaver::RandomNumberSaver(Parameters const& config,
+                                       ProcessingFrame const&)
+    : SharedProducer{config}, debug_{config().debug()}
+  {
+    produces<vector<RNGsnapshot>>();
+    if (debug_) {
+      // If debugging information is desired, serialize so that the
+      // printing is not garbled.
+      serialize<InEvent>();
+    } else {
+      async<InEvent>();
+    }
   }
-}
 
-DEFINE_ART_MODULE(RandomNumberSaver)
+  void
+  RandomNumberSaver::produce(Event& e, ProcessingFrame const& frame)
+  {
+    auto const sid = frame.scheduleID();
+    auto rng = frame.serviceHandle<RandomNumberGenerator const>();
+    e.put(make_unique<vector<RNGsnapshot>>(rng->accessSnapshot_(sid)));
+    if (debug_) {
+      rng->print_();
+    }
+  }
+
+} // namespace art
+
+DEFINE_ART_MODULE(art::RandomNumberSaver)

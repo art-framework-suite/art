@@ -1,13 +1,11 @@
 
 <separator (=)>
-
    module_type      Type        Source location
 <separator (-)>
 1. DummyAnalyzer    analyzer    <path>/DummyAnalyzer_module.cc
 2. DummyFilter      filter      <path>/DummyFilter_module.cc
 3.*DummyProducer    producer    <path>/DummyProducer_module.cc
 4.*DummyProducer    producer    <path>/DummyProducer_module.cc
-
 <separator (=)>
 
    The modules marked '*' above are degenerate--i.e. specifying the short
@@ -21,43 +19,36 @@
    ""               art/test/Framework/Art/PrintAvailable/DummyProducer
 
 
-
 <separator (=)>
-
    plugin_type             Type               Source location
 <separator (-)>
 1. DummyResultsProducer    ResultsProducer    <path>/DummyResultsProducer_plugin.cc
-
 <separator (=)>
 
 
 <separator (=)>
-
    Service         Provider    Source location
 <separator (-)>
 1. DummyService    art         <path>/DummyService_service.cc
-
 <separator (=)>
 
 
 <separator (=)>
-
    module_type    Provider    Source location
 <separator (-)>
 1. DummySource    art         <path>/DummySource_source.cc
-
 <separator (=)>
 
 
 <separator (=)>
-
    tool_type            Type     Source location
 <separator (-)>
 1. DummyClassTool       class    <path>/DummyClassTool_tool.cc
 2. DummyFunctionTool    num      <path>/DummyFunctionTool_tool.cc
-
 <separator (=)>
 
+Unable to find any plugins with suffix 'mfPlugin'.
+Unable to find any plugins with suffix 'mfStatsPlugin'.
 
 <separator (=)>
 
@@ -70,7 +61,72 @@
     Allowed configuration
     <separator (-)>
 
-        [ None provided ]
+        ## Any parameters prefaced with '#' are optional.
+
+        message: {
+
+           ## The 'debugModules' parameter is a sequence of strings.
+           ## Ignored. Accepted for backwards-compatibility only.
+
+           debugModules: [
+           ]
+
+           ## The 'suppressDebug' parameter is a sequence of strings.
+           ## Ignored. Accepted for backwards-compatibility only.
+
+           suppressDebug: [
+           ]
+
+           ## The 'suppressInfo' parameter is a sequence of strings.
+           ## Ignored. Accepted for backwards-compatibility only.
+
+           suppressInfo: [
+           ]
+
+           ## The 'suppressWarning' parameter is a sequence of strings.
+           ## Ignored. Accepted for backwards-compatibility only.
+
+           suppressWarning: [
+           ]
+
+           ## The 'destinations' parameter represents a FHiCL table of named
+           ## destinations, each of which are configured to specify how messages
+           ## are logged to a given target.  It has the general form of:
+           ## 
+           ##   destinations: {
+           ##     // Ordinary destinations
+           ##     dest1 : {...}
+           ##     dest2 : {...}
+           ##     ...
+           ##     statistics: { // optional
+           ##       // Statistics destinations
+           ##       stat1: {...}
+           ##       ...
+           ##     }
+           ##   }
+           ## 
+           ## For a listing of allowed ordinary destinations, type:
+           ## 
+           ##   art --print-available mfPlugin
+           ## 
+           ## The allowed configuration for a given destination type can be printed
+           ## by specifying:
+           ## 
+           ##   art --print-description mfPlugin:<destination type>
+           ## 
+           ## It is permitted to specify an ordinary destination called
+           ## 'statistics'. The 'statistics' destination is a FHiCL table that has
+           ## named statistics destinations, which can be used to encapsulate the
+           ## configuration related to statistics-tracking of messages logged to a
+           ## each ordinary destination.  To print out the allowed statistics
+           ## destinations and the allowed configuration corresponding to a given
+           ## statistics destination, replace the 'mfPlugin' specification with
+           ## 'mfStatsPlugin'.
+           ## 
+           ## If a value for 'destinations' is not supplied, one will be provided for you.
+
+         # destinations: << delegated >>
+        }
 
 <separator (=)>
 

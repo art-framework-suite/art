@@ -1,124 +1,86 @@
 #ifndef art_Framework_Core_EDProducer_h
 #define art_Framework_Core_EDProducer_h
+// vim: set sw=2 expandtab :
 
-// ======================================================================
-//
-// EDProducer - The base class of "modules" whose main purpose is to
-//              insert new EDProducts into an Event.
-//
-// ======================================================================
-
-#include "art/Framework/Core/EngineCreator.h"
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/ProducerBase.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
-#include "canvas/Persistency/Provenance/RangeSet.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "art/Framework/Core/detail/LegacyModule.h"
+#include "art/Framework/Core/detail/Producer.h"
+#include "art/Framework/Principal/fwd.h"
 
-#include <memory>
 #include <string>
 
-// ----------------------------------------------------------------------
+namespace art {
 
-namespace art
-{
-
-  class EDProducer
-    : public ProducerBase
-    , public EngineCreator
-  {
+  class EDProducer : public detail::Producer, private detail::LegacyModule {
   public:
-    template <typename T> friend class WorkerT;
     using ModuleType = EDProducer;
     using WorkerType = WorkerT<EDProducer>;
 
-    virtual ~EDProducer() = default;
+    [[deprecated("\n\nart warning: The default constructor for EDProducer has "
+                 "been deprecated.\n"
+                 "             For any module that calls createEngine, it is "
+                 "an error to use\n"
+                 "             the default constructor. Please call the "
+                 "non-default constructor\n"
+                 "             as the first argument in the initialization "
+                 "list of your module:\n\n"
+                 "               MyProducer(ParameterSet const& ps) : "
+                 "art::EDProducer{ps}, ... {} // or\n"
+                 "               MyProducer(Parameters const& ps) : "
+                 "art::EDProducer{ps}, ... {}\n\n")]] EDProducer() = default;
 
-    template <typename PROD, BranchType B, typename TRANS>
-    ProductID
-    getProductID(TRANS const &translator,
-                 std::string const& instanceName=std::string()) const;
+    explicit EDProducer(fhicl::ParameterSet const& pset)
+      : detail::Producer{pset}
+      , detail::LegacyModule{pset.get<std::string>("module_label")}
+    {}
 
-    template <typename PROD, typename TRANS>
-    ProductID
-    getProductID(TRANS const &translator,
-                 std::string const& instanceName=std::string()) const;
+    template <typename Config>
+    explicit EDProducer(Table<Config> const& config)
+      : EDProducer{config.get_PSet()}
+    {}
 
-    template <typename UserConfig>
-    using Table = ProducerBase::Table<UserConfig>;
+    using detail::LegacyModule::createEngine;
+    using detail::LegacyModule::scheduleID;
+    using detail::LegacyModule::serialTaskQueueChain;
 
-  protected:
-    // The returned pointer will be null unless the this is currently
-    // executing its event loop function ('produce').
-    CurrentProcessingContext const* currentContext() const;
+    std::string workerType() const;
 
   private:
+    void setupQueues() override final;
+    void beginJobWithFrame(ProcessingFrame const&) override final;
+    void endJobWithFrame(ProcessingFrame const&) override final;
+    void respondToOpenInputFileWithFrame(FileBlock const&,
+                                         ProcessingFrame const&) override final;
+    void respondToCloseInputFileWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void respondToOpenOutputFilesWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void respondToCloseOutputFilesWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void beginRunWithFrame(Run&, ProcessingFrame const&) override final;
+    void endRunWithFrame(Run&, ProcessingFrame const&) override final;
+    void beginSubRunWithFrame(SubRun&, ProcessingFrame const&) override final;
+    void endSubRunWithFrame(SubRun&, ProcessingFrame const&) override final;
+    void produceWithFrame(Event&, ProcessingFrame const&) override final;
 
-    using CPC_exempt_ptr = cet::exempt_ptr<CurrentProcessingContext const>;
+    virtual void beginJob();
+    virtual void endJob();
+    virtual void respondToOpenInputFile(FileBlock const&);
+    virtual void respondToCloseInputFile(FileBlock const&);
+    virtual void respondToOpenOutputFiles(FileBlock const&);
+    virtual void respondToCloseOutputFiles(FileBlock const&);
+    virtual void beginRun(Run&);
+    virtual void endRun(Run&);
+    virtual void beginSubRun(SubRun&);
+    virtual void endSubRun(SubRun&);
+    virtual void produce(Event&) = 0;
+  };
 
-    bool doEvent(EventPrincipal& ep, CPC_exempt_ptr cpcp, CountingStatistics&);
-    void doBeginJob();
-    void doEndJob();
-    bool doBeginRun(RunPrincipal & rp, CPC_exempt_ptr cpc);
-    bool doEndRun(RunPrincipal & rp, CPC_exempt_ptr cpc);
-    bool doBeginSubRun(SubRunPrincipal & srp, CPC_exempt_ptr cpc);
-    bool doEndSubRun(SubRunPrincipal & srp, CPC_exempt_ptr cpc);
-    void doRespondToOpenInputFile(FileBlock const& fb);
-    void doRespondToCloseInputFile(FileBlock const& fb);
-    void doRespondToOpenOutputFiles(FileBlock const& fb);
-    void doRespondToCloseOutputFiles(FileBlock const& fb);
-
-    std::string workerType() const {return "WorkerT<EDProducer>";}
-
-    virtual void produce(Event &) = 0;
-    virtual void beginJob(){}
-    virtual void endJob(){}
-    virtual void reconfigure(fhicl::ParameterSet const&) {} // Not called by framework
-
-    virtual void beginRun(Run &){}
-    virtual void beginSubRun(SubRun &){}
-    virtual void endRun(Run &){}
-    virtual void endSubRun(SubRun &){}
-
-    virtual void respondToOpenInputFile(FileBlock const&) {}
-    virtual void respondToCloseInputFile(FileBlock const&) {}
-    virtual void respondToOpenOutputFiles(FileBlock const&) {}
-    virtual void respondToCloseOutputFiles(FileBlock const&) {}
-
-    void setModuleDescription(ModuleDescription const& md) {
-      moduleDescription_ = md;
-    }
-
-    ModuleDescription moduleDescription_ {};
-    CPC_exempt_ptr current_context_ {nullptr};
-    bool checkPutProducts_ {true};
-  };  // EDProducer
-
-  template <typename PROD, BranchType B, typename TRANS>
-  inline
-  ProductID
-  EDProducer::getProductID(TRANS const &translator,
-                           std::string const& instanceName) const {
-    return ProducerBase::getProductID<PROD, B>(translator,
-                                               moduleDescription_,
-                                               instanceName);
-  }
-
-  template <typename PROD, typename TRANS>
-  inline
-  ProductID
-  EDProducer::getProductID(TRANS const &translator,
-                           std::string const& instanceName) const {
-    return ProducerBase::getProductID<PROD, InEvent>(translator,
-                                                     moduleDescription_,
-                                                     instanceName);
-  }
-
-}  // art
-
-// ======================================================================
+} // namespace art
 
 #endif /* art_Framework_Core_EDProducer_h */
 

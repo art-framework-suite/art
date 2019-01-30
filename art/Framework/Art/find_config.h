@@ -10,9 +10,9 @@
 #include <string>
 
 namespace art {
-   bool find_config(std::string const &filename,
-                    std::string const &search_path_spec,
-                    std::string &full_path);
+  bool find_config(std::string const& filename,
+                   std::string const& search_path_spec,
+                   std::string& full_path);
 }
 
 #endif /* art_Framework_Art_find_config_h */

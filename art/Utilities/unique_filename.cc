@@ -23,14 +23,14 @@ art::unique_filename(std::string stem, std::string extension)
   int tmp_fd = -1, error = 0;
   do {
     outpath = boost::filesystem::unique_path(p, ec);
-  } while (!ec &&
-           (tmp_fd = creat(outpath.c_str(), S_IRUSR | S_IWUSR)) == -1 &&
+  } while (!ec && (tmp_fd = creat(outpath.c_str(), S_IRUSR | S_IWUSR)) == -1 &&
            (error = errno) == EEXIST);
   if (tmp_fd != -1) {
     close(tmp_fd);
   } else {
     art::Exception e(art::errors::FileOpenError);
-    e << "RootOutput cannot ascertain a unique temporary filename for output based on stem\n\""
+    e << "RootOutput cannot ascertain a unique temporary filename for output "
+         "based on stem\n\""
       << stem << "\": ";
     if (ec) {
       e << ec;

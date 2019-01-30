@@ -1,20 +1,22 @@
+// vim: set sw=2 expandtab :
 #include "art/Framework/Art/@ART_MAIN_FUNC@.h"
+#include "art/Framework/Art/detail/info_success.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <iostream>
 
-int main( int argc, char* argv[] ) {
-  int result = @ART_MAIN_FUNC@(argc,argv);
-  // Make sure the message logger is shut down and any backlog cleared
-  // so our message really is the last one put out.
+using namespace std;
+
+int
+main(int argc, char* argv[])
+{
+  int result = @ART_MAIN_FUNC@(argc, argv);
   mf::EndMessageFacility();
-  // End message.
-  std::cout
-    << "Art has completed and will exit with status "
-    << result
-    << "."
-    << std::endl;
+  if (result == art::detail::info_success()) {
+    return 0;
+  }
+  cout << "Art has completed and will exit with status " << result << "." << endl;
   return result;
 }
 

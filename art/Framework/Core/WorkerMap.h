@@ -1,5 +1,6 @@
 #ifndef art_Framework_Core_WorkerMap_h
 #define art_Framework_Core_WorkerMap_h
+// vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/Worker.h"
 

@@ -15,15 +15,18 @@ namespace art {
   namespace test {
     class DummyProducer;
   }
-}
+} // namespace art
 
 class art::test::DummyProducer : public EDProducer {
 public:
   struct Config {};
   using Parameters = EDProducer::Table<Config>;
-  explicit DummyProducer(Parameters const&){}
+  explicit DummyProducer(Parameters const& ps) : EDProducer{ps} {}
+
 private:
-  void produce(Event&) override {}
+  void
+  produce(Event&) override
+  {}
 };
 
 DEFINE_ART_MODULE(art::test::DummyProducer)

@@ -7,15 +7,14 @@ namespace arttest {
 
   struct SimpleEvent {
     SimpleEvent(art::EventID const& eid, bool const last)
-      : id{eid}
-      , lastInSubRun{last}
+      : id{eid}, lastInSubRun{last}
     {}
 
-    art::EventID id {art::EventID::invalidEvent()};
-    bool lastInSubRun {false};
+    art::EventID id{art::EventID::invalidEvent()};
+    bool lastInSubRun{false};
   };
 
-}
+} // namespace arttest
 
 #endif /* art_test_Framework_Principal_SimpleEvent_h */
 

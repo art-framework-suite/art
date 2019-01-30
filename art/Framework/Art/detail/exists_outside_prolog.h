@@ -3,15 +3,13 @@
 
 #include "fhiclcpp/intermediate_table.h"
 
-namespace art {
-  namespace detail {
+namespace art::detail {
 
-    inline bool exists_outside_prolog (fhicl::intermediate_table const& config,
-                                       std::string const& key)
-    {
-      return config.exists(key) && !config.find(key).in_prolog;
-    }
-
+  inline bool
+  exists_outside_prolog(fhicl::intermediate_table const& config,
+                        std::string const& key)
+  {
+    return config.exists(key) && !config.find(key).in_prolog;
   }
 }
 

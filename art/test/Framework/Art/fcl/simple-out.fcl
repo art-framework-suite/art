@@ -1,0 +1,15 @@
+process_name: OptSimpleOut
+
+physics:
+{
+  ep: [ o1 ]
+}
+
+outputs:
+{
+  o1:
+  {
+    module_type: RootOutput
+    fileName: "junk.out"
+  }
+}

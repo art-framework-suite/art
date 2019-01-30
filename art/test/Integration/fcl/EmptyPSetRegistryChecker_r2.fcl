@@ -1,7 +1,0 @@
-#include "EmptyPSetRegistryChecker_r1.fcl"
-
-source: {
-  module_type: RootInput
-  fileNames: [ "../EmptyPSetRegistryChecker_w2.d/out_without_psets.root" ]
-}
-

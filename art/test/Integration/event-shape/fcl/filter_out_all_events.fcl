@@ -1,8 +1,0 @@
-physics.filters.f1.module_type : FailEverything
-physics.p1: [f1]
-physics.e1: [o1]
-
-outputs.o1: {
-   module_type: RootOutput
-   SelectEvents: [p1]
-}

@@ -1,57 +1,51 @@
 #ifndef art_Framework_Core_RPWorkerT_h
 #define art_Framework_Core_RPWorkerT_h
+// vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/RPWorker.h"
 
 #include <memory>
 
 namespace art {
+
   template <typename RP>
-  class RPWorkerT;
-}
+  class RPWorkerT : public RPWorker {
 
-template <typename RP>
-class art::RPWorkerT : public art::RPWorker {
-public:
-  using RPType = RP;
+  public:
+    using RPType = RP;
 
-  RPWorkerT(RPParams const & p, fhicl::ParameterSet const & ps);
+  public:
+    RPWorkerT(RPParams const& p, fhicl::ParameterSet const& ps);
 
-private:
-  RP & rp_() override;
-  RP const & rp_() const override;
+  private:
+    RP& rp_() override;
 
-  RP rpPlugin_;
-};
+    RP const& rp_() const override;
 
-template <typename RP>
-art::RPWorkerT<RP>::
-RPWorkerT(RPParams const & p, fhicl::ParameterSet const & ps)
-:
-  RPWorker(p),
-  rpPlugin_(ps)
-{
-}
+  private:
+    RP rpPlugin_;
+  };
 
-template <typename RP>
-inline
-auto
-art::RPWorkerT<RP>::
-rp_() ->
-RPType &
-{
-  return rpPlugin_;
-}
+  template <typename RP>
+  RPWorkerT<RP>::RPWorkerT(RPParams const& p, fhicl::ParameterSet const& ps)
+    : RPWorker(p), rpPlugin_(ps)
+  {}
 
-template <typename RP>
-inline
-auto
-art::RPWorkerT<RP>::
-rp_() const ->
-RPType const &
-{
-  return rpPlugin_;
-}
+  template <typename RP>
+  inline auto
+  RPWorkerT<RP>::rp_() -> RPType&
+  {
+    return rpPlugin_;
+  }
+
+  template <typename RP>
+  inline auto
+  RPWorkerT<RP>::rp_() const -> RPType const&
+  {
+    return rpPlugin_;
+  }
+
+} // namespace art
 
 #endif /* art_Framework_Core_RPWorkerT_h */
 

@@ -1,306 +1,539 @@
 #include "art/Framework/Core/EndPathExecutor.h"
+// vim: set sw=2 expandtab :
 
-#include "art/Persistency/Provenance/MasterProductRegistry.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
+#include "art/Framework/Core/OutputFileGranularity.h"
+#include "art/Framework/Core/OutputFileStatus.h"
+#include "art/Framework/Core/OutputWorker.h"
+#include "art/Framework/Core/PathManager.h"
+#include "art/Framework/Core/PathsInfo.h"
+#include "art/Framework/Core/UpdateOutputCallbacks.h"
+#include "art/Framework/Core/detail/skip_non_replicated.h"
+#include "art/Framework/Principal/Actions.h"
+#include "art/Framework/Principal/ClosedRangeSetHandler.h"
+#include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/OpenRangeSetHandler.h"
+#include "art/Framework/Principal/RangeSetHandler.h"
+#include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Principal/Worker.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
+#include "art/Persistency/Provenance/PathContext.h"
+#include "art/Persistency/Provenance/ScheduleContext.h"
+#include "art/Utilities/Globals.h"
 #include "art/Utilities/OutputFileInfo.h"
+#include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/Transition.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Utilities/DebugMacros.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/trim.h"
+#include "hep_concurrency/RecursiveMutex.h"
+#include "hep_concurrency/WaitingTask.h"
+#include "hep_concurrency/WaitingTaskHolder.h"
+#include "hep_concurrency/tsan.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include <cstdlib>
+#include <iostream>
 #include <memory>
+#include <sstream>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
-namespace {
-  auto getOutputWorkers(art::WorkerMap const& workers)
+using namespace hep::concurrency;
+using namespace std;
+
+namespace art {
+
+  EndPathExecutor::~EndPathExecutor()
   {
-    std::vector<art::OutputWorker*> ows;
-    for (auto const & val : workers) {
-      auto w = val.second.get();
-      if (auto ow = dynamic_cast<art::OutputWorker*>(w)) {
-        ows.emplace_back(ow);
+    delete outputWorkersToClose_.load();
+    outputWorkersToClose_ = nullptr;
+    delete outputWorkersToOpen_.load();
+    outputWorkersToOpen_ = nullptr;
+    if (auto rsh = subRunRangeSetHandler_.load()) {
+      for (auto val : *rsh) {
+        delete val;
+      }
+      delete rsh;
+    }
+    subRunRangeSetHandler_ = nullptr;
+    delete runRangeSetHandler_.load();
+    runRangeSetHandler_ = nullptr;
+    delete outputWorkers_.load();
+    outputWorkers_ = nullptr;
+    endPathInfo_ = nullptr;
+    actReg_ = nullptr;
+    actionTable_ = nullptr;
+  }
+
+  EndPathExecutor::EndPathExecutor(ScheduleID const sid,
+                                   PathManager& pm,
+                                   ActionTable const& actionTable,
+                                   ActivityRegistry const& areg,
+                                   UpdateOutputCallbacks& outputCallbacks)
+    : sc_{sid}
+  {
+    actionTable_ = &actionTable;
+    actReg_ = &areg;
+    endPathInfo_ = &pm.endPathInfo(sid);
+    runningWorkerCnt_ = 0;
+    outputWorkers_ = new vector<OutputWorker*>;
+    runRangeSetHandler_ = nullptr;
+    subRunRangeSetHandler_ = new PerScheduleContainer<RangeSetHandler*>{1};
+    fileStatus_ = OutputFileStatus::Closed;
+    outputWorkersToOpen_ = new set<OutputWorker*>;
+    outputWorkersToClose_ = new set<OutputWorker*>;
+    for (auto const& val : endPathInfo_.load()->workers()) {
+      auto w = val.second;
+      assert(sid == w->scheduleID());
+      auto owp = dynamic_cast<OutputWorker*>(w);
+      if (owp != nullptr) {
+        outputWorkers_.load()->emplace_back(owp);
       }
     }
-    return ows;
+    outputWorkersToOpen_.load()->insert(outputWorkers_.load()->cbegin(),
+                                        outputWorkers_.load()->cend());
+    outputCallbacks.registerCallback(
+      [this](auto const& tables) { this->selectProducts(tables); });
   }
-}
 
-art::EndPathExecutor::
-EndPathExecutor(PathManager& pm,
-                ActionTable& actions,
-                ActivityRegistry& areg,
-                MasterProductRegistry& mpr)
-  : endPathInfo_{pm.endPathInfo()}
-  , act_table_{&actions}
-  , actReg_{areg}
-  , outputWorkers_{getOutputWorkers(endPathInfo_.workers())}
-  , outputWorkersToOpen_(std::begin(outputWorkers_), std::end(outputWorkers_)) // seed with all output workers
-  , workersEnabled_(endPathInfo_.workers().size(), true)
-  , outputWorkersEnabled_(outputWorkers_.size(), true)
-{
-  mpr.registerProductListUpdatedCallback([this](auto const& fb){ this->selectProducts(fb); });
-}
-
-bool art::EndPathExecutor::terminate() const
-{
-  bool const rc = !outputWorkers_.empty() && // Necessary because std::all_of()
-                                             // returns true if range is empty.
-                  std::all_of(outputWorkers_.cbegin(),
-                              outputWorkers_.cend(),
-                              [](auto& w){ return w->limitReached(); });
-  if (rc) {
-    mf::LogInfo("SuccessfulTermination")
-      << "The job is terminating successfully because each output module\n"
-      << "has reached its configured limit.\n";
+  void
+  EndPathExecutor::beginJob()
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto& label_and_worker : endPathInfo_.load()->workers()) {
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      w.beginJob();
+    }
   }
-  return rc;
-}
 
-void
-art::EndPathExecutor::
-endJob()
-{
-  bool failure {false};
-  Exception error {errors::EndJobFailure};
-  doForAllEnabledWorkers_
-    ([&failure, &error](Worker * w)
-     {
-       try {
-         w->endJob();
-       }
-       catch (cet::exception & e) {
-         error << "cet::exception caught in Schedule::endJob\n"
-               << e.explain_self();
-         failure = true;
-       }
-       catch (std::exception & e) {
-         error << "Standard library exception caught in Schedule::endJob\n"
-               << e.what();
-         failure = true;
-       }
-       catch (...) {
-         error << "Unknown exception caught in Schedule::endJob\n";
-         failure = true;
-       }
-     });
-  if (failure) { throw error; }
-}
+  void
+  EndPathExecutor::endJob()
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    Exception error{errors::EndJobFailure};
+    // FIXME: There seems to be little value-added by the catch and rethrow
+    // here.
+    for (auto& label_and_worker : endPathInfo_.load()->workers()) {
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      try {
+        w.endJob();
+      }
+      catch (cet::exception& e) {
+        error << "cet::exception caught in Schedule::endJob\n"
+              << e.explain_self();
+        throw error;
+      }
+      catch (exception& e) {
+        error << "Standard library exception caught in Schedule::endJob\n"
+              << e.what();
+        throw error;
+      }
+      catch (...) {
+        error << "Unknown exception caught in Schedule::endJob\n";
+        throw error;
+      }
+    }
+  }
 
-void art::EndPathExecutor::closeAllOutputFiles()
-{
-  doForAllEnabledOutputWorkers_([this](OutputWorker * ow) {
-      actReg_.sPreCloseOutputFile.invoke(ow->label());
+  void
+  EndPathExecutor::selectProducts(ProductTables const& tables)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto ow : *outputWorkers_.load()) {
+      ow->selectProducts(tables);
+    }
+  }
+
+  void
+  EndPathExecutor::respondToOpenInputFile(FileBlock const& fb)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto& label_and_worker : endPathInfo_.load()->workers()) {
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      w.respondToOpenInputFile(fb);
+    }
+  }
+
+  void
+  EndPathExecutor::respondToCloseInputFile(FileBlock const& fb)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto& label_and_worker : endPathInfo_.load()->workers()) {
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      w.respondToCloseInputFile(fb);
+    }
+  }
+
+  void
+  EndPathExecutor::respondToOpenOutputFiles(FileBlock const& fb)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto& label_and_worker : endPathInfo_.load()->workers()) {
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      w.respondToOpenOutputFiles(fb);
+    }
+  }
+
+  void
+  EndPathExecutor::respondToCloseOutputFiles(FileBlock const& fb)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto& label_and_worker : endPathInfo_.load()->workers()) {
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      w.respondToCloseOutputFiles(fb);
+    }
+  }
+
+  bool
+  EndPathExecutor::someOutputsOpen() const
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    return any_of(outputWorkers_.load()->cbegin(),
+                  outputWorkers_.load()->cend(),
+                  [](auto ow) { return ow->fileIsOpen(); });
+  }
+
+  void
+  EndPathExecutor::closeAllOutputFiles()
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto ow : *outputWorkers_.load()) {
+      actReg_.load()->sPreCloseOutputFile.invoke(ow->label());
       ow->closeFile();
-      actReg_.sPostCloseOutputFile.invoke(OutputFileInfo(ow->label(),
-                                                         ow->lastClosedFileName()));
-    });
-}
-
-void art::EndPathExecutor::openAllOutputFiles(FileBlock & fb)
-{
-  doForAllEnabledOutputWorkers_([this, &fb](OutputWorker* ow) {
-      ow->openFile(fb);
-      actReg_.sPostOpenOutputFile.invoke(ow->label());
-    });
-}
-
-void art::EndPathExecutor::writeRun(RunPrincipal& rp)
-{
-  doForAllEnabledOutputWorkers_([&rp](auto w){ w->writeRun(rp); });
-  if (fileStatus_ == OutputFileStatus::Switching) {
-    runRangeSetHandler_->rebase();
+      actReg_.load()->sPostCloseOutputFile.invoke(
+        OutputFileInfo(ow->label(), ow->lastClosedFileName()));
+    }
   }
-}
 
-void art::EndPathExecutor::writeSubRun(SubRunPrincipal& srp)
-{
-  doForAllEnabledOutputWorkers_([&srp](auto w){ w->writeSubRun(srp); });
-  if (fileStatus_ == OutputFileStatus::Switching) {
-    subRunRangeSetHandler_->rebase();
+  void
+  EndPathExecutor::seedRunRangeSet(RangeSetHandler const& rsh)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    runRangeSetHandler_ = rsh.clone();
   }
-}
 
-void art::EndPathExecutor::writeEvent(EventPrincipal& ep)
-{
-  doForAllEnabledOutputWorkers_([this, &ep](auto w){
-      auto const& md = w->description();
-      actReg_.sPreWriteEvent.invoke(md);
-      w->writeEvent(ep);
-      actReg_.sPostWriteEvent.invoke(md);
-    });
-  auto const& eid = ep.id();
-  bool const lastInSubRun {ep.isLastInSubRun()};
-  runRangeSetHandler_->update(eid, lastInSubRun);
-  subRunRangeSetHandler_->update(eid, lastInSubRun);
-}
+  void
+  EndPathExecutor::setRunAuxiliaryRangeSetID(RangeSet const& rangeSet)
+  {
+    for (auto ow : *outputWorkers_.load()) {
+      ow->setRunAuxiliaryRangeSetID(rangeSet);
+    }
+  }
 
-void art::EndPathExecutor::seedRunRangeSet(std::unique_ptr<RangeSetHandler> rsh)
-{
-  runRangeSetHandler_ = std::move(rsh);
-}
+  void
+  EndPathExecutor::writeRun(RunPrincipal& rp)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto ow : *outputWorkers_.load()) {
+      ow->writeRun(rp);
+    }
+    if (fileStatus_.load() == OutputFileStatus::Switching) {
+      runRangeSetHandler_.load()->rebase();
+    }
+  }
 
-void art::EndPathExecutor::seedSubRunRangeSet(std::unique_ptr<RangeSetHandler> rsh)
-{
-  subRunRangeSetHandler_ = std::move(rsh);
-}
+  void
+  EndPathExecutor::seedSubRunRangeSet(RangeSetHandler const& rsh)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto& val : *subRunRangeSetHandler_.load()) {
+      delete val;
+      val = rsh.clone();
+    }
+  }
 
-void art::EndPathExecutor::setAuxiliaryRangeSetID(SubRunPrincipal& srp)
-{
-  // Ranges are split/flushed only for a RangeSetHandler whose dynamic
-  // type is 'ClosedRangeSetHandler'.  The implementations for the
-  // 'OpenRangeSetHandler' are nops.
+  void
+  EndPathExecutor::setSubRunAuxiliaryRangeSetID(RangeSet const& rs)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto ow : *outputWorkers_.load()) {
+      // For RootOutput this enters the possibly split range set into
+      // the range set db.
+      ow->setSubRunAuxiliaryRangeSetID(rs);
+    }
+  }
+
+  void
+  EndPathExecutor::writeSubRun(SubRunPrincipal& srp)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto ow : *outputWorkers_.load()) {
+      ow->writeSubRun(srp);
+    }
+    if (fileStatus_.load() == OutputFileStatus::Switching) {
+      for (auto& rsh : *subRunRangeSetHandler_.load()) {
+        rsh->rebase();
+      }
+    }
+  }
+
   //
-  // Consider the following range-sets
-  //  SubRun RangeSet: { Run 1 : SubRun 1 : Events [1,7) }  <-- Current iterator of handler
-  //  Run    RangeSet: { Run 1 : SubRun 0 : Events [5,11)
-  //                             SubRun 1 : Events [1,7)    <-- Current iterator of handler
-  //                             SubRun 1 : Events [9,15) }
-  if (fileStatus_ == OutputFileStatus::Switching) {
-    // For a range split just before SubRun 1, Event 6, the range sets
-    // should become:
-    //
-    //  SubRun RangeSet: { Run 1 : SubRun 1 : Events [1,6)
-    //                             SubRun 1 : Events [6,7) } <-- Updated iterator of handler
-    //  Run    RangeSet: { Run 1 : SubRun 0 : Events [5,11)
-    //                             SubRun 1 : Events [1,6)
-    //                             SubRun 1 : Events [6,7)   <-- Updated iterator of handler
-    //                             SubRun 1 : Events [9,15) }
-    subRunRangeSetHandler_->maybeSplitRange();
-    runRangeSetHandler_->maybeSplitRange();
+  //  MEMBER FUNCTIONS -- Process Non-Event
+  //
+
+  void
+  EndPathExecutor::process(Transition trans, Principal& principal)
+  {
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto& label_and_worker : endPathInfo_.load()->workers()) {
+      auto& w = *label_and_worker.second;
+      if (detail::skip_non_replicated(w)) {
+        continue;
+      }
+      w.reset();
+    }
+    try {
+      if (!endPathInfo_.load()->paths().empty()) {
+        endPathInfo_.load()->paths().front()->process(trans, principal);
+      }
+    }
+    catch (cet::exception& ex) {
+      throw Exception(errors::EventProcessorFailure, "EndPathExecutor:")
+        << "an exception occurred during current event processing\n"
+        << ex;
+    }
+    catch (...) {
+      mf::LogError("PassingThrough")
+        << "an exception occurred during current event processing\n";
+      throw;
+    }
+    endPathInfo_.load()->incrementPassedEventCount();
   }
-  else {
-    subRunRangeSetHandler_->flushRanges();
+
+  // Note: We come here as part of the endPath task, our
+  // parent task is the eventLoop task.
+  void
+  EndPathExecutor::process_event(EventPrincipal& ep)
+  {
+    auto const sid = sc_.id();
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    TDEBUG_BEGIN_FUNC_SI(4, "EndPathExecutor::process_event", sid);
+    if (runningWorkerCnt_.load() != 0) {
+      cerr << "Aborting! runningWorkerCnt_.load() != 0: "
+           << runningWorkerCnt_.load() << "\n";
+      abort();
+    }
+    ++runningWorkerCnt_;
+    for (auto& label_and_worker : endPathInfo_.load()->workers()) {
+      auto& w = label_and_worker.second;
+      w->reset();
+    }
+    endPathInfo_.load()->incrementTotalEventCount();
+    try {
+      if (!endPathInfo_.load()->paths().empty()) {
+        endPathInfo_.load()->paths().front()->process_event_for_endpath(ep);
+      }
+    }
+    catch (cet::exception& ex) {
+      // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
+      // FailPath
+      auto const action{actionTable_.load()->find(ex.root_cause())};
+      if (action != actions::IgnoreCompletely) {
+        // Possible actions: Rethrow, SkipEvent, FailModule, FailPath
+        TDEBUG_END_FUNC_SI_ERR(
+          4, "EndPathExecutor::process_event", sid, "because of EXCEPTION");
+        if (runningWorkerCnt_.load() != 1) {
+          abort();
+        }
+        --runningWorkerCnt_;
+        throw Exception(errors::EventProcessorFailure, "EndPathExecutor:")
+          << "an exception occurred during current event processing\n"
+          << ex;
+      }
+      // Possible actions: IgnoreCompletely
+      mf::LogWarning(ex.category())
+        << "exception being ignored for current event:\n"
+        << cet::trim_right_copy(ex.what(), " \n");
+      // WARNING: Processing continues below!!!
+      // WARNING: We can only get here if an exception in end path
+      // processing is being ignored for the current event because
+      // the action is actions::IgnoreCompletely.
+    }
+    catch (...) {
+      mf::LogError("PassingThrough")
+        << "an exception occurred during current event processing\n";
+      TDEBUG_END_FUNC_SI_ERR(
+        4, "EndPathExecutor::process_event", sid, "because of EXCEPTION");
+      if (runningWorkerCnt_.load() != 1) {
+        abort();
+      }
+      --runningWorkerCnt_;
+      throw;
+    }
+    endPathInfo_.load()->incrementPassedEventCount();
+    if (runningWorkerCnt_.load() != 1) {
+      abort();
+    }
+    --runningWorkerCnt_;
+    TDEBUG_END_FUNC_SI(4, "EndPathExecutor::process_event", sid);
   }
-  auto const& ranges = subRunRangeSetHandler_->seenRanges();
-  srp.updateSeenRanges(ranges);
-  doForAllEnabledOutputWorkers_([&ranges](auto w){ w->setSubRunAuxiliaryRangeSetID(ranges); });
-}
 
-void art::EndPathExecutor::setAuxiliaryRangeSetID(RunPrincipal& rp)
-{
-  if (fileStatus_ != OutputFileStatus::Switching) {
-    runRangeSetHandler_->flushRanges();
+  void
+  EndPathExecutor::writeEvent(EventPrincipal& ep)
+  {
+    auto const sid = sc_.id();
+    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    for (auto ow : *outputWorkers_.load()) {
+      auto const& md = ow->description();
+      ModuleContext const mc{md};
+      actReg_.load()->sPreWriteEvent.invoke(mc);
+      ow->writeEvent(ep);
+      actReg_.load()->sPostWriteEvent.invoke(mc);
+    }
+    auto const& eid = ep.eventID();
+    bool const lastInSubRun{ep.isLastInSubRun()};
+    {
+      ostringstream msg;
+      msg << "eid: ";
+      msg << eid.run();
+      msg << ", ";
+      msg << eid.subRun();
+      msg << ", ";
+      msg << eid.event();
+      TDEBUG_FUNC_SI_MSG(5, "EndPathExecutor::writeEvent", sid, msg.str());
+    }
+    runRangeSetHandler_.load()->update(eid, lastInSubRun);
+    subRunRangeSetHandler_.load()
+      ->at(ScheduleID::first())
+      ->update(eid, lastInSubRun);
   }
-  auto const& ranges = runRangeSetHandler_->seenRanges();
-  rp.updateSeenRanges(ranges);
-  doForAllEnabledOutputWorkers_([&ranges](auto w){ w->setRunAuxiliaryRangeSetID(ranges); });
-}
 
-void art::EndPathExecutor::selectProducts(FileBlock const& fb)
-{
-  doForAllEnabledOutputWorkers_([&fb](auto w) { w->selectProducts(fb); });
-}
+  bool
+  EndPathExecutor::outputsToClose() const
+  {
+    return !outputWorkersToClose_.load()->empty();
+  }
 
-void art::EndPathExecutor::recordOutputClosureRequests(Granularity const b)
-{
-  doForAllEnabledOutputWorkers_([this,b](auto ow) {
-      // We need to support the following case:
-      //
-      //   fileProperties: {
-      //     maxEvents: 10
-      //     maxRuns: 1
-      //     granularity: Event
-      //   }
-      //
-      // If a request to close is made on a run boundary, but the
-      // granularity is still Event, then the file should close.  For
-      // that reason, the comparison is 'granularity > b' instead of
-      // 'granularity != b'.
+  // MT note: This is where we need to get all the schedules
+  //          synchronized, and then have all schedules do the file
+  //          close, and then the file open, then the schedules can
+  //          proceed.  A nasty complication is that a great deal of
+  //          time can go by between the file close and the file open
+  //          because artdaq may pause the run inbetween, and wants to
+  //          have all output files closed while the run is paused.
+  //          They probably want the input file closed too.
+  void
+  EndPathExecutor::closeSomeOutputFiles()
+  {
+    setOutputFileStatus(OutputFileStatus::Switching);
+    for (auto ow : *outputWorkersToClose_) {
+      // Skip files that are already closed due to other end-path
+      // executors already closing them.
+      if (!ow->fileIsOpen()) {
+        continue;
+      }
+      actReg_.load()->sPreCloseOutputFile.invoke(ow->label());
+      ow->closeFile();
+      actReg_.load()->sPostCloseOutputFile.invoke(
+        OutputFileInfo{ow->label(), ow->lastClosedFileName()});
+    }
+    *outputWorkersToOpen_.load() = move(*outputWorkersToClose_.load());
+  }
 
-      auto const granularity = ow->fileGranularity();
-      if (granularity > b || !ow->requestsToCloseFile()) return;
+  bool
+  EndPathExecutor::outputsToOpen() const
+  {
+    return !outputWorkersToOpen_.load()->empty();
+  }
 
-      // Technical note: although the outputWorkersToClose_ container
-      // is "moved from" in closeSomeOutputFiles, it is safe to call
-      // 'insert' vis-a-vis the [lib.types.movedfrom] section of the
-      // standard.  There are no preconditions for std::set::insert,
-      // so no state-checking is required.
-      outputWorkersToClose_.insert(ow);
-    });
-}
+  void
+  EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
+  {
+    for (auto ow : *outputWorkersToOpen_.load()) {
+      if (!ow->openFile(fb)) {
+        continue;
+      }
+      actReg_.load()->sPostOpenOutputFile.invoke(ow->label());
+    }
+    setOutputFileStatus(OutputFileStatus::Open);
+    outputWorkersToOpen_.load()->clear();
+  }
 
-void art::EndPathExecutor::incrementInputFileNumber()
-{
-  doForAllEnabledOutputWorkers_([](auto ow) {
+  // Note: When we are passed OutputFileStatus::Switching, we must close
+  //       the file and call openSomeOutputFiles which changes it back
+  //       to OutputFileStatus::Open.
+  //       A side effect of switching status is the run/subrun writes
+  //       are not counted in the overall counting by RootOutputClosingCriteria
+  //       while the switch is active (this avoids counting the extra subRun and
+  //       Run that we are forced to write to finish out the file we are
+  //       closing, which keeps the ongoing count for closing based on SubRun
+  //       and Run counts meaningful).  However, the extra ones are still
+  //       counted by the tree entry counters.
+  void
+  EndPathExecutor::setOutputFileStatus(OutputFileStatus const ofs)
+  {
+    for (auto ow : *outputWorkers_.load()) {
+      ow->setFileStatus(ofs);
+    }
+    fileStatus_ = ofs;
+  }
+
+  void
+  EndPathExecutor::recordOutputClosureRequests(Granularity const atBoundary)
+  {
+    for (auto ow : *outputWorkers_.load()) {
+      if (atBoundary < ow->fileGranularity()) {
+        // The boundary we are checking at is finer than the checks
+        // the output worker needs, nothing to do.
+        continue;
+      }
+      auto wants_to_close = ow->requestsToCloseFile();
+      if (wants_to_close) {
+        outputWorkersToClose_.load()->insert(ow);
+      }
+    }
+  }
+
+  void
+  EndPathExecutor::incrementInputFileNumber()
+  {
+    for (auto ow : *outputWorkers_.load()) {
       ow->incrementInputFileNumber();
-    });
-}
+    }
+  }
 
-bool art::EndPathExecutor::outputsToOpen() const
-{
-  return !outputWorkersToOpen_.empty();
-}
+  bool
+  EndPathExecutor::allAtLimit() const
+  {
+    if (outputWorkers_.load()->empty()) {
+      return false;
+    }
+    bool all_at_limit = true;
+    for (auto w : *outputWorkers_.load()) {
+      if (!w->limitReached()) {
+        all_at_limit = false;
+        break;
+      }
+    }
+    if (all_at_limit) {
+      mf::LogInfo("SuccessfulTermination")
+        << "The job is terminating successfully because each output module\n"
+        << "has reached its configured limit.\n";
+    }
+    return all_at_limit;
+  }
 
-bool art::EndPathExecutor::outputsToClose() const
-{
-  return !outputWorkersToClose_.empty();
-}
-
-bool art::EndPathExecutor::someOutputsOpen() const
-{
-  return std::any_of(outputWorkers_.cbegin(),
-                     outputWorkers_.cend(),
-                     [](auto ow) {
-                       return ow->fileIsOpen();
-                     } );
-}
-
-void art::EndPathExecutor::closeSomeOutputFiles()
-{
-  auto invoke_sPreCloseOutputFile  = [this](auto ow){actReg_.sPreCloseOutputFile.invoke(ow->label());};
-  auto closeFile                   = [    ](auto ow){ow->closeFile();};
-  auto invoke_sPostCloseOutputFile = [this](auto ow){actReg_.sPostCloseOutputFile.invoke(OutputFileInfo{ow->label(), ow->lastClosedFileName()});};
-
-  setOutputFileStatus(OutputFileStatus::Switching);
-  cet::for_all(outputWorkersToClose_, invoke_sPreCloseOutputFile);
-  cet::for_all(outputWorkersToClose_, closeFile);
-  cet::for_all(outputWorkersToClose_, invoke_sPostCloseOutputFile);
-  outputWorkersToOpen_ = std::move(outputWorkersToClose_);
-}
-
-void art::EndPathExecutor::setOutputFileStatus(OutputFileStatus const ofs)
-{
-  doForAllEnabledOutputWorkers_([ofs](auto ow){ow->setFileStatus(ofs);});
-  fileStatus_ = ofs;
-}
-
-void art::EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
-{
-  auto openFile                    = [ &fb](auto ow){ow->openFile(fb);};
-  auto invoke_sPostOpenOutputFile  = [this](auto ow){actReg_.sPostOpenOutputFile.invoke(ow->label());};
-
-  cet::for_all(outputWorkersToOpen_, openFile);
-  cet::for_all(outputWorkersToOpen_, invoke_sPostOpenOutputFile);
-  setOutputFileStatus(OutputFileStatus::Open);
-
-  outputWorkersToOpen_.clear();
-}
-
-void art::EndPathExecutor::respondToOpenInputFile(FileBlock const& fb)
-{
-  doForAllEnabledWorkers_([&fb](auto w){ w->respondToOpenInputFile(fb); });
-}
-
-void art::EndPathExecutor::respondToCloseInputFile(FileBlock const& fb)
-{
-  doForAllEnabledWorkers_([&fb](auto w){ w->respondToCloseInputFile(fb); });
-}
-
-void art::EndPathExecutor::respondToOpenOutputFiles(FileBlock const& fb)
-{
-  doForAllEnabledWorkers_([&fb](auto w){ w->respondToOpenOutputFiles(fb); });
-}
-
-void art::EndPathExecutor::respondToCloseOutputFiles(FileBlock const& fb)
-{
-  doForAllEnabledWorkers_([&fb](auto w){ w->respondToCloseOutputFiles(fb); });
-}
-
-void art::EndPathExecutor::beginJob()
-{
-  doForAllEnabledWorkers_([](auto w){ w->beginJob(); });
-}
-
-void
-art::EndPathExecutor::resetAll()
-{
-  doForAllEnabledWorkers_([](auto w){ w->reset(); });
-}
+} // namespace art

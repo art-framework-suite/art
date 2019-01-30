@@ -1,0 +1,15 @@
+test_properties: {
+  graph_failure_expected: true
+  error_message: "Module p1 on path tp depends on either itself or modules that follow it:(.|\\n)*Module p3 on path tp"
+}
+
+process_name: test
+
+physics: {
+  producers: {
+    p1: { consumes: [["int", "p3::current_process"]] }
+    p2: {}
+    p3: { produces: [["int", ""]] }
+  }
+  tp: [p1, p2, p3]
+}

@@ -1,102 +1,132 @@
 #include "art/Framework/Core/EDAnalyzer.h"
+// vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/CPCSentry.h"
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/Run.h"
-#include "art/Framework/Principal/SubRun.h"
-#include "canvas/Utilities/Exception.h"
-#include "cetlib_except/demangle.h"
+using namespace std;
 
-namespace art
-{
+namespace art {
 
-  bool
-  EDAnalyzer::doEvent(EventPrincipal const& ep,
-                      CPC_exempt_ptr cpc,
-                      CountingStatistics& counts)
+  string
+  EDAnalyzer::workerType() const
   {
-    detail::CPCSentry sentry {current_context_, cpc};
-    detail::PVSentry pvSentry {cachedProducts()};
-    Event const e {ep, moduleDescription_};
-    if (wantAllEvents() || wantEvent(e)) {
-      // Run is incremented before analyze(e); to properly count
-      // whenever an exception is thrown in the user's module.
-      counts.increment<stats::Run>();
-      analyze(e);
-      counts.increment<stats::Passed>();
-    }
-    return true;
+    return "WorkerT<EDAnalyzer>";
   }
 
   void
-  EDAnalyzer::doBeginJob() {
-    beginJob();
+  EDAnalyzer::setupQueues()
+  {
+    createQueues();
   }
 
   void
-  EDAnalyzer::doEndJob() {
-    endJob();
-  }
-
-  bool
-  EDAnalyzer::doBeginRun(RunPrincipal const& rp,
-                         CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry {current_context_, cpc};
-    Run const r {rp, moduleDescription_};
-    beginRun(r);
-    return true;
-  }
-
-  bool
-  EDAnalyzer::doEndRun(RunPrincipal const& rp,
-                       CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry {current_context_, cpc};
-    Run const r {rp, moduleDescription_};
-    endRun(r);
-    return true;
-  }
-
-  bool
-  EDAnalyzer::doBeginSubRun(SubRunPrincipal const& srp,
-                            CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry {current_context_, cpc};
-    SubRun const sr {srp, moduleDescription_};
-    beginSubRun(sr);
-    return true;
-  }
-
-  bool
-  EDAnalyzer::doEndSubRun(SubRunPrincipal const& srp,
-                          CPC_exempt_ptr cpc) {
-    detail::CPCSentry sentry {current_context_, cpc};
-    SubRun const sr {srp, moduleDescription_};
-    endSubRun(sr);
-    return true;
-  }
-
-  void
-  EDAnalyzer::doRespondToOpenInputFile(FileBlock const& fb) {
+  EDAnalyzer::respondToOpenInputFileWithFrame(FileBlock const& fb,
+                                              ProcessingFrame const&)
+  {
     respondToOpenInputFile(fb);
   }
 
   void
-  EDAnalyzer::doRespondToCloseInputFile(FileBlock const& fb) {
+  EDAnalyzer::respondToCloseInputFileWithFrame(FileBlock const& fb,
+                                               ProcessingFrame const&)
+  {
     respondToCloseInputFile(fb);
   }
 
   void
-  EDAnalyzer::doRespondToOpenOutputFiles(FileBlock const& fb) {
+  EDAnalyzer::respondToOpenOutputFilesWithFrame(FileBlock const& fb,
+                                                ProcessingFrame const&)
+  {
     respondToOpenOutputFiles(fb);
   }
 
   void
-  EDAnalyzer::doRespondToCloseOutputFiles(FileBlock const& fb) {
+  EDAnalyzer::respondToCloseOutputFilesWithFrame(FileBlock const& fb,
+                                                 ProcessingFrame const&)
+  {
     respondToCloseOutputFiles(fb);
   }
 
-  CurrentProcessingContext const*
-  EDAnalyzer::currentContext() const {
-    return current_context_.get();
+  void
+  EDAnalyzer::beginJobWithFrame(ProcessingFrame const&)
+  {
+    beginJob();
   }
 
-}  // art
+  void
+  EDAnalyzer::endJobWithFrame(ProcessingFrame const&)
+  {
+    endJob();
+  }
+
+  void
+  EDAnalyzer::beginRunWithFrame(Run const& r, ProcessingFrame const&)
+  {
+    beginRun(r);
+  }
+
+  void
+  EDAnalyzer::endRunWithFrame(Run const& r, ProcessingFrame const&)
+  {
+    endRun(r);
+  }
+
+  void
+  EDAnalyzer::beginSubRunWithFrame(SubRun const& sr, ProcessingFrame const&)
+  {
+    beginSubRun(sr);
+  }
+
+  void
+  EDAnalyzer::endSubRunWithFrame(SubRun const& sr, ProcessingFrame const&)
+  {
+    endSubRun(sr);
+  }
+
+  void
+  EDAnalyzer::analyzeWithFrame(Event const& e, ProcessingFrame const& frame)
+  {
+    ScheduleIDSentry sentry{*this, frame.scheduleID()};
+    analyze(e);
+  }
+
+  // Default implementations
+  void
+  EDAnalyzer::beginJob()
+  {}
+
+  void
+  EDAnalyzer::endJob()
+  {}
+
+  void
+  EDAnalyzer::respondToOpenInputFile(FileBlock const&)
+  {}
+
+  void
+  EDAnalyzer::respondToCloseInputFile(FileBlock const&)
+  {}
+
+  void
+  EDAnalyzer::respondToOpenOutputFiles(FileBlock const&)
+  {}
+
+  void
+  EDAnalyzer::respondToCloseOutputFiles(FileBlock const&)
+  {}
+
+  void
+  EDAnalyzer::beginRun(Run const&)
+  {}
+
+  void
+  EDAnalyzer::endRun(Run const&)
+  {}
+
+  void
+  EDAnalyzer::beginSubRun(SubRun const&)
+  {}
+
+  void
+  EDAnalyzer::endSubRun(SubRun const&)
+  {}
+
+} // namespace art

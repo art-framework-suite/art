@@ -1,36 +1,31 @@
-set(art_Utilities_sources
-  ensureTable.cc
-  ExceptionMessages.cc
-  FirstAbsoluteOrLookupWithDotPolicy.cc
-  LinuxProcMgr.cc
-  MallocOpts.cc
-  parent_path.cc
-  PluginSuffixes.cc
-  RegexMatch.cc
-  RootHandlers.cc
-  unique_filename.cc
-  UnixSignalHandlers.cc)
+find_package(Threads REQUIRED)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  list(APPEND art_Utilities_sources LinuxProcMgr.cc)
-endif()
-
-art_make_library(SOURCE ${art_Utilities_sources}
-  LIBRARIES canvas
-  MF_MessageLogger
-  MF_Utilities
-  fhiclcpp
-  cetlib
-  cetlib_except
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_REGEX_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
-  ${Boost_THREAD_LIBRARY}
-  ${ROOT_CORE}
-  ${TBB}
-  -lpthread
-  ${CMAKE_DL_LIBS}
-  )
+art_make_library(
+  SOURCE
+    ensureTable.cc
+    ExceptionMessages.cc
+    Globals.cc
+    LinuxProcMgr.cc
+    MallocOpts.cc
+    parent_path.cc
+    PluginSuffixes.cc
+    RegexMatch.cc
+    ScheduleID.cc
+    SharedResource.cc
+    SharedResourcesRegistry.cc
+    unique_filename.cc
+    UnixSignalHandlers.cc
+    $<$<PLATFORM_ID:Linux>:LinuxProcMgr.cc>
+  LIBRARIES
+    canvas
+    MF_MessageLogger
+    fhiclcpp
+    cetlib
+    cetlib_except
+    hep_concurrency
+    ${Boost_FILESYSTEM_LIBRARY}
+    Threads::Threads)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

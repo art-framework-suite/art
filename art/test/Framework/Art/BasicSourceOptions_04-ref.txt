@@ -15,6 +15,9 @@ services: {
                ArtReport: {
                   limit: 100
                }
+               MTdiagnostics: {
+                  limit: 0
+               }
                default: {
                   limit: -1
                }
@@ -25,13 +28,23 @@ services: {
       }
    }
    scheduler: {
+      debug: {
+         fileName: "config.out"
+         option: "debug-config"
+         printMode: "raw"
+      }
       errorOnFailureToPut: true
+      errorOnMissingConsumes: false
       errorOnSIGINT: true
+      num_schedules: 1
+      num_threads: 1
    }
 }
 source: {
    fileNames: []
    firstEvent: 5
+   firstRun: 1
+   firstSubRun: 0
    maxEvents: 4
    module_label: "source"
    module_type: "RootInput"

@@ -6,47 +6,53 @@
 //
 // Responsible for retrieving procfs information.
 //
-// MT-TODO: Once we decide to allow multiple modules to process the
-// same event concurrently, we'll need to adjust how memory
-// information is retrieved--it may need to be per-thread instead of
-// per-schedule.
+// A different implementation may be necessary to guarantee that we do
+// not open too many file descriptors.
 // ================================================================
 
 #include "art/Utilities/LinuxProcData.h"
 #include "art/Utilities/ScheduleID.h"
 
+#include <cstdio>
+#include <string>
+#include <utility>
 #include <vector>
 
 namespace art {
 
   class LinuxProcMgr {
   public:
-
-    using sid_size_type = ScheduleID::size_type;
-    explicit LinuxProcMgr(sid_size_type nSchedules);
+    LinuxProcMgr() noexcept(false);
     ~LinuxProcMgr() noexcept;
 
-    LinuxProcData::proc_tuple getCurrentData(sid_size_type) const;
-    double getVmPeak() const { return getStatusData_("VmPeak"); }
-    double getVmHWM() const { return getStatusData_("VmHWM"); }
+    LinuxProcData::proc_tuple getCurrentData() const noexcept(false);
+    double
+    getVmPeak() const noexcept(false)
+    {
+      return getStatusData_("VmPeak");
+    }
+    double
+    getVmHWM() const noexcept(false)
+    {
+      return getStatusData_("VmHWM");
+    }
 
-    // Disable copy/move
     LinuxProcMgr(LinuxProcMgr const&) = delete;
     LinuxProcMgr(LinuxProcMgr&&) = delete;
     LinuxProcMgr& operator=(LinuxProcMgr const&) = delete;
     LinuxProcMgr& operator=(LinuxProcMgr&&) = delete;
 
   private:
-    double getStatusData_(std::string const& field) const;
+    double getStatusData_(std::string const& field) const noexcept(false);
 
-    pid_t pid_;
-    long pgSize_;
-    std::vector<int> fileDescriptors_{};
+    pid_t const pid_;
+    long const pgSize_;
+    FILE* const file_;
   };
 
-}
+} // namespace art
 
-#endif /* art_Framework_Services_Optional_detail_LinuxProcMgr_h */
+#endif /* art_Utilities_LinuxProcMgr_h */
 
 // Local variables:
 // mode:c++

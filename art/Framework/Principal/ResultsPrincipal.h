@@ -1,6 +1,6 @@
 #ifndef art_Framework_Principal_ResultsPrincipal_h
 #define art_Framework_Principal_ResultsPrincipal_h
-// vim: set sw=2:
+// vim: set sw=2 expandtab :
 
 //
 //  ResultsPrincipal
@@ -13,49 +13,32 @@
 
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/Principal.h"
-#include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
 #include "cetlib/exempt_ptr.h"
+
 #include <memory>
-#include <vector>
 
 namespace art {
-  class ResultsPrincipal;
-}
 
-class art::ResultsPrincipal final : public Principal {
-public:
-  using Auxiliary = ResultsAuxiliary;
-  static constexpr BranchType branch_type = ResultsAuxiliary::branch_type;
+  class ProcessConfiguration;
 
-  ResultsPrincipal(ResultsAuxiliary const&,
-                   ProcessConfiguration const&,
-                   std::unique_ptr<BranchMapper>&& mapper = std::make_unique<BranchMapper>(),
-                   std::unique_ptr<DelayedReader>&& rtrv = std::make_unique<NoDelayedReader>(),
-                   int const idx = 0,
-                   cet::exempt_ptr<ResultsPrincipal const> = nullptr);
+  class ResultsPrincipal final : public Principal {
 
-  ResultsAuxiliary const & aux() const { return aux_; }
+  public:
+    using Auxiliary = ResultsAuxiliary;
+    static constexpr BranchType branch_type = ResultsAuxiliary::branch_type;
 
-  void put(std::unique_ptr<EDProduct>&&,
-           BranchDescription const&,
-           std::unique_ptr<ProductProvenance const>&&);
+  public:
+    ~ResultsPrincipal();
+    ResultsPrincipal(ResultsAuxiliary const&,
+                     ProcessConfiguration const&,
+                     cet::exempt_ptr<ProductTable const> presentProducts,
+                     std::unique_ptr<DelayedReader>&& reader =
+                       std::make_unique<NoDelayedReader>());
+  };
 
-  void fillGroup(BranchDescription const&) override;
-
-  BranchType branchType() const override;
-  RangeSet seenRanges() const override { return RangeSet::invalid(); }
-
-private:
-
-  ProcessHistoryID const& processHistoryID() const override;
-
-  void setProcessHistoryID(ProcessHistoryID const& phid) override;
-
-  ResultsAuxiliary aux_;
-};
+} // namespace art
 
 #endif /* art_Framework_Principal_ResultsPrincipal_h */
 

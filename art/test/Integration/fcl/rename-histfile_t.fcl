@@ -1,8 +1,0 @@
-source:
-{
-  module_type: ToyRawInput
-  fileNames: [ f1 ]
-  f1: [ [1, 0, 1], [-1, 1, 1], [2, 1, 5], [-1, 8, 7 ] ]
-}
-
-services.TFileService: { fileName: "test_%r_%s_%R_%S.root" }

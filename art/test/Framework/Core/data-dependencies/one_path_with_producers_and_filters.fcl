@@ -1,0 +1,17 @@
+test_properties: {
+  graph_failure_expected: false
+}
+
+process_name: test
+
+physics: {
+  producers: {
+    p1: {}
+    p2: {}
+  }
+  filters: {
+    f1: {}
+    f2: {}
+  }
+  path: [p1, f1, p2, f2]
+}

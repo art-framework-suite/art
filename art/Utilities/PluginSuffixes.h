@@ -43,68 +43,101 @@
   2. Require creating a free function that returns the full list of
      allowed suffixes.  Then for each
 
-        'Suffixes::{module,service,source,plugin,tool}()'
+        'Suffixes::{module,service,source,plugin,tool,mfPlugin,mfStatsPlugin}()'
 
      free function call, the full-list function would be called each
      time, which seems unnecessary.
-
-  KK, October 2015
 */
 
 #include "canvas/Utilities/Exception.h"
 
-#include <map>
 #include <ostream>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 namespace art {
 
-  enum class suffix_type {module, plugin, service, source, tool};
+  enum class suffix_type : std::size_t {
+    module,
+    plugin,
+    service,
+    source,
+    tool,
+    mfPlugin,
+    mfStatsPlugin
+  };
 
-  inline std::ostream& operator<<(std::ostream& os, suffix_type const st)
+  inline std::ostream&
+  operator<<(std::ostream& os, suffix_type const st)
   {
     return os << static_cast<std::underlying_type_t<suffix_type>>(st);
   }
 
   class Suffixes {
+    static constexpr auto
+    index_for(suffix_type const st)
+    {
+      return static_cast<std::underlying_type_t<suffix_type>>(st);
+    }
+
   public:
+    static std::string const&
+    module()
+    {
+      return suffixes_[index_for(suffix_type::module)];
+    }
+    static std::string const&
+    plugin()
+    {
+      return suffixes_[index_for(suffix_type::plugin)];
+    }
+    static std::string const&
+    service()
+    {
+      return suffixes_[index_for(suffix_type::service)];
+    }
+    static std::string const&
+    source()
+    {
+      return suffixes_[index_for(suffix_type::source)];
+    }
+    static std::string const&
+    tool()
+    {
+      return suffixes_[index_for(suffix_type::tool)];
+    }
+    static std::string const&
+    mfPlugin()
+    {
+      return suffixes_[index_for(suffix_type::mfPlugin)];
+    }
+    static std::string const&
+    mfStatsPlugin()
+    {
+      return suffixes_[index_for(suffix_type::mfStatsPlugin)];
+    }
 
-    static std::string const& module () { return suffixes_[suffix_type::module ]; }
-    static std::string const& plugin () { return suffixes_[suffix_type::plugin ]; }
-    static std::string const& service() { return suffixes_[suffix_type::service]; }
-    static std::string const& source () { return suffixes_[suffix_type::source ]; }
-    static std::string const& tool   () { return suffixes_[suffix_type::tool   ]; }
-
-    static std::string const& get(suffix_type st) { return suffixes_[st]; }
-
-    static std::string print()
+    static std::string
+    print()
     {
       std::string result;
-      for (auto const& pr : suffixes_)
-        result += "\n    '"+pr.second+"'";
+      for (auto const& suffix : suffixes_)
+        result += "\n    '" + suffix + "'";
       return result;
     }
 
-    static suffix_type const& get(std::string const& suffix) {
-      auto it = rSuffixes_.find(suffix);
-      if ( it == rSuffixes_.cend() ) {
-        throw art::Exception(art::errors::NotFound)
-          << " The suffix '" << suffix << "' is not supported.\n"
-          << " Please choose from:"
-          << print();
-      }
-      return it->second;
+    static std::vector<std::string> const&
+    all()
+    {
+      return suffixes_;
     }
 
-    static std::map<suffix_type,std::string> const& all() { return suffixes_; }
-
   private:
-    static std::map<suffix_type,std::string> suffixes_;
-    static std::map<std::string,suffix_type> rSuffixes_;
+    static std::vector<std::string> const suffixes_;
   };
 
-}
+} // namespace art
 
 #endif /* art_Utilities_PluginSuffixes_h */
 

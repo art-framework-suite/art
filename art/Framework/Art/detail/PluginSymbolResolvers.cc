@@ -1,36 +1,76 @@
 #include "art/Framework/Art/detail/PluginSymbolResolvers.h"
+#include "art/Framework/Art/detail/PrintFormatting.h"
+#include "art/Persistency/Provenance/ModuleType.h"
+#include "art/Utilities/PluginSuffixes.h"
+#include "boost/filesystem.hpp"
+#include "cetlib/LibraryManager.h"
+
+#include <iostream>
 
 using namespace std::string_literals;
 namespace bfs = boost::filesystem;
 using cet::LibraryManager;
 
+namespace {
+  template <typename F, typename RT = decltype(std::declval<F>()())>
+  RT
+  resolve_if_present(F f, std::string const& caller, RT result)
+  {
+    try {
+      result = f();
+    }
+    catch (cet::exception const& e) {
+      std::cout << "In: " << caller << std::endl;
+      std::cout << e.what() << std::endl;
+    }
+    return result;
+  }
+}
 
-namespace art {
-  namespace detail {
+namespace art::detail {
 
-    template <>
-    std::string getType<suffix_type::module>(cet::LibraryManager const& lm,
-                                             std::string const& fullSpec)
-    {
+  std::string
+  getFilePath(cet::LibraryManager const& lm, std::string const& fullspec)
+  {
+    using GetSourceLoc_t = std::string();
+
+    using namespace std::string_literals;
+    auto path = [&lm, &fullspec] {
+      GetSourceLoc_t* symbolLoc{};
+      lm.getSymbolByLibspec(fullspec, "get_source_location", symbolLoc);
+      std::string source{symbolLoc()};
+      boost::filesystem::path const p{source};
+      if (!boost::filesystem::exists(p)) {
+        source =
+          "/ [ external source ] /" + fullspec + "_" + lm.libType() + ".cc";
+      }
+      return source;
+    };
+
+    return resolve_if_present(path, __func__, "[ not found ]"s);
+  }
+
+  std::string
+  getType(cet::LibraryManager const& lm, std::string const& fullSpec)
+  {
+    auto const& suffix = lm.libType();
+    if (suffix == Suffixes::module()) {
       using ModuleTypeFunc_t = art::ModuleType();
 
-      auto type = [&lm,&fullSpec] {
-        ModuleTypeFunc_t* symbolType {nullptr};
+      auto type = [&lm, &fullSpec] {
+        ModuleTypeFunc_t* symbolType{nullptr};
         lm.getSymbolByLibspec(fullSpec, "moduleType", symbolType);
-        return art::to_string(symbolType());
+        return to_string(symbolType());
       };
 
       return resolve_if_present(type, __func__, "[ error ]"s);
     }
 
-    template <>
-    std::string getType<suffix_type::plugin>(cet::LibraryManager const& lm,
-                                             std::string const& fullSpec)
-    {
+    if (suffix == Suffixes::plugin()) {
       using PluginTypeFunc_t = std::string();
 
-      auto type = [&lm,&fullSpec] {
-        PluginTypeFunc_t* symbolType {nullptr};
+      auto type = [&lm, &fullSpec] {
+        PluginTypeFunc_t* symbolType{nullptr};
         lm.getSymbolByLibspec(fullSpec, "pluginType", symbolType);
         return symbolType();
       };
@@ -38,19 +78,37 @@ namespace art {
       return resolve_if_present(type, __func__, "[ error ]"s);
     }
 
-    template <>
-    std::string getType<suffix_type::tool>(cet::LibraryManager const& lm,
-                                           std::string const& fullSpec)
-    {
+    if (suffix == Suffixes::tool()) {
       using ToolTypeFunc_t = std::string();
 
-      auto type = [&lm,&fullSpec]{
-        ToolTypeFunc_t* symbolType {nullptr};
+      auto type = [&lm, &fullSpec] {
+        ToolTypeFunc_t* symbolType{nullptr};
         lm.getSymbolByLibspec(fullSpec, "toolType", symbolType);
         return symbolType();
       };
 
       return resolve_if_present(type, __func__, "[ error ]"s);
     }
+    return {};
   }
-}
+
+  std::unique_ptr<fhicl::ConfigurationTable>
+  getAllowedConfiguration(cet::LibraryManager const& lm,
+                          std::string const& fullSpec,
+                          std::string const& name)
+  {
+    using GetAllowedConfiguration_t =
+      std::unique_ptr<fhicl::ConfigurationTable>(std::string const&);
+
+    auto description = [&lm, &fullSpec, &name] {
+      GetAllowedConfiguration_t* symbolType{};
+      lm.getSymbolByLibspec(fullSpec, "allowed_configuration", symbolType);
+      return symbolType(name);
+    };
+
+    return resolve_if_present(
+      description,
+      __func__,
+      std::unique_ptr<fhicl::ConfigurationTable>{nullptr});
+  }
+} // namespace art::detail

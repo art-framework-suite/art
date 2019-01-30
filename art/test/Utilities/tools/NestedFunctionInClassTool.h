@@ -7,10 +7,12 @@
 namespace arttest {
   class NestedFunctionInClassTool {
   public:
+    explicit NestedFunctionInClassTool(fhicl::ParameterSet const& ps)
+      : pset_{ps}
+    {}
 
-    explicit NestedFunctionInClassTool(fhicl::ParameterSet const& ps) : pset_{ps} {}
-
-    int callThroughToAddOne(int const i)
+    int
+    callThroughToAddOne(int const i)
     {
       // It is a bad idea to call make_tool for each function call, as
       // is the case here.  It would be much better to create a data
@@ -19,14 +21,15 @@ namespace arttest {
       // constructed within a function call, we leave it as is.  See
       // the c'tor of AddIntsProducer for an example of better code
       // practice.
-      auto addOne = art::make_tool<int(int)>(pset_.get<fhicl::ParameterSet>("addOneTool"), "addOne");
+      auto addOne = art::make_tool<int(int)>(
+        pset_.get<fhicl::ParameterSet>("addOneTool"), "addOne");
       return addOne(i);
     }
 
   private:
     fhicl::ParameterSet pset_;
   };
-}
+} // namespace arttest
 
 #endif /* art_test_Utilities_tools_NestedFunctionInClassTool_h */
 

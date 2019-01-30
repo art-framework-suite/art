@@ -34,7 +34,7 @@ sub baseClasses: {
 sub constructors {
   return [ {
             explicit => 1,
-            args => [ "fhicl::ParameterSet const & p", "art::ActivityRegistry & areg" ],
+            args => [ "fhicl::ParameterSet const& p", "art::ActivityRegistry& areg" ],
             comment => "Add interface initializer to list if necessary."
            } ];
 }

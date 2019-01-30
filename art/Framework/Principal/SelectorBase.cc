@@ -4,8 +4,7 @@
 
 #include "art/Framework/Principal/SelectorBase.h"
 
-namespace art
-{
+namespace art {
   class BranchDescription;
 
   //------------------------------------------------------------------
@@ -13,6 +12,5 @@ namespace art
   // SelectorBase
   //
   //------------------------------------------------------------------
-  SelectorBase::~SelectorBase()
-  { }
-}
+  SelectorBase::~SelectorBase() {}
+} // namespace art

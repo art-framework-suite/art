@@ -11,12 +11,18 @@ services: {
    MemoryTracker: {
       service_type: "MemoryTracker"
    }
+   Tracer: {
+      service_type: "Tracer"
+   }
    message: {
       destinations: {
          STDOUT: {
             categories: {
                ArtReport: {
                   limit: 100
+               }
+               MTdiagnostics: {
+                  limit: 0
                }
                default: {
                   limit: -1
@@ -28,10 +34,17 @@ services: {
       }
    }
    scheduler: {
+      debug: {
+         fileName: "config.out"
+         option: "debug-config"
+         printMode: "raw"
+      }
       defaultExceptions: false
       errorOnFailureToPut: true
+      errorOnMissingConsumes: false
       errorOnSIGINT: true
-      wantTracer: true
+      num_schedules: 1
+      num_threads: 1
    }
 }
 source: {

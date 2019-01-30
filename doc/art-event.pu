@@ -8,8 +8,8 @@ abstract class Principal {
   - groups_ : map<BranchID, shared_ptr<Group>>
 }
 Principal <|-- EventPrincipal
-abstract class EDProductGetterFinder
-EDProductGetterFinder <|-- Principal
+abstract class PrincipalBase
+PrincipalBase <|-- Principal
 
 Principal -> Group
 abstract class EDProductGetter

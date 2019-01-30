@@ -1,6 +1,0 @@
-#include "Ptrmv_w.fcl"
-
-outputs.o1:
-{
-    module_type: ProvenanceCheckerOutput
-}

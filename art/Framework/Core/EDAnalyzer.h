@@ -1,151 +1,82 @@
 #ifndef art_Framework_Core_EDAnalyzer_h
 #define art_Framework_Core_EDAnalyzer_h
+// vim: set sw=2 expandtab :
 
-// ======================================================================
-//
-// EDAnalyzer - the base class for all analyzer "modules".
-//
-// ======================================================================
+// ===================================================
+// The base class for all legacy analyzer modules.
+// ===================================================
 
-#include "art/Framework/Core/EngineCreator.h"
-#include "art/Framework/Core/EventObserverBase.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
-#include "art/Framework/Core/detail/IgnoreModuleLabel.h"
+#include "art/Framework/Core/detail/Analyzer.h"
+#include "art/Framework/Core/detail/LegacyModule.h"
+#include "art/Framework/Core/detail/SharedModule.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Utilities/ConfigurationTable.h"
+#include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/types/KeysToIgnore.h"
-#include "fhiclcpp/types/OptionalTable.h"
-#include "fhiclcpp/types/Table.h"
-#include "fhiclcpp/types/TableFragment.h"
 
-#include <memory>
-#include <ostream>
 #include <string>
 
-// ----------------------------------------------------------------------
+namespace art {
 
-namespace art
-{
-  class MasterProductRegistry;
-
-  class EDAnalyzer
-    : public EventObserverBase,
-      public EngineCreator
-  {
+  class EDAnalyzer : public detail::Analyzer, private detail::LegacyModule {
   public:
-    template <typename T> friend class WorkerT;
-
     using WorkerType = WorkerT<EDAnalyzer>;
     using ModuleType = EDAnalyzer;
 
-    //---------------------------------------------------------------------------
-    // Configuration
-
-    template <typename UserConfig, typename UserKeysToIgnore = void>
-    class Table : public ConfigurationTable {
-    public:
-
-      explicit Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
-      Table(fhicl::ParameterSet const& pset) : fullConfig_{pset} {}
-
-      auto const& operator()() const { return fullConfig_().user(); }
-      auto const& eoFragment() const { return fullConfig_().eoConfig(); }
-      auto const& get_PSet() const { return fullConfig_.get_PSet(); }
-
-      void print_allowed_configuration(std::ostream& os, std::string const& prefix) const
-      {
-        fullConfig_.print_allowed_configuration(os, prefix);
-      }
-
-    private:
-
-      template <typename T>
-      struct FullConfig {
-        fhicl::Atom<std::string> module_type { fhicl::Name("module_type") };
-        fhicl::TableFragment<EventObserverBase::EOConfig> eoConfig;
-        fhicl::TableFragment<T> user;
-      };
-
-      using KeysToIgnore_t = std::conditional_t<std::is_void<UserKeysToIgnore>::value,
-                                                detail::IgnoreModuleLabel,
-                                                fhicl::KeysToIgnore<detail::IgnoreModuleLabel, UserKeysToIgnore>>;
-
-      fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t> fullConfig_;
-      cet::exempt_ptr<fhicl::detail::ParameterBase const> get_parameter_base() const override { return &fullConfig_; }
-    };
-
-    //---------------------------------------------------------------------------
+    explicit EDAnalyzer(fhicl::ParameterSet const& pset)
+      : detail::Analyzer{pset}
+      , detail::LegacyModule{pset.get<std::string>("module_label")}
+    {}
 
     template <typename Config>
     explicit EDAnalyzer(Table<Config> const& config)
-      : EventObserverBase{config.eoFragment().selectEvents(), config.get_PSet()}
-      , EngineCreator{}
+      : EDAnalyzer{config.get_PSet()}
     {}
 
-    explicit EDAnalyzer(fhicl::ParameterSet const& pset)
-      : EventObserverBase{pset}
-      , EngineCreator{}
-    {}
+    using detail::LegacyModule::createEngine;
+    using detail::LegacyModule::scheduleID;
+    using detail::LegacyModule::serialTaskQueueChain;
 
-    virtual ~EDAnalyzer() = default;
-
-    std::string workerType() const {return "WorkerT<EDAnalyzer>";}
-
-  protected:
-    // The returned pointer will be null unless the this is currently
-    // executing its event loop function ('analyze').
-    CurrentProcessingContext const* currentContext() const;
+    std::string workerType() const;
 
   private:
+    void setupQueues() override final;
+    void beginJobWithFrame(ProcessingFrame const&) override final;
+    void endJobWithFrame(ProcessingFrame const&) override final;
+    void respondToOpenInputFileWithFrame(FileBlock const&,
+                                         ProcessingFrame const&) override final;
+    void respondToCloseInputFileWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void respondToOpenOutputFilesWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void respondToCloseOutputFilesWithFrame(
+      FileBlock const&,
+      ProcessingFrame const&) override final;
+    void beginRunWithFrame(Run const&, ProcessingFrame const&) override final;
+    void endRunWithFrame(Run const&, ProcessingFrame const&) override final;
+    void beginSubRunWithFrame(SubRun const&,
+                              ProcessingFrame const&) override final;
+    void endSubRunWithFrame(SubRun const&,
+                            ProcessingFrame const&) override final;
+    void analyzeWithFrame(Event const&, ProcessingFrame const&) override final;
 
-    using CPC_exempt_ptr = cet::exempt_ptr<CurrentProcessingContext const>;
-
-    bool doEvent(EventPrincipal const& ep, CPC_exempt_ptr cpc, CountingStatistics&);
-    void doBeginJob();
-    void doEndJob();
-    bool doBeginRun(RunPrincipal const& rp, CPC_exempt_ptr cpc);
-    bool doEndRun(RunPrincipal const& rp, CPC_exempt_ptr cpc);
-    bool doBeginSubRun(SubRunPrincipal const& srp, CPC_exempt_ptr cpc);
-    bool doEndSubRun(SubRunPrincipal const& srp, CPC_exempt_ptr cpc);
-    void doRespondToOpenInputFile(FileBlock const& fb);
-    void doRespondToCloseInputFile(FileBlock const& fb);
-    void doRespondToOpenOutputFiles(FileBlock const& fb);
-    void doRespondToCloseOutputFiles(FileBlock const& fb);
-
+    virtual void beginJob();
+    virtual void endJob();
+    virtual void respondToOpenInputFile(FileBlock const&);
+    virtual void respondToCloseInputFile(FileBlock const&);
+    virtual void respondToOpenOutputFiles(FileBlock const&);
+    virtual void respondToCloseOutputFiles(FileBlock const&);
+    virtual void beginRun(Run const&);
+    virtual void endRun(Run const&);
+    virtual void beginSubRun(SubRun const&);
+    virtual void endSubRun(SubRun const&);
     virtual void analyze(Event const&) = 0;
-    virtual void beginJob(){}
-    virtual void endJob(){}
-    virtual void reconfigure(fhicl::ParameterSet const&) {} // Not called by framework
-    virtual void beginRun(Run const&){}
-    virtual void endRun(Run const&){}
-    virtual void beginSubRun(SubRun const&){}
-    virtual void endSubRun(SubRun const&){}
-    virtual void respondToOpenInputFile(FileBlock const&) {}
-    virtual void respondToCloseInputFile(FileBlock const&) {}
-    virtual void respondToOpenOutputFiles(FileBlock const&) {}
-    virtual void respondToCloseOutputFiles(FileBlock const&) {}
+  };
 
-    void setModuleDescription(ModuleDescription const& md) {
-      moduleDescription_ = md;
-    }
-
-    ModuleDescription moduleDescription_ {};
-    CPC_exempt_ptr current_context_ {nullptr};
-  };  // EDAnalyzer
-
-  template <typename T>
-  inline std::ostream& operator<<(std::ostream& os, EDAnalyzer::Table<T> const& t)
-  {
-    std::ostringstream config;
-    t.print_allowed_configuration(config, std::string(3,' '));
-    return os << config.str();
-  }
-
-}  // art
-
-// ======================================================================
+} // namespace art
 
 #endif /* art_Framework_Core_EDAnalyzer_h */
 

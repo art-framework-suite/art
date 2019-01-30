@@ -1,46 +1,36 @@
 #ifndef art_Framework_Core_detail_ScheduleTask_h
 #define art_Framework_Core_detail_ScheduleTask_h
-////////////////////////////////////////////////////////////////////////
-// ScheduleTask
+// vim: set sw=2 expandtab :
+
 //
-// Top level schedule task for processing events.
+//  Top level schedule task for processing events.
 //
-////////////////////////////////////////////////////////////////////////
 
 #include "art/Utilities/ScheduleID.h"
 
 #include "tbb/task.h"
 
-namespace art {
-  namespace detail {
-    class ScheduleTask;
-  }
+namespace art::detail {
+  class ScheduleTask;
 }
 
 class art::detail::ScheduleTask : public tbb::task {
 public:
-  ScheduleTask(ScheduleID sid);
+  ScheduleTask(ScheduleID const sid);
 
   ScheduleID scheduleID() const;
 
-  tbb::task * execute() override;
+  tbb::task* execute() override;
 
 private:
-  ScheduleID id_;
+  ScheduleID const id_;
 };
 
-inline
-art::detail::ScheduleTask::
-ScheduleTask(ScheduleID sid)
-    :
-    id_(sid)
-{
-}
+inline art::detail::ScheduleTask::ScheduleTask(ScheduleID const sid) : id_(sid)
+{}
 
-inline
-art::ScheduleID
-art::detail::ScheduleTask::
-scheduleID() const
+inline art::ScheduleID
+art::detail::ScheduleTask::scheduleID() const
 {
   return id_;
 }

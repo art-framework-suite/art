@@ -1,97 +1,134 @@
 #ifndef art_Framework_Core_InputSource_h
 #define art_Framework_Core_InputSource_h
+// vim: set sw=2 expandtab :
 
-//----------------------------------------------------------------------
 //
 // InputSource is the abstract interface implemented by all concrete
 // sources.
 //
-//----------------------------------------------------------------------
 
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "canvas/Persistency/Provenance/ModuleDescription.h"
+#include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
 #include <ostream>
 
-namespace art
-{
-  class MasterProductRegistry;
+namespace art {
 
   namespace input {
-    enum ItemType {IsInvalid, IsStop, IsFile, IsRun, IsSubRun, IsEvent};
-    inline std::ostream& operator<<(std::ostream& os, ItemType const it)
+
+    enum ItemType {
+      IsInvalid // 0
+      ,
+      IsStop // 1
+      ,
+      IsFile // 2
+      ,
+      IsRun // 3
+      ,
+      IsSubRun // 4
+      ,
+      IsEvent // 5
+    };
+
+    inline std::ostream&
+    operator<<(std::ostream& os, ItemType const it)
     {
-      switch(it) {
-      case IsInvalid:
-        os << "Invalid";
-        break;
-      case IsStop:
-        os << "Stop";
-        break;
-      case IsFile:
-        os << "InputFile";
-        break;
-      case IsRun:
-        os << "Run";
-        break;
-      case IsSubRun:
-        os << "SubRun";
-        break;
-      case IsEvent:
-        os << "Event";
+      switch (it) {
+        case IsInvalid:
+          os << "Invalid";
+          break;
+        case IsStop:
+          os << "Stop";
+          break;
+        case IsFile:
+          os << "InputFile";
+          break;
+        case IsRun:
+          os << "Run";
+          break;
+        case IsSubRun:
+          os << "SubRun";
+          break;
+        case IsEvent:
+          os << "Event";
+          break;
       }
       return os;
     }
-  }
+
+  } // namespace input
 
   class InputSource {
-  public:
 
-    // TODO:
-    // This enum should probably be moved outside of InputSource.
-    enum ProcessingMode {Runs, RunsAndSubRuns, RunsSubRunsAndEvents};
+  public: // TYPES
+    enum ProcessingMode {
+      Runs // 0
+      ,
+      RunsAndSubRuns // 1
+      ,
+      RunsSubRunsAndEvents // 2
+    };
 
-    explicit InputSource(ModuleDescription const& md) : moduleDescription_{md} {}
-    virtual ~InputSource() noexcept = default;
+  public: // MEMBER FUNCTIONS -- Special Member Functions
+    virtual ~InputSource() noexcept;
 
-    auto const& moduleDescription() const { return moduleDescription_; }
-    auto const& processConfiguration() const { return moduleDescription_.processConfiguration(); }
+    explicit InputSource(ModuleDescription const&);
 
-    // Return the Event specified by the given EventID, or the next
-    // one in the input sequence after the given EventID if one with
-    // the given id can not be found. Derived classes that can not
-    // perform random access should not implement this function; the
-    // default implementation will throw an exception.
-    virtual std::unique_ptr<EventPrincipal> readEvent(EventID const& id);
+    InputSource(InputSource const&) = delete;
 
+    InputSource(InputSource&&) = delete;
+
+    InputSource& operator=(InputSource const&) = delete;
+
+    InputSource& operator=(InputSource&&) = delete;
+
+  public: // MEMBER FUNCTIONS -- Serial Access Interface
+    virtual input::ItemType nextItemType() = 0;
+
+    virtual std::unique_ptr<FileBlock> readFile() = 0;
+
+    virtual void closeFile() = 0;
+
+    virtual std::unique_ptr<RunPrincipal> readRun() = 0;
+
+    virtual std::unique_ptr<SubRunPrincipal> readSubRun(
+      cet::exempt_ptr<RunPrincipal const> rp) = 0;
+
+    virtual std::unique_ptr<EventPrincipal> readEvent(
+      cet::exempt_ptr<SubRunPrincipal const> srp) = 0;
+
+    virtual std::unique_ptr<RangeSetHandler> runRangeSetHandler() = 0;
+
+    virtual std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() = 0;
+
+  public: // MEMBER FUNCTIONS -- Job Interface
+    virtual void doBeginJob();
+
+    virtual void doEndJob();
+
+  public: // MEMBER FUNCTIONS -- Random Access Interface
     // Skip forward (or backward, if n<0) n events. Derived classes
-    // that can not perform random access should not implement this
+    // that cannot perform random access should not implement this
     // function; the default implementation will throw an exception.
     virtual void skipEvents(int n);
 
-    // Rewind to the beginning of input. Derived classes that can not
+    // Rewind to the beginning of input. Derived classes that cannot
     // perform this function will throw an exception.
     virtual void rewind();
 
-    virtual void doBeginJob();
-    virtual void doEndJob();
+  public: // MEMBER FUNCTIONS
+    ModuleDescription const& moduleDescription() const;
 
-    virtual input::ItemType nextItemType() = 0;
-    virtual std::unique_ptr<FileBlock> readFile(MasterProductRegistry&) = 0;
-    virtual void closeFile() = 0;
-    virtual std::unique_ptr<RunPrincipal> readRun() = 0;
-    virtual std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal const> rp) = 0;
-    virtual std::unique_ptr<EventPrincipal> readEvent(cet::exempt_ptr<SubRunPrincipal const> srp) = 0;
-    virtual std::unique_ptr<RangeSetHandler> runRangeSetHandler() = 0;
-    virtual std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() = 0;
+    ProcessConfiguration const& processConfiguration() const;
 
-  private:
+  private: // MEMBER DATA
     ModuleDescription moduleDescription_;
   };
-}
+
+} // namespace art
 
 #endif /* art_Framework_Core_InputSource_h */
 

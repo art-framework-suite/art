@@ -1,6 +1,0 @@
-BEGIN_PROLOG
-moduleOptions: {
-  wantVoid: "ALL"
-  wantAmbiguous: true
-}
-END_PROLOG

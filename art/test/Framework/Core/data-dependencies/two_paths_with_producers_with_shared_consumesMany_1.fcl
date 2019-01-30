@@ -1,0 +1,22 @@
+test_properties: {
+  graph_failure_expected: true
+  error_message: "(.|\\n)*Module readThenMake on paths tp1, tp2 depends on(.|\\n)*Module p2 on path tp2"
+}
+
+process_name: test
+
+physics: {
+  producers: {
+    p1: {
+      produces: [["int", ""]]
+    }
+    p2: {
+      produces: [["int", "instanceName"]]
+    }
+    readThenMake: {
+      consumesMany: ["int"]
+    }
+  }
+  tp1: [p1, readThenMake]
+  tp2: [p2, readThenMake]
+}

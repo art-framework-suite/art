@@ -1,0 +1,16 @@
+services: {
+  # Always-present services; configuration optional.
+  FloatingPointControl: {
+    enableDivByZeroEx: true
+#    enableInvalidEx: true
+#    enableUnderFlowEx: true
+#    enableOverFlowEx: true
+  }
+}
+
+physics.analyzers.a1.module_type: FPCTest
+physics.e1: [a1]
+
+source: { module_type: EmptyEvent maxEvents: 5 }
+
+process_name: DEVEL

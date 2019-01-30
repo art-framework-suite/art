@@ -1,255 +1,177 @@
 #ifndef art_Framework_IO_ProductMix_MixOp_h
 #define art_Framework_IO_ProductMix_MixOp_h
+// vim: set sw=2 expandtab :
 
 // Template encapsulating all the attributes and functionality of a
 // product mixing operation.
 
+#include "art/Framework/Core/InputSourceMutex.h"
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
-#include "art/Framework/IO/Root/RootBranchInfoList.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/System/CurrentModule.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "canvas/Persistency/Common/RefCoreStreamer.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
+#include "art/Utilities/Globals.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
-#include "art/Persistency/Provenance/ProductMetaData.h"
+#include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/canonicalProductName.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/InputTag.h"
+#include "cetlib/exempt_ptr.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <functional>
+#include <iostream>
+#include <memory>
 
 namespace art {
-  template <typename PROD, typename OPROD> class MixOp;
-}
 
-template <typename PROD, typename OPROD>
-class art::MixOp : public art::MixOpBase {
-public:
+  template <typename Prod, typename OProd>
+  class MixOp : public MixOpBase {
+  public:
+    template <typename FUNC>
+    MixOp(std::string const& moduleLabel,
+          InputTag const& inputTag,
+          std::string const& outputInstanceLabel,
+          FUNC mixFunc,
+          bool outputProduct,
+          bool compactMissingProducts,
+          BranchType bt);
+
+    InputTag const&
+    inputTag() const override
+    {
+      return inputTag_;
+    }
+    TypeID
+    inputType() const override
+    {
+      return inputType_;
+    }
+    EDProduct const*
+    newIncomingWrappedProduct() const override
+    {
+      return new Wrapper<Prod>{};
+    }
+    ProductID incomingProductID() const override;
+    ProductID outgoingProductID() const override;
+    BranchType branchType() const override;
+
+  private:
+    void mixAndPut(Event& e,
+                   SpecProdList const& inProducts,
+                   PtrRemapper const& remap) const override;
+    void setIncomingProductID(ProductID) override;
+
+    InputTag const inputTag_;
+    std::string const outputInstanceLabel_;
+    TypeID const inputType_;
+    MixFunc<Prod, OProd> const mixFunc_;
+    std::string const processName_;
+    std::string const moduleLabel_;
+    bool const outputProduct_;
+    bool const compactMissingProducts_;
+    BranchType const branchType_;
+    ProductID incomingProductID_{ProductID::invalid()};
+  };
+
+  template <typename Prod, typename OProd>
   template <typename FUNC>
-  MixOp(InputTag const & inputTag,
-        std::string const & outputInstanceLabel,
-        FUNC mixFunc,
-        bool outputProduct,
-        bool compactMissingProducts,
-        BranchType bt);
+  MixOp<Prod, OProd>::MixOp(std::string const& moduleLabel,
+                            InputTag const& inputTag,
+                            std::string const& outputInstanceLabel,
+                            FUNC mixFunc,
+                            bool const outputProduct,
+                            bool const compactMissingProducts,
+                            BranchType const bt)
+    : inputTag_{inputTag}
+    , outputInstanceLabel_{outputInstanceLabel}
+    , inputType_{typeid(Prod)}
+    , mixFunc_{mixFunc}
+    , processName_{Globals::instance()->processName()}
+    , moduleLabel_{moduleLabel}
+    , outputProduct_{outputProduct}
+    , compactMissingProducts_{compactMissingProducts}
+    , branchType_{bt}
+  {}
 
-  InputTag const & inputTag() const override;
-
-  TypeID const & inputType() const override;
-
-  std::string const & outputInstanceLabel() const override;
-
+  template <typename Prod, typename OProd>
   void
-  mixAndPut(Event & e,
-            PtrRemapper const & remap) const override;
-
-  void
-  initializeBranchInfo(RootBranchInfoList const & rbiList) override;
-
-  BranchID
-  incomingBranchID() const override;
-
-  BranchID
-  outgoingBranchID() const override;
-
-  void
-  readFromFile(EntryNumberSequence const & seq) override;
-
-  BranchType
-  branchType() const override;
-
-private:
-  using SpecProdList = std::vector<std::shared_ptr<Wrapper<PROD> > >;
-
-  InputTag const inputTag_;
-  TypeID const inputType_;
-  std::string const outputInstanceLabel_;
-  MixFunc<PROD, OPROD> const mixFunc_;
-  SpecProdList inProducts_;
-  std::string const processName_;
-  std::string const moduleLabel_;
-  RootBranchInfo branchInfo_;
-  bool const outputProduct_;
-  bool const compactMissingProducts_;
-  BranchType const branchType_;
-};
-
-template <typename PROD, typename OPROD>
-template <typename FUNC>
-art::MixOp<PROD, OPROD>::
-MixOp(InputTag const & inputTag,
-      std::string const & outputInstanceLabel,
-      FUNC mixFunc,
-      bool outputProduct,
-      bool compactMissingProducts,
-      BranchType bt)
-  :
-  MixOpBase(),
-  inputTag_(inputTag),
-  inputType_(typeid(PROD)),
-  outputInstanceLabel_(outputInstanceLabel),
-  mixFunc_(mixFunc),
-  inProducts_(),
-  processName_(ServiceHandle<TriggerNamesService const>{}->getProcessName()),
-  moduleLabel_(ServiceHandle<CurrentModule const>{}->label()),
-  branchInfo_(),
-  outputProduct_(outputProduct),
-  compactMissingProducts_(compactMissingProducts),
-  branchType_(bt)
-{}
-
-template <typename PROD, typename OPROD>
-art::InputTag const &
-art::MixOp<PROD, OPROD>::
-inputTag() const
-{
-  return inputTag_;
-}
-
-template <typename PROD, typename OPROD>
-art::TypeID const &
-art::MixOp<PROD, OPROD>::
-inputType() const
-{
-  return inputType_;
-}
-
-template <typename PROD, typename OPROD>
-std::string const &
-art::MixOp<PROD, OPROD>::
-outputInstanceLabel() const
-{
-  return outputInstanceLabel_;
-}
-
-template <typename PROD, typename OPROD>
-void
-art::MixOp<PROD, OPROD>::
-mixAndPut(Event & e,
-          PtrRemapper const & remap) const
-{
-  std::unique_ptr<OPROD> rProd(new OPROD()); // Parens necessary for native types.
-  std::vector<PROD const *> inConverted;
-  inConverted.reserve(inProducts_.size());
-  try {
-    auto const endIter = inProducts_.cend();
-    for (auto i = inProducts_.cbegin(); i != endIter; ++i) {
-      auto const prod = (*i)->product();
-      if (prod || ! compactMissingProducts_) {
-        inConverted.emplace_back(prod);
+  MixOp<Prod, OProd>::mixAndPut(Event& e,
+                                SpecProdList const& inProducts,
+                                PtrRemapper const& remap) const
+  {
+    std::vector<Prod const*> inConverted;
+    inConverted.reserve(inProducts.size());
+    try {
+      for (auto const& ep : inProducts) {
+        auto const prod =
+          std::dynamic_pointer_cast<Wrapper<Prod> const>(ep)->product();
+        if (prod || !compactMissingProducts_) {
+          inConverted.emplace_back(prod);
+        }
       }
     }
-  }
-  catch (std::bad_cast const &) {
-    throw Exception(errors::DataCorruption)
+    catch (std::bad_cast const&) {
+      throw Exception(errors::DataCorruption)
         << "Unable to obtain correctly-typed product from wrapper.\n";
-  }
-  if (mixFunc_(inConverted, *rProd, remap)) {
-    if (!outputProduct_) {
-      throw Exception(errors::LogicError)
-          << "Returned true (output product to be put in event) from a mix function\n"
+    }
+
+    auto rProd = std::make_unique<OProd>();
+    // False means don't want this in the event.
+    if (mixFunc_(inConverted, *rProd, remap)) {
+      if (!outputProduct_) {
+        throw Exception(errors::LogicError)
+          << "Returned true (output product to be put in event) from a mix "
+             "function\n"
           << "declared with outputProduct=false.\n";
-    }
-    if (outputInstanceLabel_.empty()) {
-      e.put(std::move(rProd));
-    }
-    else {
-      e.put(std::move(rProd), outputInstanceLabel_);
-    }
-  } // False means don't want this in the event.
-}
-
-template <typename PROD, typename OPROD>
-void
-art::MixOp<PROD, OPROD>::
-initializeBranchInfo(RootBranchInfoList const & branchInfo_List)
-{
-  if (!branchInfo_List.findBranchInfo(inputType_, inputTag_, branchInfo_)) {
-    throw Exception(errors::ProductNotFound)
-        << "Unable to find requested product "
-        << inputTag_
-        << " of type "
-        << inputType_.friendlyClassName()
-        << " in secondary input stream.\n";
-  }
-}
-
-template <typename PROD, typename OPROD>
-art::BranchID
-art::MixOp<PROD, OPROD>::
-incomingBranchID() const
-{
-  return BranchID(branchInfo_.branchName());
-}
-
-template <typename PROD, typename OPROD>
-art::BranchID
-art::MixOp<PROD, OPROD>::
-outgoingBranchID() const
-{
-  art::BranchID result;
-  if (outputProduct_) {
-    TypeID const outputType(typeid(OPROD));
-    BranchKey key(outputType.friendlyClassName(),
-                  moduleLabel_,
-                  outputInstanceLabel_,
-                  processName_,
-                  art::InEvent); // Outgoing product must be InEvent.
-    auto I = ProductMetaData::instance().productList().find(key);
-    if (I == ProductMetaData::instance().productList().end()) {
-      throw Exception(errors::LogicError)
-          << "MixOp unable to find branch id for a product ("
-          << outputType.className()
-          << ") that should have been registered!\n";
-    }
-    result = I->second.branchID();
-  }
-  return result;
-}
-
-template <typename PROD, typename OPROD>
-void
-art::MixOp<PROD, OPROD>::
-readFromFile(EntryNumberSequence const & seq)
-{
-  inProducts_.clear();
-  inProducts_.reserve(seq.size());
-  if (branchInfo_.branch() == 0) {
-    throw Exception(errors::LogicError)
-        << "Branch not initialized for read.\n";
-  }
-  // Make sure we don't have a ProductGetter set.
-  configureRefCoreStreamer();
-  // Assume the sequence is ordered per
-  // MixHelper::generateEventSequence.
-  auto const b = seq.cbegin(), e = seq.cend();
-  for (EntryNumberSequence::const_iterator i = b; i != e; ++i) {
-    auto fit = std::find(b, i, *i);
-    if (fit == i) { // Need new product.
-      inProducts_.emplace_back(new Wrapper<PROD>);
-      Wrapper<PROD> * wp = inProducts_.back().get();
-      branchInfo_.branch()->SetAddress(&wp);
-      branchInfo_.branch()->GetEntry(*i);
-    } else { // Already have one: find and use.
-      auto pit = inProducts_.cbegin();
-      std::advance(pit, std::distance(b, fit));
-      inProducts_.emplace_back(*pit);
+      }
+      e.put(move(rProd), outputInstanceLabel_);
     }
   }
-}
 
-template <typename PROD, typename OPROD>
-inline
-art::BranchType
-art::MixOp<PROD, OPROD>::
-branchType() const
-{
-  return branchType_;
-}
+  template <typename Prod, typename OProd>
+  void
+  MixOp<Prod, OProd>::setIncomingProductID(ProductID const prodID)
+  {
+    incomingProductID_ = prodID;
+  }
+
+  template <typename Prod, typename OProd>
+  ProductID
+  MixOp<Prod, OProd>::incomingProductID() const
+  {
+    return incomingProductID_;
+  }
+
+  template <typename Prod, typename OProd>
+  ProductID
+  MixOp<Prod, OProd>::outgoingProductID() const
+  {
+    ProductID result;
+    if (outputProduct_) {
+      TypeID const outputType{typeid(OProd)};
+      // Note: Outgoing product must be InEvent.
+      auto const productName =
+        canonicalProductName(outputType.friendlyClassName(),
+                             moduleLabel_,
+                             outputInstanceLabel_,
+                             processName_);
+      result = ProductID{productName};
+    }
+    return result;
+  }
+
+  template <typename Prod, typename OProd>
+  inline BranchType
+  MixOp<Prod, OProd>::branchType() const
+  {
+    return branchType_;
+  }
+
+} // namespace art
 
 #endif /* art_Framework_IO_ProductMix_MixOp_h */
 

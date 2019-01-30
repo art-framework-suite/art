@@ -1,91 +1,57 @@
 #ifndef art_Framework_Principal_Results_h
 #define art_Framework_Principal_Results_h
+// vim: set sw=2 expandtab :
 
-// ======================================================================
+// ==================================================================
+//  This is the primary interface for accessing results-level
+//  EDProducts and inserting new results-level EDProducts.
 //
-// Results: This is the primary interface for accessing results-level
-// EDProducts and inserting new results-level EDProducts.
-//
-// For its usage, see "art/Framework/Principal/DataViewImpl.h"
-//
-// ======================================================================
+//  For its usage, see "art/Framework/Principal/DataViewImpl.h"
+// ==================================================================
 
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Common/Wrapper.h"
+#include "canvas/Persistency/Common/traits.h"
 #include "canvas/Utilities/TypeID.h"
+
 #include <memory>
 #include <utility>
 
 namespace art {
-  class Results;
-}
 
-class art::Results final : private art::DataViewImpl {
-public:
+  class Results final : private DataViewImpl {
 
-  explicit Results(ResultsPrincipal const& srp, ModuleDescription const& md);
+  public:
+    ~Results();
 
-  using Base = DataViewImpl;
+    explicit Results(ResultsPrincipal const& p, ModuleContext const& mc);
 
-  using Base::get;
-  using Base::getByLabel;
-  using Base::getMany;
-  using Base::getManyByType;
-  using Base::removeCachedProduct;
-  using Base::processHistory;
+    Results(Results const&) = delete;
+    Results(Results&&) = delete;
+    Results& operator=(Results const&) = delete;
+    Results& operator=(Results&&) = delete;
 
-  ///Put a new product.
-  template <typename PROD>
-  void
-  put(std::unique_ptr<PROD>&& product) {put<PROD>(std::move(product), std::string());}
+    using DataViewImpl::get;
+    using DataViewImpl::getByLabel;
+    using DataViewImpl::getByToken;
+    using DataViewImpl::getMany;
+    using DataViewImpl::getManyByType;
+    using DataViewImpl::getPointerByLabel;
+    using DataViewImpl::getValidHandle;
+    using DataViewImpl::getView;
+    using DataViewImpl::put;
 
-  ///Put a new product with a 'product instance name'
-  template <typename PROD>
-  void
-  put(std::unique_ptr<PROD>&& product, std::string const& productInstanceName);
+    using DataViewImpl::getProductDescription;
+    using DataViewImpl::getProductID;
+    using DataViewImpl::productGetter;
+    using DataViewImpl::removeCachedProduct;
 
-private:
+    using DataViewImpl::movePutProductsToPrincipal;
+  };
 
-  // commit_() is called to complete the transaction represented by
-  // this DataViewImpl. The friendships required are gross, but any
-  // alternative is not great either.  Putting it into the public
-  // interface is asking for trouble
-  friend class InputSource;
-  friend class DecrepitRelicInputSourceImplementation;
-  friend class ResultsProducer;
-
-  void commit_(ResultsPrincipal&);
-};
-
-template <typename PROD>
-void
-art::Results::put(std::unique_ptr<PROD>&& product, std::string const& productInstanceName)
-{
-  TypeID const tid{typeid(PROD)};
-  if (!product) { // Null pointer is illegal.
-    throw art::Exception(art::errors::NullPointerError)
-      << "Results::put: A null unique_ptr was passed to 'put'.\n"
-      << "The pointer is of type " << tid << ".\n"
-      << "The specified productInstanceName was '" << productInstanceName << "'.\n";
-  }
-
-  auto const& bd = getBranchDescription(tid, productInstanceName);
-  auto wp = std::make_unique<Wrapper<PROD>>(std::move(product));
-
-  auto result = putProducts().emplace(TypeLabel{tid, productInstanceName},
-                                      PMValue{std::move(wp), bd, RangeSet::invalid()});
-  if (!result.second) {
-    throw art::Exception(art::errors::ProductPutFailure)
-      << "Results::put: Attempt to put multiple products with the\n"
-      << "              following description onto the Results.\n"
-      << "              Products must be unique per Results.\n"
-      << "=================================\n"
-      << bd
-      << "=================================\n";
-  }
-}
+} // namespace art
 
 #endif /* art_Framework_Principal_Results_h */
 

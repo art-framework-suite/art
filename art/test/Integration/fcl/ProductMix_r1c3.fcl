@@ -1,3 +1,0 @@
-#include "ProductMix_r1c.fcl"
-
-physics.filters.mixFilter.module_type: MixFilterTestETSc

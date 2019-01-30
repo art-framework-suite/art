@@ -3,8 +3,6 @@
 
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Provenance/BranchID.h"
-#include "canvas/Persistency/Provenance/BranchListIndex.h"
 #include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "cetlib/exempt_ptr.h"
@@ -20,57 +18,13 @@ namespace art {
 
 class art::ProdToProdMapBuilder {
 public:
-  typedef std::map<BranchID, BranchID> BranchIDTransMap;
+  using ProductIDTransMap = std::map<ProductID, ProductID>;
 
-  ProdToProdMapBuilder();
-  void prepareTranslationTables(BranchIDTransMap & transMap,
-                                BranchIDLists const & bidl,
-                                TTree * ehTree);
-  void populateRemapper(PtrRemapper & mapper, Event & e) const;
+  void prepareTranslationTables(ProductIDTransMap& transMap);
+  PtrRemapper getRemapper(Event const& e) const;
 
 private:
-  // Type definitions.
-  typedef std::map<BranchID, std::pair<BranchListIndex, ProductIndex> >
-  BranchIDToIndexMap;
-  typedef std::map<BranchID, ProductID> BtoPTransMap;
-
-  // Private member functions.
-  void buildBranchIDToIndexMap(BranchIDLists const & bidl);
-  void buildSecondaryProductMap(TTree * ehTree);
-
-  // Private member data.
-  BranchIDTransMap branchIDTransMap_;
-  BranchIDToIndexMap branchIDToIndexMap_;
-  BtoPTransMap secondaryProductMap_;
-
-  // Nested classes.
-  friend class SecondaryBranchIDToProductIDConverter;
-  class SecondaryBranchIDToProductIDConverter :
-    public std::unary_function < BranchIDTransMap::value_type const &,
-      BtoPTransMap::value_type > {
-  public:
-    SecondaryBranchIDToProductIDConverter(BranchIDToIndexMap const & bidi,
-                                          History const & h);
-    result_type operator()(argument_type bID) const;
-  private:
-    typedef std::map<BranchListIndex, ProcessIndex> BLItoPIMap;
-    BranchIDToIndexMap const & bidi_;
-    BLItoPIMap branchToProductIDHelper_;
-  };
-
-  friend class ProdTransMapBuilder;
-  class ProdTransMapBuilder :
-    public std::unary_function < BranchIDTransMap::value_type const &,
-      PtrRemapper::ProdTransMap_t::value_type > {
-  public:
-    ProdTransMapBuilder(BtoPTransMap const & spMap,
-                        EventPrincipal const & ep);
-    result_type operator()(argument_type bIDs) const;
-  private:
-    BtoPTransMap const & spMap_;
-    EventPrincipal const & ep_;
-  };
-
+  ProductIDTransMap productIDTransMap_{};
 };
 #endif /* art_Framework_IO_ProductMix_ProdToProdMapBuilder_h */
 

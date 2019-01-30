@@ -1,6 +1,0 @@
-<lcgdict>
-  <!-- Other required types will be provided by test/Integration
-  dictionary. -->
-  <class name="art::Wrapper<art::Assns<size_t, std::string, void> >"/>
-  <class name="art::Wrapper<art::Assns<std::string, size_t, void> >"/>
-</lcgdict>

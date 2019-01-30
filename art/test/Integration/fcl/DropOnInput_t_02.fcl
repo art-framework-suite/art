@@ -1,6 +1,0 @@
-#include "DropOnInput_t_01.fcl"
-
-source.inputCommands: [ "keep *", "drop Stringmv_ptrmvWriter__PtrmvW" ]
-
-physics.analyzers.a1.keepString: true
-physics.analyzers.a1.keepMapVector: false

@@ -1,16 +1,16 @@
 #ifndef art_Persistency_Provenance_Selections_h
 #define art_Persistency_Provenance_Selections_h
 
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 
 #include <array>
-#include <vector>
+#include <set>
 
 namespace art {
-  class BranchDescription;
-  using Selections = std::vector<BranchDescription const *>;
+  using Selections = ProductDescriptionsByID;
   using SelectionsArray = std::array<Selections, NumBranchTypes>;
-}
+} // namespace art
 
 #endif /* art_Persistency_Provenance_Selections_h */
 

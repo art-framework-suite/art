@@ -1,8 +1,0 @@
-#include "ProductMix_r1.fcl"
-
-physics.filters.mixFilter.testZeroSecondaries: true
-physics.filters.mixFilter.expectedRespondFunctionCalls: 2
-physics.analyzers: {}
-outputs: {}
-physics.e1: []
-physics.end_paths: []

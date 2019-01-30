@@ -1,104 +1,81 @@
 #include "art/Framework/Principal/Actions.h"
+// vim: set sw=2 expandtab :
 
+#include "art/Framework/Principal/ActionCodes.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
-#include "boost/lambda/lambda.hpp"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-#include <iostream>
-#include <vector>
 
 using namespace cet;
 using namespace std;
+
 using fhicl::ParameterSet;
 
 namespace art {
+
   namespace actions {
-    namespace {
-      struct ActionNames {
-        ActionNames(): table_(LastCode + 1) {
-          table_[IgnoreCompletely] = "IgnoreCompletely";
-          table_[Rethrow] = "Rethrow";
-          table_[SkipEvent] = "SkipEvent";
-          table_[FailModule] = "FailModule";
-          table_[FailPath] = "FailPath";
-        }
 
-        typedef vector<const char*> Table;
-        Table table_;
-      };
-    }
-
-    const char* actionName(ActionCodes code)
+    char const*
+    actionName(ActionCodes code)
     {
-      static ActionNames tab;
-      return static_cast<unsigned int>(code) < tab.table_.size() ?
-             tab.table_[code] : "UnknownAction";
+      vector<const char*> names{
+        "IgnoreCompletely", "Rethrow", "SkipEvent", "FailModule", "FailPath"};
+      return (static_cast<size_t>(code) < names.size()) ? names[code] :
+                                                          "UnknownAction";
     }
-  }
 
-  ActionTable::ActionTable() : map_()
-  {
-    addDefaults_();
-  }
+  } // namespace actions
 
-  ActionTable::ActionTable(const ParameterSet& scheduleOpts) :
-    map_()
+  ActionTable::~ActionTable() = default;
+
+  ActionTable::ActionTable() { addDefaults_(); }
+
+  ActionTable::ActionTable(Config const& c)
   {
-    if (scheduleOpts.get<bool>("defaultExceptions", true)) {
+    if (c.defaultExceptions()) {
       addDefaults_();
     }
-    install_(actions::SkipEvent, scheduleOpts);
-    install_(actions::Rethrow, scheduleOpts);
-    install_(actions::IgnoreCompletely, scheduleOpts);
-    install_(actions::FailModule, scheduleOpts);
-    install_(actions::FailPath, scheduleOpts);
+    install_(actions::IgnoreCompletely, c.ignoreCompletely());
+    install_(actions::Rethrow, c.rethrow());
+    install_(actions::SkipEvent, c.skipEvent());
+    install_(actions::FailModule, c.failModule());
+    install_(actions::FailPath, c.failPath());
   }
 
-  void ActionTable::addDefaults_()
+  void
+  ActionTable::addDefaults_()
   {
-    // populate defaults that are not 'Rethrow'
-    // 'Rethrow' is the default default.
-    map_[art::Exception::codeToString(errors::ProductNotFound)] =
-      actions::SkipEvent;
-    map_[art::Exception::codeToString(errors::InvalidReference)] =
-      actions::SkipEvent;
-    map_[art::Exception::codeToString(errors::NullPointerError)] =
-      actions::SkipEvent;
-    map_[art::Exception::codeToString(errors::EventTimeout)] =
-      actions::SkipEvent;
-    map_[art::Exception::codeToString(errors::DataCorruption)] =
-      actions::SkipEvent;
-    map_[art::Exception::codeToString(errors::NotFound)] =
-      actions::SkipEvent;
-    if (2 <= debugit()) {
-      ActionMap::const_iterator ib(map_.begin()), ie(map_.end());
-      for (; ib != ie; ++ib)
-      { cerr << ib->first << ',' << ib->second << '\n'; }
-      cerr << endl;
+    // This is where defaults that are not 'Rethrow' would be populated.
+    if (2 > debugit())
+      return;
+
+    for (auto const& pr : map_) {
+      cerr << pr.first << ',' << pr.second << '\n';
     }
+    cerr << endl;
   }
 
   void
   ActionTable::install_(actions::ActionCodes code,
-                        const ParameterSet& scheduler)
+                        vector<string> const& action_names)
   {
-    using namespace boost::lambda;
-    typedef vector<string> vstring;
-    vstring v(scheduler.get<vector<string> >(actionName(code), vstring()));
-    for_all(v, var(map_)[boost::lambda::_1] = code);
+    for_all(action_names, [this, code](auto const& action_name) {
+      this->add(action_name, code);
+    });
   }
 
-  void ActionTable::add(const string& category,
-                        actions::ActionCodes code)
+  void
+  ActionTable::add(const string& category, actions::ActionCodes code)
   {
     map_[category] = code;
   }
 
-  actions::ActionCodes ActionTable::find(const string& category) const
+  actions::ActionCodes
+  ActionTable::find(string const& category) const
   {
-    ActionMap::const_iterator i(map_.find(category));
-    return i != map_.end() ? i->second : actions::Rethrow;
+    auto I = map_.find(category);
+    return (I != map_.end()) ? I->second : actions::Rethrow;
   }
 
-}  // art
+} // namespace art

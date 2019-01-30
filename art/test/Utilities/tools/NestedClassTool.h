@@ -8,10 +8,10 @@
 namespace arttest {
   class NestedClassTool {
   public:
-
     explicit NestedClassTool(fhicl::ParameterSet const& ps) : pset_{ps} {}
 
-    int callThroughToAddOne(int const i)
+    int
+    callThroughToAddOne(int const i)
     {
       auto t = art::make_tool<ClassTool>(pset_);
       return t->addOne(i);
@@ -20,7 +20,7 @@ namespace arttest {
   private:
     fhicl::ParameterSet pset_;
   };
-}
+} // namespace arttest
 
 #endif /* art_test_Utilities_tools_NestedClassTool_h */
 

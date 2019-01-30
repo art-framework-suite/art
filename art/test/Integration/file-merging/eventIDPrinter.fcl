@@ -1,3 +1,0 @@
-services.message.destination.log.type: cerr
-physics.analyzers.a1.module_type: EventIDPrinter
-physics.e1:[a1]

@@ -1,3 +1,10 @@
+outputs: {
+   o1: {
+      fileName: "/dev/null"
+      module_label: "o1"
+      module_type: "RootOutput"
+   }
+}
 physics: {
    analyzers: {
       a1: {
@@ -9,12 +16,12 @@ physics: {
          module_type: "dummy"
       }
    }
-   end_paths: [
-      "ep1",
-      "ep3"
-   ]
    ep1: [
+      "o1",
       "a1"
+   ]
+   ep2: [
+      "o1"
    ]
    ep3: [
       "a2"
@@ -37,6 +44,9 @@ services: {
                ArtReport: {
                   limit: 100
                }
+               MTdiagnostics: {
+                  limit: 0
+               }
                default: {
                   limit: -1
                }
@@ -47,8 +57,16 @@ services: {
       }
    }
    scheduler: {
+      debug: {
+         fileName: "config.out"
+         option: "debug-config"
+         printMode: "raw"
+      }
       errorOnFailureToPut: true
+      errorOnMissingConsumes: false
       errorOnSIGINT: true
+      num_schedules: 1
+      num_threads: 1
    }
 }
 source: {

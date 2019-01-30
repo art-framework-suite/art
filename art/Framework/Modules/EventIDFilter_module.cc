@@ -7,8 +7,8 @@
 // from cetlib version v2_03_00.
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/SharedFilter.h"
 #include "art/Framework/Principal/Event.h"
 #include "canvas/Utilities/EventIDMatcher.h"
 #include "fhiclcpp/types/Sequence.h"
@@ -46,33 +46,33 @@ to sets or ranges of numbers.  For example:
 Specifying multiple patterns in the sequence corresponds to a
 logical OR of the patterns.  In other words, if the event in question
 matches any (not all) of the patterns, the event is accepted.
-)" };
+)"};
 }
 
 // ==============================================
-class art::EventIDFilter final : public EDFilter {
+class art::EventIDFilter : public SharedFilter {
 public:
-
   struct Config {
     Sequence<string> idsToMatch{Name{"idsToMatch"}, Comment{parameter_comment}};
   };
 
-  using Parameters = EDFilter::Table<Config>;
-  explicit EventIDFilter(Parameters const& p);
-
-  bool filter(art::Event&) override;
+  using Parameters = Table<Config>;
+  explicit EventIDFilter(Parameters const& p, ProcessingFrame const&);
 
 private:
-  EventIDMatcher matcher_;
+  bool filter(Event&, ProcessingFrame const&) override;
+
+  EventIDMatcher const matcher_;
 };
 
-
-art::EventIDFilter::EventIDFilter(Parameters const& p) :
-  matcher_{p().idsToMatch()}
-{}
+art::EventIDFilter::EventIDFilter(Parameters const& p, ProcessingFrame const&)
+  : SharedFilter{p}, matcher_{p().idsToMatch()}
+{
+  async<InEvent>();
+}
 
 bool
-art::EventIDFilter::filter(art::Event& e)
+art::EventIDFilter::filter(Event& e, ProcessingFrame const&)
 {
   return matcher_(e.id());
 }

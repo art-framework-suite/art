@@ -2,17 +2,17 @@ outputs: {
    o1: {
       fileName: "junk.out"
       module_label: "o1"
-      module_type: "RootOutput"
+      module_type: "FileDumperOutput"
    }
    o2: {
       fileName: "junk9.out"
       module_label: "o2"
-      module_type: "RootOutput"
+      module_type: "FileDumperOutput"
    }
    o3: {
       fileName: "junk21.out"
       module_label: "o3"
-      module_type: "RootOutput"
+      module_type: "FileDumperOutput"
    }
 }
 physics: {
@@ -26,12 +26,6 @@ physics: {
          module_type: "dummy"
       }
    }
-   end_paths: [
-      "ep1",
-      "ep2",
-      "ep3",
-      "injected_end_path_1"
-   ]
    ep1: [
       "o1",
       "a1"
@@ -64,6 +58,9 @@ services: {
                ArtReport: {
                   limit: 100
                }
+               MTdiagnostics: {
+                  limit: 0
+               }
                default: {
                   limit: -1
                }
@@ -74,8 +71,16 @@ services: {
       }
    }
    scheduler: {
+      debug: {
+         fileName: "config.out"
+         option: "debug-config"
+         printMode: "raw"
+      }
       errorOnFailureToPut: true
+      errorOnMissingConsumes: false
       errorOnSIGINT: true
+      num_schedules: 1
+      num_threads: 1
    }
 }
 source: {

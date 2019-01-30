@@ -1,0 +1,15 @@
+test_properties: {
+  # 'p3' can refer to a module label for a product from the input source.
+  graph_failure_expected: false
+}
+
+process_name: test
+
+physics: {
+  producers: {
+    p1: { consumes: [["int", "p3"]] }
+    p2: {}
+    p3: {}
+  }
+  tp: [p1, p2, p3]
+}

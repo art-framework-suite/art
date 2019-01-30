@@ -12,12 +12,12 @@ namespace art {
     struct DummyClassTool {
       struct Config {};
       using Parameters = ToolConfigTable<Config>;
-      DummyClassTool(Parameters const&){}
+      DummyClassTool(Parameters const&) {}
     };
-  }
-}
+  } // namespace test
+} // namespace art
 
-#endif /* art_test_Utilities_tools_ClassTool_h */
+#endif /* art_test_Framework_Art_PrintAvailable_DummyClassTool_h */
 
 // Local variables:
 // mode: c++

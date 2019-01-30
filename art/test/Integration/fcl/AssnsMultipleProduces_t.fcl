@@ -1,3 +1,0 @@
-process_name: AssnsMultipleProduces
-physics.producers.assnsMultipleProduces.module_type: AssnsMultipleProduces
-physics.p1: [assnsMultipleProduces]

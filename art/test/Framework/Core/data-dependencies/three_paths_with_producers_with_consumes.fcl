@@ -1,0 +1,19 @@
+test_properties: {
+  # This is not a failure because failing to specify the process name
+  # in an input tag could mean that the user wants to allow searching
+  # in the input source.
+  graph_failure_expected: false
+}
+
+process_name: test
+
+physics: {
+  producers: {
+    p1: {}
+    p2: { consumes: [["int", "p1"]] }
+    p3: { consumes: [["int", "p2"]] }
+  }
+  tp1: [p1, p3]
+  tp2: [p2]
+  tp3: [p2, p3]
+}

@@ -1,0 +1,18 @@
+test_properties: {
+  # Product can come from input source.
+  graph_failure_expected: false
+}
+
+process_name: test
+
+physics: {
+  producers: {
+    p1: { produces: [["int", "" ]] }
+    p2: { consumes: [["double", "p1"]] }
+  }
+  filters: {
+    f1: {}
+    f2: {}
+  }
+  path: [p1, f1, p2, f2]
+}

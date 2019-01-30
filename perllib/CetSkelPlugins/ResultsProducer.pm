@@ -34,7 +34,7 @@ sub baseClasses {
 sub constructors {
   return [ {
             explicit => 1,
-            args => [ "fhicl::ParameterSet const & p" ]
+            args => [ "fhicl::ParameterSet const& p" ]
            } ];
 }
 
@@ -61,12 +61,12 @@ sub optionalEntries {
     {
      beginJob => 'void beginJob() override',
      endJob => 'void endJob() override',
-     beginSubRun => 'void beginSubRun(art::SubRun const & sr) override',
+     beginSubRun => 'void beginSubRun(art::SubRun const& sr) override',
      endSubRun => 'void endSubRun(art::SubRun const &) override',
-     beginRun => 'void beginRun(art::Run const & r) override',
-     endRun => 'void endRun(art::Run const & r) override',
-     event => 'void event(art::Event const & e) override',
-     readResults => 'void readResults(art::Results const & res) override'
+     beginRun => 'void beginRun(art::Run const& r) override',
+     endRun => 'void endRun(art::Run const& r) override',
+     event => 'void event(art::Event const& e) override',
+     readResults => 'void readResults(art::Results const& res) override'
     };
 }
 
@@ -75,7 +75,7 @@ sub optionalEntries {
 sub requiredEntries {
   return
     {
-     writeResults => 'void writeResults(art::Results & res) override',
+     writeResults => 'void writeResults(art::Results& res) override',
      clear => 'void clear() override'
     };
 }

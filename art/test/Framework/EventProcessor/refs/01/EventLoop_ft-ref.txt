@@ -1,4 +1,4 @@
-INFO: using default process_name, "DUMMY."
+INFO: using default process_name of "DUMMY".
 InputSourceFactory: module_type = EventProcessorTestSource
 InputSourceFactory: created input source EventProcessorTestSource
         beginJob
