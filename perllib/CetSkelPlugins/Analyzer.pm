@@ -84,7 +84,26 @@ sub constructors {
 
 sub optionalEntries {
   my $self = shift;
+  if (! defined $self->{flavor}) {
+      # If the flavor has not been defined, then that means the
+      # 'help-type' program option has been provided to cetskelgen.  In
+      # that case, we simply loop through the allowed flavors.
+      my $all = {};
+      foreach my $fl (qw(LEGACY SHARED REPLICATED)) {
+          $all->{$fl} = "// ".$fl." flavor";
+          my $entries_for_flavor = _optionalEntries($fl);
+          foreach my $key (keys $entries_for_flavor) {
+              $all->{$fl.$key} = delete $entries_for_flavor->{$key};
+          }
+      }
+      return $all;
+  }
   my $flavor = $self->{flavor};
+  return _optionalEntries($flavor);
+}
+
+sub _optionalEntries {
+  my $flavor = shift;
   return
   {
       beginJob =>
@@ -139,7 +158,26 @@ sub processOptions {
 
 sub requiredEntries {
   my $self = shift;
+  if (! defined $self->{flavor}) {
+      # If the flavor has not been defined, then that means the
+      # 'help-type' program option has been provided to cetskelgen.  In
+      # that case, we simply loop through the allowed flavors.
+      my $all = {};
+      foreach my $fl (qw(LEGACY SHARED REPLICATED)) {
+          $all->{$fl} = "// ".$fl." flavor";
+          my $entries_for_flavor = _requiredEntries($fl);
+          foreach my $key (keys $entries_for_flavor) {
+              $all->{$fl.$key} = delete $entries_for_flavor->{$key};
+          }
+      }
+      return $all;
+  }
   my $flavor = $self->{flavor};
+  return _requiredEntries($flavor);
+}
+
+sub _requiredEntries {
+  my $flavor = shift;
   return
   {
       analyze =>
