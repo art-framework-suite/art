@@ -47,8 +47,8 @@ namespace art::detail {
     void
     serialize_for_resource(T const&... t)
     {
-      static_assert(true &&
-                    (... && std::is_same_v<detail::SharedResource_t, T>));
+      static_assert(
+        std::conjunction_v<std::is_same<detail::SharedResource_t, T>...>);
       if (sizeof...(t) == 0) {
         implicit_serialize();
       } else {
@@ -60,7 +60,7 @@ namespace art::detail {
     void
     serialize_for_external_resource(T const&... t)
     {
-      static_assert(true && (... && std::is_same_v<std::string, T>));
+      static_assert(std::conjunction_v<std::is_same<std::string, T>...>);
       if (sizeof...(t) == 0) {
         implicit_serialize();
       } else {
