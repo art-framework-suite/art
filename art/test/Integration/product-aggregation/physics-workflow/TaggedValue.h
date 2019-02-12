@@ -15,7 +15,8 @@ namespace arttest {
   };
 }
 
-#endif /* art_test_Integration_product_aggregation_physics_workflow_TaggedValue_h */
+#endif /* art_test_Integration_product_aggregation_physics_workflow_TaggedValue_h \
+        */
 
 // Local Variables:
 // mode: c++

@@ -17,10 +17,9 @@ using namespace art;
 using namespace fhicl;
 using namespace std;
 
-size_t const numBits =
-  12; // There must be a better way than this but I choose to
-      // avoid modifying a whole slew of code using the array
-      // instead of push_back()s.
+size_t const numBits = 12; // There must be a better way than this but I choose
+                           // to avoid modifying a whole slew of code using the
+                           // array instead of push_back()s.
 
 typedef std::vector<std::vector<bool>> Answers;
 
@@ -312,10 +311,9 @@ main()
                                    true,
                                    true,
                                    true}};
-  testmasks.push_back(
-    toBools(t8)); // For j=8 only, the first HLTx1 (false) is
-                  // reset to ready and the fifth CALIBx2 (true)
-                  // is reset to exception.
+  testmasks.push_back(toBools(t8)); // For j=8 only, the first HLTx1 (false) is
+                                    // reset to ready and the fifth CALIBx2
+                                    // (true) is reset to exception.
 
   // Create the answers
 

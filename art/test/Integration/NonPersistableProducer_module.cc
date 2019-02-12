@@ -23,8 +23,7 @@ namespace art {
 
 class art::test::NonPersistableProducer : public EDProducer {
 public:
-  struct Config {
-  };
+  struct Config {};
   using Parameters = Table<Config>;
 
   explicit NonPersistableProducer(Parameters const&)

@@ -23,7 +23,7 @@ namespace art {
     thread_safe_registry_via_id<ProcessHistoryID, ProcessHistory>;
 }
 
-  // ======================================================================
+// ======================================================================
 
 #endif /* art_Persistency_Provenance_ProcessHistoryRegistry_h */
 

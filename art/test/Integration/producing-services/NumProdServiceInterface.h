@@ -5,8 +5,7 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
 namespace arttest {
-  class NumProdServiceInterface : public art::ProducingService {
-  };
+  class NumProdServiceInterface : public art::ProducingService {};
 }
 
 DECLARE_ART_SERVICE_INTERFACE(arttest::NumProdServiceInterface, LEGACY)

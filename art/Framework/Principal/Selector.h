@@ -276,7 +276,7 @@ private:
 template <class A>
 std::enable_if_t<std::is_base_of<art::SelectorBase, A>::value,
                  art::NotHelper<A>>
-  art::operator!(A const& a)
+art::operator!(A const& a)
 {
   return art::NotHelper<A>(a);
 }

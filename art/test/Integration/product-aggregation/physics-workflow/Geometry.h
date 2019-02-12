@@ -24,7 +24,8 @@ namespace arttest {
 
 } // namespace arttest
 
-#endif /* art_test_Integration_product_aggregation_physics_workflow_Geometry_h */
+#endif /* art_test_Integration_product_aggregation_physics_workflow_Geometry_h \
+        */
 
 // Local variables:
 // mode: c++

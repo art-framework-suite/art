@@ -11,8 +11,7 @@ namespace arttest {
 
   class TestTimeTrackerProducer : public art::ReplicatedProducer {
   public:
-    struct Config {
-    };
+    struct Config {};
     using Parameters = Table<Config>;
     explicit TestTimeTrackerProducer(Parameters const& p,
                                      art::ProcessingFrame const& frame)

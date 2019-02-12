@@ -2,8 +2,8 @@
 #include <iostream>
 #include <string>
 
-#include "TH1F.h"
 #include "TFile.h"
+#include "TH1F.h"
 #include "TTree.h"
 
 using namespace std;
@@ -15,11 +15,13 @@ check_ttree(TFile const* f, char const* name, bool const empty)
   const_cast<TFile*>(f)->GetObject(name, tree);
   assert(tree != nullptr);
   if ((tree->GetEntries() == 0) && !empty) {
-    cerr << "Tree " << name << " from " << f->GetName() << " not supposed to be empty.\n";
+    cerr << "Tree " << name << " from " << f->GetName()
+         << " not supposed to be empty.\n";
     return 1;
   }
   if ((tree->GetEntries() != 0) && empty) {
-    cerr << "Tree " << name <<  " from " << f->GetName() << " supposed to be empty.\n"
+    cerr << "Tree " << name << " from " << f->GetName()
+         << " supposed to be empty.\n"
          << " it has " << tree->GetEntries() << " entries.\n";
     return 1;
   }
@@ -74,9 +76,7 @@ main(int argc, char** argv)
 {
   if (argc > 1) {
     test_dropAllEventsSubruns_verify(string(argv[1]));
-  }
-  else {
+  } else {
     test_dropAllEventsSubruns_verify();
   }
 }
-

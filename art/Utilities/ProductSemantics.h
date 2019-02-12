@@ -6,12 +6,10 @@
 namespace art {
 
   template <Level>
-  struct FullSemantic {
-  };
+  struct FullSemantic {};
 
   template <Level L>
-  struct FragmentSemantic {
-  };
+  struct FragmentSemantic {};
 
   template <Level>
   struct RangedFragmentSemantic {

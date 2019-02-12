@@ -16,8 +16,7 @@ namespace arttest {
 
   class TestSimpleMemoryCheckProducer : public art::EDProducer {
   public:
-    struct Config {
-    };
+    struct Config {};
     using Parameters = art::EDProducer::Table<Config>;
     explicit TestSimpleMemoryCheckProducer(Parameters const&) {}
 

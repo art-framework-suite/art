@@ -29,8 +29,7 @@ namespace {
 
   class SAMMetadataConcurrentTest : public art::EDAnalyzer {
   public:
-    struct Config {
-    };
+    struct Config {};
     using Parameters = art::EDAnalyzer::Table<Config>;
     explicit SAMMetadataConcurrentTest(Parameters const& p) : art::EDAnalyzer{p}
     {}

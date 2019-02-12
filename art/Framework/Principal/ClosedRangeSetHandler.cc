@@ -18,7 +18,7 @@
 namespace art {
 
   namespace {
-    constexpr auto invalid_eid[[gnu::unused]] =
+    constexpr auto invalid_eid [[gnu::unused]] =
       IDNumber<Level::Event>::invalid();
   } // unnamed namespace
 

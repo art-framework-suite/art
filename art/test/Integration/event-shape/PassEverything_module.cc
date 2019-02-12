@@ -7,8 +7,7 @@
 
 namespace {
   using namespace fhicl;
-  struct Config {
-  };
+  struct Config {};
 } // namespace
 
 namespace arttest {

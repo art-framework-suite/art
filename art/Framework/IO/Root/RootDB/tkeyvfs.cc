@@ -484,7 +484,7 @@ closeUnixFile(sqlite3_file* id)
 #endif /* TKEYVFS_TRACE */
 #ifndef TKEYVFS_NO_ROOT
   if (pFile->saveToRootFile) {
-  /**/
+    /**/
 #if TKEYVFS_TRACE
     fprintf(
       stderr, "fileSize: 0x%016lx\n", (unsigned long long)pFile->fileSize);
@@ -559,7 +559,7 @@ unixGetTempname(int nBuf, char* zBuf)
   ** name. If it is not, return SQLITE_ERROR.
   */
   if ((strlen(SQLITE_TEMP_FILE_PREFIX) + 17) >= (size_t)nBuf) {
-  /**/
+    /**/
 #if TKEYVFS_TRACE
     fprintf(stderr, "End   unixGetTempname ...\n");
 #endif /* TKEYVFS_TRACE */
@@ -602,7 +602,7 @@ fcntlSizeHint(unixFile* pFile, i64 nByte)
       if (nAlloc > pFile->bufAllocated) {
         char* pNewBuf = (char*)realloc((void*)pFile->pBuf, (size_t)nAlloc);
         if (pNewBuf == nullptr) {
-        /**/
+          /**/
 #if TKEYVFS_TRACE
           fprintf(stderr, "End   fcntlSizeHint ...\n");
 #endif /* TKEYVFS_TRACE */
@@ -748,13 +748,13 @@ unixRead(sqlite3_file* id, void* pBuf, int amt, sqlite3_int64 offset)
 #endif /* TKEYVFS_TRACE */
   got = seekAndRead(pFile, offset, pBuf, amt);
   if (got == amt) {
-  /**/
+    /**/
 #if TKEYVFS_TRACE
     fprintf(stderr, "End   unixRead ...\n");
 #endif /* TKEYVFS_TRACE */
     return SQLITE_OK;
   } else if (got < 0) {
-  /* lastErrno set by seekAndRead */
+    /* lastErrno set by seekAndRead */
 #if TKEYVFS_TRACE
     fprintf(stderr, "End   unixRead ...\n");
 #endif /* TKEYVFS_TRACE */
@@ -811,7 +811,7 @@ unixWrite(sqlite3_file* id, const void* pBuf, int amt, sqlite3_int64 offset)
   }
   if (amt > 0) {
     if (wrote < 0) {
-    /* lastErrno set by seekAndWrite */
+      /* lastErrno set by seekAndWrite */
 #if TKEYVFS_TRACE
       fprintf(stderr, "End   unixWrite ...\n");
 #endif /* TKEYVFS_TRACE */
@@ -1026,7 +1026,7 @@ unixFileControl(sqlite3_file* id, int op, void* pArg)
 #endif /* TKEYVFS_TRACE */
   switch (op) {
     case SQLITE_FCNTL_LOCKSTATE: {
-    /**/
+      /**/
 #if TKEYVFS_TRACE
       fprintf(stderr, "op: LOCKSTATE\n");
 #endif /* TKEYVFS_TRACE */
@@ -1038,7 +1038,7 @@ unixFileControl(sqlite3_file* id, int op, void* pArg)
       return SQLITE_OK;
     }
     case SQLITE_LAST_ERRNO: {
-    /**/
+      /**/
 #if TKEYVFS_TRACE
       fprintf(stderr, "op: LAST_ERRNO\n");
 #endif /* TKEYVFS_TRACE */
@@ -1049,7 +1049,7 @@ unixFileControl(sqlite3_file* id, int op, void* pArg)
       return SQLITE_OK;
     }
     case SQLITE_FCNTL_CHUNK_SIZE: {
-    /**/
+      /**/
 #if TKEYVFS_TRACE
       fprintf(stderr, "op: CHUNK_SIZE\n");
       fprintf(stderr, "szChunk: %d\n", *(int*)pArg);
@@ -1061,7 +1061,7 @@ unixFileControl(sqlite3_file* id, int op, void* pArg)
       return SQLITE_OK;
     }
     case SQLITE_FCNTL_SIZE_HINT: {
-    /**/
+      /**/
 #if TKEYVFS_TRACE
       fprintf(stderr, "op: SIZE_HINT\n");
       fprintf(stderr, "hint: 0x%016lx\n", *(i64*)pArg);
@@ -1078,7 +1078,7 @@ unixFileControl(sqlite3_file* id, int op, void* pArg)
     ** unchanged.
     */
     case SQLITE_FCNTL_DB_UNCHANGED: {
-    /**/
+      /**/
 #if TKEYVFS_TRACE
       fprintf(stderr, "op: DB_UNCHANGED\n");
 #endif /* TKEYVFS_TRACE */
@@ -1089,7 +1089,7 @@ unixFileControl(sqlite3_file* id, int op, void* pArg)
       return SQLITE_OK;
     }
     case SQLITE_FCNTL_SYNC_OMITTED: {
-    /**/
+      /**/
 #if TKEYVFS_TRACE
       fprintf(stderr, "op: SYNC_OMITTED\n");
       fprintf(stderr, "End   unixFileControl ...\n");
@@ -1235,7 +1235,7 @@ unixOpen(sqlite3_vfs* /*pVfs*/, /* The VFS for which this is the xOpen method */
     /* Read the contents of the tkey from the root file. */
     status = k->ReadFile();
     if (!status) {
-    /**/
+      /**/
 #if TKEYVFS_TRACE
       fprintf(stderr, "End   unixOpen ...\n");
 #endif /* TKEYVFS_TRACE */
@@ -1257,7 +1257,7 @@ unixOpen(sqlite3_vfs* /*pVfs*/, /* The VFS for which this is the xOpen method */
     p->pBuf = (char*)calloc(1, MEMPAGE);
 #endif // TKEYVFS_NO_ROOT
     if (p->pBuf == nullptr) {
-    /**/
+      /**/
 #if TKEYVFS_TRACE
       fprintf(stderr, "End   unixOpen ...\n");
 #endif /* TKEYVFS_TRACE */
@@ -1275,7 +1275,7 @@ unixOpen(sqlite3_vfs* /*pVfs*/, /* The VFS for which this is the xOpen method */
   } else {
     p->pBuf = (char*)calloc(1, MEMPAGE);
     if (p->pBuf == nullptr) {
-    /**/
+      /**/
 #if TKEYVFS_TRACE
       fprintf(stderr, "End   unixOpen ...\n");
 #endif /* TKEYVFS_TRACE */
@@ -1696,7 +1696,7 @@ unixGetSystemCall(sqlite3_vfs* pNotUsed, const char* zName)
 #endif /* TKEYVFS_TRACE */
   for (i = 0; i < sizeof(aSyscall) / sizeof(aSyscall[0]); i++) {
     if (strcmp(zName, aSyscall[i].zName) == 0) {
-    /**/
+      /**/
 #if TKEYVFS_TRACE
       fprintf(stderr, "End   unixGetSystemCall ...\n");
 #endif /* TKEYVFS_TRACE */
@@ -1732,7 +1732,7 @@ unixNextSystemCall(sqlite3_vfs* p, const char* zName)
   }
   for (i++; i < ArraySize(aSyscall); i++) {
     if (aSyscall[i].pCurrent != 0) {
-    /**/
+      /**/
 #if TKEYVFS_TRACE
       fprintf(stderr, "End   unixNextSystemCall ...\n");
 #endif /* TKEYVFS_TRACE */

@@ -10,8 +10,7 @@ namespace arttest {
 
   class TestTimeTrackerFilter : public art::SharedFilter {
   public:
-    struct Config {
-    };
+    struct Config {};
     using Parameters = Table<Config>;
     explicit TestTimeTrackerFilter(Parameters const& p,
                                    art::ProcessingFrame const&);

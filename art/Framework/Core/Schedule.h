@@ -115,8 +115,8 @@ namespace art {
   };
 } // namespace art
 
-  // Local Variables:
-  // mode: c++
-  // End:
+// Local Variables:
+// mode: c++
+// End:
 
 #endif /* art_Framework_Core_Schedule_h */

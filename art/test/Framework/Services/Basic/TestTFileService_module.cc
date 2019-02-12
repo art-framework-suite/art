@@ -15,8 +15,7 @@ using namespace std;
 
 class TestTFileService : public art::SharedAnalyzer {
 public:
-  struct Config {
-  };
+  struct Config {};
   using Parameters = Table<Config>;
   explicit TestTFileService(Parameters const&, ProcessingFrame const& frame);
 

@@ -28,8 +28,7 @@ namespace arttest {
 
 class arttest::MixProducer : public art::SharedProducer {
 public:
-  struct Config {
-  };
+  struct Config {};
   using Parameters = Table<Config>;
   explicit MixProducer(Parameters const& p, art::ProcessingFrame const&);
 

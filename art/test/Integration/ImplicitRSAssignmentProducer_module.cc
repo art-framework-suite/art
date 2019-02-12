@@ -70,8 +70,7 @@ namespace {
            std::string::npos;
   }
 
-  struct Config {
-  };
+  struct Config {};
 
 } // namespace
 

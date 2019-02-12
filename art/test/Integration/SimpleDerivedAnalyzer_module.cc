@@ -34,8 +34,7 @@ check_for_conversion(art::View<T> const& v)
 
 // dummy is a type we can be sure is not used in any collections in
 // the Event; no dictionary exists for it.
-struct dummy {
-};
+struct dummy {};
 
 //--------------------------------------------------------------------
 //

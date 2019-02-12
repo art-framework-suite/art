@@ -116,4 +116,3 @@ main()
 {
   return test_simple_01_verify();
 }
-

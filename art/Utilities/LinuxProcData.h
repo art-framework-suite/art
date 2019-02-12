@@ -74,8 +74,7 @@ namespace art {
     enum procfs_type { VSIZE, RSS, ntypes };
 
     // aliases
-    struct proc_type {
-    };
+    struct proc_type {};
     struct vsize_t : proc_type {
       using value_type = unsigned long;
       explicit vsize_t(value_type const v) : value{v} {}

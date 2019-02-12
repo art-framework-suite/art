@@ -35,8 +35,8 @@ namespace art {
 
 } // namespace art
 
-  // Local Variables:
-  // mode: c++
-  // End:
+// Local Variables:
+// mode: c++
+// End:
 
 #endif /* art_Framework_Principal_EventPrincipal_h */

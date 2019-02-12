@@ -28,8 +28,7 @@ namespace arttest {
 
 class arttest::RPTest : public art::ResultsProducer {
 public:
-  struct Config {
-  };
+  struct Config {};
   using Parameters = art::ResultsProducer::Table<Config>;
   explicit RPTest(Parameters const& p);
   // The compiler-generated destructor is fine for non-base

@@ -14,8 +14,7 @@ using namespace art;
 namespace arttest {
   class Throwing {
   public:
-    struct Config {
-    };
+    struct Config {};
     using Parameters = ServiceTable<Config>;
     Throwing(Parameters const& cfg, ActivityRegistry& ar);
 

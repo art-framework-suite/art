@@ -19,9 +19,7 @@
 #include <memory>
 
 using namespace fhicl;
-namespace {
-
-} // namespace
+namespace {} // namespace
 
 namespace arttest {
   class IntProducer;

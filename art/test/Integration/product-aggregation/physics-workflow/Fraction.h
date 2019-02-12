@@ -37,7 +37,8 @@ namespace arttest {
 
 } // namespace arttest
 
-#endif /* art_test_Integration_product_aggregation_physics_workflow_Fraction_h */
+#endif /* art_test_Integration_product_aggregation_physics_workflow_Fraction_h \
+        */
 
 // Local variables:
 // mode: c++

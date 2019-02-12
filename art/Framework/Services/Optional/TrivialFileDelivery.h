@@ -32,8 +32,7 @@ namespace art {
   class TrivialFileDelivery : public CatalogInterface {
     // Configuration
   public:
-    struct Config {
-    };
+    struct Config {};
     using Parameters = ServiceTable<Config>;
     // Special Member Functions
   public:
