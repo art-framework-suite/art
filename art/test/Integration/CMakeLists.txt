@@ -34,6 +34,8 @@ simple_plugin(AssnsProducer               "module"  NO_INSTALL)
 simple_plugin(AssnsWrongPut               "module"  NO_INSTALL)
 simple_plugin(BareStringAnalyzer          "module"  NO_INSTALL)
 simple_plugin(BareStringProducer          "module"  NO_INSTALL)
+simple_plugin(BitsetAnalyzer              "module"  NO_INSTALL)
+simple_plugin(BitsetProducer              "module"  NO_INSTALL)
 simple_plugin(CompressedIntProducer       "module"  NO_INSTALL)
 simple_plugin(CompressedIntTestAnalyzer   "module"  NO_INSTALL)
 simple_plugin(ConcurrentEngineRetrieval   "module"  NO_INSTALL USE_BOOST_UNIT)
@@ -275,6 +277,19 @@ cet_test(PersistStdArrays_r HANDBUILT
   DATAFILES
   fcl/persistStdArrays_r.fcl
   TEST_PROPERTIES DEPENDS PersistStdArrays_w)
+
+cet_test(PersistStdBitsets_w HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c persistStdBitsets_w.fcl -o out.root
+  DATAFILES
+  fcl/persistStdBitsets_w.fcl)
+
+cet_test(PersistStdBitsets_r HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS --rethrow-all -c persistStdBitsets_r.fcl -s ../PersistStdBitsets_w.d/out.root
+  DATAFILES
+  fcl/persistStdBitsets_r.fcl
+  TEST_PROPERTIES DEPENDS PersistStdBitsets_w)
 
 cet_test(SimpleDerived_01_w HANDBUILT
   TEST_EXEC art

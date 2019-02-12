@@ -76,4 +76,6 @@
   <class name="std::vector<std::pair<art::Ptr<unsigned long>, art::Ptr<std::string>>>"/>
   <class name="std::pair<art::Ptr<unsigned long>, art::Ptr<std::string>>"/>
   <class name="art::Ptr<unsigned long>"/>
+  <class name="std::bitset<4>"/>
+  <class name="art::Wrapper<std::bitset<4>>"/>
 </lcgdict>

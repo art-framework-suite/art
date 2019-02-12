@@ -1,0 +1,9 @@
+physics: {
+  analyzers: {
+    readBitset: {
+      module_type: BitsetAnalyzer
+      moduleLabel: makeBitset
+    }
+  }
+  e1: [readBitset]
+}

@@ -1,0 +1,10 @@
+process_name: CREATE
+
+physics: {
+  producers: {
+    makeBitset: {
+      module_type: BitsetProducer
+    }
+  }
+  p1: [makeBitset]
+}
