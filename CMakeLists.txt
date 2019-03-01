@@ -12,11 +12,10 @@
 #  make package (builds distribution tarfile)
 # ======================================================================
 
-
-# use cmake 3.11 or later
-cmake_minimum_required (VERSION 3.11)
+cmake_minimum_required(VERSION 3.11) # use cmake 3.11 or later
 
 project(art)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # cetbuildtools contains our cmake modules
 find_package(cetbuildtools REQUIRED)
@@ -31,7 +30,8 @@ cet_set_compiler_flags(DIAGS VIGILANT
   WERROR
   NO_UNDEFINED
   EXTRA_FLAGS -pedantic
-  EXTRA_CXX_FLAGS -Wnon-virtual-dtor -Wdelete-non-virtual-dtor)
+  EXTRA_CXX_FLAGS -Wnon-virtual-dtor -Wdelete-non-virtual-dtor
+  )
 
 cet_have_qual(sse2 SSE2)
 if (SSE2)
@@ -73,6 +73,7 @@ find_ups_product(canvas v1_06_00)
 find_ups_product(messagefacility)
 find_ups_product(fhiclcpp)
 find_ups_product(cetlib v2_01_00)
+find_ups_product(python v3_7_2)
 find_ups_product(cetlib_except v1_01_00)
 find_ups_product(clhep)
 find_ups_product(cppunit)
@@ -82,26 +83,36 @@ find_ups_product(sqlite)
 find_ups_product(range)
 find_ups_boost()
 
+# ----------------------------------------------------------------------
+# Python stuff
+
+#cet_find_library(PYTHON NAMES python2.7 PATHS ENV PYTHON_LIB NO_DEFAULT_PATH)
+cet_find_library(PYTHON NAMES python3.7 PATHS ENV PYTHON_LIB NO_DEFAULT_PATH)
+
+# ----------------------------------------------------------------------
 # SQLite
 cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
 
 # macros for simple_plugin
 include(BuildPlugins)
 
+# ----------------------------------------------------------------------
+# Describe source tree layout:
+
+add_subdirectory(art) # source
 # Plugin skeleton generators for cetskelgen.
 add_subdirectory(perllib)
-
-# tools
-add_subdirectory(tools)
-
-# source
-add_subdirectory(art)
-
-# ups - table and config files
-add_subdirectory(ups)
+add_subdirectory(tools) # tools
+add_subdirectory(ups) # ups - table and config files
 
 # CMake modules
 add_subdirectory(Modules)
 
-# packaging utility
+# ----------------------------------------------------------------------
+# Documentation generation:
+#find_package(Sphinx REQUIRED)
+add_subdirectory(docs)
+
+# ----------------------------------------------------------------------
+# Packaging utility
 include(UseCPack)
