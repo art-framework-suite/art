@@ -1,0 +1,14 @@
+/* Override sphinxdoc style to support more sensible drop-down parameters. */
+
+.dropdown-menu {
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.related ul li ul {
+    min-width: 0;
+    width: auto;
+    height: auto;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}

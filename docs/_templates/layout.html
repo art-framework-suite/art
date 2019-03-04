@@ -1,0 +1,42 @@
+{% extends "!layout.html" %}
+
+{% block relbar1 %}
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+
+<div class="related" role="navigation" aria-label="related navigation">
+  <h3>{{ _('Navigation') }}</h3>
+  <ul>
+    <li class="dropdown">
+      <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" href="#">Versions<span class="caret"></span></a>{{ reldelim2 }}
+      <ul class="dropdown-menu" role="menu">
+        {% for normal, dotted in versions.items() %}
+        <li class="dropdown-item"><a href="../{{ normal }}/index.html">{{ dotted }}</a></li>
+        <!--li class="dropdown-item"><a href="home/ryan/Documents/fermilab/work/doc_devel/all_docs/{{ project }}/{{ normal }}/index.html">{{ dotted }}</a></li -->
+        <!-- li class="dropdown-item"><a href="/Users/kyleknoepfel/work/art_suite_docs/{{ project }}/{{ normal }}/index.html">{{ dotted }}</a></li -->
+        <!-- li class="dropdown-item"><a href="/Users/kyleknoepfel/work/art_suite_docs/{{ project }}/{{ normal }}/index.html">{{ dotted }}</a></li -->
+        {% endfor %}
+      </ul>
+    </li>
+    {%- block rootrellink %}
+    <li class="nav-item nav-item-0"><a href="{{ pathto(master_doc) }}"><em>{{ project|e }}</em> {{ release|e }}</a>{{ reldelim1 }}</li>
+    <!-- li class="nav-item nav-item-1"><a href="{{ pathto(master_doc) }}"><em>{{ project|e }}</em> {{ dependent|e }}</a>{{ reldelim1 }}</li --> 
+    {%- endblock %}
+    {%- for parent in parents %}
+      <li class="nav-item nav-item-{{ loop.index }}"><a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey("U") }}{% endif %}>{{ parent.title }}</a>{{ reldelim1 }}</li>
+    {%- endfor %}
+    {%- block relbaritems %} {% endblock %}
+  </ul>
+</div>
+{% endblock %}
+
+{% block sidebarlogo %}
+<!-- img class="logo" src="{{ pathto('_static/art-logo.png', 1) }}" alt="Logo" width="80%"/ -->
+<img class="visual_identity" src="{{ pathto('_static/art-visual-identity.png', 1) }}" alt="VisualIdentity" width="90%"/>
+{% endblock %}
+
+{% block relbar2 %} {% endblock %}
