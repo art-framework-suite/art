@@ -220,8 +220,8 @@ with open(src+'/'+project+'/ups/product_deps') as deps_file:
 
 
 with open(src+'/'+project+'/docs/depends.rst', 'w+') as deps_page:
-  deps_page.write('|depends| depends')
-  deps_page.write('\n=================\n')
+  deps_page.write('|release| depends on')
+  deps_page.write('\n====================\n')
   for pkg in depends_on:
     #deps_page.write(pkg[0]+pkg[1]+'\n')
     pkg_path = html+'/'+pkg[0]
