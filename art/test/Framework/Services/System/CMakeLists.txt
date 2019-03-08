@@ -8,4 +8,3 @@ cet_test(FloatingPointControl_t
   art_Framework_Services_Registry
   fhiclcpp)
 
-target_include_directories(FloatingPointControl_t PUBLIC $ENV{CATCH_INC})
