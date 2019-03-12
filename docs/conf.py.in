@@ -37,6 +37,9 @@ version = ''
 # The full version, including alpha/beta/rc tags
 release = dotted_version('@version@')
 
+print("Building documentation for: "+project)
+
+
 # Assemble list of already-built documentation that will appear in the
 # versions drop-down menu.
 #built_docs_path = '/Users/kyleknoepfel/work/art_suite_docs/' + project
@@ -44,13 +47,13 @@ release = dotted_version('@version@')
 #built_docs_path = src+'/'+project
 built_docs_path = top+'/all_docs/'+project
 
-print("\n\n\ninvestigating the version tab stuff..")
+#print("\n\n\ninvestigating the version tab stuff..")
 files = os.listdir(built_docs_path)
-print(files)
+#print(files)
 subdirs = [subdir for subdir in files
            if os.path.isdir(os.path.join(built_docs_path, subdir))]
 versions = { subdir: dotted_version(subdir) for subdir in subdirs }
-print(built_docs_path+subdirs[0])
+#print(built_docs_path+subdirs[0])
 
 versions['@version@'] = release
 
@@ -201,7 +204,7 @@ rst_epilog = """
 
 
 # Maybe more intersphinx stuff: but also just messing around w/ executable stuff
-print("+++++++++++++++++++++++\n\n\n\n\n")
+#print("+++++++++++++++++++++++\n\n\n\n\n")
 
 
 products = 0 
@@ -227,12 +230,98 @@ with open(src+'/'+project+'/docs/depends.rst', 'w+') as deps_page:
     pkg_path = html+'/'+pkg[0]
     #if(os.path.isdir(html+'/'+pkg[0])):
     if(os.path.isdir(pkg_path)):
-      print("this is a directory: ", html+'/'+pkg[0])
-      print("\tthe version is: ", pkg[1])
+      #print("this is a directory: ", html+'/'+pkg[0])
+      #print("\tthe version is: ", pkg[1])
       #deps_page.write('\n| `(internal link): '+pkg[0]+' <'+pkg_path+'/index.html>`_')
       deps_page.write('\n| `(internal link): '+pkg[0]+' '+pkg[1]+' <../../'+pkg[0]+'/index.html>`_')
     else:
-      print("this is not a directory: ", html+'/'+pkg[0])
+      #print("this is not a directory: ", html+'/'+pkg[0])
       deps_page.write('\n| (external link): '+pkg[0]+' '+pkg[1])
 
-print("+++++++++++++++++++++++\n\n\n\n\n")
+#print("+++++++++++++++++++++++\n\n\n\n\n")
+
+
+# ======================================================================================================
+# ======================================================================================================
+# ===================================== release notes stuff ============================================
+# ======================================================================================================
+# ======================================================================================================
+
+
+#   - The goal here is to mimick the functionality of the redmine release notes with a couple tweaks.
+#   - We probably do not want (for example) every series-notes link on the art 3.02(.02) documentation.
+#   - We would just want the art 3.02 series and then maybe the .02 release notes. Or combine them.
+#   - 
+#   - The release-notes perl script gives us good template information (w/ redmine style) - ideally we want
+#   - much of that templating to get dumped into rst files at build time. We also want to give a document-er
+#   - the ability to put in notes manually that will not get erased at build time.
+#   - 
+#   - dumb idea for now is have placeholder flags in the release-notes output written to an rst file. 
+#   - have a user written rst file that inserts relevant information in placeholders. something like that.
+
+
+# --- series-notes 
+series_release_notes_command = 'perl /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/release-notes --series-notes ' + project + ' ' + release + ' > /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_temp.rst'
+
+
+suite_release_notes_command = 'perl /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/release-notes --suite-notes ' + project + ' ' + release + ' > /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_temp.rst'
+
+
+
+os.system(series_release_notes_command)
+os.system(suite_release_notes_command)
+os.system('cat /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_temp.rst /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_temp.rst > /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/temp.rst')
+
+print("looking at formatting the releasenotes as a combo of automated and user notes")
+
+#with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/temp.rst", "r+") as notes_page:
+with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/releaseNotes.rst", "w") as final_notes:
+    with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/temp.rst", "r+") as auto_notes:
+        for line in auto_notes:
+            print(line)
+
+            # general description
+            if("description of series" in line):
+                print("\t\tinsert stuff here")
+                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/user_notes/general_description.rst") as description_page:
+                    for description_line in description_page:
+                        print(description_line)
+                        final_notes.write(description_line)
+
+            # new features
+            if("New features" in line):
+                print("\t\tinsert stuff here")
+                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/user_notes/new_features.rst") as feature_page:
+                    for feature_line in feature_page:
+                        print(feature_line)
+                        final_notes.write(feature_line)
+
+            # breaking changes 
+            if("Breaking changes" in line):
+                print("\t\tinsert stuff here")
+                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/user_notes/breaking_changes.rst") as changes_page:
+                    for changes_line in changes_page:
+                        print(changes_line)
+                        final_notes.write(changes_line)
+
+            # errything else
+            else: final_notes.write(line)
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

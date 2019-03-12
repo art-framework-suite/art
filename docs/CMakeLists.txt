@@ -28,63 +28,63 @@ set(SPHINX_CACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/_doctrees")
 #set(SPHINX_HTML_DIR "${CMAKE_CURRENT_BINARY_DIR}/html")
 #set(SPHINX_HTML_DIR "$ENV{MRB_TOP}/all_docs/art")
 #set(SPHINX_HTML_DIR "$ENV{MRB_TOP}/all_docs/${PROJECT_NAME}/$ENV{}")
-message("\n\n\n\n\n\n")
+#message("\n\n\n\n\n\n")
 
 set(TOP_DOCS_DIR "$ENV{MRB_TOP}/all_docs")
 
 # looking for top level dir
 if(EXISTS "${TOP_DOCS_DIR}")
-  message("I can use exists this way. all_docs is there.")
+  #message("I can use exists this way. all_docs is there.")
   set(PROJ_DOCS_DIR "${TOP_DOCS_DIR}/${PROJECT_NAME}")
   
 
   # looking for project dir
   if(EXISTS "${PROJ_DOCS_DIR}")
-    message("art dir is here")
+    #message("art dir is here")
     string(TOUPPER ${PROJECT_NAME} ENV_PROJ_NAME)
     set(VERSION_DOCS_DIR "${PROJ_DOCS_DIR}/$ENV{${ENV_PROJ_NAME}_VERSION}")
-    message("looking for.. ${DUMB_TEMP_VAR}")
+    #message("looking for.. ${DUMB_TEMP_VAR}")
     #if(EXISTS "$ENV{MRB_TOP}/all_docs/${PROJECT_NAME}/$ENV{${ENV_PROJ_NAME}_VERSION}")
 
     if(EXISTS "${VERSION_DOCS_DIR}")
       #set(DUMB_TEMP_VAR "$ENV{MRB_TOP}/all_docs/${PROJECT_NAME}/$ENV{${ENV_PROJ_NAME}_VERSION}")
-      message("version dir is here")
+      #message("version dir is here")
     else()
-      message("You don't have a version dir")
+      #message("You don't have a version dir")
       add_custom_target(build_art_version_dir ALL COMMAND 
                         ${CMAKE_COMMAND} -E make_directory 
                         ${VERSION_DOCS_DIR})
     endif()
   else()
-    message("You don't have a art dir")
+    #message("You don't have a art dir")
     add_custom_target(build_art_proj_dir ALL COMMAND 
                       ${CMAKE_COMMAND} -E make_directory 
                       ${PROJ_DOCS_DIR})
     
     # Going back through now assuming it exists ! 
-    message("art dir is here")
+    #message("art dir is here")
     string(TOUPPER ${PROJECT_NAME} ENV_PROJ_NAME)
     set(VERSION_DOCS_DIR "${PROJ_DOCS_DIR}/$ENV{${ENV_PROJ_NAME}_VERSION}")
-    message("looking for.. ${DUMB_TEMP_VAR}")
+    #message("looking for.. ${DUMB_TEMP_VAR}")
     #if(EXISTS "$ENV{MRB_TOP}/all_docs/${PROJECT_NAME}/$ENV{${ENV_PROJ_NAME}_VERSION}")
 
     if(EXISTS "${VERSION_DOCS_DIR}")
       #set(DUMB_TEMP_VAR "$ENV{MRB_TOP}/all_docs/${PROJECT_NAME}/$ENV{${ENV_PROJ_NAME}_VERSION}")
-      message("version dir is here")
+      #message("version dir is here")
     else()
-      message("You don't have a version dir")
+      #message("You don't have a version dir")
       add_custom_target(build_art_version_dir ALL COMMAND 
                         ${CMAKE_COMMAND} -E make_directory 
                         ${VERSION_DOCS_DIR})
     endif() 
   endif()
 else()
-  message("You don't a spot to put your docs!")
+  #message("You don't a spot to put your docs!")
 endif()
   
 
 
-message("\n\n\n\n\n\n")
+#message("\n\n\n\n\n\n")
 
 set(SPHINX_HTML_DIR "${VERSION_DOCS_DIR}")
 
@@ -99,7 +99,7 @@ configure_file(
     "${BINARY_BUILD_DIR}/conf.py"
     @ONLY)
 
-message(STATUS "SPHINX_EXECUTABLE: ${SPHINX_EXECUTABLE}")
+#message(STATUS "SPHINX_EXECUTABLE: ${SPHINX_EXECUTABLE}")
 
 add_custom_target(art_docs ALL
   ${SPHINX_EXECUTABLE}

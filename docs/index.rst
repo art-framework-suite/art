@@ -9,10 +9,9 @@
 .. toctree::
    :maxdepth: 2
 
-   Release notes<releaseNotes>
-
    Depends on<depends>
 
+`Release notes <releaseNotes.html>`_
 
 General *art* and *art* suite information
 -----------------------------------------
@@ -117,7 +116,7 @@ I/O handling
 Output-file handling
 ~~~~~~~~~~~~~~~~~~~~
 
-* `art/ROOT output file handling <https://cdcvs.fnal.gov/redmine/projects/art/wiki/Output-file_handling>`_ (`art 2.02.00 <https://cdcvs.fnal.gov/redmine/versions/1036>`_ and newer, `art 2.01.00 <https://cdcvs.fnal.gov/redmine/versions/388>`)
+* `art/ROOT output file handling <https://cdcvs.fnal.gov/redmine/projects/art/wiki/Output-file_handling>`_ (`art 2.02.00 <https://cdcvs.fnal.gov/redmine/versions/1036>`_ and newer, `art 2.01.00 <https://cdcvs.fnal.gov/redmine/versions/388>`_)
 * `One output file per input file <https://cdcvs.fnal.gov/redmine/projects/art/wiki/One_output_file_per_input_file>`_ (pre `art 2.01.00 <https://cdcvs.fnal.gov/redmine/versions/388>`_)
 * `Output file renaming for ROOT files <https://cdcvs.fnal.gov/redmine/projects/art/wiki/Output_file_renaming_for_ROOT_files>`_
 

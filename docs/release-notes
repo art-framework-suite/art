@@ -1,0 +1,789 @@
+#!/usr/bin/perl -w
+########################################################################
+# release-notes
+#
+# Produce skeleton Wiki release notes for a version.
+#
+# Requires MANAGER role on all packages to be interrogated (including art).
+#
+# It is not necessary for the script to special-case the list of
+# supported packages for a given package version.  This script
+# accesses the remote git repository on cdcvs.fnal.gov and looks at
+# the ups/product_deps file for the specified package and version.  It
+# then recursively traverses the set of dependencies, going through
+# all ups/product_deps files, until it encounters a dependency that is
+# not in the master list of "known_packages", as defined below.  The
+# recursion terminates once there no longer is package that is in the
+# known_packages list.
+########################################################################
+use strict;
+
+use Cwd qw(chdir :DEFAULT);
+use File::Basename;
+use FileHandle;
+use Getopt::Long;
+use Pod::Usage;
+
+my $options = { "skip-pre" => 1 };
+
+Getopt::Long::Configure(qw(no_ignore_case bundling require_order));
+
+# Subsidiary packages to be recognized.
+my @known_packages = qw(art art_root_io canvas canvas_root_io critic messagefacility hep_concurrency fhicl-cpp fhiclcpp cetlib cetlib_except gallery);
+my %known_packages_search = map { ($_ eq "fhicl-cpp" ? "fhiclcpp" : $_)  => 1 } @known_packages;
+my %package_name = ( "fhiclcpp" => "fhicl-cpp" );
+
+GetOptions($options,
+           "help|h|?",
+           "help-packages",
+           "skip-pre|skip-pre-releases!",
+           "series-notes",
+           "suite-notes") or pod2usage(-exitval => 2);
+
+pod2usage(-exitval => 1, -verbose => 3) if $options->{help};
+
+help_packages() if $options->{"help-packages"};
+
+if ((scalar @ARGV) < 2) {
+  print STDERR "Error: Expected at least two non-option arguments.\n";
+  pod2usage(-exitval => 2);
+}
+
+my ($pkg, @versions) = @ARGV;
+
+my $only_package_notes = (!$options->{"series-notes"}) && (!$options->{"suite-notes"});
+
+# Check that ssh will be successful
+unless (system("ssh -q -o BatchMode=yes -o ConnectTimeout=5 p-$pkg\@cdcvs.fnal.gov exit > /dev/null 2>&1") == 0) {
+    print STDERR "Error: Could not access p-$pkg\@cdcvs.fnal.gov.  The ssh request either timed out (5 second window)\n";
+    print STDERR "       or the appropriate permissions have not been setup.  Do you have a valid kerberos ticket?\n";
+}
+
+foreach my $version (@versions) {
+    my $required_products = {};
+    required_packages($pkg, $version, $required_products);
+
+    print_series_notes($pkg, $version) if ($options->{"series-notes"});
+    print_suite_notes($pkg, $version, $required_products) if ($options->{"suite-notes"});
+    print_package_notes($pkg, $version) if ($only_package_notes);
+}
+
+exit;
+
+sub required_packages {
+    my ($package, $version, $required_products) = @_;
+    my $prod_version = prod_version($version);
+    my $products_str =
+        for_package($package,
+                    "cd /cvs/projects/$package;" .
+                    "git cat-file -p $prod_version:ups/product_deps | grep -v '^[[:space:]]*\$' |" .
+                    "sed -n '/^product[[:space:]]\\+.*/,/^end_product_list[[:space:]]*\$/{//b;p}'" );
+    my @products = split /^/m, $products_str;
+    foreach (@products) {
+       my ($subpkg, $subversion) = /^([^\s]+)\s+([^\s]+).*/s;
+       if (!exists $known_packages_search{$subpkg}) {
+           next;
+       }
+       $required_products->{$subpkg} = ${subversion};
+       required_packages(package_name($subpkg), $subversion, $required_products);
+    };
+}
+
+# Sort order:
+#
+# alpha[[-_]NN] (alpha releases);
+# beta[[-_]NN] (beta releases);
+# rc[[-_]NN] or pre[[-_]NN] (prereleases);
+# <empty>;
+# p[-_]NN or patch[[-_]NN] (patch releases);
+# Anything else.
+sub parse_version_extra {
+  my $vInfo = shift;
+  # Swallow optional _ or - separator to 4th field.
+  $vInfo->{micro}=~ m&^(\d+)[-_]?((.*?)[-_]?(\d*))$&o;
+  $vInfo->{micro} = ${1};
+  my ($extra, $etext, $enum) = (${2} || "", ${3} || "", ${4} || -1);
+  if (not $etext) {
+    $vInfo->{extra_type} = 0;
+  } elsif ($etext eq "patch" or ($enum >= 0 and $etext eq "p")) {
+    $vInfo->{extra_type} = 1;
+  } elsif ($etext eq "rc" or
+           $etext eq "pre") {
+    $vInfo->{extra_type} = -1;
+    $etext = "pre";
+  } elsif ($etext eq "beta") {
+    $vInfo->{extra_type} = -2;
+  } elsif ($etext eq "alpha") {
+    $vInfo->{extra_type} = -3;
+  } else {
+    $vInfo->{extra_type} = 2;
+  }
+  $vInfo->{extra_num} = $enum;
+  $vInfo->{extra_text} = $etext;
+}
+
+sub parse_version_string {
+  my $dv = shift || "";
+  my $result = {};
+  if ($dv) {
+    @{$result}{qw(major minor micro)} = split /\./, $dv, 3;
+    parse_version_extra($result);
+  } else {
+    @{$result}{qw(major minor micro extra_type extra_text extra_num)} =
+      (-1, -1, -1, 0, "", -1);
+  }
+  return $result;
+}
+
+sub by_version {
+  # Requires dot versions.
+  my $vInfoA = parse_version_string($a || shift);
+  my $vInfoB = parse_version_string($b || shift);
+  return
+    $vInfoA->{major} <=> $vInfoB->{major} ||
+      $vInfoA->{minor} <=> $vInfoB->{minor} ||
+        $vInfoA->{micro} <=> $vInfoB->{micro} ||
+          $vInfoA->{extra_type} <=> $vInfoB->{extra_type} ||
+            $vInfoA->{extra_text} cmp $vInfoB->{extra_text} ||
+              $vInfoA->{extra_num} <=> $vInfoB->{extra_num};
+}
+
+sub new_first {
+  my ($package, $pv, $dot_version) = @_;
+  my @versions =references_for_one_suite($package, $pv);
+  if (scalar @versions == 0) {
+    return "";
+  }
+  my $first_version = $versions[0];
+  if ($first_version eq $dot_version) {
+    return " (%{color:green}new version%)";
+  } else {
+    return sprintf(" (in since ${pkg} %s)", vpage($first_version));
+  }
+}
+
+sub help_packages {
+  print STDERR "Known packages:\n  ",
+    join("\n  ", @{known_packages}),
+      "\n";
+  exit(2);
+}
+
+sub for_package {
+  my $package = shift;
+  my $usr_command = join(" ", @_);
+  return "" unless $usr_command =~ m&\S&op;
+  my $command = "source /fnal/ups/etc/setups.sh; setup git v2_13_3;".$usr_command;
+  my $result = `ssh p-$package\@cdcvs.fnal.gov \"$command\" 2>/dev/null`;
+  chomp $result;
+  return $result;
+}
+
+sub ensure_gitconfig {
+  my $package = shift;
+  for_package($package,
+              "git config --global user.name '$package admin'; git config --global user.email 'artists\@fnal.gov'");
+}
+
+sub vpage {
+  my $version = dot_version(shift);
+  return "version:\"$version\"";
+}
+
+sub dot_version {
+  my $dot_version = shift;
+  $dot_version =~ s&.*?(?:[A-Z]+_SUITE_)?v?([^_\.]+)[\._]([^_\.]+)[\._](.*)$&$1.$2.$3&o;
+  return $dot_version;
+}
+
+sub series_version {
+  my $series_version = shift;
+  $series_version =~ s&([^\.]+)\.([^\.]+)\.(.*)&$1.$2&o;
+  return $series_version;
+}
+
+sub prod_version {
+  my $version = dot_version(shift);
+  $version =~ s/\./_/g;
+  $version =~ s/(^[^v].*)/v$1/;
+  return $version;
+}
+
+sub nosep_version {
+  my $version = dot_version(shift);
+  $version =~ s/\.//g;
+  return $version;
+}
+
+sub suite_version {
+  my ($package, $version) = @_;
+  return sprintf("%s_SUITE_%s", uc $package, prod_version($version));
+}
+
+sub tag_date {
+  my ($package, $tag) = @_;
+  my $tag_date = for_package("$package", "cd /cvs/projects/$package; git log -1 --simplify-by-decoration --pretty=\"format:\%cd\" --date=short \"$tag\"");
+  $tag_date =~ s&-&/&go;
+  return $tag_date;
+}
+
+sub previous_version {
+  my ($package, $current_version) = @_;
+  my $current = dot_version($current_version);
+
+  ensure_gitconfig($package);
+  my $v_string =
+      for_package($package, "cd /cvs/projects/$package; git tag");
+  if (!$v_string) {
+      print STDERR "ERROR: Could not obtain tag information for $package.\n";
+      exit(1);
+  }
+  my @vref = grep /^[A-Z]+_SUITE/, (split /[,\s]/, $v_string);
+  @vref = map { my $v = dot_version($_);
+                my $vInfo = parse_version_string($v);
+                ($options->{"skip-pre"} and
+                 $vInfo->{extra_type} < 0) ? () : $v } @vref;
+  my $index = 0;
+  foreach my $test_version (@vref) {
+    if ($test_version eq $current) {
+      return $index ? $vref[$index - 1] : 'none';
+    }
+    ++$index;
+  }
+  return "not found";
+}
+
+sub suite_notes_page {
+  my ($package, $version) = @_;
+  my $lpkg = lc $package;
+  my $rversion = nosep_version(${version});
+  my $dot_version = dot_version(${version});
+  return "[[$lpkg:Release Notes ${rversion}|${dot_version}]]";
+}
+
+sub rpage {
+  my ($package, $version) = @_;
+  my $lpkg = lc $package;
+  my $rversion = nosep_version(${version});
+  my $dot_version = dot_version(${version});
+  #return "[[$lpkg:Release Notes#${rversion}|$lpkg ${dot_version}]]";
+  return "$lpkg ${dot_version}";
+}
+
+sub package_name {
+  my $package = shift;
+  return $package_name{$package} || $package;
+}
+
+sub dotted_versions_for_one_suite {
+  my $suite_prefix = uc $pkg;
+  my @versions = grep /^${suite_prefix}_SUITE/, (split /[,\s]/, shift);
+  return sort by_version map { dot_version($_); } @versions;
+}
+
+sub versions_for_all_suites {
+  # Assumption is that cross-package tags will start with uppercase
+  # letters.
+  my @versions = grep /^[A-Z]+_SUITE/, (split /[,\s]/, $_[0]);
+  my %versions_for_suite;
+  foreach (@versions) {
+      my ($suite, $version) = $_ =~ /(^[A-Z]+)_SUITE_(.*)/s;
+      push @{ $versions_for_suite{lc $suite} }, $version;
+  }
+  return %versions_for_suite;
+}
+
+sub references_for_one_suite {
+  my $package = shift;
+  my $dot_version = dot_version(shift);
+  my $prod_version = prod_version($dot_version);
+  ensure_gitconfig($package);
+  my $v_string =
+    for_package($package,
+                "cd /cvs/projects/$package; git log -1 --pretty=format:'\%d' $prod_version");
+  if (!$v_string) {
+    print STDERR "ERROR: Could not obtain log information for $package version $dot_version: no tag $prod_version?\n";
+    exit(1);
+  }
+  $v_string =~ s&tag: &&go;
+  $v_string =~ s&^\s*\((.*)\)$&$1&o;
+  return dotted_versions_for_one_suite($v_string);
+}
+
+sub references_for_all_suites {
+  my $package = shift;
+  my $dot_version = dot_version(shift);
+  my $prod_version = prod_version($dot_version);
+  ensure_gitconfig($package);
+  my $v_string =
+    for_package($package,
+                "cd /cvs/projects/$package; git log -1 --pretty=format:'\%d' $prod_version");
+  if (!$v_string) {
+    print STDERR "ERROR: Could not obtain log information for $package version $dot_version: no tag $prod_version?\n";
+    exit(1);
+  }
+  $v_string =~ s&tag: &&go;
+  $v_string =~ s&^\s*\((.*)\)$&$1&o;
+  return versions_for_all_suites($v_string);
+}
+
+sub suite_reference_string {
+  my ($suite, @versions) = @_;
+  return (scalar @versions) ?
+    sprintf(' %s',
+            join(", ", map { if (!$_) { (); } else { suite_notes_page($suite, $_); } } sort by_version map { dot_version($_); } @versions)) :
+              '';
+}
+
+# Printing utilities
+sub print_series_notes {
+  my ($package, $version) = @_;
+  my $this_series = series_version($version);
+  my $prev_version = previous_version($package, $version);
+  my $prev_series = series_version($prev_version);
+  print_series_prolog($package, $prev_series, $this_series);
+  #print_next_series_tag($prev_series, $this_series);
+  print_series_headers($package);
+}
+
+### sub print_next_series_tag {
+###   my ($prev_series, $this_series) = @_;
+###   if ($prev_series =~ /^\d/) {
+###     print <<EOF;
+### ###
+### ### The following should be added to the "Series ${prev_series}" Wiki page
+### ### after the "Previous series release notes" link.
+### ###
+### 
+### EOF
+###     print "_Next series [[Series $this_series|release notes]]_\n\n";
+###   } else {
+###     print "\n###\n";
+###     print "### There is no previous series to this version.\n";
+###     print "###\n";
+###   }
+### }
+
+sub print_series_prolog {
+  my ($package, $prev, $this_series) = @_;
+  print <<EOF;
+*art* series $this_series
+=================
+
+EOF
+
+  # if ($prev =~ /^\d/) {
+  #   my $prev_series = series_version($prev);
+  #   print "_Previous series [[Series $prev_series|release notes]]_\n\n";
+  # }
+
+  print "<Optional description of series>\n";
+}
+
+sub print_series_headers {
+  my $package = shift;
+  print <<EOF;
+
+New features
+
+
+Platform/compiler support changes
+
+
+Breaking changes
+
+
+.. 
+    h3(#releases){background:darkorange}. %{color:white}&nbsp; _${package}_ releases%
+
+EOF
+}
+
+sub print_suite_notes {
+  my ($package, $prod_version, $required_products) = @_;
+  $prod_version = dot_version($prod_version);
+  my $suite_date = tag_date($package, suite_version($package, $prod_version));
+  my $prev_version = previous_version($package, $prod_version);
+  my $vpage_prev = vpage($prev_version);
+  my $vpage_this = vpage($prod_version);
+  my $series_version = series_version($prod_version);
+
+  # print "\n###\n";
+  # print "### The following block should be inserted below the \"${package} releases\"\n";
+  # print "### header of the series ${series_version} release notes.\n";
+  # print "###\n\n";
+  # print_suite_insert_for_series($prod_version);
+
+  print <<EOF;
+
+*${package}* suite release notes $prod_version ($suite_date)
+==============================================
+
+
+* An *$package $series_version* `release <releaseNotes>`_
+* `Download page <https://scisoft.fnal.gov/scisoft/bundles/${package}/${prod_version}/${package}-${prod_version}.html>`_
+
+External package changes
+------------------------
+..
+    =========       ======================      ======================      =================
+     Package         $package $vpage_prev        $package $vpage_this        Notes
+    =========       ======================      ======================      =================
+    
+    package 1       vX_YY_ZZ                    vU_VV_WW                    this is a problemo
+    
+    =========       ======================      ======================      ==================
+
+
+Bug fixes
+---------
+
+EOF
+
+  foreach my $key (sort keys %{$required_products}) {
+      my $package = package_name($key);
+      print "* Bug #abcde (project:$package): <Description>\n";
+  }
+  print <<EOF;
+
+
+
+Known issues
+------------
+
+Depends on
+----------
+
+EOF
+
+  foreach my $key (sort keys %{$required_products}) {
+      my $subpackage = package_name($key);
+      my $pv = $required_products->{$key};
+      printf("* \%s\%s\n",
+             rpage($subpackage, $pv));#, new_first($subpackage, $pv, $prod_version));
+  }
+  print "\n";
+
+  print <<EOF;
+
+..
+    ###
+    ### The following are lines that should be placed in the release notes
+    ### pages of individual packages.
+    ###
+
+EOF
+
+  #foreach my $key (sort keys %{$required_products}) {
+  #    my $subpackage = ($key eq "fhiclcpp") ? "fhicl-cpp" : $key;
+  #    print_package_notes($subpackage, $required_products->{$key});
+  #}
+}
+
+sub print_suite_insert_for_series {
+  my $dot_version = shift;
+  print <<EOF;
+{{collapse(art suite $dot_version)
+_Click [[Release Notes $dot_version|here]] to navigate to a page with the below notes._
+{{include(Release Notes $dot_version)}}
+
+----
+
+}}
+
+EOF
+}
+
+sub print_package_notes {
+  my ($package, $version) = @_;
+  printf "h2(#%s). $package %s (%s)\n",
+      nosep_version($version),
+      vpage($version),
+      tag_date($package, prod_version($version));
+
+  my %suites = references_for_all_suites($package, $version);
+  print "\n" if (scalar %suites);
+  for my $suite_name (sort keys %suites) {
+    print "* _${suite_name}_ suites:",suite_reference_string($suite_name, @{$suites{$suite_name}}),"\n";
+  }
+  print "\n";
+}
+
+__END__
+
+=pod
+
+=head1 NAME
+
+release-notes - produce redmine wiki documentation for release notes for art-supported packages.
+
+=head1 SYNOPSIS
+
+B<release-notes> B<-h> | B<--help> | B<-?>
+
+B<release-notes> B<--help-packages>
+
+B<release-notes> [I<options>] -- I<package> I<version>
+
+I<Options>:
+
+=over
+
+=item B<--suite-notes>
+
+=item B<--series-notes>
+
+=item B<--[no[-]]skip-pre-releases|--[no[-]]skip-pre>
+
+=back
+
+=head1 DESCRIPTION
+
+I<release-notes> is a tool to produce Wiki documentation for release
+notes for art-supported packages.  It gathers information by accessing
+the remote git repositories on the cdcvs.fnal.gov host.  For a given
+repository, the script can access:
+
+=over
+
+=item -
+
+the date of the git tag for the specified package and version
+
+=item -
+
+all other UPS products and their versions upon which the specified package and version depend
+
+=item -
+
+any suites using the specified package and version
+
+=back
+
+If no options are provided, it is assumed that the "short notes" form
+is desired.  See below for descriptions of the program options and
+examples.
+
+=over
+
+=back
+
+=head2 ARGUMENTS
+
+=over
+
+=item I<package>
+
+The package for which to produce the skeleton.
+
+=item I<version>
+
+The version of the I<package> for which release notes should be generated.
+
+=back
+
+=head2 OPTIONS
+
+=over
+
+=item B<--suite-notes>
+
+Produce a skeleton suite release notes page for pasting into a blank
+page (which by convention should be named, "Release_Notes_MMmmuu" --
+automatic if creating from a link "Release Notes MM.mm.uu"). This will
+include links to the correct section of each subsidiary package's
+Release Notes page (which by convention should be named, "Release
+Notes").
+
+In addition, specifying this program option will also generate wiki
+snippets for inserting into the series-notes page, which is described
+in the next program option.
+
+=item B<--series-notes>
+
+Interpret I<version> as the beginning of a series of released suites
+for I<package>.  This will produce a skeleton for a top-level series
+notes page, as well as other snippets that are used when creating a
+new series.
+
+=item B<--[no[-]]skip-pre-releases>
+
+=item B<--[no[-]]skip-pre>
+
+Skip (or not) the consideration of pre-releases when producing links to
+previous [A-Z]+_SUITE versions. Default is to skip.
+
+=back
+
+=head2 Redmine Version Pages
+
+Distinct from yet related to release notes pages (which are entirely
+normal Wiki pages created by the user), a Version page exists for every
+version of a package as defined in the Settings/Versions section (or
+created with the "+" button while updating the Target Version of an
+issue). If the "Wiki" link is defined for that version then the content
+of that page will be incorporated into the version page, below certain
+specific information such as listing the issues listing this version as
+their Target Version.
+
+=head1 EXAMPLES
+
+In what follows, the '[]' prefix indicates a command-line prompt.
+
+=over
+
+=item B<[] release-notes art 2.09.00>
+
+=for comment
+NB: There is a necessary space that precedes the print out below.  This
+provides a verbatim printout.
+
+This is the "short notes" option.  It produces an output like:
+
+  h2(#20900). art version:"2.09.00", 2017/10/17
+
+  * _art_ suites: [[art:Release Notes#20900|2.09.00]]
+
+Note that in order for a suite to be reported for the short notes, the
+tag of the form '[A-Z]+_SUITE_vX_YY_ZZ' must be present in the git
+repository.  In the above example, the ART_SUITE_v2_09_00 tag was
+available, and thus it is reported as a list item underneath the
+header.
+
+=item B<[] release-notes --suite-notes art 2.09.00>
+
+=for comment
+NB: There is a necessary space that precedes the print out below.  This
+provides a verbatim printout.
+
+  ###
+  ### The following block should be inserted below the "art releases"
+  ### header of the series 2.09 release notes.
+  ###
+
+  {{collapse(art suite 2.09.00)
+  _Click [[Release Notes 2.09.00|here]] to navigate to a page with the below notes._
+  {{include(Release Notes 2.09.00)}}
+
+  ----
+
+  }}
+
+  ###
+  ### The following should be saved to a Wiki page called "Release Notes 2.09.00".
+  ###
+
+  h1. _art_ suite release notes 2.09.00 (2017/10/17)
+
+  * _An [[Series 2.09|art series 2.09]] release_
+  * "Download page":https://scisoft.fnal.gov/scisoft/bundles/art/2.09.00/art-2.09.00.html
+
+  h3{background:green}. %{color:white}&nbsp;External package changes%
+
+  |{background:#ddd}. *Package*|{background:#ddd}. *art version:"2.08.04"* (previous)|{background:#ddd}. *art version:"2.09.00"* (this version) |{background:#ddd}. *Notes* |
+  | *@package1@* | @vX_YY_ZZ@ | @vU_VV_WW@ ||
+
+  h3{background:green}. %{color:white}&nbsp;Bug fixes%
+
+  * Bug #abcde (project:canvas): <Description>
+  * Bug #abcde (project:canvas_root_io): <Description>
+  * Bug #abcde (project:cetlib): <Description>
+  * Bug #abcde (project:cetlib_except): <Description>
+  * Bug #abcde (project:fhiclcpp): <Description>
+  * Bug #abcde (project:messagefacility): <Description>
+
+  h3{background:green}. %{color:white}&nbsp;Known issues%
+
+  h3{background:green}. %{color:white}&nbsp;Dependent packages%
+
+  * [[canvas:Release Notes#30100|canvas 3.01.00]] (%{color:green}new version%)
+  * [[canvas_root_io:Release Notes#10000|canvas_root_io 1.00.00]] (%{color:green}new version%)
+  * [[cetlib:Release Notes#30102|cetlib 3.01.02]] (%{color:green}new version%)
+  * [[cetlib_except:Release Notes#10104|cetlib_except 1.01.04]] (%{color:green}new version%)
+  * [[fhicl-cpp:Release Notes#40602|fhicl-cpp 4.06.02]] (%{color:green}new version%)
+  * [[messagefacility:Release Notes#20102|messagefacility 2.01.02]] (%{color:green}new version%)
+
+  ###
+  ### The following are lines that should be placed in the release notes
+  ### pages of individual packages.
+  ###
+
+  h2(#30100). canvas version:"3.01.00", 2017/10/17
+
+  * _art_ suites: [[art:Release Notes#20900|2.09.00]], [[art:Release Notes#20901|2.09.01]]
+  * _gallery_ suites: [[gallery:Release Notes#10600|1.06.00]], [[gallery:Release Notes#10601|1.06.01]]
+
+  h2(#10000). canvas_root_io version:"1.00.00", 2017/10/17
+
+  * _art_ suites: [[art:Release Notes#20900|2.09.00]]
+  * _gallery_ suites: [[gallery:Release Notes#10600|1.06.00]]
+
+  h2(#30102). cetlib version:"3.01.02", 2017/10/17
+
+  * _art_ suites: [[art:Release Notes#20900|2.09.00]], [[art:Release Notes#20901|2.09.01]]
+  * _gallery_ suites: [[gallery:Release Notes#10600|1.06.00]], [[gallery:Release Notes#10601|1.06.01]]
+
+  h2(#10104). cetlib_except version:"1.01.04", 2017/10/17
+
+  * _art_ suites: [[art:Release Notes#20900|2.09.00]], [[art:Release Notes#20901|2.09.01]]
+  * _gallery_ suites: [[gallery:Release Notes#10600|1.06.00]], [[gallery:Release Notes#10601|1.06.01]]
+
+  h2(#40602). fhicl-cpp version:"4.06.02", 2017/10/17
+
+  * _art_ suites: [[art:Release Notes#20900|2.09.00]], [[art:Release Notes#20901|2.09.01]]
+  * _gallery_ suites: [[gallery:Release Notes#10600|1.06.00]], [[gallery:Release Notes#10601|1.06.01]]
+
+  h2(#20102). messagefacility version:"2.01.02", 2017/10/17
+
+  * _art_ suites: [[art:Release Notes#20900|2.09.00]], [[art:Release Notes#20901|2.09.01]]
+  * _gallery_ suites: [[gallery:Release Notes#10600|1.06.00]], [[gallery:Release Notes#10601|1.06.01]]
+
+=item B<[] release-notes --series-notes art 2.09.00>
+
+=for comment
+NB: There is a necessary space that precedes the print out below.  This
+provides a verbatim printout.
+
+  ###
+  ### The following should be added to the "Series 2.08" Wiki page
+  ### after the "Previous series release notes" link.
+  ###
+
+  _Next series [[Series 2.09|release notes]]_
+
+  ###
+  ### The following should be saved to a Wiki page called "Series 2.09".
+  ###
+
+  h1. _art_ series 2.09
+
+  * [[Series 2.09#features|New features]]
+  * [[Series 2.09#platform|Platform/compiler support changes]]
+  * [[Series 2.09#breaking|Breaking changes]]
+  * [[Series 2.09#releases|Releases]]
+
+  <Optional description of series>
+
+  h3(#features){background:blue}. %{color:white}&nbsp;New features%
+
+  h4. %{color:blue}Feature 1...%
+
+  h3(#platform){background:green}. %{color:white}&nbsp;Platform/compiler support changes%
+
+  h3(#breaking){background:red}. %{color:white}&nbsp;Breaking changes%
+
+  h4. %{color:red}Change 1...%
+
+  h3(#releases){background:darkorange}. %{color:white}&nbsp; _art_ releases%
+
+Note that the "art releases" header has nothing that follows it.  A
+more common use case would be to use the command:
+
+B<release-notes --series-notes --suite-notes art 2.09.00>
+
+where the relevant 'collapse' snippet from the top of the suite notes
+would appear directly under the "art releases" header.
+
+=back
+
+=cut
