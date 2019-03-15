@@ -6,27 +6,11 @@
 * An *art 3.02* `release <releaseNotes>`_
 * `Download page <https://scisoft.fnal.gov/scisoft/bundles/art/3.02.01/art-3.02.01.html>`_
 
-External package changes
-------------------------
-..
-    =========       ======================      ======================      =================
-     Package         art version:"3.02.00"        art version:"3.02.01"        Notes
-    =========       ======================      ======================      =================
-    
-    package 1       vX_YY_ZZ                    vU_VV_WW                    this is a problemo
-    
-    =========       ======================      ======================      ==================
+.. External package changes
+
+.. Bug fixes
 
 
-Bug fixes
----------
-
-* Bug #abcde (project:canvas): <Description>
-* Bug #abcde (project:cetlib): <Description>
-* Bug #abcde (project:cetlib_except): <Description>
-* Bug #abcde (project:fhicl-cpp): <Description>
-* Bug #abcde (project:hep_concurrency): <Description>
-* Bug #abcde (project:messagefacility): <Description>
 
 
 

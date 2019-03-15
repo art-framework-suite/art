@@ -1,13 +1,17 @@
 *art* series 3.02
 =================
 
+
+
 This is the first release that removes the ROOT dependency from core art functionality. Two new packages have been introduced:
 
 * art_root_io: provides ROOT functionality required for users (e.g. RootInput)
 * critic: umbrella UPS product that sets up a consistent set of art, art_root_io, and gallery versions
 
 Please consult the list of breaking changes to determine how your code should be adjusted to handle this migration.
-<Optional description of series>
+
+.. Optional description of series
+
 
 New features
 ------------
@@ -21,11 +25,33 @@ Various new features have been added, primarily addressing usability issues:
 * Configuration validation is now supported for MixFilter detail classes (resolves issue #19970)
 * MixFilter detail classes can now directly call MixHelper::createEngine to get a reference to the art-managed random-number-engine (resolves issue #20063)
 * Other minor features
-New features
+.. New features
+
+Other
+-----
+
+Platform/compiler support
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This series is the first to support macOS Mojave. As of art 3.02.00, art will no longer support macOS Sierra. 
+In addition, the following compilers have been introduced for art 3.02.00:
+
+* GCC 8.2.0 with C++17 enabled (e19 qualifier)
+* Clang 7.0.0 with C++17 enabled (c2 qualifier)
+
+See here for more detailed information about primary qualifiers.
 
 
-Platform/compiler support changes
+Python 3 support
+~~~~~~~~~~~~~~~~
 
+This series is the first to support Python 3, allowing users roughly 1 year to switch to Python 3 before the Python 2's end-of-life of January 1, 2020. 
+Note that for technical reasons, Python 3 builds are not available for SLF6 platforms. 
+In addition, the fhicl Python extension module is only supported for version 3.02.03 and newer.
+
+
+
+.. Other
 
 Breaking changes
 ----------------
@@ -33,6 +59,7 @@ Breaking changes
 Please consult the list of `breaking changes <https://cdcvs.fnal.gov/redmine/projects/art/wiki/302_breaking_changes>`_ to determine if/how your code should be modified.
 
 
+.. Breaking changes
 
 
 .. 
@@ -48,29 +75,35 @@ Please consult the list of `breaking changes <https://cdcvs.fnal.gov/redmine/pro
 
 External package changes
 ------------------------
-..
-    =========       ======================      ======================      =================
-     Package         art version:"3.02.00"        art version:"3.02.01"        Notes
-    =========       ======================      ======================      =================
-    
-    package 1       vX_YY_ZZ                    vU_VV_WW                    this is a problemo
-    
-    =========       ======================      ======================      ==================
 
+* package 1
+  
+  * vX_YY_ZZ (prev) -> vU_VV_WW (this version)
+  * *Build only dependency*
+
+* package 2
+
+  * vX_YY_ZZ (prev) -> vU_VV_WW (this version)
+  * *Build only dependency*
+.. External package changes
 
 Bug fixes
 ---------
 
-* Bug #abcde (project:canvas): <Description>
-* Bug #abcde (project:cetlib): <Description>
-* Bug #abcde (project:cetlib_except): <Description>
-* Bug #abcde (project:fhicl-cpp): <Description>
-* Bug #abcde (project:hep_concurrency): <Description>
-* Bug #abcde (project:messagefacility): <Description>
+No bugs fixed in this release
+.. Bug fixes
+
+
 
 
 
 Known issues
+------------
+
+An incorrect attempt at re-enabling the fhicl Python extension module resulted in failed builds for Python 3. 
+This error has been fixed in art suite `3.02.03 <index.html>`_.
+
+
 ------------
 
 Depends on

@@ -9,7 +9,7 @@
 .. toctree::
    :maxdepth: 2
 
-   Depends on<depends>
+`Depends on <depends.html>`_
 
 `Release notes <releaseNotes.html>`_
 

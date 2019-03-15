@@ -227,13 +227,15 @@ with open(src+'/'+project+'/docs/depends.rst', 'w+') as deps_page:
   deps_page.write('\n====================\n')
   for pkg in depends_on:
     #deps_page.write(pkg[0]+pkg[1]+'\n')
-    pkg_path = html+'/'+pkg[0]
+    #pkg_path = html+'/'+pkg[0]
+    pkg_path = html+'/'+pkg[0]+'/'+pkg[1]
     #if(os.path.isdir(html+'/'+pkg[0])):
     if(os.path.isdir(pkg_path)):
       #print("this is a directory: ", html+'/'+pkg[0])
       #print("\tthe version is: ", pkg[1])
       #deps_page.write('\n| `(internal link): '+pkg[0]+' <'+pkg_path+'/index.html>`_')
-      deps_page.write('\n| `(internal link): '+pkg[0]+' '+pkg[1]+' <../../'+pkg[0]+'/index.html>`_')
+      #deps_page.write('\n| `(internal link): '+pkg[0]+' '+pkg[1]+' <../../'+pkg[0]+'/index.html>`_')
+      deps_page.write('\n| `(internal link): '+pkg[0]+' '+pkg[1]+' <../../'+pkg[0]+'/'+pkg[1]+'/index.html>`_')
     else:
       #print("this is not a directory: ", html+'/'+pkg[0])
       deps_page.write('\n| (external link): '+pkg[0]+' '+pkg[1])
@@ -272,37 +274,73 @@ os.system(series_release_notes_command)
 os.system(suite_release_notes_command)
 os.system('cat /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_temp.rst /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_temp.rst > /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/temp.rst')
 
-print("looking at formatting the releasenotes as a combo of automated and user notes")
+#print("looking at formatting the releasenotes as a combo of automated and user notes")
 
 #with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/temp.rst", "r+") as notes_page:
 with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/releaseNotes.rst", "w") as final_notes:
     with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/temp.rst", "r+") as auto_notes:
         for line in auto_notes:
-            print(line)
+            #print(line)
+
+            # Series Notes here :
 
             # general description
             if("description of series" in line):
-                print("\t\tinsert stuff here")
-                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/user_notes/general_description.rst") as description_page:
+                #print("\t\tinsert stuff here")
+                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_notes/general_description.rst") as description_page:
                     for description_line in description_page:
-                        print(description_line)
+                        #print(description_line)
                         final_notes.write(description_line)
 
             # new features
             if("New features" in line):
-                print("\t\tinsert stuff here")
-                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/user_notes/new_features.rst") as feature_page:
+                #print("\t\tinsert stuff here")
+                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_notes/new_features.rst") as feature_page:
                     for feature_line in feature_page:
-                        print(feature_line)
+                        #print(feature_line)
                         final_notes.write(feature_line)
+
+            # Other 
+            if("Other" in line):
+                #print("\t\tinsert stuff here")
+                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_notes/other.rst") as other_page:
+                    for other_line in other_page:
+                        #print(other_line)
+                        final_notes.write(other_line)
 
             # breaking changes 
             if("Breaking changes" in line):
-                print("\t\tinsert stuff here")
-                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/user_notes/breaking_changes.rst") as changes_page:
+                #print("\t\tinsert stuff here")
+                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_notes/breaking_changes.rst") as changes_page:
                     for changes_line in changes_page:
-                        print(changes_line)
+                        #print(changes_line)
                         final_notes.write(changes_line)
+
+            # Suite Notes here:
+
+            # external package changes 
+            if("package changes" in line):
+                #print("\t\tinsert stuff here")
+                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_notes/ext_package_changes.rst") as pkg_page:
+                    for pkg_line in pkg_page:
+                        #print(pkg_line)
+                        final_notes.write(pkg_line)
+
+            # bug fixes 
+            if("Bug fixes" in line):
+                #print("\t\tinsert stuff here")
+                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_notes/bug_fixes.rst") as bug_page:
+                    for bug_line in bug_page:
+                        #print(bug_line)
+                        final_notes.write(bug_line)
+
+            # known issues 
+            if("Known issues" in line):
+                #print("\t\tinsert stuff here")
+                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_notes/known_issues.rst") as issue_page:
+                    for issue_line in issue_page:
+                        #print(issue_line)
+                        final_notes.write(issue_line)
 
             # errything else
             else: final_notes.write(line)

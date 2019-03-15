@@ -376,21 +376,25 @@ EOF
   #   my $prev_series = series_version($prev);
   #   print "_Previous series [[Series $prev_series|release notes]]_\n\n";
   # }
+  #print "\n";
+  #print ".. <Optional description of series>\n";
+  print <<EOF;
 
-  print "<Optional description of series>\n";
+.. Optional description of series
+
+EOF
+
 }
 
 sub print_series_headers {
   my $package = shift;
   print <<EOF;
 
-New features
+.. New features
 
+.. Other
 
-Platform/compiler support changes
-
-
-Breaking changes
+.. Breaking changes
 
 
 .. 
@@ -423,26 +427,16 @@ sub print_suite_notes {
 * An *$package $series_version* `release <releaseNotes>`_
 * `Download page <https://scisoft.fnal.gov/scisoft/bundles/${package}/${prod_version}/${package}-${prod_version}.html>`_
 
-External package changes
-------------------------
-..
-    =========       ======================      ======================      =================
-     Package         $package $vpage_prev        $package $vpage_this        Notes
-    =========       ======================      ======================      =================
-    
-    package 1       vX_YY_ZZ                    vU_VV_WW                    this is a problemo
-    
-    =========       ======================      ======================      ==================
+.. External package changes
 
+.. Bug fixes
 
-Bug fixes
----------
 
 EOF
 
   foreach my $key (sort keys %{$required_products}) {
       my $package = package_name($key);
-      print "* Bug #abcde (project:$package): <Description>\n";
+  #    print "* Bug #abcde (project:$package): <Description>\n";
   }
   print <<EOF;
 

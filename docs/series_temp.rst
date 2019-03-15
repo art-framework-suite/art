@@ -1,15 +1,15 @@
 *art* series 3.02
 =================
 
-<Optional description of series>
 
-New features
-
-
-Platform/compiler support changes
+.. Optional description of series
 
 
-Breaking changes
+.. New features
+
+.. Other
+
+.. Breaking changes
 
 
 .. 
