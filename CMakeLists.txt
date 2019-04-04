@@ -36,12 +36,6 @@ cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
 
-find_package(hep_concurrency REQUIRED)
-find_package(cetlib_except REQUIRED)
-find_package(cetlib REQUIRED)
-find_package(canvas REQUIRED)
-find_package(fhiclcpp REQUIRED)
-find_package(messagefacility REQUIRED)
 find_package(CLHEP REQUIRED COMPONENTS Matrix Vector Random)
 find_package(Boost REQUIRED
   COMPONENTS date_time filesystem graph program_options
@@ -49,6 +43,14 @@ find_package(Boost REQUIRED
 find_package(TBB REQUIRED)
 
 find_library(SQLITE3 NAMES sqlite3 REQUIRED)
+
+#These have to happend after to avoid calling find_package(TBB) twice
+find_package(hep_concurrency REQUIRED)
+find_package(cetlib_except REQUIRED)
+find_package(cetlib REQUIRED)
+find_package(canvas REQUIRED)
+find_package(fhiclcpp REQUIRED)
+find_package(messagefacility REQUIRED)
 
 # macros for simple_plugin
 include(BuildPlugins)
