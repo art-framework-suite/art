@@ -196,6 +196,8 @@ struct EventTestFixture {
                              std::string const& instanceName = {});
 
   MPRGlobalTestFixture& gf();
+  std::unique_ptr<RunPrincipal> rp_{nullptr};
+  std::unique_ptr<SubRunPrincipal> srp_{nullptr};
   std::unique_ptr<EventPrincipal> principal_{nullptr};
   std::unique_ptr<Event> currentEvent_{nullptr};
 };
@@ -245,18 +247,18 @@ EventTestFixture::EventTestFixture()
     gf().currentModuleDescription_.processConfiguration();
 
   RunAuxiliary const runAux{id.run(), time, time};
-  auto rp = std::make_unique<RunPrincipal>(runAux, pc, nullptr);
+  rp_ = std::make_unique<RunPrincipal>(runAux, pc, nullptr);
 
-  SubRunAuxiliary const subRunAux{rp->run(), 1u, time, time};
-  auto srp = std::make_unique<SubRunPrincipal>(subRunAux, pc, nullptr);
-  srp->setRunPrincipal(rp.get());
+  SubRunAuxiliary const subRunAux{rp_->run(), 1u, time, time};
+  srp_ = std::make_unique<SubRunPrincipal>(subRunAux, pc, nullptr);
+  srp_->setRunPrincipal(rp_.get());
 
   EventAuxiliary const eventAux{id, time, true};
   auto history = std::make_shared<History>();
   const_cast<ProcessHistoryID&>(history->processHistoryID()) = processHistoryID;
   principal_ = std::make_unique<EventPrincipal>(
     eventAux, pc, &gf().presentProducts_, true, true, history);
-  principal_->setSubRunPrincipal(srp.get());
+  principal_->setSubRunPrincipal(srp_.get());
   principal_->setProducedProducts(gf().producedProducts_);
 
   currentEvent_ = std::make_unique<Event>(*principal_,
