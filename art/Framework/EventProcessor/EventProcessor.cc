@@ -1596,7 +1596,11 @@ namespace art {
       RangeSet mergedRS;
       auto merge_range_sets = [this, &mergedRS](ScheduleID const sid) {
         auto const rsh = endPathExecutors_->at(sid).runRangeSetHandler_.load();
-        mergedRS.merge(rsh->seenRanges());
+        auto const& rs = rsh->seenRanges();
+        // The following constructor ensures that the range is sorted
+        // before 'merge' is called.
+        RangeSet const tmp{rs.run(), rs.ranges()};
+        mergedRS.merge(tmp);
       };
       scheduleIteration_.for_each_schedule(merge_range_sets);
       runPrincipal_->updateSeenRanges(mergedRS);
@@ -1772,7 +1776,11 @@ namespace art {
         auto const rsh =
           endPathExecutors_->at(sid).subRunRangeSetHandler_.load()->at(
             ScheduleID::first());
-        mergedRS.merge(rsh->seenRanges());
+        auto const& rs = rsh->seenRanges();
+        // The following constructor ensures that the range is sorted
+        // before 'merge' is called.
+        RangeSet const tmp{rs.run(), rs.ranges()};
+        mergedRS.merge(tmp);
       };
       scheduleIteration_.for_each_schedule(merge_range_sets);
       subRunPrincipal_->updateSeenRanges(mergedRS);

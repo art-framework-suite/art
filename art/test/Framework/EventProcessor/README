@@ -6,6 +6,10 @@ r  Run
 s  SubRun
 e  Event
 
+# 00
+
+--> Make sure we can deal with events out of order within a subrun.
+
 # 01
 
 --> Make sure we can deal with runs and subruns that contain nothing.
