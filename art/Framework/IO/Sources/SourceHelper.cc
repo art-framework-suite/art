@@ -14,18 +14,6 @@
 
 using namespace std;
 
-namespace {
-  art::ProcessHistoryID
-  insert_process_history(art::ProcessConfiguration const& pc)
-  {
-    art::ProcessHistory processHistory{};
-    processHistory.push_back(pc);
-    auto const phid = processHistory.id();
-    art::ProcessHistoryRegistry::emplace(phid, processHistory);
-    return phid;
-  }
-} // namespace
-
 art::SourceHelper::SourceHelper(ModuleDescription const& md) : md_{md} {}
 
 void
@@ -37,11 +25,62 @@ art::SourceHelper::throwIfProductsNotRegistered_() const
       "Error while attempting to create principal from SourceHelper.\n")
       << "Principals cannot be created until product registration is "
          "complete.\n"
-      << "This can happen if you are attempting to create a Principal\n"
+         "This can happen if you are attempting to create a Principal\n"
          "outside of your 'readNext' function, or if you are using a\n"
          "different SourceHelper object than the one provided by art.\n"
          "Please contact artists@fnal.gov for guidance.";
   }
+}
+
+art::ProcessHistoryID
+art::SourceHelper::processHistoryID_(BranchType const bt,
+                                     ProcessConfiguration const& pc) const
+{
+  art::ProcessHistory processHistory{};
+  // If no products are present for this branch type, we do not
+  // register the process history.
+  if (presentProducts_->descriptions(bt).empty()) {
+    return processHistory.id();
+  }
+
+  processHistory.push_back(pc);
+  auto const phid = processHistory.id();
+  art::ProcessHistoryRegistry::emplace(phid, processHistory);
+  return phid;
+}
+
+std::unique_ptr<art::History>
+art::SourceHelper::history_(ProcessConfiguration const& pc,
+                            std::unique_ptr<History>&& history) const
+{
+  // If no event products are present, we do not register the process
+  // history, and we return the already-provided history.
+  if (presentProducts_->descriptions(InEvent).empty()) {
+    return std::move(history);
+  }
+
+  // To append to the processing history, we must first retrieve the
+  // ProcessHistory object corresponding to history's process history
+  // ID, if the ID is valid.
+  art::ProcessHistory processHistory;
+  auto const phid = history->processHistoryID();
+  if (phid.isValid()) {
+    bool const success = ProcessHistoryRegistry::get(phid, processHistory);
+    if (!success) {
+      throw Exception{
+        errors::LogicError,
+        "Error while attempting to create event principal from SourceHelper.\n"}
+        << "There is no processing history corresponding to the valid id: "
+        << phid << '\n'
+        << "Please contact artists@fnal.gov for guidance.";
+    }
+  }
+
+  processHistory.push_back(pc);
+  auto const new_phid = processHistory.id();
+  art::ProcessHistoryRegistry::emplace(new_phid, processHistory);
+  history->setProcessHistoryID(new_phid);
+  return std::move(history);
 }
 
 void
@@ -56,7 +95,7 @@ art::SourceHelper::makeRunPrincipal(RunAuxiliary const& runAux) const
 {
   throwIfProductsNotRegistered_();
   runAux.processHistoryID() =
-    insert_process_history(md_.processConfiguration());
+    processHistoryID_(InRun, md_.processConfiguration());
   auto principal = new RunPrincipal{
     runAux, md_.processConfiguration(), &presentProducts_->get(InRun)};
   principal->markProcessHistoryAsModified();
@@ -83,7 +122,7 @@ art::SubRunPrincipal*
 art::SourceHelper::makeSubRunPrincipal(SubRunAuxiliary const& subRunAux) const
 {
   throwIfProductsNotRegistered_();
-  auto phid = insert_process_history(md_.processConfiguration());
+  auto phid = processHistoryID_(InSubRun, md_.processConfiguration());
   subRunAux.setProcessHistoryID(phid);
   auto principal = new SubRunPrincipal{
     subRunAux, md_.processConfiguration(), &presentProducts_->get(InSubRun)};
@@ -107,19 +146,28 @@ art::SourceHelper::makeSubRunPrincipal(RunNumber_t const r,
   return makeSubRunPrincipal(SubRunID{r, sr}, startTime);
 }
 
-// FIXME: What happens if history is nullptr?
-
 art::EventPrincipal*
 art::SourceHelper::makeEventPrincipal(EventAuxiliary const& eventAux,
                                       std::unique_ptr<History>&& history) const
 {
+  if (history.get() == nullptr) {
+    throw Exception{
+      errors::LogicError,
+      "Error while attempting to create principal from SourceHelper.\n"}
+      << "The provided 'unique_ptr<History>' object is null, which is not "
+         "allowed\n"
+         "for this makeEventPrincipal function overload.  Please choose a "
+         "different\n"
+         "function to use, or provided a non-null History unique pointer.  "
+         "Contact\n"
+         "artists@fnal.gov for further guidance.";
+  }
   throwIfProductsNotRegistered_();
-  auto const phid = insert_process_history(md_.processConfiguration());
-  history->setProcessHistoryID(phid);
+  auto new_history = history_(md_.processConfiguration(), std::move(history));
   auto principal = new EventPrincipal{eventAux,
                                       md_.processConfiguration(),
                                       &presentProducts_->get(InEvent),
-                                      std::move(history)};
+                                      std::move(new_history)};
   principal->markProcessHistoryAsModified();
   return principal;
 }

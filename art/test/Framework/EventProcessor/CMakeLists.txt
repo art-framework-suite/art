@@ -35,6 +35,7 @@ simple_plugin(EventProcessorTestOutput "module")
 # "message.fcl" line in the FHiCL).  Also, bare 'std::cout' statements
 # will not be suppressed.
 
+set(base_inputs_00 a)
 set(base_inputs_01 a)
 set(base_inputs_02 a b c d e f g h i j k l)
 set(base_inputs_03 a b c)
@@ -49,7 +50,7 @@ set(base_inputs_11 a b c)
 set(base_inputs_12 a b c)
 set(base_inputs_13 a b)
 
-foreach(TESTNUMBER 01 02 03 04 05 06 07 08 09 10 11 12 13)
+foreach(TESTNUMBER 00 01 02 03 04 05 06 07 08 09 10 11 12 13)
 
   # For each of the 'base_inputs' lists, we create two other lists;
   # one that appends ".txt" to the end of each letter--this is what
