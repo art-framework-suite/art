@@ -15,6 +15,7 @@
 #include "art/Framework/Core/ProducingServiceSignals.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
+#include "art/Framework/Core/detail/ModuleKeyAndType.h"
 #include "art/Framework/EventProcessor/Scheduler.h"
 #include "art/Framework/EventProcessor/detail/ExceptionCollector.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -53,7 +54,9 @@ namespace art {
     // MEMBER FUNCTIONS -- Special Member Functions
   public:
     ~EventProcessor();
-    explicit EventProcessor(fhicl::ParameterSet const& pset);
+    explicit EventProcessor(
+      fhicl::ParameterSet const& pset,
+      std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules);
     EventProcessor(EventProcessor const&) = delete;
     EventProcessor(EventProcessor&&) = delete;
     EventProcessor& operator=(EventProcessor const&) = delete;

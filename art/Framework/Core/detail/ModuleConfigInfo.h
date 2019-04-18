@@ -10,7 +10,6 @@
 namespace art::detail {
   struct ModuleConfigInfo {
     std::string moduleLabel;
-    std::string configTableName;
     ModuleType moduleType;
     ModuleThreadingType moduleThreadingType;
     fhicl::ParameterSet modPS;

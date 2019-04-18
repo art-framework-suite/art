@@ -16,8 +16,11 @@ using sequence_t = fhicl::extended_value::sequence_t;
 using table_t = fhicl::extended_value::table_t;
 using art::detail::exists_outside_prolog;
 using art::detail::fhicl_key;
-using art::detail::modules_per_path_t;
-using art::detail::modules_t;
+using art::detail::module_type;
+using art::detail::ModuleKeyAndType;
+
+using module_names_per_path_t = std::map<std::string, std::vector<std::string>>;
+using modules_t = std::map<std::string, std::string>;
 
 namespace {
 
@@ -90,12 +93,25 @@ namespace {
       if (!exists_outside_prolog(config, tbl))
         continue;
       table_t const& table = config.find(tbl);
-      for (auto const& pr : table) {
+      for (auto const& [modname, value] : table) {
         // Record only tables, which are the allowed FHiCL values for
         // module configurations.
-        auto const& modname = pr.first;
-        if (pr.second.is_a(TABLE)) {
-          result.emplace(modname, fhicl_key(tbl, modname));
+        if (!value.is_a(TABLE)) {
+          continue;
+        }
+
+        auto const key = fhicl_key(tbl, modname);
+        auto const [it, success] = result.try_emplace(modname, fhicl_key(key));
+        if (!success && it->second != key) {
+          throw art::Exception{art::errors::Configuration,
+                               "An error was encountered while processing "
+                               "module configurations.\n"}
+            << "The module name '" << modname
+            << "' corresponding to the full configuration key\n"
+            << "'" << key
+            << "' collides with an already-defined module with full key\n"
+            << "'" << it->second
+            << "'.  Module names must be unique across an art process.\n";
         }
       }
     }
@@ -134,34 +150,31 @@ namespace {
 
     std::map<std::string, std::vector<std::string>> paths;
     table_t const& table = config.find(physics);
-    for (auto const& pr : table) {
-      auto const& pathname = pr.first;
-      auto const& modules = pr.second;
-      if (!modules.is_a(SEQUENCE)) {
+    for (auto const& [pathname, modulenames] : table) {
+      if (!modulenames.is_a(SEQUENCE)) {
         continue;
       }
-      paths[pathname] = sequence_to_strings(modules);
+      paths[pathname] = sequence_to_strings(modulenames);
     }
     return paths;
   }
 
-  modules_per_path_t
-  paths_for_tables(modules_per_path_t& all_paths,
+  module_names_per_path_t
+  paths_for_tables(module_names_per_path_t& all_paths,
                    modules_t const& modules,
                    ModuleCategory const category)
   {
     using table_t = fhicl::extended_value::table_t;
-    modules_per_path_t result;
+    module_names_per_path_t result;
     std::vector<std::string> paths_to_remove;
-    for (auto const& pr : all_paths) {
-      auto const& pathname = pr.first;
+    for (auto const& [pathname, modulenames] : all_paths) {
       // Skip over special path names, which are handled later.
       if (pathname == "trigger_paths" || pathname == "end_paths") {
         continue;
       }
       std::vector<std::string> right_modules;
       std::vector<std::string> wrong_modules;
-      for (auto const& modname : pr.second) {
+      for (auto const& modname : modulenames) {
         auto full_module_key_it = modules.find(modname);
         if (full_module_key_it == cend(modules)) {
           throw art::Exception{art::errors::Configuration,
@@ -187,7 +200,7 @@ namespace {
         continue;
       }
 
-      if (right_modules.size() == pr.second.size()) {
+      if (right_modules.size() == modulenames.size()) {
         result.emplace(pathname, move(right_modules));
         // Cannot immediately erase since range-for will attempt to
         // increment an invalid iterator corresponding to pathname.
@@ -215,8 +228,8 @@ namespace {
     return result;
   }
 
-  std::optional<modules_per_path_t>
-  explicitly_declared_paths(modules_per_path_t& modules_per_path,
+  std::optional<module_names_per_path_t>
+  explicitly_declared_paths(module_names_per_path_t& modules_per_path,
                             std::string const& controlling_sequence)
   {
     auto const it = modules_per_path.find(controlling_sequence);
@@ -225,7 +238,7 @@ namespace {
     }
 
     std::ostringstream os;
-    modules_per_path_t result;
+    module_names_per_path_t result;
     std::set<std::string> paths_to_erase;
     for (auto const& pathname : it->second) {
       auto res = modules_per_path.find(pathname);
@@ -247,12 +260,28 @@ namespace {
     if (!err.empty()) {
       throw art::Exception{art::errors::Configuration} << err;
     }
-    return std::make_optional<modules_per_path_t>(std::move(result));
+    return std::make_optional(std::move(result));
+  }
+
+  std::map<std::string, art::detail::ModuleKeyAndType>
+  get_enabled_modules(modules_t const& modules,
+                      module_names_per_path_t const& enabled_paths)
+  {
+    std::map<std::string, art::detail::ModuleKeyAndType> result;
+    for (auto const& pr : enabled_paths) {
+      for (auto const& module_name : pr.second) {
+        auto const& module_key = modules.at(module_name);
+        result.try_emplace(
+          module_name, ModuleKeyAndType{module_key, module_type(module_key)});
+      }
+    }
+    return result;
   }
 }
 
-std::pair<modules_per_path_t, modules_t>
-art::detail::detect_unused_configuration(intermediate_table& config)
+std::map<std::string, ModuleKeyAndType>
+art::detail::prune_config_if_enabled(bool const prune_config,
+                                     intermediate_table& config)
 {
   auto const modules = declared_modules(config, module_tables);
 
@@ -277,13 +306,8 @@ art::detail::detect_unused_configuration(intermediate_table& config)
     }
   }
 
-  std::set<std::string> enabled_modules;
-  for (auto const& pr : enabled_trigger_paths) {
-    enabled_modules.insert(cbegin(pr.second), cend(pr.second));
-  }
-  for (auto const& pr : enabled_end_paths) {
-    enabled_modules.insert(cbegin(pr.second), cend(pr.second));
-  }
+  auto enabled_modules = get_enabled_modules(modules, enabled_trigger_paths);
+  enabled_modules.merge(get_enabled_modules(modules, enabled_end_paths));
 
   std::map<std::string, std::string> unused_modules;
   cet::copy_if_all(modules,
@@ -307,18 +331,15 @@ art::detail::detect_unused_configuration(intermediate_table& config)
     }
     std::cerr << os.str() << '\n';
   }
-  return std::make_pair(move(paths), move(unused_modules));
-}
 
-void
-art::detail::prune_configuration(modules_per_path_t const& unused_paths,
-                                 modules_t const& unused_modules,
-                                 intermediate_table& config)
-{
-  for (auto const& pr : unused_paths) {
-    config.erase(fhicl_key("physics", pr.first));
+  if (prune_config) {
+    for (auto const& pr : paths) {
+      config.erase(fhicl_key("physics", pr.first));
+    }
+    for (auto const& pr : unused_modules) {
+      config.erase(pr.second);
+    }
   }
-  for (auto const& pr : unused_modules) {
-    config.erase(pr.second);
-  }
+
+  return enabled_modules;
 }

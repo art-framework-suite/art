@@ -266,8 +266,7 @@ namespace art {
     modStats.emplace_back(
       "source", sourceType_ + "(read)", "", *db_, "TimeSource", "Time");
     for (auto const& row : r) {
-      string path, mod_label, mod_type;
-      tie(path, mod_label, mod_type) = row;
+      auto const& [path, mod_label, mod_type] = row;
       create_table_as("temp.tmpModTable",
                       select("*")
                         .from(*db_, "TimeModule")

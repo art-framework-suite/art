@@ -195,15 +195,15 @@ namespace art {
     // If configuration pruning has been enabled, remove unused module
     // configurations.
     using detail::exists_outside_prolog;
+    std::map<std::string, detail::ModuleKeyAndType> enabled_modules;
     assert(exists_outside_prolog(raw_config, "services.scheduler"));
     try {
-      auto const [unused_paths, unused_modules] =
-        detail::detect_unused_configuration(raw_config);
       std::string const pruneConfig{"services.scheduler.pruneConfig"};
-      if (exists_outside_prolog(raw_config, pruneConfig) &&
-          raw_config.get<bool>(pruneConfig)) {
-        detail::prune_configuration(unused_paths, unused_modules, raw_config);
-      }
+      bool const should_prune =
+        exists_outside_prolog(raw_config, pruneConfig) &&
+        raw_config.get<bool>(pruneConfig);
+      enabled_modules =
+        detail::prune_config_if_enabled(should_prune, raw_config);
     }
     catch (Exception const& e) {
       printArtException(e, "art");
@@ -256,7 +256,7 @@ namespace art {
               "registry.\n";
       throw;
     }
-    return run_art_common_(main_pset);
+    return run_art_common_(main_pset, enabled_modules);
   }
 
   int
@@ -297,11 +297,13 @@ namespace art {
               "registry.\n";
       throw;
     }
-    return run_art_common_(main_pset);
+    return run_art_common_(main_pset, {});
   }
 
   int
-  run_art_common_(fhicl::ParameterSet const& main_pset)
+  run_art_common_(
+    fhicl::ParameterSet const& main_pset,
+    std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules)
   {
 #ifdef __linux__
     // Tell the system memory allocator to only use one arena: they
@@ -350,7 +352,7 @@ namespace art {
     //
     int rc{0};
     try {
-      EventProcessor ep{main_pset};
+      EventProcessor ep{main_pset, enabled_modules};
       // Behavior of validate_config is to validate FHiCL syntax *and*
       // user-specified configurations of paths, modules, services,
       // etc.  It is thus possible that an exception thrown during

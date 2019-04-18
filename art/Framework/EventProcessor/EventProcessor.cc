@@ -95,7 +95,9 @@ namespace art {
     auto const invalid_module_context = ModuleContext::invalid();
   }
 
-  EventProcessor::EventProcessor(ParameterSet const& pset)
+  EventProcessor::EventProcessor(
+    ParameterSet const& pset,
+    std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules)
     : scheduler_{pset.get<ParameterSet>("services.scheduler")}
     , scheduleIteration_{static_cast<ScheduleID::size_type>(
         scheduler_->num_schedules())}
@@ -106,7 +108,8 @@ namespace art {
                    outputCallbacks_,
                    producedProductDescriptions_,
                    scheduler_->actionTable(),
-                   actReg_}
+                   actReg_,
+                   enabled_modules}
     , handleEmptyRuns_{scheduler_->handleEmptyRuns()}
     , handleEmptySubRuns_{scheduler_->handleEmptySubRuns()}
   {

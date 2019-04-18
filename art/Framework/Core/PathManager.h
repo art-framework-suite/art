@@ -20,6 +20,7 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ModuleConfigInfo.h"
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
+#include "art/Framework/Core/detail/ModuleKeyAndType.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/PluginSuffixes.h"
@@ -34,10 +35,6 @@
 #include <string>
 #include <vector>
 
-namespace cet {
-  class ostream_handle;
-} // namespace cet
-
 namespace art {
 
   class ActionTable;
@@ -48,11 +45,13 @@ namespace art {
   class PathManager {
   public: // Special Member Functions
     ~PathManager() noexcept;
-    PathManager(fhicl::ParameterSet const& procPS,
-                UpdateOutputCallbacks& preg,
-                ProductDescriptions& productsToProduce,
-                ActionTable const& exceptActions,
-                ActivityRegistry const& areg);
+    PathManager(
+      fhicl::ParameterSet const& procPS,
+      UpdateOutputCallbacks& preg,
+      ProductDescriptions& productsToProduce,
+      ActionTable const& exceptActions,
+      ActivityRegistry const& areg,
+      std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules);
 
     PathManager(PathManager const&) = delete;
     PathManager(PathManager&&) = delete;

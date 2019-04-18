@@ -3,7 +3,10 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Art/OptionsHandlers.h"
+#include "art/Framework/Core/detail/ModuleKeyAndType.h"
 #include "cetlib/filepath_maker.h"
+
+#include <map>
 
 namespace art {
 
@@ -15,7 +18,9 @@ namespace art {
 
   int run_art_string_config(std::string const& config_string);
 
-  int run_art_common_(fhicl::ParameterSet const& main_pset);
+  int run_art_common_(
+    fhicl::ParameterSet const& main_pset,
+    std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules);
 
 } // namespace art
 

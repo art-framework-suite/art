@@ -21,6 +21,7 @@ struct PathManagerTestFixture {
   UpdateOutputCallbacks preg;
   ProductDescriptions productsToProduce;
   ActivityRegistry areg;
+  std::map<std::string, detail::ModuleKeyAndType> enabledModules;
 };
 
 BOOST_FIXTURE_TEST_SUITE(PathManager_t, PathManagerTestFixture)
@@ -199,14 +200,14 @@ BOOST_AUTO_TEST_CASE(Construct)
     "'-' prefix.\n"
     "---- Configuration END\n");
 
-  for (auto const& test : test_sets) {
+  for (auto const& [cfg, error_code, error_msg] : test_sets) {
     fhicl::ParameterSet ps;
-    make_ParameterSet(get<0>(test), ps);
+    make_ParameterSet(cfg, ps);
     try {
-      PathManager pm(ps, preg, productsToProduce, atable, areg);
+      PathManager pm(ps, preg, productsToProduce, atable, areg, enabledModules);
     }
     catch (Exception const& e) {
-      if ((e.categoryCode() != get<1>(test)) || (e.what() != get<2>(test))) {
+      if ((e.categoryCode() != error_code) || (e.what() != error_msg)) {
         throw;
       }
     }

@@ -63,7 +63,6 @@ namespace {
       auto const module_type = module_type_for_table(name);
       for (auto const& module_name : modules_in_table) {
         ModuleConfigInfo info{module_name,
-                              name,
                               module_type,
                               art::ModuleThreadingType::shared,
                               table_pset.get<fhicl::ParameterSet>(module_name),

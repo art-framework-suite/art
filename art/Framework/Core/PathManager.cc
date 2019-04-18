@@ -80,11 +80,13 @@ namespace art {
     }
   }
 
-  PathManager::PathManager(ParameterSet const& procPS,
-                           UpdateOutputCallbacks& outputCallbacks,
-                           ProductDescriptions& productsToProduce,
-                           ActionTable const& exceptActions,
-                           ActivityRegistry const& actReg)
+  PathManager::PathManager(
+    ParameterSet const& procPS,
+    UpdateOutputCallbacks& outputCallbacks,
+    ProductDescriptions& productsToProduce,
+    ActionTable const& exceptActions,
+    ActivityRegistry const& actReg,
+    std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules)
     : outputCallbacks_{outputCallbacks}
     , exceptActions_{exceptActions}
     , actReg_{actReg}
@@ -112,44 +114,29 @@ namespace art {
     //
     {
       ostringstream es;
-      int idx = 0;
-      for (auto const& path_table_name : vector<string>{"physics.producers"s,
-                                                        "physics.filters"s,
-                                                        "physics.analyzers"s,
-                                                        "outputs"s}) {
-        ++idx;
-        auto module_type = static_cast<ModuleType>(idx);
-        for (auto const& module_label :
-             procPS_.get<ParameterSet>(path_table_name, {}).get_names()) {
-          try {
-            auto const& module_pset = procPS_.get<fhicl::ParameterSet>(
-              path_table_name + '.' + module_label);
-            auto const lib_spec = module_pset.get<string>("module_type");
-            auto const actualModType = loadModuleType_(lib_spec);
-            if (actualModType != module_type) {
-              es << "  ERROR: Module with label " << module_label << " of type "
-                 << lib_spec << " is configured as a " << to_string(module_type)
-                 << " but defined in code as a " << to_string(actualModType)
-                 << ".\n";
-            }
-            detail::ModuleConfigInfo mci{module_label,
-                                         path_table_name,
-                                         module_type,
-                                         loadModuleThreadingType_(lib_spec),
-                                         module_pset,
-                                         lib_spec};
-            auto result = allModules_.try_emplace(module_label, move(mci));
-            if (!result.second) {
-              es << "  ERROR: Module label " << module_label
-                 << " has been used in " << result.first->second.configTableName
-                 << " and " << path_table_name << ".\n";
-            }
+      for (auto const& [module_label, key_and_type] : enabled_modules) {
+        try {
+          auto const& [key, module_type] = key_and_type;
+          auto const& module_pset = procPS_.get<fhicl::ParameterSet>(key);
+          auto const lib_spec = module_pset.get<string>("module_type");
+          auto const actualModType = loadModuleType_(lib_spec);
+          if (actualModType != module_type) {
+            es << "  ERROR: Module with label " << module_label << " of type "
+               << lib_spec << " is configured as a " << to_string(module_type)
+               << " but defined in code as a " << to_string(actualModType)
+               << ".\n";
           }
-          catch (exception const& e) {
-            es << "  ERROR: Configuration of module with label " << module_label
-               << " encountered the following error:\n"
-               << e.what() << "\n";
-          }
+          detail::ModuleConfigInfo mci{module_label,
+                                       module_type,
+                                       loadModuleThreadingType_(lib_spec),
+                                       module_pset,
+                                       lib_spec};
+          allModules_.emplace(module_label, move(mci));
+        }
+        catch (exception const& e) {
+          es << "  ERROR: Configuration of module with label " << module_label
+             << " encountered the following error:\n"
+             << e.what() << "\n";
         }
       }
       if (!es.str().empty()) {
@@ -242,7 +229,11 @@ namespace art {
         }
       }
       //
-      //  Process each path.
+      // Process each path.
+      //
+      // FIXME: All of this information is readily available from the
+      // configuration-pruning infrastructure.  We should be able to
+      // remove it.
       //
       auto remove_filter_action = [](auto const& spec) {
         auto pos = spec.find_first_not_of("!-");
@@ -252,7 +243,6 @@ namespace art {
         }
         return spec.substr(pos);
       };
-      map<string, unsigned> specified_modules;
       {
         enum class mod_cat_t { UNSET, OBSERVER, MODIFIER };
         size_t num_end_paths = 0;
@@ -261,26 +251,20 @@ namespace art {
           auto const path = physics.get<vector<string>>(path_name);
           for (auto const& modname_filterAction : path) {
             auto const label = remove_filter_action(modname_filterAction);
-            ++specified_modules[label];
+            // map<string, ModuleConfigInfo>
             auto iter = allModules_.find(label);
             if (iter == allModules_.end()) {
-              es << "  ERROR: Entry " << modname_filterAction << " in path "
-                 << path_name << " refers to a module label " << label
-                 << " which is not configured.\n";
+              // This is the case where a path has been configured but
+              // not enabled for execution.
               continue;
             }
-            // map<string, ModuleConfigInfo>
             auto const& mci = iter->second;
             auto mtype = is_observer(mci.moduleType) ? mod_cat_t::OBSERVER :
                                                        mod_cat_t::MODIFIER;
-            if ((cat != mod_cat_t::UNSET) && (cat != mtype)) {
-              // Warn on mixed module types.
-              es << "  ERROR: Entry " << modname_filterAction << " in path "
-                 << path_name << " is a"
-                 << (cat == mod_cat_t::OBSERVER ? " modifier" : "n observer")
-                 << " while previous entries in the same path are all "
-                 << (cat == mod_cat_t::OBSERVER ? "observers" : "modifiers")
-                 << ".\n";
+            if (cat != mod_cat_t::UNSET) {
+              // The configuration-pruning code ensures that there are
+              // no mixed paths.
+              assert(cat == mtype);
             }
             if (cat == mod_cat_t::UNSET) {
               // We now know path is not empty, categorize it.
@@ -296,16 +280,6 @@ namespace art {
                     << "\" which was not found in\n"
                     << "parameter \"physics.trigger_paths\". Path will be "
                        "ignored.";
-                  for (auto const& mod : path) {
-                    auto found =
-                      specified_modules.find(remove_filter_action(mod));
-                    if (found == end(specified_modules))
-                      continue;
-
-                    auto& counter = found->second;
-                    assert(counter != 0);
-                    --counter;
-                  }
                   break;
                 }
                 if (end_paths_config_ && (end_paths_config_->find(path_name) !=
@@ -323,16 +297,6 @@ namespace art {
                     << "\" which was not found in\n"
                     << "parameter \"physics.end_paths\". "
                     << "Path will be ignored.";
-                  for (auto const& mod : path) {
-                    auto found =
-                      specified_modules.find(remove_filter_action(mod));
-                    if (found == end(specified_modules))
-                      continue;
-
-                    auto& counter = found->second;
-                    assert(counter != 0);
-                    --counter;
-                  }
                   break;
                 }
                 if (trigger_paths_config_ &&
@@ -373,44 +337,6 @@ namespace art {
           mf::LogInfo("PathConfiguration")
             << "Multiple end paths have been combined into one end path,\n"
             << "\"end_path\" since order is irrelevant.";
-        }
-      }
-      //
-      //  Complain about unused modules.
-      //
-      {
-        set<string> all_module_labels;
-        for (auto const& val : allModules_) {
-          all_module_labels.insert(val.first);
-        }
-        vector<string> unused_modules;
-        for (auto const& [label, counter] : specified_modules) {
-          if (counter == 0) {
-            // Only flag as unused if the number of times the module
-            // shows up in an actual used path is 0.
-            unused_modules.push_back(label);
-          }
-        }
-
-        if (!unused_modules.empty()) {
-          ostringstream us;
-          us << "The following module label"
-             << ((unused_modules.size() == 1) ? " is" : "s are")
-             << " either not assigned to any path,\n"
-             << "or "
-             << ((unused_modules.size() == 1ull) ? "it has" : "they have")
-             << " been assigned to ignored path(s):\n"
-             << "'" << unused_modules.front() << "'";
-          for (auto i = unused_modules.cbegin() + 1, e = unused_modules.cend();
-               i != e;
-               ++i) {
-            us << ", '" << *i << "'";
-          }
-          mf::LogInfo("path") << us.str();
-          // Remove configuration info for unused modules
-          for (auto const& unused_module : unused_modules) {
-            allModules_.erase(unused_module);
-          }
         }
       }
       //
