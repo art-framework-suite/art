@@ -2,12 +2,14 @@
 #define BOOST_TEST_MODULE (PathManager Test)
 #include "cetlib/quiet_unit_test.hpp"
 
+#include "art/Framework/Art/detail/prune_configuration.h"
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
 
 #include <tuple>
@@ -62,63 +64,60 @@ BOOST_AUTO_TEST_CASE(Construct)
                          "---- Configuration END\n");
 
   // Duplicate label.
-  test_sets.emplace_back("process_name: \"test\" "
-                         "physics: { "
-                         "  analyzers: { "
-                         "    p: { module_type: PMTestAnalyzer } "
-                         "  } "
-                         "  filters: { "
-                         "    p: { module_type: PMTestFilter } "
-                         "  } "
-                         " p1: [ p ] "
-                         "}",
-                         errors::Configuration,
-                         "---- Configuration BEGIN\n"
-                         "  The following were encountered while processing "
-                         "the module configurations:\n"
-                         "    ERROR: Module label p has been used in "
-                         "physics.filters and physics.analyzers.\n"
-                         "---- Configuration END\n");
+  test_sets.emplace_back(
+    "process_name: \"test\" "
+    "physics: { "
+    "  analyzers: { "
+    "    p: { module_type: PMTestAnalyzer } "
+    "  } "
+    "  filters: { "
+    "    p: { module_type: PMTestFilter } "
+    "  } "
+    " p1: [ p ] "
+    "}",
+    errors::Configuration,
+    "---- Configuration BEGIN\n"
+    "  An error was encountered while processing module configurations.\n"
+    "  Module label 'p' has been used in 'physics.analyzers' and "
+    "'physics.filters'.\n"
+    "  Module labels must be unique across an art process.\n"
+    "---- Configuration END\n");
 
   // Inhomogeneous path.
-  test_sets.emplace_back("process_name: \"test\" "
-                         "physics: { "
-                         "  analyzers: { "
-                         "    a: { module_type: PMTestAnalyzer } "
-                         "  } "
-                         "  filters: { "
-                         "    f: { module_type: PMTestFilter } "
-                         "  } "
-                         "  producers: { "
-                         "    p: { module_type: PMTestProducer } "
-                         "  } "
-                         " p1: [ f, p, a ] "
-                         "}",
-                         errors::Configuration,
-                         "---- Configuration BEGIN\n"
-                         "  Path configuration: The following were encountered "
-                         "while processing path configurations:\n"
-                         "    ERROR: Entry a in path p1 is an observer while "
-                         "previous entries in the same path are all "
-                         "modifiers.\n"
-                         "---- Configuration END\n");
+  test_sets.emplace_back(
+    "process_name: \"test\" "
+    "physics: { "
+    "  analyzers: { "
+    "    a: { module_type: PMTestAnalyzer } "
+    "  } "
+    "  filters: { "
+    "    f: { module_type: PMTestFilter } "
+    "  } "
+    "  producers: { "
+    "    p: { module_type: PMTestProducer } "
+    "  } "
+    " p1: [ f, p, a ] "
+    "}",
+    errors::Configuration,
+    "---- Configuration BEGIN\n"
+    "  An error was encountered while processing a path configuration.\n"
+    "  The following entries in path p1 are observers when all other\n"
+    "  entries are modifiers:\n"
+    "    'a'\n"
+    "---- Configuration END\n");
 
   // Unconfigured label.
-  test_sets.emplace_back("process_name: \"test\" "
-                         "physics: { "
-                         " p1: [ \"-f\", p, a ] "
-                         "}",
-                         errors::Configuration,
-                         "---- Configuration BEGIN\n"
-                         "  Path configuration: The following were encountered "
-                         "while processing path configurations:\n"
-                         "    ERROR: Entry -f in path p1 refers to a module "
-                         "label f which is not configured.\n"
-                         "    ERROR: Entry p in path p1 refers to a module "
-                         "label p which is not configured.\n"
-                         "    ERROR: Entry a in path p1 refers to a module "
-                         "label a which is not configured.\n"
-                         "---- Configuration END\n");
+  test_sets.emplace_back(
+    "process_name: \"test\" "
+    "physics: { "
+    " p1: [ \"-f\", p, a ] "
+    "}",
+    errors::Configuration,
+    "---- Configuration BEGIN\n"
+    "  The following error was encountered while processing a path "
+    "configuration:\n"
+    "  Entry f in path p1 does not have a module configuration.\n"
+    "---- Configuration END\n");
 
   // Incorrectly included parameter in "physics" block
   test_sets.emplace_back(
@@ -200,10 +199,14 @@ BOOST_AUTO_TEST_CASE(Construct)
     "'-' prefix.\n"
     "---- Configuration END\n");
 
-  for (auto const& [cfg, error_code, error_msg] : test_sets) {
-    fhicl::ParameterSet ps;
-    make_ParameterSet(cfg, ps);
+  for (auto const& [config_string, error_code, error_msg] : test_sets) {
+    fhicl::intermediate_table raw_config;
+    parse_document(config_string, raw_config);
     try {
+      auto const enabled_modules =
+        detail::prune_config_if_enabled(false, raw_config);
+      fhicl::ParameterSet ps;
+      make_ParameterSet(raw_config, ps);
       PathManager pm(ps, preg, productsToProduce, atable, areg, enabledModules);
     }
     catch (Exception const& e) {

@@ -103,15 +103,15 @@ namespace {
         auto const key = fhicl_key(tbl, modname);
         auto const [it, success] = result.try_emplace(modname, fhicl_key(key));
         if (!success && it->second != key) {
+          auto const& cached_key = it->second;
+          auto const parent =
+            cached_key.substr(0, cached_key.rfind(modname) - 1);
           throw art::Exception{art::errors::Configuration,
                                "An error was encountered while processing "
                                "module configurations.\n"}
-            << "The module name '" << modname
-            << "' corresponding to the full configuration key\n"
-            << "'" << key
-            << "' collides with an already-defined module with full key\n"
-            << "'" << it->second
-            << "'.  Module names must be unique across an art process.\n";
+            << "Module label '" << modname << "' has been used in '" << tbl
+            << "' and '" << parent << "'.\n"
+            << "Module labels must be unique across an art process.\n";
         }
       }
     }

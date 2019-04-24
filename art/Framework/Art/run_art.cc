@@ -265,11 +265,13 @@ namespace art {
     //
     // Make the parameter set from the configuration string:
     //
+    std::map<std::string, detail::ModuleKeyAndType> enabled_modules;
     fhicl::ParameterSet main_pset;
     try {
       // create an intermediate table from the input string
       fhicl::intermediate_table raw_config;
       parse_document(config_string, raw_config);
+      enabled_modules = detail::prune_config_if_enabled(false, raw_config);
       // run post-processing
       bpo::variables_map vm;
       BasicPostProcessor bpp;
@@ -297,7 +299,7 @@ namespace art {
               "registry.\n";
       throw;
     }
-    return run_art_common_(main_pset, {});
+    return run_art_common_(main_pset, enabled_modules);
   }
 
   int

@@ -21,6 +21,7 @@ endforeach()
 
 cet_test(PathManager_t USE_BOOST_UNIT
   LIBRARIES
+  art_Framework_Art
   art_Framework_Core
   fhiclcpp
   cetlib
