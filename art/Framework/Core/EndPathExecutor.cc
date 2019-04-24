@@ -394,11 +394,13 @@ namespace art {
   void
   EndPathExecutor::writeEvent(EventPrincipal& ep)
   {
-    auto const sid = sc_.id();
+    // We don't worry about providing the sorted list of module names
+    // for the end_path right now.  If users decide it is necessary to
+    // know what they are, then we can provide them.
+    PathContext const pc{sc_, PathContext::end_path(), 0, {}};
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : *outputWorkers_.load()) {
-      auto const& md = ow->description();
-      ModuleContext const mc{md};
+      ModuleContext const mc{pc, ow->description()};
       actReg_.load()->sPreWriteEvent.invoke(mc);
       ow->writeEvent(ep);
       actReg_.load()->sPostWriteEvent.invoke(mc);
@@ -413,7 +415,7 @@ namespace art {
       msg << eid.subRun();
       msg << ", ";
       msg << eid.event();
-      TDEBUG_FUNC_SI_MSG(5, "EndPathExecutor::writeEvent", sid, msg.str());
+      TDEBUG_FUNC_SI_MSG(5, "EndPathExecutor::writeEvent", sc_.id(), msg.str());
     }
     runRangeSetHandler_.load()->update(eid, lastInSubRun);
     subRunRangeSetHandler_.load()
