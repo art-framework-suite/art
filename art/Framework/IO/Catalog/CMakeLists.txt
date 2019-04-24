@@ -7,7 +7,7 @@ art_make_library( LIBRARY_NAME art_Framework_IO_Catalog
                   LIBRARIES art_Framework_Services_Optional_TrivialFileDelivery_service
   art_Framework_Services_Optional_TrivialFileTransfer_service
   art_Utilities canvas
-  ${Boost_FILESYSTEM_LIBRARY}
+  Boost::filesystem
 )
 
 install_headers()

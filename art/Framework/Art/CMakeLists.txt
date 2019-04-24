@@ -48,7 +48,7 @@ set(art_Framework_Art_sources
 
 art_make_library(LIBRARY_NAME art_Framework_Art
                  SOURCE ${art_Framework_Art_sources}
-                 LIBRARIES ${Boost_PROGRAM_OPTIONS_LIBRARY}
+                 LIBRARIES Boost::program_options
   art_Framework_EventProcessor
   art_Framework_Core
   art_Utilities
@@ -83,11 +83,11 @@ art_exec(mu2e art mu2eapp)
 art_exec(nova art artapp)
 
 # Execs with Boost unit testing enabled for modules.
-art_exec(art_ut art_ut artapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-art_exec(gm2_ut art_ut artapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-art_exec(lar_ut art_ut artapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-art_exec(mu2e_ut art_ut mu2eapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-art_exec(nova_ut art_ut artapp LIBRARIES ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+art_exec(art_ut art_ut artapp LIBRARIES Boost::unit_test_framework)
+art_exec(gm2_ut art_ut artapp LIBRARIES Boost::unit_test_framework)
+art_exec(lar_ut art_ut artapp LIBRARIES Boost::unit_test_framework)
+art_exec(mu2e_ut art_ut mu2eapp LIBRARIES Boost::unit_test_framework)
+art_exec(nova_ut art_ut artapp LIBRARIES Boost::unit_test_framework)
 
 cet_make_completions(art ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
 cet_make_completions(gm2 ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
