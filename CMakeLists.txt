@@ -19,7 +19,7 @@ cmake_minimum_required (VERSION 3.11)
 project(art)
 
 # cetbuildtools contains our cmake modules
-find_package(cetbuildtools REQUIRED)
+find_package(cetbuildtools 7.13.00 REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}/Modules)
@@ -77,7 +77,6 @@ find_ups_product(cetlib_except v1_01_00)
 find_ups_product(clhep)
 find_ups_product(cppunit)
 find_ups_product(hep_concurrency)
-find_ups_product(cetbuildtools v6_00_00) # LIBRARY_OUTPUT_DIRECTORY, etc.
 find_ups_product(sqlite)
 find_ups_product(range)
 find_ups_boost()
