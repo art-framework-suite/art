@@ -25,7 +25,6 @@ namespace art::detail {
     using Table = Modifier::Table<UserConfig, KeysToIgnore>;
 
     virtual ~Producer() noexcept;
-    Producer();
     explicit Producer(fhicl::ParameterSet const&);
     Producer(Producer const&) = delete;
     Producer(Producer&&) = delete;
@@ -50,7 +49,6 @@ namespace art::detail {
                  std::atomic<std::size_t>& counts_failed);
 
   private:
-    void failureToPutProducts(ModuleDescription const& md);
     virtual void setupQueues() = 0;
     virtual void beginJobWithFrame(ProcessingFrame const&) = 0;
     virtual void endJobWithFrame(ProcessingFrame const&) = 0;
@@ -68,7 +66,7 @@ namespace art::detail {
     virtual void endSubRunWithFrame(SubRun&, ProcessingFrame const&) = 0;
     virtual void produceWithFrame(Event&, ProcessingFrame const&) = 0;
 
-    bool checkPutProducts_{true};
+    bool const checkPutProducts_;
   };
 
 } // namespace art::detail

@@ -133,23 +133,6 @@ namespace art {
   }
 
   CLHEP::HepRandomEngine&
-  RandomNumberGenerator::getEngine(ScheduleID const sid,
-                                   string const& module_label,
-                                   string const& engine_label /* = "" */) const
-  {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    string const& label = qualify_engine_label(sid, module_label, engine_label);
-    auto I = data_[sid].dict_.find(label);
-    if (I == data_[sid].dict_.end()) {
-      throw cet::exception("RANDOM") << "RNGservice::getEngine():\n"
-                                     << "The requested engine \"" << label
-                                     << "\" has not been established.\n";
-    }
-    assert(I->second && "RNGservice::getEngine()");
-    return *I->second;
-  }
-
-  CLHEP::HepRandomEngine&
   RandomNumberGenerator::createEngine(ScheduleID const sid,
                                       std::string const& module_label,
                                       long const seed,

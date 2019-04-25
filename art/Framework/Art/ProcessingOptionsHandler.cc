@@ -82,15 +82,6 @@ art::ProcessingOptionsHandler::ProcessingOptionsHandler(
           "All exceptions overridden to rethrow (cf rethrow-default).");
   add_opt(
     options,
-    "errorOnFailureToPut",
-    bpo::value<bool>()->implicit_value(true, "true"),
-    "*** DEPRECATED ***\n"
-    "Global flag that controls the behavior upon failure to 'put' a "
-    "product (declared by 'produces') onto the Event.  If 'true', per-module "
-    "flags can override the value of the global flag.\n"
-    "*** Will be removed in art 3.03. ***");
-  add_opt(
-    options,
     "errorOnMissingConsumes",
     bpo::value<bool>()->implicit_value(true, "true"),
     "If 'true', then an exception will be thrown if any module attempts "
@@ -162,23 +153,6 @@ art::ProcessingOptionsHandler::doProcessOptions(
     }
   }
 
-  if (vm.count("errorOnFailureToPut") > 0) {
-    std::ostringstream oss;
-    oss << "\nart warning: Your configuration uses the global "
-           "'errorOnFailureToPut' parameter,\n"
-        << "             which is deprecated.  Please adjust your "
-           "configuration or command-line\n"
-        << "             invocation so that you do not use it--the global "
-           "'errorOnFailureToPut'\n"
-        << "             parameter will be removed as of art 3.03.\n\n";
-    std::cerr << detail::bold_fontify(oss.str());
-  }
-
-  fillTable("errorOnFailureToPut",
-            fhicl_key(scheduler_key, "errorOnFailureToPut"),
-            vm,
-            raw_config,
-            true);
   fillTable("errorOnMissingConsumes",
             fhicl_key(scheduler_key, "errorOnMissingConsumes"),
             vm,

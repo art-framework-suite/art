@@ -1,7 +1,6 @@
 #include "art/Framework/Core/detail/Producer.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/detail/get_failureToPut_flag.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Run.h"
@@ -15,20 +14,16 @@
 
 namespace art::detail {
 
-  Producer::Producer() = default;
   Producer::~Producer() noexcept = default;
 
-  Producer::Producer(fhicl::ParameterSet const&)
-  {
-    // This constructor will eventually be used to query the
-    // errorOnFailureToPut flag.
-  }
+  Producer::Producer(fhicl::ParameterSet const& pset)
+    : checkPutProducts_{pset.get<bool>("errorOnFailureToPut", true)}
+  {}
 
   void
   Producer::doBeginJob()
   {
     setupQueues();
-    failureToPutProducts(moduleDescription());
     ProcessingFrame const frame{ScheduleID{}};
     beginJobWithFrame(frame);
   }
@@ -123,19 +118,6 @@ namespace art::detail {
       ep, checkPutProducts_, &expectedProducts<InEvent>());
     ++counts_passed;
     return true;
-  }
-
-  void
-  Producer::failureToPutProducts(ModuleDescription const& md)
-  {
-    auto const& mainID = md.mainParameterSetID();
-    auto const& scheduler_pset =
-      fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
-        "services.scheduler");
-    auto const& module_pset =
-      fhicl::ParameterSetRegistry::get(md.parameterSetID());
-    checkPutProducts_ =
-      detail::get_failureToPut_flag(scheduler_pset, module_pset);
   }
 
 } // namespace art::detail

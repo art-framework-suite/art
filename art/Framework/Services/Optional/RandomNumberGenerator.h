@@ -111,28 +111,6 @@
 //     configured replicated module is guaranteed to have a different
 //     seeds wrt. each other.
 //
-// Accessing an engine through a service handle
-// --------------------------------------------
-//
-// ** DEPRECATED in art 3.02; will be removed in art 3.03 **
-//
-// An engine managed by the RandomNumberGenerator service can be
-// retrieved by calling the getEngine function through a service
-// handle.  Required function arguments are the ScheduleID, module
-// label, and engine label, which disambiguate the desired engine
-// wrt. all other art-managed ones:
-//
-//   ServiceHandle<art::RandomNumberGenerator> rng;
-//   auto& engine1 = rng->getEngine(scheduleID, moduleLabel);
-//   auto& engine2 = rng->getEngine(scheduleID, moduleLabel, engineLabel);
-//
-// Not specifying the the engine label is equivalent to specifying the
-// empty string, which corresponds to the default engine for a module.
-// In a future version of art, the getEngine function will be removed
-// because its functionality is unnecessary in the contexts in which
-// it can be called--createEngine(...) returns a reference to the
-// desire engine.
-//
 // Configuring the Service
 // -----------------------
 //
@@ -248,24 +226,6 @@ namespace art {
     RandomNumberGenerator(RandomNumberGenerator&&) = delete;
     RandomNumberGenerator& operator=(RandomNumberGenerator const&) = delete;
     RandomNumberGenerator& operator=(RandomNumberGenerator&&) = delete;
-
-    // API -- Engine access
-    [[deprecated(
-      "\n\nart warning: The getEngine function has been deprecated. To "
-      "retrieve\n"
-      "             the engine for a particular module, the module class "
-      "should have\n"
-      "             a data member that is a reference to the art-managed "
-      "engine, which\n"
-      "             is assigned whenever createEngine is called:\n\n"
-      "               MyProducer(Parameters const& ps)\n"
-      "                 : EDProducer{ps}, engine_{createEngine(...)}\n"
-      "               {}\n\n"
-      "             where 'engine_' is of type "
-      "'CLHEP::HepRandomEngine&'.\n\n")]] CLHEP::HepRandomEngine&
-    getEngine(ScheduleID sid,
-              std::string const& module_label,
-              std::string const& engine_label = {}) const;
 
   private:
     // Engine establishment

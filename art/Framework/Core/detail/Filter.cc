@@ -2,7 +2,6 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/detail/get_failureToPut_flag.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Run.h"
@@ -25,20 +24,16 @@ namespace art::detail {
   constexpr bool Filter::Pass;
   constexpr bool Filter::Fail;
 
-  Filter::Filter() = default;
   Filter::~Filter() noexcept = default;
 
-  Filter::Filter(fhicl::ParameterSet const&)
-  {
-    // This constructor will eventually be used to query the
-    // errorOnFailureToPut flag.
-  }
+  Filter::Filter(fhicl::ParameterSet const& pset)
+    : checkPutProducts_{pset.get<bool>("errorOnFailureToPut", true)}
+  {}
 
   void
   Filter::doBeginJob()
   {
     setupQueues();
-    failureToPutProducts(moduleDescription());
     ProcessingFrame const frame{ScheduleID{}};
     beginJobWithFrame(frame);
   }
@@ -137,19 +132,6 @@ namespace art::detail {
       ++counts_failed;
     }
     return rc;
-  }
-
-  void
-  Filter::failureToPutProducts(ModuleDescription const& md)
-  {
-    auto const& mainID = md.mainParameterSetID();
-    auto const& scheduler_pset =
-      fhicl::ParameterSetRegistry::get(mainID).get<fhicl::ParameterSet>(
-        "services.scheduler");
-    auto const& module_pset =
-      fhicl::ParameterSetRegistry::get(md.parameterSetID());
-    checkPutProducts_ =
-      detail::get_failureToPut_flag(scheduler_pset, module_pset);
   }
 
 } // namespace art::detail

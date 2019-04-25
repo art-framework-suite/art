@@ -20,6 +20,7 @@ function(config_ref_test TNAME)
     TEST_ARGS ../${TNAME}_w.d/config.out
     DATAFILES ${TNAME}-ref.txt
     REF ${TNAME}-ref.txt
+    REQUIRED_FILES ../${TNAME}_w.d/config.out
     TEST_PROPERTIES DEPENDS ${TNAME}_w
     ${ARGN})
 endfunction()

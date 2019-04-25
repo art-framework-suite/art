@@ -63,7 +63,6 @@ services: {
          option: "debug-config"
          printMode: "raw"
       }
-      errorOnFailureToPut: true
       errorOnMissingConsumes: false
       errorOnSIGINT: true
       num_schedules: 1

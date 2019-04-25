@@ -1,15 +1,14 @@
 # Should pass and provide config output file for comparison in
-# BasicOutputOptions_01_r against reference.  Use ART_DEBUG_CONFIG
-# environment variable instead of --debug-config to test its
-# functionality.
+# BasicOutputOptions_01_r against reference.
 cet_test(BasicOutputOptions_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS
   -o out.root
   --tmpdir /tmp
   -c /dev/null
-  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=config.out
-  PASS_REGULAR_EXPRESSION "\\*\\* ART_DEBUG_CONFIG is defined.*\\*\\* Config output to file")
+  --debug-config=config.out
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "\\*\\* Config output to file")
 config_ref_test(BasicOutputOptions_01
  OUTPUT_FILTERS DEFAULT ${filterOutputModule})
 

@@ -29,7 +29,6 @@ namespace art::detail {
     using Table = Modifier::Table<UserConfig>;
 
     virtual ~Filter() noexcept;
-    Filter();
     explicit Filter(fhicl::ParameterSet const&);
     Filter(Filter const&) = delete;
     Filter(Filter&&) = delete;
@@ -53,7 +52,6 @@ namespace art::detail {
                  std::atomic<std::size_t>& counts_failed);
 
   private:
-    void failureToPutProducts(ModuleDescription const& md);
     virtual void setupQueues() = 0;
     virtual void beginJobWithFrame(ProcessingFrame const&) = 0;
     virtual void endJobWithFrame(ProcessingFrame const&) = 0;
@@ -71,7 +69,7 @@ namespace art::detail {
     virtual bool endSubRunWithFrame(SubRun&, ProcessingFrame const&) = 0;
     virtual bool filterWithFrame(Event&, ProcessingFrame const&) = 0;
 
-    bool checkPutProducts_{true};
+    bool const checkPutProducts_;
   };
 
 } // namespace art::detail

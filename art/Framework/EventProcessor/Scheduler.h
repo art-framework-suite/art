@@ -46,7 +46,6 @@ namespace art {
       fhicl::Atom<bool> handleEmptySubRuns{Name{"handleEmptySubRuns"}, true};
       fhicl::Atom<bool> errorOnMissingConsumes{Name{"errorOnMissingConsumes"},
                                                false};
-      fhicl::Atom<bool> errorOnFailureToPut{Name{"errorOnFailureToPut"}, true};
       fhicl::Atom<bool> errorOnSIGINT{Name{"errorOnSIGINT"}, true};
       fhicl::Atom<bool> wantSummary{Name{"wantSummary"}, false};
       fhicl::Atom<bool> pruneConfig{Name{"pruneConfig"}, false};

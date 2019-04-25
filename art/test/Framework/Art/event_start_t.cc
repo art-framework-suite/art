@@ -37,14 +37,6 @@ BOOST_AUTO_TEST_CASE(leading_and_trailing_spaces_allowed)
   BOOST_CHECK_EQUAL(e, 3u);
 }
 
-BOOST_AUTO_TEST_CASE(deprecated)
-{
-  auto const [r, sr, e] = event_start("4");
-  BOOST_CHECK_EQUAL(r, 1u);
-  BOOST_CHECK_EQUAL(sr, 0u);
-  BOOST_CHECK_EQUAL(e, 4u);
-}
-
 #define VERIFY_EXCEPTION_WITH_MSG(spec)                                        \
   BOOST_CHECK_EXCEPTION(event_start(spec), art::Exception, [](auto const& e) { \
     return invalid_event_id(e, spec);                                          \
