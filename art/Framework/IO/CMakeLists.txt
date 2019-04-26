@@ -2,9 +2,9 @@ art_make(LIB_LIBRARIES
   art_Framework_IO_detail
   canvas
   cetlib_except
-  ${Boost_DATE_TIME_LIBRARY}
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_REGEX_LIBRARY})
+  Boost::date_time
+  Boost::filesystem
+  Boost::regex)
 
 install_headers()
 install_source()

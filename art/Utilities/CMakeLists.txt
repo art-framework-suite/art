@@ -24,7 +24,7 @@ art_make_library(
     cetlib
     cetlib_except
     hep_concurrency
-    ${Boost_FILESYSTEM_LIBRARY}
+    Boost::filesystem
     Threads::Threads)
 
 install_headers(SUBDIRS detail)

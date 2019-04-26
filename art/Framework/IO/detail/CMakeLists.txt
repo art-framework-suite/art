@@ -5,7 +5,7 @@ art_make_library(
   logFileAction.cc
   validateFileNamePattern.cc
   LIBRARIES
-  ${Boost_REGEX_LIBRARY}
+  Boost::regex
   MF_MessageLogger
   canvas
   cetlib_except

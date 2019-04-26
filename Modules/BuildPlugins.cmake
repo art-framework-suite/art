@@ -24,7 +24,7 @@ include(BasicPlugin)
 
 cmake_policy(PUSH)
 cmake_policy(VERSION 3.3)
-find_package(Boost QUIET REQUIRED COMPONENTS filesystem system)
+find_package(Boost QUIET REQUIRED COMPONENTS filesystem)
 
 macro (_sp_debug_message)
   string(TOUPPER ${CMAKE_BUILD_TYPE} BTYPE_UC)
@@ -48,7 +48,7 @@ function(simple_plugin name type)
       fhiclcpp
       cetlib
       cetlib_except
-      ${Boost_FILESYSTEM_LIBRARY})
+      Boost::filesystem)
   elseif("${type}" STREQUAL "module" OR "${type}" STREQUAL "source")
     list(INSERT simple_plugin_liblist 0
       art_Framework_Core
@@ -60,19 +60,19 @@ function(simple_plugin name type)
       fhiclcpp
       cetlib
       cetlib_except
-      ${Boost_FILESYSTEM_LIBRARY})
+      Boost::filesystem)
   elseif("${type}" STREQUAL "tool")
     list(INSERT simple_plugin_liblist 0
       art_Utilities
       fhiclcpp
       cetlib
       cetlib_except
-      ${Boost_FILESYSTEM_LIBRARY})
+      Boost::filesystem)
   endif()
   if ("${type}" STREQUAL "source")
     list(INSERT simple_plugin_liblist 0
       art_Framework_IO_Sources
-      ${Boost_FILESYSTEM_LIBRARY})
+      Boost::filesystem)
   endif()
   if(SP_SOURCE)
     list(INSERT SP_SOURCE 0 SOURCE)
