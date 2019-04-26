@@ -54,8 +54,6 @@ namespace art {
 
   namespace {
 
-    struct G4Engine {};
-
     string
     qualify_engine_label(ScheduleID const sid,
                          string const& module_label,
@@ -195,12 +193,15 @@ namespace art {
     }
     shared_ptr<CLHEP::HepRandomEngine> eptr;
     if (engineKind == "G4Engine"s) {
+      eptr = engine_factory(defaultEngineKind, seed);
+      // We set CLHEP's random-number engine to be of type
+      // HepJamesRandom.
+      CLHEP::HepRandom::setTheEngine(eptr.get());
       if (seed != RandomNumberGenerator::useDefaultSeed) {
         CLHEP::HepRandom::setTheSeed(seed);
       }
-      eptr.reset(CLHEP::HepRandom::getTheEngine(), cet::no_delete{});
     } else if (engineKind == "NonRandomEngine"s) {
-      eptr.reset(new CLHEP::NonRandomEngine);
+      eptr = std::make_shared<CLHEP::NonRandomEngine>();
     } else {
       eptr = engine_factory(engineKind, seed);
     }

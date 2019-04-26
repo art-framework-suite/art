@@ -2,10 +2,12 @@
 #define art_Framework_IO_Sources_SourceHelper_h
 
 // -----------------------------------------------------------------
-//
 // SourceHelper provides the means for creation of EventPrincipals,
 // SubRunPrincipals, and RunPrincipals.
 //
+// Note that processing history can only be retained for event
+// principles, and only if a non-null History object is provided when
+// calling makeEventPrincipal.
 // -----------------------------------------------------------------
 
 #include "art/Framework/Principal/Principal.h"
@@ -93,6 +95,10 @@ private:
   template <typename T>
   friend class Source;
   void throwIfProductsNotRegistered_() const;
+  ProcessHistoryID processHistoryID_(BranchType,
+                                     ProcessConfiguration const&) const;
+  std::unique_ptr<History> history_(ProcessConfiguration const&,
+                                    std::unique_ptr<History>&&) const;
   void setPresentProducts(cet::exempt_ptr<ProductTables const> presentProducts);
   cet::exempt_ptr<ProductTables const> presentProducts_{nullptr};
   ModuleDescription md_;
