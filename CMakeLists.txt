@@ -19,7 +19,7 @@ cmake_minimum_required (VERSION 3.11)
 project(art)
 
 # cetbuildtools contains our cmake modules
-find_package(cetbuildtools 7.13.00 REQUIRED)
+find_package(cetbuildtools 7.13.01 REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}/Modules)

@@ -9,7 +9,7 @@ perllib  product_dir
 product		version		<format=2>
 canvas          v3_07_03
 hep_concurrency v1_03_03
-cetbuildtools	v7_13_00	-	only_for_build
+cetbuildtools	v7_13_01	-	only_for_build
 catch		v2_5_0		-	only_for_build
 end_product_list
 
