@@ -307,7 +307,12 @@ art::detail::prune_config_if_enabled(bool const prune_config,
   }
 
   auto enabled_modules = get_enabled_modules(modules, enabled_trigger_paths);
-  enabled_modules.merge(get_enabled_modules(modules, enabled_end_paths));
+  // C++17 provides the std::map::merge member function, but Clang 7
+  // and older does not support it.  Will do it by hand for now, until
+  // we have time to handle this properly.
+  auto end_path_enabled_modules = get_enabled_modules(modules, enabled_end_paths);
+  enabled_modules.insert(begin(end_path_enabled_modules),
+                         end(end_path_enabled_modules));
 
   std::map<std::string, std::string> unused_modules;
   cet::copy_if_all(modules,
