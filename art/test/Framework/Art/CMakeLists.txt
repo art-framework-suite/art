@@ -2,6 +2,7 @@ cet_test(artapp_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
 cet_test(artapp_basicSourceOptions_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
 cet_test(event_start_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
 cet_test(fhicl_key_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
+cet_test(prune_config_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
 
 ########################################################################
 # OptionsHandler tests.
