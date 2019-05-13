@@ -29,6 +29,33 @@ BOOST_AUTO_TEST_CASE(well_formed)
   BOOST_CHECK_EQUAL(e, 3u);
 }
 
+BOOST_AUTO_TEST_CASE(well_formed_first_values)
+{
+  using std::to_string;
+  auto const r_first = art::IDNumber<art::Level::Run>::first();
+  auto const sr_first = art::IDNumber<art::Level::SubRun>::first();
+  auto const e_first = art::IDNumber<art::Level::Event>::first();
+  auto const [r, sr, e] = event_start(
+    to_string(r_first) + ':' + to_string(sr_first) + ':' + to_string(e_first));
+  BOOST_CHECK_EQUAL(r, r_first);
+  BOOST_CHECK_EQUAL(sr, sr_first);
+  BOOST_CHECK_EQUAL(e, e_first);
+}
+
+BOOST_AUTO_TEST_CASE(well_formed_max_valid_values)
+{
+  using std::to_string;
+  auto const r_max_valid = art::IDNumber<art::Level::Run>::max_valid();
+  auto const sr_max_valid = art::IDNumber<art::Level::SubRun>::max_valid();
+  auto const e_max_valid = art::IDNumber<art::Level::Event>::max_valid();
+  auto const [r, sr, e] =
+    event_start(to_string(r_max_valid) + ':' + to_string(sr_max_valid) + ':' +
+                to_string(e_max_valid));
+  BOOST_CHECK_EQUAL(r, r_max_valid);
+  BOOST_CHECK_EQUAL(sr, sr_max_valid);
+  BOOST_CHECK_EQUAL(e, e_max_valid);
+}
+
 BOOST_AUTO_TEST_CASE(leading_and_trailing_spaces_allowed)
 {
   auto const [r, sr, e] = event_start(" 1:2  :   3");
