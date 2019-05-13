@@ -119,6 +119,20 @@ BOOST_AUTO_TEST_CASE(Construct)
     "  Entry f in path p1 does not have a module configuration.\n"
     "---- Configuration END\n");
 
+  // Unconfigured label (with trigger_paths specification)
+  test_sets.emplace_back(
+    "process_name: \"test\" "
+    "physics: { "
+    " p1: [ f ] "
+    " trigger_paths: [ p1 ] "
+    "}",
+    errors::Configuration,
+    "---- Configuration BEGIN\n"
+    "  The following error was encountered while processing a path "
+    "configuration:\n"
+    "  Entry f in path p1 does not have a module configuration.\n"
+    "---- Configuration END\n");
+
   // Incorrectly included parameter in "physics" block
   test_sets.emplace_back(
     "process_name: pathMisspecification "
