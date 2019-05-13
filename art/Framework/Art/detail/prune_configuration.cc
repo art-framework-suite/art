@@ -230,6 +230,7 @@ namespace {
 
   std::optional<module_names_per_path_t>
   explicitly_declared_paths(module_names_per_path_t& modules_per_path,
+                            modules_t const& modules,
                             std::string const& controlling_sequence)
   {
     auto const it = modules_per_path.find(controlling_sequence);
@@ -246,6 +247,18 @@ namespace {
         os << "ERROR: Unknown path " << pathname << " specified by user in "
            << controlling_sequence << ".\n";
         continue;
+      }
+
+      // Check that module names in paths are supported
+      for (auto const& modname : res->second) {
+        auto full_module_key_it = modules.find(modname);
+        if (full_module_key_it == cend(modules)) {
+          throw art::Exception{art::errors::Configuration,
+                               "The following error was encountered while "
+                               "processing a path configuration:\n"}
+            << "Entry " << modname << " in path " << pathname
+            << " does not have a module configuration.\n";
+        }
       }
       result.insert(*res);
       paths_to_erase.insert(pathname);
@@ -287,12 +300,13 @@ art::detail::prune_config_if_enabled(bool const prune_config,
 
   auto paths = all_paths(config);
 
-  auto trigger_paths = explicitly_declared_paths(paths, "trigger_paths");
+  auto trigger_paths =
+    explicitly_declared_paths(paths, modules, "trigger_paths");
   auto enabled_trigger_paths =
     trigger_paths ? *trigger_paths :
                     paths_for_tables(paths, modules, ModuleCategory::modifier);
 
-  auto end_paths = explicitly_declared_paths(paths, "end_paths");
+  auto end_paths = explicitly_declared_paths(paths, modules, "end_paths");
   auto enabled_end_paths =
     end_paths ? *end_paths :
                 paths_for_tables(paths, modules, ModuleCategory::observer);
@@ -310,7 +324,8 @@ art::detail::prune_config_if_enabled(bool const prune_config,
   // C++17 provides the std::map::merge member function, but Clang 7
   // and older does not support it.  Will do it by hand for now, until
   // we have time to handle this properly.
-  auto end_path_enabled_modules = get_enabled_modules(modules, enabled_end_paths);
+  auto end_path_enabled_modules =
+    get_enabled_modules(modules, enabled_end_paths);
   enabled_modules.insert(begin(end_path_enabled_modules),
                          end(end_path_enabled_modules));
 
