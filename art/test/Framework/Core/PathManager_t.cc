@@ -63,76 +63,6 @@ BOOST_AUTO_TEST_CASE(Construct)
                          "filter.\n"
                          "---- Configuration END\n");
 
-  // Duplicate label.
-  test_sets.emplace_back(
-    "process_name: \"test\" "
-    "physics: { "
-    "  analyzers: { "
-    "    p: { module_type: PMTestAnalyzer } "
-    "  } "
-    "  filters: { "
-    "    p: { module_type: PMTestFilter } "
-    "  } "
-    " p1: [ p ] "
-    "}",
-    errors::Configuration,
-    "---- Configuration BEGIN\n"
-    "  An error was encountered while processing module configurations.\n"
-    "  Module label 'p' has been used in 'physics.analyzers' and "
-    "'physics.filters'.\n"
-    "  Module labels must be unique across an art process.\n"
-    "---- Configuration END\n");
-
-  // Inhomogeneous path.
-  test_sets.emplace_back(
-    "process_name: \"test\" "
-    "physics: { "
-    "  analyzers: { "
-    "    a: { module_type: PMTestAnalyzer } "
-    "  } "
-    "  filters: { "
-    "    f: { module_type: PMTestFilter } "
-    "  } "
-    "  producers: { "
-    "    p: { module_type: PMTestProducer } "
-    "  } "
-    " p1: [ f, p, a ] "
-    "}",
-    errors::Configuration,
-    "---- Configuration BEGIN\n"
-    "  An error was encountered while processing a path configuration.\n"
-    "  The following entries in path p1 are observers when all other\n"
-    "  entries are modifiers:\n"
-    "    'a'\n"
-    "---- Configuration END\n");
-
-  // Unconfigured label.
-  test_sets.emplace_back(
-    "process_name: \"test\" "
-    "physics: { "
-    " p1: [ \"-f\", p, a ] "
-    "}",
-    errors::Configuration,
-    "---- Configuration BEGIN\n"
-    "  The following error was encountered while processing a path "
-    "configuration:\n"
-    "  Entry f in path p1 does not have a module configuration.\n"
-    "---- Configuration END\n");
-
-  // Unconfigured label (with trigger_paths specification)
-  test_sets.emplace_back(
-    "process_name: \"test\" "
-    "physics: { "
-    " p1: [ f ] "
-    " trigger_paths: [ p1 ] "
-    "}",
-    errors::Configuration,
-    "---- Configuration BEGIN\n"
-    "  The following error was encountered while processing a path "
-    "configuration:\n"
-    "  Entry f in path p1 does not have a module configuration.\n"
-    "---- Configuration END\n");
-
   // Incorrectly included parameter in "physics" block
   test_sets.emplace_back(
     "process_name: pathMisspecification "
@@ -216,9 +146,9 @@ BOOST_AUTO_TEST_CASE(Construct)
   for (auto const& [config_string, error_code, error_msg] : test_sets) {
     fhicl::intermediate_table raw_config;
     parse_document(config_string, raw_config);
+    auto const enabled_modules =
+      detail::prune_config_if_enabled(false, raw_config);
     try {
-      auto const enabled_modules =
-        detail::prune_config_if_enabled(false, raw_config);
       fhicl::ParameterSet ps;
       make_ParameterSet(raw_config, ps);
       PathManager pm(ps, preg, productsToProduce, atable, areg, enabledModules);
