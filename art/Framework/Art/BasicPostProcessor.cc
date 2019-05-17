@@ -43,8 +43,10 @@ namespace {
   {
     std::string const services{"services"};
     std::string const service_provider{"service_provider"};
-    auto ciProvider = fhicl_key(services, "CatalogInterface", service_provider);
-    auto ftProvider = fhicl_key(services, "FileTransfer", service_provider);
+    auto const ciProvider =
+      fhicl_key(services, "CatalogInterface", service_provider);
+    auto const ftProvider =
+      fhicl_key(services, "FileTransfer", service_provider);
     if (!exists_outside_prolog(raw_config, ciProvider)) {
       raw_config.put(ciProvider, "TrivialFileDelivery");
     }
@@ -69,7 +71,8 @@ namespace {
       raw_config.put("source.module_type", "EmptyEvent");
     }
     if (raw_config.get<std::string>("source.module_type") == "EmptyEvent" &&
-        !exists_outside_prolog(raw_config, "source.maxEvents")) {
+        !exists_outside_prolog(raw_config, "source.maxEvents") &&
+        !exists_outside_prolog(raw_config, "source.maxTime")) {
       // Default 1 event.
       raw_config.put("source.maxEvents", 1);
     }

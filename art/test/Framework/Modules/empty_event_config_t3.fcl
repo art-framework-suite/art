@@ -1,0 +1,4 @@
+source: {
+  module_type: EmptyEvent
+  maxTime: 3
+}

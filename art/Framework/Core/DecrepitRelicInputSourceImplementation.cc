@@ -24,7 +24,7 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  DecrepitRelicInputSourceImplementation::Config::~Config() {}
+  DecrepitRelicInputSourceImplementation::Config::~Config() = default;
 
   DecrepitRelicInputSourceImplementation::Config::Config()
     : maxEvents{fhicl::Name("maxEvents"), -1}

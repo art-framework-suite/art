@@ -28,11 +28,15 @@
 #include "fhiclcpp/types/OptionalDelegatedParameter.h"
 #include "fhiclcpp/types/TableFragment.h"
 
+#include <chrono>
 #include <cstdint>
 #include <memory>
+#include <thread>
 
 using namespace fhicl;
 using namespace std;
+using namespace std::chrono_literals;
+using std::chrono::steady_clock;
 using DRISI = art::DecrepitRelicInputSourceImplementation;
 
 namespace art {
@@ -47,7 +51,24 @@ namespace art {
                                   drisi_config().maxEvents()};
       Atom<int> numberEventsInSubRun{Name("numberEventsInSubRun"),
                                      drisi_config().maxSubRuns()};
-      Atom<uint32_t> eventCreationDelay{Name("eventCreationDelay"), 0u};
+      Atom<uint32_t> maxTime{
+        Name("maxTime"),
+        Comment(
+          "If specified, the 'maxTime' parameter indicates the maximum "
+          "allowed\n"
+          "wall-clock time (in seconds) for which new events may be created.\n"
+          "This option is mutually exclusive with the 'maxEvents' and "
+          "'maxSubRuns'\n"
+          "configuration parameters."),
+        std::numeric_limits<uint32_t>::max()};
+      Atom<uint32_t> eventCreationDelay{
+        Name("eventCreationDelay"),
+        Comment("The 'eventCreationDelay' parameter is an integral value\n"
+                "in the range [0, 1000000), corresponding to microseconds.\n"
+                "If specified, the input source will sleep for the specified "
+                "duration\n"
+                "of time before each new event, subrun, or run is created.\n"),
+        0u};
       Atom<bool> resetEventOnSubRun{Name("resetEventOnSubRun"), true};
       OptionalAtom<RunNumber_t> firstRun{Name("firstRun")};
       OptionalAtom<SubRunNumber_t> firstSubRun{Name("firstSubRun")};
@@ -82,36 +103,6 @@ namespace art {
     EmptyEvent& operator=(EmptyEvent const&) = delete;
     EmptyEvent& operator=(EmptyEvent&&) = delete;
 
-    unsigned
-    numberEventsInRun() const
-    {
-      return numberEventsInRun_;
-    }
-
-    unsigned
-    numberEventsInSubRun() const
-    {
-      return numberEventsInSubRun_;
-    }
-
-    unsigned
-    eventCreationDelay() const
-    {
-      return eventCreationDelay_;
-    }
-
-    unsigned
-    numberEventsInThisRun() const
-    {
-      return numberEventsInThisRun_;
-    }
-
-    unsigned
-    numberEventsInThisSubRun() const
-    {
-      return numberEventsInThisSubRun_;
-    }
-
   private:
     unique_ptr<RangeSetHandler> runRangeSetHandler() override;
     unique_ptr<RangeSetHandler> subRunRangeSetHandler() override;
@@ -129,8 +120,9 @@ namespace art {
 
     unsigned const numberEventsInRun_;
     unsigned const numberEventsInSubRun_;
-    // microseconds
-    unsigned const eventCreationDelay_;
+    steady_clock::time_point const beginTime_{steady_clock::now()};
+    std::chrono::seconds const maxTime_;
+    std::chrono::microseconds const eventCreationDelay_;
     unsigned numberEventsInThisRun_{};
     unsigned numberEventsInThisSubRun_{};
     EventID origEventID_{};
@@ -153,10 +145,25 @@ art::EmptyEvent::EmptyEvent(Parameters const& config,
   , numberEventsInRun_{static_cast<uint32_t>(config().numberEventsInRun())}
   , numberEventsInSubRun_{static_cast<uint32_t>(
       config().numberEventsInSubRun())}
+  , maxTime_{config().maxTime()}
   , eventCreationDelay_{config().eventCreationDelay()}
   , resetEventOnSubRun_{config().resetEventOnSubRun()}
   , plugin_{makePlugin_(config().timestampPlugin)}
 {
+  // Additional configuration checking which is cumbersome to do with
+  // the FHiCL validation system.
+  auto const& pset = config.get_PSet();
+  if (pset.has_key("maxTime") &&
+      (pset.has_key("maxEvents") || pset.has_key("maxSubRuns"))) {
+    throw Exception{
+      errors::Configuration,
+      "An error occurred while configuring the EmptyEvent source.\n"}
+      << "The 'maxTime' parameter cannot be used with the 'maxEvents' or "
+         "'maxSubRuns' parameters.\n"
+         "Type 'art --print-description EmptyEvent' for the allowed "
+         "configuration.\n";
+  }
+
   RunNumber_t firstRun{};
   bool haveFirstRun = config().firstRun(firstRun);
   SubRunNumber_t firstSubRun{};
@@ -177,6 +184,13 @@ art::EmptyEvent::EmptyEvent(Parameters const& config,
 art::input::ItemType
 art::EmptyEvent::getNextItemType()
 {
+  // Trigger framework stop if max allowed time is exceeded.
+  // N.B. Since the begin time corresponds to source construction and
+  // not the actual event loop, there will be minor differences wrt
+  // the time reported for executing a given job.
+  if (steady_clock::now() - beginTime_ > maxTime_) {
+    return input::IsStop;
+  }
   // First check for sanity because skip(offset) can be abused and so can the
   // ctor.
   if (!eventID_.runID().isValid()) {
@@ -194,15 +208,15 @@ art::EmptyEvent::getNextItemType()
   }
   if (newRun_) {
     newRun_ = false;
-    if (eventCreationDelay_ > 0) {
-      usleep(eventCreationDelay_);
+    if (eventCreationDelay_ > 0ms) {
+      std::this_thread::sleep_for(eventCreationDelay_);
     }
     return input::IsRun;
   }
   if (newSubRun_) {
     newSubRun_ = false;
-    if (eventCreationDelay_ > 0) {
-      usleep(eventCreationDelay_);
+    if (eventCreationDelay_ > 0ms) {
+      std::this_thread::sleep_for(eventCreationDelay_);
     }
     return input::IsSubRun;
   }
@@ -216,8 +230,8 @@ art::EmptyEvent::getNextItemType()
     eventID_ = EventID(
       eventID_.nextRun().run(), origEventID_.subRun(), origEventID_.event());
     firstTime_ = true;
-    if (eventCreationDelay_ > 0) {
-      usleep(eventCreationDelay_);
+    if (eventCreationDelay_ > 0ms) {
+      std::this_thread::sleep_for(eventCreationDelay_);
     }
     return input::IsRun;
   }
@@ -233,8 +247,8 @@ art::EmptyEvent::getNextItemType()
       eventID_ = eventID_.nextSubRun(eventID_.next().event());
     }
     firstTime_ = true;
-    if (eventCreationDelay_ > 0) {
-      usleep(eventCreationDelay_);
+    if (eventCreationDelay_ > 0ms) {
+      std::this_thread::sleep_for(eventCreationDelay_);
     }
     return input::IsSubRun;
   }
@@ -248,8 +262,8 @@ art::EmptyEvent::getNextItemType()
   firstTime_ = false;
   ++numberEventsInThisRun_;
   ++numberEventsInThisSubRun_;
-  if (eventCreationDelay_ > 0) {
-    usleep(eventCreationDelay_);
+  if (eventCreationDelay_ > 0ms) {
+    std::this_thread::sleep_for(eventCreationDelay_);
   }
   return input::IsEvent;
 }
