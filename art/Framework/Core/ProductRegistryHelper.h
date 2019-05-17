@@ -101,12 +101,6 @@ namespace art {
 
     void fillDescriptions(ModuleDescription const& md);
 
-    // Record the production of an object of type P, with optional
-    // instance name, in the Event (by default), Run, or SubRun.
-    template <typename P, BranchType B = InEvent>
-    void produces(std::string const& instanceName = {},
-                  Persistable const persistable = Persistable::Yes);
-
     // Record the reconstitution of an object of type P, in either the
     // Run, SubRun, or Event, recording that this object was
     // originally created by a module with label modLabel, and with an
@@ -118,10 +112,16 @@ namespace art {
     template <BranchType B>
     TypeLabelLookup_t const& expectedProducts() const;
 
-  private: // MEMBER FUNCTIONS
+  protected:
+    // Record the production of an object of type P, with optional
+    // instance name, in the Event (by default), Run, or SubRun.
+    template <typename P, BranchType B = InEvent>
+    void produces(std::string const& instanceName = {},
+                  Persistable const persistable = Persistable::Yes);
+
+  private:
     TypeLabel const& insertOrThrow(BranchType const bt, TypeLabel const& tl);
 
-  private: // MEMBER DATA
     std::unique_ptr<ProductList const> productList_{nullptr};
     std::array<TypeLabelLookup_t, NumBranchTypes> typeLabelList_{{}};
   };

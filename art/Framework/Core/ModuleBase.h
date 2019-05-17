@@ -32,6 +32,11 @@ namespace art {
     ModuleDescription const& moduleDescription() const;
     void setModuleDescription(ModuleDescription const&);
 
+    std::array<std::vector<ProductInfo>, NumBranchTypes> const& getConsumables()
+      const;
+    void sortConsumables(std::string const& current_process_name);
+
+  protected:
     // Consumes information
     template <typename T, BranchType = InEvent>
     ProductToken<T> consumes(InputTag const&);
@@ -46,10 +51,6 @@ namespace art {
     ViewToken<Element> mayConsumeView(InputTag const&);
     template <typename T, BranchType = InEvent>
     void mayConsumeMany();
-
-    std::array<std::vector<ProductInfo>, NumBranchTypes> const& getConsumables()
-      const;
-    void sortConsumables(std::string const& current_process_name);
 
   private:
     std::optional<ModuleDescription> md_{std::nullopt};
