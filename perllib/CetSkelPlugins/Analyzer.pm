@@ -92,7 +92,7 @@ sub optionalEntries {
       foreach my $fl (qw(LEGACY SHARED REPLICATED)) {
           $all->{$fl} = "// ".$fl." flavor";
           my $entries_for_flavor = _optionalEntries($fl);
-          foreach my $key (keys $entries_for_flavor) {
+          foreach my $key (keys %$entries_for_flavor) {
               $all->{$fl.$key} = delete $entries_for_flavor->{$key};
           }
       }
@@ -166,7 +166,7 @@ sub requiredEntries {
       foreach my $fl (qw(LEGACY SHARED REPLICATED)) {
           $all->{$fl} = "// ".$fl." flavor";
           my $entries_for_flavor = _requiredEntries($fl);
-          foreach my $key (keys $entries_for_flavor) {
+          foreach my $key (keys %$entries_for_flavor) {
               $all->{$fl.$key} = delete $entries_for_flavor->{$key};
           }
       }
