@@ -10,3 +10,4 @@ Various new features have been added, primarily addressing usability issues:
 * Configuration validation is now supported for MixFilter detail classes (resolves issue #19970)
 * MixFilter detail classes can now directly call MixHelper::createEngine to get a reference to the art-managed random-number-engine (resolves issue #20063)
 * Other minor features
+

@@ -25,7 +25,7 @@ General *art* and *art* suite information
 
 
 *art* suite programs
--------------------
+--------------------
 
 
 Each of the programs below is available if you have setup the art product (either directly, or by having setup you experiment software that uses art).
@@ -49,7 +49,7 @@ As of art 3.02, the following programs are provided by the art_root_io package.
 
 
 *art* job configuration
-----------------------
+-----------------------
 
 * Configuration language and parameters
 

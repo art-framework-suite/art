@@ -25,9 +25,13 @@ copyright = '2018'
 author = 'artists'
 
 # more general stuff
-src=os.environ['MRB_SOURCE']
-top=os.environ['MRB_TOP']
+src = os.environ['MRB_SOURCE']
+top = os.environ['MRB_TOP']
 html = os.environ['HTML_DIR']#+'/'project
+
+if(not html):
+    print("You haven't set an install dir ($HTML_DIR). Please set one and try again.")
+    sys.exit() 
 
 def dotted_version(normal_version):
     return normal_version.lstrip('v').replace('_', '.')
@@ -37,23 +41,18 @@ version = ''
 # The full version, including alpha/beta/rc tags
 release = dotted_version('@version@')
 
-print("Building documentation for: "+project)
-
-
 # Assemble list of already-built documentation that will appear in the
 # versions drop-down menu.
-#built_docs_path = '/Users/kyleknoepfel/work/art_suite_docs/' + project
-#built_docs_path = '/home/ryan/Documents/fermilab/work/doc_devel/srcs/' + project
-#built_docs_path = src+'/'+project
 built_docs_path = top+'/all_docs/'+project
+install_docs_path = html+'/'+project 
 
-#print("\n\n\ninvestigating the version tab stuff..")
-files = os.listdir(built_docs_path)
+print("Building ", project, " html files..\n")
+files = os.listdir(install_docs_path)
 #print(files)
 subdirs = [subdir for subdir in files
-           if os.path.isdir(os.path.join(built_docs_path, subdir))]
+           if os.path.isdir(os.path.join(install_docs_path, subdir))]
 versions = { subdir: dotted_version(subdir) for subdir in subdirs }
-#print(built_docs_path+subdirs[0])
+#print(install_docs_path+subdirs[0])
 
 versions['@version@'] = release
 
@@ -93,7 +92,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path .
-exclude_patterns = []
+exclude_patterns = ['series_notes/*', 'suite_notes/*', '*temp.rst']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -104,13 +103,16 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinxdoc'
+#html_theme = 'sphinxdoc'
+html_theme = 'classic'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
 html_theme_options = {
+    'collapsiblesidebar': True,
+    'logo':'art-visual-identity.png'
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -223,6 +225,7 @@ with open(src+'/'+project+'/ups/product_deps') as deps_file:
 
 
 with open(src+'/'+project+'/docs/depends.rst', 'w+') as deps_page:
+  deps_page.write(':orphan:\n\n')
   deps_page.write('|release| depends on')
   deps_page.write('\n====================\n')
   for pkg in depends_on:
@@ -262,23 +265,28 @@ with open(src+'/'+project+'/docs/depends.rst', 'w+') as deps_page:
 #   - have a user written rst file that inserts relevant information in placeholders. something like that.
 
 
-# --- series-notes 
-series_release_notes_command = 'perl /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/release-notes --series-notes ' + project + ' ' + release + ' > /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_temp.rst'
+# --- release notes stuff 
 
+proj_docs_dir = src + '/' + project + '/docs/'
+#series_release_notes_command = 'perl /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/release-notes --series-notes ' + project + ' ' + release + ' > /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_temp.rst'
+#suite_release_notes_command = 'perl /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/release-notes --suite-notes ' + project + ' ' + release + ' > /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_temp.rst'
+series_release_notes_command = "perl " + proj_docs_dir + "release-notes --series-notes " + project + ' ' + release
+suite_release_notes_command = "perl " + proj_docs_dir + "release-notes --suite-notes " + project + ' ' + release
 
-suite_release_notes_command = 'perl /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/release-notes --suite-notes ' + project + ' ' + release + ' > /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_temp.rst'
-
-
-
-os.system(series_release_notes_command)
-os.system(suite_release_notes_command)
-os.system('cat /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_temp.rst /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_temp.rst > /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/temp.rst')
+#os.system(series_release_notes_command)
+#os.system(suite_release_notes_command)
+#os.system('cat /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_temp.rst /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_temp.rst > /home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/temp.rst')
+os.system(series_release_notes_command + ' > ' + src + '/' + project + '/docs/series_temp.rst')
+os.system(suite_release_notes_command + ' > ' + src + '/' + project + '/docs/suite_temp.rst')
+os.system('cat ' + src + '/' + project + '/docs/series_temp.rst ' + src + '/' + project + '/docs/suite_temp.rst > ' + src + '/' + project + '/docs/temp.rst')
 
 #print("looking at formatting the releasenotes as a combo of automated and user notes")
 
 #with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/temp.rst", "r+") as notes_page:
-with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/releaseNotes.rst", "w") as final_notes:
-    with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/temp.rst", "r+") as auto_notes:
+#with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/releaseNotes.rst", "w") as final_notes:
+with open(src + '/' + project + '/docs/releaseNotes.rst', "w") as final_notes:
+    #with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/temp.rst", "r+") as auto_notes:
+    with open(src + '/' + project + '/docs/temp.rst', "r+") as auto_notes:
         for line in auto_notes:
             #print(line)
 
@@ -287,7 +295,8 @@ with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/releaseNot
             # general description
             if("description of series" in line):
                 #print("\t\tinsert stuff here")
-                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_notes/general_description.rst") as description_page:
+                #with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_notes/general_description.rst") as description_page:
+                with open(src + '/' + project + '/docs/series_notes/general_description.rst') as description_page:
                     for description_line in description_page:
                         #print(description_line)
                         final_notes.write(description_line)
@@ -295,7 +304,8 @@ with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/releaseNot
             # new features
             if("New features" in line):
                 #print("\t\tinsert stuff here")
-                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_notes/new_features.rst") as feature_page:
+                #with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_notes/new_features.rst") as feature_page:
+                with open(src + '/' + project + '/docs/series_notes/new_features.rst') as feature_page:
                     for feature_line in feature_page:
                         #print(feature_line)
                         final_notes.write(feature_line)
@@ -303,7 +313,8 @@ with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/releaseNot
             # Other 
             if("Other" in line):
                 #print("\t\tinsert stuff here")
-                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_notes/other.rst") as other_page:
+                #with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_notes/other.rst") as other_page:
+                with open(src + '/' + project + '/docs/series_notes/other.rst') as other_page:
                     for other_line in other_page:
                         #print(other_line)
                         final_notes.write(other_line)
@@ -311,7 +322,8 @@ with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/releaseNot
             # breaking changes 
             if("Breaking changes" in line):
                 #print("\t\tinsert stuff here")
-                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_notes/breaking_changes.rst") as changes_page:
+                #with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/series_notes/breaking_changes.rst") as changes_page:
+                with open(src + '/' + project + '/docs/series_notes/breaking_changes.rst') as changes_page:
                     for changes_line in changes_page:
                         #print(changes_line)
                         final_notes.write(changes_line)
@@ -320,24 +332,24 @@ with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/releaseNot
 
             # external package changes 
             if("package changes" in line):
-                #print("\t\tinsert stuff here")
-                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_notes/ext_package_changes.rst") as pkg_page:
+                #with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_notes/ext_package_changes.rst") as pkg_page:
+                with open(src + '/' + project + '/docs/suite_notes/ext_package_changes.rst') as pkg_page:
                     for pkg_line in pkg_page:
                         #print(pkg_line)
                         final_notes.write(pkg_line)
 
             # bug fixes 
             if("Bug fixes" in line):
-                #print("\t\tinsert stuff here")
-                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_notes/bug_fixes.rst") as bug_page:
+                #with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_notes/bug_fixes.rst") as bug_page:
+                with open(src + '/' + project + '/docs/suite_notes/bug_fixes.rst') as bug_page:
                     for bug_line in bug_page:
                         #print(bug_line)
                         final_notes.write(bug_line)
 
             # known issues 
             if("Known issues" in line):
-                #print("\t\tinsert stuff here")
-                with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_notes/known_issues.rst") as issue_page:
+                #with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/suite_notes/known_issues.rst") as issue_page:
+                with open(src + '/' + project + '/docs/suite_notes/known_issues.rst') as issue_page:
                     for issue_line in issue_page:
                         #print(issue_line)
                         final_notes.write(issue_line)
@@ -362,4 +374,4 @@ with open("/home/ryan/Documents/fermilab/work/doc_devel/srcs/art/docs/releaseNot
 
 
 
-
+# eof

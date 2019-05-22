@@ -367,6 +367,8 @@ sub print_series_notes {
 sub print_series_prolog {
   my ($package, $prev, $this_series) = @_;
   print <<EOF;
+:orphan:
+
 *art* series $this_series
 =================
 
@@ -453,7 +455,8 @@ EOF
   foreach my $key (sort keys %{$required_products}) {
       my $subpackage = package_name($key);
       my $pv = $required_products->{$key};
-      printf("* \%s\%s\n",
+      #printf("* \%s\%s\n",
+      printf("* %s \n",
              rpage($subpackage, $pv));#, new_first($subpackage, $pv, $prod_version));
   }
   print "\n";
@@ -487,6 +490,7 @@ _Click [[Release Notes $dot_version|here]] to navigate to a page with the below 
 
 EOF
 }
+
 
 sub print_package_notes {
   my ($package, $version) = @_;

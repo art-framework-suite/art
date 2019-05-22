@@ -1,3 +1,5 @@
+:orphan:
+
 *art* series 3.02
 =================
 
@@ -25,6 +27,7 @@ Various new features have been added, primarily addressing usability issues:
 * Configuration validation is now supported for MixFilter detail classes (resolves issue #19970)
 * MixFilter detail classes can now directly call MixHelper::createEngine to get a reference to the art-managed random-number-engine (resolves issue #20063)
 * Other minor features
+
 .. New features
 
 Other
@@ -85,12 +88,14 @@ External package changes
 
   * vX_YY_ZZ (prev) -> vU_VV_WW (this version)
   * *Build only dependency*
+
 .. External package changes
 
 Bug fixes
 ---------
 
 No bugs fixed in this release
+
 .. Bug fixes
 
 
@@ -109,12 +114,12 @@ This error has been fixed in art suite `3.02.03 <index.html>`_.
 Depends on
 ----------
 
-* canvas 3.07.01
-* cetlib 3.07.01
-* cetlib_except 1.03.02
-* fhicl-cpp 4.09.01
-* hep_concurrency 1.03.02
-* messagefacility 2.04.01
+* canvas 3.07.01 
+* cetlib 3.07.01 
+* cetlib_except 1.03.02 
+* fhicl-cpp 4.09.01 
+* hep_concurrency 1.03.02 
+* messagefacility 2.04.01 
 
 
 ..

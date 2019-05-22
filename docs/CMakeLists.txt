@@ -9,7 +9,7 @@ if(NOT DEFINED SPHINX_THEME_DIR)
 endif()
 
 # configured documentation tools and intermediate build results
-set(BINARY_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/_build")
+#set(BINARY_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/_build")
 
 # Sphinx cache with pickled ReST documents
 set(SPHINX_CACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/_doctrees")
@@ -43,6 +43,7 @@ if(EXISTS "${TOP_DOCS_DIR}")
     #message("art dir is here")
     string(TOUPPER ${PROJECT_NAME} ENV_PROJ_NAME)
     set(VERSION_DOCS_DIR "${PROJ_DOCS_DIR}/$ENV{${ENV_PROJ_NAME}_VERSION}")
+    set(VERSION_NUMBER $ENV{${ENV_PROJ_NAME}_VERSION})
     #message("looking for.. ${DUMB_TEMP_VAR}")
     #if(EXISTS "$ENV{MRB_TOP}/all_docs/${PROJECT_NAME}/$ENV{${ENV_PROJ_NAME}_VERSION}")
 
@@ -86,7 +87,9 @@ endif()
 
 #message("\n\n\n\n\n\n")
 
-set(SPHINX_HTML_DIR "${VERSION_DOCS_DIR}")
+set(BINARY_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/${VERSION_NUMBER}")
+message("BINARY_BUILD_DIR: ${BINARY_BUILD_DIR}")
+set(SPHINX_HTML_DIR "${BINARY_BUILD_DIR}")
 
 
 
@@ -110,3 +113,13 @@ add_custom_target(art_docs ALL
   "${SPHINX_HTML_DIR}"
   COMMENT "Building HTML documentation with Sphinx"
   SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/_extensions/redmineRoles.py)
+
+# Install the built html files to an instal dir (HTML DIR)
+
+install(DIRECTORY "${BINARY_BUILD_DIR}" 
+        #DESTINATION "${VERSION_DOCS_DIR}"
+        DESTINATION "${PROJ_DOCS_DIR}"
+        PATTERN "${BINARY_BUILD_DIR}/*")
+
+
+# EOF
