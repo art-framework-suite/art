@@ -22,11 +22,11 @@ namespace art {
     // Only the TriggerResults module is allowed to have no
     // module_label parameter.  We provide a default empty string for
     // only that reason.
-   explicit ReplicatedProducer(fhicl::ParameterSet const& pset,
+    explicit ReplicatedProducer(fhicl::ParameterSet const& pset,
                                 ProcessingFrame const& frame)
-     : detail::Producer{pset}
-     , detail::EngineCreator{pset.get<std::string>("module_label", {}),
-                             frame.scheduleID()}
+      : detail::Producer{pset}
+      , detail::EngineCreator{pset.get<std::string>("module_label", {}),
+                              frame.scheduleID()}
     {}
 
     template <typename Config>
