@@ -1,20 +1,18 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
 parent art	v2_12_01
-defaultqual	e15
+defaultqual e17
 #
 fcldir -
 perllib  product_dir
 #
 product		version
 canvas_root_io	v1_01_10
-cetbuildtools	v7_04_00	-	only_for_build
+cetbuildtools	v7_13_02	-	only_for_build
 catch		v2_2_2		-nq-	only_for_build
 end_product_list
 
 qualifier	canvas_root_io		notes
-e15:debug	e15:debug
-e15:prof	e15:prof
 e17:debug	e17:debug
 e17:prof	e17:prof
 c2:debug	c2:debug
