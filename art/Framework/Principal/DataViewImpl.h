@@ -2,7 +2,7 @@
 #define art_Framework_Principal_DataViewImpl_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/ModuleBase.h"
+#include "art/Framework/Principal/ConsumesInfo.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/ProcessTag.h"

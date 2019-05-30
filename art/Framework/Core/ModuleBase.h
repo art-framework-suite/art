@@ -2,26 +2,17 @@
 #define art_Framework_Core_ModuleBase_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/ConsumesInfo.h"
+#include "art/Framework/Core/ConsumesCollector.h"
+#include "art/Framework/Principal/ProductInfo.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductToken.h"
 #include "canvas/Utilities/TypeID.h"
-#include "cetlib/exempt_ptr.h"
 
 #include <array>
 #include <optional>
 #include <string>
 #include <vector>
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-namespace fhicl {
-  class ParameterSet;
-}
 
 namespace art {
   class ModuleBase {
@@ -38,6 +29,8 @@ namespace art {
 
   protected:
     // Consumes information
+    ConsumesCollector& consumesCollector();
+
     template <typename T, BranchType = InEvent>
     ProductToken<T> consumes(InputTag const&);
     template <typename Element, BranchType = InEvent>
@@ -54,76 +47,51 @@ namespace art {
 
   private:
     std::optional<ModuleDescription> md_{std::nullopt};
-    std::array<std::vector<ProductInfo>, NumBranchTypes> consumables_{};
+    ConsumesCollector collector_;
   };
 
   template <typename T, BranchType BT>
   ProductToken<T>
   ModuleBase::consumes(InputTag const& tag)
   {
-    consumables_[BT].emplace_back(ProductInfo::ConsumableType::Product,
-                                  TypeID{typeid(T)},
-                                  tag.label(),
-                                  tag.instance(),
-                                  ProcessTag{tag.process()});
-    return ProductToken<T>{tag};
+    return collector_.consumes<T, BT>(tag);
   }
 
   template <typename T, BranchType BT>
   ViewToken<T>
   ModuleBase::consumesView(InputTag const& tag)
   {
-    consumables_[BT].emplace_back(ProductInfo::ConsumableType::ViewElement,
-                                  TypeID{typeid(T)},
-                                  tag.label(),
-                                  tag.instance(),
-                                  ProcessTag{tag.process()});
-    return ViewToken<T>{tag};
+    return collector_.consumesView<T, BT>(tag);
   }
 
   template <typename T, BranchType BT>
   void
   ModuleBase::consumesMany()
   {
-    consumables_[BT].emplace_back(ProductInfo::ConsumableType::Many,
-                                  TypeID{typeid(T)});
+    collector_.consumesMany<T, BT>();
   }
 
   template <typename T, BranchType BT>
   ProductToken<T>
   ModuleBase::mayConsume(InputTag const& tag)
   {
-    consumables_[BT].emplace_back(ProductInfo::ConsumableType::Product,
-                                  TypeID{typeid(T)},
-                                  tag.label(),
-                                  tag.instance(),
-                                  ProcessTag{tag.process()});
-    return ProductToken<T>{tag};
+    return collector_.mayConsume<T, BT>(tag);
   }
 
   template <typename T, BranchType BT>
   ViewToken<T>
   ModuleBase::mayConsumeView(InputTag const& tag)
   {
-    consumables_[BT].emplace_back(ProductInfo::ConsumableType::ViewElement,
-                                  TypeID{typeid(T)},
-                                  tag.label(),
-                                  tag.instance(),
-                                  ProcessTag{tag.process()});
-    return ViewToken<T>{tag};
+    return collector_.mayConsumeView<T, BT>(tag);
   }
 
   template <typename T, BranchType BT>
   void
   ModuleBase::mayConsumeMany()
   {
-    consumables_[BT].emplace_back(ProductInfo::ConsumableType::Many,
-                                  TypeID{typeid(T)});
+    collector_.mayConsumeMany<T, BT>();
   }
-} // namespace art
 
-// Local Variables:
-// mode: c++
-// End:
+} // namespace art
 
 #endif /* art_Framework_Core_ModuleBase_h */

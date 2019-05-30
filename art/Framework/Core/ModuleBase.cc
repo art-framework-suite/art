@@ -1,20 +1,9 @@
 #include "art/Framework/Core/ModuleBase.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Services/Optional/RandomNumberGenerator.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/ProductToken.h"
-#include "canvas/Persistency/Provenance/TypeLabel.h"
-#include "canvas/Utilities/InputTag.h"
-#include "canvas/Utilities/TypeID.h"
-#include "cetlib/HorizontalRule.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
-using namespace hep::concurrency;
 using namespace std;
 
 namespace art {
@@ -49,7 +38,7 @@ namespace art {
   array<vector<ProductInfo>, NumBranchTypes> const&
   ModuleBase::getConsumables() const
   {
-    return consumables_;
+    return collector_.getConsumables();
   }
 
   void
@@ -57,12 +46,13 @@ namespace art {
   {
     // Now that we know we have seen all the consumes declarations,
     // sort the results for fast lookup later.
-    for (auto& perBTConsumables : consumables_) {
-      for (auto& pi : perBTConsumables) {
-        pi.process = ProcessTag{pi.process.name(), current_process_name};
-      }
-      sort(begin(perBTConsumables), end(perBTConsumables));
-    }
+    collector_.sortConsumables(current_process_name);
+  }
+
+  ConsumesCollector&
+  ModuleBase::consumesCollector()
+  {
+    return collector_;
   }
 
 } // namespace art
