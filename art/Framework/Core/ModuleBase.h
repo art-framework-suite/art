@@ -2,7 +2,7 @@
 #define art_Framework_Core_ModuleBase_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/Consumer.h"
+#include "art/Framework/Principal/ConsumesInfo.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"

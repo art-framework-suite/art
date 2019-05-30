@@ -1,4 +1,4 @@
-#include "art/Framework/Principal/Consumer.h"
+#include "art/Framework/Principal/ConsumesInfo.h"
 
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"

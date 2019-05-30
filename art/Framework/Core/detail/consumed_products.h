@@ -2,7 +2,7 @@
 #define art_Framework_Core_detail_consumed_products_h
 
 #include "art/Framework/Core/WorkerInPath.h"
-#include "art/Framework/Principal/Consumer.h"
+#include "art/Framework/Principal/ConsumesInfo.h"
 #include "art/Framework/Principal/ProductInfo.h"
 
 #include <map>

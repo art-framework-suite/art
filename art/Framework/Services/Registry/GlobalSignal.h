@@ -10,7 +10,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Principal/Consumer.h"
+#include "art/Framework/Principal/ConsumesInfo.h"
 #include "art/Framework/Services/Registry/detail/SignalResponseType.h"
 #include "art/Framework/Services/Registry/detail/makeWatchFunc.h"
 
