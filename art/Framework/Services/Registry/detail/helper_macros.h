@@ -35,12 +35,12 @@
   }
 
 // Global service.
-#define DEFINE_ART_GLOBAL_SERVICE_RETRIEVER(svc)                               \
+#define DEFINE_ART_SHARED_SERVICE_RETRIEVER(svc)                               \
   void* retrieve(std::shared_ptr<ServiceWrapperBase>& swb)                     \
     const final override                                                       \
   {                                                                            \
     return &std::dynamic_pointer_cast<                                         \
-              ServiceWrapper<svc, ServiceScope::GLOBAL>>(swb)                  \
+              ServiceWrapper<svc, ServiceScope::SHARED>>(swb)                  \
               ->get();                                                         \
   }
 
@@ -56,12 +56,12 @@
   }
 
 // Global services.
-#define DEFINE_ART_GLOBAL_SERVICE_MAKER(svc)                                   \
+#define DEFINE_ART_SHARED_SERVICE_MAKER(svc)                                   \
   std::unique_ptr<ServiceWrapperBase> make(fhicl::ParameterSet const& cfg,     \
                                            ActivityRegistry& reg)              \
     const final override                                                       \
   {                                                                            \
-    return std::make_unique<ServiceWrapper<svc, ServiceScope::GLOBAL>>(cfg,    \
+    return std::make_unique<ServiceWrapper<svc, ServiceScope::SHARED>>(cfg,    \
                                                                        reg);   \
   }
 

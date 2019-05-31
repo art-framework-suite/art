@@ -72,7 +72,7 @@ namespace art {
 
 DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileDelivery,
                                    art::CatalogInterface,
-                                   GLOBAL)
+                                   SHARED)
 
 #endif /* art_Framework_Services_Optional_TrivialFileDelivery_h */
 

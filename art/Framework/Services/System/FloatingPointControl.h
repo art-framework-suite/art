@@ -92,7 +92,7 @@ namespace art {
 
 } // namespace art
 
-DECLARE_ART_SYSTEM_SERVICE(art::FloatingPointControl, GLOBAL)
+DECLARE_ART_SYSTEM_SERVICE(art::FloatingPointControl, SHARED)
 
 #endif /* art_Framework_Services_System_FloatingPointControl_h */
 

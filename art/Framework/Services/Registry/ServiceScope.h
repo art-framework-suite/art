@@ -7,7 +7,7 @@ namespace art {
   enum class ServiceScope {
     LEGACY // 0
     ,
-    GLOBAL // 1
+    SHARED // 1
     ,
     PER_SCHEDULE // 2
   };

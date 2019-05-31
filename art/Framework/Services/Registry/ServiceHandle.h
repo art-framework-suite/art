@@ -9,7 +9,7 @@
 //
 // Note invocation only requires one template argument, but the
 // constructor will require zero or one arguments depending on the scope
-// of the service (LEGACY, GLOBAL).
+// of the service (LEGACY, SHARED).
 //
 // Technical notes:
 //

@@ -44,7 +44,7 @@ namespace art {
 } // namespace art
 
 #define DEFINE_ART_PRODUCING_SERVICE(klass)                                    \
-  DECLARE_ART_SERVICE(klass, GLOBAL)                                           \
+  DECLARE_ART_SERVICE(klass, SHARED)                                           \
   DEFINE_ART_SERVICE(klass)
 
 #endif /* art_Framework_Core_ProducingService_h */
