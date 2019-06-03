@@ -149,7 +149,8 @@ art::BasicOptionsHandler::doProcessOptions(
     raw_config.put("process_name", vm["process-name"].as<std::string>());
   }
   if (vm.count("prune-config")) {
-    raw_config.put("services.scheduler.pruneConfig", vm["prune-config"].as<bool>());
+    raw_config.put("services.scheduler.pruneConfig",
+                   vm["prune-config"].as<bool>());
   }
   return 0;
 }

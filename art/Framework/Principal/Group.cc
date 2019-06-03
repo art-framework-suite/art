@@ -392,4 +392,17 @@ namespace art {
     return productAvailable();
   }
 
+  std::vector<GroupQueryResult>
+  resolve_products(std::vector<cet::exempt_ptr<art::Group>> const& groups,
+                   art::TypeID const& wrapped_type)
+  {
+    std::vector<GroupQueryResult> results;
+    for (auto group : groups) {
+      if (group->tryToResolveProduct(wrapped_type)) {
+        results.emplace_back(group.get());
+      }
+    }
+    return results;
+  }
+
 } // namespace art

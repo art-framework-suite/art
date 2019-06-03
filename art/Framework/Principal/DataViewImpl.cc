@@ -341,29 +341,28 @@ namespace art {
                   productInstanceName,
                   processTag});
     // Fetch the specified data products, which must be containers.
-    auto qrs = principal_.getMatchingSequence(
+    auto const groups = principal_.getMatchingSequence(
       mc_,
       Selector{ModuleLabelSelector{moduleLabel} &&
                ProductInstanceNameSelector{productInstanceName} &&
                ProcessNameSelector{processTag.name()}},
       processTag);
+    auto qrs = resolve_products(groups, TypeID{});
     // Remove any containers that do not allow upcasting of their
     // elements to the desired element type.
-    qrs.erase(remove_if(qrs.begin(),
-                        qrs.end(),
-                        [&typeID](auto const& qr) {
-                          assert(
-                            qr.result()->productDescription().supportsView());
-                          return !detail::upcastAllowed(
-                            *qr.result()->uniqueProduct()->typeInfo(),
-                            typeID.typeInfo());
-                        }),
-              qrs.end());
+    auto new_end =
+      remove_if(qrs.begin(), qrs.end(), [&typeID](auto const& gqr) {
+        auto const group = gqr.result();
+        assert(group->productDescription().supportsView());
+        return !detail::upcastAllowed(*group->uniqueProduct()->typeInfo(),
+                                      typeID.typeInfo());
+      });
+    qrs.erase(new_end, qrs.end());
     // Throw if there is not one and only one container to return.
     if (qrs.size() != 1) {
       Exception e{errors::ProductNotFound};
       e << "getView: Found "
-        << (qrs.size() == 0 ? "no products" : "more than one product")
+        << (qrs.empty() ? "no products" : "more than one product")
         << " matching all criteria\n"
         << "Looking for sequence of type: " << typeID << "\n"
         << "Looking for module label: " << moduleLabel << "\n"

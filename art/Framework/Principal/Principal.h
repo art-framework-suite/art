@@ -141,9 +141,10 @@ namespace art {
     // which are sequences, have a nested type named 'value_type', and
     // where elementType the same as, or a public base of, this
     // value_type, and which match the given selector.
-    GroupQueryResultVec getMatchingSequence(ModuleContext const&,
-                                            SelectorBase const&,
-                                            ProcessTag const&) const;
+    std::vector<cet::exempt_ptr<Group>> getMatchingSequence(
+      ModuleContext const&,
+      SelectorBase const&,
+      ProcessTag const&) const;
 
     // Note: Used only by DataViewImpl::ProductGetter!
     // Note: LArSoft uses this extensively to create a Ptr by hand.
@@ -304,35 +305,35 @@ namespace art {
     // Used by RootDelayedReader to insert the data product provenance.
     void insert_pp(Group*, std::unique_ptr<ProductProvenance const>&&);
 
-    GroupQueryResultVec matchingSequenceFromInputFile(
+    std::vector<cet::exempt_ptr<Group>> matchingSequenceFromInputFile(
       ModuleContext const&,
       SelectorBase const&) const;
     size_t findGroupsFromInputFile(ModuleContext const&,
                                    WrappedTypeID const& wrapped,
                                    SelectorBase const&,
-                                   GroupQueryResultVec& results,
+                                   std::vector<cet::exempt_ptr<Group>>& results,
                                    bool stopIfProcessHasMatch) const;
     size_t findGroups(ProcessLookup const&,
                       ModuleContext const&,
                       SelectorBase const&,
-                      GroupQueryResultVec& results,
-                      bool stopIfProcessHasMatch,
-                      TypeID wanted_wrapper = TypeID{}) const;
-    size_t findGroupsForProcess(std::vector<ProductID> const& vpid,
-                                ModuleContext const& mc,
-                                SelectorBase const& selector,
-                                GroupQueryResultVec& results,
-                                TypeID wanted_wrapper) const;
+                      std::vector<cet::exempt_ptr<Group>>& groups,
+                      bool stopIfProcessHasMatch) const;
+    size_t findGroupsForProcess(
+      std::vector<ProductID> const& vpid,
+      ModuleContext const& mc,
+      SelectorBase const& selector,
+      std::vector<cet::exempt_ptr<Group>>& groups) const;
     bool producedInProcess(ProductID) const;
     bool presentFromSource(ProductID) const;
     int tryNextSecondaryFile() const;
 
     // Implementation of the DataViewImpl API.
-    GroupQueryResultVec findGroupsForProduct(ModuleContext const& mc,
-                                             WrappedTypeID const& wrapped,
-                                             SelectorBase const&,
-                                             ProcessTag const&,
-                                             bool stopIfProcessHasMatch) const;
+    std::vector<cet::exempt_ptr<Group>> findGroupsForProduct(
+      ModuleContext const& mc,
+      WrappedTypeID const& wrapped,
+      SelectorBase const&,
+      ProcessTag const&,
+      bool stopIfProcessHasMatch) const;
 
     // Note: Used only by canvas RefCoreStreamer.cc through
     // PrincipalBase::getEDProductGetter!
