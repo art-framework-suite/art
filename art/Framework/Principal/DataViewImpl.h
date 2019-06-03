@@ -166,6 +166,10 @@ namespace art {
     // MEMBER FUNCTIONS -- User-facing API -- getMany*
   public:
     template <typename PROD>
+    std::vector<InputTag> getInputTagsByType(
+      SelectorBase const& selector = MatchAllSelector{}) const;
+
+    template <typename PROD>
     void getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
     template <typename PROD>
     void getManyByType(std::vector<Handle<PROD>>& results) const;
@@ -491,6 +495,15 @@ namespace art {
   DataViewImpl::getValidHandle(ProductToken<PROD> const& token) const
   {
     return getValidHandle<PROD>(token.inputTag_);
+  }
+
+  template <typename PROD>
+  std::vector<InputTag>
+  DataViewImpl::getInputTagsByType(SelectorBase const& selector) const
+  {
+    auto const wrapped = WrappedTypeID::make<PROD>();
+    ProcessTag const processTag{"", md_.processName()};
+    return principal_.getInputTags(mc_, wrapped, selector, processTag);
   }
 
   template <typename PROD>

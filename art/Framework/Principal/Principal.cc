@@ -737,7 +737,22 @@ namespace art {
     return results[0];
   }
 
-  Principal::GroupQueryResultVec
+  std::vector<InputTag>
+  Principal::getInputTags(ModuleContext const& mc,
+                          WrappedTypeID const& wrapped,
+                          SelectorBase const& sel,
+                          ProcessTag const& processTag) const
+  {
+    std::vector<InputTag> tags;
+    auto const groups =
+      findGroupsForProduct(mc, wrapped, sel, processTag, false);
+    cet::transform_all(groups, back_inserter(tags), [](auto const g) {
+      return g->productDescription().inputTag();
+    });
+    return tags;
+  }
+
+  std::vector<GroupQueryResult>
   Principal::getMany(ModuleContext const& mc,
                      WrappedTypeID const& wrapped,
                      SelectorBase const& sel,

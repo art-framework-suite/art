@@ -82,6 +82,7 @@ namespace {
     return "IntProducer";
   }
 
+  ModuleLabelSelector const modMultiSelector{"modMulti"};
 } // namespace
 
 // This is a gross hack, to allow us to test the event
@@ -473,14 +474,36 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
   BOOST_REQUIRE_EQUAL(h->value, 3);
   handles.clear();
 
-  currentEvent_->getMany(ModuleLabelSelector{"modMulti"}, handles);
+  // There should be five registered products with the 'modMulti'
+  // module label.
+  auto tags = currentEvent_->getInputTagsByType<product_t>(modMultiSelector);
+  BOOST_REQUIRE_EQUAL(tags.size(), 5u);
+  // Now remove the unavailable products
+  auto new_end =
+    std::remove_if(begin(tags), end(tags), [this](auto const& tag) {
+      handle_t h;
+      return !currentEvent_->getByLabel(tag, h);
+    });
+  tags.erase(new_end, end(tags));
+
+  // Only three of the registered products are available.
+  currentEvent_->getMany(modMultiSelector, handles);
   BOOST_REQUIRE_EQUAL(handles.size(), 3u);
+
+  // Make sure the resolved products agree with those specified in the
+  // 'tags' variable above.  The products are resolved in the same
+  // order as the input-tag list.
+  for (std::size_t i{}; i < 3u; ++i) {
+    BOOST_CHECK_EQUAL(handles[i].provenance()->inputTag(), tags[i]);
+  }
+
   handles.clear();
+
   currentEvent_->getMany(ModuleLabelSelector{"nomatch"}, handles);
   BOOST_REQUIRE(handles.empty());
 
   std::vector<Handle<int>> nomatches;
-  currentEvent_->getMany(ModuleLabelSelector{"modMulti"}, nomatches);
+  currentEvent_->getMany(modMultiSelector, nomatches);
   BOOST_REQUIRE(nomatches.empty());
 }
 
@@ -505,16 +528,14 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   currentEvent_->put(std::move(twoHundred), "int1");
   EDProducer::commitEvent(*principal_, *currentEvent_);
 
-  Selector const sel{ProductInstanceNameSelector{"int2"} &&
-                     ModuleLabelSelector{"modMulti"} &&
+  Selector const sel{ProductInstanceNameSelector{"int2"} && modMultiSelector &&
                      ProcessNameSelector{"EARLY"}};
   handle_t h;
   BOOST_REQUIRE(currentEvent_->get(sel, h));
   BOOST_REQUIRE_EQUAL(h->value, 2);
 
   Selector const sel1{ProductInstanceNameSelector{"nomatch"} &&
-                      ModuleLabelSelector{"modMulti"} &&
-                      ProcessNameSelector{"EARLY"}};
+                      modMultiSelector && ProcessNameSelector{"EARLY"}};
   BOOST_REQUIRE(!currentEvent_->get(sel1, h));
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
@@ -526,33 +547,29 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
 
-  Selector const sel3{ProductInstanceNameSelector{"int2"} &&
-                      ModuleLabelSelector{"modMulti"} &&
+  Selector const sel3{ProductInstanceNameSelector{"int2"} && modMultiSelector &&
                       ProcessNameSelector{"nomatch"}};
   BOOST_REQUIRE(!currentEvent_->get(sel3, h));
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
 
-  Selector const sel4{ModuleLabelSelector{"modMulti"} &&
-                      ProcessNameSelector{"EARLY"}};
+  Selector const sel4{modMultiSelector && ProcessNameSelector{"EARLY"}};
   // multiple selections throw
   BOOST_REQUIRE_THROW(currentEvent_->get(sel4, h), cet::exception);
 
-  Selector const sel5{ModuleLabelSelector{"modMulti"} &&
-                      ProcessNameSelector{"LATE"}};
+  Selector const sel5{modMultiSelector && ProcessNameSelector{"LATE"}};
   currentEvent_->get(sel5, h);
   BOOST_REQUIRE_EQUAL(h->value, 100);
 
-  Selector const sel6{ModuleLabelSelector{"modMulti"} &&
-                      ProcessNameSelector{"CURRENT"}};
+  Selector const sel6{modMultiSelector && ProcessNameSelector{"CURRENT"}};
   currentEvent_->get(sel6, h);
   BOOST_REQUIRE_EQUAL(h->value, 200);
 
-  Selector const sel7{ModuleLabelSelector{"modMulti"}};
+  Selector const sel7{modMultiSelector};
   currentEvent_->get(sel7, h);
   BOOST_REQUIRE_EQUAL(h->value, 200);
   handle_vec handles;
-  currentEvent_->getMany(ModuleLabelSelector{"modMulti"}, handles);
+  currentEvent_->getMany(modMultiSelector, handles);
   BOOST_REQUIRE_EQUAL(handles.size(), 5u);
   int sum = 0;
   for (int k = 0; k < 5; ++k) {

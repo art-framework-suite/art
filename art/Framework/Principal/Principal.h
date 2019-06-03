@@ -66,7 +66,6 @@ namespace art {
   public:
     using GroupCollection = std::map<ProductID, std::unique_ptr<Group>>;
     using const_iterator = GroupCollection::const_iterator;
-    using GroupQueryResultVec = std::vector<GroupQueryResult>;
     enum class allowed_processes { current_process, input_source, all };
 
     // MEMBER FUNCTIONS -- Special Member Functions
@@ -131,10 +130,15 @@ namespace art {
                                 std::string const& label,
                                 std::string const& productInstanceName,
                                 ProcessTag const& processTag) const;
-    GroupQueryResultVec getMany(ModuleContext const& mc,
-                                WrappedTypeID const& wrapped,
-                                SelectorBase const&,
-                                ProcessTag const&) const;
+    std::vector<GroupQueryResult> getMany(ModuleContext const& mc,
+                                          WrappedTypeID const& wrapped,
+                                          SelectorBase const&,
+                                          ProcessTag const&) const;
+
+    std::vector<InputTag> getInputTags(ModuleContext const& mc,
+                                       WrappedTypeID const& wrapped,
+                                       SelectorBase const&,
+                                       ProcessTag const&) const;
 
     // Used only by DataViewImpl<T> to implement getView.
     // FIXME COMMENT: Return a vector of GroupQueryResult to products
