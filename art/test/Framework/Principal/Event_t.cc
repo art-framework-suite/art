@@ -476,7 +476,7 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
 
   // There should be five registered products with the 'modMulti'
   // module label.
-  auto tags = currentEvent_->getInputTagsByType<product_t>(modMultiSelector);
+  auto tags = currentEvent_->getInputTags<product_t>(modMultiSelector);
   BOOST_REQUIRE_EQUAL(tags.size(), 5u);
   // Now remove the unavailable products
   auto new_end =
@@ -648,13 +648,13 @@ BOOST_AUTO_TEST_CASE(getByLabelSpecialProcessNames)
   Handle<product_t> h;
   InputTag const goodEarlyTag{"modMulti", "int2", "input_source"};
   BOOST_REQUIRE(currentEvent_->getByLabel(goodEarlyTag, h));
-  BOOST_REQUIRE_EQUAL(h->value, 2);
+  BOOST_CHECK_EQUAL(h->value, 2);
 
   // Verify that "int1" cannot be looked up using the "input_source"
   // process name.
   InputTag const badCurrentTag{"modMulti", "int1", "input_source"};
-  BOOST_REQUIRE_THROW(currentEvent_->getValidHandle<product_t>(badCurrentTag),
-                      cet::exception);
+  BOOST_CHECK_THROW(currentEvent_->getValidHandle<product_t>(badCurrentTag),
+                    cet::exception);
 }
 
 BOOST_AUTO_TEST_CASE(getManyByType)
@@ -662,30 +662,31 @@ BOOST_AUTO_TEST_CASE(getManyByType)
   using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
-  auto one = std::make_unique<product_t>(1);
-  auto two = std::make_unique<product_t>(2);
-  auto three = std::make_unique<product_t>(3);
-  auto four = std::make_unique<product_t>(4);
-  addSourceProduct(std::move(one), "int1_tag", "int1");
-  addSourceProduct(std::move(two), "int2_tag", "int2");
-  addSourceProduct(std::move(three), "int3_tag");
-  addSourceProduct(std::move(four), "nolabel_tag");
+  addSourceProduct(std::make_unique<product_t>(1), "int1_tag", "int1");
+  addSourceProduct(std::make_unique<product_t>(2), "int2_tag", "int2");
+  addSourceProduct(std::make_unique<product_t>(3), "int3_tag");
+  addSourceProduct(std::make_unique<product_t>(4), "nolabel_tag");
 
-  auto oneHundred = std::make_unique<product_t>(100);
-  addSourceProduct(std::move(oneHundred), "int1_tag_late", "int1");
+  addSourceProduct(std::make_unique<product_t>(100), "int1_tag_late", "int1");
 
-  auto twoHundred = std::make_unique<product_t>(200);
-  currentEvent_->put(std::move(twoHundred), "int1");
-
+  currentEvent_->put(std::make_unique<product_t>(200), "int1");
   EDProducer::commitEvent(*principal_, *currentEvent_);
+
+  // Verify that the returned tags match thos provided through the
+  // handles below.
+  auto const tags = currentEvent_->getInputTags<product_t>();
+  BOOST_CHECK_EQUAL(tags.size(), 6u);
+
   handle_vec handles;
   currentEvent_->getManyByType(handles);
   BOOST_REQUIRE_EQUAL(handles.size(), 6u);
   int sum = 0;
   for (int k = 0; k < 6; ++k) {
-    sum += handles[k]->value;
+    auto const& h = handles[k];
+    BOOST_CHECK_EQUAL(tags[k], h.provenance()->productDescription().inputTag());
+    sum += h->value;
   }
-  BOOST_REQUIRE_EQUAL(sum, 310);
+  BOOST_CHECK_EQUAL(sum, 310);
 }
 
 BOOST_AUTO_TEST_CASE(printHistory)
