@@ -1,4 +1,5 @@
 find_package(Sphinx REQUIRED)
+find_ups_product(python)# v3_7_2)
  
 if(NOT DEFINED SPHINX_THEME)
     set(SPHINX_THEME default)
