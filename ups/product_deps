@@ -11,25 +11,26 @@ canvas          v3_07_01
 hep_concurrency v1_03_02
 cetbuildtools	v7_11_00	-	only_for_build
 catch		v2_5_0		-	only_for_build
+sphinx          v2_0_1          py3     only_for_build
 end_product_list
 
-qualifier	canvas		hep_concurrency	notes
-e17:debug	e17:debug	e17:debug
-e17:prof	e17:prof	e17:prof
-e19:debug	e19:debug	e19:debug
-e19:prof	e19:prof	e19:prof
-c2:debug	c2:debug	c2:debug
-c2:prof		c2:prof		c2:prof
-c7:debug	c7:debug	c7:debug
-c7:prof		c7:prof		c7:prof
-e17:debug:py3	e17:debug:py3	e17:debug
-e17:prof:py3	e17:prof:py3	e17:prof
-e19:debug:py3	e19:debug:py3	e19:debug
-e19:prof:py3	e19:prof:py3	e19:prof
-c2:debug:py3	c2:debug:py3	c2:debug
-c2:prof:py3	c2:prof:py3	c2:prof
-c7:debug:py3	c7:debug:py3	c7:debug
-c7:prof:py3	c7:prof:py3	c7:prof
+qualifier	canvas		hep_concurrency	sphinx	notes
+e17:debug	e17:debug	e17:debug	-
+e17:prof	e17:prof	e17:prof        -
+e19:debug	e19:debug	e19:debug       -
+e19:prof	e19:prof	e19:prof        -
+c2:debug	c2:debug	c2:debug        -
+c2:prof		c2:prof		c2:prof         -
+c7:debug	c7:debug	c7:debug        -
+c7:prof		c7:prof		c7:prof         -
+e17:debug:py3	e17:debug:py3	e17:debug       p372
+e17:prof:py3	e17:prof:py3	e17:prof        p372
+e19:debug:py3	e19:debug:py3	e19:debug       p372
+e19:prof:py3	e19:prof:py3	e19:prof        p372
+c2:debug:py3	c2:debug:py3	c2:debug        p372
+c2:prof:py3	c2:prof:py3	c2:prof         p372
+c7:debug:py3	c7:debug:py3	c7:debug        p372
+c7:prof:py3	c7:prof:py3	c7:prof         p372
 end_qualifier_list
 
 table_fragment_begin
