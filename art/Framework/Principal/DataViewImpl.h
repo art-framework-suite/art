@@ -168,7 +168,9 @@ namespace art {
     template <typename PROD>
     std::vector<InputTag> getInputTags(
       SelectorBase const& selector = MatchAllSelector{}) const;
-
+    template <typename PROD>
+    std::vector<Handle<PROD>> getMany(
+      SelectorBase const& selector = MatchAllSelector{}) const;
     template <typename PROD>
     void getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
     template <typename PROD>
@@ -507,9 +509,8 @@ namespace art {
   }
 
   template <typename PROD>
-  void
-  DataViewImpl::getMany(SelectorBase const& sel,
-                        std::vector<Handle<PROD>>& results) const
+  std::vector<Handle<PROD>>
+  DataViewImpl::getMany(SelectorBase const& sel) const
   {
     std::lock_guard lock{mutex_};
     auto const wrapped = WrappedTypeID::make<PROD>();
@@ -525,14 +526,23 @@ namespace art {
         recordAsParent_(qr.result());
       }
     }
-    results.swap(products);
+    return products;
+  }
+
+
+  template <typename PROD>
+  void
+  DataViewImpl::getMany(SelectorBase const& sel,
+                        std::vector<Handle<PROD>>& results) const
+  {
+    results = getMany<PROD>(sel);
   }
 
   template <typename PROD>
   void
   DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
   {
-    getMany(MatchAllSelector{}, results);
+    results = getMany<PROD>();
   }
 
   template <typename ELEMENT>
