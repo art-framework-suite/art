@@ -97,8 +97,8 @@ art::detail::event_start(std::string const& event_spec)
   //   | parts[3] == |     '3' |
   //   +-------------+---------+
 
-  auto const run = convert_or_throw<Level::Event>(parts[1], event_spec);
-  auto const subrun = convert_or_throw<Level::Event>(parts[2], event_spec);
+  auto const run = convert_or_throw<Level::Run>(parts[1], event_spec);
+  auto const subrun = convert_or_throw<Level::SubRun>(parts[2], event_spec);
   auto const event = convert_or_throw<Level::Event>(parts[3], event_spec);
   return std::make_tuple(run, subrun, event);
 }
