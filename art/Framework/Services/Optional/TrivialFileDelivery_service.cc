@@ -3,10 +3,8 @@
 
 #include "art/Framework/Services/FileServiceInterfaces/FileDeliveryStatus.h"
 #include "canvas/Utilities/Exception.h"
-#include "hep_concurrency/RecursiveMutex.h"
 
 #include <cerrno>
-#include <cstdlib>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -22,7 +20,7 @@ namespace art {
   namespace {
 
     void
-    throwIfFileNotExist(char const* fname)
+    throwIfFileNotExist(char const* fname) noexcept(false)
     {
       ifstream f(fname);
       if (!f) {
