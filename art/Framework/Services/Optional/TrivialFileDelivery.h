@@ -55,8 +55,6 @@ namespace art {
     void doRewind() override;
     // Implementation details
   private:
-    std::vector<std::string> extractFileListFromPset(
-      fhicl::ParameterSet const& pset);
     std::string prependFileDesignation(std::string const& name) const;
     // Member data
   private:

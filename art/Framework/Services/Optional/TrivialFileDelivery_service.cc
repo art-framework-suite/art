@@ -111,17 +111,6 @@ namespace art {
     nextFile_ = fileList_.begin();
   }
 
-  vector<string>
-  TrivialFileDelivery::extractFileListFromPset(ParameterSet const& pset)
-  {
-    RecursiveMutexSentry sentry{mutex_, __func__};
-    // TODO -- How do we properly throw if either source or fileNames is absent?
-    // get() does throw, but is it the right throw and should we be catching it?
-    auto const& p = pset.get<ParameterSet>("source");
-    auto ret = p.get<vector<string>>("fileNames");
-    return ret;
-  }
-
   string
   TrivialFileDelivery::prependFileDesignation(string const& name) const
   {

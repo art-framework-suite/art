@@ -21,7 +21,7 @@ simple_plugin(TimeTracker "service"
   ${TBB}
   ${SQLITE3})
 
-simple_plugin(Tracer "service" art_Framework_Principal)
+simple_plugin(Tracer "service" art_Framework_Principal MF_MessageLogger)
 simple_plugin(TrivialFileDelivery "service")
 simple_plugin(TrivialFileTransfer "service")
 
