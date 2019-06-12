@@ -6,6 +6,6 @@ set(test_Framework_Principal_libraries
   canvas)
 
 cet_test(ClosedRangeSetHandler_t USE_BOOST_UNIT LIBRARIES ${test_Framework_Principal_libraries})
-cet_test(Event_t USE_BOOST_UNIT LIBRARIES ${test_Framework_Principal_libraries})
+cet_test(Event_t USE_BOOST_UNIT LIBRARIES ${test_Framework_Principal_libraries} MF_MessageLogger)
 cet_test(EventPrincipal_t USE_BOOST_UNIT LIBRARIES ${test_Framework_Principal_libraries})
 cet_test(OpenRangeSetHandler_t USE_BOOST_UNIT LIBRARIES ${test_Framework_Principal_libraries})

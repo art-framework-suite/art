@@ -163,10 +163,13 @@ namespace art {
     template <typename PROD>
     ValidHandle<PROD> getValidHandle(ProductToken<PROD> const&) const;
 
-    // MEMBER FUNCTIONS -- User-facing API -- getInputTags/getMany*
+    // MEMBER FUNCTIONS -- User-facing API -- getProductTokens/getMany*
   public:
     template <typename PROD>
     std::vector<InputTag> getInputTags(
+      SelectorBase const& selector = MatchAllSelector{}) const;
+    template <typename PROD>
+    std::vector<ProductToken<PROD>> getProductTokens(
       SelectorBase const& selector = MatchAllSelector{}) const;
     template <typename PROD>
     std::vector<Handle<PROD>> getMany(
@@ -509,6 +512,19 @@ namespace art {
   }
 
   template <typename PROD>
+  std::vector<ProductToken<PROD>>
+  DataViewImpl::getProductTokens(SelectorBase const& selector) const
+  {
+    auto const tags = getInputTags<PROD>(selector);
+    std::vector<ProductToken<PROD>> tokens;
+    tokens.reserve(tags.size());
+    cet::transform_all(tags, back_inserter(tokens), [](auto const& tag) {
+      return ProductToken<PROD>{tag};
+    });
+    return tokens;
+  }
+
+  template <typename PROD>
   std::vector<Handle<PROD>>
   DataViewImpl::getMany(SelectorBase const& sel) const
   {
@@ -528,7 +544,6 @@ namespace art {
     }
     return products;
   }
-
 
   template <typename PROD>
   void

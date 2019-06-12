@@ -50,6 +50,7 @@ namespace art {
     using DataViewImpl::getMany;
     using DataViewImpl::getManyByType;
     using DataViewImpl::getPointerByLabel;
+    using DataViewImpl::getProductTokens;
     using DataViewImpl::getValidHandle;
     using DataViewImpl::getView;
     using DataViewImpl::put;
