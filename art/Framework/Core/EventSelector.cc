@@ -1,8 +1,6 @@
 #include "art/Framework/Core/EventSelector.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Utilities/RegexMatch.h"
 #include "boost/algorithm/string.hpp"
 #include "canvas/Persistency/Common/HLTPathStatus.h"

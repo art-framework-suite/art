@@ -96,7 +96,7 @@ namespace art {
 
 } // namespace art
 
-DECLARE_ART_SYSTEM_SERVICE(art::TriggerNamesService, LEGACY)
+DECLARE_ART_SYSTEM_SERVICE(art::TriggerNamesService, SHARED)
 
 #endif /* art_Framework_Services_System_TriggerNamesService_h */
 

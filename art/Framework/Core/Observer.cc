@@ -2,8 +2,6 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/detail/parse_path_spec.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/SharedResourcesRegistry.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -30,7 +28,7 @@ namespace art {
 
   Observer::Observer(ParameterSet const& pset) : selector_config_id_{pset.id()}
   {
-    auto const& paths = pset.get<vector<string>>("SelectEvents", {});
+    auto const paths = pset.get<vector<string>>("SelectEvents", {});
     init_(paths);
   }
 
