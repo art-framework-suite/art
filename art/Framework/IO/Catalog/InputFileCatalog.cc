@@ -146,6 +146,8 @@ namespace art {
         }
       }
     }
+    assert(false);
+    return false; // Unreachable, but keeps the compiler happy
   }
 
   FileCatalogStatus
