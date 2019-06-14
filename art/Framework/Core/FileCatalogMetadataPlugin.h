@@ -64,16 +64,12 @@ namespace cet {
 namespace art {
 
   class FileCatalogMetadataPlugin {
-
-  public: // TYPES
-    typedef FileCatalogMetadata::collection_type collection_type;
-
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    virtual ~FileCatalogMetadataPlugin() = default;
+  public:
+    using collection_type = FileCatalogMetadata::collection_type;
 
     FileCatalogMetadataPlugin(fhicl::ParameterSet const& pset);
+    virtual ~FileCatalogMetadataPlugin() = default;
 
-  public: // MEMBER FUNCTIONS --
     void doBeginJob();
     void doEndJob();
 
@@ -87,17 +83,17 @@ namespace art {
 
     collection_type doProduceMetadata();
 
-  private: // MEMBER FUNCTIONS --
-    virtual void beginJob(){};
-    virtual void endJob(){};
+  private:
+    virtual void beginJob(){}
+    virtual void endJob(){}
 
-    virtual void beginRun(Run const&){};
-    virtual void endRun(Run const&){};
+    virtual void beginRun(Run const&){}
+    virtual void endRun(Run const&){}
 
-    virtual void beginSubRun(SubRun const&){};
-    virtual void endSubRun(SubRun const&){};
+    virtual void beginSubRun(SubRun const&){}
+    virtual void endSubRun(SubRun const&){}
 
-    virtual void collectMetadata(Event const&){};
+    virtual void collectMetadata(Event const&){}
 
     virtual collection_type produceMetadata() = 0;
   };
