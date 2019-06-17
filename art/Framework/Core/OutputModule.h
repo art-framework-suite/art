@@ -33,6 +33,7 @@
 #include "cetlib/BasicPluginFactory.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/OptionalDelegatedParameter.h"
 #include "fhiclcpp/types/OptionalTable.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/TableFragment.h"
@@ -67,7 +68,7 @@ namespace art {
         std::set<std::string>
         operator()()
         {
-          return {"module_label", "streamName", "FCMDPlugins"};
+          return {"module_label"};
         }
         static auto
         get()
@@ -83,6 +84,17 @@ namespace art {
       fhicl::Atom<std::string> fileName{fhicl::Name("fileName"), ""};
       fhicl::Atom<std::string> dataTier{fhicl::Name("dataTier"), ""};
       fhicl::Atom<std::string> streamName{fhicl::Name("streamName"), ""};
+      fhicl::OptionalDelegatedParameter fcmdPlugins{
+        fhicl::Name("FCMDPlugins"),
+        fhicl::Comment(
+          "The 'FCMDPlugins' parameter is a sequence of tables of the form:\n\n"
+          "  FCMDPlugins: [ { plugin_type: <pluginClassName> ...}, ... ]\n\n"
+          "where each sequence element is the configuration for an instance\n"
+          "of a FileCatalogMetadataPlugin object.  Please review the "
+          "documentation\n"
+          "at the top of \"art/Framework/Core/FileCatalogMetadataPlugin.h\" "
+          "for\n"
+          "more information.")};
     };
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
@@ -211,7 +223,8 @@ namespace art {
       FileCatalogMetadata::collection_type const& ssmd);
     virtual void writeProductDependencies();
     virtual void finishEndFile();
-    PluginCollection_t makePlugins_(fhicl::ParameterSet const& top_pset);
+    PluginCollection_t makePlugins_(
+      std::vector<fhicl::ParameterSet> const& psets);
 
     // TODO: Give OutputModule an interface (protected?) that supplies
     // client code with the needed functionality *without* giving away

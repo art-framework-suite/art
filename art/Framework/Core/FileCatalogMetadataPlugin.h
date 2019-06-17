@@ -84,16 +84,30 @@ namespace art {
     collection_type doProduceMetadata();
 
   private:
-    virtual void beginJob(){}
-    virtual void endJob(){}
+    virtual void
+    beginJob()
+    {}
+    virtual void
+    endJob()
+    {}
 
-    virtual void beginRun(Run const&){}
-    virtual void endRun(Run const&){}
+    virtual void
+    beginRun(Run const&)
+    {}
+    virtual void
+    endRun(Run const&)
+    {}
 
-    virtual void beginSubRun(SubRun const&){}
-    virtual void endSubRun(SubRun const&){}
+    virtual void
+    beginSubRun(SubRun const&)
+    {}
+    virtual void
+    endSubRun(SubRun const&)
+    {}
 
-    virtual void collectMetadata(Event const&){}
+    virtual void
+    collectMetadata(Event const&)
+    {}
 
     virtual collection_type produceMetadata() = 0;
   };
