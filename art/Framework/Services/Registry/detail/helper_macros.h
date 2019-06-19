@@ -34,7 +34,7 @@
               ->get();                                                         \
   }
 
-// Global service.
+// Shared service.
 #define DEFINE_ART_SHARED_SERVICE_RETRIEVER(svc)                               \
   void* retrieve(std::shared_ptr<ServiceWrapperBase>& swb)                     \
     const final override                                                       \
@@ -44,7 +44,11 @@
               ->get();                                                         \
   }
 
-// Legacy services.
+// Global service (deprecated).
+#define DEFINE_ART_GLOBAL_SERVICE_RETRIEVER(svc)                               \
+  DEFINE_ART_SHARED_SERVICE_RETRIEVER(svc)
+
+// Legacy service.
 #define DEFINE_ART_LEGACY_SERVICE_MAKER(svc)                                   \
   std::unique_ptr<ServiceWrapperBase> make(fhicl::ParameterSet const& cfg,     \
                                            ActivityRegistry& reg)              \
@@ -55,7 +59,7 @@
                                                                        reg);   \
   }
 
-// Global services.
+// Shared service.
 #define DEFINE_ART_SHARED_SERVICE_MAKER(svc)                                   \
   std::unique_ptr<ServiceWrapperBase> make(fhicl::ParameterSet const& cfg,     \
                                            ActivityRegistry& reg)              \
@@ -64,6 +68,10 @@
     return std::make_unique<ServiceWrapper<svc, ServiceScope::SHARED>>(cfg,    \
                                                                        reg);   \
   }
+
+// Global service (deprecated).
+#define DEFINE_ART_GLOBAL_SERVICE_MAKER(svc)                                   \
+  DEFINE_ART_SHARED_SERVICE_MAKER(svc)
 
 // CreateHelper.
 #define DEFINE_ART_SERVICE_HELPER_CREATE(svc)                                  \
