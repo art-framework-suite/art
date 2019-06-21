@@ -37,6 +37,10 @@ art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc)
           "Output time-tracking data to SQLite3 database with name <db-file>.");
   add_opt(options, "no-timing", "Deactivate time tracking.");
   add_opt(options,
+          "memcheck",
+          "Activate monitoring of memory use (deprecated--per-job "
+          "memory information printed in job summary).");
+  add_opt(options,
           "memcheck-db",
           bpo::value<std::string>(),
           "Output memory use data to SQLite3 database with name <db-file>.");
@@ -76,6 +80,13 @@ art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc)
 int
 art::DebugOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
 {
+  if (vm.count("memcheck")) {
+    std::cerr << "\nart warning: The '--memcheck' option is deprecated.  It "
+                 "will be removed in art 3.04.\n"
+                 "             Please remove it from the command-line as "
+                 "memory information is printed in\n"
+                 "             the end-of-job summary.\n\n";
+  }
   if (vm.count("trace") + vm.count("no-trace") > 1) {
     throw Exception(errors::Configuration)
       << "Options --trace and --no-trace are incompatible.\n";
