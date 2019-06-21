@@ -8,9 +8,6 @@ services: {
       service_provider: "TrivialFileTransfer"
       service_type: "FileTransfer"
    }
-   MemoryTracker: {
-      service_type: "MemoryTracker"
-   }
    Tracer: {
       service_type: "Tracer"
    }
@@ -40,11 +37,11 @@ services: {
          printMode: "raw"
       }
       defaultExceptions: false
-      errorOnFailureToPut: true
       errorOnMissingConsumes: false
       errorOnSIGINT: true
       num_schedules: 1
       num_threads: 1
+      pruneConfig: true
    }
 }
 source: {

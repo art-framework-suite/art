@@ -38,7 +38,7 @@ namespace art {
 
 } // namespace art
 
-DECLARE_ART_SERVICE_INTERFACE(art::FileTransfer, GLOBAL)
+DECLARE_ART_SERVICE_INTERFACE(art::FileTransfer, SHARED)
 
 #endif /* art_Framework_Services_FileServiceInterfaces_FileTransfer_h */
 

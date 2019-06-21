@@ -23,7 +23,6 @@
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/Selections.h"
 #include "art/Utilities/SharedResourcesRegistry.h"
@@ -73,8 +72,11 @@ namespace art {
     , configuredFileName_{config().fileName()}
     , dataTier_{config().dataTier()}
     , streamName_{config().streamName()}
-    , plugins_{makePlugins_(containing_pset)}
   {
+    std::vector<ParameterSet> fcmdPluginPSets;
+    if (config().fcmdPlugins.get_if_present(fcmdPluginPSets)) {
+      plugins_ = makePlugins_(fcmdPluginPSets);
+    }
     serialize(SharedResourcesRegistry::Legacy);
   }
 
@@ -87,7 +89,7 @@ namespace art {
     , configuredFileName_{pset.get<string>("fileName", "")}
     , dataTier_{pset.get<string>("dataTier", "")}
     , streamName_{pset.get<string>("streamName", "")}
-    , plugins_{makePlugins_(pset)}
+    , plugins_{makePlugins_(pset.get<vector<ParameterSet>>("FCMDPlugins", {}))}
   {
     serialize(SharedResourcesRegistry::Legacy);
   }
@@ -639,9 +641,8 @@ namespace art {
   {}
 
   OutputModule::PluginCollection_t
-  OutputModule::makePlugins_(ParameterSet const& top_pset)
+  OutputModule::makePlugins_(vector<ParameterSet> const& psets)
   {
-    auto const psets = top_pset.get<vector<ParameterSet>>("FCMDPlugins", {});
     PluginCollection_t result;
     result.reserve(psets.size());
     size_t count{0};

@@ -5,7 +5,7 @@ package CetSkel::ServiceCommon;
 use Getopt::Long qw(GetOptionsFromArray);
 Getopt::Long::Configure(qw(no_ignore_case bundling require_order));
 
-my $scopes = { LEGACY => 1, GLOBAL => 1 };
+my $scopes = { LEGACY => 1, SHARED => 1 };
 
 sub new {
   my $self = shift;
@@ -45,7 +45,7 @@ sub basicUsage {
   return <<EOF;
 Usage: $type\[:<arg>[,<arg>]+]
 Args:
-  [--scope,<LEGACY|GLOBAL>]
+  [--scope,<LEGACY|SHARED>]
     Define the scope of the service for the DECLARE and DEFINE service
     macros as applicable (default LEGACY).
 EOF

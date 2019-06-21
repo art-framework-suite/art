@@ -61,7 +61,7 @@ namespace art {
       ServiceWrapper(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
         : service_ptr_{makeServiceFrom<T>(ps, areg)}
       {
-        if constexpr (SCOPE == ServiceScope::GLOBAL &&
+        if constexpr (SCOPE == ServiceScope::SHARED &&
                       detail::handle_allowed_v<T>) {
           SharedResourcesRegistry::instance()->registerSharedResource(
             SharedResource<T>);

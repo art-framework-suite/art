@@ -82,10 +82,10 @@ namespace {
 
 art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
                           std::string const& moduleLabel,
-                          Modifier& producesProvider,
+                          ProducesCollector& collector,
                           std::unique_ptr<MixIOPolicy> ioHandle)
   : detail::EngineCreator{moduleLabel, art::ScheduleID::first()}
-  , producesProvider_{producesProvider}
+  , collector_{collector}
   , moduleLabel_{moduleLabel}
   , filenames_{pset.get<std::vector<std::string>>("fileNames", {})}
   , compactMissingProducts_{pset.get<bool>("compactMissingProducts", false)}
@@ -101,10 +101,10 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
 
 art::MixHelper::MixHelper(Config const& config,
                           std::string const& moduleLabel,
-                          Modifier& producesProvider,
+                          ProducesCollector& collector,
                           std::unique_ptr<MixIOPolicy> ioHandle)
   : detail::EngineCreator{moduleLabel, art::ScheduleID::first()}
-  , producesProvider_{producesProvider}
+  , collector_{collector}
   , moduleLabel_{moduleLabel}
   , filenames_{config.filenames()}
   , compactMissingProducts_{config.compactMissingProducts()}

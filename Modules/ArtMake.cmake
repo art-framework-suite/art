@@ -92,12 +92,6 @@
 #                [USE_BOOST_UNIT]
 #                [NO_INSTALL] )
 #
-# art_make_test() is deprecated: it is now a thin wrapper around
-# cet_test(), with the old INSTALL option translated to the equivalent
-# INSTALL_BIN option to cet_test(). One is advised to call cet_test()
-# directly. See the documentation in CetTest.cmake for details on the
-# many features of cet_test().
-#
 ####################################
 #
 # * See also ArtDictionary.cmake for art_dictionary() and
@@ -142,17 +136,6 @@ macro( art_make_exec )
   list(REMOVE_ITEM  cet_arguments NAME)
   cet_make_exec( ${cet_arguments} )
 endmacro( art_make_exec )
-
-####################################
-# art_make_test
-####################################
-function( art_make_test )
-  cmake_parse_arguments(AMT "INSTALL" "" "" ${ARGN})
-  if (AMT_INSTALL)
-    set(AMT_INSTALL INSTALL_BIN)
-  endif()
-  cet_test(${AMT_UNPARSED_ARGUMENTS} ${AMT_INSTALL})
-endfunction( art_make_test )
 
 ####################################
 # art_make_library

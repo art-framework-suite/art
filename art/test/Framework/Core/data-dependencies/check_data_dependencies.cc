@@ -3,7 +3,7 @@
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Framework/Core/detail/consumed_products.h"
 #include "art/Framework/Core/detail/graph_algorithms.h"
-#include "art/Framework/Principal/Consumer.h"
+#include "art/Framework/Principal/ConsumesInfo.h"
 #include "art/test/Framework/Core/data-dependencies/Configs.h"
 #include "boost/graph/graph_utility.hpp"
 #include "canvas/Utilities/Exception.h"

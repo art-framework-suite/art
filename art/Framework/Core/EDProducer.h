@@ -17,19 +17,6 @@ namespace art {
     using ModuleType = EDProducer;
     using WorkerType = WorkerT<EDProducer>;
 
-    [[deprecated("\n\nart warning: The default constructor for EDProducer has "
-                 "been deprecated.\n"
-                 "             For any module that calls createEngine, it is "
-                 "an error to use\n"
-                 "             the default constructor. Please call the "
-                 "non-default constructor\n"
-                 "             as the first argument in the initialization "
-                 "list of your module:\n\n"
-                 "               MyProducer(ParameterSet const& ps) : "
-                 "art::EDProducer{ps}, ... {} // or\n"
-                 "               MyProducer(Parameters const& ps) : "
-                 "art::EDProducer{ps}, ... {}\n\n")]] EDProducer() = default;
-
     explicit EDProducer(fhicl::ParameterSet const& pset)
       : detail::Producer{pset}
       , detail::LegacyModule{pset.get<std::string>("module_label")}

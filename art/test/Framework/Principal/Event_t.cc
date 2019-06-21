@@ -42,6 +42,7 @@
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
 #include <fstream>
@@ -64,24 +65,31 @@ using product_t = arttest::IntProduct;
 
 namespace {
 
-  [[maybe_unused]] art::EventID
+  art::EventID
   make_id()
   {
     return art::EventID{2112, 47, 25};
   }
 
-  [[maybe_unused]] constexpr art::Timestamp
+  constexpr art::Timestamp
   make_timestamp()
   {
     return art::Timestamp{1};
   }
 
-  [[maybe_unused]] std::string
+  std::string
   module_class_name()
   {
     return "IntProducer";
   }
 
+  auto
+  product_with_value(int const v)
+  {
+    return std::make_unique<arttest::IntProduct>(v);
+  }
+
+  ModuleLabelSelector const modMultiSelector{"modMulti"};
 } // namespace
 
 // This is a gross hack, to allow us to test the event
@@ -132,6 +140,8 @@ private:
 
 ProductTablesFixture::ProductTablesFixture()
 {
+  mf::StartMessageFacility({}); // Used to suppress debug messages
+
   constexpr bool presentFromSource{true};
   constexpr bool produced{false};
 
@@ -340,7 +350,7 @@ BOOST_AUTO_TEST_CASE(badProductID)
 BOOST_AUTO_TEST_CASE(emptyEvent)
 {
   BOOST_REQUIRE(currentEvent_.get());
-  BOOST_REQUIRE_EQUAL(currentEvent_->id(), make_id());
+  BOOST_CHECK_EQUAL(currentEvent_->id(), make_id());
   BOOST_REQUIRE(currentEvent_->time() == make_timestamp());
 }
 
@@ -348,31 +358,29 @@ BOOST_AUTO_TEST_CASE(getBySelectorFromEmpty)
 {
   ModuleLabelSelector const byModuleLabel{"mod1"};
   Handle<int> nonesuch;
-  BOOST_REQUIRE(!nonesuch.isValid());
-  BOOST_REQUIRE(!currentEvent_->get(byModuleLabel, nonesuch));
-  BOOST_REQUIRE(!nonesuch.isValid());
-  BOOST_REQUIRE(nonesuch.failedToGet());
-  BOOST_REQUIRE_THROW(*nonesuch, cet::exception);
+  BOOST_CHECK(!nonesuch.isValid());
+  BOOST_CHECK(!currentEvent_->get(byModuleLabel, nonesuch));
+  BOOST_CHECK(!nonesuch.isValid());
+  BOOST_CHECK(nonesuch.failedToGet());
+  BOOST_CHECK_THROW(*nonesuch, cet::exception);
 }
 
 BOOST_AUTO_TEST_CASE(dereferenceDfltHandle)
 {
   Handle<int> nonesuch;
-  BOOST_REQUIRE_THROW(*nonesuch, cet::exception);
-  BOOST_REQUIRE_THROW(nonesuch.product(), cet::exception);
+  BOOST_CHECK_THROW(*nonesuch, cet::exception);
+  BOOST_CHECK_THROW(nonesuch.product(), cet::exception);
 }
 
 BOOST_AUTO_TEST_CASE(putAnIntProduct)
 {
-  auto three = make_unique<arttest::IntProduct>(3);
-  currentEvent_->put(move(three), "int1");
+  currentEvent_->put(product_with_value(3), "int1");
   EDProducer::commitEvent(*principal_, *currentEvent_);
 }
 
 BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 {
-  auto four = make_unique<arttest::IntProduct>(4);
-  currentEvent_->put(move(four), "int1");
+  currentEvent_->put(product_with_value(4), "int1");
   EDProducer::commitEvent(*principal_, *currentEvent_);
 
   ProcessNameSelector const should_match{"CURRENT"};
@@ -382,15 +390,15 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
   ProcessNameSelector const should_also_not_match{"current_process"};
   Handle<arttest::IntProduct> h;
   BOOST_REQUIRE(currentEvent_->get(should_match, h));
-  BOOST_REQUIRE(h.isValid());
+  BOOST_CHECK(h.isValid());
   h.clear();
-  BOOST_REQUIRE_THROW(*h, cet::exception);
+  BOOST_CHECK_THROW(*h, cet::exception);
   BOOST_REQUIRE(!currentEvent_->get(should_not_match, h));
-  BOOST_REQUIRE(!h.isValid());
-  BOOST_REQUIRE_THROW(*h, cet::exception);
+  BOOST_CHECK(!h.isValid());
+  BOOST_CHECK_THROW(*h, cet::exception);
   BOOST_REQUIRE(!currentEvent_->get(should_also_not_match, h));
-  BOOST_REQUIRE(!h.isValid());
-  BOOST_REQUIRE_THROW(*h, cet::exception);
+  BOOST_CHECK(!h.isValid());
+  BOOST_CHECK_THROW(*h, cet::exception);
 }
 
 BOOST_AUTO_TEST_CASE(getByProductID)
@@ -399,27 +407,27 @@ BOOST_AUTO_TEST_CASE(getByProductID)
 
   ProductID wanted;
   {
-    auto one = std::make_unique<product_t>(1);
-    auto const id1 = addSourceProduct(std::move(one), "int1_tag", "int1");
-    BOOST_REQUIRE(id1 != ProductID{});
+    auto const id1 =
+      addSourceProduct(product_with_value(1), "int1_tag", "int1");
+    BOOST_CHECK(id1 != ProductID{});
     wanted = id1;
 
-    auto two = std::make_unique<product_t>(2);
-    auto const id2 = addSourceProduct(std::move(two), "int2_tag", "int2");
-    BOOST_REQUIRE(id2 != ProductID{});
-    BOOST_REQUIRE(id2 != id1);
+    auto const id2 =
+      addSourceProduct(product_with_value(2), "int2_tag", "int2");
+    BOOST_CHECK(id2 != ProductID{});
+    BOOST_CHECK(id2 != id1);
   }
   Handle<arttest::IntProduct> h;
   currentEvent_->get(wanted, h);
-  BOOST_REQUIRE(h.isValid());
-  BOOST_REQUIRE_EQUAL(h.id(), wanted);
-  BOOST_REQUIRE_EQUAL(h->value, 1);
+  BOOST_CHECK(h.isValid());
+  BOOST_CHECK_EQUAL(h.id(), wanted);
+  BOOST_CHECK_EQUAL(h->value, 1);
 
   ProductID const notpresent{};
   BOOST_REQUIRE(!currentEvent_->get(notpresent, h));
-  BOOST_REQUIRE(!h.isValid());
-  BOOST_REQUIRE(h.failedToGet());
-  BOOST_REQUIRE_THROW(*h, cet::exception);
+  BOOST_CHECK(!h.isValid());
+  BOOST_CHECK(h.failedToGet());
+  BOOST_CHECK_THROW(*h, cet::exception);
 }
 
 BOOST_AUTO_TEST_CASE(transaction)
@@ -427,16 +435,30 @@ BOOST_AUTO_TEST_CASE(transaction)
   // Put a product into an Event, and make sure that if we don't
   // movePutProductsToPrincipal, there is no product in the EventPrincipal
   // afterwards.
-  BOOST_REQUIRE_EQUAL(principal_->size(), 6u);
-  {
-    auto three = make_unique<arttest::IntProduct>(3);
-    currentEvent_->put(move(three), "int1");
-    BOOST_REQUIRE_EQUAL(principal_->size(), 6u);
-    // DO NOT COMMIT!
+  BOOST_CHECK_EQUAL(principal_->size(), 6u);
+  currentEvent_->put(product_with_value(3), "int1");
+  BOOST_CHECK_EQUAL(principal_->size(), 6u);
+}
+
+BOOST_AUTO_TEST_CASE(getProductTokens)
+{
+  addSourceProduct(product_with_value(1), "int1_tag", "int1");
+  addSourceProduct(product_with_value(2), "int2_tag", "int2");
+  addSourceProduct(product_with_value(3), "int3_tag");
+  addSourceProduct(product_with_value(4), "nolabel_tag");
+
+  auto const tags = currentEvent_->getInputTags<product_t>();
+  auto const tokens = currentEvent_->getProductTokens<product_t>();
+  BOOST_CHECK_EQUAL(tags.size(), tokens.size());
+
+  // Verify that the same products are retrieved whether tags or
+  // tokens are used.
+  for (std::size_t i{}; i < tags.size(); ++i) {
+    Handle<product_t> h;
+    bool const tag_rc = currentEvent_->getByLabel(tags[i], h);
+    bool const token_rc = currentEvent_->getByToken(tokens[i], h);
+    BOOST_CHECK_EQUAL(tag_rc, token_rc);
   }
-  // The Event has been destroyed without a movePutProductsToPrincipal -- we
-  // should not have any products in the EventPrincipal.
-  BOOST_REQUIRE_EQUAL(principal_->size(), 6u);
 }
 
 BOOST_AUTO_TEST_CASE(getByInstanceName)
@@ -444,43 +466,61 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
   using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
-  auto one = std::make_unique<product_t>(1);
-  auto two = std::make_unique<product_t>(2);
-  auto three = std::make_unique<product_t>(3);
-  auto four = std::make_unique<product_t>(4);
-  addSourceProduct(std::move(one), "int1_tag", "int1");
-  addSourceProduct(std::move(two), "int2_tag", "int2");
-  addSourceProduct(std::move(three), "int3_tag");
-  addSourceProduct(std::move(four), "nolabel_tag");
+  addSourceProduct(product_with_value(1), "int1_tag", "int1");
+  addSourceProduct(product_with_value(2), "int2_tag", "int2");
+  addSourceProduct(product_with_value(3), "int3_tag");
+  addSourceProduct(product_with_value(4), "nolabel_tag");
 
   Selector const sel{ProductInstanceNameSelector{"int2"} &&
                      ModuleLabelSelector{"modMulti"}};
   handle_t h;
   BOOST_REQUIRE(currentEvent_->get(sel, h));
-  BOOST_REQUIRE_EQUAL(h->value, 2);
+  BOOST_CHECK_EQUAL(h->value, 2);
 
   Selector const sel2{ProductInstanceNameSelector{"int2"} ||
                       ProductInstanceNameSelector{"int1"}};
   handle_vec handles;
   currentEvent_->getMany(sel2, handles);
-  BOOST_REQUIRE_EQUAL(handles.size(), std::size_t{2});
+  BOOST_CHECK_EQUAL(handles.size(), std::size_t{2});
 
   std::string const instance;
   Selector const sel1{ProductInstanceNameSelector{instance} &&
                       ModuleLabelSelector{"modMulti"}};
 
   BOOST_REQUIRE(currentEvent_->get(sel1, h));
-  BOOST_REQUIRE_EQUAL(h->value, 3);
+  BOOST_CHECK_EQUAL(h->value, 3);
   handles.clear();
 
-  currentEvent_->getMany(ModuleLabelSelector{"modMulti"}, handles);
-  BOOST_REQUIRE_EQUAL(handles.size(), 3u);
+  // There should be five registered products with the 'modMulti'
+  // module label.
+  auto tags = currentEvent_->getInputTags<product_t>(modMultiSelector);
+  BOOST_CHECK_EQUAL(tags.size(), 5u);
+  // Now remove the unavailable products
+  auto new_end =
+    std::remove_if(begin(tags), end(tags), [this](auto const& tag) {
+      handle_t h;
+      return !currentEvent_->getByLabel(tag, h);
+    });
+  tags.erase(new_end, end(tags));
+
+  // Only three of the registered products are available.
+  currentEvent_->getMany(modMultiSelector, handles);
+  BOOST_CHECK_EQUAL(handles.size(), 3u);
+
+  // Make sure the resolved products agree with those specified in the
+  // 'tags' variable above.  The products are resolved in the same
+  // order as the input-tag list.
+  for (std::size_t i{}; i < 3u; ++i) {
+    BOOST_CHECK_EQUAL(handles[i].provenance()->inputTag(), tags[i]);
+  }
+
   handles.clear();
+
   currentEvent_->getMany(ModuleLabelSelector{"nomatch"}, handles);
   BOOST_REQUIRE(handles.empty());
 
   std::vector<Handle<int>> nomatches;
-  currentEvent_->getMany(ModuleLabelSelector{"modMulti"}, nomatches);
+  currentEvent_->getMany(modMultiSelector, nomatches);
   BOOST_REQUIRE(nomatches.empty());
 }
 
@@ -489,32 +529,23 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
-  auto one = std::make_unique<product_t>(1);
-  auto two = std::make_unique<product_t>(2);
-  auto three = std::make_unique<product_t>(3);
-  auto four = std::make_unique<product_t>(4);
-  addSourceProduct(std::move(one), "int1_tag", "int1");
-  addSourceProduct(std::move(two), "int2_tag", "int2");
-  addSourceProduct(std::move(three), "int3_tag");
-  addSourceProduct(std::move(four), "nolabel_tag");
+  addSourceProduct(product_with_value(1), "int1_tag", "int1");
+  addSourceProduct(product_with_value(2), "int2_tag", "int2");
+  addSourceProduct(product_with_value(3), "int3_tag");
+  addSourceProduct(product_with_value(4), "nolabel_tag");
+  addSourceProduct(product_with_value(100), "int1_tag_late", "int1");
 
-  auto oneHundred = std::make_unique<product_t>(100);
-  addSourceProduct(std::move(oneHundred), "int1_tag_late", "int1");
-
-  auto twoHundred = std::make_unique<product_t>(200);
-  currentEvent_->put(std::move(twoHundred), "int1");
+  currentEvent_->put(product_with_value(200), "int1");
   EDProducer::commitEvent(*principal_, *currentEvent_);
 
-  Selector const sel{ProductInstanceNameSelector{"int2"} &&
-                     ModuleLabelSelector{"modMulti"} &&
+  Selector const sel{ProductInstanceNameSelector{"int2"} && modMultiSelector &&
                      ProcessNameSelector{"EARLY"}};
   handle_t h;
   BOOST_REQUIRE(currentEvent_->get(sel, h));
-  BOOST_REQUIRE_EQUAL(h->value, 2);
+  BOOST_CHECK_EQUAL(h->value, 2);
 
   Selector const sel1{ProductInstanceNameSelector{"nomatch"} &&
-                      ModuleLabelSelector{"modMulti"} &&
-                      ProcessNameSelector{"EARLY"}};
+                      modMultiSelector && ProcessNameSelector{"EARLY"}};
   BOOST_REQUIRE(!currentEvent_->get(sel1, h));
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
@@ -526,39 +557,35 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
 
-  Selector const sel3{ProductInstanceNameSelector{"int2"} &&
-                      ModuleLabelSelector{"modMulti"} &&
+  Selector const sel3{ProductInstanceNameSelector{"int2"} && modMultiSelector &&
                       ProcessNameSelector{"nomatch"}};
   BOOST_REQUIRE(!currentEvent_->get(sel3, h));
   BOOST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
 
-  Selector const sel4{ModuleLabelSelector{"modMulti"} &&
-                      ProcessNameSelector{"EARLY"}};
+  Selector const sel4{modMultiSelector && ProcessNameSelector{"EARLY"}};
   // multiple selections throw
   BOOST_REQUIRE_THROW(currentEvent_->get(sel4, h), cet::exception);
 
-  Selector const sel5{ModuleLabelSelector{"modMulti"} &&
-                      ProcessNameSelector{"LATE"}};
+  Selector const sel5{modMultiSelector && ProcessNameSelector{"LATE"}};
   currentEvent_->get(sel5, h);
-  BOOST_REQUIRE_EQUAL(h->value, 100);
+  BOOST_CHECK_EQUAL(h->value, 100);
 
-  Selector const sel6{ModuleLabelSelector{"modMulti"} &&
-                      ProcessNameSelector{"CURRENT"}};
+  Selector const sel6{modMultiSelector && ProcessNameSelector{"CURRENT"}};
   currentEvent_->get(sel6, h);
-  BOOST_REQUIRE_EQUAL(h->value, 200);
+  BOOST_CHECK_EQUAL(h->value, 200);
 
-  Selector const sel7{ModuleLabelSelector{"modMulti"}};
+  Selector const sel7{modMultiSelector};
   currentEvent_->get(sel7, h);
-  BOOST_REQUIRE_EQUAL(h->value, 200);
+  BOOST_CHECK_EQUAL(h->value, 200);
   handle_vec handles;
-  currentEvent_->getMany(ModuleLabelSelector{"modMulti"}, handles);
-  BOOST_REQUIRE_EQUAL(handles.size(), 5u);
+  currentEvent_->getMany(modMultiSelector, handles);
+  BOOST_CHECK_EQUAL(handles.size(), 5u);
   int sum = 0;
   for (int k = 0; k < 5; ++k) {
     sum += handles[k]->value;
   }
-  BOOST_REQUIRE_EQUAL(sum, 306);
+  BOOST_CHECK_EQUAL(sum, 306);
 }
 
 BOOST_AUTO_TEST_CASE(getByLabel)
@@ -566,39 +593,33 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
-  auto one = std::make_unique<product_t>(1);
-  auto two = std::make_unique<product_t>(2);
-  auto three = std::make_unique<product_t>(3);
-  auto four = std::make_unique<product_t>(4);
-  addSourceProduct(std::move(one), "int1_tag", "int1");
-  addSourceProduct(std::move(two), "int2_tag", "int2");
-  addSourceProduct(std::move(three), "int3_tag");
-  addSourceProduct(std::move(four), "nolabel_tag");
+  addSourceProduct(product_with_value(1), "int1_tag", "int1");
+  addSourceProduct(product_with_value(2), "int2_tag", "int2");
+  addSourceProduct(product_with_value(3), "int3_tag");
+  addSourceProduct(product_with_value(4), "nolabel_tag");
+  addSourceProduct(product_with_value(100), "int1_tag_late", "int1");
 
-  auto oneHundred = std::make_unique<product_t>(100);
-  addSourceProduct(std::move(oneHundred), "int1_tag_late", "int1");
-
-  auto twoHundred = std::make_unique<product_t>(200);
-  currentEvent_->put(std::move(twoHundred), "int1");
+  currentEvent_->put(product_with_value(200), "int1");
 
   EDProducer::commitEvent(*principal_, *currentEvent_);
+
   handle_t h;
   BOOST_REQUIRE(currentEvent_->getByLabel("modMulti", h));
-  BOOST_REQUIRE_EQUAL(h->value, 3);
+  BOOST_CHECK_EQUAL(h->value, 3);
   BOOST_REQUIRE(currentEvent_->getByLabel("modMulti", "int1", h));
-  BOOST_REQUIRE_EQUAL(h->value, 200);
+  BOOST_CHECK_EQUAL(h->value, 200);
   BOOST_REQUIRE(currentEvent_->getByLabel("modMulti", "int1", "CURRENT", h));
-  BOOST_REQUIRE_EQUAL(h->value, 200);
+  BOOST_CHECK_EQUAL(h->value, 200);
   BOOST_REQUIRE(
     currentEvent_->getByLabel("modMulti", "int1", "current_process", h));
-  BOOST_REQUIRE_EQUAL(h->value, 200);
-  BOOST_REQUIRE(!currentEvent_->getByLabel("modMulti", "nomatch", h));
-  BOOST_REQUIRE(!h.isValid());
-  BOOST_REQUIRE_THROW(*h, cet::exception);
+  BOOST_CHECK_EQUAL(h->value, 200);
+  BOOST_CHECK(!currentEvent_->getByLabel("modMulti", "nomatch", h));
+  BOOST_CHECK(!h.isValid());
+  BOOST_CHECK_THROW(*h, cet::exception);
 
   InputTag const inputTag{"modMulti", "int1"};
   BOOST_REQUIRE(currentEvent_->getByLabel(inputTag, h));
-  BOOST_REQUIRE_EQUAL(h->value, 200);
+  BOOST_CHECK_EQUAL(h->value, 200);
 
   GroupQueryResult bh{principal_->getByLabel(currentModuleContext_,
                                              WrappedTypeID::make<product_t>(),
@@ -606,7 +627,7 @@ BOOST_AUTO_TEST_CASE(getByLabel)
                                              "int1",
                                              ProcessTag{"LATE", "CURRENT"})};
   h = handle_t{bh};
-  BOOST_REQUIRE_EQUAL(h->value, 100);
+  BOOST_CHECK_EQUAL(h->value, 100);
 
   GroupQueryResult bh2{
     principal_->getByLabel(currentModuleContext_,
@@ -614,13 +635,13 @@ BOOST_AUTO_TEST_CASE(getByLabel)
                            "modMulti",
                            "int1",
                            ProcessTag{"nomatch", "CURRENT"})};
-  BOOST_REQUIRE(!bh2.succeeded());
+  BOOST_CHECK(!bh2.succeeded());
 }
 
 BOOST_AUTO_TEST_CASE(getByLabelSpecialProcessNames)
 {
-  addSourceProduct(std::make_unique<product_t>(2), "int2_tag", "int2");
-  currentEvent_->put(std::make_unique<product_t>(200), "int1");
+  addSourceProduct(product_with_value(2), "int2_tag", "int2");
+  currentEvent_->put(product_with_value(200), "int1");
 
   // Try to retrieve something that does not exist in the current process.
   InputTag const badEarlyTag{"modMulti", "int2", "current_process"};
@@ -631,13 +652,13 @@ BOOST_AUTO_TEST_CASE(getByLabelSpecialProcessNames)
   Handle<product_t> h;
   InputTag const goodEarlyTag{"modMulti", "int2", "input_source"};
   BOOST_REQUIRE(currentEvent_->getByLabel(goodEarlyTag, h));
-  BOOST_REQUIRE_EQUAL(h->value, 2);
+  BOOST_CHECK_EQUAL(h->value, 2);
 
   // Verify that "int1" cannot be looked up using the "input_source"
   // process name.
   InputTag const badCurrentTag{"modMulti", "int1", "input_source"};
-  BOOST_REQUIRE_THROW(currentEvent_->getValidHandle<product_t>(badCurrentTag),
-                      cet::exception);
+  BOOST_CHECK_THROW(currentEvent_->getValidHandle<product_t>(badCurrentTag),
+                    cet::exception);
 }
 
 BOOST_AUTO_TEST_CASE(getManyByType)
@@ -645,30 +666,31 @@ BOOST_AUTO_TEST_CASE(getManyByType)
   using handle_t = Handle<product_t>;
   using handle_vec = std::vector<handle_t>;
 
-  auto one = std::make_unique<product_t>(1);
-  auto two = std::make_unique<product_t>(2);
-  auto three = std::make_unique<product_t>(3);
-  auto four = std::make_unique<product_t>(4);
-  addSourceProduct(std::move(one), "int1_tag", "int1");
-  addSourceProduct(std::move(two), "int2_tag", "int2");
-  addSourceProduct(std::move(three), "int3_tag");
-  addSourceProduct(std::move(four), "nolabel_tag");
+  addSourceProduct(product_with_value(1), "int1_tag", "int1");
+  addSourceProduct(product_with_value(2), "int2_tag", "int2");
+  addSourceProduct(product_with_value(3), "int3_tag");
+  addSourceProduct(product_with_value(4), "nolabel_tag");
 
-  auto oneHundred = std::make_unique<product_t>(100);
-  addSourceProduct(std::move(oneHundred), "int1_tag_late", "int1");
+  addSourceProduct(product_with_value(100), "int1_tag_late", "int1");
 
-  auto twoHundred = std::make_unique<product_t>(200);
-  currentEvent_->put(std::move(twoHundred), "int1");
-
+  currentEvent_->put(product_with_value(200), "int1");
   EDProducer::commitEvent(*principal_, *currentEvent_);
+
+  // Verify that the returned tags match thos provided through the
+  // handles below.
+  auto const tags = currentEvent_->getInputTags<product_t>();
+  BOOST_CHECK_EQUAL(tags.size(), 6u);
+
   handle_vec handles;
   currentEvent_->getManyByType(handles);
-  BOOST_REQUIRE_EQUAL(handles.size(), 6u);
+  BOOST_CHECK_EQUAL(handles.size(), 6u);
   int sum = 0;
   for (int k = 0; k < 6; ++k) {
-    sum += handles[k]->value;
+    auto const& h = handles[k];
+    BOOST_CHECK_EQUAL(tags[k], h.provenance()->productDescription().inputTag());
+    sum += h->value;
   }
-  BOOST_REQUIRE_EQUAL(sum, 310);
+  BOOST_CHECK_EQUAL(sum, 310);
 }
 
 BOOST_AUTO_TEST_CASE(printHistory)

@@ -55,17 +55,15 @@ namespace art {
   }
 
   bool
-  InputFileCatalog::getNextFile(int attempts)
+  InputFileCatalog::getNextFile(int const attempts)
   {
-    // get next file from FileDelivery service
-    // and give it to currentFile_ object
-    // returns false if theres no more file
+    // get next file from FileDelivery service and give it to
+    // currentFile_ object returns false if theres no more file
     //
-    // If hasNextFile() has been called prior to
-    // getNextFile(), it does not actually go fetch
-    // the next file from FileDelivery service,
-    // instead, it advances the iterator by one and
-    // make the "hidden" next file current.
+    // If hasNextFile() has been called prior to getNextFile(), it
+    // does not actually go fetch the next file from FileDelivery
+    // service, instead, it advances the iterator by one and make the
+    // "hidden" next file current.
 
     if (nextFileProbed_ && !hasNextFile_)
       return false;
@@ -85,11 +83,11 @@ namespace art {
   }
 
   bool
-  InputFileCatalog::hasNextFile(int attempts)
+  InputFileCatalog::hasNextFile(int const attempts)
   {
-    // A probe. It tries(and actually does) retreive
-    // the next file from the FileDelivery service. But
-    // does not advance the current file pointer
+    // A probe. It tries (and actually does) retrieve the next file
+    // from the FileDelivery service. But does not advance the current
+    // file pointer
     if (nextFileProbed_)
       return hasNextFile_;
 
@@ -101,11 +99,10 @@ namespace art {
 
   bool
   InputFileCatalog::retrieveNextFile(FileCatalogItem& item,
-                                     int attempts,
-                                     bool transferOnly)
+                                     int const attempts,
+                                     bool const transferOnly)
   {
-
-    // Tell the service the current opened file (if theres one) is consumed
+    // Tell the service the current opened file (if there is one) is consumed
     finish();
 
     // retrieve (deliver and transfer) next file from service
@@ -117,43 +114,40 @@ namespace art {
       status = retrieveNextFileFromCacheOrService(item);
     }
 
-    if (status == FileCatalogStatus::SUCCESS) {
-      // mark the file as transferred
-      ci_->updateStatus(item.uri(), FileDisposition::TRANSFERRED);
-      return true;
-    }
-
-    if (status == FileCatalogStatus::NO_MORE_FILES) {
-      return false;
-    }
-
-    if (status == FileCatalogStatus::DELIVERY_ERROR) {
-      if (attempts <= 1) {
-        throw art::Exception(art::errors::Configuration,
-                             "InputFileCatalog::retreiveNextFile()\n")
-          << "Delivery error encountered after reaching maximum number of "
-             "attemtps!";
-      } else {
-        return retrieveNextFile(item, attempts - 1, false);
-      }
-    }
-
-    if (status == FileCatalogStatus::TRANSFER_ERROR) {
-      if (attempts <= 1) {
-        // if we end up with a transfer error, the method returns
-        // with a true flag and empty filename. Weired enough, but
-        // the next file does exist we just cannot retrieve it. Therefore
-        // we notify the service that the file has been skipped
-        ci_->updateStatus(item.uri(), FileDisposition::SKIPPED);
+    switch (status) {
+      case FileCatalogStatus::SUCCESS: {
+        // mark the file as transferred
+        ci_->updateStatus(item.uri(), FileDisposition::TRANSFERRED);
         return true;
-      } else {
-        return retrieveNextFile(item, attempts - 1, true);
+      }
+      case FileCatalogStatus::NO_MORE_FILES: {
+        return false;
+      }
+      case FileCatalogStatus::DELIVERY_ERROR: {
+        if (attempts <= 1) {
+          throw art::Exception(art::errors::Configuration,
+                               "InputFileCatalog::retrieveNextFile()\n")
+            << "Delivery error encountered after reaching maximum number of "
+               "attemtps!";
+        } else {
+          return retrieveNextFile(item, attempts - 1, false);
+        }
+      }
+      case FileCatalogStatus::TRANSFER_ERROR: {
+        if (attempts <= 1) {
+          // if we end up with a transfer error, the method returns
+          // with a true flag and empty filename. Weired enough, but
+          // the next file does exist we just cannot retrieve it. Therefore
+          // we notify the service that the file has been skipped
+          ci_->updateStatus(item.uri(), FileDisposition::SKIPPED);
+          return true;
+        } else {
+          return retrieveNextFile(item, attempts - 1, true);
+        }
       }
     }
-
-    // should never reach here
-    assert(0);
-    return false;
+    assert(false);
+    return false; // Unreachable, but keeps the compiler happy
   }
 
   FileCatalogStatus
@@ -170,7 +164,7 @@ namespace art {
     double wait = 0.0;
 
     // get file delivered
-    int result = ci_->getNextFileURI(uri, wait);
+    int const result = ci_->getNextFileURI(uri, wait);
 
     if (result == FileDeliveryStatus::NO_MORE_FILES)
       return FileCatalogStatus::NO_MORE_FILES;
@@ -187,10 +181,8 @@ namespace art {
   FileCatalogStatus
   InputFileCatalog::transferNextFile(FileCatalogItem& item)
   {
-
     std::string pfn;
-
-    int result = ft_->translateToLocalFilename(item.uri(), pfn);
+    int const result = ft_->translateToLocalFilename(item.uri(), pfn);
 
     if (result != FileTransferStatus::SUCCESS) {
       item.fileName("");
@@ -201,7 +193,6 @@ namespace art {
 
     // successfully retrieved the file
     std::string lfn = pfn;
-
     boost::trim(pfn);
 
     if (pfn.empty()) {
@@ -232,11 +223,11 @@ namespace art {
   }
 
   void
-  InputFileCatalog::rewindTo(size_t index)
+  InputFileCatalog::rewindTo(size_t const index)
   {
-    // rewind to a previous file location in the catalog
-    // service is not rewinded. only usable when FileDeliveryService::
-    // areFilesPersistent() is true
+    // rewind to a previous file location in the catalog service is
+    // not rewinded. only usable when
+    // FileDeliveryService::areFilesPersistent() is true
     if (!searchable_) {
       throw art::Exception(art::errors::LogicError,
                            "InputFileCatalog::rewindTo()\n")

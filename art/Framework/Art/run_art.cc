@@ -166,6 +166,8 @@ namespace art {
     try {
       bpo::store(bpo::command_line_parser(argc, argv)
                    .options(all_desc)
+                   .style(bpo::command_line_style::default_style &
+                          ~bpo::command_line_style::allow_guessing)
                    .positional(pd)
                    .run(),
                  vm);

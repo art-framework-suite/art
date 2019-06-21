@@ -36,9 +36,11 @@ namespace art {
     using DataViewImpl::get;
     using DataViewImpl::getByLabel;
     using DataViewImpl::getByToken;
+    using DataViewImpl::getInputTags;
     using DataViewImpl::getMany;
     using DataViewImpl::getManyByType;
     using DataViewImpl::getPointerByLabel;
+    using DataViewImpl::getProductTokens;
     using DataViewImpl::getValidHandle;
     using DataViewImpl::getView;
     using DataViewImpl::put;

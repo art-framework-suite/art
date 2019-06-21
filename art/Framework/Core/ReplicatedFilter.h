@@ -24,7 +24,8 @@ namespace art {
 
     explicit ReplicatedFilter(fhicl::ParameterSet const& pset,
                               ProcessingFrame const& frame)
-      : detail::EngineCreator{pset.get<std::string>("module_label"),
+      : detail::Filter{pset}
+      , detail::EngineCreator{pset.get<std::string>("module_label"),
                               frame.scheduleID()}
     {}
 

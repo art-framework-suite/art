@@ -153,7 +153,7 @@ namespace art {
 
 } // namespace art
 
-DECLARE_ART_SERVICE(art::FileCatalogMetadata, GLOBAL)
+DECLARE_ART_SERVICE(art::FileCatalogMetadata, SHARED)
 
 #endif /* art_Framework_Services_System_FileCatalogMetadata_h */
 

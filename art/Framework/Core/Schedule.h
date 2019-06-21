@@ -56,8 +56,6 @@
 namespace art {
   class ActivityRegistry;
   class UpdateOutputCallbacks;
-  class TriggerNamesService;
-  class Schedule;
   class Schedule {
   public: // Special Member Functions
     ~Schedule() noexcept;

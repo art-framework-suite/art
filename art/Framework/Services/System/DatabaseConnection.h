@@ -34,7 +34,7 @@ namespace art {
 
 } // namespace art
 
-DECLARE_ART_SERVICE(art::DatabaseConnection, GLOBAL)
+DECLARE_ART_SERVICE(art::DatabaseConnection, SHARED)
 #endif /* art_Framework_Services_System_DatabaseConnection_h */
 
 // Local Variables:

@@ -18,41 +18,6 @@ using namespace std::string_literals;
 using art::detail::fhicl_key;
 using table_t = fhicl::extended_value::table_t;
 
-namespace {
-
-  std::optional<std::string>
-  destination_via_env()
-  {
-    char const* debug_config{getenv("ART_DEBUG_CONFIG")};
-    if (debug_config == nullptr)
-      return std::nullopt;
-
-    std::cerr << '\n'
-              << "art-warning: The ART_DEBUG_CONFIG environment variable is "
-                 "deprecated.\n"
-              << "             Please specify the '--debug-config=<filename>' "
-                 "program option\n"
-              << "             to write to a file, or '--debug-config=STDOUT' "
-                 "to write\n"
-              << "             to the terminal.\n\n";
-    try {
-      // Check if the provided character string is a file name
-      std::string fn;
-      if (std::regex_match(debug_config, std::regex("[[:alpha:]/\\.].*"))) {
-        fn = debug_config;
-      } else {
-        fn = "STDERR";
-      }
-      std::cerr << "** ART_DEBUG_CONFIG is defined **\n";
-      return std::make_optional(move(fn));
-    }
-    catch (std::regex_error const& e) {
-      std::cerr << "REGEX ERROR: " << e.code() << ".\n";
-    }
-    return std::nullopt;
-  }
-}
-
 art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc)
 {
   bpo::options_description debug_options{"Debugging options"};
@@ -115,6 +80,13 @@ art::DebugOptionsHandler::DebugOptionsHandler(bpo::options_description& desc)
 int
 art::DebugOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
 {
+  if (vm.count("memcheck")) {
+    std::cerr << "\nart warning: The '--memcheck' option is deprecated.  It "
+                 "will be removed in art 3.04.\n"
+                 "             Please remove it from the command-line as "
+                 "memory information is printed in\n"
+                 "             the end-of-job summary.\n\n";
+  }
   if (vm.count("trace") + vm.count("no-trace") > 1) {
     throw Exception(errors::Configuration)
       << "Options --trace and --no-trace are incompatible.\n";
@@ -126,10 +98,6 @@ art::DebugOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
   if (vm.count("timing-db") + vm.count("no-timing") > 1) {
     throw Exception(errors::Configuration)
       << "Options --timing-db and --no-timing are incompatible.\n";
-  }
-  if (vm.count("memcheck") + vm.count("no-memcheck") > 1) {
-    throw Exception(errors::Configuration)
-      << "Options --memcheck and --no-memcheck are incompatible.\n";
   }
   if (vm.count("memcheck-db") + vm.count("no-memcheck") > 1) {
     throw Exception(errors::Configuration)
@@ -175,13 +143,6 @@ art::DebugOptionsHandler::doProcessOptions(
   raw_config.erase(
     fhicl_key(scheduler_key, "configOut")); // legacy configuration
 
-  // Get ART_DEBUG_CONFIG value
-  auto const result = destination_via_env();
-  if (result) {
-    tie(option, fn) = make_tuple("debug-config"s, *result);
-  }
-
-  // "validate-config" and "debug-config" win over ART_DEBUG_CONFIG
   auto debugging_options = {"config-out", "debug-config", "validate-config"};
   for (auto const opt : debugging_options) {
     if (vm.count(opt)) {
@@ -224,12 +185,9 @@ art::DebugOptionsHandler::doProcessOptions(
   } else if (vm.count("no-timing")) {
     raw_config.erase("services.TimeTracker");
   }
-  auto const memdb = vm.count("memcheck-db");
-  if (vm.count("memcheck") || memdb) {
-    raw_config.putEmptyTable("services.MemoryTracker");
-    if (memdb)
-      raw_config.put("services.MemoryTracker.dbOutput.filename",
-                     vm["memcheck-db"].as<std::string>());
+  if (vm.count("memcheck-db")) {
+    raw_config.put("services.MemoryTracker.dbOutput.filename",
+                   vm["memcheck-db"].as<std::string>());
   } else if (vm.count("no-memcheck")) {
     raw_config.erase("services.MemoryTracker");
   }

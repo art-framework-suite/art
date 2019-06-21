@@ -1,0 +1,5 @@
+source: {
+  module_type: EmptyEvent
+  maxTime: 5
+  maxEvents: 100
+}

@@ -677,17 +677,17 @@ namespace art {
                            SelectorBase const& sel,
                            ProcessTag const& processTag) const
   {
-    auto const& results =
+    auto const groups =
       findGroupsForProduct(mc, wrapped, sel, processTag, true);
+    auto const results = resolve_products(groups, wrapped.wrapped_product_type);
     if (results.empty()) {
-      auto whyFailed =
-        std::make_shared<art::Exception>(art::errors::ProductNotFound);
+      auto whyFailed = std::make_shared<Exception>(errors::ProductNotFound);
       *whyFailed << "getBySelector: Found zero products matching all criteria\n"
                  << "Looking for type: " << wrapped.product_type << "\n";
       return GroupQueryResult{whyFailed};
     }
     if (results.size() > 1) {
-      throw art::Exception(art::errors::ProductNotFound)
+      throw Exception{errors::ProductNotFound}
         << "getBySelector: Found " << results.size()
         << " products rather than one which match all criteria\n"
         << "Looking for type: " << wrapped.product_type << "\n";
@@ -706,8 +706,9 @@ namespace art {
     Selector const sel{ModuleLabelSelector{label} &&
                        ProductInstanceNameSelector{productInstanceName} &&
                        ProcessNameSelector{processName}};
-    auto const& results =
+    auto const groups =
       findGroupsForProduct(mc, wrapped, sel, processTag, true);
+    auto const results = resolve_products(groups, wrapped.wrapped_product_type);
     if (results.empty()) {
       auto whyFailed =
         std::make_shared<art::Exception>(art::errors::ProductNotFound);
@@ -736,52 +737,67 @@ namespace art {
     return results[0];
   }
 
-  Principal::GroupQueryResultVec
+  std::vector<InputTag>
+  Principal::getInputTags(ModuleContext const& mc,
+                          WrappedTypeID const& wrapped,
+                          SelectorBase const& sel,
+                          ProcessTag const& processTag) const
+  {
+    std::vector<InputTag> tags;
+    auto const groups =
+      findGroupsForProduct(mc, wrapped, sel, processTag, false);
+    cet::transform_all(groups, back_inserter(tags), [](auto const g) {
+      return g->productDescription().inputTag();
+    });
+    return tags;
+  }
+
+  std::vector<GroupQueryResult>
   Principal::getMany(ModuleContext const& mc,
                      WrappedTypeID const& wrapped,
                      SelectorBase const& sel,
                      ProcessTag const& processTag) const
   {
-    return findGroupsForProduct(mc, wrapped, sel, processTag, false);
+    auto const groups =
+      findGroupsForProduct(mc, wrapped, sel, processTag, false);
+    return resolve_products(groups, wrapped.wrapped_product_type);
   }
 
-  Principal::GroupQueryResultVec
+  std::vector<cet::exempt_ptr<Group>>
   Principal::getMatchingSequence(ModuleContext const& mc,
                                  SelectorBase const& selector,
                                  ProcessTag const& processTag) const
   {
-    GroupQueryResultVec results;
+    std::vector<cet::exempt_ptr<Group>> groups;
     // Find groups from current process
     if (processTag.current_process_search_allowed() &&
         enableLookupOfProducedProducts_.load()) {
-      if (findGroups(producedProducts_.load()->viewLookup,
-                     mc,
-                     selector,
-                     results,
-                     true) != 0) {
-        return results;
+      if (findGroups(
+            producedProducts_.load()->viewLookup, mc, selector, groups, true) !=
+          0) {
+        return groups;
       }
     }
 
     if (!processTag.input_source_search_allowed()) {
-      return results;
+      return groups;
     }
 
     // Look through currently opened input files
-    if (results.empty()) {
-      results = matchingSequenceFromInputFile(mc, selector);
-      if (!results.empty()) {
-        return results;
+    if (groups.empty()) {
+      groups = matchingSequenceFromInputFile(mc, selector);
+      if (!groups.empty()) {
+        return groups;
       }
       for (auto const& sp : secondaryPrincipals_) {
-        results = sp->matchingSequenceFromInputFile(mc, selector);
-        if (!results.empty()) {
-          return results;
+        groups = sp->matchingSequenceFromInputFile(mc, selector);
+        if (!groups.empty()) {
+          return groups;
         }
       }
     }
     // Open more secondary files if necessary
-    if (results.empty()) {
+    if (groups.empty()) {
       while (true) {
         int const err = tryNextSecondaryFile();
         if (err == -2) {
@@ -794,35 +810,33 @@ namespace art {
         }
         assert(!secondaryPrincipals_.empty());
         auto& new_sp = secondaryPrincipals_.back();
-        results = new_sp->matchingSequenceFromInputFile(mc, selector);
-        if (!results.empty()) {
-          return results;
+        groups = new_sp->matchingSequenceFromInputFile(mc, selector);
+        if (!groups.empty()) {
+          return groups;
         }
       }
     }
-    return results;
+    return groups;
   }
 
-  Principal::GroupQueryResultVec
+  std::vector<cet::exempt_ptr<Group>>
   Principal::matchingSequenceFromInputFile(ModuleContext const& mc,
                                            SelectorBase const& selector) const
   {
-    GroupQueryResultVec results;
+    std::vector<cet::exempt_ptr<Group>> groups;
     if (!presentProducts_.load()) {
-      return results;
+      return groups;
     }
-    findGroups(
-      presentProducts_.load()->viewLookup, mc, selector, results, true);
-    return results;
+    findGroups(presentProducts_.load()->viewLookup, mc, selector, groups, true);
+    return groups;
   }
 
   std::size_t
   Principal::findGroups(ProcessLookup const& pl,
                         ModuleContext const& mc,
                         SelectorBase const& sel,
-                        GroupQueryResultVec& res,
-                        bool const stopIfProcessHasMatch,
-                        TypeID const wanted_wrapper /*=TypeID()*/) const
+                        std::vector<cet::exempt_ptr<Group>>& groups,
+                        bool const stopIfProcessHasMatch) const
   {
     // Loop over processes in reverse time order.  Sometimes we want
     // to stop after we find a process with matches so check for that
@@ -834,11 +848,10 @@ namespace art {
     //          iterating.
     RecursiveMutexSentry sentry{processHistory_.get_mutex(), __func__};
     for (auto const& h : reverse_iteration(processHistory_)) {
-      auto it = pl.find(h.processName());
-      if (it != pl.end()) {
-        found += findGroupsForProcess(it->second, mc, sel, res, wanted_wrapper);
+      if (auto it = pl.find(h.processName()); it != pl.end()) {
+        found += findGroupsForProcess(it->second, mc, sel, groups);
       }
-      if (stopIfProcessHasMatch && !res.empty()) {
+      if (stopIfProcessHasMatch && !groups.empty()) {
         break;
       }
     }
@@ -846,11 +859,12 @@ namespace art {
   }
 
   std::size_t
-  Principal::findGroupsFromInputFile(ModuleContext const& mc,
-                                     WrappedTypeID const& wrapped,
-                                     SelectorBase const& selector,
-                                     GroupQueryResultVec& results,
-                                     bool const stopIfProcessHasMatch) const
+  Principal::findGroupsFromInputFile(
+    ModuleContext const& mc,
+    WrappedTypeID const& wrapped,
+    SelectorBase const& selector,
+    std::vector<cet::exempt_ptr<Group>>& groups,
+    bool const stopIfProcessHasMatch) const
   {
     if (!presentProducts_.load()) {
       return 0;
@@ -860,22 +874,17 @@ namespace art {
     if (it == lookup.end()) {
       return 0;
     }
-    return findGroups(it->second,
-                      mc,
-                      selector,
-                      results,
-                      stopIfProcessHasMatch,
-                      wrapped.wrapped_product_type);
+    return findGroups(it->second, mc, selector, groups, stopIfProcessHasMatch);
   }
 
-  Principal::GroupQueryResultVec
+  std::vector<cet::exempt_ptr<Group>>
   Principal::findGroupsForProduct(ModuleContext const& mc,
                                   WrappedTypeID const& wrapped,
                                   SelectorBase const& selector,
                                   ProcessTag const& processTag,
                                   bool const stopIfProcessHasMatch) const
   {
-    GroupQueryResultVec results;
+    std::vector<cet::exempt_ptr<Group>> results;
     unsigned ret{};
     // Find groups from current process
     if (processTag.current_process_search_allowed() &&
@@ -883,12 +892,8 @@ namespace art {
       auto const& lookup = producedProducts_.load()->productLookup;
       auto it = lookup.find(wrapped.product_type.friendlyClassName());
       if (it != lookup.end()) {
-        ret += findGroups(it->second,
-                          mc,
-                          selector,
-                          results,
-                          stopIfProcessHasMatch,
-                          wrapped.wrapped_product_type);
+        ret +=
+          findGroups(it->second, mc, selector, results, stopIfProcessHasMatch);
       }
     }
 
@@ -930,11 +935,11 @@ namespace art {
   }
 
   std::size_t
-  Principal::findGroupsForProcess(std::vector<ProductID> const& vpid,
-                                  ModuleContext const& mc,
-                                  SelectorBase const& sel,
-                                  GroupQueryResultVec& res,
-                                  TypeID const wanted_wrapper) const
+  Principal::findGroupsForProcess(
+    std::vector<ProductID> const& vpid,
+    ModuleContext const& mc,
+    SelectorBase const& sel,
+    std::vector<cet::exempt_ptr<Group>>& res) const
   {
     std::size_t found{}; // Horrible hack that should go away
     for (auto const pid : vpid) {
@@ -951,9 +956,6 @@ namespace art {
         continue;
       }
       if (!sel.match(pd)) {
-        continue;
-      }
-      if (!group->tryToResolveProduct(wanted_wrapper)) {
         continue;
       }
       // Found a good match, save it.

@@ -9,7 +9,6 @@
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Utilities/Globals.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"

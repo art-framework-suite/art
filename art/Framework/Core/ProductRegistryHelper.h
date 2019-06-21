@@ -17,8 +17,8 @@
 // UpdateOutputCallbacks with a product list.
 //
 
+#include "art/Framework/Core/ProducesCollector.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/detail/branchNameComponentChecking.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
@@ -41,53 +41,16 @@ namespace art {
 
   class ModuleDescription;
 
-  namespace {
-
-    inline void
-    verifyFriendlyClassName(std::string const& fcn)
-    {
-      std::string errMsg;
-      if (!detail::checkFriendlyName(fcn, errMsg)) {
-        throw Exception(errors::Configuration)
-          << errMsg
-          << "In particular, underscores are not permissible anywhere in the "
-             "fully-scoped\n"
-             "class name, including namespaces.\n";
-      }
-    }
-
-    inline void
-    verifyModuleLabel(std::string const& ml)
-    {
-      std::string errMsg;
-      if (!detail::checkModuleLabel(ml, errMsg)) {
-        throw Exception(errors::Configuration) << errMsg;
-      }
-    }
-
-    inline void
-    verifyInstanceName(std::string const& instanceName)
-    {
-      std::string errMsg;
-      if (!detail::checkInstanceName(instanceName, errMsg)) {
-        throw Exception(errors::Configuration) << errMsg;
-      }
-    }
-
-  } // unnamed namespace
-
   class ProductRegistryHelper {
-  public: // MEMBER FUNCTIONS
-    virtual ~ProductRegistryHelper();
-
+  public:
     ProductRegistryHelper();
+    ~ProductRegistryHelper();
 
     ProductRegistryHelper(ProductRegistryHelper const&) = delete;
     ProductRegistryHelper(ProductRegistryHelper&&) = delete;
     ProductRegistryHelper& operator=(ProductRegistryHelper const&) = delete;
     ProductRegistryHelper& operator=(ProductRegistryHelper&&) = delete;
 
-  public: // MEMBER FUNCTIONS
     // Used by an input source to provide a product list to be merged
     // into the set of products that will be registered.
     void
@@ -101,12 +64,6 @@ namespace art {
 
     void fillDescriptions(ModuleDescription const& md);
 
-    // Record the production of an object of type P, with optional
-    // instance name, in the Event (by default), Run, or SubRun.
-    template <typename P, BranchType B = InEvent>
-    void produces(std::string const& instanceName = {},
-                  Persistable const persistable = Persistable::Yes);
-
     // Record the reconstitution of an object of type P, in either the
     // Run, SubRun, or Event, recording that this object was
     // originally created by a module with label modLabel, and with an
@@ -118,19 +75,28 @@ namespace art {
     template <BranchType B>
     TypeLabelLookup_t const& expectedProducts() const;
 
-  private: // MEMBER FUNCTIONS
-    TypeLabel const& insertOrThrow(BranchType const bt, TypeLabel const& tl);
+    // Record the production of an object of type P, with optional
+    // instance name, in the Event (by default), Run, or SubRun.
+    template <typename P, BranchType B = InEvent>
+    void produces(std::string const& instanceName = {},
+                  Persistable const persistable = Persistable::Yes);
 
-  private: // MEMBER DATA
+    ProducesCollector&
+    producesCollector() noexcept
+    {
+      return collector_;
+    }
+
+  private:
     std::unique_ptr<ProductList const> productList_{nullptr};
-    std::array<TypeLabelLookup_t, NumBranchTypes> typeLabelList_{{}};
+    ProducesCollector collector_;
   };
 
   template <BranchType B>
   inline TypeLabelLookup_t const&
   ProductRegistryHelper::expectedProducts() const
   {
-    return typeLabelList_[B];
+    return collector_.expectedProducts(B);
   }
 
   template <typename P, art::BranchType B>
@@ -138,13 +104,7 @@ namespace art {
   ProductRegistryHelper::produces(std::string const& instanceName,
                                   Persistable const persistable)
   {
-    verifyInstanceName(instanceName);
-    TypeID const productType{typeid(P)};
-    verifyFriendlyClassName(productType.friendlyClassName());
-    bool const isTransient = (persistable == Persistable::No);
-    TypeLabel const typeLabel{
-      productType, instanceName, SupportsView<P>::value, isTransient};
-    insertOrThrow(B, typeLabel);
+    collector_.produces<P, B>(instanceName, persistable);
   }
 
   template <typename P, BranchType B>
@@ -152,13 +112,7 @@ namespace art {
   ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
                                        std::string const& instanceName)
   {
-    verifyModuleLabel(emulatedModule);
-    verifyInstanceName(instanceName);
-    TypeID const productType{typeid(P)};
-    verifyFriendlyClassName(productType.friendlyClassName());
-    TypeLabel const typeLabel{
-      productType, instanceName, SupportsView<P>::value, emulatedModule};
-    return insertOrThrow(B, typeLabel);
+    return collector_.reconstitutes<P, B>(emulatedModule, instanceName);
   }
 
 } // namespace art

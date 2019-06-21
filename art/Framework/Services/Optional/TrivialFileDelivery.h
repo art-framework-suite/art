@@ -17,7 +17,6 @@
 // ===========================================================================
 
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
@@ -30,15 +29,12 @@
 namespace art {
 
   class TrivialFileDelivery : public CatalogInterface {
-    // Configuration
   public:
     struct Config {};
     using Parameters = ServiceTable<Config>;
-    // Special Member Functions
-  public:
+
     TrivialFileDelivery(Parameters const& config);
-    // Implementation -- Required by base class
-  private:
+
     void doConfigure(std::vector<std::string> const& items) override;
     int doGetNextFileURI(std::string& uri, double& waitTime) override;
     void doUpdateStatus(std::string const& uri,
@@ -53,13 +49,10 @@ namespace art {
                          HLTGlobalStatus const& acceptance_info) override;
     bool doIsSearchable() override;
     void doRewind() override;
-    // Implementation details
+
   private:
-    std::vector<std::string> extractFileListFromPset(
-      fhicl::ParameterSet const& pset);
     std::string prependFileDesignation(std::string const& name) const;
-    // Member data
-  private:
+
     // Protects all data members.
     mutable hep::concurrency::RecursiveMutex mutex_{
       "art::TrivialFileDelivery::mutex_"};
@@ -72,7 +65,7 @@ namespace art {
 
 DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileDelivery,
                                    art::CatalogInterface,
-                                   GLOBAL)
+                                   SHARED)
 
 #endif /* art_Framework_Services_Optional_TrivialFileDelivery_h */
 

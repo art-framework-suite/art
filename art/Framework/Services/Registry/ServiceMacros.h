@@ -11,7 +11,7 @@
 // headers *and* their compile units.
 //
 // * In order to declare your service, you must specify your service
-// with a scope value of LEGACY, or GLOBAL as follows:
+// with a scope value of LEGACY, or SHARED as follows:
 //
 //   * LEGACY services are unaware of multi-threaded operation, and
 //     configuration of such a service precludes multi-threaded
@@ -20,7 +20,7 @@
 //       MyService(fhicl::ParameterSet const&,
 //                 art::ActivityRegistry&);
 //
-//   * GLOBAL services are expected to have the same signature as LEGACY
+//   * SHARED services are expected to have the same signature as LEGACY
 //     services, but warrant additionally that it is safe to call their
 //     methods (including callbacks) from multiple threads at the same
 //     time. A global service may register for callbacks for per-

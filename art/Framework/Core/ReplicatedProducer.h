@@ -24,7 +24,8 @@ namespace art {
     // only that reason.
     explicit ReplicatedProducer(fhicl::ParameterSet const& pset,
                                 ProcessingFrame const& frame)
-      : detail::EngineCreator{pset.get<std::string>("module_label", {}),
+      : detail::Producer{pset}
+      , detail::EngineCreator{pset.get<std::string>("module_label", {}),
                               frame.scheduleID()}
     {}
 

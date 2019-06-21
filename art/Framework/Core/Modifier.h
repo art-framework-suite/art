@@ -37,8 +37,7 @@ namespace art {
     using Table =
       ProducerTable<UserConfig, detail::ModuleConfig, UserKeysToIgnore>;
 
-    virtual ~Modifier() noexcept;
-
+    ~Modifier() noexcept;
     Modifier();
 
     Modifier(Modifier const&) = delete;
@@ -46,10 +45,13 @@ namespace art {
     Modifier& operator=(Modifier const&) = delete;
     Modifier& operator=(Modifier&&) = delete;
 
-    using ProductRegistryHelper::expectedProducts;
     using ProductRegistryHelper::fillDescriptions;
-    using ProductRegistryHelper::produces;
     using ProductRegistryHelper::registerProducts;
+
+  protected:
+    using ProductRegistryHelper::expectedProducts;
+    using ProductRegistryHelper::produces;
+    using ProductRegistryHelper::producesCollector;
   };
 
 } // namespace art

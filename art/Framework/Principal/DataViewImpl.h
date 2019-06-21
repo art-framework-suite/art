@@ -2,7 +2,7 @@
 #define art_Framework_Principal_DataViewImpl_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/ModuleBase.h"
+#include "art/Framework/Principal/ConsumesInfo.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/ProcessTag.h"
@@ -163,8 +163,17 @@ namespace art {
     template <typename PROD>
     ValidHandle<PROD> getValidHandle(ProductToken<PROD> const&) const;
 
-    // MEMBER FUNCTIONS -- User-facing API -- getMany*
+    // MEMBER FUNCTIONS -- User-facing API -- getProductTokens/getMany*
   public:
+    template <typename PROD>
+    std::vector<InputTag> getInputTags(
+      SelectorBase const& selector = MatchAllSelector{}) const;
+    template <typename PROD>
+    std::vector<ProductToken<PROD>> getProductTokens(
+      SelectorBase const& selector = MatchAllSelector{}) const;
+    template <typename PROD>
+    std::vector<Handle<PROD>> getMany(
+      SelectorBase const& selector = MatchAllSelector{}) const;
     template <typename PROD>
     void getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
     template <typename PROD>
@@ -494,9 +503,30 @@ namespace art {
   }
 
   template <typename PROD>
-  void
-  DataViewImpl::getMany(SelectorBase const& sel,
-                        std::vector<Handle<PROD>>& results) const
+  std::vector<InputTag>
+  DataViewImpl::getInputTags(SelectorBase const& selector) const
+  {
+    auto const wrapped = WrappedTypeID::make<PROD>();
+    ProcessTag const processTag{"", md_.processName()};
+    return principal_.getInputTags(mc_, wrapped, selector, processTag);
+  }
+
+  template <typename PROD>
+  std::vector<ProductToken<PROD>>
+  DataViewImpl::getProductTokens(SelectorBase const& selector) const
+  {
+    auto const tags = getInputTags<PROD>(selector);
+    std::vector<ProductToken<PROD>> tokens;
+    tokens.reserve(tags.size());
+    cet::transform_all(tags, back_inserter(tokens), [](auto const& tag) {
+      return ProductToken<PROD>{tag};
+    });
+    return tokens;
+  }
+
+  template <typename PROD>
+  std::vector<Handle<PROD>>
+  DataViewImpl::getMany(SelectorBase const& sel) const
   {
     std::lock_guard lock{mutex_};
     auto const wrapped = WrappedTypeID::make<PROD>();
@@ -512,14 +542,22 @@ namespace art {
         recordAsParent_(qr.result());
       }
     }
-    results.swap(products);
+    return products;
+  }
+
+  template <typename PROD>
+  void
+  DataViewImpl::getMany(SelectorBase const& sel,
+                        std::vector<Handle<PROD>>& results) const
+  {
+    results = getMany<PROD>(sel);
   }
 
   template <typename PROD>
   void
   DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
   {
-    getMany(MatchAllSelector{}, results);
+    results = getMany<PROD>();
   }
 
   template <typename ELEMENT>

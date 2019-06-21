@@ -14,5 +14,4 @@ art::detail::logFileAction(const char* msg, std::string const& file)
   strftime(
     ts, strlen(ts) + 1, "%d-%b-%Y %H:%M:%S %Z", localtime_r(&t, &localtm));
   mf::LogAbsolute("fileAction") << ts << "  " << msg << '\"' << file << '\"';
-  mf::FlushMessageLog();
 }

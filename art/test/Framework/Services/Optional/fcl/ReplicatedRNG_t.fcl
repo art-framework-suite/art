@@ -1,0 +1,8 @@
+services.RandomNumberGenerator: {}
+
+physics: {
+  producers: {
+    p1: { module_type: ReplicatedRNG }
+  }
+  tp: [p1]
+}

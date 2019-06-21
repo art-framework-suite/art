@@ -129,6 +129,10 @@ namespace art {
     mutable std::atomic<EDProduct*> partnerBaseProduct_;
   };
 
+  std::vector<GroupQueryResult> resolve_products(
+    std::vector<cet::exempt_ptr<art::Group>> const& groups,
+    art::TypeID const& wrapped_type);
+
 } // namespace art
 
 // Local Variables:

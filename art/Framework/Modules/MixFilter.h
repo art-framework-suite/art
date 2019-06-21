@@ -418,7 +418,7 @@ art::MixFilter<T, IOPolicy>::MixFilter(
   : EDFilter{p}
   , helper_{p,
             p.template get<std::string>("module_label"),
-            *this,
+            producesCollector(),
             std::make_unique<IOPolicy>()}
   , detail_{p, helper_}
 {
@@ -435,7 +435,7 @@ art::MixFilter<T, IOPolicy>::MixFilter(
   : EDFilter{p}
   , helper_{p().mixHelper(),
             p.get_PSet().template get<std::string>("module_label"),
-            *this,
+            producesCollector(),
             std::make_unique<IOPolicy>()}
   , detail_{p().userConfig, helper_}
 {

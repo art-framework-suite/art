@@ -220,7 +220,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "CLHEP/Random/RandFlat.h"
-#include "art/Framework/Core/Modifier.h"
+#include "art/Framework/Core/ProducesCollector.h"
 #include "art/Framework/Core/PtrRemapper.h"
 #include "art/Framework/Core/detail/EngineCreator.h"
 #include "art/Framework/IO/ProductMix/MixIOPolicy.h"
@@ -270,14 +270,13 @@ namespace art {
       fhicl::Atom<seed_t> seed{fhicl::Name{"seed"}, -1};
     };
 
-    // Should probably pass in something like SharedModifier.
     explicit MixHelper(Config const& config,
                        std::string const& moduleLabel,
-                       Modifier& producesProvider,
+                       ProducesCollector& collector,
                        std::unique_ptr<MixIOPolicy> ioHandle);
     explicit MixHelper(fhicl::ParameterSet const& pset,
                        std::string const& moduleLabel,
-                       Modifier& producesProvider,
+                       ProducesCollector& collector,
                        std::unique_ptr<MixIOPolicy> ioHandle);
 
     // Returns the current mixing mode.
@@ -396,7 +395,7 @@ namespace art {
     ProdToProdMapBuilder::ProductIDTransMap buildProductIDTransMap_(
       MixOpList& mixOps);
 
-    Modifier& producesProvider_;
+    ProducesCollector& collector_;
     std::string const moduleLabel_;
     std::vector<std::string> const filenames_;
     bool compactMissingProducts_;
@@ -436,7 +435,7 @@ template <class P>
 inline void
 art::MixHelper::produces(std::string const& instanceName)
 {
-  producesProvider_.produces<P>(instanceName);
+  collector_.produces<P>(instanceName);
 }
 
 // B.
@@ -444,7 +443,7 @@ template <class P, art::BranchType B>
 inline void
 art::MixHelper::produces(std::string const& instanceName)
 {
-  producesProvider_.produces<P, B>(instanceName);
+  collector_.produces<P, B>(instanceName);
 }
 
 // 1.

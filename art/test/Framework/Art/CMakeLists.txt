@@ -12,13 +12,6 @@ cet_test(prune_config_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
 #
 # Ensure the config file has been written out to pass the test.
 
-macro(config_test_pass TNAME)
-  SET_TESTS_PROPERTIES(${TNAME}
-    PROPERTIES
-    PASS_REGULAR_EXPRESSION
-    "\\*\\* ART_DEBUG_CONFIG is defined.*\\*\\* Config output to file")
-endmacro()
-
 macro(config_test_debug_pass TNAME)
   SET_TESTS_PROPERTIES(${TNAME}
     PROPERTIES
@@ -33,8 +26,8 @@ cet_test(BasicOptions_01_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c /dev/null
   --process-name TEST
-  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
-  PASS_REGULAR_EXPRESSION "ART_DEBUG_CONFIG is defined"
+  --debug-config STDOUT
+  TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "Config output follows")
 
 cet_test(BasicOptions_02_t HANDBUILT
@@ -195,7 +188,7 @@ cet_test(BasicOutputOptions_16_w HANDBUILT
 # BasicSourceOptions_01 against reference.
 cet_test(BasicSourceOptions_01_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --estart 5 --nevts 4 --nskip 2
+  TEST_ARGS --estart 1:0:5 --nevts 4 --nskip 2
   -c /dev/null
   -s f0.txt
   --debug-config=config.out)
@@ -217,7 +210,7 @@ cet_test(BasicSourceOptions_02 HANDBUILT
 
 cet_test(BasicSourceOptions_03 HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --estart 5 --nevts 4 --nskip 2
+  TEST_ARGS --estart 1:0:5 --nevts 4 --nskip 2
   -c /dev/null
   -s f0.txt
   -S BasicSourceOptions-srclist.txt
@@ -228,7 +221,7 @@ cet_test(BasicSourceOptions_03 HANDBUILT
 
 cet_test(BasicSourceOptions_04_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --estart 5 --nevts 4 --nskip 2
+  TEST_ARGS --estart 1:0:5 --nevts 4 --nskip 2
   -c BasicSourceOptions_04.fcl
   -S BasicSourceOptions-empty-srclist.txt
   --debug-config=config.out
@@ -242,7 +235,7 @@ config_ref_test(BasicSourceOptions_04)
 
 cet_test(BasicSourceOptions_05_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --estart 5 --nevts 4 --nskip 2
+  TEST_ARGS --estart 1:0:5 --nevts 4 --nskip 2
   -c BasicSourceOptions_04.fcl
   -S BasicSourceOptions-srclist.txt
   --debug-config=config.out
@@ -289,7 +282,7 @@ config_ref_test(BasicPostProcessor_01)
 # DebugOptions_01_r against reference.
 cet_test(DebugOptions_01_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --trace --memcheck --rethrow-default
+  TEST_ARGS --trace --rethrow-default
   --debug-config config.out
   -c /dev/null)
 
@@ -325,22 +318,19 @@ cet_test(DebugOptionsTimeTracker_03 HANDBUILT
 cet_test(FileCatalogOptions_01 HANDBUILT
   TEST_EXEC art
   TEST_ARGS --sam-web-uri=http://example.com
-  -c /dev/null
-  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
+  -c /dev/null --debug-config=STDOUT
+  TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
   "  configurations services\\.CatalogInterface\\.webURI \\(--sam-web-uri\\) and
   services\\.FileCatalogMetadata\\.processID \\(--sam-process-id\\) must be specified
   together or not at all\\.")
 
-# Should exit 1 after printing config -- no output means no metadata required.
+# Should exit 0 after printing config -- no output means no metadata required.
 cet_test(FileCatalogOptions_02 HANDBUILT
   TEST_EXEC art
   TEST_ARGS --sam-web-uri=http://example.com
   --sam-process-id=778213
-  -c /dev/null
-  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
-  PASS_REGULAR_EXPRESSION "ART_DEBUG_CONFIG is defined"
-  PASS_REGULAR_EXPRESSION "Config output follows")
+  -c /dev/null --debug-config=/dev/null)
 
 # Should fail due to missing metadata.
 cet_test(FileCatalogOptions_03 HANDBUILT
@@ -349,7 +339,8 @@ cet_test(FileCatalogOptions_03 HANDBUILT
   --sam-process-id=778213
   -o out.root
   -c /dev/null
-  TEST_PROPERTIES ENVIRONMENT ART_DEBUG_CONFIG=1
+  --debug-config STDOUT
+  TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION
   "  Output \"out\" must be configured with dataTier \\(--sam-data-tier=out:<tier>\\) and streamName \\(--sam-stream-name=out:<stream>\\)\\.\n")
 
