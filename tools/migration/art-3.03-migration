@@ -1,0 +1,68 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+use Getopt::Long qw(:config no_ignore_case bundling);
+
+my $top_level_dir;
+my $dry_run;
+GetOptions("help|h|?" => \&help_message,
+           "top-level-dir|d=s" => \$top_level_dir,
+           "dry-run|n" => \$dry_run)
+    or die_while_processing_options();
+
+if (!defined $top_level_dir) {
+    print("The 'top-level-dir|d' command-line option is required:\n  ");
+    usage();
+    exit(1);
+}
+
+sub usage {
+    print("Usage: art-3.03-migration -d <top-level directory> [--dry-run]\n");
+}
+
+sub help_message {
+    print("\n");
+    usage();
+    print("\nOptions:\n\n");
+    print("  -d [--top-level-dir] arg   Top-level directory to apply migration script.\n");
+    print("  -n [--dry-run]             Show what files would be changed.\n\n");
+    exit(0);
+}
+
+sub die_while_processing_options {
+    usage();
+    print("Type 'art-3.03-migration --help' for more information.\n");
+    exit(1);
+}
+
+sub replace_in_files {
+}
+
+print "Checking for GLOBAL services\n";
+my $cpp_files_str = `find -L $top_level_dir \\( \\( -name .svn -o -name .git -o -name CVS \\) -prune \\) -o \\( -name '*.c' -o -name '*.cxx' -o -name '*.cc' -o -name '*.cpp' -o -name '*.C' -o -name '*.h' -o -name '*.hxx' -o -name '*.hh' -o -name '*.hpp' -o -name '*.[it]cc' -o -name '*.H*' \\) -exec grep -l GLOBAL '{}' \\;`;
+
+if ($cpp_files_str =~ /^\s*$/) {
+    return;
+}
+
+my @candidate_files = split /^/m, $cpp_files_str;
+foreach my $file (@candidate_files) {
+    chomp $file;
+    my $matched_str = `grep -n -B2 'GLOBAL\\s*)' $file`;
+    if ($matched_str =~ /^\s*$/) {
+        next;
+    }
+    if ($matched_str =~ /(DECLARE_ART_SERVICE|DECLARE_ART_SERVICE_INTERFACE|DECLARE_ART_SERVICE_INTERFACE_IMPL|DECLARE_ART_SYSTEM_SERVICE)/) {
+        if ($dry_run) {
+            print "  Would change file ${file}\n";
+        }
+        else {
+            # Find starting line based on grep -B2 output
+            my ($starting_line) = $matched_str =~ /^(\d+)[:\-].*/;
+            my $ending_line = $starting_line + 2;
+            print "  Updating file ${file}\n";
+            `sed -i.backup "$starting_line,$ending_line s/GLOBAL/SHARED/" $file`;
+        }
+    }
+}
