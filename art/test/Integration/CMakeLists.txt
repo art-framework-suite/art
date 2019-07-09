@@ -481,26 +481,29 @@ cet_test(ToyRawInput_OutputCheck_t_01 HANDBUILT
   DEPENDS ToyRawInput_t_01
   )
 
-# Utility script to turn an expected abort into a pass
-cet_script(test_must_abort NO_INSTALL)
-
-foreach(num 02 03 04 11 12)
+# Attempts to create SubRunPrincipal without a valid RunPrincipal.
+foreach(num 02 11)
   cet_test(ToyRawInput_t_${num} HANDBUILT
-    TEST_EXEC test_must_abort
-    TEST_ARGS art -c ToyRawInput_${num}.fcl
+    TEST_EXEC art
+    TEST_ARGS -c ToyRawInput_${num}.fcl
     DATAFILES
     fcl/ToyRawInput_${num}.fcl
     fcl/ToyRawInput_common.fcl
-  )
+    TEST_PROPERTIES
+    PASS_REGULAR_EXPRESSION "Neither inR nor outR are set")
 endforeach()
 
-cet_test_assertion("outR || inR"
-  ToyRawInput_t_02
-  ToyRawInput_t_03
-  ToyRawInput_t_04
-  ToyRawInput_t_11
-  )
-cet_test_assertion("outSR || inSR" ToyRawInput_t_12)
+# Attempts to create EventPrincipal without a valid SubRunPrincipal.
+foreach(num 03 04 12)
+  cet_test(ToyRawInput_t_${num} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c ToyRawInput_${num}.fcl
+    DATAFILES
+    fcl/ToyRawInput_${num}.fcl
+    fcl/ToyRawInput_common.fcl
+    TEST_PROPERTIES
+    PASS_REGULAR_EXPRESSION "Neither inSR nor outSR are set")
+endforeach()
 
 # The following test throws an exception and does not return status
 # code 0.  The test is checking that the correct exception has been

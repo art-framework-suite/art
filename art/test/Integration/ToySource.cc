@@ -61,10 +61,9 @@ arttest::ToySource::readNext(art::RunPrincipal const* const inR,
 
   bool readSomething{false};
 
-  static auto const timeStamp = art::Timestamp::invalidTimestamp();
+  constexpr auto timeStamp = art::Timestamp::invalidTimestamp();
 
-  int rN, srN, eN;
-  std::tie(rN, srN, eN) = *current_;
+  auto const [rN, srN, eN] = *current_;
 
   if (rN != -1) // New run
   {
@@ -74,7 +73,11 @@ arttest::ToySource::readNext(art::RunPrincipal const* const inR,
   }
   if (srN != -1) // New subrun
   {
-    assert(outR || inR); // Must have one or the other.
+    if (!outR && !inR) {
+      throw art::Exception{art::errors::LogicError}
+        << "Neither inR nor outR are set for creating a new subrun "
+           "principal.\n";
+    }
     art::SubRunID newSRID;
     if (data_.get<bool>("newRunSameSubRunFault", false) && inSR) {
       newSRID = inSR->id();
@@ -86,7 +89,11 @@ arttest::ToySource::readNext(art::RunPrincipal const* const inR,
     readSomething = true;
   }
   if (eN != -1) {
-    assert(outSR || inSR);
+    if (!outSR && !inSR) {
+      throw art::Exception{art::errors::LogicError}
+        << "Neither inSR nor outSR are set for creating a new event "
+           "principal.\n";
+    }
     outE = sHelper_.makeEventPrincipal(outR ? outR->run() : inR->run(),
                                        outSR ? outSR->subRun() : inSR->subRun(),
                                        eN, // event number
