@@ -2,10 +2,12 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/WorkerInPath.h"
+#include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
+#include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
@@ -146,23 +148,37 @@ namespace art {
   void
   Path::process(Transition const trans, Principal& principal)
   {
-    if (trans == Transition::BeginRun) {
-      actReg_.load()->sPrePathBeginRun.invoke(name());
-    } else if (trans == Transition::EndRun) {
-      actReg_.load()->sPrePathEndRun.invoke(name());
-    } else if (trans == Transition::BeginSubRun) {
-      actReg_.load()->sPrePathBeginSubRun.invoke(name());
-    } else if (trans == Transition::EndSubRun) {
-      actReg_.load()->sPrePathEndSubRun.invoke(name());
+    // Invoke pre-path signals only for the first schedule.
+    if (pc_.scheduleID() == ScheduleID::first()) {
+      switch (trans) {
+        case Transition::BeginRun:
+          actReg_.load()->sPrePathBeginRun.invoke(name());
+          break;
+        case Transition::EndRun:
+          actReg_.load()->sPrePathEndRun.invoke(name());
+          break;
+        case Transition::BeginSubRun:
+          actReg_.load()->sPrePathBeginSubRun.invoke(name());
+          break;
+        case Transition::EndSubRun:
+          actReg_.load()->sPrePathEndSubRun.invoke(name());
+          break;
+        default: {} // No other pre-path signals supported.
+      }
     }
     state_ = hlt::Ready;
-    bool should_continue = true;
     std::size_t idx = 0;
-    for (auto I = workers_.load()->begin(), E = workers_.load()->end();
-         (I != E) && should_continue;
-         ++I, ++idx) {
+    bool all_passed{false};
+    for (WorkerInPath& wip : *workers_.load()) {
+      // We do not want to call (e.g.) beginRun once per schedule for
+      // non-replicated modules.
+      if (detail::skip_non_replicated(*wip.getWorker())) {
+        continue;
+      }
       try {
-        should_continue = I->runWorker(trans, principal);
+        all_passed = wip.runWorker(trans, principal);
+        if (!all_passed)
+          break;
       }
       catch (cet::exception& e) {
         state_ = hlt::Exception;
@@ -176,21 +192,31 @@ namespace art {
         state_ = hlt::Exception;
         throw;
       }
+      ++idx;
     }
-    if (should_continue) {
+    if (all_passed) {
       state_ = hlt::Pass;
     } else {
       state_ = hlt::Fail;
     }
-    HLTPathStatus const status(state_, idx);
-    if (trans == Transition::BeginRun) {
-      actReg_.load()->sPostPathBeginRun.invoke(name(), status);
-    } else if (trans == Transition::EndRun) {
-      actReg_.load()->sPostPathEndRun.invoke(name(), status);
-    } else if (trans == Transition::BeginSubRun) {
-      actReg_.load()->sPostPathBeginSubRun.invoke(name(), status);
-    } else if (trans == Transition::EndSubRun) {
-      actReg_.load()->sPostPathEndSubRun.invoke(name(), status);
+    // Invoke post-path signals only for the last schedule.
+    if (pc_.scheduleID().id() == art::Globals::instance()->nschedules() - 1) {
+      HLTPathStatus const status(state_, idx);
+      switch (trans) {
+        case Transition::BeginRun:
+          actReg_.load()->sPostPathBeginRun.invoke(name(), status);
+          break;
+        case Transition::EndRun:
+          actReg_.load()->sPostPathEndRun.invoke(name(), status);
+          break;
+        case Transition::BeginSubRun:
+          actReg_.load()->sPostPathBeginSubRun.invoke(name(), status);
+          break;
+        case Transition::EndSubRun:
+          actReg_.load()->sPostPathEndSubRun.invoke(name(), status);
+          break;
+        default: {} // No other post-path signals supported.
+      }
     }
   }
 

@@ -229,11 +229,7 @@ namespace art {
   Schedule::process(Transition const trans, Principal& principal)
   {
     for (auto const& val : triggerPathsInfo_.load()->workers()) {
-      auto& w = *val.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.reset();
+      val.second->reset();
     }
     for (auto const& path : triggerPathsInfo_.load()->paths()) {
       path->process(trans, principal);
