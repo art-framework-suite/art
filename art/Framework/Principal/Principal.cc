@@ -39,6 +39,7 @@
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "hep_concurrency/RecursiveMutex.h"
+#include "range/v3/view.hpp"
 
 #include <algorithm>
 #include <atomic>
@@ -54,42 +55,7 @@ using namespace std;
 
 namespace art {
 
-  class EventPrincipal;
-
   namespace {
-
-    template <typename T>
-    class ReverseIteration;
-    template <typename T>
-    ReverseIteration<T> reverse_iteration(T const&);
-
-    template <typename T>
-    class ReverseIteration {
-      friend ReverseIteration reverse_iteration<>(T const&);
-
-    private:
-      T const& t_;
-      ReverseIteration(T const& t) : t_{t} {};
-
-    public:
-      auto
-      begin() const
-      {
-        return crbegin(t_);
-      }
-      auto
-      end() const
-      {
-        return crend(t_);
-      }
-    };
-
-    template <typename T>
-    ReverseIteration<T>
-    reverse_iteration(T const& t)
-    {
-      return ReverseIteration<T>{t};
-    }
 
     unique_ptr<Group>
     create_group(DelayedReader* reader, BranchDescription const& bd)
@@ -847,7 +813,7 @@ namespace art {
     //          inserting a process history entry while we are
     //          iterating.
     RecursiveMutexSentry sentry{processHistory_.get_mutex(), __func__};
-    for (auto const& h : reverse_iteration(processHistory_)) {
+    for (auto const& h : ranges::view::reverse(processHistory_)) {
       if (auto it = pl.find(h.processName()); it != pl.end()) {
         found += findGroupsForProcess(it->second, mc, sel, groups);
       }
