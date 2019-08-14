@@ -17,14 +17,15 @@
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Utilities/Exception.h"
+#include "canvas/Utilities/WrappedTypeID.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "hep_concurrency/RecursiveMutex.h"
 
 #include <algorithm>
 #include <atomic>
-#include <iostream>
 #include <memory>
+#include <optional>
 #include <type_traits>
 
 namespace art {
@@ -128,6 +129,10 @@ namespace art {
     // Note: Modified by resolveProductIfAvailable.
     mutable std::atomic<EDProduct*> partnerBaseProduct_;
   };
+
+  std::optional<GroupQueryResult> resolve_unique_product(
+    std::vector<cet::exempt_ptr<art::Group>> const& groups,
+    art::WrappedTypeID const& wrapped);
 
   std::vector<GroupQueryResult> resolve_products(
     std::vector<cet::exempt_ptr<art::Group>> const& groups,

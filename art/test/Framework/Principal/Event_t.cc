@@ -568,15 +568,15 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   BOOST_REQUIRE_THROW(currentEvent_->get(sel4, h), cet::exception);
 
   Selector const sel5{modMultiSelector && ProcessNameSelector{"LATE"}};
-  currentEvent_->get(sel5, h);
+  BOOST_REQUIRE(currentEvent_->get(sel5, h));
   BOOST_CHECK_EQUAL(h->value, 100);
 
   Selector const sel6{modMultiSelector && ProcessNameSelector{"CURRENT"}};
-  currentEvent_->get(sel6, h);
+  BOOST_REQUIRE(currentEvent_->get(sel6, h));
   BOOST_CHECK_EQUAL(h->value, 200);
 
   Selector const sel7{modMultiSelector};
-  currentEvent_->get(sel7, h);
+  BOOST_REQUIRE(currentEvent_->get(sel7, h));
   BOOST_CHECK_EQUAL(h->value, 200);
   handle_vec handles;
   currentEvent_->getMany(modMultiSelector, handles);

@@ -5,8 +5,10 @@
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Utilities/WrappedTypeID.h"
 #include "cetlib_except/demangle.h"
 #include "hep_concurrency/RecursiveMutex.h"
+#include "range/v3/view.hpp"
 
 #include <iostream>
 #include <string>
@@ -390,6 +392,47 @@ namespace art {
 
     // If the product is a dummy filler, it will now be marked unavailable.
     return productAvailable();
+  }
+
+  std::optional<GroupQueryResult>
+  resolve_unique_product(
+    std::vector<cet::exempt_ptr<art::Group>> const& product_groups,
+    art::WrappedTypeID const& wrapped)
+  {
+    auto by_process_name = [](auto const ga, auto const gb) {
+      return ga->productDescription().processName() ==
+             gb->productDescription().processName();
+    };
+
+    // We group product groups according to their process names.  The
+    // product groups have already been assembled in reverse-process
+    // history.  The first process with a match wins.  Note that it is
+    // an error for there to be multiple matches per process.
+    for (auto const groups_per_process :
+         ranges::view::group_by(product_groups, by_process_name)) {
+      // Keep track of all matched groups so that a helpful error
+      // message can be reported.
+      std::vector<cet::exempt_ptr<art::Group>> matched_groups;
+      for (auto const group : groups_per_process) {
+        if (group->tryToResolveProduct(wrapped.wrapped_product_type)) {
+          matched_groups.emplace_back(group.get());
+        }
+      }
+
+      if (auto const num_matches = matched_groups.size(); num_matches == 1) {
+        return std::make_optional(GroupQueryResult{matched_groups[0]});
+      } else if (num_matches > 1) {
+        Exception e{errors::ProductNotFound};
+        e << "Found " << num_matches
+          << " products rather than one which match all criteria\n"
+          << "Looking for type: " << wrapped.product_type << "\n";
+        for (auto group : matched_groups) {
+          e << "  " << group->productDescription().inputTag() << '\n';
+        }
+        throw e;
+      }
+    }
+    return std::nullopt;
   }
 
   std::vector<GroupQueryResult>
