@@ -8,7 +8,6 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RangeSetsSupported.h"
 #include "art/Framework/Principal/RunPrincipal.h"
-#include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
@@ -637,6 +636,44 @@ namespace art {
     }
   }
 
+  std::size_t
+  Principal::findGroups(ProcessLookup const& pl,
+                        ModuleContext const& mc,
+                        SelectorBase const& sel,
+                        std::vector<cet::exempt_ptr<Group>>& groups) const
+  {
+    // Loop over processes in reverse time order.  Sometimes we want
+    // to stop after we find a process with matches so check for that
+    // at each step.
+    std::size_t found{};
+    // MT note: We must protect the process history iterators here
+    //          against possible invalidation by output modules
+    //          inserting a process history entry while we are
+    //          iterating.
+    RecursiveMutexSentry sentry{processHistory_.get_mutex(), __func__};
+    // We must skip over duplicate entries of the same process
+    // configuration in the process history.  This unfortunately
+    // happened with the SamplingInput source.
+    for (auto const& h :
+         ranges::view::reverse(processHistory_) | ranges::view::unique) {
+      if (auto it = pl.find(h.processName()); it != pl.end()) {
+        found += findGroupsForProcess(it->second, mc, sel, groups);
+      }
+    }
+    return found;
+  }
+}
+
+// FIXME: If Selector.h is included before the "ranges::view::unique"
+//        instantiation, then the selector operations are introduced
+//        during template instantiation, resulting in broken builds
+//        for GCC 8.2.  I assume this is an error with either GCC 8.2
+//        or with the ranges library.  I do not yet know who is to
+//        blame. -KK
+#include "art/Framework/Principal/Selector.h"
+
+namespace art {
+
   GroupQueryResult
   Principal::getBySelector(ModuleContext const& mc,
                            WrappedTypeID const& wrapped,
@@ -757,33 +794,6 @@ namespace art {
     }
     findGroups(presentProducts_.load()->viewLookup, mc, selector, groups);
     return groups;
-  }
-
-  std::size_t
-  Principal::findGroups(ProcessLookup const& pl,
-                        ModuleContext const& mc,
-                        SelectorBase const& sel,
-                        std::vector<cet::exempt_ptr<Group>>& groups) const
-  {
-    // Loop over processes in reverse time order.  Sometimes we want
-    // to stop after we find a process with matches so check for that
-    // at each step.
-    std::size_t found{};
-    // MT note: We must protect the process history iterators here
-    //          against possible invalidation by output modules
-    //          inserting a process history entry while we are
-    //          iterating.
-    RecursiveMutexSentry sentry{processHistory_.get_mutex(), __func__};
-    // We must skip over duplicate entries of the same process
-    // configuration in the process history.  This unfortunately
-    // happened with the SamplingInput source.
-    for (auto const& h :
-         ranges::view::reverse(processHistory_) | ranges::view::unique) {
-      if (auto it = pl.find(h.processName()); it != pl.end()) {
-        found += findGroupsForProcess(it->second, mc, sel, groups);
-      }
-    }
-    return found;
   }
 
   std::size_t
