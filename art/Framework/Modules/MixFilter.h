@@ -173,7 +173,6 @@ namespace art {
   namespace detail {
     // Template metaprogramming.
     using cet::enable_if_function_exists_t;
-    using cet::enable_if_type_exists_t;
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?
@@ -364,8 +363,7 @@ namespace art {
     struct maybe_has_Parameters : std::false_type {};
 
     template <typename T>
-    struct maybe_has_Parameters<T,
-                                enable_if_type_exists_t<typename T::Parameters>>
+    struct maybe_has_Parameters<T, std::void_t<typename T::Parameters>>
       : std::true_type {
       using user_config_t = typename T::Parameters;
       struct Config {
