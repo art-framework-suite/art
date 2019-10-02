@@ -152,7 +152,7 @@
 #include <type_traits>
 
 namespace art {
-  template <class T, class IOPolicy>
+  template <typename T, typename IOPolicy>
   class MixFilter;
 
   template <typename T>
@@ -360,7 +360,9 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a Parameters type?
     template <typename T, typename = void>
-    struct maybe_has_Parameters : std::false_type {};
+    struct maybe_has_Parameters : std::false_type {
+      using Parameters = fhicl::ParameterSet;
+    };
 
     template <typename T>
     struct maybe_has_Parameters<T, std::void_t<typename T::Parameters>>
@@ -377,21 +379,19 @@ namespace art {
 
 } // namespace art
 
-template <class T, class IOPolicy>
+template <typename T, typename IOPolicy>
 class art::MixFilter : public EDFilter {
 public:
   using MixDetail = T;
 
-  template <typename U>
-  using Parameters_t = typename detail::maybe_has_Parameters<U>::Parameters;
+  using Parameters = typename detail::maybe_has_Parameters<T>::Parameters;
 
-  template <class U = T>
-  explicit MixFilter(std::enable_if_t<!detail::maybe_has_Parameters<U>::value,
+  template <typename U = Parameters>
+  explicit MixFilter(std::enable_if_t<std::is_same_v<U, fhicl::ParameterSet>,
                                       fhicl::ParameterSet> const& p);
-
-  template <class U = T>
-  explicit MixFilter(std::enable_if_t<detail::maybe_has_Parameters<U>::value,
-                                      Parameters_t<U>> const& p);
+  template <typename U = Parameters>
+  explicit MixFilter(
+    std::enable_if_t<!std::is_same_v<U, fhicl::ParameterSet>, U> const& p);
 
 private:
   void respondToOpenInputFile(FileBlock const& fb) override;
@@ -408,10 +408,10 @@ private:
   MixDetail detail_;
 };
 
-template <class T, class IOPolicy>
-template <class U>
+template <typename T, typename IOPolicy>
+template <typename U>
 art::MixFilter<T, IOPolicy>::MixFilter(
-  std::enable_if_t<!detail::maybe_has_Parameters<U>::value,
+  std::enable_if_t<std::is_same_v<U, fhicl::ParameterSet>,
                    fhicl::ParameterSet> const& p)
   : EDFilter{p}
   , helper_{p,
@@ -425,11 +425,10 @@ art::MixFilter<T, IOPolicy>::MixFilter(
   }
 }
 
-template <class T, class IOPolicy>
-template <class U>
+template <typename T, typename IOPolicy>
+template <typename U>
 art::MixFilter<T, IOPolicy>::MixFilter(
-  std::enable_if_t<detail::maybe_has_Parameters<U>::value,
-                   Parameters_t<U>> const& p)
+  std::enable_if_t<!std::is_same_v<U, fhicl::ParameterSet>, U> const& p)
   : EDFilter{p}
   , helper_{p().mixHelper(),
             p.get_PSet().template get<std::string>("module_label"),
@@ -442,7 +441,7 @@ art::MixFilter<T, IOPolicy>::MixFilter(
   }
 }
 
-template <class T, class IOPolicy>
+template <typename T, typename IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToOpenInputFile(FileBlock const& fb)
 {
@@ -451,7 +450,7 @@ art::MixFilter<T, IOPolicy>::respondToOpenInputFile(FileBlock const& fb)
   }
 }
 
-template <class T, class IOPolicy>
+template <typename T, typename IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToCloseInputFile(FileBlock const& fb)
 {
@@ -460,7 +459,7 @@ art::MixFilter<T, IOPolicy>::respondToCloseInputFile(FileBlock const& fb)
   }
 }
 
-template <class T, class IOPolicy>
+template <typename T, typename IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToOpenOutputFiles(FileBlock const& fb)
 {
@@ -469,7 +468,7 @@ art::MixFilter<T, IOPolicy>::respondToOpenOutputFiles(FileBlock const& fb)
   }
 }
 
-template <class T, class IOPolicy>
+template <typename T, typename IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToCloseOutputFiles(FileBlock const& fb)
 {
@@ -478,7 +477,7 @@ art::MixFilter<T, IOPolicy>::respondToCloseOutputFiles(FileBlock const& fb)
   }
 }
 
-template <class T, class IOPolicy>
+template <typename T, typename IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::filter(Event& e)
 {
@@ -523,7 +522,7 @@ art::MixFilter<T, IOPolicy>::filter(Event& e)
   return true;
 }
 
-template <class T, class IOPolicy>
+template <typename T, typename IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::beginSubRun(SubRun& sr)
 {
@@ -533,7 +532,7 @@ art::MixFilter<T, IOPolicy>::beginSubRun(SubRun& sr)
   return true;
 }
 
-template <class T, class IOPolicy>
+template <typename T, typename IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::endSubRun(SubRun& sr)
 {
@@ -543,7 +542,7 @@ art::MixFilter<T, IOPolicy>::endSubRun(SubRun& sr)
   return true;
 }
 
-template <class T, class IOPolicy>
+template <typename T, typename IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::beginRun(Run& r)
 {
@@ -553,7 +552,7 @@ art::MixFilter<T, IOPolicy>::beginRun(Run& r)
   return true;
 }
 
-template <class T, class IOPolicy>
+template <typename T, typename IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::endRun(Run& r)
 {
