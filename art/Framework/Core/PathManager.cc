@@ -136,7 +136,7 @@ namespace art {
         catch (exception const& e) {
           es << "  ERROR: Configuration of module with label " << module_label
              << " encountered the following error:\n"
-             << e.what() << "\n";
+             << e.what();
         }
       }
       if (!es.str().empty()) {

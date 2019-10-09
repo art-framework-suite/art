@@ -180,7 +180,7 @@ namespace art {
     }
     // Preliminary argument checking.
     for (auto& handler : handlers) {
-      auto result = handler->checkOptions(vm);
+      auto const result = handler->checkOptions(vm);
       if (result != 0) {
         return result;
       }
@@ -188,7 +188,7 @@ namespace art {
     // Processing of arguments and post-processing of config.
     fhicl::intermediate_table raw_config;
     for (auto& handler : handlers) {
-      auto result = handler->processOptions(vm, raw_config);
+      auto const result = handler->processOptions(vm, raw_config);
       if (result != 0) {
         return result;
       }
@@ -243,8 +243,8 @@ namespace art {
       cerr << "       Intermediate configuration state follows:\n"
            << rule('-') << '\n'
            << rule('-') << '\n';
-      for (auto const& item : raw_config) {
-        cerr << item.first << ": " << item.second.to_string() << '\n';
+      for (auto const& [key, value] : raw_config) {
+        cerr << key << ": " << value.to_string() << '\n';
       }
       cerr << rule('-') << '\n' << rule('-') << '\n';
       return 91;
