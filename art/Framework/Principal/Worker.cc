@@ -39,34 +39,78 @@ using namespace std;
 
 using mf::LogError;
 
-namespace art {
+namespace {
+  std::string
+  brief_context(art::ModuleDescription const& md)
+  {
+    return md.moduleName() + "/" + md.moduleLabel();
+  }
 
-  namespace detail {
-
-    cet::exception&
-    exceptionContext(ModuleDescription const& md,
-                     Principal const& principal,
-                     cet::exception& e)
-    {
-      e << md.moduleName() << "/" << md.moduleLabel() << " ";
-      auto const bt = principal.branchType();
-      switch (bt) {
-        case InRun:
-          e << principal.runID();
-          break;
-        case InSubRun:
-          e << principal.subRunID();
-          break;
-        case InEvent:
-          e << principal.eventID();
-          break;
-        default: {}
-      }
-      e << "\n";
-      return e;
+  std::string
+  brief_context(art::ModuleDescription const& md,
+                art::Principal const& principal)
+  {
+    std::ostringstream result;
+    result << brief_context(md) << ' ';
+    auto const bt = principal.branchType();
+    switch (bt) {
+      case art::InRun:
+        result << principal.runID();
+        break;
+      case art::InSubRun:
+        result << principal.subRunID();
+        break;
+      case art::InEvent:
+        result << principal.eventID();
+        break;
+      default: {}
     }
+    return result.str();
+  }
 
-  } // namespace detail
+  [[noreturn]] void
+  rethrow_with_context(std::exception_ptr eptr,
+                       art::ModuleDescription const& md,
+                       std::string const& transition)
+  {
+    using namespace art;
+    assert(eptr);
+    std::string const brief_module_context =
+      brief_context(md) + " during " + transition;
+    try {
+      std::rethrow_exception(eptr);
+    }
+    catch (cet::exception& e) {
+      throw Exception{errors::OtherArt,
+                      "An exception was thrown while processing module " +
+                        brief_module_context,
+                      e};
+    }
+    catch (exception& e) {
+      throw Exception{errors::StdException, brief_module_context} << e.what();
+    }
+    catch (string& s) {
+      throw Exception{errors::BadExceptionType,
+                      "A string exception was thrown while processing module " +
+                        brief_module_context}
+        << s << '\n';
+    }
+    catch (char const* c) {
+      throw Exception{
+        errors::BadExceptionType,
+        "A char const* exception was thrown while processing module " +
+          brief_module_context}
+        << c << '\n';
+    }
+    catch (...) {
+      throw Exception{errors::Unknown}
+        << "An unknown exception was thrown while processing module " +
+             brief_module_context;
+    }
+  }
+}
+
+namespace art {
 
   Worker::~Worker() noexcept
   {
@@ -189,98 +233,23 @@ namespace art {
   }
 
   void
-  Worker::beginJob()
-  {
-    try {
-      actReg_.load()->sPreModuleBeginJob.invoke(*md_.load());
-      implBeginJob();
-      actReg_.load()->sPostModuleBeginJob.invoke(*md_.load());
-    }
-    catch (cet::exception& e) {
-      LogError("BeginJob") << "A cet::exception has been thrown while processing " << workerType() << ":\n" << *md_.load();
-      e << "The above exception was thrown while processing "  << workerType() << ":\n" << *md_.load();
-      throw Exception(errors::OtherArt, string(), e);
-    }
-    catch (bad_alloc& e) {
-      LogError("BeginJob") << "A bad_alloc exception was thrown while processing " << workerType()
-                           << ":\n"
-                           << *md_.load() << "\n";
-      throw;
-    }
-    catch (exception& e) {
-      LogError("BeginJob") << "An exception is going through " << workerType()
-                           << ":\n"
-                           << *md_.load() << "\n";
-      throw Exception(errors::StdException)
-        << "An exception is going through " << workerType() << ":\n"
-        << *md_.load() << "\n"
-        << e.what();
-    }
-    catch (string& s) {
-      LogError("BeginJob") << "module caught an string during beginJob\n";
-      throw Exception(errors::BadExceptionType) << "string = " << s << "\n"
-                                                << *md_.load() << "\n";
-    }
-    catch (char const* c) {
-      LogError("BeginJob") << "module caught an char const* during beginJob\n";
-      throw Exception(errors::BadExceptionType) << "cstring = " << c << "\n"
-                                                << *md_.load();
-    }
-    catch (...) {
-      LogError("BeginJob") << "An unknown Exception occurred in\n"
-                           << *md_.load() << "\n";
-      throw Exception(errors::Unknown) << "An unknown Exception occurred in\n"
-                                       << *md_.load() << "\n";
-    }
+  Worker::beginJob() try {
+    actReg_.load()->sPreModuleBeginJob.invoke(*md_.load());
+    implBeginJob();
+    actReg_.load()->sPostModuleBeginJob.invoke(*md_.load());
+  }
+  catch (...) {
+    rethrow_with_context(std::current_exception(), *md_.load(), "beginJob");
   }
 
   void
-  Worker::endJob()
-  {
-    try {
-      actReg_.load()->sPreModuleEndJob.invoke(*md_.load());
-      implEndJob();
-      actReg_.load()->sPostModuleEndJob.invoke(*md_.load());
-    }
-    catch (cet::exception& e) {
-
-      LogError("EndJob") << "A cet::exception is going through " << workerType()
-                         << ":\n";
-      e << "A cet::exception is going through " << workerType() << ":\n"
-        << *md_.load();
-      throw Exception(errors::OtherArt, string(), e);
-    }
-    catch (bad_alloc& e) {
-      LogError("EndJob") << "A bad_alloc is going through " << workerType()
-                         << ":\n"
-                         << *md_.load() << "\n";
-      throw;
-    }
-    catch (exception& e) {
-      LogError("EndJob") << "An exception is going through " << workerType()
-                         << ":\n"
-                         << *md_.load() << "\n";
-      throw Exception(errors::StdException)
-        << "An exception is going through " << workerType() << ":\n"
-        << *md_.load() << "\n"
-        << e.what();
-    }
-    catch (string& s) {
-      LogError("EndJob") << "module caught an string during endJob\n";
-      throw Exception(errors::BadExceptionType) << "string = " << s << "\n"
-                                                << *md_.load() << "\n";
-    }
-    catch (char const* c) {
-      LogError("EndJob") << "module caught an char const* during endJob\n";
-      throw Exception(errors::BadExceptionType) << "cstring = " << c << "\n"
-                                                << *md_.load() << "\n";
-    }
-    catch (...) {
-      LogError("EndJob") << "An unknown Exception occurred in\n"
-                         << *md_.load() << "\n";
-      throw Exception(errors::Unknown) << "An unknown Exception occurred in\n"
-                                       << *md_.load() << "\n";
-    }
+  Worker::endJob() try {
+    actReg_.load()->sPreModuleEndJob.invoke(*md_.load());
+    implEndJob();
+    actReg_.load()->sPostModuleEndJob.invoke(*md_.load());
+  }
+  catch (...) {
+    rethrow_with_context(std::current_exception(), *md_.load(), "endJob");
   }
 
   void
@@ -371,8 +340,8 @@ namespace art {
     }
     catch (cet::exception& e) {
       state_ = ExceptionThrown;
-      e << "The above exception was thrown while processing module ";
-      detail::exceptionContext(*md_.load(), principal, e);
+      e << "The above exception was thrown while processing module "
+        << brief_context(*md_.load(), principal) << '\n';
       if (auto edmEx = dynamic_cast<art::Exception*>(&e)) {
         *cached_exception_.load() = std::make_exception_ptr(*edmEx);
       } else {
@@ -385,8 +354,8 @@ namespace art {
       state_ = ExceptionThrown;
       auto art_ex =
         Exception{errors::BadAlloc}
-        << "A bad_alloc exception occurred during a call to the module ";
-      detail::exceptionContext(*md_.load(), principal, art_ex)
+        << "A bad_alloc exception occurred during a call to the module "
+        << brief_context(*md_.load(), principal) << '\n'
         << "The job has probably exhausted the virtual memory available to the "
            "process.\n";
       *cached_exception_.load() = make_exception_ptr(art_ex);
@@ -395,8 +364,8 @@ namespace art {
     catch (std::exception const& e) {
       state_ = ExceptionThrown;
       auto art_ex = Exception{errors::StdException}
-                    << "An exception occurred during a call to the module ";
-      detail::exceptionContext(*md_.load(), principal, art_ex) << e.what();
+                    << "An exception occurred during a call to the module "
+                    << brief_context(*md_.load(), principal) << e.what();
       *cached_exception_.load() = make_exception_ptr(art_ex);
       rethrow_exception(*cached_exception_.load());
     }
@@ -404,8 +373,9 @@ namespace art {
       state_ = ExceptionThrown;
       auto art_ex = Exception{errors::BadExceptionType, "string"}
                     << "A string thrown as an exception occurred during a call "
-                       "to the module ";
-      detail::exceptionContext(*md_.load(), principal, art_ex) << s << '\n';;
+                       "to the module "
+                    << brief_context(*md_.load(), principal) << '\n'
+                    << s << '\n';
       *cached_exception_.load() = make_exception_ptr(art_ex);
       rethrow_exception(*cached_exception_.load());
     }
@@ -413,8 +383,9 @@ namespace art {
       state_ = ExceptionThrown;
       auto art_ex = Exception{errors::BadExceptionType, "char const*"}
                     << "A char const* thrown as an exception occurred during a "
-                       "call to the module ";
-      detail::exceptionContext(*md_.load(), principal, art_ex) << c << '\n';
+                       "call to the module "
+                    << brief_context(*md_.load(), principal) << '\n'
+                    << c << '\n';
       *cached_exception_.load() = make_exception_ptr(art_ex);
       rethrow_exception(*cached_exception_.load());
     }
@@ -422,8 +393,8 @@ namespace art {
       state_ = ExceptionThrown;
       auto art_ex =
         Exception{errors::Unknown, "repeated"}
-        << "An unknown occurred during a previous call to the module ";
-      detail::exceptionContext(*md_.load(), principal, art_ex);
+        << "An unknown occurred during a previous call to the module "
+        << brief_context(*md_.load(), principal) << '\n';
       *cached_exception_.load() = make_exception_ptr(art_ex);
       rethrow_exception(*cached_exception_.load());
     }
@@ -477,8 +448,8 @@ namespace art {
       } else {
         state_ = ExceptionThrown;
         ++counts_thrown_;
-        e << "The above exception was thrown while processing module ";
-        detail::exceptionContext(*md_.load(), p, e);
+        e << "The above exception was thrown while processing module "
+          << brief_context(*md_.load(), p) << '\n';
         if (auto edmEx = dynamic_cast<Exception*>(&e)) {
           *cached_exception_.load() = make_exception_ptr(*edmEx);
         } else {
@@ -493,8 +464,8 @@ namespace art {
       ++counts_thrown_;
       auto art_ex =
         Exception{errors::BadAlloc}
-        << "A bad_alloc exception occurred during a call to the module ";
-      detail::exceptionContext(*md_.load(), p, art_ex)
+        << "A bad_alloc exception occurred during a call to the module "
+        << brief_context(*md_.load(), p) << '\n'
         << "The job has probably exhausted the virtual memory available to the "
            "process.\n";
       *cached_exception_.load() = make_exception_ptr(art_ex);
@@ -504,8 +475,9 @@ namespace art {
       state_ = ExceptionThrown;
       ++counts_thrown_;
       auto art_ex = Exception{errors::StdException}
-                    << "An exception occurred during a call to the module ";
-      detail::exceptionContext(*md_.load(), p, art_ex) << e.what();
+                    << "An exception occurred during a call to the module "
+                    << brief_context(*md_.load(), p) << '\n'
+                    << e.what();
       *cached_exception_.load() = make_exception_ptr(art_ex);
       rethrow_exception(*cached_exception_.load());
     }
@@ -514,8 +486,9 @@ namespace art {
       ++counts_thrown_;
       auto art_ex = Exception{errors::BadExceptionType, "string"}
                     << "A string thrown as an exception occurred during a call "
-                       "to the module ";
-      detail::exceptionContext(*md_.load(), p, art_ex) << s << '\n';
+                       "to the module "
+                    << brief_context(*md_.load(), p) << '\n'
+                    << s << '\n';
       *cached_exception_.load() = make_exception_ptr(art_ex);
       rethrow_exception(*cached_exception_.load());
     }
@@ -524,8 +497,9 @@ namespace art {
       ++counts_thrown_;
       auto art_ex = Exception{errors::BadExceptionType, "char const*"}
                     << "A char const* thrown as an exception occurred during a "
-                       "call to the module ";
-      detail::exceptionContext(*md_.load(), p, art_ex) << c << "\n";
+                       "call to the module "
+                    << brief_context(*md_.load(), p) << '\n'
+                    << c << "\n";
       *cached_exception_.load() = make_exception_ptr(art_ex);
       rethrow_exception(*cached_exception_.load());
     }
@@ -534,8 +508,8 @@ namespace art {
       state_ = ExceptionThrown;
       auto art_ex =
         Exception{errors::Unknown, "repeated"}
-        << "An unknown occurred during a previous call to the module ";
-      detail::exceptionContext(*md_.load(), p, art_ex);
+        << "An unknown occurred during a previous call to the module "
+        << brief_context(*md_.load(), p) << '\n';
       *cached_exception_.load() = make_exception_ptr(art_ex);
       rethrow_exception(*cached_exception_.load());
     }
@@ -605,8 +579,8 @@ namespace art {
       } else {
         state_ = ExceptionThrown;
         ++counts_thrown_;
-        e << "The above exception was thrown while processing module ";
-        detail::exceptionContext(*md_.load(), p, e);
+        e << "The above exception was thrown while processing module "
+          << brief_context(*md_.load(), p);
         if (auto art_ex = dynamic_cast<Exception*>(&e)) {
           *cached_exception_.load() = make_exception_ptr(*art_ex);
         } else {
@@ -623,8 +597,8 @@ namespace art {
       ++counts_thrown_;
       auto art_ex =
         Exception{errors::BadAlloc}
-        << "A bad_alloc exception was thrown while processing module ";
-      detail::exceptionContext(*md_.load(), p, art_ex)
+        << "A bad_alloc exception was thrown while processing module "
+        << brief_context(*md_.load(), p) << '\n'
         << "The job has probably exhausted the virtual memory available to the "
            "process.\n";
       *cached_exception_.load() = make_exception_ptr(art_ex);
@@ -636,8 +610,9 @@ namespace art {
       state_ = ExceptionThrown;
       ++counts_thrown_;
       auto art_ex = Exception{errors::StdException}
-                    << "An exception was thrown while processing module ";
-      detail::exceptionContext(*md_.load(), p, art_ex) << e.what();
+                    << "An exception was thrown while processing module "
+                    << brief_context(*md_.load(), p) << '\n'
+                    << e.what();
       *cached_exception_.load() = make_exception_ptr(art_ex);
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
       TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
@@ -646,9 +621,11 @@ namespace art {
     catch (string const& s) {
       state_ = ExceptionThrown;
       ++counts_thrown_;
-      auto art_ex = Exception{errors::BadExceptionType, "string"}
-      << "A string was thrown as an exception while processing module ";
-      detail::exceptionContext(*md_.load(), p, art_ex) << s << '\n';
+      auto art_ex =
+        Exception{errors::BadExceptionType, "string"}
+        << "A string was thrown as an exception while processing module "
+        << brief_context(*md_.load(), p) << '\n'
+        << s << '\n';
       *cached_exception_.load() = make_exception_ptr(art_ex);
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
       TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
@@ -657,9 +634,11 @@ namespace art {
     catch (char const* c) {
       state_ = ExceptionThrown;
       ++counts_thrown_;
-      auto art_ex = Exception{errors::BadExceptionType, "char const*"}
-      << "A char const* was thrown as an exception while processing module ";
-      detail::exceptionContext(*md_.load(), p, art_ex) << c << "\n";
+      auto art_ex =
+        Exception{errors::BadExceptionType, "char const*"}
+        << "A char const* was thrown as an exception while processing module "
+        << brief_context(*md_.load(), p) << '\n'
+        << c << "\n";
       *cached_exception_.load() = make_exception_ptr(art_ex);
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
       TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
@@ -670,8 +649,8 @@ namespace art {
       state_ = ExceptionThrown;
       auto art_ex =
         Exception{errors::Unknown, "repeated"}
-        << "An unknown exception was thrown while processing module ";
-      detail::exceptionContext(*md_.load(), p, art_ex);
+        << "An unknown exception was thrown while processing module "
+        << brief_context(*md_.load(), p) << '\n';
       *cached_exception_.load() = make_exception_ptr(art_ex);
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
       TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");

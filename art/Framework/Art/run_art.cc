@@ -384,6 +384,13 @@ namespace art {
       rc = 65;
       printArtException(e, "art");
     }
+    catch (detail::collected_exception const& e) {
+      rc = 1;
+      // LogSystem already adds a newline, so trim the one that's
+      // already in the exception message.
+      std::string const msg{e.what()};
+      mf::LogSystem("ArtException") << msg.substr(0, msg.find_last_of("\n"));
+    }
     catch (bad_alloc const& bda) {
       rc = 68;
       printBadAllocException("art");
