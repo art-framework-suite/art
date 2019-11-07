@@ -12,6 +12,7 @@
 #include "CLHEP/Random/Hurd288Engine.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/MTwistEngine.h"
+#include "CLHEP/Random/MixMaxRng.h"
 #include "CLHEP/Random/NonRandomEngine.h"
 #include "CLHEP/Random/Random.h"
 #include "CLHEP/Random/RanecuEngine.h"
@@ -48,8 +49,7 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  string const RandomNumberGenerator::defaultEngineKind{"HepJamesRandom"};
-  long constexpr RandomNumberGenerator::maxCLHEPSeed;
+  long constexpr RandomNumberGenerator::maxCLHEPSeed; // if not MixMaxRng
   long constexpr RandomNumberGenerator::useDefaultSeed;
 
   namespace {
@@ -94,6 +94,7 @@ namespace art {
       MANUFACTURE(Hurd160Engine)
       MANUFACTURE(Hurd288Engine)
       MANUFACTURE(HepJamesRandom)
+      MANUFACTURE(MixMaxRng)
       MANUFACTURE(MTwistEngine)
       MANUFACTURE(RanecuEngine)
       MANUFACTURE(Ranlux64Engine)
@@ -119,7 +120,8 @@ namespace art {
 
   RandomNumberGenerator::RandomNumberGenerator(Parameters const& config,
                                                ActivityRegistry& actReg)
-    : restoreStateLabel_{config().restoreStateLabel()}
+    : defaultEngineKind_{config().defaultEngineKind()}
+    , restoreStateLabel_{config().restoreStateLabel()}
     , saveToFilename_{config().saveTo()}
     , restoreFromFilename_{config().restoreFrom()}
     , debug_{config().debug()}
@@ -157,28 +159,18 @@ namespace art {
         << "RNGservice::createEngine():\n"
         << "Engine \"" << label << "\" has already been created.\n";
     }
-    if (seed == useDefaultSeed) {
-    } else if (seed > maxCLHEPSeed) {
-      throw cet::exception("RANGE")
-        << "RNGservice::throw_if_invalid_seed():\n"
-        << "Seed " << seed << " exceeds permitted maximum " << maxCLHEPSeed
-        << ".\n";
-    } else if (seed < 0) {
-      throw cet::exception("RANGE")
-        << "RNGservice::throw_if_invalid_seed():\n"
-        << "Seed " << seed << " is not permitted to be negative.\n";
-    }
     string engineKind{requested_engine_kind};
-    if (requested_engine_kind.empty() ||
-        (requested_engine_kind == "DefaultEngine") ||
-        (requested_engine_kind == "JamesRandom")) {
-      engineKind = defaultEngineKind;
+    if (requested_engine_kind.empty()) {
+      engineKind = defaultEngineKind_;
     }
+
+    validate_(engineKind, seed);
+
     shared_ptr<CLHEP::HepRandomEngine> eptr;
     if (engineKind == "G4Engine"s) {
-      eptr = engine_factory(defaultEngineKind, seed);
+      eptr = engine_factory(defaultEngineKind_, seed);
       // We set CLHEP's random-number engine to be of type
-      // HepJamesRandom.
+      // defaultEngineKind_.
       CLHEP::HepRandom::setTheEngine(eptr.get());
       if (seed != RandomNumberGenerator::useDefaultSeed) {
         CLHEP::HepRandom::setTheSeed(seed);
@@ -204,6 +196,42 @@ namespace art {
     assert(invariant_holds_(sid) &&
            "RNGservice::createEngine() invariant failed");
     return *eptr;
+  }
+
+  void
+  RandomNumberGenerator::validate_(
+    std::string const& user_specified_engine_kind,
+    long const user_specified_seed) noexcept(false)
+  {
+    // The only time a user-specified seed can be negative is for
+    // indicating to this service that the default seed for the
+    // requested engine kind should be used.
+    if (user_specified_seed == useDefaultSeed)
+      return;
+
+    if (user_specified_seed < 0) {
+      throw cet::exception("RANGE") << "RNGservice::throw_if_invalid_seed():\n"
+                                    << "Seed " << user_specified_seed
+                                    << " is not permitted to be negative.\n";
+    }
+
+    if (user_specified_seed <= maxCLHEPSeed)
+      return;
+
+    // For now, only MixMaxRng engines can be constructed with a seed
+    // value greater than maxCLHEPSeed.
+    if (user_specified_engine_kind == "MixMaxRng"s)
+      return;
+
+    if (user_specified_engine_kind == "G4Engine"s &&
+        defaultEngineKind_ == "MixMaxRng"s)
+      return;
+
+    throw cet::exception("RANGE")
+      << "RNGservice::throw_if_invalid_seed():\n"
+      << "Seed " << user_specified_seed << " exceeds permitted maximum of "
+      << maxCLHEPSeed << " for engine type " << user_specified_engine_kind
+      << ".\n";
   }
 
   void
