@@ -18,10 +18,10 @@ e19:debug	e19:debug	e19:debug
 e19:prof	e19:prof	e19:prof
 c7:debug	c7:debug	c7:debug
 c7:prof		c7:prof		c7:prof
-e19:debug:py3	e19:debug:py3	e19:debug
-e19:prof:py3	e19:prof:py3	e19:prof
-c7:debug:py3	c7:debug:py3	c7:debug
-c7:prof:py3	c7:prof:py3	c7:prof
+e19:debug:py2	e19:debug:py2	e19:debug
+e19:prof:py2	e19:prof:py2	e19:prof
+c7:debug:py2	c7:debug:py2	c7:debug
+c7:prof:py2	c7:prof:py2	c7:prof
 end_qualifier_list
 
 table_fragment_begin
