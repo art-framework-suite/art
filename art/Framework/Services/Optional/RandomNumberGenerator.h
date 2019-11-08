@@ -179,8 +179,23 @@ namespace art {
       using Atom = fhicl::Atom<T>;
       using Name = fhicl::Name;
       using Comment = fhicl::Comment;
-      Atom<std::string> defaultEngineKind{Name{"defaultEngineKind"},
-                                          "HepJamesRandom"};
+      Atom<std::string> defaultEngineKind{
+        Name{"defaultEngineKind"},
+        Comment{
+          "The 'defaultEngineKind' parameter can be any of the following:\n\n"
+          "  'DRand48Engine'\n"
+          "  'DualRand'\n"
+          "  'Hurd160Engine'\n"
+          "  'Hurd288Engine'\n"
+          "  'HepJamesRandom' (art default)\n"
+          "  'MixMaxRng'    (CLHEP default)\n"
+          "  'MTwistEngine'\n"
+          "  'RanecuEngine'\n"
+          "  'Ranlux64Engine'\n"
+          "  'RanluxEngine'\n"
+          "  'RanshiEngine'\n"
+          "  'TripleRand'\n"},
+        "HepJamesRandom"};
       Atom<std::string> restoreStateLabel{
         Name{"restoreStateLabel"},
         Comment{
