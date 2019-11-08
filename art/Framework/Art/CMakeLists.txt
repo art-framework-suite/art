@@ -15,7 +15,7 @@ SET(ART_MAIN_FUNC mu2eapp)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.h @ONLY)
 
-SET(ART_RETHROW_DEFAULT TRUE)
+SET(ART_PRUNE_CONFIG_QUIET TRUE)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
   ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY)
 ####################################

@@ -1,15 +1,18 @@
 #include "art/Framework/Art/@ART_MAIN_FUNC@.h"
 // vim: set sw=2 expandtab :
 
+#include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicOutputOptionsHandler.h"
+#include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/BasicSourceOptionsHandler.h"
 #include "art/Framework/Art/DebugOptionsHandler.h"
-#include "art/Framework/Art/ProcessingOptionsHandler.h"
 #include "art/Framework/Art/FileCatalogOptionsHandler.h"
 #include "art/Framework/Art/OptionsHandlers.h"
+#include "art/Framework/Art/ProcessingOptionsHandler.h"
 #include "art/Framework/Art/run_art.h"
 #include "cetlib/filepath_maker.h"
 
+#include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 
 #include <iostream>
@@ -20,35 +23,41 @@ namespace bpo = boost::program_options;
 
 using namespace std;
 
-#cmakedefine01 ART_RETHROW_DEFAULT
+#cmakedefine01 ART_PRUNE_CONFIG_QUIET
 
 int
 @ART_MAIN_FUNC@(int argc, char* argv[])
 {
   // Configuration file lookup policy.
-  char const* fhicl_env = getenv("FHICL_FILE_PATH");
   string search_path;
-  if (fhicl_env == nullptr) {
-    cerr << "Expected environment variable FHICL_FILE_PATH is missing or empty: using \".\"\n";
+  if (char const* fhicl_env = std::getenv("FHICL_FILE_PATH")) {
+    search_path = string{fhicl_env};
+  } else {
+    cerr << "Expected environment variable FHICL_FILE_PATH is missing or "
+            "empty: using \".\"\n";
     search_path = ".";
   }
-  else {
-    search_path = string{fhicl_env};
-  }
   cet::filepath_first_absolute_or_lookup_with_dot lookupPolicy{search_path};
-  // Empty options_description.
-  bpo::options_description all_desc;
+
   // Create and store options handlers.
+  ostringstream descstr;
+  descstr << "\nUsage: " << boost::filesystem::path(argv[0]).filename().native()
+          << " <-c <config-file>> <other-options> [<source-file>]+\n\n"
+          << "Basic options";
+  bpo::options_description all_desc{descstr.str()};
   art::OptionsHandlers handlers;
-  handlers.reserve(5);
-  // Add new handlers here. Do *not* add a BasicOptionsHandler: it will be done for you.
+  handlers.reserve(7);
+  // BasicOptionsHandler should always be first in the list!
+  handlers.emplace_back(new art::BasicOptionsHandler{all_desc, lookupPolicy});
+  // Additional options
   handlers.emplace_back(new art::BasicSourceOptionsHandler{all_desc});
   handlers.emplace_back(new art::BasicOutputOptionsHandler{all_desc});
-  handlers.emplace_back(new art::ProcessingOptionsHandler{all_desc, ART_RETHROW_DEFAULT});
+  handlers.emplace_back(new art::ProcessingOptionsHandler{all_desc});
   handlers.emplace_back(new art::DebugOptionsHandler{all_desc});
   handlers.emplace_back(new art::FileCatalogOptionsHandler{all_desc});
-  auto ret = art::run_art(argc, argv, all_desc, lookupPolicy, move(handlers));
-  return ret;
+  // BasicPostProcessor should be last.
+  handlers.emplace_back(new art::BasicPostProcessor);
+  return art::run_art(argc, argv, all_desc, move(handlers));
 }
 
 int

@@ -9,8 +9,7 @@ namespace art {
 
   class ProcessingOptionsHandler : public OptionsHandler {
   public:
-    explicit ProcessingOptionsHandler(bpo::options_description& desc,
-                                      bool rethrowDefault);
+    explicit ProcessingOptionsHandler(bpo::options_description& desc);
 
   private:
     // Check selected options for consistency.
@@ -18,7 +17,6 @@ namespace art {
     // Act on selected options.
     int doProcessOptions(bpo::variables_map const& vm,
                          fhicl::intermediate_table& raw_config) override;
-    bool rethrowDefault_;
   };
 
 } // namespace art

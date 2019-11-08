@@ -50,11 +50,8 @@ namespace {
 } // namespace
 
 art::ProcessingOptionsHandler::ProcessingOptionsHandler(
-  bpo::options_description& desc,
-  bool const rethrowDefault)
-  : rethrowDefault_{rethrowDefault}
+  bpo::options_description& desc)
 {
-
   bpo::options_description processing_options{"Processing options"};
   auto options = processing_options.add_options();
   add_opt(options,
@@ -142,8 +139,7 @@ art::ProcessingOptionsHandler::doProcessOptions(
 {
   std::string const scheduler_key{"services.scheduler"};
 
-  if (vm.count("rethrow-all") == 1 || vm.count("rethrow-default") == 1 ||
-      (rethrowDefault_ && vm.count("default-exceptions") == 0)) {
+  if (vm.count("rethrow-all") == 1 || vm.count("rethrow-default") == 1) {
     raw_config.put(fhicl_key(scheduler_key, "defaultExceptions"), false);
     if (vm.count("rethrow-all") == 1) {
       raw_config.putEmptySequence(fhicl_key(scheduler_key, "IgnoreCompletely"));

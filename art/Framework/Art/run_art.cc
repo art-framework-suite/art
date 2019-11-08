@@ -1,7 +1,6 @@
 #include "art/Framework/Art/run_art.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
@@ -141,22 +140,9 @@ namespace art {
   int
   run_art(int argc,
           char** argv,
-          bpo::options_description& in_desc,
-          cet::filepath_maker& lookupPolicy,
+          bpo::options_description& all_desc,
           OptionsHandlers&& handlers)
   {
-    ostringstream descstr;
-    descstr << "\nUsage: "
-            << boost::filesystem::path(argv[0]).filename().native()
-            << " <-c <config-file>> <other-options> [<source-file>]+\n\n"
-            << "Basic options";
-    bpo::options_description all_desc{descstr.str()};
-    all_desc.add(in_desc);
-    // BasicOptionsHandler should always be first in the list!
-    handlers.emplace(handlers.begin(),
-                     new BasicOptionsHandler{all_desc, lookupPolicy});
-    // BasicPostProcessor should be last.
-    handlers.emplace_back(new BasicPostProcessor);
     // This must be added separately: how to deal with any non-option arguments.
     bpo::positional_options_description pd;
     // A single non-option argument will be taken to be the source data file.
