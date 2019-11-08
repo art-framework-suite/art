@@ -23,8 +23,6 @@ namespace bpo = boost::program_options;
 
 using namespace std;
 
-#cmakedefine01 ART_PRUNE_CONFIG_QUIET
-
 int
 @ART_MAIN_FUNC@(int argc, char* argv[])
 {
@@ -48,7 +46,9 @@ int
   art::OptionsHandlers handlers;
   handlers.reserve(7);
   // BasicOptionsHandler should always be first in the list!
-  handlers.emplace_back(new art::BasicOptionsHandler{all_desc, lookupPolicy});
+  handlers.emplace_back(new art::BasicOptionsHandler {
+    all_desc, lookupPolicy, @ART_REPORT_UNUSED_DEFAULT@
+  });
   // Additional options
   handlers.emplace_back(new art::BasicSourceOptionsHandler{all_desc});
   handlers.emplace_back(new art::BasicOutputOptionsHandler{all_desc});

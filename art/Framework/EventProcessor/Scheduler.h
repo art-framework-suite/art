@@ -28,6 +28,8 @@ namespace art {
         return kb() * kb();
       }
 
+      // FIXME: The defaults specified here should agree with those
+      //        specified in the program-options handlers.
       using Name = fhicl::Name;
       using Comment = fhicl::Comment;
       fhicl::Atom<int> num_threads{Name{"num_threads"}, 1};
@@ -48,7 +50,8 @@ namespace art {
                                                false};
       fhicl::Atom<bool> errorOnSIGINT{Name{"errorOnSIGINT"}, true};
       fhicl::Atom<bool> wantSummary{Name{"wantSummary"}, false};
-      fhicl::Atom<bool> pruneConfig{Name{"pruneConfig"}, false};
+      fhicl::Atom<bool> pruneConfig{Name{"pruneConfig"}, true};
+      fhicl::Atom<bool> reportUnused{Name{"reportUnused"}, true};
       fhicl::Atom<std::string> dataDependencyGraph{Name{"dataDependencyGraph"},
                                                    {}};
       struct DebugConfig {

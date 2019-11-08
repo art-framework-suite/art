@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(Construct)
     fhicl::intermediate_table raw_config;
     parse_document(config_string, raw_config);
     auto const enabled_modules =
-      detail::prune_config_if_enabled(false, raw_config);
+      detail::prune_config_if_enabled(false, true, raw_config);
     try {
       fhicl::ParameterSet ps;
       make_ParameterSet(raw_config, ps);

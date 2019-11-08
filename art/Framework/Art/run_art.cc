@@ -183,15 +183,19 @@ namespace art {
     // If configuration pruning has been enabled, remove unused module
     // configurations.
     using detail::exists_outside_prolog;
+    using detail::fhicl_key;
+    auto const scheduler_key = fhicl_key("services", "scheduler");
     std::map<std::string, detail::ModuleKeyAndType> enabled_modules;
-    assert(exists_outside_prolog(raw_config, "services.scheduler"));
+    assert(exists_outside_prolog(raw_config, scheduler_key));
     try {
-      std::string const pruneConfig{"services.scheduler.pruneConfig"};
-      bool const should_prune =
-        exists_outside_prolog(raw_config, pruneConfig) &&
-        raw_config.get<bool>(pruneConfig);
-      enabled_modules =
-        detail::prune_config_if_enabled(should_prune, raw_config);
+      auto const pruneConfigKey = fhicl_key(scheduler_key, "pruneConfig");
+      auto const reportUnusedKey = fhicl_key(scheduler_key, "reportUnused");
+      assert(exists_outside_prolog(raw_config, pruneConfigKey));
+      assert(exists_outside_prolog(raw_config, reportUnusedKey));
+      bool const prune_config = raw_config.get<bool>(pruneConfigKey);
+      bool const report_unused = raw_config.get<bool>(reportUnusedKey);
+      enabled_modules = detail::prune_config_if_enabled(
+        prune_config, report_unused, raw_config);
     }
     catch (Exception const& e) {
       printArtException(e, "art");
@@ -259,7 +263,8 @@ namespace art {
       // create an intermediate table from the input string
       fhicl::intermediate_table raw_config;
       parse_document(config_string, raw_config);
-      enabled_modules = detail::prune_config_if_enabled(false, raw_config);
+      enabled_modules =
+        detail::prune_config_if_enabled(false, true, raw_config);
       // run post-processing
       bpo::variables_map vm;
       BasicPostProcessor bpp;

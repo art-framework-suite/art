@@ -21,7 +21,7 @@ namespace {
     parse_document(config, raw_config);
     fhicl::ParameterSet ps;
     make_ParameterSet(raw_config, ps);
-    detail::prune_config_if_enabled(false, raw_config);
+    detail::prune_config_if_enabled(false, true, raw_config);
   }
 
   void
