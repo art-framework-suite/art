@@ -2,9 +2,6 @@
 #include "art/Utilities/SharedResourcesRegistry.h"
 
 namespace art::detail {
-
-  LegacyModule::LegacyModule() { serialize(SharedResourcesRegistry::Legacy); }
-
   LegacyModule::LegacyModule(std::string const& module_label)
     : EngineCreator{module_label, ScheduleID::first()}
   {
