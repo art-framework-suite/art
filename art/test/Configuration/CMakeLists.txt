@@ -43,12 +43,27 @@ cet_test(PruneConfig_t_01 HANDBUILT
 
 cet_test(NonexistentPathCheck_01_t HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --rethrow-all -c NonexistentPathCheck_01.fcl
+  TEST_ARGS -c NonexistentPathCheck_01.fcl
   DATAFILES fcl/NonexistentPathCheck_01.fcl
   TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\n  ERROR: Unknown path x1 specified by user in trigger_paths.\n")
 
 cet_test(NonexistentPathCheck_02_t HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --rethrow-all -c NonexistentPathCheck_02.fcl
+  TEST_ARGS -c NonexistentPathCheck_02.fcl
   DATAFILES fcl/NonexistentPathCheck_02.fcl
   TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\n  ERROR: Unknown path x1 specified by user in end_paths.\n  ERROR: Unknown path d6 specified by user in end_paths.\n")
+
+# These tests check that the defaults for reporting unused modules are
+# correct for the mu2e executable and the art executable (representing
+# all other framework executables).
+cet_test(ReportUnused_art_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c UnusedModule_t.fcl --debug-config=/dev/null
+  DATAFILES fcl/UnusedModule_t.fcl
+  TEST_PROPERTIES PASS_REGULAR_EXPRESSION "The following module label is either not assigned to any path")
+
+cet_test(ReportUnused_mu2e_t HANDBUILT
+  TEST_EXEC mu2e
+  TEST_ARGS -c UnusedModule_t.fcl --debug-config=/dev/null
+  DATAFILES fcl/UnusedModule_t.fcl
+  TEST_PROPERTIES FAIL_REGULAR_EXPRESSION "The following module label is either not assigned to any path")

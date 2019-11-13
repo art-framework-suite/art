@@ -41,10 +41,6 @@ namespace art::detail {
     using seed_t = long;
     using engine_state_t = RNGsnapshot::engine_state_t;
 
-    // We keep a default c'tor for backwards compatibility.  It will
-    // go away once the default constructors for EDProducer and
-    // EDFilter are removed.
-    EngineCreator() = default;
     explicit EngineCreator(std::string const& label, ScheduleID sid);
 
     base_engine_t& createEngine(seed_t seed);

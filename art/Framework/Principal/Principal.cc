@@ -8,7 +8,6 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RangeSetsSupported.h"
 #include "art/Framework/Principal/RunPrincipal.h"
-#include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/DelayedReader.h"
@@ -39,6 +38,7 @@
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "hep_concurrency/RecursiveMutex.h"
+#include "range/v3/view.hpp"
 
 #include <algorithm>
 #include <atomic>
@@ -54,42 +54,7 @@ using namespace std;
 
 namespace art {
 
-  class EventPrincipal;
-
   namespace {
-
-    template <typename T>
-    class ReverseIteration;
-    template <typename T>
-    ReverseIteration<T> reverse_iteration(T const&);
-
-    template <typename T>
-    class ReverseIteration {
-      friend ReverseIteration reverse_iteration<>(T const&);
-
-    private:
-      T const& t_;
-      ReverseIteration(T const& t) : t_{t} {};
-
-    public:
-      auto
-      begin() const
-      {
-        return crbegin(t_);
-      }
-      auto
-      end() const
-      {
-        return crend(t_);
-      }
-    };
-
-    template <typename T>
-    ReverseIteration<T>
-    reverse_iteration(T const& t)
-    {
-      return ReverseIteration<T>{t};
-    }
 
     unique_ptr<Group>
     create_group(DelayedReader* reader, BranchDescription const& bd)
@@ -671,28 +636,59 @@ namespace art {
     }
   }
 
+  std::size_t
+  Principal::findGroups(ProcessLookup const& pl,
+                        ModuleContext const& mc,
+                        SelectorBase const& sel,
+                        std::vector<cet::exempt_ptr<Group>>& groups) const
+  {
+    // Loop over processes in reverse time order.  Sometimes we want
+    // to stop after we find a process with matches so check for that
+    // at each step.
+    std::size_t found{};
+    // MT note: We must protect the process history iterators here
+    //          against possible invalidation by output modules
+    //          inserting a process history entry while we are
+    //          iterating.
+    RecursiveMutexSentry sentry{processHistory_.get_mutex(), __func__};
+    // We must skip over duplicate entries of the same process
+    // configuration in the process history.  This unfortunately
+    // happened with the SamplingInput source.
+    for (auto const& h :
+         ranges::view::reverse(processHistory_) | ranges::view::unique) {
+      if (auto it = pl.find(h.processName()); it != pl.end()) {
+        found += findGroupsForProcess(it->second, mc, sel, groups);
+      }
+    }
+    return found;
+  }
+}
+
+// FIXME: If Selector.h is included before the "ranges::view::unique"
+//        instantiation, then the selector operations are introduced
+//        during template instantiation, resulting in broken builds
+//        for GCC 8.2.  I assume this is an error with either GCC 8.2
+//        or with the ranges library.  I do not yet know who is to
+//        blame. -KK
+#include "art/Framework/Principal/Selector.h"
+
+namespace art {
+
   GroupQueryResult
   Principal::getBySelector(ModuleContext const& mc,
                            WrappedTypeID const& wrapped,
                            SelectorBase const& sel,
                            ProcessTag const& processTag) const
   {
-    auto const groups =
-      findGroupsForProduct(mc, wrapped, sel, processTag, true);
-    auto const results = resolve_products(groups, wrapped.wrapped_product_type);
-    if (results.empty()) {
+    auto const groups = findGroupsForProduct(mc, wrapped, sel, processTag);
+    auto const result = resolve_unique_product(groups, wrapped);
+    if (!result.has_value()) {
       auto whyFailed = std::make_shared<Exception>(errors::ProductNotFound);
       *whyFailed << "getBySelector: Found zero products matching all criteria\n"
                  << "Looking for type: " << wrapped.product_type << "\n";
       return GroupQueryResult{whyFailed};
     }
-    if (results.size() > 1) {
-      throw Exception{errors::ProductNotFound}
-        << "getBySelector: Found " << results.size()
-        << " products rather than one which match all criteria\n"
-        << "Looking for type: " << wrapped.product_type << "\n";
-    }
-    return results[0];
+    return *result;
   }
 
   GroupQueryResult
@@ -706,35 +702,7 @@ namespace art {
     Selector const sel{ModuleLabelSelector{label} &&
                        ProductInstanceNameSelector{productInstanceName} &&
                        ProcessNameSelector{processName}};
-    auto const groups =
-      findGroupsForProduct(mc, wrapped, sel, processTag, true);
-    auto const results = resolve_products(groups, wrapped.wrapped_product_type);
-    if (results.empty()) {
-      auto whyFailed =
-        std::make_shared<art::Exception>(art::errors::ProductNotFound);
-      *whyFailed << "getByLabel: Found zero products matching all criteria\n"
-                 << "Looking for type: " << wrapped.product_type << '\n'
-                 << "Looking for module label: " << label << '\n'
-                 << "Looking for productInstanceName: " << productInstanceName
-                 << '\n';
-      if (!processName.empty()) {
-        *whyFailed << "Looking for process: " << processName << '\n';
-      }
-      return GroupQueryResult{whyFailed};
-    }
-    if (results.size() > 1) {
-      Exception e{errors::ProductNotFound};
-      e << "getByLabel: Found " << results.size()
-        << " products rather than one which match all criteria\n"
-        << "Looking for type: " << wrapped.product_type << '\n'
-        << "Looking for module label: " << label << '\n'
-        << "Looking for productInstanceName: " << productInstanceName << '\n';
-      if (!processName.empty()) {
-        e << "Looking for process: " << processName << '\n';
-      }
-      throw e;
-    }
-    return results[0];
+    return getBySelector(mc, wrapped, sel, processTag);
   }
 
   std::vector<InputTag>
@@ -744,8 +712,7 @@ namespace art {
                           ProcessTag const& processTag) const
   {
     std::vector<InputTag> tags;
-    auto const groups =
-      findGroupsForProduct(mc, wrapped, sel, processTag, false);
+    auto const groups = findGroupsForProduct(mc, wrapped, sel, processTag);
     cet::transform_all(groups, back_inserter(tags), [](auto const g) {
       return g->productDescription().inputTag();
     });
@@ -758,8 +725,7 @@ namespace art {
                      SelectorBase const& sel,
                      ProcessTag const& processTag) const
   {
-    auto const groups =
-      findGroupsForProduct(mc, wrapped, sel, processTag, false);
+    auto const groups = findGroupsForProduct(mc, wrapped, sel, processTag);
     return resolve_products(groups, wrapped.wrapped_product_type);
   }
 
@@ -773,8 +739,7 @@ namespace art {
     if (processTag.current_process_search_allowed() &&
         enableLookupOfProducedProducts_.load()) {
       if (findGroups(
-            producedProducts_.load()->viewLookup, mc, selector, groups, true) !=
-          0) {
+            producedProducts_.load()->viewLookup, mc, selector, groups) != 0) {
         return groups;
       }
     }
@@ -827,35 +792,8 @@ namespace art {
     if (!presentProducts_.load()) {
       return groups;
     }
-    findGroups(presentProducts_.load()->viewLookup, mc, selector, groups, true);
+    findGroups(presentProducts_.load()->viewLookup, mc, selector, groups);
     return groups;
-  }
-
-  std::size_t
-  Principal::findGroups(ProcessLookup const& pl,
-                        ModuleContext const& mc,
-                        SelectorBase const& sel,
-                        std::vector<cet::exempt_ptr<Group>>& groups,
-                        bool const stopIfProcessHasMatch) const
-  {
-    // Loop over processes in reverse time order.  Sometimes we want
-    // to stop after we find a process with matches so check for that
-    // at each step.
-    std::size_t found{};
-    // MT note: We must protect the process history iterators here
-    //          against possible invalidation by output modules
-    //          inserting a process history entry while we are
-    //          iterating.
-    RecursiveMutexSentry sentry{processHistory_.get_mutex(), __func__};
-    for (auto const& h : reverse_iteration(processHistory_)) {
-      if (auto it = pl.find(h.processName()); it != pl.end()) {
-        found += findGroupsForProcess(it->second, mc, sel, groups);
-      }
-      if (stopIfProcessHasMatch && !groups.empty()) {
-        break;
-      }
-    }
-    return found;
   }
 
   std::size_t
@@ -863,8 +801,7 @@ namespace art {
     ModuleContext const& mc,
     WrappedTypeID const& wrapped,
     SelectorBase const& selector,
-    std::vector<cet::exempt_ptr<Group>>& groups,
-    bool const stopIfProcessHasMatch) const
+    std::vector<cet::exempt_ptr<Group>>& groups) const
   {
     if (!presentProducts_.load()) {
       return 0;
@@ -874,15 +811,14 @@ namespace art {
     if (it == lookup.end()) {
       return 0;
     }
-    return findGroups(it->second, mc, selector, groups, stopIfProcessHasMatch);
+    return findGroups(it->second, mc, selector, groups);
   }
 
   std::vector<cet::exempt_ptr<Group>>
   Principal::findGroupsForProduct(ModuleContext const& mc,
                                   WrappedTypeID const& wrapped,
                                   SelectorBase const& selector,
-                                  ProcessTag const& processTag,
-                                  bool const stopIfProcessHasMatch) const
+                                  ProcessTag const& processTag) const
   {
     std::vector<cet::exempt_ptr<Group>> results;
     unsigned ret{};
@@ -892,8 +828,7 @@ namespace art {
       auto const& lookup = producedProducts_.load()->productLookup;
       auto it = lookup.find(wrapped.product_type.friendlyClassName());
       if (it != lookup.end()) {
-        ret +=
-          findGroups(it->second, mc, selector, results, stopIfProcessHasMatch);
+        ret += findGroups(it->second, mc, selector, results);
       }
     }
 
@@ -902,14 +837,12 @@ namespace art {
     }
 
     // Look through currently opened input files
-    ret += findGroupsFromInputFile(
-      mc, wrapped, selector, results, stopIfProcessHasMatch);
+    ret += findGroupsFromInputFile(mc, wrapped, selector, results);
     if (ret) {
       return results;
     }
     for (auto const& sp : secondaryPrincipals_) {
-      if (sp->findGroupsFromInputFile(
-            mc, wrapped, selector, results, stopIfProcessHasMatch)) {
+      if (sp->findGroupsFromInputFile(mc, wrapped, selector, results)) {
         return results;
       }
     }
@@ -926,8 +859,7 @@ namespace art {
       }
       assert(!secondaryPrincipals_.empty());
       auto& new_sp = secondaryPrincipals_.back();
-      if (new_sp->findGroupsFromInputFile(
-            mc, wrapped, selector, results, stopIfProcessHasMatch)) {
+      if (new_sp->findGroupsFromInputFile(mc, wrapped, selector, results)) {
         return results;
       }
     }

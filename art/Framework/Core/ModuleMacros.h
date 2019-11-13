@@ -40,15 +40,28 @@ namespace art::detail {
   using ModuleTypeFunc_t = ModuleType();
   using ModuleThreadingTypeFunc_t = ModuleThreadingType();
 
+  template <typename T, typename = void>
+  struct config_impl {
+    using type = fhicl::ParameterSet;
+  };
+
   template <typename T>
+  struct config_impl<T, std::void_t<typename T::Parameters>> {
+    using type = typename T::Parameters;
+  };
+
+  template <typename T>
+  using Config = typename config_impl<T>::type;
+
+  template <typename T, typename Config>
   T*
-  make_module(fhicl::ParameterSet const& pset, ProcessingFrame const& frame)
+  make_module(Config const& config, ProcessingFrame const& frame)
   {
     if constexpr (ModuleThreadingTypeDeducer<typename T::ModuleType>::value ==
                   ModuleThreadingType::legacy) {
-      return new T{pset};
+      return new T{config};
     } else {
-      return new T{pset, frame};
+      return new T{config, frame};
     }
   }
 }
@@ -62,7 +75,9 @@ namespace art::detail {
   {                                                                            \
     using Base = klass::ModuleType;                                            \
     art::ProcessingFrame const frame{wp.scheduleID_};                          \
-    Base* mod = art::detail::make_module<klass>(wp.pset_, frame);              \
+    /* Reference below to avoid copy if Config<klass> is a ParameterSet. */    \
+    art::detail::Config<klass> const& config{wp.pset_};                        \
+    Base* mod = art::detail::make_module<klass>(config, frame);                \
     mod->setModuleDescription(md);                                             \
     return mod;                                                                \
   }                                                                            \

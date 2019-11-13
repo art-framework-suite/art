@@ -150,9 +150,7 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
         counts.except += path->timesExcept();
       }
     }
-    for (auto const& pr : counts_per_path) {
-      auto const& path_name = pr.first;
-      auto const& counts = pr.second;
+    for (auto const& [path_name, counts] : counts_per_path) {
       LogPrint("ArtSummary")
         << "TrigReport " << std::right << setw(5) << 1 << std::right << setw(5)
         << counts.bitPosition << " " << std::right << setw(10) << counts.run
@@ -214,11 +212,10 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
         }
       }
     }
-    for (auto const& pr : counts_per_worker_in_path) {
-      auto const& path_data = pr.first;
+    for (auto const& [path_data, worker_in_path_counts] :
+         counts_per_worker_in_path) {
       auto const& path_name = std::get<std::string>(path_data);
       auto const& bit_position = std::get<int>(path_data);
-      auto const& worker_in_path_counts = pr.second;
       LogPrint("ArtSummary") << "";
       LogPrint("ArtSummary")
         << "TrigReport "
@@ -289,23 +286,19 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
     std::map<std::string, ModuleCounts> counts_per_module;
     auto update_counts = [&counts_per_module](auto const& pathInfos) {
       for (auto const& pi : pathInfos) {
-        for (auto const& pr : pi.workers()) {
-          auto const& module_label = pr.first;
-          auto const& module_counts = *pr.second;
+        for (auto const& [module_label, module_counts] : pi.workers()) {
           auto& counts = counts_per_module[module_label];
-          counts.visited += module_counts.timesVisited();
-          counts.run += module_counts.timesRun();
-          counts.passed += module_counts.timesPassed();
-          counts.failed += module_counts.timesFailed();
-          counts.except += module_counts.timesExcept();
+          counts.visited += module_counts->timesVisited();
+          counts.run += module_counts->timesRun();
+          counts.passed += module_counts->timesPassed();
+          counts.failed += module_counts->timesFailed();
+          counts.except += module_counts->timesExcept();
         }
       }
     };
     update_counts(tpis);
     update_counts(epis);
-    for (auto const& pr : counts_per_module) {
-      auto const& module_label = pr.first;
-      auto const& module_counts = pr.second;
+    for (auto const& [module_label, module_counts] : counts_per_module) {
       LogPrint("ArtSummary")
         << "TrigReport " << std::right << setw(10) << module_counts.visited
         << " " << std::right << setw(10) << module_counts.run << " "

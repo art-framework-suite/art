@@ -137,9 +137,7 @@ namespace art {
   };
 
   template <typename DETAIL>
-  struct ProvenanceDumperConfig<
-    DETAIL,
-    cet::enable_if_type_exists_t<typename DETAIL::Config>> {
+  struct ProvenanceDumperConfig<DETAIL, std::void_t<typename DETAIL::Config>> {
     fhicl::TableFragment<art::OutputModule::Config> omConfig;
     fhicl::Atom<bool> wantPresentOnly{fhicl::Name("wantPresentOnly"), true};
     fhicl::Atom<bool> resolveProducts{fhicl::Name("resolveProducts"), true};
@@ -202,8 +200,7 @@ private:
 namespace art {
 
   template <typename DETAIL>
-  class ProvenanceDumper<DETAIL,
-                         cet::enable_if_type_exists_t<typename DETAIL::Config>>
+  class ProvenanceDumper<DETAIL, std::void_t<typename DETAIL::Config>>
     : public OutputModule {
   public:
     using Parameters =

@@ -14,6 +14,7 @@ namespace fhicl {
 namespace art::detail {
   std::map<std::string, ModuleKeyAndType> prune_config_if_enabled(
     bool prune_config,
+    bool report_enabled,
     fhicl::intermediate_table& config);
 }
 

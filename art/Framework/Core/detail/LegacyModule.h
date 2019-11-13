@@ -9,10 +9,8 @@
 #include <atomic>
 
 namespace art::detail {
-
   class LegacyModule : public SharedModule, private EngineCreator {
   public:
-    explicit LegacyModule();
     explicit LegacyModule(std::string const& module_label);
 
     ScheduleID scheduleID() const noexcept;

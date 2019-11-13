@@ -1,7 +1,6 @@
 #include "art/Framework/Art/run_art.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Art/BasicOptionsHandler.h"
 #include "art/Framework/Art/BasicPostProcessor.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
@@ -141,22 +140,9 @@ namespace art {
   int
   run_art(int argc,
           char** argv,
-          bpo::options_description& in_desc,
-          cet::filepath_maker& lookupPolicy,
+          bpo::options_description& all_desc,
           OptionsHandlers&& handlers)
   {
-    ostringstream descstr;
-    descstr << "\nUsage: "
-            << boost::filesystem::path(argv[0]).filename().native()
-            << " <-c <config-file>> <other-options> [<source-file>]+\n\n"
-            << "Basic options";
-    bpo::options_description all_desc{descstr.str()};
-    all_desc.add(in_desc);
-    // BasicOptionsHandler should always be first in the list!
-    handlers.emplace(handlers.begin(),
-                     new BasicOptionsHandler{all_desc, lookupPolicy});
-    // BasicPostProcessor should be last.
-    handlers.emplace_back(new BasicPostProcessor);
     // This must be added separately: how to deal with any non-option arguments.
     bpo::positional_options_description pd;
     // A single non-option argument will be taken to be the source data file.
@@ -180,7 +166,7 @@ namespace art {
     }
     // Preliminary argument checking.
     for (auto& handler : handlers) {
-      auto result = handler->checkOptions(vm);
+      auto const result = handler->checkOptions(vm);
       if (result != 0) {
         return result;
       }
@@ -188,7 +174,7 @@ namespace art {
     // Processing of arguments and post-processing of config.
     fhicl::intermediate_table raw_config;
     for (auto& handler : handlers) {
-      auto result = handler->processOptions(vm, raw_config);
+      auto const result = handler->processOptions(vm, raw_config);
       if (result != 0) {
         return result;
       }
@@ -197,15 +183,19 @@ namespace art {
     // If configuration pruning has been enabled, remove unused module
     // configurations.
     using detail::exists_outside_prolog;
+    using detail::fhicl_key;
+    auto const scheduler_key = fhicl_key("services", "scheduler");
     std::map<std::string, detail::ModuleKeyAndType> enabled_modules;
-    assert(exists_outside_prolog(raw_config, "services.scheduler"));
+    assert(exists_outside_prolog(raw_config, scheduler_key));
     try {
-      std::string const pruneConfig{"services.scheduler.pruneConfig"};
-      bool const should_prune =
-        exists_outside_prolog(raw_config, pruneConfig) &&
-        raw_config.get<bool>(pruneConfig);
-      enabled_modules =
-        detail::prune_config_if_enabled(should_prune, raw_config);
+      auto const pruneConfigKey = fhicl_key(scheduler_key, "pruneConfig");
+      auto const reportUnusedKey = fhicl_key(scheduler_key, "reportUnused");
+      assert(exists_outside_prolog(raw_config, pruneConfigKey));
+      assert(exists_outside_prolog(raw_config, reportUnusedKey));
+      bool const prune_config = raw_config.get<bool>(pruneConfigKey);
+      bool const report_unused = raw_config.get<bool>(reportUnusedKey);
+      enabled_modules = detail::prune_config_if_enabled(
+        prune_config, report_unused, raw_config);
     }
     catch (Exception const& e) {
       printArtException(e, "art");
@@ -243,8 +233,8 @@ namespace art {
       cerr << "       Intermediate configuration state follows:\n"
            << rule('-') << '\n'
            << rule('-') << '\n';
-      for (auto const& item : raw_config) {
-        cerr << item.first << ": " << item.second.to_string() << '\n';
+      for (auto const& [key, value] : raw_config) {
+        cerr << key << ": " << value.to_string() << '\n';
       }
       cerr << rule('-') << '\n' << rule('-') << '\n';
       return 91;
@@ -273,7 +263,8 @@ namespace art {
       // create an intermediate table from the input string
       fhicl::intermediate_table raw_config;
       parse_document(config_string, raw_config);
-      enabled_modules = detail::prune_config_if_enabled(false, raw_config);
+      enabled_modules =
+        detail::prune_config_if_enabled(false, true, raw_config);
       // run post-processing
       bpo::variables_map vm;
       BasicPostProcessor bpp;
@@ -383,6 +374,13 @@ namespace art {
     catch (cet::exception const& e) {
       rc = 65;
       printArtException(e, "art");
+    }
+    catch (detail::collected_exception const& e) {
+      rc = 1;
+      // LogSystem already adds a newline, so trim the one that's
+      // already in the exception message.
+      std::string const msg{e.what()};
+      mf::LogSystem("ArtException") << msg.substr(0, msg.find_last_of("\n"));
     }
     catch (bad_alloc const& bda) {
       rc = 68;

@@ -312,16 +312,15 @@ namespace art {
     std::vector<cet::exempt_ptr<Group>> matchingSequenceFromInputFile(
       ModuleContext const&,
       SelectorBase const&) const;
-    size_t findGroupsFromInputFile(ModuleContext const&,
-                                   WrappedTypeID const& wrapped,
-                                   SelectorBase const&,
-                                   std::vector<cet::exempt_ptr<Group>>& results,
-                                   bool stopIfProcessHasMatch) const;
+    size_t findGroupsFromInputFile(
+      ModuleContext const&,
+      WrappedTypeID const& wrapped,
+      SelectorBase const&,
+      std::vector<cet::exempt_ptr<Group>>& results) const;
     size_t findGroups(ProcessLookup const&,
                       ModuleContext const&,
                       SelectorBase const&,
-                      std::vector<cet::exempt_ptr<Group>>& groups,
-                      bool stopIfProcessHasMatch) const;
+                      std::vector<cet::exempt_ptr<Group>>& groups) const;
     size_t findGroupsForProcess(
       std::vector<ProductID> const& vpid,
       ModuleContext const& mc,
@@ -336,8 +335,7 @@ namespace art {
       ModuleContext const& mc,
       WrappedTypeID const& wrapped,
       SelectorBase const&,
-      ProcessTag const&,
-      bool stopIfProcessHasMatch) const;
+      ProcessTag const&) const;
 
     // Note: Used only by canvas RefCoreStreamer.cc through
     // PrincipalBase::getEDProductGetter!

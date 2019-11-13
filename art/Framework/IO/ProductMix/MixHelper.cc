@@ -150,7 +150,10 @@ art::MixHelper::registerSecondaryFileNameProvider(ProviderFunc_ func)
 art::MixHelper::base_engine_t&
 art::MixHelper::createEngine(seed_t const seed)
 {
-  if (engine_ && consistentRequest_("HepJamesRandom", ""s)) {
+  if (engine_ &&
+      consistentRequest_(
+        ServiceHandle<RandomNumberGenerator const>()->defaultEngineKind(),
+        ""s)) {
     return *engine_;
   }
   return detail::EngineCreator::createEngine(seed);
@@ -429,7 +432,9 @@ bool
 art::MixHelper::consistentRequest_(std::string const& kind_of_engine_to_make,
                                    label_t const& engine_label) const
 {
-  if (kind_of_engine_to_make == "HepJamesRandom"s && engine_label.empty()) {
+  auto const& default_engine_kind =
+    ServiceHandle<RandomNumberGenerator const>()->defaultEngineKind();
+  if (kind_of_engine_to_make == default_engine_kind && engine_label.empty()) {
     mf::LogInfo{"RANDOM"} << "A random number engine has already been created "
                              "since the read mode is "
                           << readMode_ << '.';
@@ -439,7 +444,8 @@ art::MixHelper::consistentRequest_(std::string const& kind_of_engine_to_make,
                   "An error occurred while creating a random number engine "
                   "within a MixFilter detail class.\n"}
     << "A random number engine with an empty label has already been created "
-       "with an engine type of HepJamesRandom.\n"
+       "with an engine type of "
+    << default_engine_kind << ".\n"
     << "If you would like to use a different engine type, please supply a "
        "different engine label.\n";
 }

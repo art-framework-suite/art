@@ -98,7 +98,9 @@ art::SourceHelper::makeRunPrincipal(RunAuxiliary const& runAux) const
     processHistoryID_(InRun, md_.processConfiguration());
   auto principal = new RunPrincipal{
     runAux, md_.processConfiguration(), &presentProducts_->get(InRun)};
-  principal->markProcessHistoryAsModified();
+  if (runAux.processHistoryID().isValid()) {
+    principal->markProcessHistoryAsModified();
+  }
   return principal;
 }
 
@@ -126,7 +128,9 @@ art::SourceHelper::makeSubRunPrincipal(SubRunAuxiliary const& subRunAux) const
   subRunAux.setProcessHistoryID(phid);
   auto principal = new SubRunPrincipal{
     subRunAux, md_.processConfiguration(), &presentProducts_->get(InSubRun)};
-  principal->markProcessHistoryAsModified();
+  if (subRunAux.processHistoryID().isValid()) {
+    principal->markProcessHistoryAsModified();
+  }
   return principal;
 }
 
@@ -164,11 +168,14 @@ art::SourceHelper::makeEventPrincipal(EventAuxiliary const& eventAux,
   }
   throwIfProductsNotRegistered_();
   auto new_history = history_(md_.processConfiguration(), std::move(history));
+  auto const processHistoryID = new_history->processHistoryID();
   auto principal = new EventPrincipal{eventAux,
                                       md_.processConfiguration(),
                                       &presentProducts_->get(InEvent),
                                       std::move(new_history)};
-  principal->markProcessHistoryAsModified();
+  if (processHistoryID.isValid()) {
+    principal->markProcessHistoryAsModified();
+  }
   return principal;
 }
 

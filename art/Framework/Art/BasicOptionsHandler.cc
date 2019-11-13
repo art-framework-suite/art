@@ -26,10 +26,17 @@ namespace {
     return s.substr(1); // trim off 'v'
   }
 
+  auto
+  to_string(bool const value)
+  {
+    return value ? "true"s : "false"s;
+  }
+
 } // namespace
 
 art::BasicOptionsHandler::BasicOptionsHandler(bpo::options_description& desc,
-                                              cet::filepath_maker& maker)
+                                              cet::filepath_maker& maker,
+                                              bool const report_unused)
   : help_desc_{desc}, maker_{maker}
 {
   auto options = desc.add_options();
@@ -43,10 +50,17 @@ art::BasicOptionsHandler::BasicOptionsHandler(bpo::options_description& desc,
     options, "config,c", bpo::value<std::string>(), "Configuration file.");
   add_opt(
     options, "process-name", bpo::value<std::string>(), "art process name.");
-  add_opt(options,
-          "prune-config",
-          bpo::value<bool>()->default_value(true),
-          "Remove unused modules from the fully-processed configuration.");
+  add_opt(
+    options,
+    "prune-config",
+    bpo::value<bool>()->default_value(true, to_string(true)),
+    "Remove unused modules and paths from the fully-processed configuration.");
+  add_opt(
+    options,
+    "report-unused",
+    bpo::value<bool>()->default_value(report_unused, to_string(report_unused)),
+    "If 'true', the list of unused modules and paths will be printed to "
+    "STDERR.");
   add_opt(
     options,
     "print-available",
@@ -151,6 +165,10 @@ art::BasicOptionsHandler::doProcessOptions(
   if (vm.count("prune-config")) {
     raw_config.put("services.scheduler.pruneConfig",
                    vm["prune-config"].as<bool>());
+  }
+  if (vm.count("report-unused")) {
+    raw_config.put("services.scheduler.reportUnused",
+                   vm["report-unused"].as<bool>());
   }
   return 0;
 }

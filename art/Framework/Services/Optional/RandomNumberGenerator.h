@@ -165,25 +165,37 @@ namespace art {
     friend class detail::EngineCreator;
     friend class RandomNumberSaver;
 
-  public: // TYPES
+  public:
     // Used by createEngine, restoreSnapshot_, and restoreFromFile_.
     enum class EngineSource { Seed = 1, File = 2, Product = 3 };
 
-  public: // CONSTANTS
-    static std::string const defaultEngineKind /*  = "HepJamesRandom" */;
-    static long constexpr maxCLHEPSeed{900000000};
+    static long constexpr maxCLHEPSeed{900000000}; // non MixMaxRng
     static long constexpr useDefaultSeed{-1};
     using base_engine_t = CLHEP::HepRandomEngine;
     using seed_t = long;
 
-  private: // TYPES
-  public:
-    // Configuration
     struct Config {
       template <typename T>
       using Atom = fhicl::Atom<T>;
       using Name = fhicl::Name;
       using Comment = fhicl::Comment;
+      Atom<std::string> defaultEngineKind{
+        Name{"defaultEngineKind"},
+        Comment{
+          "The 'defaultEngineKind' parameter can be any of the following:\n\n"
+          "  'DRand48Engine'\n"
+          "  'DualRand'\n"
+          "  'Hurd160Engine'\n"
+          "  'Hurd288Engine'\n"
+          "  'HepJamesRandom' (art default)\n"
+          "  'MixMaxRng'    (CLHEP default)\n"
+          "  'MTwistEngine'\n"
+          "  'RanecuEngine'\n"
+          "  'Ranlux64Engine'\n"
+          "  'RanluxEngine'\n"
+          "  'RanshiEngine'\n"
+          "  'TripleRand'\n"},
+        "HepJamesRandom"};
       Atom<std::string> restoreStateLabel{
         Name{"restoreStateLabel"},
         Comment{
@@ -227,6 +239,12 @@ namespace art {
     RandomNumberGenerator& operator=(RandomNumberGenerator const&) = delete;
     RandomNumberGenerator& operator=(RandomNumberGenerator&&) = delete;
 
+    std::string const&
+    defaultEngineKind() const noexcept
+    {
+      return defaultEngineKind_;
+    }
+
   private:
     // Engine establishment
     // Accessible to user modules through friendship. Should only be used in
@@ -235,8 +253,11 @@ namespace art {
       ScheduleID sid,
       std::string const& module_label,
       long seed,
-      std::string const& kind_of_engine_to_make = defaultEngineKind,
+      std::string const& kind_of_engine_to_make,
       std::string const& engine_label = {});
+
+    void validate_(std::string const& user_specified_engine_kind,
+                   long user_specified_seed) noexcept(false);
 
     // Snapshot management helpers
     void takeSnapshot_(ScheduleID);
@@ -260,6 +281,8 @@ namespace art {
 
     // Protects all data members.
     mutable hep::concurrency::RecursiveMutex mutex_{"art::rng::mutex_"};
+
+    std::string const defaultEngineKind_;
 
     // Product key for restoring from a snapshot
     std::string const restoreStateLabel_;

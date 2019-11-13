@@ -15,35 +15,45 @@
 // ======================================================================
 
 #include <exception>
+#include <string>
 #include <vector>
 
-namespace art {
-  namespace detail {
-    class ExceptionCollector;
-  }
-} // namespace art
+namespace art::detail {
+  class ExceptionCollector {
+  public:
+    bool
+    empty() const noexcept
+    {
+      return exceptions_.empty();
+    }
+    [[noreturn]] void rethrow();
 
-class art::detail::ExceptionCollector {
-public:
-  bool
-  empty() const noexcept
-  {
-    return exceptions_.empty();
-  }
-  [[noreturn]] void rethrow();
+    template <typename F>
+    void
+    call(F f) try {
+      f();
+    }
+    catch (...) {
+      exceptions_.push_back(std::current_exception());
+    }
 
-  template <typename F>
-  void
-  call(F f) try {
-    f();
-  }
-  catch (...) {
-    exceptions_.push_back(std::current_exception());
-  }
+  private:
+    std::vector<std::exception_ptr> exceptions_{};
+  };
 
-private:
-  std::vector<std::exception_ptr> exceptions_{};
-};
+  class collected_exception : public std::exception {
+  public:
+    explicit collected_exception(std::string msg) : msg_(move(msg)) {}
+    char const*
+    what() const noexcept override
+    {
+      return msg_.c_str();
+    }
+
+  private:
+    std::string const msg_;
+  };
+}
 
 #endif /* art_Framework_EventProcessor_detail_ExceptionCollector_h */
 

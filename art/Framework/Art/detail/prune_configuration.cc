@@ -294,6 +294,7 @@ namespace {
 
 std::map<std::string, ModuleKeyAndType>
 art::detail::prune_config_if_enabled(bool const prune_config,
+                                     bool const report_enabled,
                                      intermediate_table& config)
 {
   auto const modules = declared_modules(config, module_tables);
@@ -312,7 +313,7 @@ art::detail::prune_config_if_enabled(bool const prune_config,
                 paths_for_tables(paths, modules, ModuleCategory::observer);
 
   // The only paths left are those that are not enabled for execution.
-  if (!paths.empty()) {
+  if (report_enabled && !empty(paths)) {
     std::cerr << "The following paths have not been enabled for execution and "
                  "will be ignored:\n";
     for (auto const& pr : paths) {
@@ -336,7 +337,7 @@ art::detail::prune_config_if_enabled(bool const prune_config,
                      return emods.find(mod.first) == cend(emods);
                    });
 
-  if (!unused_modules.empty()) {
+  if (report_enabled && !empty(unused_modules)) {
     std::ostringstream os;
     auto i = cbegin(unused_modules);
     os << "The following module label"

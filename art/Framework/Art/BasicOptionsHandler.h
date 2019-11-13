@@ -15,7 +15,8 @@ namespace art {
 class art::BasicOptionsHandler : public art::OptionsHandler {
 public:
   BasicOptionsHandler(bpo::options_description& desc,
-                      cet::filepath_maker& maker);
+                      cet::filepath_maker& maker,
+                      bool report_unused);
 
 private:
   // Check selected options for consistency.

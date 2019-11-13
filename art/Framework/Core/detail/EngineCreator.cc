@@ -24,8 +24,7 @@ EngineCreator::EngineCreator(std::string const& moduleLabel,
 EngineCreator::base_engine_t&
 EngineCreator::createEngine(seed_t const seed)
 {
-  requireValid();
-  return rng()->createEngine(sid_, moduleLabel_, seed);
+  return createEngine(seed, rng()->defaultEngineKind());
 }
 
 EngineCreator::base_engine_t&
