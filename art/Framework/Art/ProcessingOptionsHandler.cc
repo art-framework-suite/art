@@ -2,8 +2,8 @@
 
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
-#include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
+#include "cetlib/bold_fontify.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"

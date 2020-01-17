@@ -5,9 +5,9 @@
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
-#include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
+#include "cetlib/bold_fontify.h"
 #include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/detail/validationException.h"
@@ -80,8 +80,7 @@ namespace art::detail {
                  << "!! The following service has been misconfigured: !!"
                  << "\n\n"
                  << rule('-') << "\n\nservice_type: "
-                 << art::detail::bold_fontify(
-                      config_.get<std::string>("service_type"))
+                 << cet::bold_fontify(config_.get<std::string>("service_type"))
                  << "\n\n"
                  << e.what() << "\n"
                  << rule('=') << "\n\n";

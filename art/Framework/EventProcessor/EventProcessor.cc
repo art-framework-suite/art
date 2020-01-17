@@ -27,7 +27,6 @@
 #include "art/Utilities/SharedResourcesRegistry.h"
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/UnixSignalHandlers.h"
-#include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
@@ -35,6 +34,7 @@
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
+#include "cetlib/bold_fontify.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -237,9 +237,8 @@ namespace art {
       }
       catch (fhicl::detail::validationException const& e) {
         throw Exception(errors::Configuration)
-          << "\n\nModule label: " << detail::bold_fontify(md.moduleLabel())
-          << "\nmodule_type : " << detail::bold_fontify(md.moduleName())
-          << "\n\n"
+          << "\n\nModule label: " << cet::bold_fontify(md.moduleLabel())
+          << "\nmodule_type : " << cet::bold_fontify(md.moduleName()) << "\n\n"
           << e.what();
       }
       catch (Exception const& x) {

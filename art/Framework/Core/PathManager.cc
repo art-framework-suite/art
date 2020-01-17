@@ -23,13 +23,13 @@
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/ScheduleIteration.h"
-#include "art/Utilities/bold_fontify.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/LibraryManager.h"
+#include "cetlib/bold_fontify.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/detail/wrapLibraryManagerException.h"
 #include "cetlib/ostream_handle.h"
@@ -598,8 +598,8 @@ namespace art {
     }
     catch (fhicl::detail::validationException const& e) {
       ostringstream es;
-      es << "\n\nModule label: " << detail::bold_fontify(md.moduleLabel())
-         << "\nmodule_type : " << detail::bold_fontify(module_type) << "\n\n"
+      es << "\n\nModule label: " << cet::bold_fontify(md.moduleLabel())
+         << "\nmodule_type : " << cet::bold_fontify(module_type) << "\n\n"
          << e.what();
       result.second = es.str();
     }

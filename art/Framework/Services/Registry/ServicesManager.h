@@ -8,12 +8,12 @@
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
 #include "art/Utilities/PluginSuffixes.h"
-#include "art/Utilities/bold_fontify.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/LibraryManager.h"
+#include "cetlib/bold_fontify.h"
 #include "cetlib_except/demangle.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
@@ -135,7 +135,7 @@ namespace art {
       << "!! The following service has been misconfigured: !!"
       << "\n\n"
       << rule('-') << "\n\nservice_type: "
-      << detail::bold_fontify(cet::demangle_symbol(typeid(SERVICE).name()))
+      << cet::bold_fontify(cet::demangle_symbol(typeid(SERVICE).name()))
       << "\n\n"
       << e.what() << "\n"
       << rule('=') << "\n\n";

@@ -6,7 +6,7 @@
 #include "art/Framework/Art/detail/PrintFormatting.h"
 #include "art/Framework/Art/detail/md-collector/print_description_blocks.h"
 #include "art/Utilities/PluginSuffixes.h"
-#include "art/Utilities/bold_fontify.h"
+#include "cetlib/bold_fontify.h"
 
 #include <regex>
 #include <string>
@@ -33,7 +33,7 @@ namespace art::detail {
     {
       std::string const& printed_name = li.short_spec();
       std::ostringstream result;
-      result << indent_1() << "service : " << bold_fontify(printed_name)
+      result << indent_1() << "service : " << cet::bold_fontify(printed_name)
              << "\n\n";
       return result.str();
     }

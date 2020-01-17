@@ -6,8 +6,8 @@
 // ======================================================================
 
 #include "art/Framework/Core/detail/EngineCreator.h"
-#include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
+#include "cetlib/bold_fontify.h"
 #include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -73,7 +73,7 @@ EngineCreator::requireValid()
     << "            dataMembers_, ...\n"
     << "          {}\n\n"
     << "  Right:  MyFilter(ParameterSet const& ps) :\n"
-    << "            " << art::detail::bold_fontify("art::EDFilter{ps},")
+    << "            " << cet::bold_fontify("art::EDFilter{ps},")
     << " dataMembers_, ...\n"
     << "          {}\n\n"
     << "If your module is a producer, 'art::EDFilter{ps}' above should be\n"
