@@ -72,8 +72,7 @@ namespace {
       apply_gs(gs, descriptions, results);
     }
 
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-      cbegin(expected), cend(expected), cbegin(results), cend(results));
+    BOOST_TEST_REQUIRE(expected == results, boost::test_tools::per_element{});
   }
 
   class GlobalSetup {

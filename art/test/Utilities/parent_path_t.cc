@@ -7,9 +7,9 @@ BOOST_AUTO_TEST_SUITE(parent_path_t)
 
 BOOST_AUTO_TEST_CASE(parent_path)
 {
-  BOOST_CHECK_EQUAL(art::parent_path("bar"), ".");
-  BOOST_CHECK_EQUAL(art::parent_path("/bar"), "/");
-  BOOST_CHECK_EQUAL(art::parent_path("foo/bar"), "foo");
+  BOOST_TEST(art::parent_path("bar") == ".");
+  BOOST_TEST(art::parent_path("/bar") == "/");
+  BOOST_TEST(art::parent_path("foo/bar") == "foo");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(tool_class)
   fhicl::ParameterSet ps;
   ps.put("tool_type", "ClassTool"s);
   auto t1 = art::make_tool<arttest::ClassTool>(ps);
-  BOOST_CHECK_EQUAL(t1->addOne(17), 18);
+  BOOST_TEST(t1->addOne(17) == 18);
 }
 
 BOOST_AUTO_TEST_CASE(tool_function)
@@ -42,8 +42,8 @@ BOOST_AUTO_TEST_CASE(tool_function)
   int i{17};
   auto addOne1 = art::make_tool<decltype(arttest::addOne)>(ps, "addOne");
   auto addOne2 = art::make_tool<int(int)>(ps, "addOne");
-  BOOST_CHECK_EQUAL(addOne1(i), 18);
-  BOOST_CHECK_EQUAL(addOne2(i), 18);
+  BOOST_TEST(addOne1(i) == 18);
+  BOOST_TEST(addOne2(i) == 18);
 }
 
 BOOST_AUTO_TEST_CASE(nested_function_tools)
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(nested_function_tools)
     art::make_tool<decltype(arttest::callThroughToAddOne)>(
       ps, "callThroughToAddOne");
   auto const& nestedPS = ps.get<fhicl::ParameterSet>("addOneTool");
-  BOOST_CHECK_EQUAL(callThroughToAddOne(nestedPS, 17), 18);
+  BOOST_TEST(callThroughToAddOne(nestedPS, 17) == 18);
 }
 
 BOOST_AUTO_TEST_CASE(nested_class_tools)
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(nested_class_tools)
      << "}";
   auto const& ps = pset_from_oss(ss);
   auto t = art::make_tool<arttest::NestedClassTool>(ps);
-  BOOST_CHECK_EQUAL(t->callThroughToAddOne(17), 18);
+  BOOST_TEST(t->callThroughToAddOne(17) == 18);
 }
 
 BOOST_AUTO_TEST_CASE(nested_function_in_class_tools)
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(nested_function_in_class_tools)
      << "}";
   auto const& ps = pset_from_oss(ss);
   auto t = art::make_tool<arttest::NestedFunctionInClassTool>(ps);
-  BOOST_CHECK_EQUAL(t->callThroughToAddOne(17), 18);
+  BOOST_TEST(t->callThroughToAddOne(17) == 18);
 }
 
 BOOST_AUTO_TEST_CASE(polymorphic_tools)
@@ -93,19 +93,19 @@ BOOST_AUTO_TEST_CASE(polymorphic_tools)
     ps.put("tool_type", "AddNumber");
     ps.put("incrementBy", 7);
     art::make_tool<arttest::OperationBase>(ps)->adjustNumber(i);
-    BOOST_CHECK_EQUAL(i, 24);
+    BOOST_TEST(i == 24);
   }
   {
     fhicl::ParameterSet ps;
     ps.put("tool_type", "SubtractNumber");
     art::make_tool<arttest::OperationBase>(ps)->adjustNumber(i);
-    BOOST_CHECK_EQUAL(i, 23);
+    BOOST_TEST(i == 23);
   }
   {
     fhicl::ParameterSet ps;
     ps.put("tool_type", "MultiplyNumber");
     art::make_tool<arttest::OperationBase>(ps)->adjustNumber(i);
-    BOOST_CHECK_EQUAL(i, 46);
+    BOOST_TEST(i == 46);
   }
 }
 

@@ -24,9 +24,9 @@ BOOST_AUTO_TEST_SUITE(event_start_test)
 BOOST_AUTO_TEST_CASE(well_formed)
 {
   auto const [r, sr, e] = event_start("1:2:3");
-  BOOST_CHECK_EQUAL(r, 1u);
-  BOOST_CHECK_EQUAL(sr, 2u);
-  BOOST_CHECK_EQUAL(e, 3u);
+  BOOST_TEST(r == 1u);
+  BOOST_TEST(sr == 2u);
+  BOOST_TEST(e == 3u);
 }
 
 BOOST_AUTO_TEST_CASE(well_formed_first_values)
@@ -37,9 +37,9 @@ BOOST_AUTO_TEST_CASE(well_formed_first_values)
   auto const e_first = art::IDNumber<art::Level::Event>::first();
   auto const [r, sr, e] = event_start(
     to_string(r_first) + ':' + to_string(sr_first) + ':' + to_string(e_first));
-  BOOST_CHECK_EQUAL(r, r_first);
-  BOOST_CHECK_EQUAL(sr, sr_first);
-  BOOST_CHECK_EQUAL(e, e_first);
+  BOOST_TEST(r == r_first);
+  BOOST_TEST(sr == sr_first);
+  BOOST_TEST(e == e_first);
 }
 
 BOOST_AUTO_TEST_CASE(well_formed_max_valid_values)
@@ -51,17 +51,17 @@ BOOST_AUTO_TEST_CASE(well_formed_max_valid_values)
   auto const [r, sr, e] =
     event_start(to_string(r_max_valid) + ':' + to_string(sr_max_valid) + ':' +
                 to_string(e_max_valid));
-  BOOST_CHECK_EQUAL(r, r_max_valid);
-  BOOST_CHECK_EQUAL(sr, sr_max_valid);
-  BOOST_CHECK_EQUAL(e, e_max_valid);
+  BOOST_TEST(r == r_max_valid);
+  BOOST_TEST(sr == sr_max_valid);
+  BOOST_TEST(e == e_max_valid);
 }
 
 BOOST_AUTO_TEST_CASE(leading_and_trailing_spaces_allowed)
 {
   auto const [r, sr, e] = event_start(" 1:2  :   3");
-  BOOST_CHECK_EQUAL(r, 1u);
-  BOOST_CHECK_EQUAL(sr, 2u);
-  BOOST_CHECK_EQUAL(e, 3u);
+  BOOST_TEST(r == 1u);
+  BOOST_TEST(sr == 2u);
+  BOOST_TEST(e == 3u);
 }
 
 #define VERIFY_EXCEPTION_WITH_MSG(spec)                                        \

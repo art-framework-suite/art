@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(TestSignal2_t)
   std::string const cmp_text{std::string("1: ") + test_text +
                              "2: " + test_text + "3: " + test_text};
   BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
-  BOOST_CHECK(os.is_equal(cmp_text));
+  BOOST_TEST(os.is_equal(cmp_text));
 }
 
 BOOST_AUTO_TEST_CASE(TestSignal2a_t)
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(TestSignal2a_t)
   std::string const cmp_text{std::string("3: ") + test_text +
                              "2: " + test_text + "1: " + test_text};
   BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
-  BOOST_CHECK(os.is_equal(cmp_text));
+  BOOST_TEST(os.is_equal(cmp_text));
 }
 
 BOOST_AUTO_TEST_CASE(TestSignal2_func_t)
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(TestSignal2_func_t)
   CallBackClass cbc;
   BOOST_CHECK_NO_THROW(s.watch(sID, &CallBackClass::func, cbc));
   BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
-  BOOST_CHECK(os.is_equal(test_text));
+  BOOST_TEST(os.is_equal(test_text));
 }
 
 BOOST_AUTO_TEST_CASE(TestSignal2_cfunc_t)
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(TestSignal2_cfunc_t)
   CallBackClass const cbc;
   BOOST_CHECK_NO_THROW(s.watch(sID, &CallBackClass::cfunc, cbc));
   BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
-  BOOST_CHECK(os.is_equal(test_text));
+  BOOST_TEST(os.is_equal(test_text));
 }
 
 BOOST_AUTO_TEST_CASE(TestSignal1_t)
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(TestSignal1_t)
   BOOST_CHECK_NO_THROW(
     s.watch(sID, [&test_text](auto& x) { testCallback<0>(x, test_text); }));
   BOOST_CHECK_NO_THROW(s.invoke(sID, os));
-  BOOST_CHECK(os.is_equal(test_text));
+  BOOST_TEST(os.is_equal(test_text));
 }
 
 BOOST_AUTO_TEST_CASE(TestSignal0_t)
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(TestSignal0_t)
   BOOST_CHECK_NO_THROW(
     s.watch(sID, [&os, &test_text] { testCallback<0>(os, test_text); }));
   BOOST_CHECK_NO_THROW(s.invoke(sID));
-  BOOST_CHECK(os.is_equal(test_text));
+  BOOST_TEST(os.is_equal(test_text));
 }
 
 BOOST_AUTO_TEST_CASE(TestSignal1_All_t)
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(TestSignal1_All_t)
   BOOST_CHECK_NO_THROW(
     s.watchAll([&test_text](auto& x) { testCallback<0>(x, test_text); }));
   BOOST_CHECK_NO_THROW(s.invoke(sID, os));
-  BOOST_CHECK(os.is_equal(test_text));
+  BOOST_TEST(os.is_equal(test_text));
 }
 
 BOOST_AUTO_TEST_CASE(TestSignal2_All_t)
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(TestSignal2_All_t)
   boost::test_tools::output_test_stream os;
   BOOST_CHECK_NO_THROW(s.watchAll(testCallback<0>));
   BOOST_CHECK_NO_THROW(s.invoke(sID, os, test_text));
-  BOOST_CHECK(os.is_equal(test_text));
+  BOOST_TEST(os.is_equal(test_text));
 }
 
 BOOST_AUTO_TEST_CASE(TestSignal0_All_t)
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE(TestSignal0_All_t)
   BOOST_CHECK_NO_THROW(
     s.watchAll([&os, &test_text] { testCallback<0>(os, test_text); }));
   BOOST_CHECK_NO_THROW(s.invoke(sID));
-  BOOST_CHECK(os.is_equal(test_text));
+  BOOST_TEST(os.is_equal(test_text));
 }
 
 BOOST_AUTO_TEST_CASE(watchFail)
