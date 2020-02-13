@@ -80,10 +80,6 @@ namespace art {
     for (auto& pr : services_) {
       auto& serviceEntry = pr.second;
 
-      // Per-schedule services cannot register products
-      if (serviceEntry.serviceScope() == ServiceScope::PER_SCHEDULE)
-        continue;
-
       // Service interfaces cannot be used for product insertion.
       if (serviceEntry.is_interface())
         continue;

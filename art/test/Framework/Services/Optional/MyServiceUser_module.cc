@@ -13,28 +13,25 @@
 #include "art/test/Framework/Services/Interfaces/MyServiceInterface.h"
 #include "art/test/Framework/Services/Optional/MyService.h"
 
-namespace arttest {
+namespace art::test {
   class MyServiceUser;
 }
 
-class arttest::MyServiceUser : public art::EDAnalyzer {
+class art::test::MyServiceUser : public EDAnalyzer {
 public:
   explicit MyServiceUser(fhicl::ParameterSet const& p);
 
-  void analyze(art::Event const& e) override;
+private:
+  void
+  analyze(art::Event const&) override
+  {}
 };
 
-arttest::MyServiceUser::MyServiceUser(fhicl::ParameterSet const& p)
-  : art::EDAnalyzer(p)
+art::test::MyServiceUser::MyServiceUser(fhicl::ParameterSet const& p)
+  : EDAnalyzer(p)
 {
-  art::ServiceHandle<MyServiceInterface>();
-  art::ServiceHandle<MyService>();
+  ServiceHandle<MyServiceInterface>();
+  ServiceHandle<MyService>();
 }
 
-void
-arttest::MyServiceUser::analyze(art::Event const&)
-{
-  // Implementation of required member function here.
-}
-
-DEFINE_ART_MODULE(arttest::MyServiceUser)
+DEFINE_ART_MODULE(art::test::MyServiceUser)

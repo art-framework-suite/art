@@ -113,4 +113,8 @@ namespace art {
 
 }
 
-#endif
+#endif /* art_Framework_Core_ProducesCollector_h */
+
+// Local Variables:
+// mode: c++
+// End:

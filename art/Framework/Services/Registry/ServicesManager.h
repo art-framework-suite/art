@@ -115,8 +115,7 @@ namespace art {
            "type\n";
     }
     detail::WrapperBase_ptr swb{
-      new detail::ServiceWrapper<T, detail::ServiceHelper<T>::scope_val>(
-        std::move(premade_service))};
+      new detail::ServiceWrapper<T>(std::move(premade_service))};
     actualCreationOrder_.push(swb);
     services_.emplace(
       id, detail::ServiceCacheEntry(std::move(swb), std::move(service_helper)));

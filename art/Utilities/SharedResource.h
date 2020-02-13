@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_SharedResource_h
-#define art_Framework_Core_SharedResource_h
+#ifndef art_Utilities_SharedResource_h
+#define art_Utilities_SharedResource_h
 
 #include <string>
 
@@ -15,4 +15,8 @@ namespace art {
   detail::SharedResource_t SharedResource{typeid(T).name(), true};
 }
 
-#endif
+#endif /* art_Utilities_SharedResource_h */
+
+// Local Variables:
+// mode: c++
+// End:
