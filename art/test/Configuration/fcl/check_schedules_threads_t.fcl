@@ -1,0 +1,16 @@
+BEGIN_PROLOG
+schedules_and_threads: {
+  num_schedules: 2
+  num_threads: 3
+}
+END_PROLOG
+
+services.scheduler: {
+  @table::schedules_and_threads
+}
+
+physics.analyzers.check: {
+  module_type: ScheduleThreadChecker
+  @table::schedules_and_threads
+}
+physics.ep: [check]

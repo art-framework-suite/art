@@ -67,3 +67,9 @@ cet_test(ReportUnused_mu2e_t HANDBUILT
   TEST_ARGS -c UnusedModule_t.fcl --debug-config=/dev/null
   DATAFILES fcl/UnusedModule_t.fcl
   TEST_PROPERTIES FAIL_REGULAR_EXPRESSION "The following module label is either not assigned to any path")
+
+simple_plugin(ScheduleThreadChecker "module")
+cet_test(CheckSchedulesThreads_t HANDBUILT
+  TEST_EXEC art
+  TEST_ARGS -c check_schedules_threads_t.fcl
+  DATAFILES fcl/check_schedules_threads_t.fcl)
