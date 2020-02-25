@@ -9,7 +9,7 @@ namespace art::test {
   class MyServiceInterface {};
 }
 
-DECLARE_ART_SERVICE_INTERFACE(art::test::MyServiceInterface, LEGACY)
+DECLARE_ART_SERVICE_INTERFACE(art::test::MyServiceInterface, SHARED)
 
 #endif /* art_test_Framework_Services_Interfaces_MyServiceInterface_h */
 

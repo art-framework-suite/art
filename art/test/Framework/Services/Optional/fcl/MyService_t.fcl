@@ -2,21 +2,12 @@ process_name: TEST
 
 services.MyServiceInterface.service_provider: MyService
 
-physics:
-{
-  analyzers:
-  {
-    a1:
-    {
+physics: {
+  analyzers: {
+    a1: {
       module_type: MyServiceUser
     }
   }
 
-  e1: [ a1 ]
-}
-
-source:
-{
-  module_type: EmptyEvent
-  maxEvents: 1
+  e1: [a1]
 }

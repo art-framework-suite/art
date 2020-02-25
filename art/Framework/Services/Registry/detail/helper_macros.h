@@ -109,9 +109,11 @@
         return std::dynamic_pointer_cast<ServiceWrapper<svc>>(swb)             \
           ->getAs<iface>();                                                    \
       }                                                                        \
-      static_assert(scope_val == ServiceHelper<iface>::scope_val,              \
-                    "Scope mismatch between interface " #iface                 \
-                    " and implementation " #svc);                              \
+      static_assert(is_shared(ServiceHelper<iface>::scope_val) ||              \
+                      is_legacy(ServiceHelper<svc>::scope_val),                \
+                    "\n\nart error: An implementation that inherits from a "   \
+                    "LEGACY interface\n"                                       \
+                    "           must be a LEGACY service\n\n");                \
     };                                                                         \
   }
 
