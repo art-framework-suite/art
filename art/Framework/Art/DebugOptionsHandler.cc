@@ -9,8 +9,6 @@
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/parse.h"
 
-#include <optional>
-#include <regex>
 #include <string>
 #include <tuple>
 

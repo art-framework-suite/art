@@ -9,11 +9,11 @@
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/PluginSuffixes.h"
-#include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/LibraryManager.h"
+#include "cetlib/bold_fontify.h"
 #include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -79,10 +79,6 @@ namespace art {
     std::vector<std::string> producing_services;
     for (auto& pr : services_) {
       auto& serviceEntry = pr.second;
-
-      // Per-schedule services cannot register products
-      if (serviceEntry.serviceScope() == ServiceScope::PER_SCHEDULE)
-        continue;
 
       // Service interfaces cannot be used for product insertion.
       if (serviceEntry.is_interface())

@@ -2,8 +2,8 @@
 
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
-#include "art/Utilities/bold_fontify.h"
 #include "canvas/Utilities/Exception.h"
+#include "cetlib/bold_fontify.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
@@ -56,17 +56,17 @@ art::ProcessingOptionsHandler::ProcessingOptionsHandler(
   auto options = processing_options.add_options();
   add_opt(options,
           "parallelism,j",
-          bpo::value<int>()->default_value(1),
+          bpo::value<int>(),
           "Number of threads AND schedules to use for event processing "
           "(default = 1, 0 = all cores).");
   add_opt(options,
           "nschedules",
-          bpo::value<int>()->default_value(1),
+          bpo::value<int>(),
           "Number of schedules to use for event processing (default = 1)");
   // Note: tbb wants nthreads to be an int!
   add_opt(options,
           "nthreads",
-          bpo::value<int>()->default_value(1),
+          bpo::value<int>(),
           "Number of threads to use for event processing (default = 1, 0 = all "
           "cores)");
   add_opt(options,
@@ -104,28 +104,21 @@ art::ProcessingOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
       << "are mutually incompatible.\n";
   }
 
-  // Since 'parallelism', 'nschedules', and 'nthreads' have default
-  // values, the 'count()' value will be 1 for each option.  We
-  // therefore use the 'defaulted()' function, which returns 'true' if
-  // the user has not explicitly specified the option.
-  //
   // 'parallelism' is incompatible with either 'nthreads' or
   // 'nschedules'.
-  if (!vm["parallelism"].defaulted()) {
-    if (!(vm["nthreads"].defaulted() && vm["nschedules"].defaulted())) {
+  if (vm.count("parallelism")) {
+    if (vm.count("nthreads") or vm.count("nschedules")) {
       throw Exception(errors::Configuration) << "The -j/--parallelism option "
                                                 "cannot be used with either "
                                                 "--nthreads or --nschedules.\n";
     }
   }
 
-  // No need to check for presence of 'nthreads' or 'nschedules' since
-  // they have default values.
-  if (vm["nthreads"].as<int>() < 0) {
+  if (vm.count("nthreads") and vm["nthreads"].as<int>() < 0) {
     throw Exception(errors::Configuration)
       << "Option --nthreads must greater than or equal to 0.";
   }
-  if (vm["nschedules"].as<int>() <= 0) {
+  if (vm.count("nschedules") and vm["nschedules"].as<int>() < 1) {
     throw Exception(errors::Configuration)
       << "Option --nschedules must be at least 1.\n";
   }
@@ -137,7 +130,7 @@ art::ProcessingOptionsHandler::doProcessOptions(
   bpo::variables_map const& vm,
   fhicl::intermediate_table& raw_config)
 {
-  std::string const scheduler_key{"services.scheduler"};
+  auto const scheduler_key = fhicl_key("services", "scheduler");
 
   if (vm.count("rethrow-all") == 1 || vm.count("rethrow-default") == 1) {
     raw_config.put(fhicl_key(scheduler_key, "defaultExceptions"), false);
@@ -160,20 +153,35 @@ art::ProcessingOptionsHandler::doProcessOptions(
             raw_config,
             true);
 
-  if (!vm["parallelism"].defaulted()) {
+  auto const num_schedules_key = fhicl_key(scheduler_key, "num_schedules");
+  auto const num_threads_key = fhicl_key(scheduler_key, "num_threads");
+  if (vm.count("parallelism")) {
     // 'nthreads' and 'nschedules' are set to the same value.
     auto const j = vm["parallelism"].as<int>();
     auto const nthreads =
       (j == 0) ? tbb::task_scheduler_init::default_num_threads() : j;
-    raw_config.put(fhicl_key(scheduler_key, "num_schedules"), nthreads);
-    raw_config.put(fhicl_key(scheduler_key, "num_threads"), nthreads);
-  } else {
-    raw_config.put(fhicl_key(scheduler_key, "num_schedules"),
-                   vm["nschedules"].as<int>());
+    raw_config.put(num_schedules_key, nthreads);
+    raw_config.put(num_threads_key, nthreads);
+    return 0;
+  }
+
+  if (vm.count("nschedules")) {
+    raw_config.put(num_schedules_key, vm["nschedules"].as<int>());
+  }
+  if (vm.count("nthreads")) {
     auto const nt = vm["nthreads"].as<int>();
     auto const nthreads =
       (nt == 0) ? tbb::task_scheduler_init::default_num_threads() : nt;
-    raw_config.put(fhicl_key(scheduler_key, "num_threads"), nthreads);
+    raw_config.put(num_threads_key, nthreads);
+  }
+
+  // If 'nschedules' or 'nthreads' does not exist in configuration,
+  // assign the default value of 1.
+  if (not exists_outside_prolog(raw_config, num_schedules_key)) {
+    raw_config.put(num_schedules_key, 1);
+  }
+  if (not exists_outside_prolog(raw_config, num_threads_key)) {
+    raw_config.put(num_threads_key, 1);
   }
 
   return 0;

@@ -18,11 +18,11 @@ BOOST_AUTO_TEST_CASE(basic_types)
   int* ip1 = &i;
   int* ip2 = &i;
   double p = i;
-  BOOST_CHECK(art::pointersEqual(ip1, ip2));
-  BOOST_CHECK(art::pointersEqual(&i, ip1));
-  BOOST_CHECK(art::pointersEqual(&i, ip2));
+  BOOST_TEST(art::pointersEqual(ip1, ip2));
+  BOOST_TEST(art::pointersEqual(&i, ip1));
+  BOOST_TEST(art::pointersEqual(&i, ip2));
   BOOST_CHECK_THROW(art::pointersEqual(&i, &p), art::Exception);
-  BOOST_CHECK(!art::pointersEqual(&i, &j));
+  BOOST_TEST(!art::pointersEqual(&i, &j));
 }
 
 BOOST_AUTO_TEST_CASE(inheritance)
@@ -36,21 +36,21 @@ BOOST_AUTO_TEST_CASE(inheritance)
   A a1;
   B b1;
   E e1;
-  BOOST_CHECK(art::pointersEqual(pd1d1, pd1d2));
-  BOOST_CHECK(art::pointersEqual(pd1d1, pd1a1));
-  BOOST_CHECK(art::pointersEqual(pd1d1, pd1b1));
+  BOOST_TEST(art::pointersEqual(pd1d1, pd1d2));
+  BOOST_TEST(art::pointersEqual(pd1d1, pd1a1));
+  BOOST_TEST(art::pointersEqual(pd1d1, pd1b1));
   BOOST_CHECK_THROW(art::pointersEqual(pd1a1, pd1b1), art::Exception);
   BOOST_CHECK_THROW(art::pointersEqual(&a1, &b1), art::Exception);
-  BOOST_CHECK(!art::pointersEqual(pd1a1, &a1));
-  BOOST_CHECK(!art::pointersEqual(pd1a1, &e1));
-  BOOST_CHECK(!art::pointersEqual(&d1, &d2));
+  BOOST_TEST(!art::pointersEqual(pd1a1, &a1));
+  BOOST_TEST(!art::pointersEqual(pd1a1, &e1));
+  BOOST_TEST(!art::pointersEqual(&d1, &d2));
 }
 
 BOOST_AUTO_TEST_CASE(constness)
 {
   D d1;
   A const* da1(&d1);
-  BOOST_CHECK(art::pointersEqual(&d1, da1));
+  BOOST_TEST(art::pointersEqual(&d1, da1));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

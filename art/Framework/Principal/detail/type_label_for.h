@@ -19,4 +19,8 @@ namespace art::detail {
   }
 }
 
-#endif
+#endif /* art_Framework_Principal_detail_type_label_for_h */
+
+// Local Variables:
+// mode: c++
+// End:

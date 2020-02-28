@@ -9,11 +9,10 @@ namespace arttest {
 
 class arttest::ServiceUsingIface {
 public:
-  ServiceUsingIface(fhicl::ParameterSet const&, art::ActivityRegistry&);
+  ServiceUsingIface(fhicl::ParameterSet const&);
 };
 
-arttest::ServiceUsingIface::ServiceUsingIface(fhicl::ParameterSet const&,
-                                              art::ActivityRegistry&)
+arttest::ServiceUsingIface::ServiceUsingIface(fhicl::ParameterSet const&)
 {
   art::ServiceHandle<art::TrivialFileDelivery> h [[maybe_unused]];
 }

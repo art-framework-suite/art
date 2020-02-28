@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(EmptyRunAndSubRuns)
   for (std::size_t i{0}; i != 3; ++i) {
     srHandlers[i]->flushRanges();
     auto const& rs = RangeSet{1, eventRanges(i)};
-    BOOST_CHECK_EQUAL(srHandlers[i]->seenRanges(), rs);
+    BOOST_TEST(srHandlers[i]->seenRanges() == rs);
   }
 
   rHandler->flushRanges();
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(EmptyRunAndSubRuns)
     concatenate(runRef, eventRanges(i));
   }
   RangeSet const runRSRef{1, runRef};
-  BOOST_CHECK_EQUAL(rHandler->seenRanges(), runRSRef);
+  BOOST_TEST(rHandler->seenRanges() == runRSRef);
 }
 
 BOOST_AUTO_TEST_CASE(SplitOnNonLastSubRunEvent)
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(SplitOnNonLastSubRunEvent)
     std::vector<EventRange> subRunRef;
     subRunRef.emplace_back(1, 1, 6);
     RangeSet const subRunRSRef{1, subRunRef};
-    BOOST_CHECK_EQUAL(srHandler->seenRanges(), subRunRSRef);
+    BOOST_TEST(srHandler->seenRanges() == subRunRSRef);
   }
 
   {
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(SplitOnNonLastSubRunEvent)
     runRef.emplace_back(0, 5, 11);
     runRef.emplace_back(1, 1, 6);
     RangeSet const runRSRef{1, runRef};
-    BOOST_CHECK_EQUAL(rHandler->seenRanges(), runRSRef);
+    BOOST_TEST(rHandler->seenRanges() == runRSRef);
   }
 
   // 2. Rebase ranges
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(SplitOnNonLastSubRunEvent)
     subRunRef.emplace_back(1, 6, 7);
     subRunRef.emplace_back(1, 9, 15);
     RangeSet const subRunRSRef{1, subRunRef};
-    BOOST_CHECK_EQUAL(srHandler->seenRanges(), subRunRSRef);
+    BOOST_TEST(srHandler->seenRanges() == subRunRSRef);
   }
   {
     std::vector<EventRange> runRef;
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(SplitOnNonLastSubRunEvent)
     runRef.emplace_back(1, 9, 15);
     runRef.emplace_back(2, 3, 15);
     RangeSet const runRSRef{1, runRef};
-    BOOST_CHECK_EQUAL(rHandler->seenRanges(), runRSRef);
+    BOOST_TEST(rHandler->seenRanges() == runRSRef);
   }
 }
 
@@ -209,14 +209,14 @@ BOOST_AUTO_TEST_CASE(SplitOnLastSubRunEvent)
   rHandler->maybeSplitRange();
   {
     RangeSet const subRunRSRef{1, eventRanges(1)};
-    BOOST_CHECK_EQUAL(srHandler->seenRanges(), subRunRSRef);
+    BOOST_TEST(srHandler->seenRanges() == subRunRSRef);
   }
   {
     std::vector<EventRange> runRef;
     concatenate(runRef, eventRanges(0));
     concatenate(runRef, eventRanges(1));
     RangeSet const runRSRef{1, runRef};
-    BOOST_CHECK_EQUAL(rHandler->seenRanges(), runRSRef);
+    BOOST_TEST(rHandler->seenRanges() == runRSRef);
   }
   srHandler->rebase();
   rHandler->rebase();
@@ -224,8 +224,8 @@ BOOST_AUTO_TEST_CASE(SplitOnLastSubRunEvent)
   // Both RangeSets should now be empty (have not yet processed any
   // events from SubRun 2).
   RangeSet const emptyRS{1, std::vector<EventRange>{}};
-  BOOST_CHECK_EQUAL(srHandler->seenRanges(), emptyRS);
-  BOOST_CHECK_EQUAL(rHandler->seenRanges(), emptyRS);
+  BOOST_TEST(srHandler->seenRanges() == emptyRS);
+  BOOST_TEST(rHandler->seenRanges() == emptyRS);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

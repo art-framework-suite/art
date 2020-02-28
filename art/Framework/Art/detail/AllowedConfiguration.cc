@@ -3,8 +3,8 @@
 #include "art/Framework/Art/detail/get_MetadataCollector.h"
 #include "art/Framework/Art/detail/get_MetadataSummary.h"
 #include "art/Utilities/PluginSuffixes.h"
-#include "art/Utilities/bold_fontify.h"
 #include "cetlib/HorizontalRule.h"
+#include "cetlib/bold_fontify.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/SearchAllowedConfiguration.h"
 
@@ -145,10 +145,11 @@ art::detail::supports_key(std::string const& suffix,
   art::Exception e{art::errors::LogicError, "art::detail::supports_key"};
   auto coll = get_LibraryInfoCollection(suffix, spec);
   if (coll.empty()) {
-    throw e << (spec.empty() ? "[Missing specification]" : bold_fontify(spec))
+    throw e << (spec.empty() ? "[Missing specification]" :
+                               cet::bold_fontify(spec))
             << " did not match any plugin.\n";
   } else if (coll.size() > 1ull) {
-    throw e << bold_fontify(spec) << " matched more than one plugin.\n"
+    throw e << cet::bold_fontify(spec) << " matched more than one plugin.\n"
             << "When querying plugin configurations, the plugin specification\n"
             << "must resolve to a unique library.\n";
   }
@@ -209,7 +210,7 @@ art::detail::print_descriptions(std::vector<std::string> const& specs)
     if (matches.empty()) {
       cout << indent0()
            << (instance_pattern.empty() ? "[Missing specification]" :
-                                          bold_fontify(instance_pattern))
+                                          cet::bold_fontify(instance_pattern))
            << " did not match any plugin";
       cout << (plugin_type.empty() ? "" : " of type '" + plugin_type + "'");
       cout << ".\n";

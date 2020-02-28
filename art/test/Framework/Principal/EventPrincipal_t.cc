@@ -39,6 +39,15 @@ using namespace std;
 using namespace std::string_literals;
 using namespace art;
 
+namespace art {
+  std::ostream&
+  boost_test_print_type(std::ostream& os,
+                        cet::exempt_ptr<BranchDescription const> const pd)
+  {
+    return os << pd.get();
+  }
+}
+
 class ProductTablesFixture {
 public: // MEMBER FUNCTIONS -- Special Member Functions
   ProductTablesFixture();
@@ -134,10 +143,10 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
 
   std::string const tag{"rick"};
   auto i = ptf().productIDs_.find(tag);
-  BOOST_REQUIRE(i != ptf().productIDs_.end());
+  BOOST_TEST_REQUIRE(static_cast<bool>(i != ptf().productIDs_.end()));
 
   auto pd = ptf().producedProducts_.get(InEvent).description(i->second);
-  BOOST_REQUIRE(pd != nullptr);
+  BOOST_TEST_REQUIRE(pd != nullptr);
 
   auto entryDescriptionPtr = std::make_shared<art::Parentage>();
   auto productProvenancePtr = std::make_unique<art::ProductProvenance const>(
@@ -146,7 +155,7 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
     entryDescriptionPtr->parents());
 
   auto* process = ptf().processConfigurations_[tag];
-  BOOST_REQUIRE(process);
+  BOOST_TEST_REQUIRE(process);
 
   constexpr art::Timestamp now{1234567UL};
 
@@ -165,10 +174,10 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   pEvent_->enableLookupOfProducedProducts(ptf().producedProducts_);
   pEvent_->put(
     *pd, move(productProvenancePtr), move(product), make_unique<RangeSet>());
-  BOOST_REQUIRE_EQUAL(pEvent_->size(), 5u);
+  BOOST_TEST_REQUIRE(pEvent_->size() == 5u);
 
   auto pdPtr = pEvent_->getProductDescription(i->second);
-  BOOST_REQUIRE_EQUAL(*pd, *pdPtr);
+  BOOST_TEST_REQUIRE(*pd == *pdPtr);
 }
 
 ProductTablesFixture&
@@ -184,7 +193,7 @@ BOOST_AUTO_TEST_CASE(failgetbyIdTest)
 {
   auto const invalid = art::ProductID::invalid();
   auto const& h = pEvent_->getByProductID(invalid);
-  BOOST_CHECK(h.failed());
+  BOOST_TEST(h.failed());
 }
 
 BOOST_AUTO_TEST_CASE(failgetbySelectorTest)
@@ -196,7 +205,7 @@ BOOST_AUTO_TEST_CASE(failgetbySelectorTest)
   art::ProcessNameSelector const pnsel{"PROD"};
   auto const& h = pEvent_->getBySelector(
     invalid_module_context, wrapped, pnsel, ProcessTag{"PROD"s, "USER2"s});
-  BOOST_CHECK(h.failed());
+  BOOST_TEST(h.failed());
 }
 
 BOOST_AUTO_TEST_CASE(failgetbyLabelTest)
@@ -209,7 +218,7 @@ BOOST_AUTO_TEST_CASE(failgetbyLabelTest)
 
   auto const& h = pEvent_->getByLabel(
     invalid_module_context, wrapped, label, ""s, ProcessTag{""s, "USER2"s});
-  BOOST_CHECK(h.failed());
+  BOOST_TEST(h.failed());
 }
 
 BOOST_AUTO_TEST_CASE(failgetManyTest)
@@ -221,7 +230,7 @@ BOOST_AUTO_TEST_CASE(failgetManyTest)
   art::ProcessNameSelector const sel{"PROD"};
   auto const& query_results = pEvent_->getMany(
     invalid_module_context, wrapped, sel, ProcessTag{"PROD"s, "USER2"s});
-  BOOST_CHECK(query_results.empty());
+  BOOST_TEST(query_results.empty());
 }
 
 BOOST_AUTO_TEST_CASE(failgetManybyTypeTest)
@@ -236,7 +245,7 @@ BOOST_AUTO_TEST_CASE(failgetManybyTypeTest)
                                                wrapped,
                                                art::MatchAllSelector{},
                                                ProcessTag{""s, "USER2"s});
-  BOOST_CHECK(query_results.empty());
+  BOOST_TEST(query_results.empty());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

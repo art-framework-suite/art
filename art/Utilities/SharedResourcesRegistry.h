@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_SharedResourcesRegistry_h
-#define art_Framework_Core_SharedResourcesRegistry_h
+#ifndef art_Utilities_SharedResourcesRegistry_h
+#define art_Utilities_SharedResourcesRegistry_h
 // vim: set sw=2 expandtab :
 
 #include "art/Utilities/SharedResource.h"
@@ -60,7 +60,7 @@ namespace art {
   };
 } // namespace art
 
-#endif /* art_Framework_Core_SharedResourcesRegistry_h */
+#endif /* art_Utilities_SharedResourcesRegistry_h */
 
 // Local Variables:
 // mode: c++

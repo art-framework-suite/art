@@ -13,13 +13,11 @@
 # ======================================================================
 
 
-# use cmake 3.11 or later
-cmake_minimum_required (VERSION 3.11)
-
-project(art)
+cmake_minimum_required(VERSION 3.14..3.14 FATAL_ERROR)
+project(art LANGUAGES CXX)
 
 # cetbuildtools contains our cmake modules
-find_package(cetbuildtools 7.13.01 REQUIRED)
+find_package(cetbuildtools REQUIRED)
 
 list(APPEND CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}/Modules)
@@ -31,7 +29,7 @@ cet_set_compiler_flags(DIAGS VIGILANT
   WERROR
   NO_UNDEFINED
   EXTRA_FLAGS -pedantic
-  EXTRA_CXX_FLAGS -Wnon-virtual-dtor -Wdelete-non-virtual-dtor)
+  EXTRA_CXX_FLAGS -Wnon-virtual-dtor -Wdelete-non-virtual-dtor -DBOOST_TEST_NO_OLD_TOOLS)
 
 cet_have_qual(sse2 SSE2)
 if (SSE2)

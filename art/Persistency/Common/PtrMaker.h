@@ -76,7 +76,6 @@ namespace art {
     template <typename DataLevel>
     PtrMaker(DataLevel const& evt, ProductID prodId);
 
-  public: // MEMBER FUNCTIONS -- API for the user
     // Creates a Ptr to an object in the slot indicated by "index"
     Ptr<T> operator()(std::size_t index) const;
 

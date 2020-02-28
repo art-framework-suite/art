@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(Simple)
       {
         RangeSet subRunRS{1};
         subRunRS.emplace_range(e.id.subRun(), 1, 4);
-        BOOST_CHECK_EQUAL(srHandler->seenRanges(), subRunRS);
+        BOOST_TEST(srHandler->seenRanges() == subRunRS);
       }
       srHandler = make_unique<OpenRangeSetHandler>(1); // New subrun
     }
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(Simple)
     concatenate(ranges, eventRanges(sr));
   }
   RangeSet const runRS{1, ranges};
-  BOOST_CHECK_EQUAL(rHandler->seenRanges(), runRS);
+  BOOST_TEST(rHandler->seenRanges() == runRS);
 }
 
 BOOST_AUTO_TEST_CASE(FileSwitchAfterEvent)
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(FileSwitchAfterEvent)
       {
         RangeSet subRunRS{1};
         subRunRS.emplace_range(e.id.subRun(), 1, 4);
-        BOOST_CHECK_EQUAL(srHandler->seenRanges(), subRunRS);
+        BOOST_TEST(srHandler->seenRanges() == subRunRS);
       }
       srHandler = make_unique<OpenRangeSetHandler>(1); // New subrun
     }
@@ -107,8 +107,8 @@ BOOST_AUTO_TEST_CASE(FileSwitchAfterEvent)
     concatenate(runRanges, subRunRanges);
     RangeSet const subRunRS{1, subRunRanges};
     RangeSet const runRS{1, runRanges};
-    BOOST_CHECK_EQUAL(srHandler->seenRanges(), subRunRS);
-    BOOST_CHECK_EQUAL(rHandler->seenRanges(), runRS);
+    BOOST_TEST(srHandler->seenRanges() == subRunRS);
+    BOOST_TEST(rHandler->seenRanges() == runRS);
   }
   srHandler->rebase();
   rHandler->rebase();
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE(FileSwitchAfterEvent)
   {
     RangeSet subRunRS{1};
     subRunRS.emplace_range(1, 3, 4);
-    BOOST_CHECK_EQUAL(srHandler->seenRanges(), subRunRS);
+    BOOST_TEST(srHandler->seenRanges() == subRunRS);
   }
   srHandler = make_unique<OpenRangeSetHandler>(1); // New subrun
 
@@ -141,8 +141,8 @@ BOOST_AUTO_TEST_CASE(FileSwitchAfterEvent)
     concatenate(runRanges, subRunRanges);
     RangeSet const subRunRS{1, subRunRanges};
     RangeSet const runRS{1, runRanges};
-    BOOST_CHECK_EQUAL(srHandler->seenRanges(), subRunRS);
-    BOOST_CHECK_EQUAL(rHandler->seenRanges(), runRS);
+    BOOST_TEST(srHandler->seenRanges() == subRunRS);
+    BOOST_TEST(rHandler->seenRanges() == runRS);
   }
 }
 
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(FileSwitchAfterSubRun)
       {
         RangeSet subRunRS{1};
         subRunRS.emplace_range(e.id.subRun(), 1, 4);
-        BOOST_CHECK_EQUAL(srHandler->seenRanges(), subRunRS);
+        BOOST_TEST(srHandler->seenRanges() == subRunRS);
       }
       srHandler = make_unique<OpenRangeSetHandler>(1); // New subrun
     }
@@ -174,8 +174,8 @@ BOOST_AUTO_TEST_CASE(FileSwitchAfterSubRun)
     }
     RangeSet const subRunRS{1, std::vector<EventRange>{}};
     RangeSet const runRS{1, runRanges};
-    BOOST_CHECK_EQUAL(srHandler->seenRanges(), subRunRS);
-    BOOST_CHECK_EQUAL(rHandler->seenRanges(), runRS);
+    BOOST_TEST(srHandler->seenRanges() == subRunRS);
+    BOOST_TEST(rHandler->seenRanges() == runRS);
   }
   srHandler->rebase();
   rHandler->rebase();
@@ -192,8 +192,8 @@ BOOST_AUTO_TEST_CASE(FileSwitchAfterSubRun)
   {
     vector<EventRange> const ranges{EventRange{2, 1, 4}};
     RangeSet const rs{1, ranges};
-    BOOST_CHECK_EQUAL(srHandler->seenRanges(), rs);
-    BOOST_CHECK_EQUAL(rHandler->seenRanges(), rs);
+    BOOST_TEST(srHandler->seenRanges() == rs);
+    BOOST_TEST(rHandler->seenRanges() == rs);
   }
 }
 

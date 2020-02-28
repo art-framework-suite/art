@@ -1,5 +1,5 @@
-#ifndef art_Framework_Principal_Consumer_h
-#define art_Framework_Principal_Consumer_h
+#ifndef art_Framework_Principal_ConsumesInfo_h
+#define art_Framework_Principal_ConsumesInfo_h
 // vim: set sw=2 expandtab :
 
 // FIXME: THESE NOTES SHOULD GO SOMEWHERE ELSE
@@ -150,7 +150,7 @@ namespace art {
   };
 } // namespace art
 
-#endif /* art_Framework_Principal_Consumer_h */
+#endif /* art_Framework_Principal_ConsumesInfo_h */
 
 // Local Variables:
 // mode: c++

@@ -2,12 +2,7 @@
 #define art_Framework_Services_Registry_detail_ServiceWrapper_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Services/Registry/ServiceScope.h"
-#include "art/Framework/Services/Registry/detail/ServiceHandleAllowed.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
-#include "art/Utilities/SharedResourcesRegistry.h"
-#include "cetlib/container_algorithms.h"
-#include "cetlib/metaprogramming.h"
 
 #include <memory>
 #include <type_traits>
@@ -20,9 +15,7 @@ namespace art {
 
   namespace detail {
 
-    using cet::enable_if_function_exists_t;
-
-    template <typename T, ServiceScope SCOPE>
+    template <typename T>
     class ServiceWrapper;
 
     // If we have a constructor taking fhicl::ParameterSet const& and
@@ -52,7 +45,7 @@ namespace art {
       return std::make_shared<T>(ps);
     }
 
-    template <typename T, art::ServiceScope SCOPE>
+    template <typename T>
     class ServiceWrapper : public ServiceWrapperBase {
     public:
       ServiceWrapper(ServiceWrapper const&) = delete;
@@ -60,13 +53,7 @@ namespace art {
 
       ServiceWrapper(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
         : service_ptr_{makeServiceFrom<T>(ps, areg)}
-      {
-        if constexpr (SCOPE == ServiceScope::SHARED &&
-                      detail::handle_allowed_v<T>) {
-          SharedResourcesRegistry::instance()->registerSharedResource(
-            SharedResource<T>);
-        }
-      }
+      {}
 
       explicit ServiceWrapper(std::shared_ptr<T>&& p) : service_ptr_{move(p)} {}
 
@@ -78,10 +65,10 @@ namespace art {
 
       template <typename U,
                 typename = std::enable_if_t<std::is_base_of_v<U, T>>>
-      std::unique_ptr<ServiceWrapper<U, SCOPE>>
+      std::unique_ptr<ServiceWrapper<U>>
       getAs() const
       {
-        return std::make_unique<ServiceWrapper<U, SCOPE>>(
+        return std::make_unique<ServiceWrapper<U>>(
           std::static_pointer_cast<U>(service_ptr_));
       }
 

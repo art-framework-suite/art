@@ -11,4 +11,8 @@ namespace art::detail {
     std::string const& str_num);
 }
 
-#endif
+#endif /* art_Framework_Art_detail_event_start_h */
+
+// Local Variables:
+// mode: c++
+// End:

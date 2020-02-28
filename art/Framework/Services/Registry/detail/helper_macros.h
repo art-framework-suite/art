@@ -3,10 +3,12 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Services/Registry/ServiceScope.h"
+#include "art/Framework/Services/Registry/detail/ServiceHandleAllowed.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
 #include "art/Framework/Services/Registry/detail/ensure_only_one_thread.h"
+#include "art/Utilities/SharedResourcesRegistry.h"
 
 ////////////////////////////////////////////////////////////////////////
 // Utility for including the service type in a static_assert
@@ -24,60 +26,33 @@
   ServiceScope scope() const override { return scope_val; }                    \
   static constexpr ServiceScope scope_val{ServiceScope::scopeArg};
 
-// Legacy service.
-#define DEFINE_ART_LEGACY_SERVICE_RETRIEVER(svc)                               \
+#define DEFINE_ART_SERVICE_RETRIEVER(svc)                                      \
   void* retrieve(std::shared_ptr<ServiceWrapperBase>& swb)                     \
     const final override                                                       \
   {                                                                            \
-    return &dynamic_cast<ServiceWrapper<svc, ServiceScope::LEGACY>*>(          \
-              swb.get())                                                       \
-              ->get();                                                         \
+    return &std::dynamic_pointer_cast<ServiceWrapper<svc>>(swb)->get();        \
   }
 
-// Shared service.
-#define DEFINE_ART_SHARED_SERVICE_RETRIEVER(svc)                               \
-  void* retrieve(std::shared_ptr<ServiceWrapperBase>& swb)                     \
-    const final override                                                       \
-  {                                                                            \
-    return &std::dynamic_pointer_cast<                                         \
-              ServiceWrapper<svc, ServiceScope::SHARED>>(swb)                  \
-              ->get();                                                         \
-  }
-
-// Global service (deprecated).
-#define DEFINE_ART_GLOBAL_SERVICE_RETRIEVER(svc)                               \
-  DEFINE_ART_SHARED_SERVICE_RETRIEVER(svc)
-
-// Legacy service.
-#define DEFINE_ART_LEGACY_SERVICE_MAKER(svc)                                   \
-  std::unique_ptr<ServiceWrapperBase> make(fhicl::ParameterSet const& cfg,     \
+#define DEFINE_ART_SERVICE_MAKER(svc, scopeArg)                                \
+  std::unique_ptr<ServiceWrapperBase> make(fhicl::ParameterSet const& pset,    \
                                            ActivityRegistry& reg)              \
     const final override                                                       \
   {                                                                            \
-    art::detail::ensure_only_one_thread(cfg);                                  \
-    return std::make_unique<ServiceWrapper<svc, ServiceScope::LEGACY>>(cfg,    \
-                                                                       reg);   \
+    if constexpr (is_shared(ServiceScope::scopeArg) &&                         \
+                  detail::handle_allowed_v<svc>) {                             \
+      SharedResourcesRegistry::instance()->registerSharedResource(             \
+        SharedResource<svc>);                                                  \
+    } else if constexpr (is_legacy(ServiceScope::scopeArg)) {                  \
+      ensure_only_one_thread(pset);                                            \
+    }                                                                          \
+    return std::make_unique<ServiceWrapper<svc>>(pset, reg);                   \
   }
-
-// Shared service.
-#define DEFINE_ART_SHARED_SERVICE_MAKER(svc)                                   \
-  std::unique_ptr<ServiceWrapperBase> make(fhicl::ParameterSet const& cfg,     \
-                                           ActivityRegistry& reg)              \
-    const final override                                                       \
-  {                                                                            \
-    return std::make_unique<ServiceWrapper<svc, ServiceScope::SHARED>>(cfg,    \
-                                                                       reg);   \
-  }
-
-// Global service (deprecated).
-#define DEFINE_ART_GLOBAL_SERVICE_MAKER(svc)                                   \
-  DEFINE_ART_SHARED_SERVICE_MAKER(svc)
 
 // CreateHelper.
 #define DEFINE_ART_SERVICE_HELPER_CREATE(svc)                                  \
-  static std::unique_ptr<art::detail::ServiceHelperBase> createHelper()        \
+  static std::unique_ptr<ServiceHelperBase> createHelper()                     \
   {                                                                            \
-    return std::make_unique<art::detail::ServiceHelper<svc>>();                \
+    return std::make_unique<ServiceHelper<svc>>();                             \
   }
 
 // Declare a service with scope.
@@ -89,13 +64,13 @@
                                 public ServiceLGRHelper {                      \
       DEFINE_ART_SERVICE_TYPEID(svc)                                           \
       DEFINE_ART_SERVICE_SCOPE(scopeArg)                                       \
+      DEFINE_ART_SERVICE_RETRIEVER(svc)                                        \
+      DEFINE_ART_SERVICE_MAKER(svc, scopeArg)                                  \
       bool                                                                     \
       is_interface_impl() const override                                       \
       {                                                                        \
         return false;                                                          \
       }                                                                        \
-      DEFINE_ART_##scopeArg##_SERVICE_MAKER(svc) DEFINE_ART_##scopeArg         \
-        ##_SERVICE_RETRIEVER(svc)                                              \
     };                                                                         \
   }
 
@@ -107,7 +82,7 @@
                                   public ServiceLGRHelper {                    \
       DEFINE_ART_SERVICE_TYPEID(iface)                                         \
       DEFINE_ART_SERVICE_SCOPE(scopeArg)                                       \
-      DEFINE_ART_##scopeArg##_SERVICE_RETRIEVER(iface)                         \
+      DEFINE_ART_SERVICE_RETRIEVER(iface)                                      \
     };                                                                         \
   }
 
@@ -120,9 +95,10 @@
                                 public ServiceLGRHelper {                      \
       DEFINE_ART_SERVICE_TYPEID(svc)                                           \
       DEFINE_ART_SERVICE_SCOPE(scopeArg)                                       \
-      DEFINE_ART_##scopeArg##_SERVICE_MAKER(svc) DEFINE_ART_##scopeArg         \
-        ##_SERVICE_RETRIEVER(svc) art::TypeID                                  \
-        get_interface_typeid() const final override                            \
+      DEFINE_ART_SERVICE_RETRIEVER(svc)                                        \
+      DEFINE_ART_SERVICE_MAKER(svc, scopeArg)                                  \
+      art::TypeID                                                              \
+      get_interface_typeid() const final override                              \
       {                                                                        \
         return TypeID{typeid(iface)};                                          \
       }                                                                        \
@@ -130,12 +106,14 @@
       convert(                                                                 \
         std::shared_ptr<ServiceWrapperBase> const& swb) const final override   \
       {                                                                        \
-        return std::dynamic_pointer_cast<ServiceWrapper<svc, scope_val>>(swb)  \
+        return std::dynamic_pointer_cast<ServiceWrapper<svc>>(swb)             \
           ->getAs<iface>();                                                    \
       }                                                                        \
-      static_assert(scope_val == ServiceHelper<iface>::scope_val,              \
-                    "Scope mismatch between interface " #iface                 \
-                    " and implementation " #svc);                              \
+      static_assert(is_shared(ServiceHelper<iface>::scope_val) ||              \
+                      is_legacy(ServiceHelper<svc>::scope_val),                \
+                    "\n\nart error: An implementation that inherits from a "   \
+                    "LEGACY interface\n"                                       \
+                    "           must be a LEGACY service\n\n");                \
     };                                                                         \
   }
 
@@ -153,7 +131,7 @@
       {                                                                        \
         return false;                                                          \
       }                                                                        \
-      DEFINE_ART_##scopeArg##_SERVICE_RETRIEVER(svc)                           \
+      DEFINE_ART_SERVICE_RETRIEVER(svc)                                        \
     };                                                                         \
   }
 

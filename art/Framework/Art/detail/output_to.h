@@ -11,4 +11,8 @@ namespace art::detail {
   bool output_to_stdout(std::string const& spec);
 }
 
-#endif
+#endif /* art_Framework_Art_detail_output_to_h */
+
+// Local Variables:
+// mode: c++
+// End:

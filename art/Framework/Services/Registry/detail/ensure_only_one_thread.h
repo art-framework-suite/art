@@ -1,12 +1,14 @@
-#ifndef art_Framework_Services_Registry_detail_ensure_only_on_thread_h
-#define art_Framework_Services_Registry_detail_ensure_only_on_thread_h
+#ifndef art_Framework_Services_Registry_detail_ensure_only_one_thread_h
+#define art_Framework_Services_Registry_detail_ensure_only_one_thread_h
 
-namespace fhicl {
-  class ParameterSet;
-}
+#include "fhiclcpp/fwd.h"
 
 namespace art::detail {
   void ensure_only_one_thread(fhicl::ParameterSet const& service_pset);
 }
 
-#endif
+#endif /* art_Framework_Services_Registry_detail_ensure_only_one_thread_h */
+
+// Local Variables:
+// mode: c++
+// End:

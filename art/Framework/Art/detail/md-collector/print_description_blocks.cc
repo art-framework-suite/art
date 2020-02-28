@@ -2,7 +2,7 @@
 #include "art/Framework/Art/detail/MetadataRegexHelpers.h"
 #include "art/Framework/Art/detail/PrintFormatting.h"
 #include "art/Framework/Art/detail/md-collector/describe.h"
-#include "art/Utilities/bold_fontify.h"
+#include "cetlib/bold_fontify.h"
 #include "cetlib/LibraryManager.h"
 
 #include <sstream>
@@ -15,7 +15,7 @@ namespace art::detail {
     std::string const long_spec =
       li.long_spec().empty() ? " [ No alternate specification available ] " :
                                li.long_spec();
-    result << indent_1() << type_spec << ": " << bold_fontify(li.short_spec())
+    result << indent_1() << type_spec << ": " << cet::bold_fontify(li.short_spec())
            << " (or \"" << long_spec << "\")"
            << "\n\n";
     return result.str();

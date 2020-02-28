@@ -95,3 +95,7 @@ namespace art {
 } // namespace art
 
 #endif /* art_Framework_Core_ModuleBase_h */
+
+// Local Variables:
+// mode: c++
+// End:

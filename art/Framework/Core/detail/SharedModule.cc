@@ -40,7 +40,7 @@ namespace art::detail {
                 "An error occurred while processing scheduling options for a "
                 "module.\n"};
     if (asyncDeclared_) {
-      if (resourceNames_.empty()) {
+      if (empty(resourceNames_)) {
         return;
       }
       throw e
@@ -48,10 +48,10 @@ namespace art::detail {
            "serialize<art::InEvent>(...) calls.\n";
     }
 
-    if (resourceNames_.empty()) {
+    if (empty(resourceNames_)) {
       throw e << "Either 'async<art::InEvent>()' or "
                  "'serialize<art::InEvent>(...)'\n"
-                 "must be called for a shared module.\n";
+                 "must be called in a shared module's constructor.\n";
     }
     std::vector<std::string> const names(cbegin(resourceNames_),
                                          cend(resourceNames_));

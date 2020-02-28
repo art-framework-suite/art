@@ -30,4 +30,8 @@ namespace art::detail {
     std::map<std::string, std::vector<ModuleKeyAndType>>;
 }
 
-#endif
+#endif /* art_Framework_Core_detail_ModuleKeyAndType_h */
+
+// Local Variables:
+// mode: c++
+// End:

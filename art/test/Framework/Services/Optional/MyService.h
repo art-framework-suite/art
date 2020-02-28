@@ -5,34 +5,17 @@
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/test/Framework/Services/Interfaces/MyServiceInterface.h"
+#include "fhiclcpp/fwd.h"
 
-namespace arttest {
-  class MyService;
+namespace art::test {
+  class MyService : public MyServiceInterface {
+  public:
+    MyService(fhicl::ParameterSet const&);
+  };
 }
 
-namespace art {
-  class ActivityRegistry;
-}
-
-namespace fhicl {
-  class ParameterSet;
-}
-
-// ----------------------------------------------------------------------
-
-class arttest::MyService : public arttest::MyServiceInterface {
-public:
-  MyService(fhicl::ParameterSet const&, art::ActivityRegistry&);
-
-  // Use compiler-generated copy c'tor, copy assignment, and d'tor
-
-private:
-}; // MyService
-
-// ======================================================================
-
-DECLARE_ART_SERVICE_INTERFACE_IMPL(arttest::MyService,
-                                   arttest::MyServiceInterface,
+DECLARE_ART_SERVICE_INTERFACE_IMPL(art::test::MyService,
+                                   art::test::MyServiceInterface,
                                    LEGACY)
 #endif /* art_test_Framework_Services_Optional_MyService_h */
 
