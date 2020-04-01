@@ -3,5 +3,5 @@
 
 int main()
 {
-  assert(art::getReleaseVersion() == std::string("@version@"));
+  assert(art::getReleaseVersion() == std::string("@PROJECT_VERSION@"));
 }

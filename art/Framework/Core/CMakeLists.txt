@@ -14,9 +14,7 @@ art_make(
   fhiclcpp
   canvas
   cetlib
-  hep_concurrency
-  ${CLHEP}
-  ${TBB})
+  hep_concurrency)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

@@ -1,0 +1,9 @@
+find_package(CLHEP COMPONENTS Vector Random REQUIRED)
+find_package(Boost COMPONENTS date_time graph program_options
+  regex system REQUIRED)
+find_package(hep_concurrency REQUIRED)
+find_package(cetlib_except REQUIRED)
+find_package(cetlib REQUIRED)
+find_package(canvas REQUIRED)
+find_package(fhiclcpp REQUIRED)
+find_package(messagefacility REQUIRED)

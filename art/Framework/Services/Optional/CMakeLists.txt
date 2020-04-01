@@ -7,7 +7,7 @@ endif()
 simple_plugin(RandomNumberGenerator "service"
   art_Framework_Principal
   art_Persistency_Common
-  ${CLHEP})
+  CLHEP::Random)
 
 basic_plugin(MemoryTracker "service"
   art_Framework_Principal
@@ -18,7 +18,7 @@ basic_plugin(MemoryTracker "service"
 
 simple_plugin(TimeTracker "service"
   art_Framework_Principal
-  ${TBB}
+  TBB::tbb
   ${SQLITE3})
 
 simple_plugin(Tracer "service" art_Framework_Principal MF_MessageLogger)
