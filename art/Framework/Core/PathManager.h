@@ -79,6 +79,10 @@ namespace art {
         replicated{};
     };
 
+    std::map<std::string, detail::ModuleConfigInfo> moduleInformation_(
+      std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules)
+      const;
+
     ModulesByThreadingType makeModules_(ScheduleID::size_type n);
     std::pair<ModuleBase*, std::string> makeModule_(
       fhicl::ParameterSet const& module_pset,
@@ -89,8 +93,9 @@ namespace art {
       std::vector<WorkerInPath::ConfigInfo> const& wci_list,
       ModulesByThreadingType const& modules,
       std::map<std::string, Worker*>& workers);
-    ModuleType loadModuleType_(std::string const& lib_spec);
-    ModuleThreadingType loadModuleThreadingType_(std::string const& lib_spec);
+    ModuleType loadModuleType_(std::string const& lib_spec) const;
+    ModuleThreadingType loadModuleThreadingType_(
+      std::string const& lib_spec) const;
 
     // Module-graph implementation
     detail::collection_map_t getModuleGraphInfoCollection_(

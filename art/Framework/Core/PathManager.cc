@@ -68,6 +68,18 @@ namespace art {
       std::sort(begin(sorted_modules), end(sorted_modules));
       return sorted_modules;
     }
+
+    std::optional<std::set<std::string>>
+    maybe_specified_paths(ParameterSet const& pset,
+                          std::string const& paths_name)
+    {
+      vector<string> paths;
+      if (pset.get_if_present(paths_name, paths)) {
+        return std::make_optional<std::set<string>>(cbegin(paths), cend(paths));
+      }
+      return std::nullopt;
+    }
+
   } // anonymous namespace
 
   PathManager::~PathManager() noexcept
@@ -95,57 +107,13 @@ namespace art {
     , endPathInfo_(Globals::instance()->nschedules())
     , productsToProduce_{productsToProduce}
     , processName_{procPS.get<string>("process_name"s, ""s)}
+    , trigger_paths_config_{maybe_specified_paths(procPS_,
+                                                  "physics.trigger_paths")}
+    , end_paths_config_{maybe_specified_paths(procPS_, "physics.end_paths")}
   {
     triggerResultsInserter_.expand_to_num_schedules();
-    //
-    //  Collect trigger_paths and end_paths.
-    {
-      vector<string> tmp;
-      if (procPS_.get_if_present("physics.trigger_paths", tmp)) {
-        trigger_paths_config_ = std::set<string>(tmp.cbegin(), tmp.cend());
-      }
-      tmp.clear();
-      if (procPS_.get_if_present("physics.end_paths", tmp)) {
-        end_paths_config_ = std::set<string>(tmp.cbegin(), tmp.cend());
-      }
-    }
-    //
-    //  Collect all the module information.
-    //
-    {
-      ostringstream es;
-      for (auto const& [module_label, key_and_type] : enabled_modules) {
-        try {
-          auto const& [key, module_type] = key_and_type;
-          auto const& module_pset = procPS_.get<fhicl::ParameterSet>(key);
-          auto const lib_spec = module_pset.get<string>("module_type");
-          auto const actualModType = loadModuleType_(lib_spec);
-          if (actualModType != module_type) {
-            es << "  ERROR: Module with label " << module_label << " of type "
-               << lib_spec << " is configured as a " << to_string(module_type)
-               << " but defined in code as a " << to_string(actualModType)
-               << ".\n";
-          }
-          detail::ModuleConfigInfo mci{module_label,
-                                       module_type,
-                                       loadModuleThreadingType_(lib_spec),
-                                       module_pset,
-                                       lib_spec};
-          allModules_.emplace(module_label, move(mci));
-        }
-        catch (exception const& e) {
-          es << "  ERROR: Configuration of module with label " << module_label
-             << " encountered the following error:\n"
-             << e.what();
-        }
-      }
-      if (!es.str().empty()) {
-        throw Exception(errors::Configuration)
-          << "The following were encountered while processing the module "
-             "configurations:\n"
-          << es.str();
-      }
-    }
+
+    allModules_ = moduleInformation_(enabled_modules);
     //
     //  Collect all the path information.
     //
@@ -483,6 +451,47 @@ namespace art {
     triggerResultsInserter_.at(sid) = move(w);
   }
 
+  std::map<std::string, detail::ModuleConfigInfo>
+  PathManager::moduleInformation_(
+    std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules)
+    const
+  {
+    std::map<std::string, detail::ModuleConfigInfo> result{};
+    ostringstream es;
+    for (auto const& [module_label, key_and_type] : enabled_modules) {
+      try {
+        auto const& [key, module_type] = key_and_type;
+        auto const& module_pset = procPS_.get<fhicl::ParameterSet>(key);
+        auto const lib_spec = module_pset.get<string>("module_type");
+        auto const actualModType = loadModuleType_(lib_spec);
+        if (actualModType != module_type) {
+          es << "  ERROR: Module with label " << module_label << " of type "
+             << lib_spec << " is configured as a " << to_string(module_type)
+             << " but defined in code as a " << to_string(actualModType)
+             << ".\n";
+        }
+        detail::ModuleConfigInfo mci{module_label,
+                                     module_type,
+                                     loadModuleThreadingType_(lib_spec),
+                                     module_pset,
+                                     lib_spec};
+        result.emplace(module_label, move(mci));
+      }
+      catch (exception const& e) {
+        es << "  ERROR: Configuration of module with label " << module_label
+           << " encountered the following error:\n"
+           << e.what();
+      }
+    }
+    if (!es.str().empty()) {
+      throw Exception(errors::Configuration)
+        << "The following were encountered while processing the module "
+           "configurations:\n"
+        << es.str();
+    }
+    return result;
+  }
+
   PathManager::ModulesByThreadingType
   PathManager::makeModules_(ScheduleID::size_type const nschedules)
   {
@@ -699,7 +708,7 @@ namespace art {
   }
 
   ModuleType
-  PathManager::loadModuleType_(string const& lib_spec)
+  PathManager::loadModuleType_(string const& lib_spec) const
   {
     detail::ModuleTypeFunc_t* mod_type_func{nullptr};
     try {
@@ -718,7 +727,7 @@ namespace art {
   }
 
   ModuleThreadingType
-  PathManager::loadModuleThreadingType_(string const& lib_spec)
+  PathManager::loadModuleThreadingType_(string const& lib_spec) const
   {
     detail::ModuleThreadingTypeFunc_t* mod_threading_type_func{nullptr};
     try {
