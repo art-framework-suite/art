@@ -27,21 +27,15 @@ public:
   explicit PMTestProducer(fhicl::ParameterSet const& p);
 
 private:
-  void produce(art::Event& e) override;
-
-  // Declare member data here.
+  void produce(art::Event&) override;
 };
 
 arttest::PMTestProducer::PMTestProducer(fhicl::ParameterSet const& p)
   : EDProducer{p}
-{
-  // Call appropriate Produces<>() functions here.
-}
+{}
 
 void
-arttest::PMTestProducer::produce(art::Event& e)
-{
-  // Implementation of required member function here.
-}
+arttest::PMTestProducer::produce(art::Event&)
+{}
 
 DEFINE_ART_MODULE(arttest::PMTestProducer)

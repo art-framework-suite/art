@@ -18,6 +18,8 @@ foreach (type Analyzer Filter Output Producer)
     )
   simple_plugin(PMTest${type} "module" NO_INSTALL)
 endforeach()
+simple_plugin(CheckTriggerBits "module" NO_INSTALL USE_BOOST_UNIT
+              art_Framework_Services_System_TriggerNamesService_service)
 
 cet_test(PathManager_t USE_BOOST_UNIT
   LIBRARIES
@@ -41,5 +43,15 @@ endforeach()
 cet_test(GroupSelector_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
 )
+
+cet_test(trigger_bits_01 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- -c trigger_bits_01.fcl
+  DATAFILES trigger_bits_01.fcl)
+
+cet_test(trigger_bits_02 HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- -c trigger_bits_02.fcl
+  DATAFILES trigger_bits_02.fcl)
 
 add_subdirectory(data-dependencies)
