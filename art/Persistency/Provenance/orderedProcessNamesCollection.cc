@@ -73,7 +73,7 @@ art::detail::orderedProcessNamesCollection(ProcessHistoryMap const& histories)
 {
   std::vector<std::string> all_process_names;
   all_process_names.reserve(histories.size());
-  for (auto const& history : histories | ranges::view::values) {
+  for (auto const& history : histories | ranges::views::values) {
     all_process_names.push_back(stringified_process_names(history));
   }
   cet::sort_all(all_process_names);
