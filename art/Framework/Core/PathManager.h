@@ -66,10 +66,6 @@ namespace art {
     PerScheduleContainer<PathsInfo>& triggerPathsInfo();
     PathsInfo& endPathInfo(ScheduleID);
     PerScheduleContainer<PathsInfo>& endPathInfo();
-    Worker* triggerResultsInserter(ScheduleID const) const;
-    void setTriggerResultsInserter(
-      ScheduleID const,
-      std::unique_ptr<WorkerT<ReplicatedProducer>>&&);
 
   private: // Implementation Details
     struct ModulesByThreadingType {
@@ -125,8 +121,6 @@ namespace art {
     std::map<module_label_t, PerScheduleContainer<Worker*>> workers_{};
     PerScheduleContainer<PathsInfo> triggerPathsInfo_;
     PerScheduleContainer<PathsInfo> endPathInfo_;
-    PerScheduleContainer<std::unique_ptr<WorkerT<ReplicatedProducer>>>
-      triggerResultsInserter_{};
     ProductDescriptions& productsToProduce_;
     //  The following data members are only needed to delay the
     //  creation of modules until after the service system has

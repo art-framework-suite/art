@@ -12,6 +12,7 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PathContext.h"
@@ -45,59 +46,22 @@ namespace art {
   {
     results_inserter_ = nullptr;
     triggerPathsInfo_ = nullptr;
-    actReg_ = nullptr;
     actionTable_ = nullptr;
   }
 
   Schedule::Schedule(ScheduleID const scheduleID,
                      PathManager& pm,
-                     string const& processName,
-                     ParameterSet const& proc_pset,
-                     ParameterSet const& trig_pset,
-                     UpdateOutputCallbacks& outputCallbacks,
-                     ProductDescriptions& productsToProduce,
                      ActionTable const& actions,
-                     ActivityRegistry const& actReg)
+                     std::unique_ptr<Worker> triggerResultsInserter)
     : sc_{scheduleID}
   {
     ostringstream msg;
     msg << "0x" << hex << ((unsigned long)this) << dec;
     TDEBUG_FUNC_SI_MSG(5, "Schedule ctor", scheduleID, msg.str());
     actionTable_ = &actions;
-    actReg_ = &actReg;
     triggerPathsInfo_ = &pm.triggerPathsInfo(scheduleID);
-    results_inserter_ = nullptr;
+    results_inserter_ = std::move(triggerResultsInserter);
     runningWorkerCnt_ = 0;
-    if (triggerPathsInfo_.load()->paths().empty()) {
-      return;
-    }
-    results_inserter_ = pm.triggerResultsInserter(scheduleID);
-    if (results_inserter_.load() != nullptr) {
-      return;
-    }
-    // Make the trigger results inserter.
-    WorkerParams const wp{proc_pset,
-                          trig_pset,
-                          outputCallbacks,
-                          productsToProduce,
-                          *actReg_.load(),
-                          *actionTable_.load(),
-                          processName,
-                          scheduleID};
-    ModuleDescription md{
-      trig_pset.id(),
-      "TriggerResultInserter",
-      "TriggerResults",
-      ModuleThreadingType::replicated,
-      ProcessConfiguration{processName, proc_pset.id(), getReleaseVersion()}};
-    actReg_.load()->sPreModuleConstruction.invoke(md);
-    auto producer = std::make_shared<TriggerResultInserter>(
-      trig_pset, scheduleID, triggerPathsInfo_.load()->pathResults());
-    producer->setModuleDescription(md);
-    pm.setTriggerResultsInserter(
-      scheduleID, make_unique<WorkerT<ReplicatedProducer>>(producer, md, wp));
-    results_inserter_ = pm.triggerResultsInserter(scheduleID);
-    actReg_.load()->sPostModuleConstruction.invoke(md);
   }
 
   void
@@ -110,8 +74,8 @@ namespace art {
       }
       w.beginJob();
     }
-    if (results_inserter_.load() != nullptr) {
-      results_inserter_.load()->beginJob();
+    if (results_inserter_) {
+      results_inserter_->beginJob();
     }
   }
 
@@ -143,10 +107,10 @@ namespace art {
         throw error;
       }
     }
-    if (results_inserter_.load() != nullptr) {
+    if (results_inserter_) {
       // FIXME: The catch and rethrow here seems to have little value added.
       try {
-        results_inserter_.load()->endJob();
+        results_inserter_->endJob();
       }
       catch (cet::exception& e) {
         error << "cet::exception caught in Schedule::endJob\n"
@@ -175,8 +139,8 @@ namespace art {
       }
       w.respondToOpenInputFile(fb);
     }
-    if (results_inserter_.load() != nullptr) {
-      results_inserter_.load()->respondToOpenInputFile(fb);
+    if (results_inserter_) {
+      results_inserter_->respondToOpenInputFile(fb);
     }
   }
 
@@ -190,8 +154,8 @@ namespace art {
       }
       w.respondToCloseInputFile(fb);
     }
-    if (results_inserter_.load() != nullptr) {
-      results_inserter_.load()->respondToCloseInputFile(fb);
+    if (results_inserter_) {
+      results_inserter_->respondToCloseInputFile(fb);
     }
   }
 
@@ -205,8 +169,8 @@ namespace art {
       }
       w.respondToOpenOutputFiles(fb);
     }
-    if (results_inserter_.load() != nullptr) {
-      results_inserter_.load()->respondToOpenOutputFiles(fb);
+    if (results_inserter_) {
+      results_inserter_->respondToOpenOutputFiles(fb);
     }
   }
 
@@ -220,8 +184,8 @@ namespace art {
       }
       w.respondToCloseOutputFiles(fb);
     }
-    if (results_inserter_.load() != nullptr) {
-      results_inserter_.load()->respondToCloseOutputFiles(fb);
+    if (results_inserter_) {
+      results_inserter_->respondToCloseOutputFiles(fb);
     }
   }
 
@@ -355,8 +319,8 @@ namespace art {
       auto& w = *val.second;
       w.reset();
     }
-    if (results_inserter_.load() != nullptr) {
-      results_inserter_.load()->reset();
+    if (results_inserter_) {
+      results_inserter_->reset();
     }
     triggerPathsInfo_.load()->pathResults().reset();
     triggerPathsInfo_.load()->incrementTotalEventCount();
@@ -437,16 +401,15 @@ namespace art {
       if (triggerPathsInfo_.load()->pathResults().accept()) {
         triggerPathsInfo_.load()->incrementPassedEventCount();
       }
-      if (results_inserter_.load() != nullptr) {
+      if (results_inserter_) {
         // FIXME: not sure what the trigger bit should be
-        auto const& resultsInserterDesc =
-          results_inserter_.load()->description();
+        auto const& resultsInserterDesc = results_inserter_->description();
         PathContext const pc{sc_,
                              PathContext::art_path(),
                              -1,
                              {resultsInserterDesc.moduleLabel()}};
         ModuleContext const mc{pc, resultsInserterDesc};
-        results_inserter_.load()->doWork_event(principal, mc);
+        results_inserter_->doWork_event(principal, mc);
       }
     }
     catch (cet::exception& e) {

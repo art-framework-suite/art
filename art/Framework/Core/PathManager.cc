@@ -80,6 +80,59 @@ namespace art {
       return std::nullopt;
     }
 
+    vector<string> all_path_names(ParameterSet const& physics)
+    {
+      //
+      //  Get the non-special entries, should be user-specified paths
+      //  (labeled fhicl sequences of module labels).
+      //
+      // Note: The ParameterSet::get_names() routine returns
+      // vector<string> by value, so we must make sure to iterate over
+      // the same returned object.
+      auto const physics_names = physics.get_names();
+      set<string> const special_parms{
+        "producers"s, "filters"s, "analyzers"s, "trigger_paths"s, "end_paths"s};
+      vector<string> result;
+      set_difference(physics_names.cbegin(),
+                     physics_names.cend(),
+                     special_parms.cbegin(),
+                     special_parms.cend(),
+                     back_inserter(result));
+      return result;
+    }
+
+    void verify_all_sequences(vector<string> const& path_names,
+                              ParameterSet const& physics)
+    {
+      map<string, string> bad_names;
+      for (auto const& name : path_names) {
+        if (physics.is_key_to_sequence(name)) {
+          continue;
+        }
+        string const type = physics.is_key_to_table(name) ? "table" : "atom";
+        bad_names.emplace(name, type);
+      }
+      if (empty(bad_names)) {
+        return;
+      }
+
+      string msg =
+        "\nYou have specified the following unsupported parameters in the\n"
+        "\"physics\" block of your configuration:\n\n";
+      cet::for_all(bad_names, [&msg](auto const& name) {
+                                msg.append("   \"physics." + name.first + "\"   (" + name.second +
+                                           ")\n");
+                              });
+      msg.append("\n");
+      msg.append("Supported parameters include the following tables:\n");
+      msg.append("   \"physics.producers\"\n");
+      msg.append("   \"physics.filters\"\n");
+      msg.append("   \"physics.analyzers\"\n");
+      msg.append("and sequences. Atomic configuration parameters are not "
+                 "allowed.\n\n");
+      throw Exception(errors::Configuration) << msg;
+    }
+
   } // anonymous namespace
 
   PathManager::~PathManager() noexcept
@@ -111,91 +164,14 @@ namespace art {
                                                   "physics.trigger_paths")}
     , end_paths_config_{maybe_specified_paths(procPS_, "physics.end_paths")}
   {
-    triggerResultsInserter_.expand_to_num_schedules();
-
     allModules_ = moduleInformation_(enabled_modules);
     //
     //  Collect all the path information.
     //
     {
-      ostringstream es;
-      //
-      //  Get the physics table.
-      //
       auto const physics = procPS_.get<ParameterSet>("physics", {});
-      //
-      //  Get the non-special entries, should be user-specified paths
-      //  (labeled fhicl sequences of module labels).
-      //
-      // Note: The ParameterSet::get_names() routine returns
-      // vector<string> by value, so we must make sure to iterate over
-      // the same returned object.
-      auto const physics_names = physics.get_names();
-      set<string> const special_parms{
-        "producers"s, "filters"s, "analyzers"s, "trigger_paths"s, "end_paths"s};
-      vector<string> path_names;
-      set_difference(physics_names.cbegin(),
-                     physics_names.cend(),
-                     special_parms.cbegin(),
-                     special_parms.cend(),
-                     back_inserter(path_names));
-      //
-      //  Check that each path in trigger_paths and end_paths actually exists.
-      //
-      if (trigger_paths_config_) {
-        vector<string> unknown_paths;
-        set_difference(trigger_paths_config_->cbegin(),
-                       trigger_paths_config_->cend(),
-                       path_names.cbegin(),
-                       path_names.cend(),
-                       back_inserter(unknown_paths));
-        for (auto const& path : unknown_paths) {
-          es << "ERROR: Unknown path " << path
-             << " specified by user in trigger_paths.\n";
-        }
-      }
-      if (end_paths_config_) {
-        vector<string> missing_paths;
-        set_difference(end_paths_config_->cbegin(),
-                       end_paths_config_->cend(),
-                       path_names.cbegin(),
-                       path_names.cend(),
-                       back_inserter(missing_paths));
-        for (auto const& path : missing_paths) {
-          es << "ERROR: Unknown path " << path
-             << " specified by user in end_paths.\n";
-        }
-      }
-      //
-      //  Make sure the path names are keys to fhicl sequences.
-      //
-      {
-        map<string, string> bad_names;
-        for (auto const& name : path_names) {
-          if (physics.is_key_to_sequence(name)) {
-            continue;
-          }
-          string const type = physics.is_key_to_table(name) ? "table" : "atom";
-          bad_names.emplace(name, type);
-        }
-        if (!bad_names.empty()) {
-          string msg =
-            "\nYou have specified the following unsupported parameters in the\n"
-            "\"physics\" block of your configuration:\n\n";
-          cet::for_all(bad_names, [&msg](auto const& name) {
-            msg.append("   \"physics." + name.first + "\"   (" + name.second +
-                       ")\n");
-          });
-          msg.append("\n");
-          msg.append("Supported parameters include the following tables:\n");
-          msg.append("   \"physics.producers\"\n");
-          msg.append("   \"physics.filters\"\n");
-          msg.append("   \"physics.analyzers\"\n");
-          msg.append("and sequences. Atomic configuration parameters are not "
-                     "allowed.\n\n");
-          throw Exception(errors::Configuration) << msg;
-        }
-      }
+      auto const path_names = all_path_names(physics);
+      verify_all_sequences(path_names, physics);
       //
       // Process each path.
       //
@@ -203,6 +179,7 @@ namespace art {
       // configuration-pruning infrastructure.  We should be able to
       // remove it.
       //
+      ostringstream es;
       auto remove_filter_action = [](auto const& spec) {
         auto pos = spec.find_first_not_of("!-");
         if (pos > 1) {
@@ -316,6 +293,8 @@ namespace art {
              "configurations:\n"
           << es.str();
       }
+
+
     }
   }
 
@@ -435,20 +414,6 @@ namespace art {
   PathManager::endPathInfo()
   {
     return endPathInfo_;
-  }
-
-  Worker*
-  PathManager::triggerResultsInserter(ScheduleID const sid) const
-  {
-    return triggerResultsInserter_.at(sid).get();
-  }
-
-  void
-  PathManager::setTriggerResultsInserter(
-    ScheduleID const sid,
-    unique_ptr<WorkerT<ReplicatedProducer>>&& w)
-  {
-    triggerResultsInserter_.at(sid) = move(w);
   }
 
   std::map<std::string, detail::ModuleConfigInfo>
