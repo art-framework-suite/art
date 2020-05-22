@@ -69,20 +69,37 @@ namespace art {
       return sorted_modules;
     }
 
-    std::optional<std::set<std::string>>
-    maybe_specified_paths(ParameterSet const& pset,
+    std::vector<std::string>
+    remove_ordered_duplicates(std::vector<std::string> const& paths)
+    {
+      if (empty(paths)) {
+        return {};
+      }
+
+      std::vector<std::string> result{paths.front()};
+      for (auto it = cbegin(paths) + 1; it != cend(paths); ++it) {
+        if (cet::search_all(result, *it)) {
+          continue;
+        }
+        result.push_back(*it);
+      }
+      return result;
+    }
+
+    std::optional<std::vector<std::string>>
+    maybe_specified_paths(ParameterSet const& physics,
                           std::string const& paths_name)
     {
       vector<string> paths;
-      if (pset.get_if_present(paths_name, paths)) {
-        return std::make_optional<std::set<string>>(cbegin(paths), cend(paths));
+      if (physics.get_if_present(paths_name, paths)) {
+        return std::make_optional(remove_ordered_duplicates(paths));
       }
       return std::nullopt;
     }
 
-    vector<string> all_path_names(ParameterSet const& physics)
+    vector<string>
+    all_path_names(ParameterSet const& physics)
     {
-      //
       //  Get the non-special entries, should be user-specified paths
       //  (labeled fhicl sequences of module labels).
       //
@@ -101,8 +118,9 @@ namespace art {
       return result;
     }
 
-    void verify_all_sequences(vector<string> const& path_names,
-                              ParameterSet const& physics)
+    void
+    verify_all_sequences(vector<string> const& path_names,
+                         ParameterSet const& physics)
     {
       map<string, string> bad_names;
       for (auto const& name : path_names) {
@@ -120,9 +138,9 @@ namespace art {
         "\nYou have specified the following unsupported parameters in the\n"
         "\"physics\" block of your configuration:\n\n";
       cet::for_all(bad_names, [&msg](auto const& name) {
-                                msg.append("   \"physics." + name.first + "\"   (" + name.second +
-                                           ")\n");
-                              });
+        msg.append("   \"physics." + name.first + "\"   (" + name.second +
+                   ")\n");
+      });
       msg.append("\n");
       msg.append("Supported parameters include the following tables:\n");
       msg.append("   \"physics.producers\"\n");
@@ -160,16 +178,17 @@ namespace art {
     , endPathInfo_(Globals::instance()->nschedules())
     , productsToProduce_{productsToProduce}
     , processName_{procPS.get<string>("process_name"s, ""s)}
-    , trigger_paths_config_{maybe_specified_paths(procPS_,
-                                                  "physics.trigger_paths")}
-    , end_paths_config_{maybe_specified_paths(procPS_, "physics.end_paths")}
   {
     allModules_ = moduleInformation_(enabled_modules);
+
     //
     //  Collect all the path information.
     //
     {
       auto const physics = procPS_.get<ParameterSet>("physics", {});
+      auto const trigger_paths_config =
+        maybe_specified_paths(physics, "trigger_paths");
+      auto const end_paths_config = maybe_specified_paths(physics, "end_paths");
       auto const path_names = all_path_names(physics);
       verify_all_sequences(path_names, physics);
       //
@@ -191,6 +210,7 @@ namespace art {
       {
         enum class mod_cat_t { UNSET, OBSERVER, MODIFIER };
         size_t num_end_paths = 0;
+        std::vector<std::string> trigger_path_names;
         for (auto const& path_name : path_names) {
           mod_cat_t cat = mod_cat_t::UNSET;
           auto const path = physics.get<vector<string>>(path_name);
@@ -217,9 +237,8 @@ namespace art {
               // If optional triggers_paths or end_paths used, and this path is
               // not on them, ignore it.
               if (cat == mod_cat_t::MODIFIER) {
-                if (trigger_paths_config_ &&
-                    (trigger_paths_config_->find(path_name) ==
-                     trigger_paths_config_->cend())) {
+                if (trigger_paths_config and
+                    not cet::search_all(*trigger_paths_config, path_name)) {
                   mf::LogInfo("DeactivatedPath")
                     << "Detected trigger path \"" << path_name
                     << "\" which was not found in\n"
@@ -227,16 +246,16 @@ namespace art {
                        "ignored.";
                   break;
                 }
-                if (end_paths_config_ && (end_paths_config_->find(path_name) !=
-                                          end_paths_config_->cend())) {
+                if (end_paths_config and
+                    cet::search_all(*end_paths_config, path_name)) {
                   es << "  ERROR: Path '" << path_name
                      << "' is configured as an end path but is actually a "
                         "trigger path.";
                 }
-                triggerPathNames_.push_back(path_name);
+                trigger_path_names.push_back(path_name);
               } else {
-                if (end_paths_config_ && (end_paths_config_->find(path_name) ==
-                                          end_paths_config_->cend())) {
+                if (end_paths_config and
+                    not cet::search_all(*end_paths_config, path_name)) {
                   mf::LogInfo("DeactivatedPath")
                     << "Detected end path \"" << path_name
                     << "\" which was not found in\n"
@@ -244,9 +263,8 @@ namespace art {
                     << "Path will be ignored.";
                   break;
                 }
-                if (trigger_paths_config_ &&
-                    (trigger_paths_config_->find(path_name) !=
-                     trigger_paths_config_->cend())) {
+                if (trigger_paths_config &&
+                    cet::search_all(*trigger_paths_config, path_name)) {
                   es << "  ERROR: Path '" << path_name
                      << "' is configured as a trigger path but is actually an "
                         "end path.";
@@ -283,6 +301,18 @@ namespace art {
             << "Multiple end paths have been combined into one end path,\n"
             << "\"end_path\" since order is irrelevant.";
         }
+        //
+        // Set the trigger path names
+        //
+        // N.B. We distinguish between situations where the user has
+        // specified the 'trigger_paths' parameter, and where art
+        // calculates the trigger paths.  This is so that the the
+        // user-specified path ordering can be preserved.
+        if (trigger_paths_config) {
+          triggerPathNames_ = *trigger_paths_config;
+        } else {
+          triggerPathNames_ = move(trigger_path_names);
+        }
       }
       //
       // Check for fatal errors.
@@ -293,8 +323,6 @@ namespace art {
              "configurations:\n"
           << es.str();
       }
-
-
     }
   }
 

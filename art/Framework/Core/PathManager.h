@@ -128,8 +128,6 @@ namespace art {
     //  fixed.
     std::string processName_{};
     std::map<std::string, detail::ModuleConfigInfo> allModules_{};
-    std::optional<std::set<std::string>> trigger_paths_config_{};
-    std::optional<std::set<std::string>> end_paths_config_{};
     std::map<std::string, std::vector<WorkerInPath::ConfigInfo>>
       protoTrigPathLabelMap_{};
     std::vector<WorkerInPath::ConfigInfo> protoEndPathLabels_{};
