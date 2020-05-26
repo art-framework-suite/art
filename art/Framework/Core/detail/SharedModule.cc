@@ -4,6 +4,7 @@
 #include "art/Utilities/SharedResourcesRegistry.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
+#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <string>
 #include <vector>
