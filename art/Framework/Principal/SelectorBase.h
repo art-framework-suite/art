@@ -16,13 +16,12 @@ namespace art {
 
 class art::SelectorBase {
 public:
-  virtual ~SelectorBase();
+  virtual ~SelectorBase() = default;
   bool
   match(BranchDescription const& p) const
   {
     return doMatch(p);
   }
-  virtual SelectorBase* clone() const = 0;
 
 private:
   virtual bool doMatch(BranchDescription const& p) const = 0;
