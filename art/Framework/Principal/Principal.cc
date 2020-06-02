@@ -52,6 +52,10 @@ using namespace cet;
 using namespace hep::concurrency;
 using namespace std;
 
+namespace {
+  std::string const indent(2, ' ');
+}
+
 namespace art {
 
   namespace {
@@ -684,8 +688,9 @@ namespace art {
     auto const result = resolve_unique_product(groups, wrapped);
     if (!result.has_value()) {
       auto whyFailed = std::make_shared<Exception>(errors::ProductNotFound);
-      *whyFailed << "getBySelector: Found zero products matching all criteria\n"
-                 << "Looking for type: " << wrapped.product_type << "\n";
+      *whyFailed << "Found zero products matching all selection criteria\n"
+                 << indent << "C++ type: " << wrapped.product_type << "\n"
+                 << sel.print(indent);
       return GroupQueryResult{whyFailed};
     }
     return *result;

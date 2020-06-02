@@ -424,8 +424,8 @@ namespace art {
       } else if (num_matches > 1) {
         Exception e{errors::ProductNotFound};
         e << "Found " << num_matches
-          << " products rather than one which match all criteria\n"
-          << "Looking for type: " << wrapped.product_type << "\n";
+          << " products rather than one that match all criteria\n"
+          << "  C++ type: " << wrapped.product_type << "\n";
         for (auto group : matched_groups) {
           e << "  " << group->productDescription().inputTag() << '\n';
         }

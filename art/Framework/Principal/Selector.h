@@ -82,17 +82,24 @@ public:
     : pn_{pn.empty() ? std::string{"*"} : pn}
   {}
 
-  std::string const&
-  name() const noexcept
-  {
-    return pn_;
-  }
-
 private:
   bool
   doMatch(BranchDescription const& p) const override
   {
     return (pn_ == "*") || (p.processName() == pn_);
+  }
+
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    std::string result{indent + "Process name: "};
+    if (pn_ == "*") {
+      result += "(empty)";
+    } else {
+      result += "'" + pn_ + "'";
+    }
+    result += '\n';
+    return result;
   }
 
   std::string pn_;
@@ -114,6 +121,12 @@ private:
     return p.productInstanceName() == pin_;
   }
 
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    return indent + "Product instance name: '" + pin_ + "'\n";
+  }
+
   std::string pin_;
 };
 
@@ -133,6 +146,12 @@ private:
     return p.moduleLabel() == label_;
   }
 
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    return indent + "Module label: '" + label_ + "'\n";
+  }
+
   std::string label_;
 };
 
@@ -146,6 +165,12 @@ class art::MatchAllSelector : public art::SelectorBase {
   doMatch(BranchDescription const&) const override
   {
     return true;
+  }
+
+  std::string
+  doPrint(std::string const&) const override
+  {
+    return {};
   }
 };
 
@@ -164,6 +189,12 @@ private:
   doMatch(BranchDescription const& p) const override
   {
     return a_.match(p) && b_.match(p);
+  }
+
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    return a_.print(indent) + b_.print(indent);
   }
 
   A a_;
@@ -195,6 +226,17 @@ private:
     return a_.match(p) || b_.match(p);
   }
 
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    std::string result{indent + "[\n"};
+    result += indent + a_.print(indent);
+    result += indent + indent + indent + "or\n";
+    result += indent + b_.print(indent);
+    result += indent + "]\n";
+    return result;
+  }
+
   A a_;
   B b_;
 };
@@ -224,6 +266,11 @@ private:
     return !a_.match(p);
   }
 
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    return indent + "Not [ " + a_.print() + " ]\n";
+  }
   A a_;
 };
 
@@ -251,6 +298,12 @@ private:
     return expression_.match(p);
   }
 
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    return expression_.print(indent);
+  }
+
   wrapped_type expression_;
 };
 
@@ -265,6 +318,7 @@ public:
 
 private:
   bool doMatch(BranchDescription const& p) const override;
+  std::string doPrint(std::string const& indent) const override;
 
   std::unique_ptr<SelectorBase> sel_;
 };
