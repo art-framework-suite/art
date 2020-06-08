@@ -86,3 +86,13 @@ foreach(TESTNUMBER 00 01 02 03 04 05 06 07 08 09 10 11 12 13)
       )
   endforeach()
 endforeach()
+
+foreach(LEVEL run subrun event)
+  cet_test(safe_throw_during_read_${LEVEL} HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS --config safe_throw_during_read_file.fcl -s throw_during_read_${LEVEL}.txt
+    DATAFILES
+    fcl/safe_throw_during_read_file.fcl
+    inputs/throw_during_read_${LEVEL}.txt
+    TEST_PROPERTIES PASS_REGULAR_EXPRESSION "There was an exception while reading a.*from the input file\.")
+endforeach()
