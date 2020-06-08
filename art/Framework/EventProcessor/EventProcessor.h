@@ -174,10 +174,10 @@ namespace art {
     std::atomic<bool> beginSubRunCalled_{false};
 
     // When set allows runs to end.
-    std::atomic<bool> finalizeRunEnabled_{true};
+    std::atomic<bool> finalizeRunEnabled_{false};
 
     // When set allows subruns to end.
-    std::atomic<bool> finalizeSubRunEnabled_{true};
+    std::atomic<bool> finalizeSubRunEnabled_{false};
 
     // A signal/slot system for registering a callback to be called
     // when a specific action is taken by the framework.

@@ -376,8 +376,11 @@ namespace art {
   void
   EventProcessor::begin<Level::Run>()
   {
-    finalizeRunEnabled_ = true;
     readRun();
+
+    // We only enable run finalization if reading was successful.
+    // This appears to be a design weakness.
+    finalizeRunEnabled_ = true;
     if (handleEmptyRuns_) {
       beginRun();
     }
@@ -387,10 +390,13 @@ namespace art {
   void
   EventProcessor::begin<Level::SubRun>()
   {
-    finalizeSubRunEnabled_ = true;
     assert(runPrincipal_);
     assert(runPrincipal_->runID().isValid());
     readSubRun();
+
+    // We only enable subrun finalization if reading was successful.
+    // This appears to be a design weakness.
+    finalizeSubRunEnabled_ = true;
     if (handleEmptySubRuns_) {
       beginRunIfNotDoneAlready();
       beginSubRun();
@@ -401,13 +407,15 @@ namespace art {
   void
   EventProcessor::finalize<Level::SubRun>()
   {
-    assert(subRunPrincipal_);
     if (!finalizeSubRunEnabled_) {
       return;
     }
+
+    assert(subRunPrincipal_);
     if (subRunPrincipal_->subRunID().isFlush()) {
       return;
     }
+
     openSomeOutputFiles();
     setSubRunAuxiliaryRangeSetID();
     if (beginSubRunCalled_) {
@@ -421,13 +429,15 @@ namespace art {
   void
   EventProcessor::finalize<Level::Run>()
   {
-    assert(runPrincipal_);
     if (!finalizeRunEnabled_) {
       return;
     }
+
+    assert(runPrincipal_);
     if (runPrincipal_->runID().isFlush()) {
       return;
     }
+
     openSomeOutputFiles();
     setRunAuxiliaryRangeSetID();
     if (beginRunCalled_) {
