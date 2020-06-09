@@ -1,7 +1,7 @@
 #ifndef art_Framework_Principal_SummedValue_h
 #define art_Framework_Principal_SummedValue_h
 
-// ======================================================================
+// ========================================================================
 //
 // SummedValue: Class whose instances own two objects:
 //              - object of type specified as the template argument
@@ -10,11 +10,15 @@
 // The purpose of this auxiliary class is to provide users with a
 // means of tying an object with its associated range.  This can be
 // important whenever a user needs to assemble (e.g.) product 3 from
-// products 1 and 2.  However, even though products 1 and 2 might have
-// the same RangeSets overall, due to output-file switching, the
-// RangeSets as recorded in each input file may be different.  In such
-// a case, product 3 should arguably only be placed on the Run or
-// SubRun whenever the RangeSets from products 1 and 2 are the same.
+// products 1 and 2, whose ranges may not correspond to what is
+// desired due to ouput-file switching artifacts.
+//
+// SummedValue<T> objects may not span multiple runs as the contained
+// RangeSet object corresponds only to a specific run, and a set of
+// event ranges within that run.  An attempt to update such an object
+// across run boundaries will result in an exception throw.
+//
+// ------------------------------------------------------------------------
 //
 // The main function of interest is SummedValue::update(Handle const& h),
 // which updates the owned object (calling its appropriate aggregation
@@ -39,7 +43,7 @@
 // N.B. It is the responsibility of the user to call 'clear' whenever
 //      the owned object has been fully updated for the Run or SubRun
 //      of interest.
-// ======================================================================
+// ========================================================================
 
 #include "art/Framework/Principal/Handle.h"
 #include "canvas/Persistency/Common/detail/aggregate.h"
@@ -88,16 +92,24 @@ namespace art {
         rangeOfValidity_ = newRS;
         value_ = t;
       } else if (art::disjoint_ranges(rangeOfValidity_, newRS)) {
+        if (rangeOfValidity_.run() != newRS.run()) {
+          throw Exception{errors::ProductCannotBeAggregated,
+                          "SummedValue<T>::update"}
+            << "\nThe following ranges corresponding to the type:\n"
+            << "   '" << cet::demangle_symbol(typeid(T).name()) << "'"
+            << "\nhave different run numbers (" << rangeOfValidity_.run()
+            << " vs. " << newRS.run() << ") and cannot be aggregated.\n"
+            << "Please contact artists@fnal.gov.\n";
+        }
         detail::CanBeAggregated<T>::aggregate(value_, t);
         rangeOfValidity_.merge(h.provenance()->rangeOfValidity());
       } else if (art::same_ranges(rangeOfValidity_, newRS)) {
         // The ranges are the same, so the behavior is a NOP.
         // However, we will probably never get here because of the
-        // seenIDs set, which prevents from duplicate aggregation.
-        // If the stakeholders decide that products with the same
-        // ranges should be checked for equality, then the seenIDs
-        // set needs to go away, and an extra condition will be
-        // added here.
+        // seenIDs set, which prevents duplicate aggregation.  If the
+        // stakeholders decide that products with the same ranges
+        // should be checked for equality, then the seenIDs set needs
+        // to go away, and an extra condition will be added here.
       } else if (art::overlapping_ranges(rangeOfValidity_, newRS)) {
         throw Exception{errors::ProductCannotBeAggregated,
                         "SummedValue<T>::update"}
