@@ -6,6 +6,7 @@
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "art/Framework/Art/detail/info_success.h"
 #include "art/Framework/Art/detail/output_to.h"
+#include "art/Framework/Art/detail/print_config_summary.h"
 #include "art/Framework/Art/detail/prune_configuration.h"
 #include "art/Framework/Core/detail/EnabledModules.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
@@ -38,6 +39,8 @@
 
 using namespace std;
 using namespace string_literals;
+
+using art::detail::fhicl_key;
 
 namespace {
 
@@ -86,7 +89,18 @@ namespace {
     return result;
   }
 
+  void
+  print_config(fhicl::ParameterSet const& main_pset,
+               std::string const& output_file,
+               std::string const& mode)
+  {
+    std::cerr << banner(output_file);
+    auto os = make_ostream_handle(output_file);
+    os << main_pset.to_indented_string(0, get_print_mode(mode));
+  }
+
   enum class debug_processing : std::size_t {
+    config_summary,
     config_out,
     debug_config,
     validate_config,
@@ -94,18 +108,16 @@ namespace {
   };
 
   debug_processing
-  maybe_output_config(fhicl::ParameterSet const& main_pset,
-                      fhicl::ParameterSet const& scheduler_pset)
+  debug_processing_mode(fhicl::ParameterSet const& scheduler_pset)
   {
-    if (!scheduler_pset.has_key("debug"))
+    if (not scheduler_pset.has_key("debug")) {
       return debug_processing::none;
+    }
 
     auto const processing_options = {
-      "config-out", "debug-config", "validate-config"};
+      "config-summary", "config-out", "debug-config", "validate-config"};
 
-    auto const& debug_pset = scheduler_pset.get<fhicl::ParameterSet>("debug");
-
-    auto const option = debug_pset.get<std::string>("option");
+    auto const option = scheduler_pset.get<std::string>("debug.option");
     auto pos = cet::find_in_all(processing_options, option);
     if (pos == cend(processing_options)) {
       throw art::Exception{
@@ -113,18 +125,13 @@ namespace {
         "An error was encountered while processing debugging options"}
         << "The debugging option '" << option << "' is not supported.\n"
         << "If you did not explicitly provide this value in your configuration "
-           "file,"
-        << "please contact artists@fnal.gov and report this error.  "
+           "file, please contact artists@fnal.gov and report this error.  "
            "Otherwise,\n"
-        << "choose from 'configOut', 'debugConfig', or 'validateConfig'.\n";
+        << "choose from 'configSummary', 'configOut', 'debugConfig', or "
+           "'validateConfig'.\n";
     }
 
     auto const index = std::distance(cbegin(processing_options), pos);
-    auto const filename = debug_pset.get<std::string>("fileName");
-    auto const mode = debug_pset.get<std::string>("printMode");
-    std::cerr << banner(filename);
-    auto os = make_ostream_handle(filename);
-    os << main_pset.to_indented_string(0, get_print_mode(mode));
     return static_cast<debug_processing>(index);
   }
 
@@ -180,7 +187,6 @@ namespace art {
     // If configuration pruning has been enabled, remove unused module
     // configurations.
     using detail::exists_outside_prolog;
-    using detail::fhicl_key;
     auto const scheduler_key = fhicl_key("services", "scheduler");
     auto enabled_modules = detail::EnabledModules::none();
     assert(exists_outside_prolog(raw_config, scheduler_key));
@@ -311,10 +317,31 @@ namespace art {
       services_pset.get<fhicl::ParameterSet>("scheduler", {});
 
     // Handle early configuration-debugging
-    auto const debug_processing_mode =
-      maybe_output_config(main_pset, scheduler_pset);
-    if (debug_processing_mode == debug_processing::debug_config) {
-      return detail::info_success();
+    auto const debug_mode = debug_processing_mode(scheduler_pset);
+    if (debug_mode != debug_processing::none) {
+      auto const debug_pset = scheduler_pset.get<fhicl::ParameterSet>("debug");
+      auto const filename = debug_pset.get<std::string>("fileName");
+      auto const mode = debug_pset.get<std::string>("printMode");
+
+      switch (debug_mode) {
+        case debug_processing::validate_config: {
+          [[fallthrough]];
+        }
+        case debug_processing::config_out: {
+          print_config(main_pset, filename, mode);
+          break;
+        }
+        case debug_processing::debug_config: {
+          print_config(main_pset, filename, mode);
+          return detail::info_success();
+        }
+        case debug_processing::config_summary: {
+          detail::print_config_summary(main_pset, mode, enabled_modules);
+          return detail::info_success();
+        }
+        case debug_processing::none:
+          break;
+      }
     }
     //
     // Start the messagefacility
@@ -349,7 +376,7 @@ namespace art {
       // etc.  It is thus possible that an exception thrown during
       // construction of the EventProcessor object can have nothing to
       // do with a configuration error.
-      if (debug_processing_mode == debug_processing::validate_config) {
+      if (debug_mode == debug_processing::validate_config) {
         return detail::info_success();
       }
       if (scheduler_pset.has_key("dataDependencyGraph")) {

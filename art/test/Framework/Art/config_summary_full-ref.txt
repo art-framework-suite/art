@@ -1,0 +1,232 @@
+Process name: recomcdigistrig
+Source module: RootInput
+
+<separator (=)>
+Services: 11
+
+Service name            service_provider
+<separator (-)>  <separator (-)>
+CatalogInterface        TrivialFileDelivery
+ConditionsService       -
+DbService               -
+FileTransfer            TrivialFileTransfer
+GeometryService         -
+GlobalConstantsService  -
+ProditionsService       -
+TFileService            -
+TimeTracker             -
+message                 -
+scheduler               -
+
+<separator (=)>
+Producers: 38
+
+Module label                    module_type
+<separator (-)>  <separator (-)>
+CaloClusterFast                 CaloClusterFast
+CaloClusterFromProtoCluster     CaloClusterFromProtoCluster
+CaloCrystalHitFromHit           CaloCrystalHitFromHit
+CaloMCFix                       FixCaloShowerStepPtrs
+CaloProtoClusterFromCrystalHit  CaloProtoClusterFromCrystalHit
+CaloRecoDigiFromDigi            CaloRecoDigiFromDigi
+CaloTrigger                     CaloTrigger
+CrvCoincidence                  CrvCoincidenceCheck
+CrvCoincidenceClusterFinder     CrvCoincidenceClusterFinder
+CrvCoincidenceClusterMatchMC    CrvCoincidenceClusterMatchMC
+CrvRecoPulses                   CrvRecoPulsesFinder
+FindMCPrimary                   FindMCPrimary
+FlagBkgHits                     FlagBkgHits
+HelixFinderDe                   RobustHelixFinder
+KFFDeM                          KalFinalFit
+KFFDeP                          KalFinalFit
+KSFDeM                          KalSeedFit
+KSFDeP                          KalSeedFit
+MHDeM                           MergeHelices
+MHDeP                           MergeHelices
+SelectRecoMC                    SelectRecoMC
+TTCalHelixMergerDeM             MergeHelices
+TTCalHelixMergerDeP             MergeHelices
+TTCalSeedFitDem                 KalSeedFit
+TTCalSeedFitDep                 KalSeedFit
+TTHelixMergerDeM                MergeHelices
+TTHelixMergerDeP                MergeHelices
+TTKSFDeM                        KalSeedFit
+TTKSFDeP                        KalSeedFit
+TTflagBkgHits                   FlagBkgHits
+TThelixFinder                   RobustHelixFinder
+TTmakePH                        CombineStrawHits
+TTmakeSH                        StrawHitReco
+TTtimeClusterFinder             TimeClusterFinder
+TimeClusterFinderDe             TimeClusterFinder
+compressRecoMCs                 CompressDigiMCs
+makePH                          CombineStrawHits
+makeSH                          StrawHitReco
+
+<separator (=)>
+Filters: 112
+
+Module label                      module_type
+<separator (-)>  <separator (-)>
+CalHelixFinderDe                  CalHelixFinder
+CalTimePeakFinder                 CalTimePeakFinder
+RecoFilter                        RecoMomFilter
+TTCalHelixFinderDe                CalHelixFinder
+TTCalTimePeakFinder               CalTimePeakFinder
+caloCalibCosmicCDCountFilter      DigiFilter
+caloCalibCosmicEventPrescale      PrescaleEvent
+caloCalibCosmicFilter             CaloCosmicCalib
+caloCalibCosmicPrescale           PrescaleEvent
+caloMVACECDCountFilter            DigiFilter
+caloMVACEEventPrescale            PrescaleEvent
+caloMVACEFilter                   FilterEcalMVATrigger
+caloMVACEPrescale                 PrescaleEvent
+caloPhotonCDCountFilter           DigiFilter
+caloPhotonEventPrescale           PrescaleEvent
+caloPhotonFilter                  CaloLikelihood
+caloPhotonPrescale                PrescaleEvent
+cprCosmicSeedDeMEventPrescale     PrescaleEvent
+cprCosmicSeedDeMHSFilter          HelixFilter
+cprCosmicSeedDeMPrescale          PrescaleEvent
+cprCosmicSeedDeMSDCountFilter     DigiFilter
+cprCosmicSeedDeMTCFilter          TimeClusterFilter
+cprCosmicSeedDeMTSFilter          SeedFilter
+cprCosmicSeedDePEventPrescale     PrescaleEvent
+cprCosmicSeedDePHSFilter          HelixFilter
+cprCosmicSeedDePPrescale          PrescaleEvent
+cprCosmicSeedDePSDCountFilter     DigiFilter
+cprCosmicSeedDePTCFilter          TimeClusterFilter
+cprCosmicSeedDePTSFilter          SeedFilter
+cprLowPSeedDeMEventPrescale       PrescaleEvent
+cprLowPSeedDeMHSFilter            HelixFilter
+cprLowPSeedDeMPrescale            PrescaleEvent
+cprLowPSeedDeMSDCountFilter       DigiFilter
+cprLowPSeedDeMTCFilter            TimeClusterFilter
+cprLowPSeedDeMTSFilter            SeedFilter
+cprLowPSeedDePEventPrescale       PrescaleEvent
+cprLowPSeedDePHSFilter            HelixFilter
+cprLowPSeedDePPrescale            PrescaleEvent
+cprLowPSeedDePSDCountFilter       DigiFilter
+cprLowPSeedDePTCFilter            TimeClusterFilter
+cprLowPSeedDePTSFilter            SeedFilter
+cprSeedDeMEventPrescale           PrescaleEvent
+cprSeedDeMHSFilter                HelixFilter
+cprSeedDeMPrescale                PrescaleEvent
+cprSeedDeMSDCountFilter           DigiFilter
+cprSeedDeMTCFilter                TimeClusterFilter
+cprSeedDeMTSFilter                SeedFilter
+cprSeedDePEventPrescale           PrescaleEvent
+cprSeedDePHSFilter                HelixFilter
+cprSeedDePPrescale                PrescaleEvent
+cprSeedDePSDCountFilter           DigiFilter
+cprSeedDePTCFilter                TimeClusterFilter
+cprSeedDePTSFilter                SeedFilter
+largeCDCountEventPrescale         PrescaleEvent
+largeCDCountFilter                DigiFilter
+largeCDCountPrescale              PrescaleEvent
+largeSDCountEventPrescale         PrescaleEvent
+largeSDCountFilter                DigiFilter
+largeSDCountPrescale              PrescaleEvent
+minimumbiasCDCountEventPrescale   PrescaleEvent
+minimumbiasCDCountFilter          DigiFilter
+minimumbiasCDCountPrescale        PrescaleEvent
+minimumbiasSDCountEventPrescale   PrescaleEvent
+minimumbiasSDCountFilter          DigiFilter
+minimumbiasSDCountPrescale        PrescaleEvent
+tprCosmicSeedDeMEventPrescale     PrescaleEvent
+tprCosmicSeedDeMHSFilter          HelixFilter
+tprCosmicSeedDeMPrescale          PrescaleEvent
+tprCosmicSeedDeMSDCountFilter     DigiFilter
+tprCosmicSeedDeMTCFilter          TimeClusterFilter
+tprCosmicSeedDeMTSFilter          SeedFilter
+tprCosmicSeedDePEventPrescale     PrescaleEvent
+tprCosmicSeedDePHSFilter          HelixFilter
+tprCosmicSeedDePPrescale          PrescaleEvent
+tprCosmicSeedDePSDCountFilter     DigiFilter
+tprCosmicSeedDePTCFilter          TimeClusterFilter
+tprCosmicSeedDePTSFilter          SeedFilter
+tprHelixCalibIPADeMEventPrescale  PrescaleEvent
+tprHelixCalibIPADeMHSFilter       HelixFilter
+tprHelixCalibIPADeMPrescale       PrescaleEvent
+tprHelixCalibIPADeMSDCountFilter  DigiFilter
+tprHelixCalibIPADeMTCFilter       TimeClusterFilter
+tprHelixIPADeMEventPrescale       PrescaleEvent
+tprHelixIPADeMHSFilter            HelixFilter
+tprHelixIPADeMPrescale            PrescaleEvent
+tprHelixIPADeMSDCountFilter       DigiFilter
+tprHelixIPADeMTCFilter            TimeClusterFilter
+tprLowPSeedDeMEventPrescale       PrescaleEvent
+tprLowPSeedDeMHSFilter            HelixFilter
+tprLowPSeedDeMPrescale            PrescaleEvent
+tprLowPSeedDeMSDCountFilter       DigiFilter
+tprLowPSeedDeMTCFilter            TimeClusterFilter
+tprLowPSeedDeMTSFilter            SeedFilter
+tprLowPSeedDePEventPrescale       PrescaleEvent
+tprLowPSeedDePHSFilter            HelixFilter
+tprLowPSeedDePPrescale            PrescaleEvent
+tprLowPSeedDePSDCountFilter       DigiFilter
+tprLowPSeedDePTCFilter            TimeClusterFilter
+tprLowPSeedDePTSFilter            SeedFilter
+tprSeedDeMEventPrescale           PrescaleEvent
+tprSeedDeMHSFilter                HelixFilter
+tprSeedDeMPrescale                PrescaleEvent
+tprSeedDeMSDCountFilter           DigiFilter
+tprSeedDeMTCFilter                TimeClusterFilter
+tprSeedDeMTSFilter                SeedFilter
+tprSeedDePEventPrescale           PrescaleEvent
+tprSeedDePHSFilter                HelixFilter
+tprSeedDePPrescale                PrescaleEvent
+tprSeedDePSDCountFilter           DigiFilter
+tprSeedDePTCFilter                TimeClusterFilter
+tprSeedDePTSFilter                SeedFilter
+unbiasedPrescale                  PrescaleEvent
+
+<separator (=)>
+Analyzers: 1
+
+Module label  module_type
+------------  <separator (-)>
+RecoCheck     CompressDigiMCsCheck
+
+<separator (=)>
+Output modules: 1
+
+Module label  module_type
+------------  -----------
+Output        RootOutput
+
+<separator (=)>
+Trigger paths: 23
+
+Bit  Path name                    Path size
+---  <separator (-)>  ---------
+  0  RecoPath                     26
+  1  caloCalibCosmic_trigger      5
+  2  caloMVACE_trigger            5
+  3  caloPhoton_trigger           5
+  4  cprCosmicSeedDeM_trigger     14
+  5  cprCosmicSeedDeP_trigger     14
+  6  cprLowPSeedDeM_trigger       14
+  7  cprLowPSeedDeP_trigger       14
+  8  cprSeedDeM_trigger           14
+  9  cprSeedDeP_trigger           14
+ 10  largeCDCount_trigger         3
+ 11  largeSDCount_trigger         3
+ 12  minimumbiasCDCount_trigger   3
+ 13  minimumbiasSDCount_trigger   3
+ 14  tprCosmicSeedDeM_trigger     14
+ 15  tprCosmicSeedDeP_trigger     14
+ 16  tprHelixCalibIPADeM_trigger  12
+ 17  tprHelixIPADeM_trigger       12
+ 18  tprLowPSeedDeM_trigger       14
+ 19  tprLowPSeedDeP_trigger       14
+ 20  tprSeedDeM_trigger           14
+ 21  tprSeedDeP_trigger           14
+ 22  unbiased_trigger             1
+
+<separator (=)>
+End paths: 1
+ -> 'end_paths' specified
+
+Path name  Path size
+---------  ---------
+EndPath    2

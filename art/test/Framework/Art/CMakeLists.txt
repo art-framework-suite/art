@@ -40,6 +40,16 @@ cet_test(BasicOptions_03_t
   LIBRARIES art_Framework_Art
   REF "${CMAKE_CURRENT_SOURCE_DIR}/BasicOptions_03-ref.txt")
 
+####################################
+# Test --config-summary
+foreach(VERBOSITY brief detailed full)
+  cet_test(config_summary_${VERBOSITY}_t HANDBUILT
+    TEST_EXEC art
+    TEST_ARGS -c config-summary.fcl --config-summary=${VERBOSITY}
+    DATAFILES fcl/config-summary.fcl
+    REF "${CMAKE_CURRENT_SOURCE_DIR}/config_summary_${VERBOSITY}-ref.txt")
+endforeach()
+
 add_subdirectory(PrintAvailable)
 
 ####################################

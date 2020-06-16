@@ -45,6 +45,7 @@ set(art_Framework_Art_sources
   detail/md-collector/describe.cc
   detail/md-collector/print_description_blocks.cc
   detail/output_to.cc
+  detail/print_config_summary.cc
   detail/prune_configuration.cc)
 
 art_make_library(LIBRARY_NAME art_Framework_Art
