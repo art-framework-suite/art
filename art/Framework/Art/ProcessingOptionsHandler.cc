@@ -53,43 +53,36 @@ art::ProcessingOptionsHandler::ProcessingOptionsHandler(
   bpo::options_description& desc)
 {
   bpo::options_description processing_options{"Processing options"};
-  auto options = processing_options.add_options();
-  add_opt(options,
-          "parallelism,j",
-          bpo::value<int>(),
-          "Number of threads AND schedules to use for event processing "
-          "(default = 1, 0 = all cores).");
-  add_opt(options,
-          "nschedules",
-          bpo::value<int>(),
-          "Number of schedules to use for event processing (default = 1)");
-  // Note: tbb wants nthreads to be an int!
-  add_opt(options,
-          "nthreads",
-          bpo::value<int>(),
-          "Number of threads to use for event processing (default = 1, 0 = all "
-          "cores)");
-  add_opt(options,
-          "default-exceptions",
-          "Some exceptions may be handled differently by default (e.g. "
-          "ProductNotFound).");
-  add_opt(options, "rethrow-default", "All exceptions default to rethrow.");
-  add_opt(options,
-          "rethrow-all",
-          "All exceptions overridden to rethrow (cf rethrow-default).");
-  add_opt(
-    options,
-    "errorOnMissingConsumes",
-    bpo::value<bool>()->implicit_value(true, "true"),
-    "If 'true', then an exception will be thrown if any module attempts "
-    "to retrieve a product via the 'getBy*' interface without specifying "
-    "the appropriate 'consumes<T>(...)' statement in the module constructor.");
-  add_opt(
-    options,
-    "errorOnSIGINT",
-    bpo::value<bool>()->implicit_value(true, "true"),
-    "If 'true', a signal received from the user yields an art return code "
-    "corresponding to an error; otherwise return 0.");
+  // clang-format off
+  processing_options.add_options()
+    ("parallelism,j",
+       bpo::value<int>(),
+       "Number of threads AND schedules to use for event processing "
+       "(default = 1, 0 = all cores).")
+    ("nschedules",
+       bpo::value<int>(),
+       "Number of schedules to use for event processing (default = 1)")
+    // Note: tbb wants nthreads to be an int!
+    ("nthreads",
+       bpo::value<int>(),
+       "Number of threads to use for event processing (default = 1, 0 = all "
+       "cores)")
+    ("default-exceptions",
+       "Some exceptions may be handled differently by default (e.g. "
+       "ProductNotFound).")
+    ("rethrow-default", "All exceptions default to rethrow.")
+    ("rethrow-all",
+       "All exceptions overridden to rethrow (cf rethrow-default).")
+    ("errorOnMissingConsumes",
+       bpo::value<bool>()->implicit_value(true, "true"),
+       "If 'true', then an exception will be thrown if any module attempts "
+       "to retrieve a product via the 'getBy*' interface without specifying "
+       "the appropriate 'consumes<T>(...)' statement in the module constructor.")
+    ("errorOnSIGINT",
+       bpo::value<bool>()->implicit_value(true, "true"),
+       "If 'true', a signal received from the user yields an art return code "
+       "corresponding to an error; otherwise return 0.");
+  // clang-format on
   desc.add(processing_options);
 }
 

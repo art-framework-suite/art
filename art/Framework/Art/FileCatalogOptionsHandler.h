@@ -22,9 +22,8 @@ private:
   int doProcessOptions(bpo::variables_map const& vm,
                        fhicl::intermediate_table& raw_config) override;
 
-  // Data.
-  std::string appFamily_;
-  std::string appVersion_;
+  std::string appFamily_{};
+  std::string appVersion_{};
 };
 #endif /* art_Framework_Art_FileCatalogOptionsHandler_h */
 
