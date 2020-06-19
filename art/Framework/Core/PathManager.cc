@@ -68,89 +68,6 @@ namespace art {
       std::sort(begin(sorted_modules), end(sorted_modules));
       return sorted_modules;
     }
-
-    std::vector<std::string>
-    remove_ordered_duplicates(std::vector<std::string> const& paths)
-    {
-      if (empty(paths)) {
-        return {};
-      }
-
-      std::vector<std::string> result{paths.front()};
-      for (auto it = cbegin(paths) + 1; it != cend(paths); ++it) {
-        if (cet::search_all(result, *it)) {
-          continue;
-        }
-        result.push_back(*it);
-      }
-      return result;
-    }
-
-    std::optional<std::vector<std::string>>
-    maybe_specified_paths(ParameterSet const& physics,
-                          std::string const& paths_name)
-    {
-      vector<string> paths;
-      if (physics.get_if_present(paths_name, paths)) {
-        return std::make_optional(remove_ordered_duplicates(paths));
-      }
-      return std::nullopt;
-    }
-
-    vector<string>
-    all_path_names(ParameterSet const& physics)
-    {
-      //  Get the non-special entries, should be user-specified paths
-      //  (labeled fhicl sequences of module labels).
-      //
-      // Note: The ParameterSet::get_names() routine returns
-      // vector<string> by value, so we must make sure to iterate over
-      // the same returned object.
-      auto const physics_names = physics.get_names();
-      set<string> const special_parms{
-        "producers"s, "filters"s, "analyzers"s, "trigger_paths"s, "end_paths"s};
-      vector<string> result;
-      set_difference(physics_names.cbegin(),
-                     physics_names.cend(),
-                     special_parms.cbegin(),
-                     special_parms.cend(),
-                     back_inserter(result));
-      return result;
-    }
-
-    void
-    verify_all_sequences(vector<string> const& path_names,
-                         ParameterSet const& physics)
-    {
-      map<string, string> bad_names;
-      for (auto const& name : path_names) {
-        if (physics.is_key_to_sequence(name)) {
-          continue;
-        }
-        string const type = physics.is_key_to_table(name) ? "table" : "atom";
-        bad_names.emplace(name, type);
-      }
-      if (empty(bad_names)) {
-        return;
-      }
-
-      string msg =
-        "\nYou have specified the following unsupported parameters in the\n"
-        "\"physics\" block of your configuration:\n\n";
-      cet::for_all(bad_names, [&msg](auto const& name) {
-        msg.append("   \"physics." + name.first + "\"   (" + name.second +
-                   ")\n");
-      });
-      msg.append("\n");
-      msg.append("Supported parameters include the following tables:\n");
-      msg.append("   \"physics.producers\"\n");
-      msg.append("   \"physics.filters\"\n");
-      msg.append("   \"physics.analyzers\"\n");
-      msg.append("and sequences. Atomic configuration parameters are not "
-                 "allowed.\n\n");
-      throw Exception(errors::Configuration) << msg;
-    }
-
   } // anonymous namespace
 
   PathManager::~PathManager() noexcept
@@ -158,171 +75,52 @@ namespace art {
     for (auto& label_and_workers : workers_) {
       for (auto wkr : label_and_workers.second) {
         delete wkr;
-        wkr = nullptr;
       }
     }
   }
 
-  PathManager::PathManager(
-    ParameterSet const& procPS,
-    UpdateOutputCallbacks& outputCallbacks,
-    ProductDescriptions& productsToProduce,
-    ActionTable const& exceptActions,
-    ActivityRegistry const& actReg,
-    std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules)
+  PathManager::PathManager(ParameterSet const& procPS,
+                           UpdateOutputCallbacks& outputCallbacks,
+                           ProductDescriptions& productsToProduce,
+                           ActionTable const& exceptActions,
+                           ActivityRegistry const& actReg,
+                           detail::EnabledModules const& enabled_modules)
     : outputCallbacks_{outputCallbacks}
     , exceptActions_{exceptActions}
     , actReg_{actReg}
     , procPS_{procPS}
+    , triggerPathNames_{enabled_modules.trigger_path_names()}
     , triggerPathsInfo_(Globals::instance()->nschedules())
     , endPathInfo_(Globals::instance()->nschedules())
     , productsToProduce_{productsToProduce}
-    , processName_{procPS.get<string>("process_name"s, ""s)}
+    , processName_{procPS.get<string>("process_name"s, {})}
   {
     allModules_ = moduleInformation_(enabled_modules);
 
-    //
-    //  Collect all the path information.
-    //
-    {
-      auto const physics = procPS_.get<ParameterSet>("physics", {});
-      auto const trigger_paths_config =
-        maybe_specified_paths(physics, "trigger_paths");
-      auto const end_paths_config = maybe_specified_paths(physics, "end_paths");
-      auto const path_names = all_path_names(physics);
-      verify_all_sequences(path_names, physics);
-      //
-      // Process each path.
-      //
-      // FIXME: All of this information is readily available from the
-      // configuration-pruning infrastructure.  We should be able to
-      // remove it.
-      //
-      ostringstream es;
-      auto remove_filter_action = [](auto const& spec) {
-        auto pos = spec.find_first_not_of("!-");
-        if (pos > 1) {
-          throw Exception(errors::Configuration)
-            << "Module label " << spec << " is illegal.\n";
-        }
-        return spec.substr(pos);
-      };
-      {
-        enum class mod_cat_t { UNSET, OBSERVER, MODIFIER };
-        size_t num_end_paths = 0;
-        std::vector<std::string> trigger_path_names;
-        for (auto const& path_name : path_names) {
-          mod_cat_t cat = mod_cat_t::UNSET;
-          auto const path = physics.get<vector<string>>(path_name);
-          for (auto const& modname_filterAction : path) {
-            auto const label = remove_filter_action(modname_filterAction);
-            // map<string, ModuleConfigInfo>
-            auto iter = allModules_.find(label);
-            if (iter == allModules_.end()) {
-              // This is the case where a path has been configured but
-              // not enabled for execution.
-              continue;
-            }
-            auto const& mci = iter->second;
-            auto mtype = is_observer(mci.moduleType) ? mod_cat_t::OBSERVER :
-                                                       mod_cat_t::MODIFIER;
-            if (cat != mod_cat_t::UNSET) {
-              // The configuration-pruning code ensures that there are
-              // no mixed paths.
-              assert(cat == mtype);
-            }
-            if (cat == mod_cat_t::UNSET) {
-              // We now know path is not empty, categorize it.
-              cat = mtype;
-              // If optional triggers_paths or end_paths used, and this path is
-              // not on them, ignore it.
-              if (cat == mod_cat_t::MODIFIER) {
-                if (trigger_paths_config and
-                    not cet::search_all(*trigger_paths_config, path_name)) {
-                  mf::LogInfo("DeactivatedPath")
-                    << "Detected trigger path \"" << path_name
-                    << "\" which was not found in\n"
-                    << "parameter \"physics.trigger_paths\". Path will be "
-                       "ignored.";
-                  break;
-                }
-                if (end_paths_config and
-                    cet::search_all(*end_paths_config, path_name)) {
-                  es << "  ERROR: Path '" << path_name
-                     << "' is configured as an end path but is actually a "
-                        "trigger path.";
-                }
-                trigger_path_names.push_back(path_name);
-              } else {
-                if (end_paths_config and
-                    not cet::search_all(*end_paths_config, path_name)) {
-                  mf::LogInfo("DeactivatedPath")
-                    << "Detected end path \"" << path_name
-                    << "\" which was not found in\n"
-                    << "parameter \"physics.end_paths\". "
-                    << "Path will be ignored.";
-                  break;
-                }
-                if (trigger_paths_config &&
-                    cet::search_all(*trigger_paths_config, path_name)) {
-                  es << "  ERROR: Path '" << path_name
-                     << "' is configured as a trigger path but is actually an "
-                        "end path.";
-                }
-              }
-            }
-            auto filteract = WorkerInPath::FilterAction::Normal;
-            if (modname_filterAction[0] == '!') {
-              filteract = WorkerInPath::FilterAction::Veto;
-            } else if (modname_filterAction[0] == '-') {
-              filteract = WorkerInPath::FilterAction::Ignore;
-            }
-            if (mci.moduleType != ModuleType::filter &&
-                filteract != WorkerInPath::Normal) {
-              es << "  ERROR: Module " << label << " in path " << path_name
-                 << " is" << (cat == mod_cat_t::OBSERVER ? " an " : " a ")
-                 << to_string(mci.moduleType)
-                 << " and cannot have a '!' or '-' prefix.\n";
-            }
-            auto const mci_p = cet::make_exempt_ptr(&mci);
-            if (cat == mod_cat_t::MODIFIER) {
-              // Trigger path.
-              protoTrigPathLabelMap_[path_name].emplace_back(mci_p, filteract);
-            } else {
-              protoEndPathLabels_.emplace_back(mci_p, filteract);
-            }
-          }
-          if (cat == mod_cat_t::OBSERVER) {
-            ++num_end_paths;
-          }
-        }
-        if (num_end_paths > 1) {
-          mf::LogInfo("PathConfiguration")
-            << "Multiple end paths have been combined into one end path,\n"
-            << "\"end_path\" since order is irrelevant.";
-        }
-        //
-        // Set the trigger path names
-        //
-        // N.B. We distinguish between situations where the user has
-        // specified the 'trigger_paths' parameter, and where art
-        // calculates the trigger paths.  This is so that the the
-        // user-specified path ordering can be preserved.
-        if (trigger_paths_config) {
-          triggerPathNames_ = *trigger_paths_config;
-        } else {
-          triggerPathNames_ = move(trigger_path_names);
-        }
+    // Trigger paths
+    for (auto const& [path_name, entries] : enabled_modules.trigger_paths()) {
+      for (auto const& [label, action] : entries) {
+        auto const& mci = allModules_.at(label);
+        auto const mci_p = cet::make_exempt_ptr(&mci);
+        protoTrigPathLabelMap_[path_name].emplace_back(mci_p, action);
       }
-      //
-      // Check for fatal errors.
-      //
-      if (!es.str().empty()) {
-        throw Exception(errors::Configuration, "Path configuration: ")
-          << "The following were encountered while processing path "
-             "configurations:\n"
-          << es.str();
+    }
+
+    // End path(s)
+    auto const& end_paths = enabled_modules.end_paths();
+    for (auto const& pr : end_paths) {
+      for (auto const& [label, action] : pr.second) {
+        assert(action == art::detail::FilterAction::Normal);
+        auto const& mci = allModules_.at(label);
+        auto const mci_p = cet::make_exempt_ptr(&mci);
+        protoEndPathLabels_.emplace_back(mci_p, action);
       }
+    }
+
+    if (size(end_paths) > 1u) {
+      mf::LogInfo("PathConfiguration")
+        << "Multiple end paths have been combined into one end path,\n"
+        << "\"end_path\" since order is irrelevant.";
     }
   }
 
@@ -446,14 +244,14 @@ namespace art {
 
   std::map<std::string, detail::ModuleConfigInfo>
   PathManager::moduleInformation_(
-    std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules)
-    const
+    detail::EnabledModules const& enabled_modules) const
   {
     std::map<std::string, detail::ModuleConfigInfo> result{};
     ostringstream es;
-    for (auto const& [module_label, key_and_type] : enabled_modules) {
+    for (auto const& [module_label, key_and_type] : enabled_modules.modules()) {
       try {
-        auto const& [key, module_type] = key_and_type;
+        auto const& key = key_and_type.key;
+        auto const module_type = key_and_type.type;
         auto const& module_pset = procPS_.get<fhicl::ParameterSet>(key);
         auto const lib_spec = module_pset.get<string>("module_type");
         auto const actualModType = loadModuleType_(lib_spec);

@@ -12,14 +12,11 @@
 #include <set>
 
 using namespace fhicl;
+using namespace std::string_literals;
 using sequence_t = fhicl::extended_value::sequence_t;
 using table_t = fhicl::extended_value::table_t;
-using art::detail::exists_outside_prolog;
-using art::detail::fhicl_key;
-using art::detail::module_type;
-using art::detail::ModuleKeyAndType;
+using namespace art::detail;
 
-using module_names_per_path_t = std::map<std::string, std::vector<std::string>>;
 using modules_t = std::map<std::string, std::string>;
 
 namespace {
@@ -31,7 +28,15 @@ namespace {
   auto modifier_tables = {"physics.producers", "physics.filters"};
   auto observer_tables = {"physics.analyzers", "outputs"};
 
+  auto allowed_physics_tables = {"producers", "filters", "analyzers"};
+
   enum class ModuleCategory { modifier, observer, unset };
+
+  art::Exception
+  config_exception(std::string const& context)
+  {
+    return art::Exception{art::errors::Configuration, context + "\n"};
+  }
 
   std::ostream&
   operator<<(std::ostream& os, ModuleCategory const cat)
@@ -78,8 +83,20 @@ namespace {
       return ModuleCategory::modifier;
     } else if (cet::search_all(observer_tables, table)) {
       return ModuleCategory::observer;
-    } else {
-      return ModuleCategory::unset;
+    }
+    return ModuleCategory::unset;
+  }
+
+  std::string
+  path_selection_override(ModuleCategory const category)
+  {
+    switch (category) {
+      case ModuleCategory::modifier:
+        return "'trigger_paths'";
+      case ModuleCategory::observer:
+        return "'end_paths'";
+      default:
+        assert(false); // Unreachable
     }
   }
 
@@ -106,9 +123,8 @@ namespace {
           auto const& cached_key = it->second;
           auto const parent =
             cached_key.substr(0, cached_key.rfind(modname) - 1);
-          throw art::Exception{art::errors::Configuration,
-                               "An error was encountered while processing "
-                               "module configurations.\n"}
+          throw config_exception("An error was encountered while processing "
+                                 "module configurations.")
             << "Module label '" << modname << "' has been used in '" << tbl
             << "' and '" << parent << "'.\n"
             << "Module labels must be unique across an art process.\n";
@@ -119,77 +135,135 @@ namespace {
   }
 
   auto
-  sequence_to_strings(sequence_t const& seq)
+  sequence_to_entries(sequence_t const& seq)
   {
-    std::vector<std::string> result;
+    std::vector<PathEntry> result;
     for (auto const& ev : seq) {
       if (!ev.is_a(STRING)) {
         continue;
       }
       auto mod_spec = ev.to_string();
+      if (empty(mod_spec)) {
+        continue;
+      }
       boost::replace_all(mod_spec, "\"", "");
-      boost::replace_all(mod_spec, "!", "");
-      boost::replace_all(mod_spec, "-", "");
-      result.push_back(mod_spec);
+      auto action = FilterAction::Normal;
+      if (mod_spec[0] == '!') {
+        action = FilterAction::Veto;
+        mod_spec = mod_spec.substr(1);
+      } else if (mod_spec[0] == '-') {
+        action = FilterAction::Ignore;
+        mod_spec = mod_spec.substr(1);
+      }
+
+      // Handle remaining '!' or '-' characters
+      if (mod_spec.find_first_of("!-") != std::string::npos) {
+        throw config_exception("There was an error parsing the entry "s +
+                               ev.to_string() + "in a FHiCL sequence.")
+          << "The '!' or '-' character may appear as only the first character "
+             "in the path entry.\n";
+      }
+      result.push_back({mod_spec, action});
     }
     if (result.size() != seq.size()) {
-      throw art::Exception{art::errors::Configuration,
-                           "There was an error parsing the specified entries "
-                           "in a FHiCL sequence.\n"}
-        << "One of the presented elements is not a string.\n";
+      throw config_exception("There was an error parsing the specified entries "
+                             "in a FHiCL sequence.")
+        << "One of the presented elements is either an empty string or not a "
+           "string at all.\n";
     }
     return result;
   }
 
-  std::map<std::string, std::vector<std::string>>
+  void
+  verify_supported_names(table_t const& physics_table)
+  {
+    std::string bad_names{};
+    for (auto const& [name, value] : physics_table) {
+      if (value.is_a(SEQUENCE)) {
+        continue;
+      }
+
+      bool const is_table = value.is_a(TABLE);
+      if (is_table and cet::search_all(allowed_physics_tables, name)) {
+        continue;
+      }
+      std::string const type = is_table ? "table" : "atom";
+      bad_names += "   \"physics." + name + "\"   (" + type + ")\n";
+    }
+
+    if (empty(bad_names)) {
+      return;
+    }
+
+    throw config_exception(
+      "\nYou have specified the following unsupported parameters in the\n"
+      "\"physics\" block of your configuration:\n")
+      << bad_names
+      << "\nSupported parameters include the following tables:\n"
+         "   \"physics.producers\"\n"
+         "   \"physics.filters\"\n"
+         "   \"physics.analyzers\"\n"
+         "and sequences. Atomic configuration parameters are not "
+         "allowed.\n\n";
+  }
+
+  module_entries_for_path_t
   all_paths(intermediate_table const& config)
   {
     std::string const physics{"physics"};
     if (!exists_outside_prolog(config, physics))
       return {};
 
-    std::map<std::string, std::vector<std::string>> paths;
+    std::map<std::string, std::vector<PathEntry>> paths;
     table_t const& table = config.find(physics);
-    for (auto const& [pathname, modulenames] : table) {
-      if (!modulenames.is_a(SEQUENCE)) {
+    verify_supported_names(table);
+    for (auto const& [path_name, module_names] : table) {
+      if (!module_names.is_a(SEQUENCE)) {
         continue;
       }
-      paths[pathname] = sequence_to_strings(modulenames);
+      paths[path_name] = sequence_to_entries(module_names);
     }
+
     return paths;
   }
 
-  module_names_per_path_t
-  paths_for_tables(module_names_per_path_t& all_paths,
-                   modules_t const& modules,
-                   ModuleCategory const category)
+  // The return type of 'paths_for_category' is a vector of pairs -
+  // i.e. hence the "ordered" component of the return type.  By
+  // choosing this return type, we are able to preserve the
+  // user-specified order in 'trigger_paths'.  In this case, art
+  // specified the ordering for the user, but we use the return type
+  // that matches that of the 'explicitly_declared_paths' function.
+
+  module_entries_for_ordered_path_t
+  paths_for_category(module_entries_for_path_t const& all_paths,
+                     modules_t const& modules,
+                     ModuleCategory const category)
   {
     using table_t = fhicl::extended_value::table_t;
-    module_names_per_path_t result;
-    std::vector<std::string> paths_to_remove;
-    for (auto const& [pathname, modulenames] : all_paths) {
+    module_entries_for_path_t sorted_result;
+    for (auto const& [pathname, entries] : all_paths) {
       // Skip over special path names, which are handled later.
       if (pathname == "trigger_paths" || pathname == "end_paths") {
         continue;
       }
-      std::vector<std::string> right_modules;
+      std::vector<PathEntry> right_modules;
       std::vector<std::string> wrong_modules;
-      for (auto const& modname : modulenames) {
-        auto full_module_key_it = modules.find(modname);
+      for (auto const& mod_spec : entries) {
+        auto const& name = mod_spec.name;
+        auto full_module_key_it = modules.find(name);
         if (full_module_key_it == cend(modules)) {
-          throw art::Exception{art::errors::Configuration,
-                               "The following error was encountered while "
-                               "processing a path configuration:\n"}
-            << "Entry " << modname << " in path " << pathname
+          throw config_exception("The following error was encountered while "
+                                 "processing a path configuration:")
+            << "Entry with name " << name << " in path " << pathname
             << " does not have a module configuration.\n";
         }
         auto const& full_module_key = full_module_key_it->second;
         auto const module_cat = module_category(full_module_key);
         assert(module_cat != ModuleCategory::unset);
         if (module_cat == category) {
-          right_modules.push_back(modname);
+          right_modules.push_back(mod_spec);
         } else {
-          wrong_modules.push_back(modname);
+          wrong_modules.push_back(name);
         }
       }
 
@@ -200,21 +274,17 @@ namespace {
         continue;
       }
 
-      if (right_modules.size() == modulenames.size()) {
-        result.emplace(pathname, move(right_modules));
-        // Cannot immediately erase since range-for will attempt to
-        // increment an invalid iterator corresponding to pathname.
-        paths_to_remove.push_back(pathname);
+      if (right_modules.size() == entries.size()) {
+        sorted_result.emplace(pathname, move(right_modules));
       } else {
         // This is the case where a path contains a mixture of
         // modifiers and observers.
-        art::Exception e{art::errors::Configuration,
-                         "An error was encountered while "
-                         "processing a path configuration.\n"};
-        e << "The following entries in path " << pathname << " are "
+        auto e = config_exception("An error was encountered while "
+                                  "processing a path configuration.");
+        e << "The following modules specified in path " << pathname << " are "
           << opposite(category)
-          << "s when all other\n"
-             "entries are "
+          << "s when all\n"
+             "other modules are "
           << category << "s:\n";
         for (auto const& modname : wrong_modules) {
           e << "  '" << modname << "'\n";
@@ -222,52 +292,44 @@ namespace {
         throw e;
       }
     }
-    for (auto const& path : paths_to_remove) {
-      all_paths.erase(path);
-    }
-    return result;
+    // Convert to correct type
+    return module_entries_for_ordered_path_t(sorted_result.begin(),
+                                             sorted_result.end());
   }
 
-  std::optional<module_names_per_path_t>
-  explicitly_declared_paths(module_names_per_path_t& modules_per_path,
+  std::optional<module_entries_for_ordered_path_t>
+  explicitly_declared_paths(module_entries_for_path_t const& modules_for_path,
                             modules_t const& modules,
-                            std::string const& controlling_sequence)
+                            std::string const& path_selection_override)
   {
-    auto const it = modules_per_path.find(controlling_sequence);
-    if (it == cend(modules_per_path)) {
+    auto const it = modules_for_path.find(path_selection_override);
+    if (it == cend(modules_for_path)) {
       return std::nullopt;
     }
 
     std::ostringstream os;
-    module_names_per_path_t result;
-    std::set<std::string> paths_to_erase;
-    for (auto const& pathname : it->second) {
-      auto res = modules_per_path.find(pathname);
-      if (res == cend(modules_per_path)) {
-        os << "ERROR: Unknown path " << pathname << " specified by user in "
-           << controlling_sequence << ".\n";
+    module_entries_for_ordered_path_t result;
+    for (auto const& path : it->second) {
+      auto res = modules_for_path.find(path.name);
+      if (res == cend(modules_for_path)) {
+        os << "ERROR: Unknown path " << path.name << " specified by user in "
+           << path_selection_override << ".\n";
         continue;
       }
 
       // Check that module names in paths are supported
-      for (auto const& modname : res->second) {
-        auto full_module_key_it = modules.find(modname);
+      for (auto const& entry : res->second) {
+        auto const& name = entry.name;
+        auto full_module_key_it = modules.find(name);
         if (full_module_key_it == cend(modules)) {
-          throw art::Exception{art::errors::Configuration,
-                               "The following error was encountered while "
-                               "processing a path configuration:\n"}
-            << "Entry " << modname << " in path " << pathname
+          throw config_exception("The following error was encountered while "
+                                 "processing a path configuration:")
+            << "Entry with name " << name << " in path " << path.name
             << " does not have a module configuration.\n";
         }
       }
-      result.insert(*res);
-      paths_to_erase.insert(pathname);
+      result.push_back(*res);
     }
-
-    for (auto const& path_to_erase : paths_to_erase) {
-      modules_per_path.erase(path_to_erase);
-    }
-    modules_per_path.erase(it); // Remove controlling sequence
 
     auto const err = os.str();
     if (!err.empty()) {
@@ -276,23 +338,46 @@ namespace {
     return std::make_optional(std::move(result));
   }
 
-  std::map<std::string, art::detail::ModuleKeyAndType>
+  keytype_for_name_t
   get_enabled_modules(modules_t const& modules,
-                      module_names_per_path_t const& enabled_paths)
+                      module_entries_for_ordered_path_t const& enabled_paths,
+                      ModuleCategory const category)
   {
-    std::map<std::string, art::detail::ModuleKeyAndType> result;
-    for (auto const& pr : enabled_paths) {
-      for (auto const& module_name : pr.second) {
+    keytype_for_name_t result;
+    for (auto const& [path_name, entries] : enabled_paths) {
+      for (auto const& [module_name, action] : entries) {
         auto const& module_key = modules.at(module_name);
-        result.try_emplace(
-          module_name, ModuleKeyAndType{module_key, module_type(module_key)});
+        auto const actual_category = module_category(module_key);
+        auto const type = module_type(module_key);
+        if (actual_category != category) {
+          throw config_exception("The following error was encountered while "
+                                 "processing a path configuration:")
+            << "The " << path_selection_override(category)
+            << " override parameter contains the path " << path_name
+            << ", which has"
+            << (actual_category == ModuleCategory::observer ? " an\n" : " a\n")
+            << to_string(type) << " with the name " << module_name << ".\n\n"
+            << "Path " << path_name
+            << " should instead be included as part of the "
+            << path_selection_override(opposite(category)) << " parameter.\n"
+            << "Contact artists@fnal.gov for guidance.\n";
+        }
+        if (action != art::detail::FilterAction::Normal &&
+            type != art::ModuleType::filter) {
+          throw config_exception("The following error was encountered while "
+                                 "processing a path configuration:")
+            << "Entry with name " << module_name << " in path " << path_name
+            << " is" << (category == ModuleCategory::observer ? " an " : " a ")
+            << to_string(type) << " and cannot have a '!' or '-' prefix.\n";
+        }
+        result.try_emplace(module_name, ModuleKeyAndType{module_key, type});
       }
     }
     return result;
   }
 }
 
-std::map<std::string, ModuleKeyAndType>
+art::detail::EnabledModules
 art::detail::prune_config_if_enabled(bool const prune_config,
                                      bool const report_enabled,
                                      intermediate_table& config)
@@ -304,13 +389,24 @@ art::detail::prune_config_if_enabled(bool const prune_config,
   auto trigger_paths =
     explicitly_declared_paths(paths, modules, "trigger_paths");
   auto enabled_trigger_paths =
-    trigger_paths ? *trigger_paths :
-                    paths_for_tables(paths, modules, ModuleCategory::modifier);
+    trigger_paths ?
+      *trigger_paths :
+      paths_for_category(paths, modules, ModuleCategory::modifier);
 
   auto end_paths = explicitly_declared_paths(paths, modules, "end_paths");
   auto enabled_end_paths =
     end_paths ? *end_paths :
-                paths_for_tables(paths, modules, ModuleCategory::observer);
+                paths_for_category(paths, modules, ModuleCategory::observer);
+
+  // Find unused paths
+  paths.erase("trigger_paths");
+  paths.erase("end_paths");
+  for (auto const& pr : enabled_trigger_paths) {
+    paths.erase(pr.first);
+  }
+  for (auto const& pr : enabled_end_paths) {
+    paths.erase(pr.first);
+  }
 
   // The only paths left are those that are not enabled for execution.
   if (report_enabled && !empty(paths)) {
@@ -321,16 +417,17 @@ art::detail::prune_config_if_enabled(bool const prune_config,
     }
   }
 
-  auto enabled_modules = get_enabled_modules(modules, enabled_trigger_paths);
+  auto enabled_modules = get_enabled_modules(
+    modules, enabled_trigger_paths, ModuleCategory::modifier);
   // C++17 provides the std::map::merge member function, but Clang 7
   // and older does not support it.  Will do it by hand for now, until
   // we have time to handle this properly.
   auto end_path_enabled_modules =
-    get_enabled_modules(modules, enabled_end_paths);
+    get_enabled_modules(modules, enabled_end_paths, ModuleCategory::observer);
   enabled_modules.insert(begin(end_path_enabled_modules),
                          end(end_path_enabled_modules));
 
-  std::map<std::string, std::string> unused_modules;
+  modules_t unused_modules;
   cet::copy_if_all(modules,
                    inserter(unused_modules, end(unused_modules)),
                    [& emods = enabled_modules](auto const& mod) {
@@ -362,5 +459,7 @@ art::detail::prune_config_if_enabled(bool const prune_config,
     }
   }
 
-  return enabled_modules;
+  return EnabledModules{std::move(enabled_modules),
+                        std::move(enabled_trigger_paths),
+                        std::move(enabled_end_paths)};
 }

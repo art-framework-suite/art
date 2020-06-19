@@ -15,7 +15,7 @@
 #include "art/Framework/Core/ProducingServiceSignals.h"
 #include "art/Framework/Core/Schedule.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
-#include "art/Framework/Core/detail/ModuleKeyAndType.h"
+#include "art/Framework/Core/detail/EnabledModules.h"
 #include "art/Framework/EventProcessor/Scheduler.h"
 #include "art/Framework/EventProcessor/detail/ExceptionCollector.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -42,28 +42,23 @@ namespace fhicl {
 namespace art {
 
   class EventProcessor {
-  public: // TYPES
+  public:
     // Status codes:
     //   0     successful completion
     //   3     signal received
     //  values are for historical reasons.
-    enum Status { epSuccess = 0, epSignal = 3 };
+    enum StatusCode { epSuccess = 0, epSignal = 3 };
 
-    using StatusCode = Status;
-
-    // MEMBER FUNCTIONS -- Special Member Functions
-  public:
+    // Special Member Functions
     ~EventProcessor();
-    explicit EventProcessor(
-      fhicl::ParameterSet const& pset,
-      std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules);
+    explicit EventProcessor(fhicl::ParameterSet const& pset,
+                            detail::EnabledModules const& enabled_modules);
     EventProcessor(EventProcessor const&) = delete;
     EventProcessor(EventProcessor&&) = delete;
     EventProcessor& operator=(EventProcessor const&) = delete;
     EventProcessor& operator=(EventProcessor&&) = delete;
 
-    // MEMBER FUNCTIONS -- API we provide to run_art
-  public:
+    // API to run_art
     //
     //  Run the job until done, which means:
     //
@@ -79,8 +74,7 @@ namespace art {
     //
     StatusCode runToCompletion();
 
-    // MEMBER FUNCTIONS -- Tasking Structure
-  public:
+    // Tasking Structure
     void processAllEventsTask(tbb::task* eventLoopTask,
                               ScheduleID const,
                               std::exception_ptr const*);
@@ -151,7 +145,7 @@ namespace art {
     void invokePostBeginJobWorkers_();
     void terminateAbnormally_();
 
-  private: // MEMBER DATA
+  private:
     template <typename T>
     using tsan = hep::concurrency::thread_sanitize<T>;
 

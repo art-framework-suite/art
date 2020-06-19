@@ -136,9 +136,8 @@ namespace art {
     auto const invalid_module_context = ModuleContext::invalid();
   }
 
-  EventProcessor::EventProcessor(
-    ParameterSet const& pset,
-    std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules)
+  EventProcessor::EventProcessor(ParameterSet const& pset,
+                                 detail::EnabledModules const& enabled_modules)
     : scheduler_{pset.get<ParameterSet>("services.scheduler")}
     , scheduleIteration_{static_cast<ScheduleID::size_type>(
         scheduler_->num_schedules())}

@@ -7,10 +7,10 @@
 #include "art/Framework/Art/detail/info_success.h"
 #include "art/Framework/Art/detail/output_to.h"
 #include "art/Framework/Art/detail/prune_configuration.h"
+#include "art/Framework/Core/detail/EnabledModules.h"
 #include "art/Framework/EventProcessor/EventProcessor.h"
 #include "art/Utilities/ExceptionMessages.h"
 #include "art/Utilities/UnixSignalHandlers.h"
-#include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
@@ -25,14 +25,11 @@
 #include "fhiclcpp/parse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <atomic>
 #include <cassert>
-#include <cstring>
 #include <exception>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <type_traits>
 #include <vector>
 
 #ifdef __linux__
@@ -185,7 +182,7 @@ namespace art {
     using detail::exists_outside_prolog;
     using detail::fhicl_key;
     auto const scheduler_key = fhicl_key("services", "scheduler");
-    std::map<std::string, detail::ModuleKeyAndType> enabled_modules;
+    auto enabled_modules = detail::EnabledModules::none();
     assert(exists_outside_prolog(raw_config, scheduler_key));
     try {
       auto const pruneConfigKey = fhicl_key(scheduler_key, "pruneConfig");
@@ -257,7 +254,7 @@ namespace art {
     //
     // Make the parameter set from the configuration string:
     //
-    std::map<std::string, detail::ModuleKeyAndType> enabled_modules;
+    auto enabled_modules = detail::EnabledModules::none();
     fhicl::ParameterSet main_pset;
     try {
       // create an intermediate table from the input string
@@ -296,9 +293,8 @@ namespace art {
   }
 
   int
-  run_art_common_(
-    fhicl::ParameterSet const& main_pset,
-    std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules)
+  run_art_common_(fhicl::ParameterSet const& main_pset,
+                  detail::EnabledModules const& enabled_modules)
   {
 #ifdef __linux__
     // Tell the system memory allocator to only use one arena: they

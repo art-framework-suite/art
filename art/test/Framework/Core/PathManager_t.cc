@@ -23,7 +23,6 @@ struct PathManagerTestFixture {
   UpdateOutputCallbacks preg;
   ProductDescriptions productsToProduce;
   ActivityRegistry areg;
-  std::map<std::string, detail::ModuleKeyAndType> enabledModules;
 };
 
 BOOST_FIXTURE_TEST_SUITE(PathManager_t, PathManagerTestFixture)
@@ -46,6 +45,24 @@ BOOST_AUTO_TEST_CASE(Construct)
                          static_cast<errors::ErrorCodes>(0),
                          "");
 
+  // Correct.  Empty path-selection overrides despite presence of paths p1 and
+  // e1.
+  test_sets.emplace_back("process_name: \"test\" "
+                         "physics: {"
+                         "  producers: {"
+                         "    p: { module_type: PMTestProducer }"
+                         "  }"
+                         "  analyzers: {"
+                         "    a: { module_type: DummyAnalyzer }"
+                         "  }"
+                         "  p1: [p]"
+                         "  e1: [a]"
+                         "  trigger_paths: []"
+                         "  end_paths: []"
+                         "}",
+                         static_cast<errors::ErrorCodes>(0),
+                         "");
+
   // Module type mismatch.
   test_sets.emplace_back("process_name: \"test\" "
                          "physics: { "
@@ -63,86 +80,6 @@ BOOST_AUTO_TEST_CASE(Construct)
                          "filter.\n"
                          "---- Configuration END\n");
 
-  // Incorrectly included parameter in "physics" block
-  test_sets.emplace_back(
-    "process_name: pathMisspecification "
-    "physics: { "
-    "  producers : {} "
-    "  filters   : {} "
-    "  analyzers : {} "
-    "test : atom "
-    "check : { "
-    "  cannot : put "
-    "  random : table } }",
-    errors::Configuration,
-    "---- Configuration BEGIN\n"
-    "  \n"
-    "  You have specified the following unsupported parameters in the\n"
-    "  \"physics\" block of your configuration:\n"
-    "  \n"
-    "     \"physics.check\"   (table)\n"
-    "     \"physics.test\"   (atom)\n"
-    "  \n"
-    "  Supported parameters include the following tables:\n"
-    "     \"physics.producers\"\n"
-    "     \"physics.filters\"\n"
-    "     \"physics.analyzers\"\n"
-    "  and sequences. Atomic configuration parameters are not allowed.\n"
-    "  \n"
-    "---- Configuration END\n");
-
-  // Incorrectly included end path as trigger path
-  test_sets.emplace_back("process_name: MisspecifiedEndPath\n"
-                         "physics.analyzers.a1: {\n"
-                         "   module_type: DummyAnalyzer\n"
-                         "}\n"
-                         "physics.e1: [a1]\n"
-                         "physics.trigger_paths: [e1]\n",
-                         errors::Configuration,
-                         "---- Configuration BEGIN\n"
-                         "  Path configuration: The following were encountered "
-                         "while processing path configurations:\n"
-                         "    ERROR: Path 'e1' is configured as a trigger path "
-                         "but is actually an end path.\n"
-                         "---- Configuration END\n");
-
-  // Incorrectly included trigger path as end path
-  test_sets.emplace_back(
-    "process_name: MisspecifiedTriggerPath\n"
-    "physics.producers.d1: {\n"
-    "   module_type: \"art/test/Framework/Art/PrintAvailable/DummyProducer\"\n"
-    "}\n"
-    "physics.p1: [d1]\n"
-    "physics.trigger_paths: [p1]\n",
-    errors::Configuration,
-    "---- Configuration BEGIN\n"
-    "  Path configuration: The following were encountered while processing "
-    "path configurations:\n"
-    "    ERROR: Path 'p1' is configured as an end path but is actually a "
-    "trigger path.\n"
-    "---- Configuration END\n");
-
-  // Incorrectly applied '!' and '-' characters to modules that are not filters.
-  test_sets.emplace_back(
-    "process_name: MisspecifiedModuleLabel\n"
-    "physics.producers.d1: {\n"
-    "   module_type: \"art/test/Framework/Art/PrintAvailable/DummyProducer\"\n"
-    "}\n"
-    "physics.analyzers.d2: {\n"
-    "   module_type: \"art/test/Framework/Art/PrintAvailable/DummyAnalyzer\"\n"
-    "}\n"
-    "physics.p1: [\"!d1\"]\n"
-    "physics.e1: [\"-d2\"]\n",
-    errors::Configuration,
-    "---- Configuration BEGIN\n"
-    "  Path configuration: The following were encountered while processing "
-    "path configurations:\n"
-    "    ERROR: Module d2 in path e1 is an analyzer and cannot have a '!' or "
-    "'-' prefix.\n"
-    "    ERROR: Module d1 in path p1 is a producer and cannot have a '!' or "
-    "'-' prefix.\n"
-    "---- Configuration END\n");
-
   for (auto const& [config_string, error_code, error_msg] : test_sets) {
     fhicl::intermediate_table raw_config;
     parse_document(config_string, raw_config);
@@ -151,7 +88,9 @@ BOOST_AUTO_TEST_CASE(Construct)
     try {
       fhicl::ParameterSet ps;
       make_ParameterSet(raw_config, ps);
-      PathManager pm(ps, preg, productsToProduce, atable, areg, enabledModules);
+      PathManager pm(
+        ps, preg, productsToProduce, atable, areg, enabled_modules);
+      assert(error_code == 0);
     }
     catch (Exception const& e) {
       if ((e.categoryCode() != error_code) || (e.what() != error_msg)) {

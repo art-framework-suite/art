@@ -18,6 +18,7 @@
 #include "art/Framework/Core/ReplicatedProducer.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Core/detail/EnabledModules.h"
 #include "art/Framework/Core/detail/ModuleConfigInfo.h"
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Framework/Core/detail/ModuleKeyAndType.h"
@@ -45,13 +46,12 @@ namespace art {
   class PathManager {
   public: // Special Member Functions
     ~PathManager() noexcept;
-    PathManager(
-      fhicl::ParameterSet const& procPS,
-      UpdateOutputCallbacks& preg,
-      ProductDescriptions& productsToProduce,
-      ActionTable const& exceptActions,
-      ActivityRegistry const& areg,
-      std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules);
+    PathManager(fhicl::ParameterSet const& procPS,
+                UpdateOutputCallbacks& preg,
+                ProductDescriptions& productsToProduce,
+                ActionTable const& exceptActions,
+                ActivityRegistry const& areg,
+                detail::EnabledModules const& enabled_modules);
 
     PathManager(PathManager const&) = delete;
     PathManager(PathManager&&) = delete;
@@ -76,8 +76,7 @@ namespace art {
     };
 
     std::map<std::string, detail::ModuleConfigInfo> moduleInformation_(
-      std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules)
-      const;
+      detail::EnabledModules const& enabled_modules) const;
 
     ModulesByThreadingType makeModules_(ScheduleID::size_type n);
     std::pair<ModuleBase*, std::string> makeModule_(
