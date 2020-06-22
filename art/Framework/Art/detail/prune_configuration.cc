@@ -97,6 +97,7 @@ namespace {
         return "'end_paths'";
       default:
         assert(false); // Unreachable
+        return {};
     }
   }
 
