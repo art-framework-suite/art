@@ -92,9 +92,9 @@ namespace {
   {
     switch (category) {
       case ModuleCategory::modifier:
-        return "'trigger_paths'";
+        return "trigger_paths";
       case ModuleCategory::observer:
-        return "'end_paths'";
+        return "end_paths";
       default:
         assert(false); // Unreachable
         return {};
@@ -124,7 +124,7 @@ namespace {
           auto const& cached_key = it->second;
           auto const parent =
             cached_key.substr(0, cached_key.rfind(modname) - 1);
-          throw config_exception("An error was encountered while processing "
+          throw config_exception("An error occurred while processing "
                                  "module configurations.")
             << "Module label '" << modname << "' has been used in '" << tbl
             << "' and '" << parent << "'.\n"
@@ -253,7 +253,7 @@ namespace {
         auto const& name = mod_spec.name;
         auto full_module_key_it = modules.find(name);
         if (full_module_key_it == cend(modules)) {
-          throw config_exception("The following error was encountered while "
+          throw config_exception("The following error occurred while "
                                  "processing a path configuration:")
             << "Entry with name " << name << " in path " << pathname
             << " does not have a module configuration.\n";
@@ -280,7 +280,7 @@ namespace {
       } else {
         // This is the case where a path contains a mixture of
         // modifiers and observers.
-        auto e = config_exception("An error was encountered while "
+        auto e = config_exception("An error occurred while "
                                   "processing a path configuration.");
         e << "The following modules specified in path " << pathname << " are "
           << opposite(category)
@@ -313,8 +313,8 @@ namespace {
     for (auto const& path : it->second) {
       auto res = modules_for_path.find(path.name);
       if (res == cend(modules_for_path)) {
-        os << "ERROR: Unknown path " << path.name << " specified by user in "
-           << path_selection_override << ".\n";
+        os << "Unknown path " << path.name << " has been specified in '"
+           << path_selection_override << "'.\n";
         continue;
       }
 
@@ -323,7 +323,7 @@ namespace {
         auto const& name = entry.name;
         auto full_module_key_it = modules.find(name);
         if (full_module_key_it == cend(modules)) {
-          throw config_exception("The following error was encountered while "
+          throw config_exception("The following error occurred while "
                                  "processing a path configuration:")
             << "Entry with name " << name << " in path " << path.name
             << " does not have a module configuration.\n";
@@ -334,7 +334,9 @@ namespace {
 
     auto const err = os.str();
     if (!err.empty()) {
-      throw art::Exception{art::errors::Configuration} << err;
+      throw config_exception(
+        "The following error occurred while processing path configurations:")
+        << err;
     }
     return std::make_optional(std::move(result));
   }
@@ -351,21 +353,21 @@ namespace {
         auto const actual_category = module_category(module_key);
         auto const type = module_type(module_key);
         if (actual_category != category) {
-          throw config_exception("The following error was encountered while "
+          throw config_exception("The following error occurred while "
                                  "processing a path configuration:")
-            << "The " << path_selection_override(category)
-            << " override parameter contains the path " << path_name
+            << "The '" << path_selection_override(category)
+            << "' override parameter contains the path " << path_name
             << ", which has"
             << (actual_category == ModuleCategory::observer ? " an\n" : " a\n")
             << to_string(type) << " with the name " << module_name << ".\n\n"
             << "Path " << path_name
-            << " should instead be included as part of the "
-            << path_selection_override(opposite(category)) << " parameter.\n"
+            << " should instead be included as part of the '"
+            << path_selection_override(opposite(category)) << "' parameter.\n"
             << "Contact artists@fnal.gov for guidance.\n";
         }
         if (action != art::detail::FilterAction::Normal &&
             type != art::ModuleType::filter) {
-          throw config_exception("The following error was encountered while "
+          throw config_exception("The following error occurred while "
                                  "processing a path configuration:")
             << "Entry with name " << module_name << " in path " << path_name
             << " is" << (category == ModuleCategory::observer ? " an " : " a ")
@@ -375,6 +377,19 @@ namespace {
       }
     }
     return result;
+  }
+
+  std::pair<module_entries_for_ordered_path_t, bool>
+  enabled_paths(module_entries_for_path_t const& paths,
+                modules_t const& modules,
+                ModuleCategory const category)
+  {
+    auto declared_paths = explicitly_declared_paths(
+      paths, modules, path_selection_override(category));
+    if (declared_paths) {
+      return {std::move(*declared_paths), true};
+    }
+    return {paths_for_category(paths, modules, category), false};
   }
 }
 
@@ -387,25 +402,35 @@ art::detail::prune_config_if_enabled(bool const prune_config,
 
   auto paths = all_paths(config);
 
-  auto trigger_paths =
-    explicitly_declared_paths(paths, modules, "trigger_paths");
-  auto enabled_trigger_paths =
-    trigger_paths ?
-      *trigger_paths :
-      paths_for_category(paths, modules, ModuleCategory::modifier);
+  auto [trigger_paths, trigger_paths_override] =
+    enabled_paths(paths, modules, ModuleCategory::modifier);
+  auto [end_paths, end_paths_override] =
+    enabled_paths(paths, modules, ModuleCategory::observer);
 
-  auto end_paths = explicitly_declared_paths(paths, modules, "end_paths");
-  auto enabled_end_paths =
-    end_paths ? *end_paths :
-                paths_for_category(paths, modules, ModuleCategory::observer);
+  auto enabled_modules =
+    get_enabled_modules(modules, trigger_paths, ModuleCategory::modifier);
+  // C++17 provides the std::map::merge member function, but Clang 7
+  // and older does not support it.  Will do it by hand for now, until
+  // we have time to handle this properly.
+  auto end_path_enabled_modules =
+    get_enabled_modules(modules, end_paths, ModuleCategory::observer);
+  enabled_modules.insert(begin(end_path_enabled_modules),
+                         end(end_path_enabled_modules));
+
+  modules_t unused_modules;
+  for (auto const& pr : modules) {
+    if (enabled_modules.find(pr.first) == cend(enabled_modules)) {
+      unused_modules.insert(pr);
+    }
+  }
 
   // Find unused paths
   paths.erase("trigger_paths");
   paths.erase("end_paths");
-  for (auto const& pr : enabled_trigger_paths) {
+  for (auto const& pr : trigger_paths) {
     paths.erase(pr.first);
   }
-  for (auto const& pr : enabled_end_paths) {
+  for (auto const& pr : end_paths) {
     paths.erase(pr.first);
   }
 
@@ -418,37 +443,17 @@ art::detail::prune_config_if_enabled(bool const prune_config,
     }
   }
 
-  auto enabled_modules = get_enabled_modules(
-    modules, enabled_trigger_paths, ModuleCategory::modifier);
-  // C++17 provides the std::map::merge member function, but Clang 7
-  // and older does not support it.  Will do it by hand for now, until
-  // we have time to handle this properly.
-  auto end_path_enabled_modules =
-    get_enabled_modules(modules, enabled_end_paths, ModuleCategory::observer);
-  enabled_modules.insert(begin(end_path_enabled_modules),
-                         end(end_path_enabled_modules));
-
-  modules_t unused_modules;
-  cet::copy_if_all(modules,
-                   inserter(unused_modules, end(unused_modules)),
-                   [& emods = enabled_modules](auto const& mod) {
-                     return emods.find(mod.first) == cend(emods);
-                   });
-
   if (report_enabled && !empty(unused_modules)) {
     std::ostringstream os;
-    auto i = cbegin(unused_modules);
     os << "The following module label"
        << ((unused_modules.size() == 1) ? " is" : "s are")
        << " either not assigned to any path,\n"
        << "or " << ((unused_modules.size() == 1ull) ? "it has" : "they have")
-       << " been assigned to ignored path(s):\n"
-       << "'" << i->first << "'";
-    ++i;
-    for (auto e = cend(unused_modules); i != e; ++i) {
-      os << ", '" << i->first << "'";
+       << " been assigned to ignored path(s):\n";
+    for (auto const& pr : unused_modules) {
+      os << "  " << pr.first << '\n';
     }
-    std::cerr << os.str() << '\n';
+    std::cerr << os.str();
   }
 
   if (prune_config) {
@@ -461,6 +466,8 @@ art::detail::prune_config_if_enabled(bool const prune_config,
   }
 
   return EnabledModules{std::move(enabled_modules),
-                        std::move(enabled_trigger_paths),
-                        std::move(enabled_end_paths)};
+                        std::move(trigger_paths),
+                        std::move(end_paths),
+                        trigger_paths_override,
+                        end_paths_override};
 }

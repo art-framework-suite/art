@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(duplicate_label)
                            "}"};
   std::string const err_msg{
     "---- Configuration BEGIN\n"
-    "  An error was encountered while processing module configurations.\n"
+    "  An error occurred while processing module configurations.\n"
     "  Module label 'p' has been used in 'physics.analyzers' and "
     "'physics.filters'.\n"
     "  Module labels must be unique across an art process.\n"
@@ -81,10 +81,33 @@ BOOST_AUTO_TEST_CASE(inhomogeneous_path)
                            "}"};
   std::string const err_msg{
     "---- Configuration BEGIN\n"
-    "  An error was encountered while processing a path configuration.\n"
+    "  An error occurred while processing a path configuration.\n"
     "  The following modules specified in path p1 are observers when all\n"
     "  other modules are modifiers:\n"
     "    'a'\n"
+    "---- Configuration END\n"};
+  check_exception(config, err_msg);
+}
+
+BOOST_AUTO_TEST_CASE(nonexistent_path_1)
+{
+  std::string const config{"physics.trigger_paths: [x1]"};
+  std::string const err_msg{
+    "---- Configuration BEGIN\n"
+    "  The following error occurred while processing path configurations:\n"
+    "  Unknown path x1 has been specified in 'trigger_paths'.\n"
+    "---- Configuration END\n"};
+  check_exception(config, err_msg);
+}
+
+BOOST_AUTO_TEST_CASE(nonexistent_path_2)
+{
+  std::string const config{"physics.end_paths: [x1, d6]"};
+  std::string const err_msg{
+    "---- Configuration BEGIN\n"
+    "  The following error occurred while processing path configurations:\n"
+    "  Unknown path x1 has been specified in 'end_paths'.\n"
+    "  Unknown path d6 has been specified in 'end_paths'.\n"
     "---- Configuration END\n"};
   check_exception(config, err_msg);
 }
@@ -97,7 +120,7 @@ BOOST_AUTO_TEST_CASE(unconfigured_label)
                            "}"};
   std::string const err_msg{
     "---- Configuration BEGIN\n"
-    "  The following error was encountered while processing a path "
+    "  The following error occurred while processing a path "
     "configuration:\n"
     "  Entry with name f in path p1 does not have a module configuration.\n"
     "---- Configuration END\n"};
@@ -127,7 +150,7 @@ BOOST_AUTO_TEST_CASE(illegal_action_for_non_filter)
                            "  p1: [ \"!p\" ]"
                            "}"};
   std::string const err_msg{"---- Configuration BEGIN\n"
-                            "  The following error was encountered while "
+                            "  The following error occurred while "
                             "processing a path configuration:\n"
                             "  Entry with name p in path p1 is a producer and "
                             "cannot have a '!' or '-' prefix.\n"
@@ -144,7 +167,7 @@ BOOST_AUTO_TEST_CASE(unconfigured_label_with_trigger_paths)
                            "}"};
   std::string const err_msg{
     "---- Configuration BEGIN\n"
-    "  The following error was encountered while processing a path "
+    "  The following error occurred while processing a path "
     "configuration:\n"
     "  Entry with name f in path p1 does not have a module configuration.\n"
     "---- Configuration END\n"};
@@ -162,7 +185,7 @@ BOOST_AUTO_TEST_CASE(misspecified_end_path)
                            "physics.trigger_paths: [e1]\n"};
   std::string const err_msg{
     "---- Configuration BEGIN\n"
-    "  The following error was encountered while processing a path "
+    "  The following error occurred while processing a path "
     "configuration:\n"
     "  The 'trigger_paths' override parameter contains the path e1, which has "
     "an\n"
@@ -186,7 +209,7 @@ BOOST_AUTO_TEST_CASE(misspecified_trigger_path)
                            "physics.end_paths: [p1]\n"};
   std::string const err_msg{
     "---- Configuration BEGIN\n"
-    "  The following error was encountered while processing a path "
+    "  The following error occurred while processing a path "
     "configuration:\n"
     "  The 'end_paths' override parameter contains the path p1, which has a\n"
     "  producer with the name d1.\n"

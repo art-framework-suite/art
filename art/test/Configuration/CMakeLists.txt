@@ -41,18 +41,6 @@ cet_test(PruneConfig_t_01 HANDBUILT
   DATAFILES fcl/prune_config_t_01.fcl
   TEST_PROPERTIES WILL_FAIL TRUE)
 
-cet_test(NonexistentPathCheck_01_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS -c NonexistentPathCheck_01.fcl
-  DATAFILES fcl/NonexistentPathCheck_01.fcl
-  TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\n  ERROR: Unknown path x1 specified by user in trigger_paths.\n")
-
-cet_test(NonexistentPathCheck_02_t HANDBUILT
-  TEST_EXEC art
-  TEST_ARGS -c NonexistentPathCheck_02.fcl
-  DATAFILES fcl/NonexistentPathCheck_02.fcl
-  TEST_PROPERTIES PASS_REGULAR_EXPRESSION "\n  ERROR: Unknown path x1 specified by user in end_paths.\n  ERROR: Unknown path d6 specified by user in end_paths.\n")
-
 # These tests check that the defaults for reporting unused modules are
 # correct for the mu2e executable and the art executable (representing
 # all other framework executables).
