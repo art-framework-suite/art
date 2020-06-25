@@ -53,7 +53,7 @@ sub basicUsage {
   my $self = shift;
   my $type = $self->type();
   return <<EOF;
-Usage: $type\[:<arg>[,<arg>]+]
+Usage: cetskelgen [options] [--] $type\[:<arg>] qualified-name
 Args:
   [--flavor,<LEGACY|SHARED|REPLICATED>]
     Define the threading flavor of the analyzer (default LEGACY).
