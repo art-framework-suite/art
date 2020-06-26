@@ -8,20 +8,18 @@ using namespace std;
 
 using EntryNumber_t = art::FileIndex::EntryNumber_t;
 
+namespace {
+  void
+  config_require(bool const cond, string const& msg)
+  {
+    if (!cond)
+      throw art::Exception(art::errors::Configuration) << msg << '\n';
+  }
+}
+
 namespace art {
 
-  namespace {
-
-    void
-    config_assert(bool const cond, string const& msg)
-    {
-      if (!cond)
-        throw art::Exception(art::errors::Configuration) << msg << '\n';
-    }
-
-  } // unnamed namespace
-
-  FileProperties::~FileProperties() {}
+  FileProperties::~FileProperties() = default;
 
   // Note: Cannot be noexcept because of age_!
   FileProperties::FileProperties()
@@ -231,12 +229,11 @@ namespace art {
     return os;
   }
 
-  ClosingCriteria::~ClosingCriteria() {}
+  ClosingCriteria::~ClosingCriteria() = default;
 
   ClosingCriteria::ClosingCriteria()
     : closingCriteria_{}
-    , granularity_{
-        Granularity::value(ClosingCriteria::Defaults::granularity_default())}
+    , granularity_{Granularity::value(Defaults::granularity_default())}
   {}
 
   ClosingCriteria::ClosingCriteria(FileProperties const& fp,
@@ -254,14 +251,14 @@ namespace art {
                       c.granularity()}
   {
     auto const& cc = closingCriteria_;
-    config_assert(cc.nEvents() > 0, "maxEvents must be greater than 0.");
-    config_assert(cc.nSubRuns() > 0, "maxSubRuns must be greater than 0.");
-    config_assert(cc.nRuns() > 0, "maxRuns must be greater than 0.");
-    config_assert(cc.nInputFiles() > 0,
-                  "maxInputFiles must be greater than 0.");
-    config_assert(cc.size() > 0, "maxSize must be greater than 0 KiB.");
-    config_assert(cc.age() > decltype(cc.age())::zero(),
-                  "maxAge must be greater than 0 seconds.");
+    config_require(cc.nEvents() > 0, "maxEvents must be greater than 0.");
+    config_require(cc.nSubRuns() > 0, "maxSubRuns must be greater than 0.");
+    config_require(cc.nRuns() > 0, "maxRuns must be greater than 0.");
+    config_require(cc.nInputFiles() > 0,
+                   "maxInputFiles must be greater than 0.");
+    config_require(cc.size() > 0, "maxSize must be greater than 0 KiB.");
+    config_require(cc.age() > decltype(cc.age())::zero(),
+                   "maxAge must be greater than 0 seconds.");
   }
 
   FileProperties const&
