@@ -27,7 +27,10 @@ using namespace std;
 namespace art {
 
   ProductRegistryHelper::~ProductRegistryHelper() = default;
-  ProductRegistryHelper::ProductRegistryHelper() = default;
+
+  ProductRegistryHelper::ProductRegistryHelper(product_creation_mode const mode)
+    : mode_{mode}
+  {}
 
   void
   ProductRegistryHelper::registerProducts(

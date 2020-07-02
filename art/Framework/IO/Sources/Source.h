@@ -221,9 +221,7 @@ namespace art {
     // message text.
     static void throwDataCorruption_(const char* msg);
 
-  private: // MEMBER DATA
-    ProductRegistryHelper h_{};
-
+    ProductRegistryHelper h_{product_creation_mode::reconstitutes};
     UpdateOutputCallbacks& outputCallbacks_;
 
     ProductTables presentProducts_{ProductTables::invalid()};
