@@ -13,6 +13,9 @@
 
 namespace art {
 
+  ProducingService::ProducingService()
+    : ProductRegistryHelper{product_creation_mode::produces}
+  {}
   ProducingService::~ProducingService() noexcept = default;
 
   void
