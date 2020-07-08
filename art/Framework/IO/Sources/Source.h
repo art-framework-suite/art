@@ -87,6 +87,7 @@
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
+#include "art/Framework/Core/detail/ImplicitConfigs.h"
 #include "art/Framework/IO/Sources/SourceHelper.h"
 #include "art/Framework/IO/Sources/SourceTraits.h"
 #include "art/Framework/IO/Sources/detail/FileNamesHandler.h"
@@ -102,6 +103,10 @@
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/ConfigurationTable.h"
+#include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/TableFragment.h"
 
 #include <algorithm>
 #include <memory>
@@ -109,8 +114,23 @@
 
 namespace art {
 
-  template <class T>
+  template <typename T>
   class Source;
+
+  template <typename T>
+  class SourceTable {
+  public:
+    using value_type = T;
+
+    auto const&
+    operator()() const
+    {
+      return fragment_();
+    }
+
+  private:
+    fhicl::TableFragment<T> fragment_;
+  };
 
   namespace detail {
 
@@ -149,37 +169,62 @@ namespace art {
       }
     };
 
+    ////////////////////////////////////////////////////////////////////
+    // Does the detail object have a Parameters type?
+    template <typename T, typename = void>
+    struct maybe_has_Parameters : std::false_type {
+      using Parameters = fhicl::ParameterSet;
+    };
+
+    template <typename T>
+    struct maybe_has_Parameters<T, std::void_t<typename T::Parameters>>
+      : std::true_type {
+      using user_config_t = typename T::Parameters;
+      struct Config {
+        struct SourceConfig {
+          fhicl::Atom<std::string> type{ModuleConfig::plugin_type()};
+          fhicl::Sequence<std::string> fileNames{fhicl::Name("fileNames"), {}};
+          fhicl::Atom<int64_t> maxSubRuns{fhicl::Name("maxSubRuns"), -1};
+          fhicl::Atom<int64_t> maxEvents{fhicl::Name("maxEvents"), -1};
+        };
+        fhicl::TableFragment<SourceConfig> sourceConfig;
+        user_config_t userConfig;
+      };
+      using Parameters = fhicl::WrappedTable<Config, ModuleConfig::IgnoreKeys>;
+    };
+
   } // namespace detail
 
   // No-one gets to override this class.
-  template <class T>
+  template <typename T>
   class Source final : public InputSource {
+  public:
+    using Parameters = typename detail::maybe_has_Parameters<T>::Parameters;
 
-  public: // TYPES
-    using SourceDetail = T;
+    template <typename U = Parameters>
+    explicit Source(std::enable_if_t<std::is_same_v<U, fhicl::ParameterSet>,
+                                     fhicl::ParameterSet> const& p,
+                    InputSourceDescription& d);
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    explicit Source(fhicl::ParameterSet const& p, InputSourceDescription& d);
+    template <typename U = Parameters>
+    explicit Source(
+      std::enable_if_t<!std::is_same_v<U, fhicl::ParameterSet>, U> const& p,
+      InputSourceDescription& d);
 
     Source(Source<T> const&) = delete;
-
     Source(Source<T>&&) = delete;
 
     Source<T>& operator=(Source<T> const&) = delete;
-
     Source<T>& operator=(Source<T>&&) = delete;
 
-  public: // MEMBER FUNCTIONS
+  private:
     input::ItemType nextItemType() override;
-
     std::unique_ptr<FileBlock> readFile() override;
-
     void closeFile() override;
 
     using InputSource::readEvent;
 
     std::unique_ptr<RunPrincipal> readRun() override;
-
     std::unique_ptr<SubRunPrincipal> readSubRun(
       cet::exempt_ptr<RunPrincipal const> rp) override;
 
@@ -187,10 +232,8 @@ namespace art {
       cet::exempt_ptr<SubRunPrincipal const> srp) override;
 
     std::unique_ptr<RangeSetHandler> runRangeSetHandler() override;
-
     std::unique_ptr<RangeSetHandler> subRunRangeSetHandler() override;
 
-  private: // MEMBER FUNCTIONS
     // Called in the constructor, to finish the process of product
     // registration.
     void finishProductRegistration_(InputSourceDescription& d);
@@ -221,85 +264,89 @@ namespace art {
     // message text.
     static void throwDataCorruption_(const char* msg);
 
-  private: // MEMBER DATA
     ProductRegistryHelper h_{};
-
     UpdateOutputCallbacks& outputCallbacks_;
-
     ProductTables presentProducts_{ProductTables::invalid()};
 
     // So it can be used by detail.
     SourceHelper sourceHelper_;
-
-    SourceDetail detail_;
-
+    T detail_;
     input::ItemType state_{input::IsInvalid};
-
     detail::FileNamesHandler<Source_wantFileServices<T>::value> fh_;
-
     std::string currentFileName_{};
 
     std::unique_ptr<RunPrincipal> newRP_{};
-
     std::unique_ptr<SubRunPrincipal> newSRP_{};
-
     std::unique_ptr<EventPrincipal> newE_{};
 
     // Cached Run and SubRun Principals used for users creating new
     // SubRun and Event Principals.  These are non owning!
-
     cet::exempt_ptr<RunPrincipal> cachedRP_{nullptr};
-
     cet::exempt_ptr<SubRunPrincipal> cachedSRP_{nullptr};
 
     bool pendingSubRun_{false};
-
     bool pendingEvent_{false};
-
     bool subRunIsNew_{false};
-
     SubRunNumber_t remainingSubRuns_{1};
-
     bool haveSRLimit_{false};
-
     EventNumber_t remainingEvents_{1};
-
     bool haveEventLimit_{false};
   };
 
-  template <class T>
-  Source<T>::Source(fhicl::ParameterSet const& p, InputSourceDescription& d)
+  template <typename T>
+  template <typename U>
+  Source<T>::Source(std::enable_if_t<std::is_same_v<U, fhicl::ParameterSet>,
+                                     fhicl::ParameterSet> const& p,
+                    InputSourceDescription& d)
     : InputSource{d.moduleDescription}
     , outputCallbacks_{d.productRegistry}
     , sourceHelper_{d.moduleDescription}
     , detail_{p, h_, sourceHelper_}
-    , fh_{p.get<std::vector<std::string>>("fileNames",
-                                          std::vector<std::string>())}
+    , fh_{p.template get<std::vector<std::string>>("fileNames", {})}
   {
-    // Handle maxSubRuns parameter.
-    int64_t maxSubRuns_par = p.get<int64_t>("maxSubRuns", -1);
+    int64_t const maxSubRuns_par = p.template get<int64_t>("maxSubRuns", -1);
     if (maxSubRuns_par > -1) {
       remainingSubRuns_ = maxSubRuns_par;
       haveSRLimit_ = true;
     }
-    // Handle maxEvents parameter.
-    int64_t maxEvents_par = p.get<int64_t>("maxEvents", -1);
+    int64_t const maxEvents_par = p.template get<int64_t>("maxEvents", -1);
     if (maxEvents_par > -1) {
       remainingEvents_ = maxEvents_par;
-      haveEventLimit_ = true;
     }
-    // Finish product registration.
     finishProductRegistration_(d);
   }
 
-  template <class T>
+  template <typename T>
+  template <typename U>
+  Source<T>::Source(
+    std::enable_if_t<!std::is_same_v<U, fhicl::ParameterSet>, U> const& p,
+    InputSourceDescription& d)
+    : InputSource{d.moduleDescription}
+    , outputCallbacks_{d.productRegistry}
+    , sourceHelper_{d.moduleDescription}
+    , detail_{p().userConfig, h_, sourceHelper_}
+    , fh_{p().sourceConfig().fileNames()}
+  {
+    if (int64_t const maxSubRuns_par = p().sourceConfig().maxSubRuns();
+        maxSubRuns_par > -1) {
+      remainingSubRuns_ = maxSubRuns_par;
+      haveSRLimit_ = true;
+    }
+    if (int64_t const maxEvents_par = p().sourceConfig().maxEvents();
+        maxEvents_par > -1) {
+      remainingEvents_ = maxEvents_par;
+    }
+    finishProductRegistration_(d);
+  }
+
+  template <typename T>
   void
   Source<T>::throwDataCorruption_(const char* msg)
   {
     throw Exception(errors::DataCorruption) << msg;
   }
 
-  template <class T>
+  template <typename T>
   void
   Source<T>::throwIfInsane_(bool const result,
                             RunPrincipal* newR,
@@ -409,7 +456,7 @@ namespace art {
     }
   }
 
-  template <class T>
+  template <typename T>
   bool
   Source<T>::readNext_()
   {
@@ -456,7 +503,7 @@ namespace art {
     return result;
   }
 
-  template <class T>
+  template <typename T>
   void
   Source<T>::checkForNextFile_()
   {
@@ -477,7 +524,7 @@ namespace art {
     }
   }
 
-  template <class T>
+  template <typename T>
   input::ItemType
   Source<T>::nextItemType()
   {
@@ -542,7 +589,7 @@ namespace art {
     return state_;
   }
 
-  template <class T>
+  template <typename T>
   void
   Source<T>::readNextAndRequireRun_()
   {
@@ -562,7 +609,7 @@ namespace art {
     }
   }
 
-  template <class T>
+  template <typename T>
   void
   Source<T>::readNextAndRefuseEvent_()
   {
@@ -577,21 +624,21 @@ namespace art {
     }
   }
 
-  template <class T>
+  template <typename T>
   std::unique_ptr<RangeSetHandler>
   Source<T>::runRangeSetHandler()
   {
     return std::make_unique<OpenRangeSetHandler>(cachedRP_->run());
   }
 
-  template <class T>
+  template <typename T>
   std::unique_ptr<RangeSetHandler>
   Source<T>::subRunRangeSetHandler()
   {
     return std::make_unique<OpenRangeSetHandler>(cachedSRP_->run());
   }
 
-  template <class T>
+  template <typename T>
   std::unique_ptr<FileBlock>
   Source<T>::readFile()
   {
@@ -604,7 +651,7 @@ namespace art {
     return std::unique_ptr<FileBlock>(newF);
   }
 
-  template <class T>
+  template <typename T>
   void
   Source<T>::closeFile()
   {
@@ -615,7 +662,7 @@ namespace art {
     cachedSRP_ = nullptr;
   }
 
-  template <class T>
+  template <typename T>
   std::unique_ptr<RunPrincipal>
   Source<T>::readRun()
   {
@@ -628,7 +675,7 @@ namespace art {
     return std::move(newRP_);
   }
 
-  template <class T>
+  template <typename T>
   std::unique_ptr<SubRunPrincipal>
   Source<T>::readSubRun(cet::exempt_ptr<RunPrincipal const>)
   {
@@ -647,7 +694,7 @@ namespace art {
     return std::move(newSRP_);
   }
 
-  template <class T>
+  template <typename T>
   std::unique_ptr<EventPrincipal>
   Source<T>::readEvent(cet::exempt_ptr<SubRunPrincipal const>)
   {
@@ -657,7 +704,7 @@ namespace art {
     return std::move(newE_);
   }
 
-  template <class T>
+  template <typename T>
   void
   Source<T>::finishProductRegistration_(InputSourceDescription& d)
   {

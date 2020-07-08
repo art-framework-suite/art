@@ -10,22 +10,30 @@
 
 #include "art/Framework/Principal/fwd.h"
 
+#include <string>
+
 namespace art {
   class BranchDescription;
 }
 
 class art::SelectorBase {
 public:
-  virtual ~SelectorBase();
+  virtual ~SelectorBase() = default;
   bool
   match(BranchDescription const& p) const
   {
     return doMatch(p);
   }
-  virtual SelectorBase* clone() const = 0;
+
+  std::string
+  print(std::string const& indent) const
+  {
+    return doPrint(indent);
+  }
 
 private:
   virtual bool doMatch(BranchDescription const& p) const = 0;
+  virtual std::string doPrint(std::string const& indent) const = 0;
 };
 
 #endif /* art_Framework_Principal_SelectorBase_h */

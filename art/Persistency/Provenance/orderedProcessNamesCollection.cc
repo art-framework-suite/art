@@ -1,19 +1,27 @@
 #include "art/Persistency/Provenance/orderedProcessNamesCollection.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "boost/algorithm/string.hpp"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProcessHistoryID.h"
 #include "cetlib/container_algorithms.h"
+#include "range/v3/view.hpp"
 
-#include <iomanip>
-#include <iostream>
-#include <set>
+namespace {
+  auto
+  stringified_process_names(art::ProcessHistory const& history)
+  {
+    assert(not history.empty());
+    return std::accumulate(
+      history.begin() + 1,
+      history.end(),
+      history.begin()->processName(),
+      [](std::string result, art::ProcessConfiguration const& config) {
+        result += "\n";
+        result += config.processName();
+        return result;
+      });
+  }
 
-std::vector<std::vector<std::string>>
-art::detail::orderedProcessNamesCollection(ProcessHistoryMap const& histories)
-{
-  std::vector<std::vector<std::string>> result;
-
-  std::vector<ProcessHistory const*> collapsed_histories;
   // Collapsed histories are histories that do not overlap with any
   // others.  For example, of the following process histories:
   //
@@ -26,35 +34,56 @@ art::detail::orderedProcessNamesCollection(ProcessHistoryMap const& histories)
   // 3.  In otherwords, 3 and 4 are the only histories that do not
   // have descendants.
   //
-  // Since the ordering of the histories is determined by a hashed
-  // value, we must compare each history in pairs to determine which
-  // histories do not have descendants.
-  for (auto const& hist_i : histories) {
-    bool found_descendent{false};
-    for (auto const& hist_j : histories) {
-      if (isAncestor(hist_i.second, hist_j.second)) {
-        found_descendent = true;
-        break;
+  // For simplicity, we create a list of all process names,
+  // concatenated according to each history.  Although it is possible
+  // for two non-overlapping histories to have the same process names,
+  // we do not make such a distinction here.
+  auto
+  collapsed_histories(std::vector<std::string> const& all_process_names)
+  {
+    assert(not empty(all_process_names));
+
+    std::vector<std::string> result;
+    auto candidate = cbegin(all_process_names);
+    auto const end = cend(all_process_names);
+    for (auto test = candidate + 1; test != end; ++test, ++candidate) {
+      if (test->find(*candidate) != 0) {
+        result.push_back(*candidate);
       }
     }
-    if (!found_descendent) {
-      collapsed_histories.push_back(&hist_i.second);
-    }
+    result.push_back(*candidate);
+    return result;
   }
 
-  for (auto const history : collapsed_histories) {
-    std::vector<std::string> process_names;
-    cet::transform_all(*history,
-                       std::back_inserter(process_names),
-                       [](auto const& config) { return config.processName(); });
-    result.push_back(std::move(process_names));
+  auto
+  transform_to_final_result(std::vector<std::string> const& collapsed)
+  {
+    std::vector<std::vector<std::string>> result;
+    for (auto const& process_names_str : collapsed) {
+      std::vector<std::string> process_names;
+      boost::split(process_names, process_names_str, boost::is_any_of("\n"));
+      result.push_back(move(process_names));
+    }
+    return result;
   }
+}
+
+std::vector<std::vector<std::string>>
+art::detail::orderedProcessNamesCollection(ProcessHistoryMap const& histories)
+{
+  std::vector<std::string> all_process_names;
+  all_process_names.reserve(histories.size());
+  for (auto const& history : histories | ranges::views::values) {
+    all_process_names.push_back(stringified_process_names(history));
+  }
+  cet::sort_all(all_process_names);
 
   // It is possible for two non-overlapping histories to have the same
   // process name.  We thus need to erase duplicate names.
-  cet::sort_all(result);
-  auto const e = end(result);
-  auto const new_end = std::unique(begin(result), e);
-  result.erase(new_end, e);
-  return result;
+  auto const e = end(all_process_names);
+  auto const new_end = std::unique(begin(all_process_names), e);
+  all_process_names.erase(new_end, e);
+
+  auto const collapsed = collapsed_histories(all_process_names);
+  return transform_to_final_result(collapsed);
 }

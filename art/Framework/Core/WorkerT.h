@@ -8,7 +8,6 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <cstddef>
 #include <iosfwd>

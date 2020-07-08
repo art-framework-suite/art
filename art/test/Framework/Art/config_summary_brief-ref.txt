@@ -1,0 +1,10 @@
+Process name: recomcdigistrig
+Source module: RootInput
+Services: 11
+Producers: 38
+Filters: 112
+Analyzers: 1
+Output modules: 1
+Trigger paths: 23
+End paths: 1
+ -> 'end_paths' specified

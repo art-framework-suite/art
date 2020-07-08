@@ -43,7 +43,7 @@ sub basicUsage {
   my $self = shift;
   my $type = $self->type();
   return <<EOF;
-Usage: $type\[:<arg>[,<arg>]+]
+Usage: cetskelgen [options] [--] $type\[:<arg>[,<arg>]+] qualified-name
 Args:
   [--scope,<LEGACY|SHARED>]
     Define the scope of the service for the DECLARE and DEFINE service

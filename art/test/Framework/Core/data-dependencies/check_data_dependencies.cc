@@ -87,8 +87,8 @@ namespace {
       cet::transform_all(
         tmp, back_inserter(configs), [&module_configs](auto const& label) {
           auto const& info = module_configs.at(label);
-          return art::WorkerInPath::ConfigInfo{cet::make_exempt_ptr(&info),
-                                               art::WorkerInPath::Normal};
+          return art::WorkerInPath::ConfigInfo{
+            cet::make_exempt_ptr(&info), art::detail::FilterAction::Normal};
         });
       result[name] = configs;
     }

@@ -8,25 +8,37 @@
 #include <vector>
 
 namespace art::detail {
+
   struct ModuleKeyAndType {
     std::string key;
     ModuleType type;
-
-    bool
-    operator==(ModuleKeyAndType const& other) const
-    {
-      return key == other.key && type == other.type;
-    }
-
-    bool
-    operator!=(ModuleKeyAndType const& other) const
-    {
-      return !operator==(other);
-    }
   };
 
+  enum class FilterAction { Normal = 0, Ignore = 1, Veto = 2 };
+  struct PathEntry {
+    std::string name;
+    FilterAction action;
+  };
+
+  inline bool
+  operator==(ModuleKeyAndType const& a, ModuleKeyAndType const& b) noexcept
+  {
+    return a.key == b.key && a.type == b.type;
+  }
+
+  inline bool
+  operator!=(ModuleKeyAndType const& a, ModuleKeyAndType const& b) noexcept
+  {
+    return not(a == b);
+  }
+
   ModuleType module_type(std::string const& full_key);
-  using modules_per_path_t =
+  using keytype_for_name_t = std::map<std::string, ModuleKeyAndType>;
+  using module_entries_for_ordered_path_t =
+    std::vector<std::pair<std::string, std::vector<PathEntry>>>;
+  using module_entries_for_path_t =
+    std::map<std::string, std::vector<PathEntry>>;
+  using modules_for_path_t =
     std::map<std::string, std::vector<ModuleKeyAndType>>;
 }
 

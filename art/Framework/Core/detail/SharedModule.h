@@ -4,11 +4,14 @@
 
 #include "art/Utilities/SharedResource.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <atomic>
 #include <set>
 #include <string>
+
+namespace hep::concurrency {
+  class SerialTaskQueueChain;
+}
 
 namespace art::detail {
 

@@ -18,6 +18,7 @@
 #include <utility>
 #include <vector>
 
+using namespace art::detail;
 using namespace hep::concurrency;
 using namespace std;
 
@@ -83,7 +84,7 @@ namespace art {
     return worker_.load();
   }
 
-  WorkerInPath::FilterAction
+  detail::FilterAction
   WorkerInPath::filterAction() const
   {
     return filterAction_.load();
@@ -173,9 +174,9 @@ namespace art {
       TDEBUG_FUNC_SI_MSG(
         5, "WorkerInPath::runWorker_event_for_endpath", scheduleID, msg.str());
     }
-    if (filterAction_.load() == Veto) {
+    if (filterAction_.load() == FilterAction::Veto) {
       returnCode_ = !returnCode_.load();
-    } else if (filterAction_.load() == Ignore) {
+    } else if (filterAction_.load() == FilterAction::Ignore) {
       returnCode_ = true;
     }
     {
@@ -227,9 +228,9 @@ namespace art {
       msg << "raw returnCode_: " << returnCode_.load();
       TDEBUG_TASK_SI_MSG(5, "workerInPathDoneTask", scheduleID, msg.str());
     }
-    if (filterAction_.load() == Veto) {
+    if (filterAction_.load() == FilterAction::Veto) {
       returnCode_ = !returnCode_.load();
-    } else if (filterAction_.load() == Ignore) {
+    } else if (filterAction_.load() == FilterAction::Ignore) {
       returnCode_ = true;
     }
     {

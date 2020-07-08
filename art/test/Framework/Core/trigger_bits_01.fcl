@@ -1,0 +1,21 @@
+BEGIN_PROLOG
+paths: [b, a]
+END_PROLOG
+
+physics: {
+  producers: {
+    prod: {
+      module_type: PMTestProducer
+    }
+  }
+  analyzers: {
+    check: {
+      module_type: CheckTriggerBits
+      paths: @local::paths
+    }
+  }
+  a: [prod]
+  b: [prod]
+  trigger_paths: @local::paths
+  ep: [check]
+}

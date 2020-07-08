@@ -23,27 +23,17 @@ namespace arttest {
 class arttest::PMTestAnalyzer : public art::EDAnalyzer {
 public:
   explicit PMTestAnalyzer(fhicl::ParameterSet const& p);
-  virtual ~PMTestAnalyzer();
-
-  void analyze(art::Event const& e) override;
 
 private:
-  // Declare member data here.
+  void analyze(art::Event const& e) override;
 };
 
 arttest::PMTestAnalyzer::PMTestAnalyzer(fhicl::ParameterSet const& p)
   : art::EDAnalyzer(p)
 {}
 
-arttest::PMTestAnalyzer::~PMTestAnalyzer()
-{
-  // Clean up dynamic memory and other resources here.
-}
-
 void
-arttest::PMTestAnalyzer::analyze(art::Event const& e)
-{
-  // Implementation of required member function here.
-}
+arttest::PMTestAnalyzer::analyze(art::Event const&)
+{}
 
 DEFINE_ART_MODULE(arttest::PMTestAnalyzer)

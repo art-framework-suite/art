@@ -409,7 +409,7 @@ namespace art {
     // history.  The first process with a match wins.  Note that it is
     // an error for there to be multiple matches per process.
     for (auto const groups_per_process :
-         ranges::view::group_by(product_groups, by_process_name)) {
+         ranges::views::group_by(product_groups, by_process_name)) {
       // Keep track of all matched groups so that a helpful error
       // message can be reported.
       std::vector<cet::exempt_ptr<art::Group>> matched_groups;
@@ -424,8 +424,8 @@ namespace art {
       } else if (num_matches > 1) {
         Exception e{errors::ProductNotFound};
         e << "Found " << num_matches
-          << " products rather than one which match all criteria\n"
-          << "Looking for type: " << wrapped.product_type << "\n";
+          << " products rather than one that match all criteria\n"
+          << "  C++ type: " << wrapped.product_type << "\n";
         for (auto group : matched_groups) {
           e << "  " << group->productDescription().inputTag() << '\n';
         }

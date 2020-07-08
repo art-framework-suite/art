@@ -12,12 +12,14 @@
 // ====================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/detail/ModuleKeyAndType.h"
 #include "art/Framework/Principal/ExecutionCounts.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/Transition.h"
 #include "cetlib/exempt_ptr.h"
 #include "hep_concurrency/WaitingTask.h"
+#include "hep_concurrency/WaitingTaskList.h"
 
 #include <atomic>
 #include <memory>
@@ -36,19 +38,18 @@ namespace art {
 
   class WorkerInPath {
   public:
-    enum FilterAction { Normal = 0, Ignore = 1, Veto = 2 };
     struct ConfigInfo {
       ConfigInfo(cet::exempt_ptr<detail::ModuleConfigInfo const> const info,
-                 FilterAction const action)
+                 detail::FilterAction const action)
         : moduleConfigInfo{info}, filterAction{action}
       {}
       cet::exempt_ptr<detail::ModuleConfigInfo const> moduleConfigInfo;
-      FilterAction filterAction;
+      detail::FilterAction filterAction;
     };
 
     // Special Member Functions
     ~WorkerInPath() noexcept;
-    WorkerInPath(Worker*, FilterAction, ModuleContext const&);
+    WorkerInPath(Worker*, detail::FilterAction, ModuleContext const&);
     WorkerInPath(WorkerInPath const&) = delete;
     WorkerInPath(WorkerInPath&&);
     WorkerInPath& operator=(WorkerInPath const&) = delete;
@@ -56,7 +57,7 @@ namespace art {
 
     // API for user
     Worker* getWorker() const;
-    FilterAction filterAction() const;
+    detail::FilterAction filterAction() const;
 
     // Used only by Path
     bool returnCode() const;
@@ -79,7 +80,7 @@ namespace art {
 
   private:
     std::atomic<Worker*> worker_;
-    std::atomic<FilterAction> filterAction_;
+    std::atomic<detail::FilterAction> filterAction_;
     ModuleContext moduleContext_;
 
     // Per-schedule

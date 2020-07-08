@@ -27,9 +27,8 @@ namespace art {
                                                                  false};
 
   SharedResourcesRegistry::QueueAndCounter::QueueAndCounter()
-  {
-    counter_ = 0UL;
-  }
+    : queue_{std::make_shared<hep::concurrency::SerialTaskQueue>()}
+  {}
 
   SharedResourcesRegistry*
   SharedResourcesRegistry::instance(bool shutdown /*= false*/)

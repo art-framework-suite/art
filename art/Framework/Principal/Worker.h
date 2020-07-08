@@ -35,9 +35,6 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
-#include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/WaitingTaskList.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <atomic>
@@ -47,6 +44,16 @@
 #include <memory>
 #include <utility>
 #include <vector>
+
+namespace tbb {
+  class task;
+}
+
+namespace hep::concurrency {
+  class SerialTaskQueueChain;
+  class WaitingTaskList;
+  using WaitingTask = tbb::task;
+}
 
 namespace art {
 

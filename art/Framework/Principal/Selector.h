@@ -36,28 +36,28 @@ for every event.
 #include "art/Framework/Principal/SelectorBase.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "cetlib/value_ptr.h"
 
+#include <memory>
 #include <string>
 #include <type_traits>
 
 namespace art {
+  template <typename T>
+  constexpr bool is_selector =
+    std::is_base_of_v<art::SelectorBase, std::remove_reference_t<T>>;
 
   template <class A, class B>
-  std::enable_if_t<std::is_base_of_v<art::SelectorBase, A> &&
-                     std::is_base_of_v<art::SelectorBase, B>,
+  std::enable_if_t<art::is_selector<A> && art::is_selector<B>,
                    art::AndHelper<A, B>>
-  operator&&(A const& a, B const& b);
+  operator&&(A&& a, B&& b);
 
   template <class A, class B>
-  std::enable_if_t<std::is_base_of_v<art::SelectorBase, A> &&
-                     std::is_base_of_v<art::SelectorBase, B>,
+  std::enable_if_t<art::is_selector<A> && art::is_selector<B>,
                    art::OrHelper<A, B>>
-  operator||(A const& a, B const& b);
+  operator||(A&& a, B&& b);
 
   template <class A>
-  std::enable_if_t<std::is_base_of_v<art::SelectorBase, A>, art::NotHelper<A>>
-  operator!(A const& a);
+  std::enable_if_t<art::is_selector<A>, art::NotHelper<A>> operator!(A&& a);
 } // namespace art
 
 //--------------------------------------------------------------------
@@ -78,27 +78,28 @@ namespace art {
 
 class art::ProcessNameSelector : public art::SelectorBase {
 public:
-  ProcessNameSelector(std::string const& pn)
+  explicit ProcessNameSelector(std::string const& pn)
     : pn_{pn.empty() ? std::string{"*"} : pn}
   {}
-
-  ProcessNameSelector*
-  clone() const override
-  {
-    return new ProcessNameSelector{*this};
-  }
-
-  std::string const&
-  name() const
-  {
-    return pn_;
-  }
 
 private:
   bool
   doMatch(BranchDescription const& p) const override
   {
     return (pn_ == "*") || (p.processName() == pn_);
+  }
+
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    std::string result{indent + "Process name: "};
+    if (pn_ == "*") {
+      result += "(empty)";
+    } else {
+      result += "'" + pn_ + "'";
+    }
+    result += '\n';
+    return result;
   }
 
   std::string pn_;
@@ -111,19 +112,19 @@ private:
 
 class art::ProductInstanceNameSelector : public art::SelectorBase {
 public:
-  ProductInstanceNameSelector(std::string const& pin) : pin_{pin} {}
-
-  ProductInstanceNameSelector*
-  clone() const override
-  {
-    return new ProductInstanceNameSelector{*this};
-  }
+  explicit ProductInstanceNameSelector(std::string const& pin) : pin_{pin} {}
 
 private:
   bool
   doMatch(BranchDescription const& p) const override
   {
     return p.productInstanceName() == pin_;
+  }
+
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    return indent + "Product instance name: '" + pin_ + "'\n";
   }
 
   std::string pin_;
@@ -136,19 +137,19 @@ private:
 
 class art::ModuleLabelSelector : public art::SelectorBase {
 public:
-  ModuleLabelSelector(std::string const& label) : label_{label} {}
-
-  ModuleLabelSelector*
-  clone() const override
-  {
-    return new ModuleLabelSelector{*this};
-  }
+  explicit ModuleLabelSelector(std::string const& label) : label_{label} {}
 
 private:
   bool
   doMatch(BranchDescription const& p) const override
   {
     return p.moduleLabel() == label_;
+  }
+
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    return indent + "Module label: '" + label_ + "'\n";
   }
 
   std::string label_;
@@ -160,18 +161,16 @@ private:
 //------------------------------------------------------------------
 
 class art::MatchAllSelector : public art::SelectorBase {
-public:
-  MatchAllSelector*
-  clone() const override
-  {
-    return new MatchAllSelector;
-  }
-
-private:
   bool
   doMatch(BranchDescription const&) const override
   {
     return true;
+  }
+
+  std::string
+  doPrint(std::string const&) const override
+  {
+    return {};
   }
 };
 
@@ -183,13 +182,7 @@ private:
 template <class A, class B>
 class art::AndHelper : public SelectorBase {
 public:
-  AndHelper(A const& a, B const& b) : a_{a}, b_{b} {}
-
-  AndHelper*
-  clone() const override
-  {
-    return new AndHelper{*this};
-  }
+  AndHelper(A&& a, B&& b) : a_{std::forward<A>(a)}, b_{std::forward<B>(b)} {}
 
 private:
   bool
@@ -198,17 +191,22 @@ private:
     return a_.match(p) && b_.match(p);
   }
 
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    return a_.print(indent) + b_.print(indent);
+  }
+
   A a_;
   B b_;
 };
 
 template <class A, class B>
-std::enable_if_t<std::is_base_of_v<art::SelectorBase, A> &&
-                   std::is_base_of_v<art::SelectorBase, B>,
+std::enable_if_t<art::is_selector<A> && art::is_selector<B>,
                  art::AndHelper<A, B>>
-art::operator&&(A const& a, B const& b)
+art::operator&&(A&& a, B&& b)
 {
-  return art::AndHelper<A, B>(a, b);
+  return AndHelper<A, B>{std::forward<A>(a), std::forward<B>(b)};
 }
 
 //----------------------------------------------------------
@@ -219,13 +217,7 @@ art::operator&&(A const& a, B const& b)
 template <class A, class B>
 class art::OrHelper : public art::SelectorBase {
 public:
-  OrHelper(A const& a, B const& b) : a_{a}, b_{b} {}
-
-  OrHelper*
-  clone() const override
-  {
-    return new OrHelper{*this};
-  }
+  OrHelper(A&& a, B&& b) : a_{std::forward<A>(a)}, b_{std::forward<B>(b)} {}
 
 private:
   bool
@@ -234,17 +226,27 @@ private:
     return a_.match(p) || b_.match(p);
   }
 
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    std::string result{indent + "[\n"};
+    result += indent + a_.print(indent);
+    result += indent + indent + indent + "or\n";
+    result += indent + b_.print(indent);
+    result += indent + "]\n";
+    return result;
+  }
+
   A a_;
   B b_;
 };
 
 template <class A, class B>
-std::enable_if_t<std::is_base_of_v<art::SelectorBase, A> &&
-                   std::is_base_of_v<art::SelectorBase, B>,
+std::enable_if_t<art::is_selector<A> && art::is_selector<B>,
                  art::OrHelper<A, B>>
-art::operator||(A const& a, B const& b)
+art::operator||(A&& a, B&& b)
 {
-  return art::OrHelper<A, B>(a, b);
+  return OrHelper<A, B>{std::forward<A>(a), std::forward<B>(b)};
 }
 
 //----------------------------------------------------------
@@ -255,12 +257,7 @@ art::operator||(A const& a, B const& b)
 template <class A>
 class art::NotHelper : public art::SelectorBase {
 public:
-  explicit NotHelper(A const& a) : a_{a} {}
-  NotHelper*
-  clone() const override
-  {
-    return new NotHelper{*this};
-  }
+  explicit NotHelper(A&& a) : a_{std::forward<A>(a)} {}
 
 private:
   bool
@@ -269,14 +266,18 @@ private:
     return !a_.match(p);
   }
 
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    return indent + "Not [ " + a_.print() + " ]\n";
+  }
   A a_;
 };
 
 template <class A>
-std::enable_if_t<std::is_base_of_v<art::SelectorBase, A>, art::NotHelper<A>>
-art::operator!(A const& a)
+std::enable_if_t<art::is_selector<A>, art::NotHelper<A>> art::operator!(A&& a)
 {
-  return art::NotHelper<A>(a);
+  return NotHelper<A>{a};
 }
 
 //----------------------------------------------------------
@@ -288,19 +289,19 @@ template <class T>
 class art::ComposedSelectorWrapper : public art::SelectorBase {
 public:
   using wrapped_type = T;
-  explicit ComposedSelectorWrapper(T const& t) : expression_{t} {}
-
-  ComposedSelectorWrapper<T>*
-  clone() const override
-  {
-    return new ComposedSelectorWrapper<T>{*this};
-  }
+  explicit ComposedSelectorWrapper(T&& t) : expression_{std::forward<T>(t)} {}
 
 private:
   bool
   doMatch(BranchDescription const& p) const override
   {
     return expression_.match(p);
+  }
+
+  std::string
+  doPrint(std::string const& indent) const override
+  {
+    return expression_.print(indent);
   }
 
   wrapped_type expression_;
@@ -313,22 +314,18 @@ private:
 class art::Selector : public art::SelectorBase {
 public:
   template <class T>
-  Selector(T const& expression);
-  Selector(Selector const& other);
-  Selector& operator=(Selector const& other) &;
-  void swap(Selector& other);
-  virtual ~Selector();
-  Selector* clone() const override;
+  explicit Selector(T&& expression);
 
 private:
   bool doMatch(BranchDescription const& p) const override;
+  std::string doPrint(std::string const& indent) const override;
 
-  cet::value_ptr<SelectorBase> sel_;
+  std::unique_ptr<SelectorBase> sel_;
 };
 
 template <class T>
-art::Selector::Selector(T const& expression)
-  : sel_{new ComposedSelectorWrapper<T>(expression)}
+art::Selector::Selector(T&& expression)
+  : sel_{new ComposedSelectorWrapper<T>{std::forward<T>(expression)}}
 {}
 
 #endif /* art_Framework_Principal_Selector_h */

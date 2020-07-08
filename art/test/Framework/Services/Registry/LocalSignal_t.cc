@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE (LocalSignal_t)
-#include "boost/test/output_test_stream.hpp"
+#include "boost/test/tools/output_test_stream.hpp"
 #include "cetlib/quiet_unit_test.hpp"
 
 #include "art/Framework/Services/Registry/LocalSignal.h"

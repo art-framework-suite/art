@@ -91,26 +91,27 @@ namespace art {
       }
     };
 
-    struct Config : Defaults {
+    struct Config {
       using Name = fhicl::Name;
       using Comment = fhicl::Comment;
       template <typename T>
       using Atom = fhicl::Atom<T>;
       template <typename T>
       using OptionalAtom = fhicl::OptionalAtom<T>;
-      Atom<unsigned> maxEvents{Name("maxEvents"), unsigned_max()};
-      Atom<unsigned> maxSubRuns{Name("maxSubRuns"), unsigned_max()};
-      Atom<unsigned> maxRuns{Name("maxRuns"), unsigned_max()};
-      Atom<unsigned> maxInputFiles{Name("maxInputFiles"), unsigned_max()};
+      Atom<unsigned> maxEvents{Name("maxEvents"), Defaults::unsigned_max()};
+      Atom<unsigned> maxSubRuns{Name("maxSubRuns"), Defaults::unsigned_max()};
+      Atom<unsigned> maxRuns{Name("maxRuns"), Defaults::unsigned_max()};
+      Atom<unsigned> maxInputFiles{Name("maxInputFiles"),
+                                   Defaults::unsigned_max()};
       Atom<unsigned> maxSize{Name("maxSize"),
                              Comment("Maximum size of file (in KiB)"),
-                             size_max()};
+                             Defaults::size_max()};
       Atom<unsigned> maxAge{Name("maxAge"),
                             Comment("Maximum age of output file (in seconds)"),
-                            seconds_max()};
+                            Defaults::seconds_max()};
 
-      fhicl::Atom<std::string> granularity{
-        fhicl::Name("granularity"),
+      Atom<std::string> granularity{
+        Name("granularity"),
         Comment(
           "The 'granularity' parameter specifies the level at which\n"
           "a file may be closed, and thereby the granularity of the file.\n"
@@ -127,7 +128,7 @@ namespace art {
           "by the 'maxEvents' parameter), switching to a new file will NOT\n"
           "happen until a new SubRun has been reached (or there are no more\n"
           "Events/SubRuns/Runs to process)."),
-        granularity_default()};
+        Defaults::granularity_default()};
     };
 
   public:

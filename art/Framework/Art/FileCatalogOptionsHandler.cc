@@ -175,52 +175,33 @@ namespace {
 
 art::FileCatalogOptionsHandler::FileCatalogOptionsHandler(
   bpo::options_description& desc)
-  : appFamily_{}, appVersion_{}
 {
   bpo::options_description sam_options{"SAM options"};
-  auto options = sam_options.add_options();
-  add_opt(
-    options, "sam-web-uri", bpo::value<string>(), "URI for SAM web service.");
-  add_opt(options, "sam-process-id", bpo::value<string>(), "SAM process ID.");
-  add_opt(options,
-          "sam-application-family",
-          bpo::value<string>(&appFamily_),
-          "SAM application family.");
-  add_opt(options,
-          "sam-app-family",
-          bpo::value<string>(&appFamily_),
-          "SAM application family.");
-  add_opt(options,
-          "sam-application-version",
-          bpo::value<string>(&appVersion_),
-          "SAM application version.");
-  add_opt(options,
-          "sam-app-version",
-          bpo::value<string>(&appVersion_),
-          "SAM application version.");
-  add_opt(options, "sam-group", bpo::value<string>(), "SAM group.");
-  add_opt(options,
-          "sam-file-type",
-          bpo::value<string>(),
-          "File type for SAM metadata.");
-  add_opt(options,
-          "sam-data-tier",
-          bpo::value<vector<string>>(),
-          "SAM data tier (<spec-label>:<tier-spec>).");
-  add_opt(options,
-          "sam-run-type",
-          bpo::value<string>(),
-          "Global run-type for SAM metadata.");
-  add_opt(options,
-          "sam-stream-name",
-          bpo::value<vector<string>>(),
-          "SAM stream name (<module-label>:<stream-name>).");
-  add_opt(options,
-          "sam-inherit-metadata",
-          "Input file provides the file type and run type.");
-  add_opt(
-    options, "sam-inherit-file-type", "Input file provides the file type.");
-  add_opt(options, "sam-inherit-run-type", "Input file provides the run type.");
+  // clang-format off
+  sam_options.add_options()
+    ("sam-web-uri", bpo::value<string>(), "URI for SAM web service.")
+    ("sam-process-id", bpo::value<string>(), "SAM process ID.")
+    ("sam-application-family",
+       bpo::value<string>(&appFamily_), "SAM application family.")
+    ("sam-app-family",
+       bpo::value<string>(&appFamily_), "SAM application family.")
+    ("sam-application-version",
+       bpo::value<string>(&appVersion_), "SAM application version.")
+    ("sam-app-version",
+       bpo::value<string>(&appVersion_), "SAM application version.")
+    ("sam-group", bpo::value<string>(), "SAM group.")
+    ("sam-file-type", bpo::value<string>(), "File type for SAM metadata.")
+    ("sam-data-tier",
+       bpo::value<vector<string>>(),
+       "SAM data tier (<spec-label>:<tier-spec>).")
+    ("sam-run-type", bpo::value<string>(), "Global run-type for SAM metadata.")
+    ("sam-stream-name",
+       bpo::value<vector<string>>(),
+       "SAM stream name (<module-label>:<stream-name>).")
+    ("sam-inherit-metadata", "Input file provides the file type and run type.")
+    ("sam-inherit-file-type", "Input file provides the file type.")
+    ("sam-inherit-run-type", "Input file provides the run type.");
+  // clang-format on
   desc.add(sam_options);
 }
 

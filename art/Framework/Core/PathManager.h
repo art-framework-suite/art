@@ -18,6 +18,7 @@
 #include "art/Framework/Core/ReplicatedProducer.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerT.h"
+#include "art/Framework/Core/detail/EnabledModules.h"
 #include "art/Framework/Core/detail/ModuleConfigInfo.h"
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Framework/Core/detail/ModuleKeyAndType.h"
@@ -45,13 +46,12 @@ namespace art {
   class PathManager {
   public: // Special Member Functions
     ~PathManager() noexcept;
-    PathManager(
-      fhicl::ParameterSet const& procPS,
-      UpdateOutputCallbacks& preg,
-      ProductDescriptions& productsToProduce,
-      ActionTable const& exceptActions,
-      ActivityRegistry const& areg,
-      std::map<std::string, detail::ModuleKeyAndType> const& enabled_modules);
+    PathManager(fhicl::ParameterSet const& procPS,
+                UpdateOutputCallbacks& preg,
+                ProductDescriptions& productsToProduce,
+                ActionTable const& exceptActions,
+                ActivityRegistry const& areg,
+                detail::EnabledModules const& enabled_modules);
 
     PathManager(PathManager const&) = delete;
     PathManager(PathManager&&) = delete;
@@ -66,10 +66,6 @@ namespace art {
     PerScheduleContainer<PathsInfo>& triggerPathsInfo();
     PathsInfo& endPathInfo(ScheduleID);
     PerScheduleContainer<PathsInfo>& endPathInfo();
-    Worker* triggerResultsInserter(ScheduleID const) const;
-    void setTriggerResultsInserter(
-      ScheduleID const,
-      std::unique_ptr<WorkerT<ReplicatedProducer>>&&);
 
   private: // Implementation Details
     struct ModulesByThreadingType {
@@ -78,6 +74,9 @@ namespace art {
                PerScheduleContainer<std::shared_ptr<ModuleBase>>>
         replicated{};
     };
+
+    std::map<std::string, detail::ModuleConfigInfo> moduleInformation_(
+      detail::EnabledModules const& enabled_modules) const;
 
     ModulesByThreadingType makeModules_(ScheduleID::size_type n);
     std::pair<ModuleBase*, std::string> makeModule_(
@@ -89,8 +88,9 @@ namespace art {
       std::vector<WorkerInPath::ConfigInfo> const& wci_list,
       ModulesByThreadingType const& modules,
       std::map<std::string, Worker*>& workers);
-    ModuleType loadModuleType_(std::string const& lib_spec);
-    ModuleThreadingType loadModuleThreadingType_(std::string const& lib_spec);
+    ModuleType loadModuleType_(std::string const& lib_spec) const;
+    ModuleThreadingType loadModuleThreadingType_(
+      std::string const& lib_spec) const;
 
     // Module-graph implementation
     detail::collection_map_t getModuleGraphInfoCollection_(
@@ -120,8 +120,6 @@ namespace art {
     std::map<module_label_t, PerScheduleContainer<Worker*>> workers_{};
     PerScheduleContainer<PathsInfo> triggerPathsInfo_;
     PerScheduleContainer<PathsInfo> endPathInfo_;
-    PerScheduleContainer<std::unique_ptr<WorkerT<ReplicatedProducer>>>
-      triggerResultsInserter_{};
     ProductDescriptions& productsToProduce_;
     //  The following data members are only needed to delay the
     //  creation of modules until after the service system has
@@ -129,8 +127,6 @@ namespace art {
     //  fixed.
     std::string processName_{};
     std::map<std::string, detail::ModuleConfigInfo> allModules_{};
-    std::optional<std::set<std::string>> trigger_paths_config_{};
-    std::optional<std::set<std::string>> end_paths_config_{};
     std::map<std::string, std::vector<WorkerInPath::ConfigInfo>>
       protoTrigPathLabelMap_{};
     std::vector<WorkerInPath::ConfigInfo> protoEndPathLabels_{};

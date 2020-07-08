@@ -52,6 +52,10 @@ using namespace cet;
 using namespace hep::concurrency;
 using namespace std;
 
+namespace {
+  std::string const indent(2, ' ');
+}
+
 namespace art {
 
   namespace {
@@ -655,7 +659,7 @@ namespace art {
     // configuration in the process history.  This unfortunately
     // happened with the SamplingInput source.
     for (auto const& h :
-         ranges::view::reverse(processHistory_) | ranges::view::unique) {
+         ranges::views::reverse(processHistory_) | ranges::views::unique) {
       if (auto it = pl.find(h.processName()); it != pl.end()) {
         found += findGroupsForProcess(it->second, mc, sel, groups);
       }
@@ -664,7 +668,7 @@ namespace art {
   }
 }
 
-// FIXME: If Selector.h is included before the "ranges::view::unique"
+// FIXME: If Selector.h is included before the "ranges::views::unique"
 //        instantiation, then the selector operations are introduced
 //        during template instantiation, resulting in broken builds
 //        for GCC 8.2.  I assume this is an error with either GCC 8.2
@@ -684,8 +688,9 @@ namespace art {
     auto const result = resolve_unique_product(groups, wrapped);
     if (!result.has_value()) {
       auto whyFailed = std::make_shared<Exception>(errors::ProductNotFound);
-      *whyFailed << "getBySelector: Found zero products matching all criteria\n"
-                 << "Looking for type: " << wrapped.product_type << "\n";
+      *whyFailed << "Found zero products matching all selection criteria\n"
+                 << indent << "C++ type: " << wrapped.product_type << "\n"
+                 << sel.print(indent);
       return GroupQueryResult{whyFailed};
     }
     return *result;

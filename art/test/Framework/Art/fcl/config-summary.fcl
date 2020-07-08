@@ -1,0 +1,788 @@
+# This FHiCL file is a pared down version of a configuration used by
+# Mu2e to run its reconstruction chain.  We use it here to test the
+# 'art --config-summary' functionality.
+
+outputs: {
+  Output: {
+    module_type: "RootOutput"
+  }
+}
+physics: {
+  EndPath: [
+    "Output",
+    "RecoCheck"
+  ]
+  RecoPath: [
+    "CaloRecoDigiFromDigi",
+    "CaloCrystalHitFromHit",
+    "CaloProtoClusterFromCrystalHit",
+    "CaloClusterFromProtoCluster",
+    "makeSH",
+    "makePH",
+    "FlagBkgHits",
+    "TimeClusterFinderDe",
+    "HelixFinderDe",
+    "CalTimePeakFinder",
+    "CalHelixFinderDe",
+    "MHDeM",
+    "MHDeP",
+    "KSFDeM",
+    "KSFDeP",
+    "KFFDeM",
+    "KFFDeP",
+    "CrvRecoPulses",
+    "CrvCoincidence",
+    "CrvCoincidenceClusterFinder",
+    "CaloMCFix",
+    "FindMCPrimary",
+    "CrvCoincidenceClusterMatchMC",
+    "SelectRecoMC",
+    "compressRecoMCs",
+    "RecoFilter"
+  ]
+  analyzers: {
+    RecoCheck: {
+      module_type: "CompressDigiMCsCheck"
+    }
+  }
+  caloCalibCosmic_trigger: [
+    "caloCalibCosmicEventPrescale",
+    "caloCalibCosmicCDCountFilter",
+    "CaloClusterFast",
+    "caloCalibCosmicFilter",
+    "caloCalibCosmicPrescale"
+  ]
+  caloMVACE_trigger: [
+    "caloMVACEEventPrescale",
+    "caloMVACECDCountFilter",
+    "CaloTrigger",
+    "caloMVACEFilter",
+    "caloMVACEPrescale"
+  ]
+  caloPhoton_trigger: [
+    "caloPhotonEventPrescale",
+    "caloPhotonCDCountFilter",
+    "CaloClusterFast",
+    "caloPhotonFilter",
+    "caloPhotonPrescale"
+  ]
+  cprCosmicSeedDeM_trigger: [
+    "cprCosmicSeedDeMEventPrescale",
+    "cprCosmicSeedDeMSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTCalTimePeakFinder",
+    "cprCosmicSeedDeMTCFilter",
+    "TTCalHelixFinderDe",
+    "TTCalHelixMergerDeM",
+    "cprCosmicSeedDeMHSFilter",
+    "TTCalSeedFitDem",
+    "cprCosmicSeedDeMTSFilter",
+    "cprCosmicSeedDeMPrescale"
+  ]
+  cprCosmicSeedDeP_trigger: [
+    "cprCosmicSeedDePEventPrescale",
+    "cprCosmicSeedDePSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTCalTimePeakFinder",
+    "cprCosmicSeedDePTCFilter",
+    "TTCalHelixFinderDe",
+    "TTCalHelixMergerDeP",
+    "cprCosmicSeedDePHSFilter",
+    "TTCalSeedFitDep",
+    "cprCosmicSeedDePTSFilter",
+    "cprCosmicSeedDePPrescale"
+  ]
+  cprLowPSeedDeM_trigger: [
+    "cprLowPSeedDeMEventPrescale",
+    "cprLowPSeedDeMSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTCalTimePeakFinder",
+    "cprLowPSeedDeMTCFilter",
+    "TTCalHelixFinderDe",
+    "TTCalHelixMergerDeM",
+    "cprLowPSeedDeMHSFilter",
+    "TTCalSeedFitDem",
+    "cprLowPSeedDeMTSFilter",
+    "cprLowPSeedDeMPrescale"
+  ]
+  cprLowPSeedDeP_trigger: [
+    "cprLowPSeedDePEventPrescale",
+    "cprLowPSeedDePSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTCalTimePeakFinder",
+    "cprLowPSeedDePTCFilter",
+    "TTCalHelixFinderDe",
+    "TTCalHelixMergerDeP",
+    "cprLowPSeedDePHSFilter",
+    "TTCalSeedFitDep",
+    "cprLowPSeedDePTSFilter",
+    "cprLowPSeedDePPrescale"
+  ]
+  cprSeedDeM_trigger: [
+    "cprSeedDeMEventPrescale",
+    "cprSeedDeMSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTCalTimePeakFinder",
+    "cprSeedDeMTCFilter",
+    "TTCalHelixFinderDe",
+    "TTCalHelixMergerDeM",
+    "cprSeedDeMHSFilter",
+    "TTCalSeedFitDem",
+    "cprSeedDeMTSFilter",
+    "cprSeedDeMPrescale"
+  ]
+  cprSeedDeP_trigger: [
+    "cprSeedDePEventPrescale",
+    "cprSeedDePSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTCalTimePeakFinder",
+    "cprSeedDePTCFilter",
+    "TTCalHelixFinderDe",
+    "TTCalHelixMergerDeP",
+    "cprSeedDePHSFilter",
+    "TTCalSeedFitDep",
+    "cprSeedDePTSFilter",
+    "cprSeedDePPrescale"
+  ]
+  end_paths: [
+    "EndPath"
+  ]
+  filters: {
+    CalHelixFinderDe: {
+      module_type: "CalHelixFinder"
+    }
+    CalTimePeakFinder: {
+      module_type: "CalTimePeakFinder"
+    }
+    RecoFilter: {
+      module_type: "RecoMomFilter"
+    }
+    TTCalHelixFinderDe: {
+      module_type: "CalHelixFinder"
+    }
+    TTCalTimePeakFinder: {
+      module_type: "CalTimePeakFinder"
+    }
+    caloCalibCosmicCDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    caloCalibCosmicEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    caloCalibCosmicFilter: {
+      module_type: "CaloCosmicCalib"
+    }
+    caloCalibCosmicPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    caloMVACECDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    caloMVACEEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    caloMVACEFilter: {
+      module_type: "FilterEcalMVATrigger"
+    }
+    caloMVACEPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    caloPhotonCDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    caloPhotonEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    caloPhotonFilter: {
+      module_type: "CaloLikelihood"
+    }
+    caloPhotonPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    cprCosmicSeedDeMEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    cprCosmicSeedDeMHSFilter: {
+      module_type: "HelixFilter"
+    }
+    cprCosmicSeedDeMPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    cprCosmicSeedDeMSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    cprCosmicSeedDeMTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    cprCosmicSeedDeMTSFilter: {
+      module_type: "SeedFilter"
+    }
+    cprCosmicSeedDePEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    cprCosmicSeedDePHSFilter: {
+      module_type: "HelixFilter"
+    }
+    cprCosmicSeedDePPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    cprCosmicSeedDePSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    cprCosmicSeedDePTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    cprCosmicSeedDePTSFilter: {
+      module_type: "SeedFilter"
+    }
+    cprLowPSeedDeMEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    cprLowPSeedDeMHSFilter: {
+      module_type: "HelixFilter"
+    }
+    cprLowPSeedDeMPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    cprLowPSeedDeMSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    cprLowPSeedDeMTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    cprLowPSeedDeMTSFilter: {
+      module_type: "SeedFilter"
+    }
+    cprLowPSeedDePEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    cprLowPSeedDePHSFilter: {
+      module_type: "HelixFilter"
+    }
+    cprLowPSeedDePPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    cprLowPSeedDePSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    cprLowPSeedDePTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    cprLowPSeedDePTSFilter: {
+      module_type: "SeedFilter"
+    }
+    cprSeedDeMEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    cprSeedDeMHSFilter: {
+      module_type: "HelixFilter"
+    }
+    cprSeedDeMPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    cprSeedDeMSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    cprSeedDeMTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    cprSeedDeMTSFilter: {
+      module_type: "SeedFilter"
+    }
+    cprSeedDePEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    cprSeedDePHSFilter: {
+      module_type: "HelixFilter"
+    }
+    cprSeedDePPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    cprSeedDePSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    cprSeedDePTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    cprSeedDePTSFilter: {
+      module_type: "SeedFilter"
+    }
+    largeCDCountEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    largeCDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    largeCDCountPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    largeSDCountEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    largeSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    largeSDCountPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    minimumbiasCDCountEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    minimumbiasCDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    minimumbiasCDCountPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    minimumbiasSDCountEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    minimumbiasSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    minimumbiasSDCountPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprCosmicSeedDeMEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprCosmicSeedDeMHSFilter: {
+      module_type: "HelixFilter"
+    }
+    tprCosmicSeedDeMPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprCosmicSeedDeMSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    tprCosmicSeedDeMTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    tprCosmicSeedDeMTSFilter: {
+      module_type: "SeedFilter"
+    }
+    tprCosmicSeedDePEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprCosmicSeedDePHSFilter: {
+      module_type: "HelixFilter"
+    }
+    tprCosmicSeedDePPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprCosmicSeedDePSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    tprCosmicSeedDePTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    tprCosmicSeedDePTSFilter: {
+      module_type: "SeedFilter"
+    }
+    tprHelixCalibIPADeMEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprHelixCalibIPADeMHSFilter: {
+      module_type: "HelixFilter"
+    }
+    tprHelixCalibIPADeMPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprHelixCalibIPADeMSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    tprHelixCalibIPADeMTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    tprHelixIPADeMEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprHelixIPADeMHSFilter: {
+      module_type: "HelixFilter"
+    }
+    tprHelixIPADeMPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprHelixIPADeMSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    tprHelixIPADeMTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    tprLowPSeedDeMEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprLowPSeedDeMHSFilter: {
+      module_type: "HelixFilter"
+    }
+    tprLowPSeedDeMPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprLowPSeedDeMSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    tprLowPSeedDeMTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    tprLowPSeedDeMTSFilter: {
+      module_type: "SeedFilter"
+    }
+    tprLowPSeedDePEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprLowPSeedDePHSFilter: {
+      module_type: "HelixFilter"
+    }
+    tprLowPSeedDePPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprLowPSeedDePSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    tprLowPSeedDePTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    tprLowPSeedDePTSFilter: {
+      module_type: "SeedFilter"
+    }
+    tprSeedDeMEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprSeedDeMHSFilter: {
+      module_type: "HelixFilter"
+    }
+    tprSeedDeMPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprSeedDeMSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    tprSeedDeMTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    tprSeedDeMTSFilter: {
+      module_type: "SeedFilter"
+    }
+    tprSeedDePEventPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprSeedDePHSFilter: {
+      module_type: "HelixFilter"
+    }
+    tprSeedDePPrescale: {
+      module_type: "PrescaleEvent"
+    }
+    tprSeedDePSDCountFilter: {
+      module_type: "DigiFilter"
+    }
+    tprSeedDePTCFilter: {
+      module_type: "TimeClusterFilter"
+    }
+    tprSeedDePTSFilter: {
+      module_type: "SeedFilter"
+    }
+    unbiasedPrescale: {
+      module_type: "PrescaleEvent"
+    }
+  }
+  largeCDCount_trigger: [
+    "largeCDCountEventPrescale",
+    "largeCDCountFilter",
+    "largeCDCountPrescale"
+  ]
+  largeSDCount_trigger: [
+    "largeSDCountEventPrescale",
+    "largeSDCountFilter",
+    "largeSDCountPrescale"
+  ]
+  minimumbiasCDCount_trigger: [
+    "minimumbiasCDCountEventPrescale",
+    "minimumbiasCDCountFilter",
+    "minimumbiasCDCountPrescale"
+  ]
+  minimumbiasSDCount_trigger: [
+    "minimumbiasSDCountEventPrescale",
+    "minimumbiasSDCountFilter",
+    "minimumbiasSDCountPrescale"
+  ]
+  producers: {
+    CaloClusterFast: {
+      module_type: "CaloClusterFast"
+    }
+    CaloClusterFromProtoCluster: {
+      module_type: "CaloClusterFromProtoCluster"
+    }
+    CaloCrystalHitFromHit: {
+      module_type: "CaloCrystalHitFromHit"
+    }
+    CaloMCFix: {
+      module_type: "FixCaloShowerStepPtrs"
+    }
+    CaloProtoClusterFromCrystalHit: {
+      module_type: "CaloProtoClusterFromCrystalHit"
+    }
+    CaloRecoDigiFromDigi: {
+      module_type: "CaloRecoDigiFromDigi"
+    }
+    CaloTrigger: {
+      module_type: "CaloTrigger"
+    }
+    CrvCoincidence: {
+      module_type: "CrvCoincidenceCheck"
+    }
+    CrvCoincidenceClusterFinder: {
+      module_type: "CrvCoincidenceClusterFinder"
+    }
+    CrvCoincidenceClusterMatchMC: {
+      module_type: "CrvCoincidenceClusterMatchMC"
+    }
+    CrvRecoPulses: {
+      module_type: "CrvRecoPulsesFinder"
+    }
+    FindMCPrimary: {
+      module_type: "FindMCPrimary"
+    }
+    FlagBkgHits: {
+      module_type: "FlagBkgHits"
+    }
+    HelixFinderDe: {
+      module_type: "RobustHelixFinder"
+    }
+    KFFDeM: {
+      module_type: "KalFinalFit"
+    }
+    KFFDeP: {
+      module_type: "KalFinalFit"
+    }
+    KSFDeM: {
+      module_type: "KalSeedFit"
+    }
+    KSFDeP: {
+      module_type: "KalSeedFit"
+    }
+    MHDeM: {
+      module_type: "MergeHelices"
+    }
+    MHDeP: {
+      module_type: "MergeHelices"
+    }
+    SelectRecoMC: {
+      module_type: "SelectRecoMC"
+    }
+    TTCalHelixMergerDeM: {
+      module_type: "MergeHelices"
+    }
+    TTCalHelixMergerDeP: {
+      module_type: "MergeHelices"
+    }
+    TTCalSeedFitDem: {
+      module_type: "KalSeedFit"
+    }
+    TTCalSeedFitDep: {
+      module_type: "KalSeedFit"
+    }
+    TTHelixMergerDeM: {
+      module_type: "MergeHelices"
+    }
+    TTHelixMergerDeP: {
+      module_type: "MergeHelices"
+    }
+    TTKSFDeM: {
+      module_type: "KalSeedFit"
+    }
+    TTKSFDeP: {
+      module_type: "KalSeedFit"
+    }
+    TTflagBkgHits: {
+      module_type: "FlagBkgHits"
+    }
+    TThelixFinder: {
+      module_type: "RobustHelixFinder"
+    }
+    TTmakePH: {
+      module_type: "CombineStrawHits"
+    }
+    TTmakeSH: {
+      module_type: "StrawHitReco"
+    }
+    TTtimeClusterFinder: {
+      module_type: "TimeClusterFinder"
+    }
+    TimeClusterFinderDe: {
+      module_type: "TimeClusterFinder"
+    }
+    compressRecoMCs: {
+      module_type: "CompressDigiMCs"
+    }
+    makePH: {
+      module_type: "CombineStrawHits"
+    }
+    makeSH: {
+      module_type: "StrawHitReco"
+    }
+  }
+  tprCosmicSeedDeM_trigger: [
+    "tprCosmicSeedDeMEventPrescale",
+    "tprCosmicSeedDeMSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTtimeClusterFinder",
+    "tprCosmicSeedDeMTCFilter",
+    "TThelixFinder",
+    "TTHelixMergerDeM",
+    "tprCosmicSeedDeMHSFilter",
+    "TTKSFDeM",
+    "tprCosmicSeedDeMTSFilter",
+    "tprCosmicSeedDeMPrescale"
+  ]
+  tprCosmicSeedDeP_trigger: [
+    "tprCosmicSeedDePEventPrescale",
+    "tprCosmicSeedDePSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTtimeClusterFinder",
+    "tprCosmicSeedDePTCFilter",
+    "TThelixFinder",
+    "TTHelixMergerDeP",
+    "tprCosmicSeedDePHSFilter",
+    "TTKSFDeP",
+    "tprCosmicSeedDePTSFilter",
+    "tprCosmicSeedDePPrescale"
+  ]
+  tprHelixCalibIPADeM_trigger: [
+    "tprHelixCalibIPADeMEventPrescale",
+    "tprHelixCalibIPADeMSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTtimeClusterFinder",
+    "tprHelixCalibIPADeMTCFilter",
+    "TThelixFinder",
+    "TTHelixMergerDeM",
+    "tprHelixCalibIPADeMHSFilter",
+    "tprHelixCalibIPADeMPrescale"
+  ]
+  tprHelixIPADeM_trigger: [
+    "tprHelixIPADeMEventPrescale",
+    "tprHelixIPADeMSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTtimeClusterFinder",
+    "tprHelixIPADeMTCFilter",
+    "TThelixFinder",
+    "TTHelixMergerDeM",
+    "tprHelixIPADeMHSFilter",
+    "tprHelixIPADeMPrescale"
+  ]
+  tprLowPSeedDeM_trigger: [
+    "tprLowPSeedDeMEventPrescale",
+    "tprLowPSeedDeMSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTtimeClusterFinder",
+    "tprLowPSeedDeMTCFilter",
+    "TThelixFinder",
+    "TTHelixMergerDeM",
+    "tprLowPSeedDeMHSFilter",
+    "TTKSFDeM",
+    "tprLowPSeedDeMTSFilter",
+    "tprLowPSeedDeMPrescale"
+  ]
+  tprLowPSeedDeP_trigger: [
+    "tprLowPSeedDePEventPrescale",
+    "tprLowPSeedDePSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTtimeClusterFinder",
+    "tprLowPSeedDePTCFilter",
+    "TThelixFinder",
+    "TTHelixMergerDeP",
+    "tprLowPSeedDePHSFilter",
+    "TTKSFDeP",
+    "tprLowPSeedDePTSFilter",
+    "tprLowPSeedDePPrescale"
+  ]
+  tprSeedDeM_trigger: [
+    "tprSeedDeMEventPrescale",
+    "tprSeedDeMSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTtimeClusterFinder",
+    "tprSeedDeMTCFilter",
+    "TThelixFinder",
+    "TTHelixMergerDeM",
+    "tprSeedDeMHSFilter",
+    "TTKSFDeM",
+    "tprSeedDeMTSFilter",
+    "tprSeedDeMPrescale"
+  ]
+  tprSeedDeP_trigger: [
+    "tprSeedDePEventPrescale",
+    "tprSeedDePSDCountFilter",
+    "CaloClusterFast",
+    "TTmakeSH",
+    "TTmakePH",
+    "TTflagBkgHits",
+    "TTtimeClusterFinder",
+    "tprSeedDePTCFilter",
+    "TThelixFinder",
+    "TTHelixMergerDeP",
+    "tprSeedDePHSFilter",
+    "TTKSFDeP",
+    "tprSeedDePTSFilter",
+    "tprSeedDePPrescale"
+  ]
+  unbiased_trigger: [
+    "unbiasedPrescale"
+  ]
+}
+process_name: "recomcdigistrig"
+services: {
+  CatalogInterface: {
+    service_provider: "TrivialFileDelivery"
+  }
+  ConditionsService: {}
+  DbService: {}
+  FileTransfer: {
+    service_provider: "TrivialFileTransfer"
+  }
+  GeometryService: {}
+  GlobalConstantsService: {}
+  ProditionsService: {}
+  TFileService: {}
+  TimeTracker: {}
+}
+source: {
+  module_type: "RootInput"
+}

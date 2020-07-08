@@ -4,7 +4,6 @@
 
 #include "art/Utilities/SharedResource.h"
 #include "hep_concurrency/RecursiveMutex.h"
-#include "hep_concurrency/SerialTaskQueue.h"
 #include "hep_concurrency/tsan.h"
 
 #include <atomic>
@@ -13,6 +12,10 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+namespace hep::concurrency {
+  class SerialTaskQueue;
+}
 
 namespace art {
 
@@ -26,9 +29,8 @@ namespace art {
       QueueAndCounter& operator=(QueueAndCounter const&) = delete;
       QueueAndCounter& operator=(QueueAndCounter&&) = delete;
 
-      std::shared_ptr<hep::concurrency::SerialTaskQueue> queue_{
-        std::make_shared<hep::concurrency::SerialTaskQueue>()};
-      std::atomic<unsigned long> counter_;
+      std::shared_ptr<hep::concurrency::SerialTaskQueue> queue_;
+      std::atomic<unsigned long> counter_{0ul};
     };
 
   public:

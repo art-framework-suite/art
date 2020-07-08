@@ -31,8 +31,6 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
@@ -48,6 +46,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <utility>
@@ -55,19 +54,13 @@
 
 namespace art {
   class ActivityRegistry;
-  class UpdateOutputCallbacks;
   class Schedule {
   public: // Special Member Functions
     ~Schedule() noexcept;
     Schedule(ScheduleID,
              PathManager&,
-             std::string const& processName,
-             fhicl::ParameterSet const& proc_pset,
-             fhicl::ParameterSet const& trig_pset,
-             UpdateOutputCallbacks&,
-             ProductDescriptions&,
              ActionTable const&,
-             ActivityRegistry const&);
+             std::unique_ptr<Worker> triggerResultsInserter);
 
     Schedule(Schedule const&) = delete;
     Schedule(Schedule&&) = delete;
@@ -103,9 +96,8 @@ namespace art {
     // const after ctor.
     ScheduleContext const sc_;
     std::atomic<ActionTable const*> actionTable_;
-    std::atomic<ActivityRegistry const*> actReg_;
     std::atomic<PathsInfo*> triggerPathsInfo_;
-    std::atomic<Worker*> results_inserter_;
+    std::unique_ptr<Worker> results_inserter_{nullptr};
 
     // Dynamic: cause an error if more than one thread processes an
     // event.
