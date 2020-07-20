@@ -6,6 +6,11 @@
 // EDProducts based on information in the associated Provenance.
 //
 // Developers who make their own Selectors should inherit from SelectorBase.
+//
+// The 'print' function is called whenever a product selection fails.
+// Selector authors should provide the most helpful diagnostic
+// information helpful for users.  Simply printing characteristics of
+// the selector is sufficient.
 // ==========================================================================
 
 #include "art/Framework/Principal/fwd.h"

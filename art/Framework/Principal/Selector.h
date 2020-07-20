@@ -98,7 +98,6 @@ private:
     } else {
       result += "'" + pn_ + "'";
     }
-    result += '\n';
     return result;
   }
 
@@ -124,7 +123,7 @@ private:
   std::string
   doPrint(std::string const& indent) const override
   {
-    return indent + "Product instance name: '" + pin_ + "'\n";
+    return indent + "Product instance name: '" + pin_ + '\'';
   }
 
   std::string pin_;
@@ -149,7 +148,7 @@ private:
   std::string
   doPrint(std::string const& indent) const override
   {
-    return indent + "Module label: '" + label_ + "'\n";
+    return indent + "Module label: '" + label_ + '\'';
   }
 
   std::string label_;
@@ -194,7 +193,7 @@ private:
   std::string
   doPrint(std::string const& indent) const override
   {
-    return a_.print(indent) + b_.print(indent);
+    return a_.print(indent) + '\n' + b_.print(indent);
   }
 
   A a_;
@@ -230,10 +229,10 @@ private:
   doPrint(std::string const& indent) const override
   {
     std::string result{indent + "[\n"};
-    result += indent + a_.print(indent);
+    result += indent + a_.print(indent) + '\n';
     result += indent + indent + indent + "or\n";
-    result += indent + b_.print(indent);
-    result += indent + "]\n";
+    result += indent + b_.print(indent) + '\n';
+    result += indent + ']';
     return result;
   }
 
@@ -269,7 +268,10 @@ private:
   std::string
   doPrint(std::string const& indent) const override
   {
-    return indent + "Not [ " + a_.print() + " ]\n";
+    std::string result{indent + "Not [\n"};
+    result += indent + a_.print(indent) + '\n';
+    result += indent + ']';
+    return result;
   }
   A a_;
 };
