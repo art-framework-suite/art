@@ -17,6 +17,7 @@ namespace art {
   public:
     static constexpr bool service_handle_allowed{false};
 
+    ProducingService();
     virtual ~ProducingService() noexcept;
 
     using ProductRegistryHelper::produces;

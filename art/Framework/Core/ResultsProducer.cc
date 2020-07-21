@@ -23,17 +23,18 @@ string const cet::PluginTypeDeducer<art::ResultsProducer>::value =
 
 namespace art {
 
+  ResultsProducer::ResultsProducer() noexcept(false)
+    : ProductRegistryHelper{product_creation_mode::produces}
+  {
+    serialize(SharedResourcesRegistry::Legacy);
+  }
+
   void
   ResultsProducer::registerProducts(ProductDescriptions& productsToProduce,
                                     ModuleDescription const& md)
   {
     ProductRegistryHelper::registerProducts(productsToProduce, md);
     setModuleDescription(md);
-  }
-
-  ResultsProducer::ResultsProducer() noexcept(false)
-  {
-    serialize(SharedResourcesRegistry::Legacy);
   }
 
   void

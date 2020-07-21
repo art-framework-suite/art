@@ -2,36 +2,32 @@
 #define art_Framework_Principal_Selector_h
 // vim: set sw=2 expandtab :
 
-/*----------------------------------------------------------------------
-
-Classes for all "selector" objects, used to select
-EDProducts based on information in the associated Provenance.
-
-Developers who make their own Selector class should inherit
-from SelectorBase.
-
-Users can use the classes defined below
-
-  ModuleLabelSelector
-  ProcessNameSelector
-  ProductInstanceNameSelector
-
-Users can also use the class Selector, which can be constructed given a
-logical expression formed from any other selectors, combined with &&
-(the AND operator), || (the OR operator) or ! (the NOT operator).
-
-For example, to select only products produced by a module with label
-"mymodule" and made in the process "PROD", one can use:
-
-  Selector s{ModuleLabelSelector("mymodule") &&
-             ProcessNameSelector("PROD")};
-
-If a module (EDProducter, EDFilter, EDAnalyzer, or OutputModule) is
-to use such a selector, it is best to initialize it directly upon
-construction of the module, rather than creating a new Selector instance
-for every event.
-
-----------------------------------------------------------------------*/
+// =====================================================================
+// Classes for all "selector" objects, used to select EDProducts based
+// on information in the associated Provenance.
+//
+// Users can use the classes defined below
+//
+//   ModuleLabelSelector
+//   ProcessNameSelector
+//   ProductInstanceNameSelector
+//
+// Users can also use the class Selector, which can be constructed
+// given a logical expression formed from any other selectors,
+// combined with && (the AND operator), || (the OR operator) or ! (the
+// NOT operator).
+//
+// For example, to select only products produced by a module with
+// label "mymodule" and made in the process "PROD", one can use:
+//
+//   Selector s{ModuleLabelSelector("mymodule") &&
+//              ProcessNameSelector("PROD")};
+//
+// If a module (EDProducter, EDFilter, EDAnalyzer, or OutputModule) is
+// to use such a selector, it is best to initialize it directly upon
+// construction of the module, rather than creating a new Selector
+// instance for every event.
+// =====================================================================
 
 #include "art/Framework/Principal/SelectorBase.h"
 #include "art/Framework/Principal/fwd.h"
@@ -98,7 +94,6 @@ private:
     } else {
       result += "'" + pn_ + "'";
     }
-    result += '\n';
     return result;
   }
 
@@ -124,7 +119,7 @@ private:
   std::string
   doPrint(std::string const& indent) const override
   {
-    return indent + "Product instance name: '" + pin_ + "'\n";
+    return indent + "Product instance name: '" + pin_ + '\'';
   }
 
   std::string pin_;
@@ -149,7 +144,7 @@ private:
   std::string
   doPrint(std::string const& indent) const override
   {
-    return indent + "Module label: '" + label_ + "'\n";
+    return indent + "Module label: '" + label_ + '\'';
   }
 
   std::string label_;
@@ -194,7 +189,7 @@ private:
   std::string
   doPrint(std::string const& indent) const override
   {
-    return a_.print(indent) + b_.print(indent);
+    return a_.print(indent) + '\n' + b_.print(indent);
   }
 
   A a_;
@@ -230,10 +225,10 @@ private:
   doPrint(std::string const& indent) const override
   {
     std::string result{indent + "[\n"};
-    result += indent + a_.print(indent);
+    result += indent + a_.print(indent) + '\n';
     result += indent + indent + indent + "or\n";
-    result += indent + b_.print(indent);
-    result += indent + "]\n";
+    result += indent + b_.print(indent) + '\n';
+    result += indent + ']';
     return result;
   }
 
@@ -269,7 +264,10 @@ private:
   std::string
   doPrint(std::string const& indent) const override
   {
-    return indent + "Not [ " + a_.print() + " ]\n";
+    std::string result{indent + "Not [\n"};
+    result += indent + a_.print(indent) + '\n';
+    result += indent + ']';
+    return result;
   }
   A a_;
 };

@@ -2,20 +2,20 @@
 #define art_Framework_Core_ProductRegistryHelper_h
 // vim: set sw=2 expandtab :
 
-//
-// This class provides the produces() and reconstitutes()
-// function templates used by modules to register what
-// products they create or read in respectively.
+// ===================================================================
+// This class provides the produces() and reconstitutes() function
+// templates used by modules and sources, respectively, to register
+// what products they create or read in respectively.
 //
 // The constructors of an EDProducer or an EDFilter should call
-// produces() for each product inserted into a principal.
-// Instance names should be provided only when the module
-// makes more than one instance of the same product per event.
+// produces() for each product inserted into a principal.  Instance
+// names should be provided only when the module makes more than one
+// instance of the same product per event.
 //
-// The constructors of an InputSource should call reconstitutes()
-// for each product if and only if it does not update the
+// The constructors of an InputSource should call reconstitutes() for
+// each product if and only if it does not update the
 // UpdateOutputCallbacks with a product list.
-//
+// ===================================================================
 
 #include "art/Framework/Core/ProducesCollector.h"
 #include "art/Framework/Principal/fwd.h"
@@ -41,9 +41,10 @@ namespace art {
 
   class ModuleDescription;
 
+  enum class product_creation_mode { produces, reconstitutes };
   class ProductRegistryHelper {
   public:
-    ProductRegistryHelper();
+    explicit ProductRegistryHelper(product_creation_mode);
     ~ProductRegistryHelper();
 
     ProductRegistryHelper(ProductRegistryHelper const&) = delete;
@@ -89,6 +90,7 @@ namespace art {
 
   private:
     std::unique_ptr<ProductList const> productList_{nullptr};
+    product_creation_mode mode_;
     ProducesCollector collector_;
   };
 
@@ -104,6 +106,15 @@ namespace art {
   ProductRegistryHelper::produces(std::string const& instanceName,
                                   Persistable const persistable)
   {
+    if (mode_ == product_creation_mode::reconstitutes) {
+      throw Exception{errors::ProductRegistrationFailure,
+                      "An error occurred while registering a product.\n"}
+        << "The following product was registered with 'produces' when\n"
+           "'reconstitutes' should have been called instead.\n"
+        << "  Branch type: " << B << '\n'
+        << "  Class name: " << cet::demangle_symbol(typeid(P).name()) << '\n'
+        << "  Instance name: '" << instanceName << "'\n";
+    }
     collector_.produces<P, B>(instanceName, persistable);
   }
 
@@ -112,6 +123,16 @@ namespace art {
   ProductRegistryHelper::reconstitutes(std::string const& emulatedModule,
                                        std::string const& instanceName)
   {
+    if (mode_ == product_creation_mode::produces) {
+      throw Exception{errors::ProductRegistrationFailure,
+                      "An error occurred while registering a product.\n"}
+        << "The following product was registered with 'reconstitutes' when\n"
+           "'produces' should have been called instead.\n"
+        << "  Branch type: " << B << '\n'
+        << "  Class name: " << cet::demangle_symbol(typeid(P).name()) << '\n'
+        << "  Emulated module name: '" << emulatedModule << "'\n"
+        << "  Instance name: '" << instanceName << "'\n";
+    }
     return collector_.reconstitutes<P, B>(emulatedModule, instanceName);
   }
 

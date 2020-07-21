@@ -44,6 +44,9 @@ cet_test(GroupSelector_t USE_BOOST_UNIT
   LIBRARIES ${default_test_libraries}
 )
 
+cet_test(ProductRegistryHelper_t USE_BOOST_UNIT
+  LIBRARIES art_Framework_Core cetlib_except)
+
 cet_test(trigger_bits_01 HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- -c trigger_bits_01.fcl
