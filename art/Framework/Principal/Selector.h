@@ -40,20 +40,19 @@
 namespace art {
   template <typename T>
   constexpr bool is_selector =
-    std::is_base_of_v<art::SelectorBase, std::remove_reference_t<T>>;
+    std::is_base_of_v<SelectorBase, std::remove_reference_t<T>>;
 
   template <class A, class B>
-  std::enable_if_t<art::is_selector<A> && art::is_selector<B>,
-                   art::AndHelper<A, B>>
+  std::enable_if_t<is_selector<A> && is_selector<B>, AndHelper<A, B>>
   operator&&(A&& a, B&& b);
 
   template <class A, class B>
-  std::enable_if_t<art::is_selector<A> && art::is_selector<B>,
-                   art::OrHelper<A, B>>
-  operator||(A&& a, B&& b);
+  std::enable_if_t<is_selector<A> && is_selector<B>, OrHelper<A, B>> operator||(
+    A&& a,
+    B&& b);
 
   template <class A>
-  std::enable_if_t<art::is_selector<A>, art::NotHelper<A>> operator!(A&& a);
+  std::enable_if_t<is_selector<A>, NotHelper<A>> operator!(A&& a);
 } // namespace art
 
 //--------------------------------------------------------------------
@@ -72,7 +71,7 @@ namespace art {
 // getBy* facilities provided by Event and friends.
 // -------------------------------------------------------------------
 
-class art::ProcessNameSelector : public art::SelectorBase {
+class art::ProcessNameSelector : public SelectorBase {
 public:
   explicit ProcessNameSelector(std::string const& pn)
     : pn_{pn.empty() ? std::string{"*"} : pn}
@@ -105,7 +104,7 @@ private:
 // Selects EDProducts based upon product instance name.
 //------------------------------------------------------------------
 
-class art::ProductInstanceNameSelector : public art::SelectorBase {
+class art::ProductInstanceNameSelector : public SelectorBase {
 public:
   explicit ProductInstanceNameSelector(std::string const& pin) : pin_{pin} {}
 
@@ -130,7 +129,7 @@ private:
 // Selects EDProducts based upon module label.
 //------------------------------------------------------------------
 
-class art::ModuleLabelSelector : public art::SelectorBase {
+class art::ModuleLabelSelector : public SelectorBase {
 public:
   explicit ModuleLabelSelector(std::string const& label) : label_{label} {}
 
@@ -155,7 +154,7 @@ private:
 // Dummy selector whose match function always returns true.
 //------------------------------------------------------------------
 
-class art::MatchAllSelector : public art::SelectorBase {
+class art::MatchAllSelector : public SelectorBase {
   bool
   doMatch(BranchDescription const&) const override
   {
@@ -210,7 +209,7 @@ art::operator&&(A&& a, B&& b)
 //----------------------------------------------------------
 
 template <class A, class B>
-class art::OrHelper : public art::SelectorBase {
+class art::OrHelper : public SelectorBase {
 public:
   OrHelper(A&& a, B&& b) : a_{std::forward<A>(a)}, b_{std::forward<B>(b)} {}
 
@@ -250,7 +249,7 @@ art::operator||(A&& a, B&& b)
 //----------------------------------------------------------
 
 template <class A>
-class art::NotHelper : public art::SelectorBase {
+class art::NotHelper : public SelectorBase {
 public:
   explicit NotHelper(A&& a) : a_{std::forward<A>(a)} {}
 
@@ -275,7 +274,7 @@ private:
 template <class A>
 std::enable_if_t<art::is_selector<A>, art::NotHelper<A>> art::operator!(A&& a)
 {
-  return NotHelper<A>{a};
+  return NotHelper<A>{std::forward<A>(a)};
 }
 
 //----------------------------------------------------------
@@ -284,7 +283,7 @@ std::enable_if_t<art::is_selector<A>, art::NotHelper<A>> art::operator!(A&& a)
 //----------------------------------------------------------
 
 template <class T>
-class art::ComposedSelectorWrapper : public art::SelectorBase {
+class art::ComposedSelectorWrapper : public SelectorBase {
 public:
   using wrapped_type = T;
   explicit ComposedSelectorWrapper(T&& t) : expression_{std::forward<T>(t)} {}
@@ -309,7 +308,7 @@ private:
 // Selector
 //----------------------------------------------------------
 
-class art::Selector : public art::SelectorBase {
+class art::Selector : public SelectorBase {
 public:
   template <class T>
   explicit Selector(T&& expression);
