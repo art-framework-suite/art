@@ -163,7 +163,7 @@ namespace art {
   template <typename A, typename B>
   class AndHelper : public SelectorBase {
   public:
-    AndHelper(A&& a, B&& b) : a_{std::forward<A>(a)}, b_{std::forward<B>(b)} {}
+    AndHelper(A const& a, B const& b) : a_{a}, b_{b} {}
 
   private:
     bool
@@ -184,9 +184,9 @@ namespace art {
 
   template <typename A, typename B>
   std::enable_if_t<is_selector<A> && is_selector<B>, AndHelper<A, B>>
-  operator&&(A&& a, B&& b)
+  operator&&(A const& a, B const& b)
   {
-    return AndHelper<A, B>{std::forward<A>(a), std::forward<B>(b)};
+    return AndHelper<A, B>{a, b};
   }
 
   //----------------------------------------------------------
@@ -197,7 +197,7 @@ namespace art {
   template <typename A, typename B>
   class OrHelper : public SelectorBase {
   public:
-    OrHelper(A&& a, B&& b) : a_{std::forward<A>(a)}, b_{std::forward<B>(b)} {}
+    OrHelper(A const& a, B const& b) : a_{a}, b_{b} {}
 
   private:
     bool
@@ -223,9 +223,9 @@ namespace art {
 
   template <typename A, typename B>
   std::enable_if_t<is_selector<A> && is_selector<B>, OrHelper<A, B>>
-  operator||(A&& a, B&& b)
+  operator||(A const& a, B const& b)
   {
-    return OrHelper<A, B>{std::forward<A>(a), std::forward<B>(b)};
+    return OrHelper<A, B>{a, b};
   }
 
   //----------------------------------------------------------
@@ -236,7 +236,7 @@ namespace art {
   template <typename A>
   class NotHelper : public SelectorBase {
   public:
-    explicit NotHelper(A&& a) : a_{std::forward<A>(a)} {}
+    explicit NotHelper(A const& a) : a_{a} {}
 
   private:
     bool
@@ -257,9 +257,9 @@ namespace art {
   };
 
   template <typename A>
-  std::enable_if_t<is_selector<A>, NotHelper<A>> operator!(A&& a)
+  std::enable_if_t<is_selector<A>, NotHelper<A>> operator!(A const& a)
   {
-    return NotHelper<A>{std::forward<A>(a)};
+    return NotHelper<A>{a};
   }
 
   //----------------------------------------------------------
@@ -271,7 +271,7 @@ namespace art {
   class ComposedSelectorWrapper : public SelectorBase {
   public:
     using wrapped_type = T;
-    explicit ComposedSelectorWrapper(T&& t) : expression_{std::forward<T>(t)} {}
+    explicit ComposedSelectorWrapper(T const& t) : expression_{t} {}
 
   private:
     bool
@@ -296,15 +296,15 @@ namespace art {
   class Selector : public SelectorBase {
   public:
     template <typename T>
-    explicit Selector(T&& expression)
-      : sel_{new ComposedSelectorWrapper<T>{std::forward<T>(expression)}}
+    explicit Selector(T const& expression)
+      : sel_{new ComposedSelectorWrapper<T>{expression}}
     {}
 
   private:
     bool doMatch(BranchDescription const& p) const override;
     std::string doPrint(std::string const& indent) const override;
 
-    std::unique_ptr<SelectorBase> sel_;
+    std::shared_ptr<SelectorBase> sel_;
   };
 
 } // namespace art
