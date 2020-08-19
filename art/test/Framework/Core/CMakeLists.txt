@@ -12,10 +12,6 @@ cet_make_library(LIBRARY_NAME set_manager_for_tests
   LIBRARIES art_Framework_Services_Registry)
 
 foreach (type Analyzer Filter Output Producer)
-  SET_SOURCE_FILES_PROPERTIES(PMTest${type}_module.cc
-    PROPERTIES
-    COMPILE_FLAGS "-Wno-unused-parameter -Wno-return-type"
-    )
   simple_plugin(PMTest${type} "module" NO_INSTALL)
 endforeach()
 simple_plugin(CheckTriggerBits "module" NO_INSTALL USE_BOOST_UNIT

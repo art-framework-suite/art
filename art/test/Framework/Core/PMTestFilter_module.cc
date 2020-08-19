@@ -27,20 +27,16 @@ public:
   explicit PMTestFilter(fhicl::ParameterSet const& p);
 
 private:
-  bool filter(art::Event& e) override;
+  bool
+  filter(art::Event&) override
+  {
+    return true;
+  }
 
   // Declare member data here.
 };
 
 arttest::PMTestFilter::PMTestFilter(fhicl::ParameterSet const& p) : EDFilter{p}
-{
-  // Call appropriate Produces<>() functions here.
-}
-
-bool
-arttest::PMTestFilter::filter(art::Event& e)
-{
-  // Implementation of required member function here.
-}
+{}
 
 DEFINE_ART_MODULE(arttest::PMTestFilter)
