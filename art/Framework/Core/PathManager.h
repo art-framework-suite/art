@@ -127,9 +127,9 @@ namespace art {
     //  fixed.
     std::string processName_{};
     std::map<std::string, detail::ModuleConfigInfo> allModules_{};
-    std::map<std::string, std::vector<WorkerInPath::ConfigInfo>>
-      protoTrigPathLabelMap_{};
-    std::vector<WorkerInPath::ConfigInfo> protoEndPathLabels_{};
+    std::vector<std::pair<std::string, art::detail::configs_t>>
+      protoTrigPathLabels_{};
+    art::detail::configs_t protoEndPathLabels_{};
   };
 } // namespace art
 

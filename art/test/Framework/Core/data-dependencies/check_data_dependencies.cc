@@ -90,7 +90,7 @@ namespace {
           return art::WorkerInPath::ConfigInfo{
             cet::make_exempt_ptr(&info), art::detail::FilterAction::Normal};
         });
-      result[name] = configs;
+      result.emplace_back(name, std::move(configs));
     }
     return result;
   }
@@ -158,7 +158,6 @@ namespace {
     for (auto const& pr : paths_to_modules) {
       auto const& path_name = pr.first;
       auto const& modules = pr.second;
-
       bool first_module{true};
       bool present{true};
       for (auto const& module : modules) {
@@ -178,12 +177,17 @@ namespace {
         }
       }
       if (present) {
-        result.insert(cend(result), pr);
+        result.push_back(pr);
         paths_to_erase.push_back(path_name);
       }
     }
     for (auto const& path : paths_to_erase) {
-      paths_to_modules.erase(path);
+      auto const path_it =
+        std::find_if(paths_to_modules.cbegin(),
+                     paths_to_modules.cend(),
+                     [&path](auto const& pr) { return pr.first == path; });
+      assert(path_it != paths_to_modules.cend());
+      paths_to_modules.erase(path_it);
     }
     return result;
   }
