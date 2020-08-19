@@ -9,7 +9,7 @@ art::detail::memoryReport()
 {
   LinuxProcMgr procInfo{};
   LogPrint("ArtSummary") << "MemReport  "
-                         << "---------- Memory  Summary ---[base-10 MB]----";
+                         << "---------- Memory summary [base-10 MB] ------";
   LogPrint("ArtSummary") << "MemReport  VmPeak = " << procInfo.getVmPeak()
                          << " VmHWM = " << procInfo.getVmHWM();
   LogPrint("ArtSummary") << "";

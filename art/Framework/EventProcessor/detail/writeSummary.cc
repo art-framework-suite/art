@@ -26,7 +26,7 @@ namespace {
   };
 
   struct TriggerCounts {
-    int bitPosition{};
+    std::string path_name{};
     std::size_t run{};
     std::size_t passed{};
     std::size_t failed{};
@@ -59,16 +59,14 @@ namespace {
   using WorkersInPathCounts = std::vector<WorkerInPathCounts>;
 
   void
-  workersInPathTriggerReport(int const firstBit,
-                             int const bitPosition,
+  workersInPathTriggerReport(int const bitPosition,
                              WorkersInPathCounts const& workersInPathCounts)
   {
     for (auto const& wip_counts : workersInPathCounts) {
       LogPrint("ArtSummary")
-        << "TrigReport " << std::right << setw(5) << firstBit << std::right
-        << setw(5) << bitPosition << " " << std::right << setw(10)
-        << wip_counts.visited << " " << std::right << setw(10)
-        << wip_counts.passed << " " << std::right << setw(10)
+        << "TrigReport " << std::right << setw(10) << bitPosition << " "
+        << std::right << setw(10) << wip_counts.visited << " " << std::right
+        << setw(10) << wip_counts.passed << " " << std::right << setw(10)
         << wip_counts.failed << " " << std::right << setw(10)
         << wip_counts.except << " " << wip_counts.moduleLabel;
     }
@@ -79,8 +77,7 @@ namespace {
   {
     for (auto const& wip_counts : workersInPathCounts) {
       LogPrint("ArtSummary")
-        << "TrigReport " << std::right << setw(5) << 0 << std::right << setw(5)
-        << 0 << " " << std::right << setw(10) << wip_counts.visited << " "
+        << "TrigReport " << std::right << setw(10) << wip_counts.visited << " "
         << std::right << setw(10) << wip_counts.passed << " " << std::right
         << setw(10) << wip_counts.except << " " << wip_counts.moduleLabel;
     }
@@ -121,7 +118,7 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
   // The trigger report (pass/fail etc.):
   // Printed even if summary not requested, per issue #1864.
   LogPrint("ArtSummary") << "TrigReport "
-                         << "---------- Event  Summary ------------";
+                         << "---------- Event summary -------------";
   LogPrint("ArtSummary") << "TrigReport"
                          << " Events total = " << total_counts.total
                          << " passed = " << total_counts.passed
@@ -130,7 +127,7 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
   if (wantSummary) {
     LogPrint("ArtSummary") << "";
     LogPrint("ArtSummary") << "TrigReport "
-                           << "---------- Path   Summary ------------";
+                           << "---------- Trigger-path summary ------------";
     LogPrint("ArtSummary") << "TrigReport " << std::right << setw(10)
                            << "Trig Bit#"
                            << " " << std::right << setw(10) << "Run"
@@ -139,36 +136,35 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
                            << " " << std::right << setw(10) << "Error"
                            << " "
                            << "Name";
-    std::map<std::string, TriggerCounts> counts_per_path{};
+    std::vector<TriggerCounts> counts_per_path{};
     for (auto const& tpi : tpis) {
+      counts_per_path.resize(tpi.paths().size());
       for (auto const& path : tpi.paths()) {
-        auto& counts = counts_per_path[path->name()];
-        counts.bitPosition = path->bitPosition(); // No increment!
+        auto& counts = counts_per_path[path->bitPosition()];
+        counts.path_name = path->name(); // No increment!
         counts.run += path->timesRun();
         counts.passed += path->timesPassed();
         counts.failed += path->timesFailed();
         counts.except += path->timesExcept();
       }
     }
-    for (auto const& [path_name, counts] : counts_per_path) {
+    for (std::size_t bitPos = 0; bitPos != size(counts_per_path); ++bitPos) {
+      auto const& counts = counts_per_path[bitPos];
       LogPrint("ArtSummary")
-        << "TrigReport " << std::right << setw(5) << 1 << std::right << setw(5)
-        << counts.bitPosition << " " << std::right << setw(10) << counts.run
-        << " " << std::right << setw(10) << counts.passed << " " << std::right
-        << setw(10) << counts.failed << " " << std::right << setw(10)
-        << counts.except << " " << path_name;
+        << "TrigReport " << std::right << setw(10) << bitPos << " "
+        << std::right << setw(10) << counts.run << " " << std::right << setw(10)
+        << counts.passed << " " << std::right << setw(10) << counts.failed
+        << " " << std::right << setw(10) << counts.except << " "
+        << counts.path_name;
     }
 
     LogPrint("ArtSummary") << "";
     LogPrint("ArtSummary") << "TrigReport "
-                           << "-------End-Path   Summary ------------";
-    LogPrint("ArtSummary") << "TrigReport " << std::right << setw(10)
-                           << "Trig Bit#"
+                           << "---------- End-path summary ---------";
+    LogPrint("ArtSummary") << "TrigReport"
                            << " " << std::right << setw(10) << "Run"
                            << " " << std::right << setw(10) << "Success"
-                           << " " << std::right << setw(10) << "Error"
-                           << " "
-                           << "Name";
+                           << " " << std::right << setw(10) << "Error";
 
     if (observers_enabled) {
       EndPathCounts epCounts{};
@@ -180,19 +176,18 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
         }
       }
       LogPrint("ArtSummary")
-        << "TrigReport " << std::right << setw(5) << 0 << std::right << setw(5)
-        << 0 << " " << std::right << setw(10) << epCounts.run << " "
+        << "TrigReport " << std::right << setw(10) << epCounts.run << " "
         << std::right << setw(10) << epCounts.success << " " << std::right
-        << setw(10) << epCounts.except << " " << PathContext::end_path();
+        << setw(10) << epCounts.except;
     }
 
     // std::tuple<...> guarantees weak-ordering, so it is a suitable
     // key type for an std::map.
-    using path_data_t = std::tuple<std::string, int>; // path-name, bit position
+    using path_data_t = std::tuple<int, std::string>; // path-name, bit position
     std::map<path_data_t, WorkersInPathCounts> counts_per_worker_in_path;
     for (auto const& tpi : tpis) {
       for (auto const& path : tpi.paths()) {
-        path_data_t const path_data{path->name(), path->bitPosition()};
+        path_data_t const path_data{path->bitPosition(), path->name()};
         auto& counts_per_worker = counts_per_worker_in_path[path_data];
         if (counts_per_worker.empty() && !path->workersInPath().empty()) {
           counts_per_worker.resize(path->workersInPath().size());
@@ -219,7 +214,7 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
       LogPrint("ArtSummary") << "";
       LogPrint("ArtSummary")
         << "TrigReport "
-        << "---------- Modules in Path: " << path_name << " ------------";
+        << "---------- Modules in path: " << path_name << " ------------";
       LogPrint("ArtSummary")
         << "TrigReport " << std::right << setw(10) << "Trig Bit#"
         << " " << std::right << setw(10) << "Visited"
@@ -228,7 +223,7 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
         << " " << std::right << setw(10) << "Error"
         << " "
         << "Name";
-      workersInPathTriggerReport(1, bit_position, worker_in_path_counts);
+      workersInPathTriggerReport(bit_position, worker_in_path_counts);
     }
   }
 
@@ -257,10 +252,8 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
   if (observers_enabled) {
     LogPrint("ArtSummary") << "";
     LogPrint("ArtSummary") << "TrigReport "
-                           << "------ Modules in End-Path: "
-                           << PathContext::end_path() << " ------------";
-    LogPrint("ArtSummary") << "TrigReport " << std::right << setw(10)
-                           << "Trig Bit#"
+                           << "---------- Modules in End-path ----------";
+    LogPrint("ArtSummary") << "TrigReport"
                            << " " << std::right << setw(10) << "Run"
                            << " " << std::right << setw(10) << "Success"
                            << " " << std::right << setw(10) << "Error"
@@ -274,7 +267,7 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
     // information is better described above.
     LogPrint("ArtSummary") << "";
     LogPrint("ArtSummary") << "TrigReport "
-                           << "---------- Module Summary ------------";
+                           << "---------- Module summary ------------";
     LogPrint("ArtSummary") << "TrigReport " << std::right << setw(10)
                            << "Visited"
                            << " " << std::right << setw(10) << "Run"
@@ -313,7 +306,7 @@ void
 art::detail::timeReport(cet::cpu_timer const& timer)
 {
   LogPrint("ArtSummary") << "TimeReport "
-                         << "---------- Time  Summary ---[sec]----";
+                         << "---------- Time summary [sec] -------";
   LogPrint("ArtSummary") << "TimeReport " << setprecision(6) << fixed
                          << "CPU = " << timer.cpuTime()
                          << " Real = " << timer.realTime();

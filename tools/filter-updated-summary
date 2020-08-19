@@ -1,0 +1,45 @@
+#!/usr/bin/perl -w
+########################################################################
+# filter-output.
+#
+# Filter out some things that would affect the utility of a comparison
+# with reference.
+#
+# If this is not sufficient for your needs, write your own and use the
+# OUTPUT_FILTER option of cet_test() to override. See CetTest.cmake
+# documentation for details.
+#
+# 2014/12/16 CHG.
+########################################################################
+use strict;
+
+my ($in_memReport);
+my $n_sep = 0;
+
+while (<>) {
+  ########################################################################
+  # Several date-time formats.
+  s&\d{4}-(?:0\d|1[0-2])-(?:[0-2]\d|3[01])T(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:,\d+)?(Z[-+]?\d+)?&<date-time>&g;
+  s&\d{4}-(?:0\d|1[0-2])-(?:[0-2]\d|3[01])(?:\s+(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?(?:\s+(?:[-+]\d+|[A-Z]{3}))?)?)?&<date-time>&g;
+  s&\d+-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\d{4}(?:\s+(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?(?:\s+(?:[-+]\d+|[A-Z]+))?)?)?&<date-time>&g;
+  ########################################################################
+  # filter absolute paths for modules and services.
+  s&/.*/(\w*_(plugin|module|service|source|tool).cc)&<path>/${1}&g;
+  ########################################################################
+  # Messagefacility messages.
+  s&^(\%MSG.*?:\s+).*?(<date-time>)&${1}${2}&; # OS X does not currently print application.
+  ########################################################################
+  # TimeReport lines.
+  m&^TimeReport& and s&[\d\.]+&<duration>&g;
+  ########################################################################
+  # MemReport lines.
+  m&^MemReport  VmPeak& and s&[\d\.]+&<duration>&g;
+  ########################################################################
+  # Variable-length separators.
+  s&([-=\.*~/]){15,}&<separator (${1})>&g;
+  ########################################################################
+  # Platform specification (generic, and UPS-style).
+  s&(?:Darwin|Linux)(?:64bit)?(?:\+[-\d\+]*)?&<platform>&g;
+  ########################################################################
+  print;
+}
