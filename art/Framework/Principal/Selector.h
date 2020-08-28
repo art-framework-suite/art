@@ -42,288 +42,272 @@ namespace art {
   constexpr bool is_selector =
     std::is_base_of_v<SelectorBase, std::remove_reference_t<T>>;
 
-  template <class A, class B>
-  std::enable_if_t<is_selector<A> && is_selector<B>, AndHelper<A, B>>
-  operator&&(A&& a, B&& b);
+  //--------------------------------------------------------------------
+  // Class ProcessNameSelector.
+  // Selects EDProducts based upon process name.
+  //
+  // As a special case, a ProcessNameSelector created with the string
+  // "*" matches *any* process (and so is rather like having no
+  // ProcessNameSelector at all).  The ProcessNameSelector does *not*
+  // understand the string "current_process" as a match to the current
+  // process name.  To do so with the current design would require the
+  // use of accessing global data, which we would like to avoid.  If
+  // such matching is desired in the future, a redesign of the selector
+  // system could be considered.  For now, if users wish to retrieve
+  // products with the process name "current_process", they must use the
+  // getBy* facilities provided by Event and friends.
+  // -------------------------------------------------------------------
 
-  template <class A, class B>
-  std::enable_if_t<is_selector<A> && is_selector<B>, OrHelper<A, B>> operator||(
-    A&& a,
-    B&& b);
+  class ProcessNameSelector : public SelectorBase {
+  public:
+    explicit ProcessNameSelector(std::string const& pn)
+      : pn_{pn.empty() ? std::string{"*"} : pn}
+    {}
 
-  template <class A>
-  std::enable_if_t<is_selector<A>, NotHelper<A>> operator!(A&& a);
-} // namespace art
-
-//--------------------------------------------------------------------
-// Class ProcessNameSelector.
-// Selects EDProducts based upon process name.
-//
-// As a special case, a ProcessNameSelector created with the string
-// "*" matches *any* process (and so is rather like having no
-// ProcessNameSelector at all).  The ProcessNameSelector does *not*
-// understand the string "current_process" as a match to the current
-// process name.  To do so with the current design would require the
-// use of accessing global data, which we would like to avoid.  If
-// such matching is desired in the future, a redesign of the selector
-// system could be considered.  For now, if users wish to retrieve
-// products with the process name "current_process", they must use the
-// getBy* facilities provided by Event and friends.
-// -------------------------------------------------------------------
-
-class art::ProcessNameSelector : public SelectorBase {
-public:
-  explicit ProcessNameSelector(std::string const& pn)
-    : pn_{pn.empty() ? std::string{"*"} : pn}
-  {}
-
-private:
-  bool
-  doMatch(BranchDescription const& p) const override
-  {
-    return (pn_ == "*") || (p.processName() == pn_);
-  }
-
-  std::string
-  doPrint(std::string const& indent) const override
-  {
-    std::string result{indent + "Process name: "};
-    if (pn_ == "*") {
-      result += "(empty)";
-    } else {
-      result += "'" + pn_ + "'";
+  private:
+    bool
+    doMatch(BranchDescription const& p) const override
+    {
+      return (pn_ == "*") || (p.processName() == pn_);
     }
-    return result;
-  }
 
-  std::string pn_;
-};
+    std::string
+    doPrint(std::string const& indent) const override
+    {
+      std::string result{indent + "Process name: "};
+      if (pn_ == "*") {
+        result += "(empty)";
+      } else {
+        result += "'" + pn_ + "'";
+      }
+      return result;
+    }
 
-//------------------------------------------------------------------
-// Class ProductInstanceNameSelector.
-// Selects EDProducts based upon product instance name.
-//------------------------------------------------------------------
+    std::string pn_;
+  };
 
-class art::ProductInstanceNameSelector : public SelectorBase {
-public:
-  explicit ProductInstanceNameSelector(std::string const& pin) : pin_{pin} {}
+  //------------------------------------------------------------------
+  // Class ProductInstanceNameSelector.
+  // Selects EDProducts based upon product instance name.
+  //------------------------------------------------------------------
 
-private:
-  bool
-  doMatch(BranchDescription const& p) const override
+  class ProductInstanceNameSelector : public SelectorBase {
+  public:
+    explicit ProductInstanceNameSelector(std::string const& pin) : pin_{pin} {}
+
+  private:
+    bool
+    doMatch(BranchDescription const& p) const override
+    {
+      return p.productInstanceName() == pin_;
+    }
+
+    std::string
+    doPrint(std::string const& indent) const override
+    {
+      return indent + "Product instance name: '" + pin_ + '\'';
+    }
+
+    std::string pin_;
+  };
+
+  //------------------------------------------------------------------
+  // Class ModuleLabelSelector.
+  // Selects EDProducts based upon module label.
+  //------------------------------------------------------------------
+
+  class ModuleLabelSelector : public SelectorBase {
+  public:
+    explicit ModuleLabelSelector(std::string const& label) : label_{label} {}
+
+  private:
+    bool
+    doMatch(BranchDescription const& p) const override
+    {
+      return p.moduleLabel() == label_;
+    }
+
+    std::string
+    doPrint(std::string const& indent) const override
+    {
+      return indent + "Module label: '" + label_ + '\'';
+    }
+
+    std::string label_;
+  };
+
+  //------------------------------------------------------------------
+  // Class MatchAllSelector.
+  // Dummy selector whose match function always returns true.
+  //------------------------------------------------------------------
+
+  class MatchAllSelector : public SelectorBase {
+    bool
+    doMatch(BranchDescription const&) const override
+    {
+      return true;
+    }
+
+    std::string
+    doPrint(std::string const&) const override
+    {
+      return {};
+    }
+  };
+
+  //----------------------------------------------------------
+  // AndHelper template.
+  // Used to form expressions involving && between other selectors.
+  //----------------------------------------------------------
+
+  template <typename A, typename B>
+  class AndHelper : public SelectorBase {
+  public:
+    AndHelper(A const& a, B const& b) : a_{a}, b_{b} {}
+
+  private:
+    bool
+    doMatch(BranchDescription const& p) const override
+    {
+      return a_.match(p) && b_.match(p);
+    }
+
+    std::string
+    doPrint(std::string const& indent) const override
+    {
+      return a_.print(indent) + '\n' + b_.print(indent);
+    }
+
+    A a_;
+    B b_;
+  };
+
+  template <typename A, typename B>
+  std::enable_if_t<is_selector<A> && is_selector<B>, AndHelper<A, B>>
+  operator&&(A const& a, B const& b)
   {
-    return p.productInstanceName() == pin_;
+    return AndHelper<A, B>{a, b};
   }
 
-  std::string
-  doPrint(std::string const& indent) const override
+  //----------------------------------------------------------
+  // OrHelper template.
+  // Used to form expressions involving || between other selectors.
+  //----------------------------------------------------------
+
+  template <typename A, typename B>
+  class OrHelper : public SelectorBase {
+  public:
+    OrHelper(A const& a, B const& b) : a_{a}, b_{b} {}
+
+  private:
+    bool
+    doMatch(BranchDescription const& p) const override
+    {
+      return a_.match(p) || b_.match(p);
+    }
+
+    std::string
+    doPrint(std::string const& indent) const override
+    {
+      std::string result{indent + "[\n"};
+      result += indent + a_.print(indent) + '\n';
+      result += indent + indent + indent + "or\n";
+      result += indent + b_.print(indent) + '\n';
+      result += indent + ']';
+      return result;
+    }
+
+    A a_;
+    B b_;
+  };
+
+  template <typename A, typename B>
+  std::enable_if_t<is_selector<A> && is_selector<B>, OrHelper<A, B>>
+  operator||(A const& a, B const& b)
   {
-    return indent + "Product instance name: '" + pin_ + '\'';
+    return OrHelper<A, B>{a, b};
   }
 
-  std::string pin_;
-};
+  //----------------------------------------------------------
+  // NotHelper template.
+  // Used to form expressions involving ! acting on a selector.
+  //----------------------------------------------------------
 
-//------------------------------------------------------------------
-// Class ModuleLabelSelector.
-// Selects EDProducts based upon module label.
-//------------------------------------------------------------------
+  template <typename A>
+  class NotHelper : public SelectorBase {
+  public:
+    explicit NotHelper(A const& a) : a_{a} {}
 
-class art::ModuleLabelSelector : public SelectorBase {
-public:
-  explicit ModuleLabelSelector(std::string const& label) : label_{label} {}
+  private:
+    bool
+    doMatch(BranchDescription const& p) const override
+    {
+      return !a_.match(p);
+    }
 
-private:
-  bool
-  doMatch(BranchDescription const& p) const override
+    std::string
+    doPrint(std::string const& indent) const override
+    {
+      std::string result{indent + "Not [\n"};
+      result += indent + a_.print(indent) + '\n';
+      result += indent + ']';
+      return result;
+    }
+    A a_;
+  };
+
+  template <typename A>
+  std::enable_if_t<is_selector<A>, NotHelper<A>> operator!(A const& a)
   {
-    return p.moduleLabel() == label_;
+    return NotHelper<A>{a};
   }
 
-  std::string
-  doPrint(std::string const& indent) const override
-  {
-    return indent + "Module label: '" + label_ + '\'';
-  }
+  //----------------------------------------------------------
+  // ComposedSelectorWrapper template
+  // Used to hold an expression formed from the various helpers.
+  //----------------------------------------------------------
 
-  std::string label_;
-};
+  template <typename T>
+  class ComposedSelectorWrapper : public SelectorBase {
+  public:
+    using wrapped_type = T;
+    explicit ComposedSelectorWrapper(T const& t) : expression_{t} {}
 
-//------------------------------------------------------------------
-// Class MatchAllSelector.
-// Dummy selector whose match function always returns true.
-//------------------------------------------------------------------
+  private:
+    bool
+    doMatch(BranchDescription const& p) const override
+    {
+      return expression_.match(p);
+    }
 
-class art::MatchAllSelector : public SelectorBase {
-  bool
-  doMatch(BranchDescription const&) const override
-  {
-    return true;
-  }
+    std::string
+    doPrint(std::string const& indent) const override
+    {
+      return expression_.print(indent);
+    }
 
-  std::string
-  doPrint(std::string const&) const override
-  {
-    return {};
-  }
-};
+    wrapped_type expression_;
+  };
 
-//----------------------------------------------------------
-// AndHelper template.
-// Used to form expressions involving && between other selectors.
-//----------------------------------------------------------
+  //----------------------------------------------------------
+  // Selector
+  //----------------------------------------------------------
 
-template <class A, class B>
-class art::AndHelper : public SelectorBase {
-public:
-  AndHelper(A&& a, B&& b) : a_{std::forward<A>(a)}, b_{std::forward<B>(b)} {}
+  class Selector : public SelectorBase {
+  public:
+    template <typename T>
+    explicit Selector(T const& expression)
+      : sel_{new ComposedSelectorWrapper<T>{expression}}
+    {}
 
-private:
-  bool
-  doMatch(BranchDescription const& p) const override
-  {
-    return a_.match(p) && b_.match(p);
-  }
+  private:
+    bool doMatch(BranchDescription const& p) const override;
+    std::string doPrint(std::string const& indent) const override;
 
-  std::string
-  doPrint(std::string const& indent) const override
-  {
-    return a_.print(indent) + '\n' + b_.print(indent);
-  }
+    std::shared_ptr<SelectorBase> sel_;
+  };
 
-  A a_;
-  B b_;
-};
-
-template <class A, class B>
-std::enable_if_t<art::is_selector<A> && art::is_selector<B>,
-                 art::AndHelper<A, B>>
-art::operator&&(A&& a, B&& b)
-{
-  return AndHelper<A, B>{std::forward<A>(a), std::forward<B>(b)};
-}
-
-//----------------------------------------------------------
-// OrHelper template.
-// Used to form expressions involving || between other selectors.
-//----------------------------------------------------------
-
-template <class A, class B>
-class art::OrHelper : public SelectorBase {
-public:
-  OrHelper(A&& a, B&& b) : a_{std::forward<A>(a)}, b_{std::forward<B>(b)} {}
-
-private:
-  bool
-  doMatch(BranchDescription const& p) const override
-  {
-    return a_.match(p) || b_.match(p);
-  }
-
-  std::string
-  doPrint(std::string const& indent) const override
-  {
-    std::string result{indent + "[\n"};
-    result += indent + a_.print(indent) + '\n';
-    result += indent + indent + indent + "or\n";
-    result += indent + b_.print(indent) + '\n';
-    result += indent + ']';
-    return result;
-  }
-
-  A a_;
-  B b_;
-};
-
-template <class A, class B>
-std::enable_if_t<art::is_selector<A> && art::is_selector<B>,
-                 art::OrHelper<A, B>>
-art::operator||(A&& a, B&& b)
-{
-  return OrHelper<A, B>{std::forward<A>(a), std::forward<B>(b)};
-}
-
-//----------------------------------------------------------
-// NotHelper template.
-// Used to form expressions involving ! acting on a selector.
-//----------------------------------------------------------
-
-template <class A>
-class art::NotHelper : public SelectorBase {
-public:
-  explicit NotHelper(A&& a) : a_{std::forward<A>(a)} {}
-
-private:
-  bool
-  doMatch(BranchDescription const& p) const override
-  {
-    return !a_.match(p);
-  }
-
-  std::string
-  doPrint(std::string const& indent) const override
-  {
-    std::string result{indent + "Not [\n"};
-    result += indent + a_.print(indent) + '\n';
-    result += indent + ']';
-    return result;
-  }
-  A a_;
-};
-
-template <class A>
-std::enable_if_t<art::is_selector<A>, art::NotHelper<A>> art::operator!(A&& a)
-{
-  return NotHelper<A>{std::forward<A>(a)};
-}
-
-//----------------------------------------------------------
-// ComposedSelectorWrapper template
-// Used to hold an expression formed from the various helpers.
-//----------------------------------------------------------
-
-template <class T>
-class art::ComposedSelectorWrapper : public SelectorBase {
-public:
-  using wrapped_type = T;
-  explicit ComposedSelectorWrapper(T&& t) : expression_{std::forward<T>(t)} {}
-
-private:
-  bool
-  doMatch(BranchDescription const& p) const override
-  {
-    return expression_.match(p);
-  }
-
-  std::string
-  doPrint(std::string const& indent) const override
-  {
-    return expression_.print(indent);
-  }
-
-  wrapped_type expression_;
-};
-
-//----------------------------------------------------------
-// Selector
-//----------------------------------------------------------
-
-class art::Selector : public SelectorBase {
-public:
-  template <class T>
-  explicit Selector(T&& expression);
-
-private:
-  bool doMatch(BranchDescription const& p) const override;
-  std::string doPrint(std::string const& indent) const override;
-
-  std::unique_ptr<SelectorBase> sel_;
-};
-
-template <class T>
-art::Selector::Selector(T&& expression)
-  : sel_{new ComposedSelectorWrapper<T>{std::forward<T>(expression)}}
-{}
+} // namespace art
 
 #endif /* art_Framework_Principal_Selector_h */
 

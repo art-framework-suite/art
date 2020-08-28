@@ -1,25 +1,24 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
-parent art	v3_06_02
+parent art	v3_06_03
 defaultqual	e19
 #
 fcldir -
 perllib  product_dir
 #
 product		version		<format=2>
-canvas          v3_10_00
-hep_concurrency v1_05_00
+canvas          v3_10_02
 cetbuildtools	v7_17_01	-	only_for_build
 catch		v2_12_2		-	only_for_build
 end_product_list
 
-qualifier	canvas		hep_concurrency	notes
-e20:debug	e20:debug	e20:debug
-e20:prof	e20:prof	e20:prof
-e19:debug	e19:debug	e19:debug
-e19:prof	e19:prof	e19:prof
-c7:debug	c7:debug	c7:debug
-c7:prof		c7:prof		c7:prof
+qualifier	canvas		notes
+e20:debug	e20:debug
+e20:prof	e20:prof
+e19:debug	e19:debug
+e19:prof	e19:prof
+c7:debug	c7:debug
+c7:prof		c7:prof
 end_qualifier_list
 
 table_fragment_begin

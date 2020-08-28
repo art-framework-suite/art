@@ -15,7 +15,7 @@ namespace art::detail {
   using names_t = std::vector<std::string>;
   using configs_t = std::vector<WorkerInPath::ConfigInfo>;
   using name_set_t = std::set<std::string>;
-  using paths_to_modules_t = std::map<path_name_t, configs_t>;
+  using paths_to_modules_t = std::vector<std::pair<path_name_t, configs_t>>;
   using collection_map_t = std::map<module_name_t, ModuleGraphInfo>;
   using collection_t = std::vector<collection_map_t::value_type>;
   using distance_t = collection_t::difference_type;

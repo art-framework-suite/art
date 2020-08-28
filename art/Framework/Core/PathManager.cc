@@ -98,18 +98,35 @@ namespace art {
     allModules_ = moduleInformation_(enabled_modules);
 
     // Trigger paths
+    protoTrigPathLabels_.reserve(enabled_modules.trigger_paths().size());
+    std::set<std::string> recorded_path_name;
     for (auto const& [path_name, entries] : enabled_modules.trigger_paths()) {
+      if (not recorded_path_name.insert(path_name).second)
+        continue;
+
+      if (entries.empty())
+        continue;
+      art::detail::configs_t worker_config_infos{};
       for (auto const& [label, action] : entries) {
         auto const& mci = allModules_.at(label);
         auto const mci_p = cet::make_exempt_ptr(&mci);
-        protoTrigPathLabelMap_[path_name].emplace_back(mci_p, action);
+        worker_config_infos.emplace_back(mci_p, action);
       }
+      protoTrigPathLabels_.emplace_back(path_name,
+                                        std::move(worker_config_infos));
     }
 
     // End path(s)
     auto const& end_paths = enabled_modules.end_paths();
-    for (auto const& pr : end_paths) {
-      for (auto const& [label, action] : pr.second) {
+    protoEndPathLabels_.reserve(enabled_modules.end_paths().size());
+    for (auto const& [path_name, entries] : end_paths) {
+      if (not recorded_path_name.insert(path_name).second)
+        continue;
+
+      if (entries.empty())
+        continue;
+
+      for (auto const& [label, action] : entries) {
         assert(action == art::detail::FilterAction::Normal);
         auto const& mci = allModules_.at(label);
         auto const mci_p = cet::make_exempt_ptr(&mci);
@@ -149,9 +166,8 @@ namespace art {
       pinfo.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
       int bitPos = 0;
       ScheduleContext const sc{sid};
-      for (auto const& val : protoTrigPathLabelMap_) {
-        auto const& path_name = val.first;
-        auto const& worker_config_infos = val.second;
+      for (auto const& [path_name, worker_config_infos] :
+           protoTrigPathLabels_) {
         PathContext const pc{
           sc, path_name, bitPos, sorted_module_labels(worker_config_infos)};
         auto wips =
@@ -161,7 +177,7 @@ namespace art {
         {
           ostringstream msg;
           msg << "Made path 0x" << hex << ((unsigned long)pinfo.paths().back())
-              << dec << " bitPos: " << bitPos << " name: " << val.first;
+              << dec << " bitPos: " << bitPos << " name: " << path_name;
           TDEBUG_FUNC_SI_MSG(
             5, "PathManager::createModulesAndWorkers", sid, msg.str());
         }
@@ -198,7 +214,7 @@ namespace art {
       getModuleGraphInfoCollection_(producing_services);
     ModuleGraphInfoMap const modInfos{graph_info_collection};
     auto const module_graph =
-      make_module_graph(modInfos, protoTrigPathLabelMap_, protoEndPathLabels_);
+      make_module_graph(modInfos, protoTrigPathLabels_, protoEndPathLabels_);
     auto const graph_filename =
       procPS_.get<string>("services.scheduler.dataDependencyGraph", {});
     if (!graph_filename.empty()) {
@@ -213,7 +229,7 @@ namespace art {
     }
 
     // No longer need worker/module config objects.
-    protoTrigPathLabelMap_.clear();
+    protoTrigPathLabels_.clear();
     protoEndPathLabels_.clear();
     allModules_.clear();
   }
@@ -546,7 +562,7 @@ namespace art {
   {
     collection_map_t result{};
     auto& source_info = result["input_source"];
-    if (!protoTrigPathLabelMap_.empty()) {
+    if (!protoTrigPathLabels_.empty()) {
       set<string> const path_names{cbegin(triggerPathNames_),
                                    cend(triggerPathNames_)};
       source_info.paths = path_names;
@@ -588,7 +604,7 @@ namespace art {
       graph_info.produced_products = found->second;
     }
 
-    for (auto const& path : protoTrigPathLabelMap_) {
+    for (auto const& path : protoTrigPathLabels_) {
       fillModuleOnlyDeps_(path.first,
                           path.second,
                           produced_products_per_module,

@@ -490,8 +490,8 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
   BOOST_TEST(handles.size() == std::size_t{2});
 
   std::string const instance;
-  Selector const sel1{ProductInstanceNameSelector{instance} &&
-                      ModuleLabelSelector{"modMulti"}};
+  Selector sel1{ProductInstanceNameSelector{instance}};
+  sel1 = Selector{sel1 && ModuleLabelSelector{"modMulti"}};
 
   BOOST_TEST_REQUIRE(currentEvent_->get(sel1, h));
   BOOST_TEST(h->value == 3);

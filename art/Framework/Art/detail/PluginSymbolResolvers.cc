@@ -20,8 +20,8 @@ namespace {
       result = f();
     }
     catch (cet::exception const& e) {
-      std::cout << "In: " << caller << std::endl;
-      std::cout << e.what() << std::endl;
+      std::cerr << "In: " << caller << '\n'
+                << e.what() << '\n';
     }
     return result;
   }

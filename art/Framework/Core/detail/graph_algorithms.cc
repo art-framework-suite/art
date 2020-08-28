@@ -16,6 +16,7 @@ using art::detail::ModuleGraphInfo;
 using art::detail::ModuleGraphInfoMap;
 using art::detail::name_set_t;
 using art::detail::path_name_t;
+using art::detail::paths_to_modules_t;
 using art::detail::Vertex;
 
 namespace {
@@ -271,9 +272,19 @@ art::detail::verify_no_interpath_dependencies(
 }
 
 namespace {
-  struct name_matches {
+  struct path_matches {
+    path_name_t path_name;
+    explicit path_matches(std::string const& name) : path_name{name} {}
+    bool
+    operator()(paths_to_modules_t::value_type const& pr) const
+    {
+      return pr.first == path_name;
+    }
+  };
+
+  struct module_matches {
     std::string module_name;
-    explicit name_matches(std::string const& name) : module_name{name} {}
+    explicit module_matches(std::string const& name) : module_name{name} {}
     bool
     operator()(art::WorkerInPath::ConfigInfo const& info) const
     {
@@ -303,11 +314,14 @@ art::detail::verify_in_order_dependencies(
     // we have already guaranteed that there are no interpath
     // dependencies.
     auto const& first_path_for_module = *cbegin(module_paths);
-    auto const& path = trigger_paths.at(first_path_for_module);
-    auto const begin = cbegin(path);
-    auto const end = cend(path);
+    auto const& path_it = std::find_if(trigger_paths.cbegin(),
+                                       trigger_paths.cend(),
+                                       path_matches{first_path_for_module});
+    assert(path_it != trigger_paths.cend());
+    auto const begin = cbegin(path_it->second);
+    auto const end = cend(path_it->second);
     auto const module_position =
-      std::find_if(begin, end, name_matches{module_name});
+      std::find_if(begin, end, module_matches{module_name});
     assert(module_position != end);
 
     for (auto const& dep : module.second.consumed_products) {
@@ -315,7 +329,7 @@ art::detail::verify_in_order_dependencies(
         continue;
       }
       auto const dep_position =
-        std::find_if(begin, end, name_matches{dep.label});
+        std::find_if(begin, end, module_matches{dep.label});
       assert(dep_position != end);
       if (dep_position < module_position) {
         continue;

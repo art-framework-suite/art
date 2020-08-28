@@ -4,7 +4,9 @@ add_subdirectory(sqlite/memoryTracker)
 add_subdirectory(sqlite/timeTracker)
 add_subdirectory(migration)
 
-cet_script(filter-memoryTracker-output filter-timeTracker-output)
+cet_script(filter-memoryTracker-output
+           filter-timeTracker-output
+           filter-updated-summary)
 
 # FIXME: We should add all the perl files that could change (and
 # therefore change the output of the skeleton generator) as dependencies

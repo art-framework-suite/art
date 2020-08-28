@@ -2,10 +2,12 @@ BEGIN_PROLOG
 paths: [b, a]
 END_PROLOG
 
+services.scheduler.wantSummary: true
+
 physics: {
-  producers: {
-    prod: {
-      module_type: PMTestProducer
+  filters: {
+    filt: {
+      module_type: PMTestFilter
     }
   }
   analyzers: {
@@ -14,8 +16,8 @@ physics: {
       paths: @local::paths
     }
   }
-  a: [prod]
-  b: [prod]
+  a: ["!filt"]
+  b: [filt]
   trigger_paths: @local::paths
   ep: [check]
 }
