@@ -4,7 +4,7 @@
 namespace art {
 
   std::string const & getReleaseVersion() {
-    static std::string const releaseVersion("@version@");
+    static std::string const releaseVersion("@PROJECT_VERSION@");
     return releaseVersion;
   }
 

@@ -35,11 +35,6 @@ cet_set_compiler_flags(DIAGS VIGILANT
   EXTRA_FLAGS -pedantic
   EXTRA_CXX_FLAGS -Wnon-virtual-dtor -Wdelete-non-virtual-dtor -DBOOST_TEST_NO_OLD_TOOLS)
 
-cet_have_qual(sse2 SSE2)
-if (SSE2)
-  cet_add_compiler_flags(CXX -msse2 -ftree-vectorizer-verbose=2)
-endif()
-
 if($ENV{CET_SANITIZE_ADDRESS})
   if(NOT "$ENV{GCC_FQ_DIR}" STREQUAL "")
     find_file(ASAN_LIB libasan.so NO_DEFAULT_PATH PATHS $ENV{GCC_FQ_DIR}/lib64)
@@ -71,11 +66,11 @@ endif()
 cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
 
 # these are minimum required versions, not the actual product versions
-find_ups_product(canvas v1_06_00) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
+find_ups_product(canvas v3_06_00) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
 find_ups_product(messagefacility) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
 find_ups_product(fhiclcpp) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
-find_ups_product(cetlib v2_01_00) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
-find_ups_product(cetlib_except v1_01_00) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
+find_ups_product(cetlib v3_00_00) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
+find_ups_product(cetlib_except) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
 find_ups_product(clhep) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
 find_ups_product(hep_concurrency) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
 find_ups_product(sqlite) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
@@ -102,5 +97,5 @@ add_subdirectory(art)
 # CMake modules
 add_subdirectory(Modules)
 
-# packaging utility
-cet_cmake_config(COMPATIBILITY SameMajorVersion)
+cet_cmake_config(COMPATIBILITY SameMajorVersion
+  CONFIG_POST_VARS config/${PROJECT_NAME}-config-module-path.cmake.in)

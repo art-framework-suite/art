@@ -2,4 +2,4 @@ install(FILES
   event-summary.sql
   max-events.sql
   module-summary.sql
-  DESTINATION "tools/sqlite/timeTracker")
+  DESTINATION "${${PROJECT_NAME}_TOOLS_DIR}/sqlite/timeTracker")

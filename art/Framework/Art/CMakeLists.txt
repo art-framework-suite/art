@@ -58,8 +58,8 @@ art_make_library(LIBRARY_NAME art_Framework_Art
   MF_MessageLogger)
 
 # Build an art exec.
-macro(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
-  cet_parse_args(AE "LIBRARIES" "" ${ARGN})
+function(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
+  cmake_parse_arguments(PARSE_ARGV 3 AE "" "" "LIBRARIES")
   set(ART_MAIN_FUNC ${MAIN_FUNC})
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${IN_STEM}.cc.in
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc @ONLY)
@@ -73,7 +73,7 @@ macro(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
     MF_MessageLogger)
   # Enable plugins to access symbols exported by the exec (CMake policy CMP0065).
   set_property(TARGET ${TARGET_STEM} PROPERTY ENABLE_EXPORTS TRUE)
-endmacro()
+endfunction()
 
 cet_make_exec(get-loadable-libraries SOURCE get-loadable-libraries.cc LIBRARIES cetlib)
 
