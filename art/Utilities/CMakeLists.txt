@@ -1,4 +1,4 @@
-find_package(Threads REQUIRED)
+cet_find_package(Threads REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
 art_make_library(

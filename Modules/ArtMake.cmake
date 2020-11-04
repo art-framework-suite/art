@@ -1,4 +1,4 @@
-# art_make
+# art_make ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 #
 # Identify the files in the current source directory and build
 # libraries, dictionaries and plugins as appropriate.
@@ -6,27 +6,27 @@
 ####################################
 # NOTES:
 #
-# Users may opt to just include art_make() in their CMakeLists.txt This
+# Users may opt to just include art_make() in their CMakeLists.txt This ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 # implementation is intended to be called NO MORE THAN ONCE per
 # subdirectory.
 #
-# * art_make() tries very hard to be intelligent, but it doesn't fit
+# * art_make() tries very hard to be intelligent, but it doesn't fit ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 # every need. In which case, you might need to call art_make_library(),
 # art_make_exec(), cet_test() (CetTest.cmake), art_dictionary()
 # (canvas_root_io/Modules/ArtDictionary.cmake) and/or simple_plugin()
 # (art/Modules/BuildPlugins.cmake) separately.
 #
-# * If art_make() doesn't quite fit your needs (different plugins of the
+# * If art_make() doesn't quite fit your needs (different plugins of the ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 # same type have different library dependencies, for example), you can
-# use art_make() with a suitable EXCLUDE option to do everything except
+# use art_make() with a suitable EXCLUDE option to do everything except ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 # your special case and then deal with it separately.
 #
-# * art_make() will not take care of the installation of headers into an
+# * art_make() will not take care of the installation of headers into an ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 # installed product's include/ directory tree, or of files into the
 # products source/ area. See install_headers() and install_source() in
-# cetbuildtools/Modules/InstallSource.cmake.
+# cetbuildtools/Modules/InstallSource.cmake. ### MIGRATE-ACTION-REQUIRED: remove
 #
-# * art_make() knows about ROOT dictionaries (as signalled by the
+# * art_make() knows about ROOT dictionaries (as signalled by the ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 # presence of classes.h and classes_def.xml), and the following plugin
 # types:
 #
@@ -36,7 +36,7 @@
 #
 #  You may specify a plugin-type-specific library link list as
 #  XXXX_LIBRARIES. If you have another plugin type (fleeble, say), you
-#  may make its existence known to art_make() by specifying a (possibly
+#  may make its existence known to art_make() by specifying a (possibly ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 #  empty) FLEEBLE_LIBRARIES argument. Source files matching,
 #  "*_fleeble.cc' will be identified by that command as being plugins of
 #  type, "fleeble" and use FLEEBLE_LIBRARIES against which to link.
@@ -44,7 +44,7 @@
 ####################################
 # USAGE:
 #
-# art_make( [LIBRARY_NAME <library name>]
+# art_make( [LIBRARY_NAME <library name>] ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 #           [LIB_LIBRARIES <library list>]
 #           [MODULE_LIBRARIES <library list>]
 #           [SOURCE_LIBRARIES <library list>]
@@ -60,7 +60,7 @@
 #           [USE_PRODUCT_NAME]
 #         )
 #
-# * In art_make(), LIBRARIES has been REMOVED! use LIB_LIBRARIES instead.
+# * In art_make(), LIBRARIES has been REMOVED! use LIB_LIBRARIES instead. ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 #
 # * If NONE of {MODULES,SOURCE,SERVICE,DICT}_LIBRARIES is specified,
 # then LIB_LIBRARIES (or LIBRARIES) will be used as appropriate for
@@ -156,15 +156,15 @@ function( art_make_library )
     else()
       # calculate base name
       if( DEFINED ENV{MRB_SOURCE} )
-         STRING( REGEX REPLACE "^${CMAKE_SOURCE_DIR}/${product}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
+         STRING( REGEX REPLACE "^${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
          STRING( REGEX REPLACE "/" "_" art_make_lib_name "${CURRENT_SUBDIR}" )
       else()
          STRING( REGEX REPLACE "^${CMAKE_SOURCE_DIR}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
          STRING( REGEX REPLACE "/" "_" art_make_lib_name "${CURRENT_SUBDIR}" )
       endif()
       if (AML_USE_PRODUCT_NAME)
-        set( art_make_lib_name ${product}_${art_make_lib_name} )
-        #message(STATUS "art_make_library debug:  calculated library name is now ${art_make_lib_name} for ${product}")
+        set( art_make_lib_name ${PROJECT_NAME}_${art_make_lib_name} )
+        #message(STATUS "art_make_library debug:  calculated library name is now ${art_make_lib_name} for ${PROJECT_NAME}")
       endif()
     endif()
     if (AML_LIBRARIES)
@@ -186,9 +186,9 @@ function( art_make_library )
 endfunction( art_make_library )
 
 ####################################
-# art_make
+# art_make ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 ####################################
-function( art_make )
+function( art_make ) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
   set(arg_option_names
     LIBRARY_NAME LIBRARIES SUBDIRS EXCLUDE SOURCE LIB_LIBRARIES DICT_LIBRARIES DICT_COMPILE_FLAGS
     MODULE_LIBRARIES SERVICE_LIBRARIES SOURCE_LIBRARIES)
@@ -245,7 +245,7 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
   endif()
 
   # now look for other source files in this directory
-  #message(STATUS "art_make debug: listed files ${art_file_list}")
+  #message(STATUS "art_make debug: listed files ${art_file_list}") ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
   FILE( GLOB src_files *.c *.cc *.cpp *.C *.cxx )
   FILE( GLOB ignore_dot_files  .*.c .*.cc .*.cpp .*.C .*.cxx )
   FILE( GLOB plugin_files ${plugin_glob_list})
@@ -275,17 +275,17 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
   if (ignore_dot_files)
     LIST(REMOVE_ITEM plugin_files ${ignore_dot_files})
   endif()
-  #message(STATUS "art_make debug: exclude files ${AM_EXCLUDE}")
+  #message(STATUS "art_make debug: exclude files ${AM_EXCLUDE}") ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
   if(AM_EXCLUDE)
     foreach( exclude_file ${AM_EXCLUDE} )
       LIST(REMOVE_ITEM src_files ${CMAKE_CURRENT_SOURCE_DIR}/${exclude_file} )
       LIST(REMOVE_ITEM plugin_files ${CMAKE_CURRENT_SOURCE_DIR}/${exclude_file} )
     endforeach( exclude_file )
   endif()
-  #message(STATUS "art_make debug: other files ${src_files}")
+  #message(STATUS "art_make debug: other files ${src_files}") ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
   set(have_library FALSE)
   foreach( file ${src_files} )
-    #message(STATUS "art_make debug: checking ${file}")
+    #message(STATUS "art_make debug: checking ${file}") ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
     set(have_file FALSE)
     foreach( known_file ${art_file_list} )
       if( "${file}" MATCHES "${known_file}" )
@@ -293,13 +293,13 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
             endif()
     endforeach( known_file )
     if( NOT have_file )
-      #message(STATUS "art_make debug: found new file ${file}")
+      #message(STATUS "art_make debug: found new file ${file}") ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
       set(art_file_list ${art_file_list} ${file} )
       set(art_make_library_src ${art_make_library_src} ${file} )
       set(have_library TRUE)
     endif()
   endforeach(file)
-  #message(STATUS "art_make debug: known files ${art_file_list}")
+  #message(STATUS "art_make debug: known files ${art_file_list}") ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
   if (AM_USE_PRODUCT_NAME)
     set(upn USE_PRODUCT_NAME)
   endif()
@@ -344,7 +344,7 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
   FILE(GLOB dictionary_xml classes_def.xml )
   if( dictionary_header AND dictionary_xml )
     if (NOT COMMAND art_dictionary)
-      message(FATAL_ERROR "ART_MAKE: If you wish art_make to create a dictionary, you must invoke include(ArtDictionary) in your CMakeLists.txt file.")
+      message(FATAL_ERROR "ART_MAKE: If you wish art_make to create a dictionary, you must invoke include(ArtDictionary) in your CMakeLists.txt file.") ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
     endif()
     set(art_file_list ${art_file_list} ${dictionary_xml} ${dictionary_header} )
     if (have_library)
@@ -365,4 +365,4 @@ Use EXCLUDE to exclude particular (eg exec) source files from library.")
     _debug_message("Configured to build dictionary ${dictname}.")
   endif()
 
-endfunction( art_make )
+endfunction( art_make ) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists

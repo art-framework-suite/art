@@ -1,4 +1,4 @@
-art_make(LIB_LIBRARIES
+art_make(LIB_LIBRARIES ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
   art_Framework_IO_detail
   canvas
   cetlib_except

@@ -17,8 +17,8 @@
 #    arguments from non-option arguments.
 #
 # For other available options, please see
-# cetbuildtools/Modules/BasicPlugin.cmake
-# (https://cdcvs.fnal.gov/redmine/projects/cetbuildtools/repository/revisions/master/entry/Modules/BasicPlugin.cmake).
+# cetbuildtools/Modules/BasicPlugin.cmake ### MIGRATE-ACTION-REQUIRED: remove
+# (https://cdcvs.fnal.gov/redmine/projects/cetbuildtools/repository/revisions/master/entry/Modules/BasicPlugin.cmake). ### MIGRATE-ACTION-REQUIRED: remove
 ########################################################################
 include(BasicPlugin)
 
@@ -73,15 +73,15 @@ function(simple_plugin name type)
       art_Framework_IO_Sources
       Boost::filesystem)
   endif()
-  check_ups_version(cetbuildtools ${cetbuildtools_UPS_VERSION} v4_05_00 PRODUCT_MATCHES_VAR BP_HAS_SOURCE)
+  check_ups_version(cetbuildtools ${cetbuildtools_UPS_VERSION} v4_05_00 PRODUCT_MATCHES_VAR BP_HAS_SOURCE) ### MIGRATE-ACTION-REQUIRED: remove
   if(SP_SOURCE)
     if (BP_HAS_SOURCE)
       list(INSERT SP_SOURCE 0 SOURCE)
     else()
-      message(FATAL_ERROR "SOURCE option specified, but not supported by cetbuildtools ${CETBUILDTOOLS_VERSION}")
+      message(FATAL_ERROR "SOURCE option specified, but not supported by cetbuildtools ${CETBUILDTOOLS_VERSION}") ### MIGRATE-ACTION-REQUIRED: remove
     endif()
   endif()
-  check_ups_version(cetbuildtools ${cetbuildtools_UPS_VERSION} v4_06_00 PRODUCT_MATCHES_VAR BP_HAS_NOP)
+  check_ups_version(cetbuildtools ${cetbuildtools_UPS_VERSION} v4_06_00 PRODUCT_MATCHES_VAR BP_HAS_NOP) ### MIGRATE-ACTION-REQUIRED: remove
   if (BP_HAS_NOP AND NOT SP_NOP)
     # Set it anyway so we have a good separator.
     set(SP_NOP TRUE)

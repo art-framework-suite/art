@@ -13,13 +13,17 @@
 # ======================================================================
 
 
-cmake_minimum_required(VERSION 3.12...3.14 FATAL_ERROR)
-project(art LANGUAGES CXX C)
+cmake_minimum_required(VERSION 3.18.2 FATAL_ERROR)
+cmake_policy(VERSION 3.14)
+# Policy CMP0096 must be set to NEW to preserve leading zeros in the
+# VERSION set by project().
+cmake_policy(SET CMP0096 NEW)
+find_package(cetmodules 2.00.02 REQUIRED)
+project(art VERSION 3.06.03 LANGUAGES CXX C)
 
-# cetbuildtools contains our cmake modules
-find_package(cetbuildtools REQUIRED)
+# cetbuildtools contains our cmake modules ### MIGRATE-ACTION-REQUIRED: remove
 
-list(APPEND CMAKE_MODULE_PATH
+list(APPEND CMAKE_MODULE_PATH ### MIGRATE-ACTION-REQUIRED: remove
   ${CMAKE_CURRENT_SOURCE_DIR}/Modules)
 
 include(CetCMakeEnv)
@@ -64,22 +68,22 @@ set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} -fsaniti
 set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -fsanitize=thread -D__SANITIZE_THREAD__")
 endif()
 
-cet_report_compiler_flags()
+cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
 
 # these are minimum required versions, not the actual product versions
-find_ups_product(canvas v1_06_00)
-find_ups_product(messagefacility)
-find_ups_product(fhiclcpp)
-find_ups_product(cetlib v2_01_00)
-find_ups_product(cetlib_except v1_01_00)
-find_ups_product(clhep)
-find_ups_product(hep_concurrency)
-find_ups_product(sqlite)
-find_ups_product(range)
+find_ups_product(canvas v1_06_00) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
+find_ups_product(messagefacility) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
+find_ups_product(fhiclcpp) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
+find_ups_product(cetlib v2_01_00) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
+find_ups_product(cetlib_except v1_01_00) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
+find_ups_product(clhep) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
+find_ups_product(hep_concurrency) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
+find_ups_product(sqlite) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
+find_ups_product(range) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
 find_ups_boost(BOOST_TARGETS)
 
 # SQLite
-cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
+cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH) ### MIGRATE-ACTION-RECOMMENDED: use of ENV ... may be UPS-dependent ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
 
 # macros for simple_plugin
 include(BuildPlugins)
@@ -94,10 +98,9 @@ add_subdirectory(tools)
 add_subdirectory(art)
 
 # ups - table and config files
-add_subdirectory(ups)
 
 # CMake modules
 add_subdirectory(Modules)
 
 # packaging utility
-include(UseCPack)
+cet_cmake_config(COMPATIBILITY SameMajorVersion)
