@@ -11,14 +11,14 @@
 #  make install
 #  make package (builds distribution tarfile)
 # ======================================================================
-
-
 cmake_minimum_required(VERSION 3.18.2 FATAL_ERROR)
+
+
 cmake_policy(VERSION 3.14)
 # Policy CMP0096 must be set to NEW to preserve leading zeros in the
 # VERSION set by project().
 cmake_policy(SET CMP0096 NEW)
-find_package(cetmodules 2.00.02 REQUIRED)
+find_package(cetmodules 2.02.01 REQUIRED)
 project(art VERSION 3.06.03 LANGUAGES CXX C)
 
 # cetbuildtools contains our cmake modules ### MIGRATE-ACTION-REQUIRED: remove
@@ -75,6 +75,7 @@ find_ups_product(clhep) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() w
 find_ups_product(hep_concurrency) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
 find_ups_product(sqlite) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
 find_ups_product(range) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
+find_ups_product(catch) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
 find_ups_boost(BOOST_TARGETS)
 
 # SQLite
