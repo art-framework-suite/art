@@ -25,21 +25,19 @@ include(BasicPlugin)
 cmake_policy(PUSH)
 cmake_policy(VERSION 3.3)
 
-macro (_sp_debug_message)
-  string(TOUPPER ${CMAKE_BUILD_TYPE} BTYPE_UC)
-  if (BTYPE_UC STREQUAL "DEBUG")
-    message(STATUS "SIMPLE_PLUGIN: " ${ARGN})
-  endif()
-endmacro()
-
 # simple plugin libraries
-function(simple_plugin name type)
-  cmake_parse_arguments(SP "NOP" "" "SOURCE" ${ARGN})
-  if(NOT simple_plugin_liblist)
-    set(simple_plugin_liblist)
+function(simple_plugin NAME TYPE)
+  cmake_parse_arguments(PARSE_ARGV 2 SP "NOP" "LIB_TYPE" "")
+  if (SP_LIB_TYPE AND NOT SP_LIB_TYPE MATCHES "^(MODULE|SHARED)$")
+    message(FATAL_ERROR "simple_plugin: unsupported LIB_TYPE ${LIB_TYPE}")
   endif()
-  if("${type}" STREQUAL "service")
-    list(INSERT simple_plugin_liblist 0
+  if (TYPE STREQUAL "service")
+    if (SP_LIB_TYPE STREQUAL "MODULE")
+      message(WARNING "plugin type \"service\" does not support LIB_TYPE MODULE")
+      set(SP_LIB_TYPE SHARED)
+    endif()
+    list(PREPEND SP_UNPARSED_ARGUMENTS
+      LIBRARIES
       art_Framework_Services_Registry
       art_Persistency_Common
       art_Utilities
@@ -47,9 +45,10 @@ function(simple_plugin name type)
       fhiclcpp
       cetlib
       cetlib_except
-      Boost::filesystem)
-  elseif("${type}" STREQUAL "module" OR "${type}" STREQUAL "source")
-    list(INSERT simple_plugin_liblist 0
+      Boost::filesystem NOP)
+  elseif (TYPE STREQUAL "module" OR TYPE STREQUAL "source")
+    list(PREPEND SP_UNPARSED_ARGUMENTS
+      LIBRARIES
       art_Framework_Core
       art_Framework_Principal
       art_Persistency_Common
@@ -59,40 +58,24 @@ function(simple_plugin name type)
       fhiclcpp
       cetlib
       cetlib_except
-      Boost::filesystem)
-  elseif("${type}" STREQUAL "tool")
-    list(INSERT simple_plugin_liblist 0
+      Boost::filesystem NOP)
+  elseif (TYPE STREQUAL "tool")
+    list(PREPEND SP_UNPARSED_ARGUMENTS
+      LIBRARIES
       art_Utilities
       fhiclcpp
       cetlib
       cetlib_except
-      Boost::filesystem)
+      Boost::filesystem NOP)
   endif()
-  if ("${type}" STREQUAL "source")
-    list(INSERT simple_plugin_liblist 0
+  if (TYPE STREQUAL "source")
+    list(PREPEND SP_UNPARSED_ARGUMENTS
+      LIBRARIES
       art_Framework_IO_Sources
-      Boost::filesystem)
+      Boost::filesystem NOP)
   endif()
-  check_ups_version(cetbuildtools ${cetbuildtools_UPS_VERSION} v4_05_00 PRODUCT_MATCHES_VAR BP_HAS_SOURCE) ### MIGRATE-ACTION-REQUIRED: remove
-  if(SP_SOURCE)
-    if (BP_HAS_SOURCE)
-      list(INSERT SP_SOURCE 0 SOURCE)
-    else()
-      message(FATAL_ERROR "SOURCE option specified, but not supported by cetbuildtools ${CETBUILDTOOLS_VERSION}") ### MIGRATE-ACTION-REQUIRED: remove
-    endif()
-  endif()
-  check_ups_version(cetbuildtools ${cetbuildtools_UPS_VERSION} v4_06_00 PRODUCT_MATCHES_VAR BP_HAS_NOP) ### MIGRATE-ACTION-REQUIRED: remove
-  if (BP_HAS_NOP AND NOT SP_NOP)
-    # Set it anyway so we have a good separator.
-    set(SP_NOP TRUE)
-  elseif(SP_NOP AND NOT BP_HAS_NOP)
-    # Not a problem, it's already done its job.
-    unset(SP_NOP)
-  endif()
-  if (SP_NOP)
-    set (NOP_ARG NOP)
-  endif()
-  basic_plugin(${name} ${type} ${NOP_ARG} ${simple_plugin_liblist} ${ARGN} ${SP_SOURCE})
-endfunction(simple_plugin name type)
+  cet_passthrough(IN_PLACE SP_LIB_TYPE)
+  basic_plugin(${NAME} ${TYPE} ${SP_LIB_TYPE} NOP ${SP_UNPARSED_ARGUMENTS})
+endfunction()
 
 cmake_policy(POP)
