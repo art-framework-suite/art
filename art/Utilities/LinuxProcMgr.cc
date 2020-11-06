@@ -8,7 +8,7 @@
 #include "art/Utilities/LinuxProcData.h"
 #include "art/Utilities/ScheduleID.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib/assert_only_one_thread.h"
+#include "hep_concurrency/assert_only_one_thread.h"
 
 #include <cerrno>
 #include <cstring>
@@ -69,7 +69,7 @@ namespace art {
   LinuxProcData::proc_tuple
   LinuxProcMgr::getCurrentData() const noexcept(false)
   {
-    CET_ASSERT_ONLY_ONE_THREAD();
+    HEP_CONCURRENCY_ASSERT_ONLY_ONE_THREAD();
 
     int const seek_result{fseek(file_, 0, SEEK_SET)};
     if (seek_result != 0) {
@@ -103,7 +103,7 @@ namespace art {
   double
   LinuxProcMgr::getStatusData_(std::string const& field) const noexcept(false)
   {
-    CET_ASSERT_ONLY_ONE_THREAD();
+    HEP_CONCURRENCY_ASSERT_ONLY_ONE_THREAD();
 
     std::ostringstream ost;
     ost << "/proc/" << pid_ << "/status";

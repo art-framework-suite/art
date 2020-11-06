@@ -14,8 +14,8 @@
 #include "art/Framework/Services/FileServiceInterfaces/FileDisposition.h"
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Persistency/Common/fwd.h"
-#include "cetlib/assert_only_one_thread.h"
 #include "fhiclcpp/fwd.h"
+#include "hep_concurrency/assert_only_one_thread.h"
 
 #include <string>
 #include <vector>
@@ -64,21 +64,21 @@ namespace art {
   inline void
   CatalogInterface::configure(std::vector<std::string> const& items)
   {
-    CET_ASSERT_ONLY_ONE_THREAD();
+    HEP_CONCURRENCY_ASSERT_ONLY_ONE_THREAD();
     doConfigure(items);
   }
 
   inline int
   CatalogInterface::getNextFileURI(std::string& uri, double& waitTime)
   {
-    CET_ASSERT_ONLY_ONE_THREAD();
+    HEP_CONCURRENCY_ASSERT_ONLY_ONE_THREAD();
     return doGetNextFileURI(uri, waitTime);
   }
 
   inline void
   CatalogInterface::updateStatus(std::string const& uri, FileDisposition status)
   {
-    CET_ASSERT_ONLY_ONE_THREAD();
+    HEP_CONCURRENCY_ASSERT_ONLY_ONE_THREAD();
     doUpdateStatus(uri, status);
   }
 
@@ -86,14 +86,14 @@ namespace art {
   CatalogInterface::outputFileClosed(std::string const& module_label,
                                      std::string const& fileFQname)
   {
-    CET_ASSERT_ONLY_ONE_THREAD();
+    HEP_CONCURRENCY_ASSERT_ONLY_ONE_THREAD();
     doOutputFileClosed(module_label, fileFQname);
   }
 
   inline void
   CatalogInterface::outputFileOpened(std::string const& module_label)
   {
-    CET_ASSERT_ONLY_ONE_THREAD();
+    HEP_CONCURRENCY_ASSERT_ONLY_ONE_THREAD();
     doOutputFileOpened(module_label);
   }
 
@@ -101,7 +101,7 @@ namespace art {
   CatalogInterface::outputModuleInitiated(std::string const& module_label,
                                           fhicl::ParameterSet const& pset)
   {
-    CET_ASSERT_ONLY_ONE_THREAD();
+    HEP_CONCURRENCY_ASSERT_ONLY_ONE_THREAD();
     doOutputModuleInitiated(module_label, pset);
   }
 
@@ -110,21 +110,21 @@ namespace art {
                                   EventID const& event_id,
                                   HLTGlobalStatus const& acceptance_info)
   {
-    CET_ASSERT_ONLY_ONE_THREAD();
+    HEP_CONCURRENCY_ASSERT_ONLY_ONE_THREAD();
     doEventSelected(module_label, event_id, acceptance_info);
   }
 
   inline bool
   CatalogInterface::isSearchable()
   {
-    CET_ASSERT_ONLY_ONE_THREAD();
+    HEP_CONCURRENCY_ASSERT_ONLY_ONE_THREAD();
     return doIsSearchable();
   }
 
   inline void
   CatalogInterface::rewind()
   {
-    CET_ASSERT_ONLY_ONE_THREAD();
+    HEP_CONCURRENCY_ASSERT_ONLY_ONE_THREAD();
     doRewind();
   }
 

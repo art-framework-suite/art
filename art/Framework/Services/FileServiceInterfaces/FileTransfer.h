@@ -12,7 +12,6 @@
 // ====================================================================
 
 #include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "cetlib/assert_only_one_thread.h"
 
 #include <string>
 

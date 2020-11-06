@@ -28,11 +28,11 @@
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/ScheduleIteration.h"
-#include "cetlib/assert_only_one_thread.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/no_delete.h"
 #include "cetlib_except/exception.h"
 #include "hep_concurrency/RecursiveMutex.h"
+#include "hep_concurrency/assert_only_one_thread.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
@@ -335,7 +335,7 @@ namespace art {
     if (saveToFilename_.empty()) {
       return;
     }
-    CET_ASSERT_ONLY_ONE_THREAD();
+    HEP_CONCURRENCY_ASSERT_ONLY_ONE_THREAD();
     // access the file:
     ofstream outfile{saveToFilename_.c_str()};
     if (!outfile) {
@@ -365,7 +365,7 @@ namespace art {
     if (restoreFromFilename_.empty()) {
       return;
     }
-    CET_ASSERT_ONLY_ONE_THREAD();
+    HEP_CONCURRENCY_ASSERT_ONLY_ONE_THREAD();
     // access the file:
     ifstream infile{restoreFromFilename_.c_str()};
     if (!infile) {
