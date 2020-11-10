@@ -4,7 +4,7 @@ cet_test(FloatingPointControl_t
   TEST_ARGS FloatingPointControl_t.fcl
   LIBRARIES
   Catch2::Catch2
-  mf_catch_main
+  MF_catch_main
   messagefacility_plugins_stringstream_mfPlugin
   art_Framework_Services_System_FloatingPointControl_service
   art_Framework_Services_Registry
