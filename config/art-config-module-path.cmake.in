@@ -1,5 +1,0 @@
-####################################
-# Add to CMAKE_MODULE_PATH.
-####################################
-list(PREPEND CMAKE_MODULE_PATH
-  "${PACKAGE_PREFIX_DIR}/Modules")

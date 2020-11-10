@@ -21,13 +21,11 @@ cmake_policy(SET CMP0096 NEW)
 find_package(cetmodules 2.02.01 REQUIRED)
 project(art VERSION 3.06.03 LANGUAGES CXX C)
 
-# cetbuildtools contains our cmake modules ### MIGRATE-ACTION-REQUIRED: remove
-
-list(APPEND CMAKE_MODULE_PATH ### MIGRATE-ACTION-REQUIRED: remove
-  ${CMAKE_CURRENT_SOURCE_DIR}/Modules)
-
 include(CetCMakeEnv)
 cet_cmake_env()
+
+# Find our own CMake modules, and tell everyone else where to find them.
+cet_cmake_module_directories(Modules)
 
 cet_set_compiler_flags(DIAGS VIGILANT
   WERROR
@@ -98,5 +96,4 @@ add_subdirectory(art)
 # CMake modules
 add_subdirectory(Modules)
 
-cet_cmake_config(COMPATIBILITY SameMajorVersion
-  CONFIG_POST_VARS config/${PROJECT_NAME}-config-module-path.cmake.in)
+cet_cmake_config(COMPATIBILITY SameMajorVersion)
