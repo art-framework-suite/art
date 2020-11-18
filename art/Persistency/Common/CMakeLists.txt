@@ -1,11 +1,11 @@
 art_make_library(
   LIBRARY_NAME
-  art_Persistency_Common
+    art_Persistency_Common
   SOURCE
-  DelayedReader.cc
-  GroupQueryResult.cc
+    DelayedReader.cc
+    GroupQueryResult.cc
   LIBRARIES
-  canvas
+    canvas::canvas
   )
 
 install_headers()

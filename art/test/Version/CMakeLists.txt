@@ -3,6 +3,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_GetReleaseVersion.cpp.in
   )
 
 cet_test(GetReleaseVersion
-  SOURCES ${CMAKE_CURRENT_BINARY_DIR}/test_GetReleaseVersion.cpp
+  SOURCE ${CMAKE_CURRENT_BINARY_DIR}/test_GetReleaseVersion.cpp
   LIBRARIES art_Version
   )

@@ -4,11 +4,10 @@ art_make_library(
   FileNameComponents.cc
   logFileAction.cc
   validateFileNamePattern.cc
-  LIBRARIES
+  LIBRARIES PRIVATE
   Boost::regex
-  MF_MessageLogger
-  canvas
-  cetlib_except
+  messagefacility::MF_MessageLogger
+  canvas::canvas
   )
 
 install_headers()

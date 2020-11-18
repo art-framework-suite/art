@@ -9,7 +9,6 @@
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/Sequence.h"
-#include "hep_concurrency/RecursiveMutex.h"
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
 

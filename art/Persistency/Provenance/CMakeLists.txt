@@ -1,8 +1,13 @@
-art_make(SUBDIRS detail ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
-  LIB_LIBRARIES
-  art_Utilities
-  canvas
-  ${TBB}
+art_make_library(
+  LIBRARY_NAME art_Persistency_Provenance
+  SOURCE
+    detail/branchNameComponentChecking.cc
+    ModuleDescription.cc
+    orderedProcessNamesCollection.cc
+  LIBRARIES
+    art::art_Utilities
+  PRIVATE
+    Range::Range
   )
 
 install_headers(SUBDIRS detail)

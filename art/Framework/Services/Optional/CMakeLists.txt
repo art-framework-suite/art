@@ -5,23 +5,29 @@ else()
 endif()
 
 simple_plugin(RandomNumberGenerator "service"
-  art_Framework_Principal
-  art_Persistency_Common
-  ${CLHEP})
+  LIBRARIES PRIVATE
+  art::art_Framework_Principal
+  CLHEP::CLHEP
+  messagefacility::MF_MessageLogger
+)
 
 basic_plugin(MemoryTracker "service"
-  art_Framework_Principal
-  canvas
-  cetlib
-  ${SQLITE3}
+  LIBRARIES PRIVATE
+  art::art_Framework_Principal
+  art::art_Framework_Services_Registry
+  canvas::canvas
+  SQLite::SQLite3
+  messagefacility::MF_MessageLogger
   SOURCE ${MemoryTrackerSource})
 
 simple_plugin(TimeTracker "service"
-  art_Framework_Principal
-  ${TBB}
-  ${SQLITE3})
+  LIBRARIES PRIVATE
+  art::art_Framework_Principal
+  TBB::tbb
+  SQLite::SQLite3
+  messagefacility::MF_MessageLogger)
 
-simple_plugin(Tracer "service" art_Framework_Principal MF_MessageLogger)
+simple_plugin(Tracer "service" LIBRARIES PRIVATE art_Framework_Principal messagefacility::MF_MessageLogger)
 simple_plugin(TrivialFileDelivery "service")
 simple_plugin(TrivialFileTransfer "service")
 

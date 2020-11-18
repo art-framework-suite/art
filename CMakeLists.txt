@@ -30,8 +30,7 @@ cet_cmake_module_directories(Modules)
 cet_set_compiler_flags(DIAGS VIGILANT
   WERROR
   NO_UNDEFINED
-  EXTRA_FLAGS -pedantic
-  EXTRA_CXX_FLAGS -Wnon-virtual-dtor -Wdelete-non-virtual-dtor -DBOOST_TEST_NO_OLD_TOOLS)
+  EXTRA_FLAGS -pedantic)
 
 if($ENV{CET_SANITIZE_ADDRESS})
   if(NOT "$ENV{GCC_FQ_DIR}" STREQUAL "")
@@ -63,21 +62,17 @@ endif()
 
 cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
 
-# these are minimum required versions, not the actual product versions
-find_ups_product(canvas v3_06_00) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
-find_ups_product(messagefacility) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
-find_ups_product(fhiclcpp) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
-find_ups_product(cetlib v3_00_00) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
-find_ups_product(cetlib_except) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
-find_ups_product(clhep) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
-find_ups_product(hep_concurrency) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
-find_ups_product(sqlite) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
-find_ups_product(range) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
-find_ups_product(catch) ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
-find_ups_boost(BOOST_TARGETS)
-
-# SQLite
-cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH) ### MIGRATE-ACTION-RECOMMENDED: use of ENV ... may be UPS-dependent ### MIGRATE-ACTION-RECOMMENDED: use cet_find_package() with target semantics for linking
+cet_find_package(canvas REQUIRED)
+cet_find_package(messagefacility REQUIRED)
+cet_find_package(fhiclcpp REQUIRED)
+cet_find_package(cetlib REQUIRED)
+cet_find_package(cetlib_except REQUIRED)
+cet_find_package(CLHEP REQUIRED)
+cet_find_package(hep_concurrency REQUIRED)
+cet_find_package(Range REQUIRED)
+cet_find_package(Catch2 REQUIRED PRIVATE)
+cet_find_package(Boost COMPONENTS date_time filesystem program_options regex unit_test_framework REQUIRED)
+cet_find_package(SQLite3 REQUIRED)
 
 # macros for simple_plugin
 include(BuildPlugins)

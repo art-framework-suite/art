@@ -18,12 +18,9 @@ art_make_library(
     UnixSignalHandlers.cc
     $<$<PLATFORM_ID:Linux>:LinuxProcMgr.cc>
   LIBRARIES
-    canvas
-    MF_MessageLogger
-    fhiclcpp
-    cetlib
-    cetlib_except
-    hep_concurrency
+    canvas::canvas
+  PRIVATE
+    messagefacility::MF_MessageLogger
     Boost::filesystem
     Threads::Threads)
 

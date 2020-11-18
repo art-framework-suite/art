@@ -13,15 +13,15 @@ endif()
 art_make_library(
   SOURCE
   ${art_Framework_EventProcessor_sources}
-  LIBRARIES
-  art_Framework_Core
-  art_Framework_Services_System_FileCatalogMetadata_service
-  art_Framework_Services_System_FloatingPointControl_service
-  art_Framework_Services_System_TriggerNamesService_service
-  art_Framework_Services_Registry
-  art_Utilities canvas
-  cetlib
-  hep_concurrency
+  LIBRARIES PRIVATE
+  art::art_Framework_Core
+  art::art_Framework_Services_System_FileCatalogMetadata_service
+  art::art_Framework_Services_System_FloatingPointControl_service
+  art::art_Framework_Services_System_TriggerNamesService_service
+  art::art_Framework_Services_Optional_RandomNumberGenerator_service
+  art::art_Framework_Services_Registry
+  art::art_Utilities
+  messagefacility::MF_MessageLogger
   )
 
 install_headers(SUBDIRS detail)

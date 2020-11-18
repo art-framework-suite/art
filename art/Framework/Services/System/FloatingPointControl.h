@@ -45,7 +45,6 @@
 #include "art/Framework/Services/System/detail/fpControl.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "fhiclcpp/types/Atom.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace art {
 

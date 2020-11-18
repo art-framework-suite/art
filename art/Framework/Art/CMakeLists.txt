@@ -49,13 +49,15 @@ set(art_Framework_Art_sources
   detail/prune_configuration.cc)
 
 art_make_library(LIBRARY_NAME art_Framework_Art
-                 SOURCE ${art_Framework_Art_sources}
-                 LIBRARIES Boost::program_options
-  art_Framework_EventProcessor
-  art_Framework_Core
-  art_Utilities
-  art_Version
-  MF_MessageLogger)
+  SOURCE ${art_Framework_Art_sources}
+  LIBRARIES
+    art::art_Utilities
+  PRIVATE
+    Boost::program_options
+    art_Framework_EventProcessor
+    art_Framework_Core
+    art_Version
+    messagefacility::MF_MessageLogger)
 
 # Build an art exec.
 function(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
@@ -63,19 +65,19 @@ function(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
   set(ART_MAIN_FUNC ${MAIN_FUNC})
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${IN_STEM}.cc.in
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc @ONLY)
-  art_make_exec(NAME ${TARGET_STEM}
+  cet_make_exec(NAME ${TARGET_STEM}
     SOURCE ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc
     ${AE_DEFAULT_ARGS}
-    LIBRARIES
+    LIBRARIES PRIVATE
     ${AE_LIBRARIES}
     art_Framework_Art
     art_Framework_Core
-    MF_MessageLogger)
+    messagefacility::MF_MessageLogger)
   # Enable plugins to access symbols exported by the exec (CMake policy CMP0065).
   set_property(TARGET ${TARGET_STEM} PROPERTY ENABLE_EXPORTS TRUE)
 endfunction()
 
-cet_make_exec(get-loadable-libraries SOURCE get-loadable-libraries.cc LIBRARIES cetlib)
+cet_make_exec(NAME get-loadable-libraries SOURCE get-loadable-libraries.cc LIBRARIES cetlib::cetlib)
 
 # Standard execs
 art_exec(art art artapp)
@@ -97,11 +99,11 @@ cet_make_completions(lar ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizatio
 cet_make_completions(mu2e ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
 cet_make_completions(nova ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
 
-art_make_exec(NAME check_libs
+cet_make_exec(NAME check_libs
   SOURCE ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc
-  LIBRARIES
-  art_Utilities canvas
-  cetlib)
+  LIBRARIES PRIVATE
+  art_Utilities canvas::canvas
+  )
 
 install_headers(SUBDIRS detail detail/md-collector detail/md-summary)
 install_source(SUBDIRS detail)

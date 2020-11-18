@@ -3,10 +3,12 @@ set(art_Framework_IO_Catalog_sources
   )
 
 art_make_library( LIBRARY_NAME art_Framework_IO_Catalog
-                  SOURCE ${art_Framework_IO_Catalog_sources}
-                  LIBRARIES art_Framework_Services_Optional_TrivialFileDelivery_service
+  SOURCE InputFileCatalog.cc
+  LIBRARIES PRIVATE
+  art_Framework_Services_Optional_TrivialFileDelivery_service
   art_Framework_Services_Optional_TrivialFileTransfer_service
-  art_Utilities canvas
+  art_Utilities
+  canvas::canvas
   Boost::filesystem
 )
 

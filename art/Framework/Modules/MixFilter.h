@@ -145,7 +145,6 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "cetlib/metaprogramming.h"
 #include "fhiclcpp/types/TableFragment.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <functional>
 #include <memory>

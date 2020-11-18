@@ -12,9 +12,10 @@
 #
 # Despite the weaknesses, the tests are still useful.
 
-cet_make_exec(check_data_dependencies
+cet_make_exec(
+  NAME check_data_dependencies
   SOURCE check_data_dependencies.cc
-  LIBRARIES canvas cetlib_except art_Framework_Core)
+  LIBRARIES canvas::canvas art_Framework_Core)
 
 set(config_files
   empty.fcl
