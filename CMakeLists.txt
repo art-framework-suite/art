@@ -72,7 +72,11 @@ cet_find_package(hep_concurrency REQUIRED)
 cet_find_package(Range REQUIRED)
 cet_find_package(Catch2 REQUIRED PRIVATE)
 cet_find_package(Boost COMPONENTS date_time filesystem program_options regex unit_test_framework REQUIRED)
+cet_find_package(TBB REQUIRED)
 cet_find_package(SQLite3 REQUIRED)
+
+cet_find_package(Threads REQUIRED)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
 # macros for simple_plugin
 include(BuildPlugins)
