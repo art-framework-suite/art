@@ -41,12 +41,12 @@ endfunction()
 if (CETSKEL)
   # Disabled until we have correct dependencies to avoid intermittent
   # failures when building parallel.
-  foreach(type Analyzer Producer Filter)
+  foreach(type IN ITEMS Analyzer Producer Filter)
     genskel(${type} "module")
     simple_plugin(ToolsTest${type} "module" NO_INSTALL)
   endforeach()
 
-  foreach(type FileCatalogMetadataPlugin EmptyEventTimestampPlugin)
+  foreach(type IN ITEMS FileCatalogMetadataPlugin EmptyEventTimestampPlugin)
     genskel(${type} "plugin")
     simple_plugin(ToolsTest${type} "plugin" NO_INSTALL art_Framework_Core)
   endforeach()

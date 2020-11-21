@@ -11,7 +11,7 @@ cet_make_library(LIBRARY_NAME set_manager_for_tests
   SOURCE set_manager_for_tests.cc
   LIBRARIES art_Framework_Services_Registry)
 
-foreach (type Analyzer Filter Output Producer)
+foreach (type IN ITEMS Analyzer Filter Output Producer)
   simple_plugin(PMTest${type} "module" NO_INSTALL)
 endforeach()
 simple_plugin(CheckTriggerBits "module" NO_INSTALL USE_BOOST_UNIT
@@ -23,7 +23,7 @@ cet_test(PathManager_t USE_BOOST_UNIT
   art::art_Framework_Core
   )
 
-foreach(cpp_test
+foreach(cpp_test IN ITEMS
     EventSelector_t
     EventSelWildcard_t
     EventSelExc_t

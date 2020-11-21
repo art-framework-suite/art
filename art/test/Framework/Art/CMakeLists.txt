@@ -42,7 +42,7 @@ cet_test(BasicOptions_03_t
 
 ####################################
 # Test --config-summary
-foreach(VERBOSITY brief detailed full)
+foreach(VERBOSITY IN ITEMS brief detailed full)
   cet_test(config_summary_${VERBOSITY}_t HANDBUILT
     TEST_EXEC art
     TEST_ARGS -c config-summary.fcl --config-summary=${VERBOSITY}
