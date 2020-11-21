@@ -99,6 +99,11 @@
 #
 ########################################################################
 
+include_guard(DIRECTORY)
+
+cmake_policy(PUSH)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+
 include(CetMake)
 
 ####################################
@@ -262,7 +267,11 @@ function(art_make) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_d
   endif()
 
   # Finish off with the dictionary.
-  if (NOT (AM_LIB_ONLY OR AM_NO_DICTIONARY) AND COMMAND art_dictionary)
+  if (NOT (AM_LIB_ONLY OR AM_NO_DICTIONARY) AND COMMAND art_dictionary
+      AND EXISTS classes.h AND EXISTS classes_def.xml)
+    include(ArtDictionary)
     art_dictionary(${dict_args})
   endif()
 endfunction()
+
+cmake_policy(POP)
