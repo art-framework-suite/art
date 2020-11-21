@@ -20,6 +20,8 @@
 # cetbuildtools/Modules/BasicPlugin.cmake ### MIGRATE-ACTION-REQUIRED: remove
 # (https://cdcvs.fnal.gov/redmine/projects/cetbuildtools/repository/revisions/master/entry/Modules/BasicPlugin.cmake). ### MIGRATE-ACTION-REQUIRED: remove
 ########################################################################
+include_guard(DIRECTORY)
+
 include(BasicPlugin)
 
 cmake_policy(PUSH)
@@ -76,16 +78,16 @@ function(simple_plugin NAME TYPE)
       ${art_core_libs}
       ${art_util_libs}
       Boost::filesystem NOP)
+    if (TYPE STREQUAL "source")
+      list(PREPEND SP_UNPARSED_ARGUMENTS
+        LIBRARIES PRIVATE
+        ${art_io_sources}
+        Boost::filesystem NOP)
+    endif()
   elseif (TYPE STREQUAL "tool")
     list(PREPEND SP_UNPARSED_ARGUMENTS
       LIBRARIES PRIVATE
       ${art_util_libs}
-      Boost::filesystem NOP)
-  endif()
-  if (TYPE STREQUAL "source")
-    list(PREPEND SP_UNPARSED_ARGUMENTS
-      LIBRARIES PRIVATE
-      ${art_io_sources}
       Boost::filesystem NOP)
   endif()
   cet_passthrough(IN_PLACE SP_LIB_TYPE)
