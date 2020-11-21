@@ -267,8 +267,9 @@ function(art_make) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_d
   endif()
 
   # Finish off with the dictionary.
-  if (NOT (AM_LIB_ONLY OR AM_NO_DICTIONARY) AND COMMAND art_dictionary
-      AND EXISTS classes.h AND EXISTS classes_def.xml)
+  if (NOT (AM_LIB_ONLY OR AM_NO_DICTIONARY) AND
+      EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/classes.h" AND
+      EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/classes_def.xml")
     include(ArtDictionary)
     art_dictionary(${dict_args})
   endif()
