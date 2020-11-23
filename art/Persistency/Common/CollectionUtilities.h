@@ -254,7 +254,12 @@ namespace art {
         for (auto& pr : in) {
           pr.first = cet::map_vector_key{pr.first.asInt() + d};
         }
-        out.insert(in.begin(), in.end());
+        // Because we can guarantee that entries will not overlap due
+        // to using the offset above, we do not need to call
+        // out.insert(...), which will unnecessarily merge entries.
+        // It is the user's responsibility to ensure that the
+        // map_vector entries are properly sorted.
+        out.append(in.begin(), in.end());
       }
     };
   }
