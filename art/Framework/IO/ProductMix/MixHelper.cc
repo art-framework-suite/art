@@ -188,13 +188,17 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
 {
   assert(enSeq.empty());
   assert(eIDseq.empty());
+  if (not ioHandle_->fileOpen() and not openNextFile_()) {
+    return false;
+  }
+
   auto const nEventsInFile = ioHandle_->nEventsInFile();
   bool const over_threshold =
     (readMode_ == Mode::SEQUENTIAL || readMode_ == Mode::RANDOM_NO_REPLACE) ?
       ((nEventsReadThisFile_ + nSecondaries) > nEventsInFile) :
       ((nEventsReadThisFile_ + nSecondaries) >
        (nEventsInFile * coverageFraction_));
-  if (over_threshold || !ioHandle_->fileOpen()) {
+  if (over_threshold) {
     if (!providerFunc_) {
       ++nOpensOverThreshold_;
       if (nOpensOverThreshold_ > filenames_.size()) {
