@@ -6,7 +6,7 @@ art_make_library(
     GroupQueryResult.cc
   LIBRARIES
     canvas::canvas
-  )
+)
 
 install_headers()
 install_source()

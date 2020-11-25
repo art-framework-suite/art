@@ -6,7 +6,7 @@ art_make_library(
   LIBRARIES
     art::art_Framework_Services_Registry
     fhiclcpp::fhiclcpp
-  )
+)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

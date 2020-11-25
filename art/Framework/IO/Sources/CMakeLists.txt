@@ -9,7 +9,7 @@ art_make_library(
     art::art_Framework_Principal
   PRIVATE
     art::art_Utilities
-  )
+)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

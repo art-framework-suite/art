@@ -70,7 +70,8 @@ art_make_library(
   PRIVATE
     art::art_Framework_Services_Optional_RandomNumberGenerator_service
     messagefacility::MF_MessageLogger
-    hep_concurrency::hep_concurrency)
+    hep_concurrency::hep_concurrency
+)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

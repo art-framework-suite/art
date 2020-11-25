@@ -9,10 +9,10 @@ art_make_library(
     art::art_Framework_Principal
     art::art_Framework_Services_Registry
   PRIVATE
-    art_Framework_Services_System_TriggerNamesService_service
-    art_Framework_Services_Optional_RandomNumberGenerator_service
+    art::art_Framework_Services_System_TriggerNamesService_service
+    art::art_Framework_Services_Optional_RandomNumberGenerator_service
     messagefacility::MF_MessageLogger
-  )
+)
 
 install_headers()
 install_source()

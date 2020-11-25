@@ -18,7 +18,8 @@ function(config_ref_test TNAME)
     REF ${TNAME}-ref.txt
     REQUIRED_FILES ../${TNAME}_w.d/config.out
     TEST_PROPERTIES DEPENDS ${TNAME}_w
-    ${ARGN})
+    ${ARGN}
+  )
 endfunction()
 
 set(filterOutputModule "${CMAKE_CURRENT_SOURCE_DIR}/filterOutputModule")

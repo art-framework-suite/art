@@ -21,43 +21,42 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
   ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY)
 ####################################
 
-set(art_Framework_Art_sources
-  BasicOptionsHandler.cc
-  BasicPostProcessor.cc
-  BasicSourceOptionsHandler.cc
-  BasicOutputOptionsHandler.cc
-  DebugOptionsHandler.cc
-  ProcessingOptionsHandler.cc
-  FileCatalogOptionsHandler.cc
-  OptionsHandler.cc
-  ${CMAKE_CURRENT_BINARY_DIR}/artapp.cc
-  ${CMAKE_CURRENT_BINARY_DIR}/mu2eapp.cc
-  find_config.cc
-  run_art.cc
-  detail/MetadataRegexHelpers.cc
-  detail/AllowedConfiguration.cc
-  detail/PluginSymbolResolvers.cc
-  detail/event_start.cc
-  detail/fillSourceList.cc
-  detail/get_LibraryInfoCollection.cc
-  detail/get_MetadataCollector.cc
-  detail/get_MetadataSummary.cc
-  detail/md-collector/describe.cc
-  detail/md-collector/print_description_blocks.cc
-  detail/output_to.cc
-  detail/print_config_summary.cc
-  detail/prune_configuration.cc)
-
 art_make_library(LIBRARY_NAME art_Framework_Art
-  SOURCE ${art_Framework_Art_sources}
+  SOURCE
+    BasicOptionsHandler.cc
+    BasicPostProcessor.cc
+    BasicSourceOptionsHandler.cc
+    BasicOutputOptionsHandler.cc
+    DebugOptionsHandler.cc
+    ProcessingOptionsHandler.cc
+    FileCatalogOptionsHandler.cc
+    OptionsHandler.cc
+    ${CMAKE_CURRENT_BINARY_DIR}/artapp.cc
+    ${CMAKE_CURRENT_BINARY_DIR}/mu2eapp.cc
+    find_config.cc
+    run_art.cc
+    detail/MetadataRegexHelpers.cc
+    detail/AllowedConfiguration.cc
+    detail/PluginSymbolResolvers.cc
+    detail/event_start.cc
+    detail/fillSourceList.cc
+    detail/get_LibraryInfoCollection.cc
+    detail/get_MetadataCollector.cc
+    detail/get_MetadataSummary.cc
+    detail/md-collector/describe.cc
+    detail/md-collector/print_description_blocks.cc
+    detail/output_to.cc
+    detail/print_config_summary.cc
+    detail/prune_configuration.cc
   LIBRARIES
     art::art_Utilities
   PRIVATE
     Boost::program_options
-    art_Framework_EventProcessor
-    art_Framework_Core
-    art_Version
-    messagefacility::MF_MessageLogger)
+    art::art_Framework_EventProcessor
+    art::art_Framework_Core
+    art::art_Version
+    messagefacility::MF_MessageLogger
+)
 
 # Build an art exec.
 function(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
@@ -67,17 +66,20 @@ function(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc @ONLY)
   cet_make_exec(NAME ${TARGET_STEM}
     SOURCE ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc
-    ${AE_DEFAULT_ARGS}
     LIBRARIES PRIVATE
-    ${AE_LIBRARIES}
-    art_Framework_Art
-    art_Framework_Core
-    messagefacility::MF_MessageLogger)
+      ${AE_LIBRARIES}
+      art::art_Framework_Art
+      art::art_Framework_Core
+      messagefacility::MF_MessageLogger
+  )
   # Enable plugins to access symbols exported by the exec (CMake policy CMP0065).
   set_property(TARGET ${TARGET_STEM} PROPERTY ENABLE_EXPORTS TRUE)
 endfunction()
 
-cet_make_exec(NAME get-loadable-libraries SOURCE get-loadable-libraries.cc LIBRARIES cetlib::cetlib)
+cet_make_exec(NAME get-loadable-libraries
+  SOURCE get-loadable-libraries.cc
+  LIBRARIES PRIVATE cetlib::cetlib
+)
 
 # Standard execs
 art_exec(art art artapp)
@@ -87,11 +89,11 @@ art_exec(mu2e art mu2eapp)
 art_exec(nova art artapp)
 
 # Execs with Boost unit testing enabled for modules.
-art_exec(art_ut art_ut artapp LIBRARIES Boost::unit_test_framework)
-art_exec(gm2_ut art_ut artapp LIBRARIES Boost::unit_test_framework)
-art_exec(lar_ut art_ut artapp LIBRARIES Boost::unit_test_framework)
-art_exec(mu2e_ut art_ut mu2eapp LIBRARIES Boost::unit_test_framework)
-art_exec(nova_ut art_ut artapp LIBRARIES Boost::unit_test_framework)
+art_exec(art_ut art_ut artapp LIBRARIES PRIVATE Boost::unit_test_framework)
+art_exec(gm2_ut art_ut artapp LIBRARIES PRIVATE Boost::unit_test_framework)
+art_exec(lar_ut art_ut artapp LIBRARIES PRIVATE Boost::unit_test_framework)
+art_exec(mu2e_ut art_ut mu2eapp LIBRARIES PRIVATE Boost::unit_test_framework)
+art_exec(nova_ut art_ut artapp LIBRARIES PRIVATE Boost::unit_test_framework)
 
 cet_make_completions(art ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
 cet_make_completions(gm2 ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
@@ -101,9 +103,8 @@ cet_make_completions(nova ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizati
 
 cet_make_exec(NAME check_libs
   SOURCE ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc
-  LIBRARIES PRIVATE
-  art_Utilities canvas::canvas
-  )
+  LIBRARIES PRIVATE art::art_Utilities
+)
 
 install_headers(SUBDIRS detail detail/md-collector detail/md-summary)
 install_source(SUBDIRS detail)

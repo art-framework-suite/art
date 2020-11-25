@@ -11,7 +11,8 @@ art_make_library(
     canvas::canvas
   PRIVATE
     art::art_Framework_IO_detail
-    Boost::filesystem)
+    Boost::filesystem
+)
 
 install_headers()
 install_source()

@@ -19,7 +19,8 @@ art_make_library(
   PRIVATE
     messagefacility::MF_MessageLogger
     Boost::filesystem
-    Threads::Threads)
+    Threads::Threads
+)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

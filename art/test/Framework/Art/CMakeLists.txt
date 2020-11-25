@@ -1,8 +1,8 @@
-cet_test(artapp_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
-cet_test(artapp_basicSourceOptions_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
-cet_test(event_start_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
-cet_test(fhicl_key_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
-cet_test(prune_config_t USE_BOOST_UNIT LIBRARIES art_Framework_Art)
+cet_test(artapp_t USE_BOOST_UNIT LIBRARIES PRIVATE art::art_Framework_Art)
+cet_test(artapp_basicSourceOptions_t USE_BOOST_UNIT LIBRARIES PRIVATE art::art_Framework_Art)
+cet_test(event_start_t USE_BOOST_UNIT LIBRARIES PRIVATE art::art_Framework_Art)
+cet_test(fhicl_key_t USE_BOOST_UNIT LIBRARIES PRIVATE art::art_Framework_Art)
+cet_test(prune_config_t USE_BOOST_UNIT LIBRARIES PRIVATE art::art_Framework_Art)
 
 ########################################################################
 # OptionsHandler tests.
@@ -24,9 +24,10 @@ endmacro()
 # BasicOptionsHandler.
 cet_test(BasicOptions_01_t HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -c /dev/null
-  --process-name TEST
-  --debug-config STDOUT
+  TEST_ARGS
+    -c /dev/null
+    --process-name TEST
+    --debug-config STDOUT
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "Config output follows")
 
@@ -59,27 +60,30 @@ add_subdirectory(PrintAvailable)
 # Detect ambiguity and exit with error.
 cet_test(BasicOutputOptions_02_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --no-output -o f.root
-  -c /dev/null
-  --debug-config=config.out
+  TEST_ARGS
+    --no-output -o f.root
+    -c /dev/null
+    --debug-config=config.out
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "\n  Output configuration is ambiguous: command-line specifies --output and --no-output simultaneously\\.")
 
 # Should pass -- NOP
 cet_test(BasicOutputOptions_03_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --no-output
-  -c /dev/null
-  --debug-config=config.out)
+  TEST_ARGS
+    --no-output
+    -c /dev/null
+    --debug-config=config.out)
 config_test_debug_pass(BasicOutputOptions_03_w)
 config_ref_test(BasicOutputOptions_03)
 
 # Should pass -- NOP
 cet_test(BasicOutputOptions_04_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -o /dev/null
-  -c /dev/null
-  --debug-config=config.out)
+  TEST_ARGS
+    -o /dev/null
+    -c /dev/null
+    --debug-config=config.out)
 config_test_debug_pass(BasicOutputOptions_04_w)
 config_ref_test(BasicOutputOptions_04
   OUTPUT_FILTERS DEFAULT ${filterOutputModule})
@@ -87,9 +91,10 @@ config_ref_test(BasicOutputOptions_04
 # Should pass -- simple.
 cet_test(BasicOutputOptions_05_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS -o /dev/null
-  -c simple-out.fcl
-  --debug-config=config.out
+  TEST_ARGS
+    -o /dev/null
+    -c simple-out.fcl
+    --debug-config=config.out
   DATAFILES fcl/simple-out.fcl)
 config_test_debug_pass(BasicOutputOptions_05_w)
 config_ref_test(BasicOutputOptions_05)
@@ -97,9 +102,10 @@ config_ref_test(BasicOutputOptions_05)
 # Should pass -- simple.
 cet_test(BasicOutputOptions_06_w HANDBUILT
   TEST_EXEC art
-  TEST_ARGS --no-output
-  -c simple-out.fcl
-  --debug-config=config.out
+  TEST_ARGS
+    --no-output
+    -c simple-out.fcl
+    --debug-config=config.out
   DATAFILES fcl/simple-out.fcl)
 config_test_debug_pass(BasicOutputOptions_06_w)
 config_ref_test(BasicOutputOptions_06)

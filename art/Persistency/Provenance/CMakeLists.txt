@@ -8,7 +8,7 @@ art_make_library(
     art::art_Utilities
   PRIVATE
     Range::Range
-  )
+)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

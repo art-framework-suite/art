@@ -5,11 +5,10 @@ art_make_library(LIBRARY_NAME art_Framework_Services_Registry
     detail/ServiceCacheEntry.cc
     detail/ensure_only_one_thread.cc
   LIBRARIES
-    ${TBB}
+    TBB::tbb
     art::art_Persistency_Provenance
     art::art_Utilities
-  PRIVATE
-    canvas::canvas)
+)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)
