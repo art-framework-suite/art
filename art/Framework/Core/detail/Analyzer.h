@@ -26,10 +26,9 @@
 
 namespace art::detail {
   class Analyzer : public Observer {
-  public: // CONFIGURATION
+  public:
     template <typename UserConfig, typename UserKeysToIgnore = void>
     class Table : public fhicl::ConfigurationTable {
-    private: // TYPES
       template <typename T>
       struct FullConfig {
         fhicl::Atom<std::string> module_type{
@@ -44,11 +43,10 @@ namespace art::detail {
                            fhicl::KeysToIgnore<detail::ModuleConfig::IgnoreKeys,
                                                UserKeysToIgnore>>;
 
-    public: // MEMBER FUNCTIONS -- Special Member Functions
+    public:
       explicit Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
       Table(fhicl::ParameterSet const& pset) : fullConfig_{pset} {}
 
-    public: // MEMBER FUNCTIONS -- User-facing API
       auto const&
       operator()() const
       {
@@ -74,18 +72,17 @@ namespace art::detail {
         fullConfig_.print_allowed_configuration(os, prefix);
       }
 
-    private: // MEMBER FUNCTIONS -- Implementation details.
+    private:
       cet::exempt_ptr<fhicl::detail::ParameterBase const>
       get_parameter_base() const override
       {
         return &fullConfig_;
       }
 
-    private: // MEMBER DATA
       fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t> fullConfig_;
     };
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
+  public:
     virtual ~Analyzer() noexcept;
     explicit Analyzer(fhicl::ParameterSet const& pset);
     template <typename Config>

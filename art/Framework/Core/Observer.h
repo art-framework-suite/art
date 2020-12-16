@@ -27,6 +27,20 @@ namespace art {
     Observer& operator=(Observer const&) = delete;
     Observer& operator=(Observer&&) = delete;
 
+    // FIXME: One could obviate the need for this trivial implementation
+    // by putting some type logic in WorkerT.
+    void registerProducts(ProductDescriptions&, ModuleDescription const&);
+    void fillDescriptions(ModuleDescription const&);
+    std::string const& processName() const;
+    bool
+    wantAllEvents() const noexcept
+    {
+      return wantAllEvents_;
+    }
+    bool wantEvent(Event const& e) const;
+    fhicl::ParameterSetID selectorConfig() const;
+    Handle<TriggerResults> getTriggerResults(Event const& e) const;
+
   protected:
     struct EOConfig {
       fhicl::Sequence<std::string> selectEvents{
@@ -40,32 +54,16 @@ namespace art {
     explicit Observer(std::vector<std::string> const& paths,
                       fhicl::ParameterSet const& config);
 
-  public:
-    // FIXME: One could obviate the need for this trivial implementation
-    // by putting some type logic in WorkerT.
-    void registerProducts(ProductDescriptions&, ModuleDescription const&);
-    void fillDescriptions(ModuleDescription const&);
-    std::string const& processName() const;
-    bool wantAllEvents() const;
-    bool wantEvent(Event const& e);
-    fhicl::ParameterSetID selectorConfig() const;
-    Handle<TriggerResults> getTriggerResults(Event const& e) const;
-
-  protected:
-    detail::ProcessAndEventSelectors& processAndEventSelectors();
-
   private:
-    void init_(std::vector<std::string> const& paths);
-
     // True if no selectors configured.
-    bool wantAllEvents_{false};
+    bool wantAllEvents_;
+    std::string process_name_;
     // The process and event selectors, as specified by the SelectEvents
     // configuration parameter.
-    mutable detail::ProcessAndEventSelectors selectors_{};
-    std::string process_name_{};
+    std::optional<detail::ProcessAndEventSelectors> selectors_;
     // ID of the ParameterSet that configured the event selector
     // subsystem.
-    fhicl::ParameterSetID selector_config_id_{};
+    fhicl::ParameterSetID selector_config_id_;
   };
 
 } // namespace art

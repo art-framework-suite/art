@@ -235,7 +235,7 @@ namespace art {
   {
     FDEBUG(2) << "doEvent called\n";
     Event const e{ep, mc};
-    if (wantAllEvents() || wantEvent(e)) {
+    if (wantEvent(e)) {
       ++counts_run;
       event(ep);
       ++counts_passed;
@@ -246,11 +246,10 @@ namespace art {
   void
   OutputModule::doWriteEvent(EventPrincipal& ep)
   {
-    detail::PVSentry clearTriggerResults{processAndEventSelectors()};
     FDEBUG(2) << "writeEvent called\n";
     ModuleContext const mc{moduleDescription()};
     Event const e{ep, mc};
-    if (wantAllEvents() || wantEvent(e)) {
+    if (wantEvent(e)) {
       write(ep);
       // Declare that the event was selected for write to the catalog interface.
       Handle<TriggerResults> trHandle{getTriggerResults(e)};
