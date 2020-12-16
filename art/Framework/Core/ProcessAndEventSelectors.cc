@@ -135,7 +135,7 @@ namespace art::detail {
     if (numberFound_ == 0) {
       throw Exception(errors::ProductNotFound, "TooFewProducts")
         << "ProcessAndEventSelectors::getOneTriggerResults: "
-        << "too few products found, exepcted one, got zero\n";
+        << "too few products found, expected one, got zero\n";
     }
     throw Exception(errors::ProductNotFound, "TooManyMatches")
       << "ProcessAndEventSelectors::getOneTriggerResults: "
