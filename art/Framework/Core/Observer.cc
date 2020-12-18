@@ -21,11 +21,9 @@ using namespace art::detail;
 namespace {
 
   std::optional<ProcessAndEventSelectors>
-  make_selectors(bool const want_all_events,
-                 std::string const& process_name,
-                 vector<string> const& paths)
+  make_selectors(vector<string> const& paths, std::string const& process_name)
   {
-    if (want_all_events) {
+    if (empty(paths)) {
       return std::nullopt;
     }
     auto const& triggerPathNames = art::Globals::instance()->triggerPathNames();
@@ -47,14 +45,18 @@ namespace art {
   Observer::~Observer() noexcept = default;
 
   Observer::Observer(ParameterSet const& pset)
-    : Observer{pset.get<vector<string>>("SelectEvents", {}), pset}
+    : Observer{pset.get<vector<string>>("SelectEvents", {}),
+               pset.get<vector<string>>("RejectEvents", {}),
+               pset}
   {}
 
-  Observer::Observer(vector<string> const& paths,
+  Observer::Observer(vector<string> const& select_paths,
+                     vector<string> const& reject_paths,
                      fhicl::ParameterSet const& pset)
-    : wantAllEvents_{empty(paths)}
+    : wantAllEvents_{empty(select_paths) and empty(reject_paths)}
     , process_name_{Globals::instance()->processName()}
-    , selectors_{make_selectors(wantAllEvents_, process_name_, paths)}
+    , selectors_{make_selectors(select_paths, process_name_)}
+    , rejectors_{make_selectors(reject_paths, process_name_)}
     , selector_config_id_{pset.id()}
   {}
 
@@ -78,8 +80,9 @@ namespace art {
     if (wantAllEvents_) {
       return true;
     }
-    bool const select_event = selectors_ and selectors_->matchEvent(e);
-    return select_event;
+    bool const select_event = selectors_ ? selectors_->matchEvent(e) : true;
+    bool const reject_event = rejectors_ ? rejectors_->matchEvent(e) : false;
+    return select_event and not reject_event;
   }
 
   fhicl::ParameterSetID

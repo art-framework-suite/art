@@ -1,0 +1,66 @@
+source: {
+  module_type: EmptyEvent
+  maxEvents: 20
+}
+
+services.scheduler.wantSummary: true
+
+physics: {
+  filters: {
+    onlyEvens: {
+      module_type: Prescaler
+      prescaleFactor: 2
+      prescaleOffset: 0
+    }
+    onlyOdds: {
+      module_type: Prescaler
+      prescaleFactor: 2
+      prescaleOffset: 1
+    }
+    everyFour: {
+      module_type: Prescaler
+      prescaleFactor: 4
+      prescaleOffset: 0
+    }
+  }
+  path_evens: [onlyEvens]
+  path_odds: [onlyOdds]
+  path_every_fourth: [everyFour]
+
+  analyzers: {
+    allEvents: {
+      module_type: EventCounter
+      expected: 20
+    }
+    evenEvents: {
+      module_type: EventCounter
+      SelectEvents: [path_evens]
+      expected: 10
+    }
+    oddEvents: {
+      module_type: EventCounter
+      RejectEvents: [path_evens]
+      expected: 10
+    }
+    reallyJustOddEvents: {
+      module_type: EventCounter
+      SelectEvents: [path_odds]
+      RejectEvents: [path_evens]
+      expected: 10
+    }
+    evensButMultiplesOfFour: {
+      module_type: EventCounter
+      SelectEvents: [path_evens]
+      RejectEvents: [path_every_fourth]
+      expected: 5  # events 2, 6, 10, 14, 18
+    }
+    noEventsLogicalAnd: {
+      module_type: EventCounter
+      # Remember de Morgan's law:
+      #  not (!path_evens || !path_odds) = path_evens && path_odds
+      RejectEvents: ["!path_evens", "!path_odds"]
+      expected: 0
+    }
+  }
+  run_analyzers: [allEvents, evenEvents, oddEvents, reallyJustOddEvents, evensButMultiplesOfFour, noEventsLogicalAnd]
+}
