@@ -4,8 +4,8 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Principal/ExecutionCounts.h"
 #include "art/Framework/Principal/Worker.h"
+#include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
-#include "canvas/Utilities/DebugMacros.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/WaitingTaskHolder.h"
 #include "hep_concurrency/tsan.h"
@@ -153,45 +153,31 @@ namespace art {
   WorkerInPath::runWorker_event_for_endpath(EventPrincipal& ep)
   {
     auto const scheduleID = moduleContext_.scheduleID();
-    TDEBUG_BEGIN_FUNC_SI(
-      4, "WorkerInPath::runWorker_event_for_endpath", scheduleID);
+    TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
     ++counts_visited_;
     try {
       worker_.load()->doWork_event(ep, moduleContext_);
     }
     catch (...) {
       ++counts_thrown_;
-      TDEBUG_END_FUNC_SI_ERR(4,
-                             "WorkerInPath::runWorker_event_for_endpath",
-                             scheduleID,
-                             "because of EXCEPTION");
+      TDEBUG_END_FUNC_SI(4, scheduleID) << "because of EXCEPTION";
       throw;
     }
     returnCode_ = worker_.load()->returnCode();
-    {
-      ostringstream msg;
-      msg << "raw returnCode_: " << returnCode_.load();
-      TDEBUG_FUNC_SI_MSG(
-        5, "WorkerInPath::runWorker_event_for_endpath", scheduleID, msg.str());
-    }
+    TDEBUG_FUNC_SI(5, scheduleID) << "raw returnCode_: " << returnCode_.load();
     if (filterAction_.load() == FilterAction::Veto) {
       returnCode_ = !returnCode_.load();
     } else if (filterAction_.load() == FilterAction::Ignore) {
       returnCode_ = true;
     }
-    {
-      ostringstream msg;
-      msg << "final returnCode_: " << returnCode_.load();
-      TDEBUG_FUNC_SI_MSG(
-        5, "WorkerInPath::runWorker_event_for_endpath", scheduleID, msg.str());
-    }
+    TDEBUG_FUNC_SI(5, scheduleID)
+      << "final returnCode_: " << returnCode_.load();
     if (returnCode_.load()) {
       ++counts_passed_;
     } else {
       ++counts_failed_;
     }
-    TDEBUG_END_FUNC_SI(
-      4, "WorkerInPath::runWorker_event_for_endpath", scheduleID);
+    TDEBUG_END_FUNC_SI(4, scheduleID);
   }
 
   class WorkerInPathDoneFunctor {
@@ -214,40 +200,28 @@ namespace art {
   WorkerInPath::workerInPathDoneTask(ScheduleID const scheduleID,
                                      exception_ptr const* ex)
   {
-    TDEBUG_BEGIN_TASK_SI(4, "workerInPathDoneTask", scheduleID);
+    TDEBUG_BEGIN_TASK_SI(4, scheduleID);
     if (ex != nullptr) {
       ++counts_thrown_;
       waitingTasks_.load()->doneWaiting(*ex);
-      TDEBUG_END_TASK_SI_ERR(
-        4, "workerInPathDoneTask", scheduleID, "because of EXCEPTION");
+      TDEBUG_END_TASK_SI(4, scheduleID) << "because of EXCEPTION";
       return;
     }
     returnCode_ = worker_.load()->returnCode();
-    {
-      ostringstream msg;
-      msg << "raw returnCode_: " << returnCode_.load();
-      TDEBUG_TASK_SI_MSG(5, "workerInPathDoneTask", scheduleID, msg.str());
-    }
+    TDEBUG_TASK_SI(5, scheduleID) << "raw returnCode_: " << returnCode_.load();
     if (filterAction_.load() == FilterAction::Veto) {
       returnCode_ = !returnCode_.load();
     } else if (filterAction_.load() == FilterAction::Ignore) {
       returnCode_ = true;
     }
-    {
-      ostringstream msg;
-      msg << "final returnCode_: " << returnCode_.load();
-      TDEBUG_TASK_SI_MSG(5, "workerInPathDoneTask", scheduleID, msg.str());
-    }
+    TDEBUG_TASK_SI(5, scheduleID)
+      << "final returnCode_: " << returnCode_.load();
     if (returnCode_.load()) {
       ++counts_passed_;
     } else {
       ++counts_failed_;
     }
-    {
-      ostringstream msg;
-      msg << "returnCode_: " << returnCode_.load();
-      TDEBUG_END_TASK_SI_ERR(4, "workerInPathDoneTask", scheduleID, msg.str());
-    }
+    TDEBUG_END_TASK_SI(4, scheduleID) << "returnCode_: " << returnCode_.load();
     waitingTasks_.load()->doneWaiting(exception_ptr{});
   }
 
@@ -255,16 +229,11 @@ namespace art {
   WorkerInPath::runWorker_event(WaitingTask* workerDoneTask, EventPrincipal& ep)
   {
     auto const scheduleID = moduleContext_.scheduleID();
-    TDEBUG_BEGIN_FUNC_SI(4, "WorkerInPath::runWorker_event", scheduleID);
+    TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
     // Reset the waiting task list so that it stops running tasks and switches
     // to holding them. Note: There will only ever be one entry in this list!
-    {
-      ostringstream msg;
-      msg << "0x" << hex << ((unsigned long)this) << dec
-          << " Resetting waitingTasks_";
-      TDEBUG_FUNC_SI_MSG(
-        6, "WorkerInPath::runWorker_event", scheduleID, msg.str());
-    }
+    TDEBUG_FUNC_SI(6, scheduleID)
+      << hex << this << dec << " Resetting waitingTasks_";
     waitingTasks_.load()->reset();
     waitingTasks_.load()->add(workerDoneTask);
     ++counts_visited_;
@@ -276,11 +245,10 @@ namespace art {
     catch (...) {
       ++counts_thrown_;
       waitingTasks_.load()->doneWaiting(current_exception());
-      TDEBUG_END_FUNC_SI_ERR(
-        4, "WorkerInPath::runWorker_event", scheduleID, "because of EXCEPTION");
+      TDEBUG_END_FUNC_SI(4, scheduleID) << "because of EXCEPTION";
       return;
     }
-    TDEBUG_END_FUNC_SI(4, "WorkerInPath::runWorker_event", scheduleID);
+    TDEBUG_END_FUNC_SI(4, scheduleID);
   }
 
 } // namespace art

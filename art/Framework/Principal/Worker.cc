@@ -14,8 +14,8 @@
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
-#include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -125,12 +125,9 @@ namespace art {
   Worker::Worker(ModuleDescription const& md, WorkerParams const& wp)
     : scheduleID_{wp.scheduleID_}
   {
-    {
-      ostringstream msg;
-      msg << "0x" << hex << ((unsigned long)this) << dec
-          << " name: " << md.moduleName() << " label: " << md.moduleLabel();
-      TDEBUG_FUNC_SI_MSG(5, "Worker ctor", wp.scheduleID_, msg.str());
-    }
+    TDEBUG_FUNC_SI(5, wp.scheduleID_)
+      << hex << this << dec << " name: " << md.moduleName()
+      << " label: " << md.moduleLabel();
     md_ = new ModuleDescription(md);
     actions_ = &wp.actions_;
     actReg_ = &wp.actReg_;
@@ -186,12 +183,8 @@ namespace art {
     state_ = Ready;
     delete cached_exception_.load();
     cached_exception_ = new exception_ptr;
-    {
-      ostringstream msg;
-      msg << "0x" << hex << ((unsigned long)this) << dec
-          << " Resetting waitingTasks_";
-      TDEBUG_FUNC_SI_MSG(6, "Worker::reset", scheduleID_, msg.str());
-    }
+    TDEBUG_FUNC_SI(6, scheduleID_)
+      << hex << this << dec << " Resetting waitingTasks_";
     waitingTasks_.load()->reset();
     workStarted_ = false;
     returnCode_ = false;
@@ -412,8 +405,8 @@ namespace art {
       // Transition from Ready state to Working state.
       state_ = Working;
       actReg_.load()->sPreModule.invoke(mc);
-      // Note: Only filters ever return false, and when they do it means they
-      // have rejected.
+      // Note: Only filters ever return false, and when they do it
+      // means they have rejected.
       returnCode_ = implDoProcess(p, mc);
       actReg_.load()->sPostModule.invoke(mc);
       if (returnCode_.load()) {
@@ -424,8 +417,8 @@ namespace art {
     }
     catch (cet::exception& e) {
       auto action = actions_.load()->find(e.root_cause());
-      // If we are processing an endPath, treat SkipEvent or FailPath as
-      // FailModule, so any subsequent OutputModules are still run.
+      // If we are processing an endPath, treat SkipEvent or FailPath
+      // as FailModule, so any subsequent OutputModules are still run.
       if (mc.onEndPath()) {
         if ((action == actions::SkipEvent) || (action == actions::FailPath)) {
           action = actions::FailModule;
@@ -538,7 +531,7 @@ namespace art {
   Worker::runWorker(EventPrincipal& p, ModuleContext const& mc)
   {
     auto const sid = mc.scheduleID();
-    TDEBUG_BEGIN_TASK_SI(4, "runWorker", sid);
+    TDEBUG_BEGIN_TASK_SI(4, sid);
     returnCode_ = false;
     try {
       // Transition from Ready state to Working state.
@@ -588,7 +581,7 @@ namespace art {
             make_exception_ptr(Exception{errors::OtherArt, string(), e});
         }
         waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-        TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
+        TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";
         return;
       }
     }
@@ -603,7 +596,7 @@ namespace art {
            "process.\n";
       *cached_exception_.load() = make_exception_ptr(art_ex);
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
+      TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";
       return;
     }
     catch (exception const& e) {
@@ -615,7 +608,7 @@ namespace art {
                     << e.what();
       *cached_exception_.load() = make_exception_ptr(art_ex);
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
+      TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";
       return;
     }
     catch (string const& s) {
@@ -628,7 +621,7 @@ namespace art {
         << s << '\n';
       *cached_exception_.load() = make_exception_ptr(art_ex);
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
+      TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";
       return;
     }
     catch (char const* c) {
@@ -641,7 +634,7 @@ namespace art {
         << c << "\n";
       *cached_exception_.load() = make_exception_ptr(art_ex);
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
+      TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";
       return;
     }
     catch (...) {
@@ -653,12 +646,11 @@ namespace art {
         << brief_context(*md_.load(), p) << '\n';
       *cached_exception_.load() = make_exception_ptr(art_ex);
       waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
+      TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";
       return;
     }
     waitingTasks_.load()->doneWaiting(exception_ptr{});
-    TDEBUG_END_TASK_SI(4, "runWorker", sid);
-    return;
+    TDEBUG_END_TASK_SI(4, sid);
   }
 
   void
@@ -667,18 +659,17 @@ namespace art {
                        ModuleContext const& mc)
   {
     auto const sid = mc.scheduleID();
-    TDEBUG_BEGIN_FUNC_SI(4, "Worker::doWork_event", sid);
-    // Note: We actually can have more than one entry in this
-    // list because a worker may be one more than one path,
-    // and if both paths are running in parallel, then it is
-    // possible that they both attempt to run the same worker
-    // at nearly the same time.  We arrange so that the worker
-    // itself only runs once, but we do have to notify all the
-    // paths that the worker has finished, hence the waiting
-    // list of notification tasks.
-    // Note: threading: More than one task can enter here in
-    // the case that paths running in parallel share the same
-    // worker.
+    TDEBUG_BEGIN_FUNC_SI(4, sid);
+    // Note: We actually can have more than one entry in this list
+    // because a worker may be one more than one path, and if both
+    // paths are running in parallel, then it is possible that they
+    // both attempt to run the same worker at nearly the same time.
+    // We arrange so that the worker itself only runs once, but we do
+    // have to notify all the paths that the worker has finished,
+    // hence the waiting list of notification tasks.
+    //
+    // Note: threading: More than one task can enter here in the case
+    // that paths running in parallel share the same worker.
     waitingTasks_.load()->add(workerInPathDoneTask);
     ++counts_visited_;
     bool expected = false;
@@ -686,28 +677,20 @@ namespace art {
       RunWorkerFunctor runWorkerFunctor{this, p, mc};
       if (auto chain = serialTaskQueueChain()) {
         // Must be a serialized shared module (including legacy).
-        {
-          ostringstream msg;
-          msg << "pushing onto chain " << hex << ((unsigned long*)chain) << dec;
-          TDEBUG_FUNC_SI_MSG(4, "Worker::doWork_event", sid, msg.str());
-        }
+        TDEBUG_FUNC_SI(4, sid) << "pushing onto chain " << hex << chain << dec;
         chain->push(runWorkerFunctor);
-        TDEBUG_END_FUNC_SI(4, "Worker::doWork_event", sid);
+        TDEBUG_END_FUNC_SI(4, sid);
         return;
       }
       // Must be a replicated or shared module with no serialization.
-      TDEBUG_FUNC_SI_MSG(
-        4, "Worker::doWork_event", sid, "calling worker functor");
+      TDEBUG_FUNC_SI(4, sid) << "calling worker functor";
       runWorkerFunctor();
-      TDEBUG_END_FUNC_SI(4, "Worker::doWork_event", sid);
+      TDEBUG_END_FUNC_SI(4, sid);
       return;
     }
     // Worker is running on another path, exit without running the waiting
     // worker done tasks.
-    TDEBUG_END_FUNC_SI_ERR(4,
-                           "Worker::doWork_event",
-                           sid,
-                           "work already in progress on another path");
+    TDEBUG_END_FUNC_SI(4, sid) << "work already in progress on another path";
   }
 
 } // namespace art

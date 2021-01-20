@@ -23,9 +23,9 @@
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/ScheduleIteration.h"
+#include "art/Utilities/TaskDebugMacros.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
-#include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/LibraryManager.h"
@@ -175,13 +175,9 @@ namespace art {
           fillWorkers_(pc, worker_config_infos, modules, pinfo.workers());
         pinfo.paths().push_back(new Path{
           exceptActions_, actReg_, pc, move(wips), &pinfo.pathResults()});
-        {
-          ostringstream msg;
-          msg << "Made path 0x" << hex << ((unsigned long)pinfo.paths().back())
-              << dec << " bitPos: " << bitPos << " name: " << path_name;
-          TDEBUG_FUNC_SI_MSG(
-            5, "PathManager::createModulesAndWorkers", sid, msg.str());
-        }
+        TDEBUG_FUNC_SI(5, sid)
+          << "Made path " << hex << pinfo.paths().back() << dec
+          << " bitPos: " << bitPos << " name: " << path_name;
         ++bitPos;
       }
 
@@ -189,7 +185,7 @@ namespace art {
         return;
       }
 
-      //  Create the end path and the workers on it.
+      // Create the end path and the workers on it.
       auto& einfo = endPathInfo_[sid];
       PathContext const pc{sc,
                            PathContext::end_path(),
@@ -199,13 +195,8 @@ namespace art {
         fillWorkers_(pc, protoEndPathLabels_, modules, einfo.workers());
       einfo.paths().push_back(
         new Path{exceptActions_, actReg_, pc, move(wips), nullptr});
-      {
-        ostringstream msg;
-        msg << "Made end path 0x" << hex
-            << ((unsigned long)einfo.paths().back()) << dec;
-        TDEBUG_FUNC_SI_MSG(
-          5, "PathManager::createModulesAndWorkers", 0, msg.str());
-      }
+      TDEBUG_FUNC_SI(5, art::ScheduleID::first())
+        << "Made end path " << hex << einfo.paths().back() << dec;
     };
     ScheduleIteration schedule_iteration{nschedules};
     schedule_iteration.for_each_schedule(fill_workers);
@@ -450,11 +441,10 @@ namespace art {
       {
         auto iter = workers.find(module_label);
         if (iter != workers.end()) {
-          ostringstream msg;
-          msg << "Reusing worker 0x" << hex << ((unsigned long)iter->second)
-              << dec << " path: " << pi << " type: " << module_type
-              << " label: " << module_label;
-          TDEBUG_FUNC_SI_MSG(5, "PathManager::fillWorkers_", sid, msg.str());
+          TDEBUG_FUNC_SI(5, sid)
+            << "Reusing worker " << hex << iter->second << dec
+            << " path: " << pi << " type: " << module_type
+            << " label: " << module_label;
           worker = iter->second;
         }
       }
@@ -505,8 +495,8 @@ namespace art {
         auto module = get_module(module_label, module_threading_type, sid);
         worker = worker_from_module_factory_func(module, md, wp);
         workers_[module_label][sid] = worker;
-        TDEBUG(5) << "Made worker 0x" << hex << ((unsigned long)worker) << dec
-                  << " (" << sid << ") path: " << pi << " type: " << module_type
+        TDEBUG(5) << "Made worker " << hex << worker << dec << " (" << sid
+                  << ") path: " << pi << " type: " << module_type
                   << " label: " << module_label << "\n";
       }
       workers.emplace(module_label, worker);

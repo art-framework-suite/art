@@ -11,6 +11,7 @@ art_make_library(
     ScheduleID.cc
     SharedResource.cc
     SharedResourcesRegistry.cc
+    TaskDebugMacros.cc
     unique_filename.cc
     UnixSignalHandlers.cc
     $<$<PLATFORM_ID:Linux>:LinuxProcMgr.cc>

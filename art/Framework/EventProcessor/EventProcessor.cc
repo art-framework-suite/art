@@ -26,6 +26,7 @@
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/SharedResourcesRegistry.h"
+#include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Version/GetReleaseVersion.h"
@@ -186,12 +187,9 @@ namespace art {
     //    ROOT::EnableImplicitMT();
     auto const& processName{pset.get<string>("process_name")};
     Globals::instance()->setProcessName(processName);
-    {
-      ostringstream msg;
-      msg << "nschedules: " << scheduler_->num_schedules()
-          << " nthreads: " << scheduler_->num_threads();
-      TDEBUG_FUNC_MSG(5, "EventProcessor::EventProcessor", msg.str());
-    }
+    TDEBUG_FUNC(5) << "nschedules: " << scheduler_->num_schedules()
+                   << " nthreads: " << scheduler_->num_threads();
+
     ParameterSet triggerPSet;
     triggerPSet.put("trigger_paths", pathManager_->triggerPathNames());
     fhicl::ParameterSetRegistry::put(triggerPSet);
@@ -528,9 +526,9 @@ namespace art {
                                        ScheduleID const sid,
                                        exception_ptr const*)
   {
-    TDEBUG_BEGIN_TASK_SI(4, "processAllEventsTask", sid);
+    TDEBUG_BEGIN_TASK_SI(4, sid);
     processAllEventsAsync(eventLoopTask, sid);
-    TDEBUG_END_TASK_SI(4, "processAllEventsTask", sid);
+    TDEBUG_END_TASK_SI(4, sid);
   }
 
   template <>
@@ -620,7 +618,7 @@ namespace art {
                                           exception_ptr const*)
   {
     // Note: When we come here our parent is the eventLoop task.
-    TDEBUG_BEGIN_TASK_SI(4, "readAndProcessEventTask", sid);
+    TDEBUG_BEGIN_TASK_SI(4, sid);
     try {
       // Note: We pass eventLoopTask here to keep the thread sanitizer happy.
       readAndProcessAsync(eventLoopTask, sid);
@@ -634,16 +632,13 @@ namespace art {
         deferredExceptionPtr_ = current_exception();
       }
       // And then end this task, terminating event processing.
-      TDEBUG_END_TASK_SI_ERR(4,
-                             "readAndProcessEventTask",
-                             sid,
-                             "terminate event loop because of EXCEPTION");
+      TDEBUG_END_TASK_SI(4, sid) << "terminate event loop because of EXCEPTION";
       return;
     }
     // If no exception, then end this task, which does not terminate
     // event processing because our parent is the nullptr because we
     // transferred it to another task.
-    TDEBUG_END_TASK_SI(4, "readAndProcessEventTask", sid);
+    TDEBUG_END_TASK_SI(4, sid);
   }
 
   // This is the event loop (also known as the schedule head).  It
@@ -657,7 +652,7 @@ namespace art {
   {
     // Note: We are part of the processAllEventsTask (schedule head task),
     // and our parent is the eventLoopTask.
-    TDEBUG_BEGIN_FUNC_SI(4, "EventProcessor::processAllEventsAsync", sid);
+    TDEBUG_BEGIN_FUNC_SI(4, sid);
     // Create a continuation task that has the EventLoopTask as parent,
     // and reset our parent to the nullptr at the same time, which means when
     // we end we do not decrement the ref count of the EventLoopTask and our
@@ -671,7 +666,7 @@ namespace art {
     // And end this task, which does not terminate event processing
     // because our parent is the nullptr because we transferred it
     // to the readAndProcessEventTask with allocate_continuation().
-    TDEBUG_END_FUNC_SI(4, "EventProcessor::processAllEventsAsync", sid);
+    TDEBUG_END_FUNC_SI(4, sid);
     // Note: We end and our continuation, the readAndProcessEventTask,
     // begins on this same thread because it is the first task on this
     // thread's TBB scheduling deque, and we have no parent, and we
@@ -689,13 +684,13 @@ namespace art {
   {
     // Note: We are part of the readAndProcessEventTask (schedule head task),
     // and our parent task is the EventLoopTask.
-    TDEBUG_BEGIN_FUNC_SI(4, "EventProcessor::readAndProcessAsync", sid);
+    TDEBUG_BEGIN_FUNC_SI(4, sid);
     // Note: shutdown_flag is a extern global atomic int in
     // art/art/Utilities/UnixSignalHandlers.cc
     if (shutdown_flag) {
       // User called for a clean shutdown using a signal or ctrl-c,
       // end event processing and this task.
-      TDEBUG_END_FUNC_SI_ERR(4, "readAndProcessAsync", sid, "CLEAN SHUTDOWN");
+      TDEBUG_END_FUNC_SI(4, sid) << "CLEAN SHUTDOWN";
       return;
     }
     // The item type advance and the event read must be done with the
@@ -718,8 +713,7 @@ namespace art {
         // been if there was only one schedule.  If we are switching
         // output files every event in an attempt to create single
         // event files, this really does not work out too well.
-        TDEBUG_END_FUNC_SI_ERR(
-          4, "EventProcessor::readAndProcessAsync", sid, "FILE SWITCH");
+        TDEBUG_END_FUNC_SI(4, sid) << "FILE SWITCH";
         return;
       }
       // Check the next item type and exit this task if it is not an
@@ -732,23 +726,18 @@ namespace art {
         // Do the advance item type.
         if (nextLevel_.load() == Level::ReadyToAdvance) {
           // See what the next item is.
-          TDEBUG_FUNC_SI_MSG(5,
-                             "EventProcessor::readAndProcessAsync",
-                             sid,
-                             "Calling advanceItemType()");
+          TDEBUG_FUNC_SI(5, sid) << "Calling advanceItemType()";
           nextLevel_ = advanceItemType();
         }
         if ((nextLevel_.load() < most_deeply_nested_level()) ||
             (nextLevel_.load() == highest_level())) {
           // We are popping up, end event processing and this task.
-          TDEBUG_END_FUNC_SI_ERR(
-            4, "EventProcessor::readAndProcessAsync", sid, "END OF SUBRUN");
+          TDEBUG_END_FUNC_SI(4, sid) << "END OF SUBRUN";
           return;
         }
         if (nextLevel_.load() != most_deeply_nested_level()) {
           // Error: incorrect level hierarchy
-          TDEBUG_END_FUNC_SI_ERR(
-            4, "EventProcessor::readAndProcessAsync", sid, "BAD HIERARCHY");
+          TDEBUG_END_FUNC_SI(4, sid) << "BAD HIERARCHY";
           throw Exception{errors::LogicError} << "Incorrect level hierarchy.";
         }
         nextLevel_ = Level::ReadyToAdvance;
@@ -759,10 +748,7 @@ namespace art {
         auto mustClose = endPathExecutors_->at(sid).outputsToClose();
         if (mustClose) {
           fileSwitchInProgress_ = true;
-          TDEBUG_END_FUNC_SI_ERR(4,
-                                 "EventProcessor::readAndProcessAsync",
-                                 sid,
-                                 "FILE SWITCH INITIATED");
+          TDEBUG_END_FUNC_SI(4, sid) << "FILE SWITCH INITIATED";
           return;
         }
       }
@@ -776,10 +762,7 @@ namespace art {
       {
         actReg_->sPreSourceEvent.invoke(sc);
       }
-      TDEBUG_FUNC_SI_MSG(5,
-                         "readAndProcessAsync",
-                         sid,
-                         "Calling input_->readEvent(subRunPrincipal_)");
+      TDEBUG_FUNC_SI(5, sid) << "Calling input_->readEvent(subRunPrincipal_)";
       eventPrincipals_->at(sid) =
         input_->readEvent(subRunPrincipal_.get()).release();
       assert(eventPrincipals_->at(sid));
@@ -806,8 +789,7 @@ namespace art {
       // transferring our parent task (EventLoopTask) to it,
       // and exit this task.
       processAllEventsAsync(EventLoopTask, sid);
-      TDEBUG_END_FUNC_SI_ERR(
-        4, "EventProcessor::readAndProcessAsync", sid, "FLUSH EVENT");
+      TDEBUG_END_FUNC_SI(4, sid) << "FLUSH EVENT";
       return;
     }
     // Now process the event.
@@ -815,7 +797,7 @@ namespace art {
     // And end this task, which does not terminate event processing
     // because our parent is the nullptr because we transferred it to
     // the endPathTask.
-    TDEBUG_END_FUNC_SI(4, "EventProcessor::readAndProcessAsync", sid);
+    TDEBUG_END_FUNC_SI(4, sid);
   }
 
   class EndPathFunctor {
@@ -843,7 +825,7 @@ namespace art {
                               exception_ptr const* ex)
   {
     // Note: When we start our parent is the eventLoopTask.
-    TDEBUG_BEGIN_TASK_SI(4, "endPathTask", sid);
+    TDEBUG_BEGIN_TASK_SI(4, sid);
     if (ex != nullptr) {
       try {
         rethrow_exception(*ex);
@@ -864,8 +846,8 @@ namespace art {
                         e});
           }
           // And then end this task, terminating event processing.
-          TDEBUG_END_TASK_SI_ERR(
-            4, "endPathTask", sid, "terminate event loop because of EXCEPTION");
+          TDEBUG_END_TASK_SI(4, sid)
+            << "terminate event loop because of EXCEPTION";
           return;
         }
         mf::LogWarning(e.category())
@@ -885,8 +867,8 @@ namespace art {
           deferredExceptionPtr_ = current_exception();
         }
         // And then end this task, terminating event processing.
-        TDEBUG_END_TASK_SI_ERR(
-          4, "endPathTask", sid, "terminate event loop because of EXCEPTION");
+        TDEBUG_END_TASK_SI(4, sid)
+          << "terminate event loop because of EXCEPTION";
         return;
       }
       // WARNING: We only get here if the trigger paths threw and we
@@ -897,7 +879,7 @@ namespace art {
     // And end this task, which does not terminate event processing
     // because our parent is the nullptr because it got transferred to
     // the next process event task.
-    TDEBUG_END_TASK_SI(4, "endPathTask", sid);
+    TDEBUG_END_TASK_SI(4, sid);
   }
 
   // This function is a continuation of the body of the
@@ -915,7 +897,7 @@ namespace art {
   {
     // Note: We are part of the readAndProcessEventTask (schedule head
     // task), and our parent task is the EventLoopTask.
-    TDEBUG_BEGIN_FUNC_SI(4, "EventProcessor::processEventAsync", sid);
+    TDEBUG_BEGIN_FUNC_SI(4, sid);
     assert(eventPrincipals_->at(sid));
     assert(!eventPrincipals_->at(sid)->eventID().isFlush());
     try {
@@ -939,7 +921,7 @@ namespace art {
       // Once the trigger paths are running we are done, exit this task,
       // which does not end event processing because our parent is the
       // nullptr because we transferred it to the endPathTask above.
-      TDEBUG_END_FUNC_SI(4, "EventProcessor::processEventAsync", sid);
+      TDEBUG_END_FUNC_SI(4, sid);
       return;
     }
     catch (cet::exception& e) {
@@ -965,11 +947,8 @@ namespace art {
                                      sizeof(tbb::internal::task_prefix),
                                    "tbb::task");
         tbb::task::self().set_parent(eventLoopTask);
-        TDEBUG_END_TASK_SI_ERR(4,
-                               "endPathTask",
-                               sid,
-                               "terminate event loop "
-                               "because of EXCEPTION");
+        TDEBUG_END_TASK_SI(4, sid)
+          << "terminate event loop because of EXCEPTION";
         return;
       }
       mf::LogWarning(e.category())
@@ -1004,11 +983,7 @@ namespace art {
                                  "tbb::task");
       tbb::task::self().set_parent(eventLoopTask);
       // And then end this task, terminating event processing.
-      TDEBUG_END_TASK_SI_ERR(4,
-                             "endPathTask",
-                             sid,
-                             "terminate event loop "
-                             "because of EXCEPTION");
+      TDEBUG_END_TASK_SI(4, sid) << "terminate event loop because of EXCEPTION";
       return;
     }
     // WARNING: The only way to get here is if starting the trigger path
@@ -1017,7 +992,7 @@ namespace art {
     // And then end this task, which does not end event
     // processing because we finishEvent transferred our
     // parent to the next event processing task.
-    TDEBUG_END_FUNC_SI(4, "EventProcessor::processEventAsync", sid);
+    TDEBUG_END_FUNC_SI(4, sid);
   }
 
   class EndPathRunnerFunctor {
@@ -1043,7 +1018,7 @@ namespace art {
   EventProcessor::endPathRunnerTask(ScheduleID const sid,
                                     tbb::task* eventLoopTask)
   {
-    TDEBUG_BEGIN_TASK_SI(4, "endPathFunctor", sid);
+    TDEBUG_BEGIN_TASK_SI(4, sid);
     // Arrange it so that we can terminate event
     // processing if we want to.
     ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
@@ -1080,10 +1055,8 @@ namespace art {
                                      sizeof(tbb::internal::task_prefix),
                                    "tbb::task");
         tbb::task::self().set_parent(eventLoopTask);
-        TDEBUG_END_TASK_SI_ERR(4,
-                               "endPathFunctor",
-                               sid,
-                               "terminate event loop because of EXCEPTION");
+        TDEBUG_END_TASK_SI(4, sid)
+          << "terminate event loop because of EXCEPTION";
         return;
       }
       // Possible actions: IgnoreCompletely
@@ -1112,8 +1085,7 @@ namespace art {
                                    sizeof(tbb::internal::task_prefix),
                                  "tbb::task");
       tbb::task::self().set_parent(eventLoopTask);
-      TDEBUG_END_TASK_SI_ERR(
-        4, "endPathFunctor", sid, "terminate event loop because of EXCEPTION");
+      TDEBUG_END_TASK_SI(4, sid) << "terminate event loop because of EXCEPTION";
       return;
     }
     {
@@ -1124,7 +1096,7 @@ namespace art {
     finishEventAsync(eventLoopTask, sid);
     // Note that we do not terminate event processing when we end
     // because finishEventAsync has set our parent to the nullptr.
-    TDEBUG_END_TASK_SI(4, "endPathFunctor", sid);
+    TDEBUG_END_TASK_SI(4, sid);
   }
 
   // This function is the main body of the Process End Path task, our
@@ -1144,7 +1116,7 @@ namespace art {
                                       ScheduleID const sid)
   {
     // Note: We are part of the endPathTask.
-    TDEBUG_BEGIN_FUNC_SI(4, "EventProcessor::processEndPathAsync", sid);
+    TDEBUG_BEGIN_FUNC_SI(4, sid);
     // Arrange it so that we can end the task without terminating
     // event processing.
     ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
@@ -1158,7 +1130,7 @@ namespace art {
     // is queued we are done, exit this task, which does not end event
     // processing because our parent is the nullptr because we transferred
     // it to the endPathFunctor.
-    TDEBUG_END_FUNC_SI(4, "EventProcessor::processEndPathAsync", sid);
+    TDEBUG_END_FUNC_SI(4, sid);
   }
 
   // This function is a continuation of the Process End Path task, or
@@ -1172,7 +1144,7 @@ namespace art {
                                    ScheduleID const sid)
   {
     // Note: We are part of the endPathFunctor.
-    TDEBUG_BEGIN_FUNC_SI(4, "EventProcessor::finishEventAsync", sid);
+    TDEBUG_BEGIN_FUNC_SI(4, sid);
     FDEBUG(1) << string(8, ' ') << "processEvent................("
               << eventPrincipals_->at(sid)->eventID() << ")\n";
     try {
@@ -1180,10 +1152,7 @@ namespace art {
       // and if so setup to end the job the next time around the
       // event loop.
       FDEBUG(1) << string(8, ' ') << "shouldWeStop\n";
-      TDEBUG_FUNC_SI_MSG(5,
-                         "EventProcessor::finishEventAsync",
-                         sid,
-                         "Calling endPathExecutors_->allAtLimit()");
+      TDEBUG_FUNC_SI(5, sid) << "Calling endPathExecutors_->allAtLimit()";
       if (endPathExecutors_->at(sid).allAtLimit()) {
         // Set to return to the File level.
         nextLevel_ = highest_level();
@@ -1196,18 +1165,12 @@ namespace art {
         // Possibly open new output files.  This is safe to do because
         // EndPathExecutor functions are called in a serialized
         // context.
-        TDEBUG_FUNC_SI_MSG(5,
-                           "EventProcessor::finishEventAsync",
-                           sid,
-                           "Calling openSomeOutputFiles()");
+        TDEBUG_FUNC_SI(5, sid) << "Calling openSomeOutputFiles()";
         openSomeOutputFiles();
         assert(eventPrincipals_->at(sid));
         assert(!eventPrincipals_->at(sid)->eventID().isFlush());
-        TDEBUG_FUNC_SI_MSG(5,
-                           "EventProcessor::finishEventAsync",
-                           sid,
-                           "Calling endPathExecutors_->writeEvent(sid, "
-                           "*eventPrincipals_->at(sid))");
+        TDEBUG_FUNC_SI(5, sid) << "Calling endPathExecutors_->writeEvent(sid, "
+                                  "*eventPrincipals_->at(sid))";
         // Write the event.
         endPathExecutors_->at(sid).writeEvent(*eventPrincipals_->at(sid));
         FDEBUG(1) << string(8, ' ') << "writeEvent..................("
@@ -1216,11 +1179,9 @@ namespace art {
         delete eventPrincipals_->at(sid);
         eventPrincipals_->at(sid) = nullptr;
       }
-      TDEBUG_FUNC_SI_MSG(5,
-                         "EventProcessor::finishEventAsync",
-                         sid,
-                         "Calling endPathExecutors_->"
-                         "recordOutputClosureRequests(Granularity::Event)");
+      TDEBUG_FUNC_SI(5, sid)
+        << "Calling endPathExecutors_->"
+           "recordOutputClosureRequests(Granularity::Event)";
       endPathExecutors_->at(sid).recordOutputClosureRequests(
         Granularity::Event);
     }
@@ -1246,8 +1207,7 @@ namespace art {
                                      sizeof(tbb::internal::task_prefix),
                                    "tbb::task");
         tbb::task::self().set_parent(eventLoopTask);
-        TDEBUG_END_FUNC_SI_ERR(
-          4, "EventProcessor::finishEventAsync", sid, "EXCEPTION");
+        TDEBUG_END_FUNC_SI(4, sid) << "EXCEPTION";
         return;
       }
       mf::LogWarning(e.category())
@@ -1272,8 +1232,7 @@ namespace art {
                                    sizeof(tbb::internal::task_prefix),
                                  "tbb::task");
       tbb::task::self().set_parent(eventLoopTask);
-      TDEBUG_END_FUNC_SI_ERR(
-        4, "EventProcessor::finishEventAsync", sid, "EXCEPTION");
+      TDEBUG_END_FUNC_SI(4, sid) << "EXCEPTION";
       return;
     }
     // Create the next event processing task as a continuation
@@ -1283,7 +1242,7 @@ namespace art {
     // And end this task which does not end event loop processing
     // because our parent is the nullptr because we transferred it
     // to the next event processing task.
-    TDEBUG_END_FUNC_SI(4, "EventProcessor::finishEventAsync", sid);
+    TDEBUG_END_FUNC_SI(4, sid);
   }
 
   template <Level L>

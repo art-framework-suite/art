@@ -23,9 +23,9 @@
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/OutputFileInfo.h"
 #include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/trim.h"
@@ -330,7 +330,7 @@ namespace art {
   {
     auto const sid = sc_.id();
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    TDEBUG_BEGIN_FUNC_SI(4, "EndPathExecutor::process_event", sid);
+    TDEBUG_BEGIN_FUNC_SI(4, sid);
     if (runningWorkerCnt_.load() != 0) {
       cerr << "Aborting! runningWorkerCnt_.load() != 0: "
            << runningWorkerCnt_.load() << "\n";
@@ -353,8 +353,7 @@ namespace art {
       auto const action{actionTable_.load()->find(ex.root_cause())};
       if (action != actions::IgnoreCompletely) {
         // Possible actions: Rethrow, SkipEvent, FailModule, FailPath
-        TDEBUG_END_FUNC_SI_ERR(
-          4, "EndPathExecutor::process_event", sid, "because of EXCEPTION");
+        TDEBUG_END_FUNC_SI(4, sid) << "because of EXCEPTION";
         if (runningWorkerCnt_.load() != 1) {
           abort();
         }
@@ -375,8 +374,7 @@ namespace art {
     catch (...) {
       mf::LogError("PassingThrough")
         << "an exception occurred during current event processing\n";
-      TDEBUG_END_FUNC_SI_ERR(
-        4, "EndPathExecutor::process_event", sid, "because of EXCEPTION");
+      TDEBUG_END_FUNC_SI(4, sid) << "because of EXCEPTION";
       if (runningWorkerCnt_.load() != 1) {
         abort();
       }
@@ -388,7 +386,7 @@ namespace art {
       abort();
     }
     --runningWorkerCnt_;
-    TDEBUG_END_FUNC_SI(4, "EndPathExecutor::process_event", sid);
+    TDEBUG_END_FUNC_SI(4, sid);
   }
 
   void
@@ -407,16 +405,8 @@ namespace art {
     }
     auto const& eid = ep.eventID();
     bool const lastInSubRun{ep.isLastInSubRun()};
-    {
-      ostringstream msg;
-      msg << "eid: ";
-      msg << eid.run();
-      msg << ", ";
-      msg << eid.subRun();
-      msg << ", ";
-      msg << eid.event();
-      TDEBUG_FUNC_SI_MSG(5, "EndPathExecutor::writeEvent", sc_.id(), msg.str());
-    }
+    TDEBUG_FUNC_SI(5, sc_.id())
+      << "eid: " << eid.run() << ", " << eid.subRun() << ", " << eid.event();
     runRangeSetHandler_.load()->update(eid, lastInSubRun);
     subRunRangeSetHandler_.load()
       ->at(ScheduleID::first())
