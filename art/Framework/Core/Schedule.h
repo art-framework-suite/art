@@ -40,7 +40,6 @@
 #include "cetlib/trim.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/WaitingTask.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <atomic>
 #include <functional>
@@ -53,7 +52,6 @@
 #include <vector>
 
 namespace art {
-  class ActivityRegistry;
   class Schedule {
   public: // Special Member Functions
     ~Schedule() noexcept;
@@ -69,7 +67,7 @@ namespace art {
 
   public: // API presented to EventProcessor
     void process(Transition, Principal&);
-    void process_event(hep::concurrency::WaitingTask* endPathTask,
+    void process_event(tbb::task* endPathTask,
                        tbb::task* eventLoopTask,
                        EventPrincipal&);
     void beginJob();
@@ -80,13 +78,13 @@ namespace art {
     void respondToCloseOutputFiles(FileBlock const&);
 
     // Tasking Structure
-    void pathsDoneTask(hep::concurrency::WaitingTask* endPathTask,
+    void pathsDoneTask(tbb::task* endPathTask,
                        tbb::task* eventLoopTask,
                        EventPrincipal&,
                        std::exception_ptr const*);
 
     // Implementation details.
-    void process_event_pathsDone(hep::concurrency::WaitingTask* endPathTask,
+    void process_event_pathsDone(tbb::task* endPathTask,
                                  tbb::task* eventLoopTask,
                                  EventPrincipal&);
 

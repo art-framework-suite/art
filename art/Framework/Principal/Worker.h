@@ -51,7 +51,6 @@ namespace tbb {
 namespace hep::concurrency {
   class SerialTaskQueueChain;
   class WaitingTaskList;
-  using WaitingTask = tbb::task;
 }
 
 namespace art {
@@ -92,7 +91,7 @@ namespace art {
     void respondToCloseOutputFiles(FileBlock const& fb);
     bool doWork(Transition, Principal&, ModuleContext const&);
 
-    void doWork_event(hep::concurrency::WaitingTask* workerInPathDoneTask,
+    void doWork_event(tbb::task* workerInPathDoneTask,
                       EventPrincipal&,
                       ModuleContext const&);
 

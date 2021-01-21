@@ -31,7 +31,6 @@
 #include "cetlib/trim.h"
 #include "hep_concurrency/RecursiveMutex.h"
 #include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/WaitingTaskHolder.h"
 #include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

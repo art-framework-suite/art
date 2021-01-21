@@ -18,7 +18,6 @@
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/WaitingTaskHolder.h"
 #include "hep_concurrency/WaitingTaskList.h"
 #include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -308,7 +307,7 @@ namespace art {
   // of the endPath task.  Our parent is the nullptr.  The parent of
   // the pathsDoneTask is the eventLoop task.
   void
-  Path::process_event(WaitingTask* pathsDoneTask, EventPrincipal& ep)
+  Path::process_event(tbb::task* pathsDoneTask, EventPrincipal& ep)
   {
     auto const sid = pc_.scheduleID();
     // Note: We are part of the readAndProcessEventTask (stream head task),

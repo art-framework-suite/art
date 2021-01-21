@@ -59,7 +59,7 @@ namespace art {
     void clearCounters();
     void process(Transition, Principal&);
     void process_event_for_endpath(EventPrincipal&);
-    void process_event(hep::concurrency::WaitingTask* pathsDoneTask,
+    void process_event(tbb::task* pathsDoneTask,
                        EventPrincipal&);
 
   public: // MEMBER FUNCTIONS - Tasking System

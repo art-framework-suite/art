@@ -654,7 +654,7 @@ namespace art {
   }
 
   void
-  Worker::doWork_event(WaitingTask* workerInPathDoneTask,
+  Worker::doWork_event(tbb::task* workerInPathDoneTask,
                        EventPrincipal& p,
                        ModuleContext const& mc)
   {

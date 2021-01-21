@@ -7,7 +7,6 @@
 #include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
 #include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/WaitingTaskHolder.h"
 #include "hep_concurrency/tsan.h"
 
 #include <atomic>
@@ -226,7 +225,7 @@ namespace art {
   }
 
   void
-  WorkerInPath::runWorker_event(WaitingTask* workerDoneTask, EventPrincipal& ep)
+  WorkerInPath::runWorker_event(tbb::task* workerDoneTask, EventPrincipal& ep)
   {
     auto const scheduleID = moduleContext_.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, scheduleID);

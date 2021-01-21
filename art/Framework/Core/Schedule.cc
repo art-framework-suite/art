@@ -12,7 +12,6 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/Event.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PathContext.h"
@@ -25,6 +24,7 @@
 #include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/WaitingTaskHolder.h"
 #include "hep_concurrency/tsan.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
 #include <atomic>
@@ -201,7 +201,7 @@ namespace art {
   class PathsDoneFunctor {
   public:
     PathsDoneFunctor(Schedule* const schedule,
-                     WaitingTask* const endPathTask,
+                     tbb::task* const endPathTask,
                      tbb::task* const eventLoopTask,
                      EventPrincipal& principal)
       : schedule_{schedule}
@@ -217,13 +217,13 @@ namespace art {
 
   private:
     Schedule* const schedule_;
-    WaitingTask* const endPathTask_;
+    tbb::task* const endPathTask_;
     tbb::task* const eventLoopTask_;
     EventPrincipal& principal_;
   };
 
   void
-  Schedule::pathsDoneTask(WaitingTask* endPathTask,
+  Schedule::pathsDoneTask(tbb::task* endPathTask,
                           tbb::task* eventLoopTask,
                           EventPrincipal& principal,
                           exception_ptr const* ex)
@@ -289,7 +289,7 @@ namespace art {
   // parent task is the nullptr, and the parent task of the
   // endPathTask is the eventLoopTask.
   void
-  Schedule::process_event(WaitingTask* endPathTask,
+  Schedule::process_event(tbb::task* endPathTask,
                           tbb::task* eventLoopTask,
                           EventPrincipal& principal)
   {
@@ -379,8 +379,8 @@ namespace art {
   // Note: We come here as part of the pathsDone task.  Our parent is
   // the nullptr.
   void
-  Schedule::process_event_pathsDone(WaitingTask* endPathTask,
-                                    WaitingTask* /*eventLoopTask*/,
+  Schedule::process_event_pathsDone(tbb::task* endPathTask,
+                                    tbb::task* /*eventLoopTask*/,
                                     EventPrincipal& principal)
   {
     auto const scheduleID = sc_.id();
