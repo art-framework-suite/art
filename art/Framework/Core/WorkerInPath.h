@@ -18,7 +18,6 @@
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/Transition.h"
 #include "cetlib/exempt_ptr.h"
-#include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/WaitingTaskList.h"
 
 #include <atomic>

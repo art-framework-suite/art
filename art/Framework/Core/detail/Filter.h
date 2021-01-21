@@ -12,8 +12,8 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Modifier.h"
 #include "art/Framework/Core/ProcessingFrame.h"
-#include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/ScheduleID.h"
 

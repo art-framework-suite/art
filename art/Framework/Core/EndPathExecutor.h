@@ -35,7 +35,6 @@
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "cetlib/trim.h"
 #include "hep_concurrency/RecursiveMutex.h"
-#include "hep_concurrency/WaitingTask.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <memory>
@@ -89,8 +88,6 @@ namespace art {
     // Used to make sure only one event is being processed at a time.
     // The schedules take turns having their events processed on a
     // first-come first-served basis (FIFO).
-    template <typename T>
-    void push(const T& func);
     void process_event(EventPrincipal&);
     void writeEvent(EventPrincipal&);
 
@@ -137,9 +134,9 @@ namespace art {
     std::atomic<ActivityRegistry const*> actReg_;
     std::atomic<PathsInfo*> endPathInfo_;
     // Dynamic, cause an error if more than one thread processes an event.
-    std::atomic<int> runningWorkerCnt_;
+    std::atomic<int> runningWorkerCnt_{};
     // Filled by ctor, const after that.
-    std::atomic<std::vector<OutputWorker*>*> outputWorkers_;
+    std::vector<OutputWorker*> outputWorkers_{};
     // Dynamic, updated by run processing.
     std::atomic<RangeSetHandler*> runRangeSetHandler_;
     // Dynamic, updated by subrun processing.
@@ -147,7 +144,7 @@ namespace art {
 
     // Output File Switching
     std::atomic<OutputFileStatus> fileStatus_;
-    std::atomic<std::set<OutputWorker*>*> outputWorkersToOpen_;
+    std::set<OutputWorker*> outputWorkersToOpen_{};
     // Note: During an output file switch, after the closes happen, the entire
     // contents of this is moved to outputWorkersToOpen_.
     // FIXME: The move to outputWorkersToOpen_ is not really necessary, a flag
@@ -155,7 +152,7 @@ namespace art {
     // is in the list. Basically EventProcessor uses recordOutputClosureRequests
     // to populate the list, then uses the list to do closes, then uses the same
     // list to do opens, then clears the list.
-    std::atomic<std::set<OutputWorker*>*> outputWorkersToClose_;
+    std::set<OutputWorker*> outputWorkersToClose_{};
   };
 } // namespace art
 

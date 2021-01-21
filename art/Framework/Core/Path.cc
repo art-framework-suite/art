@@ -18,7 +18,6 @@
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/WaitingTaskList.h"
 #include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "tbb/task.h"
@@ -27,10 +26,7 @@
 #include <atomic>
 #include <cstddef>
 #include <exception>
-#include <iomanip>
-#include <iostream>
 #include <memory>
-#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -42,36 +38,19 @@ using namespace std;
 
 namespace art {
 
-  class EventPrincipal;
-
-  Path::~Path()
-  {
-    actionTable_ = nullptr;
-    actReg_ = nullptr;
-    delete workers_.load();
-    workers_ = nullptr;
-    delete waitingTasks_.load();
-    waitingTasks_ = nullptr;
-  }
-
   Path::Path(ActionTable const& actions,
              ActivityRegistry const& actReg,
              PathContext const& pc,
              vector<WorkerInPath>&& workers,
              HLTGlobalStatus* pathResults) noexcept
-    : pc_{pc}, bitpos_{pc.bitPosition()}
+    : actionTable_{&actions}
+    , actReg_{&actReg}
+    , pc_{pc}
+    , bitpos_{pc.bitPosition()}
+    , workers_{move(workers)}
+    , trptr_{pathResults}
   {
     TDEBUG_FUNC_SI(4, pc_.scheduleID()) << hex << this << dec;
-    actionTable_ = &actions;
-    actReg_ = &actReg;
-    workers_ = new vector<WorkerInPath>{move(workers)};
-    trptr_ = pathResults;
-    waitingTasks_ = new WaitingTaskList;
-    state_ = hlt::Ready;
-    timesRun_ = 0;
-    timesPassed_ = 0;
-    timesFailed_ = 0;
-    timesExcept_ = 0;
   }
 
   ScheduleID
@@ -125,7 +104,7 @@ namespace art {
   vector<WorkerInPath> const&
   Path::workersInPath() const
   {
-    return *workers_.load();
+    return workers_;
   }
 
   void
@@ -135,7 +114,7 @@ namespace art {
     timesPassed_ = 0;
     timesFailed_ = 0;
     timesExcept_ = 0;
-    for (auto& w : *workers_.load()) {
+    for (auto& w : workers_) {
       w.clearCounters();
     }
   }
@@ -164,7 +143,7 @@ namespace art {
     state_ = hlt::Ready;
     std::size_t idx = 0;
     bool all_passed{false};
-    for (WorkerInPath& wip : *workers_.load()) {
+    for (WorkerInPath& wip : workers_) {
       // We do not want to call (e.g.) beginRun once per schedule for
       // non-replicated modules.
       if (detail::skip_non_replicated(*wip.getWorker())) {
@@ -226,11 +205,11 @@ namespace art {
     actReg_.load()->sPreProcessPath.invoke(pc_);
     ++timesRun_;
     state_ = hlt::Ready;
-    auto const max_idx = workers_.load()->size();
+    auto const max_idx = workers_.size();
     size_t idx = 0;
     bool should_continue = true;
     for (; should_continue && (idx < max_idx); ++idx) {
-      auto& workerInPath = (*workers_.load())[idx];
+      auto& workerInPath = workers_[idx];
       try {
         workerInPath.runWorker_event_for_endpath(ep);
       }
@@ -317,16 +296,16 @@ namespace art {
     TDEBUG_FUNC_SI(6, sid) << hex << this << dec << " Resetting waitingTasks_";
 
     // Make sure the list is not auto-spawning tasks.
-    waitingTasks_.load()->reset();
+    waitingTasks_.reset();
     // Note: This task list will never have more than one entry.
-    waitingTasks_.load()->add(pathsDoneTask);
+    waitingTasks_.add(pathsDoneTask);
     {
       actReg_.load()->sPreProcessPath.invoke(pc_);
     }
     ++timesRun_;
     state_ = hlt::Ready;
     size_t idx = 0;
-    auto max_idx = workers_.load()->size();
+    auto max_idx = workers_.size();
     // Start the task spawn chain going with the first worker on the
     // path.  Each worker will spawn the next worker in order, until
     // all the workers have run.
@@ -371,7 +350,7 @@ namespace art {
       process_event_idx(new_idx, max_idx, ep);
     }
     catch (...) {
-      waitingTasks_.load()->doneWaiting(current_exception());
+      waitingTasks_.doneWaiting(current_exception());
       // End this task, terminating the path here.
       TDEBUG_END_TASK_SI(4, sid) << "path terminate because of EXCEPTION";
       return;
@@ -429,7 +408,7 @@ namespace art {
   {
     auto const sid = pc_.scheduleID();
     TDEBUG_BEGIN_TASK_SI(4, sid);
-    auto& workerInPath = (*workers_.load())[idx];
+    auto& workerInPath = workers_[idx];
     // Note: This will only be set false by a filter which has rejected.
     bool new_should_continue = workerInPath.returnCode();
     TDEBUG_TASK_SI(4, sid) << "new_should_continue: " << new_should_continue;
@@ -453,7 +432,7 @@ namespace art {
                                        e}
                         << "Exception going through path " << name() << "\n";
           auto ex_ptr = make_exception_ptr(art_ex);
-          waitingTasks_.load()->doneWaiting(ex_ptr);
+          waitingTasks_.doneWaiting(ex_ptr);
           TDEBUG_END_TASK_SI(4, sid) << "terminate path because of EXCEPTION";
           return;
         }
@@ -472,7 +451,7 @@ namespace art {
           // Not the end path.
           (*trptr_.load())[bitpos_] = HLTPathStatus(state_, idx);
         }
-        waitingTasks_.load()->doneWaiting(current_exception());
+        waitingTasks_.doneWaiting(current_exception());
         TDEBUG_END_TASK_SI(4, sid) << "terminate path because of EXCEPTION";
         return;
       }
@@ -495,7 +474,7 @@ namespace art {
     TDEBUG_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx;
     auto workerDoneTask = make_waiting_task(
       tbb::task::allocate_root(), WorkerDoneFunctor{this, idx, max_idx, ep});
-    auto& workerInPath = (*workers_.load())[idx];
+    auto& workerInPath = workers_[idx];
     workerInPath.runWorker_event(workerDoneTask, ep);
     TDEBUG_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx;
   }
@@ -557,7 +536,7 @@ namespace art {
     catch (...) {
       exception = true;
     }
-    waitingTasks_.load()->doneWaiting(exception_ptr{});
+    waitingTasks_.doneWaiting(exception_ptr{});
     TDEBUG_FUNC_SI(4, sid) << "idx: " << idx
                            << " should_continue: " << should_continue
                            << (exception ? " EXCEPTION" : "");

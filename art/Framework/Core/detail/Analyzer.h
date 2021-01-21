@@ -9,7 +9,6 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Observer.h"
 #include "art/Framework/Core/ProcessingFrame.h"
-#include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ImplicitConfigs.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ScheduleID.h"

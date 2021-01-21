@@ -42,24 +42,16 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  Schedule::~Schedule() noexcept
-  {
-    results_inserter_ = nullptr;
-    triggerPathsInfo_ = nullptr;
-    actionTable_ = nullptr;
-  }
-
   Schedule::Schedule(ScheduleID const scheduleID,
                      PathManager& pm,
                      ActionTable const& actions,
                      std::unique_ptr<Worker> triggerResultsInserter)
     : sc_{scheduleID}
+    , actionTable_{&actions}
+    , triggerPathsInfo_{&pm.triggerPathsInfo(scheduleID)}
+    , results_inserter_{std::move(triggerResultsInserter)}
   {
     TDEBUG_FUNC_SI(5, scheduleID) << hex << this << dec;
-    actionTable_ = &actions;
-    triggerPathsInfo_ = &pm.triggerPathsInfo(scheduleID);
-    results_inserter_ = std::move(triggerResultsInserter);
-    runningWorkerCnt_ = 0;
   }
 
   void

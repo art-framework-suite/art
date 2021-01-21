@@ -39,7 +39,6 @@
 #include "cetlib/container_algorithms.h"
 #include "cetlib/trim.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/WaitingTask.h"
 
 #include <atomic>
 #include <functional>
@@ -53,19 +52,19 @@
 
 namespace art {
   class Schedule {
-  public: // Special Member Functions
-    ~Schedule() noexcept;
+  public:
     Schedule(ScheduleID,
              PathManager&,
              ActionTable const&,
              std::unique_ptr<Worker> triggerResultsInserter);
 
+    // Disable copy/move operations
     Schedule(Schedule const&) = delete;
     Schedule(Schedule&&) = delete;
     Schedule& operator=(Schedule const&) = delete;
     Schedule& operator=(Schedule&&) = delete;
 
-  public: // API presented to EventProcessor
+    // API presented to EventProcessor
     void process(Transition, Principal&);
     void process_event(tbb::task* endPathTask,
                        tbb::task* eventLoopTask,
@@ -95,11 +94,11 @@ namespace art {
     ScheduleContext const sc_;
     std::atomic<ActionTable const*> actionTable_;
     std::atomic<PathsInfo*> triggerPathsInfo_;
-    std::unique_ptr<Worker> results_inserter_{nullptr};
+    std::unique_ptr<Worker> results_inserter_;
 
     // Dynamic: cause an error if more than one thread processes an
     // event.
-    std::atomic<int> runningWorkerCnt_;
+    std::atomic<int> runningWorkerCnt_{};
   };
 } // namespace art
 
