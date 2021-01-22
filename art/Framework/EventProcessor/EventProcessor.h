@@ -76,16 +76,16 @@ namespace art {
 
   private:
     class ProcessAllEventsTask;
-    class ReadAndProcessEventTask;
     class EndPathTask;
     class EndPathRunnerTask;
 
     // Event-loop infrastructure
-    void processAllEventsAsync(tbb::task* EventLoopTask, ScheduleID const);
-    void readAndProcessAsync(tbb::task* EventLoopTask, ScheduleID const);
-    void processEventAsync(tbb::task* EventLoopTask, ScheduleID const);
-    void processEndPathAsync(tbb::task* EventLoopTask, ScheduleID const);
-    void finishEventAsync(tbb::task* eventLoopTask, ScheduleID const);
+    void processAllEventsAsync(tbb::task* EventLoopTask, ScheduleID sid);
+    void readAndProcessAsync(tbb::task* EventLoopTask, ScheduleID sid);
+    void processEventAsync(tbb::task* EventLoopTask, EventPrincipal& ep, ScheduleID sid);
+    void processEndPathAsync(tbb::task* EventLoopTask, ScheduleID sid);
+    void finishEventAsync(tbb::task* eventLoopTask, ScheduleID sid);
+
     template <Level L>
     bool levelsToProcess();
     template <Level L>
