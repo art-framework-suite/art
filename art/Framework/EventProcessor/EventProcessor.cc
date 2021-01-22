@@ -503,17 +503,20 @@ namespace art {
       .recordOutputClosureRequests(Granularity::Event);
   }
 
-  class ProcessAllEventsFunctor {
+  class EventProcessor::ProcessAllEventsTask {
   public:
-    ProcessAllEventsFunctor(EventProcessor* evp,
-                            tbb::task* eventLoopTask,
-                            ScheduleID const sid)
+    ProcessAllEventsTask(EventProcessor* evp,
+                         tbb::task* eventLoopTask,
+                         ScheduleID const sid)
       : evp_(evp), eventLoopTask_(eventLoopTask), sid_(sid)
     {}
+
     void
-    operator()(exception_ptr const* ex)
+    operator()(exception_ptr const*)
     {
-      evp_->processAllEventsTask(eventLoopTask_, sid_, ex);
+      TDEBUG_BEGIN_TASK_SI(4, sid_);
+      evp_->processAllEventsAsync(eventLoopTask_, sid_);
+      TDEBUG_END_TASK_SI(4, sid_);
     }
 
   private:
@@ -521,16 +524,6 @@ namespace art {
     tbb::task* eventLoopTask_;
     ScheduleID const sid_;
   };
-
-  void
-  EventProcessor::processAllEventsTask(tbb::task* eventLoopTask,
-                                       ScheduleID const sid,
-                                       exception_ptr const*)
-  {
-    TDEBUG_BEGIN_TASK_SI(4, sid);
-    processAllEventsAsync(eventLoopTask, sid);
-    TDEBUG_END_TASK_SI(4, sid);
-  }
 
   template <>
   void
@@ -557,14 +550,13 @@ namespace art {
       eventLoopTask->set_ref_count(scheduler_->num_schedules() + 1);
 
       tbb::task_list schedule_heads;
-      auto create_event_processing_tasks = [&eventLoopTask,
-                                            &schedule_heads,
-                                            this](ScheduleID const sid) {
-        auto processAllEventsTask =
-          make_waiting_task(eventLoopTask->allocate_child(),
-                            ProcessAllEventsFunctor{this, eventLoopTask, sid});
-        schedule_heads.push_back(*processAllEventsTask);
-      };
+      auto create_event_processing_tasks =
+        [&eventLoopTask, &schedule_heads, this](ScheduleID const sid) {
+          auto processAllEventsTask =
+            make_waiting_task(eventLoopTask->allocate_child(),
+                              ProcessAllEventsTask{this, eventLoopTask, sid});
+          schedule_heads.push_back(*processAllEventsTask);
+        };
       scheduleIteration_.for_each_schedule(create_event_processing_tasks);
 
       eventLoopTask->spawn_and_wait_for_all(schedule_heads);
@@ -594,17 +586,41 @@ namespace art {
     }
   }
 
-  class ReadAndProcessEventFunctor {
+  // ----------------------------------------------------------------------------
+  class EventProcessor::ReadAndProcessEventTask {
   public:
-    ReadAndProcessEventFunctor(EventProcessor* const evp,
-                               tbb::task* const eventLoopTask,
-                               ScheduleID const sid)
+    ReadAndProcessEventTask(EventProcessor* const evp,
+                            tbb::task* const eventLoopTask,
+                            ScheduleID const sid)
       : evp_{evp}, eventLoopTask_{eventLoopTask}, sid_{sid}
     {}
     void
-    operator()(exception_ptr const* ex)
+    operator()(exception_ptr const*)
     {
-      evp_->readAndProcessEventTask(eventLoopTask_, sid_, ex);
+      // Note: When we come here our parent is the eventLoop task.
+      TDEBUG_BEGIN_TASK_SI(4, sid_);
+      try {
+        // Note: We pass eventLoopTask here to keep the thread sanitizer happy.
+        evp_->readAndProcessAsync(eventLoopTask_, sid_);
+      }
+      catch (...) {
+        // Use a thread-safe, one-way trapdoor pattern to notify the
+        // main thread of the exception.
+        bool expected{false};
+        if (evp_->deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
+                                                                     true)) {
+          // Put the exception where the main thread can get at it.
+          evp_->deferredExceptionPtr_ = current_exception();
+        }
+        // And then end this task, terminating event processing.
+        TDEBUG_END_TASK_SI(4, sid_)
+          << "terminate event loop because of EXCEPTION";
+        return;
+      }
+      // If no exception, then end this task, which does not terminate
+      // event processing because our parent is the nullptr because we
+      // transferred it to another task.
+      TDEBUG_END_TASK_SI(4, sid_);
     }
 
   private:
@@ -612,35 +628,6 @@ namespace art {
     tbb::task* const eventLoopTask_;
     ScheduleID const sid_;
   };
-
-  void
-  EventProcessor::readAndProcessEventTask(tbb::task* eventLoopTask,
-                                          ScheduleID const sid,
-                                          exception_ptr const*)
-  {
-    // Note: When we come here our parent is the eventLoop task.
-    TDEBUG_BEGIN_TASK_SI(4, sid);
-    try {
-      // Note: We pass eventLoopTask here to keep the thread sanitizer happy.
-      readAndProcessAsync(eventLoopTask, sid);
-    }
-    catch (...) {
-      // Use a thread-safe, one-way trapdoor pattern to notify the
-      // main thread of the exception.
-      bool expected{false};
-      if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
-        // Put the exception where the main thread can get at it.
-        deferredExceptionPtr_ = current_exception();
-      }
-      // And then end this task, terminating event processing.
-      TDEBUG_END_TASK_SI(4, sid) << "terminate event loop because of EXCEPTION";
-      return;
-    }
-    // If no exception, then end this task, which does not terminate
-    // event processing because our parent is the nullptr because we
-    // transferred it to another task.
-    TDEBUG_END_TASK_SI(4, sid);
-  }
 
   // This is the event loop (also known as the schedule head).  It
   // makes a continuation task (the readAndProcessEventTask) which
@@ -660,7 +647,7 @@ namespace art {
     // continuation runs, not the EventLoopTask.
     auto readAndProcessEventTask =
       make_waiting_task(tbb::task::self().allocate_continuation(),
-                        ReadAndProcessEventFunctor{this, eventLoopTask, sid});
+                        ReadAndProcessEventTask{this, eventLoopTask, sid});
     // Push the readAndProcessEventTask onto the end of this thread's
     // TBB scheduling dequeue.
     tbb::task::spawn(*readAndProcessEventTask);
@@ -801,17 +788,74 @@ namespace art {
     TDEBUG_END_FUNC_SI(4, sid);
   }
 
-  class EndPathFunctor {
+  // ----------------------------------------------------------------------------
+  class EventProcessor::EndPathTask {
   public:
-    EndPathFunctor(EventProcessor* evp,
-                   tbb::task* eventLoopTask,
-                   ScheduleID const sid)
+    EndPathTask(EventProcessor* evp,
+                tbb::task* eventLoopTask,
+                ScheduleID const sid)
       : evp_{evp}, eventLoopTask_{eventLoopTask}, sid_{sid}
     {}
+
     void
     operator()(exception_ptr const* ex)
     {
-      evp_->endPathTask(eventLoopTask_, sid_, ex);
+      // Note: When we start our parent is the eventLoopTask.
+      TDEBUG_BEGIN_TASK_SI(4, sid_);
+      if (ex != nullptr) {
+        try {
+          rethrow_exception(*ex);
+        }
+        catch (cet::exception& e) {
+          if (evp_->scheduler_->actionTable().find(e.root_cause()) !=
+              actions::IgnoreCompletely) {
+            // Use a thread-safe, one-way trapdoor pattern to notify the
+            // main thread of the exception.
+            bool expected = false;
+            if (evp_->deferredExceptionPtrIsSet_.compare_exchange_strong(
+                  expected, true)) {
+              // Put the exception where the main thread can get at it.
+              evp_->deferredExceptionPtr_ = make_exception_ptr(Exception{
+                errors::EventProcessorFailure,
+                "EventProcessor: an exception occurred during current "
+                "event processing",
+                e});
+            }
+            // And then end this task, terminating event processing.
+            TDEBUG_END_TASK_SI(4, sid_)
+              << "terminate event loop because of EXCEPTION";
+            return;
+          }
+          mf::LogWarning(e.category())
+            << "exception being ignored for current event:\n"
+            << cet::trim_right_copy(e.what(), " \n");
+          // WARNING: We continue processing after the catch blocks!!!
+        }
+        catch (...) {
+          mf::LogError("PassingThrough")
+            << "an exception occurred during current event processing\n";
+          // Use a thread-safe, one-way trapdoor pattern to notify the main
+          // thread of the exception.
+          bool expected = false;
+          if (evp_->deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
+                                                                       true)) {
+            // Put the exception where the main thread can get at it.
+            evp_->deferredExceptionPtr_ = current_exception();
+          }
+          // And then end this task, terminating event processing.
+          TDEBUG_END_TASK_SI(4, sid_)
+            << "terminate event loop because of EXCEPTION";
+          return;
+        }
+        // WARNING: We only get here if the trigger paths threw and we
+        // are ignoring the exception because of
+        // actions::IgnoreCompletely.
+      }
+      evp_->processEndPathAsync(eventLoopTask_, sid_);
+      // And end this task, which does not terminate event processing
+      // because our parent is the nullptr because it got transferred to
+      // the next process event task.
+      TDEBUG_END_TASK_SI(4, sid_);
     }
 
   private:
@@ -819,69 +863,6 @@ namespace art {
     tbb::task* eventLoopTask_;
     ScheduleID const sid_;
   };
-
-  void
-  EventProcessor::endPathTask(tbb::task* eventLoopTask,
-                              ScheduleID const sid,
-                              exception_ptr const* ex)
-  {
-    // Note: When we start our parent is the eventLoopTask.
-    TDEBUG_BEGIN_TASK_SI(4, sid);
-    if (ex != nullptr) {
-      try {
-        rethrow_exception(*ex);
-      }
-      catch (cet::exception& e) {
-        if (scheduler_->actionTable().find(e.root_cause()) !=
-            actions::IgnoreCompletely) {
-          // Use a thread-safe, one-way trapdoor pattern to notify the
-          // main thread of the exception.
-          bool expected = false;
-          if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
-                                                                 true)) {
-            // Put the exception where the main thread can get at it.
-            deferredExceptionPtr_ = make_exception_ptr(
-              Exception{errors::EventProcessorFailure,
-                        "EventProcessor: an exception occurred during current "
-                        "event processing",
-                        e});
-          }
-          // And then end this task, terminating event processing.
-          TDEBUG_END_TASK_SI(4, sid)
-            << "terminate event loop because of EXCEPTION";
-          return;
-        }
-        mf::LogWarning(e.category())
-          << "exception being ignored for current event:\n"
-          << cet::trim_right_copy(e.what(), " \n");
-        // WARNING: We continue processing after the catch blocks!!!
-      }
-      catch (...) {
-        mf::LogError("PassingThrough")
-          << "an exception occurred during current event processing\n";
-        // Use a thread-safe, one-way trapdoor pattern to notify the main
-        // thread of the exception.
-        bool expected = false;
-        if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
-                                                               true)) {
-          // Put the exception where the main thread can get at it.
-          deferredExceptionPtr_ = current_exception();
-        }
-        // And then end this task, terminating event processing.
-        TDEBUG_END_TASK_SI(4, sid)
-          << "terminate event loop because of EXCEPTION";
-        return;
-      }
-      // WARNING: We only get here if the trigger paths threw and we
-      // are ignoring the exception because of
-      // actions::IgnoreCompletely.
-    }
-    processEndPathAsync(eventLoopTask, sid);
-    // And end this task, which does not terminate event processing
-    // because our parent is the nullptr because it got transferred to
-    // the next process event task.
-    TDEBUG_END_TASK_SI(4, sid);
-  }
 
   // This function is a continuation of the body of the
   // readAndProcessEvent task. Here we call down to Schedule to do the
@@ -907,7 +888,7 @@ namespace art {
       // so we can exit without ending event processing.
       auto endPathTask =
         make_waiting_task(tbb::task::self().allocate_continuation(),
-                          EndPathFunctor{this, eventLoopTask, sid});
+                          EndPathTask{this, eventLoopTask, sid});
       {
         ScheduleContext const sc{sid};
         Event const ev{*eventPrincipals_->at(sid), invalid_module_context};
@@ -996,58 +977,79 @@ namespace art {
     TDEBUG_END_FUNC_SI(4, sid);
   }
 
-  class EndPathRunnerFunctor {
+  // ----------------------------------------------------------------------------
+  class EventProcessor::EndPathRunnerTask {
   public:
-    EndPathRunnerFunctor(EventProcessor* evp,
-                         ScheduleID const sid,
-                         tbb::task* eventLoopTask)
+    EndPathRunnerTask(EventProcessor* evp,
+                      ScheduleID const sid,
+                      tbb::task* eventLoopTask)
       : evp_{evp}, sid_{sid}, eventLoopTask_{eventLoopTask}
     {}
+
     void
     operator()() const
     {
-      evp_->endPathRunnerTask(sid_, eventLoopTask_);
-    }
-
-  private:
-    EventProcessor* evp_;
-    ScheduleID const sid_;
-    tbb::task* eventLoopTask_;
-  };
-
-  void
-  EventProcessor::endPathRunnerTask(ScheduleID const sid,
-                                    tbb::task* eventLoopTask)
-  {
-    TDEBUG_BEGIN_TASK_SI(4, sid);
-    // Arrange it so that we can terminate event
-    // processing if we want to.
-    ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
-                                 sizeof(tbb::internal::task_prefix),
-                               sizeof(tbb::task) +
-                                 sizeof(tbb::internal::task_prefix),
-                               "tbb::task");
-    tbb::task::self().set_parent(eventLoopTask);
-    try {
-      endPathExecutors_->at(sid).process_event(*eventPrincipals_->at(sid));
-    }
-    catch (cet::exception& e) {
-      // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
-      // FailPath
-      if (scheduler_->actionTable().find(e.root_cause()) !=
-          actions::IgnoreCompletely) {
-        // Possible actions: Rethrow, SkipEvent, FailModule, FailPath
-        // Use a thread-safe, one-way trapdoor pattern to
-        // notify the main thread of the exception.
+      TDEBUG_BEGIN_TASK_SI(4, sid_);
+      // Arrange it so that we can terminate event processing if we want
+      // to.
+      ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
+                                   sizeof(tbb::internal::task_prefix),
+                                 sizeof(tbb::task) +
+                                   sizeof(tbb::internal::task_prefix),
+                                 "tbb::task");
+      tbb::task::self().set_parent(eventLoopTask_);
+      try {
+        evp_->endPathExecutors_->at(sid_).process_event(
+          *evp_->eventPrincipals_->at(sid_));
+      }
+      catch (cet::exception& e) {
+        // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
+        // FailPath
+        if (evp_->scheduler_->actionTable().find(e.root_cause()) !=
+            actions::IgnoreCompletely) {
+          // Possible actions: Rethrow, SkipEvent, FailModule, FailPath
+          // Use a thread-safe, one-way trapdoor pattern to
+          // notify the main thread of the exception.
+          bool expected = false;
+          if (evp_->deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
+                                                                       true)) {
+            // Put the exception where the main thread can get at it.
+            evp_->deferredExceptionPtr_ = make_exception_ptr(
+              Exception{errors::EventProcessorFailure,
+                        "EventProcessor: an exception occurred during "
+                        "current event processing",
+                        e});
+          }
+          // And then end this task, terminating event processing.
+          ANNOTATE_BENIGN_RACE_SIZED(
+            reinterpret_cast<char*>(&tbb::task::self()) -
+              sizeof(tbb::internal::task_prefix),
+            sizeof(tbb::task) + sizeof(tbb::internal::task_prefix),
+            "tbb::task");
+          tbb::task::self().set_parent(eventLoopTask_);
+          TDEBUG_END_TASK_SI(4, sid_)
+            << "terminate event loop because of EXCEPTION";
+          return;
+        }
+        // Possible actions: IgnoreCompletely
+        mf::LogWarning(e.category())
+          << "exception being ignored for current event:\n"
+          << cet::trim_right_copy(e.what(), " \n");
+        // WARNING: We continue processing after the catch blocks!!!
+        // WARNING: The only way to get here is if end path
+        // processing threw and we are ignoring the exception
+        // because of actions::IgnoreCompletely.
+      }
+      catch (...) {
+        mf::LogError("PassingThrough")
+          << "an exception occurred during current event processing\n";
+        // Use a thread-safe, one-way trapdoor pattern to notify the
+        // main thread of the exception.
         bool expected = false;
-        if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
-                                                               true)) {
+        if (evp_->deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
+                                                                     true)) {
           // Put the exception where the main thread can get at it.
-          deferredExceptionPtr_ = make_exception_ptr(
-            Exception{errors::EventProcessorFailure,
-                      "EventProcessor: an exception occurred during "
-                      "current event processing",
-                      e});
+          evp_->deferredExceptionPtr_ = current_exception();
         }
         // And then end this task, terminating event processing.
         ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
@@ -1055,50 +1057,28 @@ namespace art {
                                    sizeof(tbb::task) +
                                      sizeof(tbb::internal::task_prefix),
                                    "tbb::task");
-        tbb::task::self().set_parent(eventLoopTask);
-        TDEBUG_END_TASK_SI(4, sid)
+        tbb::task::self().set_parent(eventLoopTask_);
+        TDEBUG_END_TASK_SI(4, sid_)
           << "terminate event loop because of EXCEPTION";
         return;
       }
-      // Possible actions: IgnoreCompletely
-      mf::LogWarning(e.category())
-        << "exception being ignored for current event:\n"
-        << cet::trim_right_copy(e.what(), " \n");
-      // WARNING: We continue processing after the catch blocks!!!
-      // WARNING: The only way to get here is if end path
-      // processing threw and we are ignoring the exception
-      // because of actions::IgnoreCompletely.
-    }
-    catch (...) {
-      mf::LogError("PassingThrough")
-        << "an exception occurred during current event processing\n";
-      // Use a thread-safe, one-way trapdoor pattern to notify the
-      // main thread of the exception.
-      bool expected = false;
-      if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
-        // Put the exception where the main thread can get at it.
-        deferredExceptionPtr_ = current_exception();
+      {
+        ScheduleContext const sc{sid_};
+        Event const ev{*evp_->eventPrincipals_->at(sid_),
+                       invalid_module_context};
+        evp_->actReg_->sPostProcessEvent.invoke(ev, sc);
       }
-      // And then end this task, terminating event processing.
-      ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
-                                   sizeof(tbb::internal::task_prefix),
-                                 sizeof(tbb::task) +
-                                   sizeof(tbb::internal::task_prefix),
-                                 "tbb::task");
-      tbb::task::self().set_parent(eventLoopTask);
-      TDEBUG_END_TASK_SI(4, sid) << "terminate event loop because of EXCEPTION";
-      return;
+      evp_->finishEventAsync(eventLoopTask_, sid_);
+      // Note that we do not terminate event processing when we end
+      // because finishEventAsync has set our parent to the nullptr.
+      TDEBUG_END_TASK_SI(4, sid_);
     }
-    {
-      ScheduleContext const sc{sid};
-      Event const ev{*eventPrincipals_->at(sid), invalid_module_context};
-      actReg_->sPostProcessEvent.invoke(ev, sc);
-    }
-    finishEventAsync(eventLoopTask, sid);
-    // Note that we do not terminate event processing when we end
-    // because finishEventAsync has set our parent to the nullptr.
-    TDEBUG_END_TASK_SI(4, sid);
-  }
+
+  private:
+    EventProcessor* evp_;
+    ScheduleID const sid_;
+    tbb::task* eventLoopTask_;
+  };
 
   // This function is the main body of the Process End Path task, our
   // parent is the eventLoopTask.
@@ -1126,11 +1106,11 @@ namespace art {
                                  sizeof(tbb::internal::task_prefix),
                                "tbb::task");
     tbb::task::self().set_parent(nullptr);
-    endPathQueue_->push(EndPathRunnerFunctor{this, sid, eventLoopTask});
+    endPathQueue_->push(EndPathRunnerTask{this, sid, eventLoopTask});
     // Once the end path processing and event finalization processing
     // is queued we are done, exit this task, which does not end event
     // processing because our parent is the nullptr because we transferred
-    // it to the endPathFunctor.
+    // it to the endPathTask.
     TDEBUG_END_FUNC_SI(4, sid);
   }
 
@@ -1144,7 +1124,7 @@ namespace art {
   EventProcessor::finishEventAsync(tbb::task* eventLoopTask,
                                    ScheduleID const sid)
   {
-    // Note: We are part of the endPathFunctor.
+    // Note: We are part of the endPathTask.
     TDEBUG_BEGIN_FUNC_SI(4, sid);
     FDEBUG(1) << string(8, ' ') << "processEvent................("
               << eventPrincipals_->at(sid)->eventID() << ")\n";

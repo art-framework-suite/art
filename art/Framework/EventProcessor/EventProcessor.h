@@ -74,19 +74,12 @@ namespace art {
     //
     StatusCode runToCompletion();
 
-    // Tasking Structure
-    void processAllEventsTask(tbb::task* eventLoopTask,
-                              ScheduleID const,
-                              std::exception_ptr const*);
-    void readAndProcessEventTask(tbb::task* eventLoopTask,
-                                 ScheduleID const,
-                                 std::exception_ptr const*);
-    void endPathTask(tbb::task* eventLoopTask,
-                     ScheduleID const,
-                     std::exception_ptr const*);
-    void endPathRunnerTask(ScheduleID const, tbb::task* eventLoopTask);
+  private:
+    class ProcessAllEventsTask;
+    class ReadAndProcessEventTask;
+    class EndPathTask;
+    class EndPathRunnerTask;
 
-  private: // MEMBER FUCNTIONS -- Event Loop Infrastructure
     // Event-loop infrastructure
     void processAllEventsAsync(tbb::task* EventLoopTask, ScheduleID const);
     void readAndProcessAsync(tbb::task* EventLoopTask, ScheduleID const);
