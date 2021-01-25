@@ -191,7 +191,6 @@ namespace art {
     fhicl::ParameterSetRegistry::put(triggerPSet);
     Globals::instance()->setTriggerPSet(triggerPSet);
     Globals::instance()->setTriggerPathNames(pathManager_->triggerPathNames());
-    eventPrincipals_.expand_to_num_schedules();
     auto const errorOnMissingConsumes = scheduler_->errorOnMissingConsumes();
     ConsumesInfo::instance()->setRequireConsumes(errorOnMissingConsumes);
     {
@@ -215,8 +214,10 @@ namespace art {
     auto const producing_services = servicesManager_->registerProducts(
       producedProductDescriptions_, psSignals_, pc);
     pathManager_->createModulesAndWorkers(producing_services);
+    auto end_path_queue = std::make_shared<hep::concurrency::SerialTaskQueue>();
     auto create =
-      [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
+      [&processName, &pset, &triggerPSet, queue = end_path_queue, this](
+        ScheduleID const sid) {
         auto results_inserter =
           maybe_trigger_results_inserter(sid,
                                          processName,
@@ -234,7 +235,8 @@ namespace art {
                                                   scheduler_->actionTable(),
                                                   actReg_,
                                                   outputCallbacks_,
-                                                  move(results_inserter)));
+                                                  move(results_inserter),
+                                                  queue));
       };
     scheduleIteration_.for_each_schedule(create);
     SharedResourcesRegistry::instance()->freeze();
@@ -285,7 +287,7 @@ namespace art {
         throw;
       }
     }
-    actReg_->sPostSourceConstruction.invoke(input_->moduleDescription());
+    actReg_.sPostSourceConstruction.invoke(input_->moduleDescription());
     // Create product tables used for product retrieval within modules.
     producedProductLookupTables_ = ProductTables{producedProductDescriptions_};
     outputCallbacks_->invoke(producedProductLookupTables_);
@@ -304,7 +306,7 @@ namespace art {
     transform_all(pathManager_->endPathInfo(ScheduleID::first()).workers(),
                   back_inserter(allWorkers),
                   [](auto const& pr) { return pr.second; });
-    actReg_->sPostBeginJobWorkers.invoke(input_, allWorkers);
+    actReg_.sPostBeginJobWorkers.invoke(input_, allWorkers);
   }
 
   //================================================================
@@ -483,721 +485,6 @@ namespace art {
     main_schedule().recordOutputClosureRequests(Granularity::Event);
   }
 
-  // ------------------------------------------------------------------------------
-  class EventProcessor::ProcessAllEventsTask {
-  public:
-    ProcessAllEventsTask(EventProcessor* evp,
-                         tbb::task* eventLoopTask,
-                         ScheduleID const sid)
-      : evp_(evp), eventLoopTask_(eventLoopTask), sid_(sid)
-    {}
-
-    void
-    operator()(exception_ptr const*)
-    {
-      TDEBUG_BEGIN_TASK_SI(4, sid_);
-      evp_->processAllEventsAsync(eventLoopTask_, sid_);
-      TDEBUG_END_TASK_SI(4, sid_);
-    }
-
-  private:
-    EventProcessor* evp_;
-    tbb::task* eventLoopTask_;
-    ScheduleID const sid_;
-  };
-
-  template <>
-  void
-  EventProcessor::process<most_deeply_nested_level()>()
-  {
-    if ((shutdown_flag > 0) || !ec_->empty()) {
-      return;
-    }
-    // Note: This loop is to allow output file switching to happen in
-    // the main thread.
-    firstEvent_ = true;
-    bool done = false;
-    while (!done) {
-      beginRunIfNotDoneAlready();
-      beginSubRunIfNotDoneAlready();
-      struct Waiter : public tbb::task {
-        tbb::task*
-        execute()
-        {
-          return nullptr;
-        }
-      };
-      auto eventLoopTask = new (tbb::task::allocate_root()) Waiter;
-      eventLoopTask->set_ref_count(scheduler_->num_schedules() + 1);
-
-      tbb::task_list schedule_heads;
-      auto create_event_processing_tasks =
-        [&eventLoopTask, &schedule_heads, this](ScheduleID const sid) {
-          auto processAllEventsTask =
-            make_waiting_task(eventLoopTask->allocate_child(),
-                              ProcessAllEventsTask{this, eventLoopTask, sid});
-          schedule_heads.push_back(*processAllEventsTask);
-        };
-      scheduleIteration_.for_each_schedule(create_event_processing_tasks);
-
-      eventLoopTask->spawn_and_wait_for_all(schedule_heads);
-      tbb::task::destroy(*eventLoopTask);
-      // If anything bad happened during event processing, let the
-      // user know.
-      if (deferredExceptionPtrIsSet_.load()) {
-        rethrow_exception(deferredExceptionPtr_);
-      }
-      auto do_switch = fileSwitchInProgress_.load();
-      if (!do_switch) {
-        done = true;
-        continue;
-      }
-      setOutputFileStatus(OutputFileStatus::Switching);
-      finalizeContainingLevels<most_deeply_nested_level()>();
-      respondToCloseOutputFiles();
-      main_schedule().closeSomeOutputFiles();
-      FDEBUG(1) << string(8, ' ') << "closeSomeOutputFiles\n";
-      // We started the switch after advancing to the next item type;
-      // we must make sure that we read that event before advancing
-      // the item type again.
-      firstEvent_ = true;
-      fileSwitchInProgress_ = false;
-    }
-  }
-
-  // This is the event loop (also known as the schedule head).  It
-  // calls readAndProcessAsync, which reads and processes a single
-  // event, creates itself again as a continuation task, and then
-  // exits. We are passed the EventLoopTask here to keep the thread
-  // sanitizer happy.
-  void
-  EventProcessor::processAllEventsAsync(tbb::task* eventLoopTask,
-                                        ScheduleID const sid)
-  {
-    // Note: We are part of the processAllEventsTask (schedule head
-    // task), and our parent is the eventLoopTask.
-    TDEBUG_BEGIN_FUNC_SI(4, sid);
-    try {
-      // Note: We pass eventLoopTask here to keep the thread sanitizer
-      // happy.
-      readAndProcessAsync(eventLoopTask, sid);
-    }
-    catch (...) {
-      // Use a thread-safe, one-way trapdoor pattern to notify the
-      // main thread of the exception.
-      bool expected{false};
-      if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
-        // Put the exception where the main thread can get at it.
-        deferredExceptionPtr_ = current_exception();
-      }
-      // And then end this task, terminating event processing.
-      TDEBUG_END_FUNC_SI(4, sid) << "terminate event loop because of EXCEPTION";
-      return;
-    }
-    // If no exception, then end this task, which does not terminate
-    // event processing because our parent is the nullptr because we
-    // transferred it to another task.
-    TDEBUG_END_FUNC_SI(4, sid);
-  }
-
-  // This function is executed as part of the readAndProcessEvent
-  // task, our parent task is the EventLoopTask. Here we advance to
-  // the next item in the file index, end event processing if it is
-  // not an event, or if the user has requested a shutdown, read the
-  // event, and then call another function to do the processing.
-  void
-  EventProcessor::readAndProcessAsync(tbb::task* eventLoopTask,
-                                      ScheduleID const sid)
-  {
-    // Note: We are part of the readAndProcessEventTask (schedule head
-    // task), and our parent task is the eventLoopTask.
-    TDEBUG_BEGIN_FUNC_SI(4, sid);
-    // Note: shutdown_flag is a extern global atomic int in
-    // art/art/Utilities/UnixSignalHandlers.cc
-    if (shutdown_flag) {
-      // User called for a clean shutdown using a signal or ctrl-c,
-      // end event processing and this task.
-      TDEBUG_END_FUNC_SI(4, sid) << "CLEAN SHUTDOWN";
-      return;
-    }
-    // The item type advance and the event read must be done with the
-    // input source lock held; however event-processing must not
-    // serialized.
-    {
-      InputSourceMutexSentry lock_input;
-      auto do_switch = fileSwitchInProgress_.load();
-      if (do_switch) {
-        // We must avoid advancing the iterator after a schedule has
-        // noticed it is time to switch files.  After the switch, we
-        // will need to set firstEvent_ true so that the first
-        // schedule that resumes after the switch actually reads the
-        // event that the first schedule which noticed we needed a
-        // switch had advanced the iterator to.
-
-        // Note: We still have the problem that because the schedules
-        // do not read events at the same time the file switch point
-        // can be up to #nschedules-1 ahead of where it would have
-        // been if there was only one schedule.  If we are switching
-        // output files every event in an attempt to create single
-        // event files, this really does not work out too well.
-        TDEBUG_END_FUNC_SI(4, sid) << "FILE SWITCH";
-        return;
-      }
-      // Check the next item type and exit this task if it is not an
-      // event, or if the user has asynchronously requested a
-      // shutdown.
-      auto expected = true;
-      if (firstEvent_.compare_exchange_strong(expected, false)) {
-        // Do not advance the item type on the first event.
-      } else {
-        // Do the advance item type.
-        if (nextLevel_.load() == Level::ReadyToAdvance) {
-          // See what the next item is.
-          TDEBUG_FUNC_SI(5, sid) << "Calling advanceItemType()";
-          nextLevel_ = advanceItemType();
-        }
-        if ((nextLevel_.load() < most_deeply_nested_level()) ||
-            (nextLevel_.load() == highest_level())) {
-          // We are popping up, end event processing and this task.
-          TDEBUG_END_FUNC_SI(4, sid) << "END OF SUBRUN";
-          return;
-        }
-        if (nextLevel_.load() != most_deeply_nested_level()) {
-          // Error: incorrect level hierarchy
-          TDEBUG_END_FUNC_SI(4, sid) << "BAD HIERARCHY";
-          throw Exception{errors::LogicError} << "Incorrect level hierarchy.";
-        }
-        nextLevel_ = Level::ReadyToAdvance;
-        // At this point we have determined that we are going to read
-        // an event and we must do that before dropping the lock on
-        // the input source which is what is protecting us against a
-        // double-advance caused by a different schedule.
-        auto mustClose = schedule(sid).outputsToClose();
-        if (mustClose) {
-          fileSwitchInProgress_ = true;
-          TDEBUG_END_FUNC_SI(4, sid) << "FILE SWITCH INITIATED";
-          return;
-        }
-      }
-
-      // Now we can read the event from the source.
-      ScheduleContext const sc{sid};
-      assert(subRunPrincipal_);
-      assert(subRunPrincipal_->subRunID().isValid());
-      actReg_->sPreSourceEvent.invoke(sc);
-      TDEBUG_FUNC_SI(5, sid) << "Calling input_->readEvent(subRunPrincipal_)";
-      eventPrincipals_.at(sid) = input_->readEvent(subRunPrincipal_.get());
-      assert(eventPrincipals_.at(sid));
-      auto& ep = *eventPrincipals_.at(sid);
-
-      // The intended behavior here is that the producing services
-      // which are called during the sPostReadEvent cannot see each
-      // others put products.  We enforce this by creating the groups
-      // for the produced products, but do not allow the lookups to
-      // find them until after the callbacks have run.
-      ep.createGroupsForProducedProducts(producedProductLookupTables_);
-      psSignals_->sPostReadEvent.invoke(ep);
-      ep.enableLookupOfProducedProducts(producedProductLookupTables_);
-      {
-        Event const e{ep, invalid_module_context};
-        actReg_->sPostSourceEvent.invoke(e, sc);
-      }
-      FDEBUG(1) << string(8, ' ') << "readEvent...................("
-                << ep.eventID() << ")\n";
-      // Now we drop the input source lock by exiting the guarded
-      // scope.
-    }
-    auto& ep = *eventPrincipals_.at(sid);
-    if (ep.eventID().isFlush()) {
-      // No processing to do, start next event handling task,
-      // transferring our parent task (eventLoopTask) to it, and exit
-      // this task.
-      processAllEventsAsync(eventLoopTask, sid);
-      TDEBUG_END_FUNC_SI(4, sid) << "FLUSH EVENT";
-      return;
-    }
-
-    // Now process the event.
-    processEventAsync(eventLoopTask, ep, sid);
-    // And end this task, which does not terminate event processing
-    // because our parent is the nullptr because we transferred it to
-    // the endPathTask.
-    TDEBUG_END_FUNC_SI(4, sid);
-  }
-
-  // ----------------------------------------------------------------------------
-  class EventProcessor::EndPathTask {
-  public:
-    EndPathTask(EventProcessor* evp,
-                tbb::task* eventLoopTask,
-                ScheduleID const sid)
-      : evp_{evp}, eventLoopTask_{eventLoopTask}, sid_{sid}
-    {}
-
-    void
-    operator()(exception_ptr const* ex)
-    {
-      // Note: When we start our parent is the eventLoopTask.
-      TDEBUG_BEGIN_TASK_SI(4, sid_);
-      if (ex != nullptr) {
-        try {
-          rethrow_exception(*ex);
-        }
-        catch (cet::exception& e) {
-          if (evp_->scheduler_->actionTable().find(e.root_cause()) !=
-              actions::IgnoreCompletely) {
-            // Use a thread-safe, one-way trapdoor pattern to notify the
-            // main thread of the exception.
-            bool expected = false;
-            if (evp_->deferredExceptionPtrIsSet_.compare_exchange_strong(
-                  expected, true)) {
-              // Put the exception where the main thread can get at it.
-              evp_->deferredExceptionPtr_ = make_exception_ptr(Exception{
-                errors::EventProcessorFailure,
-                "EventProcessor: an exception occurred during current "
-                "event processing",
-                e});
-            }
-            // And then end this task, terminating event processing.
-            TDEBUG_END_TASK_SI(4, sid_)
-              << "terminate event loop because of EXCEPTION";
-            return;
-          }
-          mf::LogWarning(e.category())
-            << "exception being ignored for current event:\n"
-            << cet::trim_right_copy(e.what(), " \n");
-          // WARNING: We continue processing after the catch blocks!!!
-        }
-        catch (...) {
-          mf::LogError("PassingThrough")
-            << "an exception occurred during current event processing\n";
-          // Use a thread-safe, one-way trapdoor pattern to notify the main
-          // thread of the exception.
-          bool expected = false;
-          if (evp_->deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
-                                                                       true)) {
-            // Put the exception where the main thread can get at it.
-            evp_->deferredExceptionPtr_ = current_exception();
-          }
-          // And then end this task, terminating event processing.
-          TDEBUG_END_TASK_SI(4, sid_)
-            << "terminate event loop because of EXCEPTION";
-          return;
-        }
-        // WARNING: We only get here if the trigger paths threw and we
-        // are ignoring the exception because of
-        // actions::IgnoreCompletely.
-      }
-      evp_->processEndPathAsync(eventLoopTask_, sid_);
-      // And end this task, which does not terminate event processing
-      // because our parent is the nullptr because it got transferred to
-      // the next process event task.
-      TDEBUG_END_TASK_SI(4, sid_);
-    }
-
-  private:
-    EventProcessor* evp_;
-    tbb::task* eventLoopTask_;
-    ScheduleID const sid_;
-  };
-
-  // This function is a continuation of the body of the
-  // readAndProcessEvent task. Here we call down to Schedule to do the
-  // trigger path processing, passing it a waiting task which will do
-  // the end path processing, finalize the event, and start the next
-  // read and process event task.  Note that Schedule will spawn a
-  // task to process each of the trigger paths, and then when they are
-  // finished, insert the trigger results, and then spawn the waiting
-  // task we gave it to do the end path processing, write the event,
-  // and then start the next event processing task.
-  void
-  EventProcessor::processEventAsync(tbb::task* eventLoopTask,
-                                    EventPrincipal& ep,
-                                    ScheduleID const sid) try {
-    // Note: We are part of the readAndProcessEventTask (schedule head
-    // task), and our parent task is the eventLoopTask.
-    TDEBUG_BEGIN_FUNC_SI(4, sid);
-    assert(!ep.eventID().isFlush());
-    // Make the end path processing task, make its parent the
-    // eventLoopTask, and set our parent to the nullptr so we can exit
-    // without ending event processing.
-    auto endPathTask =
-      make_waiting_task(tbb::task::self().allocate_continuation(),
-                        EndPathTask{this, eventLoopTask, sid});
-    {
-      ScheduleContext const sc{sid};
-      Event const ev{ep, invalid_module_context};
-      actReg_->sPreProcessEvent.invoke(ev, sc);
-    }
-    // Start the trigger paths running.  When they finish they will
-    // spawn the endPathTask which will run the end path, write the
-    // event, and start the next event processing task.
-    schedule(sid).process_event_modifiers(endPathTask, eventLoopTask, ep);
-  }
-  catch (cet::exception& e) {
-    if (scheduler_->actionTable().find(e.root_cause()) !=
-        actions::IgnoreCompletely) {
-      // Use a thread-safe, one-way trapdoor pattern to notify the
-      // main thread of the exception.
-      bool expected = false;
-      if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
-        // Put the exception where the main thread can get at it.
-        deferredExceptionPtr_ =
-          make_exception_ptr(Exception{errors::EventProcessorFailure,
-                                       "EventProcessor: an exception "
-                                       "occurred during current event "
-                                       "processing",
-                                       e});
-      }
-      // And then end this task, terminating event processing.
-      ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
-                                   sizeof(tbb::internal::task_prefix),
-                                 sizeof(tbb::task) +
-                                   sizeof(tbb::internal::task_prefix),
-                                 "tbb::task");
-      tbb::task::self().set_parent(eventLoopTask);
-      TDEBUG_END_FUNC_SI(4, sid) << "terminate event loop because of EXCEPTION";
-      return;
-    }
-    mf::LogWarning(e.category())
-      << "exception being ignored for current event:\n"
-      << cet::trim_right_copy(e.what(), " \n");
-    // Do this in case we already gave our parent to to endPathTask.
-    ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
-                                 sizeof(tbb::internal::task_prefix),
-                               sizeof(tbb::task) +
-                                 sizeof(tbb::internal::task_prefix),
-                               "tbb::task");
-    tbb::task::self().set_parent(eventLoopTask);
-    TDEBUG_END_FUNC_SI(4, sid) << "Ignoring exception.";
-  }
-  catch (...) {
-    mf::LogError("PassingThrough")
-      << "an exception occurred during current event processing\n";
-    // Use a thread-safe, one-way trapdoor pattern to notify the main
-    // thread of the exception.
-    bool expected = false;
-    if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
-      // Put the exception where the main thread can get at it.
-      deferredExceptionPtr_ = current_exception();
-    }
-    // Do this in case we already gave our parent to to endPathTask.
-    ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
-                                 sizeof(tbb::internal::task_prefix),
-                               sizeof(tbb::task) +
-                                 sizeof(tbb::internal::task_prefix),
-                               "tbb::task");
-    tbb::task::self().set_parent(eventLoopTask);
-    // And then end this task, terminating event processing.
-    TDEBUG_END_FUNC_SI(4, sid) << "terminate event loop because of EXCEPTION";
-  }
-
-  // ----------------------------------------------------------------------------
-  class EventProcessor::EndPathRunnerTask {
-  public:
-    EndPathRunnerTask(EventProcessor* evp,
-                      ScheduleID const sid,
-                      tbb::task* eventLoopTask)
-      : evp_{evp}, sid_{sid}, eventLoopTask_{eventLoopTask}
-    {}
-
-    void
-    operator()() const
-    {
-      TDEBUG_BEGIN_TASK_SI(4, sid_);
-      // Arrange it so that we can terminate event processing if we
-      // want to.
-      ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
-                                   sizeof(tbb::internal::task_prefix),
-                                 sizeof(tbb::task) +
-                                   sizeof(tbb::internal::task_prefix),
-                                 "tbb::task");
-      tbb::task::self().set_parent(eventLoopTask_);
-      auto& ep = *evp_->eventPrincipals_.at(sid_);
-      try {
-        evp_->schedule(sid_).process_event_observers(ep);
-      }
-      catch (cet::exception& e) {
-        // Possible actions: IgnoreCompletely, Rethrow, SkipEvent,
-        // FailModule, FailPath
-        if (evp_->scheduler_->actionTable().find(e.root_cause()) !=
-            actions::IgnoreCompletely) {
-          // Possible actions: Rethrow, SkipEvent, FailModule,
-          // FailPath.  Use a thread-safe, one-way trapdoor pattern to
-          // notify the main thread of the exception.
-          bool expected = false;
-          if (evp_->deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
-                                                                       true)) {
-            // Put the exception where the main thread can get at it.
-            evp_->deferredExceptionPtr_ = make_exception_ptr(
-              Exception{errors::EventProcessorFailure,
-                        "EventProcessor: an exception occurred during "
-                        "current event processing",
-                        e});
-          }
-          // And then end this task, terminating event processing.
-          ANNOTATE_BENIGN_RACE_SIZED(
-            reinterpret_cast<char*>(&tbb::task::self()) -
-              sizeof(tbb::internal::task_prefix),
-            sizeof(tbb::task) + sizeof(tbb::internal::task_prefix),
-            "tbb::task");
-          tbb::task::self().set_parent(eventLoopTask_);
-          TDEBUG_END_TASK_SI(4, sid_)
-            << "terminate event loop because of EXCEPTION";
-          return;
-        }
-        // Possible actions: IgnoreCompletely
-        mf::LogWarning(e.category())
-          << "exception being ignored for current event:\n"
-          << cet::trim_right_copy(e.what(), " \n");
-        // WARNING: We continue processing after the catch blocks!!!
-        // WARNING: The only way to get here is if end path processing
-        // threw and we are ignoring the exception because of
-        // actions::IgnoreCompletely.
-      }
-      catch (...) {
-        mf::LogError("PassingThrough")
-          << "an exception occurred during current event processing\n";
-        // Use a thread-safe, one-way trapdoor pattern to notify the
-        // main thread of the exception.
-        bool expected = false;
-        if (evp_->deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
-                                                                     true)) {
-          // Put the exception where the main thread can get at it.
-          evp_->deferredExceptionPtr_ = current_exception();
-        }
-        // And then end this task, terminating event processing.
-        ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
-                                     sizeof(tbb::internal::task_prefix),
-                                   sizeof(tbb::task) +
-                                     sizeof(tbb::internal::task_prefix),
-                                   "tbb::task");
-        tbb::task::self().set_parent(eventLoopTask_);
-        TDEBUG_END_TASK_SI(4, sid_)
-          << "terminate event loop because of EXCEPTION";
-        return;
-      }
-      {
-        ScheduleContext const sc{sid_};
-        Event const ev{ep, invalid_module_context};
-        evp_->actReg_->sPostProcessEvent.invoke(ev, sc);
-      }
-      evp_->finishEventAsync(eventLoopTask_, sid_);
-      // Note that we do not terminate event processing when we end
-      // because finishEventAsync has set our parent to the nullptr.
-      TDEBUG_END_TASK_SI(4, sid_);
-    }
-
-  private:
-    EventProcessor* evp_;
-    ScheduleID const sid_;
-    tbb::task* eventLoopTask_;
-  };
-
-  // This function is the main body of the Process End Path task, our
-  // parent is the eventLoopTask.
-
-  // Here we create a functor which will call down to EndPathExecutor
-  // to do the end path processing serially, without using tasks, and
-  // then proceed on to write the event, and then start the next event
-  // processing task.  This functor makes running the end path and
-  // writing the event into a nice package which we then push onto the
-  // EndPathExecutor serial task queue.  This ensures that only one
-  // event at a time is being processed by the end path.  Essentially
-  // the n schedules end when we push onto the queue, and are
-  // recreated after the event is written to process the next event.
-  void
-  EventProcessor::processEndPathAsync(tbb::task* eventLoopTask,
-                                      ScheduleID const sid)
-  {
-    // Note: We are part of the endPathTask.
-    TDEBUG_BEGIN_FUNC_SI(4, sid);
-    // Arrange it so that we can end the task without terminating
-    // event processing.
-    ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
-                                 sizeof(tbb::internal::task_prefix),
-                               sizeof(tbb::task) +
-                                 sizeof(tbb::internal::task_prefix),
-                               "tbb::task");
-    tbb::task::self().set_parent(nullptr);
-    endPathQueue_->push(EndPathRunnerTask{this, sid, eventLoopTask});
-    // Once the end path processing and event finalization processing
-    // is queued we are done, exit this task, which does not end event
-    // processing because our parent is the nullptr because we
-    // transferred it to the endPathTask.
-    TDEBUG_END_FUNC_SI(4, sid);
-  }
-
-  // This function is a continuation of the Process End Path task, or
-  // the error handling for an ignored trigger path exception in the
-  // Process All Events task, or an ignored end path exception in the
-  // Process End Path task.  Our parent task is the eventLoopTask.  We
-  // write the event out, spawn the next event processing task, and
-  // end the current task.
-  void
-  EventProcessor::finishEventAsync(tbb::task* eventLoopTask,
-                                   ScheduleID const sid)
-  {
-    // Note: We are part of the endPathTask.
-    TDEBUG_BEGIN_FUNC_SI(4, sid);
-    FDEBUG(1) << string(8, ' ') << "processEvent................("
-              << eventPrincipals_.at(sid)->eventID() << ")\n";
-    try {
-      // Ask the output workers if they have reached their limits, and
-      // if so setup to end the job the next time around the event
-      // loop.
-      FDEBUG(1) << string(8, ' ') << "shouldWeStop\n";
-      TDEBUG_FUNC_SI(5, sid) << "Calling schedules_->allAtLimit()";
-      if (schedule(sid).allAtLimit()) {
-        // Set to return to the File level.
-        nextLevel_ = highest_level();
-      }
-      // Now we can write the results of processing to the outputs,
-      // and delete the event principal.
-      assert(eventPrincipals_.at(sid));
-      auto isFlush = eventPrincipals_.at(sid)->eventID().isFlush();
-      if (!isFlush) {
-        // Possibly open new output files.  This is safe to do because
-        // EndPathExecutor functions are called in a serialized
-        // context.
-        TDEBUG_FUNC_SI(5, sid) << "Calling openSomeOutputFiles()";
-        openSomeOutputFiles();
-        assert(eventPrincipals_.at(sid));
-        assert(!eventPrincipals_.at(sid)->eventID().isFlush());
-        TDEBUG_FUNC_SI(5, sid) << "Calling schedules_->writeEvent(sid, "
-                                  "*eventPrincipals_.at(sid))";
-        // Write the event.
-        schedule(sid).writeEvent(*eventPrincipals_.at(sid));
-        FDEBUG(1) << string(8, ' ') << "writeEvent..................("
-                  << eventPrincipals_.at(sid)->eventID() << ")\n";
-        // And delete the event principal.
-        eventPrincipals_.at(sid).reset();
-      }
-      TDEBUG_FUNC_SI(5, sid)
-        << "Calling schedules_->"
-           "recordOutputClosureRequests(Granularity::Event)";
-      schedule(sid).recordOutputClosureRequests(Granularity::Event);
-    }
-    catch (cet::exception& e) {
-      if (scheduler_->actionTable().find(e.root_cause()) !=
-          actions::IgnoreCompletely) {
-        // Use a thread-safe, one-way trapdoor pattern to notify the
-        // main thread of the exception.
-        bool expected = false;
-        if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected,
-                                                               true)) {
-          // Put the exception where the main thread can get at it.
-          deferredExceptionPtr_ = make_exception_ptr(
-            Exception{errors::EventProcessorFailure,
-                      "EventProcessor: an exception occurred during "
-                      "current event processing",
-                      e});
-        }
-        // And then end this task, terminating event processing.
-        ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
-                                     sizeof(tbb::internal::task_prefix),
-                                   sizeof(tbb::task) +
-                                     sizeof(tbb::internal::task_prefix),
-                                   "tbb::task");
-        tbb::task::self().set_parent(eventLoopTask);
-        TDEBUG_END_FUNC_SI(4, sid) << "EXCEPTION";
-        return;
-      }
-      mf::LogWarning(e.category())
-        << "exception being ignored for current event:\n"
-        << cet::trim_right_copy(e.what(), " \n");
-      // WARNING: We continue processing after the catch blocks!!!
-    }
-    catch (...) {
-      mf::LogError("PassingThrough")
-        << "an exception occurred during current event processing\n";
-      // Use a thread-safe, one-way trapdoor pattern to notify the
-      // main thread of the exception.
-      bool expected = false;
-      if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
-        // Put the exception where the main thread can get at it.
-        deferredExceptionPtr_ = current_exception();
-      }
-      // And then end this task, terminating event processing.
-      ANNOTATE_BENIGN_RACE_SIZED(reinterpret_cast<char*>(&tbb::task::self()) -
-                                   sizeof(tbb::internal::task_prefix),
-                                 sizeof(tbb::task) +
-                                   sizeof(tbb::internal::task_prefix),
-                                 "tbb::task");
-      tbb::task::self().set_parent(eventLoopTask);
-      TDEBUG_END_FUNC_SI(4, sid) << "EXCEPTION";
-      return;
-    }
-    // Create the next event processing task as a continuation of this
-    // task, that is transfer our parent, the eventLoopTask, to it.
-    processAllEventsAsync(eventLoopTask, sid);
-    // And end this task which does not end event loop processing
-    // because our parent is the nullptr because we transferred it to
-    // the next event processing task.
-    TDEBUG_END_FUNC_SI(4, sid);
-  }
-
-  template <Level L>
-  void
-  EventProcessor::process()
-  {
-    if ((shutdown_flag > 0) || !ec_->empty()) {
-      return;
-    }
-    ec_->call([this] { begin<L>(); });
-    while ((shutdown_flag == 0) && ec_->empty() &&
-           levelsToProcess<level_down(L)>()) {
-      ec_->call([this] { process<level_down(L)>(); });
-    }
-    ec_->call([this] {
-      finalize<L>();
-      recordOutputModuleClosureRequests<L>();
-    });
-  }
-
-  EventProcessor::StatusCode
-  EventProcessor::runToCompletion()
-  {
-    StatusCode returnCode{epSuccess};
-    ec_->call([this, &returnCode] {
-      process<highest_level()>();
-      if (shutdown_flag > 0) {
-        returnCode = epSignal;
-      }
-    });
-    if (!ec_->empty()) {
-      terminateAbnormally_();
-      ec_->rethrow();
-    }
-    return returnCode;
-  }
-
-  Level
-  EventProcessor::advanceItemType()
-  {
-    auto const itemType = input_->nextItemType();
-    FDEBUG(1) << string(4, ' ') << "*** nextItemType: " << itemType << " ***\n";
-    switch (itemType) {
-      case input::IsStop:
-        return highest_level();
-      case input::IsFile:
-        return Level::InputFile;
-      case input::IsRun:
-        return Level::Run;
-      case input::IsSubRun:
-        return Level::SubRun;
-      case input::IsEvent:
-        return Level::Event;
-      case input::IsInvalid:
-        throw Exception{errors::LogicError}
-          << "Invalid next item type presented to the event processor.\n"
-          << "Please contact artists@fnal.gov.";
-    }
-    throw Exception{errors::LogicError}
-      << "Unrecognized next item type presented to the event processor.\n"
-      << "Please contact artists@fnal.gov.";
-  }
-
   //=============================================
   // Job level
 
@@ -1234,7 +521,7 @@ namespace art {
     }
     scheduleIteration_.for_each_schedule(
       [this](ScheduleID const sid) { schedule(sid).beginJob(); });
-    actReg_->sPostBeginJob.invoke();
+    actReg_.sPostBeginJob.invoke();
     invokePostBeginJobWorkers_();
   }
 
@@ -1245,7 +532,7 @@ namespace art {
     ec_->call([this] { endJobAllSchedules(); });
     ec_->call([] { ConsumesInfo::instance()->showMissingConsumes(); });
     ec_->call([this] { input_->doEndJob(); });
-    ec_->call([this] { actReg_->sPostEndJob.invoke(); });
+    ec_->call([this] { actReg_.sPostEndJob.invoke(); });
     ec_->call([] { mf::LogStatistics(); });
     ec_->call([this] {
       detail::writeSummary(pathManager_, scheduler_->wantSummary(), timer_);
@@ -1265,7 +552,7 @@ namespace art {
   void
   EventProcessor::openInputFile()
   {
-    actReg_->sPreOpenFile.invoke();
+    actReg_.sPreOpenFile.invoke();
     FDEBUG(1) << string(8, ' ') << "openInputFile\n";
     fb_.reset(input_->readFile().release());
     if (fb_ == nullptr) {
@@ -1273,7 +560,7 @@ namespace art {
         << "Source readFile() did not return a valid FileBlock: FileBlock "
         << "should be valid or readFile() should throw.\n";
     }
-    actReg_->sPostOpenFile.invoke(fb_->fileName());
+    actReg_.sPostOpenFile.invoke(fb_->fileName());
     respondToOpenInputFile();
   }
 
@@ -1298,9 +585,9 @@ namespace art {
       closeSomeOutputFiles();
     }
     respondToCloseInputFile();
-    actReg_->sPreCloseFile.invoke();
+    actReg_.sPreCloseFile.invoke();
     input_->closeFile();
-    actReg_->sPostCloseFile.invoke();
+    actReg_.sPostCloseFile.invoke();
     FDEBUG(1) << string(8, ' ') << "closeInputFile\n";
   }
 
@@ -1407,7 +694,7 @@ namespace art {
   void
   EventProcessor::readRun()
   {
-    actReg_->sPreSourceRun.invoke();
+    actReg_.sPreSourceRun.invoke();
     runPrincipal_.reset(input_->readRun().release());
     assert(runPrincipal_);
     auto rsh = input_->runRangeSetHandler();
@@ -1427,7 +714,7 @@ namespace art {
     runPrincipal_->enableLookupOfProducedProducts(producedProductLookupTables_);
     {
       Run const r{*runPrincipal_, invalid_module_context};
-      actReg_->sPostSourceRun.invoke(r);
+      actReg_.sPostSourceRun.invoke(r);
     }
     FDEBUG(1) << string(8, ' ') << "readRun.....................("
               << runPrincipal_->runID() << ")\n";
@@ -1445,14 +732,14 @@ namespace art {
     try {
       {
         Run const run{*runPrincipal_, invalid_module_context};
-        actReg_->sPreBeginRun.invoke(run);
+        actReg_.sPreBeginRun.invoke(run);
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedule(sid).process(Transition::BeginRun, *runPrincipal_);
       });
       {
         Run const run{*runPrincipal_, invalid_module_context};
-        actReg_->sPostBeginRun.invoke(run);
+        actReg_.sPostBeginRun.invoke(run);
       }
     }
     catch (cet::exception& ex) {
@@ -1533,13 +820,13 @@ namespace art {
     RunID const run{runPrincipal_->runID()};
     assert(!run.isFlush());
     try {
-      actReg_->sPreEndRun.invoke(runPrincipal_->runID(),
-                                 runPrincipal_->endTime());
+      actReg_.sPreEndRun.invoke(runPrincipal_->runID(),
+                                runPrincipal_->endTime());
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedule(sid).process(Transition::EndRun, *runPrincipal_);
       });
       Run const r{*runPrincipal_, invalid_module_context};
-      actReg_->sPostEndRun.invoke(r);
+      actReg_.sPostEndRun.invoke(r);
     }
     catch (cet::exception& ex) {
       throw Exception{
@@ -1575,7 +862,7 @@ namespace art {
   void
   EventProcessor::readSubRun()
   {
-    actReg_->sPreSourceSubRun.invoke();
+    actReg_.sPreSourceSubRun.invoke();
     subRunPrincipal_.reset(input_->readSubRun(runPrincipal_.get()).release());
     assert(subRunPrincipal_);
     auto rsh = input_->subRunRangeSetHandler();
@@ -1596,7 +883,7 @@ namespace art {
       producedProductLookupTables_);
     {
       SubRun const sr{*subRunPrincipal_, invalid_module_context};
-      actReg_->sPostSourceSubRun.invoke(sr);
+      actReg_.sPostSourceSubRun.invoke(sr);
     }
     FDEBUG(1) << string(8, ' ') << "readSubRun..................("
               << subRunPrincipal_->subRunID() << ")\n";
@@ -1614,14 +901,14 @@ namespace art {
     try {
       {
         SubRun const srun{*subRunPrincipal_, invalid_module_context};
-        actReg_->sPreBeginSubRun.invoke(srun);
+        actReg_.sPreBeginSubRun.invoke(srun);
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedule(sid).process(Transition::BeginSubRun, *subRunPrincipal_);
       });
       {
         SubRun const srun{*subRunPrincipal_, invalid_module_context};
-        actReg_->sPostBeginSubRun.invoke(srun);
+        actReg_.sPostBeginSubRun.invoke(srun);
       }
     }
     catch (cet::exception& ex) {
@@ -1759,13 +1046,13 @@ namespace art {
     SubRunID const sr{subRunPrincipal_->subRunID()};
     assert(!sr.isFlush());
     try {
-      actReg_->sPreEndSubRun.invoke(subRunPrincipal_->subRunID(),
-                                    subRunPrincipal_->endTime());
+      actReg_.sPreEndSubRun.invoke(subRunPrincipal_->subRunID(),
+                                   subRunPrincipal_->endTime());
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedule(sid).process(Transition::EndSubRun, *subRunPrincipal_);
       });
       SubRun const srun{*subRunPrincipal_, invalid_module_context};
-      actReg_->sPostEndSubRun.invoke(srun);
+      actReg_.sPostEndSubRun.invoke(srun);
     }
     catch (cet::exception& ex) {
       throw Exception{
@@ -1794,6 +1081,544 @@ namespace art {
     FDEBUG(1) << string(8, ' ') << "writeSubRun.................(" << sr
               << ")\n";
   }
+
+  // ==============================================================================
+  // Event level
+
+  class EventProcessor::ProcessAllEventsTask {
+  public:
+    ProcessAllEventsTask(EventProcessor* evp,
+                         tbb::task* eventLoopTask,
+                         ScheduleID const sid)
+      : evp_(evp), eventLoopTask_(eventLoopTask), sid_(sid)
+    {}
+
+    void operator()(exception_ptr)
+    {
+      TDEBUG_BEGIN_TASK_SI(4, sid_);
+      evp_->processAllEventsAsync(eventLoopTask_, sid_);
+      TDEBUG_END_TASK_SI(4, sid_);
+    }
+
+  private:
+    EventProcessor* evp_;
+    tbb::task* eventLoopTask_;
+    ScheduleID const sid_;
+  };
+
+  template <>
+  void
+  EventProcessor::process<most_deeply_nested_level()>()
+  {
+    if ((shutdown_flag > 0) || !ec_->empty()) {
+      return;
+    }
+    // Note: This loop is to allow output file switching to happen in
+    // the main thread.
+    firstEvent_ = true;
+    bool done = false;
+    while (!done) {
+      beginRunIfNotDoneAlready();
+      beginSubRunIfNotDoneAlready();
+      struct Waiter : public tbb::task {
+        tbb::task*
+        execute()
+        {
+          return nullptr;
+        }
+      };
+      auto eventLoopTask = new (tbb::task::allocate_root()) Waiter;
+      eventLoopTask->set_ref_count(scheduler_->num_schedules() + 1);
+
+      tbb::task_list schedule_heads;
+      auto create_event_processing_tasks =
+        [&eventLoopTask, &schedule_heads, this](ScheduleID const sid) {
+          auto processAllEventsTask =
+            make_waiting_task(eventLoopTask->allocate_child(),
+                              ProcessAllEventsTask{this, eventLoopTask, sid});
+          schedule_heads.push_back(*processAllEventsTask);
+        };
+      scheduleIteration_.for_each_schedule(create_event_processing_tasks);
+
+      eventLoopTask->spawn_and_wait_for_all(schedule_heads);
+      tbb::task::destroy(*eventLoopTask);
+      // If anything bad happened during event processing, let the
+      // user know.
+      sharedException_.throw_if_stored_exception();
+      if (!fileSwitchInProgress_.load()) {
+        done = true;
+        continue;
+      }
+      setOutputFileStatus(OutputFileStatus::Switching);
+      finalizeContainingLevels<most_deeply_nested_level()>();
+      respondToCloseOutputFiles();
+      main_schedule().closeSomeOutputFiles();
+      FDEBUG(1) << string(8, ' ') << "closeSomeOutputFiles\n";
+      // We started the switch after advancing to the next item type;
+      // we must make sure that we read that event before advancing
+      // the item type again.
+      firstEvent_ = true;
+      fileSwitchInProgress_ = false;
+    }
+  }
+
+  // This is the event loop (also known as the schedule head).  It
+  // calls readAndProcessAsync, which reads and processes a single
+  // event, creates itself again as a continuation task, and then
+  // exits. We are passed the EventLoopTask here to keep the thread
+  // sanitizer happy.
+  void
+  EventProcessor::processAllEventsAsync(tbb::task* eventLoopTask,
+                                        ScheduleID const sid)
+  {
+    // Note: We are part of the processAllEventsTask (schedule head
+    // task), and our parent is the eventLoopTask.
+    TDEBUG_BEGIN_FUNC_SI(4, sid);
+    try {
+      // Note: We pass eventLoopTask here to keep the thread sanitizer
+      // happy.
+      readAndProcessAsync(eventLoopTask, sid);
+    }
+    catch (...) {
+      sharedException_.store_current();
+      TDEBUG_END_FUNC_SI(4, sid) << "terminate event loop because of EXCEPTION";
+      return;
+    }
+    // If no exception, then end this task, which does not terminate
+    // event processing because our parent is the nullptr because we
+    // transferred it to another task.
+    TDEBUG_END_FUNC_SI(4, sid);
+  }
+
+  // This function is executed as part of the readAndProcessEvent
+  // task, our parent task is the EventLoopTask. Here we advance to
+  // the next item in the file index, end event processing if it is
+  // not an event, or if the user has requested a shutdown, read the
+  // event, and then call another function to do the processing.
+  void
+  EventProcessor::readAndProcessAsync(tbb::task* eventLoopTask,
+                                      ScheduleID const sid)
+  {
+    // Note: We are part of the readAndProcessEventTask (schedule head
+    // task), and our parent task is the eventLoopTask.
+    TDEBUG_BEGIN_FUNC_SI(4, sid);
+    // Note: shutdown_flag is a extern global atomic int in
+    // art/art/Utilities/UnixSignalHandlers.cc
+    if (shutdown_flag) {
+      // User called for a clean shutdown using a signal or ctrl-c,
+      // end event processing and this task.
+      TDEBUG_END_FUNC_SI(4, sid) << "CLEAN SHUTDOWN";
+      return;
+    }
+
+    // The item type advance and the event read must be done with the
+    // input source lock held; however event-processing must not
+    // serialized.
+    {
+      InputSourceMutexSentry lock_input;
+      if (fileSwitchInProgress_.load()) {
+        // We must avoid advancing the iterator after a schedule has
+        // noticed it is time to switch files.  After the switch, we
+        // will need to set firstEvent_ true so that the first
+        // schedule that resumes after the switch actually reads the
+        // event that the first schedule which noticed we needed a
+        // switch had advanced the iterator to.
+
+        // Note: We still have the problem that because the schedules
+        // do not read events at the same time the file switch point
+        // can be up to nschedules-1 ahead of where it would have been
+        // if there was only one schedule.  If we are switching output
+        // files every event in an attempt to create single event
+        // files, this really does not work out too well.
+        TDEBUG_END_FUNC_SI(4, sid) << "FILE SWITCH";
+        return;
+      }
+      // Check the next item type and exit this task if it is not an
+      // event, or if the user has asynchronously requested a
+      // shutdown.
+      auto expected = true;
+      if (firstEvent_.compare_exchange_strong(expected, false)) {
+        // Do not advance the item type on the first event.
+      } else {
+        // Do the advance item type.
+        if (nextLevel_.load() == Level::ReadyToAdvance) {
+          // See what the next item is.
+          TDEBUG_FUNC_SI(5, sid) << "Calling advanceItemType()";
+          nextLevel_ = advanceItemType();
+        }
+        if ((nextLevel_.load() < most_deeply_nested_level()) ||
+            (nextLevel_.load() == highest_level())) {
+          // We are popping up, end event processing and this task.
+          TDEBUG_END_FUNC_SI(4, sid) << "END OF SUBRUN";
+          return;
+        }
+        if (nextLevel_.load() != most_deeply_nested_level()) {
+          // Error: incorrect level hierarchy
+          TDEBUG_END_FUNC_SI(4, sid) << "BAD HIERARCHY";
+          throw Exception{errors::LogicError} << "Incorrect level hierarchy.";
+        }
+        nextLevel_ = Level::ReadyToAdvance;
+        // At this point we have determined that we are going to read
+        // an event and we must do that before dropping the lock on
+        // the input source which is what is protecting us against a
+        // double-advance caused by a different schedule.
+        if (schedule(sid).outputsToClose()) {
+          fileSwitchInProgress_ = true;
+          TDEBUG_END_FUNC_SI(4, sid) << "FILE SWITCH INITIATED";
+          return;
+        }
+      }
+
+      // Now we can read the event from the source.
+      ScheduleContext const sc{sid};
+      assert(subRunPrincipal_);
+      assert(subRunPrincipal_->subRunID().isValid());
+      actReg_.sPreSourceEvent.invoke(sc);
+      TDEBUG_FUNC_SI(5, sid) << "Calling input_->readEvent(subRunPrincipal_)";
+      auto ep = input_->readEvent(subRunPrincipal_.get());
+      assert(ep);
+      // The intended behavior here is that the producing services
+      // which are called during the sPostReadEvent cannot see each
+      // others put products.  We enforce this by creating the groups
+      // for the produced products, but do not allow the lookups to
+      // find them until after the callbacks have run.
+      ep->createGroupsForProducedProducts(producedProductLookupTables_);
+      psSignals_->sPostReadEvent.invoke(*ep);
+      ep->enableLookupOfProducedProducts(producedProductLookupTables_);
+      actReg_.sPostSourceEvent.invoke(Event{*ep, invalid_module_context}, sc);
+      FDEBUG(1) << string(8, ' ') << "readEvent...................("
+                << ep->eventID() << ")\n";
+      schedule(sid).accept_principal(move(ep));
+      // Now we drop the input source lock by exiting the guarded
+      // scope.
+    }
+    if (schedule(sid).event_principal().eventID().isFlush()) {
+      // No processing to do, start next event handling task,
+      // transferring our parent task (eventLoopTask) to it, and exit
+      // this task.
+      processAllEventsAsync(eventLoopTask, sid);
+      TDEBUG_END_FUNC_SI(4, sid) << "FLUSH EVENT";
+      return;
+    }
+
+    // Now process the event.
+    processEventAsync(eventLoopTask, sid);
+    // And end this task, which does not terminate event processing
+    // because our parent is the nullptr because we transferred it to
+    // the endPathTask.
+    TDEBUG_END_FUNC_SI(4, sid);
+  }
+
+  // ----------------------------------------------------------------------------
+  class EventProcessor::EndPathRunnerTask {
+  public:
+    EndPathRunnerTask(EventProcessor* evp,
+                      ScheduleID const sid,
+                      tbb::task* eventLoopTask)
+      : evp_{evp}, sid_{sid}, eventLoopTask_{eventLoopTask}
+    {}
+
+    void
+    operator()() const
+    {
+      TDEBUG_BEGIN_TASK_SI(4, sid_);
+      // Arrange it so that we can terminate event processing if we
+      // want to.
+      tbb::task::self().set_parent(eventLoopTask_);
+      try {
+        evp_->schedule(sid_).process_event_observers();
+      }
+      catch (cet::exception& e) {
+        if (evp_->error_action(e) != actions::IgnoreCompletely) {
+          evp_->sharedException_.store<Exception>(
+            errors::EventProcessorFailure,
+            "EventProcessor: an exception occurred during current event "
+            "processing",
+            e);
+          TDEBUG_END_TASK_SI(4, sid_)
+            << "terminate event loop because of EXCEPTION";
+          return;
+        }
+        mf::LogWarning(e.category())
+          << "exception being ignored for current event:\n"
+          << cet::trim_right_copy(e.what(), " \n");
+        // WARNING: We continue processing after the catch blocks!!!
+      }
+      catch (...) {
+        mf::LogError("PassingThrough")
+          << "an exception occurred during current event processing\n";
+        evp_->sharedException_.store_current();
+        TDEBUG_END_TASK_SI(4, sid_)
+          << "terminate event loop because of EXCEPTION";
+        return;
+      }
+
+      evp_->finishEventAsync(eventLoopTask_, sid_);
+
+      // We do not terminate event processing when we end because
+      // finishEventAsync has set our parent to the nullptr.
+      TDEBUG_END_TASK_SI(4, sid_);
+    }
+
+  private:
+    EventProcessor* evp_;
+    ScheduleID const sid_;
+    tbb::task* eventLoopTask_;
+  };
+
+  // ----------------------------------------------------------------------------
+  class EventProcessor::EndPathTask {
+  public:
+    EndPathTask(EventProcessor* evp,
+                tbb::task* eventLoopTask,
+                ScheduleID const sid)
+      : evp_{evp}, eventLoopTask_{eventLoopTask}, sid_{sid}
+    {}
+
+    void
+    operator()(exception_ptr const ex)
+    {
+      // Note: When we start our parent is the eventLoopTask.
+      TDEBUG_BEGIN_TASK_SI(4, sid_);
+      if (ex) {
+        try {
+          rethrow_exception(ex);
+        }
+        catch (cet::exception& e) {
+          if (evp_->error_action(e) != actions::IgnoreCompletely) {
+            evp_->sharedException_.store<Exception>(
+              errors::EventProcessorFailure,
+              "EventProcessor: an exception occurred during current "
+              "event processing",
+              e);
+            TDEBUG_END_TASK_SI(4, sid_)
+              << "terminate event loop because of EXCEPTION";
+            return;
+          }
+          mf::LogWarning(e.category())
+            << "exception being ignored for current event:\n"
+            << cet::trim_right_copy(e.what(), " \n");
+          // WARNING: We continue processing after the catch blocks!!!
+        }
+        catch (...) {
+          mf::LogError("PassingThrough")
+            << "an exception occurred during current event processing\n";
+          evp_->sharedException_.store_current();
+          TDEBUG_END_TASK_SI(4, sid_)
+            << "terminate event loop because of EXCEPTION";
+          return;
+        }
+      }
+
+      tbb::task::self().set_parent(nullptr);
+      evp_->schedule(sid_).push_onto_end_path_queue(
+        EndPathRunnerTask{evp_, sid_, eventLoopTask_});
+      // Once the end path processing and event finalization
+      // processing is queued we are done, exit this task, which does
+      // not end event processing because our parent is the nullptr
+      // because we transferred it to the endPathTask.
+      TDEBUG_END_TASK_SI(4, sid_);
+    }
+
+  private:
+    EventProcessor* evp_;
+    tbb::task* eventLoopTask_;
+    ScheduleID const sid_;
+  };
+
+  // This function is a continuation of the body of the
+  // readAndProcessEvent task. Here we call down to Schedule to do the
+  // trigger path processing, passing it a waiting task which will do
+  // the end path processing, finalize the event, and start the next
+  // read and process event task.  Note that Schedule will spawn a
+  // task to process each of the trigger paths, and then when they are
+  // finished, insert the trigger results, and then spawn the waiting
+  // task we gave it to do the end path processing, write the event,
+  // and then start the next event processing task.
+  void
+  EventProcessor::processEventAsync(tbb::task* eventLoopTask,
+                                    ScheduleID const sid) try {
+    // Note: We are part of the readAndProcessEventTask (schedule head
+    // task), and our parent task is the eventLoopTask.
+    TDEBUG_BEGIN_FUNC_SI(4, sid);
+    assert(!schedule(sid).event_principal().eventID().isFlush());
+    // Make the end path processing task, make its parent the
+    // eventLoopTask, and set our parent to the nullptr so we can exit
+    // without ending event processing.
+    auto endPathTask =
+      make_waiting_task(tbb::task::self().allocate_continuation(),
+                        EndPathTask{this, eventLoopTask, sid});
+    // Start the trigger paths running.  When they finish they will
+    // spawn the endPathTask which will run the end path, write the
+    // event, and start the next event processing task.
+    schedule(sid).process_event_modifiers(endPathTask);
+    TDEBUG_END_FUNC_SI(4, sid);
+  }
+  catch (cet::exception& e) {
+    // Upon exiting this scope, end this task, terminating event
+    // processing.
+    tbb::task::self().set_parent(eventLoopTask);
+    if (error_action(e) != actions::IgnoreCompletely) {
+      sharedException_.store<Exception>(
+        errors::EventProcessorFailure,
+        "EventProcessor: an exception occurred during current event processing",
+        e);
+      TDEBUG_END_FUNC_SI(4, sid) << "terminate event loop because of EXCEPTION";
+      return;
+    }
+    mf::LogWarning(e.category())
+      << "exception being ignored for current event:\n"
+      << cet::trim_right_copy(e.what(), " \n");
+    TDEBUG_END_FUNC_SI(4, sid) << "Ignoring exception.";
+  }
+  catch (...) {
+    mf::LogError("PassingThrough")
+      << "an exception occurred during current event processing\n";
+    sharedException_.store_current();
+    // Do this in case we already gave our parent to to endPathTask.
+    tbb::task::self().set_parent(eventLoopTask);
+    TDEBUG_END_FUNC_SI(4, sid) << "terminate event loop because of EXCEPTION";
+  }
+
+  void
+  EventProcessor::finishEventAsync(tbb::task* eventLoopTask,
+                                   ScheduleID const sid)
+  {
+    auto& ep = schedule(sid).event_principal();
+    actReg_.sPostProcessEvent.invoke(Event{ep, invalid_module_context},
+                                     ScheduleContext{sid});
+
+    // Note: We are part of the endPathTask.
+    TDEBUG_BEGIN_FUNC_SI(4, sid);
+    FDEBUG(1) << string(8, ' ') << "processEvent................("
+              << ep.eventID() << ")\n";
+    try {
+      // Ask the output workers if they have reached their limits, and
+      // if so setup to end the job the next time around the event
+      // loop.
+      FDEBUG(1) << string(8, ' ') << "shouldWeStop\n";
+      TDEBUG_FUNC_SI(5, sid) << "Calling schedules_->allAtLimit()";
+      if (schedule(sid).allAtLimit()) {
+        // Set to return to the File level.
+        nextLevel_ = highest_level();
+      }
+      // Now we can write the results of processing to the outputs,
+      // and delete the event principal.
+      if (!ep.eventID().isFlush()) {
+        // Possibly open new output files.  This is safe to do because
+        // EndPathExecutor functions are called in a serialized
+        // context.
+        TDEBUG_FUNC_SI(5, sid) << "Calling openSomeOutputFiles()";
+        openSomeOutputFiles();
+        TDEBUG_FUNC_SI(5, sid) << "Calling schedule(sid).writeEvent()";
+
+        auto const id = ep.eventID();
+        schedule(sid).writeEvent();
+        FDEBUG(1) << string(8, ' ') << "writeEvent..................(" << id
+                  << ")\n";
+      }
+      TDEBUG_FUNC_SI(5, sid)
+        << "Calling schedules_->"
+           "recordOutputClosureRequests(Granularity::Event)";
+      schedule(sid).recordOutputClosureRequests(Granularity::Event);
+    }
+    catch (cet::exception& e) {
+      if (error_action(e) != actions::IgnoreCompletely) {
+        sharedException_.store<Exception>(
+          errors::EventProcessorFailure,
+          "EventProcessor: an exception occurred "
+          "during current event processing",
+          e);
+        // And then end this task, terminating event processing.
+        tbb::task::self().set_parent(eventLoopTask);
+        TDEBUG_END_FUNC_SI(4, sid) << "EXCEPTION";
+        return;
+      }
+      mf::LogWarning(e.category())
+        << "exception being ignored for current event:\n"
+        << cet::trim_right_copy(e.what(), " \n");
+      // WARNING: We continue processing after the catch blocks!!!
+    }
+    catch (...) {
+      mf::LogError("PassingThrough")
+        << "an exception occurred during current event processing\n";
+      sharedException_.store_current();
+      // And then end this task, terminating event processing.
+      tbb::task::self().set_parent(eventLoopTask);
+      TDEBUG_END_FUNC_SI(4, sid) << "EXCEPTION";
+      return;
+    }
+    // Create the next event processing task as a continuation of this
+    // task, that is transfer our parent, the eventLoopTask, to it.
+    processAllEventsAsync(eventLoopTask, sid);
+    // And end this task which does not end event loop processing
+    // because our parent is the nullptr because we transferred it to
+    // the next event processing task.
+    TDEBUG_END_FUNC_SI(4, sid);
+  }
+
+  template <Level L>
+  void
+  EventProcessor::process()
+  {
+    if ((shutdown_flag > 0) || !ec_->empty()) {
+      return;
+    }
+    ec_->call([this] { begin<L>(); });
+    while ((shutdown_flag == 0) && ec_->empty() &&
+           levelsToProcess<level_down(L)>()) {
+      ec_->call([this] { process<level_down(L)>(); });
+    }
+    ec_->call([this] {
+      finalize<L>();
+      recordOutputModuleClosureRequests<L>();
+    });
+  }
+
+  EventProcessor::StatusCode
+  EventProcessor::runToCompletion()
+  {
+    StatusCode returnCode{epSuccess};
+    ec_->call([this, &returnCode] {
+      process<highest_level()>();
+      if (shutdown_flag > 0) {
+        returnCode = epSignal;
+      }
+    });
+    if (!ec_->empty()) {
+      terminateAbnormally_();
+      ec_->rethrow();
+    }
+    return returnCode;
+  }
+
+  Level
+  EventProcessor::advanceItemType()
+  {
+    auto const itemType = input_->nextItemType();
+    FDEBUG(1) << string(4, ' ') << "*** nextItemType: " << itemType << " ***\n";
+    switch (itemType) {
+      case input::IsStop:
+        return highest_level();
+      case input::IsFile:
+        return Level::InputFile;
+      case input::IsRun:
+        return Level::Run;
+      case input::IsSubRun:
+        return Level::SubRun;
+      case input::IsEvent:
+        return Level::Event;
+      case input::IsInvalid:
+        throw Exception{errors::LogicError}
+          << "Invalid next item type presented to the event processor.\n"
+          << "Please contact artists@fnal.gov.";
+    }
+    throw Exception{errors::LogicError}
+      << "Unrecognized next item type presented to the event processor.\n"
+      << "Please contact artists@fnal.gov.";
+  }
+
+  // ===============================================================================
 
   void
   EventProcessor::terminateAbnormally_() try {

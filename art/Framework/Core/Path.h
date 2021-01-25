@@ -57,35 +57,25 @@ namespace art {
     // Note: threading: Clears the counters of workersInPath.
     void clearCounters();
     void process(Transition, Principal&);
-    void process_event_for_endpath(EventPrincipal&);
-    void process_event(tbb::task* pathsDoneTask,
-                       EventPrincipal&);
-
-    // Tasking System
-    void runWorkerTask(size_t idx,
-                       size_t max_idx,
-                       EventPrincipal&,
-                       std::exception_ptr const*);
-    void workerDoneTask(size_t idx,
-                        size_t max_idx,
-                        EventPrincipal&,
-                        std::exception_ptr const*);
+    void process(tbb::task* pathsDoneTask, EventPrincipal&);
+    void process_endpath(EventPrincipal&);
 
   private:
+    class RunWorkerTask;
+    class WorkerDoneTask;
+
     void process_event_idx_asynch(size_t idx, size_t max_idx, EventPrincipal&);
     void process_event_idx(size_t const idx,
                            size_t const max_idx,
                            EventPrincipal&);
     void process_event_workerFinished(size_t const idx,
                                       size_t const max_idx,
-                                      EventPrincipal&,
+                                      EventPrincipal& ep,
                                       bool should_continue);
-    void process_event_pathFinished(size_t const idx,
-                                    EventPrincipal&,
-                                    bool should_continue);
+    void process_event_pathFinished(size_t const idx, bool should_continue);
 
-    std::atomic<ActionTable const*> actionTable_;
-    std::atomic<ActivityRegistry const*> actReg_;
+    ActionTable const& actionTable_;
+    ActivityRegistry const& actReg_;
     PathContext const pc_;
     int const bitpos_;
     // Note: threading: We clear their counters.

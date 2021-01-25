@@ -113,9 +113,10 @@ namespace {
 namespace art {
 
   Worker::Worker(ModuleDescription const& md, WorkerParams const& wp)
-    : scheduleID_{wp.scheduleID_}, md_{md}
-    , actions_{&wp.actions_}
-    , actReg_{&wp.actReg_}
+    : scheduleID_{wp.scheduleID_}
+    , md_{md}
+    , actions_{wp.actions_}
+    , actReg_{wp.actReg_}
   {
     TDEBUG_FUNC_SI(5, wp.scheduleID_)
       << hex << this << dec << " name: " << md.moduleName()
@@ -199,9 +200,9 @@ namespace art {
 
   void
   Worker::beginJob() try {
-    actReg_.load()->sPreModuleBeginJob.invoke(md_);
+    actReg_.sPreModuleBeginJob.invoke(md_);
     implBeginJob();
-    actReg_.load()->sPostModuleBeginJob.invoke(md_);
+    actReg_.sPostModuleBeginJob.invoke(md_);
   }
   catch (...) {
     rethrow_with_context(std::current_exception(), md_, "beginJob");
@@ -209,9 +210,9 @@ namespace art {
 
   void
   Worker::endJob() try {
-    actReg_.load()->sPreModuleEndJob.invoke(md_);
+    actReg_.sPreModuleEndJob.invoke(md_);
     implEndJob();
-    actReg_.load()->sPostModuleEndJob.invoke(md_);
+    actReg_.sPostModuleEndJob.invoke(md_);
   }
   catch (...) {
     rethrow_with_context(std::current_exception(), md_, "endJob");
@@ -220,33 +221,33 @@ namespace art {
   void
   Worker::respondToOpenInputFile(FileBlock const& fb)
   {
-    actReg_.load()->sPreModuleRespondToOpenInputFile.invoke(md_);
+    actReg_.sPreModuleRespondToOpenInputFile.invoke(md_);
     implRespondToOpenInputFile(fb);
-    actReg_.load()->sPostModuleRespondToOpenInputFile.invoke(md_);
+    actReg_.sPostModuleRespondToOpenInputFile.invoke(md_);
   }
 
   void
   Worker::respondToCloseInputFile(FileBlock const& fb)
   {
-    actReg_.load()->sPreModuleRespondToCloseInputFile.invoke(md_);
+    actReg_.sPreModuleRespondToCloseInputFile.invoke(md_);
     implRespondToCloseInputFile(fb);
-    actReg_.load()->sPostModuleRespondToCloseInputFile.invoke(md_);
+    actReg_.sPostModuleRespondToCloseInputFile.invoke(md_);
   }
 
   void
   Worker::respondToOpenOutputFiles(FileBlock const& fb)
   {
-    actReg_.load()->sPreModuleRespondToOpenOutputFiles.invoke(md_);
+    actReg_.sPreModuleRespondToOpenOutputFiles.invoke(md_);
     implRespondToOpenOutputFiles(fb);
-    actReg_.load()->sPostModuleRespondToOpenOutputFiles.invoke(md_);
+    actReg_.sPostModuleRespondToOpenOutputFiles.invoke(md_);
   }
 
   void
   Worker::respondToCloseOutputFiles(FileBlock const& fb)
   {
-    actReg_.load()->sPreModuleRespondToCloseOutputFiles.invoke(md_);
+    actReg_.sPreModuleRespondToCloseOutputFiles.invoke(md_);
     implRespondToCloseOutputFiles(fb);
-    actReg_.load()->sPostModuleRespondToCloseOutputFiles.invoke(md_);
+    actReg_.sPostModuleRespondToCloseOutputFiles.invoke(md_);
   }
 
   bool
@@ -285,21 +286,21 @@ namespace art {
       }
       state_ = Working;
       if (trans == Transition::BeginRun) {
-        actReg_.load()->sPreModuleBeginRun.invoke(mc);
+        actReg_.sPreModuleBeginRun.invoke(mc);
         rc = implDoBegin(dynamic_cast<RunPrincipal&>(principal), mc);
-        actReg_.load()->sPostModuleBeginRun.invoke(mc);
+        actReg_.sPostModuleBeginRun.invoke(mc);
       } else if (trans == Transition::EndRun) {
-        actReg_.load()->sPreModuleEndRun.invoke(mc);
+        actReg_.sPreModuleEndRun.invoke(mc);
         rc = implDoEnd(dynamic_cast<RunPrincipal&>(principal), mc);
-        actReg_.load()->sPostModuleEndRun.invoke(mc);
+        actReg_.sPostModuleEndRun.invoke(mc);
       } else if (trans == Transition::BeginSubRun) {
-        actReg_.load()->sPreModuleBeginSubRun.invoke(mc);
+        actReg_.sPreModuleBeginSubRun.invoke(mc);
         rc = implDoBegin(dynamic_cast<SubRunPrincipal&>(principal), mc);
-        actReg_.load()->sPostModuleBeginSubRun.invoke(mc);
+        actReg_.sPostModuleBeginSubRun.invoke(mc);
       } else if (trans == Transition::EndSubRun) {
-        actReg_.load()->sPreModuleEndSubRun.invoke(mc);
+        actReg_.sPreModuleEndSubRun.invoke(mc);
         rc = implDoEnd(dynamic_cast<SubRunPrincipal&>(principal), mc);
-        actReg_.load()->sPostModuleEndSubRun.invoke(mc);
+        actReg_.sPostModuleEndSubRun.invoke(mc);
       }
       state_ = Pass;
     }
@@ -376,11 +377,11 @@ namespace art {
     try {
       // Transition from Ready state to Working state.
       state_ = Working;
-      actReg_.load()->sPreModule.invoke(mc);
+      actReg_.sPreModule.invoke(mc);
       // Note: Only filters ever return false, and when they do it
       // means they have rejected.
       returnCode_ = implDoProcess(p, mc);
-      actReg_.load()->sPostModule.invoke(mc);
+      actReg_.sPostModule.invoke(mc);
       if (returnCode_.load()) {
         state_ = Pass;
       } else {
@@ -388,7 +389,7 @@ namespace art {
       }
     }
     catch (cet::exception& e) {
-      auto action = actions_.load()->find(e.root_cause());
+      auto action = actions_.find(e.root_cause());
       // If we are processing an endPath, treat SkipEvent or FailPath
       // as FailModule, so any subsequent OutputModules are still run.
       if (mc.onEndPath()) {
@@ -508,18 +509,18 @@ namespace art {
     try {
       // Transition from Ready state to Working state.
       state_ = Working;
-      actReg_.load()->sPreModule.invoke(mc);
+      actReg_.sPreModule.invoke(mc);
       // Note: Only filters ever return false, and when they do it
       // means they have rejected.
       returnCode_ = implDoProcess(p, mc);
-      actReg_.load()->sPostModule.invoke(mc);
+      actReg_.sPostModule.invoke(mc);
       state_ = Fail;
       if (returnCode_.load()) {
         state_ = Pass;
       }
     }
     catch (cet::exception& e) {
-      auto action = actions_.load()->find(e.root_cause());
+      auto action = actions_.find(e.root_cause());
       // If we are processing an endPath, treat SkipEvent or FailPath
       // as FailModule, so any subsequent OutputModules are still run.
       if (mc.onEndPath()) {

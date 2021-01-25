@@ -95,8 +95,8 @@ namespace art {
                       EventPrincipal&,
                       ModuleContext const&);
 
-    // This is used to do trigger results insertion,
-    // and to run workers on the end path.
+    // This is used to do trigger results insertion, and to run
+    // workers on the end path.
     void doWork_event(EventPrincipal&, ModuleContext const&);
 
     ScheduleID
@@ -139,18 +139,17 @@ namespace art {
     virtual bool implDoEnd(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
     virtual bool implDoProcess(EventPrincipal&, ModuleContext const&) = 0;
 
-  private: // MEMBER FUNCTIONS -- API implementation classes must use
-           // to provide their API to us
+  private:
+    // API implementation classes must use to provide their API to us
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
     virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
-  private: // MEMBER DATA
     ScheduleID const scheduleID_;
     ModuleDescription const md_;
-    std::atomic<ActionTable const*> actions_;
-    std::atomic<ActivityRegistry const*> actReg_;
+    ActionTable const& actions_;
+    ActivityRegistry const& actReg_;
     std::atomic<int> state_{Ready};
 
     // if state is 'exception'

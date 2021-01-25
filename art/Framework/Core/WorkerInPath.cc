@@ -33,31 +33,25 @@ namespace art {
   WorkerInPath::WorkerInPath(Worker* w,
                              FilterAction const fa,
                              ModuleContext const& mc)
-    : moduleContext_{mc}
-  {
-    worker_ = w;
-    filterAction_ = fa;
-    returnCode_ = false;
-    waitingTasks_ = new WaitingTaskList;
-    counts_visited_ = 0;
-    counts_passed_ = 0;
-    counts_failed_ = 0;
-    counts_thrown_ = 0;
-  }
+    : worker_{w}
+    , filterAction_{fa}
+    , moduleContext_{mc}
+    , waitingTasks_{new WaitingTaskList}
+  {}
 
   WorkerInPath::WorkerInPath(WorkerInPath&& rhs)
-    : moduleContext_{std::move(rhs.moduleContext_)}
+    : worker_{rhs.worker_.load()}
+    , filterAction_{rhs.filterAction_.load()}
+    , moduleContext_{std::move(rhs.moduleContext_)}
   {
-    worker_ = rhs.worker_.load();
-    rhs.worker_ = nullptr;
-    filterAction_ = rhs.filterAction_.load();
     returnCode_ = rhs.returnCode_.load();
     waitingTasks_ = rhs.waitingTasks_.load();
-    rhs.waitingTasks_ = nullptr;
     counts_visited_ = rhs.counts_visited_.load();
     counts_passed_ = rhs.counts_passed_.load();
     counts_failed_ = rhs.counts_failed_.load();
     counts_thrown_ = rhs.counts_thrown_.load();
+    rhs.worker_ = nullptr;
+    rhs.waitingTasks_ = nullptr;
   }
 
   WorkerInPath&
@@ -141,7 +135,7 @@ namespace art {
   }
 
   bool
-  WorkerInPath::runWorker(Transition const trans, Principal& principal)
+  WorkerInPath::run(Transition const trans, Principal& principal)
   {
     // Note: We ignore the return code because we do not process events here.
     worker_.load()->doWork(trans, principal, moduleContext_);
@@ -149,7 +143,7 @@ namespace art {
   }
 
   void
-  WorkerInPath::runWorker_event_for_endpath(EventPrincipal& ep)
+  WorkerInPath::run_for_endpath(EventPrincipal& ep)
   {
     auto const scheduleID = moduleContext_.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
@@ -179,15 +173,41 @@ namespace art {
     TDEBUG_END_FUNC_SI(4, scheduleID);
   }
 
-  class WorkerInPathDoneFunctor {
+  class WorkerInPath::WorkerInPathDoneTask {
   public:
-    WorkerInPathDoneFunctor(WorkerInPath* wip, ScheduleID const scheduleID)
+    WorkerInPathDoneTask(WorkerInPath* wip, ScheduleID const scheduleID)
       : wip_{wip}, sid_{scheduleID}
     {}
+
     void
-    operator()(exception_ptr const* ex) const
+    operator()(exception_ptr const ex) const
     {
-      wip_->workerInPathDoneTask(sid_, ex);
+      TDEBUG_BEGIN_TASK_SI(4, sid_);
+      if (ex) {
+        ++wip_->counts_thrown_;
+        wip_->waitingTasks_.load()->doneWaiting(ex);
+        TDEBUG_END_TASK_SI(4, sid_) << "because of EXCEPTION";
+        return;
+      }
+
+      wip_->returnCode_ = wip_->worker_.load()->returnCode();
+      TDEBUG_TASK_SI(5, sid_)
+        << "raw returnCode_: " << wip_->returnCode_.load();
+      if (wip_->filterAction_.load() == FilterAction::Veto) {
+        wip_->returnCode_ = !wip_->returnCode_.load();
+      } else if (wip_->filterAction_.load() == FilterAction::Ignore) {
+        wip_->returnCode_ = true;
+      }
+      TDEBUG_TASK_SI(5, sid_)
+        << "final returnCode_: " << wip_->returnCode_.load();
+      if (wip_->returnCode_.load()) {
+        ++wip_->counts_passed_;
+      } else {
+        ++wip_->counts_failed_;
+      }
+      TDEBUG_END_TASK_SI(4, sid_)
+        << "returnCode_: " << wip_->returnCode_.load();
+      wip_->waitingTasks_.load()->doneWaiting();
     }
 
   private:
@@ -196,36 +216,7 @@ namespace art {
   };
 
   void
-  WorkerInPath::workerInPathDoneTask(ScheduleID const scheduleID,
-                                     exception_ptr const* ex)
-  {
-    TDEBUG_BEGIN_TASK_SI(4, scheduleID);
-    if (ex != nullptr) {
-      ++counts_thrown_;
-      waitingTasks_.load()->doneWaiting(*ex);
-      TDEBUG_END_TASK_SI(4, scheduleID) << "because of EXCEPTION";
-      return;
-    }
-    returnCode_ = worker_.load()->returnCode();
-    TDEBUG_TASK_SI(5, scheduleID) << "raw returnCode_: " << returnCode_.load();
-    if (filterAction_.load() == FilterAction::Veto) {
-      returnCode_ = !returnCode_.load();
-    } else if (filterAction_.load() == FilterAction::Ignore) {
-      returnCode_ = true;
-    }
-    TDEBUG_TASK_SI(5, scheduleID)
-      << "final returnCode_: " << returnCode_.load();
-    if (returnCode_.load()) {
-      ++counts_passed_;
-    } else {
-      ++counts_failed_;
-    }
-    TDEBUG_END_TASK_SI(4, scheduleID) << "returnCode_: " << returnCode_.load();
-    waitingTasks_.load()->doneWaiting(exception_ptr{});
-  }
-
-  void
-  WorkerInPath::runWorker_event(tbb::task* workerDoneTask, EventPrincipal& ep)
+  WorkerInPath::run(tbb::task* workerDoneTask, EventPrincipal& ep)
   {
     auto const scheduleID = moduleContext_.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
@@ -237,7 +228,7 @@ namespace art {
     waitingTasks_.load()->add(workerDoneTask);
     ++counts_visited_;
     auto workerInPathDoneTask = make_waiting_task(
-      tbb::task::allocate_root(), WorkerInPathDoneFunctor{this, scheduleID});
+      tbb::task::allocate_root(), WorkerInPathDoneTask{this, scheduleID});
     try {
       worker_.load()->doWork_event(workerInPathDoneTask, ep, moduleContext_);
     }

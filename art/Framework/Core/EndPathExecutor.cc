@@ -29,8 +29,6 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/trim.h"
-#include "hep_concurrency/RecursiveMutex.h"
-#include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <cstdlib>
@@ -41,7 +39,6 @@
 #include <utility>
 #include <vector>
 
-using namespace hep::concurrency;
 using namespace std;
 
 namespace art {
@@ -72,7 +69,6 @@ namespace art {
   void
   EndPathExecutor::beginJob()
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = *label_and_worker.second;
       if (detail::skip_non_replicated(w)) {
@@ -85,7 +81,6 @@ namespace art {
   void
   EndPathExecutor::endJob()
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     Exception error{errors::EndJobFailure};
     // FIXME: There seems to be little value-added by the catch and rethrow
     // here.
@@ -117,7 +112,6 @@ namespace art {
   void
   EndPathExecutor::selectProducts(ProductTables const& tables)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : outputWorkers_) {
       ow->selectProducts(tables);
     }
@@ -126,7 +120,6 @@ namespace art {
   void
   EndPathExecutor::respondToOpenInputFile(FileBlock const& fb)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = *label_and_worker.second;
       if (detail::skip_non_replicated(w)) {
@@ -139,7 +132,6 @@ namespace art {
   void
   EndPathExecutor::respondToCloseInputFile(FileBlock const& fb)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = *label_and_worker.second;
       if (detail::skip_non_replicated(w)) {
@@ -152,7 +144,6 @@ namespace art {
   void
   EndPathExecutor::respondToOpenOutputFiles(FileBlock const& fb)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = *label_and_worker.second;
       if (detail::skip_non_replicated(w)) {
@@ -165,7 +156,6 @@ namespace art {
   void
   EndPathExecutor::respondToCloseOutputFiles(FileBlock const& fb)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = *label_and_worker.second;
       if (detail::skip_non_replicated(w)) {
@@ -178,7 +168,6 @@ namespace art {
   bool
   EndPathExecutor::someOutputsOpen() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     return any_of(outputWorkers_.cbegin(), outputWorkers_.cend(), [](auto ow) {
       return ow->fileIsOpen();
     });
@@ -187,7 +176,6 @@ namespace art {
   void
   EndPathExecutor::closeAllOutputFiles()
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : outputWorkers_) {
       actReg_.sPreCloseOutputFile.invoke(ow->label());
       ow->closeFile();
@@ -199,7 +187,6 @@ namespace art {
   void
   EndPathExecutor::seedRunRangeSet(RangeSetHandler const& rsh)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     runRangeSetHandler_.reset(rsh.clone());
   }
 
@@ -214,7 +201,6 @@ namespace art {
   void
   EndPathExecutor::writeRun(RunPrincipal& rp)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : outputWorkers_) {
       ow->writeRun(rp);
     }
@@ -226,14 +212,12 @@ namespace art {
   void
   EndPathExecutor::seedSubRunRangeSet(RangeSetHandler const& rsh)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     subRunRangeSetHandler_.reset(rsh.clone());
   }
 
   void
   EndPathExecutor::setSubRunAuxiliaryRangeSetID(RangeSet const& rs)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : outputWorkers_) {
       // For RootOutput this enters the possibly split range set into
       // the range set db.
@@ -244,7 +228,6 @@ namespace art {
   void
   EndPathExecutor::writeSubRun(SubRunPrincipal& srp)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : outputWorkers_) {
       ow->writeSubRun(srp);
     }
@@ -260,7 +243,6 @@ namespace art {
   void
   EndPathExecutor::process(Transition trans, Principal& principal)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = *label_and_worker.second;
       if (detail::skip_non_replicated(w)) {
@@ -292,14 +274,7 @@ namespace art {
   EndPathExecutor::process_event(EventPrincipal& ep)
   {
     auto const sid = sc_.id();
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     TDEBUG_BEGIN_FUNC_SI(4, sid);
-    if (runningWorkerCnt_.load() != 0) {
-      cerr << "Aborting! runningWorkerCnt_.load() != 0: "
-           << runningWorkerCnt_.load() << "\n";
-      abort();
-    }
-    ++runningWorkerCnt_;
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = label_and_worker.second;
       w->reset();
@@ -307,7 +282,7 @@ namespace art {
     endPathInfo_.incrementTotalEventCount();
     try {
       if (!endPathInfo_.paths().empty()) {
-        endPathInfo_.paths().front()->process_event_for_endpath(ep);
+        endPathInfo_.paths().front()->process_endpath(ep);
       }
     }
     catch (cet::exception& ex) {
@@ -317,10 +292,6 @@ namespace art {
       if (action != actions::IgnoreCompletely) {
         // Possible actions: Rethrow, SkipEvent, FailModule, FailPath
         TDEBUG_END_FUNC_SI(4, sid) << "because of EXCEPTION";
-        if (runningWorkerCnt_.load() != 1) {
-          abort();
-        }
-        --runningWorkerCnt_;
         throw Exception(errors::EventProcessorFailure, "EndPathExecutor:")
           << "an exception occurred during current event processing\n"
           << ex;
@@ -338,17 +309,9 @@ namespace art {
       mf::LogError("PassingThrough")
         << "an exception occurred during current event processing\n";
       TDEBUG_END_FUNC_SI(4, sid) << "because of EXCEPTION";
-      if (runningWorkerCnt_.load() != 1) {
-        abort();
-      }
-      --runningWorkerCnt_;
       throw;
     }
     endPathInfo_.incrementPassedEventCount();
-    if (runningWorkerCnt_.load() != 1) {
-      abort();
-    }
-    --runningWorkerCnt_;
     TDEBUG_END_FUNC_SI(4, sid);
   }
 
@@ -359,7 +322,6 @@ namespace art {
     // for the end_path right now.  If users decide it is necessary to
     // know what they are, then we can provide them.
     PathContext const pc{sc_, PathContext::end_path(), 0, {}};
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : outputWorkers_) {
       ModuleContext const mc{pc, ow->description()};
       actReg_.sPreWriteEvent.invoke(mc);

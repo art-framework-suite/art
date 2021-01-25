@@ -17,6 +17,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/TriggerPathsExecutor.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "hep_concurrency/SerialTaskQueue.h"
 
 #include <atomic>
 #include <functional>
@@ -29,6 +30,8 @@
 #include <vector>
 
 namespace art {
+  class ActivityRegistry;
+
   class Schedule {
   public:
     Schedule(ScheduleID sid,
@@ -36,7 +39,8 @@ namespace art {
              ActionTable const& actions,
              ActivityRegistry const& aReg,
              UpdateOutputCallbacks& outputCallbacks,
-             std::unique_ptr<Worker> triggerResultsInserter);
+             std::unique_ptr<Worker> triggerResultsInserter,
+             std::shared_ptr<hep::concurrency::SerialTaskQueue> end_path_queue);
 
     // Disable copy/move operations
     Schedule(Schedule const&) = delete;
@@ -46,10 +50,8 @@ namespace art {
 
     // API presented to EventProcessor
     void process(Transition, Principal&);
-    void process_event_modifiers(tbb::task* endPathTask,
-                                 tbb::task* eventLoopTask,
-                                 EventPrincipal&);
-    void process_event_observers(EventPrincipal&);
+    void process_event_modifiers(tbb::task* endPathTask);
+    void process_event_observers();
     void beginJob();
     void endJob();
     void respondToOpenInputFile(FileBlock const&);
@@ -101,9 +103,12 @@ namespace art {
     }
 
     void
-    writeEvent(EventPrincipal& ep)
+    writeEvent()
     {
-      epExec_.writeEvent(ep);
+      assert(eventPrincipal_);
+      epExec_.writeEvent(*eventPrincipal_);
+      // Delete principal
+      eventPrincipal_.reset();
     }
 
     void
@@ -178,13 +183,39 @@ namespace art {
       return *epExec_.subRunRangeSetHandler_.get();
     }
 
-    void process_event_pathsDone(tbb::task* endPathTask,
-                                 tbb::task* eventLoopTask,
-                                 EventPrincipal& principal);
+    void
+    accept_principal(std::unique_ptr<EventPrincipal> principal)
+    {
+      assert(principal);
+      eventPrincipal_ = std::move(principal);
+    }
+
+    EventPrincipal&
+    event_principal()
+    {
+      assert(eventPrincipal_);
+      return *eventPrincipal_;
+    }
+
+    template <typename T>
+    void
+    push_onto_end_path_queue(T t)
+    {
+      endPathQueue_->push(std::move(t));
+    }
+
+    class EndPathRunnerTask;
 
   private:
+    ScheduleContext const context_;
+    ActionTable const& actions_;
+    ActivityRegistry const& actReg_;
     EndPathExecutor epExec_;
     TriggerPathsExecutor tpsExec_;
+
+    // Shared with other schedules
+    std::shared_ptr<hep::concurrency::SerialTaskQueue> endPathQueue_{};
+    std::unique_ptr<EventPrincipal> eventPrincipal_{nullptr};
   };
 } // namespace art
 

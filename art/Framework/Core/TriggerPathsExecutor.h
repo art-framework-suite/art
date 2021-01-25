@@ -67,9 +67,7 @@ namespace art {
 
     // API presented to EventProcessor
     void process(Transition, Principal&);
-    void process_event(tbb::task* endPathTask,
-                       tbb::task* eventLoopTask,
-                       EventPrincipal&);
+    void process_event(tbb::task* endPathTask, EventPrincipal&);
     void beginJob();
     void endJob();
     void respondToOpenInputFile(FileBlock const&);
@@ -77,18 +75,11 @@ namespace art {
     void respondToOpenOutputFiles(FileBlock const&);
     void respondToCloseOutputFiles(FileBlock const&);
 
-    // Tasking Structure
-    void pathsDoneTask(tbb::task* endPathTask,
-                       tbb::task* eventLoopTask,
-                       EventPrincipal&,
-                       std::exception_ptr const*);
-
-    // Implementation details.
-    void process_event_pathsDone(tbb::task* endPathTask,
-                                 tbb::task* eventLoopTask,
-                                 EventPrincipal&);
+    void process_event_paths_done(EventPrincipal&);
 
   private:
+    class PathsDoneTask;
+
     bool skipNonReplicated_(Worker const&);
 
     // const after ctor.
@@ -96,10 +87,6 @@ namespace art {
     ActionTable const& actionTable_;
     PathsInfo& triggerPathsInfo_;
     std::unique_ptr<Worker> results_inserter_;
-
-    // Dynamic: cause an error if more than one thread processes an
-    // event.
-    std::atomic<int> runningWorkerCnt_{};
   };
 } // namespace art
 

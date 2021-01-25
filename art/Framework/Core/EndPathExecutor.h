@@ -34,11 +34,9 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "cetlib/trim.h"
-#include "hep_concurrency/RecursiveMutex.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <memory>
-#include <mutex>
 #include <vector>
 
 namespace art {
@@ -123,15 +121,11 @@ namespace art {
     bool allAtLimit() const;
 
   private:
-    // Protects runRangeSetHandler_, and subRunRangeSetHandler_.
-    mutable hep::concurrency::RecursiveMutex mutex_{"EndPathExecutor::mutex_"};
     // Filled by ctor, const after that.
     ScheduleContext const sc_;
     ActionTable const& actionTable_;
     ActivityRegistry const& actReg_;
     PathsInfo& endPathInfo_;
-    // Dynamic, cause an error if more than one thread processes an event.
-    std::atomic<int> runningWorkerCnt_{};
     // Filled by ctor, const after that.
     std::vector<OutputWorker*> outputWorkers_{};
     // Dynamic, updated by run processing.

@@ -61,10 +61,9 @@ namespace art {
     // Used only by Path
     bool returnCode() const;
     std::string const& label() const;
-    bool runWorker(Transition, Principal&);
-    void runWorker_event_for_endpath(EventPrincipal&);
-    void runWorker_event(tbb::task* workerDoneTask, EventPrincipal&);
-    // Used only by Path
+    bool run(Transition, Principal&);
+    void run(tbb::task* workerDoneTask, EventPrincipal&);
+    void run_for_endpath(EventPrincipal&);
     void clearCounters();
 
     // Used by writeSummary
@@ -73,23 +72,22 @@ namespace art {
     std::size_t timesFailed() const;
     std::size_t timesExcept() const;
 
-    // Task Structure
-    void workerInPathDoneTask(ScheduleID const, std::exception_ptr const*);
-
   private:
+    class WorkerInPathDoneTask;
+
     std::atomic<Worker*> worker_;
     std::atomic<detail::FilterAction> filterAction_;
     ModuleContext moduleContext_;
 
     // Per-schedule
-    std::atomic<bool> returnCode_;
+    std::atomic<bool> returnCode_{false};
     std::atomic<hep::concurrency::WaitingTaskList*> waitingTasks_;
 
     // Counts
-    std::atomic<std::size_t> counts_visited_;
-    std::atomic<std::size_t> counts_passed_;
-    std::atomic<std::size_t> counts_failed_;
-    std::atomic<std::size_t> counts_thrown_;
+    std::atomic<std::size_t> counts_visited_{};
+    std::atomic<std::size_t> counts_passed_{};
+    std::atomic<std::size_t> counts_failed_{};
+    std::atomic<std::size_t> counts_thrown_{};
   };
 
 } // namespace art

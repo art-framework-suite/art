@@ -12,6 +12,7 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PathContext.h"
@@ -42,14 +43,20 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  Schedule::Schedule(ScheduleID const scheduleID,
-                     PathManager& pm,
-                     ActionTable const& actions,
-                     ActivityRegistry const& actReg,
-                     UpdateOutputCallbacks& outputCallbacks,
-                     std::unique_ptr<Worker> triggerResultsInserter)
-    : epExec_{scheduleID, pm, actions, actReg, outputCallbacks}
+  Schedule::Schedule(
+    ScheduleID const scheduleID,
+    PathManager& pm,
+    ActionTable const& actions,
+    ActivityRegistry const& actReg,
+    UpdateOutputCallbacks& outputCallbacks,
+    std::unique_ptr<Worker> triggerResultsInserter,
+    std::shared_ptr<hep::concurrency::SerialTaskQueue> end_path_queue)
+    : context_{scheduleID}
+    , actions_{actions}
+    , actReg_{actReg}
+    , epExec_{scheduleID, pm, actions, actReg_, outputCallbacks}
     , tpsExec_{scheduleID, pm, actions, move(triggerResultsInserter)}
+    , endPathQueue_{end_path_queue}
   {
     TDEBUG_FUNC_SI(5, scheduleID) << hex << this << dec;
   }
@@ -107,26 +114,17 @@ namespace art {
   // parent task is the nullptr, and the parent task of the
   // endPathTask is the eventLoopTask.
   void
-  Schedule::process_event_modifiers(tbb::task* endPathTask,
-                                    tbb::task* eventLoopTask,
-                                    EventPrincipal& principal)
+  Schedule::process_event_modifiers(tbb::task* endPathTask)
   {
-    tpsExec_.process_event(endPathTask, eventLoopTask, principal);
+    actReg_.sPreProcessEvent.invoke(
+      Event{*eventPrincipal_, ModuleContext::invalid()}, context_);
+    tpsExec_.process_event(endPathTask, *eventPrincipal_);
   }
 
   void
-  Schedule::process_event_observers(EventPrincipal& principal)
+  Schedule::process_event_observers()
   {
-    epExec_.process_event(principal);
+    epExec_.process_event(*eventPrincipal_);
   }
 
-  // Note: We come here as part of the pathsDone task.  Our parent is
-  // the nullptr.
-  void
-  Schedule::process_event_pathsDone(tbb::task* endPathTask,
-                                    tbb::task* eventLoopTask,
-                                    EventPrincipal& principal)
-  {
-    tpsExec_.process_event_pathsDone(endPathTask, eventLoopTask, principal);
-  }
 } // namespace art
