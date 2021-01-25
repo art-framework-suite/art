@@ -48,8 +48,8 @@ namespace art {
     ActionTable const& actions,
     std::unique_ptr<Worker> triggerResultsInserter)
     : sc_{scheduleID}
-    , actionTable_{&actions}
-    , triggerPathsInfo_{&pm.triggerPathsInfo(scheduleID)}
+    , actionTable_{actions}
+    , triggerPathsInfo_{pm.triggerPathsInfo(scheduleID)}
     , results_inserter_{std::move(triggerResultsInserter)}
   {
     TDEBUG_FUNC_SI(5, scheduleID) << hex << this << dec;
@@ -58,7 +58,7 @@ namespace art {
   void
   TriggerPathsExecutor::beginJob()
   {
-    for (auto const& val : triggerPathsInfo_.load()->workers()) {
+    for (auto const& val : triggerPathsInfo_.workers()) {
       auto& w = *val.second;
       if (detail::skip_non_replicated(w)) {
         continue;
@@ -74,7 +74,7 @@ namespace art {
   TriggerPathsExecutor::endJob()
   {
     Exception error{errors::EndJobFailure};
-    for (auto& val : triggerPathsInfo_.load()->workers()) {
+    for (auto& val : triggerPathsInfo_.workers()) {
       auto& w = *val.second;
       if (detail::skip_non_replicated(w)) {
         continue;
@@ -125,7 +125,7 @@ namespace art {
   void
   TriggerPathsExecutor::respondToOpenInputFile(FileBlock const& fb)
   {
-    for (auto const& val : triggerPathsInfo_.load()->workers()) {
+    for (auto const& val : triggerPathsInfo_.workers()) {
       auto& w = *val.second;
       if (detail::skip_non_replicated(w)) {
         continue;
@@ -140,7 +140,7 @@ namespace art {
   void
   TriggerPathsExecutor::respondToCloseInputFile(FileBlock const& fb)
   {
-    for (auto const& val : triggerPathsInfo_.load()->workers()) {
+    for (auto const& val : triggerPathsInfo_.workers()) {
       auto& w = *val.second;
       if (detail::skip_non_replicated(w)) {
         continue;
@@ -155,7 +155,7 @@ namespace art {
   void
   TriggerPathsExecutor::respondToOpenOutputFiles(FileBlock const& fb)
   {
-    for (auto const& val : triggerPathsInfo_.load()->workers()) {
+    for (auto const& val : triggerPathsInfo_.workers()) {
       auto& w = *val.second;
       if (detail::skip_non_replicated(w)) {
         continue;
@@ -170,7 +170,7 @@ namespace art {
   void
   TriggerPathsExecutor::respondToCloseOutputFiles(FileBlock const& fb)
   {
-    for (auto const& val : triggerPathsInfo_.load()->workers()) {
+    for (auto const& val : triggerPathsInfo_.workers()) {
       auto& w = *val.second;
       if (detail::skip_non_replicated(w)) {
         continue;
@@ -185,10 +185,10 @@ namespace art {
   void
   TriggerPathsExecutor::process(Transition const trans, Principal& principal)
   {
-    for (auto const& val : triggerPathsInfo_.load()->workers()) {
+    for (auto const& val : triggerPathsInfo_.workers()) {
       val.second->reset();
     }
-    for (auto const& path : triggerPathsInfo_.load()->paths()) {
+    for (auto const& path : triggerPathsInfo_.paths()) {
       path->process(trans, principal);
     }
   }
@@ -231,7 +231,7 @@ namespace art {
         rethrow_exception(*ex);
       }
       catch (cet::exception& e) {
-        auto action = actionTable_.load()->find(e.root_cause());
+        auto action = actionTable_.find(e.root_cause());
         assert(action != actions::IgnoreCompletely);
         assert(action != actions::FailPath);
         assert(action != actions::FailModule);
@@ -300,15 +300,15 @@ namespace art {
       abort();
     }
     ++runningWorkerCnt_;
-    for (auto const& val : triggerPathsInfo_.load()->workers()) {
+    for (auto const& val : triggerPathsInfo_.workers()) {
       auto& w = *val.second;
       w.reset();
     }
     if (results_inserter_) {
       results_inserter_->reset();
     }
-    triggerPathsInfo_.load()->pathResults().reset();
-    triggerPathsInfo_.load()->incrementTotalEventCount();
+    triggerPathsInfo_.pathResults().reset();
+    triggerPathsInfo_.incrementTotalEventCount();
     auto pathsDoneTask = make_waiting_task(
       tbb::task::allocate_root(),
       PathsDoneFunctor{this, endPathTask, eventLoopTask, principal});
@@ -329,7 +329,7 @@ namespace art {
       // count the first thing it does (by putting the task into a
       // WaitingTaskList).
       WaitingTaskHolder wth(pathsDoneTask);
-      for (auto& path : triggerPathsInfo_.load()->paths()) {
+      for (auto& path : triggerPathsInfo_.paths()) {
         // Start each path running.  The path will start a spawn chain
         // going to run each worker in the order specified on the
         // path, and when they have all been run, it will call
@@ -345,7 +345,7 @@ namespace art {
       return;
     }
     catch (cet::exception& e) {
-      auto action = actionTable_.load()->find(e.root_cause());
+      auto action = actionTable_.find(e.root_cause());
       assert(action != actions::IgnoreCompletely);
       assert(action != actions::FailPath);
       assert(action != actions::FailModule);
@@ -382,8 +382,8 @@ namespace art {
     // We are part of the pathsDoneTask, and our parent is the nullptr.
     TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
     try {
-      if (triggerPathsInfo_.load()->pathResults().accept()) {
-        triggerPathsInfo_.load()->incrementPassedEventCount();
+      if (triggerPathsInfo_.pathResults().accept()) {
+        triggerPathsInfo_.incrementPassedEventCount();
       }
       if (results_inserter_) {
         // FIXME: not sure what the trigger bit should be
@@ -397,7 +397,7 @@ namespace art {
       }
     }
     catch (cet::exception& e) {
-      auto action = actionTable_.load()->find(e.root_cause());
+      auto action = actionTable_.find(e.root_cause());
       assert(action != actions::IgnoreCompletely);
       assert(action != actions::FailPath);
       assert(action != actions::FailModule);

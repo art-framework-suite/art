@@ -127,9 +127,9 @@ namespace art {
     mutable hep::concurrency::RecursiveMutex mutex_{"EndPathExecutor::mutex_"};
     // Filled by ctor, const after that.
     ScheduleContext const sc_;
-    std::atomic<ActionTable const*> actionTable_;
-    std::atomic<ActivityRegistry const*> actReg_;
-    std::atomic<PathsInfo*> endPathInfo_;
+    ActionTable const& actionTable_;
+    ActivityRegistry const& actReg_;
+    PathsInfo& endPathInfo_;
     // Dynamic, cause an error if more than one thread processes an event.
     std::atomic<int> runningWorkerCnt_{};
     // Filled by ctor, const after that.
@@ -140,7 +140,7 @@ namespace art {
     std::unique_ptr<RangeSetHandler> subRunRangeSetHandler_{nullptr};
 
     // Output File Switching
-    std::atomic<OutputFileStatus> fileStatus_;
+    std::atomic<OutputFileStatus> fileStatus_{OutputFileStatus::Closed};
     std::set<OutputWorker*> outputWorkersToOpen_{};
     // Note: During an output file switch, after the closes happen, the entire
     // contents of this is moved to outputWorkersToOpen_.

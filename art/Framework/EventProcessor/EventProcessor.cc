@@ -68,11 +68,6 @@ namespace art {
   EventProcessor::~EventProcessor()
   {
     ANNOTATE_THREAD_IGNORE_BEGIN;
-    auto it = eventPrincipals_->cbegin();
-    auto const e = eventPrincipals_->cend();
-    for (; it != e; ++it) {
-      delete *it;
-    }
     ParentageRegistry::instance(true);
     ProcessConfigurationRegistry::instance(true);
     ProcessHistoryRegistry::instance(true);
@@ -196,13 +191,7 @@ namespace art {
     fhicl::ParameterSetRegistry::put(triggerPSet);
     Globals::instance()->setTriggerPSet(triggerPSet);
     Globals::instance()->setTriggerPathNames(pathManager_->triggerPathNames());
-    eventPrincipals_->expand_to_num_schedules();
-    auto annotate_principal = [this](ScheduleID const sid) {
-      auto ep [[maybe_unused]] = &eventPrincipals_->at(sid);
-      ANNOTATE_BENIGN_RACE_SIZED(
-        ep, sizeof(EventPrincipal*), "EventPrincipal ptr");
-    };
-    scheduleIteration_.for_each_schedule(annotate_principal);
+    eventPrincipals_.expand_to_num_schedules();
     auto const errorOnMissingConsumes = scheduler_->errorOnMissingConsumes();
     ConsumesInfo::instance()->setRequireConsumes(errorOnMissingConsumes);
     {
@@ -697,10 +686,9 @@ namespace art {
       assert(subRunPrincipal_->subRunID().isValid());
       actReg_->sPreSourceEvent.invoke(sc);
       TDEBUG_FUNC_SI(5, sid) << "Calling input_->readEvent(subRunPrincipal_)";
-      eventPrincipals_->at(sid) =
-        input_->readEvent(subRunPrincipal_.get()).release();
-      assert(eventPrincipals_->at(sid));
-      auto& ep = *eventPrincipals_->at(sid);
+      eventPrincipals_.at(sid) = input_->readEvent(subRunPrincipal_.get());
+      assert(eventPrincipals_.at(sid));
+      auto& ep = *eventPrincipals_.at(sid);
 
       // The intended behavior here is that the producing services
       // which are called during the sPostReadEvent cannot see each
@@ -719,7 +707,7 @@ namespace art {
       // Now we drop the input source lock by exiting the guarded
       // scope.
     }
-    auto& ep = *eventPrincipals_->at(sid);
+    auto& ep = *eventPrincipals_.at(sid);
     if (ep.eventID().isFlush()) {
       // No processing to do, start next event handling task,
       // transferring our parent task (eventLoopTask) to it, and exit
@@ -925,7 +913,7 @@ namespace art {
                                    sizeof(tbb::internal::task_prefix),
                                  "tbb::task");
       tbb::task::self().set_parent(eventLoopTask_);
-      auto& ep = *evp_->eventPrincipals_->at(sid_);
+      auto& ep = *evp_->eventPrincipals_.at(sid_);
       try {
         evp_->schedule(sid_).process_event_observers(ep);
       }
@@ -1053,7 +1041,7 @@ namespace art {
     // Note: We are part of the endPathTask.
     TDEBUG_BEGIN_FUNC_SI(4, sid);
     FDEBUG(1) << string(8, ' ') << "processEvent................("
-              << eventPrincipals_->at(sid)->eventID() << ")\n";
+              << eventPrincipals_.at(sid)->eventID() << ")\n";
     try {
       // Ask the output workers if they have reached their limits, and
       // if so setup to end the job the next time around the event
@@ -1066,25 +1054,24 @@ namespace art {
       }
       // Now we can write the results of processing to the outputs,
       // and delete the event principal.
-      assert(eventPrincipals_->at(sid));
-      auto isFlush = eventPrincipals_->at(sid)->eventID().isFlush();
+      assert(eventPrincipals_.at(sid));
+      auto isFlush = eventPrincipals_.at(sid)->eventID().isFlush();
       if (!isFlush) {
         // Possibly open new output files.  This is safe to do because
         // EndPathExecutor functions are called in a serialized
         // context.
         TDEBUG_FUNC_SI(5, sid) << "Calling openSomeOutputFiles()";
         openSomeOutputFiles();
-        assert(eventPrincipals_->at(sid));
-        assert(!eventPrincipals_->at(sid)->eventID().isFlush());
+        assert(eventPrincipals_.at(sid));
+        assert(!eventPrincipals_.at(sid)->eventID().isFlush());
         TDEBUG_FUNC_SI(5, sid) << "Calling schedules_->writeEvent(sid, "
-                                  "*eventPrincipals_->at(sid))";
+                                  "*eventPrincipals_.at(sid))";
         // Write the event.
-        schedule(sid).writeEvent(*eventPrincipals_->at(sid));
+        schedule(sid).writeEvent(*eventPrincipals_.at(sid));
         FDEBUG(1) << string(8, ' ') << "writeEvent..................("
-                  << eventPrincipals_->at(sid)->eventID() << ")\n";
+                  << eventPrincipals_.at(sid)->eventID() << ")\n";
         // And delete the event principal.
-        delete eventPrincipals_->at(sid);
-        eventPrincipals_->at(sid) = nullptr;
+        eventPrincipals_.at(sid).reset();
       }
       TDEBUG_FUNC_SI(5, sid)
         << "Calling schedules_->"

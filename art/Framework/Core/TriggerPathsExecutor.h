@@ -93,8 +93,8 @@ namespace art {
 
     // const after ctor.
     ScheduleContext const sc_;
-    std::atomic<ActionTable const*> actionTable_;
-    std::atomic<PathsInfo*> triggerPathsInfo_;
+    ActionTable const& actionTable_;
+    PathsInfo& triggerPathsInfo_;
     std::unique_ptr<Worker> results_inserter_;
 
     // Dynamic: cause an error if more than one thread processes an

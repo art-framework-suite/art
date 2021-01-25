@@ -235,7 +235,7 @@ namespace art {
     tsan_unique_ptr<SubRunPrincipal> subRunPrincipal_{nullptr};
 
     // The currently active EventPrincipals.
-    tsan<PerScheduleContainer<EventPrincipal*>> eventPrincipals_{};
+    PerScheduleContainer<std::unique_ptr<EventPrincipal>> eventPrincipals_{};
 
     // Are we configured to process empty runs?
     bool const handleEmptyRuns_;
