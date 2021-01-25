@@ -42,13 +42,10 @@
 #include <vector>
 
 namespace art {
-  class EventProcessor;
   class EndPathExecutor {
-    friend class EventProcessor;
+    friend class Schedule;
 
   public:
-    // Special Member Functions
-    ~EndPathExecutor();
     EndPathExecutor(ScheduleID sid,
                     PathManager& pm,
                     ActionTable const& actions,
@@ -138,9 +135,9 @@ namespace art {
     // Filled by ctor, const after that.
     std::vector<OutputWorker*> outputWorkers_{};
     // Dynamic, updated by run processing.
-    std::atomic<RangeSetHandler*> runRangeSetHandler_;
+    std::unique_ptr<RangeSetHandler> runRangeSetHandler_{nullptr};
     // Dynamic, updated by subrun processing.
-    std::atomic<PerScheduleContainer<RangeSetHandler*>*> subRunRangeSetHandler_;
+    std::unique_ptr<RangeSetHandler> subRunRangeSetHandler_{nullptr};
 
     // Output File Switching
     std::atomic<OutputFileStatus> fileStatus_;

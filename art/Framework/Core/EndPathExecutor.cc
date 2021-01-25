@@ -46,19 +46,6 @@ using namespace std;
 
 namespace art {
 
-  EndPathExecutor::~EndPathExecutor()
-  {
-    if (auto rsh = subRunRangeSetHandler_.load()) {
-      for (auto val : *rsh) {
-        delete val;
-      }
-      delete rsh;
-    }
-    subRunRangeSetHandler_ = nullptr;
-    delete runRangeSetHandler_.load();
-    runRangeSetHandler_ = nullptr;
-  }
-
   EndPathExecutor::EndPathExecutor(ScheduleID const sid,
                                    PathManager& pm,
                                    ActionTable const& actionTable,
@@ -69,8 +56,6 @@ namespace art {
     , actReg_{&areg}
     , endPathInfo_{&pm.endPathInfo(sid)}
   {
-    runRangeSetHandler_ = nullptr;
-    subRunRangeSetHandler_ = new PerScheduleContainer<RangeSetHandler*>{1};
     fileStatus_ = OutputFileStatus::Closed;
     for (auto const& val : endPathInfo_.load()->workers()) {
       auto w = val.second;
@@ -216,7 +201,7 @@ namespace art {
   EndPathExecutor::seedRunRangeSet(RangeSetHandler const& rsh)
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    runRangeSetHandler_ = rsh.clone();
+    runRangeSetHandler_.reset(rsh.clone());
   }
 
   void
@@ -235,7 +220,7 @@ namespace art {
       ow->writeRun(rp);
     }
     if (fileStatus_.load() == OutputFileStatus::Switching) {
-      runRangeSetHandler_.load()->rebase();
+      runRangeSetHandler_->rebase();
     }
   }
 
@@ -243,10 +228,7 @@ namespace art {
   EndPathExecutor::seedSubRunRangeSet(RangeSetHandler const& rsh)
   {
     hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
-    for (auto& val : *subRunRangeSetHandler_.load()) {
-      delete val;
-      val = rsh.clone();
-    }
+    subRunRangeSetHandler_.reset(rsh.clone());
   }
 
   void
@@ -268,9 +250,7 @@ namespace art {
       ow->writeSubRun(srp);
     }
     if (fileStatus_.load() == OutputFileStatus::Switching) {
-      for (auto& rsh : *subRunRangeSetHandler_.load()) {
-        rsh->rebase();
-      }
+      subRunRangeSetHandler_->rebase();
     }
   }
 
@@ -391,10 +371,8 @@ namespace art {
     bool const lastInSubRun{ep.isLastInSubRun()};
     TDEBUG_FUNC_SI(5, sc_.id())
       << "eid: " << eid.run() << ", " << eid.subRun() << ", " << eid.event();
-    runRangeSetHandler_.load()->update(eid, lastInSubRun);
-    subRunRangeSetHandler_.load()
-      ->at(ScheduleID::first())
-      ->update(eid, lastInSubRun);
+    runRangeSetHandler_->update(eid, lastInSubRun);
+    subRunRangeSetHandler_->update(eid, lastInSubRun);
   }
 
   bool

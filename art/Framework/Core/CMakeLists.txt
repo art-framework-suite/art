@@ -56,6 +56,7 @@ art_make_library(
     SharedAnalyzer.cc
     SharedFilter.cc
     SharedProducer.cc
+    TriggerPathsExecutor.cc
     TriggerResultInserter.cc
     UpdateOutputCallbacks.cc
     WorkerInPath.cc

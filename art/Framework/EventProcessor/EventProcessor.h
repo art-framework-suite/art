@@ -6,7 +6,6 @@
 // The art application object.
 // ===========================
 
-#include "art/Framework/Core/EndPathExecutor.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
@@ -145,6 +144,16 @@ namespace art {
     template <typename T>
     using tsan_unique_ptr = hep::concurrency::thread_sanitize_unique_ptr<T>;
 
+    Schedule& schedule(ScheduleID const id)
+    {
+      return schedules_->at(id);
+    }
+
+    Schedule& main_schedule()
+    {
+      return schedule(ScheduleID::first());
+    }
+
     // Next containment level to move to.
     std::atomic<Level> nextLevel_{Level::ReadyToAdvance};
 
@@ -211,11 +220,8 @@ namespace art {
     // The source of input data.
     tsan_unique_ptr<InputSource> input_{nullptr};
 
-    // The trigger path runners.
+    // The schedule runners.
     tsan<std::map<ScheduleID, Schedule>> schedules_{};
-
-    // The end path runner.
-    tsan<std::map<ScheduleID, EndPathExecutor>> endPathExecutors_{};
 
     tsan<hep::concurrency::SerialTaskQueue> endPathQueue_{};
 
