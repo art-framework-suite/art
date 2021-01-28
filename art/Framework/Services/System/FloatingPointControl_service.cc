@@ -4,6 +4,7 @@
 #include "cetlib/ProvideFilePathMacro.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 using namespace std;
 using namespace art::fp_detail;

@@ -2,8 +2,8 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/Event.h"
+#include "art/Utilities/TaskDebugMacros.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
-#include "canvas/Utilities/DebugMacros.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <memory>
@@ -19,11 +19,7 @@ namespace art {
     , pset_id_{pset.id()}
     , trptr_{&pathResults}
   {
-    {
-      std::ostringstream msg;
-      msg << "0x" << std::hex << ((unsigned long)this) << std::dec;
-      TDEBUG_FUNC_SI_MSG(5, "TriggerResultInserter ctor", sid, msg.str());
-    }
+    TDEBUG_FUNC_SI(5, sid) << std::hex << this << std::dec;
     produces<TriggerResults>();
   }
 

@@ -4,13 +4,11 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib/assert_only_one_thread.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/Sequence.h"
-#include "hep_concurrency/RecursiveMutex.h"
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
 

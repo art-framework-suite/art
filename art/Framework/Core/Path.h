@@ -21,7 +21,6 @@
 #include "canvas/Persistency/Common/HLTenums.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/WaitingTaskList.h"
 
 #include <cstddef>
@@ -35,17 +34,17 @@ namespace art {
   class ActivityRegistry;
   class EventPrincipal;
   class Path {
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    ~Path();
+  public:
     Path(ActionTable const&,
          ActivityRegistry const&,
          PathContext const&,
          std::vector<WorkerInPath>&&,
          HLTGlobalStatus*) noexcept;
+
+    // Disable copy operations
     Path(Path const&) = delete;
     Path& operator=(Path const&) = delete;
 
-  public: // MEMBER FUNCTIONS
     ScheduleID scheduleID() const;
     int bitPosition() const;
     std::string const& name() const;
@@ -59,10 +58,10 @@ namespace art {
     void clearCounters();
     void process(Transition, Principal&);
     void process_event_for_endpath(EventPrincipal&);
-    void process_event(hep::concurrency::WaitingTask* pathsDoneTask,
+    void process_event(tbb::task* pathsDoneTask,
                        EventPrincipal&);
 
-  public: // MEMBER FUNCTIONS - Tasking System
+    // Tasking System
     void runWorkerTask(size_t idx,
                        size_t max_idx,
                        EventPrincipal&,
@@ -72,7 +71,7 @@ namespace art {
                         EventPrincipal&,
                         std::exception_ptr const*);
 
-  private: // MEMBER FUNCTIONS -- Implementation details
+  private:
     void process_event_idx_asynch(size_t idx, size_t max_idx, EventPrincipal&);
     void process_event_idx(size_t const idx,
                            size_t const max_idx,
@@ -85,23 +84,22 @@ namespace art {
                                     EventPrincipal&,
                                     bool should_continue);
 
-  private: // MEMBER DATA
     std::atomic<ActionTable const*> actionTable_;
     std::atomic<ActivityRegistry const*> actReg_;
     PathContext const pc_;
     int const bitpos_;
     // Note: threading: We clear their counters.
-    std::atomic<std::vector<WorkerInPath>*> workers_;
+    std::vector<WorkerInPath> workers_;
     // The PathManager trigger paths info actually owns this.
     // Note: For the end path this will be the nullptr.
     std::atomic<HLTGlobalStatus*> trptr_;
     // Tasks waiting for path workers to finish.
-    std::atomic<hep::concurrency::WaitingTaskList*> waitingTasks_;
-    std::atomic<hlt::HLTState> state_;
-    std::atomic<std::size_t> timesRun_;
-    std::atomic<std::size_t> timesPassed_;
-    std::atomic<std::size_t> timesFailed_;
-    std::atomic<std::size_t> timesExcept_;
+    hep::concurrency::WaitingTaskList waitingTasks_{};
+    std::atomic<hlt::HLTState> state_{hlt::Ready};
+    std::atomic<std::size_t> timesRun_{};
+    std::atomic<std::size_t> timesPassed_{};
+    std::atomic<std::size_t> timesFailed_{};
+    std::atomic<std::size_t> timesExcept_{};
   };
 } // namespace art
 

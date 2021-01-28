@@ -11,76 +11,57 @@
 #  make install
 #  make package (builds distribution tarfile)
 # ======================================================================
+cmake_minimum_required(VERSION 3.18.2 FATAL_ERROR)
 
-
-cmake_minimum_required(VERSION 3.12...3.14 FATAL_ERROR)
-project(art LANGUAGES CXX C)
-
-# cetbuildtools contains our cmake modules
-find_package(cetbuildtools REQUIRED)
-
-list(APPEND CMAKE_MODULE_PATH
-  ${CMAKE_CURRENT_SOURCE_DIR}/Modules)
+find_package(cetmodules 2.04.00 REQUIRED)
+project(art VERSION 3.07.00 LANGUAGES CXX C)
 
 include(CetCMakeEnv)
 cet_cmake_env()
 
+# Find our own CMake modules, and tell everyone else where to find them.
+cet_cmake_module_directories(Modules)
+
 cet_set_compiler_flags(DIAGS VIGILANT
   WERROR
   NO_UNDEFINED
-  EXTRA_FLAGS -pedantic
-  EXTRA_CXX_FLAGS -Wnon-virtual-dtor -Wdelete-non-virtual-dtor -DBOOST_TEST_NO_OLD_TOOLS)
+  EXTRA_FLAGS -pedantic)
 
-cet_have_qual(sse2 SSE2)
-if (SSE2)
-  cet_add_compiler_flags(CXX -msse2 -ftree-vectorizer-verbose=2)
+if(DEFINED ENV{CET_SANITIZE_ADDRESS} AND DEFINED ENV{GCC_FQ_DIR})
+  find_file(ASAN_LIB libasan.so NO_DEFAULT_PATH PATHS $ENV{GCC_FQ_DIR}/lib64)
+  cet_add_compiler_flags(CXX -fsanitize=address)
+  cet_add_compiler_flags(C -fsanitize=address)
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address")
+  set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} -fsanitize=address")
+  set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -fsanitize=address")
 endif()
 
-if($ENV{CET_SANITIZE_ADDRESS})
-  if(NOT "$ENV{GCC_FQ_DIR}" STREQUAL "")
-    find_file(ASAN_LIB libasan.so NO_DEFAULT_PATH PATHS $ENV{GCC_FQ_DIR}/lib64)
-  endif()
+if(DEFINED ENV{CET_SANITIZE_THREAD} AND DEFINED ENV{GCC_FQ_DIR})
+  find_file(TSAN_LIB libtsan.so NO_DEFAULT_PATH PATHS $ENV{GCC_FQ_DIR}/lib64)
+  cet_add_compiler_flags(CXX -fsanitize=thread -D__SANITIZE_THREAD__)
+  cet_add_compiler_flags(C -fsanitize=thread -D__SANITIZE_THREAD__)
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=thread -D__SANITIZE_THREAD__")
+  set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} -fsanitize=thread -D__SANITIZE_THREAD__")
+  set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -fsanitize=thread -D__SANITIZE_THREAD__")
 endif()
 
-if($ENV{CET_SANITIZE_THREAD})
-  if(NOT "$ENV{GCC_FQ_DIR}" STREQUAL "")
-    find_file(TSAN_LIB libtsan.so NO_DEFAULT_PATH PATHS $ENV{GCC_FQ_DIR}/lib64)
-  endif()
-endif()
+cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
 
-if ($ENV{CET_SANITIZE_ADDRESS})
-cet_add_compiler_flags(CXX -fsanitize=address)
-cet_add_compiler_flags(C -fsanitize=address)
-set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address")
-set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} -fsanitize=address")
-set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -fsanitize=address")
-endif()
+cet_find_package(canvas REQUIRED)
+cet_find_package(messagefacility REQUIRED)
+cet_find_package(fhiclcpp REQUIRED)
+cet_find_package(cetlib REQUIRED)
+cet_find_package(cetlib_except REQUIRED)
+cet_find_package(CLHEP REQUIRED)
+cet_find_package(hep_concurrency REQUIRED)
+cet_find_package(Range REQUIRED)
+cet_find_package(Catch2 REQUIRED PRIVATE)
+cet_find_package(Boost COMPONENTS date_time filesystem program_options regex unit_test_framework REQUIRED)
+cet_find_package(TBB REQUIRED)
+cet_find_package(SQLite3 REQUIRED)
 
-if ($ENV{CET_SANITIZE_THREAD})
-cet_add_compiler_flags(CXX -fsanitize=thread -D__SANITIZE_THREAD__)
-cet_add_compiler_flags(C -fsanitize=thread -D__SANITIZE_THREAD__)
-set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=thread -D__SANITIZE_THREAD__")
-set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} -fsanitize=thread -D__SANITIZE_THREAD__")
-set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} -fsanitize=thread -D__SANITIZE_THREAD__")
-endif()
-
-cet_report_compiler_flags()
-
-# these are minimum required versions, not the actual product versions
-find_ups_product(canvas v1_06_00)
-find_ups_product(messagefacility)
-find_ups_product(fhiclcpp)
-find_ups_product(cetlib v2_01_00)
-find_ups_product(cetlib_except v1_01_00)
-find_ups_product(clhep)
-find_ups_product(cppunit)
-find_ups_product(hep_concurrency)
-find_ups_product(sqlite)
-find_ups_product(range)
-find_ups_boost(BOOST_TARGETS)
-
-# SQLite
-cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
+cet_find_package(Threads REQUIRED)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
 # macros for simple_plugin
 include(BuildPlugins)
@@ -94,11 +75,7 @@ add_subdirectory(tools)
 # source
 add_subdirectory(art)
 
-# ups - table and config files
-add_subdirectory(ups)
-
 # CMake modules
 add_subdirectory(Modules)
 
-# packaging utility
-include(UseCPack)
+cet_cmake_config(COMPATIBILITY SameMajorVersion)

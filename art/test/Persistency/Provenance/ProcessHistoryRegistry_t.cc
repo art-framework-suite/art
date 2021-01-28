@@ -4,9 +4,9 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
-#include "cetlib/SimultaneousFunctionSpawner.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "hep_concurrency/simultaneous_function_spawner.h"
 
 #include <string>
 
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(concurrent_insertion_reading)
     cet::transform_all(histories, std::back_inserter(tasks), [](auto const& h) {
       return [&h] { ProcessHistoryRegistry::emplace(h.id(), h); };
     });
-    cet::SimultaneousFunctionSpawner sfs{tasks};
+    hep::concurrency::simultaneous_function_spawner sfs{tasks};
   }
 
   BOOST_TEST_REQUIRE(ProcessHistoryRegistry::get().size() == histories.size());
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(concurrent_insertion_reading)
           entry = std::move(retrievedHistory);
         });
       });
-    cet::SimultaneousFunctionSpawner sfs{tasks};
+    hep::concurrency::simultaneous_function_spawner sfs{tasks};
     BOOST_TEST(histories == retrievedHistories);
   }
 }

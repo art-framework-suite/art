@@ -106,9 +106,8 @@ namespace art::detail {
                     std::atomic<std::size_t>& counts_passed,
                     std::atomic<std::size_t>& /*counts_failed*/)
   {
-    detail::PVSentry pvSentry{processAndEventSelectors()};
     Event const e{ep, mc};
-    if (wantAllEvents() || wantEvent(e)) {
+    if (wantEvent(e)) {
       ++counts_run;
       ProcessingFrame const frame{mc.scheduleID()};
       analyzeWithFrame(e, frame);

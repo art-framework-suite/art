@@ -18,7 +18,6 @@
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/Transition.h"
 #include "cetlib/exempt_ptr.h"
-#include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/WaitingTaskList.h"
 
 #include <atomic>
@@ -64,8 +63,7 @@ namespace art {
     std::string const& label() const;
     bool runWorker(Transition, Principal&);
     void runWorker_event_for_endpath(EventPrincipal&);
-    void runWorker_event(hep::concurrency::WaitingTask* workerDoneTask,
-                         EventPrincipal&);
+    void runWorker_event(tbb::task* workerDoneTask, EventPrincipal&);
     // Used only by Path
     void clearCounters();
 

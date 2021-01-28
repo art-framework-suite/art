@@ -7,7 +7,6 @@
 #include "cetlib/BasicPluginFactory.h"
 #include "cetlib/detail/wrapLibraryManagerException.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace art {
 

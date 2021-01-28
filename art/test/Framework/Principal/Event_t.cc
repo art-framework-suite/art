@@ -42,7 +42,6 @@
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
 #include <fstream>
@@ -146,8 +145,6 @@ private:
 
 ProductTablesFixture::ProductTablesFixture()
 {
-  mf::StartMessageFacility({}); // Used to suppress debug messages
-
   constexpr bool presentFromSource{true};
   constexpr bool produced{false};
 

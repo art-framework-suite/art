@@ -35,7 +35,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "hep_concurrency/WaitingTaskList.h"
 
 #include <atomic>
 #include <cassert>
@@ -51,8 +51,6 @@ namespace tbb {
 
 namespace hep::concurrency {
   class SerialTaskQueueChain;
-  class WaitingTaskList;
-  using WaitingTask = tbb::task;
 }
 
 namespace art {
@@ -78,7 +76,7 @@ namespace art {
     };
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
-    virtual ~Worker() noexcept;
+    virtual ~Worker() = default;
     Worker(ModuleDescription const&, WorkerParams const&);
     Worker(Worker const&) = delete;
     Worker(Worker&) = delete;
@@ -93,7 +91,7 @@ namespace art {
     void respondToCloseOutputFiles(FileBlock const& fb);
     bool doWork(Transition, Principal&, ModuleContext const&);
 
-    void doWork_event(hep::concurrency::WaitingTask* workerInPathDoneTask,
+    void doWork_event(tbb::task* workerInPathDoneTask,
                       EventPrincipal&,
                       ModuleContext const&);
 
@@ -107,7 +105,6 @@ namespace art {
       return scheduleID_;
     }
     ModuleDescription const& description() const;
-    ModuleDescription const* descPtr() const;
     std::string const& label() const;
 
     // Used only by WorkerInPath.
@@ -151,37 +148,36 @@ namespace art {
 
   private: // MEMBER DATA
     ScheduleID const scheduleID_;
-    std::atomic<ModuleDescription const*> md_;
+    ModuleDescription const md_;
     std::atomic<ActionTable const*> actions_;
     std::atomic<ActivityRegistry const*> actReg_;
-    std::atomic<int> state_;
+    std::atomic<int> state_{Ready};
 
     // if state is 'exception'
-    // Note: threading: There is no accessor for this data,
-    // the only way it is ever used is from the doWork*
-    // functions.  Right now event processing only sets it,
-    // but run and subrun processing reads it.  It is not
-    // clear that event processing needs this anymore,
-    // and if we go to multiple runs and subruns in flight,
-    // they may not need it anymore as well.  For now, leave
-    // this, is not thread safe.
-    std::atomic<std::exception_ptr*> cached_exception_;
+    // Note: threading: There is no accessor for this data, the only
+    // way it is ever used is from the doWork* functions.  Right now
+    // event processing only sets it, but run and subrun processing
+    // reads it.  It is not clear that event processing needs this
+    // anymore, and if we go to multiple runs and subruns in flight,
+    // they may not need it anymore as well.  For now, leave this, is
+    // not thread safe.
+    std::exception_ptr cached_exception_{};
 
-    std::atomic<bool> workStarted_;
-    std::atomic<bool> returnCode_;
+    std::atomic<bool> workStarted_{false};
+    std::atomic<bool> returnCode_{false};
 
     // Holds the waiting workerInPathDone tasks.  Note: For shared
     // modules the workers are shared.  For replicated modules each
     // schedule has its own private worker copies (the whole reason
     // schedules exist!).
-    std::atomic<hep::concurrency::WaitingTaskList*> waitingTasks_;
+    hep::concurrency::WaitingTaskList waitingTasks_{};
 
-  protected: // MEMBER DATA -- counts
-    std::atomic<std::size_t> counts_visited_;
-    std::atomic<std::size_t> counts_run_;
-    std::atomic<std::size_t> counts_passed_;
-    std::atomic<std::size_t> counts_failed_;
-    std::atomic<std::size_t> counts_thrown_;
+  protected:
+    std::atomic<std::size_t> counts_visited_{};
+    std::atomic<std::size_t> counts_run_{};
+    std::atomic<std::size_t> counts_passed_{};
+    std::atomic<std::size_t> counts_failed_{};
+    std::atomic<std::size_t> counts_thrown_{};
   };
 
 } // namespace art

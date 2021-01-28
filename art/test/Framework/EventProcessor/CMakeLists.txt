@@ -50,7 +50,7 @@ set(base_inputs_11 a b c)
 set(base_inputs_12 a b c)
 set(base_inputs_13 a b)
 
-foreach(TESTNUMBER 00 01 02 03 04 05 06 07 08 09 10 11 12 13)
+foreach(TESTNUMBER IN ITEMS 00 01 02 03 04 05 06 07 08 09 10 11 12 13)
 
   # For each of the 'base_inputs' lists, we create two other lists;
   # one that appends ".txt" to the end of each letter--this is what
@@ -63,7 +63,7 @@ foreach(TESTNUMBER 00 01 02 03 04 05 06 07 08 09 10 11 12 13)
   # For each test, loop over the cases where the behavior to
   # handleEmptyRuns and handleEmptySubRuns is [true, true], [true,false],
   # [false, true], and [false, false].
-  foreach(HANDLEEMPTY tt tf ft ff)
+  foreach(HANDLEEMPTY IN ITEMS tt tf ft ff)
 
     # Create specific FHiCL files from the ".fcl.in" files.  We do
     # this by stripping '.in' and insert the boolean values
@@ -87,7 +87,7 @@ foreach(TESTNUMBER 00 01 02 03 04 05 06 07 08 09 10 11 12 13)
   endforeach()
 endforeach()
 
-foreach(LEVEL run subrun event)
+foreach(LEVEL IN ITEMS run subrun event)
   cet_test(safe_throw_during_read_${LEVEL} HANDBUILT
     TEST_EXEC art
     TEST_ARGS --config safe_throw_during_read_file.fcl -s throw_during_read_${LEVEL}.txt

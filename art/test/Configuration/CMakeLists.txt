@@ -3,10 +3,10 @@
 cet_test(BasicOutputOptions_01_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS
-  -o out.root
-  --tmpdir /tmp
-  -c /dev/null
-  --debug-config=config.out
+    -o out.root
+    --tmpdir /tmp
+    -c /dev/null
+    --debug-config=config.out
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "\\*\\* Config output to file")
 config_ref_test(BasicOutputOptions_01
@@ -16,10 +16,10 @@ config_ref_test(BasicOutputOptions_01
 cet_test(BasicOutputOptions_12_w HANDBUILT
   TEST_EXEC art
   TEST_ARGS
-  -o myOut:out.root
-  --tmpDir /tmp
-  -c /dev/null
-  --debug-config=config.out
+    -o myOut:out.root
+    --tmpDir /tmp
+    -c /dev/null
+    --debug-config=config.out
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "Config output to file")
 config_ref_test(BasicOutputOptions_12

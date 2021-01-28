@@ -12,9 +12,10 @@
 #
 # Despite the weaknesses, the tests are still useful.
 
-cet_make_exec(check_data_dependencies
+cet_make_exec(
+  NAME check_data_dependencies
   SOURCE check_data_dependencies.cc
-  LIBRARIES canvas cetlib_except art_Framework_Core)
+  LIBRARIES canvas::canvas art_Framework_Core)
 
 set(config_files
   empty.fcl
@@ -56,7 +57,7 @@ function(get_testname testname config)
   string(REPLACE "_" "" no_underscore_cap ${capitalized})
   set(capped_components ${no_underscore_cap})
   string(REGEX MATCHALL "_([a-zA-Z0-9]+)" matches ${basename})
-  foreach(component ${matches})
+  foreach(component IN LISTS matches)
     string(REPLACE "_" "" no_underscore_comp ${component})
     capitalize(${no_underscore_comp} component_to_add)
     set(capped_components ${capped_components} ${component_to_add})
@@ -66,7 +67,7 @@ function(get_testname testname config)
 endfunction()
 
 
-foreach(config ${config_files})
+foreach(config IN LISTS config_files)
   get_testname(testname ${config})
   cet_test(DataDeps_${testname} HANDBUILT
   TEST_EXEC check_data_dependencies

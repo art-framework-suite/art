@@ -1,4 +1,4 @@
-INSTALL(FILES
+install(FILES
   ArtMake.cmake
   BuildPlugins.cmake
-  DESTINATION ${product}/${version}/Modules)
+  DESTINATION Modules)

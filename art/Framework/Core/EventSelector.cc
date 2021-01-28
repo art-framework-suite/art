@@ -34,12 +34,6 @@ namespace art {
     : force_results_from_current_process_{false}, pathspecs_{pathspecs}
   {}
 
-  bool
-  EventSelector::wantAll() const
-  {
-    return accept_all_;
-  }
-
   void
   EventSelector::init(vector<string> const& pathspecs,
                       vector<string> const& trigger_path_names)

@@ -6,7 +6,6 @@
 // The art application object.
 // ===========================
 
-#include "art/Framework/Core/EndPathExecutor.h"
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
@@ -74,25 +73,18 @@ namespace art {
     //
     StatusCode runToCompletion();
 
-    // Tasking Structure
-    void processAllEventsTask(tbb::task* eventLoopTask,
-                              ScheduleID const,
-                              std::exception_ptr const*);
-    void readAndProcessEventTask(tbb::task* eventLoopTask,
-                                 ScheduleID const,
-                                 std::exception_ptr const*);
-    void endPathTask(tbb::task* eventLoopTask,
-                     ScheduleID const,
-                     std::exception_ptr const*);
-    void endPathRunnerTask(ScheduleID const, tbb::task* eventLoopTask);
+  private:
+    class ProcessAllEventsTask;
+    class EndPathTask;
+    class EndPathRunnerTask;
 
-  private: // MEMBER FUCNTIONS -- Event Loop Infrastructure
     // Event-loop infrastructure
-    void processAllEventsAsync(tbb::task* EventLoopTask, ScheduleID const);
-    void readAndProcessAsync(tbb::task* EventLoopTask, ScheduleID const);
-    void processEventAsync(tbb::task* EventLoopTask, ScheduleID const);
-    void processEndPathAsync(tbb::task* EventLoopTask, ScheduleID const);
-    void finishEventAsync(tbb::task* eventLoopTask, ScheduleID const);
+    void processAllEventsAsync(tbb::task* EventLoopTask, ScheduleID sid);
+    void readAndProcessAsync(tbb::task* EventLoopTask, ScheduleID sid);
+    void processEventAsync(tbb::task* EventLoopTask, EventPrincipal& ep, ScheduleID sid);
+    void processEndPathAsync(tbb::task* EventLoopTask, ScheduleID sid);
+    void finishEventAsync(tbb::task* eventLoopTask, ScheduleID sid);
+
     template <Level L>
     bool levelsToProcess();
     template <Level L>
@@ -151,6 +143,16 @@ namespace art {
 
     template <typename T>
     using tsan_unique_ptr = hep::concurrency::thread_sanitize_unique_ptr<T>;
+
+    Schedule& schedule(ScheduleID const id)
+    {
+      return schedules_->at(id);
+    }
+
+    Schedule& main_schedule()
+    {
+      return schedule(ScheduleID::first());
+    }
 
     // Next containment level to move to.
     std::atomic<Level> nextLevel_{Level::ReadyToAdvance};
@@ -218,11 +220,8 @@ namespace art {
     // The source of input data.
     tsan_unique_ptr<InputSource> input_{nullptr};
 
-    // The trigger path runners.
+    // The schedule runners.
     tsan<std::map<ScheduleID, Schedule>> schedules_{};
-
-    // The end path runner.
-    tsan<std::map<ScheduleID, EndPathExecutor>> endPathExecutors_{};
 
     tsan<hep::concurrency::SerialTaskQueue> endPathQueue_{};
 
@@ -236,7 +235,7 @@ namespace art {
     tsan_unique_ptr<SubRunPrincipal> subRunPrincipal_{nullptr};
 
     // The currently active EventPrincipals.
-    tsan<PerScheduleContainer<EventPrincipal*>> eventPrincipals_{};
+    PerScheduleContainer<std::unique_ptr<EventPrincipal>> eventPrincipals_{};
 
     // Are we configured to process empty runs?
     bool const handleEmptyRuns_;

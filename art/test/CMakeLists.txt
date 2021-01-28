@@ -1,9 +1,5 @@
-cet_enable_asserts()
-
-# Make sure tests have correct environment settings.
 include(CetTest)
-# If you explicitly include CetTest in a subdirectory, you will need to
-# re-initialize the test environment.
+cet_enable_asserts()
 cet_test_env("FHICL_FILE_PATH=.")
 
 ########################################################################
@@ -22,7 +18,8 @@ function(config_ref_test TNAME)
     REF ${TNAME}-ref.txt
     REQUIRED_FILES ../${TNAME}_w.d/config.out
     TEST_PROPERTIES DEPENDS ${TNAME}_w
-    ${ARGN})
+    ${ARGN}
+  )
 endfunction()
 
 set(filterOutputModule "${CMAKE_CURRENT_SOURCE_DIR}/filterOutputModule")

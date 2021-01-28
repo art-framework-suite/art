@@ -1,6 +1,3 @@
-find_package(Threads REQUIRED)
-set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-
 art_make_library(
   SOURCE
     ensureTable.cc
@@ -14,18 +11,17 @@ art_make_library(
     ScheduleID.cc
     SharedResource.cc
     SharedResourcesRegistry.cc
+    TaskDebugMacros.cc
     unique_filename.cc
     UnixSignalHandlers.cc
     $<$<PLATFORM_ID:Linux>:LinuxProcMgr.cc>
   LIBRARIES
-    canvas
-    MF_MessageLogger
-    fhiclcpp
-    cetlib
-    cetlib_except
-    hep_concurrency
+    canvas::canvas
+  PRIVATE
+    messagefacility::MF_MessageLogger
     Boost::filesystem
-    Threads::Threads)
+    Threads::Threads
+)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

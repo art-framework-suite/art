@@ -20,52 +20,27 @@ using namespace string_literals;
 
 namespace art::detail {
 
-  ProcessAndEventSelector::~ProcessAndEventSelector() = default;
-
   ProcessAndEventSelector::ProcessAndEventSelector(string const& nm,
                                                    EventSelector const& es)
     : processNameSelector_{nm}, eventSelector_{es}
   {}
 
-  void
-  ProcessAndEventSelector::loadTriggerResults(Event const& e)
-  {
-    e.get(processNameSelector_, triggerResults_);
-  }
-
   Handle<TriggerResults>
-  ProcessAndEventSelector::triggerResults() const
+  ProcessAndEventSelector::triggerResults(Event const& e) const
   {
-    return triggerResults_;
-  }
-
-  void
-  ProcessAndEventSelector::clearTriggerResults()
-  {
-    triggerResults_.clear();
+    Handle<TriggerResults> h;
+    e.get(processNameSelector_, h);
+    return h;
   }
 
   bool
-  ProcessAndEventSelector::match()
+  ProcessAndEventSelector::match(Event const& e) const
   {
-    return eventSelector_.acceptEvent(*triggerResults_);
+    auto h = triggerResults(e);
+    return eventSelector_.acceptEvent(*h);
   }
 
-  ProcessAndEventSelectors::~ProcessAndEventSelectors() = default;
-  ProcessAndEventSelectors::ProcessAndEventSelectors() = default;
-
-  void
-  ProcessAndEventSelectors::setupDefault(
-    vector<string> const& trigger_path_names)
-  {
-    // Setup to accept everything.
-    vector<string> paths;
-    EventSelector es{paths, trigger_path_names};
-    sel_.emplace_back(""s, std::move(es));
-  }
-
-  void
-  ProcessAndEventSelectors::setup(
+  ProcessAndEventSelectors::ProcessAndEventSelectors(
     vector<pair<string, string>> const& path_specs,
     vector<string> const& triggernames,
     string const& process_name)
@@ -91,69 +66,22 @@ namespace art::detail {
   }
 
   bool
-  ProcessAndEventSelectors::wantEvent(Event const& ev)
+  ProcessAndEventSelectors::matchEvent(Event const& e) const
   {
-    // Get all the TriggerResults objects before we test any for a
-    // match, because we have to deal with the possibility there may be
-    // more than one.  Note that the existence of more than one object
-    // in the event is intended to lead to an exception throw *unless*
-    // either the configuration has been set to match all events, or the
-    // configuration is set to use specific process names.
-    if (!loadDone_) {
-      loadDone_ = true;
-      // Note: The loadTriggerResults call might throw,
-      // so numberFound_ may be less than expected.
-      for (auto& val : sel_) {
-        val.loadTriggerResults(ev);
-        ++numberFound_;
-      }
-    }
-    for (auto& val : sel_) {
-      if (val.match()) {
-        return true;
-      }
-    }
-    return false;
+    assert(not empty(sel_));
+    return std::any_of(
+      begin(sel_), end(sel_), [&e](auto& val) { return val.match(e); });
   }
 
   Handle<TriggerResults>
-  ProcessAndEventSelectors::getOneTriggerResults(Event const& ev)
-  {
-    auto This = const_cast<ProcessAndEventSelectors*>(this);
-    if (!loadDone_) {
-      loadDone_ = true;
-      // Note: The loadTriggerResults call might throw,
-      // so numberFound_ may be less than expected.
-      for (auto& val : This->sel_) {
-        val.loadTriggerResults(ev);
-        ++(This->numberFound_);
-      }
-    }
-    if (numberFound_ == 1) {
-      return sel_[0].triggerResults();
-    }
-    if (numberFound_ == 0) {
-      throw Exception(errors::ProductNotFound, "TooFewProducts")
-        << "ProcessAndEventSelectors::getOneTriggerResults: "
-        << "too few products found, exepcted one, got zero\n";
-    }
-    throw Exception(errors::ProductNotFound, "TooManyMatches")
-      << "ProcessAndEventSelectors::getOneTriggerResults: "
-      << "too many products found, expected one, got " << numberFound_ << '\n';
-  }
-
-  void
-  ProcessAndEventSelectors::clearTriggerResults()
+  ProcessAndEventSelectors::getOneTriggerResults(Event const& ev) const
   {
     for (auto& val : sel_) {
-      val.clearTriggerResults();
+      if (auto h = val.triggerResults(ev); h.isValid()) {
+        return h;
+      }
     }
-    loadDone_ = false;
-    numberFound_ = 0;
+    return Handle<TriggerResults>{};
   }
-
-  PVSentry::~PVSentry() { sel_.clearTriggerResults(); }
-
-  PVSentry::PVSentry(ProcessAndEventSelectors& s) : sel_(s) {}
 
 } // namespace art::detail

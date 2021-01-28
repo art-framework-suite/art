@@ -2,6 +2,7 @@
 #define art_Utilities_SharedResource_h
 
 #include <string>
+#include <typeinfo>
 
 namespace art {
   namespace detail {

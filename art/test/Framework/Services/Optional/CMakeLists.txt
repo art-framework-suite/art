@@ -1,8 +1,8 @@
-simple_plugin(MyService "service" NO_INSTALL)
+simple_plugin(MyService "service" NO_INSTALL LIBRARIES PRIVATE messagefacility::MF_MessageLogger)
 simple_plugin(MySharedService "service" NO_INSTALL)
 
 simple_plugin(MyServiceUsingIface "service" NO_INSTALL
-  art_Framework_Services_Optional_TrivialFileDelivery_service)
+  LIBRARIES art_Framework_Services_Optional_TrivialFileDelivery_service)
 
 simple_plugin(MyServiceUser "module" NO_INSTALL)
 simple_plugin(ReplicatedRNG "module" NO_INSTALL)

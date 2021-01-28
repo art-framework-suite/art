@@ -14,8 +14,8 @@
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
-#include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -112,56 +112,26 @@ namespace {
 
 namespace art {
 
-  Worker::~Worker() noexcept
-  {
-    delete md_.load();
-    md_ = nullptr;
-    delete cached_exception_.load();
-    cached_exception_ = nullptr;
-    delete waitingTasks_.load();
-    waitingTasks_ = nullptr;
-  }
-
   Worker::Worker(ModuleDescription const& md, WorkerParams const& wp)
-    : scheduleID_{wp.scheduleID_}
+    : scheduleID_{wp.scheduleID_}, md_{md}
+    , actions_{&wp.actions_}
+    , actReg_{&wp.actReg_}
   {
-    {
-      ostringstream msg;
-      msg << "0x" << hex << ((unsigned long)this) << dec
-          << " name: " << md.moduleName() << " label: " << md.moduleLabel();
-      TDEBUG_FUNC_SI_MSG(5, "Worker ctor", wp.scheduleID_, msg.str());
-    }
-    md_ = new ModuleDescription(md);
-    actions_ = &wp.actions_;
-    actReg_ = &wp.actReg_;
-    state_ = Ready;
-    cached_exception_ = new exception_ptr;
-    workStarted_ = false;
-    returnCode_ = false;
-    waitingTasks_ = new WaitingTaskList;
-    counts_visited_ = 0;
-    counts_run_ = 0;
-    counts_passed_ = 0;
-    counts_failed_ = 0;
-    counts_thrown_ = 0;
+    TDEBUG_FUNC_SI(5, wp.scheduleID_)
+      << hex << this << dec << " name: " << md.moduleName()
+      << " label: " << md.moduleLabel();
   }
 
   ModuleDescription const&
   Worker::description() const
   {
-    return *md_.load();
-  }
-
-  ModuleDescription const*
-  Worker::descPtr() const
-  {
-    return md_.load();
+    return md_;
   }
 
   string const&
   Worker::label() const
   {
-    return md_.load()->moduleLabel();
+    return md_.moduleLabel();
   }
 
   // Used only by WorkerInPath.
@@ -184,15 +154,10 @@ namespace art {
   Worker::reset()
   {
     state_ = Ready;
-    delete cached_exception_.load();
-    cached_exception_ = new exception_ptr;
-    {
-      ostringstream msg;
-      msg << "0x" << hex << ((unsigned long)this) << dec
-          << " Resetting waitingTasks_";
-      TDEBUG_FUNC_SI_MSG(6, "Worker::reset", scheduleID_, msg.str());
-    }
-    waitingTasks_.load()->reset();
+    cached_exception_ = std::exception_ptr{};
+    TDEBUG_FUNC_SI(6, scheduleID_)
+      << hex << this << dec << " Resetting waitingTasks_";
+    waitingTasks_.reset();
     workStarted_ = false;
     returnCode_ = false;
   }
@@ -234,54 +199,54 @@ namespace art {
 
   void
   Worker::beginJob() try {
-    actReg_.load()->sPreModuleBeginJob.invoke(*md_.load());
+    actReg_.load()->sPreModuleBeginJob.invoke(md_);
     implBeginJob();
-    actReg_.load()->sPostModuleBeginJob.invoke(*md_.load());
+    actReg_.load()->sPostModuleBeginJob.invoke(md_);
   }
   catch (...) {
-    rethrow_with_context(std::current_exception(), *md_.load(), "beginJob");
+    rethrow_with_context(std::current_exception(), md_, "beginJob");
   }
 
   void
   Worker::endJob() try {
-    actReg_.load()->sPreModuleEndJob.invoke(*md_.load());
+    actReg_.load()->sPreModuleEndJob.invoke(md_);
     implEndJob();
-    actReg_.load()->sPostModuleEndJob.invoke(*md_.load());
+    actReg_.load()->sPostModuleEndJob.invoke(md_);
   }
   catch (...) {
-    rethrow_with_context(std::current_exception(), *md_.load(), "endJob");
+    rethrow_with_context(std::current_exception(), md_, "endJob");
   }
 
   void
   Worker::respondToOpenInputFile(FileBlock const& fb)
   {
-    actReg_.load()->sPreModuleRespondToOpenInputFile.invoke(*md_.load());
+    actReg_.load()->sPreModuleRespondToOpenInputFile.invoke(md_);
     implRespondToOpenInputFile(fb);
-    actReg_.load()->sPostModuleRespondToOpenInputFile.invoke(*md_.load());
+    actReg_.load()->sPostModuleRespondToOpenInputFile.invoke(md_);
   }
 
   void
   Worker::respondToCloseInputFile(FileBlock const& fb)
   {
-    actReg_.load()->sPreModuleRespondToCloseInputFile.invoke(*md_.load());
+    actReg_.load()->sPreModuleRespondToCloseInputFile.invoke(md_);
     implRespondToCloseInputFile(fb);
-    actReg_.load()->sPostModuleRespondToCloseInputFile.invoke(*md_.load());
+    actReg_.load()->sPostModuleRespondToCloseInputFile.invoke(md_);
   }
 
   void
   Worker::respondToOpenOutputFiles(FileBlock const& fb)
   {
-    actReg_.load()->sPreModuleRespondToOpenOutputFiles.invoke(*md_.load());
+    actReg_.load()->sPreModuleRespondToOpenOutputFiles.invoke(md_);
     implRespondToOpenOutputFiles(fb);
-    actReg_.load()->sPostModuleRespondToOpenOutputFiles.invoke(*md_.load());
+    actReg_.load()->sPostModuleRespondToOpenOutputFiles.invoke(md_);
   }
 
   void
   Worker::respondToCloseOutputFiles(FileBlock const& fb)
   {
-    actReg_.load()->sPreModuleRespondToCloseOutputFiles.invoke(*md_.load());
+    actReg_.load()->sPreModuleRespondToCloseOutputFiles.invoke(md_);
     implRespondToCloseOutputFiles(fb);
-    actReg_.load()->sPostModuleRespondToCloseOutputFiles.invoke(*md_.load());
+    actReg_.load()->sPostModuleRespondToCloseOutputFiles.invoke(md_);
   }
 
   bool
@@ -304,7 +269,7 @@ namespace art {
                                     "even though it caught an exception during "
                                     "the previous invocation.\nThis may be an "
                                     "indication of a configuration problem.\n";
-        rethrow_exception(*cached_exception_.load());
+        rethrow_exception(cached_exception_);
       }
       case Working:
         break; // See below.
@@ -341,12 +306,12 @@ namespace art {
     catch (cet::exception& e) {
       state_ = ExceptionThrown;
       e << "The above exception was thrown while processing module "
-        << brief_context(*md_.load(), principal) << '\n';
+        << brief_context(md_, principal) << '\n';
       if (auto edmEx = dynamic_cast<art::Exception*>(&e)) {
-        *cached_exception_.load() = std::make_exception_ptr(*edmEx);
+        cached_exception_ = std::make_exception_ptr(*edmEx);
       } else {
         auto art_ex = art::Exception{errors::OtherArt, std::string(), e};
-        *cached_exception_.load() = std::make_exception_ptr(art_ex);
+        cached_exception_ = std::make_exception_ptr(art_ex);
       }
       throw;
     }
@@ -355,48 +320,48 @@ namespace art {
       auto art_ex =
         Exception{errors::BadAlloc}
         << "A bad_alloc exception occurred during a call to the module "
-        << brief_context(*md_.load(), principal) << '\n'
+        << brief_context(md_, principal) << '\n'
         << "The job has probably exhausted the virtual memory available to the "
            "process.\n";
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      rethrow_exception(*cached_exception_.load());
+      cached_exception_ = make_exception_ptr(art_ex);
+      rethrow_exception(cached_exception_);
     }
     catch (std::exception const& e) {
       state_ = ExceptionThrown;
       auto art_ex = Exception{errors::StdException}
                     << "An exception occurred during a call to the module "
-                    << brief_context(*md_.load(), principal) << e.what();
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      rethrow_exception(*cached_exception_.load());
+                    << brief_context(md_, principal) << e.what();
+      cached_exception_ = make_exception_ptr(art_ex);
+      rethrow_exception(cached_exception_);
     }
     catch (std::string const& s) {
       state_ = ExceptionThrown;
       auto art_ex = Exception{errors::BadExceptionType, "string"}
                     << "A string thrown as an exception occurred during a call "
                        "to the module "
-                    << brief_context(*md_.load(), principal) << '\n'
+                    << brief_context(md_, principal) << '\n'
                     << s << '\n';
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      rethrow_exception(*cached_exception_.load());
+      cached_exception_ = make_exception_ptr(art_ex);
+      rethrow_exception(cached_exception_);
     }
     catch (char const* c) {
       state_ = ExceptionThrown;
       auto art_ex = Exception{errors::BadExceptionType, "char const*"}
                     << "A char const* thrown as an exception occurred during a "
                        "call to the module "
-                    << brief_context(*md_.load(), principal) << '\n'
+                    << brief_context(md_, principal) << '\n'
                     << c << '\n';
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      rethrow_exception(*cached_exception_.load());
+      cached_exception_ = make_exception_ptr(art_ex);
+      rethrow_exception(cached_exception_);
     }
     catch (...) {
       state_ = ExceptionThrown;
       auto art_ex =
         Exception{errors::Unknown, "repeated"}
         << "An unknown occurred during a previous call to the module "
-        << brief_context(*md_.load(), principal) << '\n';
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      rethrow_exception(*cached_exception_.load());
+        << brief_context(md_, principal) << '\n';
+      cached_exception_ = make_exception_ptr(art_ex);
+      rethrow_exception(cached_exception_);
     }
     return rc;
   }
@@ -412,8 +377,8 @@ namespace art {
       // Transition from Ready state to Working state.
       state_ = Working;
       actReg_.load()->sPreModule.invoke(mc);
-      // Note: Only filters ever return false, and when they do it means they
-      // have rejected.
+      // Note: Only filters ever return false, and when they do it
+      // means they have rejected.
       returnCode_ = implDoProcess(p, mc);
       actReg_.load()->sPostModule.invoke(mc);
       if (returnCode_.load()) {
@@ -424,8 +389,8 @@ namespace art {
     }
     catch (cet::exception& e) {
       auto action = actions_.load()->find(e.root_cause());
-      // If we are processing an endPath, treat SkipEvent or FailPath as
-      // FailModule, so any subsequent OutputModules are still run.
+      // If we are processing an endPath, treat SkipEvent or FailPath
+      // as FailModule, so any subsequent OutputModules are still run.
       if (mc.onEndPath()) {
         if ((action == actions::SkipEvent) || (action == actions::FailPath)) {
           action = actions::FailModule;
@@ -449,14 +414,14 @@ namespace art {
         state_ = ExceptionThrown;
         ++counts_thrown_;
         e << "The above exception was thrown while processing module "
-          << brief_context(*md_.load(), p) << '\n';
+          << brief_context(md_, p) << '\n';
         if (auto edmEx = dynamic_cast<Exception*>(&e)) {
-          *cached_exception_.load() = make_exception_ptr(*edmEx);
+          cached_exception_ = make_exception_ptr(*edmEx);
         } else {
-          *cached_exception_.load() =
+          cached_exception_ =
             make_exception_ptr(Exception{errors::OtherArt, string(), e});
         }
-        rethrow_exception(*cached_exception_.load());
+        rethrow_exception(cached_exception_);
       }
     }
     catch (bad_alloc const& bda) {
@@ -465,21 +430,21 @@ namespace art {
       auto art_ex =
         Exception{errors::BadAlloc}
         << "A bad_alloc exception occurred during a call to the module "
-        << brief_context(*md_.load(), p) << '\n'
+        << brief_context(md_, p) << '\n'
         << "The job has probably exhausted the virtual memory available to the "
            "process.\n";
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      rethrow_exception(*cached_exception_.load());
+      cached_exception_ = make_exception_ptr(art_ex);
+      rethrow_exception(cached_exception_);
     }
     catch (exception const& e) {
       state_ = ExceptionThrown;
       ++counts_thrown_;
       auto art_ex = Exception{errors::StdException}
                     << "An exception occurred during a call to the module "
-                    << brief_context(*md_.load(), p) << '\n'
+                    << brief_context(md_, p) << '\n'
                     << e.what();
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      rethrow_exception(*cached_exception_.load());
+      cached_exception_ = make_exception_ptr(art_ex);
+      rethrow_exception(cached_exception_);
     }
     catch (string const& s) {
       state_ = ExceptionThrown;
@@ -487,10 +452,10 @@ namespace art {
       auto art_ex = Exception{errors::BadExceptionType, "string"}
                     << "A string thrown as an exception occurred during a call "
                        "to the module "
-                    << brief_context(*md_.load(), p) << '\n'
+                    << brief_context(md_, p) << '\n'
                     << s << '\n';
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      rethrow_exception(*cached_exception_.load());
+      cached_exception_ = make_exception_ptr(art_ex);
+      rethrow_exception(cached_exception_);
     }
     catch (char const* c) {
       state_ = ExceptionThrown;
@@ -498,10 +463,10 @@ namespace art {
       auto art_ex = Exception{errors::BadExceptionType, "char const*"}
                     << "A char const* thrown as an exception occurred during a "
                        "call to the module "
-                    << brief_context(*md_.load(), p) << '\n'
+                    << brief_context(md_, p) << '\n'
                     << c << "\n";
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      rethrow_exception(*cached_exception_.load());
+      cached_exception_ = make_exception_ptr(art_ex);
+      rethrow_exception(cached_exception_);
     }
     catch (...) {
       ++counts_thrown_;
@@ -509,9 +474,9 @@ namespace art {
       auto art_ex =
         Exception{errors::Unknown, "repeated"}
         << "An unknown occurred during a previous call to the module "
-        << brief_context(*md_.load(), p) << '\n';
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      rethrow_exception(*cached_exception_.load());
+        << brief_context(md_, p) << '\n';
+      cached_exception_ = make_exception_ptr(art_ex);
+      rethrow_exception(cached_exception_);
     }
   }
 
@@ -538,7 +503,7 @@ namespace art {
   Worker::runWorker(EventPrincipal& p, ModuleContext const& mc)
   {
     auto const sid = mc.scheduleID();
-    TDEBUG_BEGIN_TASK_SI(4, "runWorker", sid);
+    TDEBUG_BEGIN_TASK_SI(4, sid);
     returnCode_ = false;
     try {
       // Transition from Ready state to Working state.
@@ -580,15 +545,15 @@ namespace art {
         state_ = ExceptionThrown;
         ++counts_thrown_;
         e << "The above exception was thrown while processing module "
-          << brief_context(*md_.load(), p);
+          << brief_context(md_, p);
         if (auto art_ex = dynamic_cast<Exception*>(&e)) {
-          *cached_exception_.load() = make_exception_ptr(*art_ex);
+          cached_exception_ = make_exception_ptr(*art_ex);
         } else {
-          *cached_exception_.load() =
+          cached_exception_ =
             make_exception_ptr(Exception{errors::OtherArt, string(), e});
         }
-        waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-        TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
+        waitingTasks_.doneWaiting(cached_exception_);
+        TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";
         return;
       }
     }
@@ -598,12 +563,12 @@ namespace art {
       auto art_ex =
         Exception{errors::BadAlloc}
         << "A bad_alloc exception was thrown while processing module "
-        << brief_context(*md_.load(), p) << '\n'
+        << brief_context(md_, p) << '\n'
         << "The job has probably exhausted the virtual memory available to the "
            "process.\n";
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
+      cached_exception_ = make_exception_ptr(art_ex);
+      waitingTasks_.doneWaiting(cached_exception_);
+      TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";
       return;
     }
     catch (exception const& e) {
@@ -611,11 +576,11 @@ namespace art {
       ++counts_thrown_;
       auto art_ex = Exception{errors::StdException}
                     << "An exception was thrown while processing module "
-                    << brief_context(*md_.load(), p) << '\n'
+                    << brief_context(md_, p) << '\n'
                     << e.what();
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
+      cached_exception_ = make_exception_ptr(art_ex);
+      waitingTasks_.doneWaiting(cached_exception_);
+      TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";
       return;
     }
     catch (string const& s) {
@@ -624,11 +589,11 @@ namespace art {
       auto art_ex =
         Exception{errors::BadExceptionType, "string"}
         << "A string was thrown as an exception while processing module "
-        << brief_context(*md_.load(), p) << '\n'
+        << brief_context(md_, p) << '\n'
         << s << '\n';
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
+      cached_exception_ = make_exception_ptr(art_ex);
+      waitingTasks_.doneWaiting(cached_exception_);
+      TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";
       return;
     }
     catch (char const* c) {
@@ -637,11 +602,11 @@ namespace art {
       auto art_ex =
         Exception{errors::BadExceptionType, "char const*"}
         << "A char const* was thrown as an exception while processing module "
-        << brief_context(*md_.load(), p) << '\n'
+        << brief_context(md_, p) << '\n'
         << c << "\n";
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
+      cached_exception_ = make_exception_ptr(art_ex);
+      waitingTasks_.doneWaiting(cached_exception_);
+      TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";
       return;
     }
     catch (...) {
@@ -650,64 +615,54 @@ namespace art {
       auto art_ex =
         Exception{errors::Unknown, "repeated"}
         << "An unknown exception was thrown while processing module "
-        << brief_context(*md_.load(), p) << '\n';
-      *cached_exception_.load() = make_exception_ptr(art_ex);
-      waitingTasks_.load()->doneWaiting(*cached_exception_.load());
-      TDEBUG_END_TASK_SI_ERR(4, "runWorker", sid, "because of EXCEPTION");
+        << brief_context(md_, p) << '\n';
+      cached_exception_ = make_exception_ptr(art_ex);
+      waitingTasks_.doneWaiting(cached_exception_);
+      TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";
       return;
     }
-    waitingTasks_.load()->doneWaiting(exception_ptr{});
-    TDEBUG_END_TASK_SI(4, "runWorker", sid);
-    return;
+    waitingTasks_.doneWaiting(exception_ptr{});
+    TDEBUG_END_TASK_SI(4, sid);
   }
 
   void
-  Worker::doWork_event(WaitingTask* workerInPathDoneTask,
+  Worker::doWork_event(tbb::task* workerInPathDoneTask,
                        EventPrincipal& p,
                        ModuleContext const& mc)
   {
     auto const sid = mc.scheduleID();
-    TDEBUG_BEGIN_FUNC_SI(4, "Worker::doWork_event", sid);
-    // Note: We actually can have more than one entry in this
-    // list because a worker may be one more than one path,
-    // and if both paths are running in parallel, then it is
-    // possible that they both attempt to run the same worker
-    // at nearly the same time.  We arrange so that the worker
-    // itself only runs once, but we do have to notify all the
-    // paths that the worker has finished, hence the waiting
-    // list of notification tasks.
-    // Note: threading: More than one task can enter here in
-    // the case that paths running in parallel share the same
-    // worker.
-    waitingTasks_.load()->add(workerInPathDoneTask);
+    TDEBUG_BEGIN_FUNC_SI(4, sid);
+    // Note: We actually can have more than one entry in this list
+    // because a worker may be one more than one path, and if both
+    // paths are running in parallel, then it is possible that they
+    // both attempt to run the same worker at nearly the same time.
+    // We arrange so that the worker itself only runs once, but we do
+    // have to notify all the paths that the worker has finished,
+    // hence the waiting list of notification tasks.
+    //
+    // Note: threading: More than one task can enter here in the case
+    // that paths running in parallel share the same worker.
+    waitingTasks_.add(workerInPathDoneTask);
     ++counts_visited_;
     bool expected = false;
     if (workStarted_.compare_exchange_strong(expected, true)) {
       RunWorkerFunctor runWorkerFunctor{this, p, mc};
       if (auto chain = serialTaskQueueChain()) {
         // Must be a serialized shared module (including legacy).
-        {
-          ostringstream msg;
-          msg << "pushing onto chain " << hex << ((unsigned long*)chain) << dec;
-          TDEBUG_FUNC_SI_MSG(4, "Worker::doWork_event", sid, msg.str());
-        }
+        TDEBUG_FUNC_SI(4, sid) << "pushing onto chain " << hex << chain << dec;
         chain->push(runWorkerFunctor);
-        TDEBUG_END_FUNC_SI(4, "Worker::doWork_event", sid);
+        TDEBUG_END_FUNC_SI(4, sid);
         return;
       }
       // Must be a replicated or shared module with no serialization.
-      TDEBUG_FUNC_SI_MSG(
-        4, "Worker::doWork_event", sid, "calling worker functor");
+      TDEBUG_FUNC_SI(4, sid) << "calling worker functor";
       runWorkerFunctor();
-      TDEBUG_END_FUNC_SI(4, "Worker::doWork_event", sid);
+      TDEBUG_END_FUNC_SI(4, sid);
       return;
     }
     // Worker is running on another path, exit without running the waiting
     // worker done tasks.
-    TDEBUG_END_FUNC_SI_ERR(4,
-                           "Worker::doWork_event",
-                           sid,
-                           "work already in progress on another path");
+    TDEBUG_END_FUNC_SI(4, sid) << "work already in progress on another path";
   }
 
 } // namespace art

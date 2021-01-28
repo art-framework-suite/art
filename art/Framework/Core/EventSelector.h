@@ -18,7 +18,6 @@ namespace art {
                   std::vector<std::string> const& trigger_path_names);
     explicit EventSelector(std::vector<std::string> const& pathspecs);
 
-    bool wantAll() const;
     bool acceptEvent(TriggerResults const&);
     std::shared_ptr<TriggerResults> maskTriggerResults(
       TriggerResults const& inputResults);

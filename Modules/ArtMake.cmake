@@ -1,4 +1,4 @@
-# art_make
+# art_make ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 #
 # Identify the files in the current source directory and build
 # libraries, dictionaries and plugins as appropriate.
@@ -6,27 +6,27 @@
 ####################################
 # NOTES:
 #
-# Users may opt to just include art_make() in their CMakeLists.txt This
+# Users may opt to just include art_make() in their CMakeLists.txt This ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 # implementation is intended to be called NO MORE THAN ONCE per
 # subdirectory.
 #
-# * art_make() tries very hard to be intelligent, but it doesn't fit
+# * art_make() tries very hard to be intelligent, but it doesn't fit ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 # every need. In which case, you might need to call art_make_library(),
 # art_make_exec(), cet_test() (CetTest.cmake), art_dictionary()
 # (canvas_root_io/Modules/ArtDictionary.cmake) and/or simple_plugin()
 # (art/Modules/BuildPlugins.cmake) separately.
 #
-# * If art_make() doesn't quite fit your needs (different plugins of the
+# * If art_make() doesn't quite fit your needs (different plugins of the ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 # same type have different library dependencies, for example), you can
-# use art_make() with a suitable EXCLUDE option to do everything except
+# use art_make() with a suitable EXCLUDE option to do everything except ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 # your special case and then deal with it separately.
 #
-# * art_make() will not take care of the installation of headers into an
+# * art_make() will not take care of the installation of headers into an ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 # installed product's include/ directory tree, or of files into the
 # products source/ area. See install_headers() and install_source() in
-# cetbuildtools/Modules/InstallSource.cmake.
+# cetbuildtools/Modules/InstallSource.cmake. ### MIGRATE-ACTION-REQUIRED: remove
 #
-# * art_make() knows about ROOT dictionaries (as signalled by the
+# * art_make() knows about ROOT dictionaries (as signalled by the ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 # presence of classes.h and classes_def.xml), and the following plugin
 # types:
 #
@@ -36,7 +36,7 @@
 #
 #  You may specify a plugin-type-specific library link list as
 #  XXXX_LIBRARIES. If you have another plugin type (fleeble, say), you
-#  may make its existence known to art_make() by specifying a (possibly
+#  may make its existence known to art_make() by specifying a (possibly ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 #  empty) FLEEBLE_LIBRARIES argument. Source files matching,
 #  "*_fleeble.cc' will be identified by that command as being plugins of
 #  type, "fleeble" and use FLEEBLE_LIBRARIES against which to link.
@@ -44,7 +44,7 @@
 ####################################
 # USAGE:
 #
-# art_make( [LIBRARY_NAME <library name>]
+# art_make( [LIBRARY_NAME <library name>] ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 #           [LIB_LIBRARIES <library list>]
 #           [MODULE_LIBRARIES <library list>]
 #           [SOURCE_LIBRARIES <library list>]
@@ -60,7 +60,7 @@
 #           [USE_PRODUCT_NAME]
 #         )
 #
-# * In art_make(), LIBRARIES has been REMOVED! use LIB_LIBRARIES instead.
+# * In art_make(), LIBRARIES has been REMOVED! use LIB_LIBRARIES instead. ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 #
 # * If NONE of {MODULES,SOURCE,SERVICE,DICT}_LIBRARIES is specified,
 # then LIB_LIBRARIES (or LIBRARIES) will be used as appropriate for
@@ -99,270 +99,180 @@
 #
 ########################################################################
 
+include_guard(DIRECTORY)
+
+cmake_policy(PUSH)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+
 include(CetMake)
-include(CetTest)
-include(CMakeParseArguments)
-include(InstallSource)
-
-macro (_debug_message)
-  string(TOUPPER ${CMAKE_BUILD_TYPE} BTYPE_UC)
-  if (BTYPE_UC STREQUAL "DEBUG")
-    message(STATUS "ART_MAKE: " ${ARGN})
-  endif()
-endmacro()
-
-macro( _art_simple_plugin file type liblist )
-  #message(STATUS "_art_simple_plugin: ${file} ${type} ${liblist}")
-  STRING( REGEX REPLACE "^${CMAKE_CURRENT_SOURCE_DIR}/(.*)_${type}.cc" "\\1" plugbase "${file}" )
-  #message(STATUS "_art_simple_plugin: have ${type} plugin ${plugbase}")
-  #message(STATUS "_art_simple_plugin: AM_BASENAME_ONLY is ${AM_BASENAME_ONLY}")
-  if (AM_USE_PRODUCT_NAME)
-    set(upn USE_PRODUCT_NAME)
-  endif()
-  if( AM_BASENAME_ONLY )
-    _debug_message("Configured to build plugin ${plugbase} of type ${type} with BASENAME_ONLY.")
-    simple_plugin( ${plugbase} ${type} ${liblist} ${upn} BASENAME_ONLY )
-  else()
-    _debug_message("Configured to build plugin ${plugbase} of type ${type}.")
-    simple_plugin( ${plugbase} ${type} ${liblist} ${upn} )
-  endif()
-endmacro( _art_simple_plugin )
 
 ####################################
 # art_make_exec
 ####################################
-macro( art_make_exec )
-  set(cet_arguments ${ARGN})
-  list(REMOVE_ITEM  cet_arguments NAME)
-  cet_make_exec( ${cet_arguments} )
-endmacro( art_make_exec )
+macro(art_make_exec)
+  warn_deprecated("art_make_exec()" NEW "cet_make_exec")
+  cet_make_exec(${ARGV})
+endmacro(art_make_exec)
 
 ####################################
 # art_make_library
 ####################################
-function( art_make_library )
-  cmake_parse_arguments( AML "USE_PRODUCT_NAME" "LIBRARY_NAME;LIBRARY_NAME_VAR" "LIBRARIES;SOURCE" ${ARGN})
-  set(art_make_library_usage "USAGE: art_make_library( SOURCE <source code list> [LIBRARY_NAME <library name>] [LIBRARIES <library list>] [WITH_STATIC_LIBRARY] [NO_INSTALL] [USE_PRODUCT_NAME] [LIBRARY_NAME_VAR <var>])")
-
-  # use either LIBRARY_NAME or USE_PRODUCT_NAME, not both
-  if (AML_USE_PRODUCT_NAME AND AML_LIBRARY_NAME)
-    message(FATAL_ERROR "ART_MAKE_LIBRARY: USE_PRODUCT_NAME and LIBRARY_NAME are mutually exclusive.")
+function(art_make_library)
+  if ((ART_MAKE_PREPEND_PRODUCT_NAME OR
+        ART_MAKE_PREPEND_PROJECT_NAME) AND NOT "${ARGV}" MATCHES
+      "(^|;)(LIBRARY|USE_PRO(DU|JE)CT)_NAME(;|$)")
+    list(PREPEND ARGV USE_PROJECT_NAME)
   endif()
-
-  # you must supply a source code list
-  if( AML_SOURCE )
-    if( AML_LIBRARY_NAME )
-      set (art_make_lib_name ${AML_LIBRARY_NAME})
-    else()
-      # calculate base name
-      if( DEFINED ENV{MRB_SOURCE} )
-         STRING( REGEX REPLACE "^${CMAKE_SOURCE_DIR}/${product}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
-         STRING( REGEX REPLACE "/" "_" art_make_lib_name "${CURRENT_SUBDIR}" )
-      else()
-         STRING( REGEX REPLACE "^${CMAKE_SOURCE_DIR}/(.*)" "\\1" CURRENT_SUBDIR "${CMAKE_CURRENT_SOURCE_DIR}" )
-         STRING( REGEX REPLACE "/" "_" art_make_lib_name "${CURRENT_SUBDIR}" )
-      endif()
-      if (AML_USE_PRODUCT_NAME)
-        set( art_make_lib_name ${product}_${art_make_lib_name} )
-        #message(STATUS "art_make_library debug:  calculated library name is now ${art_make_lib_name} for ${product}")
-      endif()
-    endif()
-    if (AML_LIBRARIES)
-      set(al LIBRARIES)
-    endif()
-    cet_make_library(LIBRARY_NAME ${art_make_lib_name}
-      SOURCE ${AML_SOURCE}
-      ${al} ${AML_LIBRARIES}
-      ${AML_UNPARSED_ARGUMENTS}
-      )
-    if (AML_LIBRARY_NAME_VAR)
-      set (${AML_LIBRARY_NAME_VAR} ${art_make_lib_name} PARENT_SCOPE)
-    endif()
+  if ("${ARGV}" MATCHES "(^|;)(NO_)?SOURCE(;|$)")
+    cet_make_library(${ARGV})
   else()
-    message(${art_make_library_usage})
-    message("art_make_library called from ${CMAKE_CURRENT_SOURCE_DIR}")
-    message(FATAL_ERROR "ART_MAKE_LIBRARY: you must supply a source code list.")
+    cet_make(LIB_ONLY ${ARGV}) ### MIGRATE-ACTION-RECOMMENDED: use cet_make_library(), build_dictionary(), basic_plugin() with explicit source lists
   endif()
-endfunction( art_make_library )
+endfunction()
 
 ####################################
-# art_make
+# art_make ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
 ####################################
-function( art_make )
-  set(arg_option_names
-    LIBRARY_NAME LIBRARIES SUBDIRS EXCLUDE SOURCE LIB_LIBRARIES DICT_LIBRARIES DICT_COMPILE_FLAGS
-    MODULE_LIBRARIES SERVICE_LIBRARIES SOURCE_LIBRARIES)
-  set(plugin_types source module service) # Defaults
-  # Add DICT_LIBRARIES, MODULE_LIBRARIES, GENERATOR_LIBRARIES, etc. as
-  # appropriate.
-  foreach (OPT ${ARGN})
-    if ((NOT OPT STREQUAL "LIB_LIBRARIES") AND
-        (NOT OPT STREQUAL "DICT_LIBRARIES") AND
-        (NOT OPT STREQUAL "MODULE_LIBRARIES") AND
-        (NOT OPT STREQUAL "SERVICE_LIBRARIES") AND
-        (NOT OPT STREQUAL "SOURCE_LIBRARIES") AND
-        (OPT MATCHES "^([A-Z]+)_LIBRARIES$"))
-      string(TOLOWER ${CMAKE_MATCH_1} plugin_type)
-      list(APPEND plugin_types ${plugin_type})
-      list(APPEND arg_option_names ${OPT})
+function(art_make) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+  set(flags BASENAME_ONLY LIB_ONLY NO_DICTIONARY NO_LIB NO_PLUGINS
+    USE_PRODUCT_NAME USE_PROJECT_NAME)
+  cet_regex_escape(VAR flags_regex ${flags})
+  list(JOIN flags_regex "|" tmp)
+  set(flags_regex "^(${tmp})$")
+  set(seen_art_make_flags "${ARGV}")
+  list(FILTER seen_art_make_flags INCLUDE REGEX "${flags_regex}")
+  list(TRANSFORM ARGV REPLACE "${flags_regex}" "NOP")
+  if ("USE_PRODUCT_NAME" IN_LIST seen_art_make_flags)
+    if ("LIBRARY_NAME" IN_LIST ARGV)
+      message(FATAL_ERROR "ART_MAKE: USE_PRODUCT_NAME and LIBRARY_NAME are mutually exclusive.")
+    elseif ("USE_PROJECT_NAME" IN_LIST seen_art_make_args)
+      message(WARNING "USE_PRODUCT_NAME and USE_PROJECT_NAME are synonymous")
+      list(REMOVE_ITEM seen_art_make_flags "USE_PRODUCT_NAME")
     endif()
+  endif()
+  foreach (flag IN LISTS seen_art_make_flags)
+    set(AM_${flag} ${flag})
   endforeach()
-  foreach (plugin_type ${plugin_types})
-    list(APPEND plugin_glob_list "*_${plugin_type}.cc")
-  endforeach()
-  set(art_file_list "")
-  cet_parse_args( AM "${arg_option_names}" "WITH_STATIC_LIBRARY;BASENAME_ONLY;NO_PLUGINS;DICT_FUNCTIONS;USE_PRODUCT_NAME" ${ARGN})
+  if (AM_LIB_ONLY AND AM_NO_LIB)
+    # Nothing to do except hold up tea and no tea to confuse the GPP door
+    # and gain access to the bridge of the Heart of Gold.
+    message(FATAL_ERROR "art_make(): LIB_ONLY and NO_LIB are mutually exclusive") ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+  endif()
+  set(flag_keywords_dict NO_CHECK_CLASS_VERSION NO_DEFAULT_LIBRARIES VERSION)
+  set(flags_dict NO_CHECK_CLASS_VERSION NO_DEFAULT_LIBRARIES DICT_VERSION)
+  set(one_arg_option_keywords_dict CLASSES_H CLASSES_DEF_XML DICT_NAME_VAR EXPORT)
+  set(one_arg_options_dict CLASSES_H CLASSES_DEF_XML DICT_NAME_VAR DICT_EXPORT)
+  set(list_option_keywords_dict COMPILE_FLAGS DICTIONARY_LIBRARIES REQUIRED_DICTIONARIES)
+  set(list_options_dict DICT_COMPILE_FLAGS DICTIONARY_LIBRARIES REQUIRED_DICTIONARIES)
+  set(flags "${flag_keywords_dict}")
+  set(one_arg_options "${one_arg_option_keywords_dict}")
+  set(list_options "${list_option_keywords_dict}")
+  list(APPEND flags ${_cet_make_flags})
+  list(APPEND one_arg_options ${_cet_make_one_arg_options})
+  list(APPEND list_options ${_cet_make_list_options})
 
-  # has the cmake variable ART_MAKE_PREPEND_PRODUCT_NAME been specified?
-  if( ART_MAKE_PREPEND_PRODUCT_NAME )
-    set( AM_USE_PRODUCT_NAME TRUE )
-  endif()
-
-  if (AM_DICT_FUNCTIONS)
-    set(AM_DICT_FUNCTIONS DICT_FUNCTIONS)
-  else()
-    unset(AM_DICT_FUNCTIONS)
-  endif()
-  if(AM_SOURCE)
-    message(FATAL_ERROR "ART_MAKE: SOURCE is not a valid argument: library sources are computed.
-Use EXCLUDE to exclude particular (eg exec) source files from library.")
-  endif()
-
-  if(AM_LIBRARIES)
-    message(FATAL_ERROR "ART_MAKE: LIBRARIES is ambiguous -- use {LIB,DICT,SERVICE,MODULE,SOURCE,XXX}_LIBRARIES, instead.")
-  endif()
-
-  if (AM_USE_PRODUCT_NAME AND AM_LIBRARY_NAME)
-    message(FATAL_ERROR "ART_MAKE: USE_PRODUCT_NAME and LIBRARY_NAME are mutually exclusive.")
-  endif()
-  if (AM_USE_PRODUCT_NAME AND AM_BASENAME_ONLY)
-    message(FATAL_ERROR "ART_MAKE: USE_PRODUCT_NAME and BASENAME_ONLY are mutually exclusive.")
-  endif()
-
-  # check for extra link libraries
-  if(AM_LIB_LIBRARIES)
-    set(art_liblist ${AM_LIB_LIBRARIES})
-  endif()
-
-  # now look for other source files in this directory
-  #message(STATUS "art_make debug: listed files ${art_file_list}")
-  FILE( GLOB src_files *.c *.cc *.cpp *.C *.cxx )
-  FILE( GLOB ignore_dot_files  .*.c .*.cc .*.cpp .*.C .*.cxx )
-  FILE( GLOB plugin_files ${plugin_glob_list})
-  # also check subdirectories
-  if( AM_SUBDIRS )
-    foreach( sub ${AM_SUBDIRS} )
-      foreach (glob ${plugin_glob_list})
-        list (APPEND subdir_plugin_glob_list ${sub}/${glob})
-      endforeach()
-            FILE( GLOB subdir_src_files ${sub}/*.c ${sub}/*.cc ${sub}/*.cpp ${sub}/*.C ${sub}/*.cxx )
-            FILE( GLOB subdir_ignore_dot_files ${sub}/.*.c ${sub}/.*.cc ${sub}/.*.cpp ${sub}/.*.C ${sub}/.*.cxx )
-            FILE( GLOB subdir_plugin_files ${subdir_plugin_glob_list} )
-      if (subdir_src_files)
-              list(APPEND src_files ${subdir_src_files})
-      endif(subdir_src_files)
-      if (subdir_ignore_dot_files)
-              list(APPEND ignore_dot_files ${subdir_ignore_dot_files})
-      endif(subdir_ignore_dot_files)
-      if (subdir_plugin_files)
-              list(APPEND plugin_files ${subdir_plugin_files})
-      endif(subdir_plugin_files)
-    endforeach(sub)
-  endif( AM_SUBDIRS )
-  if (ignore_dot_files OR plugin_files)
-    LIST(REMOVE_ITEM src_files ${ignore_dot_files} ${plugin_files} )
-  endif()
-  if (ignore_dot_files)
-    LIST(REMOVE_ITEM plugin_files ${ignore_dot_files})
-  endif()
-  #message(STATUS "art_make debug: exclude files ${AM_EXCLUDE}")
-  if(AM_EXCLUDE)
-    foreach( exclude_file ${AM_EXCLUDE} )
-      LIST(REMOVE_ITEM src_files ${CMAKE_CURRENT_SOURCE_DIR}/${exclude_file} )
-      LIST(REMOVE_ITEM plugin_files ${CMAKE_CURRENT_SOURCE_DIR}/${exclude_file} )
-    endforeach( exclude_file )
-  endif()
-  #message(STATUS "art_make debug: other files ${src_files}")
-  set(have_library FALSE)
-  foreach( file ${src_files} )
-    #message(STATUS "art_make debug: checking ${file}")
-    set(have_file FALSE)
-    foreach( known_file ${art_file_list} )
-      if( "${file}" MATCHES "${known_file}" )
-              set(have_file TRUE)
-            endif()
-    endforeach( known_file )
-    if( NOT have_file )
-      #message(STATUS "art_make debug: found new file ${file}")
-      set(art_file_list ${art_file_list} ${file} )
-      set(art_make_library_src ${art_make_library_src} ${file} )
-      set(have_library TRUE)
-    endif()
-  endforeach(file)
-  #message(STATUS "art_make debug: known files ${art_file_list}")
-  if (AM_USE_PRODUCT_NAME)
-    set(upn USE_PRODUCT_NAME)
-  endif()
-
-  if( have_library )
-    if (AM_LIBRARY_NAME)
-      set(ln LIBRARY_NAME)
-    endif()
-    if (AM_WITH_STATIC_LIBRARY)
-      set(wsl WITH_STATIC_LIBRARY)
-    endif()
-    if (art_liblist)
-      set(al LIBRARIES)
-    endif()
-    art_make_library(${wsl} ${upn} ${ln} ${AM_LIBRARY_NAME} ${al} ${art_liblist} SOURCE ${art_make_library_src}
-      LIBRARY_NAME_VAR art_make_library_name
-      )
-    foreach(sfile ${art_make_library_src})
-      get_filename_component(bn ${sfile} NAME)
-      set(source_names ${source_names} " ${bn}")
+  # Identify caller-specified plugin types.
+  set(default_plugin_types source module service) # Defaults.
+  set(args "${ARGN}")
+  list(FILTER args INCLUDE REGEX "^([A-Z]+)_(TYPE|LIBRARIES)$")
+  list(TRANSFORM args REPLACE "_(TYPE|LIBRARIES)$" "")
+  list(REMOVE_DUPLICATES args)
+  list(TRANSFORM args TOLOWER OUTPUT_VARIABLE plugin_types)
+  list(REMOVE_ITEM plugin_types lib ${default_plugin_types})
+  list(PREPEND plugin_types ${default_plugin_types})
+  list(TRANSFORM plugin_types REPLACE "^(.+)$" "*_\\1.cc"
+    OUTPUT_VARIABLE plugin_glob)
+  list(TRANSFORM plugin_types TOUPPER OUTPUT_VARIABLE plugin_prefixes)
+  set(flags_plugin USE_BOOST_UNIT VERSION)
+  set(one_arg_options_plugin EXPORT LIB_TYPE SOVERSION)
+  set(list_options_plugin LIBRARIES)
+  foreach (option_type IN ITEMS flags one_arg_options list_options)
+    foreach (plugin_prefix IN LISTS plugin_prefixes)
+      list(TRANSFORM ${option_type}_plugin PREPEND "${plugin_prefix}_"
+        OUTPUT_VARIABLE tmp)
+      list(APPEND ${option_type} ${tmp})
     endforeach()
+    list(REMOVE_DUPLICATES ${option_type})
+  endforeach()
+  # Identify plugin sources.
+  set(plugins_glob ${plugin_glob})
+  foreach(subdir IN LISTS AM_SUBDIRS)
+    list(TRANSFORM plugin_glob PREPEND "${subdir}"
+      OUTPUT_VARIABLE tmp)
+    list(APPEND plugins_glob ${tmp})
+  endforeach()
+  file(GLOB plugin_sources CONFIGURE_DEPENDS ${plugins_glob})
+  cet_exclude_files_from(plugin_sources
+    EXCLUDE ${AM_EXCLUDE} NOP REGEX "(^|/)[.#].*")
+  # Exclude these files from consideration for cet_make() regardless of ### MIGRATE-ACTION-RECOMMENDED: use cet_make_library(), build_dictionary(), basic_plugin() with explicit source lists
+  # whether we're making the plugin.
+  cet_passthrough(APPEND KEYWORD EXCLUDE plugin_sources ARGV)
 
-    _debug_message("Configured to build library ${art_make_library_name} with sources:
-            ${source_names}.")
-  endif( )
+  # We have to parse everything at once and pass through to the right
+  # place if we need to otherwise we could get confused with argument /
+  # option boundaries with multiple parsing passes.
+  cmake_parse_arguments(PARSE_ARGV 0 AM "${flags}" "${one_arg_options}" "${list_options}")
+  set(flag_flag FLAG) # Flags are handled differently to the others.
+  foreach (option_type IN ITEMS flag one_arg_option list_option)
+    # Dictionaries.
+    foreach (keyword opt IN ZIP_LISTS ${option_type}_keywords_dict ${option_type}s_dict)
+      cet_passthrough(${flag_flag} APPEND KEYWORD ${keyword} AM_${opt} dict_args)
+    endforeach()
+    # Plugins
+    foreach (plugin_type plugin_prefix IN ZIP_LISTS plugin_types plugin_prefixes)
+      foreach (opt IN LISTS ${option_type}s_plugin)
+        cet_passthrough(${flag_flag} APPEND KEYWORD ${opt} AM_${plugin_prefix}_${opt} ${plugin_type}_args)
+      endforeach()
+    endforeach()
+    # For cet_make(). ### MIGRATE-ACTION-RECOMMENDED: use cet_make_library(), build_dictionary(), basic_plugin() with explicit source lists
+    foreach (opt IN LISTS _cet_make_${option_type}s)
+      cet_passthrough(${flag_flag} APPEND AM_${opt} cet_make_args)
+    endforeach()
+    unset(flag_flag)
+  endforeach()
+  # Common options.
+  foreach (type IN ITEMS dict LISTS ${plugin_types})
+    string(TOUPPER "${type}" TYPE)
+    cet_passthrough(FLAG APPEND AM_NO_INSTALL ${type}_args)
+    if (NOT VERSION IN_LIST ${type}_args)
+      cet_passthrough(FLAG APPEND AM_VERSION ${type}_args)
+    endif()
+    if (NOT (AM_NO_INSTALL OR EXPORT IN_LIST ${type}_args))
+      cet_passthrough(APPEND AM_EXPORT ${type}_args)
+    endif()
+    cet_passthrough(FLAG APPEND AM_USE_PROJECT_NAME ${type}_args)
+    if (NOT type STREQUAL "dict")
+      cet_passthrough(FLAG APPEND AM_BASENAME_ONLY ${type}_args)
+    endif()
+  endforeach()
 
-  # process plugin lists
-  if( AM_NO_PLUGINS )
-      _debug_message("Ignoring plugins in ${CMAKE_CURRENT_SOURCE_DIR}")
-  else()
-    foreach( plugin_file ${plugin_files} )
-      if ("${plugin_file}" MATCHES "^.*_([a-z]+)\\.cc$")
-        set (plugin_type ${CMAKE_MATCH_1})
-        string (TOUPPER ${plugin_type} PLUGIN_TYPE)
+  ##################
+  # Now actually put everything together.
+
+  # Plugins first.
+  if (NOT (AM_LIB_ONLY OR AM_NO_PLUGINS))
+    cet_regex_escape(VAR e_plugin_types ${plugin_types})
+    list(JOIN e_plugin_types "|" plugin_regex)
+    foreach (plugin_source IN LISTS plugin_sources)
+      if (plugin_source MATCHES "^(.*/)?([^/]+)_(${e_plugin_types})\.cc$")
+        basic_plugin("${CMAKE_MATCH_2}" "${CMAKE_MATCH_3}"
+          ${${CMAKE_MATCH_3}_args} SOURCE ${plugin_source})
       endif()
-      _art_simple_plugin( ${plugin_file} ${plugin_type} "${AM_${PLUGIN_TYPE}_LIBRARIES}" )
-    endforeach( plugin_file )
-  endif( )
-
-  # is there a dictionary?
-  FILE(GLOB dictionary_header classes.h )
-  FILE(GLOB dictionary_xml classes_def.xml )
-  if( dictionary_header AND dictionary_xml )
-    if (NOT COMMAND art_dictionary)
-      message(FATAL_ERROR "ART_MAKE: If you wish art_make to create a dictionary, you must invoke include(ArtDictionary) in your CMakeLists.txt file.")
-    endif()
-    set(art_file_list ${art_file_list} ${dictionary_xml} ${dictionary_header} )
-    if (have_library)
-      set(art_make_dict_libraries ${art_make_library_name})
-    endif()
-    list(APPEND art_make_dict_libraries ${AM_DICT_LIBRARIES})
-    if (AM_DICT_COMPILE_FLAGS)
-      set(art_dictionary_flags COMPILE_FLAGS ${AM_DICT_COMPILE_FLAGS})
-    endif()
-    if(art_make_dict_libraries)
-      art_dictionary( DICTIONARY_LIBRARIES ${AM_DICT_FUNCTIONS} ${art_make_dict_libraries} ${art_dictionary_flags} ${upn} DICT_NAME_VAR dictname)
-    else()
-      art_dictionary( ${AM_DICT_FUNCTIONS} ${art_dictionary_flags} ${upn} DICT_NAME_VAR dictname)
-    endif()
-    if (cet_generated_code) # Bubble up to top scope.
-      set(cet_generated_code ${cet_generated_code} PARENT_SCOPE)
-    endif()
-    _debug_message("Configured to build dictionary ${dictname}.")
+    endforeach()
   endif()
 
-endfunction( art_make )
+  # Find sources for a library and make it.
+  if (NOT AM_NO_LIB)
+    art_make_library(${cet_make_args})
+  endif()
+
+  # Finish off with the dictionary.
+  if (NOT (AM_LIB_ONLY OR AM_NO_DICTIONARY) AND
+      EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/classes.h" AND
+      EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/classes_def.xml")
+    include(ArtDictionary)
+    art_dictionary(${dict_args})
+  endif()
+endfunction()
+
+cmake_policy(POP)
