@@ -73,7 +73,6 @@ namespace art {
   private:
     class ProcessAllEventsTask;
     class EndPathTask;
-    class EndPathRunnerTask;
 
     // Event-loop infrastructure
     void processAllEventsAsync(tbb::task* EventLoopTask, ScheduleID sid);
