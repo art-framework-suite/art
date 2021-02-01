@@ -8,6 +8,7 @@
 #include "art/Framework/IO/Root/DuplicateChecker.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
+#include "art/Framework/IO/Root/RootInputFile.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunID.h"
@@ -117,9 +118,7 @@ namespace art {
 
     std::unique_ptr<FileBlock> readFile_();
 
-    std::unique_ptr<RootInputFile> openSecondaryFile(
-      std::string const& name,
-      cet::exempt_ptr<RootInputFile> primaryFile);
+    int readFromSecondaryFile(int idx, BranchType bt, EventID const& eventID);
 
     void closeFile_();
 
@@ -229,25 +228,20 @@ namespace art {
 
     void finish();
 
-  private: // MEMBER FUNCTIONS
+  private:
     void initFile(bool skipBadFiles);
-
     bool nextFile();
-
     bool previousFile();
-
     void rewindFile();
-
     std::vector<FileCatalogItem> const& fileCatalogItems() const;
-
     ProcessConfiguration const& processConfiguration() const;
 
-    bool primary() const;
+    RootInputFile& secondaryFile(int idx);
 
-  private: // MEMBER DATA
     InputFileCatalog& catalog_;
     bool firstFile_{true};
     RootInputFileSharedPtr rootFile_{nullptr};
+    std::vector<std::unique_ptr<RootInputFile>> secondaryFilesForPrimary_;
     std::vector<std::shared_ptr<FileIndex>> fileIndexes_;
     EventID origEventID_{};
     EventNumber_t eventsToSkip_;
@@ -273,6 +267,13 @@ namespace art {
     std::vector<std::vector<std::string>> secondaryFileNames_{};
     MasterProductRegistry& mpr_;
     bool pendingClose_{false};
+    // We need to add the secondary principals to the primary
+    // principal when they are delay read, so we need to keep around a
+    // pointer to the primary.  Note that these are always used in a
+    // situation where we are guaranteed that primary exists.
+    cet::exempt_ptr<RunPrincipal> primaryRP_{nullptr};
+    cet::exempt_ptr<SubRunPrincipal> primarySRP_{nullptr};
+    cet::exempt_ptr<EventPrincipal> primaryEP_{nullptr};
   };
 
 } // namespace art

@@ -27,7 +27,7 @@ namespace art {
     input::BranchMap const& branches,
     cet::exempt_ptr<RootInputTree> tree,
     int64_t const saveMemoryObjectThreshold,
-    cet::exempt_ptr<RootInputFile> primaryFile,
+    secondary_opener_t secondaryFileOpener,
     cet::exempt_ptr<BranchIDLists const> bidLists,
     BranchType const branchType,
     EventID const eID,
@@ -38,7 +38,7 @@ namespace art {
     , branches_{branches}
     , tree_{tree}
     , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
-    , primaryFile_{primaryFile}
+    , openSecondaryFile_{secondaryFileOpener}
     , branchIDLists_{bidLists}
     , branchType_{branchType}
     , eventID_{eID}
@@ -151,52 +151,10 @@ namespace art {
   int
   RootDelayedReader::openNextSecondaryFile_(int const idx)
   {
-    // idx being a number we can actually use is a precondition of
-    // this function.
-    assert(!(idx < 0));
-
-    // Note:
-    //
-    // Return code of -2 means stop, -1 means event-not-found,
-    // otherwise 0 for success.
-    //
-    auto const& sfnm = primaryFile_->secondaryFileNames();
-    assert(!(static_cast<decltype(sfnm.size())>(idx) > sfnm.size()));
-    if (sfnm.empty()) { // No configured secondary files.
-      return -2;
+    if (openSecondaryFile_) {
+      return openSecondaryFile_(idx, branchType_, eventID_);
     }
-    auto const& sf = primaryFile_->secondaryFiles();
-    if (static_cast<decltype(sfnm.size())>(idx) == sfnm.size()) {
-      // We're done.
-      return -2;
-    }
-
-    if (!sf[idx]) {
-      primaryFile_->openSecondaryFile(idx);
-    }
-
-    switch (branchType_) {
-      case InEvent: {
-        if (!sf[idx]->readEventForSecondaryFile(eventID_)) {
-          return -1;
-        }
-      } break;
-      case InSubRun: {
-        if (!sf[idx]->readSubRunForSecondaryFile(eventID_.subRunID())) {
-          return -1;
-        }
-      } break;
-      case InRun: {
-        if (!sf[idx]->readRunForSecondaryFile(eventID_.runID())) {
-          return -1;
-        }
-      } break;
-      default: {
-        assert(false && "RootDelayedReader encountered an unknown BranchType!");
-        return -2;
-      }
-    }
-    return 0;
+    return -2;
   }
 
 } // namespace art

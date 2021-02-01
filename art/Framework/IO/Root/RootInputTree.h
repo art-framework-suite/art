@@ -11,6 +11,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/IO/Root/BranchMapperWithReader.h"
 #include "art/Framework/IO/Root/Inputfwd.h"
+#include "art/Framework/IO/Root/RootDelayedReader.h"
 #include "art/Framework/IO/Root/detail/rangeSetFromFileIndex.h"
 #include "art/Framework/IO/Root/detail/resolveRangeSet.h"
 #include "art/Framework/Principal/ClosedRangeSetHandler.h"
@@ -80,7 +81,7 @@ namespace art {
     RootInputTree(cet::exempt_ptr<TFile>,
                   BranchType,
                   int64_t saveMemoryObjectThreshold,
-                  cet::exempt_ptr<RootInputFile>,
+                  secondary_opener_t secondaryFileOpener = {},
                   bool compactSubRunRanges = false,
                   bool missingOK = false);
     RootInputTree(RootInputTree const&) = delete;
@@ -94,9 +95,19 @@ namespace art {
     void dropBranch(std::string const& branchName);
 
     bool
+    hasNext() const
+    {
+      return entryNumber_ + 1 < entries_;
+    }
+
+    bool
     next()
     {
-      return ++entryNumber_ < entries_;
+      if (hasNext()) {
+        ++entryNumber_;
+        return true;
+      }
+      return false;
     }
     bool
     previous()
@@ -255,7 +266,7 @@ namespace art {
     EntryNumber entries_{0};
     EntryNumber entryNumber_{-1};
     BranchMap branches_{};
-    cet::exempt_ptr<RootInputFile> primaryFile_;
+    secondary_opener_t secondaryFileOpener_;
     bool const compactSubRunRanges_;
   };
 

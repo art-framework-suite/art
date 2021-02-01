@@ -5,7 +5,6 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/IO/Root/FastCloningInfoProvider.h"
-#include "art/Framework/IO/Root/RootInputFileSequence.h"
 #include "art/Framework/IO/Root/RootInputTree.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
@@ -13,7 +12,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Provenance/BranchMapper.h"
 #include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
-#include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "canvas/Persistency/Provenance/History.h"
@@ -24,9 +22,6 @@
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
-#include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
-#include "canvas/Persistency/Provenance/RunAuxiliary.h"
-#include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib/sqlite/Connection.h"
@@ -60,9 +55,7 @@ namespace art {
     RootInputFile& operator=(RootInputFile const&) = delete;
 
     RootInputFile(std::string const& fileName,
-                  std::string const& catalogName,
                   ProcessConfiguration const& processConfiguration,
-                  std::string const& logicalFileName,
                   std::unique_ptr<TFile>&& filePtr,
                   EventID const& origEventID,
                   unsigned int eventsToSkip,
@@ -78,52 +71,34 @@ namespace art {
                   int forcedRunOffset,
                   bool noEventSort,
                   GroupSelectorRules const& groupSelectorRules,
-                  std::shared_ptr<DuplicateChecker> duplicateChecker,
                   bool dropDescendantsOfDroppedProducts,
                   bool readIncomingParameterSets,
-                  cet::exempt_ptr<RootInputFile> primaryFile,
-                  std::vector<std::string> const& secondaryFileNames,
-                  RootInputFileSequence* rifSequence,
-                  MasterProductRegistry& mpr);
+                  MasterProductRegistry& mpr,
+                  std::shared_ptr<DuplicateChecker> duplicateChecker = nullptr,
+                  secondary_opener_t secondaryFileOpener = {});
 
     void reportOpened();
+    void close();
 
-    void close(bool reallyClose);
-
+    // Assumes sequential access
     std::unique_ptr<ResultsPrincipal> readResults();
     std::unique_ptr<RunPrincipal> readRun();
-    std::unique_ptr<SubRunPrincipal> readSubRun(cet::exempt_ptr<RunPrincipal>);
+    std::unique_ptr<SubRunPrincipal> readSubRun();
     std::unique_ptr<EventPrincipal> readEvent();
 
-    bool readRunForSecondaryFile(RunID);
-    bool readSubRunForSecondaryFile(SubRunID);
-    bool readEventForSecondaryFile(EventID eID);
+    // Random access
+    std::unique_ptr<RunPrincipal> readRunWithID(
+      RunID id,
+      bool thenAdvanceToNextRun = false);
+    std::unique_ptr<SubRunPrincipal> readSubRunWithID(
+      SubRunID id,
+      bool thenAdvanceToNextSubRun = false);
+    std::unique_ptr<EventPrincipal> readEventWithID(EventID const& id);
 
     std::string const&
     fileName() const
     {
       return fileName_;
-    }
-
-    RunAuxiliary&
-    runAux()
-    {
-      return std::get<RunAuxiliary>(auxiliaries_);
-    }
-    ResultsAuxiliary&
-    resultsAux()
-    {
-      return std::get<ResultsAuxiliary>(auxiliaries_);
-    }
-    SubRunAuxiliary&
-    subRunAux()
-    {
-      return std::get<SubRunAuxiliary>(auxiliaries_);
-    }
-    EventAuxiliary&
-    eventAux()
-    {
-      return std::get<EventAuxiliary>(auxiliaries_);
     }
 
     FileFormatVersion
@@ -132,30 +107,23 @@ namespace art {
       return fileFormatVersion_;
     }
 
-    bool
-    fastClonable() const
-    {
-      return fastClonable_;
-    }
-
     std::unique_ptr<FileBlock> createFileBlock();
 
-    template <BranchType BT>
     void
-    setEntry(FileIndex::EntryNumber_t entry)
+    setEntry(BranchType const BT, FileIndex::EntryNumber_t const entry)
     {
       treePointers_[BT]->setEntryNumber(entry);
     }
 
-    template <BranchType BT, typename ID>
+    template <typename ID>
     bool
-    setEntry(ID const& id, bool exact = true)
+    setEntry(BranchType const BT, ID const& id, bool const exact = true)
     {
       fiIter_ = fileIndex_.findPosition(id, exact);
       if (fiIter_ == fiEnd_) {
         return false;
       }
-      setEntry<BT>(fiIter_->entry_);
+      setEntry(BT, fiIter_->entry_);
       return true;
     }
 
@@ -217,19 +185,6 @@ namespace art {
 
     EventID eventIDForFileIndexPosition() const;
 
-    auto const&
-    secondaryFileNames() const
-    {
-      return secondaryFileNames_;
-    }
-    auto const&
-    secondaryFiles() const
-    {
-      return secondaryFiles_;
-    }
-
-    void openSecondaryFile(int const idx);
-
     std::unique_ptr<RangeSetHandler> runRangeSetHandler();
     std::unique_ptr<RangeSetHandler> subRunRangeSetHandler();
 
@@ -286,23 +241,14 @@ namespace art {
     std::array<AvailableProducts_t, NumBranchTypes>
     fillPerBranchTypePresenceFlags(ProductList const&);
 
-    template <BranchType BT>
-    void
-    fillAuxiliary(EntryNumber const entry)
-    {
-      using AUX = std::tuple_element_t<BT, decltype(auxiliaries_)>;
-      auto& aux = std::get<BT>(auxiliaries_);
-      aux = treePointers_[BT]->getAux<AUX>(entry);
-    }
-
-    template <BranchType BT>
-    std::unique_ptr<RangeSetHandler>
+    template <typename T>
+    std::pair<T, std::unique_ptr<RangeSetHandler>>
     fillAuxiliary(EntryNumbers const& entries)
     {
-      using AUX = std::tuple_element_t<BT, decltype(auxiliaries_)>;
-      auto& aux = std::get<BT>(auxiliaries_);
-      return treePointers_[BT]->fillAux<AUX>(
+      T aux;
+      auto rs = treePointers_[T::branch_type]->template fillAux<T>(
         fileFormatVersion_, entries, fileIndex_, sqliteDB_, fileName_, aux);
+      return std::make_pair(aux, move(rs));
     }
 
     void overrideRunNumber(RunID& id);
@@ -320,22 +266,14 @@ namespace art {
 
     std::pair<EntryNumbers, bool> getEntryNumbers(BranchType);
 
-    std::unique_ptr<RunPrincipal> readCurrentRun(EntryNumbers const&);
-    std::unique_ptr<SubRunPrincipal> readCurrentSubRun(
-      EntryNumbers const&,
-      cet::exempt_ptr<RunPrincipal>);
-    std::unique_ptr<EventPrincipal> readCurrentEvent(
-      std::pair<EntryNumbers, bool> const&);
-
     std::string const fileName_;
-    std::string const catalog_;
     ProcessConfiguration const& processConfiguration_;
-    std::string const logicalFileName_;
     std::unique_ptr<TFile> filePtr_;
     cet::sqlite::Connection sqliteDB_{}; // Start with invalid connection.
     EventID origEventID_;
     EventNumber_t eventsToSkip_;
     bool const compactSubRunRanges_;
+    secondary_opener_t secondaryFileOpener_;
     RootInputTreePtrArray treePointers_;
     bool delayedReadEventProducts_;
     bool delayedReadSubRunProducts_;
@@ -344,9 +282,6 @@ namespace art {
     int forcedRunOffset_;
     bool noEventSort_;
     std::shared_ptr<DuplicateChecker> duplicateChecker_;
-    cet::exempt_ptr<RootInputFile> primaryFile_;
-    std::vector<std::string> secondaryFileNames_;
-    cet::exempt_ptr<RootInputFileSequence> rifSequence_;
 
     FileFormatVersion fileFormatVersion_{};
     std::shared_ptr<FileIndex> fileIndexSharedPtr_{new FileIndex};
@@ -355,8 +290,6 @@ namespace art {
     FileIndex::const_iterator fiEnd_{fileIndex_.end()};
     FileIndex::const_iterator fiIter_{fiBegin_};
     bool fastClonable_{false};
-    std::tuple<EventAuxiliary, SubRunAuxiliary, RunAuxiliary, ResultsAuxiliary>
-      auxiliaries_{}; // Must be in same order as treePointers_ !
 
     // The holder is necessary since references of its contents are
     // passed to the RootDelayedReader.
@@ -367,14 +300,6 @@ namespace art {
 
     TTree* eventHistoryTree_{nullptr};
     std::shared_ptr<History> history_{std::make_shared<History>()};
-    std::vector<std::unique_ptr<RootInputFile>> secondaryFiles_{};
-    // We need to add the secondary principals to the primary
-    // principal when they are delay read, so we need to keep around a
-    // pointer to the primary.  Note that these are always used in a
-    // situation where we are guaranteed that primary exists.
-    cet::exempt_ptr<EventPrincipal> primaryEP_{};
-    cet::exempt_ptr<RunPrincipal> primaryRP_{};
-    cet::exempt_ptr<SubRunPrincipal> primarySRP_{};
     std::unique_ptr<RangeSetHandler> subRunRangeSetHandler_{nullptr};
     std::unique_ptr<RangeSetHandler> runRangeSetHandler_{nullptr};
   };

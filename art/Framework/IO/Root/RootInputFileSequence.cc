@@ -150,9 +150,7 @@ namespace art {
         << "Illegal configuration options passed to RootInput\n"
         << "You cannot request \"noEventSort\" and also set \"firstEvent\".\n";
     }
-    if (primary()) {
-      duplicateChecker_ = std::make_shared<DuplicateChecker>(config().dc);
-    }
+    duplicateChecker_ = std::make_shared<DuplicateChecker>(config().dc);
     if (pendingClose_) {
       throw Exception(errors::LogicError)
         << "RootInputFileSequence looking for next file with a pending close!";
@@ -215,7 +213,7 @@ namespace art {
   RootInputFileSequence::seekToEvent(EventID const& eID, bool exact)
   {
     // Attempt to find event in currently open input file.
-    bool found = rootFile_->setEntry<InEvent>(eID, true);
+    bool found = rootFile_->setEntry(InEvent, eID, true);
     // found in the current file
     if (found) {
       return rootFile_->eventIDForFileIndexPosition();
@@ -236,7 +234,7 @@ namespace art {
         catalog_.rewindTo(std::distance(itBegin, it));
         initFile(/*skipBadFiles=*/false);
         // Now get the event from the correct file.
-        found = rootFile_->setEntry<InEvent>(eID, exact);
+        found = rootFile_->setEntry(InEvent, eID, exact);
         assert(found);
         return rootFile_->eventIDForFileIndexPosition();
       }
@@ -244,7 +242,7 @@ namespace art {
     // Look for event in files not yet opened.
     while (catalog_.getNextFile()) {
       initFile(/*skipBadFiles=*/false);
-      found = rootFile_->setEntry<InEvent>(eID, exact);
+      found = rootFile_->setEntry(InEvent, eID, exact);
     }
     return (found) ? rootFile_->eventIDForFileIndexPosition() : EventID();
   }
@@ -299,7 +297,13 @@ namespace art {
 
     // Account for events skipped in the file.
     eventsToSkip_ = rootFile_->eventsToSkip();
-    rootFile_->close(primary());
+    rootFile_->close();
+    for (auto const& sf : secondaryFilesForPrimary_) {
+      if (!sf) {
+        continue;
+      }
+      sf->close();
+    }
     detail::logFileAction("Closed input file ", rootFile_->fileName());
     rootFile_.reset();
     if (duplicateChecker_.get() != nullptr) {
@@ -347,71 +351,23 @@ namespace art {
     }
     detail::logFileAction("Opened input file ",
                           catalog_.currentFile().fileName());
-    vector<string> empty_vs;
-    rootFile_ = make_shared<RootInputFile>(
-      catalog_.currentFile().fileName(),
-      catalog_.url(),
-      processConfiguration(),
-      catalog_.currentFile().logicalFileName(),
-      std::move(filePtr),
-      origEventID_,
-      eventsToSkip_,
-      compactSubRunRanges_,
-      fastCloningInfo_,
-      treeCacheSize_,
-      treeMaxVirtualSize_,
-      saveMemoryObjectThreshold_,
-      delayedReadEventProducts_,
-      delayedReadSubRunProducts_,
-      delayedReadRunProducts_,
-      processingMode_,
-      forcedRunOffset_,
-      noEventSort_,
-      groupSelectorRules_,
-      duplicateChecker_,
-      dropDescendants_,
-      readParameterSets_,
-      /*primaryFile*/ exempt_ptr<RootInputFile>{nullptr},
+
+    // Group the following together into one class?
+    auto const n_secondary_files =
       secondaryFileNames_.empty() ?
-        empty_vs :
-        secondaryFileNames_.at(catalog_.currentIndex()),
-      this,
-      mpr_);
+        0ul :
+        secondaryFileNames_.at(catalog_.currentIndex()).size();
+    secondaryFilesForPrimary_ =
+      vector<unique_ptr<RootInputFile>>(n_secondary_files);
+    auto secondary_opener =
+      n_secondary_files == 0ul ?
+        secondary_opener_t{} :
+        [this](int const idx, BranchType const bt, EventID const& eid) {
+          return this->readFromSecondaryFile(idx, bt, eid);
+        };
 
-    assert(catalog_.currentIndex() != InputFileCatalog::indexEnd);
-    if (catalog_.currentIndex() + 1 > fileIndexes_.size()) {
-      fileIndexes_.resize(catalog_.currentIndex() + 1);
-    }
-    fileIndexes_[catalog_.currentIndex()] = rootFile_->fileIndexSharedPtr();
-  }
-
-  std::unique_ptr<RootInputFile>
-  RootInputFileSequence::openSecondaryFile(
-    string const& name,
-    exempt_ptr<RootInputFile> primaryFile)
-  {
-    std::unique_ptr<TFile> filePtr;
-    try {
-      detail::logFileAction("Attempting  to open secondary input file ", name);
-      filePtr.reset(TFile::Open(name.c_str()));
-    }
-    catch (cet::exception e) {
-      throw art::Exception(art::errors::FileOpenError)
-        << e.explain_self()
-        << "\nRootInputFileSequence::openSecondaryFile(): Input file " << name
-        << " was not found or could not be opened.\n";
-    }
-    if (!filePtr || filePtr->IsZombie()) {
-      throw art::Exception(art::errors::FileOpenError)
-        << "RootInputFileSequence::openSecondaryFile(): Input file " << name
-        << " was not found or could not be opened.\n";
-    }
-    detail::logFileAction("Opened secondary input file ", name);
-    vector<string> empty_secondary_filenames;
-    return std::make_unique<RootInputFile>(name,
-                                           /*url*/ "",
+    rootFile_ = make_shared<RootInputFile>(catalog_.currentFile().fileName(),
                                            processConfiguration(),
-                                           /*logicalFileName*/ "",
                                            std::move(filePtr),
                                            origEventID_,
                                            eventsToSkip_,
@@ -427,13 +383,119 @@ namespace art {
                                            forcedRunOffset_,
                                            noEventSort_,
                                            groupSelectorRules_,
-                                           /*duplicateChecker_*/ nullptr,
                                            dropDescendants_,
                                            readParameterSets_,
-                                           primaryFile,
-                                           empty_secondary_filenames,
-                                           this,
+                                           mpr_,
+                                           duplicateChecker_,
+                                           secondary_opener);
+
+    assert(catalog_.currentIndex() != InputFileCatalog::indexEnd);
+    if (catalog_.currentIndex() + 1 > fileIndexes_.size()) {
+      fileIndexes_.resize(catalog_.currentIndex() + 1);
+    }
+    fileIndexes_[catalog_.currentIndex()] = rootFile_->fileIndexSharedPtr();
+  }
+
+  RootInputFile&
+  RootInputFileSequence::secondaryFile(int const idx)
+  {
+    auto& file = secondaryFilesForPrimary_[idx];
+    if (file) {
+      return *file;
+    }
+    auto const& name = secondaryFileNames_.at(catalog_.currentIndex())[idx];
+    std::unique_ptr<TFile> filePtr;
+    try {
+      detail::logFileAction("Attempting to open secondary input file ", name);
+      filePtr.reset(TFile::Open(name.c_str()));
+    }
+    catch (cet::exception e) {
+      throw art::Exception(art::errors::FileOpenError)
+        << e.explain_self()
+        << "\nRootInputFileSequence::openSecondaryFile(): Input file " << name
+        << " was not found or could not be opened.\n";
+    }
+    if (!filePtr || filePtr->IsZombie()) {
+      throw art::Exception(art::errors::FileOpenError)
+        << "RootInputFileSequence::openSecondaryFile(): Input file " << name
+        << " was not found or could not be opened.\n";
+    }
+    detail::logFileAction("Opened secondary input file ", name);
+
+    file = std::make_unique<RootInputFile>(name,
+                                           processConfiguration(),
+                                           std::move(filePtr),
+                                           origEventID_,
+                                           eventsToSkip_,
+                                           compactSubRunRanges_,
+                                           fastCloningInfo_,
+                                           treeCacheSize_,
+                                           treeMaxVirtualSize_,
+                                           saveMemoryObjectThreshold_,
+                                           delayedReadEventProducts_,
+                                           delayedReadSubRunProducts_,
+                                           delayedReadRunProducts_,
+                                           processingMode_,
+                                           forcedRunOffset_,
+                                           noEventSort_,
+                                           groupSelectorRules_,
+                                           dropDescendants_,
+                                           readParameterSets_,
                                            mpr_);
+    return *file;
+  }
+
+  // Note: Return code of -2 means stop, -1 means event-not-found,
+  //       otherwise 0 for success.
+  int
+  RootInputFileSequence::readFromSecondaryFile(int const idx,
+                                               BranchType const bt,
+                                               EventID const& eventID)
+  {
+    // Check if secondary input files are available
+    assert(idx >= 0);
+    auto const uidx = static_cast<size_t>(idx);
+    assert(uidx <= secondaryFilesForPrimary_.size());
+    if (uidx == secondaryFilesForPrimary_.size() or
+        secondaryFilesForPrimary_.empty()) {
+      return -2;
+    }
+
+    // FIXME: The interface should change such that the principal is
+    //        returned directly to the caller of this function.
+    switch (bt) {
+      case InEvent: {
+        auto ep = secondaryFile(idx).readEventWithID(eventID);
+        if (not ep) {
+          return -1;
+        }
+        primaryEP_->addSecondaryPrincipal(move(ep));
+        break;
+      }
+      case InSubRun: {
+        auto srp = secondaryFile(idx).readSubRunWithID(eventID.subRunID());
+        if (not srp) {
+          return -1;
+        }
+        primarySRP_->addSecondaryPrincipal(move(srp));
+        break;
+      }
+      case InRun: {
+        auto rp = secondaryFile(idx).readRunWithID(eventID.runID());
+        if (not rp) {
+          return -1;
+        }
+        primaryRP_->addSecondaryPrincipal(move(rp));
+        break;
+      }
+      default: {
+        assert(false &&
+               "RootDelayedReader encountered an unsupported BranchType!");
+        return -2;
+      }
+    }
+
+    return 0;
   }
 
   bool
@@ -461,9 +523,9 @@ namespace art {
     // first file in the catalog, move to the last file in the list
     if (catalog_.currentIndex() == 0) {
       return false;
-    } else {
-      catalog_.rewindTo(catalog_.currentIndex() - 1);
     }
+
+    catalog_.rewindTo(catalog_.currentIndex() - 1);
     initFile(/*skipBadFiles=*/false);
     if (rootFile_) {
       rootFile_->setToLastEntry();
@@ -475,7 +537,7 @@ namespace art {
   RootInputFileSequence::readIt(EventID const& id, bool exact)
   {
     // Attempt to find event in currently open input file.
-    bool found = rootFile_->setEntry<InEvent>(id, exact);
+    bool found = rootFile_->setEntry(InEvent, id, exact);
     if (found) {
       rootFileForLastReadEvent_ = rootFile_;
       unique_ptr<EventPrincipal> eptr(readEvent_());
@@ -494,7 +556,7 @@ namespace art {
         catalog_.rewindTo(std::distance(IB, I));
         initFile(/*skipBadFiles=*/false);
         // Now get the event from the correct file.
-        found = rootFile_->setEntry<InEvent>(id, exact);
+        found = rootFile_->setEntry(InEvent, id, exact);
         assert(found);
         rootFileForLastReadEvent_ = rootFile_;
         unique_ptr<EventPrincipal> ep(readEvent_());
@@ -504,7 +566,7 @@ namespace art {
     // Look for event in files not yet opened.
     while (catalog_.getNextFile()) {
       initFile(/*skipBadFiles=*/false);
-      found = rootFile_->setEntry<InEvent>(id, exact);
+      found = rootFile_->setEntry(InEvent, id, exact);
       if (found) {
         rootFileForLastReadEvent_ = rootFile_;
         unique_ptr<EventPrincipal> ep(readEvent_());
@@ -531,7 +593,9 @@ namespace art {
     // Delayed Reader when it is asked to do so.
     //
     rootFileForLastReadEvent_ = rootFile_;
-    return rootFile_->readEvent();
+    auto ep = rootFile_->readEvent();
+    primaryEP_ = cet::make_exempt_ptr(ep.get());
+    return ep;
   }
 
   std::unique_ptr<RangeSetHandler>
@@ -551,13 +615,14 @@ namespace art {
                                 cet::exempt_ptr<RunPrincipal> rp)
   {
     // Attempt to find subRun in currently open input file.
-    bool found = rootFile_->setEntry<InSubRun>(id);
+    bool found = rootFile_->setEntry(InSubRun, id);
     if (found) {
       return readSubRun_(rp);
     }
     if (!catalog_.isSearchable()) {
       return std::unique_ptr<SubRunPrincipal>{nullptr};
     }
+
     // Look for event in cached files
     typedef vector<std::shared_ptr<FileIndex>>::const_iterator Iter;
     for (Iter itBegin = fileIndexes_.begin(),
@@ -570,7 +635,7 @@ namespace art {
         catalog_.rewindTo(std::distance(itBegin, it));
         initFile(/*skipBadFiles=*/false);
         // Now get the subRun from the correct file.
-        found = rootFile_->setEntry<InSubRun>(id);
+        found = rootFile_->setEntry(InSubRun, id);
         assert(found);
         return readSubRun_(rp);
       }
@@ -578,7 +643,7 @@ namespace art {
     // Look for subRun in files not yet opened.
     while (catalog_.getNextFile()) {
       initFile(/*skipBadFiles=*/false);
-      found = rootFile_->setEntry<InSubRun>(id);
+      found = rootFile_->setEntry(InSubRun, id);
       if (found) {
         return readSubRun_(rp);
       }
@@ -588,16 +653,19 @@ namespace art {
   }
 
   std::unique_ptr<SubRunPrincipal>
-  RootInputFileSequence::readSubRun_(cet::exempt_ptr<RunPrincipal> rp)
+  RootInputFileSequence::readSubRun_(cet::exempt_ptr<RunPrincipal> rp
+                                     [[gnu::unused]])
   {
-    return rootFile_->readSubRun(rp);
+    auto srp = rootFile_->readSubRun();
+    primarySRP_ = make_exempt_ptr(srp.get());
+    return srp;
   }
 
   std::unique_ptr<RunPrincipal>
   RootInputFileSequence::readIt(RunID const& id)
   {
     // Attempt to find run in current file.
-    bool found = rootFile_->setEntry<InRun>(id);
+    bool found = rootFile_->setEntry(InRun, id);
     if (found) {
       // Got it, read the run.
       return readRun_();
@@ -614,7 +682,7 @@ namespace art {
         catalog_.rewindTo(std::distance(B, I));
         initFile(/*skipBadFiles=*/false);
         // Now read the run.
-        found = rootFile_->setEntry<InRun>(id);
+        found = rootFile_->setEntry(InRun, id);
         assert(found);
         return readRun_();
       }
@@ -622,7 +690,7 @@ namespace art {
     // Look for run in files not yet opened.
     while (catalog_.getNextFile()) {
       initFile(/*skipBadFiles=*/false);
-      found = rootFile_->setEntry<InRun>(id);
+      found = rootFile_->setEntry(InRun, id);
       if (found) {
         // Got it, read the run.
         return readRun_();
@@ -635,7 +703,9 @@ namespace art {
   std::unique_ptr<RunPrincipal>
   RootInputFileSequence::readRun_()
   {
-    return rootFile_->readRun();
+    auto rp = rootFile_->readRun();
+    primaryRP_ = make_exempt_ptr(rp.get());
+    return rp;
   }
 
   input::ItemType
@@ -705,12 +775,6 @@ namespace art {
       }
     }
     rootFile_->skipEvents(0);
-  }
-
-  bool
-  RootInputFileSequence::primary() const
-  {
-    return true;
   }
 
   ProcessConfiguration const&

@@ -1,13 +1,15 @@
 #include "art/Framework/IO/Root/RootInputTree.h"
+#include "art/Framework/IO/Root/RootInputFile.h"
 // vim: set sw=2:
+
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/BranchType.h"
 
 #include "TBranch.h"
 #include "TFile.h"
 #include "TLeaf.h"
 #include "TTree.h"
-#include "art/Framework/IO/Root/RootDelayedReader.h"
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
+
 #include <cstdint>
 #include <string>
 #include <utility>
@@ -17,13 +19,13 @@ namespace art {
   RootInputTree::RootInputTree(cet::exempt_ptr<TFile> filePtr,
                                BranchType const branchType,
                                int64_t saveMemoryObjectThreshold,
-                               cet::exempt_ptr<RootInputFile> primaryFile,
+                               secondary_opener_t secondaryFileOpener,
                                bool const compactSubRunRanges,
                                bool const missingOK)
     : filePtr_{filePtr}
     , branchType_{branchType}
     , saveMemoryObjectThreshold_{saveMemoryObjectThreshold}
-    , primaryFile_{primaryFile}
+    , secondaryFileOpener_{secondaryFileOpener}
     , compactSubRunRanges_{compactSubRunRanges}
   {
     if (filePtr_) {
@@ -128,7 +130,7 @@ namespace art {
                                                branches_,
                                                this,
                                                saveMemoryObjectThreshold_,
-                                               primaryFile_,
+                                               secondaryFileOpener_,
                                                branchIDLists,
                                                branchType,
                                                eID,

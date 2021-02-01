@@ -11,6 +11,7 @@
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -23,14 +24,14 @@ class TFile;
 
 namespace art {
 
-  class RootInputFile;
+  using secondary_opener_t =
+    std::function<int(int, BranchType, EventID const&)>;
+
   class RootInputTree;
 
   class RootDelayedReader final : public DelayedReader {
-
-  public: // MEMBER FUNCTIONS
+  public:
     ~RootDelayedReader() = default;
-
     RootDelayedReader(RootDelayedReader const&) = delete;
     RootDelayedReader& operator=(RootDelayedReader const&) = delete;
 
@@ -40,7 +41,7 @@ namespace art {
                       input::BranchMap const&,
                       cet::exempt_ptr<RootInputTree> tree,
                       int64_t saveMemoryObjectThreshold,
-                      cet::exempt_ptr<RootInputFile> primaryFile,
+                      secondary_opener_t secondaryFileOpener,
                       cet::exempt_ptr<BranchIDLists const> branchIDLists,
                       BranchType branchType,
                       EventID,
@@ -61,7 +62,7 @@ namespace art {
     cet::exempt_ptr<RootInputTree> tree_;
     int64_t saveMemoryObjectThreshold_;
     cet::exempt_ptr<EDProductGetterFinder const> groupFinder_;
-    cet::exempt_ptr<RootInputFile> primaryFile_;
+    secondary_opener_t openSecondaryFile_;
     cet::exempt_ptr<BranchIDLists const>
       branchIDLists_; // Only for backwards compatibility
     BranchType branchType_;
