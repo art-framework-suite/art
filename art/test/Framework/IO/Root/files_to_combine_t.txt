@@ -1,0 +1,5 @@
+# Primary
+../EventMerger_common_t.d/out.root |
+  # Secondaries
+  ../EventMerger_calo_t.d/out.root,
+  ../EventMerger_tracker_t.d/out.root

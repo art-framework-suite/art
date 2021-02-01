@@ -1,0 +1,23 @@
+#include "outputs.fcl"
+#include "analyze_combination.fcl"
+
+process_name: Combine
+
+source: {
+  module_type: EventMerger
+  fileNames: [
+    {
+      primary: "../EventMerger_common_t.d/out.root"
+      secondaries: [
+        "../EventMerger_calo_t.d/out.root",
+        "../EventMerger_tracker_t.d/out.root"
+      ]
+    }
+  ]
+}
+
+@table::analyze_combination
+
+
+physics.ep: [out]
+@table::make_one_output

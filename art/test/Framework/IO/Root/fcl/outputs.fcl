@@ -1,0 +1,10 @@
+BEGIN_PROLOG
+make_one_output: {
+  outputs: {
+    out: {
+      module_type: RootOutput
+      fileName: "out.root"
+    }
+  }
+}
+END_PROLOG

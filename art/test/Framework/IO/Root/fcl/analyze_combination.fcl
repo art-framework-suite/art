@@ -1,0 +1,59 @@
+BEGIN_PROLOG
+analyze_combination: {
+  physics: {
+    analyzers: {
+      # Produced in "Common" process
+      runReader: {
+        module_type: IntTestAnalyzer
+        input_label: "runProd"
+        expected_value: 5
+        branch_type: 2
+      }
+      subRunReader: {
+        module_type: IntTestAnalyzer
+        input_label: "subRunProd"
+        expected_value: 6
+        branch_type: 1
+      }
+      intReader1: {
+        module_type: IntTestAnalyzer
+        input_label: "prod"
+        expected_value: 7
+      }
+      # Produced by "Calo" process
+      intReader2: {
+        module_type: IntTestAnalyzer
+        input_label: "newProd"
+        expected_value: 9
+      }
+      # Produced by "Tracker" process
+      intRunReader: {
+        module_type: IntTestAnalyzer
+        input_label: "intRunProd"
+        expected_value: 10
+        branch_type: 2
+      }
+      intSubRunReader: {
+        module_type: IntTestAnalyzer
+        input_label: "intSubRunProd"
+        expected_value: 12
+        branch_type: 1
+      }
+      doubleReader: {
+        module_type: DoubleTestAnalyzer
+        input_label: "doubleProd"
+        expected_value: 1.25
+      }
+    }
+    ep0: [
+      intRunReader,
+      intSubRunReader,
+      runReader,
+      subRunReader,
+      intReader1,
+      intReader2,
+      doubleReader
+    ]
+  }
+}
+END_PROLOG

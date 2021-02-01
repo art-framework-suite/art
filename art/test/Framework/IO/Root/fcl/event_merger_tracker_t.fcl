@@ -1,0 +1,32 @@
+#include "outputs.fcl"
+
+process_name: Tracker
+
+source: {
+  module_type: RootInput
+  fileNames: ["../EventMerger_common_t.d/out.root"]
+}
+
+physics: {
+  producers: {
+    intRunProd: {
+      module_type: IntProducer
+      ivalue: 10
+      branchType: 2
+    }
+    intSubRunProd: {
+      module_type: IntProducer
+      ivalue: 12
+      branchType: 1
+    }
+    doubleProd: {
+      module_type: DoubleProducer
+      dvalue: 1.25
+    }
+  }
+  tp: [intRunProd, intSubRunProd, doubleProd]
+  ep: [out]
+}
+
+@table::make_one_output
+outputs.out.outputCommands: ["keep *", "drop *_*_*_Common" ]

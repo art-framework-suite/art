@@ -1,0 +1,23 @@
+#include "outputs.fcl"
+
+process_name: Calo
+
+source: {
+  module_type: RootInput
+  fileNames: ["../EventMerger_common_t.d/out.root"]
+}
+
+physics: {
+  producers: {
+    newProd: {
+      module_type: IntReaderThenProducer
+      inputTag: "prod"
+      deltaValue: 2
+    }
+  }
+  tp: [newProd]
+  ep: [out]
+}
+
+@table::make_one_output
+outputs.out.outputCommands: ["keep *", "drop *_*_*_Common"]

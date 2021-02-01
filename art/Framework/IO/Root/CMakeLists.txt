@@ -40,6 +40,8 @@ art_make_library(
   )
 
 art_make(EXCLUDE
+  EventMergerFileHandler.cc
+  EventMergerFileSequence.cc
   GetFileFormatEra.cc
   GetFileFormatVersion.cc
   config_dumper.cc
@@ -65,6 +67,9 @@ art_make(EXCLUDE
   ${ROOT_TREE}
 )
 
+simple_plugin(EventMerger "source" art_Framework_IO_Root
+  SOURCE EventMerger_source.cc EventMergerFileHandler.cc EventMergerFileSequence.cc
+  )
 simple_plugin(RootInput "source" art_Framework_IO_Root art_Framework_IO_Catalog)
 simple_plugin(RootOutput "module" art_Framework_IO_Root)
 

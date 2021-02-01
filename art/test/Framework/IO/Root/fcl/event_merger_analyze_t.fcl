@@ -1,0 +1,10 @@
+#include "analyze_combination.fcl"
+
+process_name: Analyze
+
+source: {
+  module_type: RootInput
+  fileNames: @nil
+}
+
+@table::analyze_combination

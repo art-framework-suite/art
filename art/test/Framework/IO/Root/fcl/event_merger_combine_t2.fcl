@@ -1,0 +1,15 @@
+#include "outputs.fcl"
+#include "analyze_combination.fcl"
+
+process_name: Combine
+
+source: {
+  module_type: EventMerger
+  fileList: "files_to_combine_t.txt"
+}
+
+@table::analyze_combination
+
+
+physics.ep: [out]
+@table::make_one_output

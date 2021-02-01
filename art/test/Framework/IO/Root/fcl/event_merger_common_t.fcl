@@ -1,0 +1,31 @@
+#include "outputs.fcl"
+
+process_name: Common
+
+source: {
+  module_type: EmptyEvent
+  maxEvents: 100
+}
+
+physics: {
+  producers: {
+    runProd: {
+      module_type: IntProducer
+      ivalue: 5
+      branchType: 2
+    }
+    subRunProd: {
+      module_type: IntProducer
+      ivalue: 6
+      branchType: 1
+    }
+    prod: {
+      module_type: IntProducer
+      ivalue: 7
+    }
+  }
+  tp: [runProd, subRunProd, prod]
+  ep: [out]
+}
+
+@table::make_one_output
