@@ -214,10 +214,8 @@ namespace art {
     auto const producing_services = servicesManager_->registerProducts(
       producedProductDescriptions_, psSignals_, pc);
     pathManager_->createModulesAndWorkers(producing_services);
-    auto end_path_queue = std::make_shared<hep::concurrency::SerialTaskQueue>();
     auto create =
-      [&processName, &pset, &triggerPSet, queue = end_path_queue, this](
-        ScheduleID const sid) {
+      [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
         auto results_inserter =
           maybe_trigger_results_inserter(sid,
                                          processName,
@@ -235,8 +233,7 @@ namespace art {
                                                   scheduler_->actionTable(),
                                                   actReg_,
                                                   outputCallbacks_,
-                                                  move(results_inserter),
-                                                  queue));
+                                                  move(results_inserter)));
       };
     scheduleIteration_.for_each_schedule(create);
     SharedResourcesRegistry::instance()->freeze();
