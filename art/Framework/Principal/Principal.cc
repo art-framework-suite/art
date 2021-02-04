@@ -106,6 +106,17 @@ Principal::addToProcessHistory()
   processHistoryModified_ = true;
 }
 
+
+void
+Principal::setProcessHistory(ProcessHistory&& processHistory)
+{
+  processHistory_ = std::move(processHistory);
+  auto const phid = processHistory_.id();
+  ProcessHistoryRegistry::emplace(phid, processHistory_);
+  setProcessHistoryID(phid);
+  processHistoryModified_ = true;
+}
+
 GroupQueryResult
 Principal::getBySelector(WrappedTypeID const& wrapped,
                          SelectorBase const& sel) const

@@ -128,6 +128,8 @@ namespace art {
       branchMapperPtr_->setDelayedRead(false);
     }
 
+    void setProcessHistory(ProcessHistory&& processHistory);
+
     ProcessHistory const&
     processHistory() const
     {
