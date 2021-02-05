@@ -1192,7 +1192,7 @@ namespace art {
   Principal::tryNextSecondaryFile() const
   {
     int const err =
-      delayedReader_->openNextSecondaryFile(nextSecondaryFileIdx_);
+      delayedReader_->readFromSecondaryFile(nextSecondaryFileIdx_);
     if (err != -2) {
       // there are more files to try
       ++nextSecondaryFileIdx_;

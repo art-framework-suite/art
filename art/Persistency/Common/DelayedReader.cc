@@ -52,13 +52,13 @@ namespace art {
   }
 
   int
-  DelayedReader::openNextSecondaryFile(int idx)
+  DelayedReader::readFromSecondaryFile(int idx)
   {
-    return openNextSecondaryFile_(idx);
+    return readFromSecondaryFile_(idx);
   }
 
   int
-  DelayedReader::openNextSecondaryFile_(int /*idx*/)
+  DelayedReader::readFromSecondaryFile_(int /*idx*/)
   {
     return -2;
   }

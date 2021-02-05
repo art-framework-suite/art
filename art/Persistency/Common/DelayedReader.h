@@ -38,7 +38,7 @@ namespace art {
     void setPrincipal(cet::exempt_ptr<Principal>);
     std::vector<ProductProvenance> readProvenance() const;
     bool isAvailableAfterCombine(ProductID) const;
-    int openNextSecondaryFile(int idx);
+    int readFromSecondaryFile(int idx);
 
     // MEMBER FUNCTIONS -- Implementation details.
   private:
@@ -48,7 +48,7 @@ namespace art {
     virtual void setPrincipal_(cet::exempt_ptr<Principal>);
     virtual std::vector<ProductProvenance> readProvenance_() const;
     virtual bool isAvailableAfterCombine_(ProductID) const;
-    virtual int openNextSecondaryFile_(int idx);
+    virtual int readFromSecondaryFile_(int idx);
   };
 
 } // namespace art
