@@ -29,7 +29,10 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/trim.h"
+#include "hep_concurrency/WaitingTaskHolder.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include "tbb/task.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -39,6 +42,7 @@
 #include <utility>
 #include <vector>
 
+using namespace hep::concurrency;
 using namespace std;
 
 namespace art {
@@ -268,50 +272,89 @@ namespace art {
     endPathInfo_.incrementPassedEventCount();
   }
 
+  class EndPathExecutor::PathsDoneTask {
+  public:
+    PathsDoneTask(EndPathExecutor* const endPathExec,
+                  tbb::task* const finalizeEventTask)
+      : endPathExec_{endPathExec}, finalizeEventTask_{finalizeEventTask}
+    {}
+
+    void
+    operator()(exception_ptr const ex)
+    {
+      WaitingTaskHolder wth(finalizeEventTask_);
+      auto const scheduleID = endPathExec_->sc_.id();
+
+      // Note: When we start our parent task is the eventLoop task.
+      TDEBUG_BEGIN_TASK_SI(4, scheduleID);
+
+      if (ex) {
+        try {
+          rethrow_exception(ex);
+        }
+        catch (cet::exception& e) {
+          Exception tmp(errors::EventProcessorFailure, "EndPathExecutor:");
+          tmp << "an exception occurred during current event processing\n" << e;
+          wth.doneWaiting(make_exception_ptr(tmp));
+          TDEBUG_END_TASK_SI(4, scheduleID)
+            << "end path processing terminate because of EXCEPTION";
+          return;
+        }
+        catch (...) {
+          wth.doneWaiting(current_exception());
+          TDEBUG_END_TASK_SI(4, scheduleID)
+            << "end path processing terminate because of EXCEPTION";
+          return;
+        }
+      }
+
+      endPathExec_->endPathInfo_.incrementPassedEventCount();
+
+      // And end this task, which does not terminate event processing
+      // because our parent is the nullptr.
+      tbb::task::self().set_parent(nullptr);
+
+      // Start the finalizeEventTask going.
+      wth.doneWaiting();
+      TDEBUG_END_TASK_SI(4, scheduleID);
+    }
+
+  private:
+    EndPathExecutor* const endPathExec_;
+    tbb::task* const finalizeEventTask_;
+  };
+
   // Note: We come here as part of the endPath task, our
   // parent task is the eventLoop task.
   void
-  EndPathExecutor::process_event(EventPrincipal& ep)
+  EndPathExecutor::process_event(tbb::task* finalizeEventTask,
+                                 EventPrincipal& ep)
   {
     auto const sid = sc_.id();
     TDEBUG_BEGIN_FUNC_SI(4, sid);
     for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = label_and_worker.second;
-      w->reset();
+      label_and_worker.second->reset();
     }
     endPathInfo_.incrementTotalEventCount();
     try {
+      auto pathsDoneTask = make_waiting_task(
+        tbb::task::allocate_root(), PathsDoneTask{this, finalizeEventTask});
+      // Note: We create the holder here to increment the ref count on
+      // the pathsDoneTask so that if a path errors quickly and
+      // decrements the ref count (using doneWaiting) the task will
+      // not run until we have actually started all the tasks.  Note:
+      // This is critically dependent on the path incrementing the ref
+      // count the first thing it does (by putting the task into a
+      // WaitingTaskList).
+      WaitingTaskHolder wth(pathsDoneTask);
       if (!endPathInfo_.paths().empty()) {
-        endPathInfo_.paths().front()->process_endpath(ep);
+        endPathInfo_.paths().front()->process(pathsDoneTask, ep);
       }
-    }
-    catch (cet::exception& ex) {
-      // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
-      // FailPath
-      auto const action{actionTable_.find(ex.root_cause())};
-      if (action != actions::IgnoreCompletely) {
-        // Possible actions: Rethrow, SkipEvent, FailModule, FailPath
-        TDEBUG_END_FUNC_SI(4, sid) << "because of EXCEPTION";
-        throw Exception(errors::EventProcessorFailure, "EndPathExecutor:")
-          << "an exception occurred during current event processing\n"
-          << ex;
-      }
-      // Possible actions: IgnoreCompletely
-      mf::LogWarning(ex.category())
-        << "exception being ignored for current event:\n"
-        << cet::trim_right_copy(ex.what(), " \n");
-      // WARNING: Processing continues below!!!
-      // WARNING: We can only get here if an exception in end path
-      // processing is being ignored for the current event because
-      // the action is actions::IgnoreCompletely.
     }
     catch (...) {
-      mf::LogError("PassingThrough")
-        << "an exception occurred during current event processing\n";
-      TDEBUG_END_FUNC_SI(4, sid) << "because of EXCEPTION";
-      throw;
+      WaitingTaskHolder wth(finalizeEventTask);
+      wth.doneWaiting(current_exception());
     }
-    endPathInfo_.incrementPassedEventCount();
     TDEBUG_END_FUNC_SI(4, sid);
   }
 

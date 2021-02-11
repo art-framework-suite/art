@@ -58,7 +58,6 @@ namespace art {
     void clearCounters();
     void process(Transition, Principal&);
     void process(tbb::task* pathsDoneTask, EventPrincipal&);
-    void process_endpath(EventPrincipal&);
 
   private:
     class RunWorkerTask;

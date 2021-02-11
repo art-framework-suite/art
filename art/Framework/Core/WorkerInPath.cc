@@ -142,37 +142,6 @@ namespace art {
     return true;
   }
 
-  void
-  WorkerInPath::run_for_endpath(EventPrincipal& ep)
-  {
-    auto const scheduleID = moduleContext_.scheduleID();
-    TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
-    ++counts_visited_;
-    try {
-      worker_.load()->doWork_event(ep, moduleContext_);
-    }
-    catch (...) {
-      ++counts_thrown_;
-      TDEBUG_END_FUNC_SI(4, scheduleID) << "because of EXCEPTION";
-      throw;
-    }
-    returnCode_ = worker_.load()->returnCode();
-    TDEBUG_FUNC_SI(5, scheduleID) << "raw returnCode_: " << returnCode_.load();
-    if (filterAction_.load() == FilterAction::Veto) {
-      returnCode_ = !returnCode_.load();
-    } else if (filterAction_.load() == FilterAction::Ignore) {
-      returnCode_ = true;
-    }
-    TDEBUG_FUNC_SI(5, scheduleID)
-      << "final returnCode_: " << returnCode_.load();
-    if (returnCode_.load()) {
-      ++counts_passed_;
-    } else {
-      ++counts_failed_;
-    }
-    TDEBUG_END_FUNC_SI(4, scheduleID);
-  }
-
   class WorkerInPath::WorkerInPathDoneTask {
   public:
     WorkerInPathDoneTask(WorkerInPath* wip, ScheduleID const scheduleID)

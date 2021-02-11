@@ -63,7 +63,6 @@ namespace art {
     std::string const& label() const;
     bool run(Transition, Principal&);
     void run(tbb::task* workerDoneTask, EventPrincipal&);
-    void run_for_endpath(EventPrincipal&);
     void clearCounters();
 
     // Used by writeSummary

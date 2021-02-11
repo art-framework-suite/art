@@ -83,7 +83,7 @@ namespace art {
     // Used to make sure only one event is being processed at a time.
     // The schedules take turns having their events processed on a
     // first-come first-served basis (FIFO).
-    void process_event(EventPrincipal&);
+    void process_event(tbb::task* finalizeEventTask, EventPrincipal&);
     void writeEvent(EventPrincipal&);
 
     // Output File Switching API
@@ -121,6 +121,8 @@ namespace art {
     bool allAtLimit() const;
 
   private:
+    class PathsDoneTask;
+
     // Filled by ctor, const after that.
     ScheduleContext const sc_;
     ActionTable const& actionTable_;

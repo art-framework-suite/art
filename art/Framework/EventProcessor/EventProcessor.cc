@@ -214,10 +214,8 @@ namespace art {
     auto const producing_services = servicesManager_->registerProducts(
       producedProductDescriptions_, psSignals_, pc);
     pathManager_->createModulesAndWorkers(producing_services);
-    auto end_path_queue = std::make_shared<hep::concurrency::SerialTaskQueue>();
     auto create =
-      [&processName, &pset, &triggerPSet, queue = end_path_queue, this](
-        ScheduleID const sid) {
+      [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
         auto results_inserter =
           maybe_trigger_results_inserter(sid,
                                          processName,
@@ -235,8 +233,7 @@ namespace art {
                                                   scheduler_->actionTable(),
                                                   actReg_,
                                                   outputCallbacks_,
-                                                  move(results_inserter),
-                                                  queue));
+                                                  move(results_inserter)));
       };
     scheduleIteration_.for_each_schedule(create);
     SharedResourcesRegistry::instance()->freeze();
@@ -1319,40 +1316,41 @@ namespace art {
     {}
 
     void
-    operator()() const
+    operator()(std::exception_ptr ex) const
     {
       TDEBUG_BEGIN_TASK_SI(4, sid_);
+      if (ex) {
+        try {
+          rethrow_exception(ex);
+        }
+        catch (cet::exception& e) {
+          tbb::task::self().set_parent(eventLoopTask_);
+          if (evp_->error_action(e) != actions::IgnoreCompletely) {
+            evp_->sharedException_.store<Exception>(
+              errors::EventProcessorFailure,
+              "EventProcessor: an exception occurred during current "
+              "event processing",
+              e);
+            TDEBUG_END_TASK_SI(4, sid_);
+            return;
+          }
+          mf::LogWarning(e.category())
+            << "exception being ignored for current event:\n"
+            << cet::trim_right_copy(e.what(), " \n");
+          // WARNING: We continue processing after the catch blocks!!!
+        }
+        catch (...) {
+          mf::LogError("PassingThrough")
+            << "an exception occurred during current event processing\n";
+          evp_->sharedException_.store_current();
+          TDEBUG_END_TASK_SI(4, sid_);
+          return;
+        }
+      }
+
       // Arrange it so that we can terminate event processing if we
       // want to.
       tbb::task::self().set_parent(eventLoopTask_);
-      try {
-        evp_->schedule(sid_).process_event_observers();
-      }
-      catch (cet::exception& e) {
-        if (evp_->error_action(e) != actions::IgnoreCompletely) {
-          evp_->sharedException_.store<Exception>(
-            errors::EventProcessorFailure,
-            "EventProcessor: an exception occurred during current event "
-            "processing",
-            e);
-          TDEBUG_END_TASK_SI(4, sid_)
-            << "terminate event loop because of EXCEPTION";
-          return;
-        }
-        mf::LogWarning(e.category())
-          << "exception being ignored for current event:\n"
-          << cet::trim_right_copy(e.what(), " \n");
-        // WARNING: We continue processing after the catch blocks!!!
-      }
-      catch (...) {
-        mf::LogError("PassingThrough")
-          << "an exception occurred during current event processing\n";
-        evp_->sharedException_.store_current();
-        TDEBUG_END_TASK_SI(4, sid_)
-          << "terminate event loop because of EXCEPTION";
-        return;
-      }
-
       evp_->finishEventAsync(eventLoopTask_, sid_);
 
       // We do not terminate event processing when we end because
@@ -1410,13 +1408,42 @@ namespace art {
         }
       }
 
-      tbb::task::self().set_parent(nullptr);
-      evp_->schedule(sid_).push_onto_end_path_queue(
-        EndPathRunnerTask{evp_, sid_, eventLoopTask_});
-      // Once the end path processing and event finalization
-      // processing is queued we are done, exit this task, which does
-      // not end event processing because our parent is the nullptr
-      // because we transferred it to the endPathTask.
+      auto finalize_event_task =
+        make_waiting_task(tbb::task::self().allocate_continuation(),
+                          EndPathRunnerTask{evp_, sid_, eventLoopTask_});
+      try {
+        evp_->schedule(sid_).process_event_observers(finalize_event_task);
+      }
+      catch (cet::exception& e) {
+        tbb::task::self().set_parent(eventLoopTask_);
+        if (evp_->error_action(e) != actions::IgnoreCompletely) {
+          evp_->sharedException_.store<Exception>(
+            errors::EventProcessorFailure,
+            "EventProcessor: an exception occurred during current event "
+            "processing",
+            e);
+          TDEBUG_END_TASK_SI(4, sid_)
+            << "terminate event loop because of EXCEPTION";
+          return;
+        }
+        mf::LogWarning(e.category())
+          << "exception being ignored for current event:\n"
+          << cet::trim_right_copy(e.what(), " \n");
+        // WARNING: We continue processing after the catch blocks!!!
+      }
+      catch (...) {
+        mf::LogError("PassingThrough")
+          << "an exception occurred during current event processing\n";
+        evp_->sharedException_.store_current();
+        TDEBUG_END_TASK_SI(4, sid_)
+          << "terminate event loop because of EXCEPTION";
+        tbb::task::self().set_parent(eventLoopTask_);
+        return;
+      }
+
+      // Once the end path processing is done, exit this task, which
+      // does not end event-processing because of the continuation
+      // task.
       TDEBUG_END_TASK_SI(4, sid_);
     }
 
@@ -1498,6 +1525,8 @@ namespace art {
       // loop.
       FDEBUG(1) << string(8, ' ') << "shouldWeStop\n";
       TDEBUG_FUNC_SI(5, sid) << "Calling schedules_->allAtLimit()";
+      static std::mutex m;
+      std::lock_guard sentry{m};
       if (schedule(sid).allAtLimit()) {
         // Set to return to the File level.
         nextLevel_ = highest_level();

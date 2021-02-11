@@ -63,10 +63,9 @@ namespace art {
   class EventPrincipal;
 
   class Worker {
-
     friend class RunWorkerFunctor;
 
-  public: // TYPES
+  public:
     enum State : int {
       Ready = 0,
       Pass = 1,
@@ -75,14 +74,11 @@ namespace art {
       ExceptionThrown = 4
     };
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~Worker() = default;
     Worker(ModuleDescription const&, WorkerParams const&);
     Worker(Worker const&) = delete;
     Worker(Worker&) = delete;
 
-  public: // MEMBER FUNCTIONS -- API exposed to EventProcessor, Schedule,
-          // and EndPathExecutor
     void beginJob();
     void endJob();
     void respondToOpenInputFile(FileBlock const& fb);
@@ -95,8 +91,7 @@ namespace art {
                       EventPrincipal&,
                       ModuleContext const&);
 
-    // This is used to do trigger results insertion, and to run
-    // workers on the end path.
+    // This is used only to do trigger results insertion.
     void doWork_event(EventPrincipal&, ModuleContext const&);
 
     ScheduleID
@@ -124,10 +119,9 @@ namespace art {
     std::size_t timesFailed() const;
     std::size_t timesExcept() const;
 
-  public: // Tasking Structure
     void runWorker(EventPrincipal&, ModuleContext const&);
 
-  protected: // MEMBER FUNCTIONS -- API implementation classes must provide
+  protected:
     virtual std::string workerType() const = 0;
     virtual hep::concurrency::SerialTaskQueueChain* implSerialTaskQueueChain()
       const = 0;

@@ -43,20 +43,17 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  Schedule::Schedule(
-    ScheduleID const scheduleID,
-    PathManager& pm,
-    ActionTable const& actions,
-    ActivityRegistry const& actReg,
-    UpdateOutputCallbacks& outputCallbacks,
-    std::unique_ptr<Worker> triggerResultsInserter,
-    std::shared_ptr<hep::concurrency::SerialTaskQueue> end_path_queue)
+  Schedule::Schedule(ScheduleID const scheduleID,
+                     PathManager& pm,
+                     ActionTable const& actions,
+                     ActivityRegistry const& actReg,
+                     UpdateOutputCallbacks& outputCallbacks,
+                     std::unique_ptr<Worker> triggerResultsInserter)
     : context_{scheduleID}
     , actions_{actions}
     , actReg_{actReg}
     , epExec_{scheduleID, pm, actions, actReg_, outputCallbacks}
     , tpsExec_{scheduleID, pm, actions, move(triggerResultsInserter)}
-    , endPathQueue_{end_path_queue}
   {
     TDEBUG_FUNC_SI(5, scheduleID) << hex << this << dec;
   }
@@ -122,9 +119,9 @@ namespace art {
   }
 
   void
-  Schedule::process_event_observers()
+  Schedule::process_event_observers(tbb::task* finalizeEventTask)
   {
-    epExec_.process_event(*eventPrincipal_);
+    epExec_.process_event(finalizeEventTask, *eventPrincipal_);
   }
 
 } // namespace art

@@ -367,118 +367,104 @@ namespace art {
     return rc;
   }
 
-  // This is used to do trigger results insertion, and to run workers
-  // on the end path.
+  // This is used only to do trigger results insertion.
   void
-  Worker::doWork_event(EventPrincipal& p, ModuleContext const& mc)
-  {
+  Worker::doWork_event(EventPrincipal& p, ModuleContext const& mc) try {
     ++counts_visited_;
     returnCode_ = false;
-    try {
-      // Transition from Ready state to Working state.
-      state_ = Working;
-      actReg_.sPreModule.invoke(mc);
-      // Note: Only filters ever return false, and when they do it
-      // means they have rejected.
-      returnCode_ = implDoProcess(p, mc);
-      actReg_.sPostModule.invoke(mc);
-      if (returnCode_.load()) {
-        state_ = Pass;
-      } else {
-        state_ = Fail;
-      }
-    }
-    catch (cet::exception& e) {
-      auto action = actions_.find(e.root_cause());
-      // If we are processing an endPath, treat SkipEvent or FailPath
-      // as FailModule, so any subsequent OutputModules are still run.
-      if (mc.onEndPath()) {
-        if ((action == actions::SkipEvent) || (action == actions::FailPath)) {
-          action = actions::FailModule;
-        }
-      }
-      if (action == actions::IgnoreCompletely) {
-        state_ = Pass;
-        returnCode_ = true;
-        ++counts_passed_;
-        mf::LogWarning("IgnoreCompletely") << "Module ignored an exception\n"
-                                           << e.what() << "\n";
-        // WARNING: We will continue execution below!!!
-      } else if (action == actions::FailModule) {
-        state_ = Fail;
-        returnCode_ = true;
-        ++counts_failed_;
-        mf::LogWarning("FailModule") << "Module failed due to an exception\n"
-                                     << e.what() << "\n";
-        // WARNING: We will continue execution below!!!
-      } else {
-        state_ = ExceptionThrown;
-        ++counts_thrown_;
-        e << "The above exception was thrown while processing module "
-          << brief_context(md_, p) << '\n';
-        if (auto edmEx = dynamic_cast<Exception*>(&e)) {
-          cached_exception_ = make_exception_ptr(*edmEx);
-        } else {
-          cached_exception_ =
-            make_exception_ptr(Exception{errors::OtherArt, string(), e});
-        }
-        rethrow_exception(cached_exception_);
-      }
-    }
-    catch (bad_alloc const& bda) {
+    // Transition from Ready state to Working state.
+    state_ = Working;
+    actReg_.sPreModule.invoke(mc);
+    // Note: Only the TriggerResults inserter--a producer--calls this
+    // function.  The return code is thus always true.
+    returnCode_ = implDoProcess(p, mc);
+    actReg_.sPostModule.invoke(mc);
+    assert(returnCode_.load());
+    state_ = Pass;
+  }
+  catch (cet::exception& e) {
+    auto action = actions_.find(e.root_cause());
+    assert(not mc.onEndPath());
+    if (action == actions::IgnoreCompletely) {
+      state_ = Pass;
+      returnCode_ = true;
+      ++counts_passed_;
+      mf::LogWarning("IgnoreCompletely") << "Module ignored an exception\n"
+                                         << e.what() << "\n";
+      // WARNING: We will continue execution below!!!
+    } else if (action == actions::FailModule) {
+      state_ = Fail;
+      returnCode_ = true;
+      ++counts_failed_;
+      mf::LogWarning("FailModule") << "Module failed due to an exception\n"
+                                   << e.what() << "\n";
+      // WARNING: We will continue execution below!!!
+    } else {
       state_ = ExceptionThrown;
       ++counts_thrown_;
-      auto art_ex =
-        Exception{errors::BadAlloc}
-        << "A bad_alloc exception occurred during a call to the module "
-        << brief_context(md_, p) << '\n'
-        << "The job has probably exhausted the virtual memory available to the "
-           "process.\n";
-      cached_exception_ = make_exception_ptr(art_ex);
-      rethrow_exception(cached_exception_);
-    }
-    catch (exception const& e) {
-      state_ = ExceptionThrown;
-      ++counts_thrown_;
-      auto art_ex = Exception{errors::StdException}
-                    << "An exception occurred during a call to the module "
-                    << brief_context(md_, p) << '\n'
-                    << e.what();
-      cached_exception_ = make_exception_ptr(art_ex);
-      rethrow_exception(cached_exception_);
-    }
-    catch (string const& s) {
-      state_ = ExceptionThrown;
-      ++counts_thrown_;
-      auto art_ex = Exception{errors::BadExceptionType, "string"}
-                    << "A string thrown as an exception occurred during a call "
-                       "to the module "
-                    << brief_context(md_, p) << '\n'
-                    << s << '\n';
-      cached_exception_ = make_exception_ptr(art_ex);
-      rethrow_exception(cached_exception_);
-    }
-    catch (char const* c) {
-      state_ = ExceptionThrown;
-      ++counts_thrown_;
-      auto art_ex = Exception{errors::BadExceptionType, "char const*"}
-                    << "A char const* thrown as an exception occurred during a "
-                       "call to the module "
-                    << brief_context(md_, p) << '\n'
-                    << c << "\n";
-      cached_exception_ = make_exception_ptr(art_ex);
-      rethrow_exception(cached_exception_);
-    }
-    catch (...) {
-      ++counts_thrown_;
-      state_ = ExceptionThrown;
-      auto art_ex =
-        Exception{errors::Unknown, "repeated"}
-        << "An unknown occurred during a previous call to the module "
+      e << "The above exception was thrown while processing module "
         << brief_context(md_, p) << '\n';
-      cached_exception_ = make_exception_ptr(art_ex);
+      if (auto edmEx = dynamic_cast<Exception*>(&e)) {
+        cached_exception_ = make_exception_ptr(*edmEx);
+      } else {
+        cached_exception_ =
+          make_exception_ptr(Exception{errors::OtherArt, string(), e});
+      }
       rethrow_exception(cached_exception_);
     }
+  }
+  catch (bad_alloc const& bda) {
+    state_ = ExceptionThrown;
+    ++counts_thrown_;
+    auto art_ex =
+      Exception{errors::BadAlloc}
+      << "A bad_alloc exception occurred during a call to the module "
+      << brief_context(md_, p) << '\n'
+      << "The job has probably exhausted the virtual memory available to the "
+         "process.\n";
+    cached_exception_ = make_exception_ptr(art_ex);
+    rethrow_exception(cached_exception_);
+  }
+  catch (exception const& e) {
+    state_ = ExceptionThrown;
+    ++counts_thrown_;
+    auto art_ex = Exception{errors::StdException}
+                  << "An exception occurred during a call to the module "
+                  << brief_context(md_, p) << '\n'
+                  << e.what();
+    cached_exception_ = make_exception_ptr(art_ex);
+    rethrow_exception(cached_exception_);
+  }
+  catch (string const& s) {
+    state_ = ExceptionThrown;
+    ++counts_thrown_;
+    auto art_ex = Exception{errors::BadExceptionType, "string"}
+                  << "A string thrown as an exception occurred during a call "
+                     "to the module "
+                  << brief_context(md_, p) << '\n'
+                  << s << '\n';
+    cached_exception_ = make_exception_ptr(art_ex);
+    rethrow_exception(cached_exception_);
+  }
+  catch (char const* c) {
+    state_ = ExceptionThrown;
+    ++counts_thrown_;
+    auto art_ex = Exception{errors::BadExceptionType, "char const*"}
+                  << "A char const* thrown as an exception occurred during a "
+                     "call to the module "
+                  << brief_context(md_, p) << '\n'
+                  << c << "\n";
+    cached_exception_ = make_exception_ptr(art_ex);
+    rethrow_exception(cached_exception_);
+  }
+  catch (...) {
+    ++counts_thrown_;
+    state_ = ExceptionThrown;
+    auto art_ex = Exception{errors::Unknown, "repeated"}
+                  << "An unknown occurred during a previous call to the module "
+                  << brief_context(md_, p) << '\n';
+    cached_exception_ = make_exception_ptr(art_ex);
+    rethrow_exception(cached_exception_);
   }
 
   namespace {
