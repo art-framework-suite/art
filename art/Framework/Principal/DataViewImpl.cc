@@ -22,7 +22,6 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-#include "hep_concurrency/RecursiveMutex.h"
 
 #include <algorithm>
 #include <cstddef>

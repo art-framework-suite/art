@@ -31,7 +31,6 @@
 #include "cetlib/container_algorithms.h"
 #include "cetlib/no_delete.h"
 #include "cetlib_except/exception.h"
-#include "hep_concurrency/RecursiveMutex.h"
 #include "hep_concurrency/assert_only_one_thread.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -113,7 +112,7 @@ namespace art {
   bool
   RandomNumberGenerator::invariant_holds_(ScheduleID const sid)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     return (data_[sid].dict_.size() == data_[sid].tracker_.size()) &&
            (data_[sid].dict_.size() == data_[sid].kind_.size());
   }
@@ -141,7 +140,7 @@ namespace art {
                                       string const& requested_engine_kind,
                                       string const& engine_label)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     if (!engine_creation_is_okay_) {
       throw cet::exception("RANDOM")
         << "RNGservice::createEngine():\n"
@@ -237,7 +236,7 @@ namespace art {
   void
   RandomNumberGenerator::print_() const
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     static unsigned ncalls = 0;
     if (!debug_ || (++ncalls > nPrint_)) {
       return;
@@ -261,14 +260,14 @@ namespace art {
   vector<RNGsnapshot> const&
   RandomNumberGenerator::accessSnapshot_(ScheduleID const sid) const
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     return data_[sid].snapshot_;
   }
 
   void
   RandomNumberGenerator::takeSnapshot_(ScheduleID const sid)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     mf::LogDebug log{"RANDOM"};
     log << "RNGservice::takeSnapshot_() of the following engine labels:\n";
     data_[sid].snapshot_.clear();
@@ -287,7 +286,7 @@ namespace art {
   RandomNumberGenerator::restoreSnapshot_(ScheduleID const sid,
                                           Event const& event)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     if (restoreStateLabel_.empty()) {
       return;
     }
@@ -331,7 +330,7 @@ namespace art {
   void
   RandomNumberGenerator::saveToFile_()
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     if (saveToFilename_.empty()) {
       return;
     }
@@ -361,7 +360,7 @@ namespace art {
   void
   RandomNumberGenerator::restoreFromFile_()
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     if (restoreFromFilename_.empty()) {
       return;
     }
@@ -422,7 +421,7 @@ namespace art {
   void
   RandomNumberGenerator::postBeginJob()
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     restoreFromFile_();
     engine_creation_is_okay_ = false;
   }
@@ -432,7 +431,7 @@ namespace art {
                                          ScheduleContext const sc)
   {
     auto const sid = sc.id();
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     takeSnapshot_(sid);
     restoreSnapshot_(sid, e);
   }
@@ -442,7 +441,7 @@ namespace art {
   {
     // For normal termination, we wish to save the state at the *end* of
     // processing, not at the beginning of the last event.
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     ScheduleIteration iteration(data_.size());
     iteration.for_each_schedule(
       [this](ScheduleID const sid) { takeSnapshot_(sid); });

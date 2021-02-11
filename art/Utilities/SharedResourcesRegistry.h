@@ -3,12 +3,11 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Utilities/SharedResource.h"
-#include "hep_concurrency/RecursiveMutex.h"
-#include "hep_concurrency/tsan.h"
 
 #include <atomic>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <utility>
 #include <vector>
@@ -55,7 +54,7 @@ namespace art {
     createQueues(std::vector<std::string> const& resourceNames) const;
 
   private:
-    mutable hep::concurrency::RecursiveMutex mutex_{"srr::mutex_"};
+    mutable std::recursive_mutex mutex_;
     std::map<std::string, QueueAndCounter> resourceMap_;
     bool frozen_;
     unsigned nLegacy_;

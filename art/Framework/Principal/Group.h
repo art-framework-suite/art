@@ -20,7 +20,6 @@
 #include "canvas/Utilities/WrappedTypeID.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
-#include "hep_concurrency/RecursiveMutex.h"
 
 #include <algorithm>
 #include <atomic>
@@ -94,7 +93,7 @@ namespace art {
     // a product with this locked to make the updating
     // of provenance and product pointers together one atomic
     // transaction.
-    mutable hep::concurrency::RecursiveMutex mutex_{"Group::mutex_"};
+    mutable std::recursive_mutex mutex_{};
     // The product provenance for the data product.
     // Note: Modified by setProductProvenance (called by Principal ctors and
     // Principal::insert_pp (called by Principal::put).

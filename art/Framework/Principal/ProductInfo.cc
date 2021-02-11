@@ -1,5 +1,6 @@
 #include "art/Framework/Principal/ProductInfo.h"
 
+#include <ostream>
 #include <tuple>
 
 using namespace std;

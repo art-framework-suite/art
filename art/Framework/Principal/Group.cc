@@ -7,7 +7,6 @@
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Utilities/WrappedTypeID.h"
 #include "cetlib_except/demangle.h"
-#include "hep_concurrency/RecursiveMutex.h"
 #include "range/v3/view.hpp"
 
 #include <iostream>
@@ -53,7 +52,7 @@ namespace art {
   EDProduct const*
   Group::getIt_() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     if (grpType_ == grouptype::normal) {
       resolveProductIfAvailable();
       return product_.load();
@@ -64,7 +63,7 @@ namespace art {
   EDProduct const*
   Group::anyProduct() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     if (grpType_ == grouptype::normal) {
       return product_.load();
     }
@@ -88,7 +87,7 @@ namespace art {
   EDProduct const*
   Group::uniqueProduct() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     if (grpType_ == grouptype::normal) {
       return product_.load();
     }
@@ -101,7 +100,7 @@ namespace art {
   EDProduct const*
   Group::uniqueProduct(TypeID const& wanted_wrapper_type) const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     if (product_.load() == nullptr) {
       return nullptr;
     }
@@ -148,14 +147,14 @@ namespace art {
   RangeSet const&
   Group::rangeOfValidity() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     return *rangeSet_.load();
   }
 
   cet::exempt_ptr<ProductProvenance const>
   Group::productProvenance() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     return productProvenance_.load();
   }
 
@@ -165,7 +164,7 @@ namespace art {
   void
   Group::setProductProvenance(unique_ptr<ProductProvenance const>&& pp)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     delete productProvenance_.load();
     productProvenance_ = pp.release();
   }
@@ -176,7 +175,7 @@ namespace art {
                                  unique_ptr<EDProduct>&& edp,
                                  unique_ptr<RangeSet>&& rs)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     delete productProvenance_.load();
     productProvenance_ = pp.release();
     delete product_.load();
@@ -188,7 +187,7 @@ namespace art {
   void
   Group::removeCachedProduct()
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     if (branchDescription_.produced()) {
       throw Exception(errors::LogicError, "Group::removeCachedProduct():")
         << "Attempt to remove a produced product!\n"
@@ -222,7 +221,7 @@ namespace art {
       return false;
     }
     assert(branchDescription_.present() || branchDescription_.produced());
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     bool availableAfterCombine{false};
     if ((branchDescription_.branchType() == InSubRun) ||
         (branchDescription_.branchType() == InRun)) {
@@ -297,7 +296,7 @@ namespace art {
   Group::resolveProductIfAvailable(
     TypeID wanted_wrapper_type /*= TypeID{}*/) const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     // Now try to get the master product.
     if (product_.load() == nullptr) {
       // Not already resolved.
@@ -387,7 +386,7 @@ namespace art {
   bool
   Group::tryToResolveProduct(TypeID const& wanted_wrapper)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     resolveProductIfAvailable(wanted_wrapper);
 
     // If the product is a dummy filler, it will now be marked unavailable.

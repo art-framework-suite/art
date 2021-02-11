@@ -21,8 +21,8 @@
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/RecursiveMutex.h"
 
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -54,8 +54,7 @@ namespace art {
     std::string prependFileDesignation(std::string const& name) const;
 
     // Protects all data members.
-    mutable hep::concurrency::RecursiveMutex mutex_{
-      "art::TrivialFileDelivery::mutex_"};
+    mutable std::recursive_mutex mutex_{};
     std::vector<std::string> fileList_{};
     std::vector<std::string>::const_iterator nextFile_{fileList_.cbegin()};
     std::vector<std::string>::const_iterator endOfFiles_{fileList_.cend()};

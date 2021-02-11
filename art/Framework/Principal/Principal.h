@@ -43,10 +43,10 @@
 #include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedTypeID.h"
 #include "cetlib/exempt_ptr.h"
-#include "hep_concurrency/RecursiveMutex.h"
 
 #include <atomic>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -376,8 +376,7 @@ namespace art {
     std::atomic<bool> enableLookupOfProducedProducts_;
 
     // Protects access to groups_.
-    mutable hep::concurrency::RecursiveMutex groupMutex_{
-      "Principal::groupMutex_"};
+    mutable std::recursive_mutex groupMutex_{};
 
     // All of the currently known data products.
     // tbb::concurrent_unordered_map<ProductID, std::unique_ptr<Group>>

@@ -3,7 +3,6 @@
 
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
-#include "hep_concurrency/RecursiveMutex.h"
 #include "hep_concurrency/SerialTaskQueue.h"
 #include "hep_concurrency/tsan.h"
 
@@ -79,7 +78,7 @@ namespace art {
   SharedResourcesRegistry::updateSharedResource(string const& name) noexcept(
     false)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     if (frozen_) {
       throw art::Exception{art::errors::LogicError, error_context(name)}
         << "The shared-resources registry has been frozen.  All 'serialize' "
@@ -126,7 +125,7 @@ namespace art {
   SharedResourcesRegistry::registerSharedResource(
     detail::SharedResource_t const& resource)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     resourceMap_[resource.name];
   }
 
@@ -134,7 +133,7 @@ namespace art {
   SharedResourcesRegistry::registerSharedResource(string const& name) noexcept(
     false)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     // Note: This has the intended side-effect of creating the entry
     // if it does not yet exist.
     resourceMap_[name];
@@ -150,7 +149,7 @@ namespace art {
   vector<shared_ptr<SerialTaskQueue>>
   SharedResourcesRegistry::createQueues(string const& resourceName) const
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     vector const names{resourceName};
     return createQueues(names);
   }
@@ -159,7 +158,7 @@ namespace art {
   SharedResourcesRegistry::createQueues(
     vector<string> const& resourceNames) const
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     map<pair<unsigned, string>, shared_ptr<SerialTaskQueue>> sortedResources;
     if (cet::search_all(resourceNames, Legacy.name)) {
       // This acquirer is for a legacy module, get the queues for all

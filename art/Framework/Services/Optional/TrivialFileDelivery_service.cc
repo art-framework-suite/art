@@ -38,7 +38,7 @@ namespace art {
   void
   TrivialFileDelivery::doConfigure(vector<string> const& items)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     fileList_ = items;
     nextFile_ = fileList_.begin();
     endOfFiles_ = fileList_.end();
@@ -47,7 +47,7 @@ namespace art {
   int
   TrivialFileDelivery::doGetNextFileURI(string& uri, double& waitTime)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     FileDeliveryStatus stat;
     if (nextFile_ == endOfFiles_) {
       stat = FileDeliveryStatus::NO_MORE_FILES;
@@ -105,14 +105,14 @@ namespace art {
   void
   TrivialFileDelivery::doRewind()
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     nextFile_ = fileList_.begin();
   }
 
   string
   TrivialFileDelivery::prependFileDesignation(string const& name) const
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     string ret{"file://"};
     ret += name;
     return ret;

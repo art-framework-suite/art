@@ -87,7 +87,7 @@ namespace art {
   void
   FileCatalogMetadata::addMetadata(string const& key, string const& value)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     if (checkSyntax_) {
       // rapidjson claims to be largely re-entrant, according to
       // https://github.com/miloyip/rapidjson/issues/141.  Therefore, we
@@ -114,7 +114,7 @@ namespace art {
   void
   FileCatalogMetadata::setMetadataFromInput(collection_type const& mdFromInput)
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     if (mdToInherit_.empty()) {
       return;
     }
@@ -131,7 +131,7 @@ namespace art {
   void
   FileCatalogMetadata::getMetadata(collection_type& coll) const
   {
-    RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     cet::copy_all(md_, back_inserter(coll));
   }
 
