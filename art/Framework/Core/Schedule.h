@@ -17,6 +17,7 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/TriggerPathsExecutor.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "hep_concurrency/SerialTaskQueue.h"
 
 #include <atomic>
 #include <functional>
@@ -38,7 +39,8 @@ namespace art {
              ActionTable const& actions,
              ActivityRegistry const& aReg,
              UpdateOutputCallbacks& outputCallbacks,
-             std::unique_ptr<Worker> triggerResultsInserter);
+             std::unique_ptr<Worker> triggerResultsInserter,
+             std::shared_ptr<hep::concurrency::SerialTaskQueue> end_path_queue);
 
     // Disable copy/move operations
     Schedule(Schedule const&) = delete;
@@ -195,6 +197,13 @@ namespace art {
       return *eventPrincipal_;
     }
 
+    template <typename T>
+    void
+    push_onto_end_path_queue(T t)
+    {
+      endPathQueue_->push(std::move(t));
+    }
+
     class EndPathRunnerTask;
 
   private:
@@ -203,6 +212,9 @@ namespace art {
     ActivityRegistry const& actReg_;
     EndPathExecutor epExec_;
     TriggerPathsExecutor tpsExec_;
+
+    // Shared with other schedules
+    std::shared_ptr<hep::concurrency::SerialTaskQueue> endPathQueue_{};
     std::unique_ptr<EventPrincipal> eventPrincipal_{nullptr};
   };
 } // namespace art
