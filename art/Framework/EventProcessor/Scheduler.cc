@@ -6,8 +6,6 @@
 #include "cetlib/getenv.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "tbb/task.h"
-#include "tbb/task_arena.h"
 
 #include <cstdlib>
 #include <string>
@@ -41,6 +39,9 @@ namespace {
       << rule('=');
     return max_threads;
   }
+
+  constexpr auto max_parallelism = tbb::global_control::max_allowed_parallelism;
+  constexpr auto thread_stack_size = tbb::global_control::thread_stack_size;
 }
 
 namespace art {
@@ -64,11 +65,17 @@ namespace art {
   void
   Scheduler::initialize_task_manager()
   {
-    tbbManager_.initialize(nThreads_, stackSize_);
+    using tbb::global_control;
+    auto value_of = [](auto const field) {
+      return global_control::active_value(field);
+    };
+    threadControl_ =
+      std::make_unique<global_control>(max_parallelism, nThreads_);
+    stackSizeControl_ =
+      std::make_unique<global_control>(thread_stack_size, stackSize_);
     mf::LogInfo("MTdiagnostics")
       << "TBB has been configured to use:\n"
-      << "  - a maximum of " << tbb::this_task_arena::max_concurrency()
-      << " threads\n"
-      << "  - a stack size of " << stackSize_ << " bytes";
+      << "  - a maximum of " << value_of(max_parallelism) << " threads\n"
+      << "  - a stack size of " << value_of(thread_stack_size) << " bytes";
   }
 }

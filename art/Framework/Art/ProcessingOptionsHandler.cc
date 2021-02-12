@@ -8,7 +8,7 @@
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/parse.h"
-#include "tbb/task_scheduler_init.h"
+#include "tbb/task_arena.h"
 
 #include <string>
 
@@ -152,7 +152,7 @@ art::ProcessingOptionsHandler::doProcessOptions(
     // 'nthreads' and 'nschedules' are set to the same value.
     auto const j = vm["parallelism"].as<int>();
     auto const nthreads =
-      (j == 0) ? tbb::task_scheduler_init::default_num_threads() : j;
+      (j == 0) ? tbb::this_task_arena::max_concurrency() : j;
     raw_config.put(num_schedules_key, nthreads);
     raw_config.put(num_threads_key, nthreads);
     return 0;
@@ -164,7 +164,7 @@ art::ProcessingOptionsHandler::doProcessOptions(
   if (vm.count("nthreads")) {
     auto const nt = vm["nthreads"].as<int>();
     auto const nthreads =
-      (nt == 0) ? tbb::task_scheduler_init::default_num_threads() : nt;
+      (nt == 0) ? tbb::this_task_arena::max_concurrency() : nt;
     raw_config.put(num_threads_key, nthreads);
   }
 

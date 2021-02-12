@@ -9,7 +9,7 @@
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
-#include "tbb/task_scheduler_init.h"
+#include "tbb/global_control.h"
 
 #include <string>
 
@@ -126,7 +126,8 @@ namespace art {
     bool const errorOnMissingConsumes_;
     bool const wantSummary_;
     std::string const dataDependencyGraph_;
-    tbb::task_scheduler_init tbbManager_{tbb::task_scheduler_init::deferred};
+    std::unique_ptr<tbb::global_control> threadControl_;
+    std::unique_ptr<tbb::global_control> stackSizeControl_;
   };
 }
 

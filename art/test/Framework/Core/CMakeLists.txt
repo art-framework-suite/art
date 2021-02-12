@@ -34,6 +34,12 @@ foreach(cpp_test IN ITEMS
   )
 endforeach()
 
+simple_plugin(Busy "module" NO_INSTALL USE_BOOST_UNIT)
+cet_test(BusyEvent_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- -c busy_event_t.fcl -j3
+  DATAFILES fcl/busy_event_t.fcl)
+
 simple_plugin(EventCounter "module" NO_INSTALL USE_BOOST_UNIT)
 cet_test(RejectEvents_t HANDBUILT
   TEST_EXEC art_ut
