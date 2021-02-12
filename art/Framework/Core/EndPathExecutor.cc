@@ -310,10 +310,6 @@ namespace art {
 
       endPathExec_->endPathInfo_.incrementPassedEventCount();
 
-      // And end this task, which does not terminate event processing
-      // because our parent is the nullptr.
-      tbb::task::self().set_parent(nullptr);
-
       // Start the finalizeEventTask going.
       wth.doneWaiting();
       TDEBUG_END_TASK_SI(4, scheduleID);

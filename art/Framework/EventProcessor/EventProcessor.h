@@ -76,10 +76,10 @@ namespace art {
     class EndPathRunnerTask;
 
     // Event-loop infrastructure
-    void processAllEventsAsync(tbb::task* EventLoopTask, ScheduleID sid);
-    void readAndProcessAsync(tbb::task* EventLoopTask, ScheduleID sid);
-    void processEventAsync(tbb::task* EventLoopTask, ScheduleID sid);
-    void finishEventAsync(tbb::task* eventLoopTask, ScheduleID sid);
+    void processAllEventsAsync(ScheduleID sid);
+    void readAndProcessAsync(ScheduleID sid);
+    void processEventAsync(ScheduleID sid);
+    void finishEventAsync(ScheduleID sid);
 
     template <Level L>
     bool levelsToProcess();

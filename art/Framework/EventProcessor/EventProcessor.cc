@@ -1084,22 +1084,19 @@ namespace art {
 
   class EventProcessor::ProcessAllEventsTask {
   public:
-    ProcessAllEventsTask(EventProcessor* evp,
-                         tbb::task* eventLoopTask,
-                         ScheduleID const sid)
-      : evp_(evp), eventLoopTask_(eventLoopTask), sid_(sid)
+    ProcessAllEventsTask(EventProcessor* evp, ScheduleID const sid)
+      : evp_(evp), sid_(sid)
     {}
 
     void operator()(exception_ptr)
     {
       TDEBUG_BEGIN_TASK_SI(4, sid_);
-      evp_->processAllEventsAsync(eventLoopTask_, sid_);
+      evp_->processAllEventsAsync(sid_);
       TDEBUG_END_TASK_SI(4, sid_);
     }
 
   private:
     EventProcessor* evp_;
-    tbb::task* eventLoopTask_;
     ScheduleID const sid_;
   };
 
@@ -1130,9 +1127,8 @@ namespace art {
       tbb::task_list schedule_heads;
       auto create_event_processing_tasks =
         [&eventLoopTask, &schedule_heads, this](ScheduleID const sid) {
-          auto processAllEventsTask =
-            make_waiting_task(eventLoopTask->allocate_child(),
-                              ProcessAllEventsTask{this, eventLoopTask, sid});
+          auto processAllEventsTask = make_waiting_task(
+            eventLoopTask->allocate_child(), ProcessAllEventsTask{this, sid});
           schedule_heads.push_back(*processAllEventsTask);
         };
       scheduleIteration_.for_each_schedule(create_event_processing_tasks);
@@ -1162,19 +1158,15 @@ namespace art {
   // This is the event loop (also known as the schedule head).  It
   // calls readAndProcessAsync, which reads and processes a single
   // event, creates itself again as a continuation task, and then
-  // exits. We are passed the EventLoopTask here to keep the thread
-  // sanitizer happy.
+  // exits.
   void
-  EventProcessor::processAllEventsAsync(tbb::task* eventLoopTask,
-                                        ScheduleID const sid)
+  EventProcessor::processAllEventsAsync(ScheduleID const sid)
   {
     // Note: We are part of the processAllEventsTask (schedule head
     // task), and our parent is the eventLoopTask.
     TDEBUG_BEGIN_FUNC_SI(4, sid);
     try {
-      // Note: We pass eventLoopTask here to keep the thread sanitizer
-      // happy.
-      readAndProcessAsync(eventLoopTask, sid);
+      readAndProcessAsync(sid);
     }
     catch (...) {
       sharedException_.store_current();
@@ -1182,8 +1174,8 @@ namespace art {
       return;
     }
     // If no exception, then end this task, which does not terminate
-    // event processing because our parent is the nullptr because we
-    // transferred it to another task.
+    // event processing because readAndProcessAsync creates a
+    // continuation task.
     TDEBUG_END_FUNC_SI(4, sid);
   }
 
@@ -1193,8 +1185,7 @@ namespace art {
   // not an event, or if the user has requested a shutdown, read the
   // event, and then call another function to do the processing.
   void
-  EventProcessor::readAndProcessAsync(tbb::task* eventLoopTask,
-                                      ScheduleID const sid)
+  EventProcessor::readAndProcessAsync(ScheduleID const sid)
   {
     // Note: We are part of the readAndProcessEventTask (schedule head
     // task), and our parent task is the eventLoopTask.
@@ -1290,29 +1281,22 @@ namespace art {
       // scope.
     }
     if (schedule(sid).event_principal().eventID().isFlush()) {
-      // No processing to do, start next event handling task,
-      // transferring our parent task (eventLoopTask) to it, and exit
-      // this task.
-      processAllEventsAsync(eventLoopTask, sid);
+      // No processing to do, start next event handling task.
+      processAllEventsAsync(sid);
       TDEBUG_END_FUNC_SI(4, sid) << "FLUSH EVENT";
       return;
     }
 
     // Now process the event.
-    processEventAsync(eventLoopTask, sid);
-    // And end this task, which does not terminate event processing
-    // because our parent is the nullptr because we transferred it to
-    // the endPathTask.
+    processEventAsync(sid);
     TDEBUG_END_FUNC_SI(4, sid);
   }
 
   // ----------------------------------------------------------------------------
   class EventProcessor::EndPathRunnerTask {
   public:
-    EndPathRunnerTask(EventProcessor* evp,
-                      ScheduleID const sid,
-                      tbb::task* eventLoopTask)
-      : evp_{evp}, sid_{sid}, eventLoopTask_{eventLoopTask}
+    EndPathRunnerTask(EventProcessor* evp, ScheduleID const sid)
+      : evp_{evp}, sid_{sid}
     {}
 
     void
@@ -1324,7 +1308,6 @@ namespace art {
           rethrow_exception(ex);
         }
         catch (cet::exception& e) {
-          tbb::task::self().set_parent(eventLoopTask_);
           if (evp_->error_action(e) != actions::IgnoreCompletely) {
             evp_->sharedException_.store<Exception>(
               errors::EventProcessorFailure,
@@ -1348,29 +1331,21 @@ namespace art {
         }
       }
 
-      // Arrange it so that we can terminate event processing if we
-      // want to.
-      tbb::task::self().set_parent(eventLoopTask_);
-      evp_->finishEventAsync(eventLoopTask_, sid_);
+      evp_->finishEventAsync(sid_);
 
-      // We do not terminate event processing when we end because
-      // finishEventAsync has set our parent to the nullptr.
       TDEBUG_END_TASK_SI(4, sid_);
     }
 
   private:
     EventProcessor* evp_;
     ScheduleID const sid_;
-    tbb::task* eventLoopTask_;
   };
 
   // ----------------------------------------------------------------------------
   class EventProcessor::EndPathTask {
   public:
-    EndPathTask(EventProcessor* evp,
-                tbb::task* eventLoopTask,
-                ScheduleID const sid)
-      : evp_{evp}, eventLoopTask_{eventLoopTask}, sid_{sid}
+    EndPathTask(EventProcessor* evp, ScheduleID const sid)
+      : evp_{evp}, sid_{sid}
     {}
 
     void
@@ -1410,12 +1385,11 @@ namespace art {
 
       auto finalize_event_task =
         make_waiting_task(tbb::task::self().allocate_continuation(),
-                          EndPathRunnerTask{evp_, sid_, eventLoopTask_});
+                          EndPathRunnerTask{evp_, sid_});
       try {
         evp_->schedule(sid_).process_event_observers(finalize_event_task);
       }
       catch (cet::exception& e) {
-        tbb::task::self().set_parent(eventLoopTask_);
         if (evp_->error_action(e) != actions::IgnoreCompletely) {
           evp_->sharedException_.store<Exception>(
             errors::EventProcessorFailure,
@@ -1437,7 +1411,6 @@ namespace art {
         evp_->sharedException_.store_current();
         TDEBUG_END_TASK_SI(4, sid_)
           << "terminate event loop because of EXCEPTION";
-        tbb::task::self().set_parent(eventLoopTask_);
         return;
       }
 
@@ -1449,7 +1422,6 @@ namespace art {
 
   private:
     EventProcessor* evp_;
-    tbb::task* eventLoopTask_;
     ScheduleID const sid_;
   };
 
@@ -1463,18 +1435,14 @@ namespace art {
   // task we gave it to do the end path processing, write the event,
   // and then start the next event processing task.
   void
-  EventProcessor::processEventAsync(tbb::task* eventLoopTask,
-                                    ScheduleID const sid) try {
+  EventProcessor::processEventAsync(ScheduleID const sid) try {
     // Note: We are part of the readAndProcessEventTask (schedule head
     // task), and our parent task is the eventLoopTask.
     TDEBUG_BEGIN_FUNC_SI(4, sid);
     assert(!schedule(sid).event_principal().eventID().isFlush());
-    // Make the end path processing task, make its parent the
-    // eventLoopTask, and set our parent to the nullptr so we can exit
-    // without ending event processing.
-    auto endPathTask =
-      make_waiting_task(tbb::task::self().allocate_continuation(),
-                        EndPathTask{this, eventLoopTask, sid});
+    // Continue processing via the creation of a continuation.
+    auto endPathTask = make_waiting_task(
+      tbb::task::self().allocate_continuation(), EndPathTask{this, sid});
     // Start the trigger paths running.  When they finish they will
     // spawn the endPathTask which will run the end path, write the
     // event, and start the next event processing task.
@@ -1484,7 +1452,6 @@ namespace art {
   catch (cet::exception& e) {
     // Upon exiting this scope, end this task, terminating event
     // processing.
-    tbb::task::self().set_parent(eventLoopTask);
     if (error_action(e) != actions::IgnoreCompletely) {
       sharedException_.store<Exception>(
         errors::EventProcessorFailure,
@@ -1502,14 +1469,11 @@ namespace art {
     mf::LogError("PassingThrough")
       << "an exception occurred during current event processing\n";
     sharedException_.store_current();
-    // Do this in case we already gave our parent to to endPathTask.
-    tbb::task::self().set_parent(eventLoopTask);
     TDEBUG_END_FUNC_SI(4, sid) << "terminate event loop because of EXCEPTION";
   }
 
   void
-  EventProcessor::finishEventAsync(tbb::task* eventLoopTask,
-                                   ScheduleID const sid)
+  EventProcessor::finishEventAsync(ScheduleID const sid)
   {
     auto& ep = schedule(sid).event_principal();
     actReg_.sPostProcessEvent.invoke(Event{ep, invalid_module_context},
@@ -1559,7 +1523,6 @@ namespace art {
           "during current event processing",
           e);
         // And then end this task, terminating event processing.
-        tbb::task::self().set_parent(eventLoopTask);
         TDEBUG_END_FUNC_SI(4, sid) << "EXCEPTION";
         return;
       }
@@ -1573,16 +1536,12 @@ namespace art {
         << "an exception occurred during current event processing\n";
       sharedException_.store_current();
       // And then end this task, terminating event processing.
-      tbb::task::self().set_parent(eventLoopTask);
       TDEBUG_END_FUNC_SI(4, sid) << "EXCEPTION";
       return;
     }
-    // Create the next event processing task as a continuation of this
-    // task, that is transfer our parent, the eventLoopTask, to it.
-    processAllEventsAsync(eventLoopTask, sid);
-    // And end this task which does not end event loop processing
-    // because our parent is the nullptr because we transferred it to
-    // the next event processing task.
+
+    // The next event processing task is a continuation of this task.
+    processAllEventsAsync(sid);
     TDEBUG_END_FUNC_SI(4, sid);
   }
 
