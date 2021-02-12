@@ -73,7 +73,6 @@ namespace art {
     ParentageRegistry::instance(true);
     ProcessConfigurationRegistry::instance(true);
     ProcessHistoryRegistry::instance(true);
-    TypeID::shutdown();
     ANNOTATE_THREAD_IGNORE_END;
   }
 
@@ -152,7 +151,6 @@ namespace art {
     , handleEmptyRuns_{scheduler_->handleEmptyRuns()}
     , handleEmptySubRuns_{scheduler_->handleEmptySubRuns()}
   {
-    TypeID::startup();
     auto services_pset = pset.get<ParameterSet>("services");
     auto const scheduler_pset = services_pset.get<ParameterSet>("scheduler");
     {
