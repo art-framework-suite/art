@@ -73,6 +73,7 @@ namespace art {
     ParentageRegistry::instance(true);
     ProcessConfigurationRegistry::instance(true);
     ProcessHistoryRegistry::instance(true);
+    SharedResourcesRegistry::instance(true);
     ANNOTATE_THREAD_IGNORE_END;
   }
 
@@ -177,6 +178,7 @@ namespace art {
     // in their constructors, instead they must use the beginJob
     // callout.
     scheduler_->initialize_task_manager();
+    group_ = std::make_unique<tbb::task_group>();
     // Whenever we are ready to enable ROOT's implicit MT, which is
     // equivalent to its use of TBB, the call should be made after our
     // own TBB task manager has been initialized.
@@ -236,7 +238,7 @@ namespace art {
                                                   move(results_inserter)));
       };
     scheduleIteration_.for_each_schedule(create);
-    SharedResourcesRegistry::instance()->freeze();
+    SharedResourcesRegistry::instance()->freeze(*group_);
 
     FDEBUG(2) << pset.to_string() << endl;
     // The input source must be created after the end path executor

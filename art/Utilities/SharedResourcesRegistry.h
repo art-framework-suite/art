@@ -12,6 +12,10 @@
 #include <utility>
 #include <vector>
 
+namespace tbb {
+  class task_group;
+}
+
 namespace hep::concurrency {
   class SerialTaskQueue;
 }
@@ -19,19 +23,6 @@ namespace hep::concurrency {
 namespace art {
 
   class SharedResourcesRegistry {
-  private:
-    class QueueAndCounter {
-    public:
-      QueueAndCounter();
-      QueueAndCounter(QueueAndCounter const&) = delete;
-      QueueAndCounter(QueueAndCounter&&) = delete;
-      QueueAndCounter& operator=(QueueAndCounter const&) = delete;
-      QueueAndCounter& operator=(QueueAndCounter&&) = delete;
-
-      std::shared_ptr<hep::concurrency::SerialTaskQueue> queue_;
-      std::atomic<unsigned long> counter_{0ul};
-    };
-
   public:
     static SharedResourcesRegistry* instance(bool shutdown = false);
     static detail::SharedResource_t const Legacy;
@@ -43,21 +34,22 @@ namespace art {
     SharedResourcesRegistry& operator=(SharedResourcesRegistry&&) = delete;
 
     bool containsResource(std::string const&) const;
-    void registerSharedResource(detail::SharedResource_t const&) noexcept(
-      false);
-    void registerSharedResource(std::string const&) noexcept(false);
-    void updateSharedResource(std::string const&) noexcept(false);
-    void freeze();
-    std::vector<std::shared_ptr<hep::concurrency::SerialTaskQueue>>
-    createQueues(std::string const& resourceName) const;
-    std::vector<std::shared_ptr<hep::concurrency::SerialTaskQueue>>
-    createQueues(std::vector<std::string> const& resourceNames) const;
+    void registerSharedResource(detail::SharedResource_t const&);
+    void registerSharedResource(std::string const&);
+    void freeze(tbb::task_group& group);
+
+    using queue_ptr_t = std::shared_ptr<hep::concurrency::SerialTaskQueue>;
+    std::vector<queue_ptr_t> createQueues(
+      std::vector<std::string> const& resourceNames) const;
 
   private:
+    void ensure_not_frozen(std::string const& name);
+
     mutable std::recursive_mutex mutex_;
-    std::map<std::string, QueueAndCounter> resourceMap_;
-    bool frozen_;
-    unsigned nLegacy_;
+    std::map<std::string, unsigned> resourceCounts_;
+    std::vector<std::pair<std::string, queue_ptr_t>> sortedResources_;
+    bool frozen_{false};
+    unsigned nLegacy_{};
   };
 } // namespace art
 

@@ -29,6 +29,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/trim.h"
+#include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/WaitingTaskHolder.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

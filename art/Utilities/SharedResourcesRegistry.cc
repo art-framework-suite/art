@@ -25,10 +25,6 @@ namespace art {
   detail::SharedResource_t const SharedResourcesRegistry::Legacy{"__legacy__",
                                                                  false};
 
-  SharedResourcesRegistry::QueueAndCounter::QueueAndCounter()
-    : queue_{std::make_shared<hep::concurrency::SerialTaskQueue>()}
-  {}
-
   SharedResourcesRegistry*
   SharedResourcesRegistry::instance(bool shutdown /*= false*/)
   {
@@ -65,8 +61,6 @@ namespace art {
 
   SharedResourcesRegistry::SharedResourcesRegistry()
   {
-    frozen_ = false;
-    nLegacy_ = 0U;
     // Propulate queues for known shared resources.  Creating these
     // slots does *not* automatically introduce synchronization.
     // Synchronization is enabled based on the resource-names argument
@@ -75,8 +69,7 @@ namespace art {
   }
 
   void
-  SharedResourcesRegistry::updateSharedResource(string const& name) noexcept(
-    false)
+  SharedResourcesRegistry::ensure_not_frozen(std::string const& name)
   {
     std::lock_guard sentry{mutex_};
     if (frozen_) {
@@ -85,73 +78,49 @@ namespace art {
            "calls\n"
         << "must be made in the constructor of a shared module and no later.\n";
     }
-    auto it = resourceMap_.find(name);
-    if (it == cend(resourceMap_)) {
-      throw art::Exception{art::errors::LogicError, error_context(name)}
-        << "A 'serialize' call was made for a resource that has not been "
-           "registered.\n"
-        << "If the resource is an art-based service, make sure that the "
-           "service\n"
-        << "has been configured for this job.  Otherwise, use the "
-           "'serializeExternal'\n"
-        << "function call.  If neither of these approaches is appropriate, "
-           "contact\n"
-        << "artists@fnal.gov.\n";
-    }
-    auto& queueAndCounter = it->second;
-    if (name == Legacy.name) {
-      ++nLegacy_;
-      // Make sure all non-legacy resources have a higher count, which
-      // makes legacy always the first queue.
-      for (auto& keyAndVal : resourceMap_) {
-        // Note: keyAndVal.first  is a string (name of resource)
-        // Note: keyAndVal.second is a QueueAndCounter
-        ++keyAndVal.second.counter_;
-      }
-      return;
-    }
-    // count the number of times the resource was registered
-    ++queueAndCounter.counter_;
-    if (queueAndCounter.counter_.load() == 1) {
-      // Make sure all non-legacy resources have a higher count, which
-      // makes legacy always the first queue.  When first registering
-      // a non-legacy resource, we have to account for any legacy
-      // resource registrations already made.
-      queueAndCounter.counter_ += nLegacy_;
-    }
   }
 
   void
   SharedResourcesRegistry::registerSharedResource(
     detail::SharedResource_t const& resource)
   {
-    std::lock_guard sentry{mutex_};
-    resourceMap_[resource.name];
+    registerSharedResource(resource.name);
   }
 
   void
-  SharedResourcesRegistry::registerSharedResource(string const& name) noexcept(
-    false)
+  SharedResourcesRegistry::registerSharedResource(string const& name)
   {
+    ensure_not_frozen(name);
     std::lock_guard sentry{mutex_};
-    // Note: This has the intended side-effect of creating the entry
-    // if it does not yet exist.
-    resourceMap_[name];
-    updateSharedResource(name);
+    ++resourceCounts_[name];
+    if (name == Legacy.name) {
+      ++nLegacy_;
+    }
   }
 
   void
-  SharedResourcesRegistry::freeze()
+  SharedResourcesRegistry::freeze(tbb::task_group& group)
   {
     frozen_ = true;
-  }
 
-  vector<shared_ptr<SerialTaskQueue>>
-  SharedResourcesRegistry::createQueues(string const& resourceName) const
-  {
-    std::lock_guard sentry{mutex_};
-    vector const names{resourceName};
-    return createQueues(names);
+    vector<pair<unsigned, string>> resources_sorted_by_count;
+    for (auto const& [name, count] : resourceCounts_) {
+      // Make sure all non-legacy resources have a higher count, which
+      // makes legacy always the first queue.
+      auto const offset = (name == Legacy.name) ? 0u : nLegacy_;
+      resources_sorted_by_count.emplace_back(count + offset, name);
+    }
+    cet::sort_all(resources_sorted_by_count, [](auto const& a, auto const& b) {
+      return a.first < b.first;
+    });
+
+    assert(empty(sortedResources_));
+    for (auto const& pr : resources_sorted_by_count) {
+      sortedResources_.emplace_back(pr.second, make_shared<SerialTaskQueue>(group));
+    }
+
+    // Not needed any more now that we has a sorted list of resources.
+    resourceCounts_.clear();
   }
 
   vector<shared_ptr<SerialTaskQueue>>
@@ -159,42 +128,37 @@ namespace art {
     vector<string> const& resourceNames) const
   {
     std::lock_guard sentry{mutex_};
-    map<pair<unsigned, string>, shared_ptr<SerialTaskQueue>> sortedResources;
+    std::vector<queue_ptr_t> result;
     if (cet::search_all(resourceNames, Legacy.name)) {
       // This acquirer is for a legacy module, get the queues for all
       // resources.
+
       // Note: We do not trust legacy modules, they may be accessing
       // one of the shared resources without our knowledge, so we
       // isolate them from the one modules as well as each other.
-      for (auto const& [key, queueAndCounter] : resourceMap_) {
-        sortedResources.emplace(make_pair(queueAndCounter.counter_.load(), key),
-                                atomic_load(&queueAndCounter.queue_));
+      for (auto const& pr : sortedResources_) {
+        result.push_back(pr.second);
       }
     } else {
       // Not for a legacy module, get the queues for the named
       // resources.
       for (auto const& name : resourceNames) {
-        auto iter = resourceMap_.find(name);
-        assert(iter != resourceMap_.end());
-        auto const& [key, queueAndCounter] = *iter;
-        sortedResources.emplace(make_pair(queueAndCounter.counter_.load(), key),
-                                atomic_load(&queueAndCounter.queue_));
+        auto it =
+          std::find_if(begin(sortedResources_),
+                       end(sortedResources_),
+                       [&name](auto const& pr) { return pr.first == name; });
+        assert(it != sortedResources_.end());
+        result.push_back(it->second);
       }
     }
-    vector<shared_ptr<SerialTaskQueue>> queues;
-    if (sortedResources.empty()) {
-      // Error, none of the resource names were registered.  Calling
-      // code is depending on there being at least one shared queue.
-      queues.emplace_back(make_shared<SerialTaskQueue>());
-    } else {
-      // At least some of the named resources exist.
-      queues.reserve(sortedResources.size());
-      for (auto const& keyAndVal : sortedResources) {
-        // Note: keyAndVal.second is a shared_ptr<SerialTaskQueue>
-        queues.push_back(keyAndVal.second);
-      }
-    }
-    return queues;
+
+    assert(not empty(result));
+    // if (empty(result)) {
+    //   // Error, none of the resource names were registered.  Calling
+    //   // code is depending on there being at least one shared queue.
+    //   return {make_shared<SerialTaskQueue>()};
+    // }
+    return result;
   }
 
 } // namespace art

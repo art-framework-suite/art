@@ -69,20 +69,11 @@ namespace art::detail {
     // module names, we call the 'serialize_for_external' function to
     // insert an entry into the registry.  This is safe to do as only
     // this module will refer to the shared resource.
-    serialize_for_external(moduleLabel_);
+    serialize_for(moduleLabel_);
   }
 
   void
-  SharedModule::serialize_for(detail::SharedResource_t const& resource)
-  {
-    auto result = resourceNames_.emplace(resource.name);
-    if (result.second) {
-      SharedResourcesRegistry::instance()->updateSharedResource(resource.name);
-    }
-  }
-
-  void
-  SharedModule::serialize_for_external(std::string const& resourceName)
+  SharedModule::serialize_for(std::string const& resourceName)
   {
     auto result = resourceNames_.emplace(resourceName);
     if (result.second) {

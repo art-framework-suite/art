@@ -43,8 +43,7 @@ namespace art::detail {
 
   private:
     void implicit_serialize();
-    void serialize_for(detail::SharedResource_t const&);
-    void serialize_for_external(std::string const&);
+    void serialize_for(std::string const& name);
 
     template <typename... T>
     void
@@ -55,7 +54,7 @@ namespace art::detail {
       if (sizeof...(t) == 0) {
         implicit_serialize();
       } else {
-        (serialize_for(t), ...);
+        (serialize_for(t.name), ...);
       }
     }
 
@@ -67,7 +66,7 @@ namespace art::detail {
       if (sizeof...(t) == 0) {
         implicit_serialize();
       } else {
-        (serialize_for_external(t), ...);
+        (serialize_for(t), ...);
       }
     }
 
