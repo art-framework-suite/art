@@ -71,7 +71,6 @@ namespace art {
     StatusCode runToCompletion();
 
   private:
-    class ProcessAllEventsTask;
     class EndPathTask;
     class EndPathRunnerTask;
 

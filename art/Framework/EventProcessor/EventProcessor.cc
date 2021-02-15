@@ -44,6 +44,8 @@
 #include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include "tbb/parallel_for.h"
 #include "tbb/task.h"
 #include "tbb/task_arena.h"
 
@@ -1082,24 +1084,6 @@ namespace art {
   // ==============================================================================
   // Event level
 
-  class EventProcessor::ProcessAllEventsTask {
-  public:
-    ProcessAllEventsTask(EventProcessor* evp, ScheduleID const sid)
-      : evp_(evp), sid_(sid)
-    {}
-
-    void operator()(exception_ptr)
-    {
-      TDEBUG_BEGIN_TASK_SI(4, sid_);
-      evp_->processAllEventsAsync(sid_);
-      TDEBUG_END_TASK_SI(4, sid_);
-    }
-
-  private:
-    EventProcessor* evp_;
-    ScheduleID const sid_;
-  };
-
   template <>
   void
   EventProcessor::process<most_deeply_nested_level()>()
@@ -1114,27 +1098,11 @@ namespace art {
     while (!done) {
       beginRunIfNotDoneAlready();
       beginSubRunIfNotDoneAlready();
-      struct Waiter : public tbb::task {
-        tbb::task*
-        execute()
-        {
-          return nullptr;
-        }
-      };
-      auto eventLoopTask = new (tbb::task::allocate_root()) Waiter;
-      eventLoopTask->set_ref_count(scheduler_->num_schedules() + 1);
 
-      tbb::task_list schedule_heads;
-      auto create_event_processing_tasks =
-        [&eventLoopTask, &schedule_heads, this](ScheduleID const sid) {
-          auto processAllEventsTask = make_waiting_task(
-            eventLoopTask->allocate_child(), ProcessAllEventsTask{this, sid});
-          schedule_heads.push_back(*processAllEventsTask);
-        };
-      scheduleIteration_.for_each_schedule(create_event_processing_tasks);
+      tbb::parallel_for(0, scheduler_->num_schedules(), [this](int const i) {
+        this->processAllEventsAsync(ScheduleID(i));
+      });
 
-      eventLoopTask->spawn_and_wait_for_all(schedule_heads);
-      tbb::task::destroy(*eventLoopTask);
       // If anything bad happened during event processing, let the
       // user know.
       sharedException_.throw_if_stored_exception();
