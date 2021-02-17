@@ -83,7 +83,7 @@ namespace art {
     // Used to make sure only one event is being processed at a time.
     // The schedules take turns having their events processed on a
     // first-come first-served basis (FIFO).
-    void process_event(tbb::task* finalizeEventTask, EventPrincipal&);
+    void process_event(task_ptr_t finalizeEventTask, EventPrincipal&);
     void writeEvent(EventPrincipal&);
 
     // Output File Switching API

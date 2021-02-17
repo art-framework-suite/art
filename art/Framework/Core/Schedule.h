@@ -48,8 +48,8 @@ namespace art {
 
     // API presented to EventProcessor
     void process(Transition, Principal&);
-    void process_event_modifiers(tbb::task* endPathTask);
-    void process_event_observers(tbb::task* finalizeEventTask);
+    void process_event_modifiers(task_ptr_t endPathTask);
+    void process_event_observers(task_ptr_t finalizeEventTask);
     void beginJob();
     void endJob();
     void respondToOpenInputFile(FileBlock const&);

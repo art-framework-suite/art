@@ -31,6 +31,7 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/ScheduleID.h"
+#include "art/Utilities/TaskGroup.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/exception.h"
@@ -54,6 +55,8 @@ namespace hep::concurrency {
 }
 
 namespace art {
+
+  using task_ptr_t = std::shared_ptr<hep::concurrency::WaitingTask>;
 
   class ActivityRegistry;
   class ModuleContext;
@@ -87,7 +90,7 @@ namespace art {
     void respondToCloseOutputFiles(FileBlock const& fb);
     bool doWork(Transition, Principal&, ModuleContext const&);
 
-    void doWork_event(tbb::task* workerInPathDoneTask,
+    void doWork_event(task_ptr_t workerInPathDoneTask,
                       EventPrincipal&,
                       ModuleContext const&);
 
@@ -163,7 +166,7 @@ namespace art {
     // modules the workers are shared.  For replicated modules each
     // schedule has its own private worker copies (the whole reason
     // schedules exist!).
-    hep::concurrency::WaitingTaskList waitingTasks_{};
+    hep::concurrency::WaitingTaskList waitingTasks_{TaskGroup::get()};
 
   protected:
     std::atomic<std::size_t> counts_visited_{};

@@ -30,13 +30,9 @@
 #include "cetlib/container_algorithms.h"
 #include "cetlib/trim.h"
 #include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/WaitingTaskHolder.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "tbb/task.h"
-
 #include <cstdlib>
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <type_traits>
@@ -276,14 +272,13 @@ namespace art {
   class EndPathExecutor::PathsDoneTask {
   public:
     PathsDoneTask(EndPathExecutor* const endPathExec,
-                  tbb::task* const finalizeEventTask)
+                  task_ptr_t const finalizeEventTask)
       : endPathExec_{endPathExec}, finalizeEventTask_{finalizeEventTask}
     {}
 
     void
     operator()(exception_ptr const ex)
     {
-      WaitingTaskHolder wth(finalizeEventTask_);
       auto const scheduleID = endPathExec_->sc_.id();
 
       // Note: When we start our parent task is the eventLoop task.
@@ -296,13 +291,13 @@ namespace art {
         catch (cet::exception& e) {
           Exception tmp(errors::EventProcessorFailure, "EndPathExecutor:");
           tmp << "an exception occurred during current event processing\n" << e;
-          wth.doneWaiting(make_exception_ptr(tmp));
+          TaskGroup::run(finalizeEventTask_, make_exception_ptr(tmp));
           TDEBUG_END_TASK_SI(4, scheduleID)
             << "end path processing terminate because of EXCEPTION";
           return;
         }
         catch (...) {
-          wth.doneWaiting(current_exception());
+          TaskGroup::run(finalizeEventTask_, current_exception());
           TDEBUG_END_TASK_SI(4, scheduleID)
             << "end path processing terminate because of EXCEPTION";
           return;
@@ -311,20 +306,19 @@ namespace art {
 
       endPathExec_->endPathInfo_.incrementPassedEventCount();
 
-      // Start the finalizeEventTask going.
-      wth.doneWaiting();
+      TaskGroup::run(finalizeEventTask_);
       TDEBUG_END_TASK_SI(4, scheduleID);
     }
 
   private:
     EndPathExecutor* const endPathExec_;
-    tbb::task* const finalizeEventTask_;
+    task_ptr_t const finalizeEventTask_;
   };
 
   // Note: We come here as part of the endPath task, our
   // parent task is the eventLoop task.
   void
-  EndPathExecutor::process_event(tbb::task* finalizeEventTask,
+  EndPathExecutor::process_event(task_ptr_t finalizeEventTask,
                                  EventPrincipal& ep)
   {
     auto const sid = sc_.id();
@@ -334,23 +328,16 @@ namespace art {
     }
     endPathInfo_.incrementTotalEventCount();
     try {
-      auto pathsDoneTask = make_waiting_task(
-        tbb::task::allocate_root(), PathsDoneTask{this, finalizeEventTask});
-      // Note: We create the holder here to increment the ref count on
-      // the pathsDoneTask so that if a path errors quickly and
-      // decrements the ref count (using doneWaiting) the task will
-      // not run until we have actually started all the tasks.  Note:
-      // This is critically dependent on the path incrementing the ref
-      // count the first thing it does (by putting the task into a
-      // WaitingTaskList).
-      WaitingTaskHolder wth(pathsDoneTask);
-      if (!endPathInfo_.paths().empty()) {
+      auto pathsDoneTask =
+        make_waiting_task<PathsDoneTask>(this, finalizeEventTask);
+      if (endPathInfo_.paths().empty()) {
+        TaskGroup::run(pathsDoneTask);
+      } else {
         endPathInfo_.paths().front()->process(pathsDoneTask, ep);
       }
     }
     catch (...) {
-      WaitingTaskHolder wth(finalizeEventTask);
-      wth.doneWaiting(current_exception());
+      TaskGroup::run(finalizeEventTask, current_exception());
     }
     TDEBUG_END_FUNC_SI(4, sid);
   }

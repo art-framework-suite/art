@@ -17,7 +17,6 @@ art_make_library(
     detail/ModuleKeyAndType.cc
     detail/parse_path_spec.cc
     detail/Producer.cc
-    detail/ScheduleTask.cc
     detail/SharedModule.cc
     detail/skip_non_replicated.cc
     detail/verify_names.cc

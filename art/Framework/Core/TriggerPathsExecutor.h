@@ -67,7 +67,7 @@ namespace art {
 
     // API presented to EventProcessor
     void process(Transition, Principal&);
-    void process_event(tbb::task* endPathTask, EventPrincipal&);
+    void process_event(task_ptr_t endPathTask, EventPrincipal&);
     void beginJob();
     void endJob();
     void respondToOpenInputFile(FileBlock const&);

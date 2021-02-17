@@ -12,6 +12,7 @@ art_make_library(
     SharedResource.cc
     SharedResourcesRegistry.cc
     TaskDebugMacros.cc
+    TaskGroup.cc
     unique_filename.cc
     UnixSignalHandlers.cc
     $<$<PLATFORM_ID:Linux>:LinuxProcMgr.cc>

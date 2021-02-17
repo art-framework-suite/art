@@ -23,7 +23,6 @@
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/WaitingTaskHolder.h"
 #include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -107,19 +106,17 @@ namespace art {
     epExec_.process(trans, principal);
   }
 
-  // Note: We get here as part of the readAndProcessEvent task.  Our
-  // parent task is the nullptr, and the parent task of the
-  // endPathTask is the eventLoopTask.
   void
-  Schedule::process_event_modifiers(tbb::task* endPathTask)
+  Schedule::process_event_modifiers(task_ptr_t endPathTask)
   {
+    // We get here as part of the readAndProcessEvent task.
     actReg_.sPreProcessEvent.invoke(
       Event{*eventPrincipal_, ModuleContext::invalid()}, context_);
     tpsExec_.process_event(endPathTask, *eventPrincipal_);
   }
 
   void
-  Schedule::process_event_observers(tbb::task* finalizeEventTask)
+  Schedule::process_event_observers(task_ptr_t finalizeEventTask)
   {
     epExec_.process_event(finalizeEventTask, *eventPrincipal_);
   }

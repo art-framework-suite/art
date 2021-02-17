@@ -18,7 +18,6 @@
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/Transition.h"
 #include "cetlib/exempt_ptr.h"
-#include "hep_concurrency/WaitingTaskList.h"
 
 #include <atomic>
 #include <memory>
@@ -47,7 +46,6 @@ namespace art {
     };
 
     // Special Member Functions
-    ~WorkerInPath() noexcept;
     WorkerInPath(Worker*, detail::FilterAction, ModuleContext const&);
     WorkerInPath(WorkerInPath const&) = delete;
     WorkerInPath(WorkerInPath&&);
@@ -62,7 +60,7 @@ namespace art {
     bool returnCode() const;
     std::string const& label() const;
     bool run(Transition, Principal&);
-    void run(tbb::task* workerDoneTask, EventPrincipal&);
+    void run(task_ptr_t workerDoneTask, EventPrincipal&);
     void clearCounters();
 
     // Used by writeSummary
@@ -80,7 +78,6 @@ namespace art {
 
     // Per-schedule
     std::atomic<bool> returnCode_{false};
-    std::atomic<hep::concurrency::WaitingTaskList*> waitingTasks_;
 
     // Counts
     std::atomic<std::size_t> counts_visited_{};

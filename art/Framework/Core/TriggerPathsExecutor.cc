@@ -22,7 +22,6 @@
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/WaitingTaskHolder.h"
 #include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -196,7 +195,7 @@ namespace art {
   class TriggerPathsExecutor::PathsDoneTask {
   public:
     PathsDoneTask(TriggerPathsExecutor* const schedule,
-                  tbb::task* const endPathTask,
+                  task_ptr_t const endPathTask,
                   EventPrincipal& principal)
       : schedule_{schedule}, endPathTask_{endPathTask}, principal_{principal}
     {}
@@ -204,41 +203,41 @@ namespace art {
     void
     operator()(exception_ptr const ex)
     {
-      WaitingTaskHolder wth(endPathTask_);
       auto const scheduleID = schedule_->sc_.id();
 
-      // Note: When we start our parent task is the eventLoop task.
       TDEBUG_BEGIN_TASK_SI(4, scheduleID);
-      if (not ex) {
-        schedule_->process_event_paths_done(principal_);
-      } else {
+      if (ex) {
+        TaskGroup::run(endPathTask_, ex);
         TDEBUG_END_TASK_SI(4, scheduleID)
           << "trigger path processing terminate because of EXCEPTION";
+        return;
       }
 
+      try {
+        schedule_->process_event_paths_done(principal_);
+        TaskGroup::run(endPathTask_);
+      }
+      catch (...) {
+        TaskGroup::run(endPathTask_, current_exception());
+      };
+
       // Start the endPathTask going.
-      wth.doneWaiting(ex);
       TDEBUG_END_TASK_SI(4, scheduleID);
     }
 
   private:
     TriggerPathsExecutor* const schedule_;
-    tbb::task* const endPathTask_;
+    task_ptr_t const endPathTask_;
     EventPrincipal& principal_;
   };
 
-  // Note: We get here as part of the readAndProcessEvent task.  Our
-  // parent task is the nullptr, and the parent task of the
-  // endPathTask is the eventLoopTask.
   void
-  TriggerPathsExecutor::process_event(tbb::task* endPathTask,
+  TriggerPathsExecutor::process_event(task_ptr_t endPathTask,
                                       EventPrincipal& event_principal)
   {
+    // We get here as part of the readAndProcessEventTask (schedule
+    // head task).
     auto const scheduleID = sc_.id();
-    // Note: We are part of the readAndProcessEventTask (stream head
-    // task), and our parent task is the nullptr because the
-    // endPathTask has been transferred the eventLoopTask as its
-    // parent.
     TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
     for (auto const& val : triggerPathsInfo_.workers()) {
       val.second->reset();
@@ -249,17 +248,16 @@ namespace art {
     triggerPathsInfo_.pathResults().reset();
     triggerPathsInfo_.incrementTotalEventCount();
     try {
-      auto pathsDoneTask =
-        make_waiting_task(tbb::task::allocate_root(),
-                          PathsDoneTask{this, endPathTask, event_principal});
-      // Note: We create the holder here to increment the ref count on
-      // the pathsDoneTask so that if a path errors quickly and
-      // decrements the ref count (using doneWaiting) the task will
-      // not run until we have actually started all the tasks.  Note:
-      // This is critically dependent on the path incrementing the ref
-      // count the first thing it does (by putting the task into a
-      // WaitingTaskList).
-      WaitingTaskHolder wth(pathsDoneTask);
+      if (triggerPathsInfo_.paths().empty()) {
+        auto pathsDoneTask =
+          make_waiting_task<PathsDoneTask>(this, endPathTask, event_principal);
+        TaskGroup::run(pathsDoneTask);
+        TDEBUG_END_FUNC_SI(4, scheduleID);
+        return;
+      }
+      auto pathsDoneTask = std::make_shared<WaitingTask>(
+        PathsDoneTask{this, endPathTask, event_principal},
+        triggerPathsInfo_.paths().size());
       for (auto& path : triggerPathsInfo_.paths()) {
         // Start each path running.  The path will start a spawn chain
         // going to run each worker in the order specified on the
@@ -269,26 +267,19 @@ namespace art {
         // every path has finished.
         path->process(pathsDoneTask, event_principal);
       }
-      // And end this task which does not terminate event processing
-      // because our parent is the nullptr.
       TDEBUG_END_FUNC_SI(4, scheduleID);
     }
     catch (...) {
-      WaitingTaskHolder wth(endPathTask);
-      wth.doneWaiting(current_exception());
-      // And end this task which does not terminate event processing
-      // because our parent is the nullptr.
+      TaskGroup::run(endPathTask, current_exception());
       TDEBUG_END_FUNC_SI(4, scheduleID) << "because of EXCEPTION";
     }
   }
 
-  // Note: We come here as part of the pathsDone task.  Our parent is
-  // the nullptr.
   void
   TriggerPathsExecutor::process_event_paths_done(EventPrincipal& principal)
   {
+    // We come here as part of the pathsDoneTask.
     auto const scheduleID = sc_.id();
-    // We are part of the pathsDoneTask, and our parent is the nullptr.
     TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
     try {
       if (triggerPathsInfo_.pathResults().accept()) {
@@ -311,7 +302,6 @@ namespace art {
       assert(action != actions::FailPath);
       assert(action != actions::FailModule);
       if (action != actions::SkipEvent) {
-        // FIXME: Do a doneWaiting on the endPathTask instead!
         TDEBUG_END_FUNC_SI(4, scheduleID);
         throw;
       }

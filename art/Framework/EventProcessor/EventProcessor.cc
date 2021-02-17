@@ -46,8 +46,6 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "tbb/parallel_for.h"
-#include "tbb/task.h"
-#include "tbb/task_arena.h"
 
 #include <algorithm>
 #include <cassert>
@@ -74,6 +72,7 @@ namespace art {
     ProcessConfigurationRegistry::instance(true);
     ProcessHistoryRegistry::instance(true);
     SharedResourcesRegistry::instance(true);
+    TaskGroup::shutdown();
     ANNOTATE_THREAD_IGNORE_END;
   }
 
@@ -178,7 +177,6 @@ namespace art {
     // in their constructors, instead they must use the beginJob
     // callout.
     scheduler_->initialize_task_manager();
-    group_ = std::make_unique<tbb::task_group>();
     // Whenever we are ready to enable ROOT's implicit MT, which is
     // equivalent to its use of TBB, the call should be made after our
     // own TBB task manager has been initialized.
@@ -238,7 +236,7 @@ namespace art {
                                                   move(results_inserter)));
       };
     scheduleIteration_.for_each_schedule(create);
-    SharedResourcesRegistry::instance()->freeze(*group_);
+    SharedResourcesRegistry::instance()->freeze(TaskGroup::get());
 
     FDEBUG(2) << pset.to_string() << endl;
     // The input source must be created after the end path executor
@@ -1099,9 +1097,11 @@ namespace art {
       beginRunIfNotDoneAlready();
       beginSubRunIfNotDoneAlready();
 
-      tbb::parallel_for(0, scheduler_->num_schedules(), [this](int const i) {
-        this->processAllEventsAsync(ScheduleID(i));
-      });
+      for (int i = 0; i != scheduler_->num_schedules(); ++i) {
+        TaskGroup::get().run(
+          [this, i] { this->processAllEventsAsync(ScheduleID(i)); });
+      }
+      TaskGroup::get().wait();
 
       // If anything bad happened during event processing, let the
       // user know.
@@ -1352,8 +1352,7 @@ namespace art {
       }
 
       auto finalize_event_task =
-        make_waiting_task(tbb::task::self().allocate_continuation(),
-                          EndPathRunnerTask{evp_, sid_});
+        make_waiting_task<EndPathRunnerTask>(evp_, sid_);
       try {
         evp_->schedule(sid_).process_event_observers(finalize_event_task);
       }
@@ -1409,8 +1408,7 @@ namespace art {
     TDEBUG_BEGIN_FUNC_SI(4, sid);
     assert(!schedule(sid).event_principal().eventID().isFlush());
     // Continue processing via the creation of a continuation.
-    auto endPathTask = make_waiting_task(
-      tbb::task::self().allocate_continuation(), EndPathTask{this, sid});
+    auto endPathTask = make_waiting_task<EndPathTask>(this, sid);
     // Start the trigger paths running.  When they finish they will
     // spawn the endPathTask which will run the end path, write the
     // event, and start the next event processing task.

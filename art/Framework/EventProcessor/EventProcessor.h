@@ -31,8 +31,6 @@
 #include "fhiclcpp/fwd.h"
 #include "hep_concurrency/thread_sanitize.h"
 
-#include "tbb/task_group.h"
-
 #include <atomic>
 #include <exception>
 #include <memory>
@@ -212,10 +210,6 @@ namespace art {
     // services.scheduler block and (eventually) sets up the TBB task
     // scheduler.
     tsan<Scheduler> scheduler_;
-
-    // The FPU must be inherited after the scheduler is initialized.
-    // We therefore delay-initialize the group.
-    std::unique_ptr<tbb::task_group> group_{nullptr};
 
     ScheduleIteration scheduleIteration_;
 

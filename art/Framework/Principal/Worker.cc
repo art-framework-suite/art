@@ -613,7 +613,7 @@ namespace art {
   }
 
   void
-  Worker::doWork_event(tbb::task* workerInPathDoneTask,
+  Worker::doWork_event(task_ptr_t workerInPathDoneTask,
                        EventPrincipal& p,
                        ModuleContext const& mc)
   {

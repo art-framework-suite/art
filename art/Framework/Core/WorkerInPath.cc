@@ -5,9 +5,9 @@
 #include "art/Framework/Principal/ExecutionCounts.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Utilities/TaskDebugMacros.h"
+#include "art/Utilities/TaskGroup.h"
 #include "art/Utilities/Transition.h"
 #include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/tsan.h"
 
 #include <atomic>
 #include <iomanip>
@@ -23,20 +23,10 @@ using namespace std;
 
 namespace art {
 
-  WorkerInPath::~WorkerInPath() noexcept
-  {
-    worker_ = nullptr;
-    delete waitingTasks_.load();
-    waitingTasks_ = nullptr;
-  }
-
   WorkerInPath::WorkerInPath(Worker* w,
                              FilterAction const fa,
                              ModuleContext const& mc)
-    : worker_{w}
-    , filterAction_{fa}
-    , moduleContext_{mc}
-    , waitingTasks_{new WaitingTaskList}
+    : worker_{w}, filterAction_{fa}, moduleContext_{mc}
   {}
 
   WorkerInPath::WorkerInPath(WorkerInPath&& rhs)
@@ -45,13 +35,11 @@ namespace art {
     , moduleContext_{std::move(rhs.moduleContext_)}
   {
     returnCode_ = rhs.returnCode_.load();
-    waitingTasks_ = rhs.waitingTasks_.load();
     counts_visited_ = rhs.counts_visited_.load();
     counts_passed_ = rhs.counts_passed_.load();
     counts_failed_ = rhs.counts_failed_.load();
     counts_thrown_ = rhs.counts_thrown_.load();
     rhs.worker_ = nullptr;
-    rhs.waitingTasks_ = nullptr;
   }
 
   WorkerInPath&
@@ -61,8 +49,6 @@ namespace art {
     rhs.worker_ = nullptr;
     filterAction_ = rhs.filterAction_.load();
     returnCode_ = rhs.returnCode_.load();
-    waitingTasks_ = rhs.waitingTasks_.load();
-    rhs.waitingTasks_ = nullptr;
     counts_visited_.store(rhs.counts_visited_.load());
     counts_passed_.store(rhs.counts_passed_.load());
     counts_failed_.store(rhs.counts_failed_.load());
@@ -144,8 +130,10 @@ namespace art {
 
   class WorkerInPath::WorkerInPathDoneTask {
   public:
-    WorkerInPathDoneTask(WorkerInPath* wip, ScheduleID const scheduleID)
-      : wip_{wip}, sid_{scheduleID}
+    WorkerInPathDoneTask(WorkerInPath* wip,
+                         ScheduleID const scheduleID,
+                         task_ptr_t workerDoneTask)
+      : wip_{wip}, sid_{scheduleID}, workerDoneTask_{std::move(workerDoneTask)}
     {}
 
     void
@@ -154,7 +142,7 @@ namespace art {
       TDEBUG_BEGIN_TASK_SI(4, sid_);
       if (ex) {
         ++wip_->counts_thrown_;
-        wip_->waitingTasks_.load()->doneWaiting(ex);
+        TaskGroup::run(workerDoneTask_, ex);
         TDEBUG_END_TASK_SI(4, sid_) << "because of EXCEPTION";
         return;
       }
@@ -176,34 +164,29 @@ namespace art {
       }
       TDEBUG_END_TASK_SI(4, sid_)
         << "returnCode_: " << wip_->returnCode_.load();
-      wip_->waitingTasks_.load()->doneWaiting();
+      TaskGroup::run(workerDoneTask_);
     }
 
   private:
     WorkerInPath* wip_;
     ScheduleID const sid_;
+    task_ptr_t workerDoneTask_;
   };
 
   void
-  WorkerInPath::run(tbb::task* workerDoneTask, EventPrincipal& ep)
+  WorkerInPath::run(task_ptr_t workerDoneTask, EventPrincipal& ep)
   {
     auto const scheduleID = moduleContext_.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
-    // Reset the waiting task list so that it stops running tasks and switches
-    // to holding them. Note: There will only ever be one entry in this list!
-    TDEBUG_FUNC_SI(6, scheduleID)
-      << hex << this << dec << " Resetting waitingTasks_";
-    waitingTasks_.load()->reset();
-    waitingTasks_.load()->add(workerDoneTask);
     ++counts_visited_;
-    auto workerInPathDoneTask = make_waiting_task(
-      tbb::task::allocate_root(), WorkerInPathDoneTask{this, scheduleID});
     try {
+      auto workerInPathDoneTask = make_waiting_task<WorkerInPathDoneTask>(
+        this, scheduleID, workerDoneTask);
       worker_.load()->doWork_event(workerInPathDoneTask, ep, moduleContext_);
     }
     catch (...) {
       ++counts_thrown_;
-      waitingTasks_.load()->doneWaiting(current_exception());
+      TaskGroup::run(workerDoneTask, current_exception());
       TDEBUG_END_FUNC_SI(4, scheduleID) << "because of EXCEPTION";
       return;
     }

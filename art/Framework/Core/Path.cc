@@ -20,7 +20,6 @@
 #include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "tbb/task.h"
 
 #include <algorithm>
 #include <atomic>
@@ -194,26 +193,17 @@ namespace art {
     }
   }
 
-  // We come here as part of the readAndProcessEvent task, or as part
-  // of the endPath task.  Our parent is the nullptr.  The parent of
-  // the pathsDoneTask is the eventLoop task.
   void
-  Path::process(tbb::task* pathsDoneTask, EventPrincipal& ep)
+  Path::process(task_ptr_t pathsDoneTask, EventPrincipal& ep)
   {
+    // We come here as part of the readAndProcessEvent task (schedule
+    // head task), or as part of the endPath task.
     auto const sid = pc_.scheduleID();
-    // Note: We are part of the readAndProcessEventTask (stream head task),
-    // or the endPath task, and our parent task is the nullptr.
-    // The parent of the pathsDoneTask is the eventLoop Task.
     TDEBUG_BEGIN_FUNC_SI(4, sid);
     TDEBUG_FUNC_SI(6, sid) << hex << this << dec << " Resetting waitingTasks_";
 
     // Make sure the list is not auto-spawning tasks.
-    waitingTasks_.reset();
-    // Note: This task list will never have more than one entry.
-    waitingTasks_.add(pathsDoneTask);
-    {
-      actReg_.sPreProcessPath.invoke(pc_);
-    }
+    actReg_.sPreProcessPath.invoke(pc_);
     ++timesRun_;
     state_ = hlt::Ready;
     size_t idx = 0;
@@ -221,7 +211,7 @@ namespace art {
     // Start the task spawn chain going with the first worker on the
     // path.  Each worker will spawn the next worker in order, until
     // all the workers have run.
-    process_event_idx_asynch(idx, max_idx, ep);
+    process_event_idx_asynch(idx, max_idx, ep, pathsDoneTask);
     TDEBUG_END_FUNC_SI(4, sid);
   }
 
@@ -230,21 +220,26 @@ namespace art {
     RunWorkerTask(Path* path,
                   size_t const idx,
                   size_t const max_idx,
-                  EventPrincipal& ep)
-      : path_{path}, idx_{idx}, max_idx_{max_idx}, ep_{ep}
+                  EventPrincipal& ep,
+                  task_ptr_t pathsDone)
+      : path_{path}
+      , idx_{idx}
+      , max_idx_{max_idx}
+      , ep_{ep}
+      , pathsDone_{pathsDone}
     {}
-    void operator()(exception_ptr) const
+    void
+    operator()() const
     {
       auto const sid = path_->pc_.scheduleID();
-      // Note: When we start here our parent task is the nullptr.
       TDEBUG_BEGIN_TASK_SI(4, sid);
       auto new_idx = idx_;
       try {
-        path_->process_event_idx(new_idx, max_idx_, ep_);
+        path_->process_event_idx(new_idx, max_idx_, ep_, pathsDone_);
         TDEBUG_END_TASK_SI(4, sid);
       }
       catch (...) {
-        path_->waitingTasks_.doneWaiting(current_exception());
+        TaskGroup::run(pathsDone_, current_exception());
         TDEBUG_END_TASK_SI(4, sid) << "path terminate because of EXCEPTION";
       }
     }
@@ -254,6 +249,7 @@ namespace art {
     size_t const idx_;
     size_t const max_idx_;
     EventPrincipal& ep_;
+    task_ptr_t pathsDone_;
   };
 
   // This function is a spawn chain system to run workers one at a time,
@@ -263,15 +259,12 @@ namespace art {
   void
   Path::process_event_idx_asynch(size_t const idx,
                                  size_t const max_idx,
-                                 EventPrincipal& ep)
+                                 EventPrincipal& ep,
+                                 task_ptr_t pathsDone)
   {
     auto const sid = pc_.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx;
-    auto runWorkerTask = make_waiting_task(
-      tbb::task::allocate_root(), RunWorkerTask{this, idx, max_idx, ep});
-    tbb::task::spawn(*runWorkerTask);
-    // And end this task, which does not terminate event processing
-    // because our parent task is the nullptr.
+    TaskGroup::get().run(RunWorkerTask{this, idx, max_idx, ep, pathsDone});
     TDEBUG_END_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx;
   }
 
@@ -280,8 +273,13 @@ namespace art {
     WorkerDoneTask(Path* path,
                    size_t const idx,
                    size_t const max_idx,
-                   EventPrincipal& ep)
-      : path_{path}, idx_{idx}, max_idx_{max_idx}, ep_{ep}
+                   EventPrincipal& ep,
+                   task_ptr_t pathsDone)
+      : path_{path}
+      , idx_{idx}
+      , max_idx_{max_idx}
+      , ep_{ep}
+      , pathsDone_{pathsDone}
     {}
     void
     operator()(exception_ptr ex)
@@ -313,7 +311,7 @@ namespace art {
                 errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
               << "Exception going through path " << path_->name() << "\n";
             auto ex_ptr = make_exception_ptr(art_ex);
-            path_->waitingTasks_.doneWaiting(ex_ptr);
+            TaskGroup::run(pathsDone_, ex_ptr);
             TDEBUG_END_TASK_SI(4, sid) << "terminate path because of EXCEPTION";
             return;
           }
@@ -333,13 +331,14 @@ namespace art {
             (*path_->trptr_.load())[path_->bitpos_] =
               HLTPathStatus(path_->state_, idx_);
           }
-          path_->waitingTasks_.doneWaiting(current_exception());
+          TaskGroup::run(pathsDone_, current_exception());
           TDEBUG_END_TASK_SI(4, sid) << "terminate path because of EXCEPTION";
           return;
         }
       }
+
       path_->process_event_workerFinished(
-        idx_, max_idx_, ep_, new_should_continue);
+        idx_, max_idx_, ep_, new_should_continue, pathsDone_);
       TDEBUG_END_TASK_SI(4, sid);
     }
 
@@ -348,19 +347,20 @@ namespace art {
     size_t const idx_;
     size_t const max_idx_;
     EventPrincipal& ep_;
+    task_ptr_t pathsDone_;
   };
 
-  // This function is the main body of the Run Worker task.  Note: Our
-  // parent task is the nullptr.
+  // This function is the main body of the Run Worker task.
   void
   Path::process_event_idx(size_t const idx,
                           size_t const max_idx,
-                          EventPrincipal& ep)
+                          EventPrincipal& ep,
+                          task_ptr_t pathsDone)
   {
     auto const sid = pc_.scheduleID();
     TDEBUG_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx;
-    auto workerDoneTask = make_waiting_task(
-      tbb::task::allocate_root(), WorkerDoneTask{this, idx, max_idx, ep});
+    auto workerDoneTask =
+      make_waiting_task<WorkerDoneTask>(this, idx, max_idx, ep, pathsDone);
     auto& workerInPath = workers_[idx];
     workerInPath.run(workerDoneTask, ep);
     TDEBUG_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx;
@@ -370,7 +370,8 @@ namespace art {
   Path::process_event_workerFinished(size_t const idx,
                                      size_t const max_idx,
                                      EventPrincipal& ep,
-                                     bool const should_continue)
+                                     bool const should_continue,
+                                     task_ptr_t pathsDone)
   {
     auto const sid = pc_.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx
@@ -379,7 +380,7 @@ namespace art {
     // Move on to the next worker.
     if (should_continue && (new_idx < max_idx)) {
       // Spawn the next worker.
-      process_event_idx_asynch(new_idx, max_idx, ep);
+      process_event_idx_asynch(new_idx, max_idx, ep, pathsDone);
       // And end this one.
       TDEBUG_END_FUNC_SI(4, sid)
         << "new_idx: " << new_idx << " max_idx: " << max_idx;
@@ -387,16 +388,17 @@ namespace art {
     }
 
     // All done, or filter rejected, or error.
-    process_event_pathFinished(new_idx, should_continue);
+    process_event_pathFinished(new_idx, should_continue, pathsDone);
     // And end the path here.
     TDEBUG_END_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx;
   }
 
-  // We come here as as part of a runWorker task.  Our parent task is
-  // the nullptr.
   void
-  Path::process_event_pathFinished(size_t const idx, bool const should_continue)
+  Path::process_event_pathFinished(size_t const idx,
+                                   bool const should_continue,
+                                   task_ptr_t pathsDone)
   {
+    // We come here as as part of a runWorker task.
     auto const sid = pc_.scheduleID();
     TDEBUG_FUNC_SI(4, sid) << "idx: " << idx
                            << " should_continue: " << should_continue;
@@ -420,7 +422,7 @@ namespace art {
     catch (...) {
       ex_ptr = std::current_exception();
     }
-    waitingTasks_.doneWaiting(ex_ptr);
+    TaskGroup::run(pathsDone, ex_ptr);
     TDEBUG_FUNC_SI(4, sid) << "idx: " << idx
                            << " should_continue: " << should_continue
                            << (ex_ptr ? " EXCEPTION" : "");
