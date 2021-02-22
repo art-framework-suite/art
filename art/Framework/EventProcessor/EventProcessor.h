@@ -23,6 +23,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
+#include "art/Utilities/GlobalTaskGroup.h"
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/ScheduleIteration.h"
@@ -210,6 +211,8 @@ namespace art {
     // services.scheduler block and (eventually) sets up the TBB task
     // scheduler.
     tsan<Scheduler> scheduler_;
+
+    std::unique_ptr<GlobalTaskGroup> taskGroup_{nullptr};
 
     ScheduleIteration scheduleIteration_;
 

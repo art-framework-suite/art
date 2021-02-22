@@ -52,12 +52,15 @@
 #include <vector>
 
 namespace art {
+  class GlobalTaskGroup;
+
   class TriggerPathsExecutor {
   public:
     TriggerPathsExecutor(ScheduleID,
                          PathManager&,
                          ActionTable const&,
-                         std::unique_ptr<Worker> triggerResultsInserter);
+                         std::unique_ptr<Worker> triggerResultsInserter,
+                         GlobalTaskGroup& group);
 
     // Disable copy/move operations
     TriggerPathsExecutor(TriggerPathsExecutor const&) = delete;
@@ -67,7 +70,8 @@ namespace art {
 
     // API presented to EventProcessor
     void process(Transition, Principal&);
-    void process_event(task_ptr_t endPathTask, EventPrincipal&);
+    void process_event(hep::concurrency::WaitingTaskPtr endPathTask,
+                       EventPrincipal&);
     void beginJob();
     void endJob();
     void respondToOpenInputFile(FileBlock const&);
@@ -87,6 +91,7 @@ namespace art {
     ActionTable const& actionTable_;
     PathsInfo& triggerPathsInfo_;
     std::unique_ptr<Worker> results_inserter_;
+    GlobalTaskGroup& taskGroup_;
   };
 } // namespace art
 

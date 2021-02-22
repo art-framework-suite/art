@@ -4,8 +4,8 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Principal/ExecutionCounts.h"
 #include "art/Framework/Principal/Worker.h"
+#include "art/Utilities/GlobalTaskGroup.h"
 #include "art/Utilities/TaskDebugMacros.h"
-#include "art/Utilities/TaskGroup.h"
 #include "art/Utilities/Transition.h"
 #include "hep_concurrency/WaitingTask.h"
 
@@ -25,14 +25,16 @@ namespace art {
 
   WorkerInPath::WorkerInPath(Worker* w,
                              FilterAction const fa,
-                             ModuleContext const& mc)
-    : worker_{w}, filterAction_{fa}, moduleContext_{mc}
+                             ModuleContext const& mc,
+                             GlobalTaskGroup& taskGroup)
+    : worker_{w}, filterAction_{fa}, moduleContext_{mc}, taskGroup_{&taskGroup}
   {}
 
   WorkerInPath::WorkerInPath(WorkerInPath&& rhs)
     : worker_{rhs.worker_.load()}
     , filterAction_{rhs.filterAction_.load()}
     , moduleContext_{std::move(rhs.moduleContext_)}
+    , taskGroup_{rhs.taskGroup_}
   {
     returnCode_ = rhs.returnCode_.load();
     counts_visited_ = rhs.counts_visited_.load();
@@ -54,6 +56,7 @@ namespace art {
     counts_failed_.store(rhs.counts_failed_.load());
     counts_thrown_.store(rhs.counts_thrown_.load());
     moduleContext_ = rhs.moduleContext_;
+    taskGroup_ = std::exchange(rhs.taskGroup_, nullptr);
     return *this;
   }
 
@@ -132,8 +135,12 @@ namespace art {
   public:
     WorkerInPathDoneTask(WorkerInPath* wip,
                          ScheduleID const scheduleID,
-                         task_ptr_t workerDoneTask)
-      : wip_{wip}, sid_{scheduleID}, workerDoneTask_{std::move(workerDoneTask)}
+                         WaitingTaskPtr workerDoneTask,
+                         GlobalTaskGroup* taskGroup)
+      : wip_{wip}
+      , sid_{scheduleID}
+      , workerDoneTask_{std::move(workerDoneTask)}
+      , taskGroup_{taskGroup}
     {}
 
     void
@@ -142,7 +149,7 @@ namespace art {
       TDEBUG_BEGIN_TASK_SI(4, sid_);
       if (ex) {
         ++wip_->counts_thrown_;
-        TaskGroup::run(workerDoneTask_, ex);
+        taskGroup_->may_run(workerDoneTask_, ex);
         TDEBUG_END_TASK_SI(4, sid_) << "because of EXCEPTION";
         return;
       }
@@ -164,29 +171,30 @@ namespace art {
       }
       TDEBUG_END_TASK_SI(4, sid_)
         << "returnCode_: " << wip_->returnCode_.load();
-      TaskGroup::run(workerDoneTask_);
+      taskGroup_->may_run(workerDoneTask_);
     }
 
   private:
     WorkerInPath* wip_;
     ScheduleID const sid_;
-    task_ptr_t workerDoneTask_;
+    WaitingTaskPtr workerDoneTask_;
+    GlobalTaskGroup* taskGroup_;
   };
 
   void
-  WorkerInPath::run(task_ptr_t workerDoneTask, EventPrincipal& ep)
+  WorkerInPath::run(WaitingTaskPtr workerDoneTask, EventPrincipal& ep)
   {
     auto const scheduleID = moduleContext_.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
     ++counts_visited_;
     try {
       auto workerInPathDoneTask = make_waiting_task<WorkerInPathDoneTask>(
-        this, scheduleID, workerDoneTask);
+        this, scheduleID, workerDoneTask, taskGroup_);
       worker_.load()->doWork_event(workerInPathDoneTask, ep, moduleContext_);
     }
     catch (...) {
       ++counts_thrown_;
-      TaskGroup::run(workerDoneTask, current_exception());
+      taskGroup_->may_run(workerDoneTask, current_exception());
       TDEBUG_END_FUNC_SI(4, scheduleID) << "because of EXCEPTION";
       return;
     }

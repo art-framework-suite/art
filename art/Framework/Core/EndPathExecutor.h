@@ -40,6 +40,8 @@
 #include <vector>
 
 namespace art {
+  class GlobalTaskGroup;
+
   class EndPathExecutor {
     friend class Schedule;
 
@@ -48,7 +50,8 @@ namespace art {
                     PathManager& pm,
                     ActionTable const& actions,
                     ActivityRegistry const& areg,
-                    UpdateOutputCallbacks& callbacks);
+                    UpdateOutputCallbacks& callbacks,
+                    GlobalTaskGroup& task_group);
 
     EndPathExecutor(EndPathExecutor&&) = delete;
     EndPathExecutor& operator=(EndPathExecutor&&) = delete;
@@ -83,7 +86,8 @@ namespace art {
     // Used to make sure only one event is being processed at a time.
     // The schedules take turns having their events processed on a
     // first-come first-served basis (FIFO).
-    void process_event(task_ptr_t finalizeEventTask, EventPrincipal&);
+    void process_event(hep::concurrency::WaitingTaskPtr finalizeEventTask,
+                       EventPrincipal&);
     void writeEvent(EventPrincipal&);
 
     // Output File Switching API
@@ -128,6 +132,7 @@ namespace art {
     ActionTable const& actionTable_;
     ActivityRegistry const& actReg_;
     PathsInfo& endPathInfo_;
+    GlobalTaskGroup& taskGroup_;
     // Filled by ctor, const after that.
     std::vector<OutputWorker*> outputWorkers_{};
     // Dynamic, updated by run processing.

@@ -2,6 +2,7 @@ art_make_library(
   SOURCE
     ensureTable.cc
     ExceptionMessages.cc
+    GlobalTaskGroup.cc
     Globals.cc
     LinuxProcMgr.cc
     MallocOpts.cc
@@ -12,7 +13,6 @@ art_make_library(
     SharedResource.cc
     SharedResourcesRegistry.cc
     TaskDebugMacros.cc
-    TaskGroup.cc
     unique_filename.cc
     UnixSignalHandlers.cc
     $<$<PLATFORM_ID:Linux>:LinuxProcMgr.cc>

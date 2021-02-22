@@ -117,6 +117,7 @@ namespace art {
     , md_{md}
     , actions_{wp.actions_}
     , actReg_{wp.actReg_}
+    , waitingTasks_{wp.taskGroup_}
   {
     TDEBUG_FUNC_SI(5, wp.scheduleID_)
       << hex << this << dec << " name: " << md.moduleName()
@@ -613,7 +614,7 @@ namespace art {
   }
 
   void
-  Worker::doWork_event(task_ptr_t workerInPathDoneTask,
+  Worker::doWork_event(WaitingTaskPtr workerInPathDoneTask,
                        EventPrincipal& p,
                        ModuleContext const& mc)
   {

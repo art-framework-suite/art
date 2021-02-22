@@ -72,7 +72,6 @@ namespace art {
     ProcessConfigurationRegistry::instance(true);
     ProcessHistoryRegistry::instance(true);
     SharedResourcesRegistry::instance(true);
-    TaskGroup::shutdown();
     ANNOTATE_THREAD_IGNORE_END;
   }
 
@@ -100,7 +99,8 @@ namespace art {
                                    ProductDescriptions& productsToProduce,
                                    ActionTable const& actions,
                                    ActivityRegistry const& actReg,
-                                   PathsInfo& pathsInfo)
+                                   PathsInfo& pathsInfo,
+                                   GlobalTaskGroup& task_group)
     {
       if (pathsInfo.paths().empty()) {
         return std::unique_ptr<Worker>{nullptr};
@@ -114,7 +114,8 @@ namespace art {
                             actReg,
                             actions,
                             processName,
-                            scheduleID};
+                            scheduleID,
+                            task_group.native_group()};
       ModuleDescription md{
         trig_pset.id(),
         "TriggerResultInserter",
@@ -176,7 +177,7 @@ namespace art {
     // we let tbb create any threads. This means they cannot use tbb
     // in their constructors, instead they must use the beginJob
     // callout.
-    scheduler_->initialize_task_manager();
+    taskGroup_ = scheduler_->global_task_group();
     // Whenever we are ready to enable ROOT's implicit MT, which is
     // equivalent to its use of TBB, the call should be made after our
     // own TBB task manager has been initialized.
@@ -213,7 +214,7 @@ namespace art {
     ProcessConfiguration const pc{processName, pset.id(), getReleaseVersion()};
     auto const producing_services = servicesManager_->registerProducts(
       producedProductDescriptions_, psSignals_, pc);
-    pathManager_->createModulesAndWorkers(producing_services);
+    pathManager_->createModulesAndWorkers(*taskGroup_, producing_services);
     auto create =
       [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
         auto results_inserter =
@@ -225,7 +226,8 @@ namespace art {
                                          producedProductDescriptions_,
                                          scheduler_->actionTable(),
                                          actReg_,
-                                         pathManager_->triggerPathsInfo(sid));
+                                         pathManager_->triggerPathsInfo(sid),
+                                         *taskGroup_);
         schedules_->emplace(std::piecewise_construct,
                             std::forward_as_tuple(sid),
                             std::forward_as_tuple(sid,
@@ -233,10 +235,11 @@ namespace art {
                                                   scheduler_->actionTable(),
                                                   actReg_,
                                                   outputCallbacks_,
-                                                  move(results_inserter)));
+                                                  move(results_inserter),
+                                                  *taskGroup_));
       };
     scheduleIteration_.for_each_schedule(create);
-    SharedResourcesRegistry::instance()->freeze(TaskGroup::get());
+    SharedResourcesRegistry::instance()->freeze(taskGroup_->native_group());
 
     FDEBUG(2) << pset.to_string() << endl;
     // The input source must be created after the end path executor
@@ -1097,11 +1100,11 @@ namespace art {
       beginRunIfNotDoneAlready();
       beginSubRunIfNotDoneAlready();
 
-      for (int i = 0; i != scheduler_->num_schedules(); ++i) {
-        TaskGroup::get().run(
+      for (unsigned i = 0; i != scheduler_->num_schedules(); ++i) {
+        taskGroup_->run(
           [this, i] { this->processAllEventsAsync(ScheduleID(i)); });
       }
-      TaskGroup::get().wait();
+      taskGroup_->native_group().wait();
 
       // If anything bad happened during event processing, let the
       // user know.

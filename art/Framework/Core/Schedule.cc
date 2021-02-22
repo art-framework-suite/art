@@ -47,12 +47,17 @@ namespace art {
                      ActionTable const& actions,
                      ActivityRegistry const& actReg,
                      UpdateOutputCallbacks& outputCallbacks,
-                     std::unique_ptr<Worker> triggerResultsInserter)
+                     std::unique_ptr<Worker> triggerResultsInserter,
+                     GlobalTaskGroup& task_group)
     : context_{scheduleID}
     , actions_{actions}
     , actReg_{actReg}
-    , epExec_{scheduleID, pm, actions, actReg_, outputCallbacks}
-    , tpsExec_{scheduleID, pm, actions, move(triggerResultsInserter)}
+    , epExec_{scheduleID, pm, actions, actReg_, outputCallbacks, task_group}
+    , tpsExec_{scheduleID,
+               pm,
+               actions,
+               move(triggerResultsInserter),
+               task_group}
   {
     TDEBUG_FUNC_SI(5, scheduleID) << hex << this << dec;
   }
@@ -107,7 +112,7 @@ namespace art {
   }
 
   void
-  Schedule::process_event_modifiers(task_ptr_t endPathTask)
+  Schedule::process_event_modifiers(WaitingTaskPtr endPathTask)
   {
     // We get here as part of the readAndProcessEvent task.
     actReg_.sPreProcessEvent.invoke(
@@ -116,7 +121,7 @@ namespace art {
   }
 
   void
-  Schedule::process_event_observers(task_ptr_t finalizeEventTask)
+  Schedule::process_event_observers(WaitingTaskPtr finalizeEventTask)
   {
     epExec_.process_event(finalizeEventTask, *eventPrincipal_);
   }

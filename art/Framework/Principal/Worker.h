@@ -31,11 +31,7 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/ScheduleID.h"
-#include "art/Utilities/TaskGroup.h"
 #include "art/Utilities/Transition.h"
-#include "canvas/Utilities/Exception.h"
-#include "cetlib_except/exception.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/WaitingTaskList.h"
 
 #include <atomic>
@@ -46,17 +42,11 @@
 #include <utility>
 #include <vector>
 
-namespace tbb {
-  class task;
-}
-
 namespace hep::concurrency {
   class SerialTaskQueueChain;
 }
 
 namespace art {
-
-  using task_ptr_t = std::shared_ptr<hep::concurrency::WaitingTask>;
 
   class ActivityRegistry;
   class ModuleContext;
@@ -69,18 +59,10 @@ namespace art {
     friend class RunWorkerFunctor;
 
   public:
-    enum State : int {
-      Ready = 0,
-      Pass = 1,
-      Fail = 2,
-      Working = 3,
-      ExceptionThrown = 4
-    };
+    enum State { Ready, Pass, Fail, Working, ExceptionThrown };
 
     virtual ~Worker() = default;
     Worker(ModuleDescription const&, WorkerParams const&);
-    Worker(Worker const&) = delete;
-    Worker(Worker&) = delete;
 
     void beginJob();
     void endJob();
@@ -90,7 +72,7 @@ namespace art {
     void respondToCloseOutputFiles(FileBlock const& fb);
     bool doWork(Transition, Principal&, ModuleContext const&);
 
-    void doWork_event(task_ptr_t workerInPathDoneTask,
+    void doWork_event(hep::concurrency::WaitingTaskPtr workerInPathDoneTask,
                       EventPrincipal&,
                       ModuleContext const&);
 
@@ -166,7 +148,7 @@ namespace art {
     // modules the workers are shared.  For replicated modules each
     // schedule has its own private worker copies (the whole reason
     // schedules exist!).
-    hep::concurrency::WaitingTaskList waitingTasks_{TaskGroup::get()};
+    hep::concurrency::WaitingTaskList waitingTasks_;
 
   protected:
     std::atomic<std::size_t> counts_visited_{};

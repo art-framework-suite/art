@@ -2,6 +2,7 @@
 #define art_Framework_EventProcessor_Scheduler_h
 
 #include "art/Framework/Principal/Actions.h"
+#include "art/Utilities/GlobalTaskGroup.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalDelegatedParameter.h"
@@ -32,8 +33,8 @@ namespace art {
       //        specified in the program-options handlers.
       using Name = fhicl::Name;
       using Comment = fhicl::Comment;
-      fhicl::Atom<int> num_threads{Name{"num_threads"}, 1};
-      fhicl::Atom<int> num_schedules{Name{"num_schedules"}, 1};
+      fhicl::Atom<unsigned> num_threads{Name{"num_threads"}, 1};
+      fhicl::Atom<unsigned> num_schedules{Name{"num_schedules"}, 1};
       fhicl::Atom<unsigned> stack_size{
         Name{"stack_size"},
         Comment{"The stack size (in bytes) that the TBB scheduler will use for "
@@ -76,12 +77,12 @@ namespace art {
       return actionTable_;
     }
 
-    int
+    unsigned
     num_threads() const noexcept
     {
       return nThreads_;
     }
-    int
+    unsigned
     num_schedules() const noexcept
     {
       return nSchedules_;
@@ -112,22 +113,20 @@ namespace art {
       return dataDependencyGraph_;
     }
 
-    void initialize_task_manager();
+    std::unique_ptr<GlobalTaskGroup> global_task_group();
 
   private:
     // A table of responses to be taken on reception of thrown
     // exceptions.
     ActionTable actionTable_;
-    int const nThreads_;
-    int const nSchedules_;
+    unsigned const nThreads_;
+    unsigned const nSchedules_;
     unsigned const stackSize_;
     bool const handleEmptyRuns_;
     bool const handleEmptySubRuns_;
     bool const errorOnMissingConsumes_;
     bool const wantSummary_;
     std::string const dataDependencyGraph_;
-    std::unique_ptr<tbb::global_control> threadControl_;
-    std::unique_ptr<tbb::global_control> stackSizeControl_;
   };
 }
 

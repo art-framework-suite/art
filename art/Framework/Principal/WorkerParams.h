@@ -12,6 +12,10 @@
 
 #include <string>
 
+namespace tbb {
+  class task_group;
+}
+
 namespace art {
 
   class ActionTable;
@@ -27,7 +31,8 @@ namespace art {
                  ActivityRegistry const& actReg,
                  ActionTable const& actions,
                  std::string const& processName,
-                 ScheduleID const sid)
+                 ScheduleID const sid,
+                 tbb::task_group& group)
       : procPset_{procPset}
       , pset_{pset}
       , reg_{reg}
@@ -36,6 +41,7 @@ namespace art {
       , actions_{actions}
       , processName_{processName}
       , scheduleID_{sid}
+      , taskGroup_{group}
     {}
 
     fhicl::ParameterSet const& procPset_;
@@ -46,6 +52,7 @@ namespace art {
     ActionTable const& actions_;
     std::string const processName_;
     ScheduleID scheduleID_;
+    tbb::task_group& taskGroup_;
   };
 
 } // namespace art

@@ -40,6 +40,7 @@ namespace art {
 
   class ActionTable;
   class ActivityRegistry;
+  class GlobalTaskGroup;
   class ModuleBase;
   class UpdateOutputCallbacks;
 
@@ -61,6 +62,7 @@ namespace art {
   public: // API
     std::vector<std::string> const& triggerPathNames() const;
     void createModulesAndWorkers(
+      GlobalTaskGroup& task_group,
       std::vector<std::string> const& producing_services);
     PathsInfo& triggerPathsInfo(ScheduleID);
     PerScheduleContainer<PathsInfo>& triggerPathsInfo();
@@ -78,16 +80,19 @@ namespace art {
     std::map<std::string, detail::ModuleConfigInfo> moduleInformation_(
       detail::EnabledModules const& enabled_modules) const;
 
-    ModulesByThreadingType makeModules_(ScheduleID::size_type n);
+    ModulesByThreadingType makeModules_(ScheduleID::size_type n,
+                                        GlobalTaskGroup& task_group);
     std::pair<ModuleBase*, std::string> makeModule_(
       fhicl::ParameterSet const& module_pset,
       ModuleDescription const& md,
-      ScheduleID) const;
+      ScheduleID,
+      GlobalTaskGroup& task_group) const;
     std::vector<WorkerInPath> fillWorkers_(
       PathContext const& pc,
       std::vector<WorkerInPath::ConfigInfo> const& wci_list,
       ModulesByThreadingType const& modules,
-      std::map<std::string, Worker*>& workers);
+      std::map<std::string, Worker*>& workers,
+      GlobalTaskGroup& task_group);
     ModuleType loadModuleType_(std::string const& lib_spec) const;
     ModuleThreadingType loadModuleThreadingType_(
       std::string const& lib_spec) const;

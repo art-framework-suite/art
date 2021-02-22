@@ -41,13 +41,15 @@ namespace art {
              ActivityRegistry const& actReg,
              PathContext const& pc,
              vector<WorkerInPath>&& workers,
-             HLTGlobalStatus* pathResults) noexcept
+             HLTGlobalStatus* pathResults,
+             GlobalTaskGroup& taskGroup) noexcept
     : actionTable_{actions}
     , actReg_{actReg}
     , pc_{pc}
     , bitpos_{pc.bitPosition()}
     , workers_{move(workers)}
     , trptr_{pathResults}
+    , taskGroup_{taskGroup}
   {
     TDEBUG_FUNC_SI(4, pc_.scheduleID()) << hex << this << dec;
   }
@@ -194,7 +196,7 @@ namespace art {
   }
 
   void
-  Path::process(task_ptr_t pathsDoneTask, EventPrincipal& ep)
+  Path::process(WaitingTaskPtr pathsDoneTask, EventPrincipal& ep)
   {
     // We come here as part of the readAndProcessEvent task (schedule
     // head task), or as part of the endPath task.
@@ -221,12 +223,14 @@ namespace art {
                   size_t const idx,
                   size_t const max_idx,
                   EventPrincipal& ep,
-                  task_ptr_t pathsDone)
+                  WaitingTaskPtr pathsDone,
+                  GlobalTaskGroup& group)
       : path_{path}
       , idx_{idx}
       , max_idx_{max_idx}
       , ep_{ep}
       , pathsDone_{pathsDone}
+      , group_{group}
     {}
     void
     operator()() const
@@ -239,7 +243,7 @@ namespace art {
         TDEBUG_END_TASK_SI(4, sid);
       }
       catch (...) {
-        TaskGroup::run(pathsDone_, current_exception());
+        group_.may_run(pathsDone_, current_exception());
         TDEBUG_END_TASK_SI(4, sid) << "path terminate because of EXCEPTION";
       }
     }
@@ -249,7 +253,8 @@ namespace art {
     size_t const idx_;
     size_t const max_idx_;
     EventPrincipal& ep_;
-    task_ptr_t pathsDone_;
+    WaitingTaskPtr pathsDone_;
+    GlobalTaskGroup& group_;
   };
 
   // This function is a spawn chain system to run workers one at a time,
@@ -260,11 +265,12 @@ namespace art {
   Path::process_event_idx_asynch(size_t const idx,
                                  size_t const max_idx,
                                  EventPrincipal& ep,
-                                 task_ptr_t pathsDone)
+                                 WaitingTaskPtr pathsDone)
   {
     auto const sid = pc_.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx;
-    TaskGroup::get().run(RunWorkerTask{this, idx, max_idx, ep, pathsDone});
+    taskGroup_.run(
+      RunWorkerTask{this, idx, max_idx, ep, pathsDone, taskGroup_});
     TDEBUG_END_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx;
   }
 
@@ -274,12 +280,14 @@ namespace art {
                    size_t const idx,
                    size_t const max_idx,
                    EventPrincipal& ep,
-                   task_ptr_t pathsDone)
+                   WaitingTaskPtr pathsDone,
+                   GlobalTaskGroup& group)
       : path_{path}
       , idx_{idx}
       , max_idx_{max_idx}
       , ep_{ep}
       , pathsDone_{pathsDone}
+      , group_{group}
     {}
     void
     operator()(exception_ptr ex)
@@ -311,7 +319,7 @@ namespace art {
                 errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
               << "Exception going through path " << path_->name() << "\n";
             auto ex_ptr = make_exception_ptr(art_ex);
-            TaskGroup::run(pathsDone_, ex_ptr);
+            group_.may_run(pathsDone_, ex_ptr);
             TDEBUG_END_TASK_SI(4, sid) << "terminate path because of EXCEPTION";
             return;
           }
@@ -331,7 +339,7 @@ namespace art {
             (*path_->trptr_.load())[path_->bitpos_] =
               HLTPathStatus(path_->state_, idx_);
           }
-          TaskGroup::run(pathsDone_, current_exception());
+          group_.may_run(pathsDone_, current_exception());
           TDEBUG_END_TASK_SI(4, sid) << "terminate path because of EXCEPTION";
           return;
         }
@@ -347,7 +355,8 @@ namespace art {
     size_t const idx_;
     size_t const max_idx_;
     EventPrincipal& ep_;
-    task_ptr_t pathsDone_;
+    WaitingTaskPtr pathsDone_;
+    GlobalTaskGroup& group_;
   };
 
   // This function is the main body of the Run Worker task.
@@ -355,12 +364,12 @@ namespace art {
   Path::process_event_idx(size_t const idx,
                           size_t const max_idx,
                           EventPrincipal& ep,
-                          task_ptr_t pathsDone)
+                          WaitingTaskPtr pathsDone)
   {
     auto const sid = pc_.scheduleID();
     TDEBUG_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx;
-    auto workerDoneTask =
-      make_waiting_task<WorkerDoneTask>(this, idx, max_idx, ep, pathsDone);
+    auto workerDoneTask = make_waiting_task<WorkerDoneTask>(
+      this, idx, max_idx, ep, pathsDone, taskGroup_);
     auto& workerInPath = workers_[idx];
     workerInPath.run(workerDoneTask, ep);
     TDEBUG_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx;
@@ -371,7 +380,7 @@ namespace art {
                                      size_t const max_idx,
                                      EventPrincipal& ep,
                                      bool const should_continue,
-                                     task_ptr_t pathsDone)
+                                     WaitingTaskPtr pathsDone)
   {
     auto const sid = pc_.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx
@@ -396,7 +405,7 @@ namespace art {
   void
   Path::process_event_pathFinished(size_t const idx,
                                    bool const should_continue,
-                                   task_ptr_t pathsDone)
+                                   WaitingTaskPtr pathsDone)
   {
     // We come here as as part of a runWorker task.
     auto const sid = pc_.scheduleID();
@@ -422,7 +431,7 @@ namespace art {
     catch (...) {
       ex_ptr = std::current_exception();
     }
-    TaskGroup::run(pathsDone, ex_ptr);
+    taskGroup_.may_run(pathsDone, ex_ptr);
     TDEBUG_FUNC_SI(4, sid) << "idx: " << idx
                            << " should_continue: " << should_continue
                            << (ex_ptr ? " EXCEPTION" : "");

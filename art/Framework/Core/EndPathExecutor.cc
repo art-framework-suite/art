@@ -20,6 +20,7 @@
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/PathContext.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
+#include "art/Utilities/GlobalTaskGroup.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/OutputFileInfo.h"
 #include "art/Utilities/ScheduleID.h"
@@ -48,11 +49,13 @@ namespace art {
                                    PathManager& pm,
                                    ActionTable const& actionTable,
                                    ActivityRegistry const& areg,
-                                   UpdateOutputCallbacks& outputCallbacks)
+                                   UpdateOutputCallbacks& outputCallbacks,
+                                   GlobalTaskGroup& group)
     : sc_{sid}
     , actionTable_{actionTable}
     , actReg_{areg}
     , endPathInfo_{pm.endPathInfo(sid)}
+    , taskGroup_{group}
   {
     for (auto const& val : endPathInfo_.workers()) {
       auto w = val.second;
@@ -272,8 +275,11 @@ namespace art {
   class EndPathExecutor::PathsDoneTask {
   public:
     PathsDoneTask(EndPathExecutor* const endPathExec,
-                  task_ptr_t const finalizeEventTask)
-      : endPathExec_{endPathExec}, finalizeEventTask_{finalizeEventTask}
+                  WaitingTaskPtr const finalizeEventTask,
+                  GlobalTaskGroup& taskGroup)
+      : endPathExec_{endPathExec}
+      , finalizeEventTask_{finalizeEventTask}
+      , taskGroup_{taskGroup}
     {}
 
     void
@@ -291,13 +297,13 @@ namespace art {
         catch (cet::exception& e) {
           Exception tmp(errors::EventProcessorFailure, "EndPathExecutor:");
           tmp << "an exception occurred during current event processing\n" << e;
-          TaskGroup::run(finalizeEventTask_, make_exception_ptr(tmp));
+          taskGroup_.may_run(finalizeEventTask_, make_exception_ptr(tmp));
           TDEBUG_END_TASK_SI(4, scheduleID)
             << "end path processing terminate because of EXCEPTION";
           return;
         }
         catch (...) {
-          TaskGroup::run(finalizeEventTask_, current_exception());
+          taskGroup_.may_run(finalizeEventTask_, current_exception());
           TDEBUG_END_TASK_SI(4, scheduleID)
             << "end path processing terminate because of EXCEPTION";
           return;
@@ -306,19 +312,20 @@ namespace art {
 
       endPathExec_->endPathInfo_.incrementPassedEventCount();
 
-      TaskGroup::run(finalizeEventTask_);
+      taskGroup_.may_run(finalizeEventTask_);
       TDEBUG_END_TASK_SI(4, scheduleID);
     }
 
   private:
     EndPathExecutor* const endPathExec_;
-    task_ptr_t const finalizeEventTask_;
+    WaitingTaskPtr const finalizeEventTask_;
+    GlobalTaskGroup& taskGroup_;
   };
 
   // Note: We come here as part of the endPath task, our
   // parent task is the eventLoop task.
   void
-  EndPathExecutor::process_event(task_ptr_t finalizeEventTask,
+  EndPathExecutor::process_event(WaitingTaskPtr finalizeEventTask,
                                  EventPrincipal& ep)
   {
     auto const sid = sc_.id();
@@ -329,15 +336,15 @@ namespace art {
     endPathInfo_.incrementTotalEventCount();
     try {
       auto pathsDoneTask =
-        make_waiting_task<PathsDoneTask>(this, finalizeEventTask);
+        make_waiting_task<PathsDoneTask>(this, finalizeEventTask, taskGroup_);
       if (endPathInfo_.paths().empty()) {
-        TaskGroup::run(pathsDoneTask);
+        taskGroup_.may_run(pathsDoneTask);
       } else {
         endPathInfo_.paths().front()->process(pathsDoneTask, ep);
       }
     }
     catch (...) {
-      TaskGroup::run(finalizeEventTask, current_exception());
+      taskGroup_.may_run(finalizeEventTask, current_exception());
     }
     TDEBUG_END_FUNC_SI(4, sid);
   }

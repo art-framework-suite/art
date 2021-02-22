@@ -32,6 +32,7 @@ namespace art {
     struct ModuleConfigInfo;
   }
 
+  class GlobalTaskGroup;
   class PathContext;
 
   class WorkerInPath {
@@ -46,7 +47,10 @@ namespace art {
     };
 
     // Special Member Functions
-    WorkerInPath(Worker*, detail::FilterAction, ModuleContext const&);
+    WorkerInPath(Worker*,
+                 detail::FilterAction,
+                 ModuleContext const&,
+                 GlobalTaskGroup& group);
     WorkerInPath(WorkerInPath const&) = delete;
     WorkerInPath(WorkerInPath&&);
     WorkerInPath& operator=(WorkerInPath const&) = delete;
@@ -60,7 +64,7 @@ namespace art {
     bool returnCode() const;
     std::string const& label() const;
     bool run(Transition, Principal&);
-    void run(task_ptr_t workerDoneTask, EventPrincipal&);
+    void run(hep::concurrency::WaitingTaskPtr workerDoneTask, EventPrincipal&);
     void clearCounters();
 
     // Used by writeSummary
@@ -75,6 +79,7 @@ namespace art {
     std::atomic<Worker*> worker_;
     std::atomic<detail::FilterAction> filterAction_;
     ModuleContext moduleContext_;
+    GlobalTaskGroup* taskGroup_;
 
     // Per-schedule
     std::atomic<bool> returnCode_{false};

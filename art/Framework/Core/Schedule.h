@@ -38,7 +38,8 @@ namespace art {
              ActionTable const& actions,
              ActivityRegistry const& aReg,
              UpdateOutputCallbacks& outputCallbacks,
-             std::unique_ptr<Worker> triggerResultsInserter);
+             std::unique_ptr<Worker> triggerResultsInserter,
+             GlobalTaskGroup& task_group);
 
     // Disable copy/move operations
     Schedule(Schedule const&) = delete;
@@ -48,8 +49,9 @@ namespace art {
 
     // API presented to EventProcessor
     void process(Transition, Principal&);
-    void process_event_modifiers(task_ptr_t endPathTask);
-    void process_event_observers(task_ptr_t finalizeEventTask);
+    void process_event_modifiers(hep::concurrency::WaitingTaskPtr endPathTask);
+    void process_event_observers(
+      hep::concurrency::WaitingTaskPtr finalizeEventTask);
     void beginJob();
     void endJob();
     void respondToOpenInputFile(FileBlock const&);

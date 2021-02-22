@@ -13,15 +13,15 @@
 using fhicl::ParameterSet;
 
 namespace {
-  int
-  adjust_num_threads(int const specified_num_threads)
+  unsigned
+  adjust_num_threads(unsigned const specified_num_threads)
   {
     char const* p = std::getenv("OMP_NUM_THREADS");
     if (p == nullptr) {
       return specified_num_threads;
     }
 
-    auto const max_threads = std::stoi(p);
+    auto const max_threads = std::stoul(p);
     if (specified_num_threads == 0) {
       return max_threads;
     }
@@ -62,20 +62,18 @@ namespace art {
     globals.setNSchedules(nSchedules_);
   }
 
-  void
-  Scheduler::initialize_task_manager()
+  std::unique_ptr<GlobalTaskGroup>
+  Scheduler::global_task_group()
   {
     using tbb::global_control;
     auto value_of = [](auto const field) {
       return global_control::active_value(field);
     };
-    threadControl_ =
-      std::make_unique<global_control>(max_parallelism, nThreads_);
-    stackSizeControl_ =
-      std::make_unique<global_control>(thread_stack_size, stackSize_);
+    auto group = std::make_unique<GlobalTaskGroup>(nThreads_, stackSize_);
     mf::LogInfo("MTdiagnostics")
       << "TBB has been configured to use:\n"
       << "  - a maximum of " << value_of(max_parallelism) << " threads\n"
       << "  - a stack size of " << value_of(thread_stack_size) << " bytes";
+    return group;
   }
 }

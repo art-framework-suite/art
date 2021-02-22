@@ -16,6 +16,7 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PathContext.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
+#include "art/Utilities/GlobalTaskGroup.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
@@ -45,11 +46,13 @@ namespace art {
     ScheduleID const scheduleID,
     PathManager& pm,
     ActionTable const& actions,
-    std::unique_ptr<Worker> triggerResultsInserter)
+    std::unique_ptr<Worker> triggerResultsInserter,
+    GlobalTaskGroup& group)
     : sc_{scheduleID}
     , actionTable_{actions}
     , triggerPathsInfo_{pm.triggerPathsInfo(scheduleID)}
     , results_inserter_{std::move(triggerResultsInserter)}
+    , taskGroup_{group}
   {
     TDEBUG_FUNC_SI(5, scheduleID) << hex << this << dec;
   }
@@ -195,9 +198,13 @@ namespace art {
   class TriggerPathsExecutor::PathsDoneTask {
   public:
     PathsDoneTask(TriggerPathsExecutor* const schedule,
-                  task_ptr_t const endPathTask,
-                  EventPrincipal& principal)
-      : schedule_{schedule}, endPathTask_{endPathTask}, principal_{principal}
+                  WaitingTaskPtr const endPathTask,
+                  EventPrincipal& principal,
+                  GlobalTaskGroup& group)
+      : schedule_{schedule}
+      , endPathTask_{endPathTask}
+      , principal_{principal}
+      , taskGroup_{group}
     {}
 
     void
@@ -207,7 +214,7 @@ namespace art {
 
       TDEBUG_BEGIN_TASK_SI(4, scheduleID);
       if (ex) {
-        TaskGroup::run(endPathTask_, ex);
+        taskGroup_.may_run(endPathTask_, ex);
         TDEBUG_END_TASK_SI(4, scheduleID)
           << "trigger path processing terminate because of EXCEPTION";
         return;
@@ -215,10 +222,10 @@ namespace art {
 
       try {
         schedule_->process_event_paths_done(principal_);
-        TaskGroup::run(endPathTask_);
+        taskGroup_.may_run(endPathTask_);
       }
       catch (...) {
-        TaskGroup::run(endPathTask_, current_exception());
+        taskGroup_.may_run(endPathTask_, current_exception());
       };
 
       // Start the endPathTask going.
@@ -227,12 +234,13 @@ namespace art {
 
   private:
     TriggerPathsExecutor* const schedule_;
-    task_ptr_t const endPathTask_;
+    WaitingTaskPtr const endPathTask_;
     EventPrincipal& principal_;
+    GlobalTaskGroup& taskGroup_;
   };
 
   void
-  TriggerPathsExecutor::process_event(task_ptr_t endPathTask,
+  TriggerPathsExecutor::process_event(WaitingTaskPtr endPathTask,
                                       EventPrincipal& event_principal)
   {
     // We get here as part of the readAndProcessEventTask (schedule
@@ -249,14 +257,14 @@ namespace art {
     triggerPathsInfo_.incrementTotalEventCount();
     try {
       if (triggerPathsInfo_.paths().empty()) {
-        auto pathsDoneTask =
-          make_waiting_task<PathsDoneTask>(this, endPathTask, event_principal);
-        TaskGroup::run(pathsDoneTask);
+        auto pathsDoneTask = make_waiting_task<PathsDoneTask>(
+          this, endPathTask, event_principal, taskGroup_);
+        taskGroup_.may_run(pathsDoneTask);
         TDEBUG_END_FUNC_SI(4, scheduleID);
         return;
       }
       auto pathsDoneTask = std::make_shared<WaitingTask>(
-        PathsDoneTask{this, endPathTask, event_principal},
+        PathsDoneTask{this, endPathTask, event_principal, taskGroup_},
         triggerPathsInfo_.paths().size());
       for (auto& path : triggerPathsInfo_.paths()) {
         // Start each path running.  The path will start a spawn chain
@@ -270,7 +278,7 @@ namespace art {
       TDEBUG_END_FUNC_SI(4, scheduleID);
     }
     catch (...) {
-      TaskGroup::run(endPathTask, current_exception());
+      taskGroup_.may_run(endPathTask, current_exception());
       TDEBUG_END_FUNC_SI(4, scheduleID) << "because of EXCEPTION";
     }
   }
