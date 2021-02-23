@@ -1,18 +1,16 @@
 #include "art/Framework/Core/ReplicatedAnalyzer.h"
 // vim: set sw=2 expandtab :
 
-using namespace std;
-
 namespace art {
 
-  string
+  std::string
   ReplicatedAnalyzer::workerType() const
   {
     return "WorkerT<ReplicatedAnalyzer>";
   }
 
   void
-  ReplicatedAnalyzer::setupQueues()
+  ReplicatedAnalyzer::setupQueues(detail::SharedResources const&)
   {
     // For art 3.0, replicated modules will not have queues.
   }

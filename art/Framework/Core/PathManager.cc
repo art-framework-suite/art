@@ -151,6 +151,7 @@ namespace art {
   void
   PathManager::createModulesAndWorkers(
     GlobalTaskGroup& task_group,
+    detail::SharedResources& resources,
     std::vector<std::string> const& producing_services)
   {
     // For each configured schedule, create the trigger paths and the
@@ -161,9 +162,9 @@ namespace art {
     // The modules created are managed by shared_ptrs.  Once the
     // workers claim (co-)ownership of the modules, the 'modules'
     // object can be destroyed.
-    auto modules = makeModules_(nschedules, task_group);
+    auto modules = makeModules_(nschedules, task_group, resources);
 
-    auto fill_workers = [&modules, &task_group, this](ScheduleID const sid) {
+    auto fill_workers = [&, this](ScheduleID const sid) {
       auto& pinfo = triggerPathsInfo_[sid];
       pinfo.pathResults() = HLTGlobalStatus(triggerPathNames_.size());
       int bitPos = 0;
@@ -172,8 +173,12 @@ namespace art {
            protoTrigPathLabels_) {
         PathContext const pc{
           sc, path_name, bitPos, sorted_module_labels(worker_config_infos)};
-        auto wips = fillWorkers_(
-          pc, worker_config_infos, modules, pinfo.workers(), task_group);
+        auto wips = fillWorkers_(pc,
+                                 worker_config_infos,
+                                 modules,
+                                 pinfo.workers(),
+                                 task_group,
+                                 resources);
         pinfo.paths().push_back(new Path{exceptActions_,
                                          actReg_,
                                          pc,
@@ -196,8 +201,12 @@ namespace art {
                            PathContext::end_path(),
                            0,
                            sorted_module_labels(protoEndPathLabels_)};
-      auto wips = fillWorkers_(
-        pc, protoEndPathLabels_, modules, einfo.workers(), task_group);
+      auto wips = fillWorkers_(pc,
+                               protoEndPathLabels_,
+                               modules,
+                               einfo.workers(),
+                               task_group,
+                               resources);
       einfo.paths().push_back(
         new Path{exceptActions_, actReg_, pc, move(wips), nullptr, task_group});
       TDEBUG_FUNC_SI(5, art::ScheduleID::first())
@@ -298,7 +307,8 @@ namespace art {
 
   PathManager::ModulesByThreadingType
   PathManager::makeModules_(ScheduleID::size_type const nschedules,
-                            GlobalTaskGroup& task_group)
+                            GlobalTaskGroup& task_group,
+                            detail::SharedResources& resources)
   {
     ModulesByThreadingType modules{};
     vector<string> configErrMsgs;
@@ -320,7 +330,7 @@ namespace art {
       actReg_.sPreModuleConstruction.invoke(md);
 
       auto sid = ScheduleID::first();
-      auto result = makeModule_(modPS, md, sid, task_group);
+      auto result = makeModule_(modPS, md, sid, task_group, resources);
       auto module = result.first;
       auto const& err = result.second;
       if (!err.empty()) {
@@ -340,7 +350,7 @@ namespace art {
                                              ScheduleID(nschedules)};
 
         auto fill_replicated_module = [&, this](ScheduleID const sid) {
-          auto repl_result = makeModule_(modPS, md, sid, task_group);
+          auto repl_result = makeModule_(modPS, md, sid, task_group, resources);
           if (repl_result.second.empty()) {
             replicated_modules[sid].reset(repl_result.first);
           }
@@ -381,7 +391,8 @@ namespace art {
   PathManager::makeModule_(ParameterSet const& modPS,
                            ModuleDescription const& md,
                            ScheduleID const sid,
-                           GlobalTaskGroup& taskGroup) const
+                           GlobalTaskGroup& taskGroup,
+                           detail::SharedResources& resources) const
   {
     std::pair<ModuleBase*, std::string> result;
     auto const& module_type = md.moduleName();
@@ -408,7 +419,8 @@ namespace art {
                             exceptActions_,
                             processName_,
                             sid,
-                            taskGroup.native_group()};
+                            taskGroup.native_group(),
+                            resources};
       result.first = module_factory_func(md, wp);
     }
     catch (fhicl::detail::validationException const& e) {
@@ -426,7 +438,8 @@ namespace art {
                             vector<WorkerInPath::ConfigInfo> const& wci_list,
                             ModulesByThreadingType const& modules,
                             map<string, Worker*>& workers,
-                            GlobalTaskGroup& task_group)
+                            GlobalTaskGroup& task_group,
+                            detail::SharedResources& resources)
   {
     auto const sid = pc.scheduleID();
     auto const pi = pc.bitPosition();
@@ -483,7 +496,8 @@ namespace art {
                               exceptActions_,
                               processName_,
                               sid,
-                              task_group.native_group()};
+                              task_group.native_group(),
+                              resources};
         detail::WorkerFromModuleMaker_t* worker_from_module_factory_func =
           nullptr;
         try {

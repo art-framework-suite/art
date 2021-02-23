@@ -20,6 +20,7 @@ namespace art {
   class ProducingServiceSignals;
 
   namespace detail {
+    class SharedResources;
 
     class ServiceCacheEntry {
     public:
@@ -34,14 +35,18 @@ namespace art {
                         std::unique_ptr<ServiceHelperBase>&& helper);
 
       std::shared_ptr<ServiceWrapperBase> getService(
-        art::ActivityRegistry& reg,
+        ActivityRegistry& reg,
+        SharedResources& resources,
         ServiceStack& creationOrder) const;
 
-      void forceCreation(art::ActivityRegistry& reg) const;
+      void forceCreation(ActivityRegistry& reg,
+                         SharedResources& resources) const;
       fhicl::ParameterSet const& getParameterSet() const;
 
       template <typename T>
-      T& get(art::ActivityRegistry& reg, ServiceStack& creationOrder) const;
+      T& get(ActivityRegistry& reg,
+             SharedResources& resources,
+             ServiceStack& creationOrder) const;
 
       void registerProducts(ProductDescriptions& productsToProduce,
                             ProducingServiceSignals& signals,
@@ -53,9 +58,11 @@ namespace art {
 
     private:
       std::shared_ptr<ServiceWrapperBase> makeService(
-        art::ActivityRegistry& reg) const;
+        ActivityRegistry& reg,
+        SharedResources& resources) const;
 
-      void createService(art::ActivityRegistry& reg,
+      void createService(ActivityRegistry& reg,
+                         SharedResources& resources,
                          ServiceStack& creationOrder) const;
 
       std::shared_ptr<ServiceWrapperBase> convertService() const;
@@ -68,10 +75,11 @@ namespace art {
 
     template <typename T>
     T&
-    ServiceCacheEntry::get(art::ActivityRegistry& reg,
+    ServiceCacheEntry::get(ActivityRegistry& reg,
+                           SharedResources& resources,
                            ServiceStack& creationOrder) const
     {
-      std::shared_ptr<ServiceWrapperBase> swb = getService(reg, creationOrder);
+      auto swb = getService(reg, resources, creationOrder);
       return *reinterpret_cast<T*>(
         dynamic_cast<ServiceLGRHelper&>(*helper_).retrieve(swb));
     }

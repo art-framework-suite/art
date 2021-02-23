@@ -25,7 +25,6 @@
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/Selections.h"
-#include "art/Utilities/SharedResourcesRegistry.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
@@ -79,7 +78,7 @@ namespace art {
     if (config().fcmdPlugins.get_if_present(fcmdPluginPSets)) {
       plugins_ = makePlugins_(fcmdPluginPSets);
     }
-    serialize(SharedResourcesRegistry::Legacy);
+    serialize(detail::LegacyResource);
   }
 
   OutputModule::OutputModule(ParameterSet const& pset)
@@ -93,7 +92,7 @@ namespace art {
     , streamName_{pset.get<string>("streamName", "")}
     , plugins_{makePlugins_(pset.get<vector<ParameterSet>>("FCMDPlugins", {}))}
   {
-    serialize(SharedResourcesRegistry::Legacy);
+    serialize(detail::LegacyResource);
   }
 
   bool
@@ -200,9 +199,9 @@ namespace art {
   {}
 
   void
-  OutputModule::doBeginJob()
+  OutputModule::doBeginJob(detail::SharedResources const& resources)
   {
-    createQueues();
+    createQueues(resources);
     beginJob();
     cet::for_all(plugins_, [](auto& p) { p->doBeginJob(); });
   }

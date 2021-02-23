@@ -200,9 +200,9 @@ namespace art {
   }
 
   void
-  Worker::beginJob() try {
+  Worker::beginJob(detail::SharedResources const& resources) try {
     actReg_.sPreModuleBeginJob.invoke(md_);
-    implBeginJob();
+    implBeginJob(resources);
     actReg_.sPostModuleBeginJob.invoke(md_);
   }
   catch (...) {

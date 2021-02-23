@@ -1,10 +1,9 @@
 #include "art/Framework/Core/detail/SharedModule.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Utilities/SharedResourcesRegistry.h"
+#include "art/Utilities/SharedResource.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <string>
 #include <vector>
@@ -14,28 +13,26 @@ using namespace hep::concurrency;
 
 namespace art::detail {
 
-  SharedModule::~SharedModule() noexcept
-  {
-    delete chain_.load();
-    chain_ = nullptr;
-  }
-
   SharedModule::SharedModule() : SharedModule{""s} {}
 
   SharedModule::SharedModule(std::string const& moduleLabel)
     : moduleLabel_{moduleLabel}
-  {
-    chain_ = nullptr;
-  }
+  {}
 
   SerialTaskQueueChain*
   SharedModule::serialTaskQueueChain() const
   {
-    return chain_.load();
+    return chain_.get();
+  }
+
+  std::set<std::string> const&
+  SharedModule::sharedResources() const
+  {
+    return resourceNames_;
   }
 
   void
-  SharedModule::createQueues()
+  SharedModule::createQueues(SharedResources const& resources)
   {
     Exception e{errors::LogicError,
                 "An error occurred while processing scheduling options for a "
@@ -56,8 +53,8 @@ namespace art::detail {
     }
     std::vector<std::string> const names(cbegin(resourceNames_),
                                          cend(resourceNames_));
-    auto queues = SharedResourcesRegistry::instance()->createQueues(names);
-    chain_ = new SerialTaskQueueChain{queues};
+    auto queues = resources.createQueues(names);
+    chain_ = std::make_unique<SerialTaskQueueChain>(queues);
   }
 
   void
@@ -75,9 +72,6 @@ namespace art::detail {
   void
   SharedModule::serialize_for(std::string const& resourceName)
   {
-    auto result = resourceNames_.emplace(resourceName);
-    if (result.second) {
-      SharedResourcesRegistry::instance()->registerSharedResource(resourceName);
-    }
+    resourceNames_.emplace(resourceName);
   }
 }

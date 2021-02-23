@@ -13,19 +13,16 @@
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
 #include "canvas/Utilities/TypeID.h"
+#include "fhiclcpp/fwd.h"
 
 #include <memory>
-
-namespace fhicl {
-  class ParameterSet;
-}
 
 namespace art {
 
   class ActivityRegistry;
 
   namespace detail {
-
+    class SharedResources;
     struct ServiceHelperBase;
     struct ServiceImplHelper;
     struct ServiceInterfaceImplHelper;
@@ -85,7 +82,8 @@ namespace art {
       virtual ~ServiceLGMHelper() noexcept = default;
       virtual std::unique_ptr<ServiceWrapperBase> make(
         fhicl::ParameterSet const& cfg,
-        ActivityRegistry& reg) const = 0;
+        ActivityRegistry& reg,
+        detail::SharedResources& resources) const = 0;
     };
 
     // LegacyOrGlobalRetriever

@@ -10,7 +10,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
-#include "art/Utilities/SharedResourcesRegistry.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -31,9 +30,9 @@ namespace art::detail {
   {}
 
   void
-  Filter::doBeginJob()
+  Filter::doBeginJob(SharedResources const& resources)
   {
-    setupQueues();
+    setupQueues(resources);
     ProcessingFrame const frame{ScheduleID{}};
     beginJobWithFrame(frame);
   }

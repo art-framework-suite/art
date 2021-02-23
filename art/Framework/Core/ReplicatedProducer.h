@@ -12,6 +12,9 @@
 #include <string>
 
 namespace art {
+  namespace detail {
+    class SharedResources;
+  }
 
   class ReplicatedProducer : public detail::Producer,
                              private detail::EngineCreator {
@@ -40,7 +43,7 @@ namespace art {
     std::string workerType() const;
 
   private:
-    void setupQueues() override final;
+    void setupQueues(detail::SharedResources const&) override final;
     void beginJobWithFrame(ProcessingFrame const&) override final;
     void endJobWithFrame(ProcessingFrame const&) override final;
     void respondToOpenInputFileWithFrame(FileBlock const&,

@@ -1,20 +1,18 @@
 #include "art/Framework/Core/SharedAnalyzer.h"
 // vim: set sw=2 expandtab :
 
-using namespace std;
-
 namespace art {
 
-  string
+  std::string
   SharedAnalyzer::workerType() const
   {
     return "WorkerT<SharedAnalyzer>";
   }
 
   void
-  SharedAnalyzer::setupQueues()
+  SharedAnalyzer::setupQueues(detail::SharedResources const& resources)
   {
-    createQueues();
+    createQueues(resources);
   }
 
   void

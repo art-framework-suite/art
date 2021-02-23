@@ -8,7 +8,7 @@
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
 #include "art/Framework/Services/Registry/detail/ensure_only_one_thread.h"
-#include "art/Utilities/SharedResourcesRegistry.h"
+#include "art/Utilities/SharedResource.h"
 
 ////////////////////////////////////////////////////////////////////////
 // Utility for including the service type in a static_assert
@@ -35,13 +35,13 @@
 
 #define DEFINE_ART_SERVICE_MAKER(svc, scopeArg)                                \
   std::unique_ptr<ServiceWrapperBase> make(fhicl::ParameterSet const& pset,    \
-                                           ActivityRegistry& reg)              \
+                                           ActivityRegistry& reg,              \
+                                           detail::SharedResources& resources) \
     const final override                                                       \
   {                                                                            \
     if constexpr (is_shared(ServiceScope::scopeArg) &&                         \
                   detail::handle_allowed_v<svc>) {                             \
-      SharedResourcesRegistry::instance()->registerSharedResource(             \
-        SharedResource<svc>);                                                  \
+      resources.registerSharedResource(SharedResource<svc>);                   \
     } else if constexpr (is_legacy(ServiceScope::scopeArg)) {                  \
       ensure_only_one_thread(pset);                                            \
     }                                                                          \

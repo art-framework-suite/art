@@ -234,8 +234,9 @@ main()
 
   // Now create and setup the service
   art::ActivityRegistry aReg;
-
-  auto servicesManager_ = make_unique<ServicesManager>(ParameterSet{}, aReg);
+  art::detail::SharedResources resources;
+  auto servicesManager_ =
+    make_unique<ServicesManager>(ParameterSet{}, aReg, resources);
   art::test::set_manager_for_tests(servicesManager_.get());
 
   servicesManager_->put(std::make_unique<art::TriggerNamesService>(

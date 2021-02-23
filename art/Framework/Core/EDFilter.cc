@@ -1,20 +1,18 @@
 #include "art/Framework/Core/EDFilter.h"
 // vim: set sw=2 expandtab :
 
-using namespace std;
-
 namespace art {
 
-  string
+  std::string
   EDFilter::workerType() const
   {
     return "WorkerT<EDFilter>";
   }
 
   void
-  EDFilter::setupQueues()
+  EDFilter::setupQueues(detail::SharedResources const& resources)
   {
-    createQueues();
+    createQueues(resources);
   }
 
   void

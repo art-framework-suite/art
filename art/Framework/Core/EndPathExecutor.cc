@@ -71,14 +71,14 @@ namespace art {
   }
 
   void
-  EndPathExecutor::beginJob()
+  EndPathExecutor::beginJob(detail::SharedResources const& resources)
   {
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = *label_and_worker.second;
       if (detail::skip_non_replicated(w)) {
         continue;
       }
-      w.beginJob();
+      w.beginJob(resources);
     }
   }
 

@@ -63,10 +63,10 @@ namespace art {
   }
 
   void
-  Schedule::beginJob()
+  Schedule::beginJob(detail::SharedResources const& resources)
   {
-    tpsExec_.beginJob();
-    epExec_.beginJob();
+    tpsExec_.beginJob(resources);
+    epExec_.beginJob(resources);
   }
 
   void

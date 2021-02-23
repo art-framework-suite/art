@@ -44,8 +44,12 @@ namespace art {
   class ModuleBase;
   class UpdateOutputCallbacks;
 
+  namespace detail {
+    class SharedResources;
+  }
+
   class PathManager {
-  public: // Special Member Functions
+  public:
     ~PathManager() noexcept;
     PathManager(fhicl::ParameterSet const& procPS,
                 UpdateOutputCallbacks& preg,
@@ -59,17 +63,17 @@ namespace art {
     PathManager& operator=(PathManager const&) = delete;
     PathManager& operator=(PathManager&&) = delete;
 
-  public: // API
     std::vector<std::string> const& triggerPathNames() const;
     void createModulesAndWorkers(
       GlobalTaskGroup& task_group,
+      detail::SharedResources& resources,
       std::vector<std::string> const& producing_services);
     PathsInfo& triggerPathsInfo(ScheduleID);
     PerScheduleContainer<PathsInfo>& triggerPathsInfo();
     PathsInfo& endPathInfo(ScheduleID);
     PerScheduleContainer<PathsInfo>& endPathInfo();
 
-  private: // Implementation Details
+  private:
     struct ModulesByThreadingType {
       std::map<module_label_t, std::shared_ptr<ModuleBase>> shared{};
       std::map<module_label_t,
@@ -81,18 +85,21 @@ namespace art {
       detail::EnabledModules const& enabled_modules) const;
 
     ModulesByThreadingType makeModules_(ScheduleID::size_type n,
-                                        GlobalTaskGroup& task_group);
+                                        GlobalTaskGroup& task_group,
+                                        detail::SharedResources& resources);
     std::pair<ModuleBase*, std::string> makeModule_(
       fhicl::ParameterSet const& module_pset,
       ModuleDescription const& md,
       ScheduleID,
-      GlobalTaskGroup& task_group) const;
+      GlobalTaskGroup& task_group,
+      detail::SharedResources& resources) const;
     std::vector<WorkerInPath> fillWorkers_(
       PathContext const& pc,
       std::vector<WorkerInPath::ConfigInfo> const& wci_list,
       ModulesByThreadingType const& modules,
       std::map<std::string, Worker*>& workers,
-      GlobalTaskGroup& task_group);
+      GlobalTaskGroup& task_group,
+      detail::SharedResources& resources);
     ModuleType loadModuleType_(std::string const& lib_spec) const;
     ModuleThreadingType loadModuleThreadingType_(
       std::string const& lib_spec) const;

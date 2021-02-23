@@ -30,6 +30,9 @@
 
 namespace art {
   class ActivityRegistry;
+  namespace detail {
+    class SharedResources;
+  }
 
   class Schedule {
   public:
@@ -52,7 +55,7 @@ namespace art {
     void process_event_modifiers(hep::concurrency::WaitingTaskPtr endPathTask);
     void process_event_observers(
       hep::concurrency::WaitingTaskPtr finalizeEventTask);
-    void beginJob();
+    void beginJob(detail::SharedResources const& resources);
     void endJob();
     void respondToOpenInputFile(FileBlock const&);
     void respondToCloseInputFile(FileBlock const&);

@@ -58,17 +58,17 @@ namespace art {
   }
 
   void
-  TriggerPathsExecutor::beginJob()
+  TriggerPathsExecutor::beginJob(detail::SharedResources const& resources)
   {
     for (auto const& val : triggerPathsInfo_.workers()) {
       auto& w = *val.second;
       if (detail::skip_non_replicated(w)) {
         continue;
       }
-      w.beginJob();
+      w.beginJob(resources);
     }
     if (results_inserter_) {
-      results_inserter_->beginJob();
+      results_inserter_->beginJob(resources);
     }
   }
 

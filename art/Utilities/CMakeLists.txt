@@ -11,7 +11,6 @@ art_make_library(
     RegexMatch.cc
     ScheduleID.cc
     SharedResource.cc
-    SharedResourcesRegistry.cc
     TaskDebugMacros.cc
     unique_filename.cc
     UnixSignalHandlers.cc

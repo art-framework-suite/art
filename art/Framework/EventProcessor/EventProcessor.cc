@@ -25,7 +25,7 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
-#include "art/Utilities/SharedResourcesRegistry.h"
+#include "art/Utilities/SharedResource.h"
 #include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/UnixSignalHandlers.h"
@@ -65,27 +65,18 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  EventProcessor::~EventProcessor()
-  {
-    ANNOTATE_THREAD_IGNORE_BEGIN;
-    ParentageRegistry::instance(true);
-    ProcessConfigurationRegistry::instance(true);
-    ProcessHistoryRegistry::instance(true);
-    SharedResourcesRegistry::instance(true);
-    ANNOTATE_THREAD_IGNORE_END;
-  }
-
   namespace {
     ServicesManager*
     create_services_manager(ParameterSet services_pset,
-                            ActivityRegistry& actReg)
+                            ActivityRegistry& actReg,
+                            detail::SharedResources& resources)
     {
       auto const fpcPSet =
         services_pset.get<ParameterSet>("FloatingPointControl", {});
       services_pset.erase("FloatingPointControl");
       services_pset.erase("message");
       services_pset.erase("scheduler");
-      auto mgr = new ServicesManager{move(services_pset), actReg};
+      auto mgr = new ServicesManager{move(services_pset), actReg, resources};
       mgr->addSystemService<FloatingPointControl>(fpcPSet, actReg);
       return mgr;
     }
@@ -100,7 +91,8 @@ namespace art {
                                    ActionTable const& actions,
                                    ActivityRegistry const& actReg,
                                    PathsInfo& pathsInfo,
-                                   GlobalTaskGroup& task_group)
+                                   GlobalTaskGroup& task_group,
+                                   detail::SharedResources& resources)
     {
       if (pathsInfo.paths().empty()) {
         return std::unique_ptr<Worker>{nullptr};
@@ -115,7 +107,8 @@ namespace art {
                             actions,
                             processName,
                             scheduleID,
-                            task_group.native_group()};
+                            task_group.native_group(),
+                            resources};
       ModuleDescription md{
         trig_pset.id(),
         "TriggerResultInserter",
@@ -142,7 +135,8 @@ namespace art {
         scheduler_->num_schedules())}
     , servicesManager_{create_services_manager(
         pset.get<ParameterSet>("services"),
-        actReg_)}
+        actReg_,
+        sharedResources_)}
     , pathManager_{pset,
                    outputCallbacks_,
                    producedProductDescriptions_,
@@ -168,7 +162,6 @@ namespace art {
     ParentageRegistry::instance();
     ProcessConfigurationRegistry::instance();
     ProcessHistoryRegistry::instance();
-    SharedResourcesRegistry::instance();
     ServiceRegistry::instance().setManager(servicesManager_.get());
     // We do this late because the floating point control word, signal
     // masks, etc., are per-thread and inherited from the master
@@ -214,7 +207,8 @@ namespace art {
     ProcessConfiguration const pc{processName, pset.id(), getReleaseVersion()};
     auto const producing_services = servicesManager_->registerProducts(
       producedProductDescriptions_, psSignals_, pc);
-    pathManager_->createModulesAndWorkers(*taskGroup_, producing_services);
+    pathManager_->createModulesAndWorkers(
+      *taskGroup_, sharedResources_, producing_services);
     auto create =
       [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
         auto results_inserter =
@@ -227,7 +221,8 @@ namespace art {
                                          scheduler_->actionTable(),
                                          actReg_,
                                          pathManager_->triggerPathsInfo(sid),
-                                         *taskGroup_);
+                                         *taskGroup_,
+                                         sharedResources_);
         schedules_->emplace(std::piecewise_construct,
                             std::forward_as_tuple(sid),
                             std::forward_as_tuple(sid,
@@ -239,7 +234,7 @@ namespace art {
                                                   *taskGroup_));
       };
     scheduleIteration_.for_each_schedule(create);
-    SharedResourcesRegistry::instance()->freeze(taskGroup_->native_group());
+    sharedResources_.freeze(taskGroup_->native_group());
 
     FDEBUG(2) << pset.to_string() << endl;
     // The input source must be created after the end path executor
@@ -519,8 +514,9 @@ namespace art {
                                   " processing the beginJob of the 'source'\n";
       throw;
     }
-    scheduleIteration_.for_each_schedule(
-      [this](ScheduleID const sid) { schedule(sid).beginJob(); });
+    scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
+      schedule(sid).beginJob(sharedResources_);
+    });
     actReg_.sPostBeginJob.invoke();
     invokePostBeginJobWorkers_();
   }

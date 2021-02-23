@@ -1,20 +1,18 @@
 #include "art/Framework/Core/SharedFilter.h"
 // vim: set sw=2 expandtab :
 
-using namespace std;
-
 namespace art {
 
-  string
+  std::string
   SharedFilter::workerType() const
   {
     return "WorkerT<SharedFilter>";
   }
 
   void
-  SharedFilter::setupQueues()
+  SharedFilter::setupQueues(detail::SharedResources const& resources)
   {
-    createQueues();
+    createQueues(resources);
   }
 
   void

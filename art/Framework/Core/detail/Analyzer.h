@@ -23,6 +23,10 @@
 #include <ostream>
 #include <string>
 
+namespace art {
+  class SharedResources;
+}
+
 namespace art::detail {
   class Analyzer : public Observer {
   public:
@@ -89,7 +93,7 @@ namespace art::detail {
       : Observer{config.eoFragment().selectEvents(), config.get_PSet()}
     {}
 
-    void doBeginJob();
+    void doBeginJob(SharedResources const& resources);
     void doEndJob();
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
@@ -106,7 +110,7 @@ namespace art::detail {
                  std::atomic<std::size_t>& counts_failed);
 
   private:
-    virtual void setupQueues() = 0;
+    virtual void setupQueues(SharedResources const&) = 0;
     virtual void analyzeWithFrame(Event const&, ProcessingFrame const&) = 0;
     virtual void beginJobWithFrame(ProcessingFrame const&) = 0;
     virtual void endJobWithFrame(ProcessingFrame const&) = 0;

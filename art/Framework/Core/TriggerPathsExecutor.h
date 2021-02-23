@@ -53,6 +53,9 @@
 
 namespace art {
   class GlobalTaskGroup;
+  namespace detail {
+    class SharedResources;
+  }
 
   class TriggerPathsExecutor {
   public:
@@ -72,7 +75,7 @@ namespace art {
     void process(Transition, Principal&);
     void process_event(hep::concurrency::WaitingTaskPtr endPathTask,
                        EventPrincipal&);
-    void beginJob();
+    void beginJob(detail::SharedResources const& resources);
     void endJob();
     void respondToOpenInputFile(FileBlock const&);
     void respondToCloseInputFile(FileBlock const&);

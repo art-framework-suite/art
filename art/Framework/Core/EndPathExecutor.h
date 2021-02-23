@@ -41,6 +41,9 @@
 
 namespace art {
   class GlobalTaskGroup;
+  namespace detail {
+    class SharedResources;
+  }
 
   class EndPathExecutor {
     friend class Schedule;
@@ -58,7 +61,7 @@ namespace art {
     EndPathExecutor(EndPathExecutor const&) = delete;
     EndPathExecutor& operator=(EndPathExecutor const&) = delete;
 
-    void beginJob();
+    void beginJob(detail::SharedResources const& resources);
     void endJob();
 
     // Input File Open/Close.

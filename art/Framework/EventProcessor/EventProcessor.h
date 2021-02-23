@@ -27,6 +27,7 @@
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/ScheduleIteration.h"
+#include "art/Utilities/SharedResource.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "cetlib/cpu_timer.h"
 #include "fhiclcpp/fwd.h"
@@ -47,7 +48,6 @@ namespace art {
     enum StatusCode { epSuccess = 0, epSignal = 3 };
 
     // Special Member Functions
-    ~EventProcessor();
     explicit EventProcessor(fhicl::ParameterSet const& pset,
                             detail::EnabledModules const& enabled_modules);
     EventProcessor(EventProcessor const&) = delete;
@@ -66,7 +66,7 @@ namespace art {
     //
     //  Return values:
     //
-    //     epSignal: processing terminated early, SIGUSR2 encountered
+    //    epSignal: processing terminated early, SIGUSR2 encountered
     //    epSuccess: all other cases
     //
     StatusCode runToCompletion();
@@ -213,6 +213,8 @@ namespace art {
     tsan<Scheduler> scheduler_;
 
     std::unique_ptr<GlobalTaskGroup> taskGroup_{nullptr};
+
+    detail::SharedResources sharedResources_{};
 
     ScheduleIteration scheduleIteration_;
 

@@ -4,27 +4,26 @@
 
 #include "art/Utilities/SharedResource.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <atomic>
 #include <set>
 #include <string>
 
-namespace hep::concurrency {
-  class SerialTaskQueueChain;
-}
-
 namespace art::detail {
+  class SharedResources;
 
   class SharedModule {
   public:
     SharedModule();
     explicit SharedModule(std::string const& moduleLabel);
-    ~SharedModule() noexcept;
 
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
+    std::set<std::string> const& sharedResources() const;
 
-    void createQueues();
+    void createQueues(SharedResources const& resources);
 
+  protected:
     template <BranchType BT = InEvent, typename... T>
     void serialize(T const&...);
 
@@ -73,7 +72,7 @@ namespace art::detail {
     std::string moduleLabel_;
     std::set<std::string> resourceNames_{};
     bool asyncDeclared_{false};
-    std::atomic<hep::concurrency::SerialTaskQueueChain*> chain_;
+    std::unique_ptr<hep::concurrency::SerialTaskQueueChain> chain_{nullptr};
   };
 
   template <BranchType, typename... T>

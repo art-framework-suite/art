@@ -54,6 +54,9 @@ namespace art {
   class RunPrincipal;
   class SubRunPrincipal;
   class EventPrincipal;
+  namespace detail {
+    class SharedResources;
+  }
 
   class Worker {
     friend class RunWorkerFunctor;
@@ -64,7 +67,7 @@ namespace art {
     virtual ~Worker() = default;
     Worker(ModuleDescription const&, WorkerParams const&);
 
-    void beginJob();
+    void beginJob(detail::SharedResources const&);
     void endJob();
     void respondToOpenInputFile(FileBlock const& fb);
     void respondToCloseInputFile(FileBlock const& fb);
@@ -110,7 +113,7 @@ namespace art {
     virtual std::string workerType() const = 0;
     virtual hep::concurrency::SerialTaskQueueChain* implSerialTaskQueueChain()
       const = 0;
-    virtual void implBeginJob() = 0;
+    virtual void implBeginJob(detail::SharedResources const& resources) = 0;
     virtual void implEndJob() = 0;
     virtual bool implDoBegin(RunPrincipal& rp, ModuleContext const& mc) = 0;
     virtual bool implDoEnd(RunPrincipal& rp, ModuleContext const& mc) = 0;
