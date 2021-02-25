@@ -217,45 +217,23 @@ namespace art {
     TDEBUG_END_FUNC_SI(4, sid);
   }
 
-  class Path::RunWorkerTask {
-  public:
-    RunWorkerTask(Path* path,
-                  size_t const idx,
-                  size_t const max_idx,
-                  EventPrincipal& ep,
-                  WaitingTaskPtr pathsDone,
-                  GlobalTaskGroup& group)
-      : path_{path}
-      , idx_{idx}
-      , max_idx_{max_idx}
-      , ep_{ep}
-      , pathsDone_{pathsDone}
-      , group_{group}
-    {}
-    void
-    operator()() const
-    {
-      auto const sid = path_->pc_.scheduleID();
-      TDEBUG_BEGIN_TASK_SI(4, sid);
-      auto new_idx = idx_;
-      try {
-        path_->process_event_idx(new_idx, max_idx_, ep_, pathsDone_);
-        TDEBUG_END_TASK_SI(4, sid);
-      }
-      catch (...) {
-        group_.may_run(pathsDone_, current_exception());
-        TDEBUG_END_TASK_SI(4, sid) << "path terminate because of EXCEPTION";
-      }
+  void
+  Path::runWorkerTask(size_t const idx,
+                      size_t const max_idx,
+                      EventPrincipal& ep,
+                      WaitingTaskPtr pathsDone)
+  {
+    auto const sid = pc_.scheduleID();
+    TDEBUG_BEGIN_TASK_SI(4, sid);
+    try {
+      process_event_idx(idx, max_idx, ep, pathsDone);
+      TDEBUG_END_TASK_SI(4, sid);
     }
-
-  private:
-    Path* path_;
-    size_t const idx_;
-    size_t const max_idx_;
-    EventPrincipal& ep_;
-    WaitingTaskPtr pathsDone_;
-    GlobalTaskGroup& group_;
-  };
+    catch (...) {
+      taskGroup_.may_run(pathsDone, current_exception());
+      TDEBUG_END_TASK_SI(4, sid) << "path terminate because of EXCEPTION";
+    }
+  }
 
   // This function is a spawn chain system to run workers one at a time,
   // in the order specified on the path, and then decrement the ref count
@@ -269,8 +247,9 @@ namespace art {
   {
     auto const sid = pc_.scheduleID();
     TDEBUG_BEGIN_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx;
-    taskGroup_.run(
-      RunWorkerTask{this, idx, max_idx, ep, pathsDone, taskGroup_});
+    taskGroup_.run([this, idx, max_idx, &ep, pathsDone] {
+      runWorkerTask(idx, max_idx, ep, pathsDone);
+    });
     TDEBUG_END_FUNC_SI(4, sid) << "idx: " << idx << " max_idx: " << max_idx;
   }
 

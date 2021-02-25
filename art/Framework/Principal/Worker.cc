@@ -468,25 +468,6 @@ namespace art {
     rethrow_exception(cached_exception_);
   }
 
-  namespace {
-    class RunWorkerFunctor {
-    public:
-      RunWorkerFunctor(Worker* w, EventPrincipal& p, ModuleContext const& mc)
-        : w_{w}, p_{p}, mc_{mc}
-      {}
-      void
-      operator()() const
-      {
-        w_->runWorker(p_, mc_);
-      }
-
-    private:
-      Worker* w_;
-      EventPrincipal& p_;
-      ModuleContext const& mc_;
-    };
-  }
-
   void
   Worker::runWorker(EventPrincipal& p, ModuleContext const& mc)
   {
@@ -634,17 +615,16 @@ namespace art {
     ++counts_visited_;
     bool expected = false;
     if (workStarted_.compare_exchange_strong(expected, true)) {
-      RunWorkerFunctor runWorkerFunctor{this, p, mc};
       if (auto chain = serialTaskQueueChain()) {
         // Must be a serialized shared module (including legacy).
         TDEBUG_FUNC_SI(4, sid) << "pushing onto chain " << hex << chain << dec;
-        chain->push(runWorkerFunctor);
+        chain->push([&p, &mc, this] { runWorker(p, mc); });
         TDEBUG_END_FUNC_SI(4, sid);
         return;
       }
       // Must be a replicated or shared module with no serialization.
       TDEBUG_FUNC_SI(4, sid) << "calling worker functor";
-      runWorkerFunctor();
+      runWorker(p, mc);
       TDEBUG_END_FUNC_SI(4, sid);
       return;
     }

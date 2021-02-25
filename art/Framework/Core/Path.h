@@ -63,8 +63,12 @@ namespace art {
                  EventPrincipal&);
 
   private:
-    class RunWorkerTask;
     class WorkerDoneTask;
+
+    void runWorkerTask(size_t idx,
+                       size_t max_idx,
+                       EventPrincipal&,
+                       hep::concurrency::WaitingTaskPtr pathsDone);
 
     void process_event_idx_asynch(size_t idx,
                                   size_t max_idx,
