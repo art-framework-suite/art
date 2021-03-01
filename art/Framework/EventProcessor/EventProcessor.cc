@@ -1096,11 +1096,13 @@ namespace art {
       beginRunIfNotDoneAlready();
       beginSubRunIfNotDoneAlready();
 
-      for (unsigned i = 0; i != scheduler_->num_schedules(); ++i) {
-        taskGroup_->run(
-          [this, i] { this->processAllEventsAsync(ScheduleID(i)); });
+      auto const last_schedule_index = scheduler_->num_schedules() - 1;
+      for (unsigned i = 0; i != last_schedule_index; ++i) {
+        taskGroup_->run([this, i] { processAllEventsAsync(ScheduleID(i)); });
       }
-      taskGroup_->native_group().wait();
+      taskGroup_->native_group().run_and_wait([this, last_schedule_index] {
+        processAllEventsAsync(ScheduleID(last_schedule_index));
+      });
 
       // If anything bad happened during event processing, let the
       // user know.
