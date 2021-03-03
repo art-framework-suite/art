@@ -13,57 +13,51 @@
 #include "cetlib_except/exception.h"
 
 #include <memory>
+#include <variant>
 
 namespace art {
-  // defined below:
+  class Group;
   class GroupQueryResult;
 
-  // forward declaration:
-  class Group;
+  using group_ptr_t = cet::exempt_ptr<Group const>;
+  using exception_ptr_t = std::shared_ptr<art::Exception const>;
 } // namespace art
 
 // ======================================================================
 
 class art::GroupQueryResult {
 public:
-  // c'tors:
-  GroupQueryResult(cet::exempt_ptr<Group const>);
-  GroupQueryResult(std::shared_ptr<art::Exception const>);
+  explicit GroupQueryResult(group_ptr_t);
+  explicit GroupQueryResult(exception_ptr_t);
 
-  // observers:
+  // observers
   bool
   succeeded() const
   {
-    return static_cast<bool>(result_);
+    return std::holds_alternative<group_ptr_t>(groupOrException_);
   }
   bool
   failed() const
   {
-    return static_cast<bool>(whyFailed_);
+    return std::holds_alternative<exception_ptr_t>(groupOrException_);
   }
 
-  // properties:
+  // properties
   cet::exempt_ptr<Group const>
   result() const
   {
-    return result_;
+    auto result = std::get_if<group_ptr_t>(&groupOrException_);
+    return result ? *result : nullptr;
   }
   std::shared_ptr<art::Exception const>
   whyFailed() const
   {
-    return whyFailed_;
+    auto result = std::get_if<exception_ptr_t>(&groupOrException_);
+    return result ? *result : nullptr;
   }
 
 private:
-  cet::exempt_ptr<Group const> result_{nullptr};
-  std::shared_ptr<art::Exception const> whyFailed_{nullptr};
-
-  bool
-  invariant() const
-  {
-    return succeeded() != failed();
-  }
-
+  std::variant<group_ptr_t, exception_ptr_t> groupOrException_;
 }; // GroupQueryResult
 
 // ======================================================================

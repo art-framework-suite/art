@@ -34,6 +34,7 @@
 #include <optional>
 #include <set>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace art {
@@ -50,7 +51,6 @@ namespace art {
 
   class PathManager {
   public:
-    ~PathManager() noexcept;
     PathManager(fhicl::ParameterSet const& procPS,
                 UpdateOutputCallbacks& preg,
                 ProductDescriptions& productsToProduce,
@@ -84,15 +84,11 @@ namespace art {
     std::map<std::string, detail::ModuleConfigInfo> moduleInformation_(
       detail::EnabledModules const& enabled_modules) const;
 
-    ModulesByThreadingType makeModules_(ScheduleID::size_type n,
-                                        GlobalTaskGroup& task_group,
-                                        detail::SharedResources& resources);
-    std::pair<ModuleBase*, std::string> makeModule_(
-      fhicl::ParameterSet const& module_pset,
-      ModuleDescription const& md,
-      ScheduleID,
-      GlobalTaskGroup& task_group,
-      detail::SharedResources& resources) const;
+    ModulesByThreadingType makeModules_(ScheduleID::size_type n);
+    using maybe_module_t = std::variant<ModuleBase*, std::string>;
+    maybe_module_t makeModule_(fhicl::ParameterSet const& module_pset,
+                               ModuleDescription const& md,
+                               ScheduleID) const;
     std::vector<WorkerInPath> fillWorkers_(
       PathContext const& pc,
       std::vector<WorkerInPath::ConfigInfo> const& wci_list,
@@ -100,6 +96,9 @@ namespace art {
       std::map<std::string, Worker*>& workers,
       GlobalTaskGroup& task_group,
       detail::SharedResources& resources);
+    Worker* makeWorker_(ModulesByThreadingType const& modules,
+                        ModuleDescription const& md,
+                        WorkerParams const& wp);
     ModuleType loadModuleType_(std::string const& lib_spec) const;
     ModuleThreadingType loadModuleThreadingType_(
       std::string const& lib_spec) const;
@@ -123,13 +122,6 @@ namespace art {
     cet::LibraryManager lm_{Suffixes::module()};
     fhicl::ParameterSet procPS_{};
     std::vector<std::string> triggerPathNames_{};
-    // FIXME: The number of workers is the number of schedules times
-    //        the number of configured modules.  For a replicated
-    //        module, there is one worker per module copy; for a
-    //        shared module, there are as many workers as their are
-    //        schedules.  This part of the code could benefit from
-    //        using smart pointers.
-    std::map<module_label_t, PerScheduleContainer<Worker*>> workers_{};
     PerScheduleContainer<PathsInfo> triggerPathsInfo_;
     PerScheduleContainer<PathsInfo> endPathInfo_;
     ProductDescriptions& productsToProduce_;

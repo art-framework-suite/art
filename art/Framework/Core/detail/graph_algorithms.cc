@@ -38,7 +38,7 @@ namespace {
   inline std::string const&
   module_label(art::WorkerInPath::ConfigInfo const& wci)
   {
-    return wci.moduleConfigInfo->moduleLabel;
+    return wci.moduleConfigInfo->modDescription.moduleLabel();
   }
 }
 

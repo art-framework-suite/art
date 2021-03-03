@@ -45,8 +45,6 @@
 #include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "tbb/parallel_for.h"
-
 #include <algorithm>
 #include <cassert>
 #include <exception>
@@ -99,13 +97,10 @@ namespace art {
       }
 
       // Make the trigger results inserter.
-      WorkerParams const wp{proc_pset,
-                            trig_pset,
-                            outputCallbacks,
+      WorkerParams const wp{outputCallbacks,
                             productsToProduce,
                             actReg,
                             actions,
-                            processName,
                             scheduleID,
                             task_group.native_group(),
                             resources};
@@ -131,8 +126,7 @@ namespace art {
   EventProcessor::EventProcessor(ParameterSet const& pset,
                                  detail::EnabledModules const& enabled_modules)
     : scheduler_{pset.get<ParameterSet>("services.scheduler")}
-    , scheduleIteration_{static_cast<ScheduleID::size_type>(
-        scheduler_->num_schedules())}
+    , scheduleIteration_{scheduler_->num_schedules()}
     , servicesManager_{create_services_manager(
         pset.get<ParameterSet>("services"),
         actReg_,
@@ -162,7 +156,6 @@ namespace art {
     ParentageRegistry::instance();
     ProcessConfigurationRegistry::instance();
     ProcessHistoryRegistry::instance();
-    ServiceRegistry::instance().setManager(servicesManager_.get());
     // We do this late because the floating point control word, signal
     // masks, etc., are per-thread and inherited from the master
     // thread, so we want to allow system services, user services, and
@@ -209,31 +202,31 @@ namespace art {
       producedProductDescriptions_, psSignals_, pc);
     pathManager_->createModulesAndWorkers(
       *taskGroup_, sharedResources_, producing_services);
-    auto create =
-      [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
-        auto results_inserter =
-          maybe_trigger_results_inserter(sid,
-                                         processName,
-                                         pset,
-                                         triggerPSet,
-                                         outputCallbacks_,
-                                         producedProductDescriptions_,
-                                         scheduler_->actionTable(),
-                                         actReg_,
-                                         pathManager_->triggerPathsInfo(sid),
-                                         *taskGroup_,
-                                         sharedResources_);
-        schedules_->emplace(std::piecewise_construct,
-                            std::forward_as_tuple(sid),
-                            std::forward_as_tuple(sid,
-                                                  pathManager_,
-                                                  scheduler_->actionTable(),
-                                                  actReg_,
-                                                  outputCallbacks_,
-                                                  move(results_inserter),
-                                                  *taskGroup_));
-      };
-    scheduleIteration_.for_each_schedule(create);
+    auto const end = Globals::instance()->nschedules();
+    for (ScheduleID::size_type i = 0; i != end; ++i) {
+      ScheduleID const sid{i};
+      auto results_inserter =
+        maybe_trigger_results_inserter(sid, //
+                                       processName,
+                                       pset,
+                                       triggerPSet,
+                                       outputCallbacks_, //
+                                       producedProductDescriptions_,
+                                       scheduler_->actionTable(),           //
+                                       actReg_,                             //
+                                       pathManager_->triggerPathsInfo(sid), //
+                                       *taskGroup_,                         //
+                                       sharedResources_);
+      schedules_->emplace(std::piecewise_construct,
+                          std::forward_as_tuple(sid),
+                          std::forward_as_tuple(sid,
+                                                pathManager_,
+                                                scheduler_->actionTable(),
+                                                actReg_,
+                                                outputCallbacks_,
+                                                move(results_inserter),
+                                                *taskGroup_));
+    }
     sharedResources_.freeze(taskGroup_->native_group());
 
     FDEBUG(2) << pset.to_string() << endl;
@@ -1097,7 +1090,7 @@ namespace art {
       beginSubRunIfNotDoneAlready();
 
       auto const last_schedule_index = scheduler_->num_schedules() - 1;
-      for (unsigned i = 0; i != last_schedule_index; ++i) {
+      for (ScheduleID::size_type i = 0; i != last_schedule_index; ++i) {
         taskGroup_->run([this, i] { processAllEventsAsync(ScheduleID(i)); });
       }
       taskGroup_->native_group().run_and_wait([this, last_schedule_index] {

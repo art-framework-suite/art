@@ -88,10 +88,10 @@ struct PathSpecifiers {
   }
 };
 
-const HLTPathStatus pass = HLTPathStatus(art::hlt::Pass);
-const HLTPathStatus fail = HLTPathStatus(art::hlt::Fail);
-const HLTPathStatus excp = HLTPathStatus(art::hlt::Exception);
-const HLTPathStatus redy = HLTPathStatus(art::hlt::Ready);
+HLTPathStatus const pass{art::hlt::Pass};
+HLTPathStatus const fail{art::hlt::Fail};
+HLTPathStatus const excp{art::hlt::Exception};
+HLTPathStatus const redy{art::hlt::Ready};
 
 struct TrigResults {
   std::vector<HLTPathStatus> bit;
@@ -260,12 +260,9 @@ main()
   art::ActivityRegistry aReg;
   art::detail::SharedResources resources;
 
-  auto servicesManager_ =
-    make_unique<ServicesManager>(ParameterSet{}, aReg, resources);
-  art::test::set_manager_for_tests(servicesManager_.get());
-
-  servicesManager_->put(std::make_unique<art::TriggerNamesService>(
-    trigger_path_names, processName, trigPaths, physics_pset));
+  ServicesManager manager{ParameterSet{}, aReg, resources};
+  manager.addSystemService<art::TriggerNamesService>(
+    trigger_path_names, processName, trigPaths, physics_pset);
 
   // We are ready to run some tests
 

@@ -7,11 +7,6 @@ set(default_test_libraries
   ${CMAKE_DL_LIBS}
  )
 
-cet_make_library(LIBRARY_NAME set_manager_for_tests NO_INSTALL
-  SOURCE set_manager_for_tests.cc
-  LIBRARIES PRIVATE art::Framework_Services_Registry
-)
-
 set(pmt_libraries
   art::Framework_Principal
   canvas::canvas
@@ -52,7 +47,6 @@ foreach(test IN ITEMS ector Wildcard Exc)
   cet_test(EventSel${test}_t
     SOURCE EventSel${test}_t.cpp
     LIBRARIES PRIVATE
-    art_test::set_manager_for_tests
     ${eventSelector_test_libraries}
   )
 endforeach()

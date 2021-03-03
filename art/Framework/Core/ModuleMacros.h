@@ -26,13 +26,11 @@
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"
 
 #include <memory>
-#include <ostream>
-#include <string>
 #include <type_traits>
 
 namespace art::detail {
-  using ModuleMaker_t = ModuleBase*(art::ModuleDescription const&,
-                                    WorkerParams const&);
+  using ModuleMaker_t = ModuleBase*(fhicl::ParameterSet const&,
+                                    ProcessingFrame const&);
   using WorkerFromModuleMaker_t = Worker*(std::shared_ptr<ModuleBase>,
                                           ModuleDescription const&,
                                           WorkerParams const&);
@@ -71,15 +69,12 @@ namespace art::detail {
   CET_PROVIDE_FILE_PATH()                                                      \
   FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                                   \
   art::ModuleBase*                                                             \
-  make_module(art::ModuleDescription const& md, art::WorkerParams const& wp)   \
+  make_module(fhicl::ParameterSet const& pset,                                 \
+              art::ProcessingFrame const& frame)                               \
   {                                                                            \
-    using Base = klass::ModuleType;                                            \
-    art::ProcessingFrame const frame{wp.scheduleID_};                          \
     /* Reference below to avoid copy if Config<klass> is a ParameterSet. */    \
-    art::detail::Config<klass> const& config{wp.pset_};                        \
-    Base* mod = art::detail::make_module<klass>(config, frame);                \
-    mod->setModuleDescription(md);                                             \
-    return mod;                                                                \
+    art::detail::Config<klass> const& config{pset};                            \
+    return art::detail::make_module<klass>(config, frame);                     \
   }                                                                            \
   art::Worker*                                                                 \
   make_worker_from_module(std::shared_ptr<art::ModuleBase> mod,                \

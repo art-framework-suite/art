@@ -62,7 +62,8 @@ namespace {
       if (is_modifier(mci->moduleType)) {
         auto found_on_path = std::find_if(
           firstModuleOnPath, moduleConfig, [&prod_info](auto const& config) {
-            return config.moduleConfigInfo->moduleLabel == prod_info.label;
+            return config.moduleConfigInfo->modDescription.moduleLabel() ==
+                   prod_info.label;
           });
         if (found_on_path == moduleConfig) {
           return product_from_input_source(prod_info);
@@ -82,7 +83,8 @@ namespace {
     }
 
     throw Exception{errors::Configuration}
-      << "Module " << moduleConfig->moduleConfigInfo->moduleLabel
+      << "Module "
+      << moduleConfig->moduleConfigInfo->modDescription.moduleLabel()
       << " expects to consume a product from module " << prod_info.label
       << " with the signature:\n"
       << "  Friendly class name: " << prod_info.friendlyClassName << '\n'
@@ -161,7 +163,8 @@ detail::consumed_products_for_module(
   config_const_iterator const config_begin,
   config_const_iterator const config_it)
 {
-  auto const& module_name = config_it->moduleConfigInfo->moduleLabel;
+  auto const& module_name =
+    config_it->moduleConfigInfo->modDescription.moduleLabel();
   std::set<ProductInfo> result;
   for (auto const& per_branch_type : consumables) {
     for (auto const& prod_info : per_branch_type) {
@@ -182,8 +185,8 @@ detail::consumed_products_for_module(
           // consumesMany call.
           auto const& class_name = prod_info.friendlyClassName;
           for (auto mit = config_begin; mit != config_it; ++mit) {
-            auto possible_products =
-              produced_products.find(mit->moduleConfigInfo->moduleLabel);
+            auto possible_products = produced_products.find(
+              mit->moduleConfigInfo->modDescription.moduleLabel());
             if (possible_products == cend(produced_products)) {
               continue;
             }

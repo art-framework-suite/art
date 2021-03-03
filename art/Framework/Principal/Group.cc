@@ -21,17 +21,11 @@ namespace art {
   Group::~Group()
   {
     delete productProvenance_.load();
-    productProvenance_ = nullptr;
     delete product_.load();
-    product_ = nullptr;
     delete rangeSet_.load();
-    rangeSet_ = nullptr;
     delete partnerProduct_.load();
-    partnerProduct_ = nullptr;
     delete baseProduct_.load();
-    baseProduct_ = nullptr;
     delete partnerBaseProduct_.load();
-    partnerBaseProduct_ = nullptr;
   }
 
   Group::Group(DelayedReader* reader,
@@ -39,15 +33,12 @@ namespace art {
                unique_ptr<RangeSet>&& rs,
                grouptype const gt,
                unique_ptr<EDProduct>&& edp /*= nullptr*/)
-    : branchDescription_{bd}, delayedReader_{reader}, grpType_{gt}
-  {
-    productProvenance_ = nullptr;
-    product_ = edp.release();
-    rangeSet_ = rs.release();
-    partnerProduct_ = nullptr;
-    baseProduct_ = nullptr;
-    partnerBaseProduct_ = nullptr;
-  }
+    : branchDescription_{bd}
+    , delayedReader_{reader}
+    , product_{edp.release()}
+    , rangeSet_{rs.release()}
+    , grpType_{gt}
+  {}
 
   EDProduct const*
   Group::getIt_() const

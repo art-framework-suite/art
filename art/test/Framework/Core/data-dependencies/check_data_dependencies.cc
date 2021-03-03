@@ -4,6 +4,7 @@
 #include "art/Framework/Core/detail/consumed_products.h"
 #include "art/Framework/Core/detail/graph_algorithms.h"
 #include "art/Framework/Principal/ConsumesInfo.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/test/Framework/Core/data-dependencies/Configs.h"
 #include "boost/graph/graph_utility.hpp"
 #include "canvas/Utilities/Exception.h"
@@ -62,11 +63,14 @@ namespace {
       auto const modules_in_table = table_pset.get_pset_names();
       auto const module_type = module_type_for_table(name);
       for (auto const& module_name : modules_in_table) {
-        ModuleConfigInfo info{module_name,
-                              module_type,
-                              art::ModuleThreadingType::shared,
-                              table_pset.get<fhicl::ParameterSet>(module_name),
-                              module_name}; // Use module-name for libspec
+        art::ModuleDescription const md{
+          {},
+          module_name, // Use module-name for libspec
+          module_name,
+          art::ModuleThreadingType::shared,
+          art::ProcessConfiguration{}};
+        ModuleConfigInfo info{
+          md, table_pset.get<fhicl::ParameterSet>(module_name), module_type};
         result.emplace(module_name, std::move(info));
       }
     }
@@ -161,7 +165,8 @@ namespace {
       bool first_module{true};
       bool present{true};
       for (auto const& module : modules) {
-        auto const& module_label = module.moduleConfigInfo->moduleLabel;
+        auto const& module_label =
+          module.moduleConfigInfo->modDescription.moduleLabel();
         if (first_module) {
           first_module = false;
           present = module_found_in_tables(module_label, pset, tables);
@@ -272,7 +277,8 @@ namespace {
   {
     auto const begin = cbegin(module_configs);
     for (auto it = begin, end = cend(module_configs); it != end; ++it) {
-      auto const& module_name = it->moduleConfigInfo->moduleLabel;
+      auto const& module_name =
+        it->moduleConfigInfo->modDescription.moduleLabel();
       auto& info = modules[module_name];
       info.paths.insert(path_name);
       info.module_type = module_found_with_type(module_name, pset);
@@ -303,7 +309,8 @@ namespace {
   {
     auto const begin = cbegin(module_configs);
     for (auto it = begin, end = cend(module_configs); it != end; ++it) {
-      auto const& module_name = it->moduleConfigInfo->moduleLabel;
+      auto const& module_name =
+        it->moduleConfigInfo->modDescription.moduleLabel();
       auto& info = modules[module_name];
       info.paths.insert(path_name);
       info.module_type = module_found_with_type(module_name, pset);
@@ -331,7 +338,8 @@ namespace {
   {
     auto const begin = cbegin(module_configs);
     for (auto it = begin, end = cend(module_configs); it != end; ++it) {
-      auto const& module_name = it->moduleConfigInfo->moduleLabel;
+      auto const& module_name =
+        it->moduleConfigInfo->modDescription.moduleLabel();
       auto& info = modules[module_name];
       info.paths.insert(path_name);
       info.module_type = module_found_with_type(module_name, pset);

@@ -58,6 +58,9 @@ namespace art {
     for (string const& pathSpecifier : pathspecs) {
       string specifier{pathSpecifier};
       // whitespace eliminated
+
+      // FIXME: THIS DOES NOT ACTUALLY ELIMINATE ALL WHITESPACE; it
+      // eliminates instances of the character string " \t".
       boost::erase_all(specifier, " \t");
       if (specifier == "*") {
         unrestricted_star = true;

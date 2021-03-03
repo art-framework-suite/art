@@ -1,4 +1,5 @@
-#include "art/Persistency/Common/DelayedReader.h"
+#include "art/Framework/Principal/DelayedReader.h"
+#include "art/Framework/Principal/Principal.h"
 // vim: set sw=2 expandtab :
 
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
@@ -7,9 +8,8 @@ using namespace std;
 
 namespace art {
 
-  DelayedReader::~DelayedReader() noexcept = default;
-
   DelayedReader::DelayedReader() = default;
+  DelayedReader::~DelayedReader() noexcept = default;
 
   std::unique_ptr<EDProduct>
   DelayedReader::getProduct(Group const* grp,
@@ -36,8 +36,7 @@ namespace art {
   vector<ProductProvenance>
   DelayedReader::readProvenance_() const
   {
-    vector<ProductProvenance> ret;
-    return ret;
+    return {};
   }
 
   bool
@@ -51,16 +50,16 @@ namespace art {
     return false;
   }
 
-  int
-  DelayedReader::readFromSecondaryFile(int idx)
+  std::unique_ptr<Principal>
+  DelayedReader::readFromSecondaryFile(int& idx)
   {
     return readFromSecondaryFile_(idx);
   }
 
-  int
-  DelayedReader::readFromSecondaryFile_(int /*idx*/)
+  std::unique_ptr<Principal>
+  DelayedReader::readFromSecondaryFile_(int& /*idx*/)
   {
-    return -2;
+    return nullptr;
   }
 
 } // namespace art

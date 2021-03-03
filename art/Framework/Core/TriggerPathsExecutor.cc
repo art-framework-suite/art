@@ -187,11 +187,9 @@ namespace art {
   void
   TriggerPathsExecutor::process(Transition const trans, Principal& principal)
   {
-    for (auto const& val : triggerPathsInfo_.workers()) {
-      val.second->reset();
-    }
-    for (auto const& path : triggerPathsInfo_.paths()) {
-      path->process(trans, principal);
+    triggerPathsInfo_.reset();
+    for (auto& path : triggerPathsInfo_.paths()) {
+      path.process(trans, principal);
     }
   }
 
@@ -247,13 +245,10 @@ namespace art {
     // head task).
     auto const scheduleID = sc_.id();
     TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
-    for (auto const& val : triggerPathsInfo_.workers()) {
-      val.second->reset();
-    }
     if (results_inserter_) {
       results_inserter_->reset();
     }
-    triggerPathsInfo_.pathResults().reset();
+    triggerPathsInfo_.reset_for_event();
     triggerPathsInfo_.incrementTotalEventCount();
     try {
       if (triggerPathsInfo_.paths().empty()) {
@@ -273,7 +268,7 @@ namespace art {
         // doneWaiting() on the pathsDoneTask, which decrements its
         // reference count, which will eventually cause it to run when
         // every path has finished.
-        path->process(pathsDoneTask, event_principal);
+        path.process(pathsDoneTask, event_principal);
       }
       TDEBUG_END_FUNC_SI(4, scheduleID);
     }

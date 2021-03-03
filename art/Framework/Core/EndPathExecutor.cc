@@ -256,7 +256,7 @@ namespace art {
     }
     try {
       if (!endPathInfo_.paths().empty()) {
-        endPathInfo_.paths().front()->process(trans, principal);
+        endPathInfo_.paths().front().process(trans, principal);
       }
     }
     catch (cet::exception& ex) {
@@ -330,9 +330,7 @@ namespace art {
   {
     auto const sid = sc_.id();
     TDEBUG_BEGIN_FUNC_SI(4, sid);
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      label_and_worker.second->reset();
-    }
+    endPathInfo_.reset_for_event();
     endPathInfo_.incrementTotalEventCount();
     try {
       auto pathsDoneTask =
@@ -340,7 +338,7 @@ namespace art {
       if (endPathInfo_.paths().empty()) {
         taskGroup_.may_run(pathsDoneTask);
       } else {
-        endPathInfo_.paths().front()->process(pathsDoneTask, ep);
+        endPathInfo_.paths().front().process(pathsDoneTask, ep);
       }
     }
     catch (...) {

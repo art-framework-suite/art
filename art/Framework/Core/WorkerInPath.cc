@@ -30,104 +30,64 @@ namespace art {
     : worker_{w}, filterAction_{fa}, moduleContext_{mc}, taskGroup_{&taskGroup}
   {}
 
-  WorkerInPath::WorkerInPath(WorkerInPath&& rhs)
-    : worker_{rhs.worker_.load()}
-    , filterAction_{rhs.filterAction_.load()}
-    , moduleContext_{std::move(rhs.moduleContext_)}
-    , taskGroup_{rhs.taskGroup_}
-  {
-    returnCode_ = rhs.returnCode_.load();
-    counts_visited_ = rhs.counts_visited_.load();
-    counts_passed_ = rhs.counts_passed_.load();
-    counts_failed_ = rhs.counts_failed_.load();
-    counts_thrown_ = rhs.counts_thrown_.load();
-    rhs.worker_ = nullptr;
-  }
-
-  WorkerInPath&
-  WorkerInPath::operator=(WorkerInPath&& rhs)
-  {
-    worker_ = rhs.worker_.load();
-    rhs.worker_ = nullptr;
-    filterAction_ = rhs.filterAction_.load();
-    returnCode_ = rhs.returnCode_.load();
-    counts_visited_.store(rhs.counts_visited_.load());
-    counts_passed_.store(rhs.counts_passed_.load());
-    counts_failed_.store(rhs.counts_failed_.load());
-    counts_thrown_.store(rhs.counts_thrown_.load());
-    moduleContext_ = rhs.moduleContext_;
-    taskGroup_ = std::exchange(rhs.taskGroup_, nullptr);
-    return *this;
-  }
-
   Worker*
   WorkerInPath::getWorker() const
   {
-    return worker_.load();
+    return worker_.get();
   }
 
   detail::FilterAction
   WorkerInPath::filterAction() const
   {
-    return filterAction_.load();
+    return filterAction_;
   }
 
   // Used only by Path
   bool
   WorkerInPath::returnCode() const
   {
-    return returnCode_.load();
+    return returnCode_;
   }
 
   string const&
   WorkerInPath::label() const
   {
-    return worker_.load()->label();
-  }
-
-  // Used only by Path
-  void
-  WorkerInPath::clearCounters()
-  {
-    counts_visited_ = 0;
-    counts_passed_ = 0;
-    counts_failed_ = 0;
-    counts_thrown_ = 0;
+    return worker_->label();
   }
 
   // Used by writeSummary
   size_t
   WorkerInPath::timesVisited() const
   {
-    return counts_visited_.load();
+    return counts_visited_;
   }
 
   // Used by writeSummary
   size_t
   WorkerInPath::timesPassed() const
   {
-    return counts_passed_.load();
+    return counts_passed_;
   }
 
   // Used by writeSummary
   size_t
   WorkerInPath::timesFailed() const
   {
-    return counts_failed_.load();
+    return counts_failed_;
   }
 
   // Used by writeSummary
   size_t
   WorkerInPath::timesExcept() const
   {
-    return counts_thrown_.load();
+    return counts_thrown_;
   }
 
   bool
   WorkerInPath::run(Transition const trans, Principal& principal)
   {
     // Note: We ignore the return code because we do not process events here.
-    worker_.load()->doWork(trans, principal, moduleContext_);
+    worker_->doWork(trans, principal, moduleContext_);
     return true;
   }
 
@@ -154,23 +114,20 @@ namespace art {
         return;
       }
 
-      wip_->returnCode_ = wip_->worker_.load()->returnCode();
-      TDEBUG_TASK_SI(5, sid_)
-        << "raw returnCode_: " << wip_->returnCode_.load();
-      if (wip_->filterAction_.load() == FilterAction::Veto) {
-        wip_->returnCode_ = !wip_->returnCode_.load();
-      } else if (wip_->filterAction_.load() == FilterAction::Ignore) {
+      wip_->returnCode_ = wip_->worker_->returnCode();
+      TDEBUG_TASK_SI(5, sid_) << "raw returnCode_: " << wip_->returnCode_;
+      if (wip_->filterAction_ == FilterAction::Veto) {
+        wip_->returnCode_ = !wip_->returnCode_;
+      } else if (wip_->filterAction_ == FilterAction::Ignore) {
         wip_->returnCode_ = true;
       }
-      TDEBUG_TASK_SI(5, sid_)
-        << "final returnCode_: " << wip_->returnCode_.load();
-      if (wip_->returnCode_.load()) {
+      TDEBUG_TASK_SI(5, sid_) << "final returnCode_: " << wip_->returnCode_;
+      if (wip_->returnCode_) {
         ++wip_->counts_passed_;
       } else {
         ++wip_->counts_failed_;
       }
-      TDEBUG_END_TASK_SI(4, sid_)
-        << "returnCode_: " << wip_->returnCode_.load();
+      TDEBUG_END_TASK_SI(4, sid_) << "returnCode_: " << wip_->returnCode_;
       taskGroup_->may_run(workerDoneTask_);
     }
 
@@ -190,7 +147,7 @@ namespace art {
     try {
       auto workerInPathDoneTask = make_waiting_task<WorkerInPathDoneTask>(
         this, scheduleID, workerDoneTask, taskGroup_);
-      worker_.load()->doWork_event(workerInPathDoneTask, ep, moduleContext_);
+      worker_->doWork_event(workerInPathDoneTask, ep, moduleContext_);
     }
     catch (...) {
       ++counts_thrown_;

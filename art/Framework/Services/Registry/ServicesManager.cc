@@ -2,6 +2,7 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/detail/ServiceCacheEntry.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
@@ -205,6 +206,7 @@ namespace art {
       }
       requestedCreationOrder_.emplace_back(move(service_typeid));
     }
+    ServiceRegistry::instance().setManager(this);
   }
 
   void

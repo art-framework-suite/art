@@ -140,12 +140,12 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
     for (auto const& tpi : tpis) {
       counts_per_path.resize(tpi.paths().size());
       for (auto const& path : tpi.paths()) {
-        auto& counts = counts_per_path[path->bitPosition()];
-        counts.path_name = path->name(); // No increment!
-        counts.run += path->timesRun();
-        counts.passed += path->timesPassed();
-        counts.failed += path->timesFailed();
-        counts.except += path->timesExcept();
+        auto& counts = counts_per_path[path.bitPosition()];
+        counts.path_name = path.name(); // No increment!
+        counts.run += path.timesRun();
+        counts.passed += path.timesPassed();
+        counts.failed += path.timesFailed();
+        counts.except += path.timesExcept();
       }
     }
     for (std::size_t bitPos = 0; bitPos != size(counts_per_path); ++bitPos) {
@@ -170,9 +170,9 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
       EndPathCounts epCounts{};
       for (auto const& epi : epis) {
         for (auto const& path : epi.paths()) {
-          epCounts.run += path->timesRun();
-          epCounts.success += path->timesPassed();
-          epCounts.except += path->timesExcept();
+          epCounts.run += path.timesRun();
+          epCounts.success += path.timesPassed();
+          epCounts.except += path.timesExcept();
         }
       }
       LogPrint("ArtSummary")
@@ -187,13 +187,13 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
     std::map<path_data_t, WorkersInPathCounts> counts_per_worker_in_path;
     for (auto const& tpi : tpis) {
       for (auto const& path : tpi.paths()) {
-        path_data_t const path_data{path->bitPosition(), path->name()};
+        path_data_t const path_data{path.bitPosition(), path.name()};
         auto& counts_per_worker = counts_per_worker_in_path[path_data];
-        if (counts_per_worker.empty() && !path->workersInPath().empty()) {
-          counts_per_worker.resize(path->workersInPath().size());
+        if (counts_per_worker.empty() && !path.workersInPath().empty()) {
+          counts_per_worker.resize(path.workersInPath().size());
         }
         std::size_t i{};
-        for (auto const& workerInPath : path->workersInPath()) {
+        for (auto const& workerInPath : path.workersInPath()) {
           auto const* worker = workerInPath.getWorker();
           auto& counts = counts_per_worker[i];
           if (counts.moduleLabel.empty()) {
@@ -231,11 +231,11 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
   WorkersInPathCounts endPathWIPCounts;
   for (auto const& epi : epis) {
     for (auto const& path : epi.paths()) {
-      if (endPathWIPCounts.empty() && !path->workersInPath().empty()) {
-        endPathWIPCounts.resize(path->workersInPath().size());
+      if (endPathWIPCounts.empty() && !path.workersInPath().empty()) {
+        endPathWIPCounts.resize(path.workersInPath().size());
       }
       std::size_t i{};
-      for (auto const& workerInPath : path->workersInPath()) {
+      for (auto const& workerInPath : path.workersInPath()) {
         auto const* worker = workerInPath.getWorker();
         auto& counts = endPathWIPCounts[i];
         if (counts.moduleLabel.empty()) {

@@ -17,12 +17,12 @@
 // pointer to a Group, when queried.
 // =================================================================
 
+#include "art/Framework/Principal/DelayedReader.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/OutputHandle.h"
 #include "art/Framework/Principal/ProcessTag.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "canvas/Persistency/Common/PrincipalBase.h"
@@ -62,15 +62,22 @@ namespace art {
     // Let RootDelayedReader replace Run and SubRun product provenances.
     friend class RootDelayedReader;
 
-    // TYPES
   public:
     using GroupCollection = std::map<ProductID, std::unique_ptr<Group>>;
     using const_iterator = GroupCollection::const_iterator;
     enum class allowed_processes { current_process, input_source, all };
 
-    // MEMBER FUNCTIONS -- Special Member Functions
-  public:
-    virtual ~Principal() noexcept;
+    // The destructor is defined in the header so that overrides of
+    // DelayedReader's readFromSecondaryFile_ virtual function can
+    // return an std::unique_ptr<Principal> object (std::unique_ptr
+    // instantiations require a well-formed deleter).
+    virtual ~Principal() noexcept
+    {
+      presentProducts_ = nullptr;
+      producedProducts_ = nullptr;
+      delete eventAux_.load();
+      eventAux_.store(nullptr);
+    }
 
     Principal(BranchType,
               ProcessConfiguration const&,
@@ -112,13 +119,14 @@ namespace art {
     Principal(Principal const&) = delete;
     Principal& operator=(Principal const&) = delete;
 
-    // MEMBER FUNCTIONS -- Interface for DataViewImpl<T>
-  public:
-    // Used by art::DataViewImpl<T>::get(ProductID const pid, Handle<T>& result)
-    // const. (easy user-facing api) Used by Principal::productGetter(ProductID
-    // const pid) const
-    //   Used by (Run,SubRun,Event,Results)::productGetter (advanced user-facing
-    //   api)
+    // Interface for DataViewImpl<T>
+    //
+    // - Used by art::DataViewImpl<T>::get(ProductID const pid,
+    //   Handle<T>& result) const. (easy user-facing api) Used by
+    //   Principal::productGetter(ProductID const pid) const
+    //
+    // - Used by (Run,SubRun,Event,Results)::productGetter (advanced
+    //   user-facing api)
     GroupQueryResult getByProductID(ProductID const pid) const;
 
     GroupQueryResult getBySelector(ModuleContext const& mc,
@@ -177,9 +185,6 @@ namespace art {
       ProductID const pid,
       bool const alwaysEnableLookupOfProducedProducts = false) const;
 
-    // Used only by RootInputFile::Read(Run,SubRun,Event)ForSecondaryFile
-    void addSecondaryPrincipal(std::unique_ptr<Principal>&&);
-
     // The product tables data member for produced products is set by
     // the EventProcessor after the Principal is provided by the input
     // source.
@@ -203,15 +208,12 @@ namespace art {
     // Used only by getProductDescription.
     ProcessConfiguration const& processConfiguration() const;
 
-    // Used by Group
-    // Used by RootOutputFile
-    // Used by ProvenanceCheckerOutput_module
+    // Used by Group, RootOutputFile, ProvenanceCheckerOuput_module
     // What used to be the functionality of BranchMapper.
     cet::exempt_ptr<ProductProvenance const> branchToProductProvenance(
       ProductID const&) const;
 
-    // Used by FileDumperOutput_module
-    // Used by DataViewImpl
+    // Used by FileDumperOutput_module, DavaViewImpl
     size_t size() const;
 
     // Note: Used only by OutputModule::updateBranchChildren and some
@@ -235,8 +237,7 @@ namespace art {
     // Obtain the branch type suitable for products inserted into the principal.
     BranchType branchType() const;
 
-    // Used by EDProducer
-    // Used by EDFilter
+    // Used by EDProducer, EDFilter
     RangeSet seenRanges() const;
 
     void put(BranchDescription const&,
@@ -244,8 +245,8 @@ namespace art {
              std::unique_ptr<EDProduct>&&,
              std::unique_ptr<RangeSet>&&);
 
-    // MEMBER FUNCTIONS -- Used to be in subclasses
-  public:
+    // Used to be in subclasses
+
     // Used by RootOutputFile
     // Used by Run
     RunAuxiliary const& runAux() const;
@@ -293,7 +294,6 @@ namespace art {
     History const& history() const;
     bool isLastInSubRun() const;
 
-    // MEMBER FUNCTIONS -- Implementation details
   private:
     // Used by our ctors.
     void ctor_create_groups(cet::exempt_ptr<ProductTable const>);
@@ -328,7 +328,7 @@ namespace art {
       std::vector<cet::exempt_ptr<Group>>& groups) const;
     bool producedInProcess(ProductID) const;
     bool presentFromSource(ProductID) const;
-    int tryNextSecondaryFile() const;
+    auto tryNextSecondaryFile() const;
 
     // Implementation of the DataViewImpl API.
     std::vector<cet::exempt_ptr<Group>> findGroupsForProduct(
@@ -390,7 +390,12 @@ namespace art {
     // Secondary principals.  Note that the lifetimes of Results, Run,
     // and SubRun principals do not exceed the lifetime of the input
     // file.
-    std::vector<std::unique_ptr<Principal>> secondaryPrincipals_{};
+    //
+    // Note: To make secondary file-reading thread-safe, we will need to
+    //       ensure that any adjustments to the secondaryPrincipals_
+    //       vector is done atomically with respect to any reading of
+    //       the vector.
+    mutable std::vector<std::unique_ptr<Principal>> secondaryPrincipals_{};
 
     // Index into the secondary file names vector of the next
     // file that a secondary principal should be created from.

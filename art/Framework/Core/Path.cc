@@ -22,7 +22,6 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
-#include <atomic>
 #include <cstddef>
 #include <exception>
 #include <memory>
@@ -106,18 +105,6 @@ namespace art {
   Path::workersInPath() const
   {
     return workers_;
-  }
-
-  void
-  Path::clearCounters()
-  {
-    timesRun_ = 0;
-    timesPassed_ = 0;
-    timesFailed_ = 0;
-    timesExcept_ = 0;
-    for (auto& w : workers_) {
-      w.clearCounters();
-    }
   }
 
   void
@@ -288,9 +275,9 @@ namespace art {
             // Possible actions: IgnoreCompletely, Rethrow, SkipEvent
             ++path_->timesExcept_;
             path_->state_ = hlt::Exception;
-            if (path_->trptr_.load()) {
+            if (path_->trptr_) {
               // Not the end path.
-              (*path_->trptr_.load())[path_->bitpos_] =
+              (*path_->trptr_)[path_->bitpos_] =
                 HLTPathStatus(path_->state_, idx_);
             }
             auto art_ex =
@@ -313,9 +300,9 @@ namespace art {
             << "Exception passing through path " << path_->name() << "\n";
           ++path_->timesExcept_;
           path_->state_ = hlt::Exception;
-          if (path_->trptr_.load()) {
+          if (path_->trptr_) {
             // Not the end path.
-            (*path_->trptr_.load())[path_->bitpos_] =
+            (*path_->trptr_)[path_->bitpos_] =
               HLTPathStatus(path_->state_, idx_);
           }
           group_.may_run(pathsDone_, current_exception());
@@ -401,9 +388,9 @@ namespace art {
     auto ex_ptr = std::exception_ptr{};
     try {
       HLTPathStatus const status{state_, idx};
-      if (trptr_.load()) {
+      if (trptr_) {
         // Not the end path.
-        (*trptr_.load())[bitpos_] = status;
+        (*trptr_)[bitpos_] = status;
       }
       actReg_.sPostProcessPath.invoke(pc_, status);
     }
