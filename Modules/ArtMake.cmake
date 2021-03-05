@@ -117,18 +117,18 @@ endmacro(art_make_exec)
 ####################################
 # art_make_library
 ####################################
-function(art_make_library)
-  if ((ART_MAKE_PREPEND_PRODUCT_NAME OR
-        ART_MAKE_PREPEND_PROJECT_NAME) AND NOT "${ARGV}" MATCHES
-      "(^|;)(LIBRARY|USE_PRO(DU|JE)CT)_NAME(;|$)")
-    list(PREPEND ARGV USE_PROJECT_NAME)
+macro(art_make_library)
+  set(_cet_aml_args "${ARGV}")
+  if (ART_MAKE_PREPEND_PRODUCT_NAME)
+    list(PREPEND _cet_aml_args USE_PROJECT_NAME)
   endif()
-  if ("${ARGV}" MATCHES "(^|;)(NO_)?SOURCE(;|$)")
-    cet_make_library(${ARGV})
+  if (_cet_aml_args MATCHES "(^|;)(NO_)?SOURCE(;|$)")
+    cet_make_library(${_cet_aml_args})
   else()
-    cet_make(LIB_ONLY ${ARGV}) ### MIGRATE-ACTION-RECOMMENDED: use cet_make_library(), build_dictionary(), basic_plugin() with explicit source lists
+    cet_make(LIB_ONLY ${_cet_aml_args})
   endif()
-endfunction()
+  unset(_cet_aml_args)
+endmacro()
 
 ####################################
 # art_make ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
