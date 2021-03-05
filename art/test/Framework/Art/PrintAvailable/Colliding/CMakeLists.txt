@@ -1,1 +1,1 @@
-simple_plugin(DummyProducer "module" NO_INSTALL)
+build_plugin(DummyProducer "module" NO_INSTALL)

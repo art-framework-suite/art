@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE (event start test)
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 
 #include "art/Framework/Art/detail/event_start.h"
 #include "canvas/Utilities/Exception.h"

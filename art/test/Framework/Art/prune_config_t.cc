@@ -1,6 +1,6 @@
 // vim: set sw=2 expandtab :
 #define BOOST_TEST_MODULE (prune_config test)
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 
 #include "art/Framework/Art/detail/prune_configuration.h"
 #include "canvas/Utilities/Exception.h"

@@ -1,21 +1,13 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
 // vim: set sw=2 expandtab :
 
-#include "canvas/Persistency/Common/TriggerResults.h"
-#include "canvas/Utilities/Exception.h"
-#include "cetlib/container_algorithms.h"
-#include "cetlib_except/exception.h"
-#include "fhiclcpp/ParameterSetRegistry.h"
-
 #include <cstddef>
 #include <map>
 #include <string>
 #include <vector>
 
 using namespace std;
-using namespace cet;
-using namespace fhicl;
-using namespace hep::concurrency;
+using fhicl::ParameterSet;
 
 namespace art {
 

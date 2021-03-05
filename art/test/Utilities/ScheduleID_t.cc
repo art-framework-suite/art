@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE (ScheduleID_t)
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 
 #include "art/Utilities/ScheduleID.h"
 

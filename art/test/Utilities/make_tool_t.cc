@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE (make_tool_t)
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 
 #include "art/Utilities/make_tool.h"
 #include "art/test/Utilities/tools/ClassTool.h"

@@ -1,18 +1,21 @@
-#include "art/Framework/Services/Optional/TrivialFileDelivery.h"
 // vim: set sw=2 expandtab :
 
+#include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/FileServiceInterfaces/FileDeliveryStatus.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
+#include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "canvas/Utilities/Exception.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <cerrno>
 #include <fstream>
+#include <mutex>
 #include <string>
 #include <vector>
 
 using namespace std;
-using namespace art;
-using namespace hep::concurrency;
-
 using fhicl::ParameterSet;
 
 namespace art {
@@ -29,7 +32,39 @@ namespace art {
       }
     }
 
-  } // unnamed namespace
+} // unnamed namespace
+
+  class TrivialFileDelivery : public CatalogInterface {
+  public:
+    struct Config {};
+    using Parameters = ServiceTable<Config>;
+
+    TrivialFileDelivery(Parameters const& config);
+
+    void doConfigure(std::vector<std::string> const& items) override;
+    int doGetNextFileURI(std::string& uri, double& waitTime) override;
+    void doUpdateStatus(std::string const& uri,
+                        FileDisposition status) override;
+    void doOutputFileOpened(std::string const& module_label) override;
+    void doOutputModuleInitiated(std::string const& module_label,
+                                 fhicl::ParameterSet const& pset) override;
+    void doOutputFileClosed(std::string const& module_label,
+                            std::string const& file) override;
+    void doEventSelected(std::string const& module_label,
+                         EventID const& event_id,
+                         HLTGlobalStatus const& acceptance_info) override;
+    bool doIsSearchable() override;
+    void doRewind() override;
+
+  private:
+    std::string prependFileDesignation(std::string const& name) const;
+
+    // Protects all data members.
+    mutable std::recursive_mutex mutex_{};
+    std::vector<std::string> fileList_{};
+    std::vector<std::string>::const_iterator nextFile_{fileList_.cbegin()};
+    std::vector<std::string>::const_iterator endOfFiles_{fileList_.cend()};
+  };
 
   TrivialFileDelivery::TrivialFileDelivery(
     TrivialFileDelivery::Parameters const&)
@@ -119,6 +154,10 @@ namespace art {
   }
 
 } // namespace art
+
+DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileDelivery,
+                                   art::CatalogInterface,
+                                   SHARED)
 
 DEFINE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileDelivery,
                                   art::CatalogInterface)

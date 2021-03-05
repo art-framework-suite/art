@@ -7,7 +7,7 @@ using namespace std;
 int
 main()
 {
-  art::MallocOptionSetter& mo = art::getGlobalOptionSetter();
+  art::MallocOptionSetter mo;
   art::MallocOpts mycopy = mo.get(), defaultt;
 
   assert(mo.retrieveFromEnv() == false);

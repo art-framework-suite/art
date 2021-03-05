@@ -21,7 +21,6 @@
 #include "art/Framework/Services/Registry/detail/SignalResponseType.h"
 #include "art/Framework/Services/Registry/detail/makeWatchFunc.h"
 #include "art/Utilities/ScheduleID.h"
-#include "cetlib/container_algorithms.h"
 
 #include <deque>
 #include <functional>

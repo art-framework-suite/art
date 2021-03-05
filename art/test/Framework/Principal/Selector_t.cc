@@ -1,6 +1,6 @@
 // vim: set sw=2 expandtab :
 #define BOOST_TEST_MODULE (Selector_t)
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 
 #include "art/Framework/Principal/Selector.h"
 

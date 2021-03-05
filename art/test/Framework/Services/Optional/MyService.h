@@ -3,9 +3,8 @@
 
 // MyService: test service inheriting from MyServiceInterface.
 
-#include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "art/test/Framework/Services/Interfaces/MyServiceInterface.h"
-#include "fhiclcpp/fwd.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+#include "MyServiceInterface.h"
 
 namespace art::test {
   class MyService : public MyServiceInterface {

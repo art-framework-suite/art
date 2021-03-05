@@ -15,7 +15,15 @@
 cet_make_exec(
   NAME check_data_dependencies
   SOURCE check_data_dependencies.cc
-  LIBRARIES canvas::canvas art_Framework_Core)
+  NO_INSTALL
+  LIBRARIES PRIVATE
+  art::Framework_Core
+  art::Framework_Principal
+  canvas::canvas
+  fhiclcpp::types
+  fhiclcpp::fhiclcpp
+  Boost::graph
+)
 
 set(config_files
   empty.fcl

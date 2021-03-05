@@ -127,7 +127,7 @@
 // ==================================================================
 
 #include "CLHEP/Random/RandomEngine.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/PerScheduleContainer.h"

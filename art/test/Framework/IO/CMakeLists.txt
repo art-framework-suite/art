@@ -1,4 +1,6 @@
 cet_test(PostCloseFileRenamer_t USE_BOOST_UNIT
-  LIBRARIES
-  art_Framework_IO
-  Boost::filesystem)
+  LIBRARIES PRIVATE
+    art::Framework_IO
+    canvas::canvas
+    Boost::filesystem
+)

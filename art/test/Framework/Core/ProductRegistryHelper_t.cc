@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE (ProductRegistryHelper_t)
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "canvas/Utilities/Exception.h"

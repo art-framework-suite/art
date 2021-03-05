@@ -2,7 +2,7 @@
 #define art_Framework_Services_System_FileCatalogMetadata_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/detail/SAMMetadataTranslators.h"
 #include "canvas/Utilities/Exception.h"

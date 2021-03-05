@@ -1,46 +1,80 @@
 set(default_test_libraries
-  art::art_Framework_Services_Registry
-  art::art_Framework_Core
-  art::art_Framework_Principal
-  art::art_Utilities
+  art::Framework_Services_Registry
+  art::Framework_Core
+  art::Framework_Principal
+  art::Utilities
   ${CPPUNIT}
   ${CMAKE_DL_LIBS}
  )
 
-cet_make_library(LIBRARY_NAME set_manager_for_tests
+cet_make_library(LIBRARY_NAME set_manager_for_tests NO_INSTALL
   SOURCE set_manager_for_tests.cc
-  LIBRARIES PRIVATE art::art_Framework_Services_Registry)
+  LIBRARIES PRIVATE art::Framework_Services_Registry
+)
 
+set(pmt_libraries
+  art::Framework_Principal
+  canvas::canvas
+  fhiclcpp::fhiclcpp
+)
 foreach (type IN ITEMS Analyzer Filter Output Producer)
-  simple_plugin(PMTest${type} "module" NO_INSTALL)
+  build_plugin(PMTest${type} "module" NO_INSTALL BASENAME_ONLY
+    LIBRARIES PRIVATE ${pmt_libraries}
+)
 endforeach()
-simple_plugin(CheckTriggerBits "module" NO_INSTALL USE_BOOST_UNIT
-              LIBRARIES PRIVATE art::art_Framework_Services_System_TriggerNamesService_service)
+target_link_libraries(PMTestOutput_module PRIVATE fhiclcpp::types)
+
+build_plugin(CheckTriggerBits "module" NO_INSTALL USE_BOOST_UNIT
+  LIBRARIES PRIVATE
+    art::Framework_Services_System_TriggerNamesService_service
+    art::Framework_Principal
+    canvas::canvas
+)
 
 cet_test(PathManager_t USE_BOOST_UNIT
   LIBRARIES PRIVATE
-  art::art_Framework_Art
-  art::art_Framework_Core
+    art::Framework_Art
+    art::Framework_Core
+    art::Framework_Principal
+    art::Framework_Services_Registry
+    canvas::canvas
+    fhiclcpp::fhiclcpp
 )
 
-foreach(cpp_test IN ITEMS
-    EventSelector_t
-    EventSelWildcard_t
-    EventSelExc_t
-    RegistryTemplate_t
-    parse_path_spec_t)
-  cet_test(${cpp_test} SOURCE ${cpp_test}.cpp
-    LIBRARIES PRIVATE ${default_test_libraries} art::set_manager_for_tests
+set(eventSelector_test_libraries
+  art::Framework_Services_System_TriggerNamesService_service
+  art::Framework_Core
+  art::Framework_Services_Registry
+  canvas::canvas
+  fhiclcpp::fhiclcpp
+)
+foreach(test IN ITEMS ector Wildcard Exc)
+  cet_test(EventSel${test}_t
+    SOURCE EventSel${test}_t.cpp
+    LIBRARIES PRIVATE
+    art_test::set_manager_for_tests
+    ${eventSelector_test_libraries}
   )
 endforeach()
 
-simple_plugin(Busy "module" NO_INSTALL USE_BOOST_UNIT)
+build_plugin(Busy "module" NO_INSTALL USE_BOOST_UNIT)
 cet_test(BusyEvent_t HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- -c busy_event_t.fcl -j3
   DATAFILES fcl/busy_event_t.fcl)
 
-simple_plugin(EventCounter "module" NO_INSTALL USE_BOOST_UNIT)
+cet_test(RegistryTemplate_t
+  SOURCE RegistryTemplate_t.cpp
+  LIBRARIES PRIVATE art::Framework_Services_Registry
+)
+
+cet_test(parse_path_spec_t
+  SOURCE parse_path_spec_t.cpp
+  LIBRARIES PRIVATE art::Framework_Core)
+
+build_plugin(EventCounter "module" NO_INSTALL USE_BOOST_UNIT
+  LIBRARIES PRIVATE art::Framework_Principal fhiclcpp::types)
+
 cet_test(RejectEvents_t HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- -c reject_events_t.fcl
@@ -48,11 +82,19 @@ cet_test(RejectEvents_t HANDBUILT
 )
 
 cet_test(GroupSelector_t USE_BOOST_UNIT
-  LIBRARIES PRIVATE ${default_test_libraries}
+  LIBRARIES PRIVATE
+    art::Framework_Core
+    art::Persistency_Provenance
+    art::Version
+    canvas::canvas
+    fhiclcpp::fhiclcpp
 )
 
 cet_test(ProductRegistryHelper_t USE_BOOST_UNIT
-  LIBRARIES PRIVATE art::art_Framework_Core)
+  LIBRARIES PRIVATE
+    art::Framework_Core
+    canvas::canvas
+)
 
 cet_test(trigger_bits_01 HANDBUILT
   TEST_EXEC art_ut

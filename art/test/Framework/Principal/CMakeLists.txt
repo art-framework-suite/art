@@ -1,7 +1,29 @@
-foreach(test IN ITEMS ClosedRangeSetHandler_t Event_t EventPrincipal_t OpenRangeSetHandler_t)
-  cet_test(${test} USE_BOOST_UNIT
-    LIBRARIES PRIVATE art::art_Framework_Principal art::art_Version
-  )
+foreach(test Closed Open)
+  cet_test(${test}RangeSetHandler_t USE_BOOST_UNIT
+    LIBRARIES PRIVATE
+      art::Framework_Principal
+      canvas::canvas
+   )
 endforeach()
 
-cet_test(Selector_t USE_BOOST_UNIT LIBRARIES PRIVATE art::art_Framework_Principal)
+set(event_test_libraries
+    art::Framework_Principal
+    art::Persistency_Common
+    art::Persistency_Provenance
+    art::Version
+    art_test::TestObjects
+    canvas::canvas
+    fhiclcpp::fhiclcpp
+)
+
+cet_test(Event_t USE_BOOST_UNIT
+  LIBRARIES PRIVATE
+    ${event_test_libraries}
+    cetlib::container_algorithms
+)
+
+cet_test(EventPrincipal_t USE_BOOST_UNIT
+  LIBRARIES PRIVATE ${event_test_libraries})
+
+cet_test(Selector_t USE_BOOST_UNIT
+  LIBRARIES PRIVATE art::Framework_Principal)
