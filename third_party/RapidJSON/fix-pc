@@ -1,0 +1,30 @@
+#!/bin/bash
+
+prefix="$1"
+prel="$2"
+epref="$3"
+in="$4"
+out="$5"
+
+# Escape funky characters.
+re='^([^[.].]+*()^{}.$\\[]*)([[.].]+*()^{}.$\\[])(.*)$'
+tmp="${epref}"
+escaped_epref=''
+while [[ $tmp =~ $re ]]; do
+  escaped_epref="${escaped_epref}${BASH_REMATCH[1]}\\${BASH_REMATCH[2]}"
+  tmp="${BASH_REMATCH[3]}"
+done
+escaped_epref="${escaped_epref}${tmp}"
+
+TMP=`mktemp -t fix-pc.XXXXXX`
+trap "rm $TMP* 2>/dev/null" EXIT
+
+sed -E -e '/^(exec_)?prefix=/ d' "${in}" > "$TMP" && \
+  sed -E -e '1 {; i \
+prefix=${pcfiledir}'"${prel}"' \
+exec_prefix=${prefix}/'"${epref}"'
+b
+}
+s&^([^=]+=)'"$prefix/$escaped_epref"'/&\1/${exec_prefix}&
+s&^([^=]+=)'"$prefix"'/&\1${prefix}/&' \
+"$TMP" > "$out"

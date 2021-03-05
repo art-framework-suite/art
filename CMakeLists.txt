@@ -62,9 +62,11 @@ cet_find_package(SQLite3 REQUIRED)
 
 cet_find_package(Threads REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+add_subdirectory(third_party/RapidJSON)
 
 # macros for simple_plugin
 include(BuildPlugins)
+list(PREPEND CMAKE_PREFIX_PATH ${PROJECT_BINARY_DIR}/third_party/RapidJSON/rapidjson)
 
 # Plugin skeleton generators for cetskelgen.
 add_subdirectory(perllib)
