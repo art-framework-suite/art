@@ -13,7 +13,7 @@
 # ======================================================================
 cmake_minimum_required(VERSION 3.18.2 FATAL_ERROR)
 
-find_package(cetmodules 2.04.00 REQUIRED)
+find_package(cetmodules 2.13.00 REQUIRED)
 project(art VERSION 3.07.00 LANGUAGES CXX C)
 
 include(CetCMakeEnv)
@@ -80,4 +80,4 @@ add_subdirectory(art)
 # CMake modules
 add_subdirectory(Modules)
 
-cet_cmake_config(COMPATIBILITY SameMajorVersion)
+cet_cmake_config()

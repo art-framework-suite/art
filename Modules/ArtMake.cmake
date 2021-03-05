@@ -1,4 +1,4 @@
-# art_make ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+# art_make
 #
 # Identify the files in the current source directory and build
 # libraries, dictionaries and plugins as appropriate.
@@ -6,27 +6,27 @@
 ####################################
 # NOTES:
 #
-# Users may opt to just include art_make() in their CMakeLists.txt This ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+# Users may opt to just include art_make() in their CMakeLists.txt This
 # implementation is intended to be called NO MORE THAN ONCE per
 # subdirectory.
 #
-# * art_make() tries very hard to be intelligent, but it doesn't fit ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+# * art_make() tries very hard to be intelligent, but it doesn't fit
 # every need. In which case, you might need to call art_make_library(),
 # art_make_exec(), cet_test() (CetTest.cmake), art_dictionary()
-# (canvas_root_io/Modules/ArtDictionary.cmake) and/or simple_plugin()
+# (canvas_root_io/Modules/ArtDictionary.cmake) and/or build_plugin()
 # (art/Modules/BuildPlugins.cmake) separately.
 #
-# * If art_make() doesn't quite fit your needs (different plugins of the ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+# * If art_make() doesn't quite fit your needs (different plugins of the
 # same type have different library dependencies, for example), you can
-# use art_make() with a suitable EXCLUDE option to do everything except ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+# use art_make() with a suitable EXCLUDE option to do everything except
 # your special case and then deal with it separately.
 #
-# * art_make() will not take care of the installation of headers into an ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+# * art_make() will not take care of the installation of headers into an
 # installed product's include/ directory tree, or of files into the
 # products source/ area. See install_headers() and install_source() in
-# cetbuildtools/Modules/InstallSource.cmake. ### MIGRATE-ACTION-REQUIRED: remove
+# cetbuildtools/Modules/InstallSource.cmake.
 #
-# * art_make() knows about ROOT dictionaries (as signalled by the ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+# * art_make() knows about ROOT dictionaries (as signalled by the
 # presence of classes.h and classes_def.xml), and the following plugin
 # types:
 #
@@ -36,7 +36,7 @@
 #
 #  You may specify a plugin-type-specific library link list as
 #  XXXX_LIBRARIES. If you have another plugin type (fleeble, say), you
-#  may make its existence known to art_make() by specifying a (possibly ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+#  may make its existence known to art_make() by specifying a (possibly
 #  empty) FLEEBLE_LIBRARIES argument. Source files matching,
 #  "*_fleeble.cc' will be identified by that command as being plugins of
 #  type, "fleeble" and use FLEEBLE_LIBRARIES against which to link.
@@ -44,7 +44,7 @@
 ####################################
 # USAGE:
 #
-# art_make( [LIBRARY_NAME <library name>] ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+# art_make( [LIBRARY_NAME <library name>]
 #           [LIB_LIBRARIES <library list>]
 #           [MODULE_LIBRARIES <library list>]
 #           [SOURCE_LIBRARIES <library list>]
@@ -54,13 +54,13 @@
 #           [SUBDIRS <source subdirectory>] (e.g., detail)
 #           [EXCLUDE <ignore these files>]
 #           [WITH_STATIC_LIBRARY]
-#           [BASENAME_ONLY] (passed to simple_plugin)
+#           [BASENAME_ONLY] (passed to build_plugin)
 #           [NO_PLUGINS]
 #           [DICT_FUNCTIONS]
 #           [USE_PRODUCT_NAME]
 #         )
 #
-# * In art_make(), LIBRARIES has been REMOVED! use LIB_LIBRARIES instead. ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+# * In art_make(), LIBRARIES has been REMOVED! use LIB_LIBRARIES instead.
 #
 # * If NONE of {MODULES,SOURCE,SERVICE,DICT}_LIBRARIES is specified,
 # then LIB_LIBRARIES (or LIBRARIES) will be used as appropriate for
@@ -95,7 +95,7 @@
 ####################################
 #
 # * See also ArtDictionary.cmake for art_dictionary() and
-# BuildPlugins.cmake for simple_plugin().
+# BuildPlugins.cmake for build_plugin().
 #
 ########################################################################
 
@@ -104,6 +104,7 @@ include_guard(DIRECTORY)
 cmake_policy(PUSH)
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
+include(BuildPlugins)
 include(CetMake)
 
 ####################################
@@ -131,9 +132,9 @@ macro(art_make_library)
 endmacro()
 
 ####################################
-# art_make ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+# art_make
 ####################################
-function(art_make) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+function(art_make)
   set(flags BASENAME_ONLY LIB_ONLY NO_DICTIONARY NO_LIB NO_PLUGINS
     USE_PRODUCT_NAME USE_PROJECT_NAME)
   cet_regex_escape(VAR flags_regex ${flags})
@@ -142,13 +143,10 @@ function(art_make) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_d
   set(seen_art_make_flags "${ARGV}")
   list(FILTER seen_art_make_flags INCLUDE REGEX "${flags_regex}")
   list(TRANSFORM ARGV REPLACE "${flags_regex}" "NOP")
-  if ("USE_PRODUCT_NAME" IN_LIST seen_art_make_flags)
-    if ("LIBRARY_NAME" IN_LIST ARGV)
-      message(FATAL_ERROR "ART_MAKE: USE_PRODUCT_NAME and LIBRARY_NAME are mutually exclusive.")
-    elseif ("USE_PROJECT_NAME" IN_LIST seen_art_make_args)
-      message(WARNING "USE_PRODUCT_NAME and USE_PROJECT_NAME are synonymous")
-      list(REMOVE_ITEM seen_art_make_flags "USE_PRODUCT_NAME")
-    endif()
+  if ("USE_PRODUCT_NAME" IN_LIST seen_art_make_flags AND
+      "USE_PROJECT_NAME" IN_LIST seen_art_make_flags)
+    message(WARNING "USE_PRODUCT_NAME and USE_PROJECT_NAME are synonymous")
+    list(REMOVE_ITEM seen_art_make_flags "USE_PRODUCT_NAME")
   endif()
   foreach (flag IN LISTS seen_art_make_flags)
     set(AM_${flag} ${flag})
@@ -156,14 +154,14 @@ function(art_make) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_d
   if (AM_LIB_ONLY AND AM_NO_LIB)
     # Nothing to do except hold up tea and no tea to confuse the GPP door
     # and gain access to the bridge of the Heart of Gold.
-    message(FATAL_ERROR "art_make(): LIB_ONLY and NO_LIB are mutually exclusive") ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_dictionary(), simple_plugin() with explicit source lists
+    message(FATAL_ERROR "art_make(): LIB_ONLY and NO_LIB are mutually exclusive")
   endif()
   set(flag_keywords_dict NO_CHECK_CLASS_VERSION NO_DEFAULT_LIBRARIES VERSION)
   set(flags_dict NO_CHECK_CLASS_VERSION NO_DEFAULT_LIBRARIES DICT_VERSION)
-  set(one_arg_option_keywords_dict CLASSES_H CLASSES_DEF_XML DICT_NAME_VAR EXPORT)
-  set(one_arg_options_dict CLASSES_H CLASSES_DEF_XML DICT_NAME_VAR DICT_EXPORT)
+  set(one_arg_option_keywords_dict CLASSES_H CLASSES_DEF_XML DICT_NAME_VAR EXPORT_SET)
+  set(one_arg_options_dict CLASSES_H CLASSES_DEF_XML DICT_NAME_VAR DICT_EXPORT_SET)
   set(list_option_keywords_dict COMPILE_FLAGS DICTIONARY_LIBRARIES REQUIRED_DICTIONARIES)
-  set(list_options_dict DICT_COMPILE_FLAGS DICTIONARY_LIBRARIES REQUIRED_DICTIONARIES)
+  set(list_options_dict DICT_COMPILE_FLAGS DICT_LIBRARIES REQUIRED_DICTIONARIES)
   set(flags "${flag_keywords_dict}")
   set(one_arg_options "${one_arg_option_keywords_dict}")
   set(list_options "${list_option_keywords_dict}")
@@ -172,19 +170,19 @@ function(art_make) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_d
   list(APPEND list_options ${_cet_make_list_options})
 
   # Identify caller-specified plugin types.
-  set(default_plugin_types source module service) # Defaults.
+  set(default_plugin_types source module service tool) # Defaults.
   set(args "${ARGN}")
   list(FILTER args INCLUDE REGEX "^([A-Z]+)_(TYPE|LIBRARIES)$")
   list(TRANSFORM args REPLACE "_(TYPE|LIBRARIES)$" "")
   list(REMOVE_DUPLICATES args)
   list(TRANSFORM args TOLOWER OUTPUT_VARIABLE plugin_types)
-  list(REMOVE_ITEM plugin_types lib ${default_plugin_types})
+  list(REMOVE_ITEM plugin_types dict lib ${default_plugin_types})
   list(PREPEND plugin_types ${default_plugin_types})
   list(TRANSFORM plugin_types REPLACE "^(.+)$" "*_\\1.cc"
     OUTPUT_VARIABLE plugin_glob)
   list(TRANSFORM plugin_types TOUPPER OUTPUT_VARIABLE plugin_prefixes)
   set(flags_plugin USE_BOOST_UNIT VERSION)
-  set(one_arg_options_plugin EXPORT LIB_TYPE SOVERSION)
+  set(one_arg_options_plugin EXPORT_SET LIB_TYPE SOVERSION)
   set(list_options_plugin LIBRARIES)
   foreach (option_type IN ITEMS flags one_arg_options list_options)
     foreach (plugin_prefix IN LISTS plugin_prefixes)
@@ -204,7 +202,7 @@ function(art_make) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_d
   file(GLOB plugin_sources CONFIGURE_DEPENDS ${plugins_glob})
   cet_exclude_files_from(plugin_sources
     EXCLUDE ${AM_EXCLUDE} NOP REGEX "(^|/)[.#].*")
-  # Exclude these files from consideration for cet_make() regardless of ### MIGRATE-ACTION-RECOMMENDED: use cet_make_library(), build_dictionary(), basic_plugin() with explicit source lists
+  # Exclude these files from consideration for cet_make() regardless of
   # whether we're making the plugin.
   cet_passthrough(APPEND KEYWORD EXCLUDE plugin_sources ARGV)
 
@@ -224,7 +222,7 @@ function(art_make) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_d
         cet_passthrough(${flag_flag} APPEND KEYWORD ${opt} AM_${plugin_prefix}_${opt} ${plugin_type}_args)
       endforeach()
     endforeach()
-    # For cet_make(). ### MIGRATE-ACTION-RECOMMENDED: use cet_make_library(), build_dictionary(), basic_plugin() with explicit source lists
+    # For cet_make().
     foreach (opt IN LISTS _cet_make_${option_type}s)
       cet_passthrough(${flag_flag} APPEND AM_${opt} cet_make_args)
     endforeach()
@@ -237,8 +235,8 @@ function(art_make) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_d
     if (NOT VERSION IN_LIST ${type}_args)
       cet_passthrough(FLAG APPEND AM_VERSION ${type}_args)
     endif()
-    if (NOT (AM_NO_INSTALL OR EXPORT IN_LIST ${type}_args))
-      cet_passthrough(APPEND AM_EXPORT ${type}_args)
+    if (NOT (AM_NO_INSTALL OR EXPORT_SET IN_LIST ${type}_args))
+      cet_passthrough(APPEND AM_EXPORT_SET ${type}_args)
     endif()
     cet_passthrough(FLAG APPEND AM_USE_PROJECT_NAME ${type}_args)
     if (NOT type STREQUAL "dict")
@@ -250,12 +248,12 @@ function(art_make) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_d
   # Now actually put everything together.
 
   # Plugins first.
-  if (NOT (AM_LIB_ONLY OR AM_NO_PLUGINS))
+  if (plugin_sources AND NOT (AM_LIB_ONLY OR AM_NO_PLUGINS))
     cet_regex_escape(VAR e_plugin_types ${plugin_types})
     list(JOIN e_plugin_types "|" plugin_regex)
     foreach (plugin_source IN LISTS plugin_sources)
-      if (plugin_source MATCHES "^(.*/)?([^/]+)_(${e_plugin_types})\.cc$")
-        basic_plugin("${CMAKE_MATCH_2}" "${CMAKE_MATCH_3}"
+      if (plugin_source MATCHES "^(.*/)?([^/]+)_(${plugin_regex})\.cc$")
+        build_plugin("${CMAKE_MATCH_2}" "${CMAKE_MATCH_3}"
           ${${CMAKE_MATCH_3}_args} SOURCE ${plugin_source})
       endif()
     endforeach()
@@ -263,7 +261,7 @@ function(art_make) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_d
 
   # Find sources for a library and make it.
   if (NOT AM_NO_LIB)
-    art_make_library(${cet_make_args})
+    art_make_library(${cet_make_args} LIBRARY_NAME_VAR library_name)
   endif()
 
   # Finish off with the dictionary.
@@ -271,7 +269,7 @@ function(art_make) ### MIGRATE-ACTION-RECOMMENDED: use art_make_library(), art_d
       EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/classes.h" AND
       EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/classes_def.xml")
     include(ArtDictionary)
-    art_dictionary(${dict_args})
+    art_dictionary(${dict_args} DICTIONARY_LIBRARIES PRIVATE ${library_name})
   endif()
 endfunction()
 
