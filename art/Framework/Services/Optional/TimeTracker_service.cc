@@ -51,9 +51,9 @@ namespace art {
       size_t
       operator()(ConcurrentKey const& key) const
       {
-        static std::hash<ScheduleID>() schedule_hasher{};
-        static std::hash<std::string>() string_hasher{};
-        // FIXME: no idea if this is a well-behaved hash.
+        static std::hash<ScheduleID> schedule_hasher{};
+        static std::hash<std::string> string_hasher{};
+        // A better hash will be desirable if this becomes a bottleneck.
         return schedule_hasher(key.first) ^ string_hasher(key.second);
       }
     };
