@@ -2,9 +2,9 @@
 
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
@@ -48,7 +48,9 @@ namespace art {
 
     using ConcurrentKey = std::pair<ScheduleID, std::string>;
     struct ConcurrentKeyHasher {
-      size_t operator() (ConcurrentKey const & key) const {
+      size_t
+      operator()(ConcurrentKey const& key) const
+      {
         static std::hash<ScheduleID>() schedule_hasher{};
         static std::hash<std::string>() string_hasher{};
         // FIXME: no idea if this is a well-behaved hash.
@@ -162,7 +164,10 @@ namespace art {
     void logToDestination_(Statistics const& evt,
                            vector<Statistics> const& modules);
 
-    tbb::concurrent_unordered_map<ConcurrentKey, PerScheduleData, ConcurrentKeyHasher> data_;
+    tbb::concurrent_unordered_map<ConcurrentKey,
+                                  PerScheduleData,
+                                  ConcurrentKeyHasher>
+      data_;
     bool const printSummary_;
     unique_ptr<cet::sqlite::Connection> const db_;
     bool const overwriteContents_;
