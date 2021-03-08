@@ -68,11 +68,4 @@ namespace art {
   {
     return os << sid.id();
   }
-
-  size_t
-  tbb_hasher(ScheduleID const sid)
-  {
-    return sid.id();
-  }
-
 } // namespace art

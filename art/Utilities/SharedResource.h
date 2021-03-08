@@ -9,9 +9,7 @@
 #include <typeinfo>
 #include <vector>
 
-namespace tbb {
-  class task_group;
-}
+#include <tbb/task_group.h> // Can't forward-declare this class.
 
 namespace art {
   namespace detail {

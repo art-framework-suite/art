@@ -99,9 +99,16 @@ namespace art {
   bool operator>=(ScheduleID left, ScheduleID right) noexcept;
   std::ostream& operator<<(std::ostream&, ScheduleID scheduleID);
 
-  std::size_t tbb_hasher(ScheduleID);
-
 } // namespace art
+
+namespace std {
+  template <> struct hash<art::ScheduleID> {
+    std::size_t operator() (art::ScheduleID sid) const {
+      static hash<typename art::ScheduleID::id_type> hasher{};
+      return hasher(sid.id());
+    }
+  };
+}
 
 #endif /* art_Utilities_ScheduleID_h */
 

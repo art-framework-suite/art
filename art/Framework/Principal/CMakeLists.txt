@@ -27,6 +27,7 @@ cet_make_library(SOURCE
     art::Persistency_Provenance
     art::Persistency_Common
     hep_concurrency::hep_concurrency
+    TBB::tbb
   PRIVATE
     art::Framework_Services_Registry
     messagefacility::MF_MessageLogger

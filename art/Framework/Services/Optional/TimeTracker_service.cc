@@ -47,6 +47,15 @@ namespace art {
   namespace {
 
     using ConcurrentKey = std::pair<ScheduleID, std::string>;
+    struct ConcurrentKeyHasher {
+      size_t operator() (ConcurrentKey const & key) const {
+        static std::hash<ScheduleID>() schedule_hasher{};
+        static std::hash<std::string>() string_hasher{};
+        // FIXME: no idea if this is a well-behaved hash.
+        return schedule_hasher(key.first) ^ string_hasher(key.second);
+      }
+    };
+
     auto
     key(ScheduleID const sid)
     {
@@ -153,7 +162,7 @@ namespace art {
     void logToDestination_(Statistics const& evt,
                            vector<Statistics> const& modules);
 
-    tbb::concurrent_unordered_map<ConcurrentKey, PerScheduleData> data_;
+    tbb::concurrent_unordered_map<ConcurrentKey, PerScheduleData, ConcurrentKeyHasher> data_;
     bool const printSummary_;
     unique_ptr<cet::sqlite::Connection> const db_;
     bool const overwriteContents_;

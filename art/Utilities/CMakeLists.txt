@@ -27,6 +27,7 @@ cet_make_library(
     cetlib::cetlib
     hep_concurrency::hep_concurrency
     cetlib_except::cetlib_except
+    TBB::tbb
   PRIVATE
     messagefacility::MF_MessageLogger
     hep_concurrency::macros
