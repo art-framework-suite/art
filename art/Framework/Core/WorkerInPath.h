@@ -18,7 +18,6 @@
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/Transition.h"
 #include "cetlib/exempt_ptr.h"
-#include "hep_concurrency/WaitingTaskList.h"
 
 #include <atomic>
 #include <memory>
@@ -33,6 +32,7 @@ namespace art {
     struct ModuleConfigInfo;
   }
 
+  class GlobalTaskGroup;
   class PathContext;
 
   class WorkerInPath {
@@ -47,8 +47,10 @@ namespace art {
     };
 
     // Special Member Functions
-    ~WorkerInPath() noexcept;
-    WorkerInPath(Worker*, detail::FilterAction, ModuleContext const&);
+    WorkerInPath(Worker*,
+                 detail::FilterAction,
+                 ModuleContext const&,
+                 GlobalTaskGroup& group);
     WorkerInPath(WorkerInPath const&) = delete;
     WorkerInPath(WorkerInPath&&);
     WorkerInPath& operator=(WorkerInPath const&) = delete;
@@ -61,10 +63,8 @@ namespace art {
     // Used only by Path
     bool returnCode() const;
     std::string const& label() const;
-    bool runWorker(Transition, Principal&);
-    void runWorker_event_for_endpath(EventPrincipal&);
-    void runWorker_event(tbb::task* workerDoneTask, EventPrincipal&);
-    // Used only by Path
+    bool run(Transition, Principal&);
+    void run(hep::concurrency::WaitingTaskPtr workerDoneTask, EventPrincipal&);
     void clearCounters();
 
     // Used by writeSummary
@@ -73,23 +73,22 @@ namespace art {
     std::size_t timesFailed() const;
     std::size_t timesExcept() const;
 
-    // Task Structure
-    void workerInPathDoneTask(ScheduleID const, std::exception_ptr const*);
-
   private:
+    class WorkerInPathDoneTask;
+
     std::atomic<Worker*> worker_;
     std::atomic<detail::FilterAction> filterAction_;
     ModuleContext moduleContext_;
+    GlobalTaskGroup* taskGroup_;
 
     // Per-schedule
-    std::atomic<bool> returnCode_;
-    std::atomic<hep::concurrency::WaitingTaskList*> waitingTasks_;
+    std::atomic<bool> returnCode_{false};
 
     // Counts
-    std::atomic<std::size_t> counts_visited_;
-    std::atomic<std::size_t> counts_passed_;
-    std::atomic<std::size_t> counts_failed_;
-    std::atomic<std::size_t> counts_thrown_;
+    std::atomic<std::size_t> counts_visited_{};
+    std::atomic<std::size_t> counts_passed_{};
+    std::atomic<std::size_t> counts_failed_{};
+    std::atomic<std::size_t> counts_thrown_{};
   };
 
 } // namespace art

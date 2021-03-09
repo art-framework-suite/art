@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE (ProcessHistoryRegistry_t)
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Version/GetReleaseVersion.h"

@@ -4,9 +4,8 @@
 //
 // ======================================================================
 
-#include "art/test/Framework/Services/Optional/MyService.h"
-
-#include "fhiclcpp/fwd.h"
+#include "MyServiceInterface.h"
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 
 namespace {
   class MySharedService : public art::test::MyServiceInterface {

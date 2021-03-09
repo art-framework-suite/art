@@ -47,7 +47,7 @@ Non-test files including ROOT headers comprise 58 files, split between _canvas_ 
 `art/art/Framework/IO/Root/RootSizeOnDisk.h`\
 `art/art/Framework/IO/Root/RootTree.cc`\
 `art/art/Framework/IO/Root/RootTree.h`\
-`art/art/Framework/IO/Root/detail/DummyProductCache.cc`\
+`art/art/Framework/IO/Root/DummyProductCache.cc`\
 `art/art/Framework/IO/Root/detail/InfoDumperInputFile.h`\
 `art/art/Framework/IO/Root/detail/getEntry.cc`\
 `art/art/Framework/IO/Root/detail/resolveRangeSet.h`\

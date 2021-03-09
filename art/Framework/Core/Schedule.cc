@@ -12,6 +12,7 @@
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PathContext.h"
@@ -22,7 +23,6 @@
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/WaitingTaskHolder.h"
 #include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -47,18 +47,26 @@ namespace art {
                      ActionTable const& actions,
                      ActivityRegistry const& actReg,
                      UpdateOutputCallbacks& outputCallbacks,
-                     std::unique_ptr<Worker> triggerResultsInserter)
-    : epExec_{scheduleID, pm, actions, actReg, outputCallbacks}
-    , tpsExec_{scheduleID, pm, actions, move(triggerResultsInserter)}
+                     std::unique_ptr<Worker> triggerResultsInserter,
+                     GlobalTaskGroup& task_group)
+    : context_{scheduleID}
+    , actions_{actions}
+    , actReg_{actReg}
+    , epExec_{scheduleID, pm, actions, actReg_, outputCallbacks, task_group}
+    , tpsExec_{scheduleID,
+               pm,
+               actions,
+               move(triggerResultsInserter),
+               task_group}
   {
     TDEBUG_FUNC_SI(5, scheduleID) << hex << this << dec;
   }
 
   void
-  Schedule::beginJob()
+  Schedule::beginJob(detail::SharedResources const& resources)
   {
-    tpsExec_.beginJob();
-    epExec_.beginJob();
+    tpsExec_.beginJob(resources);
+    epExec_.beginJob(resources);
   }
 
   void
@@ -103,30 +111,19 @@ namespace art {
     epExec_.process(trans, principal);
   }
 
-  // Note: We get here as part of the readAndProcessEvent task.  Our
-  // parent task is the nullptr, and the parent task of the
-  // endPathTask is the eventLoopTask.
   void
-  Schedule::process_event_modifiers(tbb::task* endPathTask,
-                                    tbb::task* eventLoopTask,
-                                    EventPrincipal& principal)
+  Schedule::process_event_modifiers(WaitingTaskPtr endPathTask)
   {
-    tpsExec_.process_event(endPathTask, eventLoopTask, principal);
+    // We get here as part of the readAndProcessEvent task.
+    actReg_.sPreProcessEvent.invoke(
+      Event{*eventPrincipal_, ModuleContext::invalid()}, context_);
+    tpsExec_.process_event(endPathTask, *eventPrincipal_);
   }
 
   void
-  Schedule::process_event_observers(EventPrincipal& principal)
+  Schedule::process_event_observers(WaitingTaskPtr finalizeEventTask)
   {
-    epExec_.process_event(principal);
+    epExec_.process_event(finalizeEventTask, *eventPrincipal_);
   }
 
-  // Note: We come here as part of the pathsDone task.  Our parent is
-  // the nullptr.
-  void
-  Schedule::process_event_pathsDone(tbb::task* endPathTask,
-                                    tbb::task* eventLoopTask,
-                                    EventPrincipal& principal)
-  {
-    tpsExec_.process_event_pathsDone(endPathTask, eventLoopTask, principal);
-  }
 } // namespace art

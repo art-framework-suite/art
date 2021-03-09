@@ -2,7 +2,7 @@
 #define art_Framework_Services_System_DatabaseConnection_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "cetlib/sqlite/ConnectionFactory.h"
 #include "cetlib/sqlite/detail/DefaultDatabaseOpenPolicy.h"
 

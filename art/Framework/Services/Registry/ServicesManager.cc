@@ -108,8 +108,9 @@ namespace art {
   }
 
   ServicesManager::ServicesManager(ParameterSet&& servicesPSet,
-                                   ActivityRegistry& actReg)
-    : actReg_{actReg}
+                                   ActivityRegistry& actReg,
+                                   detail::SharedResources& resources)
+    : actReg_{actReg}, resources_{resources}
   {
     vector<ParameterSet> psets;
     {
@@ -223,7 +224,7 @@ namespace art {
     for (auto const& typeID : requestedCreationOrder_) {
       if (auto it = services_.find(typeID); it != services_.end()) {
         auto const& sce = it->second;
-        sce.forceCreation(actReg_);
+        sce.forceCreation(actReg_, resources_);
       }
     }
   }

@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE (ClosedRangeSetHandler_t)
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 
 //======================================================================================
 // Test of ClosedRangeSetHandler

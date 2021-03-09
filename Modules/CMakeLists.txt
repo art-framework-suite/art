@@ -1,4 +1,2 @@
-install(FILES
-  ArtMake.cmake
-  BuildPlugins.cmake
-  DESTINATION Modules)
+install(DIRECTORY ./ DESTINATION Modules
+  FILES_MATCHING PATTERN "*.cmake" PATTERN "[.#]*.cmake" EXCLUDE)

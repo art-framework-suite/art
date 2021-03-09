@@ -1,21 +1,31 @@
-# cet_test macro
-set(default_art_test_libraries
-    art::art_Utilities
-    art::art_Version
-    canvas::canvas)
-
-
 add_subdirectory(tools)
 
-cet_test(make_tool_t USE_BOOST_UNIT LIBRARIES PRIVATE ${default_art_test_libraries})
+# Note we are linking to each tool's interface target, not the tool
+# itself (which is a plugin).
+
+cet_test(make_tool_t USE_BOOST_UNIT
+  LIBRARIES PRIVATE
+    art_test::ClassTool_tool
+    art_test::FunctionTool_tool
+    art_test::NestedClassTool_tool
+    art_test::NestedFunctionInClassTool_tool
+    art_test::NestedFunctionTool_tool
+    art_test::OperationBase # Could also (or instead) specify
+                            # art_test::AddNumber_tool, etc. if we knew
+                            # we were going to need them.
+    art_plugin_support::toolMaker
+    fhiclcpp::fhiclcpp
+)
 
 cet_test(ParameterSet_get_CLHEP_t
-  LIBRARIES PRIVATE ${default_art_test_libraries} CLHEP::CLHEP
+  LIBRARIES PRIVATE
+    art::ParameterSetHelpers_CLHEP
+    fhiclcpp::fhiclcpp
   )
 
-cet_test(pointersEqual_t USE_BOOST_UNIT
-  LIBRARIES PRIVATE ${default_art_test_libraries}
-  )
+cet_test(MallocOpts_t SOURCE MallocOpts_t.cpp
+  LIBRARIES PRIVATE art::Utilities)
 
-cet_test(ScheduleID_t USE_BOOST_UNIT LIBRARIES PRIVATE art::art_Utilities)
-cet_test(parent_path_t USE_BOOST_UNIT LIBRARIES PRIVATE art::art_Utilities)
+cet_test(pointersEqual_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
+cet_test(ScheduleID_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
+cet_test(parent_path_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)

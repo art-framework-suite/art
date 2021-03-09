@@ -20,6 +20,8 @@
 #include <cstddef>
 
 namespace art::detail {
+  class SharedResources;
+
   class Filter : public Modifier {
   public:
     static constexpr bool Pass{true};
@@ -35,7 +37,7 @@ namespace art::detail {
     Filter& operator=(Filter const&) = delete;
     Filter& operator=(Filter&&) = delete;
 
-    void doBeginJob();
+    void doBeginJob(SharedResources const& resources);
     void doEndJob();
     void doRespondToOpenInputFile(FileBlock const& fb);
     void doRespondToCloseInputFile(FileBlock const& fb);
@@ -52,7 +54,7 @@ namespace art::detail {
                  std::atomic<std::size_t>& counts_failed);
 
   private:
-    virtual void setupQueues() = 0;
+    virtual void setupQueues(SharedResources const&) = 0;
     virtual void beginJobWithFrame(ProcessingFrame const&) = 0;
     virtual void endJobWithFrame(ProcessingFrame const&) = 0;
     virtual void respondToOpenInputFileWithFrame(FileBlock const&,

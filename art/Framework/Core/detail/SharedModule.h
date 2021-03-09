@@ -4,27 +4,26 @@
 
 #include "art/Utilities/SharedResource.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
+#include "hep_concurrency/SerialTaskQueueChain.h"
 
 #include <atomic>
 #include <set>
 #include <string>
 
-namespace hep::concurrency {
-  class SerialTaskQueueChain;
-}
-
 namespace art::detail {
+  class SharedResources;
 
   class SharedModule {
   public:
     SharedModule();
     explicit SharedModule(std::string const& moduleLabel);
-    ~SharedModule() noexcept;
 
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
+    std::set<std::string> const& sharedResources() const;
 
-    void createQueues();
+    void createQueues(SharedResources const& resources);
 
+  protected:
     template <BranchType BT = InEvent, typename... T>
     void serialize(T const&...);
 
@@ -43,8 +42,7 @@ namespace art::detail {
 
   private:
     void implicit_serialize();
-    void serialize_for(detail::SharedResource_t const&);
-    void serialize_for_external(std::string const&);
+    void serialize_for(std::string const& name);
 
     template <typename... T>
     void
@@ -55,7 +53,7 @@ namespace art::detail {
       if (sizeof...(t) == 0) {
         implicit_serialize();
       } else {
-        (serialize_for(t), ...);
+        (serialize_for(t.name), ...);
       }
     }
 
@@ -67,14 +65,14 @@ namespace art::detail {
       if (sizeof...(t) == 0) {
         implicit_serialize();
       } else {
-        (serialize_for_external(t), ...);
+        (serialize_for(t), ...);
       }
     }
 
     std::string moduleLabel_;
     std::set<std::string> resourceNames_{};
     bool asyncDeclared_{false};
-    std::atomic<hep::concurrency::SerialTaskQueueChain*> chain_;
+    std::unique_ptr<hep::concurrency::SerialTaskQueueChain> chain_{nullptr};
   };
 
   template <BranchType, typename... T>

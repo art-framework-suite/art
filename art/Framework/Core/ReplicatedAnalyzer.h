@@ -43,7 +43,7 @@ namespace art {
     std::string workerType() const;
 
   private:
-    void setupQueues() override final;
+    void setupQueues(detail::SharedResources const& resources) override final;
     void beginJobWithFrame(ProcessingFrame const&) override final;
     void endJobWithFrame(ProcessingFrame const&) override final;
     void respondToOpenInputFileWithFrame(FileBlock const&,

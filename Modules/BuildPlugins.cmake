@@ -17,81 +17,81 @@
 #    arguments from non-option arguments.
 #
 # For other available options, please see
-# cetbuildtools/Modules/BasicPlugin.cmake ### MIGRATE-ACTION-REQUIRED: remove
-# (https://cdcvs.fnal.gov/redmine/projects/cetbuildtools/repository/revisions/master/entry/Modules/BasicPlugin.cmake). ### MIGRATE-ACTION-REQUIRED: remove
+# cetbuildtools/Modules/BasicPlugin.cmake
+# (https://cdcvs.fnal.gov/redmine/projects/cetbuildtools/repository/revisions/master/entry/Modules/BasicPlugin.cmake).
 ########################################################################
 include_guard(DIRECTORY)
 
+cmake_policy(PUSH)
+cmake_minimum_required(VERSION 3.18.2 FATAL_ERROR)
+
 include(BasicPlugin)
 
-cmake_policy(PUSH)
-cmake_policy(VERSION 3.3)
+set(_simple_plugin_pkg_list cetlib_except hep_concurrency cetlib fhiclcpp
+  messagefacility canvas art canvas_root_io art_root_io)
+set(_simple_plugin_target_list cetlib_except::cetlib_except hep_concurrency::hep_concurrency
+  cetlib::cetlib fhiclcpp::fhiclcpp messagefacility::MF_MessageLogger
+  canvas::canvas art::Framework_Core canvas_root_io::canvas_root_io
+  art_root_io::art_root_io)
+set(_simple_plugin_var_list CETLIB_EXCEPT HEP_CONCURRENCY CETLIB FHICLCPP
+  MF_MESSAGELOGGER CANVAS ART_FRAMEWORK_CORE CANVAS_ROOT_IO ART_ROOT_IO)
 
-# simple plugin libraries
-function(simple_plugin NAME TYPE)
-  if (TARGET art::art_Utilities)
-    set(art_util_libs art::art_Utilities)
-  else()
-    set(art_util_libs art_Utilities canvas fhiclcpp cetlib cetlib_except)
-  endif()
+cet_find_package(messagefacility PRIVATE QUIET)
+include(mfPlugin OPTIONAL)
+include(mfStatsPlugin OPTIONAL)
+include(modulePlugin)
+include(pluginPlugin)
+include(servicePlugin)
+include(sourcePlugin)
+include(toolPlugin)
 
-  if (TARGET art::art_Framework_Core)
-    set(art_core_libs art::art_Framework_Core)
-  else()
-    set(art_core_libs
-      art_Framework_Core
-      art_Framework_Principal
-      art_Persistency_Common
-      art_Persistency_Provenance
-      art_Utilities)
-  endif()
-
-  if (TARGET art::art_Framework_IO_Sources)
-    set(art_io_sources art::art_Framework_IO_Sources)
-  else()
-    set(art_io_sources art_Framework_IO_Sources)
-  endif()
-
-  if (TARGET art::art_Framework_Services_Registry)
-    set(services_libs art::art_Framework_Services_Registry art::art_Persistency_Common)
-  else()
-    set(services_libs art_Framework_Services_Registry art_Persistency_Common)
-  endif()
-
-  cmake_parse_arguments(PARSE_ARGV 2 SP "NOP" "LIB_TYPE" "")
-  if (SP_LIB_TYPE AND NOT SP_LIB_TYPE MATCHES "^(MODULE|SHARED)$")
-    message(FATAL_ERROR "simple_plugin: unsupported LIB_TYPE ${LIB_TYPE}")
-  endif()
-  if (TYPE STREQUAL "service")
-    if (SP_LIB_TYPE STREQUAL "MODULE")
-      message(WARNING "plugin type \"service\" does not support LIB_TYPE MODULE")
-      set(SP_LIB_TYPE SHARED)
+# Simple plugin libraries - art suite packages are found automatically.
+function(simple_plugin)
+  foreach (pkg tgt var IN ZIP_LISTS
+      _simple_plugin_pkg_list _simple_plugin_target_list _simple_plugin_var_list)
+    if (NOT (TARGET ${tgt} OR var))
+      cet_find_package(${pkg} PRIVATE QUIET REQUIRED)
     endif()
-    list(PREPEND SP_UNPARSED_ARGUMENTS
-      LIBRARIES
-      ${services_libs}
-      ${art_util_libs}
-      Boost::filesystem NOP)
-  elseif (TYPE STREQUAL "module" OR TYPE STREQUAL "source")
-    list(PREPEND SP_UNPARSED_ARGUMENTS
-      LIBRARIES PRIVATE
-      ${art_core_libs}
-      ${art_util_libs}
-      Boost::filesystem NOP)
-    if (TYPE STREQUAL "source")
-      list(PREPEND SP_UNPARSED_ARGUMENTS
-        LIBRARIES PRIVATE
-        ${art_io_sources}
-        Boost::filesystem NOP)
-    endif()
-  elseif (TYPE STREQUAL "tool")
-    list(PREPEND SP_UNPARSED_ARGUMENTS
-      LIBRARIES PRIVATE
-      ${art_util_libs}
-      Boost::filesystem NOP)
+  endforeach()
+  build_plugin(${ARGV})
+endfunction()
+
+# Per simple_plugin() without the overhead of finding packages one may
+# not need.
+function(build_plugin NAME SUFFIX)
+  set(liblist)
+  _get_plugin_base(BASE ARGN ${ARGN})
+  if (BASE AND COMMAND "${BASE}")
+    cmake_language(CALL "${BASE}" ${NAME} ${ARGN})
+    return()
+  elseif (BASE AND ${BASE}_LIBRARIES)
+    set(liblist "${${BASE}_LIBRARIES}")
+  elseif (COMMAND "${SUFFIX}")
+    cmake_language(CALL "${SUFFIX}" ${NAME} ${ARGN})
+    return()
+  elseif (COMMAND "${SUFFIX}_plugin")
+    cmake_language(CALL "${SUFFIX}_plugin" ${NAME} "${BASE}" ${ARGN})
+    return()
+  elseif (${SUFFIX}_LIBRARIES)
+    set(liblist "${${SUFFIX}_LIBRARIES}")
   endif()
-  cet_passthrough(IN_PLACE SP_LIB_TYPE)
-  basic_plugin(${NAME} ${TYPE} ${SP_LIB_TYPE} NOP ${SP_UNPARSED_ARGUMENTS})
+  basic_plugin(${NAME} ${SUFFIX} ${liblist} NOP ${ARGN})
+endfunction()
+
+function(_get_plugin_base RESULT_VAR REMAINDER_VAR)
+  set(result)
+  list(FIND ARGN "BASE" idx)
+  if (idx GREATER -1)
+    list(REMOVE_AT ARGN ${idx})
+    list(GET ARGN ${idx} result)
+    if (NOT result MATCHES "^(${_e_bp_args})$")
+      list(REMOVE_AT ARGN ${idx})
+    else()
+      unset(result)
+    endif()
+  endif()
+  set(${RESULT_VAR} ${result} PARENT_SCOPE)
+  set(${REMAINDER_VAR} ${ARGN} PARENT_SCOPE)
 endfunction()
 
 cmake_policy(POP)

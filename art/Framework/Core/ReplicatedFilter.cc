@@ -1,18 +1,16 @@
 #include "art/Framework/Core/ReplicatedFilter.h"
 // vim: set sw=2 expandtab :
 
-using namespace std;
-
 namespace art {
 
-  string
+  std::string
   ReplicatedFilter::workerType() const
   {
     return "WorkerT<ReplicatedFilter>";
   }
 
   void
-  ReplicatedFilter::setupQueues()
+  ReplicatedFilter::setupQueues(detail::SharedResources const&)
   {
     // For art 3.0, replicated modules will not have queues.
   }

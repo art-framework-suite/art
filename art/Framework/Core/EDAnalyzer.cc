@@ -1,20 +1,18 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 // vim: set sw=2 expandtab :
 
-using namespace std;
-
 namespace art {
 
-  string
+  std::string
   EDAnalyzer::workerType() const
   {
     return "WorkerT<EDAnalyzer>";
   }
 
   void
-  EDAnalyzer::setupQueues()
+  EDAnalyzer::setupQueues(detail::SharedResources const& resources)
   {
-    createQueues();
+    createQueues(resources);
   }
 
   void

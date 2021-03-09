@@ -1,12 +1,15 @@
-art_make_library(
-  LIBRARY_NAME art_Persistency_Provenance
-  SOURCE
+cet_make_library(SOURCE
     detail/branchNameComponentChecking.cc
     ModuleDescription.cc
     orderedProcessNamesCollection.cc
   LIBRARIES
-    art::art_Utilities
+  PUBLIC
+    art::Utilities
+    canvas::canvas
+    cetlib::container_algorithms
+    fhiclcpp::fhiclcpp
   PRIVATE
+    Boost::headers
     Range::Range
 )
 

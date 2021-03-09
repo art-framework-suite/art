@@ -1,17 +1,21 @@
-art_make_library(
-  LIBRARY_NAME
-    art_Framework_IO_ProductMix
-  SOURCE
+cet_make_library(SOURCE
     MixHelper.cc
     ProdToProdMapBuilder.cc
   LIBRARIES
-    art::art_Framework_Core
-    art::art_Framework_Principal
-    art::art_Framework_Services_Registry
+  PUBLIC
+    art::Framework_Core
+    art::Framework_Principal
+    art::Framework_Services_Registry
+    art::Utilities
+    fhiclcpp::types
+    fhiclcpp::fhiclcpp
+    cetlib::cetlib
+    CLHEP::Random
   PRIVATE
-    art::art_Framework_Services_System_TriggerNamesService_service
-    art::art_Framework_Services_Optional_RandomNumberGenerator_service
+    art::Framework_Services_Optional_RandomNumberGenerator_service
+    canvas::canvas
     messagefacility::MF_MessageLogger
+    cetlib::container_algorithms
 )
 
 install_headers()

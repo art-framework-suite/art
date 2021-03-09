@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE (parent_path_t)
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 
 #include "art/Utilities/parent_path.h"
 

@@ -52,12 +52,18 @@
 #include <vector>
 
 namespace art {
+  class GlobalTaskGroup;
+  namespace detail {
+    class SharedResources;
+  }
+
   class TriggerPathsExecutor {
   public:
     TriggerPathsExecutor(ScheduleID,
                          PathManager&,
                          ActionTable const&,
-                         std::unique_ptr<Worker> triggerResultsInserter);
+                         std::unique_ptr<Worker> triggerResultsInserter,
+                         GlobalTaskGroup& group);
 
     // Disable copy/move operations
     TriggerPathsExecutor(TriggerPathsExecutor const&) = delete;
@@ -67,28 +73,20 @@ namespace art {
 
     // API presented to EventProcessor
     void process(Transition, Principal&);
-    void process_event(tbb::task* endPathTask,
-                       tbb::task* eventLoopTask,
+    void process_event(hep::concurrency::WaitingTaskPtr endPathTask,
                        EventPrincipal&);
-    void beginJob();
+    void beginJob(detail::SharedResources const& resources);
     void endJob();
     void respondToOpenInputFile(FileBlock const&);
     void respondToCloseInputFile(FileBlock const&);
     void respondToOpenOutputFiles(FileBlock const&);
     void respondToCloseOutputFiles(FileBlock const&);
 
-    // Tasking Structure
-    void pathsDoneTask(tbb::task* endPathTask,
-                       tbb::task* eventLoopTask,
-                       EventPrincipal&,
-                       std::exception_ptr const*);
-
-    // Implementation details.
-    void process_event_pathsDone(tbb::task* endPathTask,
-                                 tbb::task* eventLoopTask,
-                                 EventPrincipal&);
+    void process_event_paths_done(EventPrincipal&);
 
   private:
+    class PathsDoneTask;
+
     bool skipNonReplicated_(Worker const&);
 
     // const after ctor.
@@ -96,10 +94,7 @@ namespace art {
     ActionTable const& actionTable_;
     PathsInfo& triggerPathsInfo_;
     std::unique_ptr<Worker> results_inserter_;
-
-    // Dynamic: cause an error if more than one thread processes an
-    // event.
-    std::atomic<int> runningWorkerCnt_{};
+    GlobalTaskGroup& taskGroup_;
   };
 } // namespace art
 

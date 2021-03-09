@@ -1,6 +1,6 @@
 #define BOOST_TEST_MODULE (fhicl_key test)
 #include "art/Framework/Art/detail/fhicl_key.h"
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 
 #include <string>
 

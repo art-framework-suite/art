@@ -9,7 +9,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/ScheduleID.h"
-#include "art/Utilities/SharedResourcesRegistry.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace art::detail {
@@ -21,9 +20,9 @@ namespace art::detail {
   {}
 
   void
-  Producer::doBeginJob()
+  Producer::doBeginJob(SharedResources const& resources)
   {
-    setupQueues();
+    setupQueues(resources);
     ProcessingFrame const frame{ScheduleID{}};
     beginJobWithFrame(frame);
   }

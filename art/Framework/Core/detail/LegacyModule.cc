@@ -1,11 +1,11 @@
 #include "art/Framework/Core/detail/LegacyModule.h"
-#include "art/Utilities/SharedResourcesRegistry.h"
+#include "art/Utilities/SharedResource.h"
 
 namespace art::detail {
   LegacyModule::LegacyModule(std::string const& module_label)
     : EngineCreator{module_label, ScheduleID::first()}
   {
-    serialize(SharedResourcesRegistry::Legacy);
+    serialize(detail::LegacyResource);
   }
 
   ScheduleID

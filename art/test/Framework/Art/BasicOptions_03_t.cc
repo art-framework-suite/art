@@ -5,7 +5,7 @@ int
 main() try {
   for (auto const& suffix : art::Suffixes::all()) {
     art::detail::print_available_plugins(
-      suffix, "art/test/Framework/Art/PrintAvailable/.*", true);
+      suffix, "Dummy.*", true);
   }
 
   // Message facility is special

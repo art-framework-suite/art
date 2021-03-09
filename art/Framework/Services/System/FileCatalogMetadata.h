@@ -2,7 +2,7 @@
 #define art_Framework_Services_System_FileCatalogMetadata_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/detail/SAMMetadataTranslators.h"
 #include "canvas/Utilities/Exception.h"
@@ -11,15 +11,13 @@
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/Sequence.h"
-#include "hep_concurrency/RecursiveMutex.h"
 
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 namespace art {
-
-  class ActivityRegistry;
 
   class FileCatalogMetadata {
   public:
@@ -132,8 +130,7 @@ namespace art {
 
   private:
     // Protects all data members.
-    mutable hep::concurrency::RecursiveMutex mutex_{
-      "art::FileCatalogMetadata::mutex_"};
+    mutable std::recursive_mutex mutex_{};
 
     // Whether or not the user wishes metadata to be checked for syntax by
     // parsing with a JSON parser.

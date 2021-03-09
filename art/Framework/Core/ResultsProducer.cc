@@ -7,7 +7,7 @@
 #include "art/Framework/Principal/Results.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Utilities/SharedResourcesRegistry.h"
+#include "art/Utilities/SharedResource.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -26,7 +26,7 @@ namespace art {
   ResultsProducer::ResultsProducer() noexcept(false)
     : ProductRegistryHelper{product_creation_mode::produces}
   {
-    serialize(SharedResourcesRegistry::Legacy);
+    serialize(detail::LegacyResource);
   }
 
   void
@@ -40,7 +40,8 @@ namespace art {
   void
   ResultsProducer::doBeginJob()
   {
-    createQueues();
+    // If results producers ever become eligible for multi-threaded
+    // execution, the serial task queues will need to be setup here.
     beginJob();
   }
 

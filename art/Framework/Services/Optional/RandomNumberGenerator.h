@@ -127,17 +127,17 @@
 // ==================================================================
 
 #include "CLHEP/Random/RandomEngine.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/PerScheduleContainer.h"
 #include "canvas/Persistency/Common/RNGsnapshot.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Name.h"
-#include "hep_concurrency/RecursiveMutex.h"
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -280,7 +280,7 @@ namespace art {
     void postEndJob();
 
     // Protects all data members.
-    mutable hep::concurrency::RecursiveMutex mutex_{"art::rng::mutex_"};
+    mutable std::recursive_mutex mutex_{};
 
     std::string const defaultEngineKind_;
 

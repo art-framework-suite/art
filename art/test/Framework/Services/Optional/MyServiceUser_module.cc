@@ -10,8 +10,8 @@
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/test/Framework/Services/Interfaces/MyServiceInterface.h"
-#include "art/test/Framework/Services/Optional/MyService.h"
+#include "MyServiceInterface.h"
+#include "MyService.h"
 
 namespace art::test {
   class MyServiceUser;

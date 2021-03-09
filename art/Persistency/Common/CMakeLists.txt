@@ -1,11 +1,11 @@
-art_make_library(
-  LIBRARY_NAME
-    art_Persistency_Common
-  SOURCE
+cet_make_library(SOURCE
     DelayedReader.cc
     GroupQueryResult.cc
   LIBRARIES
+  PUBLIC
     canvas::canvas
+    cetlib::cetlib
+    cetlib_except::cetlib_except
 )
 
 install_headers()

@@ -113,9 +113,11 @@ namespace {
 namespace art {
 
   Worker::Worker(ModuleDescription const& md, WorkerParams const& wp)
-    : scheduleID_{wp.scheduleID_}, md_{md}
-    , actions_{&wp.actions_}
-    , actReg_{&wp.actReg_}
+    : scheduleID_{wp.scheduleID_}
+    , md_{md}
+    , actions_{wp.actions_}
+    , actReg_{wp.actReg_}
+    , waitingTasks_{wp.taskGroup_}
   {
     TDEBUG_FUNC_SI(5, wp.scheduleID_)
       << hex << this << dec << " name: " << md.moduleName()
@@ -198,10 +200,10 @@ namespace art {
   }
 
   void
-  Worker::beginJob() try {
-    actReg_.load()->sPreModuleBeginJob.invoke(md_);
-    implBeginJob();
-    actReg_.load()->sPostModuleBeginJob.invoke(md_);
+  Worker::beginJob(detail::SharedResources const& resources) try {
+    actReg_.sPreModuleBeginJob.invoke(md_);
+    implBeginJob(resources);
+    actReg_.sPostModuleBeginJob.invoke(md_);
   }
   catch (...) {
     rethrow_with_context(std::current_exception(), md_, "beginJob");
@@ -209,9 +211,9 @@ namespace art {
 
   void
   Worker::endJob() try {
-    actReg_.load()->sPreModuleEndJob.invoke(md_);
+    actReg_.sPreModuleEndJob.invoke(md_);
     implEndJob();
-    actReg_.load()->sPostModuleEndJob.invoke(md_);
+    actReg_.sPostModuleEndJob.invoke(md_);
   }
   catch (...) {
     rethrow_with_context(std::current_exception(), md_, "endJob");
@@ -220,33 +222,33 @@ namespace art {
   void
   Worker::respondToOpenInputFile(FileBlock const& fb)
   {
-    actReg_.load()->sPreModuleRespondToOpenInputFile.invoke(md_);
+    actReg_.sPreModuleRespondToOpenInputFile.invoke(md_);
     implRespondToOpenInputFile(fb);
-    actReg_.load()->sPostModuleRespondToOpenInputFile.invoke(md_);
+    actReg_.sPostModuleRespondToOpenInputFile.invoke(md_);
   }
 
   void
   Worker::respondToCloseInputFile(FileBlock const& fb)
   {
-    actReg_.load()->sPreModuleRespondToCloseInputFile.invoke(md_);
+    actReg_.sPreModuleRespondToCloseInputFile.invoke(md_);
     implRespondToCloseInputFile(fb);
-    actReg_.load()->sPostModuleRespondToCloseInputFile.invoke(md_);
+    actReg_.sPostModuleRespondToCloseInputFile.invoke(md_);
   }
 
   void
   Worker::respondToOpenOutputFiles(FileBlock const& fb)
   {
-    actReg_.load()->sPreModuleRespondToOpenOutputFiles.invoke(md_);
+    actReg_.sPreModuleRespondToOpenOutputFiles.invoke(md_);
     implRespondToOpenOutputFiles(fb);
-    actReg_.load()->sPostModuleRespondToOpenOutputFiles.invoke(md_);
+    actReg_.sPostModuleRespondToOpenOutputFiles.invoke(md_);
   }
 
   void
   Worker::respondToCloseOutputFiles(FileBlock const& fb)
   {
-    actReg_.load()->sPreModuleRespondToCloseOutputFiles.invoke(md_);
+    actReg_.sPreModuleRespondToCloseOutputFiles.invoke(md_);
     implRespondToCloseOutputFiles(fb);
-    actReg_.load()->sPostModuleRespondToCloseOutputFiles.invoke(md_);
+    actReg_.sPostModuleRespondToCloseOutputFiles.invoke(md_);
   }
 
   bool
@@ -285,21 +287,21 @@ namespace art {
       }
       state_ = Working;
       if (trans == Transition::BeginRun) {
-        actReg_.load()->sPreModuleBeginRun.invoke(mc);
+        actReg_.sPreModuleBeginRun.invoke(mc);
         rc = implDoBegin(dynamic_cast<RunPrincipal&>(principal), mc);
-        actReg_.load()->sPostModuleBeginRun.invoke(mc);
+        actReg_.sPostModuleBeginRun.invoke(mc);
       } else if (trans == Transition::EndRun) {
-        actReg_.load()->sPreModuleEndRun.invoke(mc);
+        actReg_.sPreModuleEndRun.invoke(mc);
         rc = implDoEnd(dynamic_cast<RunPrincipal&>(principal), mc);
-        actReg_.load()->sPostModuleEndRun.invoke(mc);
+        actReg_.sPostModuleEndRun.invoke(mc);
       } else if (trans == Transition::BeginSubRun) {
-        actReg_.load()->sPreModuleBeginSubRun.invoke(mc);
+        actReg_.sPreModuleBeginSubRun.invoke(mc);
         rc = implDoBegin(dynamic_cast<SubRunPrincipal&>(principal), mc);
-        actReg_.load()->sPostModuleBeginSubRun.invoke(mc);
+        actReg_.sPostModuleBeginSubRun.invoke(mc);
       } else if (trans == Transition::EndSubRun) {
-        actReg_.load()->sPreModuleEndSubRun.invoke(mc);
+        actReg_.sPreModuleEndSubRun.invoke(mc);
         rc = implDoEnd(dynamic_cast<SubRunPrincipal&>(principal), mc);
-        actReg_.load()->sPostModuleEndSubRun.invoke(mc);
+        actReg_.sPostModuleEndSubRun.invoke(mc);
       }
       state_ = Pass;
     }
@@ -366,137 +368,104 @@ namespace art {
     return rc;
   }
 
-  // This is used to do trigger results insertion, and to run workers
-  // on the end path.
+  // This is used only to do trigger results insertion.
   void
-  Worker::doWork_event(EventPrincipal& p, ModuleContext const& mc)
-  {
+  Worker::doWork_event(EventPrincipal& p, ModuleContext const& mc) try {
     ++counts_visited_;
     returnCode_ = false;
-    try {
-      // Transition from Ready state to Working state.
-      state_ = Working;
-      actReg_.load()->sPreModule.invoke(mc);
-      // Note: Only filters ever return false, and when they do it
-      // means they have rejected.
-      returnCode_ = implDoProcess(p, mc);
-      actReg_.load()->sPostModule.invoke(mc);
-      if (returnCode_.load()) {
-        state_ = Pass;
-      } else {
-        state_ = Fail;
-      }
-    }
-    catch (cet::exception& e) {
-      auto action = actions_.load()->find(e.root_cause());
-      // If we are processing an endPath, treat SkipEvent or FailPath
-      // as FailModule, so any subsequent OutputModules are still run.
-      if (mc.onEndPath()) {
-        if ((action == actions::SkipEvent) || (action == actions::FailPath)) {
-          action = actions::FailModule;
-        }
-      }
-      if (action == actions::IgnoreCompletely) {
-        state_ = Pass;
-        returnCode_ = true;
-        ++counts_passed_;
-        mf::LogWarning("IgnoreCompletely") << "Module ignored an exception\n"
-                                           << e.what() << "\n";
-        // WARNING: We will continue execution below!!!
-      } else if (action == actions::FailModule) {
-        state_ = Fail;
-        returnCode_ = true;
-        ++counts_failed_;
-        mf::LogWarning("FailModule") << "Module failed due to an exception\n"
-                                     << e.what() << "\n";
-        // WARNING: We will continue execution below!!!
-      } else {
-        state_ = ExceptionThrown;
-        ++counts_thrown_;
-        e << "The above exception was thrown while processing module "
-          << brief_context(md_, p) << '\n';
-        if (auto edmEx = dynamic_cast<Exception*>(&e)) {
-          cached_exception_ = make_exception_ptr(*edmEx);
-        } else {
-          cached_exception_ =
-            make_exception_ptr(Exception{errors::OtherArt, string(), e});
-        }
-        rethrow_exception(cached_exception_);
-      }
-    }
-    catch (bad_alloc const& bda) {
+    // Transition from Ready state to Working state.
+    state_ = Working;
+    actReg_.sPreModule.invoke(mc);
+    // Note: Only the TriggerResults inserter--a producer--calls this
+    // function.  The return code is thus always true.
+    returnCode_ = implDoProcess(p, mc);
+    actReg_.sPostModule.invoke(mc);
+    assert(returnCode_.load());
+    state_ = Pass;
+  }
+  catch (cet::exception& e) {
+    auto action = actions_.find(e.root_cause());
+    assert(not mc.onEndPath());
+    if (action == actions::IgnoreCompletely) {
+      state_ = Pass;
+      returnCode_ = true;
+      ++counts_passed_;
+      mf::LogWarning("IgnoreCompletely") << "Module ignored an exception\n"
+                                         << e.what() << "\n";
+      // WARNING: We will continue execution below!!!
+    } else if (action == actions::FailModule) {
+      state_ = Fail;
+      returnCode_ = true;
+      ++counts_failed_;
+      mf::LogWarning("FailModule") << "Module failed due to an exception\n"
+                                   << e.what() << "\n";
+      // WARNING: We will continue execution below!!!
+    } else {
       state_ = ExceptionThrown;
       ++counts_thrown_;
-      auto art_ex =
-        Exception{errors::BadAlloc}
-        << "A bad_alloc exception occurred during a call to the module "
-        << brief_context(md_, p) << '\n'
-        << "The job has probably exhausted the virtual memory available to the "
-           "process.\n";
-      cached_exception_ = make_exception_ptr(art_ex);
-      rethrow_exception(cached_exception_);
-    }
-    catch (exception const& e) {
-      state_ = ExceptionThrown;
-      ++counts_thrown_;
-      auto art_ex = Exception{errors::StdException}
-                    << "An exception occurred during a call to the module "
-                    << brief_context(md_, p) << '\n'
-                    << e.what();
-      cached_exception_ = make_exception_ptr(art_ex);
-      rethrow_exception(cached_exception_);
-    }
-    catch (string const& s) {
-      state_ = ExceptionThrown;
-      ++counts_thrown_;
-      auto art_ex = Exception{errors::BadExceptionType, "string"}
-                    << "A string thrown as an exception occurred during a call "
-                       "to the module "
-                    << brief_context(md_, p) << '\n'
-                    << s << '\n';
-      cached_exception_ = make_exception_ptr(art_ex);
-      rethrow_exception(cached_exception_);
-    }
-    catch (char const* c) {
-      state_ = ExceptionThrown;
-      ++counts_thrown_;
-      auto art_ex = Exception{errors::BadExceptionType, "char const*"}
-                    << "A char const* thrown as an exception occurred during a "
-                       "call to the module "
-                    << brief_context(md_, p) << '\n'
-                    << c << "\n";
-      cached_exception_ = make_exception_ptr(art_ex);
-      rethrow_exception(cached_exception_);
-    }
-    catch (...) {
-      ++counts_thrown_;
-      state_ = ExceptionThrown;
-      auto art_ex =
-        Exception{errors::Unknown, "repeated"}
-        << "An unknown occurred during a previous call to the module "
+      e << "The above exception was thrown while processing module "
         << brief_context(md_, p) << '\n';
-      cached_exception_ = make_exception_ptr(art_ex);
+      if (auto edmEx = dynamic_cast<Exception*>(&e)) {
+        cached_exception_ = make_exception_ptr(*edmEx);
+      } else {
+        cached_exception_ =
+          make_exception_ptr(Exception{errors::OtherArt, string(), e});
+      }
       rethrow_exception(cached_exception_);
     }
   }
-
-  namespace {
-    class RunWorkerFunctor {
-    public:
-      RunWorkerFunctor(Worker* w, EventPrincipal& p, ModuleContext const& mc)
-        : w_{w}, p_{p}, mc_{mc}
-      {}
-      void
-      operator()() const
-      {
-        w_->runWorker(p_, mc_);
-      }
-
-    private:
-      Worker* w_;
-      EventPrincipal& p_;
-      ModuleContext const& mc_;
-    };
+  catch (bad_alloc const& bda) {
+    state_ = ExceptionThrown;
+    ++counts_thrown_;
+    auto art_ex =
+      Exception{errors::BadAlloc}
+      << "A bad_alloc exception occurred during a call to the module "
+      << brief_context(md_, p) << '\n'
+      << "The job has probably exhausted the virtual memory available to the "
+         "process.\n";
+    cached_exception_ = make_exception_ptr(art_ex);
+    rethrow_exception(cached_exception_);
+  }
+  catch (exception const& e) {
+    state_ = ExceptionThrown;
+    ++counts_thrown_;
+    auto art_ex = Exception{errors::StdException}
+                  << "An exception occurred during a call to the module "
+                  << brief_context(md_, p) << '\n'
+                  << e.what();
+    cached_exception_ = make_exception_ptr(art_ex);
+    rethrow_exception(cached_exception_);
+  }
+  catch (string const& s) {
+    state_ = ExceptionThrown;
+    ++counts_thrown_;
+    auto art_ex = Exception{errors::BadExceptionType, "string"}
+                  << "A string thrown as an exception occurred during a call "
+                     "to the module "
+                  << brief_context(md_, p) << '\n'
+                  << s << '\n';
+    cached_exception_ = make_exception_ptr(art_ex);
+    rethrow_exception(cached_exception_);
+  }
+  catch (char const* c) {
+    state_ = ExceptionThrown;
+    ++counts_thrown_;
+    auto art_ex = Exception{errors::BadExceptionType, "char const*"}
+                  << "A char const* thrown as an exception occurred during a "
+                     "call to the module "
+                  << brief_context(md_, p) << '\n'
+                  << c << "\n";
+    cached_exception_ = make_exception_ptr(art_ex);
+    rethrow_exception(cached_exception_);
+  }
+  catch (...) {
+    ++counts_thrown_;
+    state_ = ExceptionThrown;
+    auto art_ex = Exception{errors::Unknown, "repeated"}
+                  << "An unknown occurred during a previous call to the module "
+                  << brief_context(md_, p) << '\n';
+    cached_exception_ = make_exception_ptr(art_ex);
+    rethrow_exception(cached_exception_);
   }
 
   void
@@ -508,18 +477,18 @@ namespace art {
     try {
       // Transition from Ready state to Working state.
       state_ = Working;
-      actReg_.load()->sPreModule.invoke(mc);
+      actReg_.sPreModule.invoke(mc);
       // Note: Only filters ever return false, and when they do it
       // means they have rejected.
       returnCode_ = implDoProcess(p, mc);
-      actReg_.load()->sPostModule.invoke(mc);
+      actReg_.sPostModule.invoke(mc);
       state_ = Fail;
       if (returnCode_.load()) {
         state_ = Pass;
       }
     }
     catch (cet::exception& e) {
-      auto action = actions_.load()->find(e.root_cause());
+      auto action = actions_.find(e.root_cause());
       // If we are processing an endPath, treat SkipEvent or FailPath
       // as FailModule, so any subsequent OutputModules are still run.
       if (mc.onEndPath()) {
@@ -626,7 +595,7 @@ namespace art {
   }
 
   void
-  Worker::doWork_event(tbb::task* workerInPathDoneTask,
+  Worker::doWork_event(WaitingTaskPtr workerInPathDoneTask,
                        EventPrincipal& p,
                        ModuleContext const& mc)
   {
@@ -646,17 +615,16 @@ namespace art {
     ++counts_visited_;
     bool expected = false;
     if (workStarted_.compare_exchange_strong(expected, true)) {
-      RunWorkerFunctor runWorkerFunctor{this, p, mc};
       if (auto chain = serialTaskQueueChain()) {
         // Must be a serialized shared module (including legacy).
         TDEBUG_FUNC_SI(4, sid) << "pushing onto chain " << hex << chain << dec;
-        chain->push(runWorkerFunctor);
+        chain->push([&p, &mc, this] { runWorker(p, mc); });
         TDEBUG_END_FUNC_SI(4, sid);
         return;
       }
       // Must be a replicated or shared module with no serialization.
       TDEBUG_FUNC_SI(4, sid) << "calling worker functor";
-      runWorkerFunctor();
+      runWorker(p, mc);
       TDEBUG_END_FUNC_SI(4, sid);
       return;
     }

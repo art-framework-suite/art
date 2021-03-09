@@ -1,10 +1,10 @@
-art_make_library(
-  LIBRARY_NAME art_Framework_IO_detail
-  SOURCE
+cet_make_library(SOURCE
     FileNameComponents.cc
     logFileAction.cc
     validateFileNamePattern.cc
-  LIBRARIES PRIVATE
+  LIBRARIES
+  PRIVATE
+    fhiclcpp::types
     Boost::regex
     messagefacility::MF_MessageLogger
     canvas::canvas

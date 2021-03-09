@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE (artapp test)
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 
 #include "art/Framework/Art/artapp.h"
 #include "art/Framework/Art/detail/info_success.h"

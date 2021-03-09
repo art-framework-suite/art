@@ -21,8 +21,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
   ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY)
 ####################################
 
-art_make_library(LIBRARY_NAME art_Framework_Art
-  SOURCE
+cet_make_library(SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/artapp.cc
+    ${CMAKE_CURRENT_BINARY_DIR}/mu2eapp.cc
     BasicOptionsHandler.cc
     BasicPostProcessor.cc
     BasicSourceOptionsHandler.cc
@@ -31,8 +32,6 @@ art_make_library(LIBRARY_NAME art_Framework_Art
     ProcessingOptionsHandler.cc
     FileCatalogOptionsHandler.cc
     OptionsHandler.cc
-    ${CMAKE_CURRENT_BINARY_DIR}/artapp.cc
-    ${CMAKE_CURRENT_BINARY_DIR}/mu2eapp.cc
     find_config.cc
     run_art.cc
     detail/MetadataRegexHelpers.cc
@@ -49,13 +48,23 @@ art_make_library(LIBRARY_NAME art_Framework_Art
     detail/print_config_summary.cc
     detail/prune_configuration.cc
   LIBRARIES
-    art::art_Utilities
-  PRIVATE
+  PUBLIC
+    art::Utilities
     Boost::program_options
-    art::art_Framework_EventProcessor
-    art::art_Framework_Core
-    art::art_Version
+    fhiclcpp::fhiclcpp
+    cetlib::cetlib
+  PRIVATE
+    art::Framework_EventProcessor
+    art::Framework_Core
+    art::Persistency_Provenance
+    art::Version
+    canvas::canvas
     messagefacility::MF_MessageLogger
+    fhiclcpp::types
+    cetlib::container_algorithms
+    cetlib_except::cetlib_except
+    Boost::filesystem
+    TBB::tbb
 )
 
 # Build an art exec.
@@ -67,10 +76,12 @@ function(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
   cet_make_exec(NAME ${TARGET_STEM}
     SOURCE ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc
     LIBRARIES PRIVATE
-      ${AE_LIBRARIES}
-      art::art_Framework_Art
-      art::art_Framework_Core
+      art::Framework_Art
       messagefacility::MF_MessageLogger
+      cetlib::cetlib
+      Boost::program_options
+      Boost::filesystem
+    LIBRARIES ${AE_LIBRARIES}
   )
   # Enable plugins to access symbols exported by the exec (CMake policy CMP0065).
   set_property(TARGET ${TARGET_STEM} PROPERTY ENABLE_EXPORTS TRUE)
@@ -103,7 +114,7 @@ cet_make_completions(nova ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizati
 
 cet_make_exec(NAME check_libs
   SOURCE ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc
-  LIBRARIES PRIVATE art::art_Utilities
+  LIBRARIES PRIVATE art::Utilities
 )
 
 install_headers(SUBDIRS detail detail/md-collector detail/md-summary)

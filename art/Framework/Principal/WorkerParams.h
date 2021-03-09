@@ -12,11 +12,16 @@
 
 #include <string>
 
+#include <tbb/task_group.h> // Can't forward-declare this class.
+
 namespace art {
 
   class ActionTable;
   class ActivityRegistry;
   class UpdateOutputCallbacks;
+  namespace detail {
+    class SharedResources;
+  }
 
   struct WorkerParams {
 
@@ -27,7 +32,9 @@ namespace art {
                  ActivityRegistry const& actReg,
                  ActionTable const& actions,
                  std::string const& processName,
-                 ScheduleID const sid)
+                 ScheduleID const sid,
+                 tbb::task_group& group,
+                 detail::SharedResources& resources)
       : procPset_{procPset}
       , pset_{pset}
       , reg_{reg}
@@ -36,6 +43,8 @@ namespace art {
       , actions_{actions}
       , processName_{processName}
       , scheduleID_{sid}
+      , taskGroup_{group}
+      , resources_{resources}
     {}
 
     fhicl::ParameterSet const& procPset_;
@@ -46,6 +55,8 @@ namespace art {
     ActionTable const& actions_;
     std::string const processName_;
     ScheduleID scheduleID_;
+    tbb::task_group& taskGroup_;
+    detail::SharedResources& resources_;
   };
 
 } // namespace art

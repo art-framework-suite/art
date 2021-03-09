@@ -22,7 +22,6 @@
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/Selections.h"
-#include "art/Utilities/SharedResourcesRegistry.h"
 #include "canvas/Persistency/Provenance/BranchChildren.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
@@ -132,10 +131,9 @@ namespace art {
     virtual void doRegisterProducts(ProductDescriptions&,
                                     ModuleDescription const&);
 
-  private: // MEMBER FUNCTIONS -- API required by EventProcessor, Schedule,
-           // and EndPathExecutor
+  private:
     void configure(OutputModuleDescription const& desc);
-    virtual void doBeginJob();
+    virtual void doBeginJob(detail::SharedResources const& resources);
     // Called after selectProducts() has done its work.
     virtual void postSelectProducts();
     void doEndJob();
@@ -153,8 +151,6 @@ namespace art {
                  std::atomic<std::size_t>& counts_passed,
                  std::atomic<std::size_t>& counts_failed);
 
-  private:
-    // API required by EventProcessor, Schedule, and EndPathExecutor
     void doWriteRun(RunPrincipal& rp);
     void doWriteSubRun(SubRunPrincipal& srp);
     void doWriteEvent(EventPrincipal& ep);
@@ -165,6 +161,7 @@ namespace art {
 
     // Implementation API, intended to be provided by derived classes.
     std::string workerType() const;
+
     // Do the end-of-file tasks; this is only called internally, after
     // the appropriate tests have been done.
     void reallyCloseFile();

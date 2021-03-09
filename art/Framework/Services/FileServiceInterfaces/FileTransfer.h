@@ -11,7 +11,7 @@
 // GeneralFileTransfer will inherit from this interface class.
 // ====================================================================
 
-#include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 
 #include <string>
 

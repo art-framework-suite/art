@@ -34,14 +34,17 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "cetlib/trim.h"
-#include "hep_concurrency/RecursiveMutex.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <memory>
-#include <mutex>
 #include <vector>
 
 namespace art {
+  class GlobalTaskGroup;
+  namespace detail {
+    class SharedResources;
+  }
+
   class EndPathExecutor {
     friend class Schedule;
 
@@ -50,14 +53,15 @@ namespace art {
                     PathManager& pm,
                     ActionTable const& actions,
                     ActivityRegistry const& areg,
-                    UpdateOutputCallbacks& callbacks);
+                    UpdateOutputCallbacks& callbacks,
+                    GlobalTaskGroup& task_group);
 
     EndPathExecutor(EndPathExecutor&&) = delete;
     EndPathExecutor& operator=(EndPathExecutor&&) = delete;
     EndPathExecutor(EndPathExecutor const&) = delete;
     EndPathExecutor& operator=(EndPathExecutor const&) = delete;
 
-    void beginJob();
+    void beginJob(detail::SharedResources const& resources);
     void endJob();
 
     // Input File Open/Close.
@@ -85,7 +89,8 @@ namespace art {
     // Used to make sure only one event is being processed at a time.
     // The schedules take turns having their events processed on a
     // first-come first-served basis (FIFO).
-    void process_event(EventPrincipal&);
+    void process_event(hep::concurrency::WaitingTaskPtr finalizeEventTask,
+                       EventPrincipal&);
     void writeEvent(EventPrincipal&);
 
     // Output File Switching API
@@ -123,15 +128,14 @@ namespace art {
     bool allAtLimit() const;
 
   private:
-    // Protects runRangeSetHandler_, and subRunRangeSetHandler_.
-    mutable hep::concurrency::RecursiveMutex mutex_{"EndPathExecutor::mutex_"};
+    class PathsDoneTask;
+
     // Filled by ctor, const after that.
     ScheduleContext const sc_;
     ActionTable const& actionTable_;
     ActivityRegistry const& actReg_;
     PathsInfo& endPathInfo_;
-    // Dynamic, cause an error if more than one thread processes an event.
-    std::atomic<int> runningWorkerCnt_{};
+    GlobalTaskGroup& taskGroup_;
     // Filled by ctor, const after that.
     std::vector<OutputWorker*> outputWorkers_{};
     // Dynamic, updated by run processing.

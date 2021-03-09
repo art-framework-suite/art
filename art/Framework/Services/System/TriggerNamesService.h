@@ -23,8 +23,7 @@
 // It will return the trigger path names from previous processes.
 //
 
-#include "art/Framework/Services/Registry/ServiceMacros.h"
-#include "cetlib/container_algorithms.h"
+#include "art/Framework/Services/Registry/detail/system_service_macros.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cstddef>
@@ -33,8 +32,6 @@
 #include <vector>
 
 namespace art {
-
-  class TriggerResults;
 
   class TriggerNamesService {
 

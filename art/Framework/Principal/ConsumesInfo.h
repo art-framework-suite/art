@@ -76,12 +76,12 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Utilities/TypeID.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/RecursiveMutex.h"
 
 #include <array>
 #include <atomic>
 #include <cstdlib>
 #include <map>
+#include <mutex>
 #include <set>
 #include <string>
 #include <vector>
@@ -132,8 +132,7 @@ namespace art {
     ConsumesInfo();
 
     // Protects access to consumables_ and missingConsumes_.
-    mutable hep::concurrency::RecursiveMutex mutex_{
-      "art::ConsumesInfo::mutex_"};
+    mutable std::recursive_mutex mutex_{};
 
     std::atomic<bool> requireConsumes_;
 

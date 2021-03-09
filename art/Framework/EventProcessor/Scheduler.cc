@@ -6,8 +6,6 @@
 #include "cetlib/getenv.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "tbb/task.h"
-#include "tbb/task_arena.h"
 
 #include <cstdlib>
 #include <string>
@@ -15,15 +13,15 @@
 using fhicl::ParameterSet;
 
 namespace {
-  int
-  adjust_num_threads(int const specified_num_threads)
+  unsigned
+  adjust_num_threads(unsigned const specified_num_threads)
   {
     char const* p = std::getenv("OMP_NUM_THREADS");
     if (p == nullptr) {
       return specified_num_threads;
     }
 
-    auto const max_threads = std::stoi(p);
+    auto const max_threads = std::stoul(p);
     if (specified_num_threads == 0) {
       return max_threads;
     }
@@ -41,6 +39,9 @@ namespace {
       << rule('=');
     return max_threads;
   }
+
+  constexpr auto max_parallelism = tbb::global_control::max_allowed_parallelism;
+  constexpr auto thread_stack_size = tbb::global_control::thread_stack_size;
 }
 
 namespace art {
@@ -61,14 +62,18 @@ namespace art {
     globals.setNSchedules(nSchedules_);
   }
 
-  void
-  Scheduler::initialize_task_manager()
+  std::unique_ptr<GlobalTaskGroup>
+  Scheduler::global_task_group()
   {
-    tbbManager_.initialize(nThreads_, stackSize_);
+    using tbb::global_control;
+    auto value_of = [](auto const field) {
+      return global_control::active_value(field);
+    };
+    auto group = std::make_unique<GlobalTaskGroup>(nThreads_, stackSize_);
     mf::LogInfo("MTdiagnostics")
       << "TBB has been configured to use:\n"
-      << "  - a maximum of " << tbb::this_task_arena::max_concurrency()
-      << " threads\n"
-      << "  - a stack size of " << stackSize_ << " bytes";
+      << "  - a maximum of " << value_of(max_parallelism) << " threads\n"
+      << "  - a stack size of " << value_of(thread_stack_size) << " bytes";
+    return group;
   }
 }

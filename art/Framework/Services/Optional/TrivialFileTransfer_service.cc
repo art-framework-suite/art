@@ -1,7 +1,12 @@
-#include "art/Framework/Services/Optional/TrivialFileTransfer.h"
 // vim: set sw=2 expandtab :
 
+#include "art/Framework/Services/FileServiceInterfaces/FileTransfer.h"
 #include "art/Framework/Services/FileServiceInterfaces/FileTransferStatus.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
+#include "art/Framework/Services/Registry/ServiceTable.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <algorithm>
 #include <cerrno>
@@ -11,15 +16,33 @@
 #include <string>
 
 using namespace std;
-using namespace art;
 
 using fhicl::ParameterSet;
 
-namespace {
-  string const fileURI{"file://"};
-} // unnamed namespace
-
 namespace art {
+
+  namespace {
+    string const fileURI{"file://"};
+  } // unnamed namespace
+
+  class TrivialFileTransfer : public FileTransfer {
+    // Configuration
+  public:
+    struct Config {};
+    using Parameters = ServiceTable<Config>;
+    // Special Member Functions
+  public:
+    ~TrivialFileTransfer();
+    TrivialFileTransfer(Parameters const& pset);
+    TrivialFileTransfer(TrivialFileTransfer const&);
+    TrivialFileTransfer(TrivialFileTransfer&&);
+    TrivialFileTransfer& operator=(TrivialFileTransfer const&);
+    TrivialFileTransfer& operator=(TrivialFileTransfer&&);
+    // Implementation -- Required by base class
+  private:
+    int doTranslateToLocalFilename(std::string const& uri,
+                                   std::string& fileFQname) override;
+  };
 
   TrivialFileTransfer::~TrivialFileTransfer() = default;
 
@@ -78,5 +101,9 @@ namespace art {
   }
 
 } // namespace art
+
+DECLARE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileTransfer,
+                                   art::FileTransfer,
+                                   SHARED)
 
 DEFINE_ART_SERVICE_INTERFACE_IMPL(art::TrivialFileTransfer, art::FileTransfer)

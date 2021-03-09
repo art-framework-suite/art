@@ -14,6 +14,7 @@
 #include "art/Framework/Principal/Worker.h"
 #include "art/Persistency/Provenance/PathContext.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
+#include "art/Utilities/GlobalTaskGroup.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
@@ -21,7 +22,7 @@
 #include "canvas/Persistency/Common/HLTenums.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/WaitingTaskList.h"
+#include "hep_concurrency/WaitingTask.h"
 
 #include <cstddef>
 #include <memory>
@@ -39,7 +40,8 @@ namespace art {
          ActivityRegistry const&,
          PathContext const&,
          std::vector<WorkerInPath>&&,
-         HLTGlobalStatus*) noexcept;
+         HLTGlobalStatus*,
+         GlobalTaskGroup&) noexcept;
 
     // Disable copy operations
     Path(Path const&) = delete;
@@ -57,35 +59,37 @@ namespace art {
     // Note: threading: Clears the counters of workersInPath.
     void clearCounters();
     void process(Transition, Principal&);
-    void process_event_for_endpath(EventPrincipal&);
-    void process_event(tbb::task* pathsDoneTask,
-                       EventPrincipal&);
+    void process(hep::concurrency::WaitingTaskPtr pathsDoneTask,
+                 EventPrincipal&);
 
-    // Tasking System
+  private:
+    class WorkerDoneTask;
+
     void runWorkerTask(size_t idx,
                        size_t max_idx,
                        EventPrincipal&,
-                       std::exception_ptr const*);
-    void workerDoneTask(size_t idx,
-                        size_t max_idx,
-                        EventPrincipal&,
-                        std::exception_ptr const*);
+                       hep::concurrency::WaitingTaskPtr pathsDone);
 
-  private:
-    void process_event_idx_asynch(size_t idx, size_t max_idx, EventPrincipal&);
+    void process_event_idx_asynch(size_t idx,
+                                  size_t max_idx,
+                                  EventPrincipal&,
+                                  hep::concurrency::WaitingTaskPtr pathsDone);
     void process_event_idx(size_t const idx,
                            size_t const max_idx,
-                           EventPrincipal&);
-    void process_event_workerFinished(size_t const idx,
-                                      size_t const max_idx,
-                                      EventPrincipal&,
-                                      bool should_continue);
+                           EventPrincipal&,
+                           hep::concurrency::WaitingTaskPtr pathsDone);
+    void process_event_workerFinished(
+      size_t const idx,
+      size_t const max_idx,
+      EventPrincipal& ep,
+      bool should_continue,
+      hep::concurrency::WaitingTaskPtr pathsDone);
     void process_event_pathFinished(size_t const idx,
-                                    EventPrincipal&,
-                                    bool should_continue);
+                                    bool should_continue,
+                                    hep::concurrency::WaitingTaskPtr pathsDone);
 
-    std::atomic<ActionTable const*> actionTable_;
-    std::atomic<ActivityRegistry const*> actReg_;
+    ActionTable const& actionTable_;
+    ActivityRegistry const& actReg_;
     PathContext const pc_;
     int const bitpos_;
     // Note: threading: We clear their counters.
@@ -93,8 +97,9 @@ namespace art {
     // The PathManager trigger paths info actually owns this.
     // Note: For the end path this will be the nullptr.
     std::atomic<HLTGlobalStatus*> trptr_;
-    // Tasks waiting for path workers to finish.
-    hep::concurrency::WaitingTaskList waitingTasks_{};
+
+    GlobalTaskGroup& taskGroup_;
+
     std::atomic<hlt::HLTState> state_{hlt::Ready};
     std::atomic<std::size_t> timesRun_{};
     std::atomic<std::size_t> timesPassed_{};

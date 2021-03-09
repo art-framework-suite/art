@@ -1,20 +1,18 @@
 #include "art/Framework/Core/EDProducer.h"
 // vim: set sw=2 expandtab :
 
-using namespace std;
-
 namespace art {
 
-  string
+  std::string
   EDProducer::workerType() const
   {
     return "WorkerT<EDProducer>";
   }
 
   void
-  EDProducer::setupQueues()
+  EDProducer::setupQueues(detail::SharedResources const& resources)
   {
-    createQueues();
+    createQueues(resources);
   }
 
   void

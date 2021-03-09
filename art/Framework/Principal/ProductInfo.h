@@ -5,6 +5,7 @@
 #include "art/Framework/Principal/ProcessTag.h"
 #include "canvas/Utilities/TypeID.h"
 
+#include <iosfwd>
 #include <string>
 
 namespace art {

@@ -1,5 +1,16 @@
-simple_plugin(EventProcessorTestSource "source")
-simple_plugin(EventProcessorTestOutput "module")
+build_plugin(EventProcessorTestSource "source" BASE InputSource NO_INSTALL
+  LIBRARIES PRIVATE
+    art::Framework_Principal
+    art::Persistency_Provenance
+    canvas::canvas
+    fhiclcpp::fhiclcpp
+)
+build_plugin(EventProcessorTestOutput "module" NO_INSTALL
+  LIBRARIES PRIVATE
+    art::Framework_Principal
+    canvas::canvas
+    fhiclcpp::types
+)
 
 # The tests here are intended to demonstrate that the correct
 # EventProcessor functions are being called during the event loop (see

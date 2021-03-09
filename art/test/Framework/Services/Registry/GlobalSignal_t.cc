@@ -1,6 +1,6 @@
 #define BOOST_TEST_MODULE (GlobalSignal_t)
 #include "boost/test/tools/output_test_stream.hpp"
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/unit_test.hpp"
 
 #include "art/Framework/Services/Registry/GlobalSignal.h"
 

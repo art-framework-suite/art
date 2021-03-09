@@ -37,7 +37,6 @@
 #include "canvas/Utilities/WrappedTypeID.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
-#include "hep_concurrency/RecursiveMutex.h"
 #include "range/v3/view.hpp"
 
 #include <algorithm>
@@ -258,7 +257,7 @@ namespace art {
   void
   Principal::fillGroup(BranchDescription const& pd)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
+    std::lock_guard sentry{groupMutex_};
     auto it = groups_.find(pd.productID());
     if (it != std::cend(groups_)) {
       // The 'combinable' call does not require that the processing
@@ -379,7 +378,7 @@ namespace art {
     //          because the delay read fills the pp_by_pid_ one entry
     //          at a time, and we do not want other threads to find
     //          the info only partly there.
-    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
+    std::lock_guard sentry{groupMutex_};
     for (auto const& pid_and_group : groups_) {
       auto group = pid_and_group.second.get();
       group->resolveProductIfAvailable();
@@ -405,35 +404,35 @@ namespace art {
   size_t
   Principal::size() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
+    std::lock_guard sentry{groupMutex_};
     return groups_.size();
   }
 
   Principal::const_iterator
   Principal::begin() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
+    std::lock_guard sentry{groupMutex_};
     return groups_.begin();
   }
 
   Principal::const_iterator
   Principal::cbegin() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
+    std::lock_guard sentry{groupMutex_};
     return groups_.cbegin();
   }
 
   Principal::const_iterator
   Principal::end() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
+    std::lock_guard sentry{groupMutex_};
     return groups_.end();
   }
 
   Principal::const_iterator
   Principal::cend() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
+    std::lock_guard sentry{groupMutex_};
     return groups_.cend();
   }
 
@@ -609,7 +608,7 @@ namespace art {
       //          begin(), end(), and size() are all separate calls
       //          and we cannot lock in each one because there is no
       //          way to automatically unlock.
-      RecursiveMutexSentry sentry{processHistory_.get_mutex(), __func__};
+      std::lock_guard sentry{processHistory_.get_mutex()};
       string const& processName = processConfiguration_.processName();
       for (auto const& val : processHistory_) {
         if (processName == val.processName()) {
@@ -654,7 +653,7 @@ namespace art {
     //          against possible invalidation by output modules
     //          inserting a process history entry while we are
     //          iterating.
-    RecursiveMutexSentry sentry{processHistory_.get_mutex(), __func__};
+    std::lock_guard sentry{processHistory_.get_mutex()};
     // We must skip over duplicate entries of the same process
     // configuration in the process history.  This unfortunately
     // happened with the SamplingInput source.
@@ -1237,7 +1236,7 @@ namespace art {
   cet::exempt_ptr<Group>
   Principal::getGroupLocal(ProductID const pid) const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{groupMutex_, __func__};
+    std::lock_guard sentry{groupMutex_};
     auto it = groups_.find(pid);
     return it != groups_.cend() ? it->second.get() : nullptr;
   }

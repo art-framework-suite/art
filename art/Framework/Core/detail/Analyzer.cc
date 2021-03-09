@@ -7,12 +7,13 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
-#include "art/Utilities/SharedResourcesRegistry.h"
 
 #include <ostream>
 
 using namespace hep::concurrency;
 using namespace std;
+
+using art::SharedResources;
 
 namespace art::detail {
 
@@ -21,9 +22,9 @@ namespace art::detail {
   Analyzer::Analyzer(fhicl::ParameterSet const& pset) : Observer{pset} {}
 
   void
-  Analyzer::doBeginJob()
+  Analyzer::doBeginJob(SharedResources const& resources)
   {
-    setupQueues();
+    setupQueues(resources);
     ProcessingFrame const frame{ScheduleID{}};
     beginJobWithFrame(frame);
   }

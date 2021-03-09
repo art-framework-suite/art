@@ -1,7 +1,4 @@
-art_make_library(
-  LIBRARY_NAME
-    art_Framework_Principal
-  SOURCE
+cet_make_library(SOURCE
     Actions.cc
     ClosedRangeSetHandler.cc
     ConsumesInfo.cc
@@ -26,10 +23,13 @@ art_make_library(
     SubRunPrincipal.cc
     Worker.cc
   LIBRARIES
-    art::art_Persistency_Provenance
-    art::art_Persistency_Common
+  PUBLIC
+    art::Persistency_Provenance
+    art::Persistency_Common
+    hep_concurrency::hep_concurrency
+    TBB::tbb
   PRIVATE
-    art::art_Framework_Services_Registry
+    art::Framework_Services_Registry
     messagefacility::MF_MessageLogger
     Range::Range
 )

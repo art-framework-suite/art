@@ -12,7 +12,7 @@ namespace art {
   }
 
   void
-  ReplicatedProducer::setupQueues()
+  ReplicatedProducer::setupQueues(detail::SharedResources const&)
   {
     // For art 3.0, replicated modules will not have queues.
   }

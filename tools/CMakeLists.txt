@@ -14,7 +14,6 @@ cet_script(filter-memoryTracker-output
 # FIXME: We should add all the perl files that could change (and
 # therefore change the output of the skeleton generator) as dependencies
 # to each target. This is not trivial!
-
 function(genskel TYPE SUFFIX)
   cmake_parse_arguments(GS "" "" "EXTRA_ARGS" ${ARGN})
   string(FIND "${TYPE}" ":" split_loc)
@@ -22,20 +21,19 @@ function(genskel TYPE SUFFIX)
     string(SUBSTRING "${TYPE}" ${split_loc} -1 TYPEARGS)
     string(SUBSTRING "${TYPE}" 0 ${split_loc} TYPE)
   endif()
-  ADD_CUSTOM_COMMAND(OUTPUT ToolsTest${TYPE}_${SUFFIX}.cc
+  add_custom_command(OUTPUT Test${TYPE}_${SUFFIX}.cc
     COMMAND cetskelgen
-    ARGS --force ${GS_EXTRA_ARGS} -A ${TYPE}${TYPEARGS} arttest::ToolsTest${TYPE}
-    COMMENT "Generating ToolsTest${TYPE}_${SUFFIX}.cc with args ${GS_EXTRA_ARGS}"
+    ARGS --force ${GS_EXTRA_ARGS} -A ${TYPE}${TYPEARGS} arttest::Test${TYPE}
+    COMMENT "Generating Test${TYPE}_${SUFFIX}.cc with args ${GS_EXTRA_ARGS}"
     VERBATIM
     )
   # We knowingly generate code with unused parameters and missing
   # returns: user is supposed to fill those in when xe implements the module
   # methods.
-  SET_SOURCE_FILES_PROPERTIES(ToolsTest${TYPE}_${SUFFIX}.cc
+  set_source_files_properties(Test${TYPE}_${SUFFIX}.cc
     PROPERTIES
     COMPILE_FLAGS "-Wno-unused-parameter -Wno-return-type"
-    GENERATED 1
-    )
+  )
 endfunction()
 
 if (CETSKEL)
@@ -43,43 +41,39 @@ if (CETSKEL)
   # failures when building parallel.
   foreach(type IN ITEMS Analyzer Producer Filter)
     genskel(${type} "module")
-    simple_plugin(ToolsTest${type} "module" NO_INSTALL)
+    build_plugin(Test${type} "module" BASENAME_ONLY NO_INSTALL)
   endforeach()
 
   foreach(type IN ITEMS FileCatalogMetadataPlugin EmptyEventTimestampPlugin)
     genskel(${type} "plugin")
-    simple_plugin(ToolsTest${type} "plugin" NO_INSTALL art_Framework_Core)
+    build_plugin(Test${type} "plugin" BASENAME_ONLY NO_INSTALL)
   endforeach()
 
   # Simple service (no header).
   genskel(Service "service")
-  simple_plugin(ToolsTestService "service" NO_INSTALL)
+  build_plugin(TestService "service" BASENAME_ONLY NO_INSTALL)
 
   # Service interface.
-  ADD_CUSTOM_COMMAND(OUTPUT ToolsTestServiceInterface.cc
-    ToolsTestServiceInterface.h
+  add_custom_command(OUTPUT TestServiceInterface.cc TestServiceInterface.h
     COMMAND cetskelgen
-    ARGS --force -e "void doStuff()" -A ServiceInterface arttest::ToolsTestServiceInterface
-    COMMENT "Generating ToolsTest${TYPE}_${SUFFIX}.cc with args ${GS_EXTRA_ARGS}"
+    ARGS --force -e "void doStuff()" -A ServiceInterface arttest::TestServiceInterface
+    COMMENT "Generating Test${TYPE}_${SUFFIX}.cc with args ${GS_EXTRA_ARGS}"
     VERBATIM
     )
-  SET_SOURCE_FILES_PROPERTIES(ToolsTestServiceInterface.cc
+  set_source_files_properties(TestServiceInterface.cc
     PROPERTIES
     COMPILE_FLAGS "-Wno-unused-parameter -Wno-return-type"
     GENERATED 1
     )
-  SET_SOURCE_FILES_PROPERTIES(ToolsTestServiceInterface.h
-    PROPERTIES
-    GENERATED 1
-    )
 
   # Library containing code for service interface.
-  art_make_library(SOURCE ${CMAKE_CURRENT_BINARY_DIR}/ToolsTestServiceInterface.cc
-    NO_INSTALL)
+  cet_make_library(SOURCE ${CMAKE_CURRENT_BINARY_DIR}/TestServiceInterface.cc
+    NO_INSTALL EXPORT_SET Testing LIBRARY_NAME TestServiceInterface)
 
   # Service interface implementation.
-  genskel("ServiceImpl:arttest::ToolsTestServiceInterface,tools/ToolsTestServiceInterface.h"
+  genskel("ServiceImpl:arttest::TestServiceInterface,tools/TestServiceInterface.h"
     "service"
     )
-  simple_plugin(ToolsTestServiceImpl "service" NO_INSTALL tools)
+  build_plugin(TestServiceImpl "service" NO_INSTALL
+    LIBRARAIES PRIVATE art_test::TestServiceInterface)
 endif()

@@ -12,7 +12,7 @@
 // ======================================================================
 
 #include "art/Framework/Services/FileServiceInterfaces/FileDisposition.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "art/Persistency/Common/fwd.h"
 #include "fhiclcpp/fwd.h"
 #include "hep_concurrency/assert_only_one_thread.h"

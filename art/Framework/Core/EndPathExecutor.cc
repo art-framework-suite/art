@@ -20,6 +20,7 @@
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/PathContext.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
+#include "art/Utilities/GlobalTaskGroup.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/OutputFileInfo.h"
 #include "art/Utilities/ScheduleID.h"
@@ -29,12 +30,10 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/trim.h"
-#include "hep_concurrency/RecursiveMutex.h"
-#include "hep_concurrency/tsan.h"
+#include "hep_concurrency/WaitingTask.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <cstdlib>
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <type_traits>
@@ -50,11 +49,13 @@ namespace art {
                                    PathManager& pm,
                                    ActionTable const& actionTable,
                                    ActivityRegistry const& areg,
-                                   UpdateOutputCallbacks& outputCallbacks)
+                                   UpdateOutputCallbacks& outputCallbacks,
+                                   GlobalTaskGroup& group)
     : sc_{sid}
     , actionTable_{actionTable}
     , actReg_{areg}
     , endPathInfo_{pm.endPathInfo(sid)}
+    , taskGroup_{group}
   {
     for (auto const& val : endPathInfo_.workers()) {
       auto w = val.second;
@@ -70,22 +71,20 @@ namespace art {
   }
 
   void
-  EndPathExecutor::beginJob()
+  EndPathExecutor::beginJob(detail::SharedResources const& resources)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = *label_and_worker.second;
       if (detail::skip_non_replicated(w)) {
         continue;
       }
-      w.beginJob();
+      w.beginJob(resources);
     }
   }
 
   void
   EndPathExecutor::endJob()
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     Exception error{errors::EndJobFailure};
     // FIXME: There seems to be little value-added by the catch and rethrow
     // here.
@@ -117,7 +116,6 @@ namespace art {
   void
   EndPathExecutor::selectProducts(ProductTables const& tables)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : outputWorkers_) {
       ow->selectProducts(tables);
     }
@@ -126,7 +124,6 @@ namespace art {
   void
   EndPathExecutor::respondToOpenInputFile(FileBlock const& fb)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = *label_and_worker.second;
       if (detail::skip_non_replicated(w)) {
@@ -139,7 +136,6 @@ namespace art {
   void
   EndPathExecutor::respondToCloseInputFile(FileBlock const& fb)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = *label_and_worker.second;
       if (detail::skip_non_replicated(w)) {
@@ -152,7 +148,6 @@ namespace art {
   void
   EndPathExecutor::respondToOpenOutputFiles(FileBlock const& fb)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = *label_and_worker.second;
       if (detail::skip_non_replicated(w)) {
@@ -165,7 +160,6 @@ namespace art {
   void
   EndPathExecutor::respondToCloseOutputFiles(FileBlock const& fb)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = *label_and_worker.second;
       if (detail::skip_non_replicated(w)) {
@@ -178,7 +172,6 @@ namespace art {
   bool
   EndPathExecutor::someOutputsOpen() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     return any_of(outputWorkers_.cbegin(), outputWorkers_.cend(), [](auto ow) {
       return ow->fileIsOpen();
     });
@@ -187,7 +180,6 @@ namespace art {
   void
   EndPathExecutor::closeAllOutputFiles()
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : outputWorkers_) {
       actReg_.sPreCloseOutputFile.invoke(ow->label());
       ow->closeFile();
@@ -199,7 +191,6 @@ namespace art {
   void
   EndPathExecutor::seedRunRangeSet(RangeSetHandler const& rsh)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     runRangeSetHandler_.reset(rsh.clone());
   }
 
@@ -214,7 +205,6 @@ namespace art {
   void
   EndPathExecutor::writeRun(RunPrincipal& rp)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : outputWorkers_) {
       ow->writeRun(rp);
     }
@@ -226,14 +216,12 @@ namespace art {
   void
   EndPathExecutor::seedSubRunRangeSet(RangeSetHandler const& rsh)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     subRunRangeSetHandler_.reset(rsh.clone());
   }
 
   void
   EndPathExecutor::setSubRunAuxiliaryRangeSetID(RangeSet const& rs)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : outputWorkers_) {
       // For RootOutput this enters the possibly split range set into
       // the range set db.
@@ -244,7 +232,6 @@ namespace art {
   void
   EndPathExecutor::writeSubRun(SubRunPrincipal& srp)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : outputWorkers_) {
       ow->writeSubRun(srp);
     }
@@ -260,7 +247,6 @@ namespace art {
   void
   EndPathExecutor::process(Transition trans, Principal& principal)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto& label_and_worker : endPathInfo_.workers()) {
       auto& w = *label_and_worker.second;
       if (detail::skip_non_replicated(w)) {
@@ -286,69 +272,80 @@ namespace art {
     endPathInfo_.incrementPassedEventCount();
   }
 
+  class EndPathExecutor::PathsDoneTask {
+  public:
+    PathsDoneTask(EndPathExecutor* const endPathExec,
+                  WaitingTaskPtr const finalizeEventTask,
+                  GlobalTaskGroup& taskGroup)
+      : endPathExec_{endPathExec}
+      , finalizeEventTask_{finalizeEventTask}
+      , taskGroup_{taskGroup}
+    {}
+
+    void
+    operator()(exception_ptr const ex)
+    {
+      auto const scheduleID = endPathExec_->sc_.id();
+
+      // Note: When we start our parent task is the eventLoop task.
+      TDEBUG_BEGIN_TASK_SI(4, scheduleID);
+
+      if (ex) {
+        try {
+          rethrow_exception(ex);
+        }
+        catch (cet::exception& e) {
+          Exception tmp(errors::EventProcessorFailure, "EndPathExecutor:");
+          tmp << "an exception occurred during current event processing\n" << e;
+          taskGroup_.may_run(finalizeEventTask_, make_exception_ptr(tmp));
+          TDEBUG_END_TASK_SI(4, scheduleID)
+            << "end path processing terminate because of EXCEPTION";
+          return;
+        }
+        catch (...) {
+          taskGroup_.may_run(finalizeEventTask_, current_exception());
+          TDEBUG_END_TASK_SI(4, scheduleID)
+            << "end path processing terminate because of EXCEPTION";
+          return;
+        }
+      }
+
+      endPathExec_->endPathInfo_.incrementPassedEventCount();
+
+      taskGroup_.may_run(finalizeEventTask_);
+      TDEBUG_END_TASK_SI(4, scheduleID);
+    }
+
+  private:
+    EndPathExecutor* const endPathExec_;
+    WaitingTaskPtr const finalizeEventTask_;
+    GlobalTaskGroup& taskGroup_;
+  };
+
   // Note: We come here as part of the endPath task, our
   // parent task is the eventLoop task.
   void
-  EndPathExecutor::process_event(EventPrincipal& ep)
+  EndPathExecutor::process_event(WaitingTaskPtr finalizeEventTask,
+                                 EventPrincipal& ep)
   {
     auto const sid = sc_.id();
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     TDEBUG_BEGIN_FUNC_SI(4, sid);
-    if (runningWorkerCnt_.load() != 0) {
-      cerr << "Aborting! runningWorkerCnt_.load() != 0: "
-           << runningWorkerCnt_.load() << "\n";
-      abort();
-    }
-    ++runningWorkerCnt_;
     for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = label_and_worker.second;
-      w->reset();
+      label_and_worker.second->reset();
     }
     endPathInfo_.incrementTotalEventCount();
     try {
-      if (!endPathInfo_.paths().empty()) {
-        endPathInfo_.paths().front()->process_event_for_endpath(ep);
+      auto pathsDoneTask =
+        make_waiting_task<PathsDoneTask>(this, finalizeEventTask, taskGroup_);
+      if (endPathInfo_.paths().empty()) {
+        taskGroup_.may_run(pathsDoneTask);
+      } else {
+        endPathInfo_.paths().front()->process(pathsDoneTask, ep);
       }
-    }
-    catch (cet::exception& ex) {
-      // Possible actions: IgnoreCompletely, Rethrow, SkipEvent, FailModule,
-      // FailPath
-      auto const action{actionTable_.find(ex.root_cause())};
-      if (action != actions::IgnoreCompletely) {
-        // Possible actions: Rethrow, SkipEvent, FailModule, FailPath
-        TDEBUG_END_FUNC_SI(4, sid) << "because of EXCEPTION";
-        if (runningWorkerCnt_.load() != 1) {
-          abort();
-        }
-        --runningWorkerCnt_;
-        throw Exception(errors::EventProcessorFailure, "EndPathExecutor:")
-          << "an exception occurred during current event processing\n"
-          << ex;
-      }
-      // Possible actions: IgnoreCompletely
-      mf::LogWarning(ex.category())
-        << "exception being ignored for current event:\n"
-        << cet::trim_right_copy(ex.what(), " \n");
-      // WARNING: Processing continues below!!!
-      // WARNING: We can only get here if an exception in end path
-      // processing is being ignored for the current event because
-      // the action is actions::IgnoreCompletely.
     }
     catch (...) {
-      mf::LogError("PassingThrough")
-        << "an exception occurred during current event processing\n";
-      TDEBUG_END_FUNC_SI(4, sid) << "because of EXCEPTION";
-      if (runningWorkerCnt_.load() != 1) {
-        abort();
-      }
-      --runningWorkerCnt_;
-      throw;
+      taskGroup_.may_run(finalizeEventTask, current_exception());
     }
-    endPathInfo_.incrementPassedEventCount();
-    if (runningWorkerCnt_.load() != 1) {
-      abort();
-    }
-    --runningWorkerCnt_;
     TDEBUG_END_FUNC_SI(4, sid);
   }
 
@@ -359,7 +356,6 @@ namespace art {
     // for the end_path right now.  If users decide it is necessary to
     // know what they are, then we can provide them.
     PathContext const pc{sc_, PathContext::end_path(), 0, {}};
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
     for (auto ow : outputWorkers_) {
       ModuleContext const mc{pc, ow->description()};
       actReg_.sPreWriteEvent.invoke(mc);

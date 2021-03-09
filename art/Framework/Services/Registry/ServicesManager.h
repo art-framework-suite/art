@@ -15,6 +15,7 @@
 #include "cetlib/LibraryManager.h"
 #include "cetlib/bold_fontify.h"
 #include "cetlib_except/demangle.h"
+#include "fhiclcpp/fwd.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
 #include <map>
@@ -24,24 +25,20 @@
 #include <utility>
 #include <vector>
 
-namespace cet {
-  class LibraryManager;
-} // namespace cet
-
-namespace fhicl {
-  class ParameterSet;
-} // namespace fhicl
-
 namespace art {
 
   class ActivityRegistry;
   class ProcessConfiguration;
   class ProducingServiceSignals;
+  namespace detail {
+    class SharedResources;
+  }
 
   class ServicesManager {
   public:
     explicit ServicesManager(fhicl::ParameterSet&& servicesPSet,
-                             ActivityRegistry& actReg);
+                             ActivityRegistry& actReg,
+                             detail::SharedResources& resources);
     ~ServicesManager();
 
     ServicesManager(ServicesManager const&) = delete;
@@ -78,6 +75,7 @@ namespace art {
 
   private:
     ActivityRegistry& actReg_;
+    detail::SharedResources& resources_;
     cet::LibraryManager lm_{Suffixes::service()};
     std::map<TypeID, detail::ServiceCacheEntry> services_{};
     std::vector<TypeID> requestedCreationOrder_{};
@@ -96,7 +94,7 @@ namespace art {
         << "ServicesManager unable to find the service of type '"
         << cet::demangle_symbol(typeid(T).name()) << "'.\n";
     }
-    return it->second.get<T>(actReg_, actualCreationOrder_);
+    return it->second.get<T>(actReg_, resources_, actualCreationOrder_);
   }
 
   template <typename T>

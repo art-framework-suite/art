@@ -2,6 +2,17 @@ include(CetTest)
 cet_enable_asserts()
 cet_test_env("FHICL_FILE_PATH=.")
 
+cet_find_package(Boost PRIVATE COMPONENTS filesystem graph REQUIRED)
+cet_find_package(Catch2 PRIVATE REQUIRED)
+cet_find_package(canvas REQUIRED)
+cet_find_package(cetlib PRIVATE REQUIRED)
+cet_find_package(fhiclcpp PRIVATE REQUIRED)
+cet_find_package(hep_concurrency PRIVATE REQUIRED)
+cet_find_package(messagefacility PRIVATE REQUIRED)
+
+# For namespaced aliases and any installed libraries.
+cet_register_export_set(SET_NAME Testing NAMESPACE art_test SET_DEFAULT)
+
 ########################################################################
 # For use in subdirectories as necessary.
 
@@ -25,7 +36,8 @@ endfunction()
 set(filterOutputModule "${CMAKE_CURRENT_SOURCE_DIR}/filterOutputModule")
 ########################################################################
 
-# build Persistency libraries
+add_subdirectory(TestObjects)
+
 add_subdirectory(Configuration)
 add_subdirectory(Framework/Art)
 add_subdirectory(Framework/Core)
@@ -36,8 +48,6 @@ add_subdirectory(Framework/Principal)
 add_subdirectory(Framework/Services/Optional)
 add_subdirectory(Framework/Services/Registry)
 add_subdirectory(Framework/Services/System)
-add_subdirectory(Framework/Services/Basic)
 add_subdirectory(Persistency/Provenance)
-add_subdirectory(TestObjects)
 add_subdirectory(Utilities)
 add_subdirectory(Version)

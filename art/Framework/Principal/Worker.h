@@ -32,9 +32,6 @@
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
-#include "canvas/Utilities/Exception.h"
-#include "cetlib_except/exception.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/WaitingTaskList.h"
 
 #include <atomic>
@@ -44,10 +41,6 @@
 #include <memory>
 #include <utility>
 #include <vector>
-
-namespace tbb {
-  class task;
-}
 
 namespace hep::concurrency {
   class SerialTaskQueueChain;
@@ -61,29 +54,20 @@ namespace art {
   class RunPrincipal;
   class SubRunPrincipal;
   class EventPrincipal;
+  namespace detail {
+    class SharedResources;
+  }
 
   class Worker {
-
     friend class RunWorkerFunctor;
 
-  public: // TYPES
-    enum State : int {
-      Ready = 0,
-      Pass = 1,
-      Fail = 2,
-      Working = 3,
-      ExceptionThrown = 4
-    };
+  public:
+    enum State { Ready, Pass, Fail, Working, ExceptionThrown };
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~Worker() = default;
     Worker(ModuleDescription const&, WorkerParams const&);
-    Worker(Worker const&) = delete;
-    Worker(Worker&) = delete;
 
-  public: // MEMBER FUNCTIONS -- API exposed to EventProcessor, Schedule,
-          // and EndPathExecutor
-    void beginJob();
+    void beginJob(detail::SharedResources const&);
     void endJob();
     void respondToOpenInputFile(FileBlock const& fb);
     void respondToCloseInputFile(FileBlock const& fb);
@@ -91,12 +75,11 @@ namespace art {
     void respondToCloseOutputFiles(FileBlock const& fb);
     bool doWork(Transition, Principal&, ModuleContext const&);
 
-    void doWork_event(tbb::task* workerInPathDoneTask,
+    void doWork_event(hep::concurrency::WaitingTaskPtr workerInPathDoneTask,
                       EventPrincipal&,
                       ModuleContext const&);
 
-    // This is used to do trigger results insertion,
-    // and to run workers on the end path.
+    // This is used only to do trigger results insertion.
     void doWork_event(EventPrincipal&, ModuleContext const&);
 
     ScheduleID
@@ -124,14 +107,13 @@ namespace art {
     std::size_t timesFailed() const;
     std::size_t timesExcept() const;
 
-  public: // Tasking Structure
     void runWorker(EventPrincipal&, ModuleContext const&);
 
-  protected: // MEMBER FUNCTIONS -- API implementation classes must provide
+  protected:
     virtual std::string workerType() const = 0;
     virtual hep::concurrency::SerialTaskQueueChain* implSerialTaskQueueChain()
       const = 0;
-    virtual void implBeginJob() = 0;
+    virtual void implBeginJob(detail::SharedResources const& resources) = 0;
     virtual void implEndJob() = 0;
     virtual bool implDoBegin(RunPrincipal& rp, ModuleContext const& mc) = 0;
     virtual bool implDoEnd(RunPrincipal& rp, ModuleContext const& mc) = 0;
@@ -139,18 +121,17 @@ namespace art {
     virtual bool implDoEnd(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
     virtual bool implDoProcess(EventPrincipal&, ModuleContext const&) = 0;
 
-  private: // MEMBER FUNCTIONS -- API implementation classes must use
-           // to provide their API to us
+  private:
+    // API implementation classes must use to provide their API to us
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
     virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
-  private: // MEMBER DATA
     ScheduleID const scheduleID_;
     ModuleDescription const md_;
-    std::atomic<ActionTable const*> actions_;
-    std::atomic<ActivityRegistry const*> actReg_;
+    ActionTable const& actions_;
+    ActivityRegistry const& actReg_;
     std::atomic<int> state_{Ready};
 
     // if state is 'exception'
@@ -170,7 +151,7 @@ namespace art {
     // modules the workers are shared.  For replicated modules each
     // schedule has its own private worker copies (the whole reason
     // schedules exist!).
-    hep::concurrency::WaitingTaskList waitingTasks_{};
+    hep::concurrency::WaitingTaskList waitingTasks_;
 
   protected:
     std::atomic<std::size_t> counts_visited_{};

@@ -41,7 +41,8 @@ namespace art::detail {
   {}
 
   std::shared_ptr<ServiceWrapperBase>
-  ServiceCacheEntry::getService(art::ActivityRegistry& reg,
+  ServiceCacheEntry::getService(ActivityRegistry& reg,
+                                SharedResources& resources,
                                 ServiceStack& creationOrder) const
   {
     if (is_interface()) {
@@ -49,7 +50,7 @@ namespace art::detail {
         // No cached instance, we need to make it.
         if (!interface_impl_->service_) {
           // The service provider has no cached instance, have it make one.
-          interface_impl_->createService(reg, creationOrder);
+          interface_impl_->createService(reg, resources, creationOrder);
         }
         // Convert the service provider wrapper to a service interface
         // wrapper, and use that as our cached instance.
@@ -59,18 +60,20 @@ namespace art::detail {
     }
     if (!service_) {
       // No cached instance, we need to make it.
-      createService(reg, creationOrder);
+      createService(reg, resources, creationOrder);
     }
     return service_;
   }
 
   std::shared_ptr<ServiceWrapperBase>
-  ServiceCacheEntry::makeService(art::ActivityRegistry& reg) const
+  ServiceCacheEntry::makeService(ActivityRegistry& reg,
+                                 detail::SharedResources& resources) const
   {
     assert(is_impl() && "ServiceCacheEntry::makeAndCacheService called on a "
                         "service interface!");
     try {
-      return dynamic_cast<ServiceLGMHelper&>(*helper_).make(config_, reg);
+      return dynamic_cast<ServiceLGMHelper&>(*helper_).make(
+        config_, reg, resources);
     }
     catch (fhicl::detail::validationException const& e) {
       std::ostringstream err_stream;
@@ -110,12 +113,13 @@ namespace art::detail {
   }
 
   void
-  ServiceCacheEntry::forceCreation(art::ActivityRegistry& reg) const
+  ServiceCacheEntry::forceCreation(ActivityRegistry& reg,
+                                   SharedResources& resources) const
   {
     assert(is_impl() &&
            "ServiceCacheEntry::forceCreation called on a service interface!");
     if (!service_) {
-      service_ = makeService(reg);
+      service_ = makeService(reg, resources);
     }
   }
 
@@ -134,14 +138,15 @@ namespace art::detail {
   }
 
   void
-  ServiceCacheEntry::createService(art::ActivityRegistry& reg,
+  ServiceCacheEntry::createService(ActivityRegistry& reg,
+                                   SharedResources& resources,
                                    ServiceStack& creationOrder) const
   {
     assert(is_impl() &&
            "ServiceCacheEntry::createService called on a service interface!");
     // When we actually create the Service object, we have to
     // remember the order of creation.
-    service_ = makeService(reg);
+    service_ = makeService(reg, resources);
     creationOrder.push(service_);
   }
 

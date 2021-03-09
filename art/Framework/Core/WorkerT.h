@@ -7,6 +7,7 @@
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleType.h"
+#include "art/Utilities/SharedResource.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <cstddef>
@@ -43,7 +44,7 @@ namespace art {
     std::string workerType() const override;
     hep::concurrency::SerialTaskQueueChain* implSerialTaskQueueChain()
       const override;
-    void implBeginJob() override;
+    void implBeginJob(detail::SharedResources const&) override;
     void implEndJob() override;
     void implRespondToOpenInputFile(FileBlock const&) override;
     void implRespondToCloseInputFile(FileBlock const&) override;
@@ -61,6 +62,10 @@ namespace art {
     std::shared_ptr<T> module_;
   };
 
+  namespace detail {
+    class SharedModule;
+  }
+
   // This is called directly by the make_worker function created by
   // the DEFINE_ART_MODULE macro.
   template <typename T>
@@ -70,9 +75,12 @@ namespace art {
     : Worker{md, wp}, module_{module}
   {
     if (wp.scheduleID_ == ScheduleID::first()) {
-      // We only want to register the products once, not once for
-      // every schedule...
+      // We only want to register the products (and any shared
+      // resources) once, not once for every schedule...
       module_->registerProducts(wp.producedProducts_, md);
+      if constexpr (std::is_base_of_v<detail::SharedModule, T>) {
+        wp.resources_.registerSharedResources(module_->sharedResources());
+      }
     } else {
       // ...but we need to fill product descriptions for each module
       // copy.
@@ -87,10 +95,6 @@ namespace art {
     return module_->workerType();
   }
 
-  namespace detail {
-    class SharedModule;
-  }
-
   template <typename T>
   hep::concurrency::SerialTaskQueueChain*
   WorkerT<T>::implSerialTaskQueueChain() const
@@ -103,9 +107,9 @@ namespace art {
 
   template <typename T>
   void
-  WorkerT<T>::implBeginJob()
+  WorkerT<T>::implBeginJob(detail::SharedResources const& resources)
   {
-    module_->doBeginJob();
+    module_->doBeginJob(resources);
   }
 
   template <typename T>

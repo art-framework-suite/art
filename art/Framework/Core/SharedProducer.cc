@@ -12,9 +12,9 @@ namespace art {
   }
 
   void
-  SharedProducer::setupQueues()
+  SharedProducer::setupQueues(detail::SharedResources const& resources)
   {
-    createQueues();
+    createQueues(resources);
   }
 
   void

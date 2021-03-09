@@ -4,7 +4,8 @@
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 

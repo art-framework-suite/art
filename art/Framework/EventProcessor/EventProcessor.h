@@ -13,6 +13,7 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/ProducingServiceSignals.h"
 #include "art/Framework/Core/Schedule.h"
+#include "art/Framework/Core/SharedException.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Framework/Core/detail/EnabledModules.h"
 #include "art/Framework/EventProcessor/Scheduler.h"
@@ -22,21 +23,19 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
+#include "art/Utilities/GlobalTaskGroup.h"
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/ScheduleIteration.h"
+#include "art/Utilities/SharedResource.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "cetlib/cpu_timer.h"
-#include "hep_concurrency/SerialTaskQueue.h"
+#include "fhiclcpp/fwd.h"
 #include "hep_concurrency/thread_sanitize.h"
 
 #include <atomic>
 #include <exception>
 #include <memory>
-
-namespace fhicl {
-  class ParameterSet;
-}
 
 namespace art {
 
@@ -49,7 +48,6 @@ namespace art {
     enum StatusCode { epSuccess = 0, epSignal = 3 };
 
     // Special Member Functions
-    ~EventProcessor();
     explicit EventProcessor(fhicl::ParameterSet const& pset,
                             detail::EnabledModules const& enabled_modules);
     EventProcessor(EventProcessor const&) = delete;
@@ -68,22 +66,20 @@ namespace art {
     //
     //  Return values:
     //
-    //     epSignal: processing terminated early, SIGUSR2 encountered
+    //    epSignal: processing terminated early, SIGUSR2 encountered
     //    epSuccess: all other cases
     //
     StatusCode runToCompletion();
 
   private:
-    class ProcessAllEventsTask;
     class EndPathTask;
     class EndPathRunnerTask;
 
     // Event-loop infrastructure
-    void processAllEventsAsync(tbb::task* EventLoopTask, ScheduleID sid);
-    void readAndProcessAsync(tbb::task* EventLoopTask, ScheduleID sid);
-    void processEventAsync(tbb::task* EventLoopTask, EventPrincipal& ep, ScheduleID sid);
-    void processEndPathAsync(tbb::task* EventLoopTask, ScheduleID sid);
-    void finishEventAsync(tbb::task* eventLoopTask, ScheduleID sid);
+    void processAllEventsAsync(ScheduleID sid);
+    void readAndProcessAsync(ScheduleID sid);
+    void processEventAsync(ScheduleID sid);
+    void finishEventAsync(ScheduleID sid);
 
     template <Level L>
     bool levelsToProcess();
@@ -144,14 +140,22 @@ namespace art {
     template <typename T>
     using tsan_unique_ptr = hep::concurrency::thread_sanitize_unique_ptr<T>;
 
-    Schedule& schedule(ScheduleID const id)
+    Schedule&
+    schedule(ScheduleID const id)
     {
       return schedules_->at(id);
     }
 
-    Schedule& main_schedule()
+    Schedule&
+    main_schedule()
     {
       return schedule(ScheduleID::first());
+    }
+
+    actions::ActionCodes
+    error_action(cet::exception& e) const
+    {
+      return scheduler_->actionTable().find(e.root_cause());
     }
 
     // Next containment level to move to.
@@ -177,7 +181,7 @@ namespace art {
 
     // A signal/slot system for registering a callback to be called
     // when a specific action is taken by the framework.
-    tsan<ActivityRegistry> actReg_{};
+    ActivityRegistry actReg_{};
 
     // Used to update various output fields in logged messages.
     tsan<MFStatusUpdater> mfStatusUpdater_{actReg_};
@@ -208,6 +212,10 @@ namespace art {
     // scheduler.
     tsan<Scheduler> scheduler_;
 
+    std::unique_ptr<GlobalTaskGroup> taskGroup_{nullptr};
+
+    detail::SharedResources sharedResources_{};
+
     ScheduleIteration scheduleIteration_;
 
     // The service subsystem.
@@ -222,8 +230,6 @@ namespace art {
 
     // The schedule runners.
     tsan<std::map<ScheduleID, Schedule>> schedules_{};
-
-    tsan<hep::concurrency::SerialTaskQueue> endPathQueue_{};
 
     // The currently open primary input file.
     tsan_unique_ptr<FileBlock> fb_{nullptr};
@@ -243,11 +249,9 @@ namespace art {
     // Are we configured to process empty subruns?
     bool const handleEmptySubRuns_;
 
-    // Has an exception been captured already?
-    std::atomic<bool> deferredExceptionPtrIsSet_{false};
-
-    // An exception captured from event processing.
-    tsan<std::exception_ptr> deferredExceptionPtr_{};
+    // Used to communicate exceptions from worker threads to the main
+    // thread.
+    SharedException sharedException_;
 
     // Set to true for the first event in a subRun to signal that we
     // should not advance to the next entry.  Note that this is shared

@@ -1,11 +1,15 @@
-simple_plugin(MyService "service" NO_INSTALL LIBRARIES PRIVATE messagefacility::MF_MessageLogger)
-simple_plugin(MySharedService "service" NO_INSTALL)
+build_plugin(MyService "service" NO_INSTALL BASENAME_ONLY
+  LIBRARIES PRIVATE messagefacility::MF_MessageLogger)
 
-simple_plugin(MyServiceUsingIface "service" NO_INSTALL
-  LIBRARIES art_Framework_Services_Optional_TrivialFileDelivery_service)
+build_plugin(MySharedService "service" NO_INSTALL BASENAME_ONLY)
 
-simple_plugin(MyServiceUser "module" NO_INSTALL)
-simple_plugin(ReplicatedRNG "module" NO_INSTALL)
+build_plugin(MyServiceUsingIface "service" NO_INSTALL BASENAME_ONLY
+  LIBRARIES PRIVATE art_test::MyService_service)
+
+build_plugin(MyServiceUser "module" NO_INSTALL BASENAME_ONLY
+  LIBRARIES PRIVATE art_test::MyService_service)
+
+build_plugin(ReplicatedRNG "module" NO_INSTALL BASENAME_ONLY)
 
 cet_test(MyService_t HANDBUILT
   TEST_EXEC art

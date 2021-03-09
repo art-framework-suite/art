@@ -6,7 +6,6 @@
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/RecursiveMutex.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <cstdlib>
@@ -100,7 +99,7 @@ namespace art {
     string const& module_label,
     array<vector<ProductInfo>, NumBranchTypes> const& consumables)
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     consumables_.emplace(module_label, consumables);
   }
 
@@ -110,7 +109,7 @@ namespace art {
                                         ProductInfo const& productInfo)
   {
 
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     if (cet::binary_search_all(consumables_[md.moduleLabel()][bt],
                                productInfo)) {
       // Found it, everything is ok.
@@ -130,7 +129,7 @@ namespace art {
   void
   ConsumesInfo::showMissingConsumes() const
   {
-    hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
+    std::lock_guard sentry{mutex_};
     for (auto const& modLabelAndarySetPI : missingConsumes_) {
       auto const& modLabel = modLabelAndarySetPI.first;
       auto const& arySetPI = modLabelAndarySetPI.second;
