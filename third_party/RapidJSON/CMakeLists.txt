@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.19...3.20 FATAL_ERROR)
 ########################################################################
 # RapidJSON
 #
@@ -19,6 +20,11 @@ set(ENABLE_INSTRUMENTATION_OPT OFF CACHE BOOL "")
 
 # Subdirectory. No automatic build.
 add_subdirectory(rapidjson EXCLUDE_FROM_ALL)
+
+#  Make sure the tests get built if we need them.
+if (RAPIDJSON_BUILD_TESTS)
+  add_custom_target(RapidJSON_tests ALL DEPENDS tests)
+endif()
 
 ########################################################################
 # Post-processing for relocatability.
