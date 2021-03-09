@@ -29,7 +29,7 @@ namespace {
     for (auto const& element : fileIndex) {
       if (element.getEntryType() != art::FileIndex::kEvent)
         continue;
-      result.emplace(element.entry_, element.eventID_);
+      result.emplace(element.entry, element.eventID);
     }
     return result;
   }
@@ -292,7 +292,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
     for (auto const& eID : eIDseq) {
       auto const it = fileIndex.findPosition(eID.subRunID(), true);
       if (it != std::cend(fileIndex)) {
-        subRunEntries.emplace_back(it->entry_);
+        subRunEntries.emplace_back(it->entry);
       } else {
         throw Exception(errors::NotFound, "NO_SUBRUN")
           << "- Unable to find an entry in the SubRun tree corresponding to "
@@ -306,7 +306,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
     for (auto const& eID : eIDseq) {
       auto const it = fileIndex.findPosition(eID.runID(), true);
       if (it != std::cend(fileIndex)) {
-        runEntries.emplace_back(it->entry_);
+        runEntries.emplace_back(it->entry);
       } else {
         throw Exception(errors::NotFound, "NO_RUN")
           << "- Unable to find an entry in the Run tree corresponding to "
