@@ -11,7 +11,10 @@ cmake_minimum_required(VERSION 3.19...3.20 FATAL_ERROR)
 set(CMAKE_BUILD_TYPE Release)
 set(RAPIDJSON_BUILD_DOC OFF CACHE BOOL "")
 set(RAPIDJSON_BUILD_EXAMPLES OFF CACHE BOOL "")
-set(ENABLE_INSTRUMENTATION_OPT OFF CACHE BOOL "")
+set(RAPIDJSON_BUILD_TESTS OFF CACHE BOOL "") # Doesn't work as submodule
+if (RAPIDJSON_BUILD_TESTS) # When we (eventually) can.
+  set(RAPIDJSON_ENABLE_INSTRUMENTATION_OPT OFF CACHE BOOL "") # Valgrind
+endif()
 
 ########################################################################
 # Manual installation and export of RapidJSON because their installation
