@@ -247,7 +247,12 @@ function(art_make)
   ##################
   # Now actually put everything together.
 
-  # Plugins first.
+  # Find sources for a library and make it.
+  if (NOT AM_NO_LIB)
+    art_make_library(${cet_make_args} LIBRARY_NAME_VAR library_name)
+  endif()
+
+  # Plugins.
   if (plugin_sources AND NOT (AM_LIB_ONLY OR AM_NO_PLUGINS))
     cet_regex_escape(VAR e_plugin_types ${plugin_types})
     list(JOIN e_plugin_types "|" plugin_regex)
@@ -257,11 +262,6 @@ function(art_make)
           ${${CMAKE_MATCH_3}_args} SOURCE ${plugin_source})
       endif()
     endforeach()
-  endif()
-
-  # Find sources for a library and make it.
-  if (NOT AM_NO_LIB)
-    art_make_library(${cet_make_args} LIBRARY_NAME_VAR library_name)
   endif()
 
   # Finish off with the dictionary.
