@@ -19,16 +19,11 @@ namespace art {
     explicit EventSelector(std::vector<std::string> const& pathspecs);
 
     bool acceptEvent(TriggerResults const&);
-    std::shared_ptr<TriggerResults> maskTriggerResults(
-      TriggerResults const& inputResults);
 
   private:
     struct BitInfo {
-      BitInfo(unsigned const pos, bool const state)
-        : pos_{pos}, accept_state_{state}
-      {}
-      unsigned int pos_{};
-      bool accept_state_{false};
+      unsigned int pos{};
+      bool accept_state{false};
     };
 
     void init(std::vector<std::string> const& paths,
@@ -38,23 +33,7 @@ namespace art {
                       hlt::HLTState const& s = hlt::Ready) const;
     bool acceptAllBits(std::vector<BitInfo> const&,
                        HLTGlobalStatus const&) const;
-    bool containsExceptions(HLTGlobalStatus const&) const;
     bool selectionDecision(HLTGlobalStatus const&) const;
-
-    static std::vector<std::vector<std::string>::const_iterator>
-    matching_triggers(std::vector<std::string> const& trigs,
-                      std::string const&);
-    static bool identical(std::vector<bool> const&, std::vector<bool> const&);
-    static bool identical(EventSelector const&,
-                          EventSelector const&,
-                          unsigned int);
-    static std::vector<bool> expandDecisionList(std::vector<BitInfo> const&,
-                                                bool PassOrFail,
-                                                unsigned int);
-    static bool overlapping(std::vector<bool> const&, std::vector<bool> const&);
-    static bool subset(std::vector<bool> const&, std::vector<bool> const&);
-    static std::vector<bool> combine(std::vector<bool> const&,
-                                     std::vector<bool> const&);
 
     bool accept_all_{false};
     std::vector<BitInfo> absolute_acceptors_{};
@@ -66,8 +45,6 @@ namespace art {
     bool psetID_initialized_{false};
     fhicl::ParameterSetID psetID_{};
     std::vector<std::string> pathspecs_{};
-    int nTriggerNames_{0};
-    bool notStarPresent_{false};
   };
 
 } // namespace art

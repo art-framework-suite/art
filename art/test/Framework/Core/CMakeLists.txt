@@ -62,8 +62,7 @@ cet_test(RegistryTemplate_t
   LIBRARIES PRIVATE art::Framework_Services_Registry
 )
 
-cet_test(parse_path_spec_t
-  SOURCE parse_path_spec_t.cpp
+cet_test(parse_path_spec_t USE_BOOST_UNIT
   LIBRARIES PRIVATE art::Framework_Core)
 
 build_plugin(EventCounter "module" NO_INSTALL USE_BOOST_UNIT

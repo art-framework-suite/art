@@ -67,7 +67,7 @@ testone(const Strings& paths,
   const HLTPathStatus ex = HLTPathStatus(art::hlt::Exception);
   const HLTPathStatus ready = HLTPathStatus(art::hlt::Ready);
   for (unsigned int b = 0; b < mask.size(); ++b) {
-    bm[b] = (mask[b] ? pass : fail);
+    bm.at(b) = (mask[b] ? pass : fail);
 
     // There is an alternate version of the function acceptEvent
     // that takes an array of characters as an argument instead
@@ -83,8 +83,8 @@ testone(const Strings& paths,
   }
 
   if (jmask == 8 && mask.size() > 4) {
-    bm[0] = ready;
-    bm[4] = ex;
+    bm.at(0) = ready;
+    bm.at(4) = ex;
     bitArray[0] = (bitArray[0] & 0xfc) | art::hlt::Ready;
     bitArray[1] = (bitArray[1] & 0xfc) | art::hlt::Exception;
   }

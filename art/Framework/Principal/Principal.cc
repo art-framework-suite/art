@@ -443,16 +443,6 @@ namespace art {
       << "Please contact artists@fnal.gov\n";
   }
 
-  // Used by Principal::put to insert the data product provenance.
-  // Used by RootDelayedReader::getProduct_ to replace the product provenance
-  // when merging run and subRun data products.
-  void
-  Principal::insert_pp(Group* grp,
-                       std::unique_ptr<ProductProvenance const>&& pp)
-  {
-    grp->setProductProvenance(move(pp));
-  }
-
   cet::exempt_ptr<ProductProvenance const>
   Principal::branchToProductProvenance(ProductID const& pid) const
   {

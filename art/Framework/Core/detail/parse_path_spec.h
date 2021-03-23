@@ -5,10 +5,9 @@
 #include <utility>
 
 namespace art::detail {
-  void remove_whitespace(std::string&);
-  void parse_path_spec(std::string path_spec,
-                       std::pair<std::string, std::string>& output);
-} // namespace art::detail
+  // Process name <-> Path name
+  std::pair<std::string, std::string> parse_path_spec(std::string path_spec);
+}
 
 #endif /* art_Framework_Core_detail_parse_path_spec_h */
 

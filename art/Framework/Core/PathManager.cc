@@ -12,6 +12,7 @@
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Framework/Core/detail/consumed_products.h"
 #include "art/Framework/Core/detail/graph_algorithms.h"
+#include "art/Framework/Core/detail/remove_whitespace.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
@@ -636,7 +637,12 @@ namespace art {
   }
 
   namespace {
-    string const allowed_path_spec{R"([\*a-zA-Z_][\*\?\w]*)"};
+    // The allowed path-specification is more restricted than what we
+    // formulate here--i.e. a path name cannot begin with a digit.
+    // However, because the FHiCL language does not allow parameter
+    // names to begin with a digit, we do not worry about the overly
+    // permissive regex below.
+    string const allowed_path_spec{R"([\w\*\?]+)"};
     regex const regex{"(\\w+:)?(!|exception@)?(" + allowed_path_spec +
                       ")(&noexception)?"};
   }
@@ -651,8 +657,10 @@ namespace art {
       auto const& ps = mci.modPS;
       auto& graph_info = info_collection[module_name];
       assert(is_observer(graph_info.module_type));
-      auto const path_specs = ps.get<vector<string>>("SelectEvents", {});
-      for (auto const& path_spec : path_specs) {
+      auto path_specs = ps.get<vector<string>>("SelectEvents", {});
+      for (auto& path_spec : path_specs) {
+        detail::remove_whitespace(path_spec);
+
         smatch matches;
         regex_match(path_spec, matches, regex);
         // By the time we have gotten here, all modules have been

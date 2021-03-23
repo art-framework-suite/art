@@ -277,7 +277,7 @@ namespace art {
             path_->state_ = hlt::Exception;
             if (path_->trptr_) {
               // Not the end path.
-              (*path_->trptr_)[path_->bitpos_] =
+              path_->trptr_->at(path_->bitpos_) =
                 HLTPathStatus(path_->state_, idx_);
             }
             auto art_ex =
@@ -302,7 +302,7 @@ namespace art {
           path_->state_ = hlt::Exception;
           if (path_->trptr_) {
             // Not the end path.
-            (*path_->trptr_)[path_->bitpos_] =
+            path_->trptr_->at(path_->bitpos_) =
               HLTPathStatus(path_->state_, idx_);
           }
           group_.may_run(pathsDone_, current_exception());
@@ -390,7 +390,7 @@ namespace art {
       HLTPathStatus const status{state_, idx};
       if (trptr_) {
         // Not the end path.
-        (*trptr_)[bitpos_] = status;
+        trptr_->at(bitpos_) = status;
       }
       actReg_.sPostProcessPath.invoke(pc_, status);
     }

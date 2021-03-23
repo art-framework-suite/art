@@ -30,7 +30,7 @@ namespace {
     // list) pairs.
     vector<pair<string, string>> PPS(paths.size());
     for (size_t i = 0; i < paths.size(); ++i) {
-      art::detail::parse_path_spec(paths[i], PPS[i]);
+      PPS[i] = art::detail::parse_path_spec(paths[i]);
     }
     return std::make_optional<ProcessAndEventSelectors>(
       PPS, triggerPathNames, process_name);

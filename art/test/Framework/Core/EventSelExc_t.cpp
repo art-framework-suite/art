@@ -194,7 +194,7 @@ evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans)
 
   HLTGlobalStatus bm(tr.bit.size());
   for (unsigned int b = 0; b < tr.bit.size(); ++b) {
-    bm[b] = (tr.bit[b]);
+    bm.at(b) = (tr.bit[b]);
     // There is an alternate version of the function acceptEvent
     // that takes an array of characters as an argument instead
     // of a TriggerResults object.  These next few lines build
@@ -203,7 +203,7 @@ evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans)
       bitArray.push_back(0);
     int byteIndex = number_of_trigger_paths / 4;
     int subIndex = number_of_trigger_paths % 4;
-    bitArray[byteIndex] |= (static_cast<unsigned char>(bm[b].state()))
+    bitArray[byteIndex] |= (static_cast<unsigned char>(bm.state(b)))
                            << (subIndex * 2);
     ++number_of_trigger_paths;
   }

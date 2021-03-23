@@ -1,26 +1,16 @@
 #include "art/Framework/Core/detail/parse_path_spec.h"
+#include "art/Framework/Core/detail/remove_whitespace.h"
 
-#include <algorithm>
 #include <string>
 #include <utility>
 
-using namespace std;
-
-void
-art::detail::remove_whitespace(string& s)
+std::pair<std::string, std::string>
+art::detail::parse_path_spec(std::string path)
 {
-  s.erase(remove(s.begin(), s.end(), ' '), s.end());
-  s.erase(remove(s.begin(), s.end(), '\t'), s.end());
-}
-
-void
-art::detail::parse_path_spec(string path, pair<string, string>& pname_path)
-{
-  detail::remove_whitespace(path);
+  remove_whitespace(path);
   auto const pos = path.find(":");
-  if (pos == string::npos) {
-    pname_path = std::make_pair("", path);
-    return;
+  if (pos == std::string::npos) {
+    return std::make_pair("", path);
   }
-  pname_path = make_pair(path.substr(0, pos), path.substr(pos + 1));
+  return std::make_pair(path.substr(0, pos), path.substr(pos + 1));
 }

@@ -8,8 +8,6 @@
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 
-#include <iomanip>
-#include <iostream>
 #include <utility>
 
 using namespace std;
@@ -116,8 +114,7 @@ art::RunPrincipal*
 art::SourceHelper::makeRunPrincipal(RunNumber_t const r,
                                     Timestamp const& startTime) const
 {
-  auto rp = makeRunPrincipal(RunID{r}, startTime);
-  return rp;
+  return makeRunPrincipal(RunID{r}, startTime);
 }
 
 art::SubRunPrincipal*

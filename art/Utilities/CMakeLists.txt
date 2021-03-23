@@ -12,7 +12,6 @@ cet_make_library(
     Globals.cc
     MallocOpts.cc
     PluginSuffixes.cc
-    RegexMatch.cc
     ScheduleID.cc
     SharedResource.cc
     TaskDebugMacros.cc
