@@ -33,11 +33,12 @@ namespace {
     async<art::InEvent>();
 
     art::ServiceHandle<art::TriggerNamesService const> triggerNames;
-    auto const num_paths = triggerNames->size();
+    auto const& trigger_paths = triggerNames->getTrigPaths();
+    auto const num_paths = size(trigger_paths);
     BOOST_TEST(num_paths == size(paths_));
 
     for (std::size_t i{}; i != num_paths; ++i) {
-      BOOST_TEST(triggerNames->getTrigPath(i) == paths_[i]);
+      BOOST_TEST(trigger_paths[i] == paths_[i]);
     }
   }
 

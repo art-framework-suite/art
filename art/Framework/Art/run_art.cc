@@ -22,7 +22,6 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/detail/print_mode.h"
 #include "fhiclcpp/intermediate_table.h"
-#include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -226,7 +225,7 @@ namespace art {
     //
     fhicl::ParameterSet main_pset;
     try {
-      make_ParameterSet(raw_config, main_pset);
+      main_pset = fhicl::ParameterSet::make(raw_config);
     }
     catch (cet::exception const& e) {
       constexpr cet::HorizontalRule rule{36};
@@ -264,8 +263,7 @@ namespace art {
     fhicl::ParameterSet main_pset;
     try {
       // create an intermediate table from the input string
-      fhicl::intermediate_table raw_config;
-      parse_document(config_string, raw_config);
+      auto raw_config = fhicl::parse_document(config_string);
       enabled_modules =
         detail::prune_config_if_enabled(false, true, raw_config);
       // run post-processing
@@ -273,7 +271,7 @@ namespace art {
       BasicPostProcessor bpp;
       bpp.processOptions(vm, raw_config);
       // create the parameter set
-      make_ParameterSet(raw_config, main_pset);
+      main_pset = fhicl::ParameterSet::make(raw_config);
     }
     catch (cet::exception& e) {
       constexpr cet::HorizontalRule rule{36};

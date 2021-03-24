@@ -9,7 +9,6 @@
 #include "boost/graph/graph_utility.hpp"
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/OptionalDelegatedParameter.h"
 #include "fhiclcpp/types/OptionalSequence.h"
@@ -94,7 +93,8 @@ namespace {
           return art::WorkerInPath::ConfigInfo{
             cet::make_exempt_ptr(&info), art::detail::FilterAction::Normal};
         });
-      result.emplace_back(name, std::move(configs));
+      result.emplace_back(art::PathSpec{name, art::PathID::invalid()},
+                          std::move(configs));
     }
     return result;
   }
@@ -160,7 +160,7 @@ namespace {
     paths_to_modules_t result;
     std::vector<string> paths_to_erase;
     for (auto const& pr : paths_to_modules) {
-      auto const& path_name = pr.first;
+      auto const& path_name = pr.first.name;
       auto const& modules = pr.second;
       bool first_module{true};
       bool present{true};
@@ -182,7 +182,7 @@ namespace {
         }
       }
       if (present) {
-        result.push_back(pr);
+        result.emplace_back(pr);
         paths_to_erase.push_back(path_name);
       }
     }
@@ -190,7 +190,7 @@ namespace {
       auto const path_it =
         std::find_if(paths_to_modules.cbegin(),
                      paths_to_modules.cend(),
-                     [&path](auto const& pr) { return pr.first == path; });
+                     [&path](auto const& pr) { return pr.first.name == path; });
       assert(path_it != paths_to_modules.cend());
       paths_to_modules.erase(path_it);
     }
@@ -212,7 +212,7 @@ namespace {
   {
     name_set_t result;
     for (auto const& pr : paths_to_modules) {
-      result.insert(pr.first);
+      result.insert(pr.first.name);
     }
     return result;
   }
@@ -367,10 +367,8 @@ main(int argc, char** argv) try {
     return 1;
 
   string const filename{argv[1]};
-
-  ParameterSet pset;
   cet::filepath_maker maker{};
-  make_ParameterSet(filename, maker, pset);
+  auto const pset = fhicl::ParameterSet::make(filename, maker);
   Table<art::test::TopLevelTable> table{pset};
   auto const& process_name = table().process_name();
   auto const& test_properties = table().test_properties();
@@ -402,11 +400,15 @@ main(int argc, char** argv) try {
   // Assemble all the information for products to be produced.
   std::map<std::string, std::set<art::ProductInfo>> produced_products{};
   for (auto const& path : trigger_paths) {
-    fillProducesInfo(
-      pset, process_name, path.first, path.second, produced_products, modules);
+    fillProducesInfo(pset,
+                     process_name,
+                     path.first.name,
+                     path.second,
+                     produced_products,
+                     modules);
   }
 
-  // Now go through an assemble the rest of the graph info objects,
+  // Now go through and assemble the rest of the graph info objects,
   // based on the consumes clauses.  The reason this is separate from
   // the filling of the produces information is that we want to allow
   // users to specify consumes dependencies at this stage, checking
@@ -421,7 +423,7 @@ main(int argc, char** argv) try {
     for (auto const& path : trigger_paths) {
       fillModifierInfo(pset,
                        process_name,
-                       path.first,
+                       path.first.name,
                        path.second,
                        produced_products,
                        modules);

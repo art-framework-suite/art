@@ -10,7 +10,6 @@
 #include "canvas/Utilities/Exception.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/intermediate_table.h"
-#include "fhiclcpp/make_ParameterSet.h"
 
 #include <tuple>
 #include <vector>
@@ -81,13 +80,11 @@ BOOST_AUTO_TEST_CASE(Construct)
                          "---- Configuration END\n");
 
   for (auto const& [config_string, error_code, error_msg] : test_sets) {
-    fhicl::intermediate_table raw_config;
-    parse_document(config_string, raw_config);
+    auto raw_config = fhicl::parse_document(config_string);
     auto const enabled_modules =
       detail::prune_config_if_enabled(false, true, raw_config);
     try {
-      fhicl::ParameterSet ps;
-      make_ParameterSet(raw_config, ps);
+      auto const ps = fhicl::ParameterSet::make(raw_config);
       PathManager pm(
         ps, preg, productsToProduce, atable, areg, enabled_modules);
       assert(error_code == 0);

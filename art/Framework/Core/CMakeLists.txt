@@ -55,14 +55,13 @@ cet_make_library(HEADERS_TARGET SOURCE
     detail/consumed_products.cc
     detail/graph_algorithms.cc
     detail/issue_reports.cc
-    detail/parse_path_spec.cc
-    detail/remove_whitespace.cc
     detail/skip_non_replicated.cc
     detail/verify_names.cc
   LIBRARIES
   PUBLIC
     art::Framework_Services_Optional_RandomNumberGenerator_service
     art::Framework_Services_System_FileCatalogMetadata_service
+    art::Framework_Services_System_TriggerNamesService_service
     art::Framework_Services_FileServiceInterfaces
     art::Framework_Principal
     art::Framework_Services_Registry

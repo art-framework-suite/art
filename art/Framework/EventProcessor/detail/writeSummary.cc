@@ -59,12 +59,12 @@ namespace {
   using WorkersInPathCounts = std::vector<WorkerInPathCounts>;
 
   void
-  workersInPathTriggerReport(int const bitPosition,
+  workersInPathTriggerReport(art::PathID const path_id,
                              WorkersInPathCounts const& workersInPathCounts)
   {
     for (auto const& wip_counts : workersInPathCounts) {
       LogPrint("ArtSummary")
-        << "TrigReport " << std::right << setw(10) << bitPosition << " "
+        << "TrigReport " << std::right << setw(10) << to_string(path_id) << " "
         << std::right << setw(10) << wip_counts.visited << " " << std::right
         << setw(10) << wip_counts.passed << " " << std::right << setw(10)
         << wip_counts.failed << " " << std::right << setw(10)
@@ -136,11 +136,10 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
                            << " " << std::right << setw(10) << "Error"
                            << " "
                            << "Name";
-    std::vector<TriggerCounts> counts_per_path{};
+    std::map<PathID, TriggerCounts> counts_per_path{};
     for (auto const& tpi : tpis) {
-      counts_per_path.resize(tpi.paths().size());
       for (auto const& path : tpi.paths()) {
-        auto& counts = counts_per_path[path.bitPosition()];
+        auto& counts = counts_per_path[path.pathID()];
         counts.path_name = path.name(); // No increment!
         counts.run += path.timesRun();
         counts.passed += path.timesPassed();
@@ -148,10 +147,9 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
         counts.except += path.timesExcept();
       }
     }
-    for (std::size_t bitPos = 0; bitPos != size(counts_per_path); ++bitPos) {
-      auto const& counts = counts_per_path[bitPos];
+    for (auto const& [pathID, counts] : counts_per_path) {
       LogPrint("ArtSummary")
-        << "TrigReport " << std::right << setw(10) << bitPos << " "
+        << "TrigReport " << std::right << setw(10) << to_string(pathID) << " "
         << std::right << setw(10) << counts.run << " " << std::right << setw(10)
         << counts.passed << " " << std::right << setw(10) << counts.failed
         << " " << std::right << setw(10) << counts.except << " "
@@ -181,14 +179,10 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
         << setw(10) << epCounts.except;
     }
 
-    // std::tuple<...> guarantees weak-ordering, so it is a suitable
-    // key type for an std::map.
-    using path_data_t = std::tuple<int, std::string>; // path-name, bit position
-    std::map<path_data_t, WorkersInPathCounts> counts_per_worker_in_path;
+    std::map<PathSpec, WorkersInPathCounts> counts_per_worker_in_path;
     for (auto const& tpi : tpis) {
       for (auto const& path : tpi.paths()) {
-        path_data_t const path_data{path.bitPosition(), path.name()};
-        auto& counts_per_worker = counts_per_worker_in_path[path_data];
+        auto& counts_per_worker = counts_per_worker_in_path[path.pathSpec()];
         if (counts_per_worker.empty() && !path.workersInPath().empty()) {
           counts_per_worker.resize(path.workersInPath().size());
         }
@@ -207,14 +201,12 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
         }
       }
     }
-    for (auto const& [path_data, worker_in_path_counts] :
+    for (auto const& [path_spec, worker_in_path_counts] :
          counts_per_worker_in_path) {
-      auto const& path_name = std::get<std::string>(path_data);
-      auto const& bit_position = std::get<int>(path_data);
       LogPrint("ArtSummary") << "";
       LogPrint("ArtSummary")
         << "TrigReport "
-        << "---------- Modules in path: " << path_name << " ------------";
+        << "---------- Modules in path: " << path_spec.name << " ------------";
       LogPrint("ArtSummary")
         << "TrigReport " << std::right << setw(10) << "Trig Bit#"
         << " " << std::right << setw(10) << "Visited"
@@ -223,7 +215,7 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
         << " " << std::right << setw(10) << "Error"
         << " "
         << "Name";
-      workersInPathTriggerReport(bit_position, worker_in_path_counts);
+      workersInPathTriggerReport(path_spec.path_id, worker_in_path_counts);
     }
   }
 

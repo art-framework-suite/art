@@ -2,7 +2,7 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/detail/RegexMatch.h"
-#include "art/Framework/Core/detail/remove_whitespace.h"
+#include "art/Utilities/detail/remove_whitespace.h"
 #include "canvas/Persistency/Common/HLTPathStatus.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
 #include "canvas/Utilities/Exception.h"
@@ -100,7 +100,7 @@ namespace art {
 
   void
   EventSelector::init(vector<string> const& pathspecs,
-                      vector<string> const& trigger_path_names)
+                      vector<string> const& trigger_path_specs)
   {
     accept_all_ = false;
     absolute_acceptors_.clear();
@@ -161,7 +161,7 @@ namespace art {
       // 'specifier' now corresponds to the real trigger-path name,
       // free of any decorations.
       string const& realname{specifier};
-      auto const matches = regexMatch(trigger_path_names, realname);
+      auto const matches = regexMatch(trigger_path_specs, realname);
       if (matches.empty()) {
         if (is_glob(realname)) {
           mf::LogWarning("Configuration")
@@ -181,11 +181,11 @@ namespace art {
         }
       }
 
-      auto makeBitInfoPass = [&trigger_path_names](auto m) {
-        return BitInfo{path_position(trigger_path_names, m), true};
+      auto makeBitInfoPass = [&trigger_path_specs](auto m) {
+        return BitInfo{path_position(trigger_path_specs, m), true};
       };
-      auto makeBitInfoFail = [&trigger_path_names](auto m) {
-        return BitInfo{path_position(trigger_path_names, m), false};
+      auto makeBitInfoFail = [&trigger_path_specs](auto m) {
+        return BitInfo{path_position(trigger_path_specs, m), false};
       };
 
       if (!negative_criterion && !noex_demanded && !exception_spec) {
@@ -216,7 +216,7 @@ namespace art {
         }
 
         if (matches.size() == 1) {
-          BitInfo bi{path_position(trigger_path_names, matches[0]), false};
+          BitInfo bi{path_position(trigger_path_specs, matches[0]), false};
           absolute_acceptors_.push_back(bi);
         } else {
           vector<BitInfo> mustfail;
@@ -237,7 +237,7 @@ namespace art {
         }
 
         if (matches.size() == 1) {
-          BitInfo bi{path_position(trigger_path_names, matches[0]), false};
+          BitInfo bi{path_position(trigger_path_specs, matches[0]), false};
           conditional_acceptors_.push_back(bi);
         } else {
           vector<BitInfo> mustfail;
@@ -278,9 +278,9 @@ namespace art {
            "to\n"
         << "the art developers at artists@fnal.gov.\n";
     }
-    auto const trigger_path_names =
+    auto const trigger_path_specs =
       pset.get<vector<string>>("trigger_paths", {});
-    if (trigger_path_names.size() != tr.size()) {
+    if (trigger_path_specs.size() != tr.size()) {
       throw Exception(errors::Unknown)
         << "EventSelector::acceptEvent: Trigger names vector and\n"
         << "TriggerResults are different sizes.  This should be impossible,\n"
@@ -288,7 +288,7 @@ namespace art {
         << "the art developers.\n";
     }
 
-    init(pathspecs_, trigger_path_names);
+    init(pathspecs_, trigger_path_specs);
     psetID_ = tr.parameterSetID();
     psetID_initialized_ = true;
     return selectionDecision(tr);

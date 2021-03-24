@@ -353,7 +353,7 @@ namespace art {
     // We don't worry about providing the sorted list of module names
     // for the end_path right now.  If users decide it is necessary to
     // know what they are, then we can provide them.
-    PathContext const pc{sc_, PathContext::end_path(), 0, {}};
+    PathContext const pc{sc_, PathContext::end_path_spec(), {}};
     for (auto ow : outputWorkers_) {
       ModuleContext const mc{pc, ow->description()};
       actReg_.sPreWriteEvent.invoke(mc);

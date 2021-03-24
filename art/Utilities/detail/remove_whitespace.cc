@@ -1,4 +1,4 @@
-#include "art/Framework/Core/detail/remove_whitespace.h"
+#include "art/Utilities/detail/remove_whitespace.h"
 
 #include "boost/algorithm/string.hpp"
 #include "boost/range/algorithm_ext.hpp"

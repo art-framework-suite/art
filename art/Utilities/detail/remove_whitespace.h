@@ -1,5 +1,5 @@
-#ifndef art_Framework_Core_detail_remove_whitespace_h
-#define art_Framework_Core_detail_remove_whitespace_h
+#ifndef art_Utilities_detail_remove_whitespace_h
+#define art_Utilities_detail_remove_whitespace_h
 
 #include <string>
 
@@ -8,7 +8,7 @@ namespace art::detail {
   bool has_whitespace(std::string const& str);
 }
 
-#endif /* art_Framework_Core_detail_remove_whitespace_h */
+#endif /* art_Utilities_detail_remove_whitespace_h */
 
 // Local Variables:
 // mode: c++

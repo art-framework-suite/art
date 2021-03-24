@@ -45,7 +45,8 @@ namespace art {
          GlobalTaskGroup&) noexcept;
 
     ScheduleID scheduleID() const;
-    int bitPosition() const;
+    PathSpec const& pathSpec() const;
+    PathID pathID() const;
     std::string const& name() const;
     std::vector<WorkerInPath> const& workersInPath() const;
     hlt::HLTState state() const;
@@ -88,7 +89,7 @@ namespace art {
     ActionTable const& actionTable_;
     ActivityRegistry const& actReg_;
     PathContext const pc_;
-    int const bitpos_;
+    size_t const pathPosition_;
     // Note: threading: We clear their counters.
     std::vector<WorkerInPath> workers_;
     // The PathManager trigger paths info actually owns this.

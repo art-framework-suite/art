@@ -4,9 +4,8 @@
 
 #include "art/Framework/Art/detail/prune_configuration.h"
 #include "canvas/Utilities/Exception.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/intermediate_table.h"
-#include "fhiclcpp/make_ParameterSet.h"
+#include "fhiclcpp/parse.h"
 
 #include <string>
 
@@ -17,10 +16,7 @@ namespace {
   void
   check_configuration(std::string const& config) noexcept(false)
   {
-    fhicl::intermediate_table raw_config;
-    parse_document(config, raw_config);
-    fhicl::ParameterSet ps;
-    make_ParameterSet(raw_config, ps);
+    auto raw_config = fhicl::parse_document(config);
     detail::prune_config_if_enabled(false, true, raw_config);
   }
 

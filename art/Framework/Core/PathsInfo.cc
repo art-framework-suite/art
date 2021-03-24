@@ -44,7 +44,7 @@ namespace art {
     }
     TDEBUG_FUNC_SI(5, pc.scheduleID())
       << "Made path " << std::hex << &paths_.back() << std::dec
-      << " bitPos: " << pc.bitPosition() << " name: " << pc.pathName();
+      << " pathID: " << to_string(pc.pathID()) << " name: " << pc.pathName();
   }
 
   vector<Path>&

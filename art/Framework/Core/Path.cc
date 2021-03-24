@@ -6,6 +6,8 @@
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
@@ -45,7 +47,8 @@ namespace art {
     : actionTable_{actions}
     , actReg_{actReg}
     , pc_{pc}
-    , bitpos_{pc.bitPosition()}
+    , pathPosition_{ServiceHandle<TriggerNamesService>()->index_for(
+        pc_.pathID())}
     , workers_{move(workers)}
     , trptr_{pathResults}
     , taskGroup_{taskGroup}
@@ -59,10 +62,16 @@ namespace art {
     return pc_.scheduleID();
   }
 
-  int
-  Path::bitPosition() const
+  PathSpec const&
+  Path::pathSpec() const
   {
-    return bitpos_;
+    return pc_.pathSpec();
+  }
+
+  PathID
+  Path::pathID() const
+  {
+    return pc_.pathID();
   }
 
   string const&
@@ -277,7 +286,7 @@ namespace art {
             path_->state_ = hlt::Exception;
             if (path_->trptr_) {
               // Not the end path.
-              path_->trptr_->at(path_->bitpos_) =
+              path_->trptr_->at(path_->pathPosition_) =
                 HLTPathStatus(path_->state_, idx_);
             }
             auto art_ex =
@@ -302,7 +311,7 @@ namespace art {
           path_->state_ = hlt::Exception;
           if (path_->trptr_) {
             // Not the end path.
-            path_->trptr_->at(path_->bitpos_) =
+            path_->trptr_->at(path_->pathPosition_) =
               HLTPathStatus(path_->state_, idx_);
           }
           group_.may_run(pathsDone_, current_exception());
@@ -390,7 +399,7 @@ namespace art {
       HLTPathStatus const status{state_, idx};
       if (trptr_) {
         // Not the end path.
-        trptr_->at(bitpos_) = status;
+        trptr_->at(pathPosition_) = status;
       }
       actReg_.sPostProcessPath.invoke(pc_, status);
     }

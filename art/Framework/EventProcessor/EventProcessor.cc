@@ -39,7 +39,6 @@
 #include "cetlib/bold_fontify.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/types/detail/validationException.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/tsan.h"
@@ -168,31 +167,25 @@ namespace art {
     // equivalent to its use of TBB, the call should be made after our
     // own TBB task manager has been initialized.
     //    ROOT::EnableImplicitMT();
-    auto const& processName{pset.get<string>("process_name")};
-    Globals::instance()->setProcessName(processName);
     TDEBUG_FUNC(5) << "nschedules: " << scheduler_->num_schedules()
                    << " nthreads: " << scheduler_->num_threads();
 
-    ParameterSet triggerPSet;
-    triggerPSet.put("trigger_paths", pathManager_->triggerPathNames());
-    fhicl::ParameterSetRegistry::put(triggerPSet);
-    Globals::instance()->setTriggerPSet(triggerPSet);
-    Globals::instance()->setTriggerPathNames(pathManager_->triggerPathNames());
     auto const errorOnMissingConsumes = scheduler_->errorOnMissingConsumes();
     ConsumesInfo::instance()->setRequireConsumes(errorOnMissingConsumes);
-    {
-      auto const& physicsPSet = pset.get<ParameterSet>("physics", {});
-      servicesManager_->addSystemService<TriggerNamesService>(
-        pathManager_->triggerPathNames(),
-        processName,
-        triggerPSet,
-        physicsPSet);
-    }
+
+    auto const& processName = Globals::instance()->processName();
+
+    // Trigger-names
+    servicesManager_->addSystemService<TriggerNamesService>(
+      pathManager_->triggerPathSpecs(),
+      processName,
+      pset.get<ParameterSet>("physics", {}));
+
     // We have delayed creating the service instances, now actually
     // create them.
     servicesManager_->forceCreation();
-    ServiceHandle<FileCatalogMetadata> {}
-    ->addMetadataString("art.process_name", processName);
+    ServiceHandle<FileCatalogMetadata>()->addMetadataString("art.process_name",
+                                                            processName);
 
     // Now that the service module instances have been created we can
     // set the callbacks, set the module description, and register the
@@ -209,7 +202,7 @@ namespace art {
         maybe_trigger_results_inserter(sid, //
                                        processName,
                                        pset,
-                                       triggerPSet,
+                                       Globals::instance()->triggerPSet(),
                                        outputCallbacks_, //
                                        producedProductDescriptions_,
                                        scheduler_->actionTable(),           //

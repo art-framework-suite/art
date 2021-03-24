@@ -19,6 +19,7 @@ cet_make_library(
     ensureTable.cc
     parent_path.cc
     unique_filename.cc
+    detail/remove_whitespace.cc
   LIBRARIES
   PUBLIC
     canvas::canvas

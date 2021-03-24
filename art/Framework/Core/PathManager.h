@@ -23,6 +23,7 @@
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Framework/Core/detail/ModuleKeyAndType.h"
 #include "art/Persistency/Provenance/ModuleType.h"
+#include "art/Persistency/Provenance/PathSpec.h"
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ScheduleID.h"
@@ -63,7 +64,8 @@ namespace art {
     PathManager& operator=(PathManager const&) = delete;
     PathManager& operator=(PathManager&&) = delete;
 
-    std::vector<std::string> const& triggerPathNames() const;
+    std::vector<PathSpec> triggerPathSpecs() const;
+
     void createModulesAndWorkers(
       GlobalTaskGroup& task_group,
       detail::SharedResources& resources,
@@ -115,24 +117,27 @@ namespace art {
     void fillSelectEventsDeps_(detail::configs_t const& worker_configs,
                                detail::collection_map_t& info_collection) const;
 
+    std::vector<std::string> triggerPathNames_() const;
+    std::vector<std::string> prependedTriggerPathNames_() const;
+
     // Member Data
     UpdateOutputCallbacks& outputCallbacks_;
     ActionTable const& exceptActions_;
     ActivityRegistry const& actReg_;
-    cet::LibraryManager lm_{Suffixes::module()};
-    fhicl::ParameterSet procPS_{};
-    std::vector<std::string> triggerPathNames_{};
+    fhicl::ParameterSet procPS_;
+    art::detail::module_entries_for_ordered_path_t triggerPathSpecs_;
     PerScheduleContainer<PathsInfo> triggerPathsInfo_;
     PerScheduleContainer<PathsInfo> endPathInfo_;
     ProductDescriptions& productsToProduce_;
+
+    cet::LibraryManager lm_{Suffixes::module()};
     //  The following data members are only needed to delay the
     //  creation of modules until after the service system has
     //  started.  We can move them back to the ctor once that is
     //  fixed.
     std::string processName_{};
     std::map<std::string, detail::ModuleConfigInfo> allModules_{};
-    std::vector<std::pair<std::string, art::detail::configs_t>>
-      protoTrigPathLabels_{};
+    art::detail::paths_to_modules_t protoTrigPathLabels_{};
     art::detail::configs_t protoEndPathLabels_{};
   };
 } // namespace art

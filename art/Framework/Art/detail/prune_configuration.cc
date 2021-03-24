@@ -1,6 +1,7 @@
 #include "art/Framework/Art/detail/prune_configuration.h"
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
+#include "art/Persistency/Provenance/PathSpec.h"
 #include "boost/algorithm/string.hpp"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -13,10 +14,10 @@
 
 using namespace fhicl;
 using namespace std::string_literals;
-using sequence_t = fhicl::extended_value::sequence_t;
-using table_t = fhicl::extended_value::table_t;
 using namespace art::detail;
 
+using sequence_t = fhicl::extended_value::sequence_t;
+using table_t = fhicl::extended_value::table_t;
 using modules_t = std::map<std::string, std::string>;
 
 namespace {
@@ -138,7 +139,7 @@ namespace {
   auto
   sequence_to_entries(sequence_t const& seq)
   {
-    std::vector<PathEntry> result;
+    std::vector<ModuleSpec> result;
     for (auto const& ev : seq) {
       if (!ev.is_a(STRING)) {
         continue;
@@ -215,7 +216,7 @@ namespace {
     if (!exists_outside_prolog(config, physics))
       return {};
 
-    std::map<std::string, std::vector<PathEntry>> paths;
+    std::map<std::string, std::vector<ModuleSpec>> paths;
     table_t const& table = config.find(physics);
     verify_supported_names(table);
     for (auto const& [path_name, module_names] : table) {
@@ -242,12 +243,12 @@ namespace {
   {
     using table_t = fhicl::extended_value::table_t;
     module_entries_for_path_t sorted_result;
-    for (auto const& [pathname, entries] : all_paths) {
+    for (auto const& [path_name, entries] : all_paths) {
       // Skip over special path names, which are handled later.
-      if (pathname == "trigger_paths" || pathname == "end_paths") {
+      if (path_name == "trigger_paths" || path_name == "end_paths") {
         continue;
       }
-      std::vector<PathEntry> right_modules;
+      std::vector<ModuleSpec> right_modules;
       std::vector<std::string> wrong_modules;
       for (auto const& mod_spec : entries) {
         auto const& name = mod_spec.name;
@@ -255,7 +256,7 @@ namespace {
         if (full_module_key_it == cend(modules)) {
           throw config_exception("The following error occurred while "
                                  "processing a path configuration:")
-            << "Entry with name " << name << " in path " << pathname
+            << "Entry with name " << name << " in path " << path_name
             << " does not have a module configuration.\n";
         }
         auto const& full_module_key = full_module_key_it->second;
@@ -276,13 +277,13 @@ namespace {
       }
 
       if (right_modules.size() == entries.size()) {
-        sorted_result.emplace(pathname, move(right_modules));
+        sorted_result.emplace(path_name, move(right_modules));
       } else {
         // This is the case where a path contains a mixture of
         // modifiers and observers.
         auto e = config_exception("An error occurred while "
                                   "processing a path configuration.");
-        e << "The following modules specified in path " << pathname << " are "
+        e << "The following modules specified in path " << path_name << " are "
           << opposite(category)
           << "s when all\n"
              "other modules are "
@@ -293,27 +294,52 @@ namespace {
         throw e;
       }
     }
-    // Convert to correct type
-    return module_entries_for_ordered_path_t(sorted_result.begin(),
-                                             sorted_result.end());
-  }
 
-  std::optional<module_entries_for_ordered_path_t>
+    // Convert to correct type
+    module_entries_for_ordered_path_t result;
+    size_t i = 0;
+    for (auto const& [path_name, modules] : sorted_result) {
+      result.emplace_back(art::PathSpec{path_name, art::PathID{i++}}, modules);
+    }
+    return result;
+  }
+}
+
+namespace art::detail {
+  std::vector<art::PathSpec>
+  path_specs(std::vector<ModuleSpec> const& selection_override_entries)
+  {
+    std::vector<art::PathSpec> result;
+    size_t i = 0;
+    for (auto const& path : selection_override_entries) {
+      auto spec = art::path_spec(path.name);
+      if (spec.path_id == art::PathID::invalid()) {
+        spec.path_id =
+          art::PathID{i}; // Use calculated bit number if not specified
+      }
+      ++i;
+      result.push_back(std::move(spec));
+    }
+    return result;
+  }
+}
+
+namespace {
+  module_entries_for_ordered_path_t
   explicitly_declared_paths(module_entries_for_path_t const& modules_for_path,
+                            std::vector<ModuleSpec> const& override_entries,
                             modules_t const& modules,
                             std::string const& path_selection_override)
   {
-    auto const it = modules_for_path.find(path_selection_override);
-    if (it == cend(modules_for_path)) {
-      return std::nullopt;
-    }
+    auto specs = art::detail::path_specs(override_entries);
+
+    module_entries_for_ordered_path_t result;
 
     std::ostringstream os;
-    module_entries_for_ordered_path_t result;
-    for (auto const& path : it->second) {
-      auto res = modules_for_path.find(path.name);
+    for (auto& spec : specs) {
+      auto res = modules_for_path.find(spec.name);
       if (res == cend(modules_for_path)) {
-        os << "Unknown path " << path.name << " has been specified in '"
+        os << "Unknown path " << spec.name << " has been specified in '"
            << path_selection_override << "'.\n";
         continue;
       }
@@ -325,11 +351,11 @@ namespace {
         if (full_module_key_it == cend(modules)) {
           throw config_exception("The following error occurred while "
                                  "processing a path configuration:")
-            << "Entry with name " << name << " in path " << path.name
+            << "Entry with name " << name << " in path " << spec.name
             << " does not have a module configuration.\n";
         }
       }
-      result.push_back(*res);
+      result.emplace_back(std::move(spec), res->second);
     }
 
     auto const err = os.str();
@@ -338,7 +364,8 @@ namespace {
         "The following error occurred while processing path configurations:")
         << err;
     }
-    return std::make_optional(std::move(result));
+
+    return result;
   }
 
   keytype_for_name_t
@@ -347,7 +374,7 @@ namespace {
                       ModuleCategory const category)
   {
     keytype_for_name_t result;
-    for (auto const& [path_name, entries] : enabled_paths) {
+    for (auto const& [path_spec, entries] : enabled_paths) {
       for (auto const& [module_name, action] : entries) {
         auto const& module_key = modules.at(module_name);
         auto const actual_category = module_category(module_key);
@@ -356,11 +383,11 @@ namespace {
           throw config_exception("The following error occurred while "
                                  "processing a path configuration:")
             << "The '" << path_selection_override(category)
-            << "' override parameter contains the path " << path_name
+            << "' override parameter contains the path " << path_spec.name
             << ", which has"
             << (actual_category == ModuleCategory::observer ? " an\n" : " a\n")
             << to_string(type) << " with the name " << module_name << ".\n\n"
-            << "Path " << path_name
+            << "Path " << path_spec.name
             << " should instead be included as part of the '"
             << path_selection_override(opposite(category)) << "' parameter.\n"
             << "Contact artists@fnal.gov for guidance.\n";
@@ -369,8 +396,9 @@ namespace {
             type != art::ModuleType::filter) {
           throw config_exception("The following error occurred while "
                                  "processing a path configuration:")
-            << "Entry with name " << module_name << " in path " << path_name
-            << " is" << (category == ModuleCategory::observer ? " an " : " a ")
+            << "Entry with name " << module_name << " in path "
+            << path_spec.name << " is"
+            << (category == ModuleCategory::observer ? " an " : " a ")
             << to_string(type) << " and cannot have a '!' or '-' prefix.\n";
         }
         result.try_emplace(module_name, ModuleKeyAndType{module_key, type});
@@ -384,12 +412,15 @@ namespace {
                 modules_t const& modules,
                 ModuleCategory const category)
   {
-    auto declared_paths = explicitly_declared_paths(
-      paths, modules, path_selection_override(category));
-    if (declared_paths) {
-      return {std::move(*declared_paths), true};
+    auto const selection_override = path_selection_override(category);
+    auto const it = paths.find(selection_override);
+    if (it == cend(paths)) {
+      return {paths_for_category(paths, modules, category), false};
     }
-    return {paths_for_category(paths, modules, category), false};
+
+    return {
+      explicitly_declared_paths(paths, it->second, modules, selection_override),
+      true};
   }
 }
 
@@ -428,10 +459,10 @@ art::detail::prune_config_if_enabled(bool const prune_config,
   paths.erase("trigger_paths");
   paths.erase("end_paths");
   for (auto const& pr : trigger_paths) {
-    paths.erase(pr.first);
+    paths.erase(pr.first.name);
   }
   for (auto const& pr : end_paths) {
-    paths.erase(pr.first);
+    paths.erase(pr.first.name);
   }
 
   // The only paths left are those that are not enabled for execution.
@@ -464,6 +495,13 @@ art::detail::prune_config_if_enabled(bool const prune_config,
       config.erase(pr.second);
     }
   }
+
+  // Place 'trigger_paths' as top-level configuration table
+  if (exists_outside_prolog(config, "physics.trigger_paths")) {
+    config.update("trigger_paths.trigger_paths") =
+      config.find("physics.trigger_paths");
+  }
+
 
   return EnabledModules{std::move(enabled_modules),
                         std::move(trigger_paths),

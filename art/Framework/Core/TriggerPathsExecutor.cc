@@ -291,8 +291,7 @@ namespace art {
         // FIXME: not sure what the trigger bit should be
         auto const& resultsInserterDesc = results_inserter_->description();
         PathContext const pc{sc_,
-                             PathContext::art_path(),
-                             -1,
+                             PathContext::art_path_spec(),
                              {resultsInserterDesc.moduleLabel()}};
         ModuleContext const mc{pc, resultsInserterDesc};
         results_inserter_->doWork_event(principal, mc);

@@ -1,5 +1,6 @@
 #include "art/Framework/Art/detail/print_config_summary.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
+#include "art/Persistency/Provenance/PathSpec.h"
 #include "cetlib/HorizontalRule.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -22,7 +23,7 @@ art::detail::print_table_numbers(fhicl::ParameterSet const& pset,
 void
 art::detail::print_path_numbers(EnabledModules const& enabled_modules)
 {
-  std::cout << "Trigger paths: " << size(enabled_modules.trigger_paths())
+  std::cout << "Trigger paths: " << size(enabled_modules.trigger_path_specs())
             << '\n'
             << (enabled_modules.trigger_paths_override() ?
                   " -> 'trigger_paths' specified\n" :
@@ -37,7 +38,7 @@ void
 art::detail::print_path_names(EnabledModules const& enabled_modules)
 {
   {
-    auto const& trigger_paths = enabled_modules.trigger_paths();
+    auto const& trigger_paths = enabled_modules.trigger_path_specs();
     std::cout << '\n'
               << header_rule('=') << '\n'
               << "Trigger paths: " << size(trigger_paths) << "\n"
@@ -54,20 +55,19 @@ art::detail::print_path_names(EnabledModules const& enabled_modules)
 
     auto column_1_width = size(column_1);
     for (auto const& pr : trigger_paths) {
-      column_1_width = std::max(column_1_width, size(pr.first));
+      column_1_width = std::max(column_1_width, size(pr.first.name));
     }
 
-    std::size_t trigger_bit{};
     std::cout << column_0 << "  " << std::left << std::setw(column_1_width)
               << column_1 << "  " << column_2 << '\n'
               << "---"
               << "  " << std::string(column_1_width, '-') << "  "
               << std::string(size(column_2), '-') << '\n';
-    for (auto const& [path_name, entries] : enabled_modules.trigger_paths()) {
-      std::cout << std::right << std::setw(3) << trigger_bit << "  "
-                << std::left << std::setw(column_1_width) << path_name << "  "
-                << size(entries) << '\n';
-      ++trigger_bit;
+    for (auto const& [path_spec, entries] :
+         enabled_modules.trigger_path_specs()) {
+      std::cout << std::right << std::setw(3) << to_string(path_spec.path_id)
+                << "  " << std::left << std::setw(column_1_width)
+                << path_spec.name << "  " << size(entries) << '\n';
     }
   }
 
@@ -89,16 +89,16 @@ art::detail::print_path_names(EnabledModules const& enabled_modules)
     std::string column_2{"Path size"};
     auto column_1_width = size(column_1);
     for (auto const& pr : end_paths) {
-      column_1_width = std::max(column_1_width, size(pr.first));
+      column_1_width = std::max(column_1_width, size(pr.first.name));
     }
 
     std::cout << std::left << std::setw(column_1_width) << column_1 << "  "
               << column_2 << '\n'
               << std::string(column_1_width, '-') << "  "
               << std::string(size(column_2), '-') << '\n';
-    for (auto const& [path_name, entries] : end_paths) {
-      std::cout << std::left << std::setw(column_1_width) << path_name << "  "
-                << size(entries) << '\n';
+    for (auto const& [path_spec, entries] : end_paths) {
+      std::cout << std::left << std::setw(column_1_width) << path_spec.name
+                << "  " << size(entries) << '\n';
     }
   }
 }

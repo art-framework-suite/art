@@ -1,8 +1,8 @@
 #include "art/Framework/Core/Observer.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/detail/parse_path_spec.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Persistency/Provenance/PathSpec.h"
 #include "art/Utilities/Globals.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
@@ -30,7 +30,7 @@ namespace {
     // list) pairs.
     vector<pair<string, string>> PPS(paths.size());
     for (size_t i = 0; i < paths.size(); ++i) {
-      PPS[i] = art::detail::parse_path_spec(paths[i]);
+      PPS[i] = art::split_process_and_path_names(paths[i]);
     }
     return std::make_optional<ProcessAndEventSelectors>(
       PPS, triggerPathNames, process_name);

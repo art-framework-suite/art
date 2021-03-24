@@ -1,29 +1,43 @@
 #include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Persistency/Provenance/PathSpec.h"
+#include "fhiclcpp/ParameterSet.h"
+
 // vim: set sw=2 expandtab :
 
 #include <cstddef>
-#include <map>
+#include <limits>
 #include <string>
 #include <vector>
 
 using namespace std;
+using art::detail::entry_selector_t;
 using fhicl::ParameterSet;
+
+namespace {
+  constexpr auto invalid_entry = std::numeric_limits<size_t>::max();
+  entry_selector_t
+  for_(art::PathID const id)
+  {
+    return [id](art::PathSpec const& spec) { return spec.path_id == id; };
+  }
+  entry_selector_t
+  for_(std::string const& name)
+  {
+    return [&name](art::PathSpec const& spec) { return spec.name == name; };
+  }
+}
 
 namespace art {
 
   TriggerNamesService::TriggerNamesService(
-    vector<string> const& triggerPathNames,
+    vector<PathSpec> const& triggerPathSpecs,
     string const& processName,
-    ParameterSet const& triggerPSet,
     ParameterSet const& physicsPSet)
-    : triggerPathNames_{triggerPathNames}
-    , processName_{processName}
-    , triggerPSet_{triggerPSet}
+    : triggerPathSpecs_{triggerPathSpecs}, processName_{processName}
   {
-    size_t i{0};
-    for (auto const& pathname : triggerPathNames_) {
-      trigPathNameToTrigBitPos_[pathname] = i++;
-      moduleNames_.push_back(physicsPSet.get<vector<string>>(pathname));
+    for (auto const& spec_str : triggerPathSpecs) {
+      triggerPathNames_.push_back(spec_str.name);
+      moduleNames_.push_back(physicsPSet.get<vector<string>>(spec_str.name));
     }
   }
 
@@ -31,12 +45,6 @@ namespace art {
   TriggerNamesService::getProcessName() const
   {
     return processName_;
-  }
-
-  ParameterSet const&
-  TriggerNamesService::getTriggerPSet() const
-  {
-    return triggerPSet_;
   }
 
   vector<string> const&
@@ -52,51 +60,69 @@ namespace art {
   }
 
   string const&
-  TriggerNamesService::getTrigPath(size_t const i) const
+  TriggerNamesService::getTrigPath(PathID const id) const
   {
-    return triggerPathNames_.at(i);
-  }
-
-  size_t
-  TriggerNamesService::find(map<string, size_t> const& posmap,
-                            string const& name) const
-  {
-    auto const I = posmap.find(name);
-    if (I == posmap.cend()) {
-      return posmap.size();
+    auto const i = index_for(id);
+    if (i == invalid_entry) {
+      throw Exception{errors::OtherArt}
+        << "A path name could not be found corresponding to path ID "
+        << to_string(id) << '\n';
     }
-    return I->second;
+    return triggerPathSpecs_[i].name;
   }
 
-  size_t
+  PathID
   TriggerNamesService::findTrigPath(string const& name) const
   {
-    return find(trigPathNameToTrigBitPos_, name);
+    auto const i = index_(for_(name));
+    if (i == invalid_entry) {
+      return PathID::invalid();
+    }
+    return triggerPathSpecs_[i].path_id;
   }
 
   vector<string> const&
   TriggerNamesService::getTrigPathModules(string const& name) const
   {
-    return moduleNames_.at(find(trigPathNameToTrigBitPos_, name));
+    return moduleNames_.at(index_(for_(name)));
   }
 
   vector<string> const&
-  TriggerNamesService::getTrigPathModules(size_t const i) const
+  TriggerNamesService::getTrigPathModules(PathID const id) const
   {
-    return moduleNames_.at(i);
+    return moduleNames_.at(index_for(id));
   }
 
   string const&
   TriggerNamesService::getTrigPathModule(string const& name,
                                          size_t const j) const
   {
-    return moduleNames_.at(find(trigPathNameToTrigBitPos_, name)).at(j);
+    return getTrigPathModules(name).at(j);
   }
 
   string const&
-  TriggerNamesService::getTrigPathModule(size_t const i, size_t const j) const
+  TriggerNamesService::getTrigPathModule(PathID const id, size_t const j) const
   {
-    return moduleNames_.at(i).at(j);
+    return getTrigPathModules(id).at(j);
+  }
+
+  size_t
+  TriggerNamesService::index_for(PathID const id) const
+  {
+    return index_(for_(id));
+  }
+
+  size_t
+  TriggerNamesService::index_(entry_selector_t matched_entry) const
+  {
+    auto const b = begin(triggerPathSpecs_);
+    auto const e = end(triggerPathSpecs_);
+
+    auto it = std::find_if(b, e, matched_entry);
+    if (it == e) {
+      return invalid_entry;
+    }
+    return std::distance(b, it);
   }
 
 } // namespace art

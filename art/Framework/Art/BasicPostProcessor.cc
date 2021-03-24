@@ -170,11 +170,6 @@ art::BasicPostProcessor::doProcessOptions(bpo::variables_map const&,
   verifyProcessName(raw_config);
   verifyInterfaces(raw_config);
   verifySourceConfig(raw_config);
-  // trigger_paths
-  if (exists_outside_prolog(raw_config, "physics.trigger_paths")) {
-    raw_config.update("trigger_paths.trigger_paths") =
-      raw_config.find("physics.trigger_paths");
-  }
   // module_labels and service_type.
   addModuleLabels(raw_config);
   addServiceType(raw_config);

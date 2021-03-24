@@ -37,9 +37,7 @@ cet_test(PathManager_t USE_BOOST_UNIT
 )
 
 set(eventSelector_test_libraries
-  art::Framework_Services_System_TriggerNamesService_service
   art::Framework_Core
-  art::Framework_Services_Registry
   canvas::canvas
   fhiclcpp::fhiclcpp
 )
@@ -61,9 +59,6 @@ cet_test(RegistryTemplate_t
   SOURCE RegistryTemplate_t.cpp
   LIBRARIES PRIVATE art::Framework_Services_Registry
 )
-
-cet_test(parse_path_spec_t USE_BOOST_UNIT
-  LIBRARIES PRIVATE art::Framework_Core)
 
 build_plugin(EventCounter "module" NO_INSTALL USE_BOOST_UNIT
   LIBRARIES PRIVATE art::Framework_Principal fhiclcpp::types)

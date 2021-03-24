@@ -12,19 +12,20 @@
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Framework/Core/detail/consumed_products.h"
 #include "art/Framework/Core/detail/graph_algorithms.h"
-#include "art/Framework/Core/detail/remove_whitespace.h"
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleType.h"
+#include "art/Persistency/Provenance/PathSpec.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/ScheduleIteration.h"
 #include "art/Utilities/TaskDebugMacros.h"
+#include "art/Utilities/detail/remove_whitespace.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "canvas/Utilities/Exception.h"
@@ -35,6 +36,7 @@
 #include "cetlib/detail/wrapLibraryManagerException.h"
 #include "cetlib/ostream_handle.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/types/detail/validationException.h"
 #include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -82,7 +84,7 @@ namespace art {
     , exceptActions_{exceptActions}
     , actReg_{actReg}
     , procPS_{procPS}
-    , triggerPathNames_{enabled_modules.trigger_path_names()}
+    , triggerPathSpecs_{enabled_modules.trigger_path_specs()}
     , triggerPathsInfo_{Globals::instance()->nschedules()}
     , endPathInfo_(Globals::instance()->nschedules())
     , productsToProduce_{productsToProduce}
@@ -91,29 +93,40 @@ namespace art {
     allModules_ = moduleInformation_(enabled_modules);
 
     // Trigger paths
-    protoTrigPathLabels_.reserve(enabled_modules.trigger_paths().size());
+    auto const& trigger_path_specs = enabled_modules.trigger_path_specs();
+    protoTrigPathLabels_.reserve(trigger_path_specs.size());
     std::set<std::string> recorded_path_name;
-    for (auto const& [path_name, entries] : enabled_modules.trigger_paths()) {
-      if (not recorded_path_name.insert(path_name).second)
+    for (auto const& [path_spec, entries] : trigger_path_specs) {
+      if (not recorded_path_name.insert(path_spec.name).second)
         continue;
 
       if (entries.empty())
         continue;
+
       art::detail::configs_t worker_config_infos{};
       for (auto const& [label, action] : entries) {
         auto const& mci = allModules_.at(label);
         auto const mci_p = cet::make_exempt_ptr(&mci);
         worker_config_infos.emplace_back(mci_p, action);
       }
-      protoTrigPathLabels_.emplace_back(path_name,
+      protoTrigPathLabels_.emplace_back(path_spec,
                                         std::move(worker_config_infos));
     }
 
+    // Finalize trigger path names and make available in Globals
+    Globals::instance()->setProcessName(processName_);
+
+    ParameterSet triggerPSet;
+    triggerPSet.put("trigger_paths", prependedTriggerPathNames_());
+    fhicl::ParameterSetRegistry::put(triggerPSet);
+    Globals::instance()->setTriggerPSet(triggerPSet);
+    Globals::instance()->setTriggerPathNames(triggerPathNames_());
+
     // End path(s)
     auto const& end_paths = enabled_modules.end_paths();
-    protoEndPathLabels_.reserve(enabled_modules.end_paths().size());
-    for (auto const& [path_name, entries] : end_paths) {
-      if (not recorded_path_name.insert(path_name).second)
+    protoEndPathLabels_.reserve(end_paths.size());
+    for (auto const& [path_spec, entries] : end_paths) {
+      if (not recorded_path_name.insert(path_spec.name).second)
         continue;
 
       if (entries.empty())
@@ -134,10 +147,37 @@ namespace art {
     }
   }
 
-  vector<string> const&
-  PathManager::triggerPathNames() const
+  std::vector<PathSpec>
+  PathManager::triggerPathSpecs() const
   {
-    return triggerPathNames_;
+    std::vector<PathSpec> result;
+    result.reserve(size(triggerPathSpecs_));
+    for (auto const& pr : triggerPathSpecs_) {
+      result.push_back(pr.first);
+    }
+    return result;
+  }
+
+  std::vector<std::string>
+  PathManager::triggerPathNames_() const
+  {
+    std::vector<std::string> result;
+    result.reserve(size(triggerPathSpecs_));
+    for (auto const& pr : triggerPathSpecs_) {
+      result.push_back(pr.first.name);
+    }
+    return result;
+  }
+
+  std::vector<std::string>
+  PathManager::prependedTriggerPathNames_() const
+  {
+    std::vector<std::string> result;
+    result.reserve(size(triggerPathSpecs_));
+    for (auto const& pr : triggerPathSpecs_) {
+      result.push_back(to_string(pr.first));
+    }
+    return result;
   }
 
   void
@@ -170,12 +210,12 @@ namespace art {
     for (ScheduleID::size_type i = 0; i != nschedules; ++i) {
       ScheduleID const sid{i};
       auto& pinfo = triggerPathsInfo_[sid];
-      int bitPos = 0;
       ScheduleContext const sc{sid};
-      for (auto const& [path_name, worker_config_infos] :
+      for (auto const& [path_spec, worker_config_infos] :
            protoTrigPathLabels_) {
+
         PathContext const pc{
-          sc, path_name, bitPos, sorted_module_labels(worker_config_infos)};
+          sc, path_spec, sorted_module_labels(worker_config_infos)};
         auto wips = fillWorkers_(pc,
                                  worker_config_infos,
                                  modules,
@@ -183,7 +223,6 @@ namespace art {
                                  task_group,
                                  resources);
         pinfo.add_path(exceptActions_, actReg_, pc, move(wips), task_group);
-        ++bitPos;
       }
 
       if (protoEndPathLabels_.empty()) {
@@ -193,8 +232,7 @@ namespace art {
       // Create the end path and the workers on it.
       auto& einfo = endPathInfo_[sid];
       PathContext const pc{sc,
-                           PathContext::end_path(),
-                           0,
+                           PathContext::end_path_spec(),
                            sorted_module_labels(protoEndPathLabels_)};
       auto wips = fillWorkers_(pc,
                                protoEndPathLabels_,
@@ -417,7 +455,7 @@ namespace art {
                             detail::SharedResources& resources)
   {
     auto const sid = pc.scheduleID();
-    auto const pi = pc.bitPosition();
+    auto const pi = pc.pathID();
     vector<WorkerInPath> wips;
     for (auto const& wci : wci_list) {
       auto const& mci = *wci.moduleConfigInfo;
@@ -430,8 +468,9 @@ namespace art {
       // work is only done once per schedule.
       if (auto it = workers.find(module_label); it != workers.end()) {
         TDEBUG_FUNC_SI(5, sid)
-          << "Reusing worker " << hex << it->second << dec << " path: " << pi
-          << " type: " << md.moduleName() << " label: " << module_label;
+          << "Reusing worker " << hex << it->second << dec
+          << " path: " << to_string(pi) << " type: " << md.moduleName()
+          << " label: " << module_label;
         worker = it->second;
       } else {
         WorkerParams const wp{outputCallbacks_,
@@ -443,7 +482,7 @@ namespace art {
                               resources};
         worker = makeWorker_(modules, mci.modDescription, wp);
         TDEBUG(5) << "Made worker " << hex << worker << dec << " (" << sid
-                  << ") path: " << pi << " type: " << md.moduleName()
+                  << ") path: " << to_string(pi) << " type: " << md.moduleName()
                   << " label: " << module_label << "\n";
       }
 
@@ -544,8 +583,10 @@ namespace art {
     collection_map_t result{};
     auto& source_info = result["input_source"];
     if (!protoTrigPathLabels_.empty()) {
-      set<string> const path_names{cbegin(triggerPathNames_),
-                                   cend(triggerPathNames_)};
+      set<string> path_names;
+      for (auto const& pr : triggerPathSpecs_) {
+        path_names.insert(pr.first.name);
+      }
       source_info.paths = path_names;
       result["TriggerResults"] = ModuleGraphInfo{ModuleType::producer};
     } else if (!protoEndPathLabels_.empty()) {
@@ -585,9 +626,9 @@ namespace art {
       graph_info.produced_products = found->second;
     }
 
-    for (auto const& path : protoTrigPathLabels_) {
-      fillModuleOnlyDeps_(path.first,
-                          path.second,
+    for (auto const& [path_spec, module_labels] : protoTrigPathLabels_) {
+      fillModuleOnlyDeps_(path_spec.name,
+                          module_labels,
                           produced_products_per_module,
                           viewable_products_per_module,
                           result);

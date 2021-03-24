@@ -1,11 +1,9 @@
 #ifndef art_Utilities_ensureTable_h
 #define art_Utilities_ensureTable_h
 
-#include <string>
+#include "fhiclcpp/fwd.h"
 
-namespace fhicl {
-  class intermediate_table;
-}
+#include <string>
 
 namespace art {
   void ensureTable(fhicl::intermediate_table& table,

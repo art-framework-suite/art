@@ -77,7 +77,7 @@ art::detail::make_trigger_path_subgraphs(
     auto& path_graph = module_graph.create_subgraph();
     // Always include the source on the path.
     add_vertex(source_index, path_graph);
-    path_graphs[path.first] = &path_graph;
+    path_graphs[path.first.name] = &path_graph;
   }
 
   auto vertex_names = get(boost::vertex_name_t{}, module_graph);
@@ -127,7 +127,7 @@ art::detail::make_path_ordering_edges(ModuleGraphInfoMap const& modInfos,
       auto const pi = modInfos.vertex_index(module_label(*prev));
       auto const ci = modInfos.vertex_index(module_label(*curr));
       auto const edge = add_edge(ci, pi, graph);
-      path_label[edge.first] = "path:" + path.first;
+      path_label[edge.first] = "path:" + path.first.name;
       prev = curr;
       ++curr;
     }
@@ -154,7 +154,7 @@ art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
       auto const back_index =
         modInfos.vertex_index(module_label(modules.back()));
       auto const edge1 = add_edge(front_index, source_index, graph);
-      sync_label[edge1.first] = "source:" + path.first;
+      sync_label[edge1.first] = "source:" + path.first.name;
       auto const edge2 = add_edge(tr_index, back_index, graph);
       sync_label[edge2.first] = "sync";
     }
@@ -181,7 +181,7 @@ art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
       auto const& info = modInfos.info(index);
       if (preceding_filter_index != invalid) {
         auto const edge = add_edge(index, preceding_filter_index, graph);
-        sync_label[edge.first] = "filter:" + path.first;
+        sync_label[edge.first] = "filter:" + path.first.name;
       }
       if (info.module_type == ModuleType::filter) {
         preceding_filter_index = index;
@@ -278,7 +278,7 @@ namespace {
     bool
     operator()(paths_to_modules_t::value_type const& pr) const
     {
-      return pr.first == path_name;
+      return pr.first.name == path_name;
     }
   };
 

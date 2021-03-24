@@ -19,14 +19,4 @@ namespace art::detail {
     , triggerPathsOverride_{trigger_paths_override}
     , endPathsOverride_{end_paths_override}
   {}
-
-  std::vector<std::string>
-  EnabledModules::trigger_path_names() const
-  {
-    std::vector<std::string> result;
-    for (auto const& pr : triggerPaths_) {
-      result.push_back(pr.first);
-    }
-    return result;
-  }
 }
