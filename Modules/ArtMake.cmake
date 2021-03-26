@@ -125,9 +125,6 @@ macro(art_make_library)
   if (ART_MAKE_PREPEND_PRODUCT_NAME)
     list(PREPEND _cet_aml_args USE_PROJECT_NAME)
   endif()
-  if (ART_MAKE_LIBRARY_NO_BASENAME_ONLY)
-    list(REMOVE_ITEM _cet_aml_args BASENAME_ONLY)
-  endif()
   if (_cet_aml_args MATCHES "(^|;)(NO_)?SOURCE(;|$)")
     cet_make_library(${_cet_aml_args})
   else()
@@ -254,6 +251,9 @@ function(art_make)
 
   # Find sources for a library and make it.
   if (NOT AM_NO_LIB)
+    # Retain historical behavior (BASENAME_ONLY was previously
+    # applicable only to plugins) of a deprecated function (art_make).
+    list(REMOVE_ITEM cet_make_args BASENAME_ONLY)
     art_make_library(${cet_make_args} LIBRARY_NAME_VAR library_name)
   endif()
 
