@@ -17,8 +17,8 @@
 #    arguments from non-option arguments.
 #
 # For other available options, please see
-# cetbuildtools/Modules/BasicPlugin.cmake
-# (https://cdcvs.fnal.gov/redmine/projects/cetbuildtools/repository/revisions/master/entry/Modules/BasicPlugin.cmake).
+# cetbuildtools/Modules/BasicPlugin.cmake ### MIGRATE-NO-ACTION
+# (https://cdcvs.fnal.gov/redmine/projects/cetbuildtools/repository/revisions/master/entry/Modules/BasicPlugin.cmake). ### MIGRATE-NO-ACTION
 ########################################################################
 include_guard(DIRECTORY)
 

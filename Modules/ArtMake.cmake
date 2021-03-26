@@ -1,3 +1,4 @@
+### MIGRATE-NO-ACTION
 # art_make
 #
 # Identify the files in the current source directory and build
