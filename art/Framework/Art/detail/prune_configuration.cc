@@ -136,11 +136,19 @@ namespace {
     return result;
   }
 
-  auto
-  sequence_to_entries(sequence_t const& seq)
+}
+
+namespace art::detail {
+  std::vector<ModuleSpec>
+  sequence_to_entries(sequence_t const& seq, bool const allow_nil_entries)
   {
     std::vector<ModuleSpec> result;
     for (auto const& ev : seq) {
+      if (allow_nil_entries and ev.is_a(NIL)) {
+        result.push_back({"@nil", FilterAction::Normal});
+        continue;
+      }
+
       if (!ev.is_a(STRING)) {
         continue;
       }
@@ -176,6 +184,25 @@ namespace {
     return result;
   }
 
+  std::vector<art::PathSpec>
+  path_specs(std::vector<ModuleSpec> const& selection_override_entries)
+  {
+    std::vector<art::PathSpec> result;
+    size_t i = 0;
+    for (auto const& path : selection_override_entries) {
+      auto spec = art::path_spec(path.name);
+      if (spec.path_id == art::PathID::invalid()) {
+        spec.path_id =
+          art::PathID{i}; // Use calculated bit number if not specified
+      }
+      ++i;
+      result.push_back(std::move(spec));
+    }
+    return result;
+  }
+}
+
+namespace {
   void
   verify_supported_names(table_t const& physics_table)
   {
@@ -303,28 +330,7 @@ namespace {
     }
     return result;
   }
-}
 
-namespace art::detail {
-  std::vector<art::PathSpec>
-  path_specs(std::vector<ModuleSpec> const& selection_override_entries)
-  {
-    std::vector<art::PathSpec> result;
-    size_t i = 0;
-    for (auto const& path : selection_override_entries) {
-      auto spec = art::path_spec(path.name);
-      if (spec.path_id == art::PathID::invalid()) {
-        spec.path_id =
-          art::PathID{i}; // Use calculated bit number if not specified
-      }
-      ++i;
-      result.push_back(std::move(spec));
-    }
-    return result;
-  }
-}
-
-namespace {
   module_entries_for_ordered_path_t
   explicitly_declared_paths(module_entries_for_path_t const& modules_for_path,
                             std::vector<ModuleSpec> const& override_entries,
@@ -501,7 +507,6 @@ art::detail::prune_config_if_enabled(bool const prune_config,
     config.update("trigger_paths.trigger_paths") =
       config.find("physics.trigger_paths");
   }
-
 
   return EnabledModules{std::move(enabled_modules),
                         std::move(trigger_paths),
