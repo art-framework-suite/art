@@ -1,8 +1,8 @@
 #include "art/Persistency/Provenance/PathSpec.h"
 #include "art/Utilities/detail/remove_whitespace.h"
 
-#include <cassert>
 #include <limits>
+#include <ostream>
 #include <string>
 #include <utility>
 
@@ -42,4 +42,9 @@ namespace art {
     return to_string(spec.path_id) + ':' + spec.name;
   }
 
+  std::ostream&
+  operator<<(std::ostream& os, PathSpec const& spec)
+  {
+    return os << to_string(spec);
+  }
 }

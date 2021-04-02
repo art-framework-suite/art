@@ -22,6 +22,7 @@ namespace art {
                   GlobalTaskGroup&);
     std::vector<Path>& paths();
     std::vector<Path> const& paths() const;
+    std::vector<std::string> pathNames() const;
     HLTGlobalStatus& pathResults();
     void reset();
     void reset_for_event();

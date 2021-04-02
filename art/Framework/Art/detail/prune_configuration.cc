@@ -9,7 +9,7 @@
 
 #include <initializer_list>
 #include <iostream>
-#include <optional>
+#include <regex>
 #include <set>
 
 using namespace fhicl;
@@ -22,6 +22,16 @@ using modules_t = std::map<std::string, std::string>;
 
 namespace {
 
+  std::string const at_nil{"@nil"};
+  std::string const trigger_paths_str{"trigger_paths"};
+  std::string const end_paths_str{"end_paths"};
+  bool
+  matches(std::string const& path_spec_str, std::string const& path_name)
+  {
+    std::regex const path_spec_re{R"((\d+:)?)" + path_name};
+    return std::regex_match(path_spec_str, path_spec_re);
+  }
+
   auto module_tables = {"physics.producers",
                         "physics.filters",
                         "physics.analyzers",
@@ -33,10 +43,21 @@ namespace {
 
   enum class ModuleCategory { modifier, observer, unset };
 
-  art::Exception
+  auto
   config_exception(std::string const& context)
   {
     return art::Exception{art::errors::Configuration, context + "\n"};
+  }
+
+  auto
+  path_exception(std::string const& selection_override,
+                 std::size_t const i,
+                 std::string const& suffix)
+  {
+    std::string msg{"The following error occurred while processing " +
+                    selection_override + "[" + std::to_string(i) + "]"};
+    msg += " (i.e. '" + suffix + "'):";
+    return config_exception(msg);
   }
 
   std::ostream&
@@ -79,13 +100,21 @@ namespace {
   {
     // For a full module key (e.g. physics.analyzers.a), we strip off
     // the module name ('a') to determine its module category.
-    auto table = full_module_key.substr(0, full_module_key.find_last_of('.'));
+    auto const table =
+      full_module_key.substr(0, full_module_key.find_last_of('.'));
     if (cet::search_all(modifier_tables, table)) {
       return ModuleCategory::modifier;
-    } else if (cet::search_all(observer_tables, table)) {
+    }
+    if (cet::search_all(observer_tables, table)) {
       return ModuleCategory::observer;
     }
     return ModuleCategory::unset;
+  }
+
+  bool
+  is_path_selection_override(std::string const& path_name)
+  {
+    return path_name == trigger_paths_str or path_name == end_paths_str;
   }
 
   std::string
@@ -93,9 +122,9 @@ namespace {
   {
     switch (category) {
       case ModuleCategory::modifier:
-        return "trigger_paths";
+        return trigger_paths_str;
       case ModuleCategory::observer:
-        return "end_paths";
+        return end_paths_str;
       default:
         assert(false); // Unreachable
         return {};
@@ -145,10 +174,9 @@ namespace art::detail {
     std::vector<ModuleSpec> result;
     for (auto const& ev : seq) {
       if (allow_nil_entries and ev.is_a(NIL)) {
-        result.push_back({"@nil", FilterAction::Normal});
+        result.push_back({at_nil, FilterAction::Normal});
         continue;
       }
-
       if (!ev.is_a(STRING)) {
         continue;
       }
@@ -175,6 +203,7 @@ namespace art::detail {
       }
       result.push_back({mod_spec, action});
     }
+
     if (result.size() != seq.size()) {
       throw config_exception("There was an error parsing the specified entries "
                              "in a FHiCL sequence.")
@@ -185,17 +214,87 @@ namespace art::detail {
   }
 
   std::vector<art::PathSpec>
-  path_specs(std::vector<ModuleSpec> const& selection_override_entries)
+  path_specs(std::vector<ModuleSpec> const& selection_override_entries,
+             std::string const& path_selection_override)
   {
+    auto guidance = [](std::string const& name,
+                       std::string const& path_selection_override,
+                       std::string const& id_str) {
+      std::ostringstream oss;
+      oss << "If you would like to repeat the path specification, all "
+             "path specifications\n"
+             "with the name '"
+          << name << "' must be prepended with the same path ID (e.g.):\n\n"
+          << "  " << path_selection_override << ": ['" << id_str << ':' << name
+          << "', '" << id_str << ':' << name << "', ...]\n\n";
+      return oss.str();
+    };
+
+    std::map<PathID, std::string> id_to_name;
+    std::map<std::string, PathID> name_to_id;
     std::vector<art::PathSpec> result;
+
     size_t i = 0;
-    for (auto const& path : selection_override_entries) {
+    for (auto it = cbegin(selection_override_entries),
+              e = cend(selection_override_entries);
+         it != e;
+         ++it, ++i) {
+      auto const& path = *it;
       auto spec = art::path_spec(path.name);
+      if (spec.name == at_nil) {
+        continue;
+      }
+
+      // Path names with unspecified IDs cannot be reused
+      auto const emplacement_result =
+        name_to_id.try_emplace(spec.name, spec.path_id);
+      bool const name_already_present = not emplacement_result.second;
+      auto const emplaced_path_id = emplacement_result.first->second;
+
+      if (name_already_present) {
+        if (spec.path_id == art::PathID::invalid()) {
+          throw path_exception(path_selection_override, i, path.name)
+            << "The path name '" << spec.name
+            << "' has already been specified in the " << path_selection_override
+            << " sequence.\n"
+            << guidance(spec.name,
+                        path_selection_override,
+                        to_string(emplaced_path_id));
+        }
+        if (spec.path_id != emplaced_path_id) {
+          throw path_exception(path_selection_override, i, path.name)
+            << "The path name '" << spec.name
+            << "' has already been specified (perhaps implicitly) with a\n"
+               "path ID of "
+            << to_string(emplaced_path_id) << " (not "
+            << to_string(spec.path_id) << ") in the " << path_selection_override
+            << " sequence.\n\n"
+            << guidance(spec.name,
+                        path_selection_override,
+                        to_string(emplaced_path_id));
+        }
+        // Name is already present and the PathID has been explicitly
+        // listed and matches what has already been seen.
+        continue;
+      }
+
       if (spec.path_id == art::PathID::invalid()) {
         spec.path_id =
           art::PathID{i}; // Use calculated bit number if not specified
+        emplacement_result.first->second = spec.path_id;
       }
-      ++i;
+
+      // Each ID must have only one name
+      if (auto const [it, inserted] =
+            id_to_name.try_emplace(spec.path_id, spec.name);
+          not inserted) {
+        throw path_exception(path_selection_override, i, path.name)
+          << "Path ID " << to_string(spec.path_id)
+          << " cannot be assigned to path name '" << spec.name
+          << "' as it has already been assigned to path name '" << it->second
+          << "'.\n";
+      }
+
       result.push_back(std::move(spec));
     }
     return result;
@@ -236,13 +335,39 @@ namespace {
          "allowed.\n\n";
   }
 
+  void
+  replace_empty_paths(intermediate_table& config,
+                      std::set<std::string> const& empty_paths,
+                      std::string const& path_selection_override)
+  {
+    if (not exists_outside_prolog(config, path_selection_override)) {
+      return;
+    }
+    sequence_t result = config.find(path_selection_override);
+    for (auto const& name : empty_paths) {
+      std::replace_if(begin(result),
+                      end(result),
+                      [&name](auto const& ex_val) {
+                        if (not ex_val.is_a(STRING)) {
+                          return false;
+                        }
+                        std::string path_spec_str;
+                        fhicl::detail::decode(ex_val.value, path_spec_str);
+                        return matches(path_spec_str, name);
+                      },
+                      fhicl::extended_value{false, NIL, at_nil});
+    }
+    config.get<sequence_t&>(path_selection_override) = result;
+  }
+
   module_entries_for_path_t
-  all_paths(intermediate_table const& config)
+  all_paths(intermediate_table& config)
   {
     std::string const physics{"physics"};
     if (!exists_outside_prolog(config, physics))
       return {};
 
+    std::set<std::string> empty_paths;
     std::map<std::string, std::vector<ModuleSpec>> paths;
     table_t const& table = config.find(physics);
     verify_supported_names(table);
@@ -250,8 +375,18 @@ namespace {
       if (!module_names.is_a(SEQUENCE)) {
         continue;
       }
-      paths[path_name] = sequence_to_entries(module_names);
+      sequence_t const entries = module_names;
+      if (empty(entries)) {
+        empty_paths.insert(path_name);
+      }
+      paths[path_name] = sequence_to_entries(
+        module_names, is_path_selection_override(path_name));
     }
+
+    // Replace empty paths from trigger_paths and end_paths with @nil
+    replace_empty_paths(
+      config, empty_paths, fhicl_key(physics, trigger_paths_str));
+    replace_empty_paths(config, empty_paths, fhicl_key(physics, end_paths_str));
 
     return paths;
   }
@@ -272,7 +407,7 @@ namespace {
     module_entries_for_path_t sorted_result;
     for (auto const& [path_name, entries] : all_paths) {
       // Skip over special path names, which are handled later.
-      if (path_name == "trigger_paths" || path_name == "end_paths") {
+      if (is_path_selection_override(path_name)) {
         continue;
       }
       std::vector<ModuleSpec> right_modules;
@@ -304,7 +439,7 @@ namespace {
       }
 
       if (right_modules.size() == entries.size()) {
-        sorted_result.emplace(path_name, move(right_modules));
+        sorted_result.try_emplace(path_name, move(right_modules));
       } else {
         // This is the case where a path contains a mixture of
         // modifiers and observers.
@@ -337,7 +472,8 @@ namespace {
                             modules_t const& modules,
                             std::string const& path_selection_override)
   {
-    auto specs = art::detail::path_specs(override_entries);
+    auto specs =
+      art::detail::path_specs(override_entries, path_selection_override);
 
     module_entries_for_ordered_path_t result;
 
@@ -347,6 +483,11 @@ namespace {
       if (res == cend(modules_for_path)) {
         os << "Unknown path " << spec.name << " has been specified in '"
            << path_selection_override << "'.\n";
+        continue;
+      }
+
+      // Skip empty paths
+      if (empty(res->second)) {
         continue;
       }
 
@@ -500,12 +641,32 @@ art::detail::prune_config_if_enabled(bool const prune_config,
     for (auto const& pr : unused_modules) {
       config.erase(pr.second);
     }
+
+    // Check if module tables can be removed
+    for (auto const& table_name : module_tables) {
+      if (not exists_outside_prolog(config, table_name)) {
+        continue;
+      }
+      if (table_t const value = config.find(table_name); empty(value)) {
+        config.erase(table_name);
+      }
+    }
+
+    // Check if top-level physics table can be removed
+    if (exists_outside_prolog(config, "physics")) {
+      if (table_t const value = config.find("physics"); empty(value)) {
+        config.erase("physics");
+      }
+    }
   }
 
   // Place 'trigger_paths' as top-level configuration table
-  if (exists_outside_prolog(config, "physics.trigger_paths")) {
-    config.update("trigger_paths.trigger_paths") =
-      config.find("physics.trigger_paths");
+  if (trigger_paths_override) {
+    std::vector<std::string> explicit_entries;
+    cet::transform_all(trigger_paths,
+                       back_inserter(explicit_entries),
+                       [](auto const& pr) { return to_string(pr.first); });
+    config.put("trigger_paths.trigger_paths", explicit_entries);
   }
 
   return EnabledModules{std::move(enabled_modules),

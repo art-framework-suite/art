@@ -59,6 +59,17 @@ namespace art {
     return paths_;
   }
 
+  vector<string>
+  PathsInfo::pathNames() const
+  {
+    vector<string> result;
+    std::transform(begin(paths_),
+                   end(paths_),
+                   back_inserter(result),
+                   [](auto const& path) { return path.name(); });
+    return result;
+  }
+
   void
   PathsInfo::reset()
   {

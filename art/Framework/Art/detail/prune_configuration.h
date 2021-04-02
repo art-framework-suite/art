@@ -16,7 +16,8 @@ namespace art::detail {
     bool allow_nil_entries = false);
 
   std::vector<PathSpec> path_specs(
-    std::vector<ModuleSpec> const& selection_override_entries);
+    std::vector<ModuleSpec> const& selection_override_entries,
+    std::string const& path_selection_override);
 }
 
 #endif /* art_Framework_Art_detail_prune_configuration_h */

@@ -195,9 +195,18 @@ namespace art {
       producedProductDescriptions_, psSignals_, pc);
     pathManager_->createModulesAndWorkers(
       *taskGroup_, sharedResources_, producing_services);
+
+    ServiceHandle<TriggerNamesService> trigger_names [[maybe_unused]];
     auto const end = Globals::instance()->nschedules();
     for (ScheduleID::size_type i = 0; i != end; ++i) {
       ScheduleID const sid{i};
+
+      // The ordering of the path results in the TriggerPathsInfo (which is used
+      // for the TriggerResults object), must be the same as that provided by
+      // the TriggerNamesService.
+      auto& trigger_paths_info = pathManager_->triggerPathsInfo(sid);
+      assert(trigger_names->getTrigPaths() == trigger_paths_info.pathNames());
+
       auto results_inserter =
         maybe_trigger_results_inserter(sid, //
                                        processName,
@@ -205,10 +214,10 @@ namespace art {
                                        Globals::instance()->triggerPSet(),
                                        outputCallbacks_, //
                                        producedProductDescriptions_,
-                                       scheduler_->actionTable(),           //
-                                       actReg_,                             //
-                                       pathManager_->triggerPathsInfo(sid), //
-                                       *taskGroup_,                         //
+                                       scheduler_->actionTable(), //
+                                       actReg_,                   //
+                                       trigger_paths_info,        //
+                                       *taskGroup_,               //
                                        sharedResources_);
       schedules_->emplace(std::piecewise_construct,
                           std::forward_as_tuple(sid),
@@ -1564,8 +1573,7 @@ namespace art {
   void
   EventProcessor::terminateAbnormally_() try {
     if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
-      ServiceHandle<RandomNumberGenerator> {}
-      ->saveToFile_();
+      ServiceHandle<RandomNumberGenerator>()->saveToFile_();
     }
   }
   catch (...) {
