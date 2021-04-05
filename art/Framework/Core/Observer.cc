@@ -25,15 +25,13 @@ namespace {
     if (empty(paths)) {
       return std::nullopt;
     }
-    auto const& triggerPathNames = art::Globals::instance()->triggerPathNames();
     // Parse the event selection criteria into (process, trigger name
     // list) pairs.
     vector<pair<string, string>> PPS(paths.size());
     for (size_t i = 0; i < paths.size(); ++i) {
       PPS[i] = art::split_process_and_path_names(paths[i]);
     }
-    return std::make_optional<ProcessAndEventSelectors>(
-      PPS, triggerPathNames, process_name);
+    return std::make_optional<ProcessAndEventSelectors>(PPS, process_name);
   }
 
   art::ProcessNameSelector const empty_process_name{""};
@@ -74,13 +72,14 @@ namespace art {
   }
 
   bool
-  Observer::wantEvent(Event const& e) const
+  Observer::wantEvent(ScheduleID const id, Event const& e) const
   {
     if (wantAllEvents_) {
       return true;
     }
-    bool const select_event = selectors_ ? selectors_->matchEvent(e) : true;
-    bool const reject_event = rejectors_ ? rejectors_->matchEvent(e) : false;
+    bool const select_event = selectors_ ? selectors_->matchEvent(id, e) : true;
+    bool const reject_event =
+      rejectors_ ? rejectors_->matchEvent(id, e) : false;
     return select_event and not reject_event;
   }
 

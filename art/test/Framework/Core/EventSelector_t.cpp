@@ -48,10 +48,7 @@ testone(const Strings& paths,
         bool answer,
         int jmask)
 {
-  // There are 2 different ways to build the EventSelector.  Both
-  // should give the same result.  We exercise both here.
-  EventSelector select1(pattern, paths);
-  EventSelector select2(pattern);
+  EventSelector selector{pattern};
 
   int number_of_trigger_paths = 0;
   std::vector<unsigned char> bitArray;
@@ -88,16 +85,12 @@ testone(const Strings& paths,
   trigger_pset.put<Strings>("trigger_paths", paths);
   ParameterSetRegistry::put(trigger_pset);
 
-  TriggerResults results_id(bm, trigger_pset.id());
-
-  bool const a12 = select1.acceptEvent(results_id);
-  bool const a13 = select2.acceptEvent(results_id);
-  bool const a14 = select2.acceptEvent(results_id);
-
-  if (a12 != answer || a13 != answer || a14 != answer) {
+  TriggerResults const results_id{bm, trigger_pset.id()};
+  bool const result = selector.acceptEvent(ScheduleID::first(), results_id);
+  if (result != answer) {
     std::cerr << "failed to compare pattern with mask using pset ID: "
               << "correct=" << answer << " "
-              << "results=" << a12 << "  " << a13 << "  " << a14 << "\n"
+              << "results=" << std::boolalpha << result << '\n'
               << "pattern=" << pattern << "\n"
               << "mask=" << mask << "\n"
               << "jmask = " << jmask << "\n";

@@ -1,3 +1,4 @@
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/PathSpec.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -32,14 +33,21 @@ namespace art {
   TriggerNamesService::TriggerNamesService(
     vector<PathSpec> const& triggerPathSpecs,
     string const& processName,
-    ParameterSet const& physicsPSet)
+    ParameterSet const& physicsPSet,
+    ActivityRegistry& registry)
     : triggerPathSpecs_{triggerPathSpecs}, processName_{processName}
   {
     for (auto const& spec_str : triggerPathSpecs) {
       triggerPathNames_.push_back(spec_str.name);
       moduleNames_.push_back(physicsPSet.get<vector<string>>(spec_str.name));
     }
+    registry.sPostOpenFile.watch(this,
+                                 &TriggerNamesService::updateTriggerInfo_);
   }
+
+  void
+  TriggerNamesService::updateTriggerInfo_(std::string const&)
+  {}
 
   string const&
   TriggerNamesService::getProcessName() const

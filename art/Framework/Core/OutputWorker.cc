@@ -73,9 +73,9 @@ namespace art {
   }
 
   void
-  OutputWorker::writeEvent(EventPrincipal& srp)
+  OutputWorker::writeEvent(EventPrincipal& ep, ModuleContext const& mc)
   {
-    module().doWriteEvent(srp);
+    module().doWriteEvent(ep, mc);
   }
 
   void
@@ -100,12 +100,6 @@ namespace art {
   OutputWorker::setFileStatus(OutputFileStatus const ofs)
   {
     return module().setFileStatus(ofs);
-  }
-
-  bool
-  OutputWorker::wantAllEvents() const
-  {
-    return module().wantAllEvents();
   }
 
   bool

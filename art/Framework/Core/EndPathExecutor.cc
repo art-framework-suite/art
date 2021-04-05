@@ -357,7 +357,7 @@ namespace art {
     for (auto ow : outputWorkers_) {
       ModuleContext const mc{pc, ow->description()};
       actReg_.sPreWriteEvent.invoke(mc);
-      ow->writeEvent(ep);
+      ow->writeEvent(ep, mc);
       actReg_.sPostWriteEvent.invoke(mc);
     }
     auto const& eid = ep.eventID();

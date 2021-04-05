@@ -83,6 +83,7 @@ cet_make_library(HEADERS_TARGET SOURCE
     cetlib::container_algorithms
     hep_concurrency::macros
     Boost::graph
+    Range::Range
     rapidjson
 )
 

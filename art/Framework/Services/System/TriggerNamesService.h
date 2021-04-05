@@ -32,6 +32,8 @@
 #include <vector>
 
 namespace art {
+  class ActivityRegistry;
+
   namespace detail {
     using entry_selector_t = std::function<bool(PathSpec const&)>;
   }
@@ -40,7 +42,8 @@ namespace art {
   public:
     TriggerNamesService(std::vector<PathSpec> const& triggerPathSpecs,
                         std::string const& processName,
-                        fhicl::ParameterSet const& physicsPSet);
+                        fhicl::ParameterSet const& physicsPSet,
+                        ActivityRegistry& registry);
     // Returns jobPS.process_name
     std::string const& getProcessName() const;
 
@@ -74,6 +77,7 @@ namespace art {
 
   private:
     size_t index_(detail::entry_selector_t selector) const;
+    void updateTriggerInfo_(std::string const&);
 
     std::vector<PathSpec> triggerPathSpecs_{};
     std::vector<std::string> triggerPathNames_{};

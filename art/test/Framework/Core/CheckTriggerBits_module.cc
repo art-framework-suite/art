@@ -21,6 +21,7 @@ namespace {
     std::vector<std::string> const paths_;
     std::vector<bool> const path_results_;
     art::ProductToken<art::TriggerResults> const token_;
+    art::ServiceHandle<art::TriggerNamesService const> triggerNames_;
   };
 
   CheckTriggerBits::CheckTriggerBits(Parameters const& p,
@@ -32,8 +33,7 @@ namespace {
   {
     async<art::InEvent>();
 
-    art::ServiceHandle<art::TriggerNamesService const> triggerNames;
-    auto const& trigger_paths = triggerNames->getTrigPaths();
+    auto const& trigger_paths = triggerNames_->getTrigPaths();
     auto const num_paths = size(trigger_paths);
     BOOST_TEST(num_paths == size(paths_));
 

@@ -152,7 +152,7 @@ namespace art {
 
     void doWriteRun(RunPrincipal& rp);
     void doWriteSubRun(SubRunPrincipal& srp);
-    void doWriteEvent(EventPrincipal& ep);
+    void doWriteEvent(EventPrincipal& ep, ModuleContext const& mc);
     void doSetRunAuxiliaryRangeSetID(RangeSet const&);
     void doSetSubRunAuxiliaryRangeSetID(RangeSet const&);
     bool doCloseFile();

@@ -1,5 +1,4 @@
 #include "art/Persistency/Provenance/orderedProcessNamesCollection.h"
-#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "boost/algorithm/string.hpp"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProcessHistoryID.h"

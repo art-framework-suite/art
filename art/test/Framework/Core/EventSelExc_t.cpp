@@ -89,11 +89,7 @@ evSelTest(PathSpecifiers const& path_specifiers,
           TrigResults const& tr,
           bool ans)
 {
-  // There are 2 different ways to build the EventSelector.  Both
-  // should give the same result.  We exercise both here.
-  EventSelector select_based_on_path_specifiers_and_names(path_specifiers,
-                                                          trigger_path_names);
-  EventSelector select_based_on_path_specifiers_only(path_specifiers);
+  EventSelector selector{path_specifiers};
 
   int number_of_trigger_paths = 0;
   std::vector<unsigned char> bitArray;
@@ -118,17 +114,13 @@ evSelTest(PathSpecifiers const& path_specifiers,
   trigger_pset.put<Strings>("trigger_paths", trigger_path_names);
   ParameterSetRegistry::put(trigger_pset);
 
-  TriggerResults results_id(bm, trigger_pset.id());
-
-  bool const x =
-    select_based_on_path_specifiers_and_names.acceptEvent(results_id);
-  bool const y = select_based_on_path_specifiers_only.acceptEvent(results_id);
-
-  if (x != ans || y != ans) {
+  TriggerResults const results_id{bm, trigger_pset.id()};
+  bool const result = selector.acceptEvent(ScheduleID::first(), results_id);
+  if (result != ans) {
     std::cerr
       << "failed to compare pathspecs with trigger results using pset ID: "
       << "correct=" << ans << " "
-      << "results=" << x << "  " << y << "\n"
+      << "results=" << std::boolalpha << result << "\n"
       << "pathspecs =" << path_specifiers << "\n"
       << "trigger results = " << tr << "\n";
     abort();

@@ -11,6 +11,7 @@
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "range/v3/view.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -19,8 +20,11 @@
 #include <string>
 #include <vector>
 
+using namespace art;
 using namespace cet;
 using namespace std;
+
+using BitInfo = EventSelector::BitInfo;
 
 namespace {
   unsigned int
@@ -84,34 +88,40 @@ namespace {
     return false;
   }
 
-}
-
-namespace art {
-
-  EventSelector::EventSelector(vector<string> const& pathspecs,
-                               vector<string> const& trigger_path_names)
+  // Indicate if any bit in the trigger results matches the desired value
+  // at that position, based on the bits array.  If s is Exception, this
+  // looks for a Exceptionmatch; otherwise, true-->Pass, false-->Fail.
+  bool
+  any_bit(vector<BitInfo> const& bits,
+          HLTGlobalStatus const& tr,
+          hlt::HLTState const s = hlt::Ready)
   {
-    init(pathspecs, trigger_path_names);
+    bool const check_for_exception = (s == hlt::Exception);
+    return std::any_of(
+      begin(bits), end(bits), [check_for_exception, &tr](auto const& b) {
+        hlt::HLTState const bstate = check_for_exception ?
+                                       hlt::Exception :
+                                       b.accept_state ? hlt::Pass : hlt::Fail;
+        return tr.at(b.pos).state() == bstate;
+      });
   }
 
-  EventSelector::EventSelector(vector<string> const& pathspecs)
-    : force_results_from_current_process_{false}, pathspecs_{pathspecs}
-  {}
-
-  void
-  EventSelector::init(vector<string> const& pathspecs,
-                      vector<string> const& trigger_path_specs)
+  // Indicate if *every* bit in the trigger results matches the desired value
+  // at that position, based on the bits array: true-->Pass, false-->Fail.
+  bool
+  all_bits(vector<BitInfo> const& bits, HLTGlobalStatus const& tr)
   {
-    accept_all_ = false;
-    absolute_acceptors_.clear();
-    conditional_acceptors_.clear();
-    exception_acceptors_.clear();
-    all_must_fail_.clear();
-    all_must_fail_noex_.clear();
+    return std::all_of(begin(bits), end(bits), [&tr](auto const& b) {
+      hlt::HLTState const bstate = b.accept_state ? hlt::Pass : hlt::Fail;
+      return tr.at(b.pos).state() == bstate;
+    });
+  }
 
-    if (pathspecs.empty()) {
-      accept_all_ = true;
-      return;
+  bool
+  accept_all(vector<string> const& path_specs)
+  {
+    if (empty(path_specs)) {
+      return true;
     }
 
     // The following are for the purpose of establishing accept_all_ by
@@ -120,20 +130,63 @@ namespace art {
     bool negated_star = false;
     bool exception_star = false;
 
-    for (string const& pathSpecifier : pathspecs) {
-      string specifier{pathSpecifier};
+    for (string const& pathSpecifier : path_specs) {
+      assert(not art::detail::has_whitespace(pathSpecifier));
 
-      assert(not detail::has_whitespace(specifier));
-
-      if (specifier == "*") {
+      if (pathSpecifier == "*") {
         unrestricted_star = true;
-      }
-      if (specifier == "!*") {
+      } else if (pathSpecifier == "!*") {
         negated_star = true;
-      }
-      if (specifier == "exception@*") {
+      } else if (pathSpecifier == "exception@*") {
         exception_star = true;
       }
+    }
+    return unrestricted_star && negated_star && exception_star;
+  }
+}
+
+namespace art {
+
+  EventSelector::EventSelector(vector<string> const& pathspecs)
+    : path_specs_{pathspecs}, accept_all_{accept_all(path_specs_)}
+  {
+    acceptors_.expand_to_num_schedules();
+  }
+
+  // This should be called per new file.
+  EventSelector::ScheduleData
+  EventSelector::data_for(TriggerResults const& tr) const
+  {
+    fhicl::ParameterSet pset;
+    if (!fhicl::ParameterSetRegistry::get(tr.parameterSetID(), pset)) {
+      // This should never happen
+      throw Exception(errors::Unknown)
+        << "EventSelector::acceptEvent cannot find the trigger names for\n"
+        << "a process for which the configuration has requested that the\n"
+        << "OutputModule use TriggerResults to select events from.  This "
+           "should\n"
+        << "be impossible, please send information to reproduce this problem "
+           "to\n"
+        << "the art developers at artists@fnal.gov.\n";
+    }
+    auto const trigger_path_specs =
+      pset.get<vector<string>>("trigger_paths", {});
+    if (trigger_path_specs.size() != tr.size()) {
+      throw Exception(errors::Unknown)
+        << "EventSelector::acceptEvent: Trigger names vector and\n"
+        << "TriggerResults are different sizes.  This should be impossible,\n"
+        << "please send information to reproduce this problem to\n"
+        << "the art developers.\n";
+    }
+
+    std::vector<BitInfo> absolute_acceptors;
+    std::vector<BitInfo> conditional_acceptors;
+    std::vector<BitInfo> exception_acceptors;
+    std::vector<std::vector<BitInfo>> all_must_fail;
+    std::vector<std::vector<BitInfo>> all_must_fail_noex;
+
+    for (string const& pathSpecifier : path_specs_) {
+      string specifier{pathSpecifier};
 
       bool const noex_demanded = remove_noexception(pathSpecifier, specifier);
       bool const negative_criterion = remove_negation(specifier);
@@ -167,14 +220,14 @@ namespace art {
           mf::LogWarning("Configuration")
             << "EventSelector::init, A module is using SelectEvents\n"
                "to request a wildcarded trigger name that "
-               "does not match any trigger \n"
+               "does not match any trigger.\n"
                "The wildcarded trigger name is: "
             << realname
             << " (from trigger-path specification: " << pathSpecifier << ") \n";
         } else {
           throw Exception(errors::Configuration)
             << "EventSelector::init, A module is using SelectEvents\n"
-               "to request a trigger name that does not exist\n"
+               "to request a trigger name that does not exist.\n"
                "The unknown trigger name is: "
             << realname
             << " (from trigger-path specification: " << pathSpecifier << ") \n";
@@ -190,19 +243,19 @@ namespace art {
 
       if (!negative_criterion && !noex_demanded && !exception_spec) {
         cet::transform_all(
-          matches, back_inserter(absolute_acceptors_), makeBitInfoPass);
+          matches, back_inserter(absolute_acceptors), makeBitInfoPass);
         continue;
       }
 
       if (!negative_criterion && noex_demanded) {
         cet::transform_all(
-          matches, back_inserter(conditional_acceptors_), makeBitInfoPass);
+          matches, back_inserter(conditional_acceptors), makeBitInfoPass);
         continue;
       }
 
       if (exception_spec) {
         cet::transform_all(
-          matches, back_inserter(exception_acceptors_), makeBitInfoPass);
+          matches, back_inserter(exception_acceptors), makeBitInfoPass);
         continue;
       }
 
@@ -217,12 +270,12 @@ namespace art {
 
         if (matches.size() == 1) {
           BitInfo bi{path_position(trigger_path_specs, matches[0]), false};
-          absolute_acceptors_.push_back(bi);
+          absolute_acceptors.push_back(bi);
         } else {
-          vector<BitInfo> mustfail;
           // We set this to false because that will demand bits are Fail.
-          cet::transform_all(matches, back_inserter(mustfail), makeBitInfoFail);
-          all_must_fail_.push_back(mustfail);
+          auto must_fail = matches | ranges::views::transform(makeBitInfoFail) |
+                           ranges::to_vector;
+          all_must_fail.push_back(move(must_fail));
         }
         continue;
       }
@@ -238,76 +291,52 @@ namespace art {
 
         if (matches.size() == 1) {
           BitInfo bi{path_position(trigger_path_specs, matches[0]), false};
-          conditional_acceptors_.push_back(bi);
+          conditional_acceptors.push_back(bi);
         } else {
-          vector<BitInfo> mustfail;
-          cet::transform_all(matches, back_inserter(mustfail), makeBitInfoFail);
-          all_must_fail_noex_.push_back(mustfail);
+          auto must_fail = matches | ranges::views::transform(makeBitInfoFail) |
+                           ranges::to_vector;
+          all_must_fail_noex.push_back(move(must_fail));
         }
       }
     }
-
-    if (unrestricted_star && negated_star && exception_star) {
-      accept_all_ = true;
-    }
+    return ScheduleData{tr.parameterSetID(),
+                        absolute_acceptors,
+                        conditional_acceptors,
+                        exception_acceptors,
+                        all_must_fail,
+                        all_must_fail_noex};
   }
 
   bool
-  EventSelector::acceptEvent(TriggerResults const& tr)
-  {
-    if (accept_all_) {
-      return true;
-    }
-    if (force_results_from_current_process_) {
-      return selectionDecision(tr);
-    }
-    if (psetID_initialized_ && (psetID_ == tr.parameterSetID())) {
-      return selectionDecision(tr);
-    }
-
-    // Reinitialize with trigger names from tr.
-    fhicl::ParameterSet pset;
-    if (!fhicl::ParameterSetRegistry::get(tr.parameterSetID(), pset)) {
-      // This should never happen
-      throw Exception(errors::Unknown)
-        << "EventSelector::acceptEvent cannot find the trigger names for\n"
-        << "a process for which the configuration has requested that the\n"
-        << "OutputModule use TriggerResults to select events from.  This "
-           "should\n"
-        << "be impossible, please send information to reproduce this problem "
-           "to\n"
-        << "the art developers at artists@fnal.gov.\n";
-    }
-    auto const trigger_path_specs =
-      pset.get<vector<string>>("trigger_paths", {});
-    if (trigger_path_specs.size() != tr.size()) {
-      throw Exception(errors::Unknown)
-        << "EventSelector::acceptEvent: Trigger names vector and\n"
-        << "TriggerResults are different sizes.  This should be impossible,\n"
-        << "please send information to reproduce this problem to\n"
-        << "the art developers.\n";
-    }
-
-    init(pathspecs_, trigger_path_specs);
-    psetID_ = tr.parameterSetID();
-    psetID_initialized_ = true;
-    return selectionDecision(tr);
-  }
-
-  bool
-  EventSelector::selectionDecision(HLTGlobalStatus const& tr) const
+  EventSelector::acceptEvent(ScheduleID const id,
+                             TriggerResults const& tr) const
   {
     if (accept_all_) {
       return true;
     }
 
-    if (acceptOneBit(absolute_acceptors_, tr)) {
+    auto& data = acceptors_.at(id);
+    if (data.psetID != tr.parameterSetID()) {
+      data = data_for(tr);
+    }
+    return selectionDecision(data, tr);
+  }
+
+  bool
+  EventSelector::selectionDecision(ScheduleData const& data,
+                                   HLTGlobalStatus const& tr) const
+  {
+    if (accept_all_) {
+      return true;
+    }
+
+    if (any_bit(data.absolute_acceptors, tr)) {
       return true;
     }
 
     bool exceptionPresent = false;
     bool exceptionsLookedFor = false;
-    if (acceptOneBit(conditional_acceptors_, tr)) {
+    if (any_bit(data.conditional_acceptors, tr)) {
       exceptionPresent = tr.error();
       if (!exceptionPresent) {
         return true;
@@ -315,18 +344,18 @@ namespace art {
       exceptionsLookedFor = true;
     }
 
-    if (acceptOneBit(exception_acceptors_, tr, hlt::Exception)) {
+    if (any_bit(data.exception_acceptors, tr, hlt::Exception)) {
       return true;
     }
 
-    for (auto const& f : all_must_fail_) {
-      if (acceptAllBits(f, tr)) {
+    for (auto const& f : data.all_must_fail) {
+      if (all_bits(f, tr)) {
         return true;
       }
     }
 
-    for (auto const& fn : all_must_fail_noex_) {
-      if (acceptAllBits(fn, tr)) {
+    for (auto const& fn : data.all_must_fail_noex) {
+      if (all_bits(fn, tr)) {
         if (!exceptionsLookedFor) {
           exceptionPresent = tr.error();
         }
@@ -334,36 +363,6 @@ namespace art {
       }
     }
     return false;
-  }
-
-  // Indicate if any bit in the trigger results matches the desired value
-  // at that position, based on the bits array.  If s is Exception, this
-  // looks for a Exceptionmatch; otherwise, true-->Pass, false-->Fail.
-  bool
-  EventSelector::acceptOneBit(vector<BitInfo> const& bits,
-                              HLTGlobalStatus const& tr,
-                              hlt::HLTState const& s) const
-  {
-    bool const check_for_exception = (s == hlt::Exception);
-    return std::any_of(
-      begin(bits), end(bits), [check_for_exception, &tr](auto const& b) {
-        hlt::HLTState const bstate = check_for_exception ?
-                                       hlt::Exception :
-                                       b.accept_state ? hlt::Pass : hlt::Fail;
-        return tr.at(b.pos).state() == bstate;
-      });
-  }
-
-  // Indicate if *every* bit in the trigger results matches the desired value
-  // at that position, based on the bits array: true-->Pass, false-->Fail.
-  bool
-  EventSelector::acceptAllBits(vector<BitInfo> const& bits,
-                               HLTGlobalStatus const& tr) const
-  {
-    return std::all_of(begin(bits), end(bits), [&tr](auto const& b) {
-      hlt::HLTState const bstate = b.accept_state ? hlt::Pass : hlt::Fail;
-      return tr.at(b.pos).state() == bstate;
-    });
   }
 
 } // namespace art

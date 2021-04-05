@@ -20,7 +20,7 @@ namespace art::detail {
                                      EventSelector const& es);
 
     art::Handle<art::TriggerResults> triggerResults(Event const& e) const;
-    bool match(Event const& e) const;
+    bool match(ScheduleID const id, Event const& e) const;
 
   private:
     ProcessNameSelector processNameSelector_;
@@ -31,10 +31,9 @@ namespace art::detail {
   public:
     ProcessAndEventSelectors(
       std::vector<std::pair<std::string, std::string>> const& path_specs,
-      std::vector<std::string> const& trigger_names,
       std::string const& process_name);
 
-    bool matchEvent(Event const& e) const;
+    bool matchEvent(ScheduleID const id, Event const& e) const;
     art::Handle<art::TriggerResults> getOneTriggerResults(Event const&) const;
 
   private:

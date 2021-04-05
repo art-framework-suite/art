@@ -179,7 +179,8 @@ namespace art {
     servicesManager_->addSystemService<TriggerNamesService>(
       pathManager_->triggerPathSpecs(),
       processName,
-      pset.get<ParameterSet>("physics", {}));
+      pset.get<ParameterSet>("physics", {}),
+      actReg_);
 
     // We have delayed creating the service instances, now actually
     // create them.

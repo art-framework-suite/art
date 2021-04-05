@@ -69,6 +69,12 @@ cet_test(RejectEvents_t HANDBUILT
   DATAFILES fcl/reject_events_t.fcl
 )
 
+cet_test(SelectEvents_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- -c select_events_t.fcl
+  DATAFILES fcl/select_events_t.fcl
+)
+
 cet_test(GroupSelector_t USE_BOOST_UNIT
   LIBRARIES PRIVATE
     art::Framework_Core

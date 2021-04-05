@@ -108,7 +108,7 @@ namespace art::detail {
                     std::atomic<std::size_t>& /*counts_failed*/)
   {
     Event const e{ep, mc};
-    if (wantEvent(e)) {
+    if (wantEvent(mc.scheduleID(), e)) {
       ++counts_run;
       ProcessingFrame const frame{mc.scheduleID()};
       analyzeWithFrame(e, frame);
