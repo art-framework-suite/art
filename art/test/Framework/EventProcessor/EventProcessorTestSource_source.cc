@@ -51,17 +51,17 @@ namespace {
   flush_value(char const level)
   {
     switch (level) {
-      case 'r':
-        return art::IDNumber<art::Level::Run>::flush_value();
-      case 's':
-        return art::IDNumber<art::Level::SubRun>::flush_value();
-      case 'e':
-        return art::IDNumber<art::Level::Event>::flush_value();
-      default:
-        throw art::Exception{art::errors::Configuration}
-          << "Action specifying flush or throw value does not correspond to "
-             "'r', 's', "
-             "or 'e'.\n";
+    case 'r':
+      return art::IDNumber<art::Level::Run>::flush_value();
+    case 's':
+      return art::IDNumber<art::Level::SubRun>::flush_value();
+    case 'e':
+      return art::IDNumber<art::Level::Event>::flush_value();
+    default:
+      throw art::Exception{art::errors::Configuration}
+        << "Action specifying flush or throw value does not correspond to "
+           "'r', 's', "
+           "or 'e'.\n";
     }
   }
 
@@ -96,13 +96,13 @@ namespace {
           << "Please either the character 'f' or 't'.\n";
       }
       switch (symbol[0]) {
-        case 'f':
-          return flush_value(level[0]);
-        case 't':
-          return throw_value(level[0]);
-        default:
-          throw art::Exception{art::errors::Configuration}
-            << "The character specified for a symbol must be 'f' or 't'.\n";
+      case 'f':
+        return flush_value(level[0]);
+      case 't':
+        return throw_value(level[0]);
+      default:
+        throw art::Exception{art::errors::Configuration}
+          << "The character specified for a symbol must be 'f' or 't'.\n";
       }
     }
 

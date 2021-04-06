@@ -34,20 +34,20 @@ namespace art {
   to_string(ModuleType const mt)
   {
     switch (mt) {
-      case ModuleType::non_art:
-        return "non-art";
-      case ModuleType::producer:
-        return "producer";
-      case ModuleType::filter:
-        return "filter";
-      case ModuleType::analyzer:
-        return "analyzer";
-      case ModuleType::output_module:
-        return "output module";
-      default:
-        throw Exception(errors::LogicError)
-          << "Unable to find string for unrecognized ModuleType value "
-          << static_cast<int>(mt) << ".\n";
+    case ModuleType::non_art:
+      return "non-art";
+    case ModuleType::producer:
+      return "producer";
+    case ModuleType::filter:
+      return "filter";
+    case ModuleType::analyzer:
+      return "analyzer";
+    case ModuleType::output_module:
+      return "output module";
+    default:
+      throw Exception(errors::LogicError)
+        << "Unable to find string for unrecognized ModuleType value "
+        << static_cast<int>(mt) << ".\n";
     }
   }
 

@@ -86,22 +86,22 @@ namespace art {
   {
     std::string token{"Unset"};
     switch (b()) {
-      case Granularity::Event:
-        token = "Event";
-        break;
-      case Granularity::SubRun:
-        token = "SubRun";
-        break;
-      case Granularity::Run:
-        token = "Run";
-        break;
-      case Granularity::InputFile:
-        token = "InputFile";
-        break;
-      case Granularity::Job:
-        token = "Job";
-        break;
-      case Granularity::Unset:;
+    case Granularity::Event:
+      token = "Event";
+      break;
+    case Granularity::SubRun:
+      token = "SubRun";
+      break;
+    case Granularity::Run:
+      token = "Run";
+      break;
+    case Granularity::InputFile:
+      token = "InputFile";
+      break;
+    case Granularity::Job:
+      token = "Job";
+      break;
+    case Granularity::Unset:;
     }
     os << token;
     return os;

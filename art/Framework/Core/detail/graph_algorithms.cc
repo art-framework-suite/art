@@ -448,27 +448,27 @@ namespace {
       auto const vertex_pair = std::make_pair(u, v);
       auto const& edge_name = get(boost::edge_name, g, e);
       switch (arrow_style_for(edge_name)) {
-        case arrow_style::path: {
-          auto path_name = edge_name.substr(5); // Removes 'path:' prefix
-          path_edges_[path_name].insert(vertex_pair);
-          break;
-        }
-        case arrow_style::sync: {
-          trigger_path_edges_.insert(vertex_pair);
-          break;
-        }
-        case arrow_style::source: {
-          auto path_name = edge_name.substr(7); // Remove 'source:' prefix
-          path_edges_[path_name].insert(vertex_pair);
-          break;
-        }
-        case arrow_style::filter: {
-          auto path_name = edge_name.substr(7); // Removes 'filter:' prefix
-          filter_edges_[path_name].insert(vertex_pair);
-          break;
-        }
-        case arrow_style::prod:
-          ++product_edges_[vertex_pair];
+      case arrow_style::path: {
+        auto path_name = edge_name.substr(5); // Removes 'path:' prefix
+        path_edges_[path_name].insert(vertex_pair);
+        break;
+      }
+      case arrow_style::sync: {
+        trigger_path_edges_.insert(vertex_pair);
+        break;
+      }
+      case arrow_style::source: {
+        auto path_name = edge_name.substr(7); // Remove 'source:' prefix
+        path_edges_[path_name].insert(vertex_pair);
+        break;
+      }
+      case arrow_style::filter: {
+        auto path_name = edge_name.substr(7); // Removes 'filter:' prefix
+        filter_edges_[path_name].insert(vertex_pair);
+        break;
+      }
+      case arrow_style::prod:
+        ++product_edges_[vertex_pair];
       }
     }
 

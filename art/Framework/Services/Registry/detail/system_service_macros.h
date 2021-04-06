@@ -9,20 +9,20 @@
 // System services require support code in Event Processor since they
 // have no maker function.
 
-#define DECLARE_ART_SYSTEM_SERVICE(svc, scope)                          \
-  namespace art::detail {                                               \
-    template <>                                                         \
-    struct ServiceHelper<svc> : public ServiceImplHelper,               \
-                                public ServiceLGRHelper {               \
-      DEFINE_ART_SERVICE_TYPEID(svc)                                    \
-      DEFINE_ART_SERVICE_SCOPE(scope)                                   \
-      bool                                                              \
-      is_interface_impl() const override                                \
-      {                                                                 \
-        return false;                                                   \
-      }                                                                 \
-      DEFINE_ART_SERVICE_RETRIEVER(svc)                                 \
-    };                                                                  \
+#define DECLARE_ART_SYSTEM_SERVICE(svc, scope)                                 \
+  namespace art::detail {                                                      \
+    template <>                                                                \
+    struct ServiceHelper<svc> : public ServiceImplHelper,                      \
+                                public ServiceLGRHelper {                      \
+      DEFINE_ART_SERVICE_TYPEID(svc)                                           \
+      DEFINE_ART_SERVICE_SCOPE(scope)                                          \
+      bool                                                                     \
+      is_interface_impl() const override                                       \
+      {                                                                        \
+        return false;                                                          \
+      }                                                                        \
+      DEFINE_ART_SERVICE_RETRIEVER(svc)                                        \
+    };                                                                         \
   }
 
 // Note that it makes very little sense to have a system service

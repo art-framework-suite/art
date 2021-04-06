@@ -37,19 +37,19 @@ namespace {
       }
 
       switch (idNumbers.size()) {
-          // N.B. Rely on fall-through behavior to set all relevant data.
-        case 3ull:
-          e_ = idNumbers[2];
-          [[fallthrough]];
-        case 2ull:
-          sr_ = idNumbers[1];
-          [[fallthrough]];
-        case 1ull:
-          r_ = idNumbers[0];
-          break;
-        default:
-          throw Exception{errors::Configuration}
-            << "Specified too many id numbers.";
+        // N.B. Rely on fall-through behavior to set all relevant data.
+      case 3ull:
+        e_ = idNumbers[2];
+        [[fallthrough]];
+      case 2ull:
+        sr_ = idNumbers[1];
+        [[fallthrough]];
+      case 1ull:
+        r_ = idNumbers[0];
+        break;
+      default:
+        throw Exception{errors::Configuration}
+          << "Specified too many id numbers.";
       }
     }
 

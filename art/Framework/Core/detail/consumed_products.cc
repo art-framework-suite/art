@@ -169,41 +169,41 @@ detail::consumed_products_for_module(
   for (auto const& per_branch_type : consumables) {
     for (auto const& prod_info : per_branch_type) {
       switch (prod_info.consumableType) {
-        case ProductInfo::ConsumableType::Product: {
-          auto dep = consumes_dependency(config_begin,
-                                         config_it,
-                                         prod_info,
-                                         current_process,
-                                         produced_products);
-          result.insert(std::move(dep));
-          break;
-        }
-        case ProductInfo::ConsumableType::Many: {
-          // Loop through modules on this path, introducing
-          // product-lookup dependencies if the type of the product
-          // created by the module matches the type requested in the
-          // consumesMany call.
-          auto const& class_name = prod_info.friendlyClassName;
-          for (auto mit = config_begin; mit != config_it; ++mit) {
-            auto possible_products = produced_products.find(
-              mit->moduleConfigInfo->modDescription.moduleLabel());
-            if (possible_products == cend(produced_products)) {
-              continue;
-            }
-            cet::copy_if_all(possible_products->second,
-                             inserter(result, begin(result)),
-                             [&class_name](auto const& pi) {
-                               return class_name == pi.friendlyClassName;
-                             });
+      case ProductInfo::ConsumableType::Product: {
+        auto dep = consumes_dependency(config_begin,
+                                       config_it,
+                                       prod_info,
+                                       current_process,
+                                       produced_products);
+        result.insert(std::move(dep));
+        break;
+      }
+      case ProductInfo::ConsumableType::Many: {
+        // Loop through modules on this path, introducing
+        // product-lookup dependencies if the type of the product
+        // created by the module matches the type requested in the
+        // consumesMany call.
+        auto const& class_name = prod_info.friendlyClassName;
+        for (auto mit = config_begin; mit != config_it; ++mit) {
+          auto possible_products = produced_products.find(
+            mit->moduleConfigInfo->modDescription.moduleLabel());
+          if (possible_products == cend(produced_products)) {
+            continue;
           }
-          break;
+          cet::copy_if_all(possible_products->second,
+                           inserter(result, begin(result)),
+                           [&class_name](auto const& pi) {
+                             return class_name == pi.friendlyClassName;
+                           });
         }
-        case ProductInfo::ConsumableType::ViewElement: {
-          auto dep = consumes_view_dependency(
-            prod_info, module_name, current_process, viewable_products);
-          result.insert(std::move(dep));
-        }
-          // No default case to allow compiler to warn.
+        break;
+      }
+      case ProductInfo::ConsumableType::ViewElement: {
+        auto dep = consumes_view_dependency(
+          prod_info, module_name, current_process, viewable_products);
+        result.insert(std::move(dep));
+      }
+        // No default case to allow compiler to warn.
       }
     }
   }

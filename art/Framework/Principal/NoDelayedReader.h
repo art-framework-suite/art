@@ -2,8 +2,8 @@
 #define art_Framework_Principal_NoDelayedReader_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Principal/DelayedReader.h"
+#include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 

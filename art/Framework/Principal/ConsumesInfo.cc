@@ -33,15 +33,15 @@ namespace art {
     string result;
     // Create "consumes" prefix
     switch (pi.consumableType) {
-      case ProductInfo::ConsumableType::Product:
-        result += "consumes";
-        break;
-      case ProductInfo::ConsumableType::ViewElement:
-        result += "consumesView";
-        break;
-      case ProductInfo::ConsumableType::Many:
-        result += "consumesMany";
-        break;
+    case ProductInfo::ConsumableType::Product:
+      result += "consumes";
+      break;
+    case ProductInfo::ConsumableType::ViewElement:
+      result += "consumesView";
+      break;
+    case ProductInfo::ConsumableType::Many:
+      result += "consumesMany";
+      break;
     }
     // .. now time for the template arguments
     result += '<';

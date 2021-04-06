@@ -322,23 +322,23 @@ namespace art {
       auto const mode = debug_pset.get<std::string>("printMode");
 
       switch (debug_mode) {
-        case debug_processing::validate_config: {
-          [[fallthrough]];
-        }
-        case debug_processing::config_out: {
-          print_config(main_pset, filename, mode);
-          break;
-        }
-        case debug_processing::debug_config: {
-          print_config(main_pset, filename, mode);
-          return detail::info_success();
-        }
-        case debug_processing::config_summary: {
-          detail::print_config_summary(main_pset, mode, enabled_modules);
-          return detail::info_success();
-        }
-        case debug_processing::none:
-          break;
+      case debug_processing::validate_config: {
+        [[fallthrough]];
+      }
+      case debug_processing::config_out: {
+        print_config(main_pset, filename, mode);
+        break;
+      }
+      case debug_processing::debug_config: {
+        print_config(main_pset, filename, mode);
+        return detail::info_success();
+      }
+      case debug_processing::config_summary: {
+        detail::print_config_summary(main_pset, mode, enabled_modules);
+        return detail::info_success();
+      }
+      case debug_processing::none:
+        break;
       }
     }
     //

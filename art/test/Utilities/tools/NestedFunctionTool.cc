@@ -1,5 +1,5 @@
-#include "art/Utilities/make_tool.h"
 #include "art/test/Utilities/tools/NestedFunctionTool.h"
+#include "art/Utilities/make_tool.h"
 
 namespace arttest {
   int
@@ -9,4 +9,3 @@ namespace arttest {
     return addOne(i);
   }
 } // namespace arttest
-

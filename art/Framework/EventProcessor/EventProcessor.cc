@@ -1549,20 +1549,20 @@ namespace art {
     auto const itemType = input_->nextItemType();
     FDEBUG(1) << string(4, ' ') << "*** nextItemType: " << itemType << " ***\n";
     switch (itemType) {
-      case input::IsStop:
-        return highest_level();
-      case input::IsFile:
-        return Level::InputFile;
-      case input::IsRun:
-        return Level::Run;
-      case input::IsSubRun:
-        return Level::SubRun;
-      case input::IsEvent:
-        return Level::Event;
-      case input::IsInvalid:
-        throw Exception{errors::LogicError}
-          << "Invalid next item type presented to the event processor.\n"
-          << "Please contact artists@fnal.gov.";
+    case input::IsStop:
+      return highest_level();
+    case input::IsFile:
+      return Level::InputFile;
+    case input::IsRun:
+      return Level::Run;
+    case input::IsSubRun:
+      return Level::SubRun;
+    case input::IsEvent:
+      return Level::Event;
+    case input::IsInvalid:
+      throw Exception{errors::LogicError}
+        << "Invalid next item type presented to the event processor.\n"
+        << "Please contact artists@fnal.gov.";
     }
     throw Exception{errors::LogicError}
       << "Unrecognized next item type presented to the event processor.\n"

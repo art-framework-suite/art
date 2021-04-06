@@ -37,24 +37,24 @@ namespace art {
     operator<<(std::ostream& os, ItemType const it)
     {
       switch (it) {
-        case IsInvalid:
-          os << "Invalid";
-          break;
-        case IsStop:
-          os << "Stop";
-          break;
-        case IsFile:
-          os << "InputFile";
-          break;
-        case IsRun:
-          os << "Run";
-          break;
-        case IsSubRun:
-          os << "SubRun";
-          break;
-        case IsEvent:
-          os << "Event";
-          break;
+      case IsInvalid:
+        os << "Invalid";
+        break;
+      case IsStop:
+        os << "Stop";
+        break;
+      case IsFile:
+        os << "InputFile";
+        break;
+      case IsRun:
+        os << "Run";
+        break;
+      case IsSubRun:
+        os << "SubRun";
+        break;
+      case IsEvent:
+        os << "Event";
+        break;
       }
       return os;
     }

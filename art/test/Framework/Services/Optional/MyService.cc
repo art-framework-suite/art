@@ -19,4 +19,3 @@ MyService::MyService(ParameterSet const& pset)
     mf::LogVerbatim("DEBUG") << "key: " << key;
   }
 }
-

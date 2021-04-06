@@ -64,14 +64,14 @@ namespace {
   operator<<(std::ostream& os, ModuleCategory const cat)
   {
     switch (cat) {
-      case ModuleCategory::modifier:
-        os << "modifier";
-        break;
-      case ModuleCategory::observer:
-        os << "observer";
-        break;
-      case ModuleCategory::unset:
-        os << "unset";
+    case ModuleCategory::modifier:
+      os << "modifier";
+      break;
+    case ModuleCategory::observer:
+      os << "observer";
+      break;
+    case ModuleCategory::unset:
+      os << "unset";
     }
     return os;
   }
@@ -81,16 +81,16 @@ namespace {
   {
     auto result = ModuleCategory::unset;
     switch (cat) {
-      case ModuleCategory::modifier:
-        result = ModuleCategory::observer;
-        break;
-      case ModuleCategory::observer:
-        result = ModuleCategory::modifier;
-        break;
-      case ModuleCategory::unset: {
-        throw art::Exception{art::errors::LogicError}
-          << "The " << cat << " category has no opposite.\n";
-      }
+    case ModuleCategory::modifier:
+      result = ModuleCategory::observer;
+      break;
+    case ModuleCategory::observer:
+      result = ModuleCategory::modifier;
+      break;
+    case ModuleCategory::unset: {
+      throw art::Exception{art::errors::LogicError}
+        << "The " << cat << " category has no opposite.\n";
+    }
     }
     return result;
   }
@@ -121,13 +121,13 @@ namespace {
   path_selection_override(ModuleCategory const category)
   {
     switch (category) {
-      case ModuleCategory::modifier:
-        return trigger_paths_str;
-      case ModuleCategory::observer:
-        return end_paths_str;
-      default:
-        assert(false); // Unreachable
-        return {};
+    case ModuleCategory::modifier:
+      return trigger_paths_str;
+    case ModuleCategory::observer:
+      return end_paths_str;
+    default:
+      assert(false); // Unreachable
+      return {};
     }
   }
 

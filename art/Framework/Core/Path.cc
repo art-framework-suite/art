@@ -122,19 +122,19 @@ namespace art {
     // Invoke pre-path signals only for the first schedule.
     if (pc_.scheduleID() == ScheduleID::first()) {
       switch (trans) {
-        case Transition::BeginRun:
-          actReg_.sPrePathBeginRun.invoke(name());
-          break;
-        case Transition::EndRun:
-          actReg_.sPrePathEndRun.invoke(name());
-          break;
-        case Transition::BeginSubRun:
-          actReg_.sPrePathBeginSubRun.invoke(name());
-          break;
-        case Transition::EndSubRun:
-          actReg_.sPrePathEndSubRun.invoke(name());
-          break;
-        default: {} // No other pre-path signals supported.
+      case Transition::BeginRun:
+        actReg_.sPrePathBeginRun.invoke(name());
+        break;
+      case Transition::EndRun:
+        actReg_.sPrePathEndRun.invoke(name());
+        break;
+      case Transition::BeginSubRun:
+        actReg_.sPrePathBeginSubRun.invoke(name());
+        break;
+      case Transition::EndSubRun:
+        actReg_.sPrePathEndSubRun.invoke(name());
+        break;
+      default: {} // No other pre-path signals supported.
       }
     }
     state_ = hlt::Ready;
@@ -174,19 +174,19 @@ namespace art {
     if (pc_.scheduleID().id() == art::Globals::instance()->nschedules() - 1) {
       HLTPathStatus const status(state_, idx);
       switch (trans) {
-        case Transition::BeginRun:
-          actReg_.sPostPathBeginRun.invoke(name(), status);
-          break;
-        case Transition::EndRun:
-          actReg_.sPostPathEndRun.invoke(name(), status);
-          break;
-        case Transition::BeginSubRun:
-          actReg_.sPostPathBeginSubRun.invoke(name(), status);
-          break;
-        case Transition::EndSubRun:
-          actReg_.sPostPathEndSubRun.invoke(name(), status);
-          break;
-        default: {} // No other post-path signals supported.
+      case Transition::BeginRun:
+        actReg_.sPostPathBeginRun.invoke(name(), status);
+        break;
+      case Transition::EndRun:
+        actReg_.sPostPathEndRun.invoke(name(), status);
+        break;
+      case Transition::BeginSubRun:
+        actReg_.sPostPathBeginSubRun.invoke(name(), status);
+        break;
+      case Transition::EndSubRun:
+        actReg_.sPostPathEndSubRun.invoke(name(), status);
+        break;
+      default: {} // No other post-path signals supported.
       }
     }
   }

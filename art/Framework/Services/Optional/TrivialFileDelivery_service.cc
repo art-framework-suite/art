@@ -32,7 +32,7 @@ namespace art {
       }
     }
 
-} // unnamed namespace
+  } // unnamed namespace
 
   class TrivialFileDelivery : public CatalogInterface {
   public:
