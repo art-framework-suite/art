@@ -4,6 +4,7 @@
 #include <iosfwd>
 #include <limits>
 #include <string>
+#include <vector>
 #include <tuple>
 #include <utility>
 
@@ -70,6 +71,8 @@ namespace art {
   std::string to_string(PathID id);
   std::string to_string(PathSpec const& spec);
   PathSpec path_spec(std::string const& path_spec_str);
+  std::vector<PathSpec> path_specs(
+    std::vector<std::string> const& path_spec_strs);
   std::ostream& operator<<(std::ostream& os, PathSpec const& spec);
 }
 

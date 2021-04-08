@@ -9,7 +9,9 @@ physics: {
   analyzers: {
     check: {
       module_type: CheckTriggerBits
-      paths: [b, a]
+      ordered_paths: [b, a]
+      expected_a: false
+      expected_b: true
     }
   }
   a: ["!filt"]

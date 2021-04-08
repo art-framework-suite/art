@@ -11,15 +11,18 @@ namespace {
   class CheckTriggerBits : public art::SharedAnalyzer {
   public:
     struct Config {
-      fhicl::Sequence<std::string> paths{fhicl::Name{"paths"}};
+      fhicl::Sequence<std::string> ordered_paths{fhicl::Name{"ordered_paths"}};
+      fhicl::Atom<bool> expected_a{fhicl::Name{"expected_a"}};
+      fhicl::Atom<bool> expected_b{fhicl::Name{"expected_b"}};
     };
     using Parameters = Table<Config>;
     explicit CheckTriggerBits(Parameters const& p, art::ProcessingFrame const&);
 
   private:
     void analyze(art::Event const&, art::ProcessingFrame const&) override;
-    std::vector<std::string> const paths_;
-    std::vector<bool> const path_results_;
+    std::vector<std::string> const orderedPaths_;
+    bool const expectedA_;
+    bool const expectedB_;
     art::ProductToken<art::TriggerResults> const token_;
     art::ServiceHandle<art::TriggerNamesService const> triggerNames_;
   };
@@ -27,28 +30,29 @@ namespace {
   CheckTriggerBits::CheckTriggerBits(Parameters const& p,
                                      art::ProcessingFrame const&)
     : SharedAnalyzer{p}
-    , paths_{p().paths()}
-    , path_results_{true, false}
+    , orderedPaths_{p().ordered_paths()}
+    , expectedA_{p().expected_a()}
+    , expectedB_{p().expected_b()}
     , token_{consumes<art::TriggerResults>("TriggerResults")}
   {
     async<art::InEvent>();
 
     auto const& trigger_paths = triggerNames_->getTrigPaths();
     auto const num_paths = size(trigger_paths);
-    BOOST_TEST(num_paths == size(paths_));
+    BOOST_TEST(num_paths == size(orderedPaths_));
 
     for (std::size_t i{}; i != num_paths; ++i) {
-      BOOST_TEST(trigger_paths[i] == paths_[i]);
+      BOOST_TEST(trigger_paths[i] == orderedPaths_[i]);
     }
   }
 
   void
   CheckTriggerBits::analyze(art::Event const& e, art::ProcessingFrame const&)
   {
-    auto const& trigger_results = *e.getValidHandle(token_);
-    for (std::size_t i = 0; i != trigger_results.size(); ++i) {
-      BOOST_TEST(path_results_[i] == trigger_results.accept(i));
-    }
+    auto const results = triggerNames_->pathResults(e);
+    BOOST_TEST(size(results) == 2ull);
+    BOOST_TEST(results.at("a").accept() == expectedA_);
+    BOOST_TEST(results.at("b").accept() == expectedB_);
   }
 }
 

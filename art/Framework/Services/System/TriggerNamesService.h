@@ -23,8 +23,11 @@
 // It will return the trigger path names from previous processes.
 //
 
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/detail/system_service_macros.h"
 #include "art/Persistency/Provenance/PathSpec.h"
+#include "canvas/Persistency/Common/HLTPathStatus.h"
+#include "canvas/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/fwd.h"
 
 #include <functional>
@@ -40,50 +43,41 @@ namespace art {
 
   class TriggerNamesService {
   public:
-    TriggerNamesService(std::vector<PathSpec> const& triggerPathSpecs,
-                        std::string const& processName,
-                        fhicl::ParameterSet const& physicsPSet,
-                        ActivityRegistry& registry);
-    // Returns jobPS.process_name
+    TriggerNamesService(fhicl::ParameterSet const& trigger_paths_pset,
+                        fhicl::ParameterSet const& physics_pset);
+
+    // For all processes
+    TriggerResults const& triggerResults(
+      Event const& e,
+      std::string const& process_name = "current_process") const;
+
+    std::map<std::string, HLTPathStatus> pathResults(
+      Event const& e,
+      std::string const& process_name = "current_process") const;
+
+    // Current process only
     std::string const& getProcessName() const;
-
-    // Returns trigger path names passed to the ctor.
     std::vector<std::string> const& getTrigPaths() const;
-
-    // Returns count of trigger path names.
-    std::size_t size() const;
-
-    // Returns the trigger path name for the supplied PathID.
-    std::string const& getTrigPath(PathID id) const;
-
-    // Returns the path ID of trigger path name, or an invalid ID on
-    // failure.
+    std::string const& getTrigPath(PathID const id) const;
     PathID findTrigPath(std::string const& name) const;
-
-    // Returns the module names on the named trigger path.
     std::vector<std::string> const& getTrigPathModules(
       std::string const& name) const;
-    // Returns the modules names on the trigger path for the supplied pathID.
-    std::vector<std::string> const& getTrigPathModules(PathID i) const;
-    // Returns the module name on the named trigger path at index j.
-    std::string const& getTrigPathModule(std::string const& name,
-                                         std::size_t j) const;
-    // Returns the module name on the trigger path with the supplied
-    // PathID and module index j.
-    std::string const& getTrigPathModule(PathID id, std::size_t j) const;
+    std::vector<std::string> const& getTrigPathModules(PathID id) const;
 
-    // Expert only
+    //  - Expert only
     size_t index_for(PathID id) const;
+
+    struct DataPerProcess {
+      std::vector<PathSpec> triggerPathSpecs{};
+      std::vector<std::string> triggerPathNames{};
+      std::vector<std::vector<std::string>> moduleNames{};
+    };
 
   private:
     size_t index_(detail::entry_selector_t selector) const;
-    void updateTriggerInfo_(std::string const&);
+    DataPerProcess const& currentData_() const;
 
-    std::vector<PathSpec> triggerPathSpecs_{};
-    std::vector<std::string> triggerPathNames_{};
-    std::string const processName_;
-    // Labels of modules on trigger paths, const after ctor.
-    std::vector<std::vector<std::string>> moduleNames_{};
+    std::map<std::string, DataPerProcess> mutable dataPerProcess_;
   };
 
 } // namespace art

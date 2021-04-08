@@ -37,6 +37,7 @@ cet_make_library(LIBRARY_NAME art_Framework_Services_System_TriggerNamesService_
     fhiclcpp::fhiclcpp
     art::Persistency_Provenance
     art::Utilities
+    art::Framework_Principal
 )
 
 install_headers(SUBDIRS detail)

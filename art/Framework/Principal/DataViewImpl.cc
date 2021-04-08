@@ -177,13 +177,11 @@ namespace art {
         << " is not found in the ProcessHistoryRegistry.\n"
         << "This file is malformed.\n";
     }
-    ProcessConfiguration config;
-    bool const process_found =
-      ph.getConfigurationForProcess(processName, config);
-    if (process_found) {
-      fhicl::ParameterSetRegistry::get(config.parameterSetID(), ps);
+    auto const config = ph.getConfigurationForProcess(processName);
+    if (config) {
+      fhicl::ParameterSetRegistry::get(config->parameterSetID(), ps);
     }
-    return process_found;
+    return config.has_value();
   }
 
   cet::exempt_ptr<BranchDescription const>
