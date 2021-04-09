@@ -361,6 +361,7 @@ BOOST_AUTO_TEST_CASE(getBySelectorFromEmpty)
 {
   ModuleLabelSelector const byModuleLabel{"mod1"};
   Handle<int> nonesuch;
+  BOOST_TEST(not nonesuch);
   BOOST_TEST(!nonesuch.isValid());
   BOOST_TEST(!currentEvent_->get(byModuleLabel, nonesuch));
   BOOST_TEST(!nonesuch.isValid());
@@ -393,6 +394,7 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
   ProcessNameSelector const should_also_not_match{"current_process"};
   Handle<arttest::IntProduct> h;
   BOOST_TEST_REQUIRE(currentEvent_->get(should_match, h));
+  BOOST_TEST(h);
   BOOST_TEST(h.isValid());
   h.clear();
   BOOST_CHECK_THROW(*h, cet::exception);
