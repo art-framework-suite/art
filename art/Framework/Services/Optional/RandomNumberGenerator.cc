@@ -292,7 +292,7 @@ namespace art {
     }
     // access the saved-states product:
     auto const& saved =
-      *event.getValidHandle<vector<RNGsnapshot>>(restoreStateLabel_);
+      event.getProduct<vector<RNGsnapshot>>(restoreStateLabel_);
     // restore engines from saved-states product:
     for (auto const& snapshot : saved) {
       string const& label = snapshot.label();
