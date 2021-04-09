@@ -80,21 +80,6 @@ namespace art {
     friend class ResultsProducer;
     friend class ProducingService;
 
-    // TYPES
-  public:
-    struct PMValue {
-
-      PMValue(std::unique_ptr<EDProduct>&& p,
-              BranchDescription const& b,
-              RangeSet const& r)
-        : prod_{std::move(p)}, bd_{b}, rs_{r}
-      {}
-      std::unique_ptr<EDProduct> prod_;
-      BranchDescription const& bd_;
-      RangeSet rs_;
-    };
-
-    // MEMBER FUNCTIONS -- Special Member Functions
   public:
     ~DataViewImpl();
     explicit DataViewImpl(BranchType bt,
@@ -107,8 +92,7 @@ namespace art {
     DataViewImpl& operator=(DataViewImpl const&) = delete;
     DataViewImpl& operator=(DataViewImpl&) = delete;
 
-    // MEMBER FUNCTIONS -- User-facing API - misc
-  public:
+    // Miscellaneous functionality
     RunID runID() const;
     SubRunID subRunID() const;
     EventID eventID() const;
@@ -129,8 +113,7 @@ namespace art {
     bool getProcessParameterSet(std::string const& process,
                                 fhicl::ParameterSet&) const;
 
-    // MEMBER FUNCTIONS -- User-facing API -- get*
-  public:
+    // Product retrieval
     template <typename PROD>
     bool get(SelectorBase const&, Handle<PROD>& result) const;
     template <typename PROD>
@@ -145,8 +128,7 @@ namespace art {
                     std::string const& process,
                     Handle<PROD>& result) const;
 
-    // MEMBER FUNCTIONS -- User-facing API -- get*, using InputTag
-  public:
+    // - by InputTag
     template <typename PROD>
     PROD const& getByLabel(InputTag const& tag) const;
     template <typename PROD>
@@ -156,15 +138,13 @@ namespace art {
     template <typename PROD>
     ValidHandle<PROD> getValidHandle(InputTag const& tag) const;
 
-    // MEMBER FUNCTIONS -- User-facing API -- get*, using ProductToken
-  public:
+    // - by ProductToken
     template <typename PROD>
     bool getByToken(ProductToken<PROD> const&, Handle<PROD>& result) const;
     template <typename PROD>
     ValidHandle<PROD> getValidHandle(ProductToken<PROD> const&) const;
 
-    // MEMBER FUNCTIONS -- User-facing API -- getProductTokens/getMany*
-  public:
+    // Multiple product retrievals
     template <typename PROD>
     std::vector<InputTag> getInputTags(
       SelectorBase const& selector = MatchAllSelector{}) const;
@@ -179,8 +159,7 @@ namespace art {
     template <typename PROD>
     void getManyByType(std::vector<Handle<PROD>>& results) const;
 
-    // MEMBER FUNCTIONS -- User-facing API -- getView
-  public:
+    // View retrieval
     template <typename ELEMENT>
     std::size_t getView(std::string const& moduleLabel,
                         std::string const& productInstanceName,
@@ -210,8 +189,7 @@ namespace art {
     template <typename ELEMENT>
     bool getView(ViewToken<ELEMENT> const&, View<ELEMENT>& result) const;
 
-    // MEMBER FUNCTIONS -- User-facing API -- getPtrVector
-  public:
+    // PtrVector retrieval
     template <typename ELEMENT>
     void getPtrVector(std::string const& moduleLabel,
                       std::string const& productInstanceName,
@@ -227,16 +205,25 @@ namespace art {
     void getPtrVector(ViewToken<ELEMENT> const&,
                       PtrVector<ELEMENT>& result) const;
 
-    // MEMBER FUNCTIONS -- User-facing API -- getProductID
-  public:
+    // Product ID and description
     template <typename T>
     ProductID getProductID(std::string const& instance_name = "") const;
 
     cet::exempt_ptr<BranchDescription const> getProductDescription(
       ProductID) const;
 
-    // MEMBER FUNCTIONS -- User-facing API -- put*, Run product
-  public:
+    // Product insertion - all processing levels
+    template <typename PROD>
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  std::string const& instance = {});
+
+    // Product insertion -- run/subrun
+    template <typename PROD>
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  std::string const& instance,
+                  RangeSet const& rs);
+
+    // Product insertion - run
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   FullSemantic<Level::Run> const semantic);
@@ -259,8 +246,7 @@ namespace art {
                   std::string const& instance,
                   RangedFragmentSemantic<Level::Run> semantic);
 
-    // MEMBER FUNCTIONS -- User-facing API -- put*, SubRun product
-  public:
+    // Product insertion - subrun
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   FullSemantic<Level::SubRun> const semantic);
@@ -283,25 +269,24 @@ namespace art {
                   std::string const& instance,
                   RangedFragmentSemantic<Level::SubRun> semantic);
 
-    // MEMBER FUNCTIONS -- User-facing API -- put*, Event product
-  public:
-    template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp);
-    template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp, std::string const& instance);
-    template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp,
-                  std::string const& instance,
-                  RangeSet const& rs);
-
     void movePutProductsToPrincipal(Principal& principal);
     void movePutProductsToPrincipal(
       Principal& principal,
       bool const checkProducts,
       std::map<TypeLabel, BranchDescription> const* expectedProducts);
 
-    // MEMBER FUNCTIONS -- implementation details
   private:
+    struct PMValue {
+      PMValue(std::unique_ptr<EDProduct>&& p,
+              BranchDescription const& b,
+              RangeSet const& r)
+        : prod_{std::move(p)}, bd_{b}, rs_{r}
+      {}
+      std::unique_ptr<EDProduct> prod_;
+      BranchDescription const& bd_;
+      RangeSet rs_;
+    };
+
     std::string const& getProcessName_(std::string const&) const;
     BranchDescription const& getProductDescription_(
       TypeID const& type,
@@ -720,9 +705,37 @@ namespace art {
 
   template <typename PROD>
   ProductID
-  DataViewImpl::put(std::unique_ptr<PROD>&& edp)
+  DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
   {
-    return put(move(edp), "");
+    std::lock_guard lock{mutex_};
+    TypeID const tid{typeid(PROD)};
+    if (edp.get() == nullptr) {
+      throw art::Exception(errors::NullPointerError)
+        << "Event::put: A null unique_ptr was passed to 'put'.\n"
+        << "The pointer is of type " << tid << ".\n"
+        << "The specified productInstanceName was '" << instance << "'.\n";
+    }
+    auto const& bd = getProductDescription_(tid, instance, true);
+    assert(bd.productID() != ProductID::invalid());
+    auto const typeLabel =
+      detail::type_label_for(tid, instance, SupportsView<PROD>::value, md_);
+    auto wp = std::make_unique<Wrapper<PROD>>(move(edp));
+    auto const& rs = detail::range_sets_supported(branchType_) ?
+                       rangeSet_.collapse() :
+                       RangeSet::invalid();
+    bool const result =
+      putProducts_.try_emplace(typeLabel, PMValue{std::move(wp), bd, rs})
+        .second;
+    if (!result) {
+      cet::HorizontalRule rule{30};
+      throw art::Exception(errors::ProductPutFailure)
+        << "Event::put: Attempt to put multiple products with the\n"
+        << "            following description onto the Event.\n"
+        << "            Products must be unique per Event.\n"
+        << rule('=') << '\n'
+        << bd << rule('=') << '\n';
+    }
+    return bd.productID();
   }
 
   template <typename PROD>
@@ -891,41 +904,6 @@ namespace art {
         << "or contact artists@fnal.gov for assistance.\n";
     }
     return put(move(edp), instance, semantic.rs);
-  }
-
-  template <typename PROD>
-  ProductID
-  DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
-  {
-    std::lock_guard lock{mutex_};
-    TypeID const tid{typeid(PROD)};
-    if (edp.get() == nullptr) {
-      throw art::Exception(errors::NullPointerError)
-        << "Event::put: A null unique_ptr was passed to 'put'.\n"
-        << "The pointer is of type " << tid << ".\n"
-        << "The specified productInstanceName was '" << instance << "'.\n";
-    }
-    auto const& bd = getProductDescription_(tid, instance, true);
-    assert(bd.productID() != ProductID::invalid());
-    auto const typeLabel =
-      detail::type_label_for(tid, instance, SupportsView<PROD>::value, md_);
-    auto wp = std::make_unique<Wrapper<PROD>>(move(edp));
-    auto const& rs = detail::range_sets_supported(branchType_) ?
-                       rangeSet_.collapse() :
-                       RangeSet::invalid();
-    bool const result =
-      putProducts_.try_emplace(typeLabel, PMValue{std::move(wp), bd, rs})
-        .second;
-    if (!result) {
-      cet::HorizontalRule rule{30};
-      throw art::Exception(errors::ProductPutFailure)
-        << "Event::put: Attempt to put multiple products with the\n"
-        << "            following description onto the Event.\n"
-        << "            Products must be unique per Event.\n"
-        << rule('=') << '\n'
-        << bd << rule('=') << '\n';
-    }
-    return bd.productID();
   }
 
   template <typename PROD>

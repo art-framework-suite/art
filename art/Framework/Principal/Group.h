@@ -51,7 +51,7 @@ namespace art {
     void removeCachedProduct();
 
     // Metadata
-    BranchDescription const& productDescription() const;
+    BranchDescription const& productDescription() const noexcept;
     ProductID productID() const;
     RangeSet const& rangeOfValidity() const;
     bool productAvailable() const;

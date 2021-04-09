@@ -36,18 +36,18 @@ namespace art {
   public:
     // Special Member Functions
     explicit Provenance();
-    explicit Provenance(cet::exempt_ptr<Group const> g);
+    explicit Provenance(cet::exempt_ptr<Group const> g) noexcept;
 
     // Full product description
-    BranchDescription const& productDescription() const;
+    BranchDescription const& productDescription() const noexcept;
 
     // Selected components of the product description
-    std::string const& branchName() const;
-    std::string const& producedClassName() const;
-    std::string const& friendlyClassName() const;
-    std::string const& moduleLabel() const;
-    std::string const& productInstanceName() const;
-    std::string const& processName() const;
+    std::string const& branchName() const noexcept;
+    std::string const& producedClassName() const noexcept;
+    std::string const& friendlyClassName() const noexcept;
+    std::string const& moduleLabel() const noexcept;
+    std::string const& productInstanceName() const noexcept;
+    std::string const& processName() const noexcept;
     InputTag inputTag() const;
 
     // Metadata about the product's origin
@@ -55,20 +55,20 @@ namespace art {
     Parentage const& parentage() const;
     std::vector<ProductID> const& parents() const;
     fhicl::ParameterSet const& parameterSet() const;
-    std::set<fhicl::ParameterSetID> const& psetIDs() const;
+    std::set<fhicl::ParameterSetID> const& psetIDs() const noexcept;
 
     // Identifiers corresponding to this product, necessary for Ptr
     // support.
-    ProductID productID() const;
+    ProductID productID() const noexcept;
 
     // Functions for querying the validity/presence of a product.
-    bool isValid() const;
-    bool isPresent() const;
-    bool produced() const;
+    bool isValid() const noexcept;
+    bool isPresent() const ;
+    bool produced() const noexcept;
     ProductStatus productStatus() const;
 
     // General utilities
-    bool equals(Provenance const&) const;
+    bool equals(Provenance const&) const noexcept;
     std::ostream& write(std::ostream&) const;
 
   private:
@@ -77,7 +77,7 @@ namespace art {
     cet::exempt_ptr<Group const> group_{nullptr};
   };
 
-  bool operator==(Provenance const& a, Provenance const& b);
+  bool operator==(Provenance const& a, Provenance const& b) noexcept;
   std::ostream& operator<<(std::ostream& os, Provenance const& p);
 }
 #endif /* art_Framework_Principal_Provenance_h */

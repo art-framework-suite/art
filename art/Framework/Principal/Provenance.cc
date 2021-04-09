@@ -10,70 +10,70 @@ namespace art {
 
   Provenance::Provenance() = default;
 
-  Provenance::Provenance(cet::exempt_ptr<Group const> g) : group_{g} {}
+  Provenance::Provenance(cet::exempt_ptr<Group const> g) noexcept : group_{g} {}
 
   bool
-  Provenance::isValid() const
+  Provenance::isValid() const noexcept
   {
     return static_cast<bool>(group_);
   }
 
   BranchDescription const&
-  Provenance::productDescription() const
+  Provenance::productDescription() const noexcept
   {
     return group_->productDescription();
   }
 
   bool
-  Provenance::produced() const
+  Provenance::produced() const noexcept
   {
     return productDescription().produced();
   }
 
   string const&
-  Provenance::producedClassName() const
+  Provenance::producedClassName() const noexcept
   {
     return productDescription().producedClassName();
   }
 
   string const&
-  Provenance::branchName() const
+  Provenance::branchName() const noexcept
   {
     return productDescription().branchName();
   }
 
   string const&
-  Provenance::friendlyClassName() const
+  Provenance::friendlyClassName() const noexcept
   {
     return productDescription().friendlyClassName();
   }
 
   string const&
-  Provenance::moduleLabel() const
+  Provenance::moduleLabel() const noexcept
   {
     return productDescription().moduleLabel();
   }
 
   string const&
-  Provenance::productInstanceName() const
+  Provenance::productInstanceName() const noexcept
   {
     return productDescription().productInstanceName();
   }
 
   string const&
-  Provenance::processName() const
+  Provenance::processName() const noexcept
   {
     return productDescription().processName();
   }
 
   ProductID
-  Provenance::productID() const
+  Provenance::productID() const noexcept
   {
     return productDescription().productID();
   }
 
   set<fhicl::ParameterSetID> const&
-  Provenance::psetIDs() const
+  Provenance::psetIDs() const noexcept
   {
     return productDescription().psetIDs();
   }
@@ -122,7 +122,7 @@ namespace art {
   }
 
   bool
-  Provenance::equals(Provenance const& other) const
+  Provenance::equals(Provenance const& other) const noexcept
   {
     return group_ == other.group_;
   }
@@ -136,7 +136,7 @@ namespace art {
   }
 
   bool
-  operator==(Provenance const& a, Provenance const& b)
+  operator==(Provenance const& a, Provenance const& b) noexcept
   {
     return a.equals(b);
   }

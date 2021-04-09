@@ -124,7 +124,7 @@ namespace art {
   }
 
   BranchDescription const&
-  Group::productDescription() const
+  Group::productDescription() const noexcept
   {
     return branchDescription_;
   }

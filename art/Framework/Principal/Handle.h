@@ -7,7 +7,7 @@
 //          their Provenances.
 //
 //  ValidHandle: A Handle that can not be invalid, and thus does not check
-//           for validity upon dereferencing.
+//               for validity upon dereferencing.
 //
 //  If the pointed-to EDProduct or Provenance is destroyed, use of the
 //  Handle becomes undefined. There is no way to query the Handle to
@@ -203,8 +203,6 @@ template <class T>
 inline art::ProductID
 art::Handle<T>::id() const
 {
-  // FIXME: returning prov_.productID() should be sufficient since
-  // ProductID{} is invalid anyway.
   return prov_.isValid() ? prov_.productID() : ProductID{};
 }
 
