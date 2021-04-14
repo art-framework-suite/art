@@ -1,4 +1,8 @@
 ### MIGRATE-NO-ACTION
+#[================================================================[.rst:
+X
+=
+#]================================================================]
 # art_make
 #
 # Identify the files in the current source directory and build

@@ -1,3 +1,7 @@
+#[================================================================[.rst:
+X
+=
+#]================================================================]
 # macros for building plugin libraries
 #
 # The plugin type is expected to be service, source, or module, but we
