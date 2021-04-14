@@ -162,11 +162,12 @@ namespace art {
                     Handle<PROD>& result) const;
     template <typename PROD>
     bool getByLabel(InputTag const& tag, Handle<PROD>& result) const;
-    template <typename PROD>
-    PROD const* getPointerByLabel(InputTag const& tag) const;
+
     template <typename PROD>
     bool getByToken(ProductToken<PROD> const& token,
                     Handle<PROD>& result) const;
+    template <typename PROD>
+    PROD const* getPointerByLabel(InputTag const& tag) const;
     template <typename PROD>
     void getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
     template <typename PROD>
@@ -223,10 +224,10 @@ namespace art {
     // Product insertion - run
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
-                  FullSemantic<Level::Run> const semantic);
+                  FullSemantic<Level::Run> semantic);
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
-                  FragmentSemantic<Level::Run> const semantic);
+                  FragmentSemantic<Level::Run> semantic);
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   RangedFragmentSemantic<Level::Run> semantic);
@@ -246,10 +247,10 @@ namespace art {
     // Product insertion - subrun
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
-                  FullSemantic<Level::SubRun> const semantic);
+                  FullSemantic<Level::SubRun> semantic);
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
-                  FragmentSemantic<Level::SubRun> const semantic);
+                  FragmentSemantic<Level::SubRun> semantic);
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   RangedFragmentSemantic<Level::SubRun> semantic);

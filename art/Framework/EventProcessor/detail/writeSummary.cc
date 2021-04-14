@@ -129,7 +129,7 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
     LogPrint("ArtSummary") << "TrigReport "
                            << "---------- Trigger-path summary ------------";
     LogPrint("ArtSummary") << "TrigReport " << std::right << setw(10)
-                           << "Trig Bit#"
+                           << "Path ID"
                            << " " << std::right << setw(10) << "Run"
                            << " " << std::right << setw(10) << "Passed"
                            << " " << std::right << setw(10) << "Failed"
@@ -208,7 +208,7 @@ art::detail::triggerReport(PerScheduleContainer<PathsInfo> const& epis,
         << "TrigReport "
         << "---------- Modules in path: " << path_spec.name << " ------------";
       LogPrint("ArtSummary")
-        << "TrigReport " << std::right << setw(10) << "Trig Bit#"
+        << "TrigReport " << std::right << setw(10) << "Path ID"
         << " " << std::right << setw(10) << "Visited"
         << " " << std::right << setw(10) << "Passed"
         << " " << std::right << setw(10) << "Failed"
