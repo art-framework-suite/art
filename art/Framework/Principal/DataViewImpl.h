@@ -514,8 +514,7 @@ namespace art {
     if (recordParents_) {
       recordAsParent_(grp);
     }
-    std::vector<void const*> view;
-    grp->uniqueProduct()->fillView(view);
+    auto const view = grp->uniqueProduct()->getView();
     std::vector<ELEMENT const*> castedView;
     for (auto p : view) {
       castedView.push_back(static_cast<ELEMENT const*>(p));
@@ -567,13 +566,12 @@ namespace art {
     if (recordParents_) {
       recordAsParent_(grp);
     }
-    std::vector<void const*> view;
-    grp->uniqueProduct()->fillView(view);
+    auto const view = grp->uniqueProduct()->getView();
     std::vector<ELEMENT const*> castedView;
     for (auto p : view) {
       castedView.push_back(static_cast<ELEMENT const*>(p));
     }
-    result = View{castedView, grp->productID(), grp->uniqueProduct()};
+    result = View{move(castedView), grp->productID(), grp->uniqueProduct()};
     return true;
   }
 
