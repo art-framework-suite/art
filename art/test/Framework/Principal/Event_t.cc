@@ -506,7 +506,7 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
   tags.erase(new_end, end(tags));
 
   // Only three of the registered products are available.
-  currentEvent_->getMany(modMultiSelector, handles);
+  handles = currentEvent_->getMany<product_t>(modMultiSelector);
   BOOST_TEST(handles.size() == 3u);
 
   // Make sure the resolved products agree with those specified in the
@@ -516,13 +516,10 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
     BOOST_TEST(handles[i].provenance()->inputTag() == tags[i]);
   }
 
-  handles.clear();
-
-  currentEvent_->getMany(ModuleLabelSelector{"nomatch"}, handles);
+  handles = currentEvent_->getMany<product_t>(ModuleLabelSelector{"nomatch"});
   BOOST_TEST_REQUIRE(handles.empty());
 
-  std::vector<Handle<int>> nomatches;
-  currentEvent_->getMany(modMultiSelector, nomatches);
+  auto const nomatches = currentEvent_->getMany<int>(modMultiSelector);
   BOOST_TEST_REQUIRE(nomatches.empty());
 }
 
@@ -666,9 +663,6 @@ BOOST_AUTO_TEST_CASE(getByLabelSpecialProcessNames)
 
 BOOST_AUTO_TEST_CASE(getManyByType)
 {
-  using handle_t = Handle<product_t>;
-  using handle_vec = std::vector<handle_t>;
-
   addSourceProduct(product_with_value(1), "int1_tag", "int1");
   addSourceProduct(product_with_value(2), "int2_tag", "int2");
   addSourceProduct(product_with_value(3), "int3_tag");
@@ -684,8 +678,7 @@ BOOST_AUTO_TEST_CASE(getManyByType)
   auto const tags = currentEvent_->getInputTags<product_t>();
   BOOST_TEST(tags.size() == 6u);
 
-  handle_vec handles;
-  currentEvent_->getManyByType(handles);
+  auto const handles = currentEvent_->getMany<product_t>();
   BOOST_TEST(handles.size() == 6u);
   int sum = 0;
   for (int k = 0; k < 6; ++k) {

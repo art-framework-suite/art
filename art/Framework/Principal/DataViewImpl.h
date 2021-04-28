@@ -163,15 +163,22 @@ namespace art {
     template <typename PROD>
     bool getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
+    // Deprecated
     template <typename PROD>
-    bool getByToken(ProductToken<PROD> const& token,
-                    Handle<PROD>& result) const;
+    [[deprecated(
+      "\n\nart warning: Please use getHandle<T>(token) instead.\n\n")]] bool
+    getByToken(ProductToken<PROD> const& token, Handle<PROD>& result) const;
     template <typename PROD>
-    PROD const* getPointerByLabel(InputTag const& tag) const;
+    [[deprecated("\n\nart warning: Please use getHandle<T>(tag).product() "
+                 "instead.\n\n")]] PROD const*
+    getPointerByLabel(InputTag const& tag) const;
     template <typename PROD>
-    void getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
+    [[deprecated(
+      "\n\nart warning: Please use getMany<T>(selector) instead.\n\n")]] void
+    getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
     template <typename PROD>
-    void getManyByType(std::vector<Handle<PROD>>& results) const;
+    [[deprecated("\n\nart warning: Please use getMany<T>() instead.\n\n")]] void
+    getManyByType(std::vector<Handle<PROD>>& results) const;
 
     // View retrieval
     template <typename ELEMENT>
