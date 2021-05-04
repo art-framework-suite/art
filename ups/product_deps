@@ -248,7 +248,7 @@ perllib	product_dir
 #
 ####################################
 product		version		qual	flags		<table_format=2>
-canvas		v3_12_00	-
+canvas		v3_12_01	-
 catch		v2_13_4a	-	only_for_build
 cetmodules	v2_17_00	-	only_for_build
 range		v3_0_11_0	-	only_for_build
