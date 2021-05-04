@@ -23,6 +23,7 @@
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Framework/Core/detail/ModuleKeyAndType.h"
 #include "art/Persistency/Provenance/ModuleType.h"
+#include "art/Persistency/Provenance/PathSpec.h"
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ScheduleID.h"
@@ -34,6 +35,7 @@
 #include <optional>
 #include <set>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace art {
@@ -50,7 +52,6 @@ namespace art {
 
   class PathManager {
   public:
-    ~PathManager() noexcept;
     PathManager(fhicl::ParameterSet const& procPS,
                 UpdateOutputCallbacks& preg,
                 ProductDescriptions& productsToProduce,
@@ -63,7 +64,8 @@ namespace art {
     PathManager& operator=(PathManager const&) = delete;
     PathManager& operator=(PathManager&&) = delete;
 
-    std::vector<std::string> const& triggerPathNames() const;
+    std::vector<PathSpec> triggerPathSpecs() const;
+
     void createModulesAndWorkers(
       GlobalTaskGroup& task_group,
       detail::SharedResources& resources,
@@ -84,15 +86,11 @@ namespace art {
     std::map<std::string, detail::ModuleConfigInfo> moduleInformation_(
       detail::EnabledModules const& enabled_modules) const;
 
-    ModulesByThreadingType makeModules_(ScheduleID::size_type n,
-                                        GlobalTaskGroup& task_group,
-                                        detail::SharedResources& resources);
-    std::pair<ModuleBase*, std::string> makeModule_(
-      fhicl::ParameterSet const& module_pset,
-      ModuleDescription const& md,
-      ScheduleID,
-      GlobalTaskGroup& task_group,
-      detail::SharedResources& resources) const;
+    ModulesByThreadingType makeModules_(ScheduleID::size_type n);
+    using maybe_module_t = std::variant<ModuleBase*, std::string>;
+    maybe_module_t makeModule_(fhicl::ParameterSet const& module_pset,
+                               ModuleDescription const& md,
+                               ScheduleID) const;
     std::vector<WorkerInPath> fillWorkers_(
       PathContext const& pc,
       std::vector<WorkerInPath::ConfigInfo> const& wci_list,
@@ -100,6 +98,9 @@ namespace art {
       std::map<std::string, Worker*>& workers,
       GlobalTaskGroup& task_group,
       detail::SharedResources& resources);
+    Worker* makeWorker_(ModulesByThreadingType const& modules,
+                        ModuleDescription const& md,
+                        WorkerParams const& wp);
     ModuleType loadModuleType_(std::string const& lib_spec) const;
     ModuleThreadingType loadModuleThreadingType_(
       std::string const& lib_spec) const;
@@ -116,31 +117,27 @@ namespace art {
     void fillSelectEventsDeps_(detail::configs_t const& worker_configs,
                                detail::collection_map_t& info_collection) const;
 
+    std::vector<std::string> triggerPathNames_() const;
+    std::vector<std::string> prependedTriggerPathNames_() const;
+
     // Member Data
     UpdateOutputCallbacks& outputCallbacks_;
     ActionTable const& exceptActions_;
     ActivityRegistry const& actReg_;
-    cet::LibraryManager lm_{Suffixes::module()};
-    fhicl::ParameterSet procPS_{};
-    std::vector<std::string> triggerPathNames_{};
-    // FIXME: The number of workers is the number of schedules times
-    //        the number of configured modules.  For a replicated
-    //        module, there is one worker per module copy; for a
-    //        shared module, there are as many workers as their are
-    //        schedules.  This part of the code could benefit from
-    //        using smart pointers.
-    std::map<module_label_t, PerScheduleContainer<Worker*>> workers_{};
+    fhicl::ParameterSet procPS_;
+    art::detail::module_entries_for_ordered_path_t triggerPathSpecs_;
     PerScheduleContainer<PathsInfo> triggerPathsInfo_;
     PerScheduleContainer<PathsInfo> endPathInfo_;
     ProductDescriptions& productsToProduce_;
+
+    cet::LibraryManager lm_{Suffixes::module()};
     //  The following data members are only needed to delay the
     //  creation of modules until after the service system has
     //  started.  We can move them back to the ctor once that is
     //  fixed.
     std::string processName_{};
     std::map<std::string, detail::ModuleConfigInfo> allModules_{};
-    std::vector<std::pair<std::string, art::detail::configs_t>>
-      protoTrigPathLabels_{};
+    art::detail::paths_to_modules_t protoTrigPathLabels_{};
     art::detail::configs_t protoEndPathLabels_{};
   };
 } // namespace art

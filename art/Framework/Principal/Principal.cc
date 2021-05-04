@@ -1,6 +1,7 @@
 #include "art/Framework/Principal/Principal.h"
 // vim: set sw=2 expandtab :
 
+#include "art/Framework/Principal/DelayedReader.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/OutputHandle.h"
@@ -8,9 +9,9 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RangeSetsSupported.h"
 #include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Common/DelayedReader.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "canvas/Persistency/Common/PrincipalBase.h"
@@ -75,14 +76,6 @@ namespace art {
     }
 
   } // unnamed namespace
-
-  Principal::~Principal() noexcept
-  {
-    presentProducts_ = nullptr;
-    producedProducts_ = nullptr;
-    delete eventAux_.load();
-    eventAux_.store(nullptr);
-  }
 
   void
   Principal::ctor_create_groups(
@@ -326,16 +319,6 @@ namespace art {
     return productGetter(pid);
   }
 
-  // Note: To make secondary file-reading thread-safe, we will need to
-  //       ensure that any adjustments to the secondaryPrincipals_
-  //       vector is done atomically with respect to any reading of
-  //       the vector.
-  void
-  Principal::addSecondaryPrincipal(std::unique_ptr<Principal>&& val)
-  {
-    secondaryPrincipals_.emplace_back(std::move(val));
-  }
-
   void
   Principal::createGroupsForProducedProducts(
     ProductTables const& producedProducts)
@@ -458,16 +441,6 @@ namespace art {
       << "Attempt to remove unknown product corresponding to ProductID: " << pid
       << '\n'
       << "Please contact artists@fnal.gov\n";
-  }
-
-  // Used by Principal::put to insert the data product provenance.
-  // Used by RootDelayedReader::getProduct_ to replace the product provenance
-  // when merging run and subRun data products.
-  void
-  Principal::insert_pp(Group* grp,
-                       std::unique_ptr<ProductProvenance const>&& pp)
-  {
-    grp->setProductProvenance(move(pp));
   }
 
   cet::exempt_ptr<ProductProvenance const>
@@ -665,17 +638,6 @@ namespace art {
     }
     return found;
   }
-}
-
-// FIXME: If Selector.h is included before the "ranges::views::unique"
-//        instantiation, then the selector operations are introduced
-//        during template instantiation, resulting in broken builds
-//        for GCC 8.2.  I assume this is an error with either GCC 8.2
-//        or with the ranges library.  I do not yet know who is to
-//        blame. -KK
-#include "art/Framework/Principal/Selector.h"
-
-namespace art {
 
   GroupQueryResult
   Principal::getBySelector(ModuleContext const& mc,
@@ -733,6 +695,12 @@ namespace art {
     return resolve_products(groups, wrapped.wrapped_product_type);
   }
 
+  auto
+  Principal::tryNextSecondaryFile() const
+  {
+    return delayedReader_->readFromSecondaryFile(nextSecondaryFileIdx_);
+  }
+
   std::vector<cet::exempt_ptr<Group>>
   Principal::getMatchingSequence(ModuleContext const& mc,
                                  SelectorBase const& selector,
@@ -767,18 +735,8 @@ namespace art {
     }
     // Open more secondary files if necessary
     if (groups.empty()) {
-      while (true) {
-        int const err = tryNextSecondaryFile();
-        if (err == -2) {
-          // No more files.
-          break;
-        }
-        if (err == -1) {
-          // Run, SubRun, or Event not found.
-          continue;
-        }
-        assert(!secondaryPrincipals_.empty());
-        auto& new_sp = secondaryPrincipals_.back();
+      while (auto sp = tryNextSecondaryFile()) {
+        auto& new_sp = secondaryPrincipals_.emplace_back(move(sp));
         groups = new_sp->matchingSequenceFromInputFile(mc, selector);
         if (!groups.empty()) {
           return groups;
@@ -851,18 +809,8 @@ namespace art {
       }
     }
     // Open more secondary files if necessary
-    while (true) {
-      int const err = tryNextSecondaryFile();
-      if (err == -2) {
-        // No more files.
-        break;
-      }
-      if (err == -1) {
-        // Run, SubRun, or Event not found.
-        continue;
-      }
-      assert(!secondaryPrincipals_.empty());
-      auto& new_sp = secondaryPrincipals_.back();
+    while (auto sp = tryNextSecondaryFile()) {
+      auto& new_sp = secondaryPrincipals_.emplace_back(move(sp));
       if (new_sp->findGroupsFromInputFile(mc, wrapped, selector, results)) {
         return results;
       }
@@ -1188,18 +1136,6 @@ namespace art {
     return eventAux_.load()->time();
   }
 
-  int
-  Principal::tryNextSecondaryFile() const
-  {
-    int const err =
-      delayedReader_->openNextSecondaryFile(nextSecondaryFileIdx_);
-    if (err != -2) {
-      // there are more files to try
-      ++nextSecondaryFileIdx_;
-    }
-    return err;
-  }
-
   bool
   Principal::producedInProcess(ProductID const pid) const
   {
@@ -1255,18 +1191,8 @@ namespace art {
       }
     }
     // Try new secondary files
-    while (true) {
-      int const err = tryNextSecondaryFile();
-      if (err == -2) {
-        // No more files.
-        return nullptr;
-      }
-      if (err == -1) {
-        // Run, SubRun, or Event not found.
-        continue;
-      }
-      assert(!secondaryPrincipals_.empty());
-      auto& new_sp = secondaryPrincipals_.back();
+    while (auto sp = tryNextSecondaryFile()) {
+      auto& new_sp = secondaryPrincipals_.emplace_back(move(sp));
       if (new_sp->presentFromSource(pid)) {
         return new_sp->getGroupLocal(pid);
       }

@@ -10,8 +10,6 @@
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "fhiclcpp/ParameterSet.h"
 
-#include <string>
-
 #include <tbb/task_group.h> // Can't forward-declare this class.
 
 namespace art {
@@ -24,42 +22,17 @@ namespace art {
   }
 
   struct WorkerParams {
-
-    WorkerParams(fhicl::ParameterSet const& procPset,
-                 fhicl::ParameterSet const& pset,
-                 UpdateOutputCallbacks& reg,
-                 ProductDescriptions& producedProducts,
-                 ActivityRegistry const& actReg,
-                 ActionTable const& actions,
-                 std::string const& processName,
-                 ScheduleID const sid,
-                 tbb::task_group& group,
-                 detail::SharedResources& resources)
-      : procPset_{procPset}
-      , pset_{pset}
-      , reg_{reg}
-      , producedProducts_{producedProducts}
-      , actReg_{actReg}
-      , actions_{actions}
-      , processName_{processName}
-      , scheduleID_{sid}
-      , taskGroup_{group}
-      , resources_{resources}
-    {}
-
-    fhicl::ParameterSet const& procPset_;
-    fhicl::ParameterSet const pset_;
     UpdateOutputCallbacks& reg_;
     ProductDescriptions& producedProducts_;
     ActivityRegistry const& actReg_;
     ActionTable const& actions_;
-    std::string const processName_;
     ScheduleID scheduleID_;
     tbb::task_group& taskGroup_;
     detail::SharedResources& resources_;
   };
 
 } // namespace art
+
 #endif /* art_Framework_Principal_WorkerParams_h */
 
 // Local Variables:

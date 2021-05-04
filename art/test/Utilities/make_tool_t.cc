@@ -8,7 +8,7 @@
 #include "art/test/Utilities/tools/NestedFunctionInClassTool.h"
 #include "art/test/Utilities/tools/NestedFunctionTool.h"
 #include "art/test/Utilities/tools/OperationBase.h"
-#include "fhiclcpp/make_ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 #include <string>
 
@@ -16,10 +16,7 @@ namespace {
   auto
   pset_from_oss(std::ostringstream const& ss)
   {
-    fhicl::ParameterSet pset;
-    std::string const pstr{ss.str()};
-    fhicl::make_ParameterSet(pstr, pset);
-    return pset;
+    return fhicl::ParameterSet::make(ss.str());
   }
 } // namespace
 

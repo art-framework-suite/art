@@ -34,43 +34,37 @@ namespace art::detail {
   }
 
   bool
-  ProcessAndEventSelector::match(Event const& e) const
+  ProcessAndEventSelector::match(ScheduleID const id, Event const& e) const
   {
     auto h = triggerResults(e);
-    return eventSelector_.acceptEvent(*h);
+    return eventSelector_.acceptEvent(id, *h);
   }
 
   ProcessAndEventSelectors::ProcessAndEventSelectors(
     vector<pair<string, string>> const& path_specs,
-    vector<string> const& triggernames,
     string const& process_name)
   {
     // Turn the passed path specs into a map of process name to
     // a vector of trigger names.
     map<string, vector<string>> paths_for_process;
-    for (auto const& pr : path_specs) {
-      auto const& pname = pr.first.empty() ? process_name : pr.first;
-      paths_for_process[pname].push_back(pr.second);
+    for (auto const& [proc_name, path_names] : path_specs) {
+      auto const& pname = proc_name.empty() ? process_name : proc_name;
+      paths_for_process[pname].push_back(path_names);
     }
     // Now go through all the process names found, and create an event
     // selector for each one.
     for (auto const& [pname, paths] : paths_for_process) {
-      if (pname == process_name) {
-        // For the passed process name we have been given the trigger names.
-        sel_.emplace_back(pname, EventSelector{paths, triggernames});
-        continue;
-      }
-      // For other process names we do not know the trigger names.
       sel_.emplace_back(pname, EventSelector{paths});
     }
   }
 
   bool
-  ProcessAndEventSelectors::matchEvent(Event const& e) const
+  ProcessAndEventSelectors::matchEvent(ScheduleID const id,
+                                       Event const& e) const
   {
     assert(not empty(sel_));
     return std::any_of(
-      begin(sel_), end(sel_), [&e](auto& val) { return val.match(e); });
+      begin(sel_), end(sel_), [id, &e](auto& val) { return val.match(id, e); });
   }
 
   Handle<TriggerResults>

@@ -54,16 +54,16 @@ namespace {
     result << brief_context(md) << ' ';
     auto const bt = principal.branchType();
     switch (bt) {
-      case art::InRun:
-        result << principal.runID();
-        break;
-      case art::InSubRun:
-        result << principal.subRunID();
-        break;
-      case art::InEvent:
-        result << principal.eventID();
-        break;
-      default: {}
+    case art::InRun:
+      result << principal.runID();
+      break;
+    case art::InSubRun:
+      result << principal.subRunID();
+      break;
+    case art::InEvent:
+      result << principal.eventID();
+      break;
+    default: {}
     }
     return result.str();
   }
@@ -257,24 +257,24 @@ namespace art {
                  ModuleContext const& mc)
   {
     switch (state_.load()) {
-      case Ready:
-        break;
-      case Pass:
-        return true;
-      case Fail:
-        return false;
-      case ExceptionThrown: {
-        // Rethrow the cached exception again. It seems impossible to
-        // get here a second time unless a cet::exception has been
-        // thrown previously.
-        mf::LogWarning("repeat") << "A module has been invoked a second time "
-                                    "even though it caught an exception during "
-                                    "the previous invocation.\nThis may be an "
-                                    "indication of a configuration problem.\n";
-        rethrow_exception(cached_exception_);
-      }
-      case Working:
-        break; // See below.
+    case Ready:
+      break;
+    case Pass:
+      return true;
+    case Fail:
+      return false;
+    case ExceptionThrown: {
+      // Rethrow the cached exception again. It seems impossible to
+      // get here a second time unless a cet::exception has been
+      // thrown previously.
+      mf::LogWarning("repeat") << "A module has been invoked a second time "
+                                  "even though it caught an exception during "
+                                  "the previous invocation.\nThis may be an "
+                                  "indication of a configuration problem.\n";
+      rethrow_exception(cached_exception_);
+    }
+    case Working:
+      break; // See below.
     }
     bool rc = false;
     try {

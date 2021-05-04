@@ -3,6 +3,7 @@
 
 #include "art/Framework/Principal/Actions.h"
 #include "art/Utilities/GlobalTaskGroup.h"
+#include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalDelegatedParameter.h"
@@ -34,7 +35,8 @@ namespace art {
       using Name = fhicl::Name;
       using Comment = fhicl::Comment;
       fhicl::Atom<unsigned> num_threads{Name{"num_threads"}, 1};
-      fhicl::Atom<unsigned> num_schedules{Name{"num_schedules"}, 1};
+      fhicl::Atom<ScheduleID::size_type> num_schedules{Name{"num_schedules"},
+                                                       1};
       fhicl::Atom<unsigned> stack_size{
         Name{"stack_size"},
         Comment{"The stack size (in bytes) that the TBB scheduler will use for "
@@ -82,7 +84,7 @@ namespace art {
     {
       return nThreads_;
     }
-    unsigned
+    ScheduleID::size_type
     num_schedules() const noexcept
     {
       return nSchedules_;

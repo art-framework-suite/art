@@ -28,6 +28,7 @@ Define CMake function ${BASE}(NAME) or variable ${BASE}_LIBRARIES before calling
       fhiclcpp
       cetlib
       cetlib_except
+      ${ROOT_Core_LIBRARY}
       Boost::filesystem
     )
   endif()

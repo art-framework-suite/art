@@ -29,7 +29,7 @@ namespace {
     for (auto const& element : fileIndex) {
       if (element.getEntryType() != art::FileIndex::kEvent)
         continue;
-      result.emplace(element.entry_, element.eventID_);
+      result.emplace(element.entry, element.eventID);
     }
     return result;
   }
@@ -121,17 +121,17 @@ std::ostream&
 art::operator<<(std::ostream& os, MixHelper::Mode const mode)
 {
   switch (mode) {
-    case MixHelper::Mode::SEQUENTIAL:
-      return os << "SEQUENTIAL";
-    case MixHelper::Mode::RANDOM_REPLACE:
-      return os << "RANDOM_REPLACE";
-    case MixHelper::Mode::RANDOM_LIM_REPLACE:
-      return os << "RANDOM_LIM_REPLACE";
-    case MixHelper::Mode::RANDOM_NO_REPLACE:
-      return os << "RANDOM_NO_REPLACE";
-    case MixHelper::Mode::UNKNOWN:
-      return os << "UNKNOWN";
-      // No default so compiler can warn.
+  case MixHelper::Mode::SEQUENTIAL:
+    return os << "SEQUENTIAL";
+  case MixHelper::Mode::RANDOM_REPLACE:
+    return os << "RANDOM_REPLACE";
+  case MixHelper::Mode::RANDOM_LIM_REPLACE:
+    return os << "RANDOM_LIM_REPLACE";
+  case MixHelper::Mode::RANDOM_NO_REPLACE:
+    return os << "RANDOM_NO_REPLACE";
+  case MixHelper::Mode::UNKNOWN:
+    return os << "UNKNOWN";
+    // No default so compiler can warn.
   }
   return os;
 }
@@ -224,44 +224,43 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
 
   nOpensOverThreshold_ = {};
   switch (readMode_) {
-    case Mode::SEQUENTIAL:
-      enSeq.resize(nSecondaries);
-      std::iota(begin(enSeq), end(enSeq), nEventsReadThisFile_);
-      break;
-    case Mode::RANDOM_REPLACE:
+  case Mode::SEQUENTIAL:
+    enSeq.resize(nSecondaries);
+    std::iota(begin(enSeq), end(enSeq), nEventsReadThisFile_);
+    break;
+  case Mode::RANDOM_REPLACE:
+    std::generate_n(
+      std::back_inserter(enSeq), nSecondaries, [this, nEventsInFile] {
+        return dist_.get()->fireInt(nEventsInFile);
+      });
+    std::sort(enSeq.begin(), enSeq.end());
+    break;
+  case Mode::RANDOM_LIM_REPLACE: {
+    std::unordered_set<EntryNumberSequence::value_type>
+      entries; // Guaranteed unique.
+    while (entries.size() < nSecondaries) {
       std::generate_n(
-        std::back_inserter(enSeq), nSecondaries, [this, nEventsInFile] {
-          return dist_.get()->fireInt(nEventsInFile);
-        });
-      std::sort(enSeq.begin(), enSeq.end());
-      break;
-    case Mode::RANDOM_LIM_REPLACE: {
-      std::unordered_set<EntryNumberSequence::value_type>
-        entries; // Guaranteed unique.
-      while (entries.size() < nSecondaries) {
-        std::generate_n(std::inserter(entries, entries.begin()),
-                        nSecondaries - entries.size(),
-                        [this, nEventsInFile] {
-                          return dist_.get()->fireInt(nEventsInFile);
-                        });
-      }
-      enSeq.assign(cbegin(entries), cend(entries));
-      std::sort(begin(enSeq), end(enSeq));
-      // Since we need to sort at the end anyway, it's unclear whether
-      // unordered_set is faster than set even though inserts are
-      // approximately linear time. Since the complexity of the sort is
-      // NlogN, we'd need a profile run for it all to come out in the
-      // wash.
-      assert(enSeq.size() == nSecondaries); // Should be true by construction.
-    } break;
-    case Mode::RANDOM_NO_REPLACE: {
-      auto i = shuffledSequence_.cbegin() + nEventsReadThisFile_;
-      enSeq.assign(i, i + nSecondaries);
-    } break;
-    default:
-      throw Exception(errors::LogicError)
-        << "Unrecognized read mode " << static_cast<int>(readMode_)
-        << ". Contact the art developers.\n";
+        std::inserter(entries, entries.begin()),
+        nSecondaries - entries.size(),
+        [this, nEventsInFile] { return dist_.get()->fireInt(nEventsInFile); });
+    }
+    enSeq.assign(cbegin(entries), cend(entries));
+    std::sort(begin(enSeq), end(enSeq));
+    // Since we need to sort at the end anyway, it's unclear whether
+    // unordered_set is faster than set even though inserts are
+    // approximately linear time. Since the complexity of the sort is
+    // NlogN, we'd need a profile run for it all to come out in the
+    // wash.
+    assert(enSeq.size() == nSecondaries); // Should be true by construction.
+  } break;
+  case Mode::RANDOM_NO_REPLACE: {
+    auto i = shuffledSequence_.cbegin() + nEventsReadThisFile_;
+    enSeq.assign(i, i + nSecondaries);
+  } break;
+  default:
+    throw Exception(errors::LogicError)
+      << "Unrecognized read mode " << static_cast<int>(readMode_)
+      << ". Contact the art developers.\n";
   }
   cet::transform_all(
     enSeq, back_inserter(eIDseq), EventIDLookup{eventIDIndex_});
@@ -292,7 +291,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
     for (auto const& eID : eIDseq) {
       auto const it = fileIndex.findPosition(eID.subRunID(), true);
       if (it != std::cend(fileIndex)) {
-        subRunEntries.emplace_back(it->entry_);
+        subRunEntries.emplace_back(it->entry);
       } else {
         throw Exception(errors::NotFound, "NO_SUBRUN")
           << "- Unable to find an entry in the SubRun tree corresponding to "
@@ -306,7 +305,7 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
     for (auto const& eID : eIDseq) {
       auto const it = fileIndex.findPosition(eID.runID(), true);
       if (it != std::cend(fileIndex)) {
-        runEntries.emplace_back(it->entry_);
+        runEntries.emplace_back(it->entry);
       } else {
         throw Exception(errors::NotFound, "NO_RUN")
           << "- Unable to find an entry in the Run tree corresponding to "
@@ -322,28 +321,28 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
   // Do the branch-wise read, mix and put.
   for (auto const& op : mixOps_) {
     switch (op->branchType()) {
-      case InEvent: {
-        auto const inProducts = ioHandle_->readFromFile(*op, eventEntries);
-        op->mixAndPut(e, inProducts, ptrRemapper_);
-        break;
-      }
-      case InSubRun: {
-        auto const inProducts = ioHandle_->readFromFile(*op, subRunEntries);
-        // Ptrs not supported for subrun product mixing.
-        op->mixAndPut(e, inProducts, nopRemapper);
-        break;
-      }
-      case InRun: {
-        auto const inProducts = ioHandle_->readFromFile(*op, runEntries);
-        // Ptrs not support for run product mixing.
-        op->mixAndPut(e, inProducts, nopRemapper);
-        break;
-      }
-      default:
-        throw Exception(errors::LogicError, "Unsupported BranchType")
-          << "- MixHelper::mixAndPut() attempted to handle unsupported branch "
-             "type "
-          << op->branchType() << ".\n";
+    case InEvent: {
+      auto const inProducts = ioHandle_->readFromFile(*op, eventEntries);
+      op->mixAndPut(e, inProducts, ptrRemapper_);
+      break;
+    }
+    case InSubRun: {
+      auto const inProducts = ioHandle_->readFromFile(*op, subRunEntries);
+      // Ptrs not supported for subrun product mixing.
+      op->mixAndPut(e, inProducts, nopRemapper);
+      break;
+    }
+    case InRun: {
+      auto const inProducts = ioHandle_->readFromFile(*op, runEntries);
+      // Ptrs not support for run product mixing.
+      op->mixAndPut(e, inProducts, nopRemapper);
+      break;
+    }
+    default:
+      throw Exception(errors::LogicError, "Unsupported BranchType")
+        << "- MixHelper::mixAndPut() attempted to handle unsupported branch "
+           "type "
+        << op->branchType() << ".\n";
     }
   }
 

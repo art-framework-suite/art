@@ -1,3 +1,4 @@
+### MIGRATE-NO-ACTION
 # art_make
 #
 # Identify the files in the current source directory and build
@@ -106,6 +107,8 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 include(BuildPlugins)
 include(CetMake)
+include(Compatibility)
+include(CetTest)
 
 ####################################
 # art_make_exec
@@ -135,13 +138,14 @@ endmacro()
 # art_make
 ####################################
 function(art_make)
-  set(flags BASENAME_ONLY LIB_ONLY NO_DICTIONARY NO_LIB NO_PLUGINS
+  set(flags BASENAME_ONLY LIB_ONLY NO_DICTIONARY NO_INSTALL NO_LIB NO_PLUGINS
     USE_PRODUCT_NAME USE_PROJECT_NAME)
   cet_regex_escape(VAR flags_regex ${flags})
   list(JOIN flags_regex "|" tmp)
   set(flags_regex "^(${tmp})$")
   set(seen_art_make_flags "${ARGV}")
   list(FILTER seen_art_make_flags INCLUDE REGEX "${flags_regex}")
+  list(REMOVE_DUPLICATES seen_art_make_flags)
   list(TRANSFORM ARGV REPLACE "${flags_regex}" "NOP")
   if ("USE_PRODUCT_NAME" IN_LIST seen_art_make_flags AND
       "USE_PROJECT_NAME" IN_LIST seen_art_make_flags)
@@ -192,10 +196,14 @@ function(art_make)
     endforeach()
     list(REMOVE_DUPLICATES ${option_type})
   endforeach()
+  # We have to parse everything at once and pass through to the right
+  # place if we need to otherwise we could get confused with argument /
+  # option boundaries with multiple parsing passes.
+  cmake_parse_arguments(PARSE_ARGV 0 AM "${flags}" "${one_arg_options}" "${list_options}")
   # Identify plugin sources.
   set(plugins_glob ${plugin_glob})
   foreach(subdir IN LISTS AM_SUBDIRS)
-    list(TRANSFORM plugin_glob PREPEND "${subdir}"
+    list(TRANSFORM plugin_glob PREPEND "${subdir}/"
       OUTPUT_VARIABLE tmp)
     list(APPEND plugins_glob ${tmp})
   endforeach()
@@ -204,12 +212,7 @@ function(art_make)
     EXCLUDE ${AM_EXCLUDE} NOP REGEX "(^|/)[.#].*")
   # Exclude these files from consideration for cet_make() regardless of
   # whether we're making the plugin.
-  cet_passthrough(APPEND KEYWORD EXCLUDE plugin_sources ARGV)
-
-  # We have to parse everything at once and pass through to the right
-  # place if we need to otherwise we could get confused with argument /
-  # option boundaries with multiple parsing passes.
-  cmake_parse_arguments(PARSE_ARGV 0 AM "${flags}" "${one_arg_options}" "${list_options}")
+  cet_passthrough(APPEND KEYWORD EXCLUDE plugin_sources AM_EXCLUDE)
   set(flag_flag FLAG) # Flags are handled differently to the others.
   foreach (option_type IN ITEMS flag one_arg_option list_option)
     # Dictionaries.
@@ -229,7 +232,7 @@ function(art_make)
     unset(flag_flag)
   endforeach()
   # Common options.
-  foreach (type IN ITEMS dict LISTS ${plugin_types})
+  foreach (type IN ITEMS dict LISTS plugin_types)
     string(TOUPPER "${type}" TYPE)
     cet_passthrough(FLAG APPEND AM_NO_INSTALL ${type}_args)
     if (NOT VERSION IN_LIST ${type}_args)
@@ -247,7 +250,15 @@ function(art_make)
   ##################
   # Now actually put everything together.
 
-  # Plugins first.
+  # Find sources for a library and make it.
+  if (NOT AM_NO_LIB)
+    # Retain historical behavior (BASENAME_ONLY was previously
+    # applicable only to plugins) of a deprecated function (art_make).
+    list(REMOVE_ITEM cet_make_args BASENAME_ONLY)
+    art_make_library(${cet_make_args} LIBRARY_NAME_VAR library_name)
+  endif()
+
+  # Plugins.
   if (plugin_sources AND NOT (AM_LIB_ONLY OR AM_NO_PLUGINS))
     cet_regex_escape(VAR e_plugin_types ${plugin_types})
     list(JOIN e_plugin_types "|" plugin_regex)
@@ -257,11 +268,6 @@ function(art_make)
           ${${CMAKE_MATCH_3}_args} SOURCE ${plugin_source})
       endif()
     endforeach()
-  endif()
-
-  # Find sources for a library and make it.
-  if (NOT AM_NO_LIB)
-    art_make_library(${cet_make_args} LIBRARY_NAME_VAR library_name)
   endif()
 
   # Finish off with the dictionary.

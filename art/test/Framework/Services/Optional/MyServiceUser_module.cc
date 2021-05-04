@@ -7,11 +7,11 @@
 // from art v1_01_01.
 ////////////////////////////////////////////////////////////////////////
 
+#include "MyService.h"
+#include "MyServiceInterface.h"
 #include "art/Framework/Core/EDAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "MyServiceInterface.h"
-#include "MyService.h"
 
 namespace art::test {
   class MyServiceUser;

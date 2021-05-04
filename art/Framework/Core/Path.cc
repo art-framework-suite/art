@@ -6,6 +6,8 @@
 #include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
@@ -22,7 +24,6 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
-#include <atomic>
 #include <cstddef>
 #include <exception>
 #include <memory>
@@ -46,7 +47,8 @@ namespace art {
     : actionTable_{actions}
     , actReg_{actReg}
     , pc_{pc}
-    , bitpos_{pc.bitPosition()}
+    , pathPosition_{ServiceHandle<TriggerNamesService>()->index_for(
+        pc_.pathID())}
     , workers_{move(workers)}
     , trptr_{pathResults}
     , taskGroup_{taskGroup}
@@ -60,10 +62,16 @@ namespace art {
     return pc_.scheduleID();
   }
 
-  int
-  Path::bitPosition() const
+  PathSpec const&
+  Path::pathSpec() const
   {
-    return bitpos_;
+    return pc_.pathSpec();
+  }
+
+  PathID
+  Path::pathID() const
+  {
+    return pc_.pathID();
   }
 
   string const&
@@ -109,36 +117,24 @@ namespace art {
   }
 
   void
-  Path::clearCounters()
-  {
-    timesRun_ = 0;
-    timesPassed_ = 0;
-    timesFailed_ = 0;
-    timesExcept_ = 0;
-    for (auto& w : workers_) {
-      w.clearCounters();
-    }
-  }
-
-  void
   Path::process(Transition const trans, Principal& principal)
   {
     // Invoke pre-path signals only for the first schedule.
     if (pc_.scheduleID() == ScheduleID::first()) {
       switch (trans) {
-        case Transition::BeginRun:
-          actReg_.sPrePathBeginRun.invoke(name());
-          break;
-        case Transition::EndRun:
-          actReg_.sPrePathEndRun.invoke(name());
-          break;
-        case Transition::BeginSubRun:
-          actReg_.sPrePathBeginSubRun.invoke(name());
-          break;
-        case Transition::EndSubRun:
-          actReg_.sPrePathEndSubRun.invoke(name());
-          break;
-        default: {} // No other pre-path signals supported.
+      case Transition::BeginRun:
+        actReg_.sPrePathBeginRun.invoke(name());
+        break;
+      case Transition::EndRun:
+        actReg_.sPrePathEndRun.invoke(name());
+        break;
+      case Transition::BeginSubRun:
+        actReg_.sPrePathBeginSubRun.invoke(name());
+        break;
+      case Transition::EndSubRun:
+        actReg_.sPrePathEndSubRun.invoke(name());
+        break;
+      default: {} // No other pre-path signals supported.
       }
     }
     state_ = hlt::Ready;
@@ -178,19 +174,19 @@ namespace art {
     if (pc_.scheduleID().id() == art::Globals::instance()->nschedules() - 1) {
       HLTPathStatus const status(state_, idx);
       switch (trans) {
-        case Transition::BeginRun:
-          actReg_.sPostPathBeginRun.invoke(name(), status);
-          break;
-        case Transition::EndRun:
-          actReg_.sPostPathEndRun.invoke(name(), status);
-          break;
-        case Transition::BeginSubRun:
-          actReg_.sPostPathBeginSubRun.invoke(name(), status);
-          break;
-        case Transition::EndSubRun:
-          actReg_.sPostPathEndSubRun.invoke(name(), status);
-          break;
-        default: {} // No other post-path signals supported.
+      case Transition::BeginRun:
+        actReg_.sPostPathBeginRun.invoke(name(), status);
+        break;
+      case Transition::EndRun:
+        actReg_.sPostPathEndRun.invoke(name(), status);
+        break;
+      case Transition::BeginSubRun:
+        actReg_.sPostPathBeginSubRun.invoke(name(), status);
+        break;
+      case Transition::EndSubRun:
+        actReg_.sPostPathEndSubRun.invoke(name(), status);
+        break;
+      default: {} // No other post-path signals supported.
       }
     }
   }
@@ -288,9 +284,9 @@ namespace art {
             // Possible actions: IgnoreCompletely, Rethrow, SkipEvent
             ++path_->timesExcept_;
             path_->state_ = hlt::Exception;
-            if (path_->trptr_.load()) {
+            if (path_->trptr_) {
               // Not the end path.
-              (*path_->trptr_.load())[path_->bitpos_] =
+              path_->trptr_->at(path_->pathPosition_) =
                 HLTPathStatus(path_->state_, idx_);
             }
             auto art_ex =
@@ -313,9 +309,9 @@ namespace art {
             << "Exception passing through path " << path_->name() << "\n";
           ++path_->timesExcept_;
           path_->state_ = hlt::Exception;
-          if (path_->trptr_.load()) {
+          if (path_->trptr_) {
             // Not the end path.
-            (*path_->trptr_.load())[path_->bitpos_] =
+            path_->trptr_->at(path_->pathPosition_) =
               HLTPathStatus(path_->state_, idx_);
           }
           group_.may_run(pathsDone_, current_exception());
@@ -401,9 +397,9 @@ namespace art {
     auto ex_ptr = std::exception_ptr{};
     try {
       HLTPathStatus const status{state_, idx};
-      if (trptr_.load()) {
+      if (trptr_) {
         // Not the end path.
-        (*trptr_.load())[bitpos_] = status;
+        trptr_->at(pathPosition_) = status;
       }
       actReg_.sPostProcessPath.invoke(pc_, status);
     }

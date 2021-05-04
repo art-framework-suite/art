@@ -22,7 +22,6 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/detail/print_mode.h"
 #include "fhiclcpp/intermediate_table.h"
-#include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -226,7 +225,7 @@ namespace art {
     //
     fhicl::ParameterSet main_pset;
     try {
-      make_ParameterSet(raw_config, main_pset);
+      main_pset = fhicl::ParameterSet::make(raw_config);
     }
     catch (cet::exception const& e) {
       constexpr cet::HorizontalRule rule{36};
@@ -264,8 +263,7 @@ namespace art {
     fhicl::ParameterSet main_pset;
     try {
       // create an intermediate table from the input string
-      fhicl::intermediate_table raw_config;
-      parse_document(config_string, raw_config);
+      auto raw_config = fhicl::parse_document(config_string);
       enabled_modules =
         detail::prune_config_if_enabled(false, true, raw_config);
       // run post-processing
@@ -273,7 +271,7 @@ namespace art {
       BasicPostProcessor bpp;
       bpp.processOptions(vm, raw_config);
       // create the parameter set
-      make_ParameterSet(raw_config, main_pset);
+      main_pset = fhicl::ParameterSet::make(raw_config);
     }
     catch (cet::exception& e) {
       constexpr cet::HorizontalRule rule{36};
@@ -324,23 +322,23 @@ namespace art {
       auto const mode = debug_pset.get<std::string>("printMode");
 
       switch (debug_mode) {
-        case debug_processing::validate_config: {
-          [[fallthrough]];
-        }
-        case debug_processing::config_out: {
-          print_config(main_pset, filename, mode);
-          break;
-        }
-        case debug_processing::debug_config: {
-          print_config(main_pset, filename, mode);
-          return detail::info_success();
-        }
-        case debug_processing::config_summary: {
-          detail::print_config_summary(main_pset, mode, enabled_modules);
-          return detail::info_success();
-        }
-        case debug_processing::none:
-          break;
+      case debug_processing::validate_config: {
+        [[fallthrough]];
+      }
+      case debug_processing::config_out: {
+        print_config(main_pset, filename, mode);
+        break;
+      }
+      case debug_processing::debug_config: {
+        print_config(main_pset, filename, mode);
+        return detail::info_success();
+      }
+      case debug_processing::config_summary: {
+        detail::print_config_summary(main_pset, mode, enabled_modules);
+        return detail::info_success();
+      }
+      case debug_processing::none:
+        break;
       }
     }
     //

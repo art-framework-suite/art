@@ -19,7 +19,6 @@
 #include "art/Utilities/Transition.h"
 #include "cetlib/exempt_ptr.h"
 
-#include <atomic>
 #include <memory>
 #include <string>
 #include <utility>
@@ -51,10 +50,6 @@ namespace art {
                  detail::FilterAction,
                  ModuleContext const&,
                  GlobalTaskGroup& group);
-    WorkerInPath(WorkerInPath const&) = delete;
-    WorkerInPath(WorkerInPath&&);
-    WorkerInPath& operator=(WorkerInPath const&) = delete;
-    WorkerInPath& operator=(WorkerInPath&&);
 
     // API for user
     Worker* getWorker() const;
@@ -76,19 +71,19 @@ namespace art {
   private:
     class WorkerInPathDoneTask;
 
-    std::atomic<Worker*> worker_;
-    std::atomic<detail::FilterAction> filterAction_;
+    cet::exempt_ptr<Worker> worker_;
+    detail::FilterAction filterAction_;
     ModuleContext moduleContext_;
     GlobalTaskGroup* taskGroup_;
 
     // Per-schedule
-    std::atomic<bool> returnCode_{false};
+    bool returnCode_{false};
 
     // Counts
-    std::atomic<std::size_t> counts_visited_{};
-    std::atomic<std::size_t> counts_passed_{};
-    std::atomic<std::size_t> counts_failed_{};
-    std::atomic<std::size_t> counts_thrown_{};
+    std::size_t counts_visited_{};
+    std::size_t counts_passed_{};
+    std::size_t counts_failed_{};
+    std::size_t counts_thrown_{};
   };
 
 } // namespace art

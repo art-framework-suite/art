@@ -1,14 +1,12 @@
 #include "art/Framework/Core/EventSelector.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Framework/Services/Registry/ServicesManager.h"
-#include "art/Framework/Services/System/TriggerNamesService.h"
+#include "art/Persistency/Provenance/PathSpec.h"
 #include "art/Utilities/SharedResource.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 #include <array>
+#include <bitset>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -17,67 +15,49 @@
 using namespace art;
 using namespace fhicl;
 using namespace std;
+using art::PathSpec;
 
-size_t const numBits = 12; // There must be a better way than this but I choose
-                           // to avoid modifying a whole slew of code using the
-                           // array instead of push_back()s.
+constexpr size_t numBits = 12; // There must be a better way than this but I
+                               // choose to avoid modifying a whole slew of code
+                               // using the array instead of push_back()s.
+constexpr size_t numPatterns = 12;
+constexpr size_t numTestMasks = 9;
 
 typedef std::vector<std::vector<bool>> Answers;
 
-typedef std::vector<std::string> Strings;
+typedef std::vector<string> Strings;
 typedef std::vector<Strings> VStrings;
-typedef std::vector<bool> Bools;
-typedef std::vector<Bools> VBools;
+typedef std::vector<std::bitset<numBits>> VBools;
 
 std::ostream&
-operator<<(std::ostream& ost, const Strings& s)
+operator<<(std::ostream& ost, const Strings& strings)
 {
-  for (Strings::const_iterator i(s.begin()), e(s.end()); i != e; ++i) {
-    ost << *i << " ";
+  for (auto const& element : strings) {
+    ost << element << " ";
   }
   return ost;
-}
-
-std::ostream&
-operator<<(std::ostream& ost, const Bools& b)
-{
-  for (unsigned int i = 0; i < b.size(); ++i) {
-    ost << b[i] << " ";
-  }
-  return ost;
-}
-
-template <size_t nb>
-Bools
-toBools(std::array<bool, nb> const& t)
-{
-  Bools b;
-  b.insert(b.end(), t.begin(), t.end());
-  return b;
 }
 
 void
 testone(const Strings& paths,
         const Strings& pattern,
-        const Bools& mask,
+        const std::bitset<numBits>& mask,
         bool answer,
         int jmask)
 {
-  // There are 2 different ways to build the EventSelector.  Both
-  // should give the same result.  We exercise both here.
-  EventSelector select_based_on_pattern_paths(pattern, paths);
-  EventSelector select_based_on_pattern(pattern);
+  EventSelector selector{pattern};
 
   int number_of_trigger_paths = 0;
   std::vector<unsigned char> bitArray;
 
   HLTGlobalStatus bm(mask.size());
-  const HLTPathStatus pass = HLTPathStatus(art::hlt::Pass);
-  const HLTPathStatus fail = HLTPathStatus(art::hlt::Fail);
-  const HLTPathStatus ex = HLTPathStatus(art::hlt::Exception);
-  const HLTPathStatus ready = HLTPathStatus(art::hlt::Ready);
+  HLTPathStatus const pass{art::hlt::Pass};
+  HLTPathStatus const fail{art::hlt::Fail};
+  HLTPathStatus const ex{art::hlt::Exception};
+  HLTPathStatus const ready{art::hlt::Ready};
+
   for (unsigned int b = 0; b < mask.size(); ++b) {
-    bm[b] = (mask[b] ? pass : fail);
+    bm.at(b) = (mask[b] ? pass : fail);
 
     // There is an alternate version of the function acceptEvent
     // that takes an array of characters as an argument instead
@@ -93,8 +73,8 @@ testone(const Strings& paths,
   }
 
   if (jmask == 8 && mask.size() > 4) {
-    bm[0] = ready;
-    bm[4] = ex;
+    bm.at(0) = ready;
+    bm.at(4) = ex;
     bitArray[0] = (bitArray[0] & 0xfc) | art::hlt::Ready;
     bitArray[1] = (bitArray[1] & 0xfc) | art::hlt::Exception;
   }
@@ -103,15 +83,12 @@ testone(const Strings& paths,
   trigger_pset.put<Strings>("trigger_paths", paths);
   ParameterSetRegistry::put(trigger_pset);
 
-  TriggerResults results_id(bm, trigger_pset.id());
-
-  bool const x = select_based_on_pattern_paths.acceptEvent(results_id);
-  bool const y = select_based_on_pattern.acceptEvent(results_id);
-
-  if (x != answer || y != answer) {
+  TriggerResults const results_id{bm, trigger_pset.id()};
+  bool const result = selector.acceptEvent(ScheduleID::first(), results_id);
+  if (result != answer) {
     std::cerr << "failed to compare pattern with mask using pset ID: "
               << "correct=" << answer << " "
-              << "results=" << x << "  " << y << "\n"
+              << "results=" << std::boolalpha << result << '\n'
               << "pattern=" << pattern << "\n"
               << "mask=" << mask << "\n"
               << "jmask = " << jmask << "\n";
@@ -135,187 +112,57 @@ testall(const Strings& paths,
 int
 main()
 {
-
-  // Name all our paths. We have as many paths as there are trigger
-  // bits.
-
-  std::array<char const*, numBits> cpaths = {{
-    "HLTx1",
-    "HLTx2",
-    "HLTy1",
-    "HLTy2",
-    "CALIBx1",
-    "CALIBx2",
-    "CALIBy1",
-    "CALIBy2",
-    "DEBUGx1",
-    "DEBUGx2",
-    "DEBUGy1",
-    "DEBUGy2",
-  }};
-  Strings paths(cpaths.begin(), cpaths.end());
+  Strings const paths{"HLTx1",
+                      "HLTx2",
+                      "HLTy1",
+                      "HLTy2",
+                      "CALIBx1",
+                      "CALIBx2",
+                      "CALIBy1",
+                      "CALIBy2",
+                      "DEBUGx1",
+                      "DEBUGx2",
+                      "DEBUGy1",
+                      "DEBUGy2"};
+  assert(size(paths) == numBits);
 
   // Create our test patterns.  Each of these will be tested against each mask.
 
-  VStrings patterns;
+  VStrings patterns(numPatterns);
+  patterns[0] = {"*"};
+  patterns[1] = {"!*"};
+  patterns[2] = {"HLTx1", "HLTy1"};
+  patterns[3] = {"CALIBx2", "!HLTx2"};
+  patterns[4] = {"HLT*"};
+  patterns[5] = {"!HLT*"};
+  patterns[6] = {"DEBUG*1", "HLT?2"};
+  patterns[7] = {"D*x1", "CALIBx*"};
+  patterns[8] = {"HL*1", "C?LIB*2"};
+  patterns[9] = {"H*x1"};
+  patterns[10] = {"!H*x1"};
+  patterns[11] = {"C?LIB*2"};
 
-  Strings criteria_star;
-  criteria_star.push_back("*");
-  patterns.push_back(criteria_star);
-  Strings criteria_notstar;
-  criteria_notstar.push_back("!*");
-  patterns.push_back(criteria_notstar);
-  Strings criteria0;
-  criteria0.push_back("HLTx1");
-  criteria0.push_back("HLTy1");
-  patterns.push_back(criteria0);
-  Strings criteria1;
-  criteria1.push_back("CALIBx2");
-  criteria1.push_back("!HLTx2");
-  patterns.push_back(criteria1);
-  Strings criteria2;
-  criteria2.push_back("HLT*");
-  patterns.push_back(criteria2);
-  Strings criteria3;
-  criteria3.push_back("!HLT*");
-  patterns.push_back(criteria3);
-  Strings criteria4;
-  criteria4.push_back("DEBUG*1");
-  criteria4.push_back("HLT?2");
-  patterns.push_back(criteria4);
-  Strings criteria5;
-  criteria5.push_back("D*x1");
-  criteria5.push_back("CALIBx*");
-  patterns.push_back(criteria5);
-  Strings criteria6;
-  criteria6.push_back("HL*1");
-  criteria6.push_back("C?LIB*2");
-  patterns.push_back(criteria6);
-  Strings criteria7;
-  criteria7.push_back("H*x1");
-  patterns.push_back(criteria7);
-  Strings criteria8;
-  criteria8.push_back("!H*x1");
-  patterns.push_back(criteria8);
-  Strings criteria9;
-  criteria9.push_back("C?LIB*2");
-  patterns.push_back(criteria9);
+  auto to_bits = [](std::string bit_string) {
+    // The provided string assumes that the first character corresponds to
+    // index 0 of the bitset.  However, this is the opposite convention that
+    // std::bitset uses.  We therefore reverse the characters.
+    std::reverse(begin(bit_string), end(bit_string));
+    return std::bitset<numBits>{bit_string};
+  };
 
-  // Create our test trigger masks.
-
-  VBools testmasks;
-
-  std::array<bool, numBits> t0 = {{false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false}};
-  testmasks.push_back(toBools(t0));
-  std::array<bool, numBits> t1 = {
-    {true, true, true, true, true, true, true, true, true, true, true, true}};
-  testmasks.push_back(toBools(t1));
-  std::array<bool, numBits> t2 = {{true,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false}};
-  testmasks.push_back(toBools(t2));
-  std::array<bool, numBits> t3 = {{false,
-                                   true,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false}};
-  testmasks.push_back(toBools(t3));
-
-  std::array<bool, numBits> t4 = {{false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   true,
-                                   false,
-                                   false,
-                                   false}};
-  testmasks.push_back(toBools(t4));
-  std::array<bool, numBits> t5 = {{true,
-                                   true,
-                                   true,
-                                   true,
-                                   false,
-                                   false,
-                                   true,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   false}};
-  testmasks.push_back(toBools(t5));
-  std::array<bool, numBits> t6 = {{false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   true,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   true,
-                                   false}};
-  testmasks.push_back(toBools(t6));
-  std::array<bool, numBits> t7 = {{true,
-                                   false,
-                                   true,
-                                   false,
-                                   false,
-                                   true,
-                                   true,
-                                   false,
-                                   false,
-                                   true,
-                                   false,
-                                   true}};
-  testmasks.push_back(toBools(t7));
-  std::array<bool, numBits> t8 = {{false,
-                                   false,
-                                   false,
-                                   false,
-                                   false,
-                                   true,
-                                   false,
-                                   false,
-                                   true,
-                                   true,
-                                   true,
-                                   true}};
-  testmasks.push_back(toBools(t8)); // For j=8 only, the first HLTx1 (false) is
-                                    // reset to ready and the fifth CALIBx2
-                                    // (true) is reset to exception.
-
+  VBools testmasks(numTestMasks);
+  testmasks[0] = to_bits("000000000000");
+  testmasks[1] = to_bits("111111111111");
+  testmasks[2] = to_bits("100000000000");
+  testmasks[3] = to_bits("010000000000");
+  testmasks[4] = to_bits("000000001000");
+  testmasks[5] = to_bits("111100100000");
+  testmasks[6] = to_bits("000001000010");
+  testmasks[7] = to_bits("101001100101");
+  testmasks[8] =
+    to_bits("000001001111"); // For j=8 only, the first HLTx1 (false)
+                             // is reset to ready and the fifth
+                             // CALIBx2 (true) is reset to exception.
   // Create the answers
 
   Answers ans;
@@ -478,46 +325,14 @@ main()
 
   ans.push_back(ans9);
 
-  // The following code is identical to that in EventSelector_t.cpp:
-
-  // We want to create the TriggerNamesService because it is used in
-  // the tests.  We do that here, but first we need to build a minimal
-  // parameter set to pass to its constructor.  Then we build the
-  // service and setup the service system.
-  ParameterSet proc_pset;
-  ParameterSet physics_pset;
-
-  std::string processName("HLT");
-  proc_pset.put<std::string>("process_name", processName);
-
-  ParameterSet trigPaths;
-  trigPaths.put<Strings>("trigger_paths", paths);
-  proc_pset.put<ParameterSet>("trigger_paths", trigPaths);
-
-  Strings endPaths;
-  proc_pset.put<Strings>("end_paths", endPaths);
-
-  // We do not care what is in these parameters for the test, they
-  // just need to exist.
-  Strings dummy;
-  for (size_t i = 0; i < numBits; ++i) {
-    physics_pset.put<Strings>(paths[i], dummy);
+  Strings bit_qualified_paths;
+  size_t i = 0;
+  for (auto const& name : paths) {
+    bit_qualified_paths.push_back(std::to_string(i) + ':' + name);
   }
-  proc_pset.put("physics", physics_pset);
-
-  // Now create and setup the service
-  art::ActivityRegistry aReg;
-  art::detail::SharedResources resources;
-
-  auto servicesManager_ =
-    make_unique<ServicesManager>(ParameterSet{}, aReg, resources);
-  art::test::set_manager_for_tests(servicesManager_.get());
-
-  servicesManager_->put(std::make_unique<art::TriggerNamesService>(
-    paths, processName, trigPaths, physics_pset));
 
   // We are ready to run some tests
 
-  testall(paths, patterns, testmasks, ans);
+  testall(bit_qualified_paths, patterns, testmasks, ans);
   return 0;
 }

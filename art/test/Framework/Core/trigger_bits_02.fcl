@@ -1,7 +1,3 @@
-BEGIN_PROLOG
-paths: [b, a]
-END_PROLOG
-
 services.scheduler.wantSummary: true
 
 physics: {
@@ -13,14 +9,13 @@ physics: {
   analyzers: {
     check: {
       module_type: CheckTriggerBits
-      paths: @local::paths
+      # Implicit ordering by framework
+      ordered_paths: [a, b]
+      expected_a: false
+      expected_b: true
     }
   }
   a: ["!filt"]
   b: [filt]
   ep: [check]
 }
-
-physics.trigger_paths: []
-physics.trigger_paths[0]: @local::paths[0]
-physics.trigger_paths[1]: @local::paths[1]

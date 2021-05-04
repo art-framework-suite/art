@@ -7,11 +7,6 @@ set(default_test_libraries
   ${CMAKE_DL_LIBS}
  )
 
-cet_make_library(LIBRARY_NAME set_manager_for_tests NO_INSTALL
-  SOURCE set_manager_for_tests.cc
-  LIBRARIES PRIVATE art::Framework_Services_Registry
-)
-
 set(pmt_libraries
   art::Framework_Principal
   canvas::canvas
@@ -42,9 +37,7 @@ cet_test(PathManager_t USE_BOOST_UNIT
 )
 
 set(eventSelector_test_libraries
-  art::Framework_Services_System_TriggerNamesService_service
   art::Framework_Core
-  art::Framework_Services_Registry
   canvas::canvas
   fhiclcpp::fhiclcpp
 )
@@ -52,7 +45,6 @@ foreach(test IN ITEMS ector Wildcard Exc)
   cet_test(EventSel${test}_t
     SOURCE EventSel${test}_t.cpp
     LIBRARIES PRIVATE
-    art_test::set_manager_for_tests
     ${eventSelector_test_libraries}
   )
 endforeach()
@@ -68,10 +60,6 @@ cet_test(RegistryTemplate_t
   LIBRARIES PRIVATE art::Framework_Services_Registry
 )
 
-cet_test(parse_path_spec_t
-  SOURCE parse_path_spec_t.cpp
-  LIBRARIES PRIVATE art::Framework_Core)
-
 build_plugin(EventCounter "module" NO_INSTALL USE_BOOST_UNIT
   LIBRARIES PRIVATE art::Framework_Principal fhiclcpp::types)
 
@@ -79,6 +67,12 @@ cet_test(RejectEvents_t HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- -c reject_events_t.fcl
   DATAFILES fcl/reject_events_t.fcl
+)
+
+cet_test(SelectEvents_t HANDBUILT
+  TEST_EXEC art_ut
+  TEST_ARGS -- -c select_events_t.fcl
+  DATAFILES fcl/select_events_t.fcl
 )
 
 cet_test(GroupSelector_t USE_BOOST_UNIT

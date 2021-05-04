@@ -10,11 +10,8 @@
 
 namespace art {
 
-  class EventProcessor;
-  class Scheduler;
-
   class Globals {
-    friend class EventProcessor;
+    friend class PathManager;
     friend class Scheduler;
 
   public:

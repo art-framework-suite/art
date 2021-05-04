@@ -4,8 +4,7 @@
 int
 main() try {
   for (auto const& suffix : art::Suffixes::all()) {
-    art::detail::print_available_plugins(
-      suffix, "Dummy.*", true);
+    art::detail::print_available_plugins(suffix, "Dummy.*", true);
   }
 
   // Message facility is special

@@ -256,7 +256,7 @@ namespace art {
     }
     try {
       if (!endPathInfo_.paths().empty()) {
-        endPathInfo_.paths().front()->process(trans, principal);
+        endPathInfo_.paths().front().process(trans, principal);
       }
     }
     catch (cet::exception& ex) {
@@ -330,9 +330,7 @@ namespace art {
   {
     auto const sid = sc_.id();
     TDEBUG_BEGIN_FUNC_SI(4, sid);
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      label_and_worker.second->reset();
-    }
+    endPathInfo_.reset_for_event();
     endPathInfo_.incrementTotalEventCount();
     try {
       auto pathsDoneTask =
@@ -340,7 +338,7 @@ namespace art {
       if (endPathInfo_.paths().empty()) {
         taskGroup_.may_run(pathsDoneTask);
       } else {
-        endPathInfo_.paths().front()->process(pathsDoneTask, ep);
+        endPathInfo_.paths().front().process(pathsDoneTask, ep);
       }
     }
     catch (...) {
@@ -355,11 +353,11 @@ namespace art {
     // We don't worry about providing the sorted list of module names
     // for the end_path right now.  If users decide it is necessary to
     // know what they are, then we can provide them.
-    PathContext const pc{sc_, PathContext::end_path(), 0, {}};
+    PathContext const pc{sc_, PathContext::end_path_spec(), {}};
     for (auto ow : outputWorkers_) {
       ModuleContext const mc{pc, ow->description()};
       actReg_.sPreWriteEvent.invoke(mc);
-      ow->writeEvent(ep);
+      ow->writeEvent(ep, mc);
       actReg_.sPostWriteEvent.invoke(mc);
     }
     auto const& eid = ep.eventID();

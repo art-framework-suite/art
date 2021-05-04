@@ -2,6 +2,7 @@
 #define art_Framework_Core_detail_ModuleKeyAndType_h
 
 #include "art/Persistency/Provenance/ModuleType.h"
+#include "art/Persistency/Provenance/PathSpec.h"
 
 #include <map>
 #include <string>
@@ -15,7 +16,8 @@ namespace art::detail {
   };
 
   enum class FilterAction { Normal = 0, Ignore = 1, Veto = 2 };
-  struct PathEntry {
+
+  struct ModuleSpec {
     std::string name;
     FilterAction action;
   };
@@ -33,11 +35,12 @@ namespace art::detail {
   }
 
   ModuleType module_type(std::string const& full_key);
+
   using keytype_for_name_t = std::map<std::string, ModuleKeyAndType>;
   using module_entries_for_ordered_path_t =
-    std::vector<std::pair<std::string, std::vector<PathEntry>>>;
+    std::vector<std::pair<PathSpec, std::vector<ModuleSpec>>>;
   using module_entries_for_path_t =
-    std::map<std::string, std::vector<PathEntry>>;
+    std::map<std::string, std::vector<ModuleSpec>>;
   using modules_for_path_t =
     std::map<std::string, std::vector<ModuleKeyAndType>>;
 }

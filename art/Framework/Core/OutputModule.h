@@ -14,7 +14,6 @@
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Core/detail/SharedModule.h"
-#include "art/Framework/Core/detail/parse_path_spec.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
@@ -153,7 +152,7 @@ namespace art {
 
     void doWriteRun(RunPrincipal& rp);
     void doWriteSubRun(SubRunPrincipal& srp);
-    void doWriteEvent(EventPrincipal& ep);
+    void doWriteEvent(EventPrincipal& ep, ModuleContext const& mc);
     void doSetRunAuxiliaryRangeSetID(RangeSet const&);
     void doSetSubRunAuxiliaryRangeSetID(RangeSet const&);
     bool doCloseFile();

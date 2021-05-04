@@ -23,7 +23,7 @@ namespace art::detail {
     }
 
     module_entries_for_ordered_path_t const&
-    trigger_paths() const noexcept
+    trigger_path_specs() const noexcept
     {
       return triggerPaths_;
     }

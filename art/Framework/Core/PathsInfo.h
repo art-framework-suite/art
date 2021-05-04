@@ -13,15 +13,19 @@
 namespace art {
   class PathsInfo {
   public:
-    ~PathsInfo() noexcept;
-    PathsInfo();
-
-  public:
     std::map<std::string, Worker*>& workers();
     std::map<std::string, Worker*> const& workers() const;
-    std::vector<Path*>& paths();
-    std::vector<Path*> const& paths() const;
+    void add_path(ActionTable const&,
+                  ActivityRegistry const&,
+                  PathContext const&,
+                  std::vector<WorkerInPath>&&,
+                  GlobalTaskGroup&);
+    std::vector<Path>& paths();
+    std::vector<Path> const& paths() const;
+    std::vector<std::string> pathNames() const;
     HLTGlobalStatus& pathResults();
+    void reset();
+    void reset_for_event();
     void incrementTotalEventCount();
     void incrementPassedEventCount();
     std::size_t passedEvents() const;
@@ -31,10 +35,10 @@ namespace art {
   private:
     // Maps module_label to Worker.
     std::map<std::string, Worker*> workers_{};
-    std::vector<Path*> paths_{};
+    std::vector<Path> paths_{};
     HLTGlobalStatus pathResults_{};
-    std::atomic<std::size_t> totalEvents_;
-    std::atomic<std::size_t> passedEvents_;
+    std::atomic<std::size_t> totalEvents_{};
+    std::atomic<std::size_t> passedEvents_{};
   };
 } // namespace art
 

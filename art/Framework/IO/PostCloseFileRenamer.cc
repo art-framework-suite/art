@@ -70,28 +70,28 @@ art::PostCloseFileRenamer::applySubstitutionsNoIndex_(
     // Decide what we're going to add to the result instead of the
     // substitution pattern:
     switch (*(match[0].first + 1)) {
-      case 'l':
-        result += stats_.moduleLabel();
-        break;
-      case 'p':
-        result += stats_.processName();
-        break;
-      case 'i':
-        result += subInputFileName_(match);
-        break;
-      case 't':
-        result += subTimestamp_(match);
-        break;
-      default:
-        if (match[2].matched) { // [#rRsS]
-          result += subFilledNumericNoIndex_(match);
-        } else {
-          throw Exception(errors::Configuration)
-            << "Unrecognized substitution %" << *(match[0].first + 1)
-            << " in pattern " << filePattern
-            << " -- typo or misconstructed regex?\n";
-        }
-        break;
+    case 'l':
+      result += stats_.moduleLabel();
+      break;
+    case 'p':
+      result += stats_.processName();
+      break;
+    case 'i':
+      result += subInputFileName_(match);
+      break;
+    case 't':
+      result += subTimestamp_(match);
+      break;
+    default:
+      if (match[2].matched) { // [#rRsS]
+        result += subFilledNumericNoIndex_(match);
+      } else {
+        throw Exception(errors::Configuration)
+          << "Unrecognized substitution %" << *(match[0].first + 1)
+          << " in pattern " << filePattern
+          << " -- typo or misconstructed regex?\n";
+      }
+      break;
     }
     sid = match[0].second; // Set position for next match start.
   }
@@ -109,32 +109,32 @@ art::PostCloseFileRenamer::subInputFileName_(boost::smatch const& match) const
     bfs::path const ifp{stats_.lastOpenedInputFile()};
     if (match[4].matched) { // %if[bdenp]
       switch (*(match[4].first)) {
-        case 'b': {
-          // Base name without extension.
-          result = ifp.stem().native();
-        } break;
-        case 'd': {
-          // Fully resolved path without filename.
-          result = canonical(ifp.parent_path()).native();
-        } break;
-        case 'e': {
-          // Extension.
-          result = ifp.extension().native();
-        } break;
-        case 'n': {
-          // Base name with extension.
-          result = ifp.filename().native();
-        } break;
-        case 'p': {
-          // Fully-resolved path with filename.
-          result = (canonical(ifp.parent_path()) / ifp.filename()).native();
-        } break;
-        default: // INTERNAL_ERROR.
-          Exception(errors::LogicError)
-            << "Internal error: subInputFileName_() did not recognize "
-               "substitution code %if"
-            << *(match[4].first) << ".\n";
-          break;
+      case 'b': {
+        // Base name without extension.
+        result = ifp.stem().native();
+      } break;
+      case 'd': {
+        // Fully resolved path without filename.
+        result = canonical(ifp.parent_path()).native();
+      } break;
+      case 'e': {
+        // Extension.
+        result = ifp.extension().native();
+      } break;
+      case 'n': {
+        // Base name with extension.
+        result = ifp.filename().native();
+      } break;
+      case 'p': {
+        // Fully-resolved path with filename.
+        result = (canonical(ifp.parent_path()) / ifp.filename()).native();
+      } break;
+      default: // INTERNAL_ERROR.
+        Exception(errors::LogicError)
+          << "Internal error: subInputFileName_() did not recognize "
+             "substitution code %if"
+          << *(match[4].first) << ".\n";
+        break;
       }
     } else if (match[5].matched) { // Regex substitution.
       // Decompose the regex;
@@ -144,18 +144,18 @@ art::PostCloseFileRenamer::subInputFileName_(boost::smatch const& match) const
       if (match[7].matched) { // Options.
         for (auto c : match[7].str()) {
           switch (c) {
-            case 'i':
-              sflags |= icase;
-              break;
-            case 'g':
-              global = true;
-              break;
-            default: // INTERNAL ERROR.
-              throw Exception(errors::LogicError)
-                << "Internal error: subInputFileName_() did not recognize "
-                   "regex flag '"
-                << c << "'.\n";
-              break;
+          case 'i':
+            sflags |= icase;
+            break;
+          case 'g':
+            global = true;
+            break;
+          default: // INTERNAL ERROR.
+            throw Exception(errors::LogicError)
+              << "Internal error: subInputFileName_() did not recognize "
+                 "regex flag '"
+              << c << "'.\n";
+            break;
           }
         }
       }
@@ -182,30 +182,30 @@ art::PostCloseFileRenamer::subTimestamp_(boost::smatch const& match) const
 {
   std::string result;
   switch (*(match[3].first)) {
-    case 'o': // Open.
-      result = to_string(stats_.outputFileOpenTime());
-      break;
-    case 'c': // Close.
-      result = to_string(stats_.outputFileCloseTime());
-      break;
-    case 'r': // Start of Run with lowest number.
-      result = to_string(stats_.lowestRunStartTime());
-      break;
-    case 'R': // Start of Run with highest number.
-      result = to_string(stats_.highestRunStartTime());
-      break;
-    case 's': // Start of SubRun with lowest number.
-      result = to_string(stats_.lowestSubRunStartTime());
-      break;
-    case 'S': // Start of SubRun with highest number.
-      result = to_string(stats_.highestSubRunStartTime());
-      break;
-    default: // INTERNAL ERROR.
-      throw Exception(errors::LogicError)
-        << "Internal error: subTimestamp_() did not recognize substitution "
-           "code %t"
-        << *(match[3].first) << ".\n";
-      break;
+  case 'o': // Open.
+    result = to_string(stats_.outputFileOpenTime());
+    break;
+  case 'c': // Close.
+    result = to_string(stats_.outputFileCloseTime());
+    break;
+  case 'r': // Start of Run with lowest number.
+    result = to_string(stats_.lowestRunStartTime());
+    break;
+  case 'R': // Start of Run with highest number.
+    result = to_string(stats_.highestRunStartTime());
+    break;
+  case 's': // Start of SubRun with lowest number.
+    result = to_string(stats_.lowestSubRunStartTime());
+    break;
+  case 'S': // Start of SubRun with highest number.
+    result = to_string(stats_.highestSubRunStartTime());
+    break;
+  default: // INTERNAL ERROR.
+    throw Exception(errors::LogicError)
+      << "Internal error: subTimestamp_() did not recognize substitution "
+         "code %t"
+      << *(match[3].first) << ".\n";
+    break;
   }
   return result;
 }
@@ -228,35 +228,35 @@ art::PostCloseFileRenamer::subFilledNumericNoIndex_(
   std::ostringstream num_str;
 
   switch (*(match[2].first)) {
-    case '#':
-      // In order to get the indexing correct, we cannot yet
-      // substitute the index.  We must wait until the entire filename
-      // as been assembled, with all other substitutions evaluated.
-      // At this point, we need to restore the original pattern.
-      num_str << "%" << match[1].str() << "#";
-      break;
-    case 'r':
-      if (stats_.lowestRunID().isValid()) {
-        zero_fill(num_str, stats_.lowestRunID().run());
-      }
-      break;
-    case 'R':
-      if (stats_.highestRunID().isValid()) {
-        zero_fill(num_str, stats_.highestRunID().run());
-      }
-      break;
-    case 's':
-      if (stats_.lowestSubRunID().isValid()) {
-        zero_fill(num_str, stats_.lowestSubRunID().subRun());
-      }
-      break;
-    case 'S':
-      if (stats_.highestSubRunID().isValid()) {
-        zero_fill(num_str, stats_.highestSubRunID().subRun());
-      }
-      break;
-    default: // INTERNAL ERROR.
-      break;
+  case '#':
+    // In order to get the indexing correct, we cannot yet
+    // substitute the index.  We must wait until the entire filename
+    // as been assembled, with all other substitutions evaluated.
+    // At this point, we need to restore the original pattern.
+    num_str << "%" << match[1].str() << "#";
+    break;
+  case 'r':
+    if (stats_.lowestRunID().isValid()) {
+      zero_fill(num_str, stats_.lowestRunID().run());
+    }
+    break;
+  case 'R':
+    if (stats_.highestRunID().isValid()) {
+      zero_fill(num_str, stats_.highestRunID().run());
+    }
+    break;
+  case 's':
+    if (stats_.lowestSubRunID().isValid()) {
+      zero_fill(num_str, stats_.lowestSubRunID().subRun());
+    }
+    break;
+  case 'S':
+    if (stats_.highestSubRunID().isValid()) {
+      zero_fill(num_str, stats_.highestSubRunID().subRun());
+    }
+    break;
+  default: // INTERNAL ERROR.
+    break;
   }
   result = num_str.str();
   if (result.empty()) {

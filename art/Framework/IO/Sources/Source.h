@@ -532,43 +532,43 @@ namespace art {
       state_ = input::IsStop;
     }
     switch (state_) {
-      case input::IsInvalid:
-        if (Source_generator<T>::value) {
-          state_ = input::IsFile; // Once.
-        } else {
-          checkForNextFile_();
-        }
-        break;
-      case input::IsFile:
+    case input::IsInvalid:
+      if (Source_generator<T>::value) {
+        state_ = input::IsFile; // Once.
+      } else {
+        checkForNextFile_();
+      }
+      break;
+    case input::IsFile:
+      readNextAndRequireRun_();
+      break;
+    case input::IsRun:
+      if (pendingSubRun_ || (pendingEvent_ && cachedSRP_)) {
+        state_ = input::IsSubRun;
+        pendingSubRun_ = false;
+      } else if (pendingEvent_)
+        throw Exception(errors::DataCorruption)
+          << "Input file '" << currentFileName_ << "' contains an Event "
+          << newE_->eventID() << " that belongs to no SubRun\n";
+      else {
         readNextAndRequireRun_();
-        break;
-      case input::IsRun:
-        if (pendingSubRun_ || (pendingEvent_ && cachedSRP_)) {
-          state_ = input::IsSubRun;
-          pendingSubRun_ = false;
-        } else if (pendingEvent_)
-          throw Exception(errors::DataCorruption)
-            << "Input file '" << currentFileName_ << "' contains an Event "
-            << newE_->eventID() << " that belongs to no SubRun\n";
-        else {
-          readNextAndRequireRun_();
-        }
-        break;
-      case input::IsSubRun:
-        if (pendingEvent_) {
-          state_ = input::IsEvent;
-          pendingEvent_ = false;
-        } else {
-          readNextAndRefuseEvent_();
-        }
-        break;
-      case input::IsEvent:
-        if (!readNext_()) {
-          checkForNextFile_();
-        }
-        break;
-      case input::IsStop:
-        break;
+      }
+      break;
+    case input::IsSubRun:
+      if (pendingEvent_) {
+        state_ = input::IsEvent;
+        pendingEvent_ = false;
+      } else {
+        readNextAndRefuseEvent_();
+      }
+      break;
+    case input::IsEvent:
+      if (!readNext_()) {
+        checkForNextFile_();
+      }
+      break;
+    case input::IsStop:
+      break;
     }
     if ((state_ == input::IsRun || state_ == input::IsSubRun) &&
         remainingSubRuns_ == 0) {

@@ -4,7 +4,6 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 

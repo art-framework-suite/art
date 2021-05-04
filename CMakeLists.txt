@@ -11,10 +11,10 @@
 #  make install
 #  make package (builds distribution tarfile)
 # ======================================================================
-cmake_minimum_required(VERSION 3.18.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
 find_package(cetmodules 2.13.00 REQUIRED)
-project(art VERSION 3.08.00 LANGUAGES CXX C)
+project(art VERSION 3.09.00 LANGUAGES CXX C)
 
 include(CetCMakeEnv)
 cet_cmake_env()

@@ -31,8 +31,8 @@ namespace art::test {
       , productInstanceName{move(instance)}
     {}
 
-    std::string const friendlyClassName;
-    std::string const productInstanceName;
+    std::string friendlyClassName;
+    std::string productInstanceName;
   };
 
   // For consuming products
@@ -42,8 +42,8 @@ namespace art::test {
       , inputTag{std::move(tag)}
     {}
 
-    std::string const friendlyClassName;
-    art::InputTag const inputTag;
+    std::string friendlyClassName;
+    art::InputTag inputTag;
   };
 
   struct TopLevelTable {

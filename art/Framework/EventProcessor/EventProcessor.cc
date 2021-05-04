@@ -39,13 +39,10 @@
 #include "cetlib/bold_fontify.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/types/detail/validationException.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
-#include "tbb/parallel_for.h"
 
 #include <algorithm>
 #include <cassert>
@@ -99,13 +96,10 @@ namespace art {
       }
 
       // Make the trigger results inserter.
-      WorkerParams const wp{proc_pset,
-                            trig_pset,
-                            outputCallbacks,
+      WorkerParams const wp{outputCallbacks,
                             productsToProduce,
                             actReg,
                             actions,
-                            processName,
                             scheduleID,
                             task_group.native_group(),
                             resources};
@@ -131,8 +125,7 @@ namespace art {
   EventProcessor::EventProcessor(ParameterSet const& pset,
                                  detail::EnabledModules const& enabled_modules)
     : scheduler_{pset.get<ParameterSet>("services.scheduler")}
-    , scheduleIteration_{static_cast<ScheduleID::size_type>(
-        scheduler_->num_schedules())}
+    , scheduleIteration_{scheduler_->num_schedules()}
     , servicesManager_{create_services_manager(
         pset.get<ParameterSet>("services"),
         actReg_,
@@ -162,7 +155,6 @@ namespace art {
     ParentageRegistry::instance();
     ProcessConfigurationRegistry::instance();
     ProcessHistoryRegistry::instance();
-    ServiceRegistry::instance().setManager(servicesManager_.get());
     // We do this late because the floating point control word, signal
     // masks, etc., are per-thread and inherited from the master
     // thread, so we want to allow system services, user services, and
@@ -175,31 +167,24 @@ namespace art {
     // equivalent to its use of TBB, the call should be made after our
     // own TBB task manager has been initialized.
     //    ROOT::EnableImplicitMT();
-    auto const& processName{pset.get<string>("process_name")};
-    Globals::instance()->setProcessName(processName);
     TDEBUG_FUNC(5) << "nschedules: " << scheduler_->num_schedules()
                    << " nthreads: " << scheduler_->num_threads();
 
-    ParameterSet triggerPSet;
-    triggerPSet.put("trigger_paths", pathManager_->triggerPathNames());
-    fhicl::ParameterSetRegistry::put(triggerPSet);
-    Globals::instance()->setTriggerPSet(triggerPSet);
-    Globals::instance()->setTriggerPathNames(pathManager_->triggerPathNames());
     auto const errorOnMissingConsumes = scheduler_->errorOnMissingConsumes();
     ConsumesInfo::instance()->setRequireConsumes(errorOnMissingConsumes);
-    {
-      auto const& physicsPSet = pset.get<ParameterSet>("physics", {});
-      servicesManager_->addSystemService<TriggerNamesService>(
-        pathManager_->triggerPathNames(),
-        processName,
-        triggerPSet,
-        physicsPSet);
-    }
+
+    auto const& processName = Globals::instance()->processName();
+
+    // Trigger-names
+    servicesManager_->addSystemService<TriggerNamesService>(
+      Globals::instance()->triggerPSet(),
+      pset.get<ParameterSet>("physics", {}));
+
     // We have delayed creating the service instances, now actually
     // create them.
     servicesManager_->forceCreation();
-    ServiceHandle<FileCatalogMetadata> {}
-    ->addMetadataString("art.process_name", processName);
+    ServiceHandle<FileCatalogMetadata>()->addMetadataString("art.process_name",
+                                                            processName);
 
     // Now that the service module instances have been created we can
     // set the callbacks, set the module description, and register the
@@ -209,31 +194,40 @@ namespace art {
       producedProductDescriptions_, psSignals_, pc);
     pathManager_->createModulesAndWorkers(
       *taskGroup_, sharedResources_, producing_services);
-    auto create =
-      [&processName, &pset, &triggerPSet, this](ScheduleID const sid) {
-        auto results_inserter =
-          maybe_trigger_results_inserter(sid,
-                                         processName,
-                                         pset,
-                                         triggerPSet,
-                                         outputCallbacks_,
-                                         producedProductDescriptions_,
-                                         scheduler_->actionTable(),
-                                         actReg_,
-                                         pathManager_->triggerPathsInfo(sid),
-                                         *taskGroup_,
-                                         sharedResources_);
-        schedules_->emplace(std::piecewise_construct,
-                            std::forward_as_tuple(sid),
-                            std::forward_as_tuple(sid,
-                                                  pathManager_,
-                                                  scheduler_->actionTable(),
-                                                  actReg_,
-                                                  outputCallbacks_,
-                                                  move(results_inserter),
-                                                  *taskGroup_));
-      };
-    scheduleIteration_.for_each_schedule(create);
+
+    ServiceHandle<TriggerNamesService> trigger_names [[maybe_unused]];
+    auto const end = Globals::instance()->nschedules();
+    for (ScheduleID::size_type i = 0; i != end; ++i) {
+      ScheduleID const sid{i};
+
+      // The ordering of the path results in the TriggerPathsInfo (which is used
+      // for the TriggerResults object), must be the same as that provided by
+      // the TriggerNamesService.
+      auto& trigger_paths_info = pathManager_->triggerPathsInfo(sid);
+      assert(trigger_names->getTrigPaths() == trigger_paths_info.pathNames());
+
+      auto results_inserter =
+        maybe_trigger_results_inserter(sid, //
+                                       processName,
+                                       pset,
+                                       Globals::instance()->triggerPSet(),
+                                       outputCallbacks_, //
+                                       producedProductDescriptions_,
+                                       scheduler_->actionTable(), //
+                                       actReg_,                   //
+                                       trigger_paths_info,        //
+                                       *taskGroup_,               //
+                                       sharedResources_);
+      schedules_->emplace(std::piecewise_construct,
+                          std::forward_as_tuple(sid),
+                          std::forward_as_tuple(sid,
+                                                pathManager_,
+                                                scheduler_->actionTable(),
+                                                actReg_,
+                                                outputCallbacks_,
+                                                move(results_inserter),
+                                                *taskGroup_));
+    }
     sharedResources_.freeze(taskGroup_->native_group());
 
     FDEBUG(2) << pset.to_string() << endl;
@@ -1097,7 +1091,7 @@ namespace art {
       beginSubRunIfNotDoneAlready();
 
       auto const last_schedule_index = scheduler_->num_schedules() - 1;
-      for (unsigned i = 0; i != last_schedule_index; ++i) {
+      for (ScheduleID::size_type i = 0; i != last_schedule_index; ++i) {
         taskGroup_->run([this, i] { processAllEventsAsync(ScheduleID(i)); });
       }
       taskGroup_->native_group().run_and_wait([this, last_schedule_index] {
@@ -1553,20 +1547,20 @@ namespace art {
     auto const itemType = input_->nextItemType();
     FDEBUG(1) << string(4, ' ') << "*** nextItemType: " << itemType << " ***\n";
     switch (itemType) {
-      case input::IsStop:
-        return highest_level();
-      case input::IsFile:
-        return Level::InputFile;
-      case input::IsRun:
-        return Level::Run;
-      case input::IsSubRun:
-        return Level::SubRun;
-      case input::IsEvent:
-        return Level::Event;
-      case input::IsInvalid:
-        throw Exception{errors::LogicError}
-          << "Invalid next item type presented to the event processor.\n"
-          << "Please contact artists@fnal.gov.";
+    case input::IsStop:
+      return highest_level();
+    case input::IsFile:
+      return Level::InputFile;
+    case input::IsRun:
+      return Level::Run;
+    case input::IsSubRun:
+      return Level::SubRun;
+    case input::IsEvent:
+      return Level::Event;
+    case input::IsInvalid:
+      throw Exception{errors::LogicError}
+        << "Invalid next item type presented to the event processor.\n"
+        << "Please contact artists@fnal.gov.";
     }
     throw Exception{errors::LogicError}
       << "Unrecognized next item type presented to the event processor.\n"
@@ -1578,8 +1572,7 @@ namespace art {
   void
   EventProcessor::terminateAbnormally_() try {
     if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
-      ServiceHandle<RandomNumberGenerator> {}
-      ->saveToFile_();
+      ServiceHandle<RandomNumberGenerator>()->saveToFile_();
     }
   }
   catch (...) {

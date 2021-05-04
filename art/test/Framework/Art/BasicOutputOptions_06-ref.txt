@@ -1,4 +1,3 @@
-physics: {}
 process_name: "OptSimpleOut"
 services: {
    CatalogInterface: {

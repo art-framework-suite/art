@@ -115,36 +115,36 @@ namespace art {
     }
 
     switch (status) {
-      case FileCatalogStatus::SUCCESS: {
-        // mark the file as transferred
-        ci_->updateStatus(item.uri(), FileDisposition::TRANSFERRED);
+    case FileCatalogStatus::SUCCESS: {
+      // mark the file as transferred
+      ci_->updateStatus(item.uri(), FileDisposition::TRANSFERRED);
+      return true;
+    }
+    case FileCatalogStatus::NO_MORE_FILES: {
+      return false;
+    }
+    case FileCatalogStatus::DELIVERY_ERROR: {
+      if (attempts <= 1) {
+        throw art::Exception(art::errors::Configuration,
+                             "InputFileCatalog::retrieveNextFile()\n")
+          << "Delivery error encountered after reaching maximum number of "
+             "attemtps!";
+      } else {
+        return retrieveNextFile(item, attempts - 1, false);
+      }
+    }
+    case FileCatalogStatus::TRANSFER_ERROR: {
+      if (attempts <= 1) {
+        // if we end up with a transfer error, the method returns
+        // with a true flag and empty filename. Weired enough, but
+        // the next file does exist we just cannot retrieve it. Therefore
+        // we notify the service that the file has been skipped
+        ci_->updateStatus(item.uri(), FileDisposition::SKIPPED);
         return true;
+      } else {
+        return retrieveNextFile(item, attempts - 1, true);
       }
-      case FileCatalogStatus::NO_MORE_FILES: {
-        return false;
-      }
-      case FileCatalogStatus::DELIVERY_ERROR: {
-        if (attempts <= 1) {
-          throw art::Exception(art::errors::Configuration,
-                               "InputFileCatalog::retrieveNextFile()\n")
-            << "Delivery error encountered after reaching maximum number of "
-               "attemtps!";
-        } else {
-          return retrieveNextFile(item, attempts - 1, false);
-        }
-      }
-      case FileCatalogStatus::TRANSFER_ERROR: {
-        if (attempts <= 1) {
-          // if we end up with a transfer error, the method returns
-          // with a true flag and empty filename. Weired enough, but
-          // the next file does exist we just cannot retrieve it. Therefore
-          // we notify the service that the file has been skipped
-          ci_->updateStatus(item.uri(), FileDisposition::SKIPPED);
-          return true;
-        } else {
-          return retrieveNextFile(item, attempts - 1, true);
-        }
-      }
+    }
     }
     assert(false);
     return false; // Unreachable, but keeps the compiler happy

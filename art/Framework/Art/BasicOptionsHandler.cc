@@ -131,7 +131,7 @@ art::BasicOptionsHandler::doProcessOptions(
   fhicl::intermediate_table& raw_config)
 {
   try {
-    fhicl::parse_document(vm["config"].as<std::string>(), maker_, raw_config);
+    raw_config = fhicl::parse_document(vm["config"].as<std::string>(), maker_);
   }
   catch (cet::exception& e) {
     std::cerr << "Failed to parse the configuration file '"

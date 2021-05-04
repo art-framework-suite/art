@@ -1,6 +1,6 @@
-#include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "MyService.h"
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 
 namespace arttest {
   class ServiceUsingIface;

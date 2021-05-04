@@ -11,15 +11,15 @@ namespace art {
   operator<<(std::ostream& os, OutputFileStatus const ofs)
   {
     switch (ofs) {
-      case OutputFileStatus::Open:
-        return os << "Open";
-      case OutputFileStatus::Switching:
-        return os << "Switching";
-      case OutputFileStatus::Closed:
-        return os << "Closed";
-      default:
-        throw art::Exception{art::errors::LogicError,
-                             "Unknown output file status."};
+    case OutputFileStatus::Open:
+      return os << "Open";
+    case OutputFileStatus::Switching:
+      return os << "Switching";
+    case OutputFileStatus::Closed:
+      return os << "Closed";
+    default:
+      throw art::Exception{art::errors::LogicError,
+                           "Unknown output file status."};
     }
   }
 } // namespace art

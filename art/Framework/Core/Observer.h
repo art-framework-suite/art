@@ -31,17 +31,18 @@ namespace art {
     // by putting some type logic in WorkerT.
     void registerProducts(ProductDescriptions&, ModuleDescription const&);
     void fillDescriptions(ModuleDescription const&);
+    fhicl::ParameterSetID selectorConfig() const;
+
+  protected:
     std::string const& processName() const;
     bool
     wantAllEvents() const noexcept
     {
       return wantAllEvents_;
     }
-    bool wantEvent(Event const& e) const;
-    fhicl::ParameterSetID selectorConfig() const;
+    bool wantEvent(ScheduleID id, Event const& e) const;
     Handle<TriggerResults> getTriggerResults(Event const& e) const;
 
-  protected:
     struct EOConfig {
       fhicl::Sequence<std::string> selectEvents{
         fhicl::Name("SelectEvents"),
@@ -63,13 +64,14 @@ namespace art {
           "  3. A trigger-path name from a previous process (e.g. "
           "\"previousProcess:tp\")\n\n"
           "More complicated expressions are allowed--see\n"
-          "  https://cdcvs.fnal.gov/redmine/projects/art/wiki/Filtering_events\n\n"
+          "  "
+          "https://cdcvs.fnal.gov/redmine/projects/art/wiki/"
+          "Filtering_events\n\n"
           "The default 'SelectEvents' and `RejectEvents` lists are empty,\n"
           "which is equivalent to selecting all events."},
         std::vector<std::string>{}};
-      fhicl::Sequence<std::string> rejectEvents{
-        fhicl::Name("RejectEvents"),
-        std::vector<std::string>{}};
+      fhicl::Sequence<std::string> rejectEvents{fhicl::Name("RejectEvents"),
+                                                std::vector<std::string>{}};
     };
 
     explicit Observer(fhicl::ParameterSet const& config);

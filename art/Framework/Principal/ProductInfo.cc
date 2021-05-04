@@ -66,15 +66,15 @@ namespace art {
   operator<<(ostream& os, ProductInfo::ConsumableType const ct)
   {
     switch (ct) {
-      case ProductInfo::ConsumableType::Product:
-        os << "Product";
-        break;
-      case ProductInfo::ConsumableType::ViewElement:
-        os << "ViewElement";
-        break;
-      case ProductInfo::ConsumableType::Many:
-        os << "Many";
-        break;
+    case ProductInfo::ConsumableType::Product:
+      os << "Product";
+      break;
+    case ProductInfo::ConsumableType::ViewElement:
+      os << "ViewElement";
+      break;
+    case ProductInfo::ConsumableType::Many:
+      os << "Many";
+      break;
     }
     return os;
   }

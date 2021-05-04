@@ -1,39 +1,16 @@
 #include "art/Framework/Core/Schedule.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/EDFilter.h"
-#include "art/Framework/Core/EDProducer.h"
-#include "art/Framework/Core/ModuleBase.h"
-#include "art/Framework/Core/OutputModuleDescription.h"
-#include "art/Framework/Core/OutputWorker.h"
-#include "art/Framework/Core/TriggerReport.h"
 #include "art/Framework/Core/TriggerResultInserter.h"
-#include "art/Framework/Core/WorkerInPath.h"
-#include "art/Framework/Core/WorkerT.h"
-#include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Persistency/Provenance/PathContext.h"
-#include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
-#include "art/Version/GetReleaseVersion.h"
-#include "canvas/Persistency/Provenance/ReleaseVersion.h"
 #include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/tsan.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <algorithm>
-#include <atomic>
-#include <cassert>
-#include <cstdlib>
 #include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <utility>
 
 using namespace hep::concurrency;
 using namespace std;

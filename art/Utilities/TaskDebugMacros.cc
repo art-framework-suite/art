@@ -49,16 +49,14 @@ namespace {
   tbb::concurrent_unordered_map<art::ScheduleID, unsigned> indents;
 
   std::string
-  indent_for(std::string const& step,
-             art::ScheduleID const sid)
+  indent_for(std::string const& step, art::ScheduleID const sid)
   {
     auto it = indents.insert(std::make_pair(sid, 0)).first;
     if (step == "Begin") {
       auto const printed = it->second;
       ++it->second;
       return std::string(printed, ' ');
-    }
-    else if (step == "End") {
+    } else if (step == "End") {
       auto const printed = --it->second;
       return std::string(printed, ' ');
     }
@@ -84,8 +82,7 @@ namespace art {
                                            std::string const& step)
     {
       buffer_ << banner(banner_prefix) << schedule_to_str(sid) << " "
-              << indent_for(step, sid)
-              << std::left << std::setw(6) << step
+              << indent_for(step, sid) << std::left << std::setw(6) << step
               << trimmed(fcn_name, pretty_fcn_name);
     }
 

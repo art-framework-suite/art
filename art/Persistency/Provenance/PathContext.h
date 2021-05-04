@@ -1,6 +1,7 @@
 #ifndef art_Persistency_Provenance_PathContext_h
 #define art_Persistency_Provenance_PathContext_h
 
+#include "art/Persistency/Provenance/PathSpec.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
 #include "cetlib/container_algorithms.h"
 
@@ -15,19 +16,29 @@ namespace art {
       return "end_path";
     }
 
+    static auto
+    end_path_spec()
+    {
+      return PathSpec{end_path(), PathID{0}};
+    }
+
     static std::string
     art_path()
     {
       return "[art]";
     }
 
+    static auto
+    art_path_spec()
+    {
+      return PathSpec{art_path(), PathID::invalid()};
+    }
+
     explicit PathContext(ScheduleContext const& scheduleContext,
-                         std::string const& pathName,
-                         int const bitPosition,
+                         PathSpec const& pathSpec,
                          std::vector<std::string> sortedModuleNames)
       : scheduleContext_{scheduleContext}
-      , pathName_{pathName}
-      , bitPosition_{bitPosition}
+      , pathSpec_{pathSpec}
       , sortedModuleLabels_{move(sortedModuleNames)}
     {}
 
@@ -43,14 +54,20 @@ namespace art {
       return scheduleContext_.id();
     }
     auto const&
+    pathSpec() const
+    {
+      return pathSpec_;
+    }
+
+    auto const&
     pathName() const
     {
-      return pathName_;
+      return pathSpec_.name;
     }
-    int
-    bitPosition() const
+    PathID
+    pathID() const noexcept
     {
-      return bitPosition_;
+      return pathSpec_.path_id;
     }
 
     bool
@@ -61,8 +78,7 @@ namespace art {
 
   private:
     ScheduleContext scheduleContext_{ScheduleContext::invalid()};
-    std::string pathName_{};
-    int bitPosition_{-1};
+    PathSpec pathSpec_{"", PathID::invalid()};
     std::vector<std::string> sortedModuleLabels_{};
   };
 }

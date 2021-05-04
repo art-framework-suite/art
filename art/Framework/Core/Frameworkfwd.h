@@ -22,11 +22,6 @@ namespace art {
   class ProcessNameSelector;
   class ProductRegistryHelper;
   class Schedule;
-  struct EventSummary;
-  struct ModuleInPathSummary;
-  struct PathSummary;
-  struct TriggerReport;
-  struct WorkerSummary;
 } // namespace art
 
 #endif /* art_Framework_Core_Frameworkfwd_h */

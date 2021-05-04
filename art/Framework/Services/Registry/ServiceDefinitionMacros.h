@@ -43,7 +43,6 @@
   DEFINE_ART_SERVICE(svc)                                                      \
   DEFINE_ART_SIH_CREATE(iface)
 
-
 #endif /* art_Framework_Services_Registry_ServiceDefinitionMacros_h */
 
 // Local Variables:

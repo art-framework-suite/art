@@ -38,7 +38,6 @@ namespace art {
                                       std::string const&,
                                       View<Element>&) const;
 
-    // TYPES
   public:
     using collection_type = std::vector<T const*>;
     using value_type = typename collection_type::value_type;
@@ -46,18 +45,11 @@ namespace art {
     using iterator = typename collection_type::iterator;
     using size_type = typename collection_type::size_type;
 
-    // MEMBER FUCTIONS -- Special Member Functions
-  public:
     View() = default;
+    View(std::vector<T const*>, ProductID const, EDProduct const*);
 
-    // MEMBER FUCTIONS -- Special Member Functions
-  private:
-    View(std::vector<T const*>&, ProductID const, EDProduct const*);
-
-    // MEMBER FUNCTIONS -- API for user
-  public:
     auto
-    isValid() const
+    isValid() const noexcept
     {
       return prod_ != nullptr;
     }
@@ -72,65 +64,63 @@ namespace art {
     // product that can be reached from the internal vector<T const*>.
     void fill(PtrVector<T>& pv) const;
 
-    auto
-    vals() -> auto&
+    auto&
+    vals() noexcept
     {
       return vals_;
     }
 
-    auto
-    vals() const -> auto const&
+    auto const&
+    vals() const noexcept
     {
       return vals_;
     }
 
-    operator auto&() { return vals_; }
-
-    operator auto const&() const { return vals_; }
+    operator auto&() noexcept { return vals_; }
+    operator auto const&() const noexcept { return vals_; }
 
     auto
-    begin()
+    begin() noexcept
     {
       return vals_.begin();
     }
 
     auto
-    end()
+    end() noexcept
     {
       return vals_.end();
     }
 
     auto
-    begin() const -> decltype(std::vector<T const*>{}.cbegin())
+    begin() const noexcept
     {
       return vals_.begin();
     }
 
     auto
-    end() const -> decltype(std::vector<T const*>{}.cend())
+    end() const noexcept
     {
       return vals_.end();
     }
 
     auto
-    cbegin() const
+    cbegin() const noexcept
     {
       return vals_.cbegin();
     }
 
     auto
-    cend() const
+    cend() const noexcept
     {
       return vals_.cend();
     }
 
     auto
-    size() const
+    size() const noexcept
     {
       return vals_.size();
     }
 
-    // MEMBER DATA -- Implementation details
   private:
     // Vector of pointers to elements in the container product (this is the view
     // itself).
@@ -144,34 +134,29 @@ namespace art {
   };
 
   template <typename T>
-  View<T>::View(std::vector<T const*>& v,
-                ProductID const id,
-                EDProduct const* p)
-    : vals_{std::move(v)}, id_{id}, prod_{p}
+  View<T>::View(std::vector<T const*> v, ProductID const id, EDProduct const* p)
+    : vals_{move(v)}, id_{id}, prod_{p}
   {}
 
-  // Fill a PtrVector<T> with Ptrs to each element
-  // of the container data product that can be
-  // reached from the internal vector<T const*>.
+  // Fill a PtrVector<T> with Ptrs to each element of the container
+  // data product that can be reached from the internal vector<T const*>.
   template <typename T>
   void
   View<T>::fill(PtrVector<T>& pv) const
   {
-    std::vector<void const*> view;
-    // Note: This calls Wrapper::fillView.
-    prod_->fillView(view);
+    if (not isValid()) {
+      return;
+    }
     typename std::vector<T const*>::size_type i{};
-    for (auto a : view) {
-      // We do this as a sloppy guard against the container
-      // data product having been replaced between the
-      // View<T> ctor and the fill call. The user is
-      // supposed to do event.getView<T>() immediately
-      // followed by View<T>::fill(), but well. This can be
-      // O(n^2) so maybe it is not worth it in the case of
-      // large containers.
-      if (std::find(vals_.cbegin(), vals_.cend(), a) != vals_.cend()) {
-        auto p = reinterpret_cast<T const*>(a);
-        pv.push_back(Ptr<T>{id_, const_cast<T*>(p), i});
+    for (auto a : prod_->getView()) {
+      // We do this as a sloppy guard against the container data
+      // product having been replaced between the View<T> ctor and the
+      // fill call. The user is supposed to do event.getView<T>()
+      // immediately followed by View<T>::fill(), but well. This can
+      // be O(n^2) so maybe it is not worth it in the case of large
+      // containers.
+      if (cet::search_all(vals_, a)) {
+        pv.emplace_back(id_, reinterpret_cast<T const*>(a), i);
         ++i;
       }
     }

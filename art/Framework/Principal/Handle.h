@@ -7,7 +7,7 @@
 //          their Provenances.
 //
 //  ValidHandle: A Handle that can not be invalid, and thus does not check
-//           for validity upon dereferencing.
+//               for validity upon dereferencing.
 //
 //  If the pointed-to EDProduct or Provenance is destroyed, use of the
 //  Handle becomes undefined. There is no way to query the Handle to
@@ -19,7 +19,8 @@
 //
 //  ValidHandles must have Product and Provenance pointers valid.
 //
-//  To check validity, one can use the Handle::isValid() function.
+//  To check validity, the art::Handle is implicitly convertible to
+//  bool.  One can also use the Handle::isValid() function.
 //  ValidHandles cannot be invalid, and so have no validity checks.
 //
 //  If failedToGet() returns true then the requested data is not available
@@ -107,7 +108,8 @@ public:
   T const* product() const;
 
   // inspectors:
-  bool isValid() const;
+  explicit operator bool() const noexcept;
+  bool isValid() const noexcept;
   bool failedToGet()
     const; // was Handle used in a 'get' call whose data could not be found?
   Provenance const* provenance() const;
@@ -179,8 +181,14 @@ inline T const* art::Handle<T>::operator->() const
 // inspectors:
 
 template <class T>
+inline art::Handle<T>::operator bool() const noexcept
+{
+  return isValid();
+}
+
+template <class T>
 bool
-art::Handle<T>::isValid() const
+art::Handle<T>::isValid() const noexcept
 {
   return prod_ && prov_.isValid();
 }
@@ -203,8 +211,6 @@ template <class T>
 inline art::ProductID
 art::Handle<T>::id() const
 {
-  // FIXME: returning prov_.productID() should be sufficient since
-  // ProductID{} is invalid anyway.
   return prov_.isValid() ? prov_.productID() : ProductID{};
 }
 

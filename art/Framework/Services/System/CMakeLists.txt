@@ -33,7 +33,11 @@ build_plugin(FloatingPointControl "service" BASE systemService
 # *actually* a plugin since it has no registration code.
 cet_make_library(LIBRARY_NAME art_Framework_Services_System_TriggerNamesService_service
   SOURCE TriggerNamesService_service.cc
-  LIBRARIES PUBLIC art_plugin_types::systemService fhiclcpp::fhiclcpp
+  LIBRARIES PUBLIC art_plugin_types::systemService
+    fhiclcpp::fhiclcpp
+    art::Persistency_Provenance
+    art::Utilities
+    art::Framework_Principal
 )
 
 install_headers(SUBDIRS detail)

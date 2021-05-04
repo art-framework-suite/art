@@ -3,6 +3,7 @@ cet_make_library(SOURCE
     ClosedRangeSetHandler.cc
     ConsumesInfo.cc
     DataViewImpl.cc
+    DelayedReader.cc
     Event.cc
     EventPrincipal.cc
     Group.cc

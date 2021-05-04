@@ -17,8 +17,8 @@
 #    arguments from non-option arguments.
 #
 # For other available options, please see
-# cetbuildtools/Modules/BasicPlugin.cmake
-# (https://cdcvs.fnal.gov/redmine/projects/cetbuildtools/repository/revisions/master/entry/Modules/BasicPlugin.cmake).
+# cetbuildtools/Modules/BasicPlugin.cmake ### MIGRATE-NO-ACTION
+# (https://cdcvs.fnal.gov/redmine/projects/cetbuildtools/repository/revisions/master/entry/Modules/BasicPlugin.cmake). ### MIGRATE-NO-ACTION
 ########################################################################
 include_guard(DIRECTORY)
 
@@ -28,13 +28,14 @@ cmake_minimum_required(VERSION 3.18.2 FATAL_ERROR)
 include(BasicPlugin)
 
 set(_simple_plugin_pkg_list cetlib_except hep_concurrency cetlib fhiclcpp
-  messagefacility canvas art canvas_root_io art_root_io)
+  messagefacility canvas art canvas_root_io art_root_io ROOT)
 set(_simple_plugin_target_list cetlib_except::cetlib_except hep_concurrency::hep_concurrency
   cetlib::cetlib fhiclcpp::fhiclcpp messagefacility::MF_MessageLogger
   canvas::canvas art::Framework_Core canvas_root_io::canvas_root_io
-  art_root_io::art_root_io)
+  art_root_io::art_root_io ROOT::Core)
 set(_simple_plugin_var_list CETLIB_EXCEPT HEP_CONCURRENCY CETLIB FHICLCPP
-  MF_MESSAGELOGGER CANVAS ART_FRAMEWORK_CORE CANVAS_ROOT_IO ART_ROOT_IO)
+  MF_MESSAGELOGGER CANVAS ART_FRAMEWORK_CORE CANVAS_ROOT_IO ART_ROOT_IO
+  ROOT_CORE_LIBRARY)
 
 cet_find_package(messagefacility PRIVATE QUIET)
 include(mfPlugin OPTIONAL)

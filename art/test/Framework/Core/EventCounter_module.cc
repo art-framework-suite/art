@@ -1,7 +1,7 @@
 #include "boost/test/unit_test.hpp"
 
-#include "art/Framework/Core/SharedAnalyzer.h"
 #include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Core/SharedAnalyzer.h"
 #include "art/Framework/Principal/fwd.h"
 #include "fhiclcpp/types/Atom.h"
 
@@ -19,8 +19,7 @@ namespace {
     };
     using Parameters = Table<Config>;
     explicit EventCounter(Parameters const& p, art::ProcessingFrame const&)
-      : SharedAnalyzer{p}
-      , expected_{p().expected()}
+      : SharedAnalyzer{p}, expected_{p().expected()}
     {
       async<art::InEvent>();
     }

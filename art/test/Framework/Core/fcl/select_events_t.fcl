@@ -1,0 +1,27 @@
+source: {
+  module_type: EmptyEvent
+  maxEvents: 20
+}
+
+services.scheduler.wantSummary: true
+
+physics: {
+  filters: {
+    onlyEvens: {
+      module_type: Prescaler
+      prescaleFactor: 2
+      prescaleOffset: 0
+    }
+  }
+  path_evens: [onlyEvens]
+  trigger_paths: ['14:path_evens']
+
+  analyzers: {
+    evenEvents: {
+      module_type: EventCounter
+      SelectEvents: [path_evens]
+      expected: 10
+    }
+  }
+  run_evens: [evenEvents]
+}

@@ -38,11 +38,10 @@ namespace art {
     bool fileIsOpen() const;
     void incrementInputFileNumber();
     bool requestsToCloseFile() const;
-    bool wantAllEvents() const;
     bool openFile(FileBlock const& fb);
     void writeRun(RunPrincipal& rp);
     void writeSubRun(SubRunPrincipal& srp);
-    void writeEvent(EventPrincipal& ep);
+    void writeEvent(EventPrincipal& ep, ModuleContext const& mc);
     void setRunAuxiliaryRangeSetID(RangeSet const&);
     void setSubRunAuxiliaryRangeSetID(RangeSet const&);
     bool limitReached() const;

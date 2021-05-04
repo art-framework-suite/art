@@ -113,19 +113,19 @@ namespace art {
     bool rc = true;
 
     switch (get_cpu_type()) {
-      case AMD_CPU: {
-        values_ = amd_opts;
-        changed_ = true;
-        break;
-      }
-      case INTEL_CPU: {
-        values_ = intel_opts;
-        changed_ = true;
-        break;
-      }
-      case UNKNOWN_CPU:
-      default:
-        rc = false;
+    case AMD_CPU: {
+      values_ = amd_opts;
+      changed_ = true;
+      break;
+    }
+    case INTEL_CPU: {
+      values_ = intel_opts;
+      changed_ = true;
+      break;
+    }
+    case UNKNOWN_CPU:
+    default:
+      rc = false;
     }
 
     return rc;

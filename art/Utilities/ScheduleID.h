@@ -102,8 +102,11 @@ namespace art {
 } // namespace art
 
 namespace std {
-  template <> struct hash<art::ScheduleID> {
-    std::size_t operator() (art::ScheduleID sid) const {
+  template <>
+  struct hash<art::ScheduleID> {
+    std::size_t
+    operator()(art::ScheduleID sid) const
+    {
       static hash<typename art::ScheduleID::id_type> hasher{};
       return hasher(sid.id());
     }

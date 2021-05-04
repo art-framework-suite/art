@@ -2,6 +2,7 @@
 #define art_Framework_Core_detail_ModuleConfigInfo_h
 // vim: set sw=2 expandtab :
 
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -9,11 +10,9 @@
 
 namespace art::detail {
   struct ModuleConfigInfo {
-    std::string moduleLabel;
-    ModuleType moduleType;
-    ModuleThreadingType moduleThreadingType;
+    ModuleDescription modDescription;
     fhicl::ParameterSet modPS;
-    std::string libSpec;
+    ModuleType moduleType;
   };
 }
 

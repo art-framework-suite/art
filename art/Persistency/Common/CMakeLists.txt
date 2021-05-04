@@ -1,5 +1,4 @@
 cet_make_library(SOURCE
-    DelayedReader.cc
     GroupQueryResult.cc
   LIBRARIES
   PUBLIC

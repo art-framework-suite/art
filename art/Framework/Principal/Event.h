@@ -67,13 +67,10 @@ namespace art {
 
     using DataViewImpl::put;
 
-    using DataViewImpl::get;
-    using DataViewImpl::getByLabel;
-    using DataViewImpl::getByToken;
+    using DataViewImpl::getHandle;
     using DataViewImpl::getInputTags;
     using DataViewImpl::getMany;
-    using DataViewImpl::getManyByType;
-    using DataViewImpl::getPointerByLabel;
+    using DataViewImpl::getProduct;
     using DataViewImpl::getProductTokens;
     using DataViewImpl::getValidHandle;
     using DataViewImpl::getView;
@@ -85,6 +82,13 @@ namespace art {
     using DataViewImpl::processHistory;
     using DataViewImpl::productGetter;
     using DataViewImpl::removeCachedProduct;
+
+    // Obsolete interface (will be deprecated)
+    using DataViewImpl::get;
+    using DataViewImpl::getByLabel;
+    using DataViewImpl::getByToken;
+    using DataViewImpl::getManyByType;
+    using DataViewImpl::getPointerByLabel;
 
     using DataViewImpl::movePutProductsToPrincipal;
 

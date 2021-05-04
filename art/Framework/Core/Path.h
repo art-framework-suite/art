@@ -21,6 +21,7 @@
 #include "canvas/Persistency/Common/HLTPathStatus.h"
 #include "canvas/Persistency/Common/HLTenums.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
+#include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/WaitingTask.h"
 
@@ -43,12 +44,9 @@ namespace art {
          HLTGlobalStatus*,
          GlobalTaskGroup&) noexcept;
 
-    // Disable copy operations
-    Path(Path const&) = delete;
-    Path& operator=(Path const&) = delete;
-
     ScheduleID scheduleID() const;
-    int bitPosition() const;
+    PathSpec const& pathSpec() const;
+    PathID pathID() const;
     std::string const& name() const;
     std::vector<WorkerInPath> const& workersInPath() const;
     hlt::HLTState state() const;
@@ -91,20 +89,21 @@ namespace art {
     ActionTable const& actionTable_;
     ActivityRegistry const& actReg_;
     PathContext const pc_;
-    int const bitpos_;
+    size_t const pathPosition_;
     // Note: threading: We clear their counters.
     std::vector<WorkerInPath> workers_;
     // The PathManager trigger paths info actually owns this.
     // Note: For the end path this will be the nullptr.
-    std::atomic<HLTGlobalStatus*> trptr_;
+    cet::exempt_ptr<HLTGlobalStatus> trptr_;
 
     GlobalTaskGroup& taskGroup_;
 
-    std::atomic<hlt::HLTState> state_{hlt::Ready};
-    std::atomic<std::size_t> timesRun_{};
-    std::atomic<std::size_t> timesPassed_{};
-    std::atomic<std::size_t> timesFailed_{};
-    std::atomic<std::size_t> timesExcept_{};
+    // These are adjusted in a serialized context.
+    hlt::HLTState state_{hlt::Ready};
+    std::size_t timesRun_{};
+    std::size_t timesPassed_{};
+    std::size_t timesFailed_{};
+    std::size_t timesExcept_{};
   };
 } // namespace art
 

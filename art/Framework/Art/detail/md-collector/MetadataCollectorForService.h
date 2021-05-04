@@ -19,7 +19,7 @@ namespace art::detail {
     PluginMetadata
     doCollect(LibraryInfo const& li,
               std::string const& prefix,
-              std::string const& header_label[[maybe_unused]],
+              std::string const& header_label [[maybe_unused]],
               std::string const& param_to_replace) const override
     {
       return {header_(li),

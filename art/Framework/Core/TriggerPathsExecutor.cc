@@ -6,7 +6,6 @@
 #include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
-#include "art/Framework/Core/TriggerReport.h"
 #include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/WorkerT.h"
@@ -187,11 +186,9 @@ namespace art {
   void
   TriggerPathsExecutor::process(Transition const trans, Principal& principal)
   {
-    for (auto const& val : triggerPathsInfo_.workers()) {
-      val.second->reset();
-    }
-    for (auto const& path : triggerPathsInfo_.paths()) {
-      path->process(trans, principal);
+    triggerPathsInfo_.reset();
+    for (auto& path : triggerPathsInfo_.paths()) {
+      path.process(trans, principal);
     }
   }
 
@@ -247,13 +244,10 @@ namespace art {
     // head task).
     auto const scheduleID = sc_.id();
     TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
-    for (auto const& val : triggerPathsInfo_.workers()) {
-      val.second->reset();
-    }
     if (results_inserter_) {
       results_inserter_->reset();
     }
-    triggerPathsInfo_.pathResults().reset();
+    triggerPathsInfo_.reset_for_event();
     triggerPathsInfo_.incrementTotalEventCount();
     try {
       if (triggerPathsInfo_.paths().empty()) {
@@ -273,7 +267,7 @@ namespace art {
         // doneWaiting() on the pathsDoneTask, which decrements its
         // reference count, which will eventually cause it to run when
         // every path has finished.
-        path->process(pathsDoneTask, event_principal);
+        path.process(pathsDoneTask, event_principal);
       }
       TDEBUG_END_FUNC_SI(4, scheduleID);
     }
@@ -297,8 +291,7 @@ namespace art {
         // FIXME: not sure what the trigger bit should be
         auto const& resultsInserterDesc = results_inserter_->description();
         PathContext const pc{sc_,
-                             PathContext::art_path(),
-                             -1,
+                             PathContext::art_path_spec(),
                              {resultsInserterDesc.moduleLabel()}};
         ModuleContext const mc{pc, resultsInserterDesc};
         results_inserter_->doWork_event(principal, mc);

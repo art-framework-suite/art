@@ -31,15 +31,15 @@ namespace {
     tmp.reserve(2);
     cet::split(to_split, ':', std::back_inserter(tmp));
     switch (tmp.size()) {
-      case 0:
-        return string_pair_t();
-      case 1:
-        return string_pair_t(string("_default"), std::move(tmp[0]));
-      case 2:
-        return string_pair_t(std::move(tmp[0]), std::move(tmp[1]));
-      default:
-        throw art::Exception(art::errors::Configuration)
-          << "Expected \"key:value\", got multiple \":\".\n";
+    case 0:
+      return string_pair_t();
+    case 1:
+      return string_pair_t(string("_default"), std::move(tmp[0]));
+    case 2:
+      return string_pair_t(std::move(tmp[0]), std::move(tmp[1]));
+    default:
+      throw art::Exception(art::errors::Configuration)
+        << "Expected \"key:value\", got multiple \":\".\n";
     }
   }
 

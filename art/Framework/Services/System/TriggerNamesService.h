@@ -23,72 +23,61 @@
 // It will return the trigger path names from previous processes.
 //
 
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/detail/system_service_macros.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "art/Persistency/Provenance/PathSpec.h"
+#include "canvas/Persistency/Common/HLTPathStatus.h"
+#include "canvas/Persistency/Common/TriggerResults.h"
+#include "fhiclcpp/fwd.h"
 
-#include <cstddef>
-#include <map>
+#include <functional>
 #include <string>
 #include <vector>
 
 namespace art {
+  class ActivityRegistry;
+
+  namespace detail {
+    using entry_selector_t = std::function<bool(PathSpec const&)>;
+  }
 
   class TriggerNamesService {
+  public:
+    TriggerNamesService(fhicl::ParameterSet const& trigger_paths_pset,
+                        fhicl::ParameterSet const& physics_pset);
 
-    // Special Member Functions
-  public:
-    TriggerNamesService(std::vector<std::string> const& triggerPathNames,
-                        std::string const& processName,
-                        fhicl::ParameterSet const& triggerPSet,
-                        fhicl::ParameterSet const& physicsPSet);
-    // API
-  public:
-    // Returns jobPS.process_name
+    // For all processes
+    TriggerResults const& triggerResults(
+      Event const& e,
+      std::string const& process_name = "current_process") const;
+
+    std::map<std::string, HLTPathStatus> pathResults(
+      Event const& e,
+      std::string const& process_name = "current_process") const;
+
+    // Current process only
     std::string const& getProcessName() const;
-    // Parameter set containing the trigger paths, the key
-    // is "trigger_paths", and the value is getTrigPaths().
-    fhicl::ParameterSet const& getTriggerPSet() const;
-    // Returns trigger path names passed to the ctor.
     std::vector<std::string> const& getTrigPaths() const;
-    // Returns count of trigger path names.
-    std::size_t size() const;
-    // Returns the trigger path name at index i.
-    std::string const& getTrigPath(std::size_t const i) const;
-    // Returns the trigger bit position of trigger path name,
-    // or size() on failure.
-    std::size_t findTrigPath(std::string const& name) const;
-    // Returns the module names on the named trigger path.
+    std::string const& getTrigPath(PathID const id) const;
+    PathID findTrigPath(std::string const& name) const;
     std::vector<std::string> const& getTrigPathModules(
       std::string const& name) const;
-    // Returns the modules names on the trigger path at bit position i.
-    std::vector<std::string> const& getTrigPathModules(
-      std::size_t const i) const;
-    // Returns the module name on the named trigger path at index j.
-    std::string const& getTrigPathModule(std::string const& name,
-                                         std::size_t const j) const;
-    // Returns the module name on the trigger path at bit position i with module
-    // index j.
-    std::string const& getTrigPathModule(std::size_t const i,
-                                         std::size_t const j) const;
-    // Implementation details.
+    std::vector<std::string> const& getTrigPathModules(PathID id) const;
+
+    //  - Expert only
+    size_t index_for(PathID id) const;
+
+    struct DataPerProcess {
+      std::vector<PathSpec> triggerPathSpecs{};
+      std::vector<std::string> triggerPathNames{};
+      std::vector<std::vector<std::string>> moduleNames{};
+    };
+
   private:
-    std::size_t find(std::map<std::string, std::size_t> const& posmap,
-                     std::string const& name) const;
-    // Data members
-  private:
-    // Trigger path names, passed to ctor.
-    std::vector<std::string> const triggerPathNames_;
-    // The art process_name from the top pset.
-    std::string const processName_;
-    // Parameter set of trigger paths (used by
-    // TriggerResults objects), the key is
-    // "trigger_paths", and the value is
-    // triggerPathNames_, const after ctor.
-    fhicl::ParameterSet triggerPSet_{};
-    // Maps trigger path name to trigger bit position, const after ctor.
-    std::map<std::string, std::size_t> trigPathNameToTrigBitPos_{};
-    // Labels of modules on trigger paths, const after ctor.
-    std::vector<std::vector<std::string>> moduleNames_{};
+    size_t index_(detail::entry_selector_t selector) const;
+    DataPerProcess const& currentData_() const;
+
+    std::map<std::string, DataPerProcess> mutable dataPerProcess_;
   };
 
 } // namespace art

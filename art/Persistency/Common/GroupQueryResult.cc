@@ -7,22 +7,8 @@
 
 #include "art/Persistency/Common/GroupQueryResult.h"
 
-#include <cassert>
+art::GroupQueryResult::GroupQueryResult(group_ptr_t g) : groupOrException_{g} {}
 
-using art::GroupQueryResult;
-
-// ----------------------------------------------------------------------
-// c'tors:
-
-GroupQueryResult::GroupQueryResult(cet::exempt_ptr<Group const> g) : result_{g}
-{
-  assert(invariant());
-}
-
-GroupQueryResult::GroupQueryResult(std::shared_ptr<art::Exception const> e)
-  : whyFailed_{e}
-{
-  assert(invariant());
-}
-
-// ======================================================================
+art::GroupQueryResult::GroupQueryResult(exception_ptr_t e)
+  : groupOrException_{e}
+{}

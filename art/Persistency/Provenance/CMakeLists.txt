@@ -1,6 +1,7 @@
 cet_make_library(SOURCE
     detail/branchNameComponentChecking.cc
     ModuleDescription.cc
+    PathSpec.cc
     orderedProcessNamesCollection.cc
   LIBRARIES
   PUBLIC
