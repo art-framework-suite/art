@@ -5,7 +5,6 @@
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
-#include "canvas/Utilities/WrappedTypeID.h"
 #include "cetlib_except/demangle.h"
 #include "range/v3/view.hpp"
 

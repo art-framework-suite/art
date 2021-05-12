@@ -26,6 +26,7 @@
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "canvas/Persistency/Common/PrincipalBase.h"
+#include "canvas/Persistency/Common/WrappedTypeID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventRange.h"
@@ -40,8 +41,6 @@
 #include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
-#include "canvas/Utilities/TypeID.h"
-#include "canvas/Utilities/WrappedTypeID.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <atomic>

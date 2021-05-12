@@ -35,7 +35,6 @@
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "canvas/Utilities/WrappedClassName.h"
-#include "canvas/Utilities/WrappedTypeID.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "range/v3/view.hpp"
