@@ -1,22 +1,9 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/Principal.h"
-#include "cetlib/exempt_ptr.h"
-
-#include <memory>
-#include <utility>
-
-using namespace std;
-
 namespace art {
 
-  class EventAuxiliary;
-  class ProcessConfiguration;
-  class History;
-  class DelayedReader;
-
-  EventPrincipal::~EventPrincipal() {}
+  EventPrincipal::~EventPrincipal() = default;
 
   EventPrincipal::EventPrincipal(
     EventAuxiliary const& aux,

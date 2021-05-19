@@ -6,7 +6,6 @@
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/System/detail/SAMMetadataTranslators.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"

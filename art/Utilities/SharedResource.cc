@@ -3,10 +3,8 @@
 #include "cetlib/container_algorithms.h"
 #include "cetlib_except/demangle.h"
 #include "hep_concurrency/SerialTaskQueue.h"
-#include "hep_concurrency/tsan.h"
 
 #include <algorithm>
-#include <atomic>
 #include <cassert>
 #include <map>
 #include <memory>

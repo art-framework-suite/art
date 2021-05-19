@@ -1,85 +1,41 @@
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
-#include "art/Framework/Principal/RunPrincipal.h"
-#include "art/Framework/Principal/SubRunPrincipal.h"
-#include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
-#include "canvas/Utilities/Exception.h"
 
-#include <algorithm>
-#include <string>
 #include <utility>
-#include <vector>
 
 namespace art {
 
-  // Note: RangeSet has a data member that is
-  // a vector, and the vector dtor is not
-  // noexcept, so we cannot be noexcept
-  // either!
-  OpenRangeSetHandler::~OpenRangeSetHandler() {}
+  OpenRangeSetHandler::~OpenRangeSetHandler() = default;
 
-  // Note: RangeSet has a data member that is
-  // a vector, and the vector ctor is not
-  // noexcept, so we cannot be noexcept
-  // either!
-  OpenRangeSetHandler::OpenRangeSetHandler(RunNumber_t const r)
-    : ranges_{r}, idx_{0}
-  {}
+  // Note: RangeSet has a data member that is a vector, and the vector
+  //       ctor is not noexcept, so we cannot be noexcept either!
+  OpenRangeSetHandler::OpenRangeSetHandler(RunNumber_t const r) : ranges_{r} {}
 
-  // Note: RangeSet has a data member that is
-  // a vector, and the vector ctor is not
-  // noexcept, so we cannot be noexcept
-  // either!
+  // Note: RangeSet has a data member that is a vector, and the vector
+  //       ctor is not noexcept, so we cannot be noexcept either!
   OpenRangeSetHandler::OpenRangeSetHandler(RangeSet const& ranges)
     : ranges_{ranges}, idx_{ranges.end_idx()}
   {}
 
-  // Note: RangeSet has a data member that is
-  // a vector, and the vector copy ctor is not
-  // noexcept, so we cannot be noexcept
-  // either!
-  OpenRangeSetHandler::OpenRangeSetHandler(OpenRangeSetHandler const& rhs)
-    : ranges_{rhs.ranges_}, idx_{rhs.idx_}
-  {}
+  OpenRangeSetHandler::OpenRangeSetHandler(OpenRangeSetHandler const&) =
+    default;
 
-  // Note: RangeSet has a data member that is
-  // a vector, and a vector move constructor
-  // is not noexcept, so we cannot be noexcept
-  // either!
-  OpenRangeSetHandler::OpenRangeSetHandler(OpenRangeSetHandler&& rhs)
-    : ranges_{std::move(rhs.ranges_)}, idx_{std::move(rhs.idx_)}
-  {}
+  OpenRangeSetHandler::OpenRangeSetHandler(OpenRangeSetHandler&&) = default;
 
-  // Note: RangeSet has a data member that is
-  // a vector, and the vector copy assignment
-  // is not noexcept, so we cannot be noexcept
-  // either!
-  OpenRangeSetHandler&
-  OpenRangeSetHandler::operator=(OpenRangeSetHandler const& rhs)
-  {
-    if (this != &rhs) {
-      ranges_ = rhs.ranges_;
-      idx_ = rhs.idx_;
-    }
-    return *this;
-  }
+  // Note: RangeSet has a data member that is a vector, and the vector
+  //       copy assignment is not noexcept, so we cannot be noexcept
+  //       either!
+  OpenRangeSetHandler& OpenRangeSetHandler::operator=(
+    OpenRangeSetHandler const&) = default;
 
-  // Note: RangeSet has a data member that is
-  // a vector, and a vector move assignment
-  // is not noexcept, so we cannot be noexcept
-  // either!
-  OpenRangeSetHandler&
-  OpenRangeSetHandler::operator=(OpenRangeSetHandler&& rhs)
-  {
-    ranges_ = std::move(rhs.ranges_);
-    idx_ = std::move(rhs.idx_);
-    return *this;
-  }
+  // Note: RangeSet has a data member that is a vector, and a vector
+  //       move assignment is not noexcept, so we cannot be noexcept
+  //       either!
+  OpenRangeSetHandler& OpenRangeSetHandler::operator=(
+    OpenRangeSetHandler&& rhs) = default;
 
   RangeSetHandler::HandlerType
   OpenRangeSetHandler::do_type() const

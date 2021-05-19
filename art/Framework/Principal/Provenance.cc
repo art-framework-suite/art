@@ -1,7 +1,9 @@
 #include "art/Framework/Principal/Provenance.h"
 // vim: set sw=2 expandtab :
 
-#include "fhiclcpp/ParameterSet.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Provenance/Parentage.h"
+
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 using namespace std;

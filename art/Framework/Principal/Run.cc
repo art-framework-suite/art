@@ -2,13 +2,6 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/RunPrincipal.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/ParameterSetID.h"
-#include "fhiclcpp/ParameterSetRegistry.h"
-
-using fhicl::ParameterSet;
-using fhicl::ParameterSetID;
-using fhicl::ParameterSetRegistry;
 
 namespace art {
 

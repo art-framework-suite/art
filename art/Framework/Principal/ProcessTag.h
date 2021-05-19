@@ -4,7 +4,6 @@
 #include <string>
 
 namespace art {
-  class ModuleDescription;
   class ProcessTag {
   public:
     enum class allowed_search {

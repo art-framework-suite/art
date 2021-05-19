@@ -1,9 +1,12 @@
 #include "art/Persistency/Provenance/orderedProcessNamesCollection.h"
 #include "boost/algorithm/string.hpp"
+#include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
-#include "canvas/Persistency/Provenance/ProcessHistoryID.h"
 #include "cetlib/container_algorithms.h"
 #include "range/v3/view.hpp"
+
+#include <cassert>
+#include <numeric>
 
 namespace {
   auto

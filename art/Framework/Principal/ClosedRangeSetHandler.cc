@@ -1,19 +1,12 @@
 #include "art/Framework/Principal/ClosedRangeSetHandler.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
-#include "art/Framework/Principal/RunPrincipal.h"
-#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Provenance/EventID.h"
+#include "canvas/Persistency/Provenance/EventRange.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
-#include "canvas/Utilities/Exception.h"
 
-#include <algorithm>
-#include <string>
 #include <utility>
-#include <vector>
 
 namespace art {
 

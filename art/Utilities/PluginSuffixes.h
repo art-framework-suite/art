@@ -49,8 +49,6 @@
      time, which seems unnecessary.
 */
 
-#include "canvas/Utilities/Exception.h"
-
 #include <ostream>
 #include <string>
 #include <type_traits>

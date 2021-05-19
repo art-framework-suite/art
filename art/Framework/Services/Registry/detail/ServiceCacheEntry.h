@@ -10,7 +10,6 @@
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/ParameterSet.h"
 
-#include <cassert>
 #include <memory>
 
 namespace art {

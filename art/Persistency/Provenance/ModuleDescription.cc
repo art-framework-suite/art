@@ -1,9 +1,9 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 // vim: set sw=2 expandtab :
 
-#include "cetlib/MD5Digest.h"
+#include "canvas/Persistency/Provenance/ProcessConfiguration.h"
+#include "fhiclcpp/ParameterSetID.h"
 
-#include <atomic>
 #include <ostream>
 
 using namespace std;

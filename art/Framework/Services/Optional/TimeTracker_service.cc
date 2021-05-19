@@ -9,10 +9,8 @@
 #include "art/Framework/Services/System/DatabaseConnection.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Persistency/Provenance/PathContext.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
-#include "art/Utilities/Globals.h"
-#include "art/Utilities/PerScheduleContainer.h"
+#include "art/Utilities/ScheduleID.h"
 #include "boost/format.hpp"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
@@ -28,9 +26,9 @@
 #include "tbb/concurrent_unordered_map.h"
 
 #include <algorithm>
+#include <cassert>
 #include <chrono>
 #include <iomanip>
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>

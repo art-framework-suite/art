@@ -40,13 +40,13 @@
 //
 // ======================================================================
 
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
 #include "art/Framework/Services/Registry/detail/system_service_macros.h"
 #include "art/Framework/Services/System/detail/fpControl.h"
 #include "fhiclcpp/types/Atom.h"
 
 namespace art {
+  class ActivityRegistry;
 
   class FloatingPointControl {
   public:

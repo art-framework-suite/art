@@ -12,15 +12,9 @@
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Common/Wrapper.h"
-#include "canvas/Persistency/Provenance/RunID.h"
-#include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
-#include "canvas/Utilities/TypeID.h"
 
 #include <memory>
-#include <set>
-#include <utility>
 
 namespace art {
 

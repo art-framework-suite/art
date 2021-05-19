@@ -1,5 +1,4 @@
 #include "art/Framework/Principal/ProcessTag.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
 
 using namespace std::string_literals;
 

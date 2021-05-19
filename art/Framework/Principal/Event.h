@@ -11,31 +11,13 @@
 
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Common/GroupQueryResult.h"
-#include "canvas/Persistency/Common/Wrapper.h"
-#include "canvas/Persistency/Common/traits.h"
-#include "canvas/Persistency/Provenance/EventAuxiliary.h"
+#include "art/Persistency/Provenance/fwd.h"
 #include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/History.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
-#include "canvas/Persistency/Provenance/RunID.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
-#include "canvas/Persistency/Provenance/Timestamp.h"
-#include "cetlib/HorizontalRule.h"
-#include "cetlib/container_algorithms.h"
-#include "fhiclcpp/ParameterSet.h"
 
-#include <cstdlib>
 #include <memory>
-#include <set>
-#include <vector>
 
 namespace art {
-
-  class BranchDescription;
-  class ProdToProdMapBuilder;
 
   class Event final : private DataViewImpl {
   public:

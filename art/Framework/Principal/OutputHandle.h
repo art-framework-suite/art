@@ -22,22 +22,17 @@
 // If failedToGet() returns false but isValid() is also false then no attempt
 //   to get data has occurred
 
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "cetlib/exempt_ptr.h"
-#include "cetlib_except/exception.h"
-
-#include <memory>
 
 namespace art {
 
   class EDProduct;
 
   class OutputHandle {
-
-  public: // MEMBER FUNCTIONS -- Special Member Functions
+  public:
     ~OutputHandle();
 
     OutputHandle(EDProduct const*,
@@ -51,37 +46,26 @@ namespace art {
       return OutputHandle{RangeSet::invalid()};
     }
 
-    /// Used when the attempt to get the data failed
     OutputHandle(RangeSet const&);
 
     OutputHandle(OutputHandle const&) = delete;
-
     OutputHandle(OutputHandle&&) = default;
 
     OutputHandle& operator=(OutputHandle const&) = delete;
-
     OutputHandle& operator=(OutputHandle&&) = delete;
 
-  public: // MEMBER FUNCTIONS -- API for the user
     bool isValid() const;
-
     BranchDescription const* desc() const;
-
     ProductProvenance const* productProvenance() const;
-
     EDProduct const* wrapper() const;
-
     RangeSet const& rangeOfValidity() const;
 
     void swap(OutputHandle&);
 
-  private: // MEMBER DATA
+  private:
     BranchDescription const* desc_{nullptr};
-
     cet::exempt_ptr<ProductProvenance const> productProvenance_{nullptr};
-
     EDProduct const* wrap_{nullptr};
-
     RangeSet const& rangeOfValidity_;
   };
 

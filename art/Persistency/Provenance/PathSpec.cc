@@ -2,7 +2,6 @@
 #include "art/Utilities/detail/remove_whitespace.h"
 #include "cetlib/container_algorithms.h"
 
-#include <limits>
 #include <ostream>
 #include <string>
 #include <utility>

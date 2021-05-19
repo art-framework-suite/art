@@ -2,8 +2,8 @@
 #include "tbb/concurrent_unordered_map.h"
 // vim: set sw=2 expandtab :
 
-#include <cassert>
 #include <cstdlib>
+#include <iomanip>
 
 namespace {
   std::string

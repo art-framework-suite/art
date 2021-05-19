@@ -2,8 +2,6 @@
 #define art_Utilities_UnixSignalHandlers_h
 // vim: set sw=2 expandtab :
 
-#include "art/Utilities/fwd.h"
-
 #include <atomic>
 
 namespace art {

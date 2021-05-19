@@ -5,6 +5,8 @@
 #include "tbb/global_control.h"
 #include "tbb/task_group.h"
 
+#include <exception>
+
 namespace art {
   class GlobalTaskGroup {
   public:

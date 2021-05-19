@@ -3,22 +3,18 @@
 
 #include "art/Framework/Principal/DelayedReader.h"
 #include "art/Framework/Principal/Group.h"
-#include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/OutputHandle.h"
-#include "art/Framework/Principal/Principal.h"
-#include "art/Framework/Principal/Provenance.h"
+#include "art/Framework/Principal/ProcessTag.h"
 #include "art/Framework/Principal/RangeSetsSupported.h"
-#include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
-#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "canvas/Persistency/Common/PrincipalBase.h"
+#include "canvas/Persistency/Common/WrappedTypeID.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
-#include "canvas/Persistency/Provenance/EventRange.h"
 #include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
@@ -30,16 +26,13 @@
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
-#include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
-#include "canvas/Utilities/WrappedClassName.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "range/v3/view.hpp"
 
-#include <algorithm>
 #include <atomic>
 #include <cassert>
 #include <memory>
@@ -48,7 +41,6 @@
 #include <vector>
 
 using namespace cet;
-using namespace hep::concurrency;
 using namespace std;
 
 namespace {

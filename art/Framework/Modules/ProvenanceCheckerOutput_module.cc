@@ -9,6 +9,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"

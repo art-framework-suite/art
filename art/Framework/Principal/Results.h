@@ -10,14 +10,7 @@
 // ==================================================================
 
 #include "art/Framework/Principal/DataViewImpl.h"
-#include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Common/Wrapper.h"
-#include "canvas/Persistency/Common/traits.h"
-#include "canvas/Utilities/TypeID.h"
-
-#include <memory>
-#include <utility>
 
 namespace art {
 

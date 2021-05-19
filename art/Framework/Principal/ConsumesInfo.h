@@ -70,16 +70,10 @@
 // interface is, therefore, not supported in non-module contexts.
 //============================================================================
 
-#include "art/Framework/Principal/ProductInfo.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/ScheduleID.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Utilities/TypeID.h"
-#include "fhiclcpp/ParameterSet.h"
 
 #include <array>
 #include <atomic>
-#include <cstdlib>
 #include <map>
 #include <mutex>
 #include <set>
@@ -88,8 +82,8 @@
 
 namespace art {
 
-  class EventProcessor;
-  class Scheduler;
+  class ModuleDescription;
+  class ProductInfo;
 
   class ConsumesInfo {
   public: // MEMBER FUNCTIONS -- Special Member Functions

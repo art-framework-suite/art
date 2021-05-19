@@ -2,11 +2,12 @@
 #define art_Framework_Services_Registry_ServiceRegistry_h
 // vim: set sw=2 expandtab :
 
+#include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/ServicesManager.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/exempt_ptr.h"
 
 namespace art {
-  class ActivityRegistry;
 
   class ServiceRegistry {
     // Allow EventProcessor to set the manager.  Also, allow a testing

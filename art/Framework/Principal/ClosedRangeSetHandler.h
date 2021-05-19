@@ -38,10 +38,6 @@
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
-
-#include <string>
-#include <vector>
 
 namespace art {
 

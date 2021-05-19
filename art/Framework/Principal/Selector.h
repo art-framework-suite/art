@@ -30,7 +30,6 @@
 // =====================================================================
 
 #include "art/Framework/Principal/SelectorBase.h"
-#include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 
 #include <memory>

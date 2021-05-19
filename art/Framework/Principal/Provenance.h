@@ -18,17 +18,17 @@
 //
 
 #include "art/Framework/Principal/Group.h"
-#include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
-#include "canvas/Persistency/Provenance/ProductProvenance.h"
-#include "canvas/Persistency/Provenance/RangeSet.h"
+#include "canvas/Persistency/Provenance/ProductStatus.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/exempt_ptr.h"
-#include "fhiclcpp/ParameterSetID.h"
+#include "fhiclcpp/fwd.h"
 
-#include <cassert>
 #include <iosfwd>
+#include <set>
+#include <string>
+#include <vector>
 
 namespace art {
 
@@ -63,7 +63,7 @@ namespace art {
 
     // Functions for querying the validity/presence of a product.
     bool isValid() const noexcept;
-    bool isPresent() const ;
+    bool isPresent() const;
     bool produced() const noexcept;
     ProductStatus productStatus() const;
 

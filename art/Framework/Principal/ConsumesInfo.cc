@@ -1,11 +1,12 @@
 #include "art/Framework/Principal/ConsumesInfo.h"
 
+#include "art/Framework/Principal/ProcessTag.h"
+#include "art/Framework/Principal/ProductInfo.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <cstdlib>

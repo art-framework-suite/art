@@ -1,26 +1,18 @@
 #include "art/Framework/Services/Registry/ServicesManager.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
-#include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/detail/ServiceCacheEntry.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
-#include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
-#include "art/Framework/Services/Registry/detail/ServiceWrapperBase.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/PluginSuffixes.h"
+#include "art/Persistency/Provenance/ModuleType.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
-#include "cetlib/HorizontalRule.h"
 #include "cetlib/LibraryManager.h"
-#include "cetlib/bold_fontify.h"
 #include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-#include "fhiclcpp/types/detail/validationException.h"
 
-#include <cassert>
 #include <map>
 #include <memory>
 #include <stack>

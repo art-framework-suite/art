@@ -12,8 +12,6 @@
 namespace art {
 
   class Group;
-  class RangeSet;
-  class TypeID;
 
   class NoDelayedReader : public DelayedReader {
 

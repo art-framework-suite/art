@@ -31,50 +31,35 @@
 //
 
 #include "art/Framework/Principal/RangeSetHandler.h"
-#include "canvas/Persistency/Provenance/EventID.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
-
-#include <string>
-#include <vector>
 
 namespace art {
 
   class OpenRangeSetHandler final : public RangeSetHandler {
-
-  public: // MEMBER FUNCTIONS -- Special Member Functions
+  public:
     virtual ~OpenRangeSetHandler();
 
     explicit OpenRangeSetHandler(RunNumber_t r);
-
     explicit OpenRangeSetHandler(RangeSet const&);
 
     OpenRangeSetHandler(OpenRangeSetHandler const&);
-
     OpenRangeSetHandler(OpenRangeSetHandler&&);
 
     OpenRangeSetHandler& operator=(OpenRangeSetHandler const&);
-
     OpenRangeSetHandler& operator=(OpenRangeSetHandler&&);
 
-  private: // MEMBER FUNCTIONS -- API required by RangeSetHandler
+  private:
     HandlerType do_type() const override;
-
     RangeSet do_getSeenRanges() const override;
 
     void do_update(EventID const&, bool lastInSubRun) override;
-
     void do_flushRanges() override;
-
     void do_maybeSplitRange() override;
-
     void do_rebase() override;
-
     RangeSetHandler* do_clone() const override;
 
-  private: // MEMBER DATA
     RangeSet ranges_{RangeSet::invalid()};
-
     std::size_t idx_{0};
   };
 

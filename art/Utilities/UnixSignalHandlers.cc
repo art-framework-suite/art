@@ -1,3 +1,4 @@
+
 #include "art/Utilities/UnixSignalHandlers.h"
 // vim: set sw=2 expandtab :
 
@@ -5,7 +6,6 @@
 
 #include <atomic>
 #include <csignal>
-#include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

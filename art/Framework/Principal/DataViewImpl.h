@@ -5,52 +5,43 @@
 #include "art/Framework/Principal/ConsumesInfo.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/ProcessTag.h"
+#include "art/Framework/Principal/ProductInfo.h"
 #include "art/Framework/Principal/RangeSetsSupported.h"
-#include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/detail/type_label_for.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "art/Persistency/Common/fwd.h"
-#include "art/Utilities/Globals.h"
+#include "art/Persistency/Provenance/fwd.h"
 #include "art/Utilities/ProductSemantics.h"
 #include "canvas/Persistency/Common/EDProduct.h"
-#include "canvas/Persistency/Common/Ptr.h"
-#include "canvas/Persistency/Common/PtrVector.h"
 #include "canvas/Persistency/Common/WrappedTypeID.h"
 #include "canvas/Persistency/Common/Wrapper.h"
-#include "canvas/Persistency/Common/detail/maybeCastObj.h"
 #include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/History.h"
+#include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductToken.h"
 #include "canvas/Persistency/Provenance/ProvenanceFwd.h"
-#include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/RunID.h"
-#include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Persistency/Provenance/canonicalProductName.h"
-#include "canvas/Persistency/Provenance/type_aliases.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib_except/exception.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/tsan.h"
+#include "fhiclcpp/fwd.h"
 
-#include <algorithm>
 #include <cassert>
 #include <cstddef>
-#include <cstdlib>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -63,7 +54,6 @@
 namespace art {
 
   class EDProductGetter;
-  class ResultsProducer;
 
   namespace detail {
     class Analyzer;

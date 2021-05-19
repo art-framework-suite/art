@@ -1,6 +1,7 @@
 #include "art/Framework/Services/System/FloatingPointControl.h"
 // vim: set sw=2 expandtab :
 
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 using namespace std;

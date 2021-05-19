@@ -19,8 +19,11 @@ namespace art {
   class Handle;
   class NoDelayedReader;
   class Principal;
+  class ProcessTag;
   class Provenance;
   class RangeSetHandler;
+  class Results;
+  class ResultsPrincipal;
   class Run;
   class RunPrincipal;
   class ProcessNameSelector;         // Selector.h

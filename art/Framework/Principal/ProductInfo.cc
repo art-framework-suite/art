@@ -1,4 +1,5 @@
 #include "art/Framework/Principal/ProductInfo.h"
+#include "canvas/Utilities/TypeID.h"
 
 #include <ostream>
 #include <tuple>

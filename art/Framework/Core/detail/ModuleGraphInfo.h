@@ -1,7 +1,7 @@
 #ifndef art_Framework_Core_detail_ModuleGraphInfo_h
 #define art_Framework_Core_detail_ModuleGraphInfo_h
 
-#include "art/Framework/Principal/ConsumesInfo.h"
+#include "art/Framework/Principal/ProductInfo.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 
 #include <iosfwd>

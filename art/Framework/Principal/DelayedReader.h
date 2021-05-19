@@ -12,17 +12,13 @@
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
 #include <vector>
 
 namespace art {
-
-  class Group;
-  class Principal;
-  class ProductProvenance;
-  class RangeSet;
 
   class DelayedReader {
   public:

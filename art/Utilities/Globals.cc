@@ -1,18 +1,9 @@
 #include "art/Utilities/Globals.h"
 // vim: set sw=2 expandtab :
 
-#include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Utilities/TypeID.h"
-#include "cetlib/HorizontalRule.h"
 #include "fhiclcpp/ParameterSet.h"
 
-#include <array>
-#include <cstdlib>
-#include <iostream>
-#include <map>
-#include <set>
 #include <string>
-#include <tuple>
 #include <vector>
 
 using namespace std;

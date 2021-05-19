@@ -2,7 +2,6 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/ResultsPrincipal.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
 
 namespace art {
 

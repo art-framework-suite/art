@@ -9,7 +9,6 @@
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
 
-#include <set>
 #include <string>
 #include <vector>
 

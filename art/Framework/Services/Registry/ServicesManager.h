@@ -2,7 +2,6 @@
 #define art_Framework_Services_Registry_ServicesManager_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/detail/ServiceCacheEntry.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceWrapper.h"

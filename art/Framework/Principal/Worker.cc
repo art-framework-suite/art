@@ -2,37 +2,27 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/Actions.h"
-#include "art/Framework/Principal/BranchActionType.h"
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/ExecutionCounts.h"
-#include "art/Framework/Principal/MaybeIncrementCounts.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/WorkerParams.h"
-#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/exception.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/SerialTaskQueueChain.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "hep_concurrency/WaitingTaskList.h"
-#include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <atomic>
 #include <cassert>
 #include <exception>
-#include <iomanip>
-#include <iostream>
 #include <memory>
 #include <sstream>
-#include <utility>
 
 using namespace hep::concurrency;
 using namespace std;

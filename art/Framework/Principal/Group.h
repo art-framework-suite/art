@@ -7,22 +7,23 @@
 //
 
 #include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Common/fwd.h"
-#include "art/Utilities/fwd.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Common/EDProductGetter.h"
-#include "canvas/Persistency/Common/WrappedTypeID.h"
-#include "canvas/Persistency/Provenance/BranchDescription.h"
+#include "canvas/Persistency/Common/fwd.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
+#include "canvas/Utilities/TypeID.h"
 #include "cetlib/exempt_ptr.h"
 
-#include <algorithm>
 #include <atomic>
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <vector>
 
 namespace art {
 

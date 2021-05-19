@@ -3,12 +3,10 @@
 // vim: set sw=2 expandtab :
 
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include <memory>
 
 namespace art {
 
   class EventID;
-  class SubRunID;
 
   class RangeSetHandler {
 

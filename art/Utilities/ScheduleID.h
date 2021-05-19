@@ -5,9 +5,9 @@
 // Entity for identification of schedules and items attached thereto.
 
 #include <cstdint>
-#include <iostream>
+#include <functional>
+#include <iosfwd>
 #include <limits>
-#include <stdexcept>
 #include <type_traits>
 
 namespace art {

@@ -1,10 +1,8 @@
 // vim: set sw=2 expandtab :
 #include "art/Utilities/ScheduleID.h"
 
-#include <cstdint>
-#include <iostream>
+#include <ostream>
 #include <stdexcept>
-#include <type_traits>
 
 using namespace std;
 

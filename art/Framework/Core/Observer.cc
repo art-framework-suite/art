@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 
-using namespace hep::concurrency;
 using namespace std;
 
 using fhicl::ParameterSet;

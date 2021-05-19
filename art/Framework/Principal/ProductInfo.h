@@ -10,9 +10,6 @@
 
 namespace art {
 
-  class EventProcessor;
-  class Scheduler;
-
   class ProductInfo {
   public: // TYPES
     enum class ConsumableType { Product = 0, ViewElement = 1, Many = 2 };

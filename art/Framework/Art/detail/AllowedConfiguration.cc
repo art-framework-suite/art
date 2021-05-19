@@ -3,6 +3,7 @@
 #include "art/Framework/Art/detail/get_MetadataCollector.h"
 #include "art/Framework/Art/detail/get_MetadataSummary.h"
 #include "art/Utilities/PluginSuffixes.h"
+#include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/bold_fontify.h"
 #include "cetlib/container_algorithms.h"

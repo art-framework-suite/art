@@ -1,14 +1,14 @@
 #include "art/Framework/Principal/Group.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/Worker.h"
+#include "art/Framework/Principal/DelayedReader.h"
+#include "canvas/Persistency/Common/WrappedTypeID.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "cetlib_except/demangle.h"
 #include "range/v3/view.hpp"
 
-#include <iostream>
 #include <string>
 
 using namespace std;

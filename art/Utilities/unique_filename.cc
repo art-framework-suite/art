@@ -7,11 +7,11 @@
 
 #include <cerrno>
 #include <cstring>
+#include <unistd.h>
 
 extern "C" {
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 }
 
 std::string

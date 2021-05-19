@@ -4,7 +4,6 @@
 #include "art/Framework/Services/Registry/ServiceScope.h"
 #include "art/Framework/Services/Registry/detail/ServiceHelper.h"
 #include "art/Framework/Services/Registry/detail/ServiceStack.h"
-#include "art/Framework/Services/Registry/detail/ServiceWrapper.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/bold_fontify.h"
@@ -14,6 +13,7 @@
 
 #include <cassert>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <utility>
 

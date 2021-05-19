@@ -3,14 +3,10 @@
 
 #include "art/Framework/Principal/ActionCodes.h"
 #include "canvas/Utilities/DebugMacros.h"
-#include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
-#include "fhiclcpp/ParameterSet.h"
 
 using namespace cet;
 using namespace std;
-
-using fhicl::ParameterSet;
 
 namespace art {
 

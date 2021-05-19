@@ -3,6 +3,7 @@
 #include "boost/test/unit_test.hpp"
 
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/ProcessTag.h"
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
@@ -12,6 +13,7 @@
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "art/test/TestObjects/ToyProducts.h"
+#include "canvas/Persistency/Common/WrappedTypeID.h"
 #include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"

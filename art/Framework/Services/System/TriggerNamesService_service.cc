@@ -1,18 +1,21 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
 #include "art/Persistency/Provenance/PathSpec.h"
-#include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "art/Utilities/Globals.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
+#include "canvas/Persistency/Provenance/ProcessConfiguration.h"
+#include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 // vim: set sw=2 expandtab :
 
+#include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <limits>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -104,8 +107,8 @@ namespace art {
       auto config = e.processHistory().getConfigurationForProcess(pname);
       if (not config) {
         throw lookup_exception(pname)
-          << "Could not locate process configuration for the process '"
-          << pname << "'\n"
+          << "Could not locate process configuration for the process '" << pname
+          << "'\n"
           << "This can happen if the ParameterSets were dropped on input.\n"
           << "Please contact artists@fnal.gov for guidance.\n";
       }

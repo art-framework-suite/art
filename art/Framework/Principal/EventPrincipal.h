@@ -7,6 +7,7 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/History.h"
+#include "canvas/Persistency/Provenance/ProductTables.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>

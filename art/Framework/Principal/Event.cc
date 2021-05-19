@@ -2,10 +2,8 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "fhiclcpp/ParameterSetRegistry.h"
 
 using namespace std;
 using namespace fhicl;

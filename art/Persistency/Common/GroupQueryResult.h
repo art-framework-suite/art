@@ -10,7 +10,6 @@
 
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/exempt_ptr.h"
-#include "cetlib_except/exception.h"
 
 #include <memory>
 #include <variant>

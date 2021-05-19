@@ -2,17 +2,12 @@
 
 #include "art/Framework/Services/FileServiceInterfaces/FileTransfer.h"
 #include "art/Framework/Services/FileServiceInterfaces/FileTransferStatus.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "art/Framework/Services/Registry/ServiceTable.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/fwd.h"
 
-#include <algorithm>
-#include <cerrno>
-#include <cstdlib>
 #include <fstream>
-#include <iterator>
 #include <string>
 
 using namespace std;

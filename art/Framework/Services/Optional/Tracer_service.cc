@@ -13,6 +13,7 @@
 #include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/OutputFileInfo.h"
+#include "canvas/Persistency/Common/fwd.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
@@ -22,7 +23,6 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <atomic>
-#include <cassert>
 #include <iostream>
 #include <string>
 

@@ -1,31 +1,21 @@
 #include "art/Framework/Principal/DataViewImpl.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Principal.h"
-#include "art/Framework/Principal/ResultsPrincipal.h"
-#include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
-#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
-#include "art/Utilities/Globals.h"
-#include "art/Utilities/ProductSemantics.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/canonicalProductName.h"
 #include "cetlib/HorizontalRule.h"
-#include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib_except/exception.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
+#include "fhiclcpp/fwd.h"
 
 #include <algorithm>
-#include <cstddef>
-#include <cstdlib>
 #include <map>
 #include <memory>
 #include <ostream>

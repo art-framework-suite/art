@@ -11,12 +11,11 @@
 // ================================================================
 
 #include "art/Utilities/LinuxProcData.h"
-#include "art/Utilities/ScheduleID.h"
+
+#include <sys/types.h>
 
 #include <cstdio>
 #include <string>
-#include <utility>
-#include <vector>
 
 namespace art {
 

@@ -5,7 +5,6 @@ using namespace std;
 
 namespace art {
 
-  class DelayedReader;
   class ProcessConfiguration;
   class RunAuxiliary;
 

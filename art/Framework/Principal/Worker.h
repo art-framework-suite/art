@@ -21,25 +21,15 @@
 // cached and reused until the worker is reset().
 // ======================================================================
 
-#include "art/Framework/Principal/Actions.h"
-#include "art/Framework/Principal/BranchActionType.h"
-#include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/ExecutionCounts.h"
-#include "art/Framework/Principal/MaybeIncrementCounts.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
-#include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
 #include "hep_concurrency/WaitingTaskList.h"
 
 #include <atomic>
-#include <cassert>
 #include <exception>
-#include <iosfwd>
-#include <memory>
-#include <utility>
+#include <string>
 #include <vector>
 
 namespace hep::concurrency {
@@ -47,7 +37,6 @@ namespace hep::concurrency {
 }
 
 namespace art {
-
   class ActivityRegistry;
   class ModuleContext;
   class FileBlock;
