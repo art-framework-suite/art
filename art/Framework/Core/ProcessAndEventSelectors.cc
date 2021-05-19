@@ -5,10 +5,10 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Selector.h"
-#include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
-#include "cetlib_except/exception.h"
 
+#include <algorithm>
+#include <cassert>
 #include <map>
 #include <string>
 #include <utility>

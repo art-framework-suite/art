@@ -4,14 +4,10 @@
 #include "art/Framework/Principal/Actions.h"
 #include "art/Utilities/GlobalTaskGroup.h"
 #include "art/Utilities/ScheduleID.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/OptionalDelegatedParameter.h"
 #include "fhiclcpp/types/OptionalTable.h"
-#include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
-#include "tbb/global_control.h"
 
 #include <string>
 

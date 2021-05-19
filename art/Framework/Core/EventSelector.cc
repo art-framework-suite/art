@@ -3,7 +3,7 @@
 
 #include "art/Framework/Core/detail/RegexMatch.h"
 #include "art/Utilities/detail/remove_whitespace.h"
-#include "canvas/Persistency/Common/HLTPathStatus.h"
+#include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
@@ -15,8 +15,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <memory>
-#include <regex>
 #include <string>
 #include <vector>
 

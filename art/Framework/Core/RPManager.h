@@ -2,7 +2,8 @@
 #define art_Framework_Core_RPManager_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/RPWorkerT.h"
+#include "art/Framework/Core/ResultsProducer.h"
+#include "art/Framework/Principal/RPWorker.h"
 #include "cetlib/BasicPluginFactory.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -10,6 +11,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace art {

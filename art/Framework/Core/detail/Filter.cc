@@ -8,14 +8,10 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/ParameterSetRegistry.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 
-using namespace hep::concurrency;
 using namespace std;
 
 namespace art::detail {

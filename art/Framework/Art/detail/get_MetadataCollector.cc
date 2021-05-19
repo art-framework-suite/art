@@ -7,7 +7,6 @@
 #include "art/Framework/Art/detail/md-collector/MetadataCollectorForSource.h"
 #include "art/Framework/Art/detail/md-collector/MetadataCollectorForTool.h"
 #include "art/Utilities/PluginSuffixes.h"
-#include "canvas/Utilities/Exception.h"
 
 using namespace art;
 using namespace art::detail;

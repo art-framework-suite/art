@@ -8,13 +8,8 @@
 #include "art/Framework/Core/detail/EngineCreator.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/bold_fontify.h"
-#include "cetlib_except/demangle.h"
-#include "fhiclcpp/ParameterSet.h"
-
-#include <utility>
 
 using art::detail::EngineCreator;
-using fhicl::ParameterSet;
 
 EngineCreator::EngineCreator(std::string const& moduleLabel,
                              ScheduleID const sid)

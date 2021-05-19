@@ -6,9 +6,10 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "hep_concurrency/SerialTaskQueueChain.h"
 
-#include <atomic>
+#include <memory>
 #include <set>
 #include <string>
+#include <type_traits>
 
 namespace art::detail {
   class SharedResources;

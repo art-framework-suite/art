@@ -9,6 +9,7 @@
 #include "art/Framework/Core/InputSourceMutex.h"
 #include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
+#include "art/Framework/Principal/ClosedRangeSetHandler.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
@@ -32,25 +33,21 @@
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/UnixSignalHandlers.h"
 #include "art/Version/GetReleaseVersion.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
-#include "canvas/Utilities/TypeID.h"
 #include "cetlib/bold_fontify.h"
 #include "cetlib/container_algorithms.h"
+#include "cetlib/trim.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/detail/validationException.h"
 #include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <algorithm>
 #include <cassert>
 #include <exception>
 #include <functional>
-#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <string>

@@ -1,11 +1,11 @@
 #include "art/Framework/EventProcessor/Scheduler.h"
 // vim: set sw=2 expandtab :
 
+#include "art/Utilities/GlobalTaskGroup.h"
 #include "art/Utilities/Globals.h"
 #include "cetlib/HorizontalRule.h"
-#include "cetlib/getenv.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "tbb/global_control.h"
 
 #include <cstdlib>
 #include <string>

@@ -1,9 +1,9 @@
 #include "art/Framework/Core/OutputWorker.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/FileBlock.h"
+#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputModule.h"
-#include "art/Framework/Principal/WorkerParams.h"
+#include "art/Framework/Principal/fwd.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace art {

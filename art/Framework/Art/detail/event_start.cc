@@ -3,10 +3,9 @@
 #include "boost/algorithm/string.hpp"
 #include "canvas/Utilities/Exception.h"
 
+#include <cassert>
 #include <iostream>
 #include <regex>
-#include <sstream>
-#include <type_traits>
 
 namespace {
   auto

@@ -3,12 +3,9 @@
 #include "art/Framework/Art/detail/exists_outside_prolog.h"
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib/container_algorithms.h"
 #include "cetlib/filepath_maker.h"
-#include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
-#include "fhiclcpp/parse.h"
 
 #include <iostream>
 #include <string>

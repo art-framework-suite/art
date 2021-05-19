@@ -11,12 +11,11 @@
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputFileGranularity.h"
 #include "art/Framework/Core/OutputFileStatus.h"
-#include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 
 #include <memory>
 

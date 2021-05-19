@@ -1,5 +1,6 @@
 #include "art/Framework/Core/detail/consumed_products.h"
 #include "art/Framework/Core/detail/ModuleConfigInfo.h"
+#include "art/Framework/Principal/ProductInfo.h"
 #include "canvas/Utilities/Exception.h"
 
 using namespace art;

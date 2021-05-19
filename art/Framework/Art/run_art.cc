@@ -28,9 +28,7 @@
 #include <cassert>
 #include <exception>
 #include <iostream>
-#include <sstream>
 #include <string>
-#include <vector>
 
 #ifdef __linux__
 #include <malloc.h>

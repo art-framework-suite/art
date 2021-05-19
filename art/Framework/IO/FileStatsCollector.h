@@ -9,7 +9,8 @@
 
 #include "boost/date_time/posix_time/posix_time_types.hpp"
 #include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/Timestamp.h"
+#include "canvas/Persistency/Provenance/RunID.h"
+#include "canvas/Persistency/Provenance/SubRunID.h"
 
 #include <cstddef> // For std::size_t.
 #include <set>

@@ -4,14 +4,14 @@
 
 #include "art/Framework/Core/OutputFileGranularity.h"
 #include "art/Framework/Core/OutputFileStatus.h"
-#include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 
 #include <atomic>
 #include <chrono>
-#include <type_traits>
+#include <limits>
+#include <string>
 
 namespace art {
   class FileProperties {

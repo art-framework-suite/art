@@ -10,8 +10,6 @@ namespace art {
 #include "art/Framework/Art/OptionsHandler.h"
 #include "cetlib/filepath_maker.h"
 
-#include <string>
-
 class art::BasicPostProcessor : public art::OptionsHandler {
 private:
   // Check selected options for consistency.

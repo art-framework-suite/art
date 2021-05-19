@@ -1,4 +1,5 @@
 #include "art/Framework/IO/Sources/detail/FileServiceProxy.h"
+#include "art/Framework/Services/FileServiceInterfaces/FileDisposition.h"
 
 art::detail::FileServiceProxy::FileServiceProxy(
   std::vector<std::string>&& fileNames,

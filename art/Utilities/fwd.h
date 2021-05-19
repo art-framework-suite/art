@@ -10,6 +10,7 @@
 #include "canvas/Utilities/Exception.h"
 
 namespace art {
+  class GlobalTaskGroup;
   class InputTag;
   struct MallocOpts;
   class MallocOptionsSetter; // MallocOpts.h

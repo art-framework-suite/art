@@ -4,23 +4,15 @@
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/detail/issue_reports.h"
-#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/RunPrincipal.h"
-#include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <cassert>
-#include <ctime>
 #include <memory>
 #include <string>
 
 using namespace std;
-using fhicl::ParameterSet;
 
 namespace art {
 

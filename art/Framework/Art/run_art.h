@@ -4,7 +4,8 @@
 
 #include "art/Framework/Art/OptionsHandlers.h"
 #include "art/Framework/Core/detail/EnabledModules.h"
-#include "art/Framework/Core/detail/ModuleKeyAndType.h"
+
+#include <string>
 
 namespace art {
 

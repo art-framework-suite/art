@@ -9,7 +9,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/ScheduleID.h"
-#include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace art::detail {
 

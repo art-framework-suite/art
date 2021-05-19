@@ -25,31 +25,13 @@
 // ======================================================================
 
 #include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Core/Path.h"
-#include "art/Framework/Core/PathManager.h"
-#include "art/Framework/Principal/Actions.h"
-#include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
-#include "canvas/Persistency/Common/HLTGlobalStatus.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
-#include "cetlib/container_algorithms.h"
-#include "cetlib/trim.h"
-#include "fhiclcpp/ParameterSet.h"
 
-#include <atomic>
-#include <functional>
-#include <map>
 #include <memory>
-#include <optional>
-#include <set>
-#include <string>
-#include <utility>
-#include <vector>
 
 namespace art {
   class GlobalTaskGroup;

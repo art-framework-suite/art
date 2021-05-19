@@ -4,8 +4,8 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/EventProcessor/detail/memoryReport.h"
+#include "art/Framework/Principal/Worker.h"
 #include "art/Utilities/PerScheduleContainer.h"
-#include "cetlib/container_algorithms.h"
 #include "cetlib/cpu_timer.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

@@ -1,7 +1,6 @@
 #include "art/Framework/EventProcessor/detail/ExceptionCollector.h"
 
 #include <cassert>
-#include <memory>
 
 using namespace art;
 

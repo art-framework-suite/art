@@ -3,22 +3,15 @@
 
 #include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/FileCatalogMetadataPlugin.h"
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/GroupSelector.h"
-#include "art/Framework/Core/GroupSelectorRules.h"
 #include "art/Framework/Core/Observer.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
-#include "art/Framework/Core/OutputWorker.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Principal/Principal.h"
-#include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Run.h"
-#include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -28,25 +21,22 @@
 #include "art/Persistency/Provenance/Selections.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Persistency/Provenance/ParentageID.h"
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Utilities/DebugMacros.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/BasicPluginFactory.h"
 #include "cetlib/canonical_string.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
 #include "rapidjson/document.h"
 #include "rapidjson/error/en.h"
 
-#include <algorithm>
 #include <array>
 #include <atomic>
 #include <cassert>
 #include <cstddef>
-#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <set>
@@ -54,7 +44,6 @@
 #include <utility>
 #include <vector>
 
-using namespace hep::concurrency;
 using namespace std;
 
 using fhicl::ParameterSet;

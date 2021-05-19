@@ -7,7 +7,6 @@
 #include "art/Framework/Core/InputSourceMacros.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
-#include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
@@ -28,6 +27,7 @@
 #include "fhiclcpp/types/OptionalDelegatedParameter.h"
 #include "fhiclcpp/types/TableFragment.h"
 
+#include <cassert>
 #include <chrono>
 #include <cstdint>
 #include <memory>

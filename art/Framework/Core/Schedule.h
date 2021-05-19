@@ -16,17 +16,12 @@
 #include "art/Framework/Core/EndPathExecutor.h"
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/TriggerPathsExecutor.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 
 #include <atomic>
-#include <functional>
-#include <map>
+#include <cassert>
 #include <memory>
-#include <optional>
-#include <set>
-#include <string>
 #include <utility>
-#include <vector>
 
 namespace art {
   class ActivityRegistry;

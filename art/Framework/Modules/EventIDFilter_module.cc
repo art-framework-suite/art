@@ -14,7 +14,6 @@
 #include "fhiclcpp/types/Sequence.h"
 
 #include <string>
-#include <vector>
 
 using namespace fhicl;
 using namespace std;

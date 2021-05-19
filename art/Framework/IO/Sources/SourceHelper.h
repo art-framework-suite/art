@@ -16,24 +16,15 @@
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
-#include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/History.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
-#include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
 
 namespace art {
-  template <typename T>
-  class Source;
-
-  class ProductTables;
-  class RunAuxiliary;
-  class SubRunAuxiliary;
-  class Timestamp;
   class SourceHelper;
 } // namespace art
 

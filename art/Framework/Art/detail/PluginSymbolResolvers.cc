@@ -1,5 +1,4 @@
 #include "art/Framework/Art/detail/PluginSymbolResolvers.h"
-#include "art/Framework/Art/detail/PrintFormatting.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "boost/filesystem.hpp"

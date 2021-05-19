@@ -1,13 +1,8 @@
 #include "art/Framework/Core/FileBlock.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/ResultsPrincipal.h"
-#include "canvas/Persistency/Provenance/FileFormatVersion.h"
-
 #include <memory>
 #include <string>
-
-class TTree;
 
 using namespace std;
 

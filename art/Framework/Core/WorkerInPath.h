@@ -13,16 +13,14 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/detail/ModuleKeyAndType.h"
-#include "art/Framework/Principal/ExecutionCounts.h"
-#include "art/Framework/Principal/Worker.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/Transition.h"
+#include "art/Utilities/fwd.h"
 #include "cetlib/exempt_ptr.h"
+#include "hep_concurrency/WaitingTask.h"
 
-#include <memory>
 #include <string>
-#include <utility>
-#include <vector>
 
 namespace art {
   using module_label_t = std::string;
@@ -30,9 +28,6 @@ namespace art {
   namespace detail {
     struct ModuleConfigInfo;
   }
-
-  class GlobalTaskGroup;
-  class PathContext;
 
   class WorkerInPath {
   public:

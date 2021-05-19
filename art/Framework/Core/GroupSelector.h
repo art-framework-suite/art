@@ -7,9 +7,9 @@
 //
 // ======================================================================
 
-#include "canvas/Persistency/Provenance/ProductList.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
+
 #include <iosfwd>
-#include <string>
 #include <vector>
 
 namespace art {
@@ -18,7 +18,6 @@ namespace art {
   std::ostream& operator<<(std::ostream& os, const GroupSelector& gs);
 
   // used herein:
-  class BranchDescription;
   class GroupSelectorRules;
 } // namespace art
 

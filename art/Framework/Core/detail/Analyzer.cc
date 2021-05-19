@@ -1,4 +1,4 @@
-#include "art/Framework/Core/EDAnalyzer.h"
+#include "art/Framework/Core/detail/Analyzer.h"
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/Frameworkfwd.h"
@@ -10,7 +10,6 @@
 
 #include <ostream>
 
-using namespace hep::concurrency;
 using namespace std;
 
 using art::SharedResources;

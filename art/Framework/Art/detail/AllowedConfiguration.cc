@@ -11,7 +11,6 @@
 
 #include <iomanip>
 #include <iostream>
-#include <tuple>
 
 using namespace art::detail;
 using std::cout;

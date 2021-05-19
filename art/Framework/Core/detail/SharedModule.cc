@@ -3,7 +3,6 @@
 
 #include "art/Utilities/SharedResource.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib_except/demangle.h"
 
 #include <string>
 #include <vector>

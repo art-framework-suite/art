@@ -2,14 +2,8 @@
 #define art_Framework_Art_detail_get_LibraryInfoCollection_h
 
 #include "art/Framework/Art/detail/LibraryInfoCollection.h"
-#include "art/Utilities/PluginSuffixes.h"
 
 #include <string>
-#include <vector>
-
-namespace cet {
-  class LibraryManager;
-}
 
 namespace art::detail {
 

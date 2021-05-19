@@ -8,7 +8,6 @@
 
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "canvas/Persistency/Provenance/FileFormatVersion.h"
-#include "cetlib/exempt_ptr.h"
 
 #include <memory>
 #include <string>

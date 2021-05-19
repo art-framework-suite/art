@@ -1,3 +1,4 @@
+
 #ifndef art_Framework_Core_detail_EngineCreator_h
 #define art_Framework_Core_detail_EngineCreator_h
 
@@ -25,10 +26,6 @@
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Utilities/ScheduleID.h"
-
-namespace fhicl {
-  class ParameterSet;
-}
 
 namespace art::detail {
   class EngineCreator {

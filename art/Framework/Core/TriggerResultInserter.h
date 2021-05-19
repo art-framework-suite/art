@@ -11,15 +11,12 @@
 
 #include "art/Framework/Core/ReplicatedProducer.h"
 #include "art/Framework/Principal/fwd.h"
+#include "canvas/Persistency/Common/fwd.h"
 #include "cetlib/exempt_ptr.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
-
-#include <vector>
+#include "fhiclcpp/fwd.h"
 
 namespace art {
-  class Event;
-  class HLTGlobalStatus;
   class TriggerResultInserter : public ReplicatedProducer {
   public:
     // the pset needed here is the one that defines the trigger path names

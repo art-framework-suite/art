@@ -3,7 +3,6 @@
 
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/FileServiceInterfaces/FileDeliveryStatus.h"
-#include "art/Framework/Services/FileServiceInterfaces/FileDisposition.h"
 #include "art/Framework/Services/FileServiceInterfaces/FileTransfer.h"
 #include "art/Framework/Services/FileServiceInterfaces/FileTransferStatus.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"

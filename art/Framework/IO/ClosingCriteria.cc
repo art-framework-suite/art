@@ -2,8 +2,6 @@
 #include "canvas/Utilities/Exception.h"
 // vim: set sw=2 expandtab :
 
-#include <utility>
-
 using namespace std;
 
 using EntryNumber_t = art::FileIndex::EntryNumber_t;

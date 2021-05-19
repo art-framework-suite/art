@@ -4,8 +4,6 @@
 
 #include "art/Utilities/PerScheduleContainer.h"
 
-#include <vector>
-
 namespace cet {
   class cpu_timer;
 } // namespace cet

@@ -1,16 +1,15 @@
 #include "art/Framework/Core/Schedule.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
 #include "hep_concurrency/WaitingTask.h"
 
-#include <iomanip>
+#include <ios>
 
 using namespace hep::concurrency;
 using namespace std;

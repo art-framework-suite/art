@@ -18,22 +18,16 @@
 // ===================================================================
 
 #include "art/Framework/Core/ProducesCollector.h"
-#include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Common/Assns.h"
-#include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/Persistable.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
-#include "canvas/Persistency/Provenance/TypeLabel.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/type_aliases.h"
 #include "canvas/Utilities/Exception.h"
-#include "canvas/Utilities/TypeID.h"
-#include "cetlib/exempt_ptr.h"
+#include "cetlib_except/demangle.h"
 #include "cetlib_except/exception.h"
 
-#include <array>
-#include <map>
 #include <memory>
 #include <string>
 

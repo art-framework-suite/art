@@ -2,7 +2,6 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
-#include "art/Framework/Core/RPWorkerT.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/Results.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
@@ -10,11 +9,7 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/SharedResource.h"
-#include "cetlib/PluginTypeDeducer.h"
-#include "fhiclcpp/ParameterSet.h"
 
-#include <memory>
-#include <set>
 #include <string>
 
 using namespace hep::concurrency;

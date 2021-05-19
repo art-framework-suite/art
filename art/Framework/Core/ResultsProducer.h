@@ -78,7 +78,7 @@
 #include "art/Framework/Core/RPWorkerT.h"
 #include "art/Framework/Core/detail/ImplicitConfigs.h"
 #include "art/Framework/Core/detail/SharedModule.h"
-#include "art/Persistency/Provenance/ModuleType.h"
+#include "art/Framework/Principal/fwd.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "cetlib/ProvideFilePathMacro.h"
 #include "cetlib/compiler_macros.h"
@@ -86,20 +86,9 @@
 #include "fhiclcpp/types/AllowedConfigurationMacro.h"
 
 #include <memory>
-#include <set>
 #include <string>
 
 namespace art {
-
-  class EventPrincipal;
-  class ResultsPrincipal;
-  class RunPrincipal;
-  class SubRunPrincipal;
-
-  class Event;
-  class Results;
-  class Run;
-  class SubRun;
 
   class ResultsProducer : public ModuleBase,
                           private detail::SharedModule,

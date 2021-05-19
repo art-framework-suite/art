@@ -1,12 +1,7 @@
 #include "art/Framework/IO/ProductMix/ProdToProdMapBuilder.h"
 
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/EventPrincipal.h"
-#include "canvas/Persistency/Provenance/rootNames.h"
 #include "canvas/Utilities/Exception.h"
-
-#include <iomanip>
-#include <iostream>
+#include "cetlib/exempt_ptr.h"
 
 void
 art::ProdToProdMapBuilder::prepareTranslationTables(ProductIDTransMap& transMap)

@@ -8,19 +8,14 @@
 // ======================================================================
 
 #include "canvas/Persistency/Provenance/BranchKey.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 
 #include <string>
 #include <vector>
 
 namespace art {
-  // defined below:
   class GroupSelectorRules;
-
-  // forward declarations:
-  class BranchDescription;
-  class GroupSelector;
-} // namespace art
+}
 
 // ----------------------------------------------------------------------
 

@@ -1,11 +1,8 @@
 #include "art/Framework/IO/ProductMix/MixHelper.h"
-#include "art/Framework/Core/InputSourceMutex.h"
-#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/Registry/ServiceRegistry.h"
 #include "canvas/Persistency/Provenance/FileIndex.h"
-#include "canvas/Persistency/Provenance/History.h"
 #include "cetlib/container_algorithms.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

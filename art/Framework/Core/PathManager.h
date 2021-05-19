@@ -15,24 +15,21 @@
 // ======================================================================
 
 #include "art/Framework/Core/PathsInfo.h"
-#include "art/Framework/Core/ReplicatedProducer.h"
 #include "art/Framework/Core/WorkerInPath.h"
-#include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/EnabledModules.h"
 #include "art/Framework/Core/detail/ModuleConfigInfo.h"
-#include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Framework/Core/detail/ModuleKeyAndType.h"
+#include "art/Framework/Core/detail/graph_type_aliases.h"
 #include "art/Persistency/Provenance/ModuleType.h"
-#include "art/Persistency/Provenance/PathSpec.h"
 #include "art/Utilities/PerScheduleContainer.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ScheduleID.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "cetlib/LibraryManager.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <map>
 #include <memory>
-#include <optional>
 #include <set>
 #include <string>
 #include <variant>

@@ -2,13 +2,13 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/Path.h"
+#include "art/Framework/Principal/Worker.h"
 #include "art/Utilities/TaskDebugMacros.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 
 #include <atomic>
 #include <cstddef>
 #include <map>
-#include <mutex>
 #include <string>
 
 using namespace std;

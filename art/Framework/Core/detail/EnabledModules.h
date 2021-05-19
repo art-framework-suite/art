@@ -3,8 +3,8 @@
 
 #include "art/Framework/Core/detail/ModuleKeyAndType.h"
 
-#include <map>
 #include <string>
+#include <vector>
 
 namespace art::detail {
   class EnabledModules {

@@ -3,7 +3,7 @@
 
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Principal/ConsumesInfo.h"
-#include "art/Framework/Principal/ProductInfo.h"
+#include "art/Framework/Principal/fwd.h"
 
 #include <map>
 #include <set>

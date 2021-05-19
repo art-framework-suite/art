@@ -1,7 +1,6 @@
 #include "art/Framework/Core/InputSourceMutex.h"
 // vim: set sw=2 expandtab :
 
-#include "canvas/Utilities/Exception.h"
 #include "hep_concurrency/RecursiveMutex.h"
 #include "hep_concurrency/tsan.h"
 

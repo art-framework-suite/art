@@ -2,8 +2,8 @@
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <cstring>
 #include <ctime>
+#include <string>
 
 namespace {
   std::string const st{"st"};

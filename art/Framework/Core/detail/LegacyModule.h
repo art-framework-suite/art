@@ -7,6 +7,7 @@
 #include "art/Utilities/ScheduleID.h"
 
 #include <atomic>
+#include <string>
 
 namespace art::detail {
   class LegacyModule : public SharedModule, private EngineCreator {

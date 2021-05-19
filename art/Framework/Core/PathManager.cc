@@ -1,33 +1,28 @@
 #include "art/Framework/Core/PathManager.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/EDProducer.h"
+#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Core/Path.h"
 #include "art/Framework/Core/PathsInfo.h"
-#include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Framework/Core/WorkerInPath.h"
-#include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Framework/Core/detail/consumed_products.h"
 #include "art/Framework/Core/detail/graph_algorithms.h"
-#include "art/Framework/Principal/Actions.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Persistency/Provenance/PathSpec.h"
+#include "art/Utilities/GlobalTaskGroup.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/PerScheduleContainer.h"
-#include "art/Utilities/PluginSuffixes.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/ScheduleIteration.h"
 #include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/detail/remove_whitespace.h"
 #include "art/Version/GetReleaseVersion.h"
-#include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/LibraryManager.h"
@@ -38,12 +33,10 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/types/detail/validationException.h"
-#include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <algorithm>
-#include <cstddef>
-#include <fstream>
+#include <cassert>
 #include <map>
 #include <memory>
 #include <regex>

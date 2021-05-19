@@ -37,7 +37,9 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/BasicPluginMacros.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "cetlib/ProvideFilePathMacro.h"
@@ -51,14 +53,6 @@
 
 namespace art {
   class EmptyEventTimestampPlugin;
-
-  // Forward declarations.
-  class Event;
-  class EventID;
-  class Run;
-  class RunID;
-  class SubRun;
-  class SubRunID;
 } // namespace art
 
 namespace cet {
@@ -88,25 +82,34 @@ public:
 private:
   Timestamp lastEventTimestamp_;
 
-  virtual void beginJob(){};
-  virtual void endJob(){};
-  virtual void beginRun(Run const&){};
+  virtual void
+  beginJob()
+  {}
+  virtual void
+  endJob()
+  {}
+  virtual void
+  beginRun(Run const&)
+  {}
   virtual Timestamp
   beginRunTimestamp(RunID const&)
   {
     return lastEventTimestamp_;
-  };
-  virtual void beginSubRun(SubRun const&){};
+  }
+  virtual void
+  beginSubRun(SubRun const&)
+  {}
   virtual Timestamp
   beginSubRunTimestamp(SubRunID const&)
   {
     return lastEventTimestamp_;
-  };
+  }
 
   virtual Timestamp eventTimestamp(EventID const&) = 0;
 
   virtual void rewind() = 0;
 };
+
 #endif /* art_Framework_Core_EmptyEventTimestampPlugin_h */
 
 inline void

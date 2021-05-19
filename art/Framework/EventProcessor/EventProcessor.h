@@ -18,6 +18,8 @@
 #include "art/Framework/Core/detail/EnabledModules.h"
 #include "art/Framework/EventProcessor/Scheduler.h"
 #include "art/Framework/EventProcessor/detail/ExceptionCollector.h"
+#include "art/Framework/Principal/Actions.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
@@ -34,7 +36,6 @@
 #include "hep_concurrency/thread_sanitize.h"
 
 #include <atomic>
-#include <exception>
 #include <memory>
 
 namespace art {

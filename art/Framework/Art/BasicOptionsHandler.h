@@ -4,8 +4,6 @@
 #include "art/Framework/Art/OptionsHandler.h"
 #include "cetlib/filepath_maker.h"
 
-#include <string>
-
 // Handle the basic options, like config, help, process-name.
 
 namespace art {

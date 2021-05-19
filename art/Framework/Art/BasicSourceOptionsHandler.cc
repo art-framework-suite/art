@@ -2,17 +2,11 @@
 
 #include "art/Framework/Art/detail/event_start.h"
 #include "art/Framework/Art/detail/fillSourceList.h"
-#include "boost/algorithm/string.hpp"
-#include "canvas/Persistency/Provenance/IDNumber.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
-#include "fhiclcpp/coding.h"
-#include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
-#include "fhiclcpp/parse.h"
 
 #include <fstream>
-#include <iostream>
 #include <string>
 
 art::BasicSourceOptionsHandler::BasicSourceOptionsHandler(

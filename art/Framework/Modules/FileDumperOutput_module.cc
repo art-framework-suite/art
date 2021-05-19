@@ -14,31 +14,25 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
-#include "canvas/Utilities/Exception.h"
-#include "cetlib/column_width.h"
 #include "cetlib/lpad.h"
 #include "cetlib/rpad.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
 
 #include <algorithm>
-#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
 
-namespace art {
-  namespace detail {
-    struct ProductInfo {
-      std::string module_label;
-      std::string instance_name;
-      std::string product_type;
-      std::string friendly_type;
-      std::string product_id;
-      std::string str_size;
-    };
-  } // namespace detail
-} // namespace art
+namespace art::detail {
+  struct ProductInfo {
+    std::string module_label;
+    std::string instance_name;
+    std::string product_type;
+    std::string friendly_type;
+    std::string product_id;
+    std::string str_size;
+  };
+} // namespace art::detail
 
 namespace {
 
@@ -95,8 +89,6 @@ namespace {
 namespace art {
   class FileDumperOutput;
 }
-
-using fhicl::ParameterSet;
 
 class art::FileDumperOutput : public OutputModule {
 public:

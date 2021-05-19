@@ -2,14 +2,13 @@
 #define art_Framework_Core_ConsumesCollector_h
 // vim: set sw=2 expandtab :
 
+#include "art/Framework/Principal/ProcessTag.h"
 #include "art/Framework/Principal/ProductInfo.h"
-#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductToken.h"
 #include "canvas/Utilities/TypeID.h"
 
 #include <array>
-#include <optional>
 #include <string>
 #include <vector>
 

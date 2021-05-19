@@ -5,10 +5,8 @@
 #include "art/Utilities/ensureTable.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/split.h"
-#include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
-#include "fhiclcpp/parse.h"
 
 #include <iostream>
 #include <iterator>

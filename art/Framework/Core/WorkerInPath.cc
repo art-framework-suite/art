@@ -1,21 +1,12 @@
 #include "art/Framework/Core/WorkerInPath.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/Frameworkfwd.h"
-#include "art/Framework/Principal/ExecutionCounts.h"
 #include "art/Framework/Principal/Worker.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/GlobalTaskGroup.h"
 #include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
 #include "hep_concurrency/WaitingTask.h"
-
-#include <atomic>
-#include <iomanip>
-#include <iostream>
-#include <memory>
-#include <sstream>
-#include <utility>
-#include <vector>
 
 using namespace art::detail;
 using namespace hep::concurrency;

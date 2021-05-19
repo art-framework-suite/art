@@ -4,10 +4,8 @@
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "art/Framework/Art/detail/output_to.h"
 #include "canvas/Utilities/Exception.h"
-#include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
-#include "fhiclcpp/parse.h"
 
 #include <string>
 #include <tuple>

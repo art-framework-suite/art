@@ -16,30 +16,24 @@
 // input.
 // =========================================================================
 
+#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputFileGranularity.h"
 #include "art/Framework/Core/OutputFileStatus.h"
-#include "art/Framework/Core/OutputWorker.h"
-#include "art/Framework/Core/PathManager.h"
-#include "art/Framework/Core/PathsInfo.h"
-#include "art/Framework/Core/UpdateOutputCallbacks.h"
-#include "art/Framework/Principal/Actions.h"
-#include "art/Framework/Principal/ClosedRangeSetHandler.h"
-#include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
-#include "art/Framework/Principal/Worker.h"
-#include "art/Utilities/PerScheduleContainer.h"
+#include "art/Framework/Principal/fwd.h"
+#include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
-#include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/ProductList.h"
-#include "cetlib/trim.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "hep_concurrency/WaitingTask.h"
 
+#include <atomic>
 #include <memory>
+#include <set>
 #include <vector>
 
 namespace art {
+  class ActivityRegistry;
   class GlobalTaskGroup;
   namespace detail {
     class SharedResources;

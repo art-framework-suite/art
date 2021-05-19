@@ -2,7 +2,6 @@
 #include "art/Framework/Art/detail/MetadataRegexHelpers.h"
 #include "art/Framework/Art/detail/PrintFormatting.h"
 #include "art/Framework/Art/detail/md-collector/describe.h"
-#include "cetlib/LibraryManager.h"
 #include "cetlib/bold_fontify.h"
 
 #include <sstream>

@@ -11,25 +11,18 @@
 // ====================================================================
 
 #include "art/Framework/Core/WorkerInPath.h"
-#include "art/Framework/Principal/Worker.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/PathContext.h"
-#include "art/Persistency/Provenance/ScheduleContext.h"
-#include "art/Utilities/GlobalTaskGroup.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
-#include "canvas/Persistency/Common/HLTGlobalStatus.h"
-#include "canvas/Persistency/Common/HLTPathStatus.h"
+#include "art/Utilities/fwd.h"
 #include "canvas/Persistency/Common/HLTenums.h"
-#include "canvas/Persistency/Common/TriggerResults.h"
+#include "canvas/Persistency/Common/fwd.h"
 #include "cetlib/exempt_ptr.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/WaitingTask.h"
 
 #include <cstddef>
-#include <memory>
-#include <sstream>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace art {

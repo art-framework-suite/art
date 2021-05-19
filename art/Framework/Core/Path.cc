@@ -1,14 +1,15 @@
+
 #include "art/Framework/Core/Path.h"
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/Actions.h"
-#include "art/Framework/Principal/Worker.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "art/Persistency/Provenance/ScheduleContext.h"
+#include "art/Utilities/GlobalTaskGroup.h"
 #include "art/Utilities/Globals.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/TaskDebugMacros.h"
@@ -16,19 +17,12 @@
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 #include "canvas/Persistency/Common/HLTPathStatus.h"
 #include "canvas/Persistency/Common/HLTenums.h"
-#include "canvas/Persistency/Common/TriggerResults.h"
-#include "cetlib/container_algorithms.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "hep_concurrency/WaitingTask.h"
-#include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include <algorithm>
 #include <cstddef>
 #include <exception>
-#include <memory>
 #include <string>
-#include <utility>
 #include <vector>
 
 using namespace cet;

@@ -12,7 +12,6 @@
 #include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "cetlib_except/exception.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

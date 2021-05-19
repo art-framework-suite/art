@@ -4,11 +4,8 @@
 #include "art/Framework/Core/detail/ModuleGraph.h"
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 
-#include <map>
-#include <set>
 #include <string>
 #include <utility>
-#include <vector>
 
 namespace art::detail {
 

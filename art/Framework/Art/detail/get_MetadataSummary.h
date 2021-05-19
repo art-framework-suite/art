@@ -3,9 +3,9 @@
 
 #include "art/Framework/Art/detail/LibraryInfoCollection.h"
 #include "art/Framework/Art/detail/MetadataSummary.h"
-#include "art/Utilities/PluginSuffixes.h"
 
 #include <memory>
+#include <string>
 
 namespace art::detail {
 

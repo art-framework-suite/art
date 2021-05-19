@@ -1,14 +1,11 @@
 #include "art/Framework/Core/GroupSelector.h"
 
 #include "art/Framework/Core/GroupSelectorRules.h"
-#include "boost/algorithm/string.hpp"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 
-#include <algorithm>
-#include <cctype>
 #include <ostream>
+#include <utility>
 
 using namespace art;
 using namespace cet;

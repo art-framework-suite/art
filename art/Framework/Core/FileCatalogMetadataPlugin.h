@@ -31,6 +31,7 @@
 //    plugin to the art system.
 //
 
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Utilities/BasicPluginMacros.h"
 #include "cetlib/PluginTypeDeducer.h"
@@ -44,11 +45,7 @@
   DEFINE_BASIC_PLUGIN(klass, art::FileCatalogMetadataPlugin)
 
 namespace art {
-
-  class Event;
   class FileCatalogMetadataPlugin;
-  class Run;
-  class SubRun;
 
 } // namespace art
 

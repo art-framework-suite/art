@@ -3,9 +3,7 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Utilities/PerScheduleContainer.h"
-#include "canvas/Persistency/Common/HLTPathStatus.h"
-#include "canvas/Persistency/Common/TriggerResults.h"
-#include "fhiclcpp/ParameterSet.h"
+#include "canvas/Persistency/Common/fwd.h"
 #include "fhiclcpp/ParameterSetID.h"
 
 #include <memory>

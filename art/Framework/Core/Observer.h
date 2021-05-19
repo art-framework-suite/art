@@ -8,12 +8,10 @@
 #include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/ProcessAndEventSelectors.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
-#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
-#include "fhiclcpp/types/OptionalTable.h"
+#include "fhiclcpp/fwd.h"
 #include "fhiclcpp/types/Sequence.h"
 
-#include <set>
 #include <string>
 
 namespace art {

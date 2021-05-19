@@ -4,11 +4,9 @@
 #include "boost/algorithm/string.hpp"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib/container_algorithms.h"
 
+#include <cassert>
 #include <algorithm>
-#include <cctype>
-#include <ostream>
 #include <regex>
 #include <string>
 

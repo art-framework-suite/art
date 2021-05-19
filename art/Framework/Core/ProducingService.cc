@@ -9,7 +9,6 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include "fhiclcpp/ParameterSet.h"
 
 namespace art {
 

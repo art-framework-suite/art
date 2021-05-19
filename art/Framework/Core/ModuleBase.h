@@ -7,7 +7,6 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductToken.h"
-#include "canvas/Utilities/TypeID.h"
 
 #include <array>
 #include <optional>

@@ -69,7 +69,6 @@
 
 #include "art/Framework/Art/detail/PluginMetadata.h"
 #include "art/Framework/Art/detail/get_LibraryInfoCollection.h"
-#include "art/Utilities/PluginSuffixes.h"
 
 #include <string>
 #include <vector>

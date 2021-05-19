@@ -3,6 +3,8 @@
 
 #include "canvas/Persistency/Provenance/BranchType.h"
 
+#include <algorithm>
+
 using namespace std;
 
 namespace art {

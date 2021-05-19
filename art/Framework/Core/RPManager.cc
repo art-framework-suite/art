@@ -1,11 +1,9 @@
 #include "art/Framework/Core/RPManager.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/RPWorkerT.h"
 #include "art/Framework/Core/ResultsProducer.h"
 #include "art/Utilities/PluginSuffixes.h"
 #include "cetlib/BasicPluginFactory.h"
-#include "cetlib/PluginTypeDeducer.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <functional>

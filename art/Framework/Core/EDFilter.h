@@ -7,7 +7,6 @@
 #include "art/Framework/Core/detail/Filter.h"
 #include "art/Framework/Core/detail/LegacyModule.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/ParameterSet.h"
 
 #include <string>

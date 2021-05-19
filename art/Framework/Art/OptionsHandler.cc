@@ -3,8 +3,8 @@
 #include "cetlib_except/demangle.h"
 #include "cetlib_except/exception.h"
 
+#include <exception>
 #include <iostream>
-#include <stdexcept>
 #include <typeinfo>
 
 namespace {

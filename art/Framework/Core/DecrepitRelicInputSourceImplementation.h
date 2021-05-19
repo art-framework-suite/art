@@ -43,13 +43,9 @@
 
 #include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
-#include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/RunPrincipal.h"
-#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
-#include "canvas/Persistency/Provenance/RunID.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
-#include "canvas/Persistency/Provenance/Timestamp.h"
+#include "art/Persistency/Provenance/fwd.h"
+#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/TableFragment.h"
@@ -58,8 +54,6 @@
 #include <string>
 
 namespace art {
-
-  class ActivityRegistry;
 
   class DecrepitRelicInputSourceImplementation : public InputSource {
 

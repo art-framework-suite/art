@@ -5,7 +5,6 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/compiler_macros.h"
-#include "cetlib/container_algorithms.h"
 
 #include <limits>
 
