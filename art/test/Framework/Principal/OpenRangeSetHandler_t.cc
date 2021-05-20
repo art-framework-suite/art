@@ -3,13 +3,12 @@
 #define BOOST_TEST_MODULE (OpenRangeSetHandler_t)
 #include "boost/test/unit_test.hpp"
 
-#include <iostream>
-#include <vector>
-
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/test/Framework/Principal/SimpleEvent.h"
 #include "canvas/Persistency/Common/detail/aggregate.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
+
+#include <vector>
 
 using namespace art;
 using namespace std;

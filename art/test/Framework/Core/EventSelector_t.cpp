@@ -3,9 +3,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
-#include <array>
 #include <iostream>
-#include <memory>
 #include <string>
 #include <vector>
 

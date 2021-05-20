@@ -1,14 +1,11 @@
 #include "art/Framework/Core/EventSelector.h"
 #include "art/Persistency/Provenance/PathSpec.h"
-#include "art/Utilities/SharedResource.h"
 #include "canvas/Persistency/Common/TriggerResults.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
-#include <array>
 #include <bitset>
 #include <iostream>
-#include <memory>
 #include <string>
 #include <vector>
 

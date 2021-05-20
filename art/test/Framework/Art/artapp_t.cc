@@ -3,7 +3,6 @@
 
 #include "art/Framework/Art/artapp.h"
 #include "art/Framework/Art/detail/info_success.h"
-#include "cetlib_except/exception.h"
 
 BOOST_AUTO_TEST_SUITE(artappTests)
 

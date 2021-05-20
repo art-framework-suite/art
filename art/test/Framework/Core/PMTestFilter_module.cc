@@ -9,14 +9,8 @@
 
 #include "art/Framework/Core/EDFilter.h"
 #include "art/Framework/Core/ModuleMacros.h"
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Principal/Run.h"
-#include "art/Framework/Principal/SubRun.h"
-#include "canvas/Utilities/InputTag.h"
-#include "fhiclcpp/ParameterSet.h"
-
-#include <memory>
+#include "art/Framework/Principal/fwd.h"
+#include "fhiclcpp/fwd.h"
 
 namespace arttest {
   class PMTestFilter;
@@ -32,8 +26,6 @@ private:
   {
     return true;
   }
-
-  // Declare member data here.
 };
 
 arttest::PMTestFilter::PMTestFilter(fhicl::ParameterSet const& p) : EDFilter{p}

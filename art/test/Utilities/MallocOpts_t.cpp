@@ -1,7 +1,7 @@
-
 #include "art/Utilities/MallocOpts.h"
+
 #include <cassert>
-#include <iostream>
+
 using namespace std;
 
 int

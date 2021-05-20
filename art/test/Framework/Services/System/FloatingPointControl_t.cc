@@ -3,11 +3,8 @@
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/System/FloatingPointControl.h"
 #include "art/Framework/Services/System/detail/fpControl.h"
-#include "messagefacility/MessageLogger/MessageLogger.h"
 #include "messagefacility/plugins/stringstream.h"
 
-#include <iomanip>
-#include <iostream>
 #include <sstream>
 #include <string>
 

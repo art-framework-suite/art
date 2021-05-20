@@ -2,10 +2,8 @@
 
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/SharedAnalyzer.h"
-#include "art/Framework/Principal/Event.h"
-#include "art/Framework/Principal/Handle.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/System/TriggerNamesService.h"
-#include "canvas/Utilities/InputTag.h"
 
 namespace {
   class CheckTriggerBits : public art::SharedAnalyzer {

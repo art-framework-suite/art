@@ -42,13 +42,12 @@
 //     processed, with a file switch after event 5.
 //======================================================================================
 
-#include <iostream>
-#include <vector>
-
 #include "art/Framework/Principal/ClosedRangeSetHandler.h"
 #include "art/test/Framework/Principal/SimpleEvent.h"
 #include "canvas/Persistency/Common/detail/aggregate.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
+
+#include <vector>
 
 using namespace art;
 using arttest::SimpleEvent;

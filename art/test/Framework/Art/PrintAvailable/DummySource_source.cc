@@ -3,17 +3,15 @@
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceMacros.h"
 #include "art/Framework/Principal/EventPrincipal.h"
-#include "art/Framework/Principal/OpenRangeSetHandler.h"
+#include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
 #include "fhiclcpp/types/DelegatedParameter.h"
 
-namespace art {
-  namespace test {
-    class DummySource;
-  }
-} // namespace art
+namespace art::test {
+  class DummySource;
+}
 
 class art::test::DummySource : public art::InputSource {
 public:

@@ -4,13 +4,11 @@
 
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/ProcessTag.h"
-#include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
-#include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "art/test/TestObjects/ToyProducts.h"
 #include "canvas/Persistency/Common/WrappedTypeID.h"
@@ -26,14 +24,12 @@
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
-#include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/ParameterSetID.h"
 
 #include <map>
 #include <memory>
-#include <stdexcept>
+#include <exception>
 #include <string>
 #include <typeinfo>
 

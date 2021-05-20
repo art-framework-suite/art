@@ -4,7 +4,6 @@
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "art/Framework/IO/PostCloseFileRenamer.h"
 #include "boost/filesystem.hpp"
-#include "canvas/Persistency/Provenance/Timestamp.h"
 
 extern "C" {
 #include <sys/stat.h> // mkdir().

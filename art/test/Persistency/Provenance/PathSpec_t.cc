@@ -2,7 +2,6 @@
 #include "boost/test/unit_test.hpp"
 
 #include "art/Persistency/Provenance/PathSpec.h"
-#include "art/Utilities/detail/remove_whitespace.h"
 
 #include <cstddef>
 #include <string>

@@ -4,7 +4,6 @@
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "fpc_utils.h"
-#include "hep_concurrency/tsan.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include <cmath>
@@ -12,10 +11,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
-#include <string>
 
 #include <float.h>
-#include <memory.h>
 
 using namespace std;
 using namespace art;

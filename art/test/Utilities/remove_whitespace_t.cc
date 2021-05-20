@@ -1,12 +1,9 @@
 #define BOOST_TEST_MODULE (parse_path_spec_t)
 #include "boost/test/unit_test.hpp"
 
-#include "art/Persistency/Provenance/PathSpec.h"
 #include "art/Utilities/detail/remove_whitespace.h"
 
-#include <cstddef>
 #include <string>
-#include <vector>
 
 BOOST_AUTO_TEST_SUITE(parse_path_spec_t)
 

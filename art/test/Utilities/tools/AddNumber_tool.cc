@@ -3,10 +3,6 @@
 #include "art/test/Utilities/tools/OperationBase.h"
 #include "fhiclcpp/types/Atom.h"
 
-namespace fhicl {
-  class ParameterSet;
-}
-
 namespace {
 
   struct Config {

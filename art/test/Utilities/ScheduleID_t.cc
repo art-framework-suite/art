@@ -3,8 +3,6 @@
 
 #include "art/Utilities/ScheduleID.h"
 
-#include <stdexcept>
-
 BOOST_AUTO_TEST_SUITE(ScheduleID_t)
 
 BOOST_AUTO_TEST_CASE(construct)
