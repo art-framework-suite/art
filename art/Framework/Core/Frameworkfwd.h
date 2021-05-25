@@ -18,6 +18,7 @@ namespace art {
   class EndPathExecutor;
   class FileBlock;
   class InputSource;
+  struct InputSourceDescription;
   class OutputModule;
   class ProcessNameSelector;
   class ProductRegistryHelper;
