@@ -13,6 +13,7 @@ namespace art {
   class FileBlock;
   class GroupSelector;
   class InputSource;
+  struct InputSourceDescription;
   class OutputModule;
   class OutputWorker;
   class PathsInfo;
