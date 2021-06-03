@@ -49,9 +49,24 @@ cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
 
 cet_register_export_set(SET_NAME art NAMESPACE art)
 
-add_subdirectory(third_party/RapidJSON)
+find_package(RapidJSON)
+if(RapidJSON_FOUND)
 
-list(PREPEND CMAKE_PREFIX_PATH ${PROJECT_BINARY_DIR}/third_party/RapidJSON/rapidjson)
+  message("using found RapidJson")
+  add_library(rapidjson INTERFACE)
+  target_include_directories(rapidjson PUBLIC ${RapidJSON_INCLUDE})
+endif()
+
+
+if(NOT RapidJSON_FOUND)
+
+  message("using third_party/RapidJson")
+  set(tpd "third_party/RapidJSON)")
+  add_subdirectory($tpd)
+  list(PREPEND CMAKE_PREFIX_PATH ${PROJECT_BINARY_DIR}/third_party/RapidJSON/rapidjson)
+
+endif()
+
 
 # Plugin skeleton generators for cetskelgen.
 add_subdirectory(perllib)
