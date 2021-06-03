@@ -61,8 +61,7 @@ endif()
 if(NOT RapidJSON_FOUND)
 
   message("using third_party/RapidJson")
-  set(tpd "third_party/RapidJSON)")
-  add_subdirectory($tpd)
+  add_subdirectory(third_party/RapidJSON)
   list(PREPEND CMAKE_PREFIX_PATH ${PROJECT_BINARY_DIR}/third_party/RapidJSON/rapidjson)
 
 endif()
