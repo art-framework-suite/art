@@ -1,13 +1,12 @@
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 
+#include "boost/json.hpp"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/Sequence.h"
-#include "rapidjson/document.h"
-#include "rapidjson/error/en.h"
 
 #include <string>
 #include <vector>
@@ -38,13 +37,11 @@ namespace art {
     : checkSyntax_{config().checkSyntax()}
     , mdToInherit_{maybeTranslate(config().metadataFromInput())}
   {
-    string appFam;
-    if (config().applicationFamily(appFam)) {
-      addMetadataString("application.family", appFam);
+    if (auto appFam = config().applicationFamily()) {
+      addMetadataString("application.family", *appFam);
     }
-    string appVer;
-    if (config().applicationVersion(appVer)) {
-      addMetadataString("application.version", appVer);
+    if (auto appVer = config().applicationVersion()) {
+      addMetadataString("application.version", *appVer);
     }
 
     // Always write out fileType -- either by inheriting from the input
@@ -57,18 +54,16 @@ namespace art {
         config().runType(rt)) {
       addMetadataString("art.run_type", rt);
     }
-    string grp;
-    if (config().group(grp)) {
-      addMetadataString("group", grp);
+    if (auto grp = config().group()) {
+      addMetadataString("group", *grp);
     }
-    string pid;
-    if (config().processID(pid)) {
-      addMetadataString("process_id", pid);
+    if (auto pid = config().processID()) {
+      addMetadataString("process_id", *pid);
     }
   }
 
   bool
-  FileCatalogMetadata::wantCheckSyntax() const
+  FileCatalogMetadata::wantCheckSyntax() const noexcept
   {
     return checkSyntax_;
   }
@@ -82,44 +77,39 @@ namespace art {
   void
   FileCatalogMetadata::addMetadata(string const& key, string const& value)
   {
-    std::lock_guard sentry{mutex_};
     if (checkSyntax_) {
-      // rapidjson claims to be largely re-entrant, according to
-      // https://github.com/miloyip/rapidjson/issues/141.  Therefore, we
-      // do not worry about locking this part of the function.
-      rapidjson::Document d;
       string checkString("{ ");
-      checkString += cet::canonical_string(key);
-      checkString += " : ";
-      checkString += value;
-      checkString += " }";
-      if (d.Parse(checkString.c_str()).HasParseError()) {
-        auto const nSpaces = d.GetErrorOffset();
+      checkString += cet::canonical_string(key) + " : " + value + " }";
+      boost::json::error_code ec;
+      boost::json::parser p;
+      auto const n_parsed_chars = p.write_some(checkString, ec);
+      if (ec) {
         throw Exception(errors::DataCorruption)
-          << "FileCatalogMetadata::addMetadata() JSON syntax error:\n"
-          << rapidjson::GetParseError_En(d.GetParseError())
-          << " Faulty key/value clause:\n"
+          << "FileCatalogMetadata::addMetadata() JSON " << ec.message() << ":\n"
+          << "Faulty key/value clause:\n"
           << checkString << "\n"
-          << (nSpaces ? string(nSpaces, '-') : "") << "^\n";
+          << (n_parsed_chars ? string(n_parsed_chars, '-') : "") << "^\n";
       }
     }
+    std::lock_guard sentry{mutex_};
     md_.emplace_back(key, value);
   }
 
   void
   FileCatalogMetadata::setMetadataFromInput(collection_type const& mdFromInput)
   {
-    std::lock_guard sentry{mutex_};
     if (mdToInherit_.empty()) {
       return;
     }
+
+    std::lock_guard sentry{mutex_};
     if (!imd_) {
       imd_ = make_unique<InheritedMetadata>(mdToInherit_, mdFromInput);
     } else {
       imd_->check_values(mdFromInput);
     }
-    for (auto const& pr : imd_->entries()) {
-      addMetadataString(oldToNew(pr.first), pr.second);
+    for (auto const& [key, value] : imd_->entries()) {
+      addMetadataString(oldToNew(key), value);
     }
   }
 

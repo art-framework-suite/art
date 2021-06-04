@@ -84,6 +84,7 @@ cet_make_library(HEADERS_TARGET SOURCE
     hep_concurrency::macros
     Boost::graph
     Range::Range
+    Boost::json
     rapidjson
 )
 

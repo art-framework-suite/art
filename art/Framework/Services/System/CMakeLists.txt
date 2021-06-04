@@ -17,7 +17,7 @@ build_plugin(FileCatalogMetadata "service" LIBRARIES
     fhiclcpp::types
     cetlib::container_algorithms
     cetlib::cetlib
-  PRIVATE rapidjson)
+  PRIVATE Boost::json)
 ########################################################################
 
 # FloatingPoint is a true "system" service (constructed explicitly by
