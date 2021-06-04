@@ -85,7 +85,6 @@ cet_make_library(HEADERS_TARGET SOURCE
     Boost::graph
     Range::Range
     Boost::json
-    rapidjson
 )
 
 cet_make_library(LIBRARY_NAME module INTERFACE

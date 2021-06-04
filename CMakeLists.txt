@@ -49,8 +49,6 @@ cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
 
 cet_register_export_set(SET_NAME art NAMESPACE art)
 
-list(PREPEND CMAKE_PREFIX_PATH ${PROJECT_BINARY_DIR}/third_party/RapidJSON/rapidjson)
-
 # Plugin skeleton generators for cetskelgen.
 add_subdirectory(perllib)
 
