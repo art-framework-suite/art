@@ -25,6 +25,7 @@
 #include "art/Framework/Services/System/FileCatalogMetadata.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/Selections.h"
+#include "boost/json.hpp"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/IDNumber.h"
@@ -36,9 +37,6 @@
 #include "cetlib/BasicPluginFactory.h"
 #include "cetlib/canonical_string.h"
 #include "fhiclcpp/ParameterSet.h"
-#include "hep_concurrency/SerialTaskQueueChain.h"
-#include "rapidjson/document.h"
-#include "rapidjson/error/en.h"
 
 #include <algorithm>
 #include <array>
@@ -576,20 +574,20 @@ namespace art {
         ssmd.reserve(tmp.size() + ssmd.size());
         for (auto&& entry : tmp) {
           if (ServiceHandle<FileCatalogMetadata const> {}->wantCheckSyntax()) {
-            rapidjson::Document d;
             string checkString("{ ");
             checkString +=
               cet::canonical_string(entry.first) + " : " + entry.second + " }";
-            if (d.Parse(checkString.c_str()).HasParseError()) {
-              auto const nSpaces = d.GetErrorOffset();
-              cerr << "nSpaces = " << nSpaces << ".\n";
-              errors << "OutputModule::writeCatalogMetadata():"
-                     << "syntax error in metadata produced by plugin "
+            boost::json::error_code ec;
+            boost::json::parser p;
+            auto const n_parsed_chars = p.write_some(checkString, ec);
+            if (ec) {
+              errors << "OutputModule::writeCatalogMetadata():" << ec.message()
+                     << " in metadata produced by plugin "
                      << pluginNames[pluginCounter] << ":\n"
-                     << rapidjson::GetParseError_En(d.GetParseError())
                      << " Faulty key/value clause:\n"
                      << checkString << "\n"
-                     << (nSpaces ? string(nSpaces, '-') : "") << "^\n";
+                     << (n_parsed_chars ? string(n_parsed_chars, '-') : "")
+                     << "^\n";
             }
           }
           ssmd.emplace_back(move(entry));

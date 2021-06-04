@@ -78,7 +78,7 @@ namespace art {
     void setMetadataFromInput(collection_type const& coll);
 
     // Ascertain whether JSON syntax checking is desired.
-    bool wantCheckSyntax() const;
+    bool wantCheckSyntax() const noexcept;
 
     // Types
   private:
@@ -138,7 +138,7 @@ namespace art {
 
     // Metadata the user wishes to inherit from the input file, const after the
     // ctor.
-    std::vector<std::string> mdToInherit_;
+    std::vector<std::string> const mdToInherit_;
 
     // The collected metadata.
     collection_type md_{};
