@@ -290,10 +290,10 @@ namespace art {
     vector<Worker*> allWorkers;
     transform_all(pathManager_->triggerPathsInfo(ScheduleID::first()).workers(),
                   back_inserter(allWorkers),
-                  [](auto const& pr) { return pr.second; });
+                  [](auto const& pr) { return pr.second.get(); });
     transform_all(pathManager_->endPathInfo(ScheduleID::first()).workers(),
                   back_inserter(allWorkers),
-                  [](auto const& pr) { return pr.second; });
+                  [](auto const& pr) { return pr.second.get(); });
     actReg_.sPostBeginJobWorkers.invoke(input_, allWorkers);
   }
 

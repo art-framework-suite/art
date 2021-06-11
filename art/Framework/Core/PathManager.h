@@ -92,12 +92,12 @@ namespace art {
       PathContext const& pc,
       std::vector<WorkerInPath::ConfigInfo> const& wci_list,
       ModulesByThreadingType const& modules,
-      std::map<std::string, Worker*>& workers,
+      std::map<std::string, std::shared_ptr<Worker>>& workers,
       GlobalTaskGroup& task_group,
       detail::SharedResources& resources);
-    Worker* makeWorker_(ModulesByThreadingType const& modules,
-                        ModuleDescription const& md,
-                        WorkerParams const& wp);
+    std::shared_ptr<Worker> makeWorker_(ModulesByThreadingType const& modules,
+                                        ModuleDescription const& md,
+                                        WorkerParams const& wp);
     ModuleType loadModuleType_(std::string const& lib_spec) const;
     ModuleThreadingType loadModuleThreadingType_(
       std::string const& lib_spec) const;

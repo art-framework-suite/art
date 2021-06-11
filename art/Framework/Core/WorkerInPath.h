@@ -41,7 +41,7 @@ namespace art {
     };
 
     // Special Member Functions
-    WorkerInPath(Worker*,
+    WorkerInPath(cet::exempt_ptr<Worker>,
                  detail::FilterAction,
                  ModuleContext const&,
                  GlobalTaskGroup& group);

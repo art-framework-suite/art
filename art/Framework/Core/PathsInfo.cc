@@ -15,13 +15,13 @@ using namespace std;
 
 namespace art {
 
-  map<string, Worker*>&
+  map<string, std::shared_ptr<Worker>>&
   PathsInfo::workers()
   {
     return workers_;
   }
 
-  map<string, Worker*> const&
+  map<string, std::shared_ptr<Worker>> const&
   PathsInfo::workers() const
   {
     return workers_;

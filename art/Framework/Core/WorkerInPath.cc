@@ -14,7 +14,7 @@ using namespace std;
 
 namespace art {
 
-  WorkerInPath::WorkerInPath(Worker* w,
+  WorkerInPath::WorkerInPath(cet::exempt_ptr<Worker> w,
                              FilterAction const fa,
                              ModuleContext const& mc,
                              GlobalTaskGroup& taskGroup)

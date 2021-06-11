@@ -443,7 +443,7 @@ namespace art {
   PathManager::fillWorkers_(PathContext const& pc,
                             vector<WorkerInPath::ConfigInfo> const& wci_list,
                             ModulesByThreadingType const& modules,
-                            map<string, Worker*>& workers,
+                            map<string, std::shared_ptr<Worker>>& workers,
                             GlobalTaskGroup& task_group,
                             detail::SharedResources& resources)
   {
@@ -456,7 +456,7 @@ namespace art {
       auto const& module_label = mci.modDescription.moduleLabel();
 
       auto const& md = mci.modDescription;
-      Worker* worker{nullptr};
+      std::shared_ptr<Worker> worker{nullptr};
       // Workers present on multiple paths are shared so that their
       // work is only done once per schedule.
       if (auto it = workers.find(module_label); it != workers.end()) {
@@ -481,7 +481,7 @@ namespace art {
 
       assert(worker);
       workers.emplace(module_label, worker);
-      wips.emplace_back(worker,
+      wips.emplace_back(cet::make_exempt_ptr(worker.get()),
                         filterAction,
                         ModuleContext{pc, worker->description()},
                         task_group);
@@ -489,7 +489,7 @@ namespace art {
     return wips;
   }
 
-  Worker*
+  std::shared_ptr<Worker>
   PathManager::makeWorker_(ModulesByThreadingType const& modules,
                            ModuleDescription const& md,
                            WorkerParams const& wp)
@@ -524,7 +524,8 @@ namespace art {
 
     auto module =
       get_module(md.moduleLabel(), md.moduleThreadingType(), wp.scheduleID_);
-    return worker_from_module_factory_func(module, md, wp);
+    return std::shared_ptr<Worker>{
+      worker_from_module_factory_func(module, md, wp)};
   }
 
   ModuleType

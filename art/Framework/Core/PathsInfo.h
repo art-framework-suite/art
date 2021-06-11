@@ -2,19 +2,21 @@
 #define art_Framework_Core_PathsInfo_h
 // vim: set sw=2 expandtab :
 
+#include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Core/Path.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 
 #include <atomic>
 #include <cstddef>
 #include <map>
+#include <memory>
 #include <string>
 
 namespace art {
   class PathsInfo {
   public:
-    std::map<std::string, Worker*>& workers();
-    std::map<std::string, Worker*> const& workers() const;
+    std::map<std::string, std::shared_ptr<Worker>>& workers();
+    std::map<std::string, std::shared_ptr<Worker>> const& workers() const;
     void add_path(ActionTable const&,
                   ActivityRegistry const&,
                   PathContext const&,
@@ -34,7 +36,7 @@ namespace art {
 
   private:
     // Maps module_label to Worker.
-    std::map<std::string, Worker*> workers_{};
+    std::map<std::string, std::shared_ptr<Worker>> workers_{};
     std::vector<Path> paths_{};
     HLTGlobalStatus pathResults_{};
     std::atomic<std::size_t> totalEvents_{};
