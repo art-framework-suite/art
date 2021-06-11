@@ -58,7 +58,7 @@ namespace art {
     , taskGroup_{group}
   {
     for (auto const& val : endPathInfo_.workers()) {
-      auto w = val.second;
+      auto w = val.second.get();
       assert(sid == w->scheduleID());
       auto owp = dynamic_cast<OutputWorker*>(w);
       if (owp != nullptr) {
