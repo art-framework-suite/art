@@ -23,6 +23,7 @@ namespace art {
   class ProcessNameSelector;
   class ProductRegistryHelper;
   class Schedule;
+  class UpdateOutputCallbacks;
 } // namespace art
 
 #endif /* art_Framework_Core_Frameworkfwd_h */

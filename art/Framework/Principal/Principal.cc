@@ -48,7 +48,6 @@
 #include <vector>
 
 using namespace cet;
-using namespace hep::concurrency;
 using namespace std;
 
 namespace {

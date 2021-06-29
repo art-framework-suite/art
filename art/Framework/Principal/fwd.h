@@ -21,6 +21,7 @@ namespace art {
   class Principal;
   class Provenance;
   class RangeSetHandler;
+  class ResultsPrincipal;
   class Run;
   class RunPrincipal;
   class ProcessNameSelector;         // Selector.h
