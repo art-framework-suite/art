@@ -37,7 +37,7 @@ set(_simple_plugin_var_list CETLIB_EXCEPT HEP_CONCURRENCY CETLIB FHICLCPP
   MF_MESSAGELOGGER CANVAS ART_FRAMEWORK_CORE CANVAS_ROOT_IO ART_ROOT_IO
   ROOT_CORE_LIBRARY)
 
-cet_find_package(messagefacility PRIVATE QUIET)
+find_package(messagefacility PRIVATE QUIET)
 include(mfPlugin OPTIONAL)
 include(mfStatsPlugin OPTIONAL)
 include(modulePlugin)
@@ -51,7 +51,7 @@ function(simple_plugin)
   foreach (pkg tgt var IN ZIP_LISTS
       _simple_plugin_pkg_list _simple_plugin_target_list _simple_plugin_var_list)
     if (NOT (TARGET ${tgt} OR var))
-      cet_find_package(${pkg} PRIVATE QUIET REQUIRED)
+      find_package(${pkg} PRIVATE QUIET REQUIRED)
     endif()
   endforeach()
   build_plugin(${ARGV})
