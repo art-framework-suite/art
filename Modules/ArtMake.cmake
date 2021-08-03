@@ -150,7 +150,7 @@ function(art_make)
   set(seen_art_make_flags "${ARGV}")
   list(FILTER seen_art_make_flags INCLUDE REGEX "${flags_regex}")
   list(REMOVE_DUPLICATES seen_art_make_flags)
-  list(TRANSFORM ARGV REPLACE "${flags_regex}" "NOP")
+  list(TRANSFORM ARGV REPLACE "${flags_regex}" "NOP" OUTPUT_VARIABLE trimmed_args)
   if ("USE_PRODUCT_NAME" IN_LIST seen_art_make_flags AND
       "USE_PROJECT_NAME" IN_LIST seen_art_make_flags)
     message(WARNING "USE_PRODUCT_NAME and USE_PROJECT_NAME are synonymous")
@@ -189,7 +189,7 @@ function(art_make)
   list(TRANSFORM plugin_types REPLACE "^(.+)$" "*_\\1.cc"
     OUTPUT_VARIABLE plugin_glob)
   list(TRANSFORM plugin_types TOUPPER OUTPUT_VARIABLE plugin_prefixes)
-  set(flags_plugin USE_BOOST_UNIT VERSION)
+  set(flags_plugin ALLOW_UNDERSCORES USE_BOOST_UNIT VERSION)
   set(one_arg_options_plugin EXPORT_SET LIB_TYPE SOVERSION)
   set(list_options_plugin LIBRARIES)
   foreach (option_type IN ITEMS flags one_arg_options list_options)
@@ -203,7 +203,7 @@ function(art_make)
   # We have to parse everything at once and pass through to the right
   # place if we need to otherwise we could get confused with argument /
   # option boundaries with multiple parsing passes.
-  cmake_parse_arguments(PARSE_ARGV 0 AM "${flags}" "${one_arg_options}" "${list_options}")
+  cmake_parse_arguments(AM "${flags}" "${one_arg_options}" "${list_options}" ${trimmed_args})
   # Identify plugin sources.
   set(plugins_glob ${plugin_glob})
   foreach(subdir IN LISTS AM_SUBDIRS)
@@ -218,6 +218,7 @@ function(art_make)
   # whether we're making the plugin.
   cet_passthrough(APPEND KEYWORD EXCLUDE plugin_sources AM_EXCLUDE)
   set(flag_flag FLAG) # Flags are handled differently to the others.
+  set(cet_make_args)
   foreach (option_type IN ITEMS flag one_arg_option list_option)
     # Dictionaries.
     foreach (keyword opt IN ZIP_LISTS ${option_type}_keywords_dict ${option_type}s_dict)
