@@ -142,22 +142,25 @@ endmacro()
 # art_make
 ####################################
 function(art_make)
-  set(flags BASENAME_ONLY LIB_ONLY NO_DICTIONARY NO_INSTALL NO_LIB NO_PLUGINS
-    USE_PRODUCT_NAME USE_PROJECT_NAME)
+  set(flags LIB_ONLY NO_LIB NO_PLUGINS USE_PRODUCT_NAME USE_PROJECT_NAME)
   cet_regex_escape(VAR flags_regex ${flags})
   list(JOIN flags_regex "|" tmp)
   set(flags_regex "^(${tmp})$")
   set(seen_art_make_flags "${ARGV}")
   list(FILTER seen_art_make_flags INCLUDE REGEX "${flags_regex}")
-  list(REMOVE_DUPLICATES seen_art_make_flags)
-  list(TRANSFORM ARGV REPLACE "${flags_regex}" "NOP" OUTPUT_VARIABLE trimmed_args)
   if ("USE_PRODUCT_NAME" IN_LIST seen_art_make_flags AND
       "USE_PROJECT_NAME" IN_LIST seen_art_make_flags)
     message(WARNING "USE_PRODUCT_NAME and USE_PROJECT_NAME are synonymous")
-    list(REMOVE_ITEM seen_art_make_flags "USE_PRODUCT_NAME")
+  endif()
+  list(TRANSFORM seen_art_make_flags REPLACE "^USE_PRODUCT_NAME$" "USE_PROJECT_NAME")
+  list(REMOVE_DUPLICATES seen_art_make_flags)
+  list(TRANSFORM ARGV REPLACE "${flags_regex}" "NOP" OUTPUT_VARIABLE trimmed_args)
+  if ("USE_PROJECT_NAME" IN_LIST seen_art_make_flags)
+    list(APPEND trimmed_args "USE_PROJECT_NAME")
+    list(REMOVE_ITEM seen_art_make_flags "USE_PROJECT_NAME")
   endif()
   foreach (flag IN LISTS seen_art_make_flags)
-    set(AM_${flag} ${flag})
+    set(AM_${flag} TRUE)
   endforeach()
   if (AM_LIB_ONLY AND AM_NO_LIB)
     # Nothing to do except hold up tea and no tea to confuse the GPP door
@@ -173,13 +176,14 @@ function(art_make)
   set(flags "${flag_keywords_dict}")
   set(one_arg_options "${one_arg_option_keywords_dict}")
   set(list_options "${list_option_keywords_dict}")
-  list(APPEND flags ${_cet_make_flags})
-  list(APPEND one_arg_options ${_cet_make_one_arg_options})
+  list(APPEND flags ${_cet_make_flags} ALLOW_UNDERSCORES BASENAME_ONLY
+    NO_DICTIONARY NO_EXPORT NO_INSTALL USE_BOOST_UNIT USE_PROJECT_NAME VERSION)
+  list(APPEND one_arg_options ${_cet_make_one_arg_options} EXPORT_SET LIB_TYPE SOVERSION)
   list(APPEND list_options ${_cet_make_list_options})
 
   # Identify caller-specified plugin types.
   set(default_plugin_types source module service tool) # Defaults.
-  set(args "${ARGN}")
+  set(args "${trimmed_args}")
   list(FILTER args INCLUDE REGEX "^([A-Z]+)_(TYPE|LIBRARIES)$")
   list(TRANSFORM args REPLACE "_(TYPE|LIBRARIES)$" "")
   list(REMOVE_DUPLICATES args)
@@ -189,7 +193,10 @@ function(art_make)
   list(TRANSFORM plugin_types REPLACE "^(.+)$" "*_\\1.cc"
     OUTPUT_VARIABLE plugin_glob)
   list(TRANSFORM plugin_types TOUPPER OUTPUT_VARIABLE plugin_prefixes)
-  set(flags_plugin ALLOW_UNDERSCORES USE_BOOST_UNIT VERSION)
+
+  # Identify plugin-specific options and add them to the parsing lists.
+  set(flags_plugin ALLOW_UNDERSCORES BASENAME_ONLY USE_BOOST_UNIT
+    USE_PRODUCT_NAME USE_PROJECT_NAME VERSION)
   set(one_arg_options_plugin EXPORT_SET LIB_TYPE SOVERSION)
   set(list_options_plugin LIBRARIES)
   foreach (option_type IN ITEMS flags one_arg_options list_options)
@@ -200,6 +207,7 @@ function(art_make)
     endforeach()
     list(REMOVE_DUPLICATES ${option_type})
   endforeach()
+
   # We have to parse everything at once and pass through to the right
   # place if we need to otherwise we could get confused with argument /
   # option boundaries with multiple parsing passes.
@@ -239,16 +247,24 @@ function(art_make)
   # Common options.
   foreach (type IN ITEMS dict LISTS plugin_types)
     string(TOUPPER "${type}" TYPE)
-    cet_passthrough(FLAG APPEND AM_NO_INSTALL ${type}_args)
-    if (NOT VERSION IN_LIST ${type}_args)
-      cet_passthrough(FLAG APPEND AM_VERSION ${type}_args)
+    foreach (common_opt IN ITEMS NO_EXPORT NO_INSTALL USE_PROJECT_NAME VERSION)
+      if (AM_${common_opt} AND NOT "${common_opt}" IN_LIST ${type}_args)
+        list(APPEND ${type}_args "${common_opt}")
+      endif()
+    endforeach()
+    if (DEFINED AM_EXPORT_SET AND
+        NOT (AM_NO_INSTALL OR EXPORT_SET IN_LIST ${type}_args))
+      list(APPEND ${type}_args EXPORT_SET ${AM_EXPORT_SET})
     endif()
-    if (NOT (AM_NO_INSTALL OR EXPORT_SET IN_LIST ${type}_args))
-      cet_passthrough(APPEND AM_EXPORT_SET ${type}_args)
-    endif()
-    cet_passthrough(FLAG APPEND AM_USE_PROJECT_NAME ${type}_args)
     if (NOT type STREQUAL "dict")
-      cet_passthrough(FLAG APPEND AM_BASENAME_ONLY ${type}_args)
+      foreach (plugin_opt IN ITEMS ALLOW_UNDERSCORES BASENAME_ONLY USE_BOOST_UNIT)
+        if (AM_${plugin_opt} AND NOT ${plugin_opt} IN_LIST ${type}_args)
+          list(APPEND ${type}_args ${plugin_opt})
+        endif()
+      endforeach()
+      if (DEFINED AM_SOVERSION AND NOT SOVERSION IN_LIST ${type}_args)
+        list(APPEND ${type}_args SOVERSION ${AM_SOVERSION})
+      endif()
     endif()
   endforeach()
 
