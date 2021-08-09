@@ -5,10 +5,7 @@ add_subdirectory(tools)
 
 cet_test(make_tool_t USE_BOOST_UNIT
   LIBRARIES PRIVATE
-    art_test::ClassTool_tool
     art_test::FunctionTool_tool
-    art_test::NestedClassTool_tool
-    art_test::NestedFunctionInClassTool_tool
     art_test::NestedFunctionTool_tool
     art_test::OperationBase # Could also (or instead) specify
                             # art_test::AddNumber_tool, etc. if we knew
