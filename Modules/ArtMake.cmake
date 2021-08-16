@@ -104,7 +104,7 @@ X
 #
 ########################################################################
 
-include_guard(DIRECTORY)
+include_guard()
 
 cmake_policy(PUSH)
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
@@ -154,9 +154,9 @@ function(art_make)
   endif()
   list(TRANSFORM seen_art_make_flags REPLACE "^USE_PRODUCT_NAME$" "USE_PROJECT_NAME")
   list(REMOVE_DUPLICATES seen_art_make_flags)
-  list(TRANSFORM ARGV REPLACE "${flags_regex}" "NOP" OUTPUT_VARIABLE trimmed_args)
+  list(TRANSFORM ARGN REPLACE "${flags_regex}" "NOP")
   if ("USE_PROJECT_NAME" IN_LIST seen_art_make_flags)
-    list(APPEND trimmed_args "USE_PROJECT_NAME")
+    list(APPEND ARGN "USE_PROJECT_NAME")
     list(REMOVE_ITEM seen_art_make_flags "USE_PROJECT_NAME")
   endif()
   foreach (flag IN LISTS seen_art_make_flags)
@@ -183,7 +183,7 @@ function(art_make)
 
   # Identify caller-specified plugin types.
   set(default_plugin_types source module service tool) # Defaults.
-  set(args "${trimmed_args}")
+  set(args "${ARGN}")
   list(FILTER args INCLUDE REGEX "^([A-Z]+)_(TYPE|LIBRARIES)$")
   list(TRANSFORM args REPLACE "_(TYPE|LIBRARIES)$" "")
   list(REMOVE_DUPLICATES args)
@@ -211,7 +211,8 @@ function(art_make)
   # We have to parse everything at once and pass through to the right
   # place if we need to otherwise we could get confused with argument /
   # option boundaries with multiple parsing passes.
-  cmake_parse_arguments(AM "${flags}" "${one_arg_options}" "${list_options}" ${trimmed_args})
+  cmake_parse_arguments(AM "${flags}" "${one_arg_options}"
+    "${list_options}" ${ARGN})
   # Identify plugin sources.
   set(plugins_glob ${plugin_glob})
   foreach(subdir IN LISTS AM_SUBDIRS)
