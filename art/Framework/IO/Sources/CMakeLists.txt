@@ -26,6 +26,7 @@ cet_make_library(LIBRARY_NAME Source INTERFACE
     fhiclcpp::fhiclcpp
     cetlib::headers
 )  
+make_simple_builder(art::SourceT BASE art::source)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

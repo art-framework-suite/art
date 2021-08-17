@@ -41,17 +41,17 @@ if (CETSKEL)
   # failures when building parallel.
   foreach(type IN ITEMS Analyzer Producer Filter)
     genskel(${type} "module")
-    build_plugin(Test${type} "module" BASENAME_ONLY NO_INSTALL)
+    cet_build_plugin(Test${type} art::${type} BASENAME_ONLY NO_INSTALL)
   endforeach()
 
   foreach(type IN ITEMS FileCatalogMetadataPlugin EmptyEventTimestampPlugin)
     genskel(${type} "plugin")
-    build_plugin(Test${type} "plugin" BASENAME_ONLY NO_INSTALL)
+    cet_build_plugin(Test${type} art::${type} BASENAME_ONLY NO_INSTALL)
   endforeach()
 
   # Simple service (no header).
   genskel(Service "service")
-  build_plugin(TestService "service" BASENAME_ONLY NO_INSTALL)
+  cet_build_plugin(TestService art::service BASENAME_ONLY NO_INSTALL)
 
   # Service interface.
   add_custom_command(OUTPUT TestServiceInterface.cc TestServiceInterface.h
@@ -74,6 +74,6 @@ if (CETSKEL)
   genskel("ServiceImpl:arttest::TestServiceInterface,tools/TestServiceInterface.h"
     "service"
     )
-  build_plugin(TestServiceImpl "service" NO_INSTALL
+  cet_build_plugin(TestServiceImpl art::service NO_INSTALL
     LIBRARAIES PRIVATE art_test::TestServiceInterface)
 endif()

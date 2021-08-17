@@ -24,7 +24,7 @@ X
 # cetbuildtools/Modules/BasicPlugin.cmake ### MIGRATE-NO-ACTION
 # (https://cdcvs.fnal.gov/redmine/projects/cetbuildtools/repository/revisions/master/entry/Modules/BasicPlugin.cmake). ### MIGRATE-NO-ACTION
 ########################################################################
-include_guard(DIRECTORY)
+include_guard()
 
 cmake_policy(PUSH)
 cmake_minimum_required(VERSION 3.18.2 FATAL_ERROR)
@@ -42,46 +42,53 @@ set(_simple_plugin_var_list CETLIB_EXCEPT HEP_CONCURRENCY CETLIB FHICLCPP
   ROOT_CORE_LIBRARY)
 
 find_package(messagefacility PRIVATE QUIET)
-include(mfPlugin OPTIONAL)
-include(mfStatsPlugin OPTIONAL)
-include(modulePlugin)
-include(pluginPlugin)
-include(servicePlugin)
-include(sourcePlugin)
-include(toolPlugin)
+if (messagefacility_FOUND)
+  include(MessagefacilityPlugins)
+endif()
+find_package(art PRIVATE QUIET)
+if (art_FOUND)
+  include(ArtPlugins)
+endif()
 
 # Simple plugin libraries - art suite packages are found automatically.
-function(simple_plugin)
-  foreach (pkg tgt var IN ZIP_LISTS
-      _simple_plugin_pkg_list _simple_plugin_target_list _simple_plugin_var_list)
-    if (NOT (TARGET ${tgt} OR var))
-      find_package(${pkg} PRIVATE QUIET REQUIRED)
+macro(simple_plugin NAME SUFFIX)
+  foreach (_sp_pkg _sp_tgt _sp_var IN ZIP_LISTS
+      _simple_plugin_pkg_list
+      _simple_plugin_target_list
+      _simple_plugin_var_list)
+    if (NOT (TARGET ${_sp_tgt} OR _sp_var))
+      find_package(${_sp_pkg} PRIVATE QUIET REQUIRED)
     endif()
   endforeach()
+  unset(_sp_pkg)
+  unset(_sp_tgt)
+  unset(_sp_var)
   build_plugin(${ARGV})
-endfunction()
+endmacro()
 
 # Per simple_plugin() without the overhead of finding packages one may
-# not need.
-function(build_plugin NAME SUFFIX)
-  set(liblist)
-  _get_plugin_base(BASE ARGN ${ARGN})
-  if (BASE AND COMMAND "${BASE}")
-    cmake_language(CALL "${BASE}" ${NAME} ${ARGN})
-    return()
-  elseif (BASE AND ${BASE}_LIBRARIES)
-    set(liblist "${${BASE}_LIBRARIES}")
-  elseif (COMMAND "${SUFFIX}")
-    cmake_language(CALL "${SUFFIX}" ${NAME} ${ARGN})
-    return()
-  elseif (COMMAND "${SUFFIX}_plugin")
-    cmake_language(CALL "${SUFFIX}_plugin" ${NAME} "${BASE}" ${ARGN})
-    return()
-  elseif (${SUFFIX}_LIBRARIES)
-    set(liblist "${${SUFFIX}_LIBRARIES}")
+# not need (historical).
+macro(build_plugin NAME SUFFIX)
+  _get_plugin_base(_bp_base _bp_args ${ARGN})
+  if ("${_bp_base}" STREQUAL "")
+    set(_bp_base ${SUFFIX})
   endif()
-  basic_plugin(${NAME} ${SUFFIX} ${liblist} NOP ${ARGN})
-endfunction()
+  if (_bp_base MATCHES "^[A-Z]")
+    string(PREPEND _bp_base "art::")
+  else()
+    string(REGEX REPLACE "^(module|plugin|service|source|tool)$"
+      "art::\\1"
+      _bp_base
+      "${_bp_base}")
+  endif()
+  string(JOIN " " _bp_arg_string ${NAME} ${_bp_base} ${_bp_args})
+  warn_deprecated(build_plugin NEW "cet_build_plugin(${_bp_arg_string})"
+    SINCE "cetmodules 2.25.00")
+  cet_build_plugin(${NAME} ${_bp_base} ${_bp_args})
+  unset(_bp_base)
+  unset(_bp_args)
+  unset(_bp_arg_string)
+endmacro()
 
 function(_get_plugin_base RESULT_VAR REMAINDER_VAR)
   set(result)

@@ -1,1 +1,1 @@
-build_plugin(DummyProducer "module" NO_INSTALL)
+cet_build_plugin(DummyProducer art::module NO_INSTALL)

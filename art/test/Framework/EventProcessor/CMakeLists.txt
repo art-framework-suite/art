@@ -1,11 +1,11 @@
-build_plugin(EventProcessorTestSource "source" BASE InputSource NO_INSTALL
+cet_build_plugin(EventProcessorTestSource art::InputSource NO_INSTALL
   LIBRARIES PRIVATE
     art::Framework_Principal
     art::Persistency_Provenance
     canvas::canvas
     fhiclcpp::fhiclcpp
 )
-build_plugin(EventProcessorTestOutput "module" NO_INSTALL
+cet_build_plugin(EventProcessorTestOutput art::module NO_INSTALL
   LIBRARIES PRIVATE
     art::Framework_Principal
     canvas::canvas

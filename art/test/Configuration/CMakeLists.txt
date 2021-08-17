@@ -56,7 +56,7 @@ cet_test(ReportUnused_mu2e_t HANDBUILT
   DATAFILES fcl/UnusedModule_t.fcl
   TEST_PROPERTIES FAIL_REGULAR_EXPRESSION "The following module label is either not assigned to any path")
 
-build_plugin(ScheduleThreadChecker "module" NO_INSTALL
+cet_build_plugin(ScheduleThreadChecker art::module NO_INSTALL
   LIBRARIES PRIVATE
     art::Framework_Principal
     art::Utilities

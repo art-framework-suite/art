@@ -1,3 +1,7 @@
+include(art::module)
+include(art::DRISISource)
+include(art::Output)
+
 cet_make_library(LIBRARY_NAME MixFilter INTERFACE
   EXPORT_SET PluginTypes SOURCE MixFilter.h
   LIBRARIES INTERFACE
@@ -7,6 +11,7 @@ cet_make_library(LIBRARY_NAME MixFilter INTERFACE
     fhiclcpp::types
     cetlib::cetlib
 )
+make_simple_builder(art::MixFilter BASE art::module)
 
 cet_make_library(LIBRARY_NAME ProvenanceDumperOutput INTERFACE
   EXPORT_SET PluginTypes SOURCE ProvenanceDumper.h
@@ -18,12 +23,14 @@ cet_make_library(LIBRARY_NAME ProvenanceDumperOutput INTERFACE
     fhiclcpp::fhiclcpp
     cetlib::cetlib
 )
+make_simple_builder(art::ProvenanceDumperOutput BASE art::Output)
 
-build_plugin(BlockingPrescaler "module" LIBRARIES REG fhiclcpp::types)
+cet_build_plugin(BlockingPrescaler art::module LIBRARIES REG fhiclcpp::types)
 
-build_plugin(DataFlowDumper "module" BASE ProvenanceDumperOutput)
+include(art::ProvenanceDumperOutput)
+cet_build_plugin(DataFlowDumper art::ProvenanceDumperOutput)
 
-build_plugin(EmptyEvent "source" BASE DRISISource
+cet_build_plugin(EmptyEvent art::DRISISource
   LIBRARIES REG
     art::Framework_Core
     art::Framework_Principal
@@ -33,23 +40,23 @@ build_plugin(EmptyEvent "source" BASE DRISISource
     cetlib::cetlib
 )
 
-build_plugin(EventIDFilter "module" LIBRARIES REG
+cet_build_plugin(EventIDFilter art::module LIBRARIES REG
     art::Framework_Core
     art::Framework_Principal
     canvas::canvas
     fhiclcpp::types
 )
 
-build_plugin(FileDumperOutput "module" LIBRARIES REG
+cet_build_plugin(FileDumperOutput art::module LIBRARIES REG
     art::Framework_Principal
     canvas::canvas
     fhiclcpp::types
     cetlib::cetlib
 )
 
-build_plugin(Prescaler "module" LIBRARIES REG fhiclcpp::types)
+cet_build_plugin(Prescaler art::module LIBRARIES REG fhiclcpp::types)
 
-build_plugin(ProvenanceCheckerOutput "module" LIBRARIES REG
+cet_build_plugin(ProvenanceCheckerOutput art::module LIBRARIES REG
     art::Framework_Principal
     canvas::canvas
     messagefacility::MF_MessageLogger
@@ -57,7 +64,7 @@ build_plugin(ProvenanceCheckerOutput "module" LIBRARIES REG
     cetlib_except::cetlib_except
 )
 
-build_plugin(RandomNumberSaver "module" LIBRARIES REG
+cet_build_plugin(RandomNumberSaver art::module LIBRARIES REG
     art::Framework_Principal
     art::Framework_Services_Optional_RandomNumberGenerator_service
     fhiclcpp::types

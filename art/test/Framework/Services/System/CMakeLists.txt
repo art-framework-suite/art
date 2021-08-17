@@ -12,7 +12,7 @@ cet_test(FloatingPointControl_t
 
 cet_make_library(LIBRARY_NAME art_test_fpc NO_INSTALL SOURCE fpc_utils.cc)
 
-build_plugin(FPCTest "module" NO_INSTALL
+cet_build_plugin(FPCTest art::module NO_INSTALL
   LIBRARIES PRIVATE
     art_test::fpc
     art::Framework_Principal

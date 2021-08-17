@@ -12,10 +12,12 @@ cet_make_library(LIBRARY_NAME FileDeliveryService INTERFACE
     fhiclcpp::headers
     hep_concurrency::macros
 )
+make_simple_builder(art::FileDeliveryService)
 
 cet_make_library(LIBRARY_NAME FileTransferService INTERFACE
    EXPORT_SET ServicePluginType SOURCE FileTransfer.h
    LIBRARIES INTERFACE art_plugin_types::serviceDeclaration)
+make_simple_builder(art::FileTransferService)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

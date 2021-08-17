@@ -30,6 +30,8 @@ cet_make_library(LIBRARY_NAME systemService INTERFACE
   EXPORT_SET ServicePluginType NO_EXPORT
   SOURCE detail/system_service_macros.h
   LIBRARIES INTERFACE canvas::canvas)
+# Not to be installed or collected.
+cet_write_plugin_builder(systemService art::service Modules)
 
 cet_make_library(LIBRARY_NAME serviceDefinition INTERFACE
   EXPORT_SET ServicePluginType
