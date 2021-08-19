@@ -32,7 +32,7 @@ namespace art {
     {
       std::set<std::string> const keys_to_ignore{"service_type",
                                                  "service_provider"};
-      config_.validate_ParameterSet(pset, keys_to_ignore);
+      config_.validate(pset, keys_to_ignore);
     }
 
   public: // MEMBER FUNCTIONS -- API for the user
