@@ -11,6 +11,7 @@ function(make_simple_builder NAME)
   list(POP_FRONT ARGN kw)
   if (kw STREQUAL "BASE")
     list(POP_FRONT ARGN BASE)
+    unset(kw)
   elseif (TGT MATCHES "([A-Z][a-z]+)$")
     string(TOLOWER "art::${CMAKE_MATCH_1}" BASE)
   else()
@@ -19,7 +20,7 @@ function(make_simple_builder NAME)
   string(REGEX REPLACE "^(.+)$"
     "$<$<TARGET_EXISTS:art_plugin_types::\\1>:art_plugin_types::\\1>"
     TGT "${TGT}")
-  cet_make_plugin_builder(${NAME} ${BASE} ${dest_subdir} ${ARGN} LIBRARIES
+  cet_make_plugin_builder(${NAME} ${BASE} ${dest_subdir} ${kw} ${ARGN} LIBRARIES
     REG ${TGT} NOP)
 endfunction()
 
