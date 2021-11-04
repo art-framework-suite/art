@@ -1,8 +1,8 @@
-#ifndef art_Framework_Core_Frameworkfwd_h
-#define art_Framework_Core_Frameworkfwd_h
+#ifndef art_Framework_Core_fwd_h
+#define art_Framework_Core_fwd_h
 
 #include "art/Persistency/Common/fwd.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "canvas/Persistency/Provenance/fwd.h"
 #include "fhiclcpp/ParameterSet.h"
 
 namespace art {
@@ -31,7 +31,7 @@ namespace art {
   class UpdateOutputCallbacks;
 } // namespace art
 
-#endif /* art_Framework_Core_Frameworkfwd_h */
+#endif /* art_Framework_Core_fwd_h */
 
 // Local Variables:
 // mode: c++

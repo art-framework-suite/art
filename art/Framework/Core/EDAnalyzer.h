@@ -6,10 +6,10 @@
 // The base class for all legacy analyzer modules.
 // ===================================================
 
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/Analyzer.h"
 #include "art/Framework/Core/detail/LegacyModule.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/fwd.h"
 #include "fhiclcpp/ParameterSet.h"
 

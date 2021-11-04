@@ -6,10 +6,10 @@
 // The base class for all shared analyzer modules.
 // ================================================
 
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/Analyzer.h"
 #include "art/Framework/Core/detail/SharedModule.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/ParameterSet.h"

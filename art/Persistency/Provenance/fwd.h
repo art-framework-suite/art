@@ -14,7 +14,7 @@ namespace art {
 
 // ======================================================================
 
-#endif /* art_Persistency_Common_fwd_h */
+#endif /* art_Persistency_Provenance_fwd_h */
 
 // Local Variables:
 // mode: c++

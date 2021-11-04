@@ -41,11 +41,11 @@
 //      delivered by the L1 trigger and event builder.
 //
 
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/fwd.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "canvas/Persistency/Provenance/fwd.h"
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/TableFragment.h"

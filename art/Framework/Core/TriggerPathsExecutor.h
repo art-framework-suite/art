@@ -24,7 +24,7 @@
 // independent of the Path objects.
 // ======================================================================
 
-#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"

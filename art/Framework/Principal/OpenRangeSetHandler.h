@@ -31,8 +31,8 @@
 //
 
 #include "art/Framework/Principal/RangeSetHandler.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
+#include "canvas/Persistency/Provenance/fwd.h"
 
 namespace art {
 

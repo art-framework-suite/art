@@ -20,7 +20,7 @@
 #include "art/Framework/Principal/Group.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "canvas/Persistency/Provenance/fwd.h"
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/fwd.h"

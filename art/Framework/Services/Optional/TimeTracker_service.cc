@@ -13,7 +13,7 @@
 #include "art/Utilities/ScheduleID.h"
 #include "boost/format.hpp"
 #include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "canvas/Persistency/Provenance/fwd.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/sqlite/Connection.h"
 #include "cetlib/sqlite/Ntuple.h"

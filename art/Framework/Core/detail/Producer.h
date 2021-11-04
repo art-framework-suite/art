@@ -7,9 +7,9 @@
 // insert products into an Event.
 //=====================================================
 
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Modifier.h"
 #include "art/Framework/Core/ProcessingFrame.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/fwd.h"
 #include "art/Utilities/ScheduleID.h"

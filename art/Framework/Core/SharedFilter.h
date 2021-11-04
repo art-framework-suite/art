@@ -2,10 +2,10 @@
 #define art_Framework_Core_SharedFilter_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/Filter.h"
 #include "art/Framework/Core/detail/SharedModule.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/ParameterSet.h"

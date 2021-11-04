@@ -82,12 +82,12 @@
 // ======================================================================
 
 #include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Framework/Core/detail/ImplicitConfigs.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/IO/Sources/SourceHelper.h"
 #include "art/Framework/IO/Sources/SourceTraits.h"
 #include "art/Framework/IO/Sources/detail/FileNamesHandler.h"
