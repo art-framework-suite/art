@@ -312,6 +312,7 @@ namespace art {
     int64_t const maxEvents_par = p.template get<int64_t>("maxEvents", -1);
     if (maxEvents_par > -1) {
       remainingEvents_ = maxEvents_par;
+      haveEventLimit_ = true;
     }
     finishProductRegistration_(d);
   }
@@ -335,6 +336,7 @@ namespace art {
     if (int64_t const maxEvents_par = p().sourceConfig().maxEvents();
         maxEvents_par > -1) {
       remainingEvents_ = maxEvents_par;
+      haveEventLimit_ = true;
     }
     finishProductRegistration_(d);
   }
