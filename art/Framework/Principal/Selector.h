@@ -8,9 +8,11 @@
 //
 // Users can use the classes defined below
 //
+//   InputTagListSelector
 //   ModuleLabelSelector
 //   ProcessNameSelector
 //   ProductInstanceNameSelector
+//   SelectorByFunction
 //
 // Users can also use the class Selector, which can be constructed
 // given a logical expression formed from any other selectors,
@@ -32,6 +34,7 @@
 #include "art/Framework/Principal/SelectorBase.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -153,6 +156,81 @@ namespace art {
       return {};
     }
   };
+
+  // Select products based on the result of a filter function (or
+  // functor) provided to the constructor.
+  class SelectorByFunction : public art::SelectorBase {
+public:
+    template <typename FUNC>
+    explicit SelectorByFunction(FUNC func, std::string description)
+      : func_(func), description_(description)
+      {}
+
+private:
+    bool
+    doMatch(art::BranchDescription const& p) const override
+      {
+        return func_(p);
+      }
+
+    std::string
+    doPrint(std::string const& indent) const override
+      {
+        return indent + description_;
+      }
+
+    std::function<bool(art::BranchDescription const &)> func_;
+    std::string description_;
+  };
+
+  // Select products based on a sequence of wanted input tags.
+  class InputTagListSelector : public art::SelectorBase {
+public:
+    // Initialize wanted input tags from a sequence denoted by
+    // [begin, end).
+    //
+    // This constructor is only valid (via SFINAE) if the provided
+    // iterators dereference to a type convertible to art::InputTag.
+    template <typename IT>
+    InputTagListSelector(IT begin,
+                         IT end,
+                         std::string const& description,
+                         std::enable_if_t<std::is_convertible_v<decltype(std::declval<IT>().operator *()), art::InputTag>>* dummy [[maybe_unused]] = nullptr) :
+      tags_{begin, end},
+      description_{description}
+      {
+      }
+
+    std::vector<art::InputTag> const & wantedTags() const
+      {
+        return tags_;
+      }
+
+private:
+    bool
+    doMatch(art::BranchDescription const& p) const override
+      {
+        return
+          std::any_of(std::cbegin(tags_),
+                      std::cend(tags_),
+                      [&p](art::InputTag const & tag) {
+                        return (tag.label().empty() || p.moduleLabel() == tag.label()) &&
+                          (tag.instance().empty() || p.productInstanceName() == tag.instance()) &&
+                          (tag.process().empty() || p.processName() == tag.process());
+                      });
+      }
+
+    std::string
+    doPrint(std::string const& indent) const override
+      {
+        return indent + description_;
+      }
+
+    std::vector<art::InputTag> const tags_;
+    std::string description_;
+  };
+
+
 
   //----------------------------------------------------------
   // AndHelper template.
