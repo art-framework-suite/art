@@ -2,8 +2,8 @@
 #define art_Framework_Core_PathsInfo_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Core/Path.h"
+#include "art/Framework/Principal/Worker.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
 
 #include <atomic>

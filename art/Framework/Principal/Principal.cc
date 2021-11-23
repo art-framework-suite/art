@@ -63,7 +63,8 @@ namespace art {
           gt = Group::grouptype::assnsWithData;
         }
       }
-      return make_unique<Group>(reader, bd, make_unique<RangeSet>(), gt);
+      return make_unique<Group>(
+        reader, bd, make_unique<RangeSet>(RangeSet::invalid()), gt);
     }
 
   } // unnamed namespace
@@ -949,7 +950,7 @@ namespace art {
           << " product: product already put for " << bd.branchName() << '\n';
       }
       group->setProductAndProvenance(
-        move(pp), move(edp), make_unique<RangeSet>());
+        move(pp), move(edp), make_unique<RangeSet>(RangeSet::invalid()));
     }
   }
 

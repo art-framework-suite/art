@@ -14,6 +14,7 @@
 #include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/fwd.h"
+#include "range/v3/view.hpp"
 
 #include <algorithm>
 #include <map>
@@ -189,12 +190,12 @@ namespace art {
     std::lock_guard lock{mutex_};
     if (checkProducts) {
       vector<string> missing;
-      for (auto const& typeLabel_and_bd : *expectedProducts) {
-        if (putProducts_.find(typeLabel_and_bd.first) != putProducts_.cend()) {
+      for (auto const& [typeLabel, bd] : *expectedProducts) {
+        if (putProducts_.find(typeLabel) != putProducts_.cend()) {
           continue;
         }
         ostringstream desc;
-        desc << typeLabel_and_bd.second;
+        desc << bd;
         missing.emplace_back(desc.str());
       }
       if (!missing.empty()) {
@@ -210,8 +211,7 @@ namespace art {
           << errmsg.str();
       }
     }
-    for (auto& type_label_and_pmvalue : putProducts_) {
-      auto& pmvalue = type_label_and_pmvalue.second;
+    for (auto& pmvalue : putProducts_ | ranges::views::values) {
       unique_ptr<ProductProvenance const> pp;
       if (branchType_ == InEvent) {
         vector<ProductID> gotPIDs;
@@ -227,7 +227,7 @@ namespace art {
       }
       auto rs = detail::range_sets_supported(branchType_) ?
                   make_unique<RangeSet>(pmvalue.rs_) :
-                  make_unique<RangeSet>();
+                  make_unique<RangeSet>(RangeSet::invalid());
       principal.put(pmvalue.bd_, move(pp), move(pmvalue.prod_), move(rs));
     };
     putProducts_.clear();
@@ -237,19 +237,19 @@ namespace art {
   DataViewImpl::movePutProductsToPrincipal(Principal& principal)
   {
     std::lock_guard lock{mutex_};
-    for (auto& type_label_and_pmvalue : putProducts_) {
-      auto& pmvalue = type_label_and_pmvalue.second;
-      unique_ptr<ProductProvenance const> pp =
-        make_unique<ProductProvenance const>(pmvalue.bd_.productID(),
-                                             productstatus::present());
+    for (auto& pmvalue : putProducts_ | ranges::views::values) {
+      auto pp = make_unique<ProductProvenance const>(pmvalue.bd_.productID(),
+                                                     productstatus::present());
       if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
         principal.put(pmvalue.bd_,
                       move(pp),
                       move(pmvalue.prod_),
                       make_unique<RangeSet>(pmvalue.rs_));
       } else {
-        principal.put(
-          pmvalue.bd_, move(pp), move(pmvalue.prod_), make_unique<RangeSet>());
+        principal.put(pmvalue.bd_,
+                      move(pp),
+                      move(pmvalue.prod_),
+                      make_unique<RangeSet>(RangeSet::invalid()));
       }
     };
     putProducts_.clear();
@@ -269,7 +269,7 @@ namespace art {
     bool const alwaysEnableLookupOfProducedProducts /*= false*/) const
   {
     std::lock_guard lock{mutex_};
-    auto const& product_name = canonicalProductName(
+    auto const product_name = canonicalProductName(
       type.friendlyClassName(), md_.moduleLabel(), instance, md_.processName());
     ProductID const pid{product_name};
     auto bd = principal_.getProductDescription(
