@@ -251,7 +251,7 @@ product		version		qual	flags		<table_format=2>
 canvas		v3_12_05	-
 catch		v2_13_7		-	only_for_build
 cetmodules	v2_29_11	-	only_for_build
-range		v3_0_11a	-	only_for_build
+range		v3_0_11_0a	-	only_for_build
 end_product_list
 ####################################
 
