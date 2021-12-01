@@ -11,7 +11,7 @@ cet_make_library(SOURCE
     fhiclcpp::fhiclcpp
   PRIVATE
     Boost::headers
-    Range::Range
+    range-v3::range-v3
 )
 
 install_headers(SUBDIRS detail)
