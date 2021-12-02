@@ -325,7 +325,6 @@ table_fragment_begin
     sourceRequired(${ART_FQ_DIR}/bin/nova_completions, NO_UPS_ENV)
     sourceRequired(${ART_FQ_DIR}/bin/lar_completions, NO_UPS_ENV)
     sourceRequired(${ART_FQ_DIR}/bin/gm2_completions, NO_UPS_ENV)
-    sourceRequired(${ART_FQ_DIR}/bin/mu2e_completions, NO_UPS_ENV)
 table_fragment_end
 ####################################
 

@@ -1,4 +1,4 @@
-#include "art/Framework/Art/@ART_MAIN_FUNC@.h"
+#include "art/Framework/Art/artapp.h"
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Art/BasicOptionsHandler.h"
@@ -22,7 +22,8 @@ namespace bpo = boost::program_options;
 
 using namespace std;
 
-int @ART_MAIN_FUNC@(int argc, char* argv[])
+int
+artapp(int argc, char* argv[], bool report_unused)
 {
   // Configuration file lookup policy.
   string search_path;
@@ -44,9 +45,8 @@ int @ART_MAIN_FUNC@(int argc, char* argv[])
   art::OptionsHandlers handlers;
   handlers.reserve(7);
   // BasicOptionsHandler should always be first in the list!
-  handlers.emplace_back(new art::BasicOptionsHandler {
-    all_desc, lookupPolicy, @ART_REPORT_UNUSED_DEFAULT@
-  });
+  handlers.emplace_back(
+    new art::BasicOptionsHandler{all_desc, lookupPolicy, report_unused});
   // Additional options
   handlers.emplace_back(new art::BasicSourceOptionsHandler{all_desc});
   handlers.emplace_back(new art::BasicOutputOptionsHandler{all_desc});
@@ -58,7 +58,8 @@ int @ART_MAIN_FUNC@(int argc, char* argv[])
   return art::run_art(argc, argv, all_desc, move(handlers));
 }
 
-int @ART_MAIN_FUNC@_string_config(string const& config_string)
+int
+artapp_string_config(string const& config_string)
 {
   return art::run_art_string_config(config_string);
 }

@@ -3,27 +3,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/check_libs.cc.in
   ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc @ONLY)
 
 ####################################
-# Configure for desired default printing of unused modules/paths.
-SET(ART_MAIN_FUNC artapp)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.h @ONLY)
-
-set(ART_REPORT_UNUSED_DEFAULT 1)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY)
-
-SET(ART_MAIN_FUNC mu2eapp)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.h @ONLY)
-
-set(ART_REPORT_UNUSED_DEFAULT 0)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/artapp.cc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${ART_MAIN_FUNC}.cc @ONLY)
-####################################
 
 cet_make_library(SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/artapp.cc
-    ${CMAKE_CURRENT_BINARY_DIR}/mu2eapp.cc
     BasicOptionsHandler.cc
     BasicPostProcessor.cc
     BasicSourceOptionsHandler.cc
@@ -32,6 +13,7 @@ cet_make_library(SOURCE
     ProcessingOptionsHandler.cc
     FileCatalogOptionsHandler.cc
     OptionsHandler.cc
+    artapp.cc
     find_config.cc
     run_art.cc
     detail/MetadataRegexHelpers.cc
@@ -68,9 +50,8 @@ cet_make_library(SOURCE
 )
 
 # Build an art exec.
-function(art_exec TARGET_STEM IN_STEM MAIN_FUNC)
-  cmake_parse_arguments(PARSE_ARGV 3 AE "" "" "LIBRARIES")
-  set(ART_MAIN_FUNC ${MAIN_FUNC})
+function(art_exec TARGET_STEM IN_STEM)
+  cmake_parse_arguments(PARSE_ARGV 1 AE "" "" "LIBRARIES")
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${IN_STEM}.cc.in
     ${CMAKE_CURRENT_BINARY_DIR}/${TARGET_STEM}.cc @ONLY)
   cet_make_exec(NAME ${TARGET_STEM}
@@ -93,23 +74,20 @@ cet_make_exec(NAME get-loadable-libraries
 )
 
 # Standard execs
-art_exec(art art artapp)
-art_exec(gm2 art artapp)
-art_exec(lar art artapp)
-art_exec(mu2e art mu2eapp)
-art_exec(nova art artapp)
+art_exec(art art)
+art_exec(gm2 art)
+art_exec(lar art)
+art_exec(nova art)
 
 # Execs with Boost unit testing enabled for modules.
-art_exec(art_ut art_ut artapp LIBRARIES PRIVATE Boost::unit_test_framework)
-art_exec(gm2_ut art_ut artapp LIBRARIES PRIVATE Boost::unit_test_framework)
-art_exec(lar_ut art_ut artapp LIBRARIES PRIVATE Boost::unit_test_framework)
-art_exec(mu2e_ut art_ut mu2eapp LIBRARIES PRIVATE Boost::unit_test_framework)
-art_exec(nova_ut art_ut artapp LIBRARIES PRIVATE Boost::unit_test_framework)
+art_exec(art_ut art_ut LIBRARIES PRIVATE Boost::unit_test_framework)
+art_exec(gm2_ut art_ut LIBRARIES PRIVATE Boost::unit_test_framework)
+art_exec(lar_ut art_ut LIBRARIES PRIVATE Boost::unit_test_framework)
+art_exec(nova_ut art_ut LIBRARIES PRIVATE Boost::unit_test_framework)
 
 cet_make_completions(art ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
 cet_make_completions(gm2 ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
 cet_make_completions(lar ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
-cet_make_completions(mu2e ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
 cet_make_completions(nova ${CMAKE_CURRENT_SOURCE_DIR}/art_completion_customizations)
 
 cet_make_exec(NAME check_libs

@@ -4,7 +4,7 @@
 #define BOOST_TEST_NO_MAIN
 #include "boost/test/unit_test.hpp"
 
-#include "art/Framework/Art/@ART_MAIN_FUNC@.h"
+#include "art/Framework/Art/artapp.h"
 
 using namespace boost::unit_test;
 
@@ -13,8 +13,9 @@ using namespace boost::unit_test;
 void
 art_ut()
 {
-  int app_return_val = @ART_MAIN_FUNC@(framework::master_test_suite().argc,
-                                       framework::master_test_suite().argv);
+  int app_return_val = artapp(framework::master_test_suite().argc,
+                              framework::master_test_suite().argv,
+                              true);
   BOOST_REQUIRE_EQUAL(app_return_val, 0);
 }
 
@@ -39,8 +40,7 @@ main(int argc, char* argv[])
       break;
     }
   }
-  auto ret = unit_test_main(&init_unit_test_suite, argc, argv);
-  return ret;
+  return unit_test_main(&init_unit_test_suite, argc, argv);
 }
 
 // Local Variables:
