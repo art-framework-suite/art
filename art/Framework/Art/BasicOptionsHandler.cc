@@ -17,13 +17,6 @@ using namespace std::string_literals;
 using table_t = fhicl::extended_value::table_t;
 namespace {
 
-  std::string
-  pretty_version(std::string s)
-  {
-    std::replace(begin(s), end(s), '_', '.');
-    return s;
-  }
-
   auto
   to_string(bool const value)
   {
@@ -40,8 +33,7 @@ art::BasicOptionsHandler::BasicOptionsHandler(bpo::options_description& desc,
   // clang-format off
   desc.add_options()
     ("help,h", "produce help message")
-    ("version", ("Print art version (" + pretty_version(art::getReleaseVersion()) + ")")
-      .c_str())
+    ("version", ("Print art version (" + getReleaseVersion() + ")").c_str())
     ("config,c", bpo::value<std::string>(), "Configuration file.")
     ("process-name", bpo::value<std::string>(), "art process name.")
     ("prune-config",
@@ -113,7 +105,7 @@ art::BasicOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
     return detail::info_success();
   }
   if (vm.count("version")) {
-    std::cout << "art " << pretty_version(getReleaseVersion()) << '\n';
+    std::cout << "art " << getReleaseVersion() << '\n';
     return detail::info_success();
   }
 
