@@ -20,8 +20,8 @@ namespace {
   std::string
   pretty_version(std::string s)
   {
-    std::replace(s.begin(), s.end(), '_', '.');
-    return s.substr(1); // trim off 'v'
+    std::replace(begin(s), end(s), '_', '.');
+    return s;
   }
 
   auto
