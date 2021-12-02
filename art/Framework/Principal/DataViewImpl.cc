@@ -187,6 +187,7 @@ namespace art {
     bool const checkProducts,
     map<TypeLabel, BranchDescription> const* expectedProducts)
   {
+    assert(branchType_ == InEvent);
     std::lock_guard lock{mutex_};
     if (checkProducts) {
       vector<string> missing;
@@ -211,25 +212,16 @@ namespace art {
           << errmsg.str();
       }
     }
+    vector<ProductID> const gotPIDs(begin(retrievedProducts_),
+                                    end(retrievedProducts_));
     for (auto& pmvalue : putProducts_ | ranges::views::values) {
-      unique_ptr<ProductProvenance const> pp;
-      if (branchType_ == InEvent) {
-        vector<ProductID> gotPIDs;
-        if (!retrievedProducts_.empty()) {
-          gotPIDs.reserve(retrievedProducts_.size());
-          gotPIDs.assign(retrievedProducts_.begin(), retrievedProducts_.end());
-        }
-        pp = make_unique<ProductProvenance const>(
-          pmvalue.bd_.productID(), productstatus::present(), gotPIDs);
-      } else {
-        pp = make_unique<ProductProvenance const>(pmvalue.bd_.productID(),
-                                                  productstatus::present());
-      }
-      auto rs = detail::range_sets_supported(branchType_) ?
-                  make_unique<RangeSet>(pmvalue.rs_) :
-                  make_unique<RangeSet>(RangeSet::invalid());
-      principal.put(pmvalue.bd_, move(pp), move(pmvalue.prod_), move(rs));
-    };
+      auto pp = make_unique<ProductProvenance const>(
+        pmvalue.bd_.productID(), productstatus::present(), gotPIDs);
+      principal.put(pmvalue.bd_,
+                    move(pp),
+                    move(pmvalue.prod_),
+                    make_unique<RangeSet>(RangeSet::invalid()));
+    }
     putProducts_.clear();
   }
 
@@ -240,18 +232,11 @@ namespace art {
     for (auto& pmvalue : putProducts_ | ranges::views::values) {
       auto pp = make_unique<ProductProvenance const>(pmvalue.bd_.productID(),
                                                      productstatus::present());
-      if ((branchType_ == InRun) || (branchType_ == InSubRun)) {
-        principal.put(pmvalue.bd_,
-                      move(pp),
-                      move(pmvalue.prod_),
-                      make_unique<RangeSet>(pmvalue.rs_));
-      } else {
-        principal.put(pmvalue.bd_,
-                      move(pp),
-                      move(pmvalue.prod_),
-                      make_unique<RangeSet>(RangeSet::invalid()));
-      }
-    };
+      auto rs = detail::range_sets_supported(branchType_) ?
+                  make_unique<RangeSet>(pmvalue.rs_) :
+                  make_unique<RangeSet>(RangeSet::invalid());
+      principal.put(pmvalue.bd_, move(pp), move(pmvalue.prod_), move(rs));
+    }
     putProducts_.clear();
   }
 

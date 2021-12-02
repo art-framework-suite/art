@@ -83,8 +83,8 @@ namespace art {
     //       code expects to be able to find a group for dropped
     //       products, so getGroupTryAllFiles ignores groups for
     //       dropped products instead.
-    for (auto const& pr : presentProducts->descriptions) {
-      auto const& pd = pr.second;
+    for (auto const& pd :
+         presentProducts->descriptions | ranges::views::values) {
       assert(pd.branchType() == branchType_);
       fillGroup(pd);
     }
@@ -323,8 +323,7 @@ namespace art {
     // The process history is expanded if there is a product that is
     // produced in this process.
     addToProcessHistory();
-    for (auto const& pr : produced.descriptions) {
-      auto const& pd = pr.second;
+    for (auto const& pd : produced.descriptions | ranges::views::values) {
       assert(pd.branchType() == branchType_);
       // Create a group for the produced product.
       fillGroup(pd);
