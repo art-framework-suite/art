@@ -58,12 +58,6 @@ artapp(int argc, char* argv[], bool report_unused)
   return art::run_art(argc, argv, all_desc, move(handlers));
 }
 
-int
-artapp_string_config(string const& config_string)
-{
-  return art::run_art_string_config(config_string);
-}
-
 // Local Variables:
 // mode: c++
 // End:

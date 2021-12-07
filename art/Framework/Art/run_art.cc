@@ -252,49 +252,6 @@ namespace art {
   }
 
   int
-  run_art_string_config(string const& config_string)
-  {
-    //
-    // Make the parameter set from the configuration string:
-    //
-    auto enabled_modules = detail::EnabledModules::none();
-    fhicl::ParameterSet main_pset;
-    try {
-      // create an intermediate table from the input string
-      auto raw_config = fhicl::parse_document(config_string);
-      enabled_modules =
-        detail::prune_config_if_enabled(false, true, raw_config);
-      // run post-processing
-      bpo::variables_map vm;
-      BasicPostProcessor bpp;
-      bpp.processOptions(vm, raw_config);
-      // create the parameter set
-      main_pset = fhicl::ParameterSet::make(raw_config);
-    }
-    catch (cet::exception& e) {
-      constexpr cet::HorizontalRule rule{36};
-      cerr << "ERROR: Failed to create a parameter set from an input "
-              "configuration string with exception "
-           << e.what() << ".\n";
-      cerr << "       Input configuration string follows:\n"
-           << rule('-') << rule('-') << "\n";
-      cerr << config_string << "\n";
-      cerr << rule('-') << rule('-') << '\n';
-      return 91;
-    }
-    // Main parameter set must be placed in registry manually.
-    try {
-      fhicl::ParameterSetRegistry::put(main_pset);
-    }
-    catch (...) {
-      cerr << "Uncaught exception while inserting main parameter set into "
-              "registry.\n";
-      throw;
-    }
-    return run_art_common_(main_pset, enabled_modules);
-  }
-
-  int
   run_art_common_(fhicl::ParameterSet const& main_pset,
                   detail::EnabledModules const& enabled_modules)
   {

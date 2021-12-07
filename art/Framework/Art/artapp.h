@@ -6,8 +6,6 @@
 
 int artapp(int argc, char* argv[], bool report_unused = true);
 
-int artapp_string_config(const std::string& config_string);
-
 #endif /* art_Framework_Art_@ART_MAIN_FUNC@_h */
 
 // Local Variables:
