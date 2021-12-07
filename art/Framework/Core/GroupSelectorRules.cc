@@ -5,8 +5,8 @@
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Utilities/Exception.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 #include <regex>
 #include <string>
 

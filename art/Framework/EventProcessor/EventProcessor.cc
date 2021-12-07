@@ -765,7 +765,7 @@ namespace art {
         RangeSetHandler::HandlerType::Open) {
       // We are using EmptyEvent source, need to merge what the
       // schedules have seen.
-      RangeSet mergedRS;
+      auto mergedRS = RangeSet::invalid();
       auto merge_range_sets = [this, &mergedRS](ScheduleID const sid) {
         auto const& rs = schedule(sid).runRangeSetHandler().seenRanges();
         // The following constructor ensures that the range is sorted
@@ -934,7 +934,7 @@ namespace art {
         RangeSetHandler::HandlerType::Open) {
       // We are using EmptyEvent source, need to merge what the
       // schedules have seen.
-      RangeSet mergedRS;
+      auto mergedRS = RangeSet::invalid();
       auto merge_range_sets = [this, &mergedRS](ScheduleID const sid) {
         auto const& rs = schedule(sid).subRunRangeSetHandler().seenRanges();
         // The following constructor ensures that the range is sorted

@@ -13,13 +13,13 @@ set(pmt_libraries
   fhiclcpp::fhiclcpp
 )
 foreach (type IN ITEMS Analyzer Filter Output Producer)
-  build_plugin(PMTest${type} "module" NO_INSTALL BASENAME_ONLY
+  cet_build_plugin(PMTest${type} art::${type} NO_INSTALL BASENAME_ONLY
     LIBRARIES PRIVATE ${pmt_libraries}
 )
 endforeach()
 target_link_libraries(PMTestOutput_module PRIVATE fhiclcpp::types)
 
-build_plugin(CheckTriggerBits "module" NO_INSTALL USE_BOOST_UNIT
+cet_build_plugin(CheckTriggerBits art::module NO_INSTALL USE_BOOST_UNIT
   LIBRARIES PRIVATE
     art::Framework_Services_System_TriggerNamesService_service
     art::Framework_Principal
@@ -49,7 +49,7 @@ foreach(test IN ITEMS ector Wildcard Exc)
   )
 endforeach()
 
-build_plugin(Busy "module" NO_INSTALL USE_BOOST_UNIT)
+cet_build_plugin(Busy art::module NO_INSTALL USE_BOOST_UNIT)
 cet_test(BusyEvent_t HANDBUILT
   TEST_EXEC art_ut
   TEST_ARGS -- -c busy_event_t.fcl -j3
@@ -60,7 +60,7 @@ cet_test(RegistryTemplate_t
   LIBRARIES PRIVATE art::Framework_Services_Registry
 )
 
-build_plugin(EventCounter "module" NO_INSTALL USE_BOOST_UNIT
+cet_build_plugin(EventCounter art::module NO_INSTALL USE_BOOST_UNIT
   LIBRARIES PRIVATE art::Framework_Principal fhiclcpp::types)
 
 cet_test(RejectEvents_t HANDBUILT

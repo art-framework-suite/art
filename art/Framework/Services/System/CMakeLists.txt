@@ -8,10 +8,10 @@
 ########################################################################
 # These services are not actually true "system" services, as they use
 # the standard service definition macro.
-build_plugin(DatabaseConnection "service"
+cet_build_plugin(DatabaseConnection art::service
   LIBRARIES CONDITIONAL cetlib::sqlite)
 
-build_plugin(FileCatalogMetadata "service" LIBRARIES
+cet_build_plugin(FileCatalogMetadata art::service LIBRARIES
   PUBLIC
     canvas::canvas
     fhiclcpp::types
@@ -20,10 +20,13 @@ build_plugin(FileCatalogMetadata "service" LIBRARIES
   PRIVATE Boost::json)
 ########################################################################
 
+# Learn about building system services.
+include(systemService)
+
 # FloatingPoint is a true "system" service (constructed explicitly by
 # art::EventProcessor), but has a registration module due to the use of
 # CET_PROVIDE_FILE_PATH() and FHICL_PROVIDE_ALLOWED_CONFIGURATION().
-build_plugin(FloatingPointControl "service" BASE systemService
+cet_build_plugin(FloatingPointControl systemService
   IMPL_SOURCE FloatingPointControl.cc detail/fpControl.cc
   LIBRARIES
   PUBLIC art::Framework_Services_Registry fhiclcpp::types

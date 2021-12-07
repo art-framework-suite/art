@@ -22,11 +22,11 @@
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
 #include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
 #include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
+#include "canvas/Persistency/Provenance/fwd.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
 #include "cetlib/container_algorithms.h"
@@ -63,7 +63,8 @@ namespace art {
           gt = Group::grouptype::assnsWithData;
         }
       }
-      return make_unique<Group>(reader, bd, make_unique<RangeSet>(), gt);
+      return make_unique<Group>(
+        reader, bd, make_unique<RangeSet>(RangeSet::invalid()), gt);
     }
 
   } // unnamed namespace
@@ -82,8 +83,8 @@ namespace art {
     //       code expects to be able to find a group for dropped
     //       products, so getGroupTryAllFiles ignores groups for
     //       dropped products instead.
-    for (auto const& pr : presentProducts->descriptions) {
-      auto const& pd = pr.second;
+    for (auto const& pd :
+         presentProducts->descriptions | ranges::views::values) {
       assert(pd.branchType() == branchType_);
       fillGroup(pd);
     }
@@ -322,8 +323,7 @@ namespace art {
     // The process history is expanded if there is a product that is
     // produced in this process.
     addToProcessHistory();
-    for (auto const& pr : produced.descriptions) {
-      auto const& pd = pr.second;
+    for (auto const& pd : produced.descriptions | ranges::views::values) {
       assert(pd.branchType() == branchType_);
       // Create a group for the produced product.
       fillGroup(pd);
@@ -949,7 +949,7 @@ namespace art {
           << " product: product already put for " << bd.branchName() << '\n';
       }
       group->setProductAndProvenance(
-        move(pp), move(edp), make_unique<RangeSet>());
+        move(pp), move(edp), make_unique<RangeSet>(RangeSet::invalid()));
     }
   }
 

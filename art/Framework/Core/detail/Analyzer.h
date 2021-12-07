@@ -6,10 +6,10 @@
 //  The base class for all analyzer modules.
 //
 
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/Observer.h"
 #include "art/Framework/Core/ProcessingFrame.h"
 #include "art/Framework/Core/detail/ImplicitConfigs.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/fwd.h"
 #include "art/Utilities/ScheduleID.h"

@@ -23,8 +23,8 @@
 //   to get data has occurred
 
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
+#include "canvas/Persistency/Provenance/fwd.h"
 #include "cetlib/exempt_ptr.h"
 
 namespace art {

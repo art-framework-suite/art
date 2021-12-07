@@ -11,8 +11,8 @@
 // paths in which the module label appears.
 // ====================================================================
 
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/detail/ModuleKeyAndType.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/Transition.h"

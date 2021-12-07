@@ -16,15 +16,15 @@
 // input.
 // =========================================================================
 
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/OutputFileGranularity.h"
 #include "art/Framework/Core/OutputFileStatus.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/Transition.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "canvas/Persistency/Provenance/fwd.h"
 #include "hep_concurrency/WaitingTask.h"
 
 #include <atomic>

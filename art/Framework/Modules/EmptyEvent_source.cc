@@ -2,9 +2,9 @@
 
 #include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Framework/Core/EmptyEventTimestampPlugin.h"
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceMacros.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
 #include "art/Framework/Principal/Run.h"

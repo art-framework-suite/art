@@ -32,7 +32,7 @@ cet_make_library(SOURCE
   PRIVATE
     art::Framework_Services_Registry
     messagefacility::MF_MessageLogger
-    Range::Range
+    range-v3::range-v3
 )
 
 install_headers(SUBDIRS detail)

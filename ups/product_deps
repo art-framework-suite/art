@@ -248,10 +248,10 @@ perllib	product_dir
 #
 ####################################
 product		version		qual	flags		<table_format=2>
-canvas		v3_12_04	-
-catch		v2_13_4a	-	only_for_build
-cetmodules	v2_21_01	-	only_for_build
-range		v3_0_11_0	-	only_for_build
+canvas		v3_12_06	-
+catch		v2_13_7		-	only_for_build
+cetmodules	v2_29_14	-	only_for_build
+range		v3_0_11_0b	-	only_for_build
 end_product_list
 ####################################
 
@@ -325,7 +325,6 @@ table_fragment_begin
     sourceRequired(${ART_FQ_DIR}/bin/nova_completions, NO_UPS_ENV)
     sourceRequired(${ART_FQ_DIR}/bin/lar_completions, NO_UPS_ENV)
     sourceRequired(${ART_FQ_DIR}/bin/gm2_completions, NO_UPS_ENV)
-    sourceRequired(${ART_FQ_DIR}/bin/mu2e_completions, NO_UPS_ENV)
 table_fragment_end
 ####################################
 

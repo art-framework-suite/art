@@ -7,7 +7,7 @@
 // sources.
 //
 
-#include "art/Framework/Core/Frameworkfwd.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "cetlib/exempt_ptr.h"
@@ -91,7 +91,7 @@ namespace art {
     virtual void doEndJob();
 
     // Random Access Interface
-    
+
     // Skip forward (or backward, if n<0) n events. Derived classes
     // that cannot perform random access should not implement this
     // function; the default implementation will throw an exception.

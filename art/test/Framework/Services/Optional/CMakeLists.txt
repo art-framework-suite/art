@@ -1,15 +1,15 @@
-build_plugin(MyService "service" NO_INSTALL BASENAME_ONLY
+cet_build_plugin(MyService art::service NO_INSTALL BASENAME_ONLY
   LIBRARIES PRIVATE messagefacility::MF_MessageLogger)
 
-build_plugin(MySharedService "service" NO_INSTALL BASENAME_ONLY)
+cet_build_plugin(MySharedService art::service NO_INSTALL BASENAME_ONLY)
 
-build_plugin(MyServiceUsingIface "service" NO_INSTALL BASENAME_ONLY
+cet_build_plugin(MyServiceUsingIface art::service NO_INSTALL BASENAME_ONLY
   LIBRARIES PRIVATE art_test::MyService_service)
 
-build_plugin(MyServiceUser "module" NO_INSTALL BASENAME_ONLY
+cet_build_plugin(MyServiceUser art::module NO_INSTALL BASENAME_ONLY
   LIBRARIES PRIVATE art_test::MyService_service)
 
-build_plugin(ReplicatedRNG "module" NO_INSTALL BASENAME_ONLY)
+cet_build_plugin(ReplicatedRNG art::module NO_INSTALL BASENAME_ONLY)
 
 cet_test(MyService_t HANDBUILT
   TEST_EXEC art

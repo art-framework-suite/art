@@ -199,7 +199,7 @@ namespace art {
     delete partnerBaseProduct_.load();
     partnerBaseProduct_ = nullptr;
     delete rangeSet_.load();
-    rangeSet_ = new RangeSet{};
+    rangeSet_ = new RangeSet{RangeSet::invalid()};
   }
 
   bool

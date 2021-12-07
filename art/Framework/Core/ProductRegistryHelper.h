@@ -22,7 +22,7 @@
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/Persistable.h"
 #include "canvas/Persistency/Provenance/ProductList.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "canvas/Persistency/Provenance/fwd.h"
 #include "canvas/Persistency/Provenance/type_aliases.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"

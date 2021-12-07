@@ -41,22 +41,13 @@ cet_test(PruneConfig_t_01 HANDBUILT
   DATAFILES fcl/prune_config_t_01.fcl
   TEST_PROPERTIES WILL_FAIL TRUE)
 
-# These tests check that the defaults for reporting unused modules are
-# correct for the mu2e executable and the art executable (representing
-# all other framework executables).
 cet_test(ReportUnused_art_t HANDBUILT
   TEST_EXEC art
   TEST_ARGS -c UnusedModule_t.fcl --debug-config=/dev/null
   DATAFILES fcl/UnusedModule_t.fcl
   TEST_PROPERTIES PASS_REGULAR_EXPRESSION "The following module label is either not assigned to any path")
 
-cet_test(ReportUnused_mu2e_t HANDBUILT
-  TEST_EXEC mu2e
-  TEST_ARGS -c UnusedModule_t.fcl --debug-config=/dev/null
-  DATAFILES fcl/UnusedModule_t.fcl
-  TEST_PROPERTIES FAIL_REGULAR_EXPRESSION "The following module label is either not assigned to any path")
-
-build_plugin(ScheduleThreadChecker "module" NO_INSTALL
+cet_build_plugin(ScheduleThreadChecker art::module NO_INSTALL
   LIBRARIES PRIVATE
     art::Framework_Principal
     art::Utilities

@@ -5,7 +5,7 @@
 #include "art/Framework/Principal/DelayedReader.h"
 #include "art/Framework/Principal/fwd.h"
 #include "canvas/Persistency/Common/EDProduct.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
+#include "canvas/Persistency/Provenance/fwd.h"
 
 #include <memory>
 

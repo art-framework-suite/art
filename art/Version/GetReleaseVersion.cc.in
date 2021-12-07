@@ -1,11 +1,8 @@
-// This is a comment
 #include "art/Version/GetReleaseVersion.h"
 
-namespace art {
-
-  std::string const & getReleaseVersion() {
-    static std::string const releaseVersion("@PROJECT_VERSION@");
-    return releaseVersion;
-  }
-
+std::string const&
+art::getReleaseVersion()
+{
+  static std::string const releaseVersion("@PROJECT_VERSION@");
+  return releaseVersion;
 }

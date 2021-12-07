@@ -39,8 +39,8 @@
 
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/BasicPluginMacros.h"
-#include "canvas/Persistency/Provenance/ProvenanceFwd.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
+#include "canvas/Persistency/Provenance/fwd.h"
 #include "cetlib/PluginTypeDeducer.h"
 #include "cetlib/ProvideFilePathMacro.h"
 #include "fhiclcpp/ParameterSet.h"

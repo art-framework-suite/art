@@ -7,7 +7,6 @@
 // ===========================
 
 #include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/InputSource.h"
 #include "art/Framework/Core/MFStatusUpdater.h"
 #include "art/Framework/Core/PathManager.h"
@@ -16,6 +15,7 @@
 #include "art/Framework/Core/SharedException.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
 #include "art/Framework/Core/detail/EnabledModules.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/EventProcessor/Scheduler.h"
 #include "art/Framework/EventProcessor/detail/ExceptionCollector.h"
 #include "art/Framework/Principal/Actions.h"

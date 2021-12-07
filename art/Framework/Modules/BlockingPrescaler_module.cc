@@ -9,9 +9,9 @@
 // seen by this module, *not* the event number as recorded by EventID.
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/SharedFilter.h"
+#include "art/Framework/Core/fwd.h"
 #include "fhiclcpp/types/Atom.h"
 
 #include <mutex>

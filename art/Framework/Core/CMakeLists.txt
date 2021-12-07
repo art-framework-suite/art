@@ -83,7 +83,7 @@ cet_make_library(HEADERS_TARGET SOURCE
     cetlib::container_algorithms
     hep_concurrency::macros
     Boost::graph
-    Range::Range
+    range-v3::range-v3
     Boost::json
 )
 
@@ -97,20 +97,27 @@ cet_make_library(LIBRARY_NAME module INTERFACE
     art_plugin_support::support_macros
     fhiclcpp::fhiclcpp
 )
+# Custom plugin builder for art::module in Modules/art::module.cmake
+# implementing backward compatibility.
 
 foreach (prefix ED Replicated Shared "")
+  if (prefix STREQUAL "")
+    set(dir detail/)
+  else()
+    unset(dir)
+  endif()
   foreach (type Analyzer Filter Producer)
     cet_make_library(LIBRARY_NAME ${prefix}${type} INTERFACE
-      EXPORT_SET PluginTypes SOURCE ${prefix}${type}.h
-      LIBRARIES INTERFACE art_plugin_types::module
-    )
+      EXPORT_SET PluginTypes SOURCE ${dir}${prefix}${type}.h)
+    make_simple_builder(art::${prefix}${type} BASE art::module)
   endforeach()
 endforeach()
 
 cet_make_library(LIBRARY_NAME Output INTERFACE
   EXPORT_SET PluginTypes SOURCE OutputModule.h
-  LIBRARIES_INTERFACE art_plugin_types::module
+  LIBRARIES INTERFACE art_plugin_types::module
 )
+make_simple_builder(art::Output BASE art::module)
 
 cet_make_library(LIBRARY_NAME ResultsProducer INTERFACE
   EXPORT_SET PluginTypes SOURCE ResultsProducer.h
@@ -121,6 +128,7 @@ cet_make_library(LIBRARY_NAME ResultsProducer INTERFACE
     art_plugin_support::support_macros
     fhiclcpp::fhiclcpp
 )
+make_simple_builder(art::ResultsProducer BASE art::plugin)
 
 cet_make_library(LIBRARY_NAME EmptyEventTimestampPlugin INTERFACE
   EXPORT_SET PluginTypes SOURCE EmptyEventTimestampPlugin.h
@@ -131,6 +139,7 @@ cet_make_library(LIBRARY_NAME EmptyEventTimestampPlugin INTERFACE
   art_plugin_support::support_macros
   fhiclcpp::fhiclcpp
 )
+make_simple_builder(art::EmptyEventTimestampPlugin)
 
 cet_make_library(LIBRARY_NAME FileCatalogMetadataPlugin INTERFACE
   EXPORT_SET PluginTypes SOURCE FileCatalogMetadataPlugin.h
@@ -140,6 +149,7 @@ cet_make_library(LIBRARY_NAME FileCatalogMetadataPlugin INTERFACE
   art_plugin_support::plugin_config_macros
   art_plugin_support::support_macros
 )
+make_simple_builder(art::FileCatalogMetadataPlugin)
 
 cet_make_library(LIBRARY_NAME InputSource INTERFACE
   EXPORT_SET PluginTypes SOURCE InputSourceMacros.h
@@ -148,6 +158,10 @@ cet_make_library(LIBRARY_NAME InputSource INTERFACE
     art_plugin_support::plugin_config_macros
     art_plugin_support::support_macros
 )
+make_simple_builder(art::InputSource)
+
+make_simple_builder(art::DRISISource BASE art::InputSource LIBRARIES
+  CONDITIONAL art::Framework_Core)
 
 cet_make_library(LIBRARY_NAME ProducingService INTERFACE
   EXPORT_SET PluginTypes SOURCE ProducingService.h
@@ -155,6 +169,7 @@ cet_make_library(LIBRARY_NAME ProducingService INTERFACE
     art::Framework_Core
     art_plugin_types::serviceDeclaration
 )
+make_simple_builder(art::ProducingService)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

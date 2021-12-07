@@ -79,7 +79,7 @@ namespace art {
       *desc,
       std::make_unique<ProductProvenance const>(pid, productstatus::present()),
       move(wp),
-      std::make_unique<RangeSet>());
+      std::make_unique<RangeSet>(RangeSet::invalid()));
   }
 
   template <typename T, typename P>

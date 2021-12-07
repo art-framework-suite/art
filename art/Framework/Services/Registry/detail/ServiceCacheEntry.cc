@@ -92,7 +92,7 @@ namespace art::detail {
     catch (cet::exception& e) {
       throw Exception(errors::OtherArt, "ServiceCreation", e)
         << "cet::exception caught during construction of service type "
-        << cet::demangle_symbol(helper_->get_typeid().name()) << ":\n";
+        << cet::demangle_symbol(helper_->get_typeid().name()) << '\n';
     }
     catch (std::exception& e) {
       throw Exception(errors::StdException, "ServiceCreation")
@@ -108,7 +108,7 @@ namespace art::detail {
     catch (...) {
       throw Exception(errors::Unknown)
         << "String exception during construction of service type "
-        << cet::demangle_symbol(helper_->get_typeid().name()) << ":\n";
+        << cet::demangle_symbol(helper_->get_typeid().name()) << '\n';
     }
   }
 

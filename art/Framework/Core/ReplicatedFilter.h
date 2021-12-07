@@ -2,11 +2,11 @@
 #define art_Framework_Core_ReplicatedFilter_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProcessingFrame.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/EngineCreator.h"
 #include "art/Framework/Core/detail/Filter.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/fwd.h"
 #include "fhiclcpp/ParameterSet.h"
 

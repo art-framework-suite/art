@@ -14,8 +14,6 @@ namespace art {
               bpo::options_description& all_desc,
               art::OptionsHandlers&& handlers);
 
-  int run_art_string_config(std::string const& config_string);
-
   int run_art_common_(fhicl::ParameterSet const& main_pset,
                       detail::EnabledModules const& enabled_modules);
 

@@ -27,9 +27,9 @@
 #include "canvas/Utilities/TypeID.h"
 #include "fhiclcpp/ParameterSet.h"
 
+#include <exception>
 #include <map>
 #include <memory>
-#include <exception>
 #include <string>
 #include <typeinfo>
 
@@ -170,8 +170,10 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   pEvent_->setSubRunPrincipal(srp.get());
   pEvent_->createGroupsForProducedProducts(ptf().producedProducts_);
   pEvent_->enableLookupOfProducedProducts(ptf().producedProducts_);
-  pEvent_->put(
-    *pd, move(productProvenancePtr), move(product), make_unique<RangeSet>());
+  pEvent_->put(*pd,
+               move(productProvenancePtr),
+               move(product),
+               make_unique<RangeSet>(RangeSet::invalid()));
   BOOST_TEST_REQUIRE(pEvent_->size() == 5u);
 
   auto pdPtr = pEvent_->getProductDescription(i->second);

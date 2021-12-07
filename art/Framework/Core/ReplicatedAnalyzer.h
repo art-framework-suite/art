@@ -6,11 +6,11 @@
 // The base class for all replicated analyzer modules.
 // =====================================================
 
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ProcessingFrame.h"
 #include "art/Framework/Core/WorkerT.h"
 #include "art/Framework/Core/detail/Analyzer.h"
 #include "art/Framework/Core/detail/EngineCreator.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ScheduleID.h"
 #include "fhiclcpp/ParameterSet.h"

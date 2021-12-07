@@ -1,7 +1,6 @@
 #include "art/Framework/Core/PathManager.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/Frameworkfwd.h"
 #include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/PathsInfo.h"
@@ -9,6 +8,7 @@
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Framework/Core/detail/consumed_products.h"
 #include "art/Framework/Core/detail/graph_algorithms.h"
+#include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"

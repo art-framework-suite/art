@@ -1,4 +1,7 @@
-build_plugin(RandomNumberGenerator "service"
+include(art::FileDeliveryService)
+include(art::FileTransferService)
+
+cet_build_plugin(RandomNumberGenerator art::service
   LIBRARIES PUBLIC
     art::Framework_Services_Registry
     art::Persistency_Provenance
@@ -14,7 +17,7 @@ build_plugin(RandomNumberGenerator "service"
     cetlib_except::cetlib_except
 )
 
-build_plugin(TimeTracker "service"
+cet_build_plugin(TimeTracker art::service
   LIBRARIES REG
     art::Framework_Principal
     art::Framework_Services_Registry
@@ -25,7 +28,7 @@ build_plugin(TimeTracker "service"
     TBB::tbb
 )
 
-build_plugin(Tracer "service"
+cet_build_plugin(Tracer art::service
   LIBRARIES REG
     art::Framework_Principal
     art::Framework_Services_Registry
@@ -36,8 +39,7 @@ build_plugin(Tracer "service"
     fhiclcpp::types
 )
 
-build_plugin(TrivialFileTransfer "service"
-  BASE FileTransferService)
+cet_build_plugin(TrivialFileTransfer art::FileTransferService)
 
 set(mtracker_Linux_libraries
   PRIVATE
@@ -55,13 +57,13 @@ set(mtracker_Linux_libraries
 
 set(mtracker_Darwin_libraries)
 
-build_plugin(MemoryTracker "service"
+cet_build_plugin(MemoryTracker art::service
   REG_SOURCE MemoryTracker${CMAKE_SYSTEM_NAME}_service.cc
   LIBRARIES PRIVATE
     ${mtracker_${CMAKE_SYSTEM_NAME}_libraries}
 )
 
-build_plugin(TrivialFileDelivery "service" BASE FileDeliveryService)
+cet_build_plugin(TrivialFileDelivery art::FileDeliveryService)
 
 install_headers(SUBDIRS detail)
 install_source(SUBDIRS detail)

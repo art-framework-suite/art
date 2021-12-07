@@ -14,13 +14,13 @@
 cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
 find_package(cetmodules 2.13.00 REQUIRED)
-project(art VERSION 3.09.03 LANGUAGES CXX C)
+project(art VERSION 3.10.00 LANGUAGES CXX C)
 
 include(CetCMakeEnv)
 cet_cmake_env()
 
 # Find our own CMake modules, and tell everyone else where to find them.
-cet_cmake_module_directories(Modules)
+cet_cmake_module_directories(Modules BINARY)
 
 cet_set_compiler_flags(DIAGS VIGILANT
   WERROR
@@ -49,16 +49,16 @@ cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
 
 cet_register_export_set(SET_NAME art NAMESPACE art)
 
+# source
+add_subdirectory(art)
+
+# CMake modules -- must be after plugin builders have been defined.
+add_subdirectory(Modules)
+
 # Plugin skeleton generators for cetskelgen.
 add_subdirectory(perllib)
 
 # tools
 add_subdirectory(tools)
-
-# source
-add_subdirectory(art)
-
-# CMake modules
-add_subdirectory(Modules)
 
 cet_cmake_config()

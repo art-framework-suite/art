@@ -36,6 +36,8 @@ endfunction()
 set(filterOutputModule "${CMAKE_CURRENT_SOURCE_DIR}/filterOutputModule")
 ########################################################################
 
+include(BuildPlugins)
+
 add_subdirectory(TestObjects)
 
 add_subdirectory(Configuration)
