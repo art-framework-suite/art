@@ -3,6 +3,7 @@
 
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Principal.h"
+#include "art/Framework/Principal/RangeSetsSupported.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
@@ -37,14 +38,12 @@ namespace art {
   DataViewImpl::DataViewImpl(BranchType const bt,
                              Principal const& principal,
                              ModuleContext const& mc,
-                             bool const recordParents,
-                             RangeSet const& rs /* = RangeSet::invalid() */)
+                             bool const recordParents)
     : branchType_{bt}
     , principal_{principal}
     , mc_{mc}
     , md_{mc.moduleDescription()}
     , recordParents_{recordParents}
-    , rangeSet_{rs}
   {}
 
   RunID

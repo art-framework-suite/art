@@ -44,7 +44,6 @@ namespace art {
     using DataViewImpl::getProductTokens;
     using DataViewImpl::getValidHandle;
     using DataViewImpl::getView;
-    using DataViewImpl::put;
 
     Run const& getRun() const;
     using DataViewImpl::getProductDescription;
@@ -57,15 +56,136 @@ namespace art {
     // Obsolete interface (will be deprecated)
     using DataViewImpl::get;
     using DataViewImpl::getByLabel;
-    using DataViewImpl::getByToken;
-    using DataViewImpl::getManyByType;
-    using DataViewImpl::getPointerByLabel;
 
     using DataViewImpl::movePutProductsToPrincipal;
 
+    // Product insertion - subrun
+    template <typename PROD>
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  std::string const& instance = {});
+    template <typename PROD>
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  FullSemantic<Level::SubRun> semantic);
+    template <typename PROD>
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  FragmentSemantic<Level::SubRun> semantic);
+    template <typename PROD>
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  RangedFragmentSemantic<Level::SubRun> semantic);
+    template <typename PROD>
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  std::string const& instance,
+                  FullSemantic<Level::SubRun>);
+    template <typename PROD>
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  std::string const& instance,
+                  FragmentSemantic<Level::SubRun>);
+    template <typename PROD>
+    ProductID put(std::unique_ptr<PROD>&& edp,
+                  std::string const& instance,
+                  RangedFragmentSemantic<Level::SubRun> semantic);
+
   private:
     std::unique_ptr<Run const> const run_;
+    // The RangeSet to be used by any products put by the user.
+    // Cannot be const because we call collapse() on it.
+    RangeSet rangeSet_;
   };
+
+  template <typename PROD>
+  ProductID
+  SubRun::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
+  {
+    // Should be protected when a SubRun is shared among threads.
+    return DataViewImpl::put(move(edp), instance, rangeSet_.collapse());
+  }
+
+  template <typename PROD>
+  ProductID
+  SubRun::put(std::unique_ptr<PROD>&& edp,
+              FullSemantic<Level::SubRun> const semantic)
+  {
+    return put(move(edp), "", semantic);
+  }
+
+  template <typename PROD>
+  ProductID
+  SubRun::put(std::unique_ptr<PROD>&& edp,
+              FragmentSemantic<Level::SubRun> const semantic)
+  {
+    return put(move(edp), "", semantic);
+  }
+
+  template <typename PROD>
+  ProductID
+  SubRun::put(std::unique_ptr<PROD>&& edp,
+              RangedFragmentSemantic<Level::SubRun> semantic)
+  {
+    return put(move(edp), "", std::move(semantic));
+  }
+
+  template <typename PROD>
+  ProductID
+  SubRun::put(std::unique_ptr<PROD>&& edp,
+              std::string const& instance,
+              FullSemantic<Level::SubRun>)
+  {
+    return DataViewImpl::put(move(edp), instance, RangeSet::forSubRun(id()));
+  }
+
+  template <typename PROD>
+  ProductID
+  SubRun::put(std::unique_ptr<PROD>&& edp,
+              std::string const& instance,
+              FragmentSemantic<Level::SubRun>)
+  {
+    static_assert(
+      detail::CanBeAggregated<PROD>::value,
+      "\n\n"
+      "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
+      "           must be able to be aggregated. Please add the appropriate\n"
+      "              void aggregate(T const&)\n"
+      "           function to your class, or contact artists@fnal.gov.\n");
+    if (rangeSet_.collapse().is_full_subRun()) {
+      throw Exception(errors::ProductPutFailure, "SubRun::put")
+        << "\nCannot put a product corresponding to a full SubRun using\n"
+        << "art::subRunFragment().  This can happen if you attempted to\n"
+        << "put a product at beginSubRun using art::subRunFragment().\n"
+        << "Please use either:\n"
+        << "   art::fullSubRun(), or\n"
+        << "   art::subRunFragment(art::RangeSet const&)\n"
+        << "or contact artists@fnal.gov for assistance.\n";
+    }
+    return DataViewImpl::put(move(edp), instance, rangeSet_);
+  }
+
+  template <typename PROD>
+  ProductID
+  SubRun::put(std::unique_ptr<PROD>&& edp,
+              std::string const& instance,
+              RangedFragmentSemantic<Level::SubRun> semantic)
+  {
+    static_assert(
+      detail::CanBeAggregated<PROD>::value,
+      "\n\n"
+      "art error: A SubRun product put with the semantic 'SubRunFragment'\n"
+      "           must be able to be aggregated. Please add the appropriate\n"
+      "              void aggregate(T const&)\n"
+      "           function to your class, or contact artists@fnal.gov.\n");
+    if (semantic.rs.collapse().is_full_subRun()) {
+      throw Exception{errors::ProductPutFailure, "SubRun::put"}
+        << "\nCannot put a product corresponding to a full SubRun using\n"
+        << "art::subRunFragment(art::RangeSet&).  Please use:\n"
+        << "   art::fullSubRun()\n"
+        << "or contact artists@fnal.gov for assistance.\n";
+    }
+    if (!semantic.rs.is_valid()) {
+      throw Exception{errors::ProductPutFailure, "SubRun::put"}
+        << "\nCannot put a product with an invalid RangeSet.\n"
+        << "Please contact artists@fnal.gov.\n";
+    }
+    return DataViewImpl::put(move(edp), instance, semantic.rs);
+  }
 
 } // namespace art
 

@@ -12,9 +12,10 @@ namespace art {
   SubRun::SubRun(SubRunPrincipal const& srp,
                  ModuleContext const& mc,
                  RangeSet const& rs /* = RangeSet::invalid() */)
-    : DataViewImpl{InSubRun, srp, mc, false, rs}
+    : DataViewImpl{InSubRun, srp, mc, false}
     , run_{srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), mc} :
                                          nullptr}
+    , rangeSet_{rs}
   {}
 
   SubRunID

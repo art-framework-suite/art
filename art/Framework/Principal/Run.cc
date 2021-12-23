@@ -10,7 +10,8 @@ namespace art {
   Run::Run(RunPrincipal const& rp,
            ModuleContext const& mc,
            RangeSet const& rs /*= RangeSet::invalid()*/)
-    : DataViewImpl{InRun, rp, mc, false, rs}
+    : DataViewImpl{InRun, rp, mc, false}
+    , rangeSet_{rs}
   {}
 
   RunID

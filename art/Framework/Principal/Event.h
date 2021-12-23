@@ -68,9 +68,6 @@ namespace art {
     // Obsolete interface (will be deprecated)
     using DataViewImpl::get;
     using DataViewImpl::getByLabel;
-    using DataViewImpl::getByToken;
-    using DataViewImpl::getManyByType;
-    using DataViewImpl::getPointerByLabel;
 
     using DataViewImpl::movePutProductsToPrincipal;
 
