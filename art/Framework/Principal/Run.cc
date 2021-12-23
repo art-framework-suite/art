@@ -10,14 +10,37 @@ namespace art {
   Run::Run(RunPrincipal const& rp,
            ModuleContext const& mc,
            RangeSet const& rs /*= RangeSet::invalid()*/)
-    : DataViewImpl{InRun, rp, mc, false}
-    , rangeSet_{rs}
+    : DataViewImpl{InRun, rp, mc, false}, runPrincipal_{rp}, rangeSet_{rs}
   {}
 
   RunID
   Run::id() const
   {
-    return DataViewImpl::runID();
+    return runPrincipal_.runID();
+  }
+
+  RunNumber_t
+  Run::run() const
+  {
+    return id().run();
+  }
+
+  Timestamp const&
+  Run::beginTime() const
+  {
+    return runPrincipal_.beginTime();
+  }
+
+  Timestamp const&
+  Run::endTime() const
+  {
+    return runPrincipal_.endTime();
+  }
+
+  ProcessHistory const&
+  Run::processHistory() const
+  {
+    return runPrincipal_.processHistory();
   }
 
 } // namespace art

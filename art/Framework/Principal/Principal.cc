@@ -14,8 +14,6 @@
 #include "canvas/Persistency/Common/WrappedTypeID.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/EventAuxiliary.h"
-#include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
@@ -23,9 +21,6 @@
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
-#include "canvas/Persistency/Provenance/RunAuxiliary.h"
-#include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/fwd.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
@@ -126,117 +121,17 @@ namespace art {
                        ProcessConfiguration const& pc,
                        cet::exempt_ptr<ProductTable const> presentProducts,
                        ProcessHistoryID const& hist,
-                       std::unique_ptr<DelayedReader>&& reader)
+                       std::unique_ptr<DelayedReader>&&
+                         reader /* = std::make_unique<NoDelayedReader>() */)
     : branchType_{branchType}
     , processConfiguration_{pc}
-    , delayedReader_{std::move(reader)}
+    , presentProducts_{presentProducts.get()}
+    , delayedReader_{move(reader)}
   {
-    processHistoryModified_ = false;
-    presentProducts_ = presentProducts.get();
-    producedProducts_ = nullptr;
-    enableLookupOfProducedProducts_ = false;
     delayedReader_->setPrincipal(this);
-    eventAux_ = nullptr;
-    subRunPrincipal_ = nullptr;
     ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(hist);
-  }
-
-  // Run
-  Principal::Principal(RunAuxiliary const& aux,
-                       ProcessConfiguration const& pc,
-                       cet::exempt_ptr<ProductTable const> presentProducts,
-                       std::unique_ptr<DelayedReader>&&
-                         reader /* = std::make_unique<NoDelayedReader>() */)
-    : branchType_{InRun}
-    , processConfiguration_{pc}
-    , delayedReader_{std::move(reader)}
-    , runAux_{aux}
-  {
-    processHistoryModified_ = false;
-    presentProducts_ = presentProducts.get();
-    producedProducts_ = nullptr;
-    enableLookupOfProducedProducts_ = false;
-    delayedReader_->setPrincipal(this);
-    eventAux_ = nullptr;
-    subRunPrincipal_ = nullptr;
-    ctor_create_groups(presentProducts);
-    ctor_read_provenance();
-    ctor_fetch_process_history(runAux_.processHistoryID());
-  }
-
-  // SubRun
-  Principal::Principal(SubRunAuxiliary const& aux,
-                       ProcessConfiguration const& pc,
-                       cet::exempt_ptr<ProductTable const> presentProducts,
-                       std::unique_ptr<DelayedReader>&&
-                         reader /* = std::make_unique<NoDelayedReader>() */)
-    : branchType_{InSubRun}
-    , processConfiguration_{pc}
-    , delayedReader_{std::move(reader)}
-    , subRunAux_{aux}
-  {
-    processHistoryModified_ = false;
-    presentProducts_ = presentProducts.get();
-    producedProducts_ = nullptr;
-    enableLookupOfProducedProducts_ = false;
-    delayedReader_->setPrincipal(this);
-    eventAux_ = nullptr;
-    subRunPrincipal_ = nullptr;
-    ctor_create_groups(presentProducts);
-    ctor_read_provenance();
-    ctor_fetch_process_history(subRunAux_.processHistoryID());
-  }
-
-  // Event
-  Principal::Principal(
-    EventAuxiliary const& aux,
-    ProcessConfiguration const& pc,
-    cet::exempt_ptr<ProductTable const> presentProducts,
-    std::unique_ptr<History>&& history /* = std::make_unique<History>() */,
-    std::unique_ptr<DelayedReader>&&
-      reader /* = std::make_unique<NoDelayedReader>() */,
-    bool const lastInSubRun /* = false */)
-    : branchType_{InEvent}
-    , processConfiguration_{pc}
-    , delayedReader_{std::move(reader)}
-    , history_{move(history)}
-    , lastInSubRun_{lastInSubRun}
-  {
-    processHistoryModified_ = false;
-    presentProducts_ = presentProducts.get();
-    producedProducts_ = nullptr;
-    enableLookupOfProducedProducts_ = false;
-    delayedReader_->setPrincipal(this);
-    eventAux_ = new EventAuxiliary(aux);
-    subRunPrincipal_ = nullptr;
-    ctor_create_groups(presentProducts);
-    ctor_read_provenance();
-    ctor_fetch_process_history(history_->processHistoryID());
-  }
-
-  // Results
-  Principal::Principal(ResultsAuxiliary const& aux,
-                       ProcessConfiguration const& pc,
-                       cet::exempt_ptr<ProductTable const> presentProducts,
-                       std::unique_ptr<DelayedReader>&&
-                         reader /* = std::make_unique<NoDelayedReader>() */)
-    : branchType_{InResults}
-    , processConfiguration_{pc}
-    , delayedReader_{std::move(reader)}
-    , resultsAux_{aux}
-  {
-    processHistoryModified_ = false;
-    presentProducts_ = presentProducts.get();
-    producedProducts_ = nullptr;
-    enableLookupOfProducedProducts_ = false;
-    delayedReader_->setPrincipal(this);
-    eventAux_ = nullptr;
-    subRunPrincipal_ = nullptr;
-    ctor_create_groups(presentProducts);
-    ctor_read_provenance();
-    ctor_fetch_process_history(resultsAux_.processHistoryID());
   }
 
   void
@@ -267,20 +162,6 @@ namespace art {
 
     unique_ptr<Group> group = create_group(delayedReader_.get(), pd);
     groups_[pd.productID()] = move(group);
-  }
-
-  void
-  Principal::setProcessHistoryIDcombined(ProcessHistoryID const& phid)
-  {
-    if (branchType_ == InRun) {
-      runAux_.setProcessHistoryID(phid);
-    } else if (branchType_ == InSubRun) {
-      subRunAux_.setProcessHistoryID(phid);
-    } else if (branchType_ == InEvent) {
-      history_->setProcessHistoryID(phid);
-    } else {
-      resultsAux_.setProcessHistoryID(phid);
-    }
   }
 
   // FIXME: This breaks the purpose of the
@@ -594,12 +475,6 @@ namespace art {
       // one Event.
       auto const phid = processHistory_.id();
       ProcessHistoryRegistry::emplace(phid, processHistory_);
-      // MT note: We must protect processHistory_!  The id() call can
-      //          modify it! Note: threading: We are modifying Run,
-      //          SubRun, Event, and Results principals here, and
-      //          their *Auxiliary Note: threading: and the event
-      //          principal art::History.
-      setProcessHistoryIDcombined(processHistory_.id());
     }
   }
 
@@ -840,40 +715,6 @@ namespace art {
     return found;
   }
 
-  SubRunPrincipal const&
-  Principal::subRunPrincipal() const
-  {
-    if (subRunPrincipal_.load() == nullptr) {
-      throw Exception(errors::NullPointerError)
-        << "Tried to obtain a NULL subRunPrincipal.\n";
-    }
-    return *subRunPrincipal_.load();
-  }
-
-  cet::exempt_ptr<RunPrincipal const>
-  Principal::runPrincipalExemptPtr() const
-  {
-    return runPrincipal_;
-  }
-
-  SubRunPrincipal const*
-  Principal::subRunPrincipalPtr() const
-  {
-    return subRunPrincipal_.load();
-  }
-
-  void
-  Principal::setRunPrincipal(cet::exempt_ptr<RunPrincipal const> rp)
-  {
-    runPrincipal_ = rp;
-  }
-
-  void
-  Principal::setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal const> srp)
-  {
-    subRunPrincipal_ = srp.get();
-  }
-
   RangeSet
   Principal::seenRanges() const
   {
@@ -884,46 +725,6 @@ namespace art {
   Principal::updateSeenRanges(RangeSet const& rs)
   {
     rangeSet_ = rs;
-  }
-
-  bool
-  Principal::isReal() const
-  {
-    return eventAux_.load()->isRealData();
-  }
-
-  EventAuxiliary::ExperimentType
-  Principal::ExperimentType() const
-  {
-    return eventAux_.load()->experimentType();
-  }
-
-  History const&
-  Principal::history() const
-  {
-    return *history_;
-  }
-
-  EventSelectionIDVector const&
-  Principal::eventSelectionIDs() const
-  {
-    return history_->eventSelectionIDs();
-  }
-
-  RunPrincipal const&
-  Principal::runPrincipal() const
-  {
-    if (!runPrincipal_) {
-      throw Exception(errors::NullPointerError)
-        << "Tried to obtain a NULL runPrincipal.\n";
-    }
-    return *runPrincipal_;
-  }
-
-  bool
-  Principal::isLastInSubRun() const
-  {
-    return lastInSubRun_;
   }
 
   void
@@ -1022,109 +823,6 @@ namespace art {
   Principal::branchType() const
   {
     return branchType_;
-  }
-
-  RunAuxiliary const&
-  Principal::runAux() const
-  {
-    return runAux_;
-  }
-
-  SubRunAuxiliary const&
-  Principal::subRunAux() const
-  {
-    return subRunAux_;
-  }
-
-  EventAuxiliary const&
-  Principal::eventAux() const
-  {
-    return *eventAux_.load();
-  }
-
-  ResultsAuxiliary const&
-  Principal::resultsAux() const
-  {
-    return resultsAux_;
-  }
-
-  RunID const&
-  Principal::runID() const
-  {
-    return runAux_.id();
-  }
-
-  SubRunID
-  Principal::subRunID() const
-  {
-    return subRunAux_.id();
-  }
-
-  EventID const&
-  Principal::eventID() const
-  {
-    return eventAux_.load()->id();
-  }
-
-  RunNumber_t
-  Principal::run() const
-  {
-    if (branchType_ == InRun) {
-      return runAux_.run();
-    }
-    if (branchType_ == InSubRun) {
-      return subRunAux_.run();
-    }
-    return eventAux_.load()->id().run();
-  }
-
-  SubRunNumber_t
-  Principal::subRun() const
-  {
-    if (branchType_ == InSubRun) {
-      return subRunAux_.subRun();
-    }
-    return eventAux_.load()->id().subRun();
-  }
-
-  EventNumber_t
-  Principal::event() const
-  {
-    return eventAux_.load()->id().event();
-  }
-
-  Timestamp const&
-  Principal::beginTime() const
-  {
-    if (branchType_ == InRun) {
-      return runAux_.beginTime();
-    }
-    return subRunAux_.beginTime();
-  }
-
-  Timestamp const&
-  Principal::endTime() const
-  {
-    if (branchType_ == InRun) {
-      return runAux_.endTime();
-    }
-    return subRunAux_.endTime();
-  }
-
-  void
-  Principal::endTime(Timestamp const& time)
-  {
-    if (branchType_ == InRun) {
-      runAux_.endTime(time);
-      return;
-    }
-    subRunAux_.setEndTime(time);
-  }
-
-  Timestamp const&
-  Principal::time() const
-  {
-    return eventAux_.load()->time();
   }
 
   bool

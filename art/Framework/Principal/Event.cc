@@ -26,14 +26,70 @@ namespace art {
 
   Event::Event(EventPrincipal const& ep, ModuleContext const& mc)
     : DataViewImpl{InEvent, ep, mc, record_parents(this)}
-    , subRun_{ep.subRunPrincipalPtr() ? new SubRun{ep.subRunPrincipal(), mc} :
-                                        nullptr}
+    , eventPrincipal_{ep}
+    , subRun_{ep.subRunPrincipalExemptPtr() ?
+                new SubRun{ep.subRunPrincipal(), mc} :
+                nullptr}
   {}
 
   EventID
   Event::id() const
   {
-    return DataViewImpl::eventID();
+    return eventPrincipal_.eventID();
+  }
+
+  RunNumber_t
+  Event::run() const
+  {
+    return id().run();
+  }
+
+  SubRunNumber_t
+  Event::subRun() const
+  {
+    return id().subRun();
+  }
+
+  EventNumber_t
+  Event::event() const
+  {
+    return id().event();
+  }
+
+  Timestamp
+  Event::time() const
+  {
+    return eventPrincipal_.time();
+  }
+
+  bool
+  Event::isRealData() const
+  {
+    return eventPrincipal_.isReal();
+  }
+
+  EventAuxiliary::ExperimentType
+  Event::experimentType() const
+  {
+    return eventPrincipal_.ExperimentType();
+  }
+
+  History const&
+  Event::history() const
+  {
+    return eventPrincipal_.history();
+  }
+
+  ProcessHistoryID const&
+  Event::processHistoryID() const
+  {
+    return history().processHistoryID();
+  }
+
+  ProcessHistory const&
+  Event::processHistory() const
+  {
+    return eventPrincipal_.processHistory();
   }
 
   SubRun const&

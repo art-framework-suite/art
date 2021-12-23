@@ -1,14 +1,9 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 // vim: set sw=2 expandtab :
 
-using namespace std;
-
 namespace art {
 
-  class ProcessConfiguration;
-  class RunAuxiliary;
-
-  RunPrincipal::~RunPrincipal() {}
+  RunPrincipal::~RunPrincipal() = default;
 
   RunPrincipal::RunPrincipal(
     RunAuxiliary const& aux,
@@ -16,7 +11,49 @@ namespace art {
     cet::exempt_ptr<ProductTable const> presentProducts,
     std::unique_ptr<DelayedReader>&&
       reader /*= std::make_unique<NoDelayedReader>()*/)
-    : Principal{aux, pc, presentProducts, move(reader)}
+    : Principal{InRun,
+                pc,
+                presentProducts,
+                aux.processHistoryID(),
+                move(reader)}
+    , aux_{aux}
   {}
 
+  Timestamp const&
+  RunPrincipal::beginTime() const
+  {
+    return aux_.beginTime();
+  }
+
+  Timestamp const&
+  RunPrincipal::endTime() const
+  {
+    return aux_.endTime();
+  }
+
+  RunAuxiliary const&
+  RunPrincipal::runAux() const
+  {
+    return aux_;
+  }
+
+  RunID
+  RunPrincipal::runID() const
+  {
+    return aux_.id();
+  }
+
+  RunNumber_t
+  RunPrincipal::run() const
+  {
+    return aux_.run();
+  }
+
+  void
+  RunPrincipal::createGroupsForProducedProducts(
+    ProductTables const& producedProducts)
+  {
+    Principal::createGroupsForProducedProducts(producedProducts);
+    aux_.setProcessHistoryID(processHistoryID());
+  }
 } // namespace art

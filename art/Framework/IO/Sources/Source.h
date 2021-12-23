@@ -342,7 +342,7 @@ namespace art {
   }
 
   template <typename T>
-  void
+  [[noreturn]] void
   Source<T>::throwDataCorruption_(const char* msg)
   {
     throw Exception(errors::DataCorruption) << msg;
@@ -446,7 +446,7 @@ namespace art {
           throwDataCorruption_(
             "readNext returned an Event with an invalid EventID.\n");
         }
-        if (newE->subRunPrincipalPtr()) {
+        if (newE->subRunPrincipalExemptPtr()) {
           throwDataCorruption_(
             "readNext returned an Event with a non-null embedded SubRun.\n");
         }

@@ -12,6 +12,7 @@
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Utilities/ProductSemantics.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 
 #include <memory>
@@ -32,10 +33,11 @@ namespace art {
     SubRun& operator=(SubRun&&) = delete;
 
     SubRunID id() const;
-    using DataViewImpl::beginTime;
-    using DataViewImpl::endTime;
-    using DataViewImpl::run;
-    using DataViewImpl::subRun;
+    RunNumber_t run() const;
+    SubRunNumber_t subRun() const;
+    Timestamp const& beginTime() const;
+    Timestamp const& endTime() const;
+    ProcessHistory const& processHistory() const;
 
     using DataViewImpl::getHandle;
     using DataViewImpl::getInputTags;
@@ -49,7 +51,6 @@ namespace art {
     using DataViewImpl::getProductDescription;
     using DataViewImpl::getProductID;
 
-    using DataViewImpl::processHistory;
     using DataViewImpl::productGetter;
     using DataViewImpl::removeCachedProduct;
 
@@ -86,6 +87,7 @@ namespace art {
                   RangedFragmentSemantic<Level::SubRun> semantic);
 
   private:
+    SubRunPrincipal const& subRunPrincipal_;
     std::unique_ptr<Run const> const run_;
     // The RangeSet to be used by any products put by the user.
     // Cannot be const because we call collapse() on it.

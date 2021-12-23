@@ -45,13 +45,13 @@ namespace {
     auto const bt = principal.branchType();
     switch (bt) {
     case art::InRun:
-      result << principal.runID();
+      result << static_cast<art::RunPrincipal const&>(principal).runID();
       break;
     case art::InSubRun:
-      result << principal.subRunID();
+      result << static_cast<art::SubRunPrincipal const&>(principal).subRunID();
       break;
     case art::InEvent:
-      result << principal.eventID();
+      result << static_cast<art::EventPrincipal const&>(principal).eventID();
       break;
     default: {}
     }

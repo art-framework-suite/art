@@ -11,6 +11,7 @@
 
 #include "art/Framework/Principal/DataViewImpl.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Utilities/ProductSemantics.h"
 
 namespace art {
 
@@ -28,9 +29,10 @@ namespace art {
     Run& operator=(Run&&) = delete;
 
     RunID id() const;
-    using DataViewImpl::beginTime;
-    using DataViewImpl::endTime;
-    using DataViewImpl::run;
+    RunNumber_t run() const;
+    Timestamp const& beginTime() const;
+    Timestamp const& endTime() const;
+    ProcessHistory const& processHistory() const;
 
     using DataViewImpl::getHandle;
     using DataViewImpl::getInputTags;
@@ -44,7 +46,6 @@ namespace art {
     using DataViewImpl::getProductID;
 
     using DataViewImpl::getProcessParameterSet;
-    using DataViewImpl::processHistory;
     using DataViewImpl::productGetter;
     using DataViewImpl::removeCachedProduct;
 
@@ -81,6 +82,7 @@ namespace art {
                   RangedFragmentSemantic<Level::Run> semantic);
 
   private:
+    RunPrincipal const& runPrincipal_;
     // The RangeSet to be used by any products put by the user.
     // Cannot be const because we call collapse() on it.
     RangeSet rangeSet_;

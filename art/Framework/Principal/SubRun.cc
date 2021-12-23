@@ -13,6 +13,7 @@ namespace art {
                  ModuleContext const& mc,
                  RangeSet const& rs /* = RangeSet::invalid() */)
     : DataViewImpl{InSubRun, srp, mc, false}
+    , subRunPrincipal_{srp}
     , run_{srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), mc} :
                                          nullptr}
     , rangeSet_{rs}
@@ -21,7 +22,37 @@ namespace art {
   SubRunID
   SubRun::id() const
   {
-    return DataViewImpl::subRunID();
+    return subRunPrincipal_.subRunID();
+  }
+
+  RunNumber_t
+  SubRun::run() const
+  {
+    return id().run();
+  }
+
+  RunNumber_t
+  SubRun::subRun() const
+  {
+    return id().subRun();
+  }
+
+  Timestamp const&
+  SubRun::beginTime() const
+  {
+    return subRunPrincipal_.beginTime();
+  }
+
+  Timestamp const&
+  SubRun::endTime() const
+  {
+    return subRunPrincipal_.endTime();
+  }
+
+  ProcessHistory const&
+  SubRun::processHistory() const
+  {
+    return subRunPrincipal_.processHistory();
   }
 
   Run const&

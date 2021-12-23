@@ -8,21 +8,18 @@
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
+#include "canvas/Persistency/Provenance/fwd.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
 
 namespace art {
 
-  class ProcessConfiguration;
-
   class EventPrincipal final : public Principal {
-
   public:
     using Auxiliary = EventAuxiliary;
     static constexpr BranchType branch_type = Auxiliary::branch_type;
 
-  public:
     ~EventPrincipal();
     EventPrincipal(
       EventAuxiliary const& aux,
@@ -32,6 +29,29 @@ namespace art {
       std::unique_ptr<DelayedReader>&& rtrv =
         std::make_unique<NoDelayedReader>(),
       bool lastInSubRun = false);
+
+    EventAuxiliary const& eventAux() const;
+    EventID const& eventID() const;
+    EventNumber_t event() const;
+
+    Timestamp const& time() const;
+
+    SubRunPrincipal const& subRunPrincipal() const;
+    cet::exempt_ptr<SubRunPrincipal const> subRunPrincipalExemptPtr() const;
+    void setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal const> srp);
+    EventAuxiliary::ExperimentType ExperimentType() const;
+    bool isReal() const;
+    bool isLastInSubRun() const;
+    History const& history() const;
+    EventSelectionIDVector const& eventSelectionIDs() const;
+
+    void createGroupsForProducedProducts(ProductTables const& producedProducts);
+
+  private:
+    cet::exempt_ptr<SubRunPrincipal const> subRunPrincipal_{nullptr};
+    EventAuxiliary aux_;
+    std::unique_ptr<History> history_;
+    bool lastInSubRun_;
   };
 
 } // namespace art

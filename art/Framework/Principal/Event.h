@@ -14,6 +14,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/fwd.h"
 #include "canvas/Persistency/Provenance/EventID.h"
+#include "canvas/Persistency/Provenance/History.h"
 
 #include <memory>
 
@@ -34,18 +35,19 @@ namespace art {
     Event& operator=(Event&&) = delete;
 
     EventID id() const;
-    using DataViewImpl::event;
-    using DataViewImpl::experimentType;
-    using DataViewImpl::isRealData;
-    using DataViewImpl::run;
-    using DataViewImpl::subRun;
-    using DataViewImpl::time;
+    RunNumber_t run() const;
+    SubRunNumber_t subRun() const;
+    EventNumber_t event() const;
+    Timestamp time() const;
+    bool isRealData() const;
+    EventAuxiliary::ExperimentType experimentType() const;
 
     SubRun const& getSubRun() const;
     Run const& getRun() const;
 
-    using DataViewImpl::history;
-    using DataViewImpl::processHistoryID;
+    History const& history() const;
+    ProcessHistory const& processHistory() const;
+    ProcessHistoryID const& processHistoryID() const;
 
     using DataViewImpl::put;
 
@@ -61,7 +63,6 @@ namespace art {
     using DataViewImpl::getProductID;
 
     using DataViewImpl::getProcessParameterSet;
-    using DataViewImpl::processHistory;
     using DataViewImpl::productGetter;
     using DataViewImpl::removeCachedProduct;
 
@@ -72,6 +73,7 @@ namespace art {
     using DataViewImpl::movePutProductsToPrincipal;
 
   private:
+    EventPrincipal const& eventPrincipal_;
     std::unique_ptr<SubRun const> const subRun_;
   };
 

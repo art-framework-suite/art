@@ -46,104 +46,6 @@ namespace art {
     , recordParents_{recordParents}
   {}
 
-  RunID
-  DataViewImpl::runID() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.runID();
-  }
-
-  SubRunID
-  DataViewImpl::subRunID() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.subRunID();
-  }
-
-  EventID
-  DataViewImpl::eventID() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.eventID();
-  }
-
-  RunNumber_t
-  DataViewImpl::run() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.run();
-  }
-
-  SubRunNumber_t
-  DataViewImpl::subRun() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.subRun();
-  }
-
-  EventNumber_t
-  DataViewImpl::event() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.event();
-  }
-
-  Timestamp const&
-  DataViewImpl::beginTime() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.beginTime();
-  }
-
-  Timestamp const&
-  DataViewImpl::endTime() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.endTime();
-  }
-
-  Timestamp
-  DataViewImpl::time() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.time();
-  }
-
-  bool
-  DataViewImpl::isRealData() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.isReal();
-  }
-
-  EventAuxiliary::ExperimentType
-  DataViewImpl::experimentType() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.ExperimentType();
-  }
-
-  History const&
-  DataViewImpl::history() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.history();
-  }
-
-  ProcessHistoryID const&
-  DataViewImpl::processHistoryID() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.history().processHistoryID();
-  }
-
-  ProcessHistory const&
-  DataViewImpl::processHistory() const
-  {
-    std::lock_guard lock{mutex_};
-    return principal_.processHistory();
-  }
-
   EDProductGetter const*
   DataViewImpl::productGetter(ProductID const pid) const
   {
@@ -160,10 +62,9 @@ namespace art {
       return false;
     }
     ProcessHistory ph;
-    if (!ProcessHistoryRegistry::get(principal_.history().processHistoryID(),
-                                     ph)) {
+    if (!ProcessHistoryRegistry::get(principal_.processHistoryID(), ph)) {
       throw Exception(errors::NotFound)
-        << "ProcessHistoryID " << principal_.history().processHistoryID()
+        << "ProcessHistoryID " << principal_.processHistoryID()
         << " is not found in the ProcessHistoryRegistry.\n"
         << "This file is malformed.\n";
     }

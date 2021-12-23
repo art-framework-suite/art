@@ -13,7 +13,6 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/fwd.h"
-#include "art/Utilities/ProductSemantics.h"
 #include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Common/WrappedTypeID.h"
 #include "canvas/Persistency/Common/Wrapper.h"
@@ -21,12 +20,9 @@
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
-#include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductToken.h"
-#include "canvas/Persistency/Provenance/RunID.h"
-#include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Persistency/Provenance/Timestamp.h"
 #include "canvas/Persistency/Provenance/TypeLabel.h"
 #include "canvas/Persistency/Provenance/canonicalProductName.h"
@@ -81,20 +77,6 @@ namespace art {
     DataViewImpl& operator=(DataViewImpl&) = delete;
 
     // Miscellaneous functionality
-    RunID runID() const;
-    SubRunID subRunID() const;
-    EventID eventID() const;
-    RunNumber_t run() const;
-    SubRunNumber_t subRun() const;
-    EventNumber_t event() const;
-    Timestamp const& beginTime() const;
-    Timestamp const& endTime() const;
-    Timestamp time() const;
-    bool isRealData() const;
-    EventAuxiliary::ExperimentType experimentType() const;
-    History const& history() const;
-    ProcessHistoryID const& processHistoryID() const;
-    ProcessHistory const& processHistory() const;
     template <typename PROD>
     bool removeCachedProduct(Handle<PROD>&) const;
     EDProductGetter const* productGetter(ProductID const pid) const;
