@@ -153,23 +153,6 @@ namespace art {
     template <typename PROD>
     bool getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
-    // Deprecated
-    template <typename PROD>
-    [[deprecated(
-      "\n\nart warning: Please use getHandle<T>(token) instead.\n\n")]] bool
-    getByToken(ProductToken<PROD> const& token, Handle<PROD>& result) const;
-    template <typename PROD>
-    [[deprecated("\n\nart warning: Please use getHandle<T>(tag).product() "
-                 "instead.\n\n")]] PROD const*
-    getPointerByLabel(InputTag const& tag) const;
-    template <typename PROD>
-    [[deprecated(
-      "\n\nart warning: Please use getMany<T>(selector) instead.\n\n")]] void
-    getMany(SelectorBase const&, std::vector<Handle<PROD>>& results) const;
-    template <typename PROD>
-    [[deprecated("\n\nart warning: Please use getMany<T>() instead.\n\n")]] void
-    getManyByType(std::vector<Handle<PROD>>& results) const;
-
     // View retrieval
     template <typename ELEMENT>
     std::size_t getView(std::string const& moduleLabel,
@@ -644,39 +627,6 @@ namespace art {
   {
     result = getHandle<PROD>(tag);
     return static_cast<bool>(result);
-  }
-
-  template <typename PROD>
-  PROD const*
-  DataViewImpl::getPointerByLabel(InputTag const& tag) const
-  {
-    Handle<PROD> h;
-    getByLabel(tag, h);
-    return h.product();
-  }
-
-  template <typename PROD>
-  bool
-  DataViewImpl::getByToken(ProductToken<PROD> const& token,
-                           Handle<PROD>& result) const
-  {
-    result = getHandle(token);
-    return static_cast<bool>(result);
-  }
-
-  template <typename PROD>
-  void
-  DataViewImpl::getMany(SelectorBase const& sel,
-                        std::vector<Handle<PROD>>& results) const
-  {
-    results = getMany<PROD>(sel);
-  }
-
-  template <typename PROD>
-  void
-  DataViewImpl::getManyByType(std::vector<Handle<PROD>>& results) const
-  {
-    results = getMany<PROD>();
   }
 
   // =======================================================================
