@@ -17,6 +17,21 @@
 
 #include <memory>
 
+#define PUT_DEPRECATION_MSG                                                    \
+  "\n\n"                                                                       \
+  "art warning: The SubRun::put(...) function without a product semantic is "  \
+  "deprecated.\n"                                                              \
+  "             Please adjust your usage to include the correct semantic "     \
+  "(e.g.):\n\n"                                                                \
+  "               subrun.put(move(product), art::fullSubRun());\n"             \
+  "               subrun.put(move(product), instanceName, "                    \
+  "art::subRunFragment());\n\n"                                                \
+  "             Generally, SubRun::put calls made in beginSubRun should "      \
+  "include art::fullSubRun();\n"                                               \
+  "             SubRun::put calls made in endSubRun should use "               \
+  "art::subRunFragment().\n"                                                   \
+  "             Contact artists@fnal.gov for assistance or details.\n\n"
+
 namespace art {
 
   class SubRun final : private DataViewImpl {
@@ -62,8 +77,9 @@ namespace art {
 
     // Product insertion - subrun
     template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp,
-                  std::string const& instance = {});
+    [[deprecated(PUT_DEPRECATION_MSG)]] ProductID put(
+      std::unique_ptr<PROD>&& edp,
+      std::string const& instance = {});
     template <typename PROD>
     ProductID put(std::unique_ptr<PROD>&& edp,
                   FullSemantic<Level::SubRun> semantic);
@@ -190,6 +206,8 @@ namespace art {
   }
 
 } // namespace art
+
+#undef PUT_DEPRECATION_MSG
 
 #endif /* art_Framework_Principal_SubRun_h */
 
