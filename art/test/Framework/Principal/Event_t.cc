@@ -297,7 +297,7 @@ EventTestFixture::EventTestFixture()
     eventAux, pc, &ptf().presentProducts_, std::move(history));
   principal_->setSubRunPrincipal(subRunPrincipal_.get());
   principal_->createGroupsForProducedProducts(ptf().producedProducts_);
-  principal_->enableLookupOfProducedProducts(ptf().producedProducts_);
+  principal_->enableLookupOfProducedProducts();
 
   currentModuleContext_ = ModuleContext{ptf().currentModuleDescription_};
   currentEvent_ = std::make_unique<Event>(*principal_, currentModuleContext_);

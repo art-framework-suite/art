@@ -133,7 +133,7 @@ namespace art {
     // the EventProcessor after the Principal is provided by the input
     // source.
     void createGroupsForProducedProducts(ProductTables const& producedProducts);
-    void enableLookupOfProducedProducts(ProductTables const& producedProducts);
+    void enableLookupOfProducedProducts();
 
     // FIXME: This breaks the purpose of the
     //        Principal::addToProcessHistory() compare_exchange_strong

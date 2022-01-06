@@ -700,7 +700,7 @@ namespace art {
     runPrincipal_->createGroupsForProducedProducts(
       producedProductLookupTables_);
     psSignals_->sPostReadRun.invoke(*runPrincipal_);
-    runPrincipal_->enableLookupOfProducedProducts(producedProductLookupTables_);
+    runPrincipal_->enableLookupOfProducedProducts();
     {
       Run const r{*runPrincipal_, invalid_module_context};
       actReg_.sPostSourceRun.invoke(r);
@@ -868,8 +868,7 @@ namespace art {
     subRunPrincipal_->createGroupsForProducedProducts(
       producedProductLookupTables_);
     psSignals_->sPostReadSubRun.invoke(*subRunPrincipal_);
-    subRunPrincipal_->enableLookupOfProducedProducts(
-      producedProductLookupTables_);
+    subRunPrincipal_->enableLookupOfProducedProducts();
     {
       SubRun const sr{*subRunPrincipal_, invalid_module_context};
       actReg_.sPostSourceSubRun.invoke(sr);
@@ -1234,7 +1233,7 @@ namespace art {
       // find them until after the callbacks have run.
       ep->createGroupsForProducedProducts(producedProductLookupTables_);
       psSignals_->sPostReadEvent.invoke(*ep);
-      ep->enableLookupOfProducedProducts(producedProductLookupTables_);
+      ep->enableLookupOfProducedProducts();
       actReg_.sPostSourceEvent.invoke(Event{*ep, invalid_module_context}, sc);
       FDEBUG(1) << string(8, ' ') << "readEvent...................("
                 << ep->eventID() << ")\n";

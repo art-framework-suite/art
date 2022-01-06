@@ -212,8 +212,7 @@ namespace art {
   }
 
   void
-  Principal::enableLookupOfProducedProducts(
-    ProductTables const& /*producedProducts*/)
+  Principal::enableLookupOfProducedProducts()
   {
     enableLookupOfProducedProducts_ = true;
   }
