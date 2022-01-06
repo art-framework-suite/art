@@ -41,6 +41,18 @@ namespace art {
     return aux_.id().event();
   }
 
+  SubRunNumber_t
+  EventPrincipal::subRun() const
+  {
+    return aux_.id().subRun();
+  }
+
+  RunNumber_t
+  EventPrincipal::run() const
+  {
+    return aux_.id().run();
+  }
+
   Timestamp const&
   EventPrincipal::time() const
   {

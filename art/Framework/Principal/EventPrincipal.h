@@ -33,6 +33,8 @@ namespace art {
     EventAuxiliary const& eventAux() const;
     EventID const& eventID() const;
     EventNumber_t event() const;
+    SubRunNumber_t subRun() const;
+    RunNumber_t run() const;
 
     Timestamp const& time() const;
 
