@@ -84,7 +84,7 @@ namespace art {
   ResultsProducer::doEvent(EventPrincipal const& ep)
   {
     ModuleContext const mc{moduleDescription()};
-    Event const e{ep, mc};
+    Event const e{ep, mc, false};
     event(e);
   }
 

@@ -224,7 +224,7 @@ namespace art {
                         std::atomic<std::size_t>& /*counts_failed*/)
   {
     FDEBUG(2) << "doEvent called\n";
-    Event const e{ep, mc};
+    Event const e{ep, mc, false};
     if (wantEvent(mc.scheduleID(), e)) {
       ++counts_run;
       event(ep);
@@ -237,7 +237,7 @@ namespace art {
   OutputModule::doWriteEvent(EventPrincipal& ep, ModuleContext const& mc)
   {
     FDEBUG(2) << "writeEvent called\n";
-    Event const e{ep, mc};
+    Event const e{ep, mc, false};
     if (wantEvent(mc.scheduleID(), e)) {
       write(ep);
       // Declare that the event was selected for write to the catalog interface.

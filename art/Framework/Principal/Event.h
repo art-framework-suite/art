@@ -27,7 +27,9 @@ namespace art {
 
     ~Event();
 
-    explicit Event(EventPrincipal const& ep, ModuleContext const& mc);
+    explicit Event(EventPrincipal const& ep,
+                   ModuleContext const& mc,
+                   bool recordParents = true);
 
     Event(Event const&) = delete;
     Event(Event&&) = delete;

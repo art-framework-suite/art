@@ -5,27 +5,18 @@
 #include "art/Framework/Principal/SubRun.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 
-using namespace std;
-using namespace fhicl;
-
 namespace art {
-
-  namespace {
-
-    // It only makes sense to track parents when putting a product onto
-    // the event.  That requires a non-const Event object.
-    constexpr bool
-    record_parents(Event*)
-    {
-      return true;
-    }
-
-  } // unnamed namespace
 
   Event::~Event() = default;
 
-  Event::Event(EventPrincipal const& ep, ModuleContext const& mc)
-    : DataViewImpl{InEvent, ep, mc, record_parents(this)}
+  // FIXME: It only makes sense to track parents when putting a
+  //        product onto the event.  That requires a non-const Event
+  //        object.
+
+  Event::Event(EventPrincipal const& ep,
+               ModuleContext const& mc,
+               bool const recordParents)
+    : DataViewImpl{InEvent, ep, mc, recordParents}
     , eventPrincipal_{ep}
     , subRun_{ep.subRunPrincipalExemptPtr() ?
                 new SubRun{ep.subRunPrincipal(), mc} :
