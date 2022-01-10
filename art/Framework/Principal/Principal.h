@@ -111,11 +111,6 @@ namespace art {
 
     ProcessHistory const& processHistory() const;
 
-    // This is intended to be used by a module that fetches a very
-    // large data product, makes a copy, and would like to release
-    // the memory held by the original immediately.
-    void removeCachedProduct(ProductID) const;
-
     // Interface for other parts of art
 
     // Note: We invoke the delay reader if no user module has fetched
@@ -213,7 +208,7 @@ namespace art {
 
     EDProductGetter const* getEDProductGetter_(ProductID const&) const override;
 
-    cet::exempt_ptr<Group const> getGroupTryAllFiles(ProductID const) const;
+    cet::exempt_ptr<Group> getGroupTryAllFiles(ProductID const) const;
 
   protected:
     // Used to deal with TriggerResults.

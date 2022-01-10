@@ -66,7 +66,6 @@ namespace art {
 
     using DataViewImpl::getProcessParameterSet;
     using DataViewImpl::productGetter;
-    using DataViewImpl::removeCachedProduct;
 
     // Obsolete interface (will be deprecated)
     using DataViewImpl::get;

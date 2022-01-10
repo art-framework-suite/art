@@ -290,30 +290,6 @@ namespace art {
     return groups_.cend();
   }
 
-  // This is intended to be used by a module that fetches a very large
-  // data product, makes a copy, and would like to release the memory
-  // held by the original immediately.
-  void
-  Principal::removeCachedProduct(ProductID const pid) const
-  {
-    // MT-FIXME: May be called by a module task, need to protect the
-    //           group with a lock.
-    if (auto g = getGroupLocal(pid)) {
-      g->removeCachedProduct();
-      return;
-    }
-    for (auto const& sp : secondaryPrincipals_) {
-      if (auto g = sp->getGroupLocal(pid)) {
-        g->removeCachedProduct();
-        return;
-      }
-    }
-    throw Exception(errors::ProductNotFound, "removeCachedProduct")
-      << "Attempt to remove unknown product corresponding to ProductID: " << pid
-      << '\n'
-      << "Please contact artists@fnal.gov\n";
-  }
-
   cet::exempt_ptr<ProductProvenance const>
   Principal::branchToProductProvenance(ProductID const& pid) const
   {
@@ -847,7 +823,7 @@ namespace art {
   GroupQueryResult
   Principal::getByProductID(ProductID const pid) const
   {
-    if (auto const g = getGroupTryAllFiles(pid)) {
+    if (auto g = getGroupTryAllFiles(pid)) {
       return GroupQueryResult{g};
     }
     auto whyFailed =
@@ -865,7 +841,7 @@ namespace art {
     return it != groups_.cend() ? it->second.get() : nullptr;
   }
 
-  cet::exempt_ptr<Group const>
+  cet::exempt_ptr<Group>
   Principal::getGroupTryAllFiles(ProductID const pid) const
   {
     // Look through current process and currently opened primary input file.

@@ -23,6 +23,10 @@
 //  bool.  One can also use the Handle::isValid() function.
 //  ValidHandles cannot be invalid, and so have no validity checks.
 //
+//  A data product provided by the input source may be removed from
+//  memory by calling removeProduct(), allowing program memory to be
+//  reclaimed when the product is no longer needed.
+//
 //  If failedToGet() returns true then the requested data is not available
 //  If failedToGet() returns false but isValid() is also false then no
 //  attempt to get data has occurred
@@ -119,9 +123,11 @@ public:
   // mutators:
   void swap(Handle<T>& other);
   void clear();
+  bool removeProduct();
 
 private:
   T const* prod_{nullptr};
+  cet::exempt_ptr<Group> group_{nullptr};
   Provenance prov_{};
   std::shared_ptr<art::Exception const> whyFailed_{nullptr};
 }; // Handle<>
@@ -131,7 +137,7 @@ private:
 
 template <class T>
 art::Handle<T>::Handle(GroupQueryResult const& gqr)
-  : prod_{nullptr}, prov_{gqr.result()}, whyFailed_{gqr.whyFailed()}
+  : group_{gqr.result()}, prov_{group_}, whyFailed_{gqr.whyFailed()}
 {
   if (gqr.succeeded()) {
     auto const wrapperPtr = dynamic_cast<Wrapper<T> const*>(
@@ -237,6 +243,19 @@ art::Handle<T>::clear()
 {
   Handle<T> tmp;
   swap(tmp);
+}
+
+template <class T>
+inline bool
+art::Handle<T>::removeProduct()
+{
+  if (isValid() && !prov_.produced()) {
+    assert(group_);
+    group_->removeCachedProduct();
+    clear();
+    return true;
+  }
+  return false;
 }
 
 // ======================================================================

@@ -77,8 +77,6 @@ namespace art {
     DataViewImpl& operator=(DataViewImpl&) = delete;
 
     // Miscellaneous functionality
-    template <typename PROD>
-    bool removeCachedProduct(Handle<PROD>&) const;
     EDProductGetter const* productGetter(ProductID const pid) const;
     bool getProcessParameterSet(std::string const& process,
                                 fhicl::ParameterSet&) const;
@@ -597,20 +595,6 @@ namespace art {
         << bd << rule('=') << '\n';
     }
     return bd.productID();
-  }
-
-  template <typename PROD>
-  bool
-  DataViewImpl::removeCachedProduct(Handle<PROD>& h) const
-  {
-    std::lock_guard lock{mutex_};
-    bool result{false};
-    if (h.isValid() && !h.provenance()->produced()) {
-      principal_.removeCachedProduct(h.id());
-      h.clear();
-      result = true;
-    }
-    return result;
   }
 
   template <typename PROD>
