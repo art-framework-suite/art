@@ -7,10 +7,27 @@ namespace art {
 
   Run::~Run() = default;
 
-  Run::Run(RunPrincipal const& rp,
+  Run
+  Run::make(RunPrincipal& srp, ModuleContext const& mc, RangeSet const& rs)
+  {
+    return Run{
+      srp, mc, std::make_optional<ProductInserter>(InRun, srp, mc), rs};
+  }
+
+  Run
+  Run::make(RunPrincipal const& srp, ModuleContext const& mc)
+  {
+    return Run{srp, mc, std::nullopt, RangeSet::invalid()};
+  }
+
+  Run::Run(RunPrincipal const& srp,
            ModuleContext const& mc,
-           RangeSet const& rs /*= RangeSet::invalid()*/)
-    : DataViewImpl{InRun, rp, mc, false}, runPrincipal_{rp}, rangeSet_{rs}
+           std::optional<ProductInserter> inserter,
+           RangeSet const& rs /* = RangeSet::invalid() */)
+    : ProductRetriever{InRun, srp, mc, false}
+    , inserter_{move(inserter)}
+    , runPrincipal_{srp}
+    , rangeSet_{rs}
   {}
 
   RunID
@@ -41,6 +58,13 @@ namespace art {
   Run::processHistory() const
   {
     return runPrincipal_.processHistory();
+  }
+
+  void
+  Run::commitProducts()
+  {
+    assert(inserter_);
+    inserter_->commitProducts();
   }
 
 } // namespace art

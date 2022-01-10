@@ -66,7 +66,7 @@ namespace art::detail {
   bool
   Analyzer::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
   {
-    Run const r{rp, mc};
+    auto const r = Run::make(std::as_const(rp), mc);
     ProcessingFrame const frame{mc.scheduleID()};
     beginRunWithFrame(r, frame);
     return true;
@@ -75,7 +75,7 @@ namespace art::detail {
   bool
   Analyzer::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
   {
-    Run const r{rp, mc};
+    auto const r = Run::make(std::as_const(rp), mc);
     ProcessingFrame const frame{mc.scheduleID()};
     endRunWithFrame(r, frame);
     return true;
@@ -84,7 +84,7 @@ namespace art::detail {
   bool
   Analyzer::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    SubRun const sr{srp, mc};
+    auto const sr = SubRun::make(std::as_const(srp), mc);
     ProcessingFrame const frame{mc.scheduleID()};
     beginSubRunWithFrame(sr, frame);
     return true;
@@ -93,7 +93,7 @@ namespace art::detail {
   bool
   Analyzer::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    SubRun const sr{srp, mc};
+    auto const sr = SubRun::make(std::as_const(srp), mc);
     ProcessingFrame const frame{mc.scheduleID()};
     endSubRunWithFrame(sr, frame);
     return true;
@@ -106,7 +106,7 @@ namespace art::detail {
                     std::atomic<std::size_t>& counts_passed,
                     std::atomic<std::size_t>& /*counts_failed*/)
   {
-    Event const e{ep, mc, false};
+    auto const e = Event::make(std::as_const(ep), mc);
     if (wantEvent(mc.scheduleID(), e)) {
       ++counts_run;
       ProcessingFrame const frame{mc.scheduleID()};

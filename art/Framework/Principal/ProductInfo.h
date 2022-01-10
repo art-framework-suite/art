@@ -33,7 +33,7 @@ namespace art {
     // Future need: We need a way to tell whether consumes* or
     // mayConsume* was called.
 
-    // Which kind of the DataViewImpl::get* functions we validate.
+    // Which kind of the ProductRetriever::get* functions we validate.
     ConsumableType consumableType{};
 
     // Data product class type.  Part 1 of branch name.  The friendly

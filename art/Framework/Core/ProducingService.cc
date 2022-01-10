@@ -37,25 +37,25 @@ namespace art {
   void
   ProducingService::doPostReadRun(RunPrincipal& rp)
   {
-    Run r{rp, mc_, RangeSet::forRun(rp.runID())};
+    auto r = Run::make(rp, mc_, RangeSet::forRun(rp.runID()));
     postReadRun(r);
-    r.movePutProductsToPrincipal(rp);
+    r.commitProducts();
   }
 
   void
   ProducingService::doPostReadSubRun(SubRunPrincipal& srp)
   {
-    SubRun sr{srp, mc_, RangeSet::forSubRun(srp.subRunID())};
+    auto sr = SubRun::make(srp, mc_, RangeSet::forSubRun(srp.subRunID()));
     postReadSubRun(sr);
-    sr.movePutProductsToPrincipal(srp);
+    sr.commitProducts();
   }
 
   void
   ProducingService::doPostReadEvent(EventPrincipal& ep)
   {
-    Event e{ep, mc_};
+    auto e = Event::make(ep, mc_);
     postReadEvent(e);
-    e.movePutProductsToPrincipal(ep, true, &expectedProducts<InEvent>());
+    e.commitProducts(true, &expectedProducts<InEvent>());
   }
 
   void

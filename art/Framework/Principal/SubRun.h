@@ -6,16 +6,18 @@
 //  This is the primary interface for accessing per subRun
 //  EDProducts and inserting new derived per subRun EDProducts.
 //
-//  For its usage, see "art/Framework/Principal/DataViewImpl.h"
+//  For its usage, see "art/Framework/Principal/ProductRetriever.h"
 //
 
-#include "art/Framework/Principal/DataViewImpl.h"
+#include "art/Framework/Principal/ProductRetriever.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ProductSemantics.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 
+#include <cassert>
 #include <memory>
+#include <optional>
 
 #define PUT_DEPRECATION_MSG                                                    \
   "\n\n"                                                                       \
@@ -34,13 +36,14 @@
 
 namespace art {
 
-  class SubRun final : private DataViewImpl {
+  class SubRun final : private ProductRetriever {
   public:
     ~SubRun();
 
-    explicit SubRun(SubRunPrincipal const& srp,
-                    ModuleContext const& mc,
-                    RangeSet const& rs = RangeSet::invalid());
+    static SubRun make(SubRunPrincipal& ep,
+                       ModuleContext const& mc,
+                       RangeSet const& rs = RangeSet::invalid());
+    static SubRun make(SubRunPrincipal const& ep, ModuleContext const& mc);
 
     SubRun(SubRun const&) = delete;
     SubRun(SubRun&&) = delete;
@@ -54,25 +57,23 @@ namespace art {
     Timestamp const& endTime() const;
     ProcessHistory const& processHistory() const;
 
-    using DataViewImpl::getHandle;
-    using DataViewImpl::getInputTags;
-    using DataViewImpl::getMany;
-    using DataViewImpl::getProduct;
-    using DataViewImpl::getProductTokens;
-    using DataViewImpl::getValidHandle;
-    using DataViewImpl::getView;
+    using ProductRetriever::getHandle;
+    using ProductRetriever::getInputTags;
+    using ProductRetriever::getMany;
+    using ProductRetriever::getProduct;
+    using ProductRetriever::getProductTokens;
+    using ProductRetriever::getValidHandle;
+    using ProductRetriever::getView;
 
     Run const& getRun() const;
-    using DataViewImpl::getProductDescription;
-    using DataViewImpl::getProductID;
+    using ProductRetriever::getProductDescription;
+    using ProductRetriever::getProductID;
 
-    using DataViewImpl::productGetter;
+    using ProductRetriever::productGetter;
 
     // Obsolete interface (will be deprecated)
-    using DataViewImpl::get;
-    using DataViewImpl::getByLabel;
-
-    using DataViewImpl::movePutProductsToPrincipal;
+    using ProductRetriever::get;
+    using ProductRetriever::getByLabel;
 
     // Product insertion - subrun
     template <typename PROD>
@@ -102,8 +103,22 @@ namespace art {
                   RangedFragmentSemantic<Level::SubRun> semantic);
 
   private:
+    void commitProducts();
+
+    // Give access to commitProducts(...).
+    friend class detail::Analyzer;
+    friend class detail::Filter;
+    friend class detail::Producer;
+    friend class ProducingService;
+
+    explicit SubRun(SubRunPrincipal const& srp,
+                    ModuleContext const& mc,
+                    std::optional<ProductInserter> inserter,
+                    RangeSet const& rs = RangeSet::invalid());
+
+    std::optional<ProductInserter> inserter_;
     SubRunPrincipal const& subRunPrincipal_;
-    std::unique_ptr<Run const> const run_;
+    Run const run_;
     // The RangeSet to be used by any products put by the user.
     // Cannot be const because we call collapse() on it.
     RangeSet rangeSet_;
@@ -113,8 +128,9 @@ namespace art {
   ProductID
   SubRun::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
   {
+    assert(inserter_);
     // Should be protected when a SubRun is shared among threads.
-    return DataViewImpl::put(move(edp), instance, rangeSet_.collapse());
+    return inserter_->put(move(edp), instance, rangeSet_.collapse());
   }
 
   template <typename PROD>
@@ -147,7 +163,8 @@ namespace art {
               std::string const& instance,
               FullSemantic<Level::SubRun>)
   {
-    return DataViewImpl::put(move(edp), instance, RangeSet::forSubRun(id()));
+    assert(inserter_);
+    return inserter_->put(move(edp), instance, RangeSet::forSubRun(id()));
   }
 
   template <typename PROD>
@@ -163,6 +180,7 @@ namespace art {
       "           must be able to be aggregated. Please add the appropriate\n"
       "              void aggregate(T const&)\n"
       "           function to your class, or contact artists@fnal.gov.\n");
+    assert(inserter_);
     if (rangeSet_.collapse().is_full_subRun()) {
       throw Exception(errors::ProductPutFailure, "SubRun::put")
         << "\nCannot put a product corresponding to a full SubRun using\n"
@@ -173,7 +191,7 @@ namespace art {
         << "   art::subRunFragment(art::RangeSet const&)\n"
         << "or contact artists@fnal.gov for assistance.\n";
     }
-    return DataViewImpl::put(move(edp), instance, rangeSet_);
+    return inserter_->put(move(edp), instance, rangeSet_);
   }
 
   template <typename PROD>
@@ -189,6 +207,7 @@ namespace art {
       "           must be able to be aggregated. Please add the appropriate\n"
       "              void aggregate(T const&)\n"
       "           function to your class, or contact artists@fnal.gov.\n");
+    assert(inserter_);
     if (semantic.rs.collapse().is_full_subRun()) {
       throw Exception{errors::ProductPutFailure, "SubRun::put"}
         << "\nCannot put a product corresponding to a full SubRun using\n"
@@ -201,7 +220,7 @@ namespace art {
         << "\nCannot put a product with an invalid RangeSet.\n"
         << "Please contact artists@fnal.gov.\n";
     }
-    return DataViewImpl::put(move(edp), instance, semantic.rs);
+    return inserter_->put(move(edp), instance, semantic.rs);
   }
 
 } // namespace art

@@ -52,7 +52,7 @@ namespace art {
   ResultsProducer::doBeginRun(RunPrincipal const& rp)
   {
     ModuleContext const mc{moduleDescription()};
-    Run const r{rp, mc};
+    auto const r = Run::make(rp, mc);
     beginRun(r);
   }
 
@@ -60,7 +60,7 @@ namespace art {
   ResultsProducer::doEndRun(RunPrincipal const& rp)
   {
     ModuleContext const mc{moduleDescription()};
-    Run const r{rp, mc};
+    auto const r = Run::make(rp, mc);
     endRun(r);
   }
 
@@ -68,7 +68,7 @@ namespace art {
   ResultsProducer::doBeginSubRun(SubRunPrincipal const& srp)
   {
     ModuleContext const mc{moduleDescription()};
-    SubRun const sr{srp, mc};
+    auto const sr = SubRun::make(srp, mc);
     beginSubRun(sr);
   }
 
@@ -76,7 +76,7 @@ namespace art {
   ResultsProducer::doEndSubRun(SubRunPrincipal const& srp)
   {
     ModuleContext const mc{moduleDescription()};
-    SubRun const sr{srp, mc};
+    auto const sr = SubRun::make(srp, mc);
     endSubRun(sr);
   }
 
@@ -84,7 +84,7 @@ namespace art {
   ResultsProducer::doEvent(EventPrincipal const& ep)
   {
     ModuleContext const mc{moduleDescription()};
-    Event const e{ep, mc, false};
+    auto const e = Event::make(ep, mc);
     event(e);
   }
 
@@ -92,7 +92,7 @@ namespace art {
   ResultsProducer::doReadResults(ResultsPrincipal const& resp)
   {
     ModuleContext const mc{moduleDescription()};
-    Results const res{resp, mc};
+    auto const res = Results::make(resp, mc);
     readResults(res);
   }
 
@@ -100,9 +100,9 @@ namespace art {
   ResultsProducer::doWriteResults(ResultsPrincipal& resp)
   {
     ModuleContext const mc{moduleDescription()};
-    Results res{resp, mc};
+    auto res = Results::make(resp, mc);
     writeResults(res);
-    res.movePutProductsToPrincipal(resp);
+    res.commitProducts();
   }
 
   void

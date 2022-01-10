@@ -71,40 +71,40 @@ namespace art::detail {
   bool
   Filter::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
   {
-    Run r{rp, mc, RangeSet::forRun(rp.runID())};
+    auto r = Run::make(rp, mc, RangeSet::forRun(rp.runID()));
     ProcessingFrame const frame{mc.scheduleID()};
     bool const rc = beginRunWithFrame(r, frame);
-    r.movePutProductsToPrincipal(rp);
+    r.commitProducts();
     return rc;
   }
 
   bool
   Filter::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
   {
-    Run r{rp, mc, rp.seenRanges()};
+    auto r = Run::make(rp, mc, rp.seenRanges());
     ProcessingFrame const frame{mc.scheduleID()};
     bool const rc = endRunWithFrame(r, frame);
-    r.movePutProductsToPrincipal(rp);
+    r.commitProducts();
     return rc;
   }
 
   bool
   Filter::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    SubRun sr{srp, mc, RangeSet::forSubRun(srp.subRunID())};
+    auto sr = SubRun::make(srp, mc, RangeSet::forSubRun(srp.subRunID()));
     ProcessingFrame const frame{mc.scheduleID()};
     bool const rc = beginSubRunWithFrame(sr, frame);
-    sr.movePutProductsToPrincipal(srp);
+    sr.commitProducts();
     return rc;
   }
 
   bool
   Filter::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    SubRun sr{srp, mc, srp.seenRanges()};
+    auto sr = SubRun::make(srp, mc, srp.seenRanges());
     ProcessingFrame const frame{mc.scheduleID()};
     bool const rc = endSubRunWithFrame(sr, frame);
-    sr.movePutProductsToPrincipal(srp);
+    sr.commitProducts();
     return rc;
   }
 
@@ -115,12 +115,11 @@ namespace art::detail {
                   atomic<size_t>& counts_passed,
                   atomic<size_t>& counts_failed)
   {
-    Event e{ep, mc};
+    auto e = Event::make(ep, mc);
     ++counts_run;
     ProcessingFrame const frame{mc.scheduleID()};
     bool const rc = filterWithFrame(e, frame);
-    e.movePutProductsToPrincipal(
-      ep, checkPutProducts_, &expectedProducts<InEvent>());
+    e.commitProducts(checkPutProducts_, &expectedProducts<InEvent>());
     if (rc) {
       ++counts_passed;
     } else {

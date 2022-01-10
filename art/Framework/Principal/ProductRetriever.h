@@ -1,5 +1,5 @@
-#ifndef art_Framework_Principal_DataViewImpl_h
-#define art_Framework_Principal_DataViewImpl_h
+#ifndef art_Framework_Principal_ProductRetriever_h
+#define art_Framework_Principal_ProductRetriever_h
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/ConsumesInfo.h"
@@ -40,6 +40,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <ostream>
 #include <set>
 #include <string>
@@ -56,25 +57,17 @@ namespace art {
     class Producer;
   }
 
-  class DataViewImpl {
-
-    // Give access to movePutProductsToPrincipal(...).
-    friend class detail::Analyzer;
-    friend class detail::Filter;
-    friend class detail::Producer;
-    friend class ResultsProducer;
-    friend class ProducingService;
-
+  class ProductRetriever {
   public:
-    ~DataViewImpl();
-    explicit DataViewImpl(BranchType bt,
-                          Principal const& p,
-                          ModuleContext const& mc,
-                          bool recordParents);
-    DataViewImpl(DataViewImpl const&) = delete;
-    DataViewImpl(DataViewImpl&&) = delete;
-    DataViewImpl& operator=(DataViewImpl const&) = delete;
-    DataViewImpl& operator=(DataViewImpl&) = delete;
+    ~ProductRetriever();
+    explicit ProductRetriever(BranchType bt,
+                              Principal const& p,
+                              ModuleContext const& mc,
+                              bool recordParents);
+    ProductRetriever(ProductRetriever const&) = delete;
+    ProductRetriever(ProductRetriever&&) = delete;
+    ProductRetriever& operator=(ProductRetriever const&) = delete;
+    ProductRetriever& operator=(ProductRetriever&) = delete;
 
     // Miscellaneous functionality
     EDProductGetter const* productGetter(ProductID const pid) const;
@@ -161,6 +154,8 @@ namespace art {
     template <typename ELEMENT>
     bool getView(ViewToken<ELEMENT> const&, View<ELEMENT>& result) const;
 
+    std::vector<ProductID> retrievedPIDs() const;
+
     // Product ID and description
     template <typename T>
     ProductID getProductID(std::string const& instance_name = "") const;
@@ -168,40 +163,7 @@ namespace art {
     cet::exempt_ptr<BranchDescription const> getProductDescription(
       ProductID) const;
 
-    // Product insertion - all processing levels
-    template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp,
-                  std::string const& instance = {});
-
-    // Product insertion -- run/subrun
-    template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp,
-                  std::string const& instance,
-                  RangeSet const& rs);
-
-    void movePutProductsToPrincipal(Principal& principal);
-    void movePutProductsToPrincipal(
-      Principal& principal,
-      bool const checkProducts,
-      std::map<TypeLabel, BranchDescription> const* expectedProducts);
-
   private:
-    struct PMValue {
-      PMValue(std::unique_ptr<EDProduct>&& p,
-              BranchDescription const& b,
-              RangeSet const& r)
-        : prod_{std::move(p)}, bd_{b}, rs_{r}
-      {}
-      std::unique_ptr<EDProduct> prod_;
-      BranchDescription const& bd_;
-      RangeSet rs_;
-    };
-
-    std::string const& getProcessName_(std::string const&) const;
-    BranchDescription const& getProductDescription_(
-      TypeID const& type,
-      std::string const& instance,
-      bool const alwaysEnableLookupOfProducedProducts = false) const;
     void recordAsParent_(cet::exempt_ptr<Group const> grp) const;
     cet::exempt_ptr<Group const> getContainerForView_(
       TypeID const&,
@@ -209,8 +171,6 @@ namespace art {
       std::string const& productInstanceName,
       ProcessTag const& processTag) const;
 
-    // MEMBER DATA
-  private:
     // Protects use of retrievedProducts_ and putProducts_.
     mutable std::recursive_mutex mutex_{};
 
@@ -226,26 +186,20 @@ namespace art {
     // The module we were created for.
     ModuleDescription const& md_;
 
-    // If we are constructed as a non-const Event, then we
-    // can be used to put products into the Principal, so
-    // we need to record retrieved products into
-    // retrievedProducts_ to track parentage of any
-    // products we put.
+    // If we are constructed as a non-const Event, then we can be used
+    // to put products into the Principal, so we need to record
+    // retrieved products into retrievedProducts_ to track parentage
+    // of any products we put.
     bool const recordParents_;
 
-    // The set of products retrieved from the principal.
-    // We use this to track parentage of any products
-    // we put.
+    // The set of products retrieved from the principal.  We use this
+    // to track parentage of any products we put.
     mutable std::set<ProductID> retrievedProducts_{};
-
-    // The set of products which have been put by the user.
-    // We own them.
-    std::map<TypeLabel, PMValue> putProducts_{};
   };
 
   template <typename PROD>
   ProductID
-  DataViewImpl::getProductID(std::string const& instance /* = "" */) const
+  ProductRetriever::getProductID(std::string const& instance /* = "" */) const
   {
     std::lock_guard lock{mutex_};
     TypeID const type{typeid(PROD)};
@@ -255,7 +209,7 @@ namespace art {
     auto desc = principal_.getProductDescription(pid);
     if (!desc) {
       throw Exception(errors::ProductRegistrationFailure,
-                      "DataViewImpl::getProductID: error while trying to "
+                      "ProductRetriever::getProductID: error while trying to "
                       "retrieve product description:\n")
         << "No product is registered for\n"
         << "  process name:                '" << md_.processName() << "'\n"
@@ -267,21 +221,21 @@ namespace art {
     }
     // The description object is owned by either the source or the
     // event processor, whose lifetimes exceed that of the
-    // DataViewImpl object.  It is therefore safe to dereference.
+    // ProductRetriever object.  It is therefore safe to dereference.
     return desc->productID();
   }
 
   // =========================================================================
   template <typename PROD>
   PROD const&
-  DataViewImpl::getProduct(InputTag const& tag) const
+  ProductRetriever::getProduct(InputTag const& tag) const
   {
     return *getValidHandle<PROD>(tag);
   }
 
   template <typename PROD>
   PROD const&
-  DataViewImpl::getProduct(ProductToken<PROD> const& token) const
+  ProductRetriever::getProduct(ProductToken<PROD> const& token) const
   {
     return *getValidHandle(token);
   }
@@ -289,7 +243,7 @@ namespace art {
   // =========================================================================
   template <typename PROD>
   Handle<PROD>
-  DataViewImpl::getHandle(SelectorBase const& sel) const
+  ProductRetriever::getHandle(SelectorBase const& sel) const
   {
     std::lock_guard lock{mutex_};
     // We do *not* track whether consumes was called for a SelectorBase.
@@ -305,7 +259,7 @@ namespace art {
 
   template <typename PROD>
   Handle<PROD>
-  DataViewImpl::getHandle(ProductID const pid) const
+  ProductRetriever::getHandle(ProductID const pid) const
   {
     std::lock_guard lock{mutex_};
     auto qr = principal_.getByProductID(pid);
@@ -318,7 +272,7 @@ namespace art {
 
   template <typename PROD>
   Handle<PROD>
-  DataViewImpl::getHandle(InputTag const& tag) const
+  ProductRetriever::getHandle(InputTag const& tag) const
   {
     std::lock_guard lock{mutex_};
     auto const wrapped = WrappedTypeID::make<PROD>();
@@ -340,7 +294,7 @@ namespace art {
 
   template <typename PROD>
   Handle<PROD>
-  DataViewImpl::getHandle(ProductToken<PROD> const& token) const
+  ProductRetriever::getHandle(ProductToken<PROD> const& token) const
   {
     return getHandle<PROD>(token.inputTag_);
   }
@@ -348,7 +302,7 @@ namespace art {
   // =========================================================================
   template <typename PROD>
   ValidHandle<PROD>
-  DataViewImpl::getValidHandle(InputTag const& tag) const
+  ProductRetriever::getValidHandle(InputTag const& tag) const
   {
     Handle<PROD> h;
     getByLabel(tag, h);
@@ -357,14 +311,14 @@ namespace art {
 
   template <typename PROD>
   ValidHandle<PROD>
-  DataViewImpl::getValidHandle(ProductToken<PROD> const& token) const
+  ProductRetriever::getValidHandle(ProductToken<PROD> const& token) const
   {
     return getValidHandle<PROD>(token.inputTag_);
   }
 
   template <typename PROD>
   std::vector<InputTag>
-  DataViewImpl::getInputTags(SelectorBase const& selector) const
+  ProductRetriever::getInputTags(SelectorBase const& selector) const
   {
     auto const wrapped = WrappedTypeID::make<PROD>();
     ProcessTag const processTag{"", md_.processName()};
@@ -373,7 +327,7 @@ namespace art {
 
   template <typename PROD>
   std::vector<ProductToken<PROD>>
-  DataViewImpl::getProductTokens(SelectorBase const& selector) const
+  ProductRetriever::getProductTokens(SelectorBase const& selector) const
   {
     auto const tags = getInputTags<PROD>(selector);
     std::vector<ProductToken<PROD>> tokens;
@@ -386,7 +340,7 @@ namespace art {
 
   template <typename PROD>
   std::vector<Handle<PROD>>
-  DataViewImpl::getMany(SelectorBase const& sel) const
+  ProductRetriever::getMany(SelectorBase const& sel) const
   {
     std::lock_guard lock{mutex_};
     auto const wrapped = WrappedTypeID::make<PROD>();
@@ -407,10 +361,10 @@ namespace art {
 
   template <typename ELEMENT>
   std::size_t
-  DataViewImpl::getView(std::string const& moduleLabel,
-                        std::string const& productInstanceName,
-                        std::string const& processName,
-                        std::vector<ELEMENT const*>& result) const
+  ProductRetriever::getView(std::string const& moduleLabel,
+                            std::string const& productInstanceName,
+                            std::string const& processName,
+                            std::vector<ELEMENT const*>& result) const
   {
     std::lock_guard lock{mutex_};
     std::size_t const orig_size = result.size();
@@ -432,25 +386,25 @@ namespace art {
 
   template <typename ELEMENT>
   std::size_t
-  DataViewImpl::getView(std::string const& moduleLabel,
-                        std::string const& productInstanceName,
-                        std::vector<ELEMENT const*>& result) const
+  ProductRetriever::getView(std::string const& moduleLabel,
+                            std::string const& productInstanceName,
+                            std::vector<ELEMENT const*>& result) const
   {
     return getView(moduleLabel, productInstanceName, {}, result);
   }
 
   template <typename ELEMENT>
   std::size_t
-  DataViewImpl::getView(InputTag const& tag,
-                        std::vector<ELEMENT const*>& result) const
+  ProductRetriever::getView(InputTag const& tag,
+                            std::vector<ELEMENT const*>& result) const
   {
     return getView(tag.label(), tag.instance(), tag.process(), result);
   }
 
   template <typename ELEMENT>
   std::size_t
-  DataViewImpl::getView(ViewToken<ELEMENT> const& token,
-                        std::vector<ELEMENT const*>& result) const
+  ProductRetriever::getView(ViewToken<ELEMENT> const& token,
+                            std::vector<ELEMENT const*>& result) const
   {
     return getView(token.inputTag_.label(),
                    token.inputTag_.instance(),
@@ -460,10 +414,10 @@ namespace art {
 
   template <typename ELEMENT>
   bool
-  DataViewImpl::getView(std::string const& moduleLabel,
-                        std::string const& productInstanceName,
-                        std::string const& processName,
-                        View<ELEMENT>& result) const
+  ProductRetriever::getView(std::string const& moduleLabel,
+                            std::string const& productInstanceName,
+                            std::string const& processName,
+                            View<ELEMENT>& result) const
   {
     std::lock_guard lock{mutex_};
     auto grp = getContainerForView_(TypeID{typeid(ELEMENT)},
@@ -484,24 +438,24 @@ namespace art {
 
   template <typename ELEMENT>
   bool
-  DataViewImpl::getView(std::string const& moduleLabel,
-                        std::string const& productInstanceName,
-                        View<ELEMENT>& result) const
+  ProductRetriever::getView(std::string const& moduleLabel,
+                            std::string const& productInstanceName,
+                            View<ELEMENT>& result) const
   {
     return getView(moduleLabel, productInstanceName, {}, result);
   }
 
   template <typename ELEMENT>
   bool
-  DataViewImpl::getView(InputTag const& tag, View<ELEMENT>& result) const
+  ProductRetriever::getView(InputTag const& tag, View<ELEMENT>& result) const
   {
     return getView(tag.label(), tag.instance(), tag.process(), result);
   }
 
   template <typename ELEMENT>
   bool
-  DataViewImpl::getView(ViewToken<ELEMENT> const& token,
-                        View<ELEMENT>& result) const
+  ProductRetriever::getView(ViewToken<ELEMENT> const& token,
+                            View<ELEMENT>& result) const
   {
     return getView(token.inputTag_.label(),
                    token.inputTag_.instance(),
@@ -513,7 +467,7 @@ namespace art {
   // Obsolete (will be deprecated)
   template <typename PROD>
   bool
-  DataViewImpl::get(SelectorBase const& sel, Handle<PROD>& result) const
+  ProductRetriever::get(SelectorBase const& sel, Handle<PROD>& result) const
   {
     result = getHandle<PROD>(sel);
     return static_cast<bool>(result);
@@ -521,7 +475,7 @@ namespace art {
 
   template <typename PROD>
   bool
-  DataViewImpl::get(ProductID const pid, Handle<PROD>& result) const
+  ProductRetriever::get(ProductID const pid, Handle<PROD>& result) const
   {
     result = getHandle<PROD>(pid);
     return static_cast<bool>(result);
@@ -529,10 +483,10 @@ namespace art {
 
   template <typename PROD>
   bool
-  DataViewImpl::getByLabel(std::string const& moduleLabel,
-                           std::string const& productInstanceName,
-                           std::string const& processName,
-                           Handle<PROD>& result) const
+  ProductRetriever::getByLabel(std::string const& moduleLabel,
+                               std::string const& productInstanceName,
+                               std::string const& processName,
+                               Handle<PROD>& result) const
   {
     result = getHandle<PROD>({moduleLabel, productInstanceName, processName});
     return static_cast<bool>(result);
@@ -540,9 +494,9 @@ namespace art {
 
   template <typename PROD>
   bool
-  DataViewImpl::getByLabel(std::string const& moduleLabel,
-                           std::string const& instance,
-                           Handle<PROD>& result) const
+  ProductRetriever::getByLabel(std::string const& moduleLabel,
+                               std::string const& instance,
+                               Handle<PROD>& result) const
   {
     result = getHandle<PROD>({moduleLabel, instance});
     return static_cast<bool>(result);
@@ -550,51 +504,10 @@ namespace art {
 
   template <typename PROD>
   bool
-  DataViewImpl::getByLabel(InputTag const& tag, Handle<PROD>& result) const
+  ProductRetriever::getByLabel(InputTag const& tag, Handle<PROD>& result) const
   {
     result = getHandle<PROD>(tag);
     return static_cast<bool>(result);
-  }
-
-  // =======================================================================
-  // Product-insertion implementation
-  template <typename PROD>
-  ProductID
-  DataViewImpl::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
-  {
-    return put(move(edp), instance, RangeSet::invalid());
-  }
-
-  template <typename PROD>
-  ProductID
-  DataViewImpl::put(std::unique_ptr<PROD>&& edp,
-                    std::string const& instance,
-                    RangeSet const& rs)
-  {
-    std::lock_guard lock{mutex_};
-    TypeID const tid{typeid(PROD)};
-    if (edp.get() == nullptr) {
-      throw Exception(errors::NullPointerError)
-        << "A null unique_ptr was passed to 'put'.\n"
-        << "The pointer is of type " << tid << ".\n"
-        << "The specified productInstanceName was '" << instance << "'.\n";
-    }
-    auto const& bd = getProductDescription_(tid, instance, true);
-    assert(bd.productID() != ProductID::invalid());
-    auto const typeLabel =
-      detail::type_label_for(tid, instance, SupportsView<PROD>::value, md_);
-    auto wp = std::make_unique<Wrapper<PROD>>(move(edp));
-    auto result =
-      putProducts_.try_emplace(typeLabel, PMValue{move(wp), bd, rs}).second;
-    if (!result) {
-      constexpr cet::HorizontalRule rule{30};
-      throw Exception(errors::ProductPutFailure)
-        << "Attempt to put multiple products with the following descriptions.\n"
-        << "Each product must be unique.\n"
-        << rule('=') << '\n'
-        << bd << rule('=') << '\n';
-    }
-    return bd.productID();
   }
 
   template <typename PROD>
@@ -607,7 +520,7 @@ namespace art {
 
 } // namespace art
 
-#endif /* art_Framework_Principal_DataViewImpl_h */
+#endif /* art_Framework_Principal_ProductRetriever_h */
 
 // Local Variables:
 // mode: c++

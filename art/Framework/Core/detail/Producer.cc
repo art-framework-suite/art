@@ -64,40 +64,40 @@ namespace art::detail {
   bool
   Producer::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
   {
-    Run r{rp, mc, RangeSet::forRun(rp.runID())};
+    auto r = Run::make(rp, mc, RangeSet::forRun(rp.runID()));
     ProcessingFrame const frame{mc.scheduleID()};
     beginRunWithFrame(r, frame);
-    r.movePutProductsToPrincipal(rp);
+    r.commitProducts();
     return true;
   }
 
   bool
   Producer::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
   {
-    Run r{rp, mc, rp.seenRanges()};
+    auto r = Run::make(rp, mc, rp.seenRanges());
     ProcessingFrame const frame{mc.scheduleID()};
     endRunWithFrame(r, frame);
-    r.movePutProductsToPrincipal(rp);
+    r.commitProducts();
     return true;
   }
 
   bool
   Producer::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    SubRun sr{srp, mc, RangeSet::forSubRun(srp.subRunID())};
+    auto sr = SubRun::make(srp, mc, RangeSet::forSubRun(srp.subRunID()));
     ProcessingFrame const frame{mc.scheduleID()};
     beginSubRunWithFrame(sr, frame);
-    sr.movePutProductsToPrincipal(srp);
+    sr.commitProducts();
     return true;
   }
 
   bool
   Producer::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    SubRun sr{srp, mc, srp.seenRanges()};
+    auto sr = SubRun::make(srp, mc, srp.seenRanges());
     ProcessingFrame const frame{mc.scheduleID()};
     endSubRunWithFrame(sr, frame);
-    sr.movePutProductsToPrincipal(srp);
+    sr.commitProducts();
     return true;
   }
 
@@ -108,12 +108,11 @@ namespace art::detail {
                     std::atomic<size_t>& counts_passed,
                     std::atomic<size_t>& /*counts_failed*/)
   {
-    Event e{ep, mc};
+    auto e = Event::make(ep, mc);
     ++counts_run;
     ProcessingFrame const frame{mc.scheduleID()};
     produceWithFrame(e, frame);
-    e.movePutProductsToPrincipal(
-      ep, checkPutProducts_, &expectedProducts<InEvent>());
+    e.commitProducts(checkPutProducts_, &expectedProducts<InEvent>());
     ++counts_passed;
     return true;
   }

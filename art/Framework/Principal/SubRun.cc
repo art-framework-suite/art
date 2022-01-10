@@ -9,13 +9,29 @@ namespace art {
 
   SubRun::~SubRun() = default;
 
+  SubRun
+  SubRun::make(SubRunPrincipal& srp,
+               ModuleContext const& mc,
+               RangeSet const& rs)
+  {
+    return SubRun{
+      srp, mc, std::make_optional<ProductInserter>(InSubRun, srp, mc), rs};
+  }
+
+  SubRun
+  SubRun::make(SubRunPrincipal const& srp, ModuleContext const& mc)
+  {
+    return SubRun{srp, mc, std::nullopt, RangeSet::invalid()};
+  }
+
   SubRun::SubRun(SubRunPrincipal const& srp,
                  ModuleContext const& mc,
+                 std::optional<ProductInserter> inserter,
                  RangeSet const& rs /* = RangeSet::invalid() */)
-    : DataViewImpl{InSubRun, srp, mc, false}
+    : ProductRetriever{InSubRun, srp, mc, false}
+    , inserter_{move(inserter)}
     , subRunPrincipal_{srp}
-    , run_{srp.runPrincipalExemptPtr() ? new Run{srp.runPrincipal(), mc} :
-                                         nullptr}
+    , run_{Run::make(srp.runPrincipal(), mc)}
     , rangeSet_{rs}
   {}
 
@@ -58,11 +74,14 @@ namespace art {
   Run const&
   SubRun::getRun() const
   {
-    if (!run_) {
-      throw Exception(errors::NullPointerError)
-        << "Tried to obtain a NULL run.\n";
-    }
-    return *run_;
+    return run_;
+  }
+
+  void
+  SubRun::commitProducts()
+  {
+    assert(inserter_);
+    inserter_->commitProducts();
   }
 
 } // namespace art

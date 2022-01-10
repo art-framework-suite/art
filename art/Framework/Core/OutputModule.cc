@@ -200,7 +200,7 @@ namespace art {
   {
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp);
-    Run const r{rp, mc};
+    auto const r = Run::make(rp, mc);
     cet::for_all(plugins_, [&r](auto& p) { p->doBeginRun(r); });
     return true;
   }
@@ -211,7 +211,7 @@ namespace art {
   {
     FDEBUG(2) << "beginSubRun called\n";
     beginSubRun(srp);
-    SubRun const sr{srp, mc};
+    auto const sr = SubRun::make(srp, mc);
     cet::for_all(plugins_, [&sr](auto& p) { p->doBeginSubRun(sr); });
     return true;
   }
@@ -224,7 +224,7 @@ namespace art {
                         std::atomic<std::size_t>& /*counts_failed*/)
   {
     FDEBUG(2) << "doEvent called\n";
-    Event const e{ep, mc, false};
+    auto const e = Event::make(ep, mc);
     if (wantEvent(mc.scheduleID(), e)) {
       ++counts_run;
       event(ep);
@@ -237,7 +237,7 @@ namespace art {
   OutputModule::doWriteEvent(EventPrincipal& ep, ModuleContext const& mc)
   {
     FDEBUG(2) << "writeEvent called\n";
-    Event const e{ep, mc, false};
+    auto const e = Event::make(std::as_const(ep), mc);
     if (wantEvent(mc.scheduleID(), e)) {
       write(ep);
       // Declare that the event was selected for write to the catalog interface.
@@ -267,7 +267,7 @@ namespace art {
   {
     FDEBUG(2) << "endSubRun called\n";
     endSubRun(srp);
-    SubRun const sr{srp, mc};
+    auto const sr = SubRun::make(srp, mc);
     cet::for_all(plugins_, [&sr](auto& p) { p->doEndSubRun(sr); });
     return true;
   }
@@ -291,7 +291,7 @@ namespace art {
   {
     FDEBUG(2) << "endRun called\n";
     endRun(rp);
-    Run const r{rp, mc};
+    auto const r = Run::make(rp, mc);
     cet::for_all(plugins_, [&r](auto& p) { p->doEndRun(r); });
     return true;
   }

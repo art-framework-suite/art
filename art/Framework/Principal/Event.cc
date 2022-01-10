@@ -9,18 +9,31 @@ namespace art {
 
   Event::~Event() = default;
 
-  // FIXME: It only makes sense to track parents when putting a
-  //        product onto the event.  That requires a non-const Event
-  //        object.
+  Event
+  Event::make(EventPrincipal& ep, ModuleContext const& mc)
+  {
+    return Event{ep, mc, std::make_optional<ProductInserter>(InEvent, ep, mc)};
+  }
+
+  Event
+  Event::make(EventPrincipal const& ep, ModuleContext const& mc)
+  {
+    return Event{ep, mc, std::nullopt};
+  }
+
+  std::unique_ptr<Event>
+  Event::makePtr(EventPrincipal& ep, ModuleContext const& mc)
+  {
+    return std::unique_ptr<Event>{new Event{Event::make(ep, mc)}};
+  }
 
   Event::Event(EventPrincipal const& ep,
                ModuleContext const& mc,
-               bool const recordParents)
-    : DataViewImpl{InEvent, ep, mc, recordParents}
+               std::optional<ProductInserter> inserter)
+    : ProductRetriever{InEvent, ep, mc, inserter.has_value()}
+    , inserter_{move(inserter)}
     , eventPrincipal_{ep}
-    , subRun_{ep.subRunPrincipalExemptPtr() ?
-                new SubRun{ep.subRunPrincipal(), mc} :
-                nullptr}
+    , subRun_{SubRun::make(ep.subRunPrincipal(), mc)}
   {}
 
   EventID
@@ -86,17 +99,30 @@ namespace art {
   SubRun const&
   Event::getSubRun() const
   {
-    if (!subRun_) {
-      throw Exception(errors::NullPointerError)
-        << "Tried to obtain a NULL subRun.\n";
-    }
-    return *subRun_;
+    return subRun_;
   }
 
   Run const&
   Event::getRun() const
   {
     return getSubRun().getRun();
+  }
+
+  void
+  Event::commitProducts()
+  {
+    assert(inserter_);
+    inserter_->commitProducts();
+  }
+
+  void
+  Event::commitProducts(
+    bool const checkProducts,
+    std::map<TypeLabel, BranchDescription> const* expectedProducts)
+  {
+    assert(inserter_);
+    inserter_->commitProducts(
+      checkProducts, expectedProducts, ProductRetriever::retrievedPIDs());
   }
 
 } // namespace art

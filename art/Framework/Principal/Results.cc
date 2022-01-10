@@ -7,8 +7,30 @@ namespace art {
 
   Results::~Results() = default;
 
-  Results::Results(ResultsPrincipal const& p, ModuleContext const& mc)
-    : DataViewImpl{InResults, p, mc, false}
+  Results
+  Results::make(ResultsPrincipal& p, ModuleContext const& mc)
+  {
+    return Results{
+      p, mc, std::make_optional<ProductInserter>(InResults, p, mc)};
+  }
+
+  Results
+  Results::make(ResultsPrincipal const& p, ModuleContext const& mc)
+  {
+    return Results{p, mc, std::nullopt};
+  }
+
+  Results::Results(ResultsPrincipal const& p,
+                   ModuleContext const& mc,
+                   std::optional<ProductInserter> inserter)
+    : ProductRetriever{InResults, p, mc, false}, inserter_{move(inserter)}
   {}
+
+  void
+  Results::commitProducts()
+  {
+    assert(inserter_);
+    inserter_->commitProducts();
+  }
 
 } // namespace art

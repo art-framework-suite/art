@@ -115,7 +115,7 @@ namespace art {
     void collectConsumes(std::string const& module_label,
                          consumables_t::mapped_type const& consumables);
 
-    // This is used by get*() in DataViewImpl.
+    // This is used by get*() in ProductRetriever.
     void validateConsumedProduct(BranchType const,
                                  ModuleDescription const&,
                                  ProductInfo const& productInfo);

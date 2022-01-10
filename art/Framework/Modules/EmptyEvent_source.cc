@@ -280,7 +280,7 @@ art::EmptyEvent::readRun_()
   assert(result.get() != nullptr);
   if (plugin_) {
     ModuleContext const mc{moduleDescription()};
-    Run const r{*result, mc};
+    auto const r = Run::make(std::as_const(*result), mc);
     plugin_->doBeginRun(r);
   }
   return result;
@@ -303,7 +303,7 @@ art::EmptyEvent::readSubRun_(cet::exempt_ptr<RunPrincipal const> rp)
   result->setRunPrincipal(rp);
   if (plugin_) {
     ModuleContext const mc{moduleDescription()};
-    SubRun const sr{*result, mc};
+    auto const sr = SubRun::make(std::as_const(*result), mc);
     plugin_->doBeginSubRun(sr);
   }
   return result;

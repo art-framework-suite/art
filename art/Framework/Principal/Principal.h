@@ -67,9 +67,9 @@ namespace art {
     Principal(Principal const&) = delete;
     Principal& operator=(Principal const&) = delete;
 
-    // Interface for DataViewImpl<T>
+    // Interface for ProductRetriever<T>
     //
-    // - Used by art::DataViewImpl<T>::get(ProductID const pid,
+    // - Used by art::ProductRetriever<T>::get(ProductID const pid,
     //   Handle<T>& result) const. (easy user-facing api) Used by
     //   Principal::productGetter(ProductID const pid) const
     //
@@ -96,7 +96,7 @@ namespace art {
                                        SelectorBase const&,
                                        ProcessTag const&) const;
 
-    // Used only by DataViewImpl<T> to implement getView.
+    // Used only by ProductRetriever<T> to implement getView.
     // FIXME: Return a vector of GroupQueryResult to products which
     //        are sequences, have a nested type named 'value_type',
     //        and where elementType the same as, or a public base of,
@@ -199,7 +199,7 @@ namespace art {
     bool presentFromSource(ProductID) const;
     auto tryNextSecondaryFile() const;
 
-    // Implementation of the DataViewImpl API.
+    // Implementation of the ProductRetriever API.
     std::vector<cet::exempt_ptr<Group>> findGroupsForProduct(
       ModuleContext const& mc,
       WrappedTypeID const& wrapped,

@@ -2,7 +2,6 @@ cet_make_library(SOURCE
     Actions.cc
     ClosedRangeSetHandler.cc
     ConsumesInfo.cc
-    DataViewImpl.cc
     DelayedReader.cc
     Event.cc
     EventPrincipal.cc
@@ -13,6 +12,8 @@ cet_make_library(SOURCE
     Principal.cc
     ProcessTag.cc
     ProductInfo.cc
+    ProductInserter.cc
+    ProductRetriever.cc
     Provenance.cc
     RangeSetHandler.cc
     Results.cc

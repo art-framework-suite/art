@@ -702,7 +702,8 @@ namespace art {
     psSignals_->sPostReadRun.invoke(*runPrincipal_);
     runPrincipal_->enableLookupOfProducedProducts();
     {
-      Run const r{*runPrincipal_, invalid_module_context};
+      auto const r =
+        Run::make(std::as_const(*runPrincipal_), invalid_module_context);
       actReg_.sPostSourceRun.invoke(r);
     }
     FDEBUG(1) << string(8, ' ') << "readRun.....................("
@@ -720,14 +721,16 @@ namespace art {
     finalizeRunEnabled_ = true;
     try {
       {
-        Run const run{*runPrincipal_, invalid_module_context};
+        auto const run =
+          Run::make(std::as_const(*runPrincipal_), invalid_module_context);
         actReg_.sPreBeginRun.invoke(run);
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedule(sid).process(Transition::BeginRun, *runPrincipal_);
       });
       {
-        Run const run{*runPrincipal_, invalid_module_context};
+        auto const run =
+          Run::make(std::as_const(*runPrincipal_), invalid_module_context);
         actReg_.sPostBeginRun.invoke(run);
       }
     }
@@ -814,7 +817,8 @@ namespace art {
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedule(sid).process(Transition::EndRun, *runPrincipal_);
       });
-      Run const r{*runPrincipal_, invalid_module_context};
+      auto const r =
+        Run::make(std::as_const(*runPrincipal_), invalid_module_context);
       actReg_.sPostEndRun.invoke(r);
     }
     catch (cet::exception& ex) {
@@ -870,7 +874,8 @@ namespace art {
     psSignals_->sPostReadSubRun.invoke(*subRunPrincipal_);
     subRunPrincipal_->enableLookupOfProducedProducts();
     {
-      SubRun const sr{*subRunPrincipal_, invalid_module_context};
+      auto const sr =
+        SubRun::make(std::as_const(*subRunPrincipal_), invalid_module_context);
       actReg_.sPostSourceSubRun.invoke(sr);
     }
     FDEBUG(1) << string(8, ' ') << "readSubRun..................("
@@ -888,14 +893,16 @@ namespace art {
     finalizeSubRunEnabled_ = true;
     try {
       {
-        SubRun const srun{*subRunPrincipal_, invalid_module_context};
+        auto const srun = SubRun::make(std::as_const(*subRunPrincipal_),
+                                       invalid_module_context);
         actReg_.sPreBeginSubRun.invoke(srun);
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedule(sid).process(Transition::BeginSubRun, *subRunPrincipal_);
       });
       {
-        SubRun const srun{*subRunPrincipal_, invalid_module_context};
+        auto const srun = SubRun::make(std::as_const(*subRunPrincipal_),
+                                       invalid_module_context);
         actReg_.sPostBeginSubRun.invoke(srun);
       }
     }
@@ -1039,7 +1046,8 @@ namespace art {
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedule(sid).process(Transition::EndSubRun, *subRunPrincipal_);
       });
-      SubRun const srun{*subRunPrincipal_, invalid_module_context};
+      auto const srun =
+        SubRun::make(std::as_const(*subRunPrincipal_), invalid_module_context);
       actReg_.sPostEndSubRun.invoke(srun);
     }
     catch (cet::exception& ex) {
@@ -1234,7 +1242,8 @@ namespace art {
       ep->createGroupsForProducedProducts(producedProductLookupTables_);
       psSignals_->sPostReadEvent.invoke(*ep);
       ep->enableLookupOfProducedProducts();
-      actReg_.sPostSourceEvent.invoke(Event{*ep, invalid_module_context}, sc);
+      actReg_.sPostSourceEvent.invoke(
+        Event::make(std::as_const(*ep), invalid_module_context), sc);
       FDEBUG(1) << string(8, ' ') << "readEvent...................("
                 << ep->eventID() << ")\n";
       schedule(sid).accept_principal(move(ep));
@@ -1435,8 +1444,9 @@ namespace art {
   EventProcessor::finishEventAsync(ScheduleID const sid)
   {
     auto& ep = schedule(sid).event_principal();
-    actReg_.sPostProcessEvent.invoke(Event{ep, invalid_module_context},
-                                     ScheduleContext{sid});
+    actReg_.sPostProcessEvent.invoke(
+      Event::make(std::as_const(ep), invalid_module_context),
+      ScheduleContext{sid});
 
     // Note: We are part of the endPathTask.
     TDEBUG_BEGIN_FUNC_SI(4, sid);

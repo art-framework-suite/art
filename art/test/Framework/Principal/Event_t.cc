@@ -98,14 +98,16 @@ namespace art {
     return os << timestamp.value();
   }
 
-  class EDProducer {
-  public:
-    static void
-    commitEvent(EventPrincipal& ep, Event& e)
-    {
-      e.movePutProductsToPrincipal(ep);
-    }
-  };
+  namespace detail {
+    class Producer {
+    public:
+      static void
+      commit(Event& e)
+      {
+        e.commitProducts();
+      }
+    };
+  }
 
 } // namespace art
 
@@ -271,7 +273,7 @@ EventTestFixture::EventTestFixture()
   ProcessHistoryRegistry::emplace(processHistoryID, processHistory);
 
   // When any new product is added to the event principal at
-  // movePutProductsToPrincipal, the "CURRENT" process will go into the
+  // commitProducts, the "CURRENT" process will go into the
   // ProcessHistory because the process name comes from the
   // currentModuleDescription stored in the principal.  On the other hand, when
   // addSourceProduct is called, another event is created with a fake
@@ -300,7 +302,7 @@ EventTestFixture::EventTestFixture()
   principal_->enableLookupOfProducedProducts();
 
   currentModuleContext_ = ModuleContext{ptf().currentModuleDescription_};
-  currentEvent_ = std::make_unique<Event>(*principal_, currentModuleContext_);
+  currentEvent_ = Event::makePtr(*principal_, currentModuleContext_);
 }
 
 // Add the given product, of type T, to the current event, as if it
@@ -322,10 +324,10 @@ EventTestFixture::addSourceProduct(std::unique_ptr<T>&& product,
       << "Failed to find a product lookup for tag: " << tag << '\n';
 
   ModuleContext const tempMC{description->second};
-  Event temporaryEvent{*principal_, tempMC};
+  auto temporaryEvent = Event::make(*principal_, tempMC);
   ProductID const id{temporaryEvent.put(std::move(product), instanceName)};
 
-  EDProducer::commitEvent(*principal_, temporaryEvent);
+  detail::Producer::commit(temporaryEvent);
   return id;
 }
 
@@ -377,13 +379,13 @@ BOOST_AUTO_TEST_CASE(dereferenceDfltHandle)
 BOOST_AUTO_TEST_CASE(putAnIntProduct)
 {
   currentEvent_->put(product_with_value(3), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_);
+  detail::Producer::commit(*currentEvent_);
 }
 
 BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 {
   currentEvent_->put(product_with_value(4), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_);
+  detail::Producer::commit(*currentEvent_);
 
   ProcessNameSelector const should_match{"CURRENT"};
   ProcessNameSelector const should_not_match{"NONESUCH"};
@@ -436,7 +438,7 @@ BOOST_AUTO_TEST_CASE(getByProductID)
 BOOST_AUTO_TEST_CASE(transaction)
 {
   // Put a product into an Event, and make sure that if we don't
-  // movePutProductsToPrincipal, there is no product in the EventPrincipal
+  // commitProducts, there is no product in the EventPrincipal
   // afterwards.
   BOOST_TEST(principal_->size() == 6u);
   currentEvent_->put(product_with_value(3), "int1");
@@ -533,7 +535,7 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   addSourceProduct(product_with_value(100), "int1_tag_late", "int1");
 
   currentEvent_->put(product_with_value(200), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_);
+  detail::Producer::commit(*currentEvent_);
 
   Selector const sel{ProductInstanceNameSelector{"int2"} && modMultiSelector &&
                      ProcessNameSelector{"EARLY"}};
@@ -598,7 +600,7 @@ BOOST_AUTO_TEST_CASE(getByLabel)
 
   currentEvent_->put(product_with_value(200), "int1");
 
-  EDProducer::commitEvent(*principal_, *currentEvent_);
+  detail::Producer::commit(*currentEvent_);
 
   handle_t h;
   BOOST_TEST_REQUIRE(currentEvent_->getByLabel("modMulti", h));
@@ -669,7 +671,7 @@ BOOST_AUTO_TEST_CASE(getManyByType)
   addSourceProduct(product_with_value(100), "int1_tag_late", "int1");
 
   currentEvent_->put(product_with_value(200), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_);
+  detail::Producer::commit(*currentEvent_);
 
   // Verify that the returned tags match thos provided through the
   // handles below.

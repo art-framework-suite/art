@@ -351,7 +351,7 @@ namespace art {
   //
   // Principal::getGroupTryAllFiles(ProductID const& pid) const
   //   Used by Principal::getByProductID(ProductID const& pid) const
-  //     Used by art::DataViewImpl<T>::get(ProductID const pid, Handle<T>&
+  //     Used by art::ProductRetriever<T>::get(ProductID const pid, Handle<T>&
   //       result) const. (easy user-facing api)
   //     Used by Principal::productGetter(ProductID const pid) const
   //       Used by (Run,SubRun,Event,Results)::productGetter (advanced
@@ -406,7 +406,7 @@ namespace art {
   //
   // FIXME: threading: We hand out processHistory_ through the
   // processHistory() interface, which is in turn handed out by
-  // the DataViewImpl::processHistory() interface to any module
+  // the ProductRetriever::processHistory() interface to any module
   // task that wants it.  This is a problem for output modules
   // and analyzers if an output module decides to update the
   // process history from startEndFile. We must stall users of

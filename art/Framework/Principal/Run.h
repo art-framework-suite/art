@@ -6,12 +6,16 @@
 //  This is the primary interface for accessing per run EDProducts
 //  and inserting new derived products.
 //
-//  For its usage, see "art/Framework/Principal/DataViewImpl.h"
+//  For its usage, see "art/Framework/Principal/ProductRetriever.h"
 //
 
-#include "art/Framework/Principal/DataViewImpl.h"
+#include "art/Framework/Principal/ProductInserter.h"
+#include "art/Framework/Principal/ProductRetriever.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/ProductSemantics.h"
+
+#include <cassert>
+#include <optional>
 
 #define PUT_DEPRECATION_MSG                                                    \
   "\n\n"                                                                       \
@@ -30,13 +34,14 @@
 
 namespace art {
 
-  class Run final : private DataViewImpl {
+  class Run final : private ProductRetriever {
   public:
     ~Run();
 
-    explicit Run(RunPrincipal const& principal,
-                 ModuleContext const& mc,
-                 RangeSet const& rs = RangeSet::invalid());
+    static Run make(RunPrincipal& ep,
+                    ModuleContext const& mc,
+                    RangeSet const& rs = RangeSet::invalid());
+    static Run make(RunPrincipal const& ep, ModuleContext const& mc);
 
     Run(Run const&) = delete;
     Run(Run&&) = delete;
@@ -49,25 +54,23 @@ namespace art {
     Timestamp const& endTime() const;
     ProcessHistory const& processHistory() const;
 
-    using DataViewImpl::getHandle;
-    using DataViewImpl::getInputTags;
-    using DataViewImpl::getMany;
-    using DataViewImpl::getProduct;
-    using DataViewImpl::getProductTokens;
-    using DataViewImpl::getValidHandle;
-    using DataViewImpl::getView;
+    using ProductRetriever::getHandle;
+    using ProductRetriever::getInputTags;
+    using ProductRetriever::getMany;
+    using ProductRetriever::getProduct;
+    using ProductRetriever::getProductTokens;
+    using ProductRetriever::getValidHandle;
+    using ProductRetriever::getView;
 
-    using DataViewImpl::getProductDescription;
-    using DataViewImpl::getProductID;
+    using ProductRetriever::getProductDescription;
+    using ProductRetriever::getProductID;
 
-    using DataViewImpl::getProcessParameterSet;
-    using DataViewImpl::productGetter;
+    using ProductRetriever::getProcessParameterSet;
+    using ProductRetriever::productGetter;
 
     // Obsolete interface (will be deprecated)
-    using DataViewImpl::get;
-    using DataViewImpl::getByLabel;
-
-    using DataViewImpl::movePutProductsToPrincipal;
+    using ProductRetriever::get;
+    using ProductRetriever::getByLabel;
 
     // Product insertion
     template <typename PROD>
@@ -97,6 +100,20 @@ namespace art {
                   RangedFragmentSemantic<Level::Run> semantic);
 
   private:
+    void commitProducts();
+
+    // Give access to commitProducts(...).
+    friend class detail::Analyzer;
+    friend class detail::Filter;
+    friend class detail::Producer;
+    friend class ProducingService;
+
+    explicit Run(RunPrincipal const& srp,
+                 ModuleContext const& mc,
+                 std::optional<ProductInserter> inserter,
+                 RangeSet const& rs = RangeSet::invalid());
+
+    std::optional<ProductInserter> inserter_;
     RunPrincipal const& runPrincipal_;
     // The RangeSet to be used by any products put by the user.
     // Cannot be const because we call collapse() on it.
@@ -108,7 +125,8 @@ namespace art {
   Run::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
   {
     // Should be protected when a Run is shared among threads.
-    return DataViewImpl::put(move(edp), instance, rangeSet_.collapse());
+    assert(inserter_);
+    return inserter_->put(move(edp), instance, rangeSet_.collapse());
   }
 
   template <typename PROD>
@@ -140,7 +158,8 @@ namespace art {
            std::string const& instance,
            FullSemantic<Level::Run>)
   {
-    return DataViewImpl::put(move(edp), instance, RangeSet::forRun(id()));
+    assert(inserter_);
+    return inserter_->put(move(edp), instance, RangeSet::forRun(id()));
   }
 
   template <typename PROD>
@@ -156,6 +175,7 @@ namespace art {
       "           must be able to be aggregated. Please add the appropriate\n"
       "              void aggregate(T const&)\n"
       "           function to your class, or contact artists@fnal.gov.\n");
+    assert(inserter_);
     if (rangeSet_.collapse().is_full_run()) {
       throw Exception{errors::ProductPutFailure, "Run::put"}
         << "\nCannot put a product corresponding to a full Run using\n"
@@ -166,7 +186,7 @@ namespace art {
         << "   art::runFragment(art::RangeSet const&)\n"
         << "or contact artists@fnal.gov for assistance.\n";
     }
-    return DataViewImpl::put(move(edp), instance, rangeSet_);
+    return inserter_->put(move(edp), instance, rangeSet_);
   }
 
   template <typename PROD>
@@ -182,6 +202,7 @@ namespace art {
       "           must be able to be aggregated. Please add the appropriate\n"
       "              void aggregate(T const&)\n"
       "           function to your class, or contact artists@fnal.gov.\n");
+    assert(inserter_);
     if (semantic.rs.collapse().is_full_run()) {
       throw Exception{errors::ProductPutFailure, "Run::put"}
         << "\nCannot put a product corresponding to a full Run using\n"
@@ -194,7 +215,7 @@ namespace art {
         << "\nCannot put a product with an invalid RangeSet.\n"
         << "Please contact artists@fnal.gov.\n";
     }
-    return DataViewImpl::put(move(edp), instance, semantic.rs);
+    return inserter_->put(move(edp), instance, semantic.rs);
   }
 
 } // namespace art

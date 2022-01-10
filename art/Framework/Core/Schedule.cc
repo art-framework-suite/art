@@ -92,7 +92,7 @@ namespace art {
   {
     // We get here as part of the readAndProcessEvent task.
     actReg_.sPreProcessEvent.invoke(
-      Event{*eventPrincipal_, ModuleContext::invalid()}, context_);
+      Event::make(*eventPrincipal_, ModuleContext::invalid()), context_);
     tpsExec_.process_event(endPathTask, *eventPrincipal_);
   }
 
