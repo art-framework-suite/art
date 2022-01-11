@@ -25,6 +25,10 @@ namespace art {
       cet::exempt_ptr<ProductTable const>,
       std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
 
+    SubRun makeSubRun(ModuleContext const& mc,
+                      RangeSet const& rs = RangeSet::invalid());
+    SubRun makeSubRun(ModuleContext const& mc) const;
+
     Timestamp const& beginTime() const;
     Timestamp const& endTime() const;
     RunPrincipal const& runPrincipal() const;

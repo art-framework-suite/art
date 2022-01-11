@@ -202,11 +202,9 @@ namespace art {
     virtual void writeFileFormatVersion();
     virtual void writeFileIdentifier();
     virtual void writeFileIndex();
-    virtual void writeEventHistory();
     virtual void writeProcessConfigurationRegistry();
     virtual void writeProcessHistoryRegistry();
     virtual void writeParameterSetRegistry();
-    virtual void writeBranchIDListRegistry();
     virtual void writeParentageRegistry();
     virtual void writeProductDescriptionRegistry();
     void writeFileCatalogMetadata();

@@ -71,7 +71,7 @@ namespace art::detail {
   bool
   Filter::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
   {
-    auto r = Run::make(rp, mc, RangeSet::forRun(rp.runID()));
+    auto r = rp.makeRun(mc, RangeSet::forRun(rp.runID()));
     ProcessingFrame const frame{mc.scheduleID()};
     bool const rc = beginRunWithFrame(r, frame);
     r.commitProducts();
@@ -81,7 +81,7 @@ namespace art::detail {
   bool
   Filter::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
   {
-    auto r = Run::make(rp, mc, rp.seenRanges());
+    auto r = rp.makeRun(mc, rp.seenRanges());
     ProcessingFrame const frame{mc.scheduleID()};
     bool const rc = endRunWithFrame(r, frame);
     r.commitProducts();
@@ -91,7 +91,7 @@ namespace art::detail {
   bool
   Filter::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    auto sr = SubRun::make(srp, mc, RangeSet::forSubRun(srp.subRunID()));
+    auto sr = srp.makeSubRun(mc, RangeSet::forSubRun(srp.subRunID()));
     ProcessingFrame const frame{mc.scheduleID()};
     bool const rc = beginSubRunWithFrame(sr, frame);
     sr.commitProducts();
@@ -101,7 +101,7 @@ namespace art::detail {
   bool
   Filter::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    auto sr = SubRun::make(srp, mc, srp.seenRanges());
+    auto sr = srp.makeSubRun(mc, srp.seenRanges());
     ProcessingFrame const frame{mc.scheduleID()};
     bool const rc = endSubRunWithFrame(sr, frame);
     sr.commitProducts();
@@ -115,7 +115,7 @@ namespace art::detail {
                   atomic<size_t>& counts_passed,
                   atomic<size_t>& counts_failed)
   {
-    auto e = Event::make(ep, mc);
+    auto e = ep.makeEvent(mc);
     ++counts_run;
     ProcessingFrame const frame{mc.scheduleID()};
     bool const rc = filterWithFrame(e, frame);

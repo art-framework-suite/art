@@ -40,10 +40,10 @@ namespace art {
   public:
     ~SubRun();
 
-    static SubRun make(SubRunPrincipal& ep,
-                       ModuleContext const& mc,
-                       RangeSet const& rs = RangeSet::invalid());
-    static SubRun make(SubRunPrincipal const& ep, ModuleContext const& mc);
+    explicit SubRun(SubRunPrincipal const& srp,
+                    ModuleContext const& mc,
+                    std::optional<ProductInserter> inserter = std::nullopt,
+                    RangeSet const& rs = RangeSet::invalid());
 
     SubRun(SubRun const&) = delete;
     SubRun(SubRun&&) = delete;
@@ -110,11 +110,6 @@ namespace art {
     friend class detail::Filter;
     friend class detail::Producer;
     friend class ProducingService;
-
-    explicit SubRun(SubRunPrincipal const& srp,
-                    ModuleContext const& mc,
-                    std::optional<ProductInserter> inserter,
-                    RangeSet const& rs = RangeSet::invalid());
 
     std::optional<ProductInserter> inserter_;
     SubRunPrincipal const& subRunPrincipal_;

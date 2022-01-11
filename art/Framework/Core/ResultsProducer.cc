@@ -3,10 +3,13 @@
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Results.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/SharedResource.h"
 
@@ -52,55 +55,49 @@ namespace art {
   ResultsProducer::doBeginRun(RunPrincipal const& rp)
   {
     ModuleContext const mc{moduleDescription()};
-    auto const r = Run::make(rp, mc);
-    beginRun(r);
+    beginRun(rp.makeRun(mc));
   }
 
   void
   ResultsProducer::doEndRun(RunPrincipal const& rp)
   {
     ModuleContext const mc{moduleDescription()};
-    auto const r = Run::make(rp, mc);
-    endRun(r);
+    endRun(rp.makeRun(mc));
   }
 
   void
   ResultsProducer::doBeginSubRun(SubRunPrincipal const& srp)
   {
     ModuleContext const mc{moduleDescription()};
-    auto const sr = SubRun::make(srp, mc);
-    beginSubRun(sr);
+    beginSubRun(srp.makeSubRun(mc));
   }
 
   void
   ResultsProducer::doEndSubRun(SubRunPrincipal const& srp)
   {
     ModuleContext const mc{moduleDescription()};
-    auto const sr = SubRun::make(srp, mc);
-    endSubRun(sr);
+    endSubRun(srp.makeSubRun(mc));
   }
 
   void
   ResultsProducer::doEvent(EventPrincipal const& ep)
   {
     ModuleContext const mc{moduleDescription()};
-    auto const e = Event::make(ep, mc);
-    event(e);
+    event(ep.makeEvent(mc));
   }
 
   void
   ResultsProducer::doReadResults(ResultsPrincipal const& resp)
   {
     ModuleContext const mc{moduleDescription()};
-    auto const res = Results::make(resp, mc);
-    readResults(res);
+    readResults(resp.makeResults(mc));
   }
 
   void
   ResultsProducer::doWriteResults(ResultsPrincipal& resp)
   {
     ModuleContext const mc{moduleDescription()};
-    auto res = Results::make(resp, mc);
+    auto res = resp.makeResults(mc);
     writeResults(res);
     res.commitProducts();
   }

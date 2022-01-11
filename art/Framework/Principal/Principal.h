@@ -21,6 +21,7 @@
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/NoDelayedReader.h"
 #include "art/Framework/Principal/OutputHandle.h"
+#include "art/Framework/Principal/ProductInserter.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "art/Persistency/Provenance/fwd.h"
@@ -39,6 +40,7 @@
 #include <atomic>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -169,6 +171,9 @@ namespace art {
              std::unique_ptr<ProductProvenance const>&&,
              std::unique_ptr<EDProduct>&&,
              std::unique_ptr<RangeSet>&&);
+
+  protected:
+    std::optional<ProductInserter> makeInserter(ModuleContext const& mc);
 
   private:
     // Used by our ctors.

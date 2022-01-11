@@ -69,6 +69,7 @@ namespace art {
   std::vector<ProductID>
   ProductRetriever::retrievedPIDs() const
   {
+    std::lock_guard lock{mutex_};
     return std::vector<ProductID>(begin(retrievedProducts_),
                                   end(retrievedProducts_));
   }

@@ -7,19 +7,6 @@ namespace art {
 
   Results::~Results() = default;
 
-  Results
-  Results::make(ResultsPrincipal& p, ModuleContext const& mc)
-  {
-    return Results{
-      p, mc, std::make_optional<ProductInserter>(InResults, p, mc)};
-  }
-
-  Results
-  Results::make(ResultsPrincipal const& p, ModuleContext const& mc)
-  {
-    return Results{p, mc, std::nullopt};
-  }
-
   Results::Results(ResultsPrincipal const& p,
                    ModuleContext const& mc,
                    std::optional<ProductInserter> inserter)

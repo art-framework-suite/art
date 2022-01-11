@@ -5,7 +5,6 @@
 #include "art/Framework/Principal/ConsumesInfo.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/ProcessTag.h"
 #include "art/Framework/Principal/ProductInfo.h"
 #include "art/Framework/Principal/Selector.h"

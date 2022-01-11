@@ -3,29 +3,12 @@
 
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 
 namespace art {
 
   Event::~Event() = default;
-
-  Event
-  Event::make(EventPrincipal& ep, ModuleContext const& mc)
-  {
-    return Event{ep, mc, std::make_optional<ProductInserter>(InEvent, ep, mc)};
-  }
-
-  Event
-  Event::make(EventPrincipal const& ep, ModuleContext const& mc)
-  {
-    return Event{ep, mc, std::nullopt};
-  }
-
-  std::unique_ptr<Event>
-  Event::makePtr(EventPrincipal& ep, ModuleContext const& mc)
-  {
-    return std::unique_ptr<Event>{new Event{Event::make(ep, mc)}};
-  }
 
   Event::Event(EventPrincipal const& ep,
                ModuleContext const& mc,
@@ -33,7 +16,7 @@ namespace art {
     : ProductRetriever{InEvent, ep, mc, inserter.has_value()}
     , inserter_{move(inserter)}
     , eventPrincipal_{ep}
-    , subRun_{SubRun::make(ep.subRunPrincipal(), mc)}
+    , subRun_{ep.subRunPrincipal().makeSubRun(mc)}
   {}
 
   EventID

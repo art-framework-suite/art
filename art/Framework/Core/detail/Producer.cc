@@ -64,7 +64,7 @@ namespace art::detail {
   bool
   Producer::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
   {
-    auto r = Run::make(rp, mc, RangeSet::forRun(rp.runID()));
+    auto r = rp.makeRun(mc, RangeSet::forRun(rp.runID()));
     ProcessingFrame const frame{mc.scheduleID()};
     beginRunWithFrame(r, frame);
     r.commitProducts();
@@ -74,7 +74,7 @@ namespace art::detail {
   bool
   Producer::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
   {
-    auto r = Run::make(rp, mc, rp.seenRanges());
+    auto r = rp.makeRun(mc, rp.seenRanges());
     ProcessingFrame const frame{mc.scheduleID()};
     endRunWithFrame(r, frame);
     r.commitProducts();
@@ -84,7 +84,7 @@ namespace art::detail {
   bool
   Producer::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    auto sr = SubRun::make(srp, mc, RangeSet::forSubRun(srp.subRunID()));
+    auto sr = srp.makeSubRun(mc, RangeSet::forSubRun(srp.subRunID()));
     ProcessingFrame const frame{mc.scheduleID()};
     beginSubRunWithFrame(sr, frame);
     sr.commitProducts();
@@ -94,7 +94,7 @@ namespace art::detail {
   bool
   Producer::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    auto sr = SubRun::make(srp, mc, srp.seenRanges());
+    auto sr = srp.makeSubRun(mc, srp.seenRanges());
     ProcessingFrame const frame{mc.scheduleID()};
     endSubRunWithFrame(sr, frame);
     sr.commitProducts();
@@ -108,7 +108,7 @@ namespace art::detail {
                     std::atomic<size_t>& counts_passed,
                     std::atomic<size_t>& /*counts_failed*/)
   {
-    auto e = Event::make(ep, mc);
+    auto e = ep.makeEvent(mc);
     ++counts_run;
     ProcessingFrame const frame{mc.scheduleID()};
     produceWithFrame(e, frame);

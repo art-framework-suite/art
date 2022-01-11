@@ -38,10 +38,10 @@ namespace art {
   public:
     ~Run();
 
-    static Run make(RunPrincipal& ep,
-                    ModuleContext const& mc,
-                    RangeSet const& rs = RangeSet::invalid());
-    static Run make(RunPrincipal const& ep, ModuleContext const& mc);
+    explicit Run(RunPrincipal const& srp,
+                 ModuleContext const& mc,
+                 std::optional<ProductInserter> inserter = std::nullopt,
+                 RangeSet const& rs = RangeSet::invalid());
 
     Run(Run const&) = delete;
     Run(Run&&) = delete;
@@ -107,11 +107,6 @@ namespace art {
     friend class detail::Filter;
     friend class detail::Producer;
     friend class ProducingService;
-
-    explicit Run(RunPrincipal const& srp,
-                 ModuleContext const& mc,
-                 std::optional<ProductInserter> inserter,
-                 RangeSet const& rs = RangeSet::invalid());
 
     std::optional<ProductInserter> inserter_;
     RunPrincipal const& runPrincipal_;

@@ -160,8 +160,7 @@ namespace art {
         << "In addition, please notify artists@fnal.gov of this error.\n";
     }
 
-    unique_ptr<Group> group = create_group(delayedReader_.get(), pd);
-    groups_[pd.productID()] = move(group);
+    groups_[pd.productID()] = create_group(delayedReader_.get(), pd);
   }
 
   // FIXME: This breaks the purpose of the
@@ -491,8 +490,8 @@ namespace art {
     if (!result.has_value()) {
       auto whyFailed = std::make_shared<Exception>(errors::ProductNotFound);
       *whyFailed << "Found zero products matching all selection criteria\n"
-                 << indent << "C++ type: " << wrapped.product_type << "\n"
-                 << sel.print(indent);
+                 << indent << "C++ type: " << wrapped.product_type << '\n'
+                 << sel.print(indent) << '\n';
       return GroupQueryResult{whyFailed};
     }
     return *result;
@@ -798,6 +797,12 @@ namespace art {
   Principal::branchType() const
   {
     return branchType_;
+  }
+
+  std::optional<ProductInserter>
+  Principal::makeInserter(ModuleContext const& mc)
+  {
+    return std::make_optional<ProductInserter>(branchType_, *this, mc);
   }
 
   bool

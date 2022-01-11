@@ -11,7 +11,9 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -200,7 +202,7 @@ namespace art {
   {
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp);
-    auto const r = Run::make(rp, mc);
+    auto const r = rp.makeRun(mc);
     cet::for_all(plugins_, [&r](auto& p) { p->doBeginRun(r); });
     return true;
   }
@@ -211,7 +213,7 @@ namespace art {
   {
     FDEBUG(2) << "beginSubRun called\n";
     beginSubRun(srp);
-    auto const sr = SubRun::make(srp, mc);
+    auto const sr = srp.makeSubRun(mc);
     cet::for_all(plugins_, [&sr](auto& p) { p->doBeginSubRun(sr); });
     return true;
   }
@@ -224,8 +226,7 @@ namespace art {
                         std::atomic<std::size_t>& /*counts_failed*/)
   {
     FDEBUG(2) << "doEvent called\n";
-    auto const e = Event::make(ep, mc);
-    if (wantEvent(mc.scheduleID(), e)) {
+    if (wantEvent(mc.scheduleID(), ep.makeEvent(mc))) {
       ++counts_run;
       event(ep);
       ++counts_passed;
@@ -237,7 +238,7 @@ namespace art {
   OutputModule::doWriteEvent(EventPrincipal& ep, ModuleContext const& mc)
   {
     FDEBUG(2) << "writeEvent called\n";
-    auto const e = Event::make(std::as_const(ep), mc);
+    auto const e = std::as_const(ep).makeEvent(mc);
     if (wantEvent(mc.scheduleID(), e)) {
       write(ep);
       // Declare that the event was selected for write to the catalog interface.
@@ -267,7 +268,7 @@ namespace art {
   {
     FDEBUG(2) << "endSubRun called\n";
     endSubRun(srp);
-    auto const sr = SubRun::make(srp, mc);
+    auto const sr = srp.makeSubRun(mc);
     cet::for_all(plugins_, [&sr](auto& p) { p->doEndSubRun(sr); });
     return true;
   }
@@ -291,7 +292,7 @@ namespace art {
   {
     FDEBUG(2) << "endRun called\n";
     endRun(rp);
-    auto const r = Run::make(rp, mc);
+    auto const r = rp.makeRun(mc);
     cet::for_all(plugins_, [&r](auto& p) { p->doEndRun(r); });
     return true;
   }
@@ -372,7 +373,6 @@ namespace art {
     writeFileFormatVersion();
     writeFileIdentifier();
     writeFileIndex();
-    writeEventHistory();
     writeProcessConfigurationRegistry();
     writeProcessHistoryRegistry();
     writeParameterSetRegistry();
@@ -391,27 +391,25 @@ namespace art {
   OutputModule::updateBranchParents(EventPrincipal& ep)
   {
     // Note: threading: We are implicitly using the Principal
-    //       iterators here which iterate over the groups held
-    //       by the principal, which may be updated by a producer
-    //       task in another stream while we are iterating! But
-    //       only for Run, SubRun, and Results principals, in the
-    //       case of Event principals we arrange that no producer
-    //       or filter tasks are running when we run. So since we
-    //       are only called for event principals we are safe.
+    //       iterators here which iterate over the groups held by the
+    //       principal, which may be updated by a producer task in
+    //       another stream while we are iterating! But only for Run,
+    //       SubRun, and Results principals, in the case of Event
+    //       principals we arrange that no producer or filter tasks
+    //       are running when we run. So since we are only called for
+    //       event principals we are safe.
     //
-    // Note: threading: We update branchParents_ and
-    //       branchChildren_ here which must be protected if we
-    //       become a stream or global module.
+    // Note: threading: We update branchParents_ and branchChildren_
+    //       here which must be protected if we become a stream or
+    //       global module.
     //
-    for (auto const& pid_and_uptr_to_grp : ep) {
-      auto const& group = *pid_and_uptr_to_grp.second;
-      if (group.productProvenance()) {
-        ProductID const pid = pid_and_uptr_to_grp.first;
+    for (auto const& [pid, group] : ep) {
+      if (auto provenance = group->productProvenance()) {
         auto iter = branchParents_.find(pid);
         if (iter == branchParents_.end()) {
           iter = branchParents_.emplace(pid, set<ParentageID>{}).first;
         }
-        iter->second.insert(group.productProvenance()->parentageID());
+        iter->second.insert(provenance->parentageID());
         branchChildren_.insertEmpty(pid);
       }
     }
@@ -422,9 +420,7 @@ namespace art {
   void
   OutputModule::fillDependencyGraph()
   {
-    for (auto const& bp : branchParents_) {
-      ProductID const child = bp.first;
-      set<ParentageID> const& eIds = bp.second;
+    for (auto const& [child, eIds] : branchParents_) {
       for (auto const& eId : eIds) {
         Parentage par;
         if (!ParentageRegistry::get(eId, par)) {
@@ -524,10 +520,6 @@ namespace art {
   {}
 
   void
-  OutputModule::writeEventHistory()
-  {}
-
-  void
   OutputModule::writeProcessConfigurationRegistry()
   {}
 
@@ -537,10 +529,6 @@ namespace art {
 
   void
   OutputModule::writeParameterSetRegistry()
-  {}
-
-  void
-  OutputModule::writeBranchIDListRegistry()
   {}
 
   void

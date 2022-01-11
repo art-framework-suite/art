@@ -6,7 +6,6 @@
 #include "art/Framework/Principal/Principal.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
-#include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/fwd.h"
 #include "cetlib/exempt_ptr.h"
@@ -21,14 +20,16 @@ namespace art {
     static constexpr BranchType branch_type = Auxiliary::branch_type;
 
     ~EventPrincipal();
-    EventPrincipal(
-      EventAuxiliary const& aux,
-      ProcessConfiguration const& pc,
-      cet::exempt_ptr<ProductTable const> presentProducts,
-      std::unique_ptr<History>&& history = std::make_unique<History>(),
-      std::unique_ptr<DelayedReader>&& rtrv =
-        std::make_unique<NoDelayedReader>(),
-      bool lastInSubRun = false);
+    EventPrincipal(EventAuxiliary const& aux,
+                   ProcessConfiguration const& pc,
+                   cet::exempt_ptr<ProductTable const> presentProducts,
+                   ProcessHistoryID const& phid = {},
+                   std::unique_ptr<DelayedReader>&& rtrv =
+                     std::make_unique<NoDelayedReader>(),
+                   bool lastInSubRun = false);
+
+    Event makeEvent(ModuleContext const& mc);
+    Event makeEvent(ModuleContext const& mc) const;
 
     EventAuxiliary const& eventAux() const;
     EventID const& eventID() const;
@@ -45,11 +46,11 @@ namespace art {
     bool isLastInSubRun() const;
 
     void createGroupsForProducedProducts(ProductTables const& producedProducts);
+    void refreshProcessHistoryID();
 
   private:
     cet::exempt_ptr<SubRunPrincipal const> subRunPrincipal_{nullptr};
     EventAuxiliary aux_;
-    std::unique_ptr<History> history_;
     bool lastInSubRun_;
   };
 

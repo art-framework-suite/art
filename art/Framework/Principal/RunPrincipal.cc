@@ -1,4 +1,5 @@
 #include "art/Framework/Principal/RunPrincipal.h"
+#include "art/Framework/Principal/Run.h"
 // vim: set sw=2 expandtab :
 
 namespace art {
@@ -18,6 +19,18 @@ namespace art {
                 move(reader)}
     , aux_{aux}
   {}
+
+  Run
+  RunPrincipal::makeRun(ModuleContext const& mc, RangeSet const& rs)
+  {
+    return Run{*this, mc, makeInserter(mc), rs};
+  }
+
+  Run
+  RunPrincipal::makeRun(ModuleContext const& mc) const
+  {
+    return Run{*this, mc};
+  }
 
   Timestamp const&
   RunPrincipal::beginTime() const

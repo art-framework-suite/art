@@ -1,4 +1,5 @@
 #include "art/Framework/Principal/ResultsPrincipal.h"
+#include "art/Framework/Principal/Results.h"
 // vim: set sw=2:
 
 namespace art {
@@ -18,6 +19,18 @@ namespace art {
                 move(reader)}
     , aux_{aux}
   {}
+
+  Results
+  ResultsPrincipal::makeResults(ModuleContext const& mc)
+  {
+    return Results{*this, mc, makeInserter(mc)};
+  }
+
+  Results
+  ResultsPrincipal::makeResults(ModuleContext const& mc) const
+  {
+    return Results{*this, mc};
+  }
 
   ResultsAuxiliary const&
   ResultsPrincipal::resultsAux() const

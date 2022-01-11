@@ -7,19 +7,6 @@ namespace art {
 
   Run::~Run() = default;
 
-  Run
-  Run::make(RunPrincipal& srp, ModuleContext const& mc, RangeSet const& rs)
-  {
-    return Run{
-      srp, mc, std::make_optional<ProductInserter>(InRun, srp, mc), rs};
-  }
-
-  Run
-  Run::make(RunPrincipal const& srp, ModuleContext const& mc)
-  {
-    return Run{srp, mc, std::nullopt, RangeSet::invalid()};
-  }
-
   Run::Run(RunPrincipal const& srp,
            ModuleContext const& mc,
            std::optional<ProductInserter> inserter,

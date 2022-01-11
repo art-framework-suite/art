@@ -5,23 +5,7 @@
 #include "canvas/Utilities/DebugMacros.h"
 #include "cetlib/container_algorithms.h"
 
-using namespace cet;
-using namespace std;
-
 namespace art {
-
-  namespace actions {
-
-    char const*
-    actionName(ActionCodes code)
-    {
-      vector<const char*> names{
-        "IgnoreCompletely", "Rethrow", "SkipEvent", "FailModule", "FailPath"};
-      return (static_cast<size_t>(code) < names.size()) ? names[code] :
-                                                          "UnknownAction";
-    }
-
-  } // namespace actions
 
   ActionTable::~ActionTable() = default;
 
@@ -46,29 +30,29 @@ namespace art {
     if (2 > debugit())
       return;
 
-    for (auto const& pr : map_) {
-      cerr << pr.first << ',' << pr.second << '\n';
+    for (auto const& [name, code] : map_) {
+      std::cerr << name << ',' << code << '\n';
     }
-    cerr << endl;
+    std::cerr << '\n';
   }
 
   void
-  ActionTable::install_(actions::ActionCodes code,
-                        vector<string> const& action_names)
+  ActionTable::install_(actions::ActionCodes const code,
+                        std::vector<std::string> const& action_names)
   {
-    for_all(action_names, [this, code](auto const& action_name) {
-      this->add(action_name, code);
+    cet::for_all(action_names, [this, code](auto const& action_name) {
+      add(action_name, code);
     });
   }
 
   void
-  ActionTable::add(const string& category, actions::ActionCodes code)
+  ActionTable::add(std::string const& category, actions::ActionCodes const code)
   {
     map_[category] = code;
   }
 
   actions::ActionCodes
-  ActionTable::find(string const& category) const
+  ActionTable::find(std::string const& category) const
   {
     auto I = map_.find(category);
     return (I != map_.end()) ? I->second : actions::Rethrow;

@@ -1,4 +1,5 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Principal/SubRun.h"
 // vim: set sw=2 expandtab :
 
 namespace art {
@@ -18,6 +19,18 @@ namespace art {
                 move(reader)}
     , aux_{aux}
   {}
+
+  SubRun
+  SubRunPrincipal::makeSubRun(ModuleContext const& mc, RangeSet const& rs)
+  {
+    return SubRun{*this, mc, makeInserter(mc), rs};
+  }
+
+  SubRun
+  SubRunPrincipal::makeSubRun(ModuleContext const& mc) const
+  {
+    return SubRun{*this, mc};
+  }
 
   SubRunAuxiliary const&
   SubRunPrincipal::subRunAux() const

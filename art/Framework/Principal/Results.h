@@ -21,8 +21,9 @@ namespace art {
   public:
     ~Results();
 
-    static Results make(ResultsPrincipal& p, ModuleContext const& mc);
-    static Results make(ResultsPrincipal const& p, ModuleContext const& mc);
+    explicit Results(ResultsPrincipal const& p,
+                     ModuleContext const& mc,
+                     std::optional<ProductInserter> inserter = std::nullopt);
 
     Results(Results const&) = delete;
     Results(Results&&) = delete;
@@ -58,10 +59,6 @@ namespace art {
 
     // Give access to commitProducts(...).
     friend class ResultsProducer;
-
-    explicit Results(ResultsPrincipal const& p,
-                     ModuleContext const& mc,
-                     std::optional<ProductInserter> inserter);
 
     std::optional<ProductInserter> inserter_;
   };

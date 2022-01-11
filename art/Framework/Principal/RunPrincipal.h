@@ -25,16 +25,15 @@ namespace art {
       cet::exempt_ptr<ProductTable const>,
       std::unique_ptr<DelayedReader>&& = std::make_unique<NoDelayedReader>());
 
+    Run makeRun(ModuleContext const& mc,
+                RangeSet const& rs = RangeSet::invalid());
+    Run makeRun(ModuleContext const& mc) const;
+
     Timestamp const& beginTime() const;
     Timestamp const& endTime() const;
     RunID runID() const;
     RunNumber_t run() const;
     RunAuxiliary const& runAux() const;
-    // using Principal::beginTime;
-    // using Principal::endTime;
-    // using Principal::run;
-    // using Principal::runAux;
-    // using Principal::runID;
     using Principal::updateSeenRanges;
 
     void createGroupsForProducedProducts(ProductTables const& producedProducts);

@@ -34,6 +34,9 @@ namespace art {
                      std::unique_ptr<DelayedReader>&& reader =
                        std::make_unique<NoDelayedReader>());
 
+    Results makeResults(ModuleContext const& mc);
+    Results makeResults(ModuleContext const& mc) const;
+
     ResultsAuxiliary const& resultsAux() const;
 
     void createGroupsForProducedProducts(ProductTables const& producedProducts);

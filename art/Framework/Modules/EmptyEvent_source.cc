@@ -280,8 +280,7 @@ art::EmptyEvent::readRun_()
   assert(result.get() != nullptr);
   if (plugin_) {
     ModuleContext const mc{moduleDescription()};
-    auto const r = Run::make(std::as_const(*result), mc);
-    plugin_->doBeginRun(r);
+    plugin_->doBeginRun(std::as_const(*result).makeRun(mc));
   }
   return result;
 }
@@ -303,8 +302,7 @@ art::EmptyEvent::readSubRun_(cet::exempt_ptr<RunPrincipal const> rp)
   result->setRunPrincipal(rp);
   if (plugin_) {
     ModuleContext const mc{moduleDescription()};
-    auto const sr = SubRun::make(std::as_const(*result), mc);
-    plugin_->doBeginSubRun(sr);
+    plugin_->doBeginSubRun(std::as_const(*result).makeSubRun(mc));
   }
   return result;
 }
@@ -323,7 +321,7 @@ art::EmptyEvent::readEvent_()
   result = make_unique<EventPrincipal>(eventAux,
                                        processConfiguration(),
                                        nullptr,
-                                       make_unique<History>(),
+                                       ProcessHistoryID{},
                                        make_unique<NoDelayedReader>(),
                                        numberEventsInThisSubRun_ ==
                                          numberEventsInSubRun_);

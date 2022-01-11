@@ -2,27 +2,13 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 
 namespace art {
 
   SubRun::~SubRun() = default;
-
-  SubRun
-  SubRun::make(SubRunPrincipal& srp,
-               ModuleContext const& mc,
-               RangeSet const& rs)
-  {
-    return SubRun{
-      srp, mc, std::make_optional<ProductInserter>(InSubRun, srp, mc), rs};
-  }
-
-  SubRun
-  SubRun::make(SubRunPrincipal const& srp, ModuleContext const& mc)
-  {
-    return SubRun{srp, mc, std::nullopt, RangeSet::invalid()};
-  }
 
   SubRun::SubRun(SubRunPrincipal const& srp,
                  ModuleContext const& mc,
@@ -31,7 +17,7 @@ namespace art {
     : ProductRetriever{InSubRun, srp, mc, false}
     , inserter_{move(inserter)}
     , subRunPrincipal_{srp}
-    , run_{Run::make(srp.runPrincipal(), mc)}
+    , run_{srp.runPrincipal().makeRun(mc)}
     , rangeSet_{rs}
   {}
 

@@ -12,7 +12,6 @@
 #include "art/Utilities/Globals.h"
 #include "canvas/Persistency/Provenance/BranchKey.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/Compatibility/BranchIDList.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/canonicalProductName.h"
 #include "canvas/Utilities/Exception.h"

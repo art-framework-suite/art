@@ -2,12 +2,12 @@
 #define art_Framework_Principal_Event_h
 // vim: set sw=2 expandtab :
 
-// =============================================================
+// ===============================================================
 // This is the primary interface for accessing products from a
 // triggered event and inserting new derived products.
 //
 // For its usage, see "art/Framework/Principal/ProductRetriever.h"
-// =============================================================
+// ===============================================================
 
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/ProductInserter.h"
@@ -16,7 +16,6 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/fwd.h"
 #include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/History.h"
 
 #include <memory>
 #include <optional>
@@ -30,10 +29,9 @@ namespace art {
 
     ~Event();
 
-    static Event make(EventPrincipal& ep, ModuleContext const& mc);
-    static Event make(EventPrincipal const& ep, ModuleContext const& mc);
-    static std::unique_ptr<Event> makePtr(EventPrincipal& ep,
-                                          ModuleContext const& mc);
+    explicit Event(EventPrincipal const& ep,
+                   ModuleContext const& mc,
+                   std::optional<ProductInserter> inserter = std::nullopt);
 
     Event(Event const&) = delete;
     Event(Event&&) = delete;
@@ -91,10 +89,6 @@ namespace art {
     friend class detail::Filter;
     friend class detail::Producer;
     friend class ProducingService;
-
-    explicit Event(EventPrincipal const& ep,
-                   ModuleContext const& mc,
-                   std::optional<ProductInserter> inserter);
 
     std::optional<ProductInserter> inserter_;
     EventPrincipal const& eventPrincipal_;

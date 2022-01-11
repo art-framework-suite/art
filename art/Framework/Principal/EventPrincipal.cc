@@ -1,4 +1,6 @@
 #include "art/Framework/Principal/EventPrincipal.h"
+#include "art/Framework/Principal/Event.h"
+
 // vim: set sw=2 expandtab :
 
 namespace art {
@@ -9,19 +11,26 @@ namespace art {
     EventAuxiliary const& aux,
     ProcessConfiguration const& pc,
     cet::exempt_ptr<ProductTable const> presentProducts,
-    std::unique_ptr<History>&& history /*= std::make_unique<History>()*/,
+    ProcessHistoryID const& phid,
     std::unique_ptr<DelayedReader>&&
       reader /*= std::make_unique<NoDelayedReader>()*/,
     bool const lastInSubRun /*= false*/)
-    : Principal{InEvent,
-                pc,
-                presentProducts,
-                history->processHistoryID(),
-                move(reader)}
+    : Principal{InEvent, pc, presentProducts, phid, move(reader)}
     , aux_{aux}
-    , history_{move(history)}
     , lastInSubRun_{lastInSubRun}
   {}
+
+  Event
+  EventPrincipal::makeEvent(ModuleContext const& mc)
+  {
+    return Event{*this, mc, makeInserter(mc)};
+  }
+
+  Event
+  EventPrincipal::makeEvent(ModuleContext const& mc) const
+  {
+    return Event{*this, mc};
+  }
 
   EventAuxiliary const&
   EventPrincipal::eventAux() const
@@ -94,10 +103,16 @@ namespace art {
   }
 
   void
+  EventPrincipal::refreshProcessHistoryID()
+  {
+    aux_.setProcessHistoryID(processHistoryID());
+  }
+
+  void
   EventPrincipal::createGroupsForProducedProducts(
     ProductTables const& producedProducts)
   {
     Principal::createGroupsForProducedProducts(producedProducts);
-    history_->setProcessHistoryID(processHistoryID());
+    refreshProcessHistoryID();
   }
 } // namespace art
