@@ -28,7 +28,6 @@ namespace art {
     Timestamp const& beginTime() const;
     Timestamp const& endTime() const;
     RunPrincipal const& runPrincipal() const;
-    cet::exempt_ptr<RunPrincipal const> runPrincipalExemptPtr() const;
     RunID const& runID() const;
     RunNumber_t run() const;
     SubRunAuxiliary const& subRunAux() const;

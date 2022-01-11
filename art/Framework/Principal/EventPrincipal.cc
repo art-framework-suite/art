@@ -83,12 +83,6 @@ namespace art {
     return *history_;
   }
 
-  EventSelectionIDVector const&
-  EventPrincipal::eventSelectionIDs() const
-  {
-    return history_->eventSelectionIDs();
-  }
-
   SubRunPrincipal const&
   EventPrincipal::subRunPrincipal() const
   {
@@ -97,12 +91,6 @@ namespace art {
         << "Tried to obtain a NULL subRunPrincipal.\n";
     }
     return *subRunPrincipal_;
-  }
-
-  cet::exempt_ptr<SubRunPrincipal const>
-  EventPrincipal::subRunPrincipalExemptPtr() const
-  {
-    return subRunPrincipal_;
   }
 
   void

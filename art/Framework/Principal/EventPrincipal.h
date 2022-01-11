@@ -39,13 +39,11 @@ namespace art {
     Timestamp const& time() const;
 
     SubRunPrincipal const& subRunPrincipal() const;
-    cet::exempt_ptr<SubRunPrincipal const> subRunPrincipalExemptPtr() const;
     void setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal const> srp);
     EventAuxiliary::ExperimentType ExperimentType() const;
     bool isReal() const;
     bool isLastInSubRun() const;
     History const& history() const;
-    EventSelectionIDVector const& eventSelectionIDs() const;
 
     void createGroupsForProducedProducts(ProductTables const& producedProducts);
 

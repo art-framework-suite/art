@@ -428,10 +428,6 @@ namespace art {
           throwDataCorruption_(
             "readNext returned a SubRun with an invalid SubRunID.\n");
         }
-        if (newSR->runPrincipalExemptPtr()) {
-          throwDataCorruption_(
-            "readNext returned a SubRun with a non-null embedded Run.\n");
-        }
       } else if (cachedSRP_) {
         srID = cachedSRP_->subRunID();
       }
@@ -445,10 +441,6 @@ namespace art {
         if (!eID.isValid()) {
           throwDataCorruption_(
             "readNext returned an Event with an invalid EventID.\n");
-        }
-        if (newE->subRunPrincipalExemptPtr()) {
-          throwDataCorruption_(
-            "readNext returned an Event with a non-null embedded SubRun.\n");
         }
       }
     } else {

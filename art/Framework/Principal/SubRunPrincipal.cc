@@ -59,12 +59,6 @@ namespace art {
     return *runPrincipal_;
   }
 
-  cet::exempt_ptr<RunPrincipal const>
-  SubRunPrincipal::runPrincipalExemptPtr() const
-  {
-    return runPrincipal_;
-  }
-
   RunID const&
   SubRunPrincipal::runID() const
   {
@@ -76,12 +70,6 @@ namespace art {
   {
     return aux_.run();
   }
-
-  // void
-  // SubRunPrincipal::endTime(Timestamp const& time)
-  // {
-  //   aux_.setEndTime(time);
-  // }
 
   void
   SubRunPrincipal::setRunPrincipal(cet::exempt_ptr<RunPrincipal const> rp)
