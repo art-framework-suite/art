@@ -141,7 +141,7 @@ namespace art {
 
     ProcessConfiguration const& processConfiguration() const;
 
-    ProcessHistoryID
+    ProcessHistoryID const&
     processHistoryID() const
     {
       return processHistory_.id();

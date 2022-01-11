@@ -43,7 +43,6 @@ namespace art {
     EventAuxiliary::ExperimentType ExperimentType() const;
     bool isReal() const;
     bool isLastInSubRun() const;
-    History const& history() const;
 
     void createGroupsForProducedProducts(ProductTables const& producedProducts);
 

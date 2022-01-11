@@ -51,7 +51,6 @@ namespace art {
     SubRun const& getSubRun() const;
     Run const& getRun() const;
 
-    History const& history() const;
     ProcessHistory const& processHistory() const;
     ProcessHistoryID const& processHistoryID() const;
 

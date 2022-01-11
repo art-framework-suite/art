@@ -77,12 +77,6 @@ namespace art {
     return lastInSubRun_;
   }
 
-  History const&
-  EventPrincipal::history() const
-  {
-    return *history_;
-  }
-
   SubRunPrincipal const&
   EventPrincipal::subRunPrincipal() const
   {

@@ -78,16 +78,10 @@ namespace art {
     return eventPrincipal_.ExperimentType();
   }
 
-  History const&
-  Event::history() const
-  {
-    return eventPrincipal_.history();
-  }
-
   ProcessHistoryID const&
   Event::processHistoryID() const
   {
-    return history().processHistoryID();
+    return eventPrincipal_.processHistoryID();
   }
 
   ProcessHistory const&
