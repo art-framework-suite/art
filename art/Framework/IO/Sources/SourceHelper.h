@@ -77,6 +77,9 @@ public:
 private:
   template <typename T>
   friend class Source;
+
+  template <typename T>
+  T* makePrincipal_(typename T::Auxiliary aux) const;
   void throwIfProductsNotRegistered_() const;
   ProcessHistoryID processHistoryID_(BranchType,
                                      ProcessConfiguration const&) const;

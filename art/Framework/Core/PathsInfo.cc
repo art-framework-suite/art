@@ -112,6 +112,7 @@ namespace art {
   size_t
   PathsInfo::failedEvents() const
   {
+    // MT: This is fragile!
     return totalEvents_.load() - passedEvents_.load();
   }
 

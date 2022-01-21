@@ -305,9 +305,10 @@ namespace {
     // with a fake moduleDescription containing the old process name
     // and that is used to create the group in the principal used to
     // look up the object.
-    EventAuxiliary const eventAux{make_id(), timestamp, true};
-    auto ep = std::make_unique<EventPrincipal>(
-      eventAux, pc, &ptf.presentProducts_, phid);
+    EventAuxiliary eventAux{make_id(), timestamp, true};
+    eventAux.setProcessHistoryID(phid);
+    auto ep =
+      std::make_unique<EventPrincipal>(eventAux, pc, &ptf.presentProducts_);
     ep->setSubRunPrincipal(srp);
     ep->createGroupsForProducedProducts(ptf.producedProducts_);
     ep->enableLookupOfProducedProducts();

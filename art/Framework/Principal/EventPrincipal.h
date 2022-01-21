@@ -23,7 +23,6 @@ namespace art {
     EventPrincipal(EventAuxiliary const& aux,
                    ProcessConfiguration const& pc,
                    cet::exempt_ptr<ProductTable const> presentProducts,
-                   ProcessHistoryID const& phid = {},
                    std::unique_ptr<DelayedReader>&& rtrv =
                      std::make_unique<NoDelayedReader>(),
                    bool lastInSubRun = false);

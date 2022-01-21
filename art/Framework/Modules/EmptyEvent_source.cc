@@ -310,23 +310,18 @@ art::EmptyEvent::readSubRun_(cet::exempt_ptr<RunPrincipal const> rp)
 unique_ptr<art::EventPrincipal>
 art::EmptyEvent::readEvent_()
 {
-  unique_ptr<EventPrincipal> result;
   if (processingMode() != RunsSubRunsAndEvents) {
-    return result;
+    return nullptr;
   }
   auto timestamp = plugin_ ? plugin_->doEventTimestamp(eventID_) :
                              Timestamp::invalidTimestamp();
-  EventAuxiliary const eventAux{
-    eventID_, timestamp, false, EventAuxiliary::Any};
-  result = make_unique<EventPrincipal>(eventAux,
-                                       processConfiguration(),
-                                       nullptr,
-                                       ProcessHistoryID{},
-                                       make_unique<NoDelayedReader>(),
-                                       numberEventsInThisSubRun_ ==
-                                         numberEventsInSubRun_);
-  assert(result.get() != nullptr);
-  return result;
+  EventAuxiliary const eventAux{eventID_, timestamp, false};
+  return make_unique<EventPrincipal>(eventAux,
+                                     processConfiguration(),
+                                     nullptr,
+                                     make_unique<NoDelayedReader>(),
+                                     numberEventsInThisSubRun_ ==
+                                       numberEventsInSubRun_);
 }
 
 unique_ptr<art::RangeSetHandler>

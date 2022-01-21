@@ -11,11 +11,14 @@ namespace art {
     EventAuxiliary const& aux,
     ProcessConfiguration const& pc,
     cet::exempt_ptr<ProductTable const> presentProducts,
-    ProcessHistoryID const& phid,
     std::unique_ptr<DelayedReader>&&
       reader /*= std::make_unique<NoDelayedReader>()*/,
     bool const lastInSubRun /*= false*/)
-    : Principal{InEvent, pc, presentProducts, phid, move(reader)}
+    : Principal{InEvent,
+                pc,
+                presentProducts,
+                aux.processHistoryID(),
+                move(reader)}
     , aux_{aux}
     , lastInSubRun_{lastInSubRun}
   {}

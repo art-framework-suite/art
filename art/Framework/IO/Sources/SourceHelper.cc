@@ -54,18 +54,26 @@ art::SourceHelper::setPresentProducts(
   presentProducts_ = presentProducts;
 }
 
-art::RunPrincipal*
-art::SourceHelper::makeRunPrincipal(RunAuxiliary runAux) const
+template <typename T>
+T*
+art::SourceHelper::makePrincipal_(typename T::Auxiliary aux) const
 {
   throwIfProductsNotRegistered_();
-  runAux.setProcessHistoryID(
-    processHistoryID_(InRun, md_.processConfiguration()));
-  auto principal = new RunPrincipal{
-    runAux, md_.processConfiguration(), &presentProducts_->get(InRun)};
-  if (runAux.processHistoryID().isValid()) {
+  constexpr auto branch_type = T::branch_type;
+  aux.setProcessHistoryID(
+    processHistoryID_(branch_type, md_.processConfiguration()));
+  auto principal =
+    new T{aux, md_.processConfiguration(), &presentProducts_->get(branch_type)};
+  if (aux.processHistoryID().isValid()) {
     principal->markProcessHistoryAsModified();
   }
   return principal;
+}
+
+art::RunPrincipal*
+art::SourceHelper::makeRunPrincipal(RunAuxiliary runAux) const
+{
+  return makePrincipal_<RunPrincipal>(std::move(runAux));
 }
 
 art::RunPrincipal*
@@ -86,15 +94,7 @@ art::SourceHelper::makeRunPrincipal(RunNumber_t const r,
 art::SubRunPrincipal*
 art::SourceHelper::makeSubRunPrincipal(SubRunAuxiliary subRunAux) const
 {
-  throwIfProductsNotRegistered_();
-  subRunAux.setProcessHistoryID(
-    processHistoryID_(InSubRun, md_.processConfiguration()));
-  auto principal = new SubRunPrincipal{
-    subRunAux, md_.processConfiguration(), &presentProducts_->get(InSubRun)};
-  if (subRunAux.processHistoryID().isValid()) {
-    principal->markProcessHistoryAsModified();
-  }
-  return principal;
+  return makePrincipal_<SubRunPrincipal>(std::move(subRunAux));
 }
 
 art::SubRunPrincipal*
@@ -116,17 +116,7 @@ art::SourceHelper::makeSubRunPrincipal(RunNumber_t const r,
 art::EventPrincipal*
 art::SourceHelper::makeEventPrincipal(EventAuxiliary eventAux) const
 {
-  throwIfProductsNotRegistered_();
-  eventAux.setProcessHistoryID(
-    processHistoryID_(InEvent, md_.processConfiguration()));
-  auto principal = new EventPrincipal{eventAux,
-                                      md_.processConfiguration(),
-                                      &presentProducts_->get(InEvent),
-                                      eventAux.processHistoryID()};
-  if (eventAux.processHistoryID().isValid()) {
-    principal->markProcessHistoryAsModified();
-  }
-  return principal;
+  return makePrincipal_<EventPrincipal>(std::move(eventAux));
 }
 
 art::EventPrincipal*
