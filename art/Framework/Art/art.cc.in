@@ -1,22 +1,43 @@
 // vim: set sw=2 expandtab :
+
+#include <iostream>
+
+//================================================================
+// Make sure the exit code printer is executed just before the stdout
+// destructor by instantiating it afer the iostream include but before
+// any other include files, which might bring in their own static storage
+// duration objects.
+namespace {
+  int result;
+  bool print_completion_message = true;
+  struct ExitCodePrinter {
+    ~ExitCodePrinter() {
+      if(print_completion_message) {
+        std::cout << "Art has completed and will exit with status " << result << "." << std::endl;
+      }
+    }
+  };
+  ExitCodePrinter p;
+}
+//================================================================
+
 #include "art/Framework/Art/artapp.h"
 #include "art/Framework/Art/detail/info_success.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
-#include <iostream>
 
 using namespace std;
 
 int
 main(int argc, char* argv[])
 {
-  int result = artapp(argc, argv);
+  result = artapp(argc, argv);
   mf::EndMessageFacility();
   if (result == art::detail::info_success()) {
+    print_completion_message = false;
     return 0;
   }
-  cout << "Art has completed and will exit with status " << result << "." << endl;
+
   return result;
 }
 
