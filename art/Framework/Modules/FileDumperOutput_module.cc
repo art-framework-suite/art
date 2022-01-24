@@ -17,11 +17,14 @@
 #include "cetlib/lpad.h"
 #include "cetlib/rpad.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
+#include "range/v3/view.hpp"
 
 #include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
+
+using namespace ranges;
 
 namespace art::detail {
   struct ProductInfo {
@@ -178,8 +181,7 @@ art::FileDumperOutput::printPrincipal(P const& p)
 
   products[dummyProcess()].emplace_back(dinfo);
 
-  for (auto const& pr : p) {
-    auto const& g = *pr.second;
+  for (auto const& g : p | views::values | views::indirect) {
     auto const& pd = g.productDescription();
     auto const& oh = p.getForOutput(pd.productID(), wantResolveProducts_);
 

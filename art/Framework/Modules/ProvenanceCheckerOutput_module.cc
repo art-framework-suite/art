@@ -81,9 +81,7 @@ namespace art {
     std::set<ProductID> missingFromMapper;
     std::set<ProductID> missingProductProvenance;
 
-    for (auto const& group : e) {
-      auto const pid = group.first;
-      auto const& pd = group.second;
+    for (auto const& [pid, pd] : e) {
       if (pd && pd->productAvailable()) {
         e.getForOutput(pid, false);
         if (not pd->productProvenance().get()) {
@@ -107,14 +105,13 @@ namespace art {
     // via the product tables.
     std::set<ProductID> missingFromPrincipal;
     std::set<ProductID> missingFromTables;
-    for (auto const& seenParent : seenParentInPrincipal) {
-      if (!seenParent.second) {
-        missingFromPrincipal.insert(seenParent.first);
+    for (auto const& [parent_pid, seen] : seenParentInPrincipal) {
+      if (!seen) {
+        missingFromPrincipal.insert(parent_pid);
       }
-      ProductID const pid{seenParent.first};
-      auto found = e.getProductDescription(pid);
+      auto found = e.getProductDescription(parent_pid);
       if (found == nullptr) {
-        missingFromTables.insert(pid);
+        missingFromTables.insert(parent_pid);
       }
     }
 

@@ -52,6 +52,7 @@ cet_build_plugin(FileDumperOutput art::module LIBRARIES REG
     canvas::canvas
     fhiclcpp::types
     cetlib::cetlib
+    range-v3::range-v3
 )
 
 cet_build_plugin(Prescaler art::module LIBRARIES REG fhiclcpp::types)

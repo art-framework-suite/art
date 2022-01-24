@@ -104,17 +104,17 @@ namespace art {
       void
       check_values(collection_type const& fromInput) const
       {
-        for (auto const& pr : fromInput) {
-          auto it = inputmd_.find(pr.first);
+        for (auto const& [key, value] : fromInput) {
+          auto it = inputmd_.find(key);
           if (it == cend(inputmd_)) {
             throw Exception(errors::LogicError)
-              << "Metadata key " << pr.first
+              << "Metadata key " << key
               << " missing from list of metadata to inherit from input "
                  "files.\n";
-          } else if (it->second != pr.second) {
+          } else if (it->second != value) {
             throw Exception(errors::MismatchedInputFiles)
-              << "The value for '" << pr.first
-              << "' for the current file is: " << pr.second
+              << "The value for '" << key
+              << "' for the current file is: " << value
               << ", which conflicts with the value from the first input file "
                  "(\""
               << it->second << "\").\n";

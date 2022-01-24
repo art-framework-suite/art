@@ -584,6 +584,15 @@ namespace art {
     TDEBUG_END_TASK_SI(4, sid);
   }
 
+  bool
+  Worker::isUnique() const
+  {
+    if (scheduleID_ == ScheduleID::first()) {
+      return true;
+    }
+    return md_.moduleThreadingType() == ModuleThreadingType::replicated;
+  }
+
   void
   Worker::doWork_event(WaitingTaskPtr workerInPathDoneTask,
                        EventPrincipal& p,

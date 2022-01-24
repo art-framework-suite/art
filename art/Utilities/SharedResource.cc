@@ -3,6 +3,7 @@
 #include "cetlib/container_algorithms.h"
 #include "cetlib_except/demangle.h"
 #include "hep_concurrency/SerialTaskQueue.h"
+#include "range/v3/view.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -90,11 +91,13 @@ namespace art::detail {
       return a.first < b.first;
     });
 
-    assert(empty(sortedResources_));
-    for (auto const& pr : resources_sorted_by_count) {
-      sortedResources_.emplace_back(pr.second,
-                                    std::make_shared<SerialTaskQueue>(group));
-    }
+    using namespace ranges;
+    sortedResources_ =
+      resources_sorted_by_count | views::values |
+      views::transform([&group](auto const& key) {
+        return std::pair{key, std::make_shared<SerialTaskQueue>(group)};
+      }) |
+      to<std::vector>();
 
     // Not needed any more now that we have a sorted list of resources.
     resourceCounts_.clear();
@@ -104,25 +107,22 @@ namespace art::detail {
   SharedResources::createQueues(
     std::vector<std::string> const& resourceNames) const
   {
-    std::vector<queue_ptr_t> result;
+    using namespace ranges;
     if (cet::search_all(resourceNames, LegacyResource.name)) {
       // We do not trust legacy modules as they may be accessing one
       // of the shared resources without our knowledge.  We therefore
       // isolate them from all other shared modules (and each other).
-      for (auto const& pr : sortedResources_) {
-        result.push_back(pr.second);
-      }
-    } else {
-      // Not for a legacy module, get the queues for the named
-      // resources.
-      for (auto const& name : resourceNames) {
-        auto it =
-          std::find_if(begin(sortedResources_),
-                       end(sortedResources_),
-                       [&name](auto const& pr) { return pr.first == name; });
-        assert(it != sortedResources_.end());
-        result.push_back(it->second);
-      }
+      return sortedResources_ | views::values | to<std::vector>();
+    }
+    std::vector<std::shared_ptr<SerialTaskQueue>> result;
+    // Not for a legacy module, get the queues for the named resources.
+    for (auto const& name : resourceNames) {
+      auto it =
+        std::find_if(begin(sortedResources_),
+                     end(sortedResources_),
+                     [&name](auto const& pr) { return pr.first == name; });
+      assert(it != sortedResources_.end());
+      result.push_back(it->second);
     }
 
     assert(not empty(result));

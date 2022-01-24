@@ -32,6 +32,7 @@ cet_make_library(
     messagefacility::MF_MessageLogger
     hep_concurrency::macros
     Boost::filesystem
+    range-v3::range-v3
 )
 
 cet_make_library(LIBRARY_NAME toolMaker INTERFACE

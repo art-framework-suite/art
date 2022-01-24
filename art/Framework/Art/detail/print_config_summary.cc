@@ -3,6 +3,7 @@
 #include "art/Persistency/Provenance/PathSpec.h"
 #include "cetlib/HorizontalRule.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "range/v3/view.hpp"
 
 #include <iomanip>
 #include <iostream>
@@ -54,8 +55,8 @@ art::detail::print_path_names(EnabledModules const& enabled_modules)
     std::string column_2{"Path size"};
 
     auto column_1_width = size(column_1);
-    for (auto const& pr : trigger_paths) {
-      column_1_width = std::max(column_1_width, size(pr.first.name));
+    for (auto const& spec : trigger_paths | ranges::views::keys) {
+      column_1_width = std::max(column_1_width, size(spec.name));
     }
 
     std::cout << column_0 << "  " << std::left << std::setw(column_1_width)
@@ -88,8 +89,8 @@ art::detail::print_path_names(EnabledModules const& enabled_modules)
     std::string column_1{"Path name"};
     std::string column_2{"Path size"};
     auto column_1_width = size(column_1);
-    for (auto const& pr : end_paths) {
-      column_1_width = std::max(column_1_width, size(pr.first.name));
+    for (auto const& spec : end_paths | ranges::views::keys) {
+      column_1_width = std::max(column_1_width, size(spec.name));
     }
 
     std::cout << std::left << std::setw(column_1_width) << column_1 << "  "
@@ -222,7 +223,7 @@ art::detail::print_config_summary(fhicl::ParameterSet const& pset,
     print_path_names(enabled_modules);
     return;
   }
-  throw art::Exception{art::errors::Configuration}
+  throw Exception{errors::Configuration}
     << "Unrecognized configuration-summary verbosity level: '" << verbosity
     << "'\n";
 }

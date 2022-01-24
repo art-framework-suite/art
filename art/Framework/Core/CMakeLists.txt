@@ -55,7 +55,6 @@ cet_make_library(HEADERS_TARGET SOURCE
     detail/consumed_products.cc
     detail/graph_algorithms.cc
     detail/issue_reports.cc
-    detail/skip_non_replicated.cc
     detail/verify_names.cc
   LIBRARIES
   PUBLIC

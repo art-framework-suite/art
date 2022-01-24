@@ -33,6 +33,7 @@
 #include "cetlib/BasicPluginFactory.h"
 #include "cetlib/canonical_string.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "range/v3/view.hpp"
 
 #include <array>
 #include <atomic>
@@ -140,8 +141,7 @@ namespace art {
       // TODO: See if we can collapse keptProducts_ and groupSelector into
       // a single object. See the notes in the header for GroupSelector
       // for more information.
-      for (auto const& val : productList) {
-        BranchDescription const& pd = val.second;
+      for (auto const& pd : productList | ranges::views::values) {
         if (pd.transient() || pd.dropped()) {
           continue;
         }

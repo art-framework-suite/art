@@ -211,11 +211,10 @@ namespace {
     std::size_t i{};
     for (auto const& lib : libs) {
       auto const& libspecs = lm.getSpecsByPath(lib);
-      std::string const& shortspec = libspecs.first;
-      std::string const& fullspec = libspecs.second;
+      auto const& [shortspec, fullspec] = libspecs;
 
       result.emplace(lib,
-                     std::make_pair(shortspec, fullspec),
+                     libspecs,
                      getFilePath(lm, shortspec), // full specs may be empty
                      getAllowedConfiguration(
                        lm, shortspec, shortspec), // for user-defined servicxes

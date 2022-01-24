@@ -131,9 +131,7 @@ namespace art {
   ConsumesInfo::showMissingConsumes() const
   {
     std::lock_guard sentry{mutex_};
-    for (auto const& modLabelAndarySetPI : missingConsumes_) {
-      auto const& modLabel = modLabelAndarySetPI.first;
-      auto const& arySetPI = modLabelAndarySetPI.second;
+    for (auto const& [modLabel, arySetPI] : missingConsumes_) {
       constexpr cet::HorizontalRule rule{60};
       mf::LogPrint log{"MTdiagnostics"};
       log << '\n'

@@ -97,6 +97,7 @@ namespace art {
     std::size_t timesExcept() const;
 
     void runWorker(EventPrincipal&, ModuleContext const&);
+    bool isUnique() const;
 
   protected:
     virtual std::string workerType() const = 0;

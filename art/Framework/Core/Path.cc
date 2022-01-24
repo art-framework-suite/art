@@ -1,10 +1,9 @@
-
 #include "art/Framework/Core/Path.h"
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/WorkerInPath.h"
-#include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/Actions.h"
+#include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -137,7 +136,7 @@ namespace art {
     for (WorkerInPath& wip : workers_) {
       // We do not want to call (e.g.) beginRun once per schedule for
       // non-replicated modules.
-      if (detail::skip_non_replicated(*wip.getWorker())) {
+      if (not wip.getWorker()->isUnique()) {
         continue;
       }
       try {

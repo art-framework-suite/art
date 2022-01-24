@@ -269,9 +269,7 @@ namespace art {
     mf::LogDebug log{"RANDOM"};
     log << "RNGservice::takeSnapshot_() of the following engine labels:\n";
     data_[sid].snapshot_.clear();
-    for (auto const& pr : data_[sid].dict_) {
-      string const& label = pr.first;
-      shared_ptr<CLHEP::HepRandomEngine> const& eptr = pr.second;
+    for (auto const& [label, eptr] : data_[sid].dict_) {
       assert(eptr && "RNGservice::takeSnapshot_()");
       data_[sid].snapshot_.emplace_back(
         data_[sid].kind_[label], label, eptr->put());
@@ -341,9 +339,8 @@ namespace art {
     }
     // save each engine:
     for (auto const& d : data_) {
-      for (auto const& pr : d.dict_) {
-        outfile << pr.first << '\n';
-        auto const& eptr = pr.second;
+      for (auto const& [label, eptr] : d.dict_) {
+        outfile << label << '\n';
         assert(eptr && "RNGservice::saveToFile_()");
         eptr->put(outfile);
         if (!outfile) {

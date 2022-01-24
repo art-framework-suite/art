@@ -6,6 +6,7 @@
 #include "canvas/Persistency/Provenance/ProductList.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib_except/exception.h"
+#include "range/v3/view.hpp"
 
 #include <memory>
 
@@ -36,8 +37,8 @@ namespace art {
     auto registerProductsPerBT = [this,
                                   &productsToRegister](BranchType const bt) {
       auto const& expectedProducts = collector_.expectedProducts(bt);
-      for (auto const& pr : expectedProducts) {
-        productsToRegister.push_back(pr.second);
+      for (auto const& pd : expectedProducts | ranges::views::values) {
+        productsToRegister.push_back(pd);
       }
     };
     for_each_branch_type(registerProductsPerBT);

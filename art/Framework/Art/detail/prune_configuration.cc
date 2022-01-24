@@ -6,6 +6,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/extended_value.h"
+#include "range/v3/view.hpp"
 
 #include <initializer_list>
 #include <iostream>
@@ -603,21 +604,22 @@ art::detail::prune_config_if_enabled(bool const prune_config,
   }
 
   // Find unused paths
+  using namespace ranges;
   paths.erase("trigger_paths");
   paths.erase("end_paths");
-  for (auto const& pr : trigger_paths) {
-    paths.erase(pr.first.name);
+  for (auto const& spec : trigger_paths | views::keys) {
+    paths.erase(spec.name);
   }
-  for (auto const& pr : end_paths) {
-    paths.erase(pr.first.name);
+  for (auto const& spec : end_paths | views::keys) {
+    paths.erase(spec.name);
   }
 
   // The only paths left are those that are not enabled for execution.
   if (report_enabled && !empty(paths)) {
     std::cerr << "The following paths have not been enabled for execution and "
                  "will be ignored:\n";
-    for (auto const& pr : paths) {
-      std::cerr << "  " << pr.first << '\n';
+    for (auto const& path_name : paths | views::keys) {
+      std::cerr << "  " << path_name << '\n';
     }
   }
 
@@ -628,25 +630,30 @@ art::detail::prune_config_if_enabled(bool const prune_config,
        << " either not assigned to any path,\n"
        << "or " << ((unused_modules.size() == 1ull) ? "it has" : "they have")
        << " been assigned to ignored path(s):\n";
-    for (auto const& pr : unused_modules) {
-      os << "  " << pr.first << '\n';
+    for (auto const& label : unused_modules | views::keys) {
+      os << "  " << label << '\n';
     }
     std::cerr << os.str();
   }
 
   if (prune_config) {
-    for (auto const& pr : paths) {
-      config.erase(fhicl_key("physics", pr.first));
+    auto to_full_path_name = [](auto const& path_name) {
+      return fhicl_key("physics", path_name);
+    };
+    for (auto const& key :
+         paths | views::keys | views::transform(to_full_path_name)) {
+      config.erase(key);
     }
-    for (auto const& pr : unused_modules) {
-      config.erase(pr.second);
+    for (auto const& label : unused_modules | views::values) {
+      config.erase(label);
     }
 
     // Check if module tables can be removed
-    for (auto const& table_name : module_tables) {
-      if (not exists_outside_prolog(config, table_name)) {
-        continue;
-      }
+    auto if_outside_prolog = [&config](auto const& table_name) {
+      return exists_outside_prolog(config, table_name);
+    };
+    for (auto const& table_name :
+         module_tables | views::filter(if_outside_prolog)) {
       if (table_t const value = config.find(table_name); empty(value)) {
         config.erase(table_name);
       }
@@ -662,11 +669,12 @@ art::detail::prune_config_if_enabled(bool const prune_config,
 
   // Place 'trigger_paths' as top-level configuration table
   if (trigger_paths_override) {
-    std::vector<std::string> explicit_entries;
-    cet::transform_all(trigger_paths,
-                       back_inserter(explicit_entries),
-                       [](auto const& pr) { return to_string(pr.first); });
-    config.put("trigger_paths.trigger_paths", explicit_entries);
+    auto explicit_entries = trigger_paths | views::keys |
+                            views::transform([](auto const& path_spec) {
+                              return to_string(path_spec);
+                            }) |
+                            to<std::vector>();
+    config.put("trigger_paths.trigger_paths", move(explicit_entries));
   }
 
   return EnabledModules{std::move(enabled_modules),

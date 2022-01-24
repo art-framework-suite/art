@@ -34,6 +34,7 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/types/detail/validationException.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "range/v3/view.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -143,34 +144,26 @@ namespace art {
   std::vector<PathSpec>
   PathManager::triggerPathSpecs() const
   {
-    std::vector<PathSpec> result;
-    result.reserve(size(triggerPathSpecs_));
-    for (auto const& pr : triggerPathSpecs_) {
-      result.push_back(pr.first);
-    }
-    return result;
+    using namespace ranges;
+    return triggerPathSpecs_ | views::keys | to<std::vector>();
   }
 
   std::vector<std::string>
   PathManager::triggerPathNames_() const
   {
-    std::vector<std::string> result;
-    result.reserve(size(triggerPathSpecs_));
-    for (auto const& pr : triggerPathSpecs_) {
-      result.push_back(pr.first.name);
-    }
-    return result;
+    using namespace ranges;
+    return triggerPathSpecs_ | views::keys |
+           views::transform([](auto const& spec) { return spec.name; }) |
+           to<std::vector>();
   }
 
   std::vector<std::string>
   PathManager::prependedTriggerPathNames_() const
   {
-    std::vector<std::string> result;
-    result.reserve(size(triggerPathSpecs_));
-    for (auto const& pr : triggerPathSpecs_) {
-      result.push_back(to_string(pr.first));
-    }
-    return result;
+    using namespace ranges;
+    return triggerPathSpecs_ | views::keys |
+           views::transform([](auto const& spec) { return to_string(spec); }) |
+           to<std::vector>();
   }
 
   void
@@ -578,8 +571,8 @@ namespace art {
     auto& source_info = result["input_source"];
     if (!protoTrigPathLabels_.empty()) {
       set<string> path_names;
-      for (auto const& pr : triggerPathSpecs_) {
-        path_names.insert(pr.first.name);
+      for (auto const& spec : triggerPathSpecs_ | ranges::views::keys) {
+        path_names.insert(spec.name);
       }
       source_info.paths = path_names;
       result["TriggerResults"] = ModuleGraphInfo{ModuleType::producer};

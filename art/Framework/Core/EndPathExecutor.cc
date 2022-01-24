@@ -7,7 +7,6 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
-#include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/Worker.h"
@@ -23,6 +22,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "range/v3/view.hpp"
 
 #include <memory>
 #include <type_traits>
@@ -31,6 +31,16 @@
 
 using namespace hep::concurrency;
 using namespace std;
+
+namespace {
+  auto
+  unique_workers(art::PathsInfo const& pinfo)
+  {
+    using namespace ranges;
+    return pinfo.workers() | views::values | views::indirect |
+           views::filter([](auto const& worker) { return worker.isUnique(); });
+  }
+}
 
 namespace art {
 
@@ -46,12 +56,10 @@ namespace art {
     , endPathInfo_{pm.endPathInfo(sid)}
     , taskGroup_{group}
   {
-    for (auto const& val : endPathInfo_.workers()) {
-      auto w = val.second.get();
-      assert(sid == w->scheduleID());
-      auto owp = dynamic_cast<OutputWorker*>(w);
-      if (owp != nullptr) {
-        outputWorkers_.emplace_back(owp);
+    for (auto const& worker : endPathInfo_.workers() | ranges::views::values) {
+      assert(sid == worker->scheduleID());
+      if (auto owp = std::dynamic_pointer_cast<OutputWorker>(worker)) {
+        outputWorkers_.emplace_back(owp.get());
       }
     }
     outputWorkersToOpen_.insert(outputWorkers_.cbegin(), outputWorkers_.cend());
@@ -62,12 +70,8 @@ namespace art {
   void
   EndPathExecutor::beginJob(detail::SharedResources const& resources)
   {
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.beginJob(resources);
+    for (auto& worker : unique_workers(endPathInfo_)) {
+      worker.beginJob(resources);
     }
   }
 
@@ -77,13 +81,9 @@ namespace art {
     Exception error{errors::EndJobFailure};
     // FIXME: There seems to be little value-added by the catch and rethrow
     // here.
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
+    for (auto& worker : unique_workers(endPathInfo_)) {
       try {
-        w.endJob();
+        worker.endJob();
       }
       catch (cet::exception& e) {
         error << "cet::exception caught in Schedule::endJob\n"
@@ -113,48 +113,32 @@ namespace art {
   void
   EndPathExecutor::respondToOpenInputFile(FileBlock const& fb)
   {
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.respondToOpenInputFile(fb);
+    for (auto& worker : unique_workers(endPathInfo_)) {
+      worker.respondToOpenInputFile(fb);
     }
   }
 
   void
   EndPathExecutor::respondToCloseInputFile(FileBlock const& fb)
   {
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.respondToCloseInputFile(fb);
+    for (auto& worker : unique_workers(endPathInfo_)) {
+      worker.respondToCloseInputFile(fb);
     }
   }
 
   void
   EndPathExecutor::respondToOpenOutputFiles(FileBlock const& fb)
   {
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.respondToOpenOutputFiles(fb);
+    for (auto& worker : unique_workers(endPathInfo_)) {
+      worker.respondToOpenOutputFiles(fb);
     }
   }
 
   void
   EndPathExecutor::respondToCloseOutputFiles(FileBlock const& fb)
   {
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.respondToCloseOutputFiles(fb);
+    for (auto& worker : unique_workers(endPathInfo_)) {
+      worker.respondToCloseOutputFiles(fb);
     }
   }
 
@@ -236,12 +220,8 @@ namespace art {
   void
   EndPathExecutor::process(Transition trans, Principal& principal)
   {
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.reset();
+    for (auto& worker : unique_workers(endPathInfo_)) {
+      worker.reset();
     }
     try {
       if (!endPathInfo_.paths().empty()) {

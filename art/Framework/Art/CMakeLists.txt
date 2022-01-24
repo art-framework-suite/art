@@ -47,6 +47,7 @@ cet_make_library(SOURCE
     cetlib_except::cetlib_except
     Boost::filesystem
     TBB::tbb
+    range-v3::range-v3
 )
 
 # Build an art exec.

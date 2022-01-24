@@ -232,8 +232,7 @@ namespace art {
     //          at a time, and we do not want other threads to find
     //          the info only partly there.
     std::lock_guard sentry{groupMutex_};
-    for (auto const& pid_and_group : groups_) {
-      auto group = pid_and_group.second.get();
+    for (auto const& group : groups_ | ranges::views::values) {
       group->resolveProductIfAvailable();
     }
   }

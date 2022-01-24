@@ -79,10 +79,10 @@ namespace art {
         << errMsg;
     }
     cet::BasicPluginFactory pf{Suffixes::plugin(), "makeRP"};
-    for (auto const& path : paths) {
-      auto ins_res = rpmap_.emplace(path.first, vector<unique_ptr<RPWorker>>{});
-      transform(path.second.cbegin(),
-                path.second.cend(),
+    for (auto const& [path_name, module_names] : paths) {
+      auto ins_res = rpmap_.emplace(path_name, vector<unique_ptr<RPWorker>>{});
+      transform(module_names.cbegin(),
+                module_names.cend(),
                 back_inserter(ins_res.first->second),
                 [&pf, &producers, &omLabel, &errMsg](string const& pkey) {
                   unique_ptr<RPWorker> result;

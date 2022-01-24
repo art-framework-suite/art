@@ -183,23 +183,21 @@ ProductTablesFixture::processHistory() const
   // code but other than the process names none of it is used or
   // interesting.
   ProcessHistory processHistory;
-  for (auto const& process : moduleConfigurations_) {
-    auto const& process_name = process.first;
+  for (auto const& [process_name, module_configs] : moduleConfigurations_) {
     // Skip current process since it is not yet part of the history.
     if (process_name == "CURRENT") {
       continue;
     }
 
     // Construct the ParameterSet for each process
-    auto const& module_configurations = process.second;
     ParameterSet processParameterSet;
     processParameterSet.put("process_name", process_name);
-    for (auto const& modConfig : module_configurations) {
-      processParameterSet.put(modConfig.first, modConfig.second);
+    for (auto const& [key, value] : module_configs) {
+      processParameterSet.put(key, value);
     }
 
     ProcessConfiguration const processConfiguration{
-      process.first, processParameterSet.id(), getReleaseVersion()};
+      process_name, processParameterSet.id(), getReleaseVersion()};
     processHistory.push_back(processConfiguration);
   }
 
