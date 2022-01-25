@@ -5,14 +5,31 @@
 #include <iostream>
 
 namespace art::detail {
-  struct ExitCodePrinter {
-    int result = 0;
+  class ExitCodePrinter {
+  public:
+    ExitCodePrinter&
+    operator=(int exitcode) noexcept
+    {
+      code_ = exitcode;
+      return *this;
+    }
+
     ~ExitCodePrinter() noexcept
     {
-      if (result != info_success()) {
-        std::cout << "Art has completed and will exit with status " << result << "." << std::endl;
+      if (code_ != info_success()) {
+        std::cout << "Art has completed and will exit with status " << code_
+                  << "." << std::endl;
       }
     }
+
+    int
+    exitcode() const noexcept
+    {
+      return code_ == info_success() ? 0 : code_;
+    }
+
+  private:
+    int code_{};
   };
 }
 

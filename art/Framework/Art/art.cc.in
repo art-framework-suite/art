@@ -1,29 +1,21 @@
 // vim: set sw=2 expandtab :
 
-// Initialize ExitCodePrinter as early as possible, before
-// other include files, to have its destructor called as late as possible.
+// Initialize ExitCodePrinter as early as possible, before other
+// include files, to have its destructor called as late as possible.
 #include "art/Framework/Art/detail/ExitCodePrinter.h"
 namespace {
   art::detail::ExitCodePrinter p;
 }
 
 #include "art/Framework/Art/artapp.h"
-#include "art/Framework/Art/detail/info_success.h"
-
 #include "messagefacility/MessageLogger/MessageLogger.h"
-
-using namespace std;
 
 int
 main(int argc, char* argv[])
 {
-  p.result = artapp(argc, argv);
+  p = artapp(argc, argv);
   mf::EndMessageFacility();
-  if (p.result == art::detail::info_success()) {
-    return 0;
-  }
-
-  return result;
+  return p.exitcode();
 }
 
 // Local Variables:
