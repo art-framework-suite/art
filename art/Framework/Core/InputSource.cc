@@ -32,16 +32,6 @@ namespace art {
   }
 
   void
-  InputSource::rewind()
-  {
-    throw Exception(errors::Configuration)
-      << "The application has tried to rewind an input source\n"
-      << "that does not support rewinding. Please reconfigure the program\n"
-      << "to use an input source that supports random access (e.g. "
-         "RootInput)\n";
-  }
-
-  void
   InputSource::doBeginJob()
   {}
 

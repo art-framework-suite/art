@@ -1,5 +1,5 @@
-#ifndef art_Framework_Art_detail_ExitCodePrinter
-#define art_Framework_Art_detail_ExitCodePrinter
+#ifndef art_Framework_Art_detail_ExitCodePrinter_h
+#define art_Framework_Art_detail_ExitCodePrinter_h
 
 #include "art/Framework/Art/detail/info_success.h"
 #include <iostream>
@@ -33,7 +33,8 @@ namespace art::detail {
   };
 }
 
-#endif
+#endif /* art_Framework_Art_detail_ExitCodePrinter_h */
+
 // Local Variables:
 // mode: c++
 // End:
