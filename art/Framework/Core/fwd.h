@@ -19,6 +19,7 @@ namespace art {
   class PathsInfo;
   class PathManager;
   class ProcessNameSelector;
+  class ProcessingLimits;
   class ProducesCollector;
   class ProductRegistryHelper;
   class ReplicatedAnalyzer;

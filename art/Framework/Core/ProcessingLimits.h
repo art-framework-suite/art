@@ -5,6 +5,8 @@
 #include "canvas/Persistency/Provenance/fwd.h"
 #include "fhiclcpp/types/Atom.h"
 
+#include <functional>
+
 namespace art {
   class ProcessingLimits {
   public:
@@ -21,10 +23,10 @@ namespace art {
                                               defaultMode()};
     };
 
-    explicit ProcessingLimits(Config const& config);
+    ProcessingLimits(Config const& config,
+                     std::function<input::ItemType()> nextItemType);
 
-    bool itemTypeAllowed(input::ItemType) const noexcept;
-    bool atLimit() const noexcept;
+    input::ItemType nextItemType();
     InputSource::ProcessingMode processingMode() const noexcept;
 
     // Accessor for remaining number of events to be read.
@@ -39,12 +41,15 @@ namespace art {
     void update(SubRunID const& id);
 
   private:
+    bool allowed_(input::ItemType) const noexcept;
+
     InputSource::ProcessingMode processingMode_{
       InputSource::RunsSubRunsAndEvents};
     int remainingEvents_;
     int remainingSubRuns_;
     int reportFrequency_;
     int numberOfEventsRead_{};
+    std::function<input::ItemType()> nextItemType_;
   };
 }
 

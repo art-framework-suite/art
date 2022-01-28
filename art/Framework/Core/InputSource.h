@@ -64,6 +64,8 @@ namespace art {
       RunsSubRunsAndEvents // 2
     };
 
+    static ProcessingMode mode(std::string const& modeString);
+
     virtual ~InputSource() noexcept;
 
     explicit InputSource(ModuleDescription const&);

@@ -6,50 +6,33 @@
 
 namespace art {
 
-  ProcessingLimits::ProcessingLimits(Config const& config)
-    : remainingEvents_{config.maxEvents()}
+  ProcessingLimits::ProcessingLimits(
+    Config const& config,
+    std::function<input::ItemType()> nextItemType)
+    : processingMode_{InputSource::mode(config.processingMode())}
+    , remainingEvents_{config.maxEvents()}
     , remainingSubRuns_{config.maxSubRuns()}
     , reportFrequency_{config.reportFrequency()}
+    , nextItemType_{move(nextItemType)}
   {
     if (reportFrequency_ < 0) {
       throw Exception(errors::Configuration)
         << "reportFrequency has a negative value, which is not meaningful.";
     }
-    std::string const runMode{"Runs"};
-    std::string const runSubRunMode{"RunsAndSubRuns"};
-    std::string const runSubRunEventMode{"RunsSubRunsAndEvents"};
-    auto const& processingMode = config.processingMode();
-    if (processingMode == runMode) {
-      processingMode_ = InputSource::Runs;
-    } else if (processingMode == runSubRunMode) {
-      processingMode_ = InputSource::RunsAndSubRuns;
-    } else if (processingMode != runSubRunEventMode) {
-      throw Exception(errors::Configuration)
-        << "The 'processingMode' parameter for sources has an illegal value '"
-        << processingMode << "'\n"
-        << "Legal values are '" << runSubRunEventMode << "', '" << runSubRunMode
-        << "', or '" << runMode << "'.\n";
-    }
   }
 
-  bool
-  ProcessingLimits::itemTypeAllowed(input::ItemType item_type) const noexcept
+  input::ItemType
+  ProcessingLimits::nextItemType()
   {
-    if ((item_type == input::IsEvent) &&
-        (processingMode_ != InputSource::RunsSubRunsAndEvents)) {
-      return false;
+    if (remainingEvents_ == 0 || remainingSubRuns_ == 0) {
+      return input::IsStop;
     }
-    if ((item_type == input::IsSubRun) &&
-        (processingMode_ == InputSource::Runs)) {
-      return false;
-    }
-    return true;
-  }
 
-  bool
-  ProcessingLimits::atLimit() const noexcept
-  {
-    return remainingEvents_ == 0 || remainingSubRuns_ == 0;
+    auto item_type = nextItemType_();
+    while (not allowed_(item_type)) {
+      item_type = nextItemType_();
+    }
+    return item_type;
   }
 
   InputSource::ProcessingMode
@@ -88,5 +71,24 @@ namespace art {
     if ((reportFrequency_ > 0) && !(numberOfEventsRead_ % reportFrequency_)) {
       detail::issue_reports(numberOfEventsRead_, id);
     }
+  }
+
+  bool
+  ProcessingLimits::allowed_(input::ItemType item_type) const noexcept
+  {
+    if (processingMode_ == InputSource::RunsSubRunsAndEvents) {
+      return true;
+    }
+
+    // Events no longer allowed
+    if (item_type == input::IsEvent) {
+      return false;
+    }
+    if (processingMode_ == InputSource::RunsAndSubRuns) {
+      return true;
+    }
+
+    // SubRuns no longer allowed
+    return item_type != input::IsSubRun;
   }
 }

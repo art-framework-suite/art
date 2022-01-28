@@ -146,7 +146,7 @@ namespace art {
 art::EmptyEvent::EmptyEvent(Parameters const& config,
                             InputSourceDescription& desc)
   : InputSource{desc.moduleDescription}
-  , limits_{config().limitsConfig()}
+  , limits_{config().limitsConfig(), [this] { return nextItemType_(); }}
   , numberEventsInRun_{static_cast<uint32_t>(config().numberEventsInRun())}
   , numberEventsInSubRun_{static_cast<uint32_t>(
       config().numberEventsInSubRun())}
@@ -189,21 +189,14 @@ art::EmptyEvent::EmptyEvent(Parameters const& config,
 art::input::ItemType
 art::EmptyEvent::nextItemType()
 {
-  if (limits_.atLimit()) {
-    return input::IsStop;
-  }
-
-  auto next_item_type = nextItemType_();
-  while (not limits_.itemTypeAllowed(next_item_type)) {
-    next_item_type = nextItemType_();
-  }
-
-  return next_item_type;
+  return limits_.nextItemType();
 }
 
 art::input::ItemType
 art::EmptyEvent::nextItemType_()
 {
+  // Called by ProcessingLimits::nextItemType.
+
   // Trigger framework stop if max allowed time is exceeded.
   // N.B. Since the begin time corresponds to source construction and
   // not the actual event loop, there will be minor differences wrt
