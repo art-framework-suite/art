@@ -113,7 +113,7 @@ namespace art {
     unique_ptr<RunPrincipal> readRun() override;
     input::ItemType nextItemType() override;
     unique_ptr<SubRunPrincipal> readSubRun(
-      cet::exempt_ptr<RunPrincipal const> override);
+      cet::exempt_ptr<RunPrincipal const>) override;
     unique_ptr<EventPrincipal> readEvent(
       cet::exempt_ptr<SubRunPrincipal const>) override;
 
