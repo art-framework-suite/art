@@ -334,30 +334,27 @@ art::Ptr<PROD>
 art::PtrRemapper::operator()(Ptr<PROD> const& oldPtr,
                              SIZE_TYPE const offset) const
 {
-  if (oldPtr.id().isValid()) {
-    auto iter = prodTransMap_.find(oldPtr.id());
-    if (iter == cend(prodTransMap_)) {
-      throw Exception(errors::LogicError)
-        << "PtrRemapper: could not find old ProductID " << oldPtr.id()
-        << " in translation table: already translated?\n";
-    }
-    auto productGetter = event_->productGetter(iter->second);
-    if (productGetter == nullptr) {
-      throw Exception(errors::LogicError)
-        << "PtrRemapper: cannot create output "
-        << TypeID{typeid(art::Ptr<PROD>)}.className()
-        << " with ProductID: " << iter->second
-        << "\nbecause the product is not known.  Perhaps the output product "
-           "was misspecified for product mixing.\n";
-    }
-
-    return oldPtr.isNonnull() ?
-             Ptr<PROD>{iter->second, oldPtr.key() + offset, productGetter} :
-             Ptr<PROD>{iter->second};
+  if (!oldPtr.id().isValid() || oldPtr.isNull()) {
+    return {};
   }
 
-  // Default-constructed.
-  return Ptr<PROD>{};
+  auto iter = prodTransMap_.find(oldPtr.id());
+  if (iter == cend(prodTransMap_)) {
+    throw Exception(errors::LogicError)
+      << "PtrRemapper: could not find old ProductID " << oldPtr.id()
+      << " in translation table: already translated?\n";
+  }
+  auto productGetter = event_->productGetter(iter->second);
+  if (productGetter == nullptr) {
+    throw Exception(errors::LogicError)
+      << "PtrRemapper: cannot create output "
+      << TypeID{typeid(Ptr<PROD>)}.className()
+      << " with ProductID: " << iter->second
+      << "\nbecause the product is not known.  Perhaps the output product "
+         "was misspecified for product mixing.\n";
+  }
+
+  return Ptr<PROD>{iter->second, oldPtr.key() + offset, productGetter};
 }
 
 // 2.
@@ -504,8 +501,7 @@ art::PtrRemapper::operator()(std::vector<PROD const*> const& in,
   auto i = in.begin();
   auto const e = in.end();
   auto off_iter = offsets.begin();
-  art::PtrRemapperDetail::ContReturner<CONT, PROD, CALLBACK> returner{
-    extractor};
+  PtrRemapperDetail::ContReturner<CONT, PROD, CALLBACK> returner{extractor};
   for (; i != e; ++i, ++off_iter) {
     CONT const& cont{returner.operator()(*i)};
     this->operator()(cont.begin(), cont.end(), out, *off_iter); // 3.
