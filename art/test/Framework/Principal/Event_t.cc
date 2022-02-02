@@ -14,6 +14,8 @@
 //
 // =====================================================================
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include "boost/test/unit_test.hpp"
 
 #include "art/Framework/Principal/Event.h"
@@ -429,6 +431,7 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
   BOOST_CHECK_THROW(*h, cet::exception);
 }
 
+// The following is deprecated and will be removed.
 BOOST_AUTO_TEST_CASE(getByProductID)
 {
   using handle_t = Handle<product_t>;

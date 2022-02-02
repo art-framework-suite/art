@@ -84,7 +84,13 @@ namespace art {
     template <typename PROD>
     Handle<PROD> getHandle(SelectorBase const&) const;
     template <typename PROD>
-    Handle<PROD> getHandle(ProductID const pid) const;
+    [[deprecated(
+      "\n\nart warning: The Event::getHandle<T>(id) interface is deprecated.\n"
+      "                 Please use a ProductPtr<T> instead, or retrieve a "
+      "parent\n"
+      "                 product by using "
+      "Ptr<T>::parentAs<Collection>().\n\n")]] Handle<PROD>
+    getHandle(ProductID const pid) const;
     template <typename PROD>
     Handle<PROD> getHandle(InputTag const& tag) const;
     template <typename PROD>
@@ -111,7 +117,13 @@ namespace art {
     template <typename PROD>
     bool get(SelectorBase const&, Handle<PROD>& result) const;
     template <typename PROD>
-    bool get(ProductID const pid, Handle<PROD>& result) const;
+    [[deprecated(
+      "\n\nart warning: The Event::get(id, handle) interface is deprecated.\n"
+      "                 Please use a ProductPtr<T> instead, or retrieve a "
+      "parent\n"
+      "                 product by using "
+      "Ptr<T>::parentAs<Collection>().\n\n")]] bool
+    get(ProductID const pid, Handle<PROD>& result) const;
     template <typename PROD>
     bool getByLabel(std::string const& label,
                     std::string const& instance,
@@ -304,8 +316,7 @@ namespace art {
   ValidHandle<PROD>
   ProductRetriever::getValidHandle(InputTag const& tag) const
   {
-    Handle<PROD> h;
-    getByLabel(tag, h);
+    auto h = getHandle<PROD>(tag);
     return ValidHandle{h.product(), *h.provenance()};
   }
 
