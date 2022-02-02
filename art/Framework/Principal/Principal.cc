@@ -671,6 +671,9 @@ namespace art {
         continue;
       }
       auto const& pd = group->productDescription();
+      if (pd.dropped()) {
+        continue;
+      }
       // If we are processing a trigger path, the only visible
       // produced products are those that originate from modules on
       // the same path we're currently processing.
