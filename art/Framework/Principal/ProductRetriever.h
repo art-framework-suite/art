@@ -317,7 +317,7 @@ namespace art {
   ProductRetriever::getValidHandle(InputTag const& tag) const
   {
     auto h = getHandle<PROD>(tag);
-    return ValidHandle{h.product(), *h.provenance()};
+    return ValidHandle{h.product(), h.productGetter(), *h.provenance()};
   }
 
   template <typename PROD>

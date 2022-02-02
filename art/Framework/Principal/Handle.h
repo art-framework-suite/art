@@ -119,6 +119,7 @@ public:
   Provenance const* provenance() const;
   ProductID id() const;
   std::shared_ptr<art::Exception const> whyFailed() const;
+  EDProductGetter const* productGetter() const noexcept;
 
   // mutators:
   void swap(Handle<T>& other);
@@ -227,6 +228,13 @@ art::Handle<T>::whyFailed() const
   return whyFailed_;
 }
 
+template <typename T>
+inline art::EDProductGetter const*
+art::Handle<T>::productGetter() const noexcept
+{
+  return group_.get();
+}
+
 // ----------------------------------------------------------------------
 // mutators:
 
@@ -274,12 +282,14 @@ art::convert_handle(GroupQueryResult const& orig, Handle<T>& result)
 template <typename T>
 class art::ValidHandle {
 public:
-  typedef T element_type;
+  using element_type = T;
   class HandleTag {};
 
   ~ValidHandle() = default;
   ValidHandle() = delete;
-  explicit ValidHandle(T const* prod, Provenance prov);
+  explicit ValidHandle(T const* prod,
+                       EDProductGetter const* productGetter,
+                       Provenance prov);
   ValidHandle(ValidHandle const&) = default;
   ValidHandle(ValidHandle&&) = default;
   ValidHandle& operator=(ValidHandle const&) & = default;
@@ -297,6 +307,7 @@ public:
   Provenance const* provenance() const;
   ProductID id() const;
   std::shared_ptr<art::Exception const> whyFailed() const; // always null
+  EDProductGetter const* productGetter() const noexcept;
 
   // mutators
   void swap(ValidHandle<T>& other);
@@ -306,14 +317,17 @@ public:
 
 private:
   T const* prod_;
+  EDProductGetter const* productGetter_;
   Provenance prov_;
 };
 
 template <class T>
-art::ValidHandle<T>::ValidHandle(T const* prod, Provenance prov)
-  : prod_{prod}, prov_{prov}
+art::ValidHandle<T>::ValidHandle(T const* prod,
+                                 EDProductGetter const* productGetter,
+                                 Provenance prov)
+  : prod_{prod}, productGetter_{productGetter}, prov_{prov}
 {
-  if (prod == nullptr) {
+  if (prod_ == nullptr) {
     throw Exception(art::errors::NullPointerError)
       << "Attempt to create ValidHandle with null pointer";
   }
@@ -384,6 +398,13 @@ inline void
 art::ValidHandle<T>::swap(art::ValidHandle<T>& other)
 {
   std::swap(*this, other);
+}
+
+template <typename T>
+inline art::EDProductGetter const*
+art::ValidHandle<T>::productGetter() const noexcept
+{
+  return productGetter_;
 }
 
 // ======================================================================
