@@ -71,7 +71,7 @@ namespace art {
     using ProductRetriever::getByLabel;
 
     template <typename PROD>
-    ProductID
+    PutHandle<PROD>
     put(std::unique_ptr<PROD>&& edp, std::string const& instance = {})
     {
       assert(inserter_);

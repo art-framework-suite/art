@@ -175,7 +175,7 @@ namespace art {
 
   // Note: LArSoft uses this extensively to create a Ptr by hand.
   EDProductGetter const*
-  Principal::productGetter(ProductID const& pid) const
+  Principal::productGetter(ProductID const pid) const
   {
     auto g = getGroupTryAllFiles(pid);
     if (g.get() != nullptr) {
@@ -183,6 +183,13 @@ namespace art {
       return g.get();
     }
     return nullptr;
+  }
+
+  // Note: LArSoft uses this extensively to create a Ptr by hand.
+  Provenance
+  Principal::provenance(ProductID const pid) const
+  {
+    return Provenance{getGroupLocal(pid)};
   }
 
   EDProductGetter const*

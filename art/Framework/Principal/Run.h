@@ -74,30 +74,30 @@ namespace art {
 
     // Product insertion
     template <typename PROD>
-    [[deprecated(PUT_DEPRECATION_MSG)]] ProductID put(
+    [[deprecated(PUT_DEPRECATION_MSG)]] PutHandle<PROD> put(
       std::unique_ptr<PROD>&& edp,
       std::string const& instance = {});
     template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp,
-                  FullSemantic<Level::Run> semantic);
+    PutHandle<PROD> put(std::unique_ptr<PROD>&& edp,
+                        FullSemantic<Level::Run> semantic);
     template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp,
-                  FragmentSemantic<Level::Run> semantic);
+    PutHandle<PROD> put(std::unique_ptr<PROD>&& edp,
+                        FragmentSemantic<Level::Run> semantic);
     template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp,
-                  RangedFragmentSemantic<Level::Run> semantic);
+    PutHandle<PROD> put(std::unique_ptr<PROD>&& edp,
+                        RangedFragmentSemantic<Level::Run> semantic);
     template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp,
-                  std::string const& instance,
-                  FullSemantic<Level::Run>);
+    PutHandle<PROD> put(std::unique_ptr<PROD>&& edp,
+                        std::string const& instance,
+                        FullSemantic<Level::Run>);
     template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp,
-                  std::string const& instance,
-                  FragmentSemantic<Level::Run>);
+    PutHandle<PROD> put(std::unique_ptr<PROD>&& edp,
+                        std::string const& instance,
+                        FragmentSemantic<Level::Run>);
     template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp,
-                  std::string const& instance,
-                  RangedFragmentSemantic<Level::Run> semantic);
+    PutHandle<PROD> put(std::unique_ptr<PROD>&& edp,
+                        std::string const& instance,
+                        RangedFragmentSemantic<Level::Run> semantic);
 
   private:
     void commitProducts();
@@ -116,7 +116,7 @@ namespace art {
   };
 
   template <typename PROD>
-  ProductID
+  PutHandle<PROD>
   Run::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
   {
     // Should be protected when a Run is shared among threads.
@@ -125,14 +125,14 @@ namespace art {
   }
 
   template <typename PROD>
-  ProductID
+  PutHandle<PROD>
   Run::put(std::unique_ptr<PROD>&& edp, FullSemantic<Level::Run> const semantic)
   {
     return put(move(edp), "", semantic);
   }
 
   template <typename PROD>
-  ProductID
+  PutHandle<PROD>
   Run::put(std::unique_ptr<PROD>&& edp,
            FragmentSemantic<Level::Run> const semantic)
   {
@@ -140,7 +140,7 @@ namespace art {
   }
 
   template <typename PROD>
-  ProductID
+  PutHandle<PROD>
   Run::put(std::unique_ptr<PROD>&& edp,
            RangedFragmentSemantic<Level::Run> semantic)
   {
@@ -148,7 +148,7 @@ namespace art {
   }
 
   template <typename PROD>
-  ProductID
+  PutHandle<PROD>
   Run::put(std::unique_ptr<PROD>&& edp,
            std::string const& instance,
            FullSemantic<Level::Run>)
@@ -158,7 +158,7 @@ namespace art {
   }
 
   template <typename PROD>
-  ProductID
+  PutHandle<PROD>
   Run::put(std::unique_ptr<PROD>&& edp,
            std::string const& instance,
            FragmentSemantic<Level::Run>)
@@ -185,7 +185,7 @@ namespace art {
   }
 
   template <typename PROD>
-  ProductID
+  PutHandle<PROD>
   Run::put(std::unique_ptr<PROD>&& edp,
            std::string const& instance,
            RangedFragmentSemantic<Level::Run> semantic)

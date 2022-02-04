@@ -50,6 +50,9 @@ namespace art {
   class Handle;
   template <typename T>
   class ValidHandle;
+  template <typename T>
+  class PutHandle;
+
   template <class T>
   void swap(Handle<T>& a, Handle<T>& b);
   template <class T>
@@ -448,6 +451,92 @@ art::overlapping_ranges(T const& a, U const& b)
     "Attempt to compare range sets where one or both handles are invalid.";
   detail::throw_if_invalid(errMsg, a, b);
   return overlapping_ranges(range_of_validity(a), range_of_validity(b));
+}
+
+// ======================================================================
+template <typename T>
+class art::PutHandle {
+public:
+  using element_type = T;
+  class HandleTag {};
+
+  explicit PutHandle(T const* prod,
+                     EDProductGetter const* productGetter,
+                     ProductID id);
+
+  // To be deprecated
+  // ----------------
+  // The following implicit conversion to ProductID is retained for
+  // backwards compatibility--up through art 3.10, the supported
+  // interface is (e.g.):
+  //
+  //   ProductID id = e.put(move(some_product));
+  //
+  // With art 3.11, the return type of 'put' will be a PutHandle<T>
+  // object.  Until users have time to migrate to the new usage, the
+  // PutHandle template will provide a conversion operator to
+  // ProductID.
+  operator ProductID() const;
+
+  // pointer behaviors
+  T const& operator*() const;
+  T const* operator->() const; // alias for product()
+  T const* product() const;
+
+  // inspectors
+  ProductID id() const;
+  EDProductGetter const* productGetter() const noexcept;
+
+private:
+  T const* prod_;
+  EDProductGetter const* productGetter_;
+  ProductID id_;
+};
+
+template <class T>
+inline art::PutHandle<T>::PutHandle(T const* prod,
+                                    EDProductGetter const* productGetter,
+                                    ProductID id)
+  : prod_{prod}, productGetter_{productGetter}, id_{id}
+{}
+
+template <class T>
+inline art::PutHandle<T>::operator ProductID() const
+{
+  return id();
+}
+
+template <class T>
+inline T const& art::PutHandle<T>::operator*() const
+{
+  return *prod_;
+}
+
+template <class T>
+inline T const* art::PutHandle<T>::operator->() const
+{
+  return prod_;
+}
+
+template <class T>
+inline T const*
+art::PutHandle<T>::product() const
+{
+  return prod_;
+}
+
+template <class T>
+inline art::ProductID
+art::PutHandle<T>::id() const
+{
+  return id_;
+}
+
+template <typename T>
+inline art::EDProductGetter const*
+art::PutHandle<T>::productGetter() const noexcept
+{
+  return productGetter_;
 }
 
 #endif /* art_Framework_Principal_Handle_h */

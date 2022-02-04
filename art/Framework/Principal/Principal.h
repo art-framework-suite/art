@@ -109,7 +109,8 @@ namespace art {
       ProcessTag const&) const;
 
     // Note: LArSoft uses this extensively to create a Ptr by hand.
-    EDProductGetter const* productGetter(ProductID const& pid) const;
+    EDProductGetter const* productGetter(ProductID id) const;
+    Provenance provenance(ProductID id) const;
 
     ProcessHistory const& processHistory() const;
 

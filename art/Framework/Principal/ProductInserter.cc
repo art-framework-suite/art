@@ -135,4 +135,16 @@ namespace art {
     return *bd;
   }
 
+  EDProductGetter const*
+  ProductInserter::productGetter_(ProductID const id) const
+  {
+    return principal_->productGetter(id);
+  }
+
+  Provenance
+  ProductInserter::provenance_(ProductID const id) const
+  {
+    return principal_->provenance(id);
+  }
+
 } // namespace art

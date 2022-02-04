@@ -7,6 +7,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/ProcessTag.h"
 #include "art/Framework/Principal/ProductInfo.h"
+#include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/detail/type_label_for.h"
 #include "art/Framework/Principal/fwd.h"
@@ -57,14 +58,14 @@ namespace art {
 
     // Product insertion - all processing levels
     template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp,
-                  std::string const& instance = {});
+    PutHandle<PROD> put(std::unique_ptr<PROD>&& edp,
+                        std::string const& instance = {});
 
     // Product insertion -- run/subrun
     template <typename PROD>
-    ProductID put(std::unique_ptr<PROD>&& edp,
-                  std::string const& instance,
-                  RangeSet const& rs);
+    PutHandle<PROD> put(std::unique_ptr<PROD>&& edp,
+                        std::string const& instance,
+                        RangeSet const& rs);
 
     void commitProducts();
     void commitProducts(
@@ -89,6 +90,9 @@ namespace art {
       std::string const& instance,
       bool const alwaysEnableLookupOfProducedProducts = false) const;
 
+    EDProductGetter const* productGetter_(ProductID id) const;
+    Provenance provenance_(ProductID id) const;
+
     // Protects use of retrievedProducts_ and putProducts_.
     mutable std::unique_ptr<std::recursive_mutex> mutex_{
       std::make_unique<std::recursive_mutex>()};
@@ -109,31 +113,36 @@ namespace art {
   // =======================================================================
   // Product-insertion implementation
   template <typename PROD>
-  ProductID
+  PutHandle<PROD>
   ProductInserter::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
   {
     return put(move(edp), instance, RangeSet::invalid());
   }
 
   template <typename PROD>
-  ProductID
+  PutHandle<PROD>
   ProductInserter::put(std::unique_ptr<PROD>&& edp,
                        std::string const& instance,
                        RangeSet const& rs)
   {
-    std::lock_guard lock{*mutex_};
     TypeID const tid{typeid(PROD)};
-    if (edp.get() == nullptr) {
+    if (!edp) {
       throw Exception(errors::NullPointerError)
         << "A null unique_ptr was passed to 'put'.\n"
         << "The pointer is of type " << tid << ".\n"
         << "The specified productInstanceName was '" << instance << "'.\n";
     }
+
+    std::lock_guard lock{*mutex_};
     auto const& bd = getProductDescription_(tid, instance, true);
     assert(bd.productID() != ProductID::invalid());
     auto const typeLabel =
       detail::type_label_for(tid, instance, SupportsView<PROD>::value, *md_);
     auto wp = std::make_unique<Wrapper<PROD>>(move(edp));
+
+    // Mind the product ownership!  The wrapper is the final resting
+    // place of the product before it is taken out of memory.
+    cet::exempt_ptr<PROD const> product{wp->product()};
     auto result =
       putProducts_.try_emplace(typeLabel, PMValue{move(wp), bd, rs}).second;
     if (!result) {
@@ -144,7 +153,8 @@ namespace art {
         << rule('=') << '\n'
         << bd << rule('=') << '\n';
     }
-    return bd.productID();
+    return PutHandle{
+      product.get(), productGetter_(bd.productID()), bd.productID()};
   }
 
 } // namespace art
