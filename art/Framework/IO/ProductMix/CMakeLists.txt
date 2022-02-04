@@ -16,6 +16,7 @@ cet_make_library(SOURCE
     canvas::canvas
     messagefacility::MF_MessageLogger
     cetlib::container_algorithms
+    range-v3::range-v3
 )
 
 install_headers()

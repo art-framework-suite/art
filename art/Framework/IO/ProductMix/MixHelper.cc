@@ -5,6 +5,7 @@
 #include "canvas/Persistency/Provenance/FileIndex.h"
 #include "cetlib/container_algorithms.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "range/v3/view.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -16,17 +17,28 @@
 #include <regex>
 #include <unordered_set>
 
+using namespace ranges;
 using namespace std::string_literals;
 
 namespace {
+  bool
+  event_entries(art::FileIndex::Element const& element)
+  {
+    return element.getEntryType() == art::FileIndex::kEvent;
+  }
+
+  bool
+  only_events(std::unique_ptr<art::MixOpBase> const& mixOp)
+  {
+    return mixOp->branchType() == art::InEvent;
+  }
+
   art::EventIDIndex
   buildEventIDIndex(art::FileIndex const& fileIndex)
   {
     art::EventIDIndex result;
-    for (auto const& element : fileIndex) {
-      if (element.getEntryType() != art::FileIndex::kEvent)
-        continue;
-      result.emplace(element.entry, element.eventID);
+    for (auto const& element : fileIndex | views::filter(event_entries)) {
+      result.try_emplace(element.entry, element.eventID);
     }
     return result;
   }
@@ -35,10 +47,7 @@ namespace {
   buildProductIDTransMap(art::MixOpList const& mixOps)
   {
     art::ProdToProdMapBuilder::ProductIDTransMap transMap;
-    for (auto const& mixOp : mixOps) {
-      auto const bt = mixOp->branchType();
-      if (bt != art::InEvent)
-        continue;
+    for (auto const& mixOp : mixOps | views::filter(only_events)) {
       transMap[mixOp->incomingProductID()] = mixOp->outgoingProductID();
     }
     return transMap;
@@ -81,7 +90,7 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
                           std::string const& moduleLabel,
                           ProducesCollector& collector,
                           std::unique_ptr<MixIOPolicy> ioHandle)
-  : detail::EngineCreator{moduleLabel, art::ScheduleID::first()}
+  : EngineCreator{moduleLabel, ScheduleID::first()}
   , collector_{collector}
   , moduleLabel_{moduleLabel}
   , filenames_{pset.get<std::vector<std::string>>("fileNames", {})}
@@ -100,7 +109,7 @@ art::MixHelper::MixHelper(Config const& config,
                           std::string const& moduleLabel,
                           ProducesCollector& collector,
                           std::unique_ptr<MixIOPolicy> ioHandle)
-  : detail::EngineCreator{moduleLabel, art::ScheduleID::first()}
+  : EngineCreator{moduleLabel, ScheduleID::first()}
   , collector_{collector}
   , moduleLabel_{moduleLabel}
   , filenames_{config.filenames()}
@@ -287,28 +296,26 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
     subRunEntries.reserve(eIDseq.size());
     for (auto const& eID : eIDseq) {
       auto const it = fileIndex.findPosition(eID.subRunID(), true);
-      if (it != std::cend(fileIndex)) {
-        subRunEntries.emplace_back(it->entry);
-      } else {
+      if (it == std::cend(fileIndex)) {
         throw Exception(errors::NotFound, "NO_SUBRUN")
           << "- Unable to find an entry in the SubRun tree corresponding to "
              "event ID "
           << eID << " in secondary mixing input file " << *fileIter_ << ".\n";
       }
+      subRunEntries.emplace_back(it->entry);
     }
   }
   if (haveRunMixOps_) {
     runEntries.reserve(eIDseq.size());
     for (auto const& eID : eIDseq) {
       auto const it = fileIndex.findPosition(eID.runID(), true);
-      if (it != std::cend(fileIndex)) {
-        runEntries.emplace_back(it->entry);
-      } else {
+      if (it == std::cend(fileIndex)) {
         throw Exception(errors::NotFound, "NO_RUN")
           << "- Unable to find an entry in the Run tree corresponding to "
              "event ID "
           << eID << " in secondary mixing input file " << *fileIter_ << ".\n";
       }
+      runEntries.emplace_back(it->entry);
     }
   }
 
@@ -321,19 +328,19 @@ art::MixHelper::mixAndPut(EntryNumberSequence const& eventEntries,
     case InEvent: {
       auto const inProducts = ioHandle_->readFromFile(*op, eventEntries);
       op->mixAndPut(e, inProducts, ptrRemapper_);
-      break;
+      continue;
     }
     case InSubRun: {
       auto const inProducts = ioHandle_->readFromFile(*op, subRunEntries);
       // Ptrs not supported for subrun product mixing.
       op->mixAndPut(e, inProducts, nopRemapper);
-      break;
+      continue;
     }
     case InRun: {
       auto const inProducts = ioHandle_->readFromFile(*op, runEntries);
       // Ptrs not support for run product mixing.
       op->mixAndPut(e, inProducts, nopRemapper);
-      break;
+      continue;
     }
     default:
       throw Exception(errors::LogicError, "Unsupported BranchType")
@@ -457,13 +464,12 @@ art::MixHelper::initEngine_(seed_t const seed, Mode const readMode)
   if (readMode > MixHelper::Mode::SEQUENTIAL) {
     if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
       return cet::make_exempt_ptr(&detail::EngineCreator::createEngine(seed));
-    } else {
-      throw Exception{errors::Configuration, "MixHelper"}
-        << "Random event mixing selected but RandomNumberGenerator service "
-           "not loaded.\n"
-        << "Ensure service is loaded with: \n"
-        << "services.RandomNumberGenerator: {}\n";
     }
+    throw Exception{errors::Configuration, "MixHelper"}
+      << "Random event mixing selected but RandomNumberGenerator service "
+         "not loaded.\n"
+      << "Ensure service is loaded with: \n"
+      << "services.RandomNumberGenerator: {}\n";
   }
   return nullptr;
 }
@@ -471,9 +477,5 @@ art::MixHelper::initEngine_(seed_t const seed, Mode const readMode)
 std::unique_ptr<CLHEP::RandFlat>
 art::MixHelper::initDist_(cet::exempt_ptr<base_engine_t> const engine) const
 {
-  std::unique_ptr<CLHEP::RandFlat> result{nullptr};
-  if (engine) {
-    result = std::make_unique<CLHEP::RandFlat>(*engine);
-  }
-  return result;
+  return engine ? std::make_unique<CLHEP::RandFlat>(*engine) : nullptr;
 }
