@@ -65,6 +65,6 @@ namespace arttest {
 
 #endif /* art_test_TestObjects_ProductWithPtrs_h */
 
-  // Local Variables:
-  // mode: c++
-  // End:
+// Local Variables:
+// mode: c++
+// End:
