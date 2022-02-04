@@ -256,9 +256,9 @@ namespace art {
     };
 
     template <typename CONT, typename PROD>
-    class ContReturner<CONT, PROD, CONT PROD::*const> {
+    class ContReturner<CONT, PROD, CONT const PROD::*> {
     public:
-      typedef CONT PROD::*const CALLBACK;
+      using CALLBACK = CONT const PROD::*;
       explicit ContReturner(CALLBACK callback) : callback_(callback) {}
       CONT const&
       operator()(PROD const* prod) const
@@ -319,7 +319,7 @@ public:
   void operator()(std::vector<PROD const*> const& in,
                   OutIter out,
                   OFFSETS const& offsets,
-                  CONT PROD::*const data) const;
+                  CONT const PROD::*data) const;
 
   // 8.
   template <typename PROD,
@@ -536,9 +536,9 @@ void
 art::PtrRemapper::operator()(std::vector<PROD const*> const& in,
                              OutIter out,
                              OFFSETS const& offsets,
-                             CONT PROD::*const data) const
+                             CONT const PROD::*data) const
 {
-  this->operator()<CONT, CONT PROD::*const>(in, out, offsets, data); // 10.
+  this->operator()<CONT, CONT const PROD::*>(in, out, offsets, data); // 10.
 }
 
 // 8.
