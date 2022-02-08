@@ -93,12 +93,6 @@ namespace art {
     return isFileOpen();
   }
 
-  string
-  OutputModule::workerType() const
-  {
-    return "OutputWorker";
-  }
-
   void
   OutputModule::incrementInputFileNumber()
   {}

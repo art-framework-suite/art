@@ -5,12 +5,6 @@ using namespace std;
 
 namespace art {
 
-  string
-  SharedProducer::workerType() const
-  {
-    return "WorkerT<SharedProducer>";
-  }
-
   void
   SharedProducer::setupQueues(detail::SharedResources const& resources)
   {

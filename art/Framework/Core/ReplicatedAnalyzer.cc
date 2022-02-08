@@ -3,12 +3,6 @@
 
 namespace art {
 
-  std::string
-  ReplicatedAnalyzer::workerType() const
-  {
-    return "WorkerT<ReplicatedAnalyzer>";
-  }
-
   void
   ReplicatedAnalyzer::setupQueues(detail::SharedResources const&)
   {

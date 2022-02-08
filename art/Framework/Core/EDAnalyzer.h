@@ -37,8 +37,6 @@ namespace art {
     using detail::LegacyModule::serialTaskQueueChain;
     using detail::LegacyModule::sharedResources;
 
-    std::string workerType() const;
-
   private:
     void setupQueues(detail::SharedResources const&) override final;
     void beginJobWithFrame(ProcessingFrame const&) override final;

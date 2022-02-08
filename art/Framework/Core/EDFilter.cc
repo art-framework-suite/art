@@ -3,12 +3,6 @@
 
 namespace art {
 
-  std::string
-  EDFilter::workerType() const
-  {
-    return "WorkerT<EDFilter>";
-  }
-
   void
   EDFilter::setupQueues(detail::SharedResources const& resources)
   {

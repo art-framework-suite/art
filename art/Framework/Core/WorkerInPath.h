@@ -52,7 +52,6 @@ namespace art {
 
     // Used only by Path
     bool returnCode() const;
-    std::string const& label() const;
     bool run(Transition, Principal&);
     void run(hep::concurrency::WaitingTaskPtr workerDoneTask, EventPrincipal&);
     void clearCounters();

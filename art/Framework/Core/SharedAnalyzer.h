@@ -33,8 +33,6 @@ namespace art {
       : SharedAnalyzer{config.get_PSet()}
     {}
 
-    std::string workerType() const;
-
   private:
     void setupQueues(detail::SharedResources const& resources) override final;
     void beginJobWithFrame(ProcessingFrame const&) override final;

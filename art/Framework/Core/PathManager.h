@@ -68,9 +68,9 @@ namespace art {
       detail::SharedResources& resources,
       std::vector<std::string> const& producing_services);
     PathsInfo& triggerPathsInfo(ScheduleID);
-    PerScheduleContainer<PathsInfo>& triggerPathsInfo();
+    PerScheduleContainer<PathsInfo> const& triggerPathsInfo();
     PathsInfo& endPathInfo(ScheduleID);
-    PerScheduleContainer<PathsInfo>& endPathInfo();
+    PerScheduleContainer<PathsInfo> const& endPathInfo();
 
   private:
     struct ModulesByThreadingType {

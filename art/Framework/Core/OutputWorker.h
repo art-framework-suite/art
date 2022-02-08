@@ -2,11 +2,11 @@
 #define art_Framework_Core_OutputWorker_h
 // vim: set sw=2 expandtab :
 
-//  The OutputModule as the schedule sees it.  The job of
-//  this object is to call the output module.
+//  The OutputModule as the schedule sees it.  The job of this object
+//  is to call the output module.
 //
-//  According to our current definition, a single output module can only
-//  appear in one worker.
+//  According to our current definition, a single output module can
+//  only appear in one worker.
 
 #include "art/Framework/Core/OutputFileGranularity.h"
 #include "art/Framework/Core/OutputFileStatus.h"
@@ -21,9 +21,8 @@
 
 namespace art {
   struct OutputModuleDescription;
-  class RangeSet;
   class OutputWorker : public WorkerT<OutputModule> {
-  public: // MEMBER FUNCTIONS -- Special Member Functions
+  public:
     virtual ~OutputWorker();
     // This is called directly by the make_worker function created
     // by the DEFINE_ART_MODULE macro.
@@ -31,7 +30,6 @@ namespace art {
                  ModuleDescription const&,
                  WorkerParams const&);
 
-  public:
     std::string const& lastClosedFileName() const;
     bool closeFile();
     bool fileIsOpen() const;
@@ -47,7 +45,7 @@ namespace art {
     void setFileStatus(OutputFileStatus);
     void configure(OutputModuleDescription const& desc);
     Granularity fileGranularity() const;
-    virtual void selectProducts(ProductTables const&);
+    void selectProducts(ProductTables const&);
 
   private:
     ServiceHandle<CatalogInterface> ci_{};

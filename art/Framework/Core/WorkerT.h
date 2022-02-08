@@ -6,29 +6,20 @@
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Principal/fwd.h"
-#include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/SharedResource.h"
-#include "fhiclcpp/ParameterSet.h"
 
-#include <cstddef>
-#include <iosfwd>
 #include <memory>
 #include <type_traits>
 
 namespace art {
   template <typename T>
   class WorkerT : public Worker {
-    // Let PathManager use module() to delete the trigger results inserter.
-    friend class PathManager;
-
-  public: // TYPES
-    using ModuleType = T;
-
+  public:
     // This is called directly by the make_worker function created by
     // the DEFINE_ART_MODULE macro.
     WorkerT(std::shared_ptr<T>, ModuleDescription const&, WorkerParams const&);
 
-  protected: // MEMBER FUNCTIONS -- API for implementation classes
+  protected:
     T&
     module()
     {
@@ -41,7 +32,6 @@ namespace art {
     }
 
   private:
-    std::string workerType() const override;
     hep::concurrency::SerialTaskQueueChain* implSerialTaskQueueChain()
       const override;
     void implBeginJob(detail::SharedResources const&) override;
@@ -89,20 +79,14 @@ namespace art {
   }
 
   template <typename T>
-  std::string
-  WorkerT<T>::workerType() const
-  {
-    return module_->workerType();
-  }
-
-  template <typename T>
   hep::concurrency::SerialTaskQueueChain*
   WorkerT<T>::implSerialTaskQueueChain() const
   {
     if constexpr (std::is_base_of_v<detail::SharedModule, T>) {
       return module_->serialTaskQueueChain();
+    } else {
+      return nullptr;
     }
-    return nullptr;
   }
 
   template <typename T>

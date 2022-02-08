@@ -3,12 +3,6 @@
 
 namespace art {
 
-  std::string
-  ReplicatedFilter::workerType() const
-  {
-    return "WorkerT<ReplicatedFilter>";
-  }
-
   void
   ReplicatedFilter::setupQueues(detail::SharedResources const&)
   {

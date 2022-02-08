@@ -34,6 +34,7 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/types/detail/validationException.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "range/v3/action.hpp"
 #include "range/v3/view.hpp"
 
 #include <algorithm>
@@ -48,7 +49,6 @@
 #include <vector>
 
 using namespace std;
-using namespace std::string_literals;
 
 using fhicl::ParameterSet;
 
@@ -58,13 +58,12 @@ namespace art {
     std::vector<std::string>
     sorted_module_labels(std::vector<WorkerInPath::ConfigInfo> const& wcis)
     {
-      std::vector<std::string> sorted_modules;
-      cet::transform_all(
-        wcis, back_inserter(sorted_modules), [](auto const& wci) {
-          return wci.moduleConfigInfo->modDescription.moduleLabel();
-        });
-      std::sort(begin(sorted_modules), end(sorted_modules));
-      return sorted_modules;
+      auto to_label = [](auto const& wci) {
+        return wci.moduleConfigInfo->modDescription.moduleLabel();
+      };
+      using namespace ranges;
+      return wcis | views::transform(to_label) | to<std::vector>() |
+             ranges::actions::sort;
     }
   } // anonymous namespace
 
@@ -82,10 +81,9 @@ namespace art {
     , triggerPathsInfo_{Globals::instance()->nschedules()}
     , endPathInfo_(Globals::instance()->nschedules())
     , productsToProduce_{productsToProduce}
-    , processName_{procPS.get<string>("process_name"s, {})}
+    , processName_{procPS.get<string>("process_name", {})}
+    , allModules_{moduleInformation_(enabled_modules)}
   {
-    allModules_ = moduleInformation_(enabled_modules);
-
     // Trigger paths
     auto const& trigger_path_specs = enabled_modules.trigger_path_specs();
     protoTrigPathLabels_.reserve(trigger_path_specs.size());
@@ -227,7 +225,7 @@ namespace art {
                                task_group,
                                resources);
       einfo.add_path(exceptActions_, actReg_, pc, move(wips), task_group);
-    };
+    }
 
     using namespace detail;
     auto const graph_info_collection =
@@ -260,7 +258,7 @@ namespace art {
     return triggerPathsInfo_.at(sid);
   }
 
-  PerScheduleContainer<PathsInfo>&
+  PerScheduleContainer<PathsInfo> const&
   PathManager::triggerPathsInfo()
   {
     return triggerPathsInfo_;
@@ -272,7 +270,7 @@ namespace art {
     return endPathInfo_.at(sid);
   }
 
-  PerScheduleContainer<PathsInfo>&
+  PerScheduleContainer<PathsInfo> const&
   PathManager::endPathInfo()
   {
     return endPathInfo_;
@@ -306,7 +304,7 @@ namespace art {
                                                         procPS_.id(),
                                                         getReleaseVersion()}};
         detail::ModuleConfigInfo mci{md, std::move(module_pset), module_type};
-        result.emplace(module_label, move(mci));
+        result.try_emplace(module_label, move(mci));
       }
       catch (exception const& e) {
         es << "  ERROR: Configuration of module with label " << module_label

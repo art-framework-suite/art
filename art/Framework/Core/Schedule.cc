@@ -14,8 +14,6 @@
 using namespace hep::concurrency;
 using namespace std;
 
-using fhicl::ParameterSet;
-
 namespace art {
 
   Schedule::Schedule(ScheduleID const scheduleID,

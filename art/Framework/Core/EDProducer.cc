@@ -3,12 +3,6 @@
 
 namespace art {
 
-  std::string
-  EDProducer::workerType() const
-  {
-    return "WorkerT<EDProducer>";
-  }
-
   void
   EDProducer::setupQueues(detail::SharedResources const& resources)
   {

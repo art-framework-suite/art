@@ -3,12 +3,6 @@
 
 namespace art {
 
-  std::string
-  SharedFilter::workerType() const
-  {
-    return "WorkerT<SharedFilter>";
-  }
-
   void
   SharedFilter::setupQueues(detail::SharedResources const& resources)
   {

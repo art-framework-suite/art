@@ -20,8 +20,6 @@ namespace art {
     using ModuleType = ReplicatedFilter;
     using WorkerType = WorkerT<ReplicatedFilter>;
 
-    std::string workerType() const;
-
     explicit ReplicatedFilter(fhicl::ParameterSet const& pset,
                               ProcessingFrame const& frame)
       : detail::Filter{pset}

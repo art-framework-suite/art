@@ -56,7 +56,6 @@ namespace art {
     using PluginCollection_t =
       std::vector<std::unique_ptr<FileCatalogMetadataPlugin>>;
 
-  public: // CONFIGURATION
     struct Config {
       struct KeysToIgnore {
         std::set<std::string>
@@ -91,7 +90,6 @@ namespace art {
           "more information.")};
     };
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
     virtual ~OutputModule() noexcept;
     explicit OutputModule(fhicl::ParameterSet const& pset);
     explicit OutputModule(fhicl::TableFragment<Config> const& pset,
@@ -101,7 +99,6 @@ namespace art {
     OutputModule& operator=(OutputModule const&) = delete;
     OutputModule& operator=(OutputModule&&) = delete;
 
-  public: // MEMBER FUNCTIONS
     // Accessor for maximum number of events to be written.
     // -1 is used for unlimited.
     int maxEvents() const;
@@ -153,9 +150,6 @@ namespace art {
     void doSetSubRunAuxiliaryRangeSetID(RangeSet const&);
     bool doCloseFile();
     bool doOpenFile(FileBlock const& fb);
-
-    // Implementation API, intended to be provided by derived classes.
-    std::string workerType() const;
 
     // Do the end-of-file tasks; this is only called internally, after
     // the appropriate tests have been done.

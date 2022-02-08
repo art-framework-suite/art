@@ -3,12 +3,6 @@
 
 namespace art {
 
-  std::string
-  SharedAnalyzer::workerType() const
-  {
-    return "WorkerT<SharedAnalyzer>";
-  }
-
   void
   SharedAnalyzer::setupQueues(detail::SharedResources const& resources)
   {

@@ -64,7 +64,7 @@ namespace art {
     }
     outputWorkersToOpen_.insert(outputWorkers_.cbegin(), outputWorkers_.cend());
     outputCallbacks.registerCallback(
-      [this](auto const& tables) { this->selectProducts(tables); });
+      [this](auto const& tables) { selectProducts(tables); });
   }
 
   void
@@ -416,8 +416,7 @@ namespace art {
         // the output worker needs, nothing to do.
         continue;
       }
-      auto wants_to_close = ow->requestsToCloseFile();
-      if (wants_to_close) {
+      if (ow->requestsToCloseFile()) {
         outputWorkersToClose_.insert(ow);
       }
     }
@@ -437,19 +436,15 @@ namespace art {
     if (outputWorkers_.empty()) {
       return false;
     }
-    bool all_at_limit = true;
     for (auto w : outputWorkers_) {
       if (!w->limitReached()) {
-        all_at_limit = false;
-        break;
+        return false;
       }
     }
-    if (all_at_limit) {
-      mf::LogInfo("SuccessfulTermination")
-        << "The job is terminating successfully because each output module\n"
-        << "has reached its configured limit.\n";
-    }
-    return all_at_limit;
+    mf::LogInfo("SuccessfulTermination")
+      << "The job is terminating successfully because each output module\n"
+      << "has reached its configured limit.\n";
+    return true;
   }
 
 } // namespace art

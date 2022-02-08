@@ -40,16 +40,11 @@ namespace art {
   class ActivityRegistry;
   class ModuleContext;
   class FileBlock;
-  class RunPrincipal;
-  class SubRunPrincipal;
-  class EventPrincipal;
   namespace detail {
     class SharedResources;
   }
 
   class Worker {
-    friend class RunWorkerFunctor;
-
   public:
     enum State { Ready, Pass, Fail, Working, ExceptionThrown };
 
@@ -100,7 +95,13 @@ namespace art {
     bool isUnique() const;
 
   protected:
-    virtual std::string workerType() const = 0;
+    std::atomic<std::size_t> counts_visited_{};
+    std::atomic<std::size_t> counts_run_{};
+    std::atomic<std::size_t> counts_passed_{};
+    std::atomic<std::size_t> counts_failed_{};
+    std::atomic<std::size_t> counts_thrown_{};
+
+  private:
     virtual hep::concurrency::SerialTaskQueueChain* implSerialTaskQueueChain()
       const = 0;
     virtual void implBeginJob(detail::SharedResources const& resources) = 0;
@@ -111,8 +112,6 @@ namespace art {
     virtual bool implDoEnd(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
     virtual bool implDoProcess(EventPrincipal&, ModuleContext const&) = 0;
 
-  private:
-    // API implementation classes must use to provide their API to us
     virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
     virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
@@ -142,13 +141,6 @@ namespace art {
     // schedule has its own private worker copies (the whole reason
     // schedules exist!).
     hep::concurrency::WaitingTaskList waitingTasks_;
-
-  protected:
-    std::atomic<std::size_t> counts_visited_{};
-    std::atomic<std::size_t> counts_run_{};
-    std::atomic<std::size_t> counts_passed_{};
-    std::atomic<std::size_t> counts_failed_{};
-    std::atomic<std::size_t> counts_thrown_{};
   };
 
 } // namespace art

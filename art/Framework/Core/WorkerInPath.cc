@@ -40,12 +40,6 @@ namespace art {
     return returnCode_;
   }
 
-  string const&
-  WorkerInPath::label() const
-  {
-    return worker_->label();
-  }
-
   // Used by writeSummary
   size_t
   WorkerInPath::timesVisited() const

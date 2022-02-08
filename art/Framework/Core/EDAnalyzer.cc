@@ -3,12 +3,6 @@
 
 namespace art {
 
-  std::string
-  EDAnalyzer::workerType() const
-  {
-    return "WorkerT<EDAnalyzer>";
-  }
-
   void
   EDAnalyzer::setupQueues(detail::SharedResources const& resources)
   {
