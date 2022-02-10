@@ -37,7 +37,7 @@ namespace art::test {
 }
 
 art::test::PMTestOutput::PMTestOutput(Parameters const& p)
-  : OutputModule(p().omConfig, p.get_PSet())
+  : OutputModule{p().omConfig}
 {}
 
 DEFINE_ART_MODULE(art::test::PMTestOutput)

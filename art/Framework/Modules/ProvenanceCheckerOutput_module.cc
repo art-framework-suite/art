@@ -42,7 +42,7 @@ namespace art {
   //
   ProvenanceCheckerOutput::ProvenanceCheckerOutput(
     ProvenanceCheckerOutput::Parameters const& ps)
-    : OutputModule{ps().omConfig, ps.get_PSet()}
+    : OutputModule{ps().omConfig}
   {}
 
   //

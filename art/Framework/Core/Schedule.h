@@ -127,12 +127,6 @@ namespace art {
       return epExec_.fileStatus_.load();
     }
 
-    bool
-    allAtLimit() const
-    {
-      return epExec_.allAtLimit();
-    }
-
     // Run level
     void
     seedRunRangeSet(RangeSetHandler const& rsh)
@@ -200,7 +194,6 @@ namespace art {
   private:
     ScheduleContext const context_;
     ActionTable const& actions_;
-    ActivityRegistry const& actReg_;
     EndPathExecutor epExec_;
     TriggerPathsExecutor tpsExec_;
     std::unique_ptr<EventPrincipal> eventPrincipal_{nullptr};

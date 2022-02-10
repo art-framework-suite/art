@@ -13,38 +13,32 @@
 #include <memory>
 #include <string>
 
-using namespace std;
-using fhicl::ParameterSet;
+namespace art::InputSourceFactory {
 
-namespace art {
-  namespace InputSourceFactory {
-
-    unique_ptr<InputSource>
-    make(ParameterSet const& conf, InputSourceDescription& desc)
-    {
-      auto const& libspec = conf.get<string>("module_type");
-      FDEBUG(1) << "InputSourceFactory: module_type = " << libspec << endl;
-      using make_t =
-        unique_ptr<InputSource>(ParameterSet const&, InputSourceDescription&);
-      make_t* symbol = nullptr;
-      try {
-        cet::LibraryManager lm_{Suffixes::source()};
-        lm_.getSymbolByLibspec(libspec, "make", symbol);
-      }
-      catch (Exception const& e) {
-        cet::detail::wrapLibraryManagerException(
-          e, "InputSource", libspec, getReleaseVersion());
-      }
-      if (symbol == nullptr) {
-        throw Exception(errors::Configuration, "BadPluginLibrary")
-          << "InputSource " << libspec
-          << " has internal symbol definition problems: consult an expert.";
-      }
-      auto wm = symbol(conf, desc);
-      FDEBUG(1) << "InputSourceFactory: created input source " << libspec
-                << endl;
-      return wm;
+  std::unique_ptr<InputSource>
+  make(fhicl::ParameterSet const& conf, InputSourceDescription& desc)
+  {
+    auto const libspec = conf.get<std::string>("module_type");
+    FDEBUG(1) << "InputSourceFactory: module_type = " << libspec << '\n';
+    using make_t = std::unique_ptr<InputSource>(fhicl::ParameterSet const&,
+                                                InputSourceDescription&);
+    make_t* symbol = nullptr;
+    try {
+      cet::LibraryManager lm_{Suffixes::source()};
+      lm_.getSymbolByLibspec(libspec, "make", symbol);
     }
+    catch (Exception const& e) {
+      cet::detail::wrapLibraryManagerException(
+        e, "InputSource", libspec, getReleaseVersion());
+    }
+    if (symbol == nullptr) {
+      throw Exception(errors::Configuration, "BadPluginLibrary")
+        << "InputSource " << libspec
+        << " has internal symbol definition problems: consult an expert.";
+    }
+    auto wm = symbol(conf, desc);
+    FDEBUG(1) << "InputSourceFactory: created input source " << libspec << '\n';
+    return wm;
+  }
 
-  } // namespace InputSourceFactory
-} // namespace art
+} // namespace art::InputSourceFactory

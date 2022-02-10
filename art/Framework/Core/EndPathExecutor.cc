@@ -10,12 +10,9 @@
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/Worker.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/PathContext.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/GlobalTaskGroup.h"
-#include "art/Utilities/OutputFileInfo.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
@@ -47,12 +44,10 @@ namespace art {
   EndPathExecutor::EndPathExecutor(ScheduleID const sid,
                                    PathManager& pm,
                                    ActionTable const& actionTable,
-                                   ActivityRegistry const& areg,
                                    UpdateOutputCallbacks& outputCallbacks,
                                    GlobalTaskGroup& group)
     : sc_{sid}
     , actionTable_{actionTable}
-    , actReg_{areg}
     , endPathInfo_{pm.endPathInfo(sid)}
     , taskGroup_{group}
   {
@@ -154,10 +149,7 @@ namespace art {
   EndPathExecutor::closeAllOutputFiles()
   {
     for (auto ow : outputWorkers_) {
-      actReg_.sPreCloseOutputFile.invoke(ow->label());
       ow->closeFile();
-      actReg_.sPostCloseOutputFile.invoke(
-        OutputFileInfo(ow->label(), ow->lastClosedFileName()));
     }
   }
 
@@ -324,10 +316,7 @@ namespace art {
     // know what they are, then we can provide them.
     PathContext const pc{sc_, PathContext::end_path_spec(), {}};
     for (auto ow : outputWorkers_) {
-      ModuleContext const mc{pc, ow->description()};
-      actReg_.sPreWriteEvent.invoke(mc);
-      ow->writeEvent(ep, mc);
-      actReg_.sPostWriteEvent.invoke(mc);
+      ow->writeEvent(ep, pc);
     }
     auto const& eid = ep.eventID();
     bool const lastInSubRun{ep.isLastInSubRun()};
@@ -361,10 +350,7 @@ namespace art {
       if (!ow->fileIsOpen()) {
         continue;
       }
-      actReg_.sPreCloseOutputFile.invoke(ow->label());
       ow->closeFile();
-      actReg_.sPostCloseOutputFile.invoke(
-        OutputFileInfo{ow->label(), ow->lastClosedFileName()});
     }
     outputWorkersToOpen_ = move(outputWorkersToClose_);
   }
@@ -379,10 +365,7 @@ namespace art {
   EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
   {
     for (auto ow : outputWorkersToOpen_) {
-      if (!ow->openFile(fb)) {
-        continue;
-      }
-      actReg_.sPostOpenOutputFile.invoke(ow->label());
+      ow->openFile(fb);
     }
     setOutputFileStatus(OutputFileStatus::Open);
     outputWorkersToOpen_.clear();
@@ -428,23 +411,6 @@ namespace art {
     for (auto ow : outputWorkers_) {
       ow->incrementInputFileNumber();
     }
-  }
-
-  bool
-  EndPathExecutor::allAtLimit() const
-  {
-    if (outputWorkers_.empty()) {
-      return false;
-    }
-    for (auto w : outputWorkers_) {
-      if (!w->limitReached()) {
-        return false;
-      }
-    }
-    mf::LogInfo("SuccessfulTermination")
-      << "The job is terminating successfully because each output module\n"
-      << "has reached its configured limit.\n";
-    return true;
   }
 
 } // namespace art

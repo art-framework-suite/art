@@ -54,11 +54,9 @@ namespace art {
 
   OutputModule::~OutputModule() noexcept = default;
 
-  OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
-                             ParameterSet const& containing_pset)
+  OutputModule::OutputModule(fhicl::TableFragment<Config> const& config)
     : Observer{config().eoFragment().selectEvents(),
-               config().eoFragment().rejectEvents(),
-               containing_pset}
+               config().eoFragment().rejectEvents()}
     , groupSelectorRules_{config().outputCommands(),
                           "outputCommands",
                           "OutputModule"}
@@ -113,12 +111,6 @@ namespace art {
   OutputModule::lastClosedFileName() const
   {
     return configuredFileName_;
-  }
-
-  void
-  OutputModule::configure(OutputModuleDescription const& desc)
-  {
-    remainingEvents_ = maxEvents_ = desc.maxEvents_;
   }
 
   void
@@ -245,9 +237,6 @@ namespace art {
       // ... and invoke the plugins:
       cet::for_all(plugins_, [&e](auto& p) { p->doCollectMetadata(e); });
       updateBranchParents(ep);
-      if (remainingEvents_ > 0) {
-        --remainingEvents_;
-      }
     }
   }
 
@@ -640,18 +629,6 @@ namespace art {
     return result;
   }
 
-  int
-  OutputModule::maxEvents() const
-  {
-    return maxEvents_;
-  }
-
-  int
-  OutputModule::remainingEvents() const
-  {
-    return remainingEvents_;
-  }
-
   SelectionsArray const&
   OutputModule::keptProducts() const
   {
@@ -678,9 +655,4 @@ namespace art {
     return branchChildren_;
   }
 
-  bool
-  OutputModule::limitReached() const
-  {
-    return remainingEvents_ == 0;
-  }
 } // namespace art

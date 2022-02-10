@@ -25,12 +25,6 @@ namespace art {
     Observer& operator=(Observer const&) = delete;
     Observer& operator=(Observer&&) = delete;
 
-    // FIXME: One could obviate the need for this trivial implementation
-    // by putting some type logic in WorkerT.
-    void registerProducts(ProductDescriptions&, ModuleDescription const&);
-    void fillDescriptions(ModuleDescription const&);
-    fhicl::ParameterSetID selectorConfig() const;
-
   protected:
     std::string const& processName() const;
     bool
@@ -74,8 +68,7 @@ namespace art {
 
     explicit Observer(fhicl::ParameterSet const& config);
     explicit Observer(std::vector<std::string> const& select_paths,
-                      std::vector<std::string> const& reject_paths,
-                      fhicl::ParameterSet const& config);
+                      std::vector<std::string> const& reject_paths);
 
   private:
     // True if no selectors configured.

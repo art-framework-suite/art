@@ -15,6 +15,7 @@
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Persistency/Provenance/fwd.h"
 #include "canvas/Persistency/Provenance/fwd.h"
 
 #include <memory>
@@ -31,19 +32,17 @@ namespace art {
                  WorkerParams const&);
 
     std::string const& lastClosedFileName() const;
-    bool closeFile();
+    void closeFile();
     bool fileIsOpen() const;
     void incrementInputFileNumber();
     bool requestsToCloseFile() const;
-    bool openFile(FileBlock const& fb);
+    void openFile(FileBlock const& fb);
     void writeRun(RunPrincipal& rp);
     void writeSubRun(SubRunPrincipal& srp);
-    void writeEvent(EventPrincipal& ep, ModuleContext const& mc);
+    void writeEvent(EventPrincipal& ep, PathContext const& pc);
     void setRunAuxiliaryRangeSetID(RangeSet const&);
     void setSubRunAuxiliaryRangeSetID(RangeSet const&);
-    bool limitReached() const;
     void setFileStatus(OutputFileStatus);
-    void configure(OutputModuleDescription const& desc);
     Granularity fileGranularity() const;
     void selectProducts(ProductTables const&);
 
@@ -56,10 +55,10 @@ namespace art {
     void doRespondToCloseInputFile(FileBlock const&) override;
     void doRespondToOpenOutputFiles(FileBlock const&) override;
     void doRespondToCloseOutputFiles(FileBlock const&) override;
-    bool doBegin(RunPrincipal&, ModuleContext const&) override;
-    bool doEnd(RunPrincipal&, ModuleContext const&) override;
-    bool doBegin(SubRunPrincipal&, ModuleContext const&) override;
-    bool doEnd(SubRunPrincipal&, ModuleContext const&) override;
+    void doBegin(RunPrincipal&, ModuleContext const&) override;
+    void doEnd(RunPrincipal&, ModuleContext const&) override;
+    void doBegin(SubRunPrincipal&, ModuleContext const&) override;
+    void doEnd(SubRunPrincipal&, ModuleContext const&) override;
     bool doProcess(EventPrincipal&, ModuleContext const&) override;
 
     // A module is co-owned by one worker per schedule.  Only
@@ -67,6 +66,7 @@ namespace art {
     // worker.
     std::shared_ptr<OutputModule> module_;
     ServiceHandle<CatalogInterface> ci_{};
+    ActivityRegistry const& actReg_;
     Granularity fileGranularity_{Granularity::Unset};
   };
 } // namespace art

@@ -12,6 +12,7 @@
 #include <type_traits>
 
 namespace art {
+  class Modifier;
   template <typename T>
   class WorkerT : public Worker {
   public:
@@ -28,10 +29,10 @@ namespace art {
     void doRespondToCloseInputFile(FileBlock const&) override;
     void doRespondToOpenOutputFiles(FileBlock const&) override;
     void doRespondToCloseOutputFiles(FileBlock const&) override;
-    bool doBegin(RunPrincipal&, ModuleContext const&) override;
-    bool doEnd(RunPrincipal&, ModuleContext const&) override;
-    bool doBegin(SubRunPrincipal&, ModuleContext const&) override;
-    bool doEnd(SubRunPrincipal&, ModuleContext const&) override;
+    void doBegin(RunPrincipal&, ModuleContext const&) override;
+    void doEnd(RunPrincipal&, ModuleContext const&) override;
+    void doBegin(SubRunPrincipal&, ModuleContext const&) override;
+    void doEnd(SubRunPrincipal&, ModuleContext const&) override;
     bool doProcess(EventPrincipal&, ModuleContext const&) override;
 
     // A module is co-owned by one worker per schedule.  Only
@@ -52,17 +53,23 @@ namespace art {
                       WorkerParams const& wp)
     : Worker{md, wp}, module_{module}
   {
-    if (wp.scheduleID_ == ScheduleID::first()) {
-      // We only want to register the products (and any shared
-      // resources) once, not once for every schedule...
-      module_->registerProducts(wp.producedProducts_, md);
-      if constexpr (std::is_base_of_v<detail::SharedModule, T>) {
+    if constexpr (std::is_base_of_v<Modifier, T>) {
+      if (wp.scheduleID_ == ScheduleID::first()) {
+        // We only want to register the products, not once for every
+        // schedule...
+        module_->registerProducts(wp.producedProducts_, md);
+      } else {
+        // ...but we need to fill product descriptions for each module
+        // copy.
+        module_->fillDescriptions(md);
+      }
+    }
+
+    // Register shared resources only once
+    if constexpr (std::is_base_of_v<detail::SharedModule, T>) {
+      if (wp.scheduleID_ == ScheduleID::first()) {
         wp.resources_.registerSharedResources(module_->sharedResources());
       }
-    } else {
-      // ...but we need to fill product descriptions for each module
-      // copy.
-      module_->fillDescriptions(md);
     }
   }
 
@@ -120,31 +127,31 @@ namespace art {
   }
 
   template <typename T>
-  bool
+  void
   WorkerT<T>::doBegin(RunPrincipal& rp, ModuleContext const& mc)
   {
-    return module_->doBeginRun(rp, mc);
+    module_->doBeginRun(rp, mc);
   }
 
   template <typename T>
-  bool
+  void
   WorkerT<T>::doEnd(RunPrincipal& rp, ModuleContext const& mc)
   {
-    return module_->doEndRun(rp, mc);
+    module_->doEndRun(rp, mc);
   }
 
   template <typename T>
-  bool
+  void
   WorkerT<T>::doBegin(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    return module_->doBeginSubRun(srp, mc);
+    module_->doBeginSubRun(srp, mc);
   }
 
   template <typename T>
-  bool
+  void
   WorkerT<T>::doEnd(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    return module_->doEndSubRun(srp, mc);
+    module_->doEndSubRun(srp, mc);
   }
 
   template <typename T>

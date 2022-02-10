@@ -24,8 +24,6 @@
 #include <string>
 #include <vector>
 
-using namespace cet;
-using namespace fhicl;
 using namespace hep::concurrency;
 using namespace std;
 
@@ -146,7 +144,7 @@ namespace art {
       }
       catch (cet::exception& e) {
         state_ = hlt::Exception;
-        throw art::Exception{
+        throw Exception{
           errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
           << "Exception going through path " << name() << "\n";
       }
@@ -164,7 +162,7 @@ namespace art {
       state_ = hlt::Fail;
     }
     // Invoke post-path signals only for the last schedule.
-    if (pc_.scheduleID().id() == art::Globals::instance()->nschedules() - 1) {
+    if (pc_.scheduleID().id() == Globals::instance()->nschedules() - 1) {
       HLTPathStatus const status(state_, idx);
       switch (trans) {
       case Transition::BeginRun:
@@ -283,7 +281,7 @@ namespace art {
                 HLTPathStatus(path_->state_, idx_);
             }
             auto art_ex =
-              art::Exception{
+              Exception{
                 errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
               << "Exception going through path " << path_->name() << "\n";
             auto ex_ptr = make_exception_ptr(art_ex);

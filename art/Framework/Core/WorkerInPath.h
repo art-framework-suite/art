@@ -43,7 +43,7 @@ namespace art {
     // Special Member Functions
     WorkerInPath(cet::exempt_ptr<Worker>,
                  detail::FilterAction,
-                 ModuleContext const&,
+                 PathContext const&,
                  GlobalTaskGroup& group);
 
     // API for user

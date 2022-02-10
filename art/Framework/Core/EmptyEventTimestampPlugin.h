@@ -103,8 +103,6 @@ private:
   virtual Timestamp eventTimestamp(EventID const&) = 0;
 };
 
-#endif /* art_Framework_Core_EmptyEventTimestampPlugin_h */
-
 inline void
 art::EmptyEventTimestampPlugin::doBeginJob()
 {
@@ -147,6 +145,8 @@ art::EmptyEventTimestampPlugin::doEventTimestamp(EventID const& eid)
   lastEventTimestamp_ = eventTimestamp(eid);
   return lastEventTimestamp_;
 }
+
+#endif /* art_Framework_Core_EmptyEventTimestampPlugin_h */
 
 // Local Variables:
 // mode: c++

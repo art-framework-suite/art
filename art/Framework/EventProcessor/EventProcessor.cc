@@ -1457,13 +1457,8 @@ namespace art {
       // if so setup to end the job the next time around the event
       // loop.
       FDEBUG(1) << string(8, ' ') << "shouldWeStop\n";
-      TDEBUG_FUNC_SI(5, sid) << "Calling schedules_->allAtLimit()";
       static std::mutex m;
       std::lock_guard sentry{m};
-      if (schedule(sid).allAtLimit()) {
-        // Set to return to the File level.
-        nextLevel_ = highest_level();
-      }
       // Now we can write the results of processing to the outputs,
       // and delete the event principal.
       if (!ep.eventID().isFlush()) {

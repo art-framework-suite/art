@@ -92,19 +92,12 @@ namespace art {
 
     virtual ~OutputModule() noexcept;
     explicit OutputModule(fhicl::ParameterSet const& pset);
-    explicit OutputModule(fhicl::TableFragment<Config> const& pset,
-                          fhicl::ParameterSet const& containing_pset);
+    explicit OutputModule(fhicl::TableFragment<Config> const& pset);
     OutputModule(OutputModule const&) = delete;
     OutputModule(OutputModule&&) = delete;
     OutputModule& operator=(OutputModule const&) = delete;
     OutputModule& operator=(OutputModule&&) = delete;
 
-    // Accessor for maximum number of events to be written.
-    // -1 is used for unlimited.
-    int maxEvents() const;
-    // Accessor for remaining number of events to be written.
-    // -1 is used for unlimited.
-    int remainingEvents() const;
     bool fileIsOpen() const;
     OutputFileStatus fileStatus() const;
     // Name of output file (may be overridden if default implementation is
@@ -188,7 +181,6 @@ namespace art {
     virtual bool isFileOpen() const;
     void updateBranchParents(EventPrincipal& ep);
     void fillDependencyGraph();
-    bool limitReached() const;
 
     // The following member functions are part of the Template Method
     // pattern, used for implementing doCloseFile() and maybeEndFile().
@@ -227,8 +219,6 @@ namespace art {
       groupSelector_{{nullptr}};
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_{{false}};
     GroupSelectorRules groupSelectorRules_;
-    int maxEvents_{-1};
-    int remainingEvents_{maxEvents_};
     using BranchParents = std::map<ProductID, std::set<ParentageID>>;
     std::map<ProductID, std::set<ParentageID>> branchParents_{};
     BranchChildren branchChildren_{};

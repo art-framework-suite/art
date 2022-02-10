@@ -208,7 +208,7 @@ namespace art {
                           art::OutputModule::Config::KeysToIgnore>;
 
     explicit ProvenanceDumper(Parameters const& ps)
-      : OutputModule{ps().omConfig, ps.get_PSet()}
+      : OutputModule{ps().omConfig}
       , detail_{ps().user}
       , pp_{detail_,
             ps().wantPresentOnly(),

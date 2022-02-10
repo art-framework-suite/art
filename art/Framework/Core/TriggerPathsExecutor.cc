@@ -3,7 +3,10 @@
 
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Principal/Actions.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PathContext.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
@@ -38,10 +41,12 @@ namespace art {
     ScheduleID const scheduleID,
     PathManager& pm,
     ActionTable const& actions,
+    ActivityRegistry const& activityRegistry,
     std::unique_ptr<Worker> triggerResultsInserter,
     GlobalTaskGroup& group)
     : sc_{scheduleID}
     , actionTable_{actions}
+    , actReg_{activityRegistry}
     , triggerPathsInfo_{pm.triggerPathsInfo(scheduleID)}
     , results_inserter_{std::move(triggerResultsInserter)}
     , taskGroup_{group}
@@ -211,6 +216,8 @@ namespace art {
   {
     // We get here as part of the readAndProcessEventTask (schedule
     // head task).
+    actReg_.sPreProcessEvent.invoke(
+      event_principal.makeEvent(ModuleContext::invalid()), sc_);
     auto const scheduleID = sc_.id();
     TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
     if (results_inserter_) {

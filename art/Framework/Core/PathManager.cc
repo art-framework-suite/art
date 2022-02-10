@@ -95,7 +95,7 @@ namespace art {
       if (entries.empty())
         continue;
 
-      art::detail::configs_t worker_config_infos{};
+      detail::configs_t worker_config_infos{};
       for (auto const& [label, action] : entries) {
         auto const& mci = allModules_.at(label);
         auto const mci_p = cet::make_exempt_ptr(&mci);
@@ -125,7 +125,7 @@ namespace art {
         continue;
 
       for (auto const& [label, action] : entries) {
-        assert(action == art::detail::FilterAction::Normal);
+        assert(action == detail::FilterAction::Normal);
         auto const& mci = allModules_.at(label);
         auto const mci_p = cet::make_exempt_ptr(&mci);
         protoEndPathLabels_.emplace_back(mci_p, action);
@@ -415,7 +415,7 @@ namespace art {
           << " has internal symbol definition problems: consult an "
              "expert.";
       }
-      auto mod = module_factory_func(modPS, art::ProcessingFrame{sid});
+      auto mod = module_factory_func(modPS, ProcessingFrame{sid});
       mod->setModuleDescription(md);
       return mod;
     }
@@ -472,10 +472,8 @@ namespace art {
 
       assert(worker);
       workers.emplace(module_label, worker);
-      wips.emplace_back(cet::make_exempt_ptr(worker.get()),
-                        filterAction,
-                        ModuleContext{pc, worker->description()},
-                        task_group);
+      wips.emplace_back(
+        cet::make_exempt_ptr(worker.get()), filterAction, pc, task_group);
     }
     return wips;
   }
@@ -584,7 +582,7 @@ namespace art {
     for (auto const& pd : productsToProduce_) {
       auto const& module_name = pd.moduleLabel();
       produced_products_per_module[module_name].emplace(
-        art::ProductInfo::ConsumableType::Product,
+        ProductInfo::ConsumableType::Product,
         pd.friendlyClassName(),
         pd.moduleLabel(),
         pd.productInstanceName(),

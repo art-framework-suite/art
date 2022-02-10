@@ -241,7 +241,7 @@ namespace art {
     actReg_.sPostModuleRespondToCloseOutputFiles.invoke(md_);
   }
 
-  bool
+  void
   Worker::doWork(Transition const trans,
                  Principal& principal,
                  ModuleContext const& mc)
@@ -250,9 +250,8 @@ namespace art {
     case Ready:
       break;
     case Pass:
-      return true;
     case Fail:
-      return false;
+      return;
     case ExceptionThrown: {
       // Rethrow the cached exception again. It seems impossible to
       // get here a second time unless a cet::exception has been
@@ -266,31 +265,31 @@ namespace art {
     case Working:
       break; // See below.
     }
-    bool rc = false;
+
     try {
       if (state_.load() == Working) {
         // Not part of the switch statement above because we want the
         // exception to be caught by our handling mechanism.
-        throw art::Exception(errors::ScheduleExecutionFailure)
+        throw Exception(errors::ScheduleExecutionFailure)
           << "A Module has been invoked while it is still being executed.\n"
           << "Product dependencies have invoked a module execution cycle.\n";
       }
       state_ = Working;
       if (trans == Transition::BeginRun) {
         actReg_.sPreModuleBeginRun.invoke(mc);
-        rc = doBegin(dynamic_cast<RunPrincipal&>(principal), mc);
+        doBegin(dynamic_cast<RunPrincipal&>(principal), mc);
         actReg_.sPostModuleBeginRun.invoke(mc);
       } else if (trans == Transition::EndRun) {
         actReg_.sPreModuleEndRun.invoke(mc);
-        rc = doEnd(dynamic_cast<RunPrincipal&>(principal), mc);
+        doEnd(dynamic_cast<RunPrincipal&>(principal), mc);
         actReg_.sPostModuleEndRun.invoke(mc);
       } else if (trans == Transition::BeginSubRun) {
         actReg_.sPreModuleBeginSubRun.invoke(mc);
-        rc = doBegin(dynamic_cast<SubRunPrincipal&>(principal), mc);
+        doBegin(dynamic_cast<SubRunPrincipal&>(principal), mc);
         actReg_.sPostModuleBeginSubRun.invoke(mc);
       } else if (trans == Transition::EndSubRun) {
         actReg_.sPreModuleEndSubRun.invoke(mc);
-        rc = doEnd(dynamic_cast<SubRunPrincipal&>(principal), mc);
+        doEnd(dynamic_cast<SubRunPrincipal&>(principal), mc);
         actReg_.sPostModuleEndSubRun.invoke(mc);
       }
       state_ = Pass;
@@ -299,10 +298,10 @@ namespace art {
       state_ = ExceptionThrown;
       e << "The above exception was thrown while processing module "
         << brief_context(md_, principal) << '\n';
-      if (auto edmEx = dynamic_cast<art::Exception*>(&e)) {
+      if (auto edmEx = dynamic_cast<Exception*>(&e)) {
         cached_exception_ = std::make_exception_ptr(*edmEx);
       } else {
-        auto art_ex = art::Exception{errors::OtherArt, std::string(), e};
+        auto art_ex = Exception{errors::OtherArt, std::string(), e};
         cached_exception_ = std::make_exception_ptr(art_ex);
       }
       throw;
@@ -355,7 +354,6 @@ namespace art {
       cached_exception_ = make_exception_ptr(art_ex);
       rethrow_exception(cached_exception_);
     }
-    return rc;
   }
 
   // This is used only to do trigger results insertion.

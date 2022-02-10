@@ -57,7 +57,7 @@ namespace art {
     void respondToCloseInputFile(FileBlock const& fb);
     void respondToOpenOutputFiles(FileBlock const& fb);
     void respondToCloseOutputFiles(FileBlock const& fb);
-    bool doWork(Transition, Principal&, ModuleContext const&);
+    void doWork(Transition, Principal&, ModuleContext const&);
 
     void doWork_event(hep::concurrency::WaitingTaskPtr workerInPathDoneTask,
                       EventPrincipal&,
@@ -71,12 +71,10 @@ namespace art {
     {
       return scheduleID_;
     }
-    ModuleDescription const& description() const;
-    std::string const& label() const;
-
     // Used only by WorkerInPath.
     bool returnCode() const;
 
+    ModuleDescription const& description() const;
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
 
     // Used by EventProcessor
@@ -95,6 +93,8 @@ namespace art {
     bool isUnique() const;
 
   protected:
+    std::string const& label() const;
+
     std::atomic<std::size_t> counts_visited_{};
     std::atomic<std::size_t> counts_run_{};
     std::atomic<std::size_t> counts_passed_{};
@@ -106,10 +106,10 @@ namespace art {
       const = 0;
     virtual void doBeginJob(detail::SharedResources const& resources) = 0;
     virtual void doEndJob() = 0;
-    virtual bool doBegin(RunPrincipal& rp, ModuleContext const& mc) = 0;
-    virtual bool doEnd(RunPrincipal& rp, ModuleContext const& mc) = 0;
-    virtual bool doBegin(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
-    virtual bool doEnd(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
+    virtual void doBegin(RunPrincipal& rp, ModuleContext const& mc) = 0;
+    virtual void doEnd(RunPrincipal& rp, ModuleContext const& mc) = 0;
+    virtual void doBegin(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
+    virtual void doEnd(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
     virtual bool doProcess(EventPrincipal&, ModuleContext const&) = 0;
 
     virtual void doRespondToOpenInputFile(FileBlock const& fb) = 0;

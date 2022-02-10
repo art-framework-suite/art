@@ -134,7 +134,7 @@ private:
 }; // FileDumperOutput
 
 art::FileDumperOutput::FileDumperOutput(Parameters const& ps)
-  : OutputModule{ps().omConfig, ps.get_PSet()}
+  : OutputModule{ps().omConfig}
   , wantProductFullClassName_{ps().wantProductFullClassName()}
   , wantProductFriendlyClassName_{ps().wantProductFriendlyClassName()}
   , wantProductID_{ps().wantProductID()}

@@ -4,6 +4,9 @@
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
+#include "art/Utilities/OutputFileInfo.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace art {
@@ -15,17 +18,13 @@ namespace art {
   OutputWorker::OutputWorker(std::shared_ptr<OutputModule> module,
                              ModuleDescription const& md,
                              WorkerParams const& wp)
-    : Worker{md, wp}, module_{module}
+    : Worker{md, wp}, module_{module}, actReg_{wp.actReg_}
   {
     if (wp.scheduleID_ == ScheduleID::first()) {
       // We only want to register the products (and any shared
-      // resources) once, not once for every schedule...
+      // resources) once, not once for every schedule)
       module_->registerProducts(wp.producedProducts_, md);
       wp.resources_.registerSharedResources(module_->sharedResources());
-    } else {
-      // ...but we need to fill product descriptions for each module
-      // copy.
-      module_->fillDescriptions(md);
     }
     ci_->outputModuleInitiated(
       label(),
@@ -74,28 +73,28 @@ namespace art {
     module_->doRespondToCloseOutputFiles(fb);
   }
 
-  bool
+  void
   OutputWorker::doBegin(RunPrincipal& rp, ModuleContext const& mc)
   {
-    return module_->doBeginRun(rp, mc);
+    module_->doBeginRun(rp, mc);
   }
 
-  bool
+  void
   OutputWorker::doEnd(RunPrincipal& rp, ModuleContext const& mc)
   {
-    return module_->doEndRun(rp, mc);
+    module_->doEndRun(rp, mc);
   }
 
-  bool
+  void
   OutputWorker::doBegin(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    return module_->doBeginSubRun(srp, mc);
+    module_->doBeginSubRun(srp, mc);
   }
 
-  bool
+  void
   OutputWorker::doEnd(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    return module_->doEndSubRun(srp, mc);
+    module_->doEndSubRun(srp, mc);
   }
 
   bool
@@ -113,14 +112,15 @@ namespace art {
     return module_->lastClosedFileName();
   }
 
-  bool
+  void
   OutputWorker::closeFile()
   {
-    bool const didCloseFile{module_->doCloseFile()};
-    if (didCloseFile) {
-      ci_->outputFileClosed(description().moduleLabel(), lastClosedFileName());
+    actReg_.sPreCloseOutputFile.invoke(label());
+    if (module_->doCloseFile()) {
+      ci_->outputFileClosed(label(), lastClosedFileName());
     }
-    return didCloseFile;
+    actReg_.sPostCloseOutputFile.invoke(
+      OutputFileInfo{label(), lastClosedFileName()});
   }
 
   void
@@ -135,14 +135,13 @@ namespace art {
     return module_->requestsToCloseFile();
   }
 
-  bool
+  void
   OutputWorker::openFile(FileBlock const& fb)
   {
-    bool const didOpenFile{module_->doOpenFile(fb)};
-    if (didOpenFile) {
-      ci_->outputFileOpened(description().moduleLabel());
+    if (module_->doOpenFile(fb)) {
+      ci_->outputFileOpened(label());
+      actReg_.sPostOpenOutputFile.invoke(label());
     }
-    return didOpenFile;
   }
 
   void
@@ -158,9 +157,12 @@ namespace art {
   }
 
   void
-  OutputWorker::writeEvent(EventPrincipal& ep, ModuleContext const& mc)
+  OutputWorker::writeEvent(EventPrincipal& ep, PathContext const& pc)
   {
+    ModuleContext const mc{pc, description()};
+    actReg_.sPreWriteEvent.invoke(mc);
     module_->doWriteEvent(ep, mc);
+    actReg_.sPostWriteEvent.invoke(mc);
   }
 
   void
@@ -185,18 +187,6 @@ namespace art {
   OutputWorker::setFileStatus(OutputFileStatus const ofs)
   {
     return module_->setFileStatus(ofs);
-  }
-
-  bool
-  OutputWorker::limitReached() const
-  {
-    return module_->limitReached();
-  }
-
-  void
-  OutputWorker::configure(OutputModuleDescription const& desc)
-  {
-    module_->configure(desc);
   }
 
   void

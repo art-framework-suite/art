@@ -16,9 +16,12 @@ namespace art {
 
   WorkerInPath::WorkerInPath(cet::exempt_ptr<Worker> w,
                              FilterAction const fa,
-                             ModuleContext const& mc,
+                             PathContext const& pc,
                              GlobalTaskGroup& taskGroup)
-    : worker_{w}, filterAction_{fa}, moduleContext_{mc}, taskGroup_{&taskGroup}
+    : worker_{w}
+    , filterAction_{fa}
+    , moduleContext_{pc, w->description()}
+    , taskGroup_{&taskGroup}
   {}
 
   Worker*
