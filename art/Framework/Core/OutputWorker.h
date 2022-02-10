@@ -21,7 +21,7 @@
 
 namespace art {
   struct OutputModuleDescription;
-  class OutputWorker : public WorkerT<OutputModule> {
+  class OutputWorker : public Worker {
   public:
     virtual ~OutputWorker();
     // This is called directly by the make_worker function created
@@ -48,6 +48,24 @@ namespace art {
     void selectProducts(ProductTables const&);
 
   private:
+    hep::concurrency::SerialTaskQueueChain* implSerialTaskQueueChain()
+      const override;
+    void implBeginJob(detail::SharedResources const&) override;
+    void implEndJob() override;
+    void implRespondToOpenInputFile(FileBlock const&) override;
+    void implRespondToCloseInputFile(FileBlock const&) override;
+    void implRespondToOpenOutputFiles(FileBlock const&) override;
+    void implRespondToCloseOutputFiles(FileBlock const&) override;
+    bool implDoBegin(RunPrincipal&, ModuleContext const&) override;
+    bool implDoEnd(RunPrincipal&, ModuleContext const&) override;
+    bool implDoBegin(SubRunPrincipal&, ModuleContext const&) override;
+    bool implDoEnd(SubRunPrincipal&, ModuleContext const&) override;
+    bool implDoProcess(EventPrincipal&, ModuleContext const&) override;
+
+    // A module is co-owned by one worker per schedule.  Only
+    // replicated modules have a one-to-one correspondence with their
+    // worker.
+    std::shared_ptr<OutputModule> module_;
     ServiceHandle<CatalogInterface> ci_{};
     Granularity fileGranularity_{Granularity::Unset};
   };

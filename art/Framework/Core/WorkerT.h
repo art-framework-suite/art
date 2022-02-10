@@ -19,18 +19,6 @@ namespace art {
     // the DEFINE_ART_MODULE macro.
     WorkerT(std::shared_ptr<T>, ModuleDescription const&, WorkerParams const&);
 
-  protected:
-    T&
-    module()
-    {
-      return *module_;
-    }
-    T const&
-    module() const
-    {
-      return *module_;
-    }
-
   private:
     hep::concurrency::SerialTaskQueueChain* implSerialTaskQueueChain()
       const override;
