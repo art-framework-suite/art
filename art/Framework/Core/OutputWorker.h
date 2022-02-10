@@ -48,19 +48,19 @@ namespace art {
     void selectProducts(ProductTables const&);
 
   private:
-    hep::concurrency::SerialTaskQueueChain* implSerialTaskQueueChain()
+    hep::concurrency::SerialTaskQueueChain* doSerialTaskQueueChain()
       const override;
-    void implBeginJob(detail::SharedResources const&) override;
-    void implEndJob() override;
-    void implRespondToOpenInputFile(FileBlock const&) override;
-    void implRespondToCloseInputFile(FileBlock const&) override;
-    void implRespondToOpenOutputFiles(FileBlock const&) override;
-    void implRespondToCloseOutputFiles(FileBlock const&) override;
-    bool implDoBegin(RunPrincipal&, ModuleContext const&) override;
-    bool implDoEnd(RunPrincipal&, ModuleContext const&) override;
-    bool implDoBegin(SubRunPrincipal&, ModuleContext const&) override;
-    bool implDoEnd(SubRunPrincipal&, ModuleContext const&) override;
-    bool implDoProcess(EventPrincipal&, ModuleContext const&) override;
+    void doBeginJob(detail::SharedResources const&) override;
+    void doEndJob() override;
+    void doRespondToOpenInputFile(FileBlock const&) override;
+    void doRespondToCloseInputFile(FileBlock const&) override;
+    void doRespondToOpenOutputFiles(FileBlock const&) override;
+    void doRespondToCloseOutputFiles(FileBlock const&) override;
+    bool doBegin(RunPrincipal&, ModuleContext const&) override;
+    bool doEnd(RunPrincipal&, ModuleContext const&) override;
+    bool doBegin(SubRunPrincipal&, ModuleContext const&) override;
+    bool doEnd(SubRunPrincipal&, ModuleContext const&) override;
+    bool doProcess(EventPrincipal&, ModuleContext const&) override;
 
     // A module is co-owned by one worker per schedule.  Only
     // replicated modules have a one-to-one correspondence with their

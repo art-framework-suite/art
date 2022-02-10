@@ -136,7 +136,7 @@ namespace art {
   SerialTaskQueueChain*
   Worker::serialTaskQueueChain() const
   {
-    return implSerialTaskQueueChain();
+    return doSerialTaskQueueChain();
   }
 
   // Used by EventProcessor
@@ -192,7 +192,7 @@ namespace art {
   void
   Worker::beginJob(detail::SharedResources const& resources) try {
     actReg_.sPreModuleBeginJob.invoke(md_);
-    implBeginJob(resources);
+    doBeginJob(resources);
     actReg_.sPostModuleBeginJob.invoke(md_);
   }
   catch (...) {
@@ -202,7 +202,7 @@ namespace art {
   void
   Worker::endJob() try {
     actReg_.sPreModuleEndJob.invoke(md_);
-    implEndJob();
+    doEndJob();
     actReg_.sPostModuleEndJob.invoke(md_);
   }
   catch (...) {
@@ -213,7 +213,7 @@ namespace art {
   Worker::respondToOpenInputFile(FileBlock const& fb)
   {
     actReg_.sPreModuleRespondToOpenInputFile.invoke(md_);
-    implRespondToOpenInputFile(fb);
+    doRespondToOpenInputFile(fb);
     actReg_.sPostModuleRespondToOpenInputFile.invoke(md_);
   }
 
@@ -221,7 +221,7 @@ namespace art {
   Worker::respondToCloseInputFile(FileBlock const& fb)
   {
     actReg_.sPreModuleRespondToCloseInputFile.invoke(md_);
-    implRespondToCloseInputFile(fb);
+    doRespondToCloseInputFile(fb);
     actReg_.sPostModuleRespondToCloseInputFile.invoke(md_);
   }
 
@@ -229,7 +229,7 @@ namespace art {
   Worker::respondToOpenOutputFiles(FileBlock const& fb)
   {
     actReg_.sPreModuleRespondToOpenOutputFiles.invoke(md_);
-    implRespondToOpenOutputFiles(fb);
+    doRespondToOpenOutputFiles(fb);
     actReg_.sPostModuleRespondToOpenOutputFiles.invoke(md_);
   }
 
@@ -237,7 +237,7 @@ namespace art {
   Worker::respondToCloseOutputFiles(FileBlock const& fb)
   {
     actReg_.sPreModuleRespondToCloseOutputFiles.invoke(md_);
-    implRespondToCloseOutputFiles(fb);
+    doRespondToCloseOutputFiles(fb);
     actReg_.sPostModuleRespondToCloseOutputFiles.invoke(md_);
   }
 
@@ -278,19 +278,19 @@ namespace art {
       state_ = Working;
       if (trans == Transition::BeginRun) {
         actReg_.sPreModuleBeginRun.invoke(mc);
-        rc = implDoBegin(dynamic_cast<RunPrincipal&>(principal), mc);
+        rc = doBegin(dynamic_cast<RunPrincipal&>(principal), mc);
         actReg_.sPostModuleBeginRun.invoke(mc);
       } else if (trans == Transition::EndRun) {
         actReg_.sPreModuleEndRun.invoke(mc);
-        rc = implDoEnd(dynamic_cast<RunPrincipal&>(principal), mc);
+        rc = doEnd(dynamic_cast<RunPrincipal&>(principal), mc);
         actReg_.sPostModuleEndRun.invoke(mc);
       } else if (trans == Transition::BeginSubRun) {
         actReg_.sPreModuleBeginSubRun.invoke(mc);
-        rc = implDoBegin(dynamic_cast<SubRunPrincipal&>(principal), mc);
+        rc = doBegin(dynamic_cast<SubRunPrincipal&>(principal), mc);
         actReg_.sPostModuleBeginSubRun.invoke(mc);
       } else if (trans == Transition::EndSubRun) {
         actReg_.sPreModuleEndSubRun.invoke(mc);
-        rc = implDoEnd(dynamic_cast<SubRunPrincipal&>(principal), mc);
+        rc = doEnd(dynamic_cast<SubRunPrincipal&>(principal), mc);
         actReg_.sPostModuleEndSubRun.invoke(mc);
       }
       state_ = Pass;
@@ -368,7 +368,7 @@ namespace art {
     actReg_.sPreModule.invoke(mc);
     // Note: Only the TriggerResults inserter--a producer--calls this
     // function.  The return code is thus always true.
-    returnCode_ = implDoProcess(p, mc);
+    returnCode_ = doProcess(p, mc);
     actReg_.sPostModule.invoke(mc);
     assert(returnCode_.load());
     state_ = Pass;
@@ -470,7 +470,7 @@ namespace art {
       actReg_.sPreModule.invoke(mc);
       // Note: Only filters ever return false, and when they do it
       // means they have rejected.
-      returnCode_ = implDoProcess(p, mc);
+      returnCode_ = doProcess(p, mc);
       actReg_.sPostModule.invoke(mc);
       state_ = Fail;
       if (returnCode_.load()) {

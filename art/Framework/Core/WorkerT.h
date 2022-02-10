@@ -20,19 +20,19 @@ namespace art {
     WorkerT(std::shared_ptr<T>, ModuleDescription const&, WorkerParams const&);
 
   private:
-    hep::concurrency::SerialTaskQueueChain* implSerialTaskQueueChain()
+    hep::concurrency::SerialTaskQueueChain* doSerialTaskQueueChain()
       const override;
-    void implBeginJob(detail::SharedResources const&) override;
-    void implEndJob() override;
-    void implRespondToOpenInputFile(FileBlock const&) override;
-    void implRespondToCloseInputFile(FileBlock const&) override;
-    void implRespondToOpenOutputFiles(FileBlock const&) override;
-    void implRespondToCloseOutputFiles(FileBlock const&) override;
-    bool implDoBegin(RunPrincipal&, ModuleContext const&) override;
-    bool implDoEnd(RunPrincipal&, ModuleContext const&) override;
-    bool implDoBegin(SubRunPrincipal&, ModuleContext const&) override;
-    bool implDoEnd(SubRunPrincipal&, ModuleContext const&) override;
-    bool implDoProcess(EventPrincipal&, ModuleContext const&) override;
+    void doBeginJob(detail::SharedResources const&) override;
+    void doEndJob() override;
+    void doRespondToOpenInputFile(FileBlock const&) override;
+    void doRespondToCloseInputFile(FileBlock const&) override;
+    void doRespondToOpenOutputFiles(FileBlock const&) override;
+    void doRespondToCloseOutputFiles(FileBlock const&) override;
+    bool doBegin(RunPrincipal&, ModuleContext const&) override;
+    bool doEnd(RunPrincipal&, ModuleContext const&) override;
+    bool doBegin(SubRunPrincipal&, ModuleContext const&) override;
+    bool doEnd(SubRunPrincipal&, ModuleContext const&) override;
+    bool doProcess(EventPrincipal&, ModuleContext const&) override;
 
     // A module is co-owned by one worker per schedule.  Only
     // replicated modules have a one-to-one correspondence with their
@@ -68,7 +68,7 @@ namespace art {
 
   template <typename T>
   hep::concurrency::SerialTaskQueueChain*
-  WorkerT<T>::implSerialTaskQueueChain() const
+  WorkerT<T>::doSerialTaskQueueChain() const
   {
     if constexpr (std::is_base_of_v<detail::SharedModule, T>) {
       return module_->serialTaskQueueChain();
@@ -79,77 +79,77 @@ namespace art {
 
   template <typename T>
   void
-  WorkerT<T>::implBeginJob(detail::SharedResources const& resources)
+  WorkerT<T>::doBeginJob(detail::SharedResources const& resources)
   {
     module_->doBeginJob(resources);
   }
 
   template <typename T>
   void
-  WorkerT<T>::implEndJob()
+  WorkerT<T>::doEndJob()
   {
     module_->doEndJob();
   }
 
   template <typename T>
   void
-  WorkerT<T>::implRespondToOpenInputFile(FileBlock const& fb)
+  WorkerT<T>::doRespondToOpenInputFile(FileBlock const& fb)
   {
     module_->doRespondToOpenInputFile(fb);
   }
 
   template <typename T>
   void
-  WorkerT<T>::implRespondToCloseInputFile(FileBlock const& fb)
+  WorkerT<T>::doRespondToCloseInputFile(FileBlock const& fb)
   {
     module_->doRespondToCloseInputFile(fb);
   }
 
   template <typename T>
   void
-  WorkerT<T>::implRespondToOpenOutputFiles(FileBlock const& fb)
+  WorkerT<T>::doRespondToOpenOutputFiles(FileBlock const& fb)
   {
     module_->doRespondToOpenOutputFiles(fb);
   }
 
   template <typename T>
   void
-  WorkerT<T>::implRespondToCloseOutputFiles(FileBlock const& fb)
+  WorkerT<T>::doRespondToCloseOutputFiles(FileBlock const& fb)
   {
     module_->doRespondToCloseOutputFiles(fb);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoBegin(RunPrincipal& rp, ModuleContext const& mc)
+  WorkerT<T>::doBegin(RunPrincipal& rp, ModuleContext const& mc)
   {
     return module_->doBeginRun(rp, mc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoEnd(RunPrincipal& rp, ModuleContext const& mc)
+  WorkerT<T>::doEnd(RunPrincipal& rp, ModuleContext const& mc)
   {
     return module_->doEndRun(rp, mc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoBegin(SubRunPrincipal& srp, ModuleContext const& mc)
+  WorkerT<T>::doBegin(SubRunPrincipal& srp, ModuleContext const& mc)
   {
     return module_->doBeginSubRun(srp, mc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoEnd(SubRunPrincipal& srp, ModuleContext const& mc)
+  WorkerT<T>::doEnd(SubRunPrincipal& srp, ModuleContext const& mc)
   {
     return module_->doEndSubRun(srp, mc);
   }
 
   template <typename T>
   bool
-  WorkerT<T>::implDoProcess(EventPrincipal& ep, ModuleContext const& mc)
+  WorkerT<T>::doProcess(EventPrincipal& ep, ModuleContext const& mc)
   {
     // Note, only filters ever return false, and when they do it means
     // they have rejected.

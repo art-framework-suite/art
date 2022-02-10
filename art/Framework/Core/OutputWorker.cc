@@ -33,73 +33,73 @@ namespace art {
   }
 
   hep::concurrency::SerialTaskQueueChain*
-  OutputWorker::implSerialTaskQueueChain() const
+  OutputWorker::doSerialTaskQueueChain() const
   {
     return module_->serialTaskQueueChain();
   }
 
   void
-  OutputWorker::implBeginJob(detail::SharedResources const& resources)
+  OutputWorker::doBeginJob(detail::SharedResources const& resources)
   {
     module_->doBeginJob(resources);
   }
 
   void
-  OutputWorker::implEndJob()
+  OutputWorker::doEndJob()
   {
     module_->doEndJob();
   }
 
   void
-  OutputWorker::implRespondToOpenInputFile(FileBlock const& fb)
+  OutputWorker::doRespondToOpenInputFile(FileBlock const& fb)
   {
     module_->doRespondToOpenInputFile(fb);
   }
 
   void
-  OutputWorker::implRespondToCloseInputFile(FileBlock const& fb)
+  OutputWorker::doRespondToCloseInputFile(FileBlock const& fb)
   {
     module_->doRespondToCloseInputFile(fb);
   }
 
   void
-  OutputWorker::implRespondToOpenOutputFiles(FileBlock const& fb)
+  OutputWorker::doRespondToOpenOutputFiles(FileBlock const& fb)
   {
     module_->doRespondToOpenOutputFiles(fb);
   }
 
   void
-  OutputWorker::implRespondToCloseOutputFiles(FileBlock const& fb)
+  OutputWorker::doRespondToCloseOutputFiles(FileBlock const& fb)
   {
     module_->doRespondToCloseOutputFiles(fb);
   }
 
   bool
-  OutputWorker::implDoBegin(RunPrincipal& rp, ModuleContext const& mc)
+  OutputWorker::doBegin(RunPrincipal& rp, ModuleContext const& mc)
   {
     return module_->doBeginRun(rp, mc);
   }
 
   bool
-  OutputWorker::implDoEnd(RunPrincipal& rp, ModuleContext const& mc)
+  OutputWorker::doEnd(RunPrincipal& rp, ModuleContext const& mc)
   {
     return module_->doEndRun(rp, mc);
   }
 
   bool
-  OutputWorker::implDoBegin(SubRunPrincipal& srp, ModuleContext const& mc)
+  OutputWorker::doBegin(SubRunPrincipal& srp, ModuleContext const& mc)
   {
     return module_->doBeginSubRun(srp, mc);
   }
 
   bool
-  OutputWorker::implDoEnd(SubRunPrincipal& srp, ModuleContext const& mc)
+  OutputWorker::doEnd(SubRunPrincipal& srp, ModuleContext const& mc)
   {
     return module_->doEndSubRun(srp, mc);
   }
 
   bool
-  OutputWorker::implDoProcess(EventPrincipal& ep, ModuleContext const& mc)
+  OutputWorker::doProcess(EventPrincipal& ep, ModuleContext const& mc)
   {
     // Note, only filters ever return false, and when they do it means
     // they have rejected.
