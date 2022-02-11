@@ -48,7 +48,7 @@ namespace art {
   public:
     enum State { Ready, Pass, Fail, Working, ExceptionThrown };
 
-    virtual ~Worker() = default;
+    virtual ~Worker();
     Worker(ModuleDescription const&, WorkerParams const&);
 
     void beginJob(detail::SharedResources const&);

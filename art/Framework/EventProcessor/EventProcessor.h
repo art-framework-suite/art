@@ -51,6 +51,7 @@ namespace art {
     // Special Member Functions
     explicit EventProcessor(fhicl::ParameterSet const& pset,
                             detail::EnabledModules const& enabled_modules);
+    ~EventProcessor();
     EventProcessor(EventProcessor const&) = delete;
     EventProcessor(EventProcessor&&) = delete;
     EventProcessor& operator=(EventProcessor const&) = delete;

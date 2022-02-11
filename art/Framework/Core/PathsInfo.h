@@ -15,6 +15,7 @@
 namespace art {
   class PathsInfo {
   public:
+    ~PathsInfo();
     std::map<std::string, std::shared_ptr<Worker>>& workers();
     std::map<std::string, std::shared_ptr<Worker>> const& workers() const;
     void add_path(ActionTable const&,

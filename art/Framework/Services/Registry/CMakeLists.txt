@@ -1,4 +1,5 @@
 cet_make_library(SOURCE
+    ActivityRegistry.cc
     ServiceRegistry.cc
     ServicesManager.cc
     detail/ServiceCacheEntry.cc

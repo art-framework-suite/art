@@ -52,7 +52,7 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  OutputModule::~OutputModule() noexcept = default;
+  OutputModule::~OutputModule() = default;
 
   OutputModule::OutputModule(fhicl::TableFragment<Config> const& config)
     : Observer{config().eoFragment().selectEvents(),

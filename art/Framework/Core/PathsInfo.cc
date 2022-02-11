@@ -16,6 +16,8 @@ using namespace std;
 
 namespace art {
 
+  PathsInfo::~PathsInfo() = default;
+
   map<string, std::shared_ptr<Worker>>&
   PathsInfo::workers()
   {

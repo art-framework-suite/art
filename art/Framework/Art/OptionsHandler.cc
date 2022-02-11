@@ -47,6 +47,8 @@ namespace {
   }
 } // namespace
 
+art::OptionsHandler::~OptionsHandler() = default;
+
 int
 art::OptionsHandler::checkOptions(bpo::variables_map const& vm)
 {

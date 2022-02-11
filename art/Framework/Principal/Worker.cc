@@ -102,6 +102,8 @@ namespace {
 
 namespace art {
 
+  Worker::~Worker() = default;
+
   Worker::Worker(ModuleDescription const& md, WorkerParams const& wp)
     : scheduleID_{wp.scheduleID_}
     , md_{md}

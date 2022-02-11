@@ -90,7 +90,7 @@ namespace art {
           "more information.")};
     };
 
-    virtual ~OutputModule() noexcept;
+    virtual ~OutputModule();
     explicit OutputModule(fhicl::ParameterSet const& pset);
     explicit OutputModule(fhicl::TableFragment<Config> const& pset);
     OutputModule(OutputModule const&) = delete;

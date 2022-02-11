@@ -121,6 +121,8 @@ namespace art {
     auto const invalid_module_context = ModuleContext::invalid();
   }
 
+  EventProcessor::~EventProcessor() = default;
+
   EventProcessor::EventProcessor(ParameterSet const& pset,
                                  detail::EnabledModules const& enabled_modules)
     : scheduler_{pset.get<ParameterSet>("services.scheduler")}

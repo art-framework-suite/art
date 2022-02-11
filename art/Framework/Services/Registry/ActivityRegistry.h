@@ -50,10 +50,9 @@ namespace art {
 } // namespace art
 
 class art::ActivityRegistry {
-
 public:
-  ~ActivityRegistry() = default;
-  ActivityRegistry() = default;
+  ~ActivityRegistry();
+  ActivityRegistry();
 
   ActivityRegistry(ActivityRegistry const&) = delete;
   ActivityRegistry& operator=(ActivityRegistry const&) = delete;
