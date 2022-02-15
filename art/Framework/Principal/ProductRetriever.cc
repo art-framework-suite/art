@@ -8,7 +8,6 @@
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
-#include "canvas/Persistency/Provenance/canonicalProductName.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib_except/exception.h"
@@ -44,26 +43,21 @@ namespace art {
     return principal_.productGetter(pid);
   }
 
-  bool
-  ProductRetriever::getProcessParameterSet(std::string const& processName,
-                                           fhicl::ParameterSet& ps) const
+  std::optional<fhicl::ParameterSet>
+  ProductRetriever::getProcessParameterSet(std::string const& processName) const
   {
     std::lock_guard lock{mutex_};
-    if (branchType_ != InEvent) {
-      return false;
+    auto const config =
+      principal_.processHistory().getConfigurationForProcess(processName);
+    if (!config) {
+      return std::nullopt;
     }
-    ProcessHistory ph;
-    if (!ProcessHistoryRegistry::get(principal_.processHistoryID(), ph)) {
-      throw Exception(errors::NotFound)
-        << "ProcessHistoryID " << principal_.processHistoryID()
-        << " is not found in the ProcessHistoryRegistry.\n"
-        << "This file is malformed.\n";
+
+    if (fhicl::ParameterSet ps;
+        fhicl::ParameterSetRegistry::get(config->parameterSetID(), ps)) {
+      return std::make_optional(std::move(ps));
     }
-    auto const config = ph.getConfigurationForProcess(processName);
-    if (config) {
-      fhicl::ParameterSetRegistry::get(config->parameterSetID(), ps);
-    }
-    return config.has_value();
+    return std::nullopt;
   }
 
   std::vector<ProductID>

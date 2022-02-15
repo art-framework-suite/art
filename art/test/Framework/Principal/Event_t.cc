@@ -43,6 +43,7 @@
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 
 #include <algorithm>
 #include <fstream>
@@ -225,6 +226,7 @@ ProductTablesFixture::registerProduct(std::string const& tag,
   processParams.put("process_name", processName);
   processParams.put(moduleLabel, moduleParams);
 
+  fhicl::ParameterSetRegistry::put(processParams);
   ProcessConfiguration const process{
     processName, processParams.id(), getReleaseVersion()};
 
@@ -724,6 +726,18 @@ BOOST_AUTO_TEST_CASE(printHistory)
     history,
     std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out,
                                                                       "\n"));
+}
+
+BOOST_AUTO_TEST_CASE(getProcessConfiguration)
+{
+  auto pset = currentEvent_.getProcessParameterSet("CURRENT");
+  BOOST_REQUIRE(pset.has_value());
+  auto ref_pset = fhicl::ParameterSet::make(R"(modMulti: {
+   module_label: "modMulti"
+   module_type: "IntProducer"
+}
+process_name: "CURRENT")");
+  BOOST_TEST((pset == ref_pset));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

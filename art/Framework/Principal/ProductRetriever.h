@@ -71,8 +71,8 @@ namespace art {
 
     // Miscellaneous functionality
     EDProductGetter const* productGetter(ProductID const pid) const;
-    bool getProcessParameterSet(std::string const& process,
-                                fhicl::ParameterSet&) const;
+    std::optional<fhicl::ParameterSet> getProcessParameterSet(
+      std::string const& process) const;
 
     // Product retrieval
     template <typename PROD>
