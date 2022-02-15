@@ -74,7 +74,14 @@ namespace art {
       fhicl::Sequence<std::string> outputCommands{
         fhicl::Name("outputCommands"),
         std::vector<std::string>{"keep *"}};
-      fhicl::Atom<std::string> fileName{fhicl::Name("fileName"), ""};
+      fhicl::Atom<std::string> fileName{
+        fhicl::Name("fileName"),
+        fhicl::Comment(
+          R"(The "fileName" parameter is a pattern used to form the name of the output file.
+The ROOT output module supports the placeholders described at:
+
+  https://cdcvs.fnal.gov/redmine/projects/art_root_io/wiki/Output_file_renaming_for_ROOT_files)"),
+        ""};
       fhicl::Atom<std::string> dataTier{fhicl::Name("dataTier"), ""};
       fhicl::Atom<std::string> streamName{fhicl::Name("streamName"), ""};
       fhicl::OptionalDelegatedParameter fcmdPlugins{
