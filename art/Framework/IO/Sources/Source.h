@@ -11,11 +11,11 @@
 //
 // The Source class template requires the use of a type T as its
 // template parameter, satisfying the conditions outlined below. In
-// one's XXX_module.cc class one must provide a typedef and module macro
+// one's XXX_module.cc class one must provide a type alias and module macro
 // call along the lines of:
 //
 // namespace arttest {
-//   typedef art::Source<GeneratorTestDetail> GeneratorTest;
+//   using GeneratorTest = art::Source<GeneratorTestDetail>;
 // }
 //
 // DEFINE_ART_INPUT_SOURCE(arttest::GeneratorTest)
@@ -28,7 +28,7 @@
 // examples of type traits in the standard, such as std::is_const<T> or
 // std::is_integral<T>. Any traits you wish to specialize must be
 // defined *after* the definition of your detail class T, but *before*
-// the typedef above which will attempt to instantiate them. See
+// the type alias above which will attempt to instantiate them. See
 // SourceTraits.h for descriptions of the different traits one might
 // wish to apply.
 //

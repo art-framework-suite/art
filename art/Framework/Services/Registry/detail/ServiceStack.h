@@ -6,13 +6,9 @@
 
 #include <stack>
 
-namespace art {
-  namespace detail {
-
-    typedef std::stack<WrapperBase_ptr> ServiceStack;
-
-  } // namespace detail
-} // namespace art
+namespace art::detail {
+  using ServiceStack = std::stack<WrapperBase_ptr>;
+} // namespace art::detail
 
 #endif /* art_Framework_Services_Registry_detail_ServiceStack_h */
 

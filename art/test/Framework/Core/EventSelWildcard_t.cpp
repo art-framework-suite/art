@@ -20,11 +20,11 @@ constexpr size_t numBits = 12; // There must be a better way than this but I
 constexpr size_t numPatterns = 12;
 constexpr size_t numTestMasks = 9;
 
-typedef std::vector<std::vector<bool>> Answers;
+using Answers = std::vector<std::vector<bool>>;
 
-typedef std::vector<string> Strings;
-typedef std::vector<Strings> VStrings;
-typedef std::vector<std::bitset<numBits>> VBools;
+using Strings = std::vector<string>;
+using VStrings = std::vector<Strings>;
+using VBools = std::vector<std::bitset<numBits>>;
 
 std::ostream&
 operator<<(std::ostream& ost, const Strings& strings)

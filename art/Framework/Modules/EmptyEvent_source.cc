@@ -373,27 +373,27 @@ art::EmptyEvent::doEndJob()
 std::unique_ptr<art::EmptyEventTimestampPlugin>
 art::EmptyEvent::makePlugin_(OptionalDelegatedParameter const& maybeConfig)
 {
-  std::unique_ptr<EmptyEventTimestampPlugin> result;
+  auto pset = maybeConfig.get_if_present<ParameterSet>();
+  if (!pset) {
+    return nullptr;
+  }
+
   try {
-    ParameterSet pset;
-    if (maybeConfig.get_if_present(pset)) {
-      auto const libspec = pset.get<std::string>("plugin_type");
-      auto const pluginType = pluginFactory_.pluginType(libspec);
-      if (pluginType ==
-          cet::PluginTypeDeducer<EmptyEventTimestampPlugin>::value) {
-        result = pluginFactory_.makePlugin<decltype(result)>(libspec, pset);
-      } else {
-        throw Exception(errors::Configuration, "EmptyEvent: ")
-          << "unrecognized plugin type " << pluginType << "for plugin "
-          << libspec << ".\n";
-      }
+    auto const libspec = pset->get<std::string>("plugin_type");
+    auto const pluginType = pluginFactory_.pluginType(libspec);
+    if (pluginType ==
+        cet::PluginTypeDeducer<EmptyEventTimestampPlugin>::value) {
+      return pluginFactory_
+        .makePlugin<std::unique_ptr<EmptyEventTimestampPlugin>>(libspec, *pset);
     }
+    throw Exception(errors::Configuration, "EmptyEvent: ")
+      << "unrecognized plugin type " << pluginType << "for plugin " << libspec
+      << ".\n";
   }
   catch (cet::exception& e) {
     throw Exception(errors::Configuration, "EmptyEvent: ", e)
       << "Exception caught while processing plugin spec.\n";
   }
-  return result;
 }
 
 void

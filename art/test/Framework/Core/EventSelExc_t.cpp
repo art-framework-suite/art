@@ -30,7 +30,7 @@ using namespace std;
 using namespace string_literals;
 using art::PathSpec;
 
-typedef std::vector<std::string> Strings;
+using Strings = std::vector<std::string>;
 using PathSpecifiers = std::vector<std::string>;
 
 // Name all our paths. We have as many paths as there are trigger

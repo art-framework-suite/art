@@ -41,9 +41,8 @@ namespace {
              ParameterSet const& source,
              vector<ParameterSet>& service_set)
   {
-    ParameterSet tmp;
-    if (source.get_if_present(name, tmp)) {
-      service_set.emplace_back(move(tmp));
+    if (auto service = source.get_if_present<ParameterSet>(name)) {
+      service_set.emplace_back(move(*service));
       return;
     }
     addService(name, service_set);
