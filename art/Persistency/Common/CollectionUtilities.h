@@ -72,89 +72,19 @@
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "cetlib/map_vector.h"
-#include "cetlib/metaprogramming.h"
 
 #include <cstddef>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace art {
   // Forward declarations.
   class EDProductGetter;
 
-  // Template metaprogramming.
-  namespace detail {
-    using cet::no_tag;
-    using cet::yes_tag;
-
-    template <typename T, typename InIter, void (T::*)(InIter, InIter)>
-    struct two_arg_insert_func;
-    template <typename T, typename I>
-    no_tag has_two_arg_insert_helper(...);
-    template <typename T, typename I>
-    yes_tag has_two_arg_insert_helper(
-      two_arg_insert_func<T, I, &T::insert>* dummy);
-    template <typename T>
-    struct has_two_arg_insert {
-      static bool constexpr value =
-        sizeof(has_two_arg_insert_helper<T, typename T::const_iterator>(0)) ==
-        sizeof(yes_tag);
-    };
-
-    template <typename T,
-              typename RET,
-              typename OutIter,
-              typename InIter,
-              RET (T::*)(OutIter, InIter, InIter)>
-    struct three_arg_insert_func;
-    template <typename T, typename R, typename O, typename I>
-    no_tag has_three_arg_insert_helper(...);
-    template <typename T, typename R, typename O, typename I>
-    yes_tag has_three_arg_insert_helper(
-      three_arg_insert_func<T, R, O, I, &T::insert>* dummy);
-    template <typename T>
-    struct has_three_arg_insert {
-      static bool constexpr value =
-        sizeof(has_three_arg_insert_helper<T,
-                                           void,
-                                           typename T::iterator,
-                                           typename T::const_iterator>(0)) ==
-          sizeof(yes_tag) ||
-        sizeof(has_three_arg_insert_helper<T,
-                                           typename T::iterator,
-                                           typename T::const_iterator,
-                                           typename T::const_iterator>(0)) ==
-          sizeof(yes_tag);
-    };
-
-    template <typename C>
-    struct mix_offset {
-      static size_t
-      offset(C const& c)
-      {
-        return c.size();
-      }
-    };
-
-    template <typename P>
-    struct mix_offset<cet::map_vector<P>> {
-      static size_t
-      offset(cet::map_vector<P> const& mv)
-      {
-        return mv.delta();
-      }
-    };
-  } // namespace detail
-
   // Append container in to container out.
-  // I.
   template <typename CONTAINER>
-  std::enable_if_t<detail::has_two_arg_insert<CONTAINER>::value>
-  concatContainers(CONTAINER& out, CONTAINER const& in);
-  // II.
-  template <typename CONTAINER>
-  std::enable_if_t<detail::has_three_arg_insert<CONTAINER>::value>
-  concatContainers(CONTAINER& out, CONTAINER const& in);
+  void concatContainers(CONTAINER& out, CONTAINER const& in);
 
   // 1.
   template <typename COLLECTION>
@@ -231,53 +161,103 @@ art::detail::verifyPtrCollection(iterator const beg,
   return true;
 }
 
-namespace art {
-  namespace detail {
-    template <typename CONTAINER>
-    struct TwoArgInsert {
-      static void
-      concatenate(CONTAINER& out, CONTAINER const& in)
-      {
-        out.insert(in.begin(), in.end());
-      }
-    };
+namespace art::detail {
 
-    template <typename T>
-    struct TwoArgInsert<cet::map_vector<T>> {
-      using mv_t = cet::map_vector<T>;
-      static void
-      concatenate(mv_t& out, mv_t in)
-      {
-        // The offset is necessary for concatenating map_vectors so
-        // that all elements will be preserved.
-        auto const d = detail::mix_offset<mv_t>::offset(out);
-        for (auto& pr : in) {
-          pr.first = cet::map_vector_key{pr.first.asInt() + d};
-        }
-        // Because we can guarantee that entries will not overlap due
-        // to using the offset above, we do not need to call
-        // out.insert(...), which will unnecessarily merge entries.
-        // It is the user's responsibility to ensure that the
-        // map_vector entries are properly sorted.
-        out.append(in.begin(), in.end());
+  template <typename C>
+  struct mix_offset {
+    static size_t
+    offset(C const& c)
+    {
+      return c.size();
+    }
+  };
+
+  template <typename P>
+  struct mix_offset<cet::map_vector<P>> {
+    static size_t
+    offset(cet::map_vector<P> const& mv)
+    {
+      return mv.delta();
+    }
+  };
+
+  template <typename CONTAINER>
+  struct TwoArgInsert {
+    static void
+    concatenate(CONTAINER& out, CONTAINER const& in)
+    {
+      out.insert(in.begin(), in.end());
+    }
+  };
+
+  template <typename T>
+  struct TwoArgInsert<cet::map_vector<T>> {
+    using mv_t = cet::map_vector<T>;
+    static void
+    concatenate(mv_t& out, mv_t in)
+    {
+      // The offset is necessary for concatenating map_vectors so
+      // that all elements will be preserved.
+      auto const d = detail::mix_offset<mv_t>::offset(out);
+      for (auto& pr : in) {
+        pr.first = cet::map_vector_key{pr.first.asInt() + d};
       }
-    };
+      // Because we can guarantee that entries will not overlap due
+      // to using the offset above, we do not need to call
+      // out.insert(...), which will unnecessarily merge entries.
+      // It is the user's responsibility to ensure that the
+      // map_vector entries are properly sorted.
+      out.append(in.begin(), in.end());
+    }
+  };
+
+  // Metaprogramming for two-argument insertion
+  template <typename T, typename InIter = typename T::const_iterator>
+  using two_arg_insert_t = decltype(
+    std::declval<T>().insert(std::declval<InIter>(), std::declval<InIter>()));
+
+  template <typename T, typename = void>
+  struct has_two_arg_insert : std::false_type {};
+
+  template <typename T>
+  struct has_two_arg_insert<T, std::void_t<two_arg_insert_t<T>>>
+    : std::true_type {};
+
+  // Metaprogramming for three-argument insertion
+  template <typename T,
+            typename OutIter,
+            typename InIter = typename T::const_iterator>
+  using three_arg_insert_t =
+    decltype(std::declval<T>().insert(std::declval<OutIter>(),
+                                      std::declval<InIter>(),
+                                      std::declval<InIter>()));
+
+  template <typename T, typename OutIter, typename = void>
+  struct has_three_arg_insert_t : std::false_type {};
+
+  template <typename T, typename OutIter>
+  struct has_three_arg_insert_t<T,
+                                OutIter,
+                                std::void_t<three_arg_insert_t<T, OutIter>>>
+    : std::true_type {};
+
+  template <typename T>
+  constexpr bool has_three_arg_insert =
+    has_three_arg_insert_t<T, typename T::iterator>::value ||
+    has_three_arg_insert_t<T, typename T::const_iterator>::value;
+
+} // namespace art::detail
+
+template <typename CONTAINER>
+void
+art::concatContainers(CONTAINER& out, CONTAINER const& in)
+{
+  if constexpr (detail::has_two_arg_insert<CONTAINER>::value) {
+    detail::TwoArgInsert<CONTAINER>::concatenate(out, in);
+  } else {
+    static_assert(detail::has_three_arg_insert<CONTAINER>);
+    out.insert(out.end(), in.begin(), in.end());
   }
-}
-
-// I.
-template <typename CONTAINER>
-std::enable_if_t<art::detail::has_two_arg_insert<CONTAINER>::value>
-art::concatContainers(CONTAINER& out, CONTAINER const& in)
-{
-  detail::TwoArgInsert<CONTAINER>::concatenate(out, in);
-}
-// II.
-template <typename CONTAINER>
-std::enable_if_t<art::detail::has_three_arg_insert<CONTAINER>::value>
-art::concatContainers(CONTAINER& out, CONTAINER const& in)
-{
-  out.insert(out.end(), in.begin(), in.end());
 }
 
 // 1.
