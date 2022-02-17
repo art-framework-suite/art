@@ -6,6 +6,7 @@
 //  The base class for all analyzer modules.
 //
 
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/Observer.h"
 #include "art/Framework/Core/ProcessingFrame.h"
 #include "art/Framework/Core/detail/ImplicitConfigs.h"

@@ -9,6 +9,7 @@
 #include "art/Framework/Core/FileCatalogMetadataPlugin.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/Observer.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
