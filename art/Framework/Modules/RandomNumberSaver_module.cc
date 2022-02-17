@@ -3,7 +3,6 @@
 // Store state of the RandomNumberGenerator service into the event.
 //
 
-#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/ProcessingFrame.h"
 #include "art/Framework/Core/SharedProducer.h"
 #include "art/Framework/Principal/Event.h"

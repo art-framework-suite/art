@@ -7,7 +7,6 @@
 // from cetpkgsupport v1_02_00.
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/fwd.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
