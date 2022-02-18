@@ -123,6 +123,8 @@ art::MixHelper::MixHelper(Config const& config,
   , ioHandle_{move(ioHandle)}
 {}
 
+art::MixHelper::~MixHelper() = default;
+
 std::ostream&
 art::operator<<(std::ostream& os, MixHelper::Mode const mode)
 {

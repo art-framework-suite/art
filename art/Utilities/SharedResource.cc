@@ -31,6 +31,8 @@ namespace art::detail {
     : name{demangle ? cet::demangle_symbol(resource_name) : resource_name}
   {}
 
+  SharedResource_t::~SharedResource_t() = default;
+
   SharedResource_t const LegacyResource{"__legacy__", false};
 
   SharedResources::SharedResources()

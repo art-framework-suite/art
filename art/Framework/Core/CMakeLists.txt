@@ -28,6 +28,7 @@ cet_make_library(HEADERS_TARGET SOURCE
     ProducesCollector.cc
     ProducingService.cc
     ProductRegistryHelper.cc
+    PtrRemapper.cc
     RPManager.cc
     ReplicatedAnalyzer.cc
     ReplicatedFilter.cc

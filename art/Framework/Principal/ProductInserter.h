@@ -75,14 +75,9 @@ namespace art {
 
   private:
     struct PMValue {
-      PMValue(std::unique_ptr<EDProduct>&& p,
-              BranchDescription const& b,
-              RangeSet const& r)
-        : prod_{std::move(p)}, bd_{b}, rs_{r}
-      {}
-      std::unique_ptr<EDProduct> prod_;
-      BranchDescription const& bd_;
-      RangeSet rs_;
+      std::unique_ptr<EDProduct> product;
+      BranchDescription const& description;
+      RangeSet rangeSet;
     };
 
     BranchDescription const& getProductDescription_(

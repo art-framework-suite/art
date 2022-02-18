@@ -274,6 +274,7 @@ namespace art {
                        std::string const& moduleLabel,
                        ProducesCollector& collector,
                        std::unique_ptr<MixIOPolicy> ioHandle);
+    ~MixHelper();
 
     // Returns the current mixing mode.
     Mode readMode() const;

@@ -15,6 +15,7 @@ namespace art {
   namespace detail {
     struct SharedResource_t {
       SharedResource_t(std::string const& name, bool demangle);
+      ~SharedResource_t();
       std::string name;
     };
     extern SharedResource_t const LegacyResource;
