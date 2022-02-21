@@ -2,34 +2,23 @@
 #define art_Framework_Principal_ProductRetriever_h
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/ConsumesInfo.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Handle.h"
-#include "art/Framework/Principal/Principal.h"
 #include "art/Framework/Principal/ProcessTag.h"
-#include "art/Framework/Principal/ProductInfo.h"
 #include "art/Framework/Principal/Selector.h"
-#include "art/Framework/Principal/detail/type_label_for.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/fwd.h"
-#include "canvas/Persistency/Common/EDProduct.h"
 #include "canvas/Persistency/Common/WrappedTypeID.h"
-#include "canvas/Persistency/Common/Wrapper.h"
 #include "canvas/Persistency/Common/traits.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/EventAuxiliary.h"
-#include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductToken.h"
-#include "canvas/Persistency/Provenance/Timestamp.h"
-#include "canvas/Persistency/Provenance/TypeLabel.h"
-#include "canvas/Persistency/Provenance/canonicalProductName.h"
 #include "canvas/Persistency/Provenance/fwd.h"
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/TypeID.h"
-#include "cetlib/HorizontalRule.h"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib_except/exception.h"
@@ -37,7 +26,6 @@
 
 #include <cassert>
 #include <cstddef>
-#include <map>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -182,6 +170,17 @@ namespace art {
       std::string const& moduleLabel,
       std::string const& productInstanceName,
       ProcessTag const& processTag) const;
+    ProductID getProductID_(TypeID const& typeID,
+                            std::string const& instance) const;
+    std::vector<InputTag> getInputTags_(WrappedTypeID const& wrapped,
+                                        SelectorBase const& selector) const;
+    GroupQueryResult getByLabel_(WrappedTypeID const& wrapped,
+                                 InputTag const& tag) const;
+    GroupQueryResult getBySelector_(WrappedTypeID const& wrapped,
+                                    SelectorBase const& selector) const;
+    GroupQueryResult getByProductID_(ProductID productID) const;
+    std::vector<GroupQueryResult> getMany_(WrappedTypeID const& wrapped,
+                                           SelectorBase const& sel) const;
 
     // Protects use of retrievedProducts_ and putProducts_.
     mutable std::recursive_mutex mutex_{};
@@ -213,28 +212,7 @@ namespace art {
   ProductID
   ProductRetriever::getProductID(std::string const& instance /* = "" */) const
   {
-    std::lock_guard lock{mutex_};
-    TypeID const type{typeid(PROD)};
-    auto const& product_name = canonicalProductName(
-      type.friendlyClassName(), md_.moduleLabel(), instance, md_.processName());
-    ProductID const pid{product_name};
-    auto desc = principal_.getProductDescription(pid);
-    if (!desc) {
-      throw Exception(errors::ProductRegistrationFailure,
-                      "ProductRetriever::getProductID: error while trying to "
-                      "retrieve product description:\n")
-        << "No product is registered for\n"
-        << "  process name:                '" << md_.processName() << "'\n"
-        << "  module label:                '" << md_.moduleLabel() << "'\n"
-        << "  product friendly class name: '" << type.friendlyClassName()
-        << "'\n"
-        << "  product instance name:       '" << instance << "'\n"
-        << "  branch type:                 '" << branchType_ << "'\n";
-    }
-    // The description object is owned by either the source or the
-    // event processor, whose lifetimes exceed that of the
-    // ProductRetriever object.  It is therefore safe to dereference.
-    return desc->productID();
+    return getProductID_(TypeID{typeid(PROD)}, instance);
   }
 
   // =========================================================================
@@ -257,15 +235,7 @@ namespace art {
   Handle<PROD>
   ProductRetriever::getHandle(SelectorBase const& sel) const
   {
-    std::lock_guard lock{mutex_};
-    // We do *not* track whether consumes was called for a SelectorBase.
-    ProcessTag const processTag{"", md_.processName()};
-    auto qr = principal_.getBySelector(
-      mc_, WrappedTypeID::make<PROD>(), sel, processTag);
-    bool const ok = qr.succeeded() && !qr.failed();
-    if (recordParents_ && ok) {
-      recordAsParent_(qr.result());
-    }
+    auto qr = getBySelector_(WrappedTypeID::make<PROD>(), sel);
     return Handle<PROD>{qr};
   }
 
@@ -273,12 +243,7 @@ namespace art {
   Handle<PROD>
   ProductRetriever::getHandle(ProductID const pid) const
   {
-    std::lock_guard lock{mutex_};
-    auto qr = principal_.getByProductID(pid);
-    bool const ok = qr.succeeded() && !qr.failed();
-    if (recordParents_ && ok) {
-      recordAsParent_(qr.result());
-    }
+    auto qr = getByProductID_(pid);
     return Handle<PROD>{qr};
   }
 
@@ -286,21 +251,7 @@ namespace art {
   Handle<PROD>
   ProductRetriever::getHandle(InputTag const& tag) const
   {
-    std::lock_guard lock{mutex_};
-    auto const wrapped = WrappedTypeID::make<PROD>();
-    ProcessTag const processTag{tag.process(), md_.processName()};
-    ProductInfo const pinfo{ProductInfo::ConsumableType::Product,
-                            wrapped.product_type,
-                            tag.label(),
-                            tag.instance(),
-                            processTag};
-    ConsumesInfo::instance()->validateConsumedProduct(branchType_, md_, pinfo);
-    GroupQueryResult qr = principal_.getByLabel(
-      mc_, wrapped, tag.label(), tag.instance(), processTag);
-    bool const ok = qr.succeeded() && !qr.failed();
-    if (recordParents_ && ok) {
-      recordAsParent_(qr.result());
-    }
+    auto qr = getByLabel_(WrappedTypeID::make<PROD>(), tag);
     return Handle<PROD>{qr};
   }
 
@@ -331,9 +282,7 @@ namespace art {
   std::vector<InputTag>
   ProductRetriever::getInputTags(SelectorBase const& selector) const
   {
-    auto const wrapped = WrappedTypeID::make<PROD>();
-    ProcessTag const processTag{"", md_.processName()};
-    return principal_.getInputTags(mc_, wrapped, selector, processTag);
+    return getInputTags_(WrappedTypeID::make<PROD>(), selector);
   }
 
   template <typename PROD>
@@ -353,20 +302,12 @@ namespace art {
   std::vector<Handle<PROD>>
   ProductRetriever::getMany(SelectorBase const& sel) const
   {
-    std::lock_guard lock{mutex_};
-    auto const wrapped = WrappedTypeID::make<PROD>();
-    ConsumesInfo::instance()->validateConsumedProduct(
-      branchType_,
-      md_,
-      ProductInfo{ProductInfo::ConsumableType::Many, wrapped.product_type});
-    ProcessTag const processTag{"", md_.processName()};
+    auto const qrs = getMany_(WrappedTypeID::make<PROD>(), sel);
     std::vector<Handle<PROD>> products;
-    for (auto const& qr : principal_.getMany(mc_, wrapped, sel, processTag)) {
-      products.emplace_back(qr);
-      if (recordParents_) {
-        recordAsParent_(qr.result());
-      }
-    }
+    products.reserve(qrs.size());
+    cet::transform_all(qrs, back_inserter(products), [](auto const& qr) {
+      return Handle<PROD>{qr};
+    });
     return products;
   }
 

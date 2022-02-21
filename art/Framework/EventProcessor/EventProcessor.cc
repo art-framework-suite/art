@@ -10,6 +10,7 @@
 #include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 #include "art/Framework/Principal/ClosedRangeSetHandler.h"
+#include "art/Framework/Principal/ConsumesInfo.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RangeSetHandler.h"

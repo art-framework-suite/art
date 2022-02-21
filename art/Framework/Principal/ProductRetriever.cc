@@ -1,13 +1,19 @@
 #include "art/Framework/Principal/ProductRetriever.h"
 // vim: set sw=2 expandtab :
 
+#include "art/Framework/Principal/ConsumesInfo.h"
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Principal.h"
+#include "art/Framework/Principal/ProcessTag.h"
+#include "art/Framework/Principal/ProductInfo.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
+#include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/ProcessHistoryRegistry.h"
+#include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Persistency/Provenance/ProductProvenance.h"
+#include "canvas/Persistency/Provenance/canonicalProductName.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/exempt_ptr.h"
 #include "cetlib_except/exception.h"
@@ -138,5 +144,107 @@ namespace art {
     }
     // And return the single result.
     return qrs[0].result();
+  }
+
+  ProductID
+  ProductRetriever::getProductID_(TypeID const& type,
+                                  std::string const& instance /* = "" */) const
+  {
+    std::lock_guard lock{mutex_};
+    auto const& product_name = canonicalProductName(
+      type.friendlyClassName(), md_.moduleLabel(), instance, md_.processName());
+    ProductID const pid{product_name};
+    auto desc = principal_.getProductDescription(pid);
+    if (!desc) {
+      throw Exception(errors::ProductRegistrationFailure,
+                      "ProductRetriever::getProductID: error while trying to "
+                      "retrieve product description:\n")
+        << "No product is registered for\n"
+        << "  process name:                '" << md_.processName() << "'\n"
+        << "  module label:                '" << md_.moduleLabel() << "'\n"
+        << "  product friendly class name: '" << type.friendlyClassName()
+        << "'\n"
+        << "  product instance name:       '" << instance << "'\n"
+        << "  branch type:                 '" << branchType_ << "'\n";
+    }
+    // The description object is owned by either the source or the
+    // event processor, whose lifetimes exceed that of the
+    // ProductRetriever object.  It is therefore safe to dereference.
+    return desc->productID();
+  }
+
+  std::vector<InputTag>
+  ProductRetriever::getInputTags_(WrappedTypeID const& wrapped,
+                                  SelectorBase const& selector) const
+  {
+    ProcessTag const processTag{"", md_.processName()};
+    return principal_.getInputTags(mc_, wrapped, selector, processTag);
+  }
+
+  GroupQueryResult
+  ProductRetriever::getByLabel_(WrappedTypeID const& wrapped,
+                                InputTag const& tag) const
+  {
+    std::lock_guard lock{mutex_};
+    ProcessTag const processTag{tag.process(), md_.processName()};
+    ProductInfo const pinfo{ProductInfo::ConsumableType::Product,
+                            wrapped.product_type,
+                            tag.label(),
+                            tag.instance(),
+                            processTag};
+    ConsumesInfo::instance()->validateConsumedProduct(branchType_, md_, pinfo);
+    GroupQueryResult qr = principal_.getByLabel(
+      mc_, wrapped, tag.label(), tag.instance(), processTag);
+    bool const ok = qr.succeeded() && !qr.failed();
+    if (recordParents_ && ok) {
+      recordAsParent_(qr.result());
+    }
+    return qr;
+  }
+
+  GroupQueryResult
+  ProductRetriever::getBySelector_(WrappedTypeID const& wrapped,
+                                   SelectorBase const& sel) const
+  {
+    std::lock_guard lock{mutex_};
+    // We do *not* track whether consumes was called for a SelectorBase.
+    ProcessTag const processTag{"", md_.processName()};
+    auto qr = principal_.getBySelector(mc_, wrapped, sel, processTag);
+    bool const ok = qr.succeeded() && !qr.failed();
+    if (recordParents_ && ok) {
+      recordAsParent_(qr.result());
+    }
+    return qr;
+  }
+
+  GroupQueryResult
+  ProductRetriever::getByProductID_(ProductID const pid) const
+  {
+    std::lock_guard lock{mutex_};
+    auto qr = principal_.getByProductID(pid);
+    bool const ok = qr.succeeded() && !qr.failed();
+    if (recordParents_ && ok) {
+      recordAsParent_(qr.result());
+    }
+    return qr;
+  }
+
+  std::vector<GroupQueryResult>
+  ProductRetriever::getMany_(WrappedTypeID const& wrapped,
+                             SelectorBase const& sel) const
+  {
+    std::lock_guard lock{mutex_};
+    ConsumesInfo::instance()->validateConsumedProduct(
+      branchType_,
+      md_,
+      ProductInfo{ProductInfo::ConsumableType::Many, wrapped.product_type});
+    ProcessTag const processTag{"", md_.processName()};
+    auto qrs = principal_.getMany(mc_, wrapped, sel, processTag);
+    for (auto const& qr : qrs) {
+      if (recordParents_) {
+        recordAsParent_(qr.result());
+      }
+    }
+    return qrs;
   }
 } // namespace art

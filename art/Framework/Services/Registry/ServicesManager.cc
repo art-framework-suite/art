@@ -14,7 +14,6 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "range/v3/view.hpp"
 
-#include <map>
 #include <memory>
 #include <stack>
 #include <string>

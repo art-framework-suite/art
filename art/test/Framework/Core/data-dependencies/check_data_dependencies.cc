@@ -15,6 +15,7 @@
 #include "fhiclcpp/types/OptionalTable.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TupleAs.h"
+#include "fhiclcpp/types/detail/validationException.h"
 
 #include <cassert>
 #include <fstream>
