@@ -114,10 +114,8 @@ namespace art {
       auto producer = std::make_shared<TriggerResultInserter>(
         trig_pset, scheduleID, pathsInfo.pathResults());
       producer->setModuleDescription(md);
-      auto result =
-        std::make_unique<WorkerT<ReplicatedProducer>>(producer, md, wp);
       actReg.sPostModuleConstruction.invoke(md);
-      return result;
+      return std::make_unique<WorkerT<ReplicatedProducer>>(producer, wp);
     }
 
     auto const invalid_module_context = ModuleContext::invalid();

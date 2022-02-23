@@ -32,7 +32,6 @@ namespace art::detail {
   using ModuleMaker_t = ModuleBase*(fhicl::ParameterSet const&,
                                     ProcessingFrame const&);
   using WorkerFromModuleMaker_t = Worker*(std::shared_ptr<ModuleBase>,
-                                          ModuleDescription const&,
                                           WorkerParams const&);
   using WorkerMaker_t = Worker*(WorkerParams const&, ModuleDescription const&);
   using ModuleTypeFunc_t = ModuleType();
@@ -78,11 +77,9 @@ namespace art::detail {
   }                                                                            \
   art::Worker*                                                                 \
   make_worker_from_module(std::shared_ptr<art::ModuleBase> mod,                \
-                          art::ModuleDescription const& md,                    \
                           art::WorkerParams const& wp)                         \
   {                                                                            \
-    return new klass::WorkerType(                                              \
-      std::dynamic_pointer_cast<klass::ModuleType>(mod), md, wp);              \
+    return klass::WorkerType::makeWorker(mod, wp);                             \
   }                                                                            \
   art::ModuleType                                                              \
   moduleType()                                                                 \

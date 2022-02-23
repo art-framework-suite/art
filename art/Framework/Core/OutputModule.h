@@ -47,7 +47,6 @@ namespace art {
   class ResultsPrincipal;
 
   class OutputModule : public Observer, public detail::SharedModule {
-    friend class WorkerT<OutputModule>;
     friend class OutputWorker;
 
   public:
@@ -116,7 +115,7 @@ The ROOT output module supports the placeholders described at:
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const;
     void selectProducts(ProductTables const&);
     void doSelectProducts(ProductTables const&);
-    void registerProducts(ProductDescriptions&, ModuleDescription const&);
+    void registerProducts(ProductDescriptions&);
     BranchChildren const& branchChildren() const;
 
   protected:

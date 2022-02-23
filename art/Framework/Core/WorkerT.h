@@ -2,6 +2,7 @@
 #define art_Framework_Core_WorkerT_h
 // vim: set sw=2 expandtab :
 
+#include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/WorkerParams.h"
@@ -18,7 +19,13 @@ namespace art {
   public:
     // This is called directly by the make_worker function created by
     // the DEFINE_ART_MODULE macro.
-    WorkerT(std::shared_ptr<T>, ModuleDescription const&, WorkerParams const&);
+    static Worker*
+    makeWorker(std::shared_ptr<ModuleBase> mod, WorkerParams const& wp)
+    {
+      return new WorkerT<T>{std::dynamic_pointer_cast<T>(mod), wp};
+    }
+
+    WorkerT(std::shared_ptr<T>, WorkerParams const&);
 
   private:
     hep::concurrency::SerialTaskQueueChain* doSerialTaskQueueChain()
@@ -48,20 +55,18 @@ namespace art {
   // This is called directly by the make_worker function created by
   // the DEFINE_ART_MODULE macro.
   template <typename T>
-  WorkerT<T>::WorkerT(std::shared_ptr<T> module,
-                      ModuleDescription const& md,
-                      WorkerParams const& wp)
-    : Worker{md, wp}, module_{module}
+  WorkerT<T>::WorkerT(std::shared_ptr<T> module, WorkerParams const& wp)
+    : Worker{module->moduleDescription(), wp}, module_{module}
   {
     if constexpr (std::is_base_of_v<Modifier, T>) {
       if (wp.scheduleID_ == ScheduleID::first()) {
         // We only want to register the products, not once for every
         // schedule...
-        module_->registerProducts(wp.producedProducts_, md);
+        module_->registerProducts(wp.producedProducts_);
       } else {
         // ...but we need to fill product descriptions for each module
         // copy.
-        module_->fillDescriptions(md);
+        module_->fillProductDescriptions();
       }
     }
 

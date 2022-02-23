@@ -513,8 +513,7 @@ namespace art {
 
     auto module =
       get_module(md.moduleLabel(), md.moduleThreadingType(), wp.scheduleID_);
-    return std::shared_ptr<Worker>{
-      worker_from_module_factory_func(module, md, wp)};
+    return std::shared_ptr<Worker>{worker_from_module_factory_func(module, wp)};
   }
 
   ModuleType

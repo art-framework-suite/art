@@ -27,8 +27,8 @@ namespace art {
     Modifier& operator=(Modifier const&) = delete;
     Modifier& operator=(Modifier&&) = delete;
 
-    using ProductRegistryHelper::fillDescriptions;
-    using ProductRegistryHelper::registerProducts;
+    void fillProductDescriptions();
+    void registerProducts(ProductDescriptions& productsToRegister);
 
   protected:
     using ProductRegistryHelper::expectedProducts;

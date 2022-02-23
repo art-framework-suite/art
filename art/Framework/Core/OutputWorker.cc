@@ -11,19 +11,27 @@
 
 namespace art {
 
+  Worker*
+  OutputWorker::makeWorker(std::shared_ptr<ModuleBase> mod,
+                           WorkerParams const& wp)
+  {
+    return new OutputWorker{std::dynamic_pointer_cast<OutputModule>(mod), wp};
+  }
+
   OutputWorker::~OutputWorker() = default;
 
   // This is called directly by the make_worker function created
   // by the DEFINE_ART_MODULE macro.
   OutputWorker::OutputWorker(std::shared_ptr<OutputModule> module,
-                             ModuleDescription const& md,
                              WorkerParams const& wp)
-    : Worker{md, wp}, module_{module}, actReg_{wp.actReg_}
+    : Worker{module->moduleDescription(), wp}
+    , module_{module}
+    , actReg_{wp.actReg_}
   {
     if (wp.scheduleID_ == ScheduleID::first()) {
       // We only want to register the products (and any shared
       // resources) once, not once for every schedule)
-      module_->registerProducts(wp.producedProducts_, md);
+      module_->registerProducts(wp.producedProducts_);
       wp.resources_.registerSharedResources(module_->sharedResources());
     }
     ci_->outputModuleInitiated(

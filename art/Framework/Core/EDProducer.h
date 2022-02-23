@@ -33,25 +33,22 @@ namespace art {
     using detail::LegacyModule::sharedResources;
 
   private:
-    void setupQueues(detail::SharedResources const& resources) override final;
-    void beginJobWithFrame(ProcessingFrame const&) override final;
-    void endJobWithFrame(ProcessingFrame const&) override final;
+    void setupQueues(detail::SharedResources const& resources) final;
+    void beginJobWithFrame(ProcessingFrame const&) final;
+    void endJobWithFrame(ProcessingFrame const&) final;
     void respondToOpenInputFileWithFrame(FileBlock const&,
-                                         ProcessingFrame const&) override final;
-    void respondToCloseInputFileWithFrame(
-      FileBlock const&,
-      ProcessingFrame const&) override final;
-    void respondToOpenOutputFilesWithFrame(
-      FileBlock const&,
-      ProcessingFrame const&) override final;
-    void respondToCloseOutputFilesWithFrame(
-      FileBlock const&,
-      ProcessingFrame const&) override final;
-    void beginRunWithFrame(Run&, ProcessingFrame const&) override final;
-    void endRunWithFrame(Run&, ProcessingFrame const&) override final;
-    void beginSubRunWithFrame(SubRun&, ProcessingFrame const&) override final;
-    void endSubRunWithFrame(SubRun&, ProcessingFrame const&) override final;
-    void produceWithFrame(Event&, ProcessingFrame const&) override final;
+                                         ProcessingFrame const&) final;
+    void respondToCloseInputFileWithFrame(FileBlock const&,
+                                          ProcessingFrame const&) final;
+    void respondToOpenOutputFilesWithFrame(FileBlock const&,
+                                           ProcessingFrame const&) final;
+    void respondToCloseOutputFilesWithFrame(FileBlock const&,
+                                            ProcessingFrame const&) final;
+    void beginRunWithFrame(Run&, ProcessingFrame const&) final;
+    void endRunWithFrame(Run&, ProcessingFrame const&) final;
+    void beginSubRunWithFrame(SubRun&, ProcessingFrame const&) final;
+    void endSubRunWithFrame(SubRun&, ProcessingFrame const&) final;
+    void produceWithFrame(Event&, ProcessingFrame const&) final;
 
     virtual void beginJob();
     virtual void endJob();

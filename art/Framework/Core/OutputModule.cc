@@ -164,10 +164,9 @@ namespace art {
   {}
 
   void
-  OutputModule::registerProducts(ProductDescriptions& producedProducts,
-                                 ModuleDescription const& md)
+  OutputModule::registerProducts(ProductDescriptions& producedProducts)
   {
-    doRegisterProducts(producedProducts, md);
+    doRegisterProducts(producedProducts, moduleDescription());
   }
 
   void
