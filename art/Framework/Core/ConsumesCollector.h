@@ -35,6 +35,13 @@ namespace art {
     void mayConsumeMany();
 
   private:
+    void emplace_back(BranchType,
+                      ProductInfo::ConsumableType,
+                      TypeID const& typeID);
+    void emplace_back(BranchType,
+                      ProductInfo::ConsumableType,
+                      TypeID const& typeID,
+                      InputTag const& tag);
     std::array<std::vector<ProductInfo>, NumBranchTypes> consumables_{};
   };
 
@@ -42,11 +49,8 @@ namespace art {
   ProductToken<T>
   ConsumesCollector::consumes(InputTag const& tag)
   {
-    consumables_[BT].emplace_back(ProductInfo::ConsumableType::Product,
-                                  TypeID{typeid(T)},
-                                  tag.label(),
-                                  tag.instance(),
-                                  ProcessTag{tag.process()});
+    emplace_back(
+      BT, ProductInfo::ConsumableType::Product, TypeID{typeid(T)}, tag);
     return ProductToken<T>{tag};
   }
 
@@ -54,11 +58,8 @@ namespace art {
   ViewToken<T>
   ConsumesCollector::consumesView(InputTag const& tag)
   {
-    consumables_[BT].emplace_back(ProductInfo::ConsumableType::ViewElement,
-                                  TypeID{typeid(T)},
-                                  tag.label(),
-                                  tag.instance(),
-                                  ProcessTag{tag.process()});
+    emplace_back(
+      BT, ProductInfo::ConsumableType::ViewElement, TypeID{typeid(T)}, tag);
     return ViewToken<T>{tag};
   }
 
@@ -66,19 +67,15 @@ namespace art {
   void
   ConsumesCollector::consumesMany()
   {
-    consumables_[BT].emplace_back(ProductInfo::ConsumableType::Many,
-                                  TypeID{typeid(T)});
+    emplace_back(BT, ProductInfo::ConsumableType::Many, TypeID{typeid(T)});
   }
 
   template <typename T, BranchType BT>
   ProductToken<T>
   ConsumesCollector::mayConsume(InputTag const& tag)
   {
-    consumables_[BT].emplace_back(ProductInfo::ConsumableType::Product,
-                                  TypeID{typeid(T)},
-                                  tag.label(),
-                                  tag.instance(),
-                                  ProcessTag{tag.process()});
+    emplace_back(
+      BT, ProductInfo::ConsumableType::Product, TypeID{typeid(T)}, tag);
     return ProductToken<T>{tag};
   }
 
@@ -86,11 +83,8 @@ namespace art {
   ViewToken<T>
   ConsumesCollector::mayConsumeView(InputTag const& tag)
   {
-    consumables_[BT].emplace_back(ProductInfo::ConsumableType::ViewElement,
-                                  TypeID{typeid(T)},
-                                  tag.label(),
-                                  tag.instance(),
-                                  ProcessTag{tag.process()});
+    emplace_back(
+      BT, ProductInfo::ConsumableType::ViewElement, TypeID{typeid(T)}, tag);
     return ViewToken<T>{tag};
   }
 
@@ -98,9 +92,9 @@ namespace art {
   void
   ConsumesCollector::mayConsumeMany()
   {
-    consumables_[BT].emplace_back(ProductInfo::ConsumableType::Many,
-                                  TypeID{typeid(T)});
+    emplace_back(BT, ProductInfo::ConsumableType::Many, TypeID{typeid(T)});
   }
+
 } // namespace art
 
 // Local Variables:

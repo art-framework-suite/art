@@ -121,4 +121,6 @@ namespace art {
   EDProducer::endSubRun(SubRun&)
   {}
 
+  template class WorkerT<EDProducer>;
+
 } // namespace art

@@ -73,6 +73,8 @@ namespace art {
     virtual void analyze(Event const&, ProcessingFrame const&) = 0;
   };
 
+  extern template class WorkerT<SharedAnalyzer>;
+
 } // namespace art
 
 #endif /* art_Framework_Core_SharedAnalyzer_h */

@@ -68,6 +68,8 @@ namespace art {
     virtual void produce(Event&, ProcessingFrame const&) = 0;
   };
 
+  extern template class WorkerT<SharedProducer>;
+
 } // namespace art
 
 #endif /* art_Framework_Core_SharedProducer_h */

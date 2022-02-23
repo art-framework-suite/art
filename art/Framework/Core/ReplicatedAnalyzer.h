@@ -80,6 +80,8 @@ namespace art {
     virtual void analyze(Event const&, ProcessingFrame const&) = 0;
   };
 
+  extern template class WorkerT<ReplicatedAnalyzer>;
+
 } // namespace art
 
 #endif /* art_Framework_Core_ReplicatedAnalyzer_h */

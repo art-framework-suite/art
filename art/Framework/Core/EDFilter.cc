@@ -129,4 +129,6 @@ namespace art {
     return true;
   }
 
+  template class WorkerT<EDFilter>;
+
 } // namespace art

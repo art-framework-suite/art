@@ -67,6 +67,8 @@ namespace art {
     virtual bool filter(Event&, ProcessingFrame const&) = 0;
   };
 
+  extern template class WorkerT<SharedFilter>;
+
 } // namespace art
 
 #endif /* art_Framework_Core_SharedFilter_h */

@@ -14,6 +14,9 @@ namespace art {
   class EventSelector {
   public:
     explicit EventSelector(std::vector<std::string> const& pathspecs);
+    EventSelector(EventSelector const&);
+    EventSelector(EventSelector&&);
+    ~EventSelector();
 
     bool acceptEvent(ScheduleID id, TriggerResults const& tr) const;
 

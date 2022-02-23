@@ -28,4 +28,22 @@ namespace art {
     }
   }
 
+  void
+  ConsumesCollector::emplace_back(BranchType const bt,
+                                  ProductInfo::ConsumableType const contype,
+                                  TypeID const& typeID,
+                                  InputTag const& tag)
+  {
+    consumables_[bt].emplace_back(
+      contype, typeID, tag.label(), tag.instance(), ProcessTag{tag.process()});
+  }
+
+  void
+  ConsumesCollector::emplace_back(BranchType const bt,
+                                  ProductInfo::ConsumableType const contype,
+                                  TypeID const& typeID)
+  {
+    consumables_[bt].emplace_back(contype, typeID);
+  }
+
 } // namespace art

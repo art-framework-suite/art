@@ -73,6 +73,8 @@ namespace art {
     virtual void analyze(Event const&) = 0;
   };
 
+  extern template class WorkerT<EDAnalyzer>;
+
 } // namespace art
 
 #endif /* art_Framework_Core_EDAnalyzer_h */

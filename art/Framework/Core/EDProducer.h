@@ -66,6 +66,8 @@ namespace art {
     virtual void produce(Event&) = 0;
   };
 
+  extern template class WorkerT<EDProducer>;
+
 } // namespace art
 
 #endif /* art_Framework_Core_EDProducer_h */

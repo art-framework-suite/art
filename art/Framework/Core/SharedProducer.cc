@@ -128,4 +128,6 @@ namespace art {
   SharedProducer::endSubRun(SubRun&, ProcessingFrame const&)
   {}
 
+  template class WorkerT<SharedProducer>;
+
 } // namespace art

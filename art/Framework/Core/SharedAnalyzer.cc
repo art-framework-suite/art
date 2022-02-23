@@ -127,4 +127,6 @@ namespace art {
   SharedAnalyzer::endSubRun(SubRun const&, ProcessingFrame const&)
   {}
 
+  template class WorkerT<SharedAnalyzer>;
+
 } // namespace art

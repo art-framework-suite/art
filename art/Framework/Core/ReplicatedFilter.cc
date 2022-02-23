@@ -133,4 +133,6 @@ namespace art {
   ReplicatedFilter::endSubRun(SubRun const&, ProcessingFrame const&)
   {}
 
+  template class WorkerT<ReplicatedFilter>;
+
 } // namespace art

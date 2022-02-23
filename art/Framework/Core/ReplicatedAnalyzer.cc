@@ -132,4 +132,6 @@ namespace art {
   ReplicatedAnalyzer::endSubRun(SubRun const&, ProcessingFrame const&)
   {}
 
+  template class WorkerT<ReplicatedAnalyzer>;
+
 } // namespace art

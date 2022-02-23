@@ -66,6 +66,8 @@ namespace art {
     virtual bool filter(Event&) = 0;
   };
 
+  extern template class WorkerT<EDFilter>;
+
 } // namespace art
 
 #endif /* art_Framework_Core_EDFilter_h */

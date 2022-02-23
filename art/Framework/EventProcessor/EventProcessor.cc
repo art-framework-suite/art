@@ -7,6 +7,7 @@
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
 #include "art/Framework/Core/InputSourceMutex.h"
+#include "art/Framework/Core/ReplicatedProducer.h"
 #include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 #include "art/Framework/Principal/ClosedRangeSetHandler.h"

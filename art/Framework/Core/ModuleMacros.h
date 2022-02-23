@@ -39,17 +39,17 @@ namespace art::detail {
   using ModuleThreadingTypeFunc_t = ModuleThreadingType();
 
   template <typename T, typename = void>
-  struct config_impl {
+  struct config_for_impl {
     using type = fhicl::ParameterSet;
   };
 
   template <typename T>
-  struct config_impl<T, std::void_t<typename T::Parameters>> {
+  struct config_for_impl<T, std::void_t<typename T::Parameters>> {
     using type = typename T::Parameters;
   };
 
   template <typename T>
-  using Config = typename config_impl<T>::type;
+  using ConfigFor = typename config_for_impl<T>::type;
 
   template <typename T, typename Config>
   T*
@@ -72,8 +72,8 @@ namespace art::detail {
   make_module(fhicl::ParameterSet const& pset,                                 \
               art::ProcessingFrame const& frame)                               \
   {                                                                            \
-    /* Reference below to avoid copy if Config<klass> is a ParameterSet. */    \
-    art::detail::Config<klass> const& config{pset};                            \
+    /* Reference below to avoid copy if ConfigFor<klass> is a ParameterSet. */ \
+    art::detail::ConfigFor<klass> const& config{pset};                         \
     return art::detail::make_module<klass>(config, frame);                     \
   }                                                                            \
   art::Worker*                                                                 \

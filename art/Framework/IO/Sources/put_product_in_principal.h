@@ -61,9 +61,9 @@ namespace art {
     ProductID const pid{product_name};
     auto desc = principal.getProductDescription(pid);
     if (!desc) {
-      throw art::Exception(art::errors::ProductPutFailure,
-                           "put_product_in_principal: error while trying to "
-                           "retrieve product description:\n")
+      throw Exception(errors::ProductPutFailure,
+                      "put_product_in_principal: error while trying to "
+                      "retrieve product description:\n")
         << "No product is registered for\n"
         << "  process name:                '" << process_name << "'\n"
         << "  module label:                '" << module_label << "'\n"
@@ -74,11 +74,10 @@ namespace art {
         << "'\n";
     }
 
-    std::unique_ptr<EDProduct> wp = std::make_unique<Wrapper<T>>(move(product));
     principal.put(
       *desc,
       std::make_unique<ProductProvenance const>(pid, productstatus::present()),
-      move(wp),
+      std::make_unique<Wrapper<T>>(move(product)),
       std::make_unique<RangeSet>(RangeSet::invalid()));
   }
 
@@ -105,9 +104,9 @@ namespace art {
     ProductID const pid{product_name};
     auto desc = principal.getProductDescription(pid);
     if (!desc) {
-      throw art::Exception(art::errors::ProductPutFailure,
-                           "put_product_in_principal: error while trying to "
-                           "retrieve product description:\n")
+      throw Exception(errors::ProductPutFailure,
+                      "put_product_in_principal: error while trying to "
+                      "retrieve product description:\n")
         << "No product is registered for\n"
         << "  process name:                '" << process_name << "'\n"
         << "  module label:                '" << module_label << "'\n"
@@ -123,11 +122,11 @@ namespace art {
     if (!rs.is_valid()) {
       rs = rangeSetFor(principal);
     }
-    std::unique_ptr<EDProduct> wp = std::make_unique<Wrapper<T>>(move(product));
+
     principal.put(
       *desc,
       std::make_unique<ProductProvenance const>(pid, productstatus::present()),
-      move(wp),
+      std::make_unique<Wrapper<T>>(move(product)),
       std::make_unique<RangeSet>(rs));
   }
 

@@ -127,4 +127,6 @@ namespace art {
   SharedFilter::endSubRun(SubRun&, ProcessingFrame const&)
   {}
 
+  template class WorkerT<SharedFilter>;
+
 } // namespace art

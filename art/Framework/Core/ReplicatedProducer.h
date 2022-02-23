@@ -78,6 +78,8 @@ namespace art {
     virtual void produce(Event&, ProcessingFrame const&) = 0;
   };
 
+  extern template class WorkerT<ReplicatedProducer>;
+
 } // namespace art
 
 #endif /* art_Framework_Core_ReplicatedProducer_h */

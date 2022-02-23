@@ -121,4 +121,6 @@ namespace art {
   EDAnalyzer::endSubRun(SubRun const&)
   {}
 
+  template class WorkerT<EDAnalyzer>;
+
 } // namespace art

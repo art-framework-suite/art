@@ -132,4 +132,6 @@ namespace art {
   ReplicatedProducer::endSubRun(SubRun const&, ProcessingFrame const&)
   {}
 
+  template class WorkerT<ReplicatedProducer>;
+
 } // namespace art

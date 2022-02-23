@@ -73,6 +73,8 @@ namespace art {
     virtual bool filter(Event&, ProcessingFrame const&) = 0;
   };
 
+  extern template class WorkerT<ReplicatedFilter>;
+
 } // namespace art
 
 #endif /* art_Framework_Core_ReplicatedFilter_h */

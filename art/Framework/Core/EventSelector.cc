@@ -151,6 +151,10 @@ namespace art {
     acceptors_.expand_to_num_schedules();
   }
 
+  EventSelector::EventSelector(EventSelector const&) = default;
+  EventSelector::EventSelector(EventSelector&&) = default;
+  EventSelector::~EventSelector() = default;
+
   // This should be called per new file.
   EventSelector::ScheduleData
   EventSelector::data_for(TriggerResults const& tr) const
