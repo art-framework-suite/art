@@ -24,13 +24,8 @@ namespace art {
   struct OutputModuleDescription;
   class OutputWorker : public Worker {
   public:
-    // This is called directly by the make_worker function created
-    // by the DEFINE_ART_MODULE macro.
-    static Worker* makeWorker(std::shared_ptr<ModuleBase> mod,
-                              WorkerParams const& wp);
-
     virtual ~OutputWorker();
-    OutputWorker(std::shared_ptr<OutputModule> mod, WorkerParams const&);
+    OutputWorker(OutputModule* mod, WorkerParams const&);
 
     std::string const& lastClosedFileName() const;
     void closeFile();

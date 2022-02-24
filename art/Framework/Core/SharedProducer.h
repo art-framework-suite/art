@@ -18,12 +18,9 @@ namespace art {
   class SharedProducer : public detail::Producer, public detail::SharedModule {
   public:
     using ModuleType = SharedProducer;
-    using WorkerType = WorkerT<SharedProducer>;
 
-    explicit SharedProducer(fhicl::ParameterSet const& pset)
-      : detail::Producer{pset}
-      , detail::SharedModule{pset.get<std::string>("module_label", {})}
-    {}
+  protected:
+    explicit SharedProducer(fhicl::ParameterSet const& pset);
 
     template <typename Config>
     explicit SharedProducer(Table<Config> const& config)
@@ -31,6 +28,7 @@ namespace art {
     {}
 
   private:
+    std::unique_ptr<Worker> doMakeWorker(WorkerParams const& wp) final;
     void setupQueues(detail::SharedResources const&) final;
     void beginJobWithFrame(ProcessingFrame const&) final;
     void endJobWithFrame(ProcessingFrame const&) final;
@@ -64,8 +62,6 @@ namespace art {
     virtual void endSubRun(SubRun&, ProcessingFrame const&);
     virtual void produce(Event&, ProcessingFrame const&) = 0;
   };
-
-  extern template class WorkerT<SharedProducer>;
 
 } // namespace art
 

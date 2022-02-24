@@ -124,6 +124,8 @@ The ROOT output module supports the placeholders described at:
                                     ModuleDescription const&);
 
   private:
+    std::unique_ptr<Worker> doMakeWorker(WorkerParams const& wp) final;
+
     void configure(OutputModuleDescription const& desc);
     virtual void doBeginJob(detail::SharedResources const& resources);
     // Called after selectProducts() has done its work.

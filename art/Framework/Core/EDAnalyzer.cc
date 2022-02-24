@@ -3,6 +3,16 @@
 
 namespace art {
 
+  EDAnalyzer::EDAnalyzer(fhicl::ParameterSet const& pset)
+    : Analyzer{pset}, LegacyModule{pset.get<std::string>("module_label")}
+  {}
+
+  std::unique_ptr<Worker>
+  EDAnalyzer::doMakeWorker(WorkerParams const& wp)
+  {
+    return std::make_unique<WorkerT<EDAnalyzer>>(this, wp);
+  }
+
   void
   EDAnalyzer::setupQueues(detail::SharedResources const& resources)
   {
@@ -120,7 +130,5 @@ namespace art {
   void
   EDAnalyzer::endSubRun(SubRun const&)
   {}
-
-  template class WorkerT<EDAnalyzer>;
 
 } // namespace art

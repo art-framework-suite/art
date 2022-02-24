@@ -3,6 +3,16 @@
 
 namespace art {
 
+  SharedFilter::SharedFilter(fhicl::ParameterSet const& pset)
+    : Filter{pset}, SharedModule{pset.get<std::string>("module_label")}
+  {}
+
+  std::unique_ptr<Worker>
+  SharedFilter::doMakeWorker(WorkerParams const& wp)
+  {
+    return std::make_unique<WorkerT<SharedFilter>>(this, wp);
+  }
+
   void
   SharedFilter::setupQueues(detail::SharedResources const& resources)
   {
@@ -126,7 +136,5 @@ namespace art {
   void
   SharedFilter::endSubRun(SubRun&, ProcessingFrame const&)
   {}
-
-  template class WorkerT<SharedFilter>;
 
 } // namespace art

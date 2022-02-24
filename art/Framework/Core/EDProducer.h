@@ -15,12 +15,12 @@ namespace art {
   class EDProducer : public detail::Producer, private detail::LegacyModule {
   public:
     using ModuleType = EDProducer;
-    using WorkerType = WorkerT<EDProducer>;
 
-    explicit EDProducer(fhicl::ParameterSet const& pset)
-      : detail::Producer{pset}
-      , detail::LegacyModule{pset.get<std::string>("module_label")}
-    {}
+    using detail::LegacyModule::serialTaskQueueChain;
+    using detail::LegacyModule::sharedResources;
+
+  protected:
+    explicit EDProducer(fhicl::ParameterSet const& pset);
 
     template <typename Config>
     explicit EDProducer(Table<Config> const& config)
@@ -29,10 +29,9 @@ namespace art {
 
     using detail::LegacyModule::createEngine;
     using detail::LegacyModule::scheduleID;
-    using detail::LegacyModule::serialTaskQueueChain;
-    using detail::LegacyModule::sharedResources;
 
   private:
+    std::unique_ptr<Worker> doMakeWorker(WorkerParams const& wp) final;
     void setupQueues(detail::SharedResources const& resources) final;
     void beginJobWithFrame(ProcessingFrame const&) final;
     void endJobWithFrame(ProcessingFrame const&) final;
@@ -62,8 +61,6 @@ namespace art {
     virtual void endSubRun(SubRun&);
     virtual void produce(Event&) = 0;
   };
-
-  extern template class WorkerT<EDProducer>;
 
 } // namespace art
 

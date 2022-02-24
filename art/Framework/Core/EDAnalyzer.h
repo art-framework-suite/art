@@ -19,13 +19,13 @@ namespace art {
 
   class EDAnalyzer : public detail::Analyzer, private detail::LegacyModule {
   public:
-    using WorkerType = WorkerT<EDAnalyzer>;
     using ModuleType = EDAnalyzer;
 
-    explicit EDAnalyzer(fhicl::ParameterSet const& pset)
-      : detail::Analyzer{pset}
-      , detail::LegacyModule{pset.get<std::string>("module_label")}
-    {}
+    using detail::LegacyModule::serialTaskQueueChain;
+    using detail::LegacyModule::sharedResources;
+
+  protected:
+    explicit EDAnalyzer(fhicl::ParameterSet const& pset);
 
     template <typename Config>
     explicit EDAnalyzer(Table<Config> const& config)
@@ -34,10 +34,9 @@ namespace art {
 
     using detail::LegacyModule::createEngine;
     using detail::LegacyModule::scheduleID;
-    using detail::LegacyModule::serialTaskQueueChain;
-    using detail::LegacyModule::sharedResources;
 
   private:
+    std::unique_ptr<Worker> doMakeWorker(WorkerParams const& wp) final;
     void setupQueues(detail::SharedResources const&) final;
     void beginJobWithFrame(ProcessingFrame const&) final;
     void endJobWithFrame(ProcessingFrame const&) final;
@@ -67,8 +66,6 @@ namespace art {
     virtual void endSubRun(SubRun const&);
     virtual void analyze(Event const&) = 0;
   };
-
-  extern template class WorkerT<EDAnalyzer>;
 
 } // namespace art
 

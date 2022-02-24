@@ -33,6 +33,12 @@ namespace art {
     md_ = md;
   }
 
+  std::unique_ptr<Worker>
+  ModuleBase::makeWorker(WorkerParams const& wp)
+  {
+    return doMakeWorker(wp);
+  }
+
   std::array<std::vector<ProductInfo>, NumBranchTypes> const&
   ModuleBase::getConsumables() const
   {

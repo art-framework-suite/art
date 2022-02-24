@@ -3,6 +3,18 @@
 
 namespace art {
 
+  ReplicatedFilter::ReplicatedFilter(fhicl::ParameterSet const& pset,
+                                     ProcessingFrame const& frame)
+    : Filter{pset}
+    , EngineCreator{pset.get<std::string>("module_label"), frame.scheduleID()}
+  {}
+
+  std::unique_ptr<Worker>
+  ReplicatedFilter::doMakeWorker(WorkerParams const& wp)
+  {
+    return std::make_unique<WorkerT<ReplicatedFilter>>(this, wp);
+  }
+
   void
   ReplicatedFilter::setupQueues(detail::SharedResources const&)
   {
@@ -132,7 +144,5 @@ namespace art {
   void
   ReplicatedFilter::endSubRun(SubRun const&, ProcessingFrame const&)
   {}
-
-  template class WorkerT<ReplicatedFilter>;
 
 } // namespace art

@@ -3,6 +3,16 @@
 
 namespace art {
 
+  EDFilter::EDFilter(fhicl::ParameterSet const& pset)
+    : Filter{pset}, LegacyModule{pset.get<std::string>("module_label")}
+  {}
+
+  std::unique_ptr<Worker>
+  EDFilter::doMakeWorker(WorkerParams const& wp)
+  {
+    return std::make_unique<WorkerT<EDFilter>>(this, wp);
+  }
+
   void
   EDFilter::setupQueues(detail::SharedResources const& resources)
   {
@@ -128,7 +138,5 @@ namespace art {
   {
     return true;
   }
-
-  template class WorkerT<EDFilter>;
 
 } // namespace art

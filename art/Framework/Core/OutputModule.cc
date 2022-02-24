@@ -85,6 +85,12 @@ namespace art {
     serialize(detail::LegacyResource);
   }
 
+  std::unique_ptr<Worker>
+  OutputModule::doMakeWorker(WorkerParams const& wp)
+  {
+    return std::make_unique<OutputWorker>(this, wp);
+  }
+
   bool
   OutputModule::fileIsOpen() const
   {

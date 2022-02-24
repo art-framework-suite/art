@@ -23,6 +23,13 @@ string const cet::PluginTypeDeducer<art::ResultsProducer>::value =
 
 namespace art {
 
+  [[noreturn]] std::unique_ptr<Worker>
+  ResultsProducer::doMakeWorker(WorkerParams const&)
+  {
+    throw Exception{errors::LogicError}
+      << "Cannot call ResultsProducer::doMakeWorker\n";
+  }
+
   ResultsProducer::ResultsProducer() noexcept(false)
     : ProductRegistryHelper{product_creation_mode::produces}
   {

@@ -5,6 +5,16 @@ using namespace std;
 
 namespace art {
 
+  SharedProducer::SharedProducer(fhicl::ParameterSet const& pset)
+    : Producer{pset}, SharedModule{pset.get<std::string>("module_label", {})}
+  {}
+
+  std::unique_ptr<Worker>
+  SharedProducer::doMakeWorker(WorkerParams const& wp)
+  {
+    return std::make_unique<WorkerT<SharedProducer>>(this, wp);
+  }
+
   void
   SharedProducer::setupQueues(detail::SharedResources const& resources)
   {
@@ -127,7 +137,5 @@ namespace art {
   void
   SharedProducer::endSubRun(SubRun&, ProcessingFrame const&)
   {}
-
-  template class WorkerT<SharedProducer>;
 
 } // namespace art

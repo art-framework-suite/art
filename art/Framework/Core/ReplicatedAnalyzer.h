@@ -22,15 +22,11 @@ namespace art {
   class ReplicatedAnalyzer : public detail::Analyzer,
                              private detail::EngineCreator {
   public:
-    using WorkerType = WorkerT<ReplicatedAnalyzer>;
     using ModuleType = ReplicatedAnalyzer;
 
+  protected:
     explicit ReplicatedAnalyzer(fhicl::ParameterSet const& pset,
-                                ProcessingFrame const& frame)
-      : detail::Analyzer{pset}
-      , detail::EngineCreator{pset.get<std::string>("module_label"),
-                              frame.scheduleID()}
-    {}
+                                ProcessingFrame const& frame);
 
     template <typename Config>
     explicit ReplicatedAnalyzer(Table<Config> const& config,
@@ -41,6 +37,7 @@ namespace art {
     using detail::EngineCreator::createEngine;
 
   private:
+    std::unique_ptr<Worker> doMakeWorker(WorkerParams const& wp) final;
     void setupQueues(detail::SharedResources const& resources) final;
     void beginJobWithFrame(ProcessingFrame const&) final;
     void endJobWithFrame(ProcessingFrame const&) final;
@@ -74,8 +71,6 @@ namespace art {
     virtual void endSubRun(SubRun const&, ProcessingFrame const&);
     virtual void analyze(Event const&, ProcessingFrame const&) = 0;
   };
-
-  extern template class WorkerT<ReplicatedAnalyzer>;
 
 } // namespace art
 

@@ -18,15 +18,7 @@ namespace art {
   template <typename T>
   class WorkerT : public Worker {
   public:
-    // This is called directly by the make_worker function created by
-    // the DEFINE_ART_MODULE macro.
-    static Worker*
-    makeWorker(std::shared_ptr<ModuleBase> mod, WorkerParams const& wp)
-    {
-      return new WorkerT<T>{std::dynamic_pointer_cast<T>(mod), wp};
-    }
-
-    WorkerT(std::shared_ptr<T>, WorkerParams const&);
+    WorkerT(T*, WorkerParams const&);
 
   private:
     hep::concurrency::SerialTaskQueueChain* doSerialTaskQueueChain()
@@ -56,8 +48,8 @@ namespace art {
   // This is called directly by the make_worker function created by
   // the DEFINE_ART_MODULE macro.
   template <typename T>
-  WorkerT<T>::WorkerT(std::shared_ptr<T> module, WorkerParams const& wp)
-    : Worker{module->moduleDescription(), wp}, module_{module.get()}
+  WorkerT<T>::WorkerT(T* module, WorkerParams const& wp)
+    : Worker{module->moduleDescription(), wp}, module_{module}
   {
     if constexpr (std::is_base_of_v<Modifier, T>) {
       if (wp.scheduleID_ == ScheduleID::first()) {

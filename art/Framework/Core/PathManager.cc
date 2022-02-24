@@ -222,7 +222,7 @@ namespace art {
     }
 
     // Create trigger-results inserters
-    PerScheduleContainer<std::shared_ptr<ModuleBase>> trigger_results(
+    PerScheduleContainer<std::unique_ptr<ModuleBase>> trigger_results(
       nschedules);
     for (ScheduleID::size_type i = 0; i != nschedules; ++i) {
       ScheduleID const sid{i};
@@ -230,7 +230,6 @@ namespace art {
       if (!results_inserter)
         continue;
 
-      trigger_results[sid] = results_inserter;
       WorkerParams const wp{outputCallbacks_,
                             productsToProduce_,
                             actReg_,
@@ -238,10 +237,11 @@ namespace art {
                             sid,
                             task_group.native_group(),
                             resources};
-      triggerResultsWorkers_[sid] =
-        std::make_unique<WorkerT<ReplicatedProducer>>(results_inserter, wp);
+      triggerResultsWorkers_[sid] = results_inserter->makeWorker(wp);
+      trigger_results[sid] = std::move(results_inserter);
     }
-    modules_.replicated.emplace("TriggerResults", trigger_results);
+
+    modules_.replicated.emplace("TriggerResults", std::move(trigger_results));
 
     using namespace detail;
     auto const graph_info_collection =
@@ -364,9 +364,9 @@ namespace art {
       if (module_threading_type == ModuleThreadingType::shared ||
           module_threading_type == ModuleThreadingType::legacy) {
         modules.shared.emplace(module_label,
-                               std::shared_ptr<ModuleBase>{module});
+                               std::unique_ptr<ModuleBase>{module});
       } else {
-        PerScheduleContainer<std::shared_ptr<ModuleBase>> replicated_modules(
+        PerScheduleContainer<std::unique_ptr<ModuleBase>> replicated_modules(
           nschedules);
         replicated_modules[sid].reset(module);
         ScheduleIteration schedule_iteration{sid.next(),
@@ -379,7 +379,7 @@ namespace art {
           }
         };
         schedule_iteration.for_each_schedule(fill_replicated_module);
-        modules.replicated.emplace(module_label, replicated_modules);
+        modules.replicated.emplace(module_label, std::move(replicated_modules));
       }
 
       actReg_.sPostModuleConstruction.invoke(md);
@@ -441,7 +441,7 @@ namespace art {
     return es.str();
   }
 
-  std::shared_ptr<ReplicatedProducer>
+  std::unique_ptr<ReplicatedProducer>
   PathManager::makeTriggerResultsInserter_(ScheduleID const scheduleID)
   {
     auto& pathsInfo = triggerPathsInfo_.at(scheduleID);
@@ -457,7 +457,7 @@ namespace art {
       ModuleThreadingType::replicated,
       ProcessConfiguration{processName_, procPS_.id(), getReleaseVersion()}};
     actReg_.sPreModuleConstruction.invoke(md);
-    auto producer = std::make_shared<TriggerResultInserter>(
+    auto producer = std::make_unique<TriggerResultInserter>(
       trig_pset, scheduleID, pathsInfo.pathResults());
     producer->setModuleDescription(md);
     actReg_.sPostModuleConstruction.invoke(md);
@@ -522,7 +522,7 @@ namespace art {
   {
     auto get_module = [this](std::string const& module_label,
                              ModuleThreadingType const module_threading_type,
-                             ScheduleID const sid) {
+                             ScheduleID const sid) -> auto& {
       if (module_threading_type == ModuleThreadingType::shared ||
           module_threading_type == ModuleThreadingType::legacy) {
         return modules_.shared.at(module_label);
@@ -530,26 +530,9 @@ namespace art {
       return modules_.replicated.at(module_label)[sid];
     };
 
-    detail::WorkerFromModuleMaker_t* worker_from_module_factory_func = nullptr;
-    try {
-      lm_.getSymbolByLibspec(md.moduleName(),
-                             "make_worker_from_module",
-                             worker_from_module_factory_func);
-    }
-    catch (Exception& e) {
-      cet::detail::wrapLibraryManagerException(
-        e, "Module", md.moduleName(), getReleaseVersion());
-    }
-    if (worker_from_module_factory_func == nullptr) {
-      throw Exception(errors::Configuration, "BadPluginLibrary: ")
-        << "Module " << md.moduleName() << " with version "
-        << getReleaseVersion()
-        << " has internal symbol definition problems: consult an expert.";
-    }
-
-    auto module =
+    auto& module =
       get_module(md.moduleLabel(), md.moduleThreadingType(), wp.scheduleID_);
-    return std::shared_ptr<Worker>{worker_from_module_factory_func(module, wp)};
+    return module->makeWorker(wp);
   }
 
   ModuleType

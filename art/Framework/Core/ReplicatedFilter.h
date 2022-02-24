@@ -18,14 +18,10 @@ namespace art {
                            private detail::EngineCreator {
   public:
     using ModuleType = ReplicatedFilter;
-    using WorkerType = WorkerT<ReplicatedFilter>;
 
+  protected:
     explicit ReplicatedFilter(fhicl::ParameterSet const& pset,
-                              ProcessingFrame const& frame)
-      : detail::Filter{pset}
-      , detail::EngineCreator{pset.get<std::string>("module_label"),
-                              frame.scheduleID()}
-    {}
+                              ProcessingFrame const& frame);
 
     template <typename Config>
     explicit ReplicatedFilter(Table<Config> const& config,
@@ -36,6 +32,7 @@ namespace art {
     using detail::EngineCreator::createEngine;
 
   private:
+    std::unique_ptr<Worker> doMakeWorker(WorkerParams const& wp) final;
     void setupQueues(detail::SharedResources const&) final;
     void beginJobWithFrame(ProcessingFrame const&) final;
     void endJobWithFrame(ProcessingFrame const&) final;
@@ -69,8 +66,6 @@ namespace art {
     virtual void endSubRun(SubRun const&, ProcessingFrame const&);
     virtual bool filter(Event&, ProcessingFrame const&) = 0;
   };
-
-  extern template class WorkerT<ReplicatedFilter>;
 
 } // namespace art
 

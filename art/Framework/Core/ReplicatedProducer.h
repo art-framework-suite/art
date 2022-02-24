@@ -20,17 +20,10 @@ namespace art {
                              private detail::EngineCreator {
   public:
     using ModuleType = ReplicatedProducer;
-    using WorkerType = WorkerT<ReplicatedProducer>;
 
-    // Only the TriggerResults module is allowed to have no
-    // module_label parameter.  We provide a default empty string for
-    // only that reason.
+  protected:
     explicit ReplicatedProducer(fhicl::ParameterSet const& pset,
-                                ProcessingFrame const& frame)
-      : detail::Producer{pset}
-      , detail::EngineCreator{pset.get<std::string>("module_label", {}),
-                              frame.scheduleID()}
-    {}
+                                ProcessingFrame const& frame);
 
     template <typename Config>
     explicit ReplicatedProducer(Table<Config> const& config,
@@ -41,6 +34,7 @@ namespace art {
     using detail::EngineCreator::createEngine;
 
   private:
+    std::unique_ptr<Worker> doMakeWorker(WorkerParams const& wp) final;
     void setupQueues(detail::SharedResources const&) final;
     void beginJobWithFrame(ProcessingFrame const&) final;
     void endJobWithFrame(ProcessingFrame const&) final;
@@ -74,8 +68,6 @@ namespace art {
     virtual void endSubRun(SubRun const&, ProcessingFrame const&);
     virtual void produce(Event&, ProcessingFrame const&) = 0;
   };
-
-  extern template class WorkerT<ReplicatedProducer>;
 
 } // namespace art
 

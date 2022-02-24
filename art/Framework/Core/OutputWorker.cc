@@ -11,21 +11,13 @@
 
 namespace art {
 
-  Worker*
-  OutputWorker::makeWorker(std::shared_ptr<ModuleBase> mod,
-                           WorkerParams const& wp)
-  {
-    return new OutputWorker{std::dynamic_pointer_cast<OutputModule>(mod), wp};
-  }
-
   OutputWorker::~OutputWorker() = default;
 
   // This is called directly by the make_worker function created
   // by the DEFINE_ART_MODULE macro.
-  OutputWorker::OutputWorker(std::shared_ptr<OutputModule> module,
-                             WorkerParams const& wp)
+  OutputWorker::OutputWorker(OutputModule* module, WorkerParams const& wp)
     : Worker{module->moduleDescription(), wp}
-    , module_{module.get()}
+    , module_{module}
     , actReg_{wp.actReg_}
   {
     if (wp.scheduleID_ == ScheduleID::first()) {

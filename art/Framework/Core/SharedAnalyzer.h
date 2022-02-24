@@ -20,13 +20,10 @@ namespace art {
 
   class SharedAnalyzer : public detail::Analyzer, public detail::SharedModule {
   public:
-    using WorkerType = WorkerT<SharedAnalyzer>;
     using ModuleType = SharedAnalyzer;
 
-    explicit SharedAnalyzer(fhicl::ParameterSet const& pset)
-      : detail::Analyzer{pset}
-      , detail::SharedModule{pset.get<std::string>("module_label")}
-    {}
+  protected:
+    explicit SharedAnalyzer(fhicl::ParameterSet const& pset);
 
     template <typename Config>
     explicit SharedAnalyzer(Table<Config> const& config)
@@ -34,6 +31,7 @@ namespace art {
     {}
 
   private:
+    std::unique_ptr<Worker> doMakeWorker(WorkerParams const& wp) final;
     void setupQueues(detail::SharedResources const& resources) final;
     void beginJobWithFrame(ProcessingFrame const&) final;
     void endJobWithFrame(ProcessingFrame const&) final;
@@ -67,8 +65,6 @@ namespace art {
     virtual void endSubRun(SubRun const&, ProcessingFrame const&);
     virtual void analyze(Event const&, ProcessingFrame const&) = 0;
   };
-
-  extern template class WorkerT<SharedAnalyzer>;
 
 } // namespace art
 

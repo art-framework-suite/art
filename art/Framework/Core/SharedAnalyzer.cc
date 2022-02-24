@@ -3,6 +3,16 @@
 
 namespace art {
 
+  SharedAnalyzer::SharedAnalyzer(fhicl::ParameterSet const& pset)
+    : Analyzer{pset}, SharedModule{pset.get<std::string>("module_label")}
+  {}
+
+  std::unique_ptr<Worker>
+  SharedAnalyzer::doMakeWorker(WorkerParams const& wp)
+  {
+    return std::make_unique<WorkerT<SharedAnalyzer>>(this, wp);
+  }
+
   void
   SharedAnalyzer::setupQueues(detail::SharedResources const& resources)
   {
@@ -126,7 +136,5 @@ namespace art {
   void
   SharedAnalyzer::endSubRun(SubRun const&, ProcessingFrame const&)
   {}
-
-  template class WorkerT<SharedAnalyzer>;
 
 } // namespace art

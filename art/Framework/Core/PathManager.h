@@ -14,6 +14,7 @@
 // construction time.
 // ======================================================================
 
+#include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/detail/EnabledModules.h"
@@ -40,7 +41,6 @@ namespace art {
   class ActionTable;
   class ActivityRegistry;
   class GlobalTaskGroup;
-  class ModuleBase;
   class UpdateOutputCallbacks;
 
   namespace detail {
@@ -75,9 +75,9 @@ namespace art {
 
   private:
     struct ModulesByThreadingType {
-      std::map<module_label_t, std::shared_ptr<ModuleBase>> shared{};
+      std::map<module_label_t, std::unique_ptr<ModuleBase>> shared{};
       std::map<module_label_t,
-               PerScheduleContainer<std::shared_ptr<ModuleBase>>>
+               PerScheduleContainer<std::unique_ptr<ModuleBase>>>
         replicated{};
     };
 
@@ -85,8 +85,8 @@ namespace art {
       detail::EnabledModules const& enabled_modules) const;
 
     ModulesByThreadingType makeModules_(ScheduleID::size_type n);
-    std::shared_ptr<ReplicatedProducer> makeTriggerResultsInserter_(
-      ScheduleID const scheduleID);
+    std::unique_ptr<ReplicatedProducer> makeTriggerResultsInserter_(
+      ScheduleID scheduleID);
 
     using maybe_module_t = std::variant<ModuleBase*, std::string>;
     maybe_module_t makeModule_(fhicl::ParameterSet const& module_pset,

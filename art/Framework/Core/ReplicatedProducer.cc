@@ -5,6 +5,22 @@ using namespace std;
 
 namespace art {
 
+  // Only the TriggerResults module is allowed to have no
+  // module_label parameter.  We provide a default empty string for
+  // only that reason.
+  ReplicatedProducer::ReplicatedProducer(fhicl::ParameterSet const& pset,
+                                         ProcessingFrame const& frame)
+    : Producer{pset}
+    , EngineCreator{pset.get<std::string>("module_label", {}),
+                    frame.scheduleID()}
+  {}
+
+  std::unique_ptr<Worker>
+  ReplicatedProducer::doMakeWorker(WorkerParams const& wp)
+  {
+    return std::make_unique<WorkerT<ReplicatedProducer>>(this, wp);
+  }
+
   void
   ReplicatedProducer::setupQueues(detail::SharedResources const&)
   {
@@ -131,7 +147,5 @@ namespace art {
   void
   ReplicatedProducer::endSubRun(SubRun const&, ProcessingFrame const&)
   {}
-
-  template class WorkerT<ReplicatedProducer>;
 
 } // namespace art

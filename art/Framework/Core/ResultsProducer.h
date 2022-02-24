@@ -124,6 +124,8 @@ namespace art {
     void produces(std::string const& instanceName = {});
 
   private:
+    [[noreturn]] std::unique_ptr<Worker> doMakeWorker(
+      WorkerParams const& wp) final;
     virtual void readResults(Results const&);
     virtual void writeResults(Results&) = 0;
 

@@ -16,12 +16,12 @@ namespace art {
   class EDFilter : public detail::Filter, private detail::LegacyModule {
   public:
     using ModuleType = EDFilter;
-    using WorkerType = WorkerT<EDFilter>;
 
-    explicit EDFilter(fhicl::ParameterSet const& pset)
-      : detail::Filter{pset}
-      , detail::LegacyModule{pset.get<std::string>("module_label")}
-    {}
+    using detail::LegacyModule::serialTaskQueueChain;
+    using detail::LegacyModule::sharedResources;
+
+  protected:
+    explicit EDFilter(fhicl::ParameterSet const& pset);
 
     template <typename Config>
     explicit EDFilter(Table<Config> const& config) : EDFilter{config.get_PSet()}
@@ -29,10 +29,9 @@ namespace art {
 
     using detail::LegacyModule::createEngine;
     using detail::LegacyModule::scheduleID;
-    using detail::LegacyModule::serialTaskQueueChain;
-    using detail::LegacyModule::sharedResources;
 
   private:
+    std::unique_ptr<Worker> doMakeWorker(WorkerParams const& wp) final;
     void setupQueues(detail::SharedResources const& resources) final;
     void beginJobWithFrame(ProcessingFrame const&) final;
     void endJobWithFrame(ProcessingFrame const&) final;
@@ -62,8 +61,6 @@ namespace art {
     virtual bool endSubRun(SubRun&);
     virtual bool filter(Event&) = 0;
   };
-
-  extern template class WorkerT<EDFilter>;
 
 } // namespace art
 

@@ -3,6 +3,16 @@
 
 namespace art {
 
+  EDProducer::EDProducer(fhicl::ParameterSet const& pset)
+    : Producer{pset}, LegacyModule{pset.get<std::string>("module_label")}
+  {}
+
+  std::unique_ptr<Worker>
+  EDProducer::doMakeWorker(WorkerParams const& wp)
+  {
+    return std::make_unique<WorkerT<EDProducer>>(this, wp);
+  }
+
   void
   EDProducer::setupQueues(detail::SharedResources const& resources)
   {
@@ -120,7 +130,5 @@ namespace art {
   void
   EDProducer::endSubRun(SubRun&)
   {}
-
-  template class WorkerT<EDProducer>;
 
 } // namespace art
