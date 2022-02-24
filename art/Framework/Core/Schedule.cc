@@ -20,17 +20,11 @@ namespace art {
                      ActionTable const& actions,
                      ActivityRegistry const& actReg,
                      UpdateOutputCallbacks& outputCallbacks,
-                     std::unique_ptr<Worker> triggerResultsInserter,
                      GlobalTaskGroup& task_group)
     : context_{scheduleID}
     , actions_{actions}
     , epExec_{scheduleID, pm, actions, outputCallbacks, task_group}
-    , tpsExec_{scheduleID,
-               pm,
-               actions,
-               actReg,
-               move(triggerResultsInserter),
-               task_group}
+    , tpsExec_{scheduleID, pm, actions, actReg, task_group}
   {
     TDEBUG_FUNC_SI(5, scheduleID) << hex << this << dec;
   }

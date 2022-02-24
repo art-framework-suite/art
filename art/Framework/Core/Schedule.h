@@ -36,7 +36,6 @@ namespace art {
              ActionTable const& actions,
              ActivityRegistry const& aReg,
              UpdateOutputCallbacks& outputCallbacks,
-             std::unique_ptr<Worker> triggerResultsInserter,
              GlobalTaskGroup& task_group);
 
     // Disable copy/move operations

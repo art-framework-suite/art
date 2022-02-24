@@ -8,6 +8,7 @@
 #include "art/Framework/Principal/WorkerParams.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/SharedResource.h"
+#include "cetlib/exempt_ptr.h"
 
 #include <memory>
 #include <type_traits>
@@ -45,7 +46,7 @@ namespace art {
     // A module is co-owned by one worker per schedule.  Only
     // replicated modules have a one-to-one correspondence with their
     // worker.
-    std::shared_ptr<T> module_;
+    cet::exempt_ptr<T> module_;
   };
 
   namespace detail {
@@ -56,7 +57,7 @@ namespace art {
   // the DEFINE_ART_MODULE macro.
   template <typename T>
   WorkerT<T>::WorkerT(std::shared_ptr<T> module, WorkerParams const& wp)
-    : Worker{module->moduleDescription(), wp}, module_{module}
+    : Worker{module->moduleDescription(), wp}, module_{module.get()}
   {
     if constexpr (std::is_base_of_v<Modifier, T>) {
       if (wp.scheduleID_ == ScheduleID::first()) {

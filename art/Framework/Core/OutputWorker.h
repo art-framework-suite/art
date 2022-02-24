@@ -65,7 +65,7 @@ namespace art {
     // A module is co-owned by one worker per schedule.  Only
     // replicated modules have a one-to-one correspondence with their
     // worker.
-    std::shared_ptr<OutputModule> module_;
+    cet::exempt_ptr<OutputModule> module_;
     ServiceHandle<CatalogInterface> ci_{};
     ActivityRegistry const& actReg_;
     Granularity fileGranularity_{Granularity::Unset};

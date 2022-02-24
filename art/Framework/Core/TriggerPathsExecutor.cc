@@ -42,13 +42,12 @@ namespace art {
     PathManager& pm,
     ActionTable const& actions,
     ActivityRegistry const& activityRegistry,
-    std::unique_ptr<Worker> triggerResultsInserter,
     GlobalTaskGroup& group)
     : sc_{scheduleID}
     , actionTable_{actions}
     , actReg_{activityRegistry}
     , triggerPathsInfo_{pm.triggerPathsInfo(scheduleID)}
-    , results_inserter_{std::move(triggerResultsInserter)}
+    , results_inserter_{pm.releaseTriggerResultsInserter(scheduleID)}
     , taskGroup_{group}
   {
     TDEBUG_FUNC_SI(5, scheduleID) << hex << this << dec;

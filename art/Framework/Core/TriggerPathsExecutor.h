@@ -46,7 +46,6 @@ namespace art {
                          PathManager&,
                          ActionTable const&,
                          ActivityRegistry const& activityRegistry,
-                         std::unique_ptr<Worker> triggerResultsInserter,
                          GlobalTaskGroup& group);
 
     // Disable copy/move operations

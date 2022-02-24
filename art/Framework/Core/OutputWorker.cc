@@ -25,7 +25,7 @@ namespace art {
   OutputWorker::OutputWorker(std::shared_ptr<OutputModule> module,
                              WorkerParams const& wp)
     : Worker{module->moduleDescription(), wp}
-    , module_{module}
+    , module_{module.get()}
     , actReg_{wp.actReg_}
   {
     if (wp.scheduleID_ == ScheduleID::first()) {

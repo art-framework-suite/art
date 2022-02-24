@@ -8,7 +8,6 @@
 #include "art/Framework/Core/InputSourceFactory.h"
 #include "art/Framework/Core/InputSourceMutex.h"
 #include "art/Framework/Core/ReplicatedProducer.h"
-#include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 #include "art/Framework/Principal/ClosedRangeSetHandler.h"
 #include "art/Framework/Principal/ConsumesInfo.h"
@@ -77,45 +76,6 @@ namespace art {
       auto mgr = new ServicesManager{move(services_pset), actReg, resources};
       mgr->addSystemService<FloatingPointControl>(fpcPSet, actReg);
       return mgr;
-    }
-
-    std::unique_ptr<Worker>
-    maybe_trigger_results_inserter(ScheduleID const scheduleID,
-                                   string const& processName,
-                                   ParameterSet const& proc_pset,
-                                   ParameterSet const& trig_pset,
-                                   UpdateOutputCallbacks& outputCallbacks,
-                                   ProductDescriptions& productsToProduce,
-                                   ActionTable const& actions,
-                                   ActivityRegistry const& actReg,
-                                   PathsInfo& pathsInfo,
-                                   GlobalTaskGroup& task_group,
-                                   detail::SharedResources& resources)
-    {
-      if (pathsInfo.paths().empty()) {
-        return std::unique_ptr<Worker>{nullptr};
-      }
-
-      // Make the trigger results inserter.
-      WorkerParams const wp{outputCallbacks,
-                            productsToProduce,
-                            actReg,
-                            actions,
-                            scheduleID,
-                            task_group.native_group(),
-                            resources};
-      ModuleDescription md{
-        trig_pset.id(),
-        "TriggerResultInserter",
-        "TriggerResults",
-        ModuleThreadingType::replicated,
-        ProcessConfiguration{processName, proc_pset.id(), getReleaseVersion()}};
-      actReg.sPreModuleConstruction.invoke(md);
-      auto producer = std::make_shared<TriggerResultInserter>(
-        trig_pset, scheduleID, pathsInfo.pathResults());
-      producer->setModuleDescription(md);
-      actReg.sPostModuleConstruction.invoke(md);
-      return std::make_unique<WorkerT<ReplicatedProducer>>(producer, wp);
     }
 
     auto const invalid_module_context = ModuleContext::invalid();
@@ -204,21 +164,10 @@ namespace art {
       // The ordering of the path results in the TriggerPathsInfo (which is used
       // for the TriggerResults object), must be the same as that provided by
       // the TriggerNamesService.
-      auto& trigger_paths_info = pathManager_->triggerPathsInfo(sid);
+      auto& trigger_paths_info [[maybe_unused]] =
+        pathManager_->triggerPathsInfo(sid);
       assert(trigger_names->getTrigPaths() == trigger_paths_info.pathNames());
 
-      auto results_inserter =
-        maybe_trigger_results_inserter(sid, //
-                                       processName,
-                                       pset,
-                                       Globals::instance()->triggerPSet(),
-                                       outputCallbacks_, //
-                                       producedProductDescriptions_,
-                                       scheduler_->actionTable(), //
-                                       actReg_,                   //
-                                       trigger_paths_info,        //
-                                       *taskGroup_,               //
-                                       sharedResources_);
       schedules_->emplace(std::piecewise_construct,
                           std::forward_as_tuple(sid),
                           std::forward_as_tuple(sid,
@@ -226,7 +175,6 @@ namespace art {
                                                 scheduler_->actionTable(),
                                                 actReg_,
                                                 outputCallbacks_,
-                                                move(results_inserter),
                                                 *taskGroup_));
     }
     sharedResources_.freeze(taskGroup_->native_group());
@@ -318,9 +266,11 @@ namespace art {
         closeSomeOutputFiles();
       }
       return true;
-    } else if (nextLevel_.load() < L) {
+    }
+    if (nextLevel_.load() < L) {
       return false;
-    } else if (nextLevel_.load() == highest_level()) {
+    }
+    if (nextLevel_.load() == highest_level()) {
       return false;
     }
     throw Exception{errors::LogicError} << "Incorrect level hierarchy.\n"
