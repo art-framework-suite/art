@@ -77,18 +77,17 @@ namespace art {
   } // namespace detail
 
   template <class T>
-  std::enable_if_t<detail::is_handle<T>::value, RangeSet const&>
-  range_of_validity(T const& h);
+  std::enable_if_t<detail::is_handle_v<T>, RangeSet const&> range_of_validity(
+    T const& h);
   template <class T, class U>
-  std::enable_if_t<detail::are_handles<T, U>::value, bool> same_ranges(
+  std::enable_if_t<detail::are_handles_v<T, U>, bool> same_ranges(T const& a,
+                                                                  U const& b);
+  template <class T, class U>
+  std::enable_if_t<detail::are_handles_v<T, U>, bool> disjoint_ranges(
     T const& a,
     U const& b);
   template <class T, class U>
-  std::enable_if_t<detail::are_handles<T, U>::value, bool> disjoint_ranges(
-    T const& a,
-    U const& b);
-  template <class T, class U>
-  std::enable_if_t<detail::are_handles<T, U>::value, bool> overlapping_ranges(
+  std::enable_if_t<detail::are_handles_v<T, U>, bool> overlapping_ranges(
     T const& a,
     U const& b);
 
@@ -414,7 +413,7 @@ art::ValidHandle<T>::productGetter() const noexcept
 // Non-members:
 
 template <class T>
-std::enable_if_t<art::detail::is_handle<T>::value, art::RangeSet const&>
+std::enable_if_t<art::detail::is_handle_v<T>, art::RangeSet const&>
 art::range_of_validity(T const& h)
 {
   std::string const& errMsg =
@@ -424,7 +423,7 @@ art::range_of_validity(T const& h)
 }
 
 template <class T, class U>
-std::enable_if_t<art::detail::are_handles<T, U>::value, bool>
+std::enable_if_t<art::detail::are_handles_v<T, U>, bool>
 art::same_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
@@ -434,7 +433,7 @@ art::same_ranges(T const& a, U const& b)
 }
 
 template <class T, class U>
-std::enable_if_t<art::detail::are_handles<T, U>::value, bool>
+std::enable_if_t<art::detail::are_handles_v<T, U>, bool>
 art::disjoint_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
@@ -444,7 +443,7 @@ art::disjoint_ranges(T const& a, U const& b)
 }
 
 template <class T, class U>
-std::enable_if_t<art::detail::are_handles<T, U>::value, bool>
+std::enable_if_t<art::detail::are_handles_v<T, U>, bool>
 art::overlapping_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
