@@ -88,20 +88,19 @@ namespace art {
   void
   Principal::ctor_read_provenance()
   {
-    auto ppv = delayedReader_->readProvenance();
-    for (auto iter = ppv.begin(), end = ppv.end(); iter != end; ++iter) {
-      auto g = getGroupLocal(iter->productID());
+    for (auto&& provenance : delayedReader_->readProvenance()) {
+      auto g = getGroupLocal(provenance.productID());
       if (g.get() == nullptr) {
         continue;
       }
-      if (iter->productStatus() != productstatus::unknown()) {
-        g->setProductProvenance(make_unique<ProductProvenance>(*iter));
+      if (provenance.productStatus() != productstatus::unknown()) {
+        g->setProductProvenance(make_unique<ProductProvenance>(provenance));
       } else {
         // We have an old format file, convert.
         g->setProductProvenance(make_unique<ProductProvenance>(
-          iter->productID(),
+          provenance.productID(),
           productstatus::dummyToPreventDoubleCount(),
-          iter->parentage().parents()));
+          provenance.parentage().parents()));
       }
     }
   }
