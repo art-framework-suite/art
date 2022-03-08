@@ -33,7 +33,6 @@
 #include <vector>
 
 namespace art {
-  class ActivityRegistry;
   class GlobalTaskGroup;
   namespace detail {
     class SharedResources;
@@ -46,7 +45,6 @@ namespace art {
     EndPathExecutor(ScheduleID sid,
                     PathManager& pm,
                     ActionTable const& actions,
-                    ActivityRegistry const& areg,
                     UpdateOutputCallbacks& callbacks,
                     GlobalTaskGroup& task_group);
 
@@ -117,9 +115,6 @@ namespace art {
     //       the outputWorkersToClose_ data member.
     void recordOutputClosureRequests(Granularity);
     void incrementInputFileNumber();
-    // Return whether or not all of the output workers have
-    // reached their maximum limit of work to do.
-    bool allAtLimit() const;
 
   private:
     class PathsDoneTask;
@@ -127,7 +122,6 @@ namespace art {
     // Filled by ctor, const after that.
     ScheduleContext const sc_;
     ActionTable const& actionTable_;
-    ActivityRegistry const& actReg_;
     PathsInfo& endPathInfo_;
     GlobalTaskGroup& taskGroup_;
     // Filled by ctor, const after that.

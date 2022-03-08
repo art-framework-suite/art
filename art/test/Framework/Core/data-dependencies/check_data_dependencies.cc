@@ -15,6 +15,7 @@
 #include "fhiclcpp/types/OptionalTable.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TupleAs.h"
+#include "fhiclcpp/types/detail/validationException.h"
 
 #include <cassert>
 #include <fstream>
@@ -374,14 +375,14 @@ main(int argc, char** argv) try {
   auto const& process_name = table().process_name();
   auto const& test_properties = table().test_properties();
 
-  ParameterSet physics;
-  if (!table().physics.get_if_present(physics)) {
+  auto physics = table().physics.get_if_present<ParameterSet>();
+  if (!physics) {
     return 0;
   }
 
   // Form the paths
   auto module_configs = get_module_configs(pset);
-  auto paths_to_modules = get_paths_to_modules(physics, module_configs);
+  auto paths_to_modules = get_paths_to_modules(*physics, module_configs);
   auto const trigger_paths =
     select_paths(pset, tables_with_modifiers, paths_to_modules);
   auto end_paths = paths_to_modules;

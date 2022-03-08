@@ -12,8 +12,8 @@
 #include "cetlib_except/demangle.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
+#include "range/v3/view.hpp"
 
-#include <map>
 #include <memory>
 #include <stack>
 #include <string>
@@ -40,9 +40,8 @@ namespace {
              ParameterSet const& source,
              vector<ParameterSet>& service_set)
   {
-    ParameterSet tmp;
-    if (source.get_if_present(name, tmp)) {
-      service_set.emplace_back(move(tmp));
+    if (auto service = source.get_if_present<ParameterSet>(name)) {
+      service_set.emplace_back(move(*service));
       return;
     }
     addService(name, service_set);
@@ -70,9 +69,7 @@ namespace art {
                                     ProcessConfiguration const& pc)
   {
     std::vector<std::string> producing_services;
-    for (auto& pr : services_) {
-      auto& serviceEntry = pr.second;
-
+    for (auto& serviceEntry : services_ | ranges::views::values) {
       // Service interfaces cannot be used for product insertion.
       if (serviceEntry.is_interface())
         continue;
@@ -204,12 +201,11 @@ namespace art {
   void
   ServicesManager::getParameterSets(std::vector<fhicl::ParameterSet>& out) const
   {
-    std::vector<fhicl::ParameterSet> tmp;
-    for (auto const& typeID_and_ServiceCacheEntry : services_) {
-      auto const& sce = typeID_and_ServiceCacheEntry.second;
-      tmp.push_back(sce.getParameterSet());
-    }
-    tmp.swap(out);
+    using namespace ranges;
+    out =
+      services_ | views::values |
+      views::transform([](auto const& sce) { return sce.getParameterSet(); }) |
+      to<std::vector>();
   }
 
   void

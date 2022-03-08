@@ -31,26 +31,26 @@
 
 namespace art {
   struct MallocOpts {
-    typedef int opt_type;
+    using opt_type = int;
 
-    MallocOpts() : mmap_max_(), trim_thr_(), top_pad_(), mmap_thr_() {}
+    MallocOpts() = default;
     MallocOpts(opt_type max, opt_type trim, opt_type pad, opt_type mmap_thr)
       : mmap_max_(max), trim_thr_(trim), top_pad_(pad), mmap_thr_(mmap_thr)
     {}
 
-    opt_type mmap_max_;
-    opt_type trim_thr_;
-    opt_type top_pad_;
-    opt_type mmap_thr_;
+    opt_type mmap_max_{};
+    opt_type trim_thr_{};
+    opt_type top_pad_{};
+    opt_type mmap_thr_{};
 
     bool
-    operator==(const MallocOpts& opts) const
+    operator==(const MallocOpts& opts) const noexcept
     {
       return mmap_max_ == opts.mmap_max_ && trim_thr_ == opts.trim_thr_ &&
              top_pad_ == opts.top_pad_ && mmap_thr_ == opts.mmap_thr_;
     }
     bool
-    operator!=(const MallocOpts& opts) const
+    operator!=(const MallocOpts& opts) const noexcept
     {
       return !operator==(opts);
     }
@@ -60,7 +60,7 @@ namespace art {
 
   class MallocOptionSetter {
   public:
-    typedef MallocOpts::opt_type opt_type;
+    using opt_type = MallocOpts::opt_type;
     MallocOptionSetter();
 
     bool retrieveFromCpuType();

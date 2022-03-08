@@ -20,13 +20,10 @@
 //   implementation of (e.g) beginRunTimestamp() to use the last
 //   generated event timestamp.
 //
-// * doRewind() is called when EmptyEvent is asked to rewind to its
-//   initial conditions.
-//
 // General notes.
 //
 // * Subclasses implementing this interface *must* implement
-//   eventTimestamp() and rewind(). Other entry points are optional.
+//   eventTimestamp(). Other entry points are optional.
 //
 // * Subclasses should not provide a header file: any communication with
 //   the plugin is accomplished solely via the base class interface.
@@ -75,8 +72,6 @@ public:
 
   Timestamp doEventTimestamp(EventID const& e);
 
-  void doRewind();
-
   virtual ~EmptyEventTimestampPlugin() = default;
 
 private:
@@ -106,11 +101,7 @@ private:
   }
 
   virtual Timestamp eventTimestamp(EventID const&) = 0;
-
-  virtual void rewind() = 0;
 };
-
-#endif /* art_Framework_Core_EmptyEventTimestampPlugin_h */
 
 inline void
 art::EmptyEventTimestampPlugin::doBeginJob()
@@ -155,11 +146,7 @@ art::EmptyEventTimestampPlugin::doEventTimestamp(EventID const& eid)
   return lastEventTimestamp_;
 }
 
-inline void
-art::EmptyEventTimestampPlugin::doRewind()
-{
-  rewind();
-}
+#endif /* art_Framework_Core_EmptyEventTimestampPlugin_h */
 
 // Local Variables:
 // mode: c++

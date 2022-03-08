@@ -4,6 +4,9 @@
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
+#include "art/Persistency/Provenance/ModuleContext.h"
+#include "art/Utilities/OutputFileInfo.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 namespace art {
@@ -12,118 +15,190 @@ namespace art {
 
   // This is called directly by the make_worker function created
   // by the DEFINE_ART_MODULE macro.
-  OutputWorker::OutputWorker(std::shared_ptr<OutputModule> mod,
-                             ModuleDescription const& md,
-                             WorkerParams const& wp)
-    : WorkerT<OutputModule>{mod, md, wp}
+  OutputWorker::OutputWorker(OutputModule* module, WorkerParams const& wp)
+    : Worker{module->moduleDescription(), wp}
+    , module_{module}
+    , actReg_{wp.actReg_}
   {
+    if (wp.scheduleID_ == ScheduleID::first()) {
+      // We only want to register the products (and any shared
+      // resources) once, not once for every schedule)
+      module_->registerProducts(wp.producedProducts_);
+      wp.resources_.registerSharedResources(module_->sharedResources());
+    }
     ci_->outputModuleInitiated(
       label(),
       fhicl::ParameterSetRegistry::get(description().parameterSetID()));
   }
 
-  std::string const&
-  OutputWorker::lastClosedFileName() const
+  hep::concurrency::SerialTaskQueueChain*
+  OutputWorker::doSerialTaskQueueChain() const
   {
-    return module().lastClosedFileName();
+    return module_->serialTaskQueueChain();
+  }
+
+  void
+  OutputWorker::doBeginJob(detail::SharedResources const& resources)
+  {
+    module_->doBeginJob(resources);
+  }
+
+  void
+  OutputWorker::doEndJob()
+  {
+    module_->doEndJob();
+  }
+
+  void
+  OutputWorker::doRespondToOpenInputFile(FileBlock const& fb)
+  {
+    module_->doRespondToOpenInputFile(fb);
+  }
+
+  void
+  OutputWorker::doRespondToCloseInputFile(FileBlock const& fb)
+  {
+    module_->doRespondToCloseInputFile(fb);
+  }
+
+  void
+  OutputWorker::doRespondToOpenOutputFiles(FileBlock const& fb)
+  {
+    module_->doRespondToOpenOutputFiles(fb);
+  }
+
+  void
+  OutputWorker::doRespondToCloseOutputFiles(FileBlock const& fb)
+  {
+    module_->doRespondToCloseOutputFiles(fb);
+  }
+
+  void
+  OutputWorker::doBegin(RunPrincipal& rp, ModuleContext const& mc)
+  {
+    module_->doBeginRun(rp, mc);
+  }
+
+  void
+  OutputWorker::doEnd(RunPrincipal& rp, ModuleContext const& mc)
+  {
+    module_->doEndRun(rp, mc);
+  }
+
+  void
+  OutputWorker::doBegin(SubRunPrincipal& srp, ModuleContext const& mc)
+  {
+    module_->doBeginSubRun(srp, mc);
+  }
+
+  void
+  OutputWorker::doEnd(SubRunPrincipal& srp, ModuleContext const& mc)
+  {
+    module_->doEndSubRun(srp, mc);
   }
 
   bool
+  OutputWorker::doProcess(EventPrincipal& ep, ModuleContext const& mc)
+  {
+    // Note, only filters ever return false, and when they do it means
+    // they have rejected.
+    return module_->doEvent(
+      ep, mc, counts_run_, counts_passed_, counts_failed_);
+  }
+
+  std::string const&
+  OutputWorker::lastClosedFileName() const
+  {
+    return module_->lastClosedFileName();
+  }
+
+  void
   OutputWorker::closeFile()
   {
-    bool const didCloseFile{module().doCloseFile()};
-    if (didCloseFile) {
-      ci_->outputFileClosed(description().moduleLabel(), lastClosedFileName());
+    actReg_.sPreCloseOutputFile.invoke(label());
+    if (module_->doCloseFile()) {
+      ci_->outputFileClosed(label(), lastClosedFileName());
     }
-    return didCloseFile;
+    actReg_.sPostCloseOutputFile.invoke(
+      OutputFileInfo{label(), lastClosedFileName()});
   }
 
   void
   OutputWorker::incrementInputFileNumber()
   {
-    return module().incrementInputFileNumber();
+    return module_->incrementInputFileNumber();
   }
 
   bool
   OutputWorker::requestsToCloseFile() const
   {
-    return module().requestsToCloseFile();
+    return module_->requestsToCloseFile();
   }
 
-  bool
+  void
   OutputWorker::openFile(FileBlock const& fb)
   {
-    bool const didOpenFile{module().doOpenFile(fb)};
-    if (didOpenFile) {
-      ci_->outputFileOpened(description().moduleLabel());
+    if (module_->doOpenFile(fb)) {
+      ci_->outputFileOpened(label());
+      actReg_.sPostOpenOutputFile.invoke(label());
     }
-    return didOpenFile;
   }
 
   void
   OutputWorker::writeRun(RunPrincipal& rp)
   {
-    module().doWriteRun(rp);
+    module_->doWriteRun(rp);
   }
 
   void
   OutputWorker::writeSubRun(SubRunPrincipal& srp)
   {
-    module().doWriteSubRun(srp);
+    module_->doWriteSubRun(srp);
   }
 
   void
-  OutputWorker::writeEvent(EventPrincipal& ep, ModuleContext const& mc)
+  OutputWorker::writeEvent(EventPrincipal& ep, PathContext const& pc)
   {
-    module().doWriteEvent(ep, mc);
+    ModuleContext const mc{pc, description()};
+    actReg_.sPreWriteEvent.invoke(mc);
+    module_->doWriteEvent(ep, mc);
+    actReg_.sPostWriteEvent.invoke(mc);
   }
 
   void
   OutputWorker::setRunAuxiliaryRangeSetID(RangeSet const& rs)
   {
-    module().doSetRunAuxiliaryRangeSetID(rs);
+    module_->doSetRunAuxiliaryRangeSetID(rs);
   }
 
   void
   OutputWorker::setSubRunAuxiliaryRangeSetID(RangeSet const& rs)
   {
-    module().doSetSubRunAuxiliaryRangeSetID(rs);
+    module_->doSetSubRunAuxiliaryRangeSetID(rs);
   }
 
   bool
   OutputWorker::fileIsOpen() const
   {
-    return module().fileIsOpen();
+    return module_->fileIsOpen();
   }
 
   void
   OutputWorker::setFileStatus(OutputFileStatus const ofs)
   {
-    return module().setFileStatus(ofs);
-  }
-
-  bool
-  OutputWorker::limitReached() const
-  {
-    return module().limitReached();
-  }
-
-  void
-  OutputWorker::configure(OutputModuleDescription const& desc)
-  {
-    module().configure(desc);
+    return module_->setFileStatus(ofs);
   }
 
   void
   OutputWorker::selectProducts(ProductTables const& tables)
   {
-    module().selectProducts(tables);
+    module_->selectProducts(tables);
   }
 
   Granularity
   OutputWorker::fileGranularity() const
   {
-    return module().fileGranularity();
+    return module_->fileGranularity();
   }
 
 } // namespace art

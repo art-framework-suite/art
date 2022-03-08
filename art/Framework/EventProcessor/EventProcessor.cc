@@ -7,9 +7,10 @@
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceFactory.h"
 #include "art/Framework/Core/InputSourceMutex.h"
-#include "art/Framework/Core/TriggerResultInserter.h"
+#include "art/Framework/Core/ReplicatedProducer.h"
 #include "art/Framework/EventProcessor/detail/writeSummary.h"
 #include "art/Framework/Principal/ClosedRangeSetHandler.h"
+#include "art/Framework/Principal/ConsumesInfo.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
@@ -77,49 +78,10 @@ namespace art {
       return mgr;
     }
 
-    std::unique_ptr<Worker>
-    maybe_trigger_results_inserter(ScheduleID const scheduleID,
-                                   string const& processName,
-                                   ParameterSet const& proc_pset,
-                                   ParameterSet const& trig_pset,
-                                   UpdateOutputCallbacks& outputCallbacks,
-                                   ProductDescriptions& productsToProduce,
-                                   ActionTable const& actions,
-                                   ActivityRegistry const& actReg,
-                                   PathsInfo& pathsInfo,
-                                   GlobalTaskGroup& task_group,
-                                   detail::SharedResources& resources)
-    {
-      if (pathsInfo.paths().empty()) {
-        return std::unique_ptr<Worker>{nullptr};
-      }
-
-      // Make the trigger results inserter.
-      WorkerParams const wp{outputCallbacks,
-                            productsToProduce,
-                            actReg,
-                            actions,
-                            scheduleID,
-                            task_group.native_group(),
-                            resources};
-      ModuleDescription md{
-        trig_pset.id(),
-        "TriggerResultInserter",
-        "TriggerResults",
-        ModuleThreadingType::replicated,
-        ProcessConfiguration{processName, proc_pset.id(), getReleaseVersion()}};
-      actReg.sPreModuleConstruction.invoke(md);
-      auto producer = std::make_shared<TriggerResultInserter>(
-        trig_pset, scheduleID, pathsInfo.pathResults());
-      producer->setModuleDescription(md);
-      auto result =
-        std::make_unique<WorkerT<ReplicatedProducer>>(producer, md, wp);
-      actReg.sPostModuleConstruction.invoke(md);
-      return result;
-    }
-
     auto const invalid_module_context = ModuleContext::invalid();
   }
+
+  EventProcessor::~EventProcessor() = default;
 
   EventProcessor::EventProcessor(ParameterSet const& pset,
                                  detail::EnabledModules const& enabled_modules)
@@ -202,21 +164,10 @@ namespace art {
       // The ordering of the path results in the TriggerPathsInfo (which is used
       // for the TriggerResults object), must be the same as that provided by
       // the TriggerNamesService.
-      auto& trigger_paths_info = pathManager_->triggerPathsInfo(sid);
+      auto& trigger_paths_info [[maybe_unused]] =
+        pathManager_->triggerPathsInfo(sid);
       assert(trigger_names->getTrigPaths() == trigger_paths_info.pathNames());
 
-      auto results_inserter =
-        maybe_trigger_results_inserter(sid, //
-                                       processName,
-                                       pset,
-                                       Globals::instance()->triggerPSet(),
-                                       outputCallbacks_, //
-                                       producedProductDescriptions_,
-                                       scheduler_->actionTable(), //
-                                       actReg_,                   //
-                                       trigger_paths_info,        //
-                                       *taskGroup_,               //
-                                       sharedResources_);
       schedules_->emplace(std::piecewise_construct,
                           std::forward_as_tuple(sid),
                           std::forward_as_tuple(sid,
@@ -224,7 +175,6 @@ namespace art {
                                                 scheduler_->actionTable(),
                                                 actReg_,
                                                 outputCallbacks_,
-                                                move(results_inserter),
                                                 *taskGroup_));
     }
     sharedResources_.freeze(taskGroup_->native_group());
@@ -316,9 +266,11 @@ namespace art {
         closeSomeOutputFiles();
       }
       return true;
-    } else if (nextLevel_.load() < L) {
+    }
+    if (nextLevel_.load() < L) {
       return false;
-    } else if (nextLevel_.load() == highest_level()) {
+    }
+    if (nextLevel_.load() == highest_level()) {
       return false;
     }
     throw Exception{errors::LogicError} << "Incorrect level hierarchy.\n"
@@ -700,9 +652,10 @@ namespace art {
     runPrincipal_->createGroupsForProducedProducts(
       producedProductLookupTables_);
     psSignals_->sPostReadRun.invoke(*runPrincipal_);
-    runPrincipal_->enableLookupOfProducedProducts(producedProductLookupTables_);
+    runPrincipal_->enableLookupOfProducedProducts();
     {
-      Run const r{*runPrincipal_, invalid_module_context};
+      auto const r =
+        std::as_const(*runPrincipal_).makeRun(invalid_module_context);
       actReg_.sPostSourceRun.invoke(r);
     }
     FDEBUG(1) << string(8, ' ') << "readRun.....................("
@@ -720,14 +673,16 @@ namespace art {
     finalizeRunEnabled_ = true;
     try {
       {
-        Run const run{*runPrincipal_, invalid_module_context};
+        auto const run =
+          std::as_const(*runPrincipal_).makeRun(invalid_module_context);
         actReg_.sPreBeginRun.invoke(run);
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedule(sid).process(Transition::BeginRun, *runPrincipal_);
       });
       {
-        Run const run{*runPrincipal_, invalid_module_context};
+        auto const run =
+          std::as_const(*runPrincipal_).makeRun(invalid_module_context);
         actReg_.sPostBeginRun.invoke(run);
       }
     }
@@ -814,7 +769,8 @@ namespace art {
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedule(sid).process(Transition::EndRun, *runPrincipal_);
       });
-      Run const r{*runPrincipal_, invalid_module_context};
+      auto const r =
+        std::as_const(*runPrincipal_).makeRun(invalid_module_context);
       actReg_.sPostEndRun.invoke(r);
     }
     catch (cet::exception& ex) {
@@ -868,10 +824,10 @@ namespace art {
     subRunPrincipal_->createGroupsForProducedProducts(
       producedProductLookupTables_);
     psSignals_->sPostReadSubRun.invoke(*subRunPrincipal_);
-    subRunPrincipal_->enableLookupOfProducedProducts(
-      producedProductLookupTables_);
+    subRunPrincipal_->enableLookupOfProducedProducts();
     {
-      SubRun const sr{*subRunPrincipal_, invalid_module_context};
+      auto const sr =
+        std::as_const(*subRunPrincipal_).makeSubRun(invalid_module_context);
       actReg_.sPostSourceSubRun.invoke(sr);
     }
     FDEBUG(1) << string(8, ' ') << "readSubRun..................("
@@ -889,14 +845,16 @@ namespace art {
     finalizeSubRunEnabled_ = true;
     try {
       {
-        SubRun const srun{*subRunPrincipal_, invalid_module_context};
+        auto const srun =
+          std::as_const(*subRunPrincipal_).makeSubRun(invalid_module_context);
         actReg_.sPreBeginSubRun.invoke(srun);
       }
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedule(sid).process(Transition::BeginSubRun, *subRunPrincipal_);
       });
       {
-        SubRun const srun{*subRunPrincipal_, invalid_module_context};
+        auto const srun =
+          std::as_const(*subRunPrincipal_).makeSubRun(invalid_module_context);
         actReg_.sPostBeginSubRun.invoke(srun);
       }
     }
@@ -1040,7 +998,8 @@ namespace art {
       scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
         schedule(sid).process(Transition::EndSubRun, *subRunPrincipal_);
       });
-      SubRun const srun{*subRunPrincipal_, invalid_module_context};
+      auto const srun =
+        std::as_const(*subRunPrincipal_).makeSubRun(invalid_module_context);
       actReg_.sPostEndSubRun.invoke(srun);
     }
     catch (cet::exception& ex) {
@@ -1234,8 +1193,9 @@ namespace art {
       // find them until after the callbacks have run.
       ep->createGroupsForProducedProducts(producedProductLookupTables_);
       psSignals_->sPostReadEvent.invoke(*ep);
-      ep->enableLookupOfProducedProducts(producedProductLookupTables_);
-      actReg_.sPostSourceEvent.invoke(Event{*ep, invalid_module_context}, sc);
+      ep->enableLookupOfProducedProducts();
+      actReg_.sPostSourceEvent.invoke(
+        std::as_const(*ep).makeEvent(invalid_module_context), sc);
       FDEBUG(1) << string(8, ' ') << "readEvent...................("
                 << ep->eventID() << ")\n";
       schedule(sid).accept_principal(move(ep));
@@ -1436,8 +1396,9 @@ namespace art {
   EventProcessor::finishEventAsync(ScheduleID const sid)
   {
     auto& ep = schedule(sid).event_principal();
-    actReg_.sPostProcessEvent.invoke(Event{ep, invalid_module_context},
-                                     ScheduleContext{sid});
+    actReg_.sPostProcessEvent.invoke(
+      std::as_const(ep).makeEvent(invalid_module_context),
+      ScheduleContext{sid});
 
     // Note: We are part of the endPathTask.
     TDEBUG_BEGIN_FUNC_SI(4, sid);
@@ -1448,13 +1409,8 @@ namespace art {
       // if so setup to end the job the next time around the event
       // loop.
       FDEBUG(1) << string(8, ' ') << "shouldWeStop\n";
-      TDEBUG_FUNC_SI(5, sid) << "Calling schedules_->allAtLimit()";
       static std::mutex m;
       std::lock_guard sentry{m};
-      if (schedule(sid).allAtLimit()) {
-        // Set to return to the File level.
-        nextLevel_ = highest_level();
-      }
       // Now we can write the results of processing to the outputs,
       // and delete the event principal.
       if (!ep.eventID().isFlush()) {

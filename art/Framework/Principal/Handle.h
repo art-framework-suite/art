@@ -23,6 +23,10 @@
 //  bool.  One can also use the Handle::isValid() function.
 //  ValidHandles cannot be invalid, and so have no validity checks.
 //
+//  A data product provided by the input source may be removed from
+//  memory by calling removeProduct(), allowing program memory to be
+//  reclaimed when the product is no longer needed.
+//
 //  If failedToGet() returns true then the requested data is not available
 //  If failedToGet() returns false but isValid() is also false then no
 //  attempt to get data has occurred
@@ -46,6 +50,9 @@ namespace art {
   class Handle;
   template <typename T>
   class ValidHandle;
+  template <typename T>
+  class PutHandle;
+
   template <class T>
   void swap(Handle<T>& a, Handle<T>& b);
   template <class T>
@@ -70,18 +77,17 @@ namespace art {
   } // namespace detail
 
   template <class T>
-  std::enable_if_t<detail::is_handle<T>::value, RangeSet const&>
-  range_of_validity(T const& h);
+  std::enable_if_t<detail::is_handle_v<T>, RangeSet const&> range_of_validity(
+    T const& h);
   template <class T, class U>
-  std::enable_if_t<detail::are_handles<T, U>::value, bool> same_ranges(
+  std::enable_if_t<detail::are_handles_v<T, U>, bool> same_ranges(T const& a,
+                                                                  U const& b);
+  template <class T, class U>
+  std::enable_if_t<detail::are_handles_v<T, U>, bool> disjoint_ranges(
     T const& a,
     U const& b);
   template <class T, class U>
-  std::enable_if_t<detail::are_handles<T, U>::value, bool> disjoint_ranges(
-    T const& a,
-    U const& b);
-  template <class T, class U>
-  std::enable_if_t<detail::are_handles<T, U>::value, bool> overlapping_ranges(
+  std::enable_if_t<detail::are_handles_v<T, U>, bool> overlapping_ranges(
     T const& a,
     U const& b);
 
@@ -115,13 +121,16 @@ public:
   Provenance const* provenance() const;
   ProductID id() const;
   std::shared_ptr<art::Exception const> whyFailed() const;
+  EDProductGetter const* productGetter() const noexcept;
 
   // mutators:
   void swap(Handle<T>& other);
   void clear();
+  bool removeProduct();
 
 private:
   T const* prod_{nullptr};
+  cet::exempt_ptr<Group> group_{nullptr};
   Provenance prov_{};
   std::shared_ptr<art::Exception const> whyFailed_{nullptr};
 }; // Handle<>
@@ -131,7 +140,7 @@ private:
 
 template <class T>
 art::Handle<T>::Handle(GroupQueryResult const& gqr)
-  : prod_{nullptr}, prov_{gqr.result()}, whyFailed_{gqr.whyFailed()}
+  : group_{gqr.result()}, prov_{group_}, whyFailed_{gqr.whyFailed()}
 {
   if (gqr.succeeded()) {
     auto const wrapperPtr = dynamic_cast<Wrapper<T> const*>(
@@ -221,6 +230,13 @@ art::Handle<T>::whyFailed() const
   return whyFailed_;
 }
 
+template <typename T>
+inline art::EDProductGetter const*
+art::Handle<T>::productGetter() const noexcept
+{
+  return group_.get();
+}
+
 // ----------------------------------------------------------------------
 // mutators:
 
@@ -239,6 +255,19 @@ art::Handle<T>::clear()
   swap(tmp);
 }
 
+template <class T>
+inline bool
+art::Handle<T>::removeProduct()
+{
+  if (isValid() && !prov_.produced()) {
+    assert(group_);
+    group_->removeCachedProduct();
+    clear();
+    return true;
+  }
+  return false;
+}
+
 // ======================================================================
 // Non-members:
 
@@ -255,12 +284,14 @@ art::convert_handle(GroupQueryResult const& orig, Handle<T>& result)
 template <typename T>
 class art::ValidHandle {
 public:
-  typedef T element_type;
+  using element_type = T;
   class HandleTag {};
 
   ~ValidHandle() = default;
   ValidHandle() = delete;
-  explicit ValidHandle(T const* prod, Provenance prov);
+  explicit ValidHandle(T const* prod,
+                       EDProductGetter const* productGetter,
+                       Provenance prov);
   ValidHandle(ValidHandle const&) = default;
   ValidHandle(ValidHandle&&) = default;
   ValidHandle& operator=(ValidHandle const&) & = default;
@@ -278,6 +309,7 @@ public:
   Provenance const* provenance() const;
   ProductID id() const;
   std::shared_ptr<art::Exception const> whyFailed() const; // always null
+  EDProductGetter const* productGetter() const noexcept;
 
   // mutators
   void swap(ValidHandle<T>& other);
@@ -287,14 +319,17 @@ public:
 
 private:
   T const* prod_;
+  EDProductGetter const* productGetter_;
   Provenance prov_;
 };
 
 template <class T>
-art::ValidHandle<T>::ValidHandle(T const* prod, Provenance prov)
-  : prod_{prod}, prov_{prov}
+art::ValidHandle<T>::ValidHandle(T const* prod,
+                                 EDProductGetter const* productGetter,
+                                 Provenance prov)
+  : prod_{prod}, productGetter_{productGetter}, prov_{prov}
 {
-  if (prod == nullptr) {
+  if (prod_ == nullptr) {
     throw Exception(art::errors::NullPointerError)
       << "Attempt to create ValidHandle with null pointer";
   }
@@ -367,11 +402,18 @@ art::ValidHandle<T>::swap(art::ValidHandle<T>& other)
   std::swap(*this, other);
 }
 
+template <typename T>
+inline art::EDProductGetter const*
+art::ValidHandle<T>::productGetter() const noexcept
+{
+  return productGetter_;
+}
+
 // ======================================================================
 // Non-members:
 
 template <class T>
-std::enable_if_t<art::detail::is_handle<T>::value, art::RangeSet const&>
+std::enable_if_t<art::detail::is_handle_v<T>, art::RangeSet const&>
 art::range_of_validity(T const& h)
 {
   std::string const& errMsg =
@@ -381,7 +423,7 @@ art::range_of_validity(T const& h)
 }
 
 template <class T, class U>
-std::enable_if_t<art::detail::are_handles<T, U>::value, bool>
+std::enable_if_t<art::detail::are_handles_v<T, U>, bool>
 art::same_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
@@ -391,7 +433,7 @@ art::same_ranges(T const& a, U const& b)
 }
 
 template <class T, class U>
-std::enable_if_t<art::detail::are_handles<T, U>::value, bool>
+std::enable_if_t<art::detail::are_handles_v<T, U>, bool>
 art::disjoint_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
@@ -401,13 +443,99 @@ art::disjoint_ranges(T const& a, U const& b)
 }
 
 template <class T, class U>
-std::enable_if_t<art::detail::are_handles<T, U>::value, bool>
+std::enable_if_t<art::detail::are_handles_v<T, U>, bool>
 art::overlapping_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
     "Attempt to compare range sets where one or both handles are invalid.";
   detail::throw_if_invalid(errMsg, a, b);
   return overlapping_ranges(range_of_validity(a), range_of_validity(b));
+}
+
+// ======================================================================
+template <typename T>
+class art::PutHandle {
+public:
+  using element_type = T;
+  class HandleTag {};
+
+  explicit PutHandle(T const* prod,
+                     EDProductGetter const* productGetter,
+                     ProductID id);
+
+  // To be deprecated
+  // ----------------
+  // The following implicit conversion to ProductID is retained for
+  // backwards compatibility--up through art 3.10, the supported
+  // interface is (e.g.):
+  //
+  //   ProductID id = e.put(move(some_product));
+  //
+  // With art 3.11, the return type of 'put' will be a PutHandle<T>
+  // object.  Until users have time to migrate to the new usage, the
+  // PutHandle template will provide a conversion operator to
+  // ProductID.
+  operator ProductID() const;
+
+  // pointer behaviors
+  T const& operator*() const;
+  T const* operator->() const; // alias for product()
+  T const* product() const;
+
+  // inspectors
+  ProductID id() const;
+  EDProductGetter const* productGetter() const noexcept;
+
+private:
+  T const* prod_;
+  EDProductGetter const* productGetter_;
+  ProductID id_;
+};
+
+template <class T>
+inline art::PutHandle<T>::PutHandle(T const* prod,
+                                    EDProductGetter const* productGetter,
+                                    ProductID id)
+  : prod_{prod}, productGetter_{productGetter}, id_{id}
+{}
+
+template <class T>
+inline art::PutHandle<T>::operator ProductID() const
+{
+  return id();
+}
+
+template <class T>
+inline T const& art::PutHandle<T>::operator*() const
+{
+  return *prod_;
+}
+
+template <class T>
+inline T const* art::PutHandle<T>::operator->() const
+{
+  return prod_;
+}
+
+template <class T>
+inline T const*
+art::PutHandle<T>::product() const
+{
+  return prod_;
+}
+
+template <class T>
+inline art::ProductID
+art::PutHandle<T>::id() const
+{
+  return id_;
+}
+
+template <typename T>
+inline art::EDProductGetter const*
+art::PutHandle<T>::productGetter() const noexcept
+{
+  return productGetter_;
 }
 
 #endif /* art_Framework_Principal_Handle_h */

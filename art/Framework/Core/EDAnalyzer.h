@@ -19,13 +19,13 @@ namespace art {
 
   class EDAnalyzer : public detail::Analyzer, private detail::LegacyModule {
   public:
-    using WorkerType = WorkerT<EDAnalyzer>;
     using ModuleType = EDAnalyzer;
 
-    explicit EDAnalyzer(fhicl::ParameterSet const& pset)
-      : detail::Analyzer{pset}
-      , detail::LegacyModule{pset.get<std::string>("module_label")}
-    {}
+    using detail::LegacyModule::serialTaskQueueChain;
+    using detail::LegacyModule::sharedResources;
+
+  protected:
+    explicit EDAnalyzer(fhicl::ParameterSet const& pset);
 
     template <typename Config>
     explicit EDAnalyzer(Table<Config> const& config)
@@ -34,33 +34,25 @@ namespace art {
 
     using detail::LegacyModule::createEngine;
     using detail::LegacyModule::scheduleID;
-    using detail::LegacyModule::serialTaskQueueChain;
-    using detail::LegacyModule::sharedResources;
-
-    std::string workerType() const;
 
   private:
-    void setupQueues(detail::SharedResources const&) override final;
-    void beginJobWithFrame(ProcessingFrame const&) override final;
-    void endJobWithFrame(ProcessingFrame const&) override final;
+    std::unique_ptr<Worker> doMakeWorker(WorkerParams const& wp) final;
+    void setupQueues(detail::SharedResources const&) final;
+    void beginJobWithFrame(ProcessingFrame const&) final;
+    void endJobWithFrame(ProcessingFrame const&) final;
     void respondToOpenInputFileWithFrame(FileBlock const&,
-                                         ProcessingFrame const&) override final;
-    void respondToCloseInputFileWithFrame(
-      FileBlock const&,
-      ProcessingFrame const&) override final;
-    void respondToOpenOutputFilesWithFrame(
-      FileBlock const&,
-      ProcessingFrame const&) override final;
-    void respondToCloseOutputFilesWithFrame(
-      FileBlock const&,
-      ProcessingFrame const&) override final;
-    void beginRunWithFrame(Run const&, ProcessingFrame const&) override final;
-    void endRunWithFrame(Run const&, ProcessingFrame const&) override final;
-    void beginSubRunWithFrame(SubRun const&,
-                              ProcessingFrame const&) override final;
-    void endSubRunWithFrame(SubRun const&,
-                            ProcessingFrame const&) override final;
-    void analyzeWithFrame(Event const&, ProcessingFrame const&) override final;
+                                         ProcessingFrame const&) final;
+    void respondToCloseInputFileWithFrame(FileBlock const&,
+                                          ProcessingFrame const&) final;
+    void respondToOpenOutputFilesWithFrame(FileBlock const&,
+                                           ProcessingFrame const&) final;
+    void respondToCloseOutputFilesWithFrame(FileBlock const&,
+                                            ProcessingFrame const&) final;
+    void beginRunWithFrame(Run const&, ProcessingFrame const&) final;
+    void endRunWithFrame(Run const&, ProcessingFrame const&) final;
+    void beginSubRunWithFrame(SubRun const&, ProcessingFrame const&) final;
+    void endSubRunWithFrame(SubRun const&, ProcessingFrame const&) final;
+    void analyzeWithFrame(Event const&, ProcessingFrame const&) final;
 
     virtual void beginJob();
     virtual void endJob();

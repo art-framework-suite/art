@@ -169,7 +169,7 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   pEvent_ = std::make_unique<art::EventPrincipal>(eventAux, *process, nullptr);
   pEvent_->setSubRunPrincipal(srp.get());
   pEvent_->createGroupsForProducedProducts(ptf().producedProducts_);
-  pEvent_->enableLookupOfProducedProducts(ptf().producedProducts_);
+  pEvent_->enableLookupOfProducedProducts();
   pEvent_->put(*pd,
                move(productProvenancePtr),
                move(product),

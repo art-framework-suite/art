@@ -22,27 +22,27 @@ namespace art {
     {}
 
     std::string const&
-    fileName() const
+    fileName() const noexcept
     {
       return pfn_;
     }
     std::string const&
-    logicalFileName() const
+    logicalFileName() const noexcept
     {
       return lfn_;
     }
     std::string const&
-    uri() const
+    uri() const noexcept
     {
       return uri_;
     }
     bool
-    skipped() const
+    skipped() const noexcept
     {
       return skipped_;
     }
     bool
-    consumed() const
+    consumed() const noexcept
     {
       return consumed_;
     }
@@ -90,27 +90,27 @@ namespace art {
     commitCatalog()
     {}
     static bool
-    isPhysical(std::string const& name)
+    isPhysical(std::string const& name) noexcept
     {
       return (name.empty() || name.find(':') != std::string::npos);
     }
     std::string&
-    url()
+    url() noexcept
     {
       return url_;
     }
     std::string const&
-    url() const
+    url() const noexcept
     {
       return url_;
     }
     void
-    setActive()
+    setActive() noexcept
     {
       active_ = true;
     }
     bool
-    active() const
+    active() const noexcept
     {
       return active_;
     }

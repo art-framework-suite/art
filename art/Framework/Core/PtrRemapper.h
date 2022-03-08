@@ -3,9 +3,9 @@
 ////////////////////////////////////////////////////////////////////////
 // PtrRemapper
 //
-// Class to aid in remapping Ptrs in various settings from items in
-// one branch to (presumably the equivalent) items in another branch
-// of the same type.
+// Class to aid in remapping Ptrs and ProductPtrs in various settings
+// from items in one branch to (presumably the equivalent) items in
+// another branch of the same type.
 //
 // This class is primarily for use in product mixing and will be
 // properly initialized by the time it is provided as an argument to
@@ -54,16 +54,19 @@
 //     in the documentation in
 //     art/Persistency/Common/CollectionUtilities.h.
 //
+// ------------------
+// art::Ptr remapping
+// ------------------
 //
 // Available signatures to operator() and example usage:
 //
 //  1. Remap a single Ptr.
 //
-//       Ptr<A> newPtr(remap(oldPtr, offset));
+//       Ptr<A> newPtr{remap(oldPtr, offset)};
 //
 //  2. Remap a single PtrVector.
 //
-//       PtrVector<A> newPV(remap(oldPV, offset));
+//       PtrVector<A> newPV{remap(oldPV, offset)};
 //
 //  3. Remap a compatible collection (including PtrVector) of Ptr
 // providing begin, end iterators. (This will also remap a compatible
@@ -166,6 +169,36 @@
 //     straightforward client code -- this one is provided for maximum
 //     flexibility.
 //
+// -------------------------
+// art::ProductPtr remapping
+// -------------------------
+//
+// ProductPtrs are simpler objects that require no offset--only the
+// internal product ID must be adjusted.  There is therefore a limited
+// set of remapping facilities for them.
+//
+// 11. Remap a single art::ProductPtr is achieved via:
+//
+//     ProductPtr<A> newProductPtr{remap(oldProductPtr)};
+//
+// 12. Remap a collection of art::ProductPtrs to a single
+// art::ProductPtr.  The requirement is that all art::ProductPtrs in
+// the collection must refer to the same product.
+//
+//     ProductPtr<A> newProductPtr{remap(in)};
+//
+// 13. Remap a collection of ProductPtrs which may be obtained from a
+// component of the provided product. Provide the name of a member
+// datum of the provided product which is the container.
+//
+//     ProductPtr<A> newProductPtr{remap(in, &A::myProductPtr_)};
+//
+// 14. Remap a collection of ProductPtrs which may be obtained from a
+// component of the provided product using the provided accessor
+// member function of the class (taking no arguments).
+//
+//     ProductPtr<A> newProductPtr{remap(in, &A::myProductPtr)};
+//
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Principal/Event.h"
@@ -173,6 +206,7 @@
 #include "canvas/Persistency/Common/EDProductGetter.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
+#include "canvas/Persistency/Common/RefCore.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "cetlib/exempt_ptr.h"
 
@@ -209,7 +243,7 @@ namespace art {
     template <typename CONT, typename PROD>
     class ContReturner<CONT, PROD, CONT const& (PROD::*)() const> {
     public:
-      typedef CONT const& (PROD::*CALLBACK)() const;
+      using CALLBACK = CONT const& (PROD::*)() const;
       explicit ContReturner(CALLBACK callback) : callback_(callback) {}
       CONT const&
       operator()(PROD const* prod) const
@@ -222,9 +256,9 @@ namespace art {
     };
 
     template <typename CONT, typename PROD>
-    class ContReturner<CONT, PROD, CONT PROD::*const> {
+    class ContReturner<CONT, PROD, CONT const PROD::*> {
     public:
-      typedef CONT PROD::*const CALLBACK;
+      using CALLBACK = CONT const PROD::*;
       explicit ContReturner(CALLBACK callback) : callback_(callback) {}
       CONT const&
       operator()(PROD const* prod) const
@@ -242,6 +276,10 @@ class art::PtrRemapper {
 public:
   //////////////////////////////////////////////////////////////////////
   // Signatures for operator() -- see documentation at top of header.
+
+  // --------------
+  // Ptr remappings
+  // --------------
 
   // 1.
   template <typename PROD, typename SIZE_TYPE>
@@ -281,7 +319,7 @@ public:
   void operator()(std::vector<PROD const*> const& in,
                   OutIter out,
                   OFFSETS const& offsets,
-                  CONT PROD::*const data) const;
+                  CONT const PROD::*data) const;
 
   // 8.
   template <typename PROD,
@@ -318,9 +356,60 @@ public:
                   OFFSETS const& offsets,
                   CALLBACK extractor) const;
 
+  // ---------------------
+  // ProductPtr remappings
+  // ---------------------
+
+  // 11.
+  template <typename PROD>
+  ProductPtr<PROD> operator()(ProductPtr<PROD> const& oldPtr) const;
+
+  // 12.
+  template <typename PROD>
+  ProductPtr<PROD> operator()(
+    std::vector<ProductPtr<PROD> const*> const& in) const;
+
+  // 13.
+  template <typename PROD, typename T>
+  ProductPtr<T> operator()(std::vector<PROD const*> const& in,
+                           ProductPtr<T> const PROD::*data) const;
+
+  // 14.
+  template <typename PROD, typename T>
+  ProductPtr<T> operator()(std::vector<PROD const*> const& in,
+                           ProductPtr<T> const& (PROD::*extractor)()
+                             const) const;
+
 private:
   friend class ProdToProdMapBuilder;
   using ProdTransMap_t = std::map<ProductID, ProductID>;
+
+  RefCore newRefCore_(ProductID const incomingProductID) const;
+
+  template <typename PROD>
+  static ProductPtr<PROD>
+  samePtrAs(ProductPtr<PROD> result, ProductPtr<PROD> old)
+  {
+    if (old == ProductPtr<PROD>{} or result == old) {
+      return result;
+    }
+    throw Exception(errors::LogicError)
+      << "PtrRemapper: cannot create output "
+      << TypeID{typeid(ProductPtr<PROD>)}.className()
+      << "\ndue to conflicting IDs in input ProductPtrs: " << old.id()
+      << " vs. " << result.id() << "\nContact artists@fnal.gov for guidance.\n";
+  }
+
+  template <typename T>
+  static auto
+  unknownProduct_(ProductID const id)
+  {
+    return Exception(errors::LogicError)
+           << "PtrRemapper: cannot create output "
+           << TypeID{typeid(T)}.className() << " with ProductID: " << id
+           << "\nbecause the product is not known.  Perhaps the output product "
+              "was misspecified for product mixing.\n";
+  }
 
   // The following data members are filled by
   // ProdToProdBuilder::populateRemapper, *not* by PtrRemapper.
@@ -328,36 +417,26 @@ private:
   cet::exempt_ptr<Event const> event_{nullptr};
 };
 
+// -------------------
+// art::Ptr remappings
+// -------------------
+
 // 1.
 template <typename PROD, typename SIZE_TYPE>
 art::Ptr<PROD>
 art::PtrRemapper::operator()(Ptr<PROD> const& oldPtr,
                              SIZE_TYPE const offset) const
 {
-  if (oldPtr.id().isValid()) {
-    auto iter = prodTransMap_.find(oldPtr.id());
-    if (iter == cend(prodTransMap_)) {
-      throw Exception(errors::LogicError)
-        << "PtrRemapper: could not find old ProductID " << oldPtr.id()
-        << " in translation table: already translated?\n";
-    }
-    auto productGetter = event_->productGetter(iter->second);
-    if (productGetter == nullptr) {
-      throw Exception(errors::LogicError)
-        << "PtrRemapper: cannot create output "
-        << TypeID{typeid(art::Ptr<PROD>)}.className()
-        << " with ProductID: " << iter->second
-        << "\nbecause the product is not known.  Perhaps the output product "
-           "was misspecified for product mixing.\n";
-    }
-
-    return oldPtr.isNonnull() ?
-             Ptr<PROD>{iter->second, oldPtr.key() + offset, productGetter} :
-             Ptr<PROD>{iter->second};
+  if (!oldPtr.id().isValid() || oldPtr.isNull()) {
+    return {};
   }
 
-  // Default-constructed.
-  return Ptr<PROD>{};
+  auto core = newRefCore_(oldPtr.id());
+  if (core.productGetter()) {
+    return Ptr<PROD>{core.id(), oldPtr.key() + offset, core.productGetter()};
+  }
+
+  throw unknownProduct_<Ptr<PROD>>(core.id());
 }
 
 // 2.
@@ -445,9 +524,9 @@ void
 art::PtrRemapper::operator()(std::vector<PROD const*> const& in,
                              OutIter out,
                              OFFSETS const& offsets,
-                             CONT PROD::*const data) const
+                             CONT const PROD::*data) const
 {
-  this->operator()<CONT, CONT PROD::*const>(in, out, offsets, data); // 10.
+  this->operator()<CONT, CONT const PROD::*>(in, out, offsets, data); // 10.
 }
 
 // 8.
@@ -504,12 +583,72 @@ art::PtrRemapper::operator()(std::vector<PROD const*> const& in,
   auto i = in.begin();
   auto const e = in.end();
   auto off_iter = offsets.begin();
-  art::PtrRemapperDetail::ContReturner<CONT, PROD, CALLBACK> returner{
-    extractor};
+  PtrRemapperDetail::ContReturner<CONT, PROD, CALLBACK> returner{extractor};
   for (; i != e; ++i, ++off_iter) {
     CONT const& cont{returner.operator()(*i)};
     this->operator()(cont.begin(), cont.end(), out, *off_iter); // 3.
   }
+}
+
+// --------------------------
+// art::ProductPtr remappings
+// --------------------------
+
+// 11.
+template <typename PROD>
+art::ProductPtr<PROD>
+art::PtrRemapper::operator()(ProductPtr<PROD> const& oldPtr) const
+{
+  if (!oldPtr.id().isValid()) {
+    return {};
+  }
+
+  auto core = newRefCore_(oldPtr.id());
+  if (core.productGetter()) {
+    return ProductPtr<PROD>{core.id(), core.productGetter()};
+  }
+
+  throw unknownProduct_<ProductPtr<PROD>>(core.id());
+}
+
+// 12.
+template <typename PROD>
+art::ProductPtr<PROD>
+art::PtrRemapper::operator()(
+  std::vector<ProductPtr<PROD> const*> const& in) const
+{
+  art::ProductPtr<PROD> result{};
+  for (auto const* ptr : in) {
+    result = samePtrAs(remap(*ptr), result);
+  }
+  return result;
+}
+
+// 13.
+template <typename PROD, typename T>
+art::ProductPtr<T>
+art::PtrRemapper::operator()(std::vector<PROD const*> const& in,
+                             ProductPtr<T> const PROD::*data) const
+{
+  art::ProductPtr<T> result{};
+  for (auto const* ptr : in) {
+    result = samePtrAs(this->operator()(ptr->*data), result);
+  }
+  return result;
+}
+
+// 14.
+template <typename PROD, typename T>
+art::ProductPtr<T>
+art::PtrRemapper::operator()(std::vector<PROD const*> const& in,
+                             ProductPtr<T> const& (PROD::*extractor)()
+                               const) const
+{
+  art::ProductPtr<T> result{};
+  for (auto const* ptr : in) {
+    result = samePtrAs(this->operator()((ptr->*extractor)()), result);
+  }
+  return result;
 }
 
 #endif /* art_Framework_Core_PtrRemapper_h */

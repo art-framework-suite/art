@@ -26,20 +26,20 @@ using namespace std;
 using DataPerProcess = art::TriggerNamesService::DataPerProcess;
 
 namespace {
-  constexpr auto invalid_entry = std::numeric_limits<size_t>::max();
+  constexpr auto invalid_entry = numeric_limits<size_t>::max();
   entry_selector_t
   for_(art::PathID const id)
   {
     return [id](art::PathSpec const& spec) { return spec.path_id == id; };
   }
   entry_selector_t
-  for_(std::string const& name)
+  for_(string const& name)
   {
     return [&name](art::PathSpec const& spec) { return spec.name == name; };
   }
 
   auto
-  lookup_exception(std::string const& process_name)
+  lookup_exception(string const& process_name)
   {
     return art::Exception{
       art::errors::OtherArt,
@@ -52,11 +52,11 @@ namespace {
                    ParameterSet const physics_pset)
   {
     auto const spec_strs =
-      trigger_paths_pset.get<std::vector<std::string>>("trigger_paths");
+      trigger_paths_pset.get<vector<string>>("trigger_paths");
     auto specs = art::path_specs(spec_strs);
 
-    std::vector<std::string> trigger_path_names;
-    std::vector<std::vector<std::string>> module_names;
+    vector<string> trigger_path_names;
+    vector<vector<string>> module_names;
     for (auto const& spec_str : specs) {
       trigger_path_names.push_back(spec_str.name);
       module_names.push_back(physics_pset.get<vector<string>>(spec_str.name));
@@ -85,18 +85,18 @@ namespace art {
   // All processes
   TriggerResults const&
   TriggerNamesService::triggerResults(Event const& e,
-                                      std::string const& process_name) const
+                                      string const& process_name) const
   {
-    Handle<art::TriggerResults> h;
-    if (not e.getByLabel("TriggerResults", "", process_name, h)) {
-      throw lookup_exception(process_name) << *h.whyFailed();
+    auto h = e.getHandle<TriggerResults>({"TriggerResults", "", process_name});
+    if (h) {
+      return *h;
     }
-    return *h;
+    throw lookup_exception(process_name) << *h.whyFailed();
   }
 
-  std::map<std::string, HLTPathStatus>
+  map<string, HLTPathStatus>
   TriggerNamesService::pathResults(Event const& e,
-                                   std::string const& process_name) const
+                                   string const& process_name) const
   {
     auto const& tr = triggerResults(e, process_name);
     auto const& pname =
@@ -115,15 +115,15 @@ namespace art {
 
       auto const& trigger_pset = ParameterSetRegistry::get(tr.parameterSetID());
       auto const& pset = ParameterSetRegistry::get(config->parameterSetID());
-      auto data = data_for_process(trigger_pset,
-                                   pset.get<fhicl::ParameterSet>("physics"));
-      it = dataPerProcess_.try_emplace(process_name, std::move(data)).first;
+      auto data =
+        data_for_process(trigger_pset, pset.get<ParameterSet>("physics"));
+      it = dataPerProcess_.try_emplace(process_name, move(data)).first;
     }
 
     auto const& names = it->second.triggerPathNames;
     assert(size(names) == tr.size());
 
-    std::map<std::string, HLTPathStatus> result;
+    map<string, HLTPathStatus> result;
     for (size_t i = 0, n = tr.size(); i != n; ++i) {
       result.try_emplace(names[i], tr.at(i));
     }
@@ -135,7 +135,7 @@ namespace art {
   string const&
   TriggerNamesService::getProcessName() const
   {
-    return art::Globals::instance()->processName();
+    return Globals::instance()->processName();
   }
 
   vector<string> const&
@@ -183,11 +183,11 @@ namespace art {
 
     auto const b = begin(path_specs);
     auto const e = end(path_specs);
-    auto it = std::find_if(b, e, matched_entry);
+    auto it = find_if(b, e, matched_entry);
     if (it == e) {
       return invalid_entry;
     }
-    return std::distance(b, it);
+    return distance(b, it);
   }
 
 } // namespace art

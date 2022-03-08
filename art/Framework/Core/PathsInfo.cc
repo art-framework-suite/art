@@ -5,6 +5,7 @@
 #include "art/Framework/Principal/Worker.h"
 #include "art/Utilities/TaskDebugMacros.h"
 #include "canvas/Persistency/Common/HLTGlobalStatus.h"
+#include "range/v3/view.hpp"
 
 #include <atomic>
 #include <cstddef>
@@ -14,6 +15,8 @@
 using namespace std;
 
 namespace art {
+
+  PathsInfo::~PathsInfo() = default;
 
   map<string, std::shared_ptr<Worker>>&
   PathsInfo::workers()
@@ -73,8 +76,8 @@ namespace art {
   void
   PathsInfo::reset()
   {
-    for (auto const& val : workers_) {
-      val.second->reset();
+    for (auto const& worker : workers_ | ranges::views::values) {
+      worker->reset();
     }
   }
 
@@ -112,6 +115,7 @@ namespace art {
   size_t
   PathsInfo::failedEvents() const
   {
+    // MT: This is fragile!
     return totalEvents_.load() - passedEvents_.load();
   }
 

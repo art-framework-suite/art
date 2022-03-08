@@ -51,17 +51,17 @@
 //
 //    void endJob();
 //
-//    void beginSubRun(SubRun const &);
+//    void beginSubRun(SubRun const&);
 //
-//    void endSubRun(SubRun const &);
+//    void endSubRun(SubRun const&);
 //
-//    void beginRun(Run const &);
+//    void beginRun(Run const&);
 //
-//    void endRun(Run const &);
+//    void endRun(Run const&);
 //
-//    void event(Event const &);
+//    void event(Event const&);
 //
-//    void readResults(art::Results const &);
+//    void readResults(art::Results const&);
 //
 //      Access any results-level products in input files here. The user
 //      is entirely responsible for combining information from possibly
@@ -124,6 +124,8 @@ namespace art {
     void produces(std::string const& instanceName = {});
 
   private:
+    [[noreturn]] std::unique_ptr<Worker> doMakeWorker(
+      WorkerParams const& wp) final;
     virtual void readResults(Results const&);
     virtual void writeResults(Results&) = 0;
 

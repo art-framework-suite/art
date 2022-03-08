@@ -31,30 +31,28 @@
 namespace art::detail {
   using ModuleMaker_t = ModuleBase*(fhicl::ParameterSet const&,
                                     ProcessingFrame const&);
-  using WorkerFromModuleMaker_t = Worker*(std::shared_ptr<ModuleBase>,
-                                          ModuleDescription const&,
-                                          WorkerParams const&);
-  using WorkerMaker_t = Worker*(WorkerParams const&, ModuleDescription const&);
   using ModuleTypeFunc_t = ModuleType();
   using ModuleThreadingTypeFunc_t = ModuleThreadingType();
 
   template <typename T, typename = void>
-  struct config_impl {
+  struct config_for_impl {
     using type = fhicl::ParameterSet;
   };
 
   template <typename T>
-  struct config_impl<T, std::void_t<typename T::Parameters>> {
+  struct config_for_impl<T, std::void_t<typename T::Parameters>> {
     using type = typename T::Parameters;
   };
 
   template <typename T>
-  using Config = typename config_impl<T>::type;
+  using ConfigFor = typename config_for_impl<T>::type;
 
-  template <typename T, typename Config>
+  template <typename T>
   T*
-  make_module(Config const& config, ProcessingFrame const& frame)
+  make_module(fhicl::ParameterSet const& pset, ProcessingFrame const& frame)
   {
+    // Reference to avoid copy if ConfigFor<T> is a ParameterSet.
+    ConfigFor<T> const& config{pset};
     if constexpr (ModuleThreadingTypeDeducer<typename T::ModuleType>::value ==
                   ModuleThreadingType::legacy) {
       return new T{config};
@@ -72,17 +70,7 @@ namespace art::detail {
   make_module(fhicl::ParameterSet const& pset,                                 \
               art::ProcessingFrame const& frame)                               \
   {                                                                            \
-    /* Reference below to avoid copy if Config<klass> is a ParameterSet. */    \
-    art::detail::Config<klass> const& config{pset};                            \
-    return art::detail::make_module<klass>(config, frame);                     \
-  }                                                                            \
-  art::Worker*                                                                 \
-  make_worker_from_module(std::shared_ptr<art::ModuleBase> mod,                \
-                          art::ModuleDescription const& md,                    \
-                          art::WorkerParams const& wp)                         \
-  {                                                                            \
-    return new klass::WorkerType(                                              \
-      std::dynamic_pointer_cast<klass::ModuleType>(mod), md, wp);              \
+    return art::detail::make_module<klass>(pset, frame);                       \
   }                                                                            \
   art::ModuleType                                                              \
   moduleType()                                                                 \

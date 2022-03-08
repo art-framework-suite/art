@@ -11,10 +11,7 @@
 
 namespace art {
 
-  class Group;
-
   class NoDelayedReader : public DelayedReader {
-
   public:
     ~NoDelayedReader() noexcept;
     NoDelayedReader();

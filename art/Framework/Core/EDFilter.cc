@@ -3,10 +3,14 @@
 
 namespace art {
 
-  std::string
-  EDFilter::workerType() const
+  EDFilter::EDFilter(fhicl::ParameterSet const& pset)
+    : Filter{pset}, LegacyModule{pset.get<std::string>("module_label")}
+  {}
+
+  std::unique_ptr<Worker>
+  EDFilter::doMakeWorker(WorkerParams const& wp)
   {
-    return "WorkerT<EDFilter>";
+    return std::make_unique<WorkerT<EDFilter>>(this, wp);
   }
 
   void

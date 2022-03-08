@@ -3,53 +3,103 @@
 
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-
-using namespace std;
-using namespace fhicl;
 
 namespace art {
 
-  namespace {
-
-    // It only makes sense to track parents when putting a product onto
-    // the event.  That requires a non-const Event object.
-    constexpr bool
-    record_parents(Event*)
-    {
-      return true;
-    }
-
-  } // unnamed namespace
-
   Event::~Event() = default;
 
-  Event::Event(EventPrincipal const& ep, ModuleContext const& mc)
-    : DataViewImpl{InEvent, ep, mc, record_parents(this), RangeSet::invalid()}
-    , subRun_{ep.subRunPrincipalPtr() ? new SubRun{ep.subRunPrincipal(), mc} :
-                                        nullptr}
+  Event::Event(EventPrincipal const& ep,
+               ModuleContext const& mc,
+               std::optional<ProductInserter> inserter)
+    : ProductRetriever{InEvent, ep, mc, inserter.has_value()}
+    , inserter_{move(inserter)}
+    , eventPrincipal_{ep}
+    , subRun_{ep.subRunPrincipal().makeSubRun(mc)}
   {}
 
   EventID
   Event::id() const
   {
-    return DataViewImpl::eventID();
+    return eventPrincipal_.eventID();
+  }
+
+  RunNumber_t
+  Event::run() const
+  {
+    return id().run();
+  }
+
+  SubRunNumber_t
+  Event::subRun() const
+  {
+    return id().subRun();
+  }
+
+  EventNumber_t
+  Event::event() const
+  {
+    return id().event();
+  }
+
+  Timestamp
+  Event::time() const
+  {
+    return eventPrincipal_.time();
+  }
+
+  bool
+  Event::isRealData() const
+  {
+    return eventPrincipal_.isReal();
+  }
+
+  EventAuxiliary::ExperimentType
+  Event::experimentType() const
+  {
+    return eventPrincipal_.ExperimentType();
+  }
+
+  ProcessHistoryID const&
+  Event::processHistoryID() const
+  {
+    return eventPrincipal_.processHistoryID();
+  }
+
+  ProcessHistory const&
+  Event::processHistory() const
+  {
+    return eventPrincipal_.processHistory();
   }
 
   SubRun const&
   Event::getSubRun() const
   {
-    if (!subRun_) {
-      throw Exception(errors::NullPointerError)
-        << "Tried to obtain a NULL subRun.\n";
-    }
-    return *subRun_;
+    return subRun_;
   }
 
   Run const&
   Event::getRun() const
   {
     return getSubRun().getRun();
+  }
+
+  void
+  Event::commitProducts()
+  {
+    assert(inserter_);
+    inserter_->commitProducts();
+  }
+
+  void
+  Event::commitProducts(
+    bool const checkProducts,
+    std::map<TypeLabel, BranchDescription> const* expectedProducts)
+  {
+    assert(inserter_);
+    inserter_->commitProducts(
+      checkProducts, expectedProducts, ProductRetriever::retrievedPIDs());
   }
 
 } // namespace art

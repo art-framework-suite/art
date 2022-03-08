@@ -5,10 +5,14 @@ using namespace std;
 
 namespace art {
 
-  string
-  SharedProducer::workerType() const
+  SharedProducer::SharedProducer(fhicl::ParameterSet const& pset)
+    : Producer{pset}, SharedModule{pset.get<std::string>("module_label", {})}
+  {}
+
+  std::unique_ptr<Worker>
+  SharedProducer::doMakeWorker(WorkerParams const& wp)
   {
-    return "WorkerT<SharedProducer>";
+    return std::make_unique<WorkerT<SharedProducer>>(this, wp);
   }
 
   void

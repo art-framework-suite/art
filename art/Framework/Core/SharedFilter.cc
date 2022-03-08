@@ -3,10 +3,14 @@
 
 namespace art {
 
-  std::string
-  SharedFilter::workerType() const
+  SharedFilter::SharedFilter(fhicl::ParameterSet const& pset)
+    : Filter{pset}, SharedModule{pset.get<std::string>("module_label")}
+  {}
+
+  std::unique_ptr<Worker>
+  SharedFilter::doMakeWorker(WorkerParams const& wp)
   {
-    return "WorkerT<SharedFilter>";
+    return std::make_unique<WorkerT<SharedFilter>>(this, wp);
   }
 
   void

@@ -8,6 +8,7 @@
 //=====================================================
 
 #include "art/Framework/Core/Modifier.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/ProcessingFrame.h"
 #include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/fwd.h"

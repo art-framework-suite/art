@@ -23,9 +23,9 @@ art::detail::ensure_only_one_thread(fhicl::ParameterSet const& service_pset)
   auto const service_type = service_pset.get<std::string>("service_type");
   Exception e{errors::Configuration};
   e << "The service '" << service_type << '\'';
-  std::string provider;
-  if (service_pset.get_if_present("service_provider", provider)) {
-    e << " (provider: '" << provider << "')";
+  if (auto provider =
+        service_pset.get_if_present<std::string>("service_provider")) {
+    e << " (provider: '" << *provider << "')";
   }
   e << " is a legacy service,\n"
     << "which can be used with only one schedule and one thread.\n"

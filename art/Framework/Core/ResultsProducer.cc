@@ -3,10 +3,13 @@
 
 #include "art/Framework/Core/ProductRegistryHelper.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Results.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/SharedResource.h"
 
@@ -19,6 +22,13 @@ string const cet::PluginTypeDeducer<art::ResultsProducer>::value =
   "ResultsProducer";
 
 namespace art {
+
+  [[noreturn]] std::unique_ptr<Worker>
+  ResultsProducer::doMakeWorker(WorkerParams const&)
+  {
+    throw Exception{errors::LogicError}
+      << "Cannot call ResultsProducer::doMakeWorker\n";
+  }
 
   ResultsProducer::ResultsProducer() noexcept(false)
     : ProductRegistryHelper{product_creation_mode::produces}
@@ -52,57 +62,51 @@ namespace art {
   ResultsProducer::doBeginRun(RunPrincipal const& rp)
   {
     ModuleContext const mc{moduleDescription()};
-    Run const r{rp, mc};
-    beginRun(r);
+    beginRun(rp.makeRun(mc));
   }
 
   void
   ResultsProducer::doEndRun(RunPrincipal const& rp)
   {
     ModuleContext const mc{moduleDescription()};
-    Run const r{rp, mc};
-    endRun(r);
+    endRun(rp.makeRun(mc));
   }
 
   void
   ResultsProducer::doBeginSubRun(SubRunPrincipal const& srp)
   {
     ModuleContext const mc{moduleDescription()};
-    SubRun const sr{srp, mc};
-    beginSubRun(sr);
+    beginSubRun(srp.makeSubRun(mc));
   }
 
   void
   ResultsProducer::doEndSubRun(SubRunPrincipal const& srp)
   {
     ModuleContext const mc{moduleDescription()};
-    SubRun const sr{srp, mc};
-    endSubRun(sr);
+    endSubRun(srp.makeSubRun(mc));
   }
 
   void
   ResultsProducer::doEvent(EventPrincipal const& ep)
   {
     ModuleContext const mc{moduleDescription()};
-    Event const e{ep, mc};
-    event(e);
+    event(ep.makeEvent(mc));
   }
 
   void
   ResultsProducer::doReadResults(ResultsPrincipal const& resp)
   {
     ModuleContext const mc{moduleDescription()};
-    Results const res{resp, mc};
-    readResults(res);
+    readResults(resp.makeResults(mc));
   }
 
   void
   ResultsProducer::doWriteResults(ResultsPrincipal& resp)
   {
     ModuleContext const mc{moduleDescription()};
-    Results res{resp, mc};
+    auto res = resp.makeResults(mc);
     writeResults(res);
-    res.movePutProductsToPrincipal(resp);
+    res.commitProducts();
   }
 
   void

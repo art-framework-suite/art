@@ -17,40 +17,33 @@ namespace art {
   class SharedFilter : public detail::Filter, public detail::SharedModule {
   public:
     using ModuleType = SharedFilter;
-    using WorkerType = WorkerT<SharedFilter>;
 
-    explicit SharedFilter(fhicl::ParameterSet const& pset)
-      : detail::Filter{pset}
-      , detail::SharedModule{pset.get<std::string>("module_label")}
-    {}
+  protected:
+    explicit SharedFilter(fhicl::ParameterSet const& pset);
 
     template <typename Config>
     explicit SharedFilter(Table<Config> const& config)
       : SharedFilter{config.get_PSet()}
     {}
 
-    std::string workerType() const;
-
   private:
-    void setupQueues(detail::SharedResources const& resources) override final;
-    void beginJobWithFrame(ProcessingFrame const&) override final;
-    void endJobWithFrame(ProcessingFrame const&) override final;
+    std::unique_ptr<Worker> doMakeWorker(WorkerParams const& wp) final;
+    void setupQueues(detail::SharedResources const& resources) final;
+    void beginJobWithFrame(ProcessingFrame const&) final;
+    void endJobWithFrame(ProcessingFrame const&) final;
     void respondToOpenInputFileWithFrame(FileBlock const&,
-                                         ProcessingFrame const&) override final;
-    void respondToCloseInputFileWithFrame(
-      FileBlock const&,
-      ProcessingFrame const&) override final;
-    void respondToOpenOutputFilesWithFrame(
-      FileBlock const&,
-      ProcessingFrame const&) override final;
-    void respondToCloseOutputFilesWithFrame(
-      FileBlock const&,
-      ProcessingFrame const&) override final;
-    bool beginRunWithFrame(Run&, ProcessingFrame const&) override final;
-    bool endRunWithFrame(Run&, ProcessingFrame const&) override final;
-    bool beginSubRunWithFrame(SubRun&, ProcessingFrame const&) override final;
-    bool endSubRunWithFrame(SubRun&, ProcessingFrame const&) override final;
-    bool filterWithFrame(Event&, ProcessingFrame const&) override final;
+                                         ProcessingFrame const&) final;
+    void respondToCloseInputFileWithFrame(FileBlock const&,
+                                          ProcessingFrame const&) final;
+    void respondToOpenOutputFilesWithFrame(FileBlock const&,
+                                           ProcessingFrame const&) final;
+    void respondToCloseOutputFilesWithFrame(FileBlock const&,
+                                            ProcessingFrame const&) final;
+    bool beginRunWithFrame(Run&, ProcessingFrame const&) final;
+    bool endRunWithFrame(Run&, ProcessingFrame const&) final;
+    bool beginSubRunWithFrame(SubRun&, ProcessingFrame const&) final;
+    bool endSubRunWithFrame(SubRun&, ProcessingFrame const&) final;
+    bool filterWithFrame(Event&, ProcessingFrame const&) final;
 
     virtual void beginJob(ProcessingFrame const&);
     virtual void endJob(ProcessingFrame const&);

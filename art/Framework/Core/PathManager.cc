@@ -4,6 +4,7 @@
 #include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/PathsInfo.h"
+#include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/detail/ModuleGraphInfoMap.h"
 #include "art/Framework/Core/detail/consumed_products.h"
@@ -34,6 +35,8 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/types/detail/validationException.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "range/v3/action.hpp"
+#include "range/v3/view.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -47,7 +50,6 @@
 #include <vector>
 
 using namespace std;
-using namespace std::string_literals;
 
 using fhicl::ParameterSet;
 
@@ -57,13 +59,12 @@ namespace art {
     std::vector<std::string>
     sorted_module_labels(std::vector<WorkerInPath::ConfigInfo> const& wcis)
     {
-      std::vector<std::string> sorted_modules;
-      cet::transform_all(
-        wcis, back_inserter(sorted_modules), [](auto const& wci) {
-          return wci.moduleConfigInfo->modDescription.moduleLabel();
-        });
-      std::sort(begin(sorted_modules), end(sorted_modules));
-      return sorted_modules;
+      auto to_label = [](auto const& wci) {
+        return wci.moduleConfigInfo->modDescription.moduleLabel();
+      };
+      using namespace ranges;
+      return wcis | views::transform(to_label) | to<std::vector>() |
+             ranges::actions::sort;
     }
   } // anonymous namespace
 
@@ -81,10 +82,10 @@ namespace art {
     , triggerPathsInfo_{Globals::instance()->nschedules()}
     , endPathInfo_(Globals::instance()->nschedules())
     , productsToProduce_{productsToProduce}
-    , processName_{procPS.get<string>("process_name"s, {})}
+    , processName_{procPS.get<string>("process_name", {})}
+    , allModules_{moduleInformation_(enabled_modules)}
+    , triggerResultsWorkers_{Globals::instance()->nschedules()}
   {
-    allModules_ = moduleInformation_(enabled_modules);
-
     // Trigger paths
     auto const& trigger_path_specs = enabled_modules.trigger_path_specs();
     protoTrigPathLabels_.reserve(trigger_path_specs.size());
@@ -96,7 +97,7 @@ namespace art {
       if (entries.empty())
         continue;
 
-      art::detail::configs_t worker_config_infos{};
+      detail::configs_t worker_config_infos{};
       for (auto const& [label, action] : entries) {
         auto const& mci = allModules_.at(label);
         auto const mci_p = cet::make_exempt_ptr(&mci);
@@ -126,7 +127,7 @@ namespace art {
         continue;
 
       for (auto const& [label, action] : entries) {
-        assert(action == art::detail::FilterAction::Normal);
+        assert(action == detail::FilterAction::Normal);
         auto const& mci = allModules_.at(label);
         auto const mci_p = cet::make_exempt_ptr(&mci);
         protoEndPathLabels_.emplace_back(mci_p, action);
@@ -143,34 +144,26 @@ namespace art {
   std::vector<PathSpec>
   PathManager::triggerPathSpecs() const
   {
-    std::vector<PathSpec> result;
-    result.reserve(size(triggerPathSpecs_));
-    for (auto const& pr : triggerPathSpecs_) {
-      result.push_back(pr.first);
-    }
-    return result;
+    using namespace ranges;
+    return triggerPathSpecs_ | views::keys | to<std::vector>();
   }
 
   std::vector<std::string>
   PathManager::triggerPathNames_() const
   {
-    std::vector<std::string> result;
-    result.reserve(size(triggerPathSpecs_));
-    for (auto const& pr : triggerPathSpecs_) {
-      result.push_back(pr.first.name);
-    }
-    return result;
+    using namespace ranges;
+    return triggerPathSpecs_ | views::keys |
+           views::transform([](auto const& spec) { return spec.name; }) |
+           to<std::vector>();
   }
 
   std::vector<std::string>
   PathManager::prependedTriggerPathNames_() const
   {
-    std::vector<std::string> result;
-    result.reserve(size(triggerPathSpecs_));
-    for (auto const& pr : triggerPathSpecs_) {
-      result.push_back(to_string(pr.first));
-    }
-    return result;
+    using namespace ranges;
+    return triggerPathSpecs_ | views::keys |
+           views::transform([](auto const& spec) { return to_string(spec); }) |
+           to<std::vector>();
   }
 
   void
@@ -187,7 +180,7 @@ namespace art {
     // The modules created are managed by shared_ptrs.  Once the
     // workers claim (co-)ownership of the modules, the 'modules'
     // object can be destroyed.
-    auto modules = makeModules_(nschedules);
+    modules_ = makeModules_(nschedules);
 
     // FIXME: THE PATHS INFO OBJECTS SHOULD BECOME OWNERS OF THE WORKERS
     //        I IMAGINE AN API LIKE:
@@ -209,12 +202,8 @@ namespace art {
 
         PathContext const pc{
           sc, path_spec, sorted_module_labels(worker_config_infos)};
-        auto wips = fillWorkers_(pc,
-                                 worker_config_infos,
-                                 modules,
-                                 pinfo.workers(),
-                                 task_group,
-                                 resources);
+        auto wips = fillWorkers_(
+          pc, worker_config_infos, pinfo.workers(), task_group, resources);
         pinfo.add_path(exceptActions_, actReg_, pc, move(wips), task_group);
       }
 
@@ -227,14 +216,32 @@ namespace art {
       PathContext const pc{sc,
                            PathContext::end_path_spec(),
                            sorted_module_labels(protoEndPathLabels_)};
-      auto wips = fillWorkers_(pc,
-                               protoEndPathLabels_,
-                               modules,
-                               einfo.workers(),
-                               task_group,
-                               resources);
+      auto wips = fillWorkers_(
+        pc, protoEndPathLabels_, einfo.workers(), task_group, resources);
       einfo.add_path(exceptActions_, actReg_, pc, move(wips), task_group);
-    };
+    }
+
+    // Create trigger-results inserters
+    PerScheduleContainer<std::unique_ptr<ModuleBase>> trigger_results(
+      nschedules);
+    for (ScheduleID::size_type i = 0; i != nschedules; ++i) {
+      ScheduleID const sid{i};
+      auto results_inserter = makeTriggerResultsInserter_(sid);
+      if (!results_inserter)
+        continue;
+
+      WorkerParams const wp{outputCallbacks_,
+                            productsToProduce_,
+                            actReg_,
+                            exceptActions_,
+                            sid,
+                            task_group.native_group(),
+                            resources};
+      triggerResultsWorkers_[sid] = results_inserter->makeWorker(wp);
+      trigger_results[sid] = std::move(results_inserter);
+    }
+
+    modules_.replicated.emplace("TriggerResults", std::move(trigger_results));
 
     using namespace detail;
     auto const graph_info_collection =
@@ -267,7 +274,7 @@ namespace art {
     return triggerPathsInfo_.at(sid);
   }
 
-  PerScheduleContainer<PathsInfo>&
+  PerScheduleContainer<PathsInfo> const&
   PathManager::triggerPathsInfo()
   {
     return triggerPathsInfo_;
@@ -279,7 +286,7 @@ namespace art {
     return endPathInfo_.at(sid);
   }
 
-  PerScheduleContainer<PathsInfo>&
+  PerScheduleContainer<PathsInfo> const&
   PathManager::endPathInfo()
   {
     return endPathInfo_;
@@ -313,7 +320,7 @@ namespace art {
                                                         procPS_.id(),
                                                         getReleaseVersion()}};
         detail::ModuleConfigInfo mci{md, std::move(module_pset), module_type};
-        result.emplace(module_label, move(mci));
+        result.try_emplace(module_label, move(mci));
       }
       catch (exception const& e) {
         es << "  ERROR: Configuration of module with label " << module_label
@@ -357,9 +364,9 @@ namespace art {
       if (module_threading_type == ModuleThreadingType::shared ||
           module_threading_type == ModuleThreadingType::legacy) {
         modules.shared.emplace(module_label,
-                               std::shared_ptr<ModuleBase>{module});
+                               std::unique_ptr<ModuleBase>{module});
       } else {
-        PerScheduleContainer<std::shared_ptr<ModuleBase>> replicated_modules(
+        PerScheduleContainer<std::unique_ptr<ModuleBase>> replicated_modules(
           nschedules);
         replicated_modules[sid].reset(module);
         ScheduleIteration schedule_iteration{sid.next(),
@@ -372,7 +379,7 @@ namespace art {
           }
         };
         schedule_iteration.for_each_schedule(fill_replicated_module);
-        modules.replicated.emplace(module_label, replicated_modules);
+        modules.replicated.emplace(module_label, std::move(replicated_modules));
       }
 
       actReg_.sPostModuleConstruction.invoke(md);
@@ -406,43 +413,66 @@ namespace art {
   PathManager::maybe_module_t
   PathManager::makeModule_(ParameterSet const& modPS,
                            ModuleDescription const& md,
-                           ScheduleID const sid) const
-  {
+                           ScheduleID const sid) const try {
     auto const& module_type = md.moduleName();
+    detail::ModuleMaker_t* module_factory_func{nullptr};
     try {
-      detail::ModuleMaker_t* module_factory_func{nullptr};
-      try {
-        lm_.getSymbolByLibspec(module_type, "make_module", module_factory_func);
-      }
-      catch (Exception& e) {
-        cet::detail::wrapLibraryManagerException(
-          e, "Module", module_type, getReleaseVersion());
-      }
-      if (module_factory_func == nullptr) {
-        throw Exception(errors::Configuration, "BadPluginLibrary: ")
-          << "Module " << module_type << " with version " << getReleaseVersion()
-          << " has internal symbol definition problems: consult an "
-             "expert.";
-      }
-      auto mod = module_factory_func(modPS, art::ProcessingFrame{sid});
-      mod->setModuleDescription(md);
-      return mod;
+      lm_.getSymbolByLibspec(module_type, "make_module", module_factory_func);
     }
-    catch (fhicl::detail::validationException const& e) {
-      ostringstream es;
-      es << "\n\nModule label: " << cet::bold_fontify(md.moduleLabel())
-         << "\nmodule_type : " << cet::bold_fontify(module_type) << "\n\n"
-         << e.what();
-      return es.str();
+    catch (Exception& e) {
+      cet::detail::wrapLibraryManagerException(
+        e, "Module", module_type, getReleaseVersion());
     }
-    assert(false); // Unreachable
-    return {};
+    if (module_factory_func == nullptr) {
+      throw Exception(errors::Configuration, "BadPluginLibrary: ")
+        << "Module " << module_type << " with version " << getReleaseVersion()
+        << " has internal symbol definition problems: consult an "
+           "expert.";
+    }
+    auto mod = module_factory_func(modPS, ProcessingFrame{sid});
+    mod->setModuleDescription(md);
+    return mod;
+  }
+  catch (fhicl::detail::validationException const& e) {
+    ostringstream es;
+    es << "\n\nModule label: " << cet::bold_fontify(md.moduleLabel())
+       << "\nmodule_type : " << cet::bold_fontify(md.moduleName()) << "\n\n"
+       << e.what();
+    return es.str();
+  }
+
+  std::unique_ptr<ReplicatedProducer>
+  PathManager::makeTriggerResultsInserter_(ScheduleID const scheduleID)
+  {
+    auto& pathsInfo = triggerPathsInfo_.at(scheduleID);
+    if (pathsInfo.paths().empty()) {
+      return nullptr;
+    }
+
+    auto const& trig_pset = Globals::instance()->triggerPSet();
+    ModuleDescription md{
+      trig_pset.id(),
+      "TriggerResultInserter",
+      "TriggerResults",
+      ModuleThreadingType::replicated,
+      ProcessConfiguration{processName_, procPS_.id(), getReleaseVersion()}};
+    actReg_.sPreModuleConstruction.invoke(md);
+    auto producer = std::make_unique<TriggerResultInserter>(
+      trig_pset, scheduleID, pathsInfo.pathResults());
+    producer->setModuleDescription(md);
+    actReg_.sPostModuleConstruction.invoke(md);
+    return producer;
+  }
+
+  std::unique_ptr<Worker>
+  PathManager::releaseTriggerResultsInserter(ScheduleID const scheduleID)
+  {
+    return std::move(triggerResultsWorkers_.at(scheduleID));
   }
 
   vector<WorkerInPath>
   PathManager::fillWorkers_(PathContext const& pc,
                             vector<WorkerInPath::ConfigInfo> const& wci_list,
-                            ModulesByThreadingType const& modules,
                             map<string, std::shared_ptr<Worker>>& workers,
                             GlobalTaskGroup& task_group,
                             detail::SharedResources& resources)
@@ -473,7 +503,7 @@ namespace art {
                               sid,
                               task_group.native_group(),
                               resources};
-        worker = makeWorker_(modules, mci.modDescription, wp);
+        worker = makeWorker_(mci.modDescription, wp);
         TDEBUG(5) << "Made worker " << hex << worker << dec << " (" << sid
                   << ") path: " << to_string(pi) << " type: " << md.moduleName()
                   << " label: " << module_label << "\n";
@@ -481,51 +511,28 @@ namespace art {
 
       assert(worker);
       workers.emplace(module_label, worker);
-      wips.emplace_back(cet::make_exempt_ptr(worker.get()),
-                        filterAction,
-                        ModuleContext{pc, worker->description()},
-                        task_group);
+      wips.emplace_back(
+        cet::make_exempt_ptr(worker.get()), filterAction, pc, task_group);
     }
     return wips;
   }
 
   std::shared_ptr<Worker>
-  PathManager::makeWorker_(ModulesByThreadingType const& modules,
-                           ModuleDescription const& md,
-                           WorkerParams const& wp)
+  PathManager::makeWorker_(ModuleDescription const& md, WorkerParams const& wp)
   {
-    auto get_module =
-      [&modules](std::string const& module_label,
-                 ModuleThreadingType const module_threading_type,
-                 ScheduleID const sid) {
-        if (module_threading_type == ModuleThreadingType::shared ||
-            module_threading_type == ModuleThreadingType::legacy) {
-          return modules.shared.at(module_label);
-        }
-        return modules.replicated.at(module_label)[sid];
-      };
+    auto get_module = [this](std::string const& module_label,
+                             ModuleThreadingType const module_threading_type,
+                             ScheduleID const sid) -> auto& {
+      if (module_threading_type == ModuleThreadingType::shared ||
+          module_threading_type == ModuleThreadingType::legacy) {
+        return modules_.shared.at(module_label);
+      }
+      return modules_.replicated.at(module_label)[sid];
+    };
 
-    detail::WorkerFromModuleMaker_t* worker_from_module_factory_func = nullptr;
-    try {
-      lm_.getSymbolByLibspec(md.moduleName(),
-                             "make_worker_from_module",
-                             worker_from_module_factory_func);
-    }
-    catch (Exception& e) {
-      cet::detail::wrapLibraryManagerException(
-        e, "Module", md.moduleName(), getReleaseVersion());
-    }
-    if (worker_from_module_factory_func == nullptr) {
-      throw Exception(errors::Configuration, "BadPluginLibrary: ")
-        << "Module " << md.moduleName() << " with version "
-        << getReleaseVersion()
-        << " has internal symbol definition problems: consult an expert.";
-    }
-
-    auto module =
+    auto& module =
       get_module(md.moduleLabel(), md.moduleThreadingType(), wp.scheduleID_);
-    return std::shared_ptr<Worker>{
-      worker_from_module_factory_func(module, md, wp)};
+    return module->makeWorker(wp);
   }
 
   ModuleType
@@ -578,8 +585,8 @@ namespace art {
     auto& source_info = result["input_source"];
     if (!protoTrigPathLabels_.empty()) {
       set<string> path_names;
-      for (auto const& pr : triggerPathSpecs_) {
-        path_names.insert(pr.first.name);
+      for (auto const& spec : triggerPathSpecs_ | ranges::views::keys) {
+        path_names.insert(spec.name);
       }
       source_info.paths = path_names;
       result["TriggerResults"] = ModuleGraphInfo{ModuleType::producer};
@@ -593,7 +600,7 @@ namespace art {
     for (auto const& pd : productsToProduce_) {
       auto const& module_name = pd.moduleLabel();
       produced_products_per_module[module_name].emplace(
-        art::ProductInfo::ConsumableType::Product,
+        ProductInfo::ConsumableType::Product,
         pd.friendlyClassName(),
         pd.moduleLabel(),
         pd.productInstanceName(),

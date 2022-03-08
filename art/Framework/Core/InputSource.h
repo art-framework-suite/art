@@ -64,7 +64,9 @@ namespace art {
       RunsSubRunsAndEvents // 2
     };
 
-    virtual ~InputSource() noexcept;
+    static ProcessingMode mode(std::string const& modeString);
+
+    virtual ~InputSource();
 
     explicit InputSource(ModuleDescription const&);
 
@@ -96,10 +98,6 @@ namespace art {
     // that cannot perform random access should not implement this
     // function; the default implementation will throw an exception.
     virtual void skipEvents(int n);
-
-    // Rewind to the beginning of input. Derived classes that cannot
-    // perform this function will throw an exception.
-    virtual void rewind();
 
     ModuleDescription const& moduleDescription() const;
     ProcessConfiguration const& processConfiguration() const;

@@ -3,10 +3,16 @@
 
 namespace art {
 
-  std::string
-  ReplicatedAnalyzer::workerType() const
+  ReplicatedAnalyzer::ReplicatedAnalyzer(fhicl::ParameterSet const& pset,
+                                         ProcessingFrame const& frame)
+    : Analyzer{pset}
+    , EngineCreator{pset.get<std::string>("module_label"), frame.scheduleID()}
+  {}
+
+  std::unique_ptr<Worker>
+  ReplicatedAnalyzer::doMakeWorker(WorkerParams const& wp)
   {
-    return "WorkerT<ReplicatedAnalyzer>";
+    return std::make_unique<WorkerT<ReplicatedAnalyzer>>(this, wp);
   }
 
   void

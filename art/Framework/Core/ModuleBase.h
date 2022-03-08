@@ -4,11 +4,14 @@
 
 #include "art/Framework/Core/ConsumesCollector.h"
 #include "art/Framework/Principal/ProductInfo.h"
+#include "art/Framework/Principal/Worker.h"
+#include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ProductToken.h"
 
 #include <array>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -25,6 +28,8 @@ namespace art {
     std::array<std::vector<ProductInfo>, NumBranchTypes> const& getConsumables()
       const;
     void sortConsumables(std::string const& current_process_name);
+
+    std::unique_ptr<Worker> makeWorker(WorkerParams const& wp);
 
   protected:
     // Consumes information
@@ -45,6 +50,8 @@ namespace art {
     void mayConsumeMany();
 
   private:
+    virtual std::unique_ptr<Worker> doMakeWorker(WorkerParams const& wp) = 0;
+
     std::optional<ModuleDescription> md_{std::nullopt};
     ConsumesCollector collector_;
   };

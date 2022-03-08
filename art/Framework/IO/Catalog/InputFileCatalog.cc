@@ -23,8 +23,8 @@ namespace art {
   {
 
     if (fileSources_.empty()) {
-      throw art::Exception(art::errors::CatalogServiceError,
-                           "InputFileCatalog::InputFileCatalog()\n")
+      throw Exception(errors::CatalogServiceError,
+                      "InputFileCatalog::InputFileCatalog()\n")
         << "Empty '" << config().namesParameter.name()
         << "' parameter specified for input source.\n";
     }
@@ -41,8 +41,8 @@ namespace art {
   InputFileCatalog::currentFile() const
   {
     if (fileIdx_ == indexEnd) {
-      throw art::Exception(
-        art::errors::LogicError,
+      throw Exception(
+        errors::LogicError,
         "Cannot access the current file while the file catalog is empty!");
     }
     assert(fileIdx_ <= maxIdx_);
@@ -50,7 +50,7 @@ namespace art {
   }
 
   size_t
-  InputFileCatalog::currentIndex() const
+  InputFileCatalog::currentIndex() const noexcept
   {
     return fileIdx_;
   }
@@ -126,13 +126,12 @@ namespace art {
     }
     case FileCatalogStatus::DELIVERY_ERROR: {
       if (attempts <= 1) {
-        throw art::Exception(art::errors::Configuration,
-                             "InputFileCatalog::retrieveNextFile()\n")
+        throw Exception(errors::Configuration,
+                        "InputFileCatalog::retrieveNextFile()\n")
           << "Delivery error encountered after reaching maximum number of "
              "attemtps!";
-      } else {
-        return retrieveNextFile(item, attempts - 1, false);
       }
+      return retrieveNextFile(item, attempts - 1, false);
     }
     case FileCatalogStatus::TRANSFER_ERROR: {
       if (attempts <= 1) {
@@ -142,9 +141,8 @@ namespace art {
         // we notify the service that the file has been skipped
         ci_->updateStatus(item.uri(), FileDisposition::SKIPPED);
         return true;
-      } else {
-        return retrieveNextFile(item, attempts - 1, true);
       }
+      return retrieveNextFile(item, attempts - 1, true);
     }
     }
     assert(false);
@@ -197,9 +195,8 @@ namespace art {
     boost::trim(pfn);
 
     if (pfn.empty()) {
-      throw art::Exception(
-        art::errors::Configuration,
-        "InputFileCatalog::retrieveNextFileFromCacheService()\n")
+      throw Exception(errors::Configuration,
+                      "InputFileCatalog::retrieveNextFileFromCacheService()\n")
         << "An empty string specified in parameter for input source.\n";
     }
 
@@ -216,8 +213,7 @@ namespace art {
   InputFileCatalog::rewind()
   {
     if (!searchable_) {
-      throw art::Exception(art::errors::LogicError,
-                           "InputFileCatalog::rewind()\n")
+      throw Exception(errors::LogicError, "InputFileCatalog::rewind()\n")
         << "A non-searchable catalog is not allowed to rewind!";
     }
     fileIdx_ = 0;
@@ -230,14 +226,12 @@ namespace art {
     // not rewinded. only usable when
     // FileDeliveryService::areFilesPersistent() is true
     if (!searchable_) {
-      throw art::Exception(art::errors::LogicError,
-                           "InputFileCatalog::rewindTo()\n")
+      throw Exception(errors::LogicError, "InputFileCatalog::rewindTo()\n")
         << "A non-searchable catalog is not allowed to rewind!";
     }
 
     if (index > maxIdx_) {
-      throw art::Exception(art::errors::InvalidNumber,
-                           "InputFileCatalog::rewindTo()\n")
+      throw Exception(errors::InvalidNumber, "InputFileCatalog::rewindTo()\n")
         << "Index " << index << " is out of range!";
     }
 

@@ -40,20 +40,15 @@ namespace art {
   class ActivityRegistry;
   class ModuleContext;
   class FileBlock;
-  class RunPrincipal;
-  class SubRunPrincipal;
-  class EventPrincipal;
   namespace detail {
     class SharedResources;
   }
 
   class Worker {
-    friend class RunWorkerFunctor;
-
   public:
     enum State { Ready, Pass, Fail, Working, ExceptionThrown };
 
-    virtual ~Worker() = default;
+    virtual ~Worker();
     Worker(ModuleDescription const&, WorkerParams const&);
 
     void beginJob(detail::SharedResources const&);
@@ -62,7 +57,7 @@ namespace art {
     void respondToCloseInputFile(FileBlock const& fb);
     void respondToOpenOutputFiles(FileBlock const& fb);
     void respondToCloseOutputFiles(FileBlock const& fb);
-    bool doWork(Transition, Principal&, ModuleContext const&);
+    void doWork(Transition, Principal&, ModuleContext const&);
 
     void doWork_event(hep::concurrency::WaitingTaskPtr workerInPathDoneTask,
                       EventPrincipal&,
@@ -76,12 +71,10 @@ namespace art {
     {
       return scheduleID_;
     }
-    ModuleDescription const& description() const;
-    std::string const& label() const;
-
     // Used only by WorkerInPath.
     bool returnCode() const;
 
+    ModuleDescription const& description() const;
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
 
     // Used by EventProcessor
@@ -97,25 +90,32 @@ namespace art {
     std::size_t timesExcept() const;
 
     void runWorker(EventPrincipal&, ModuleContext const&);
+    bool isUnique() const;
 
   protected:
-    virtual std::string workerType() const = 0;
-    virtual hep::concurrency::SerialTaskQueueChain* implSerialTaskQueueChain()
-      const = 0;
-    virtual void implBeginJob(detail::SharedResources const& resources) = 0;
-    virtual void implEndJob() = 0;
-    virtual bool implDoBegin(RunPrincipal& rp, ModuleContext const& mc) = 0;
-    virtual bool implDoEnd(RunPrincipal& rp, ModuleContext const& mc) = 0;
-    virtual bool implDoBegin(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
-    virtual bool implDoEnd(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
-    virtual bool implDoProcess(EventPrincipal&, ModuleContext const&) = 0;
+    std::string const& label() const;
+
+    std::atomic<std::size_t> counts_visited_{};
+    std::atomic<std::size_t> counts_run_{};
+    std::atomic<std::size_t> counts_passed_{};
+    std::atomic<std::size_t> counts_failed_{};
+    std::atomic<std::size_t> counts_thrown_{};
 
   private:
-    // API implementation classes must use to provide their API to us
-    virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
-    virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
-    virtual void implRespondToOpenOutputFiles(FileBlock const& fb) = 0;
-    virtual void implRespondToCloseOutputFiles(FileBlock const& fb) = 0;
+    virtual hep::concurrency::SerialTaskQueueChain* doSerialTaskQueueChain()
+      const = 0;
+    virtual void doBeginJob(detail::SharedResources const& resources) = 0;
+    virtual void doEndJob() = 0;
+    virtual void doBegin(RunPrincipal& rp, ModuleContext const& mc) = 0;
+    virtual void doEnd(RunPrincipal& rp, ModuleContext const& mc) = 0;
+    virtual void doBegin(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
+    virtual void doEnd(SubRunPrincipal& srp, ModuleContext const& mc) = 0;
+    virtual bool doProcess(EventPrincipal&, ModuleContext const&) = 0;
+
+    virtual void doRespondToOpenInputFile(FileBlock const& fb) = 0;
+    virtual void doRespondToCloseInputFile(FileBlock const& fb) = 0;
+    virtual void doRespondToOpenOutputFiles(FileBlock const& fb) = 0;
+    virtual void doRespondToCloseOutputFiles(FileBlock const& fb) = 0;
 
     ScheduleID const scheduleID_;
     ModuleDescription const md_;
@@ -141,13 +141,6 @@ namespace art {
     // schedule has its own private worker copies (the whole reason
     // schedules exist!).
     hep::concurrency::WaitingTaskList waitingTasks_;
-
-  protected:
-    std::atomic<std::size_t> counts_visited_{};
-    std::atomic<std::size_t> counts_run_{};
-    std::atomic<std::size_t> counts_passed_{};
-    std::atomic<std::size_t> counts_failed_{};
-    std::atomic<std::size_t> counts_thrown_{};
   };
 
 } // namespace art

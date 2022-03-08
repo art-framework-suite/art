@@ -1,6 +1,5 @@
 #include "boost/test/unit_test.hpp"
 
-#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/SharedAnalyzer.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Utilities/Globals.h"

@@ -6,7 +6,6 @@
 // product was created by, and what data products were read by that
 // module (the 'parents' of the original data product).
 
-#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Modules/ProvenanceDumper.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Utilities/Exception.h"

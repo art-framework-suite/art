@@ -2,9 +2,11 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/PathManager.h"
-#include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/Actions.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
+#include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "art/Persistency/Provenance/PathContext.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
@@ -15,6 +17,7 @@
 #include "cetlib/trim.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "range/v3/view.hpp"
 
 #include <cassert>
 #include <utility>
@@ -22,18 +25,29 @@
 using namespace hep::concurrency;
 using namespace std;
 
+namespace {
+  auto
+  unique_workers(art::PathsInfo const& pinfo)
+  {
+    using namespace ranges;
+    return pinfo.workers() | views::values | views::indirect |
+           views::filter([](auto const& worker) { return worker.isUnique(); });
+  }
+}
+
 namespace art {
 
   TriggerPathsExecutor::TriggerPathsExecutor(
     ScheduleID const scheduleID,
     PathManager& pm,
     ActionTable const& actions,
-    std::unique_ptr<Worker> triggerResultsInserter,
+    ActivityRegistry const& activityRegistry,
     GlobalTaskGroup& group)
     : sc_{scheduleID}
     , actionTable_{actions}
+    , actReg_{activityRegistry}
     , triggerPathsInfo_{pm.triggerPathsInfo(scheduleID)}
-    , results_inserter_{std::move(triggerResultsInserter)}
+    , results_inserter_{pm.releaseTriggerResultsInserter(scheduleID)}
     , taskGroup_{group}
   {
     TDEBUG_FUNC_SI(5, scheduleID) << hex << this << dec;
@@ -42,12 +56,8 @@ namespace art {
   void
   TriggerPathsExecutor::beginJob(detail::SharedResources const& resources)
   {
-    for (auto const& val : triggerPathsInfo_.workers()) {
-      auto& w = *val.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.beginJob(resources);
+    for (auto& worker : unique_workers(triggerPathsInfo_)) {
+      worker.beginJob(resources);
     }
     if (results_inserter_) {
       results_inserter_->beginJob(resources);
@@ -58,14 +68,10 @@ namespace art {
   TriggerPathsExecutor::endJob()
   {
     Exception error{errors::EndJobFailure};
-    for (auto& val : triggerPathsInfo_.workers()) {
-      auto& w = *val.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
+    for (auto& worker : unique_workers(triggerPathsInfo_)) {
       // FIXME: The catch and rethrow here seems to have little value added.
       try {
-        w.endJob();
+        worker.endJob();
       }
       catch (cet::exception& e) {
         error << "cet::exception caught in TriggerPathsExecutor::endJob\n"
@@ -109,12 +115,8 @@ namespace art {
   void
   TriggerPathsExecutor::respondToOpenInputFile(FileBlock const& fb)
   {
-    for (auto const& val : triggerPathsInfo_.workers()) {
-      auto& w = *val.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.respondToOpenInputFile(fb);
+    for (auto& worker : unique_workers(triggerPathsInfo_)) {
+      worker.respondToOpenInputFile(fb);
     }
     if (results_inserter_) {
       results_inserter_->respondToOpenInputFile(fb);
@@ -124,12 +126,8 @@ namespace art {
   void
   TriggerPathsExecutor::respondToCloseInputFile(FileBlock const& fb)
   {
-    for (auto const& val : triggerPathsInfo_.workers()) {
-      auto& w = *val.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.respondToCloseInputFile(fb);
+    for (auto& worker : unique_workers(triggerPathsInfo_)) {
+      worker.respondToCloseInputFile(fb);
     }
     if (results_inserter_) {
       results_inserter_->respondToCloseInputFile(fb);
@@ -139,12 +137,8 @@ namespace art {
   void
   TriggerPathsExecutor::respondToOpenOutputFiles(FileBlock const& fb)
   {
-    for (auto const& val : triggerPathsInfo_.workers()) {
-      auto& w = *val.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.respondToOpenOutputFiles(fb);
+    for (auto& worker : unique_workers(triggerPathsInfo_)) {
+      worker.respondToOpenOutputFiles(fb);
     }
     if (results_inserter_) {
       results_inserter_->respondToOpenOutputFiles(fb);
@@ -154,12 +148,8 @@ namespace art {
   void
   TriggerPathsExecutor::respondToCloseOutputFiles(FileBlock const& fb)
   {
-    for (auto const& val : triggerPathsInfo_.workers()) {
-      auto& w = *val.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.respondToCloseOutputFiles(fb);
+    for (auto& worker : unique_workers(triggerPathsInfo_)) {
+      worker.respondToCloseOutputFiles(fb);
     }
     if (results_inserter_) {
       results_inserter_->respondToCloseOutputFiles(fb);
@@ -225,6 +215,8 @@ namespace art {
   {
     // We get here as part of the readAndProcessEventTask (schedule
     // head task).
+    actReg_.sPreProcessEvent.invoke(
+      event_principal.makeEvent(ModuleContext::invalid()), sc_);
     auto const scheduleID = sc_.id();
     TDEBUG_BEGIN_FUNC_SI(4, scheduleID);
     if (results_inserter_) {

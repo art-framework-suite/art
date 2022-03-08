@@ -15,27 +15,34 @@
 #include "art/Framework/Principal/Principal.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 #include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
+#include "canvas/Persistency/Provenance/fwd.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <memory>
 
 namespace art {
 
-  class ProcessConfiguration;
-
   class ResultsPrincipal final : public Principal {
-
   public:
     using Auxiliary = ResultsAuxiliary;
     static constexpr BranchType branch_type = ResultsAuxiliary::branch_type;
 
-  public:
     ~ResultsPrincipal();
     ResultsPrincipal(ResultsAuxiliary const&,
                      ProcessConfiguration const&,
                      cet::exempt_ptr<ProductTable const> presentProducts,
                      std::unique_ptr<DelayedReader>&& reader =
                        std::make_unique<NoDelayedReader>());
+
+    Results makeResults(ModuleContext const& mc);
+    Results makeResults(ModuleContext const& mc) const;
+
+    ResultsAuxiliary const& resultsAux() const;
+
+    void createGroupsForProducedProducts(ProductTables const& producedProducts);
+
+  private:
+    ResultsAuxiliary aux_;
   };
 
 } // namespace art

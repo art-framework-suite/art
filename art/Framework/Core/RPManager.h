@@ -17,17 +17,14 @@
 namespace art {
 
   class RPManager {
-
   public:
     template <typename RET, typename... ARGS>
     using invoke_function_t = RET (ResultsProducer::*)(ARGS...);
 
     using on_rpworker_t = std::function<void(RPWorker&)>;
 
-  public:
     RPManager(fhicl::ParameterSet const& ps);
 
-  public:
     template <typename... ARGS>
     void invoke(invoke_function_t<void, ARGS...> mfunc, ARGS&&... args);
 

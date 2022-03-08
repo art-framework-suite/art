@@ -7,22 +7,19 @@
 #include "art/Framework/Core/PathManager.h"
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/UpdateOutputCallbacks.h"
-#include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RangeSetHandler.h"
 #include "art/Framework/Principal/Worker.h"
-#include "art/Framework/Services/Registry/ActivityRegistry.h"
-#include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Persistency/Provenance/PathContext.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
 #include "art/Utilities/GlobalTaskGroup.h"
-#include "art/Utilities/OutputFileInfo.h"
 #include "art/Utilities/ScheduleID.h"
 #include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
 #include "canvas/Utilities/Exception.h"
 #include "hep_concurrency/WaitingTask.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "range/v3/view.hpp"
 
 #include <memory>
 #include <type_traits>
@@ -32,42 +29,44 @@
 using namespace hep::concurrency;
 using namespace std;
 
+namespace {
+  auto
+  unique_workers(art::PathsInfo const& pinfo)
+  {
+    using namespace ranges;
+    return pinfo.workers() | views::values | views::indirect |
+           views::filter([](auto const& worker) { return worker.isUnique(); });
+  }
+}
+
 namespace art {
 
   EndPathExecutor::EndPathExecutor(ScheduleID const sid,
                                    PathManager& pm,
                                    ActionTable const& actionTable,
-                                   ActivityRegistry const& areg,
                                    UpdateOutputCallbacks& outputCallbacks,
                                    GlobalTaskGroup& group)
     : sc_{sid}
     , actionTable_{actionTable}
-    , actReg_{areg}
     , endPathInfo_{pm.endPathInfo(sid)}
     , taskGroup_{group}
   {
-    for (auto const& val : endPathInfo_.workers()) {
-      auto w = val.second.get();
-      assert(sid == w->scheduleID());
-      auto owp = dynamic_cast<OutputWorker*>(w);
-      if (owp != nullptr) {
-        outputWorkers_.emplace_back(owp);
+    for (auto const& worker : endPathInfo_.workers() | ranges::views::values) {
+      assert(sid == worker->scheduleID());
+      if (auto owp = std::dynamic_pointer_cast<OutputWorker>(worker)) {
+        outputWorkers_.emplace_back(owp.get());
       }
     }
     outputWorkersToOpen_.insert(outputWorkers_.cbegin(), outputWorkers_.cend());
     outputCallbacks.registerCallback(
-      [this](auto const& tables) { this->selectProducts(tables); });
+      [this](auto const& tables) { selectProducts(tables); });
   }
 
   void
   EndPathExecutor::beginJob(detail::SharedResources const& resources)
   {
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.beginJob(resources);
+    for (auto& worker : unique_workers(endPathInfo_)) {
+      worker.beginJob(resources);
     }
   }
 
@@ -77,13 +76,9 @@ namespace art {
     Exception error{errors::EndJobFailure};
     // FIXME: There seems to be little value-added by the catch and rethrow
     // here.
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
+    for (auto& worker : unique_workers(endPathInfo_)) {
       try {
-        w.endJob();
+        worker.endJob();
       }
       catch (cet::exception& e) {
         error << "cet::exception caught in Schedule::endJob\n"
@@ -113,48 +108,32 @@ namespace art {
   void
   EndPathExecutor::respondToOpenInputFile(FileBlock const& fb)
   {
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.respondToOpenInputFile(fb);
+    for (auto& worker : unique_workers(endPathInfo_)) {
+      worker.respondToOpenInputFile(fb);
     }
   }
 
   void
   EndPathExecutor::respondToCloseInputFile(FileBlock const& fb)
   {
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.respondToCloseInputFile(fb);
+    for (auto& worker : unique_workers(endPathInfo_)) {
+      worker.respondToCloseInputFile(fb);
     }
   }
 
   void
   EndPathExecutor::respondToOpenOutputFiles(FileBlock const& fb)
   {
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.respondToOpenOutputFiles(fb);
+    for (auto& worker : unique_workers(endPathInfo_)) {
+      worker.respondToOpenOutputFiles(fb);
     }
   }
 
   void
   EndPathExecutor::respondToCloseOutputFiles(FileBlock const& fb)
   {
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.respondToCloseOutputFiles(fb);
+    for (auto& worker : unique_workers(endPathInfo_)) {
+      worker.respondToCloseOutputFiles(fb);
     }
   }
 
@@ -170,10 +149,7 @@ namespace art {
   EndPathExecutor::closeAllOutputFiles()
   {
     for (auto ow : outputWorkers_) {
-      actReg_.sPreCloseOutputFile.invoke(ow->label());
       ow->closeFile();
-      actReg_.sPostCloseOutputFile.invoke(
-        OutputFileInfo(ow->label(), ow->lastClosedFileName()));
     }
   }
 
@@ -236,12 +212,8 @@ namespace art {
   void
   EndPathExecutor::process(Transition trans, Principal& principal)
   {
-    for (auto& label_and_worker : endPathInfo_.workers()) {
-      auto& w = *label_and_worker.second;
-      if (detail::skip_non_replicated(w)) {
-        continue;
-      }
-      w.reset();
+    for (auto& worker : unique_workers(endPathInfo_)) {
+      worker.reset();
     }
     try {
       if (!endPathInfo_.paths().empty()) {
@@ -344,10 +316,7 @@ namespace art {
     // know what they are, then we can provide them.
     PathContext const pc{sc_, PathContext::end_path_spec(), {}};
     for (auto ow : outputWorkers_) {
-      ModuleContext const mc{pc, ow->description()};
-      actReg_.sPreWriteEvent.invoke(mc);
-      ow->writeEvent(ep, mc);
-      actReg_.sPostWriteEvent.invoke(mc);
+      ow->writeEvent(ep, pc);
     }
     auto const& eid = ep.eventID();
     bool const lastInSubRun{ep.isLastInSubRun()};
@@ -381,10 +350,7 @@ namespace art {
       if (!ow->fileIsOpen()) {
         continue;
       }
-      actReg_.sPreCloseOutputFile.invoke(ow->label());
       ow->closeFile();
-      actReg_.sPostCloseOutputFile.invoke(
-        OutputFileInfo{ow->label(), ow->lastClosedFileName()});
     }
     outputWorkersToOpen_ = move(outputWorkersToClose_);
   }
@@ -399,10 +365,7 @@ namespace art {
   EndPathExecutor::openSomeOutputFiles(FileBlock const& fb)
   {
     for (auto ow : outputWorkersToOpen_) {
-      if (!ow->openFile(fb)) {
-        continue;
-      }
-      actReg_.sPostOpenOutputFile.invoke(ow->label());
+      ow->openFile(fb);
     }
     setOutputFileStatus(OutputFileStatus::Open);
     outputWorkersToOpen_.clear();
@@ -436,8 +399,7 @@ namespace art {
         // the output worker needs, nothing to do.
         continue;
       }
-      auto wants_to_close = ow->requestsToCloseFile();
-      if (wants_to_close) {
+      if (ow->requestsToCloseFile()) {
         outputWorkersToClose_.insert(ow);
       }
     }
@@ -449,27 +411,6 @@ namespace art {
     for (auto ow : outputWorkers_) {
       ow->incrementInputFileNumber();
     }
-  }
-
-  bool
-  EndPathExecutor::allAtLimit() const
-  {
-    if (outputWorkers_.empty()) {
-      return false;
-    }
-    bool all_at_limit = true;
-    for (auto w : outputWorkers_) {
-      if (!w->limitReached()) {
-        all_at_limit = false;
-        break;
-      }
-    }
-    if (all_at_limit) {
-      mf::LogInfo("SuccessfulTermination")
-        << "The job is terminating successfully because each output module\n"
-        << "has reached its configured limit.\n";
-    }
-    return all_at_limit;
   }
 
 } // namespace art

@@ -1,9 +1,10 @@
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Core/DecrepitRelicInputSourceImplementation.h"
 #include "art/Framework/Core/EmptyEventTimestampPlugin.h"
+#include "art/Framework/Core/FileBlock.h"
 #include "art/Framework/Core/InputSourceDescription.h"
 #include "art/Framework/Core/InputSourceMacros.h"
+#include "art/Framework/Core/ProcessingLimits.h"
 #include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/OpenRangeSetHandler.h"
@@ -37,20 +38,18 @@ using namespace fhicl;
 using namespace std;
 using namespace std::chrono_literals;
 using std::chrono::steady_clock;
-using DRISI = art::DecrepitRelicInputSourceImplementation;
 
 namespace art {
 
-  class EmptyEvent final : public DRISI {
+  class EmptyEvent final : public InputSource {
   public:
     struct Config {
-
       Atom<std::string> module_type{Name("module_type")};
-      TableFragment<DRISI::Config> drisi_config;
+      TableFragment<ProcessingLimits::Config> limitsConfig;
       Atom<int> numberEventsInRun{Name("numberEventsInRun"),
-                                  drisi_config().maxEvents()};
+                                  limitsConfig().maxEvents()};
       Atom<int> numberEventsInSubRun{Name("numberEventsInSubRun"),
-                                     drisi_config().maxSubRuns()};
+                                     limitsConfig().maxSubRuns()};
       Atom<uint32_t> maxTime{
         Name("maxTime"),
         Comment(
@@ -106,18 +105,24 @@ namespace art {
   private:
     unique_ptr<RangeSetHandler> runRangeSetHandler() override;
     unique_ptr<RangeSetHandler> subRunRangeSetHandler() override;
-    input::ItemType getNextItemType() override;
-    unique_ptr<RunPrincipal> readRun_() override;
-    unique_ptr<SubRunPrincipal> readSubRun_(
+    void doBeginJob() override;
+    void doEndJob() override;
+    void skipEvents(int offset) override;
+    unique_ptr<FileBlock> readFile() override;
+    void closeFile() override;
+    unique_ptr<RunPrincipal> readRun() override;
+    input::ItemType nextItemType() override;
+    unique_ptr<SubRunPrincipal> readSubRun(
       cet::exempt_ptr<RunPrincipal const>) override;
-    unique_ptr<EventPrincipal> readEvent_() override;
+    unique_ptr<EventPrincipal> readEvent(
+      cet::exempt_ptr<SubRunPrincipal const>) override;
+
+    input::ItemType nextItemType_();
+
     unique_ptr<EmptyEventTimestampPlugin> makePlugin_(
       OptionalDelegatedParameter const& maybeConfig);
-    void beginJob() override;
-    void endJob() override;
-    void skip(int offset) override;
-    void rewind_() override;
 
+    ProcessingLimits limits_;
     unsigned const numberEventsInRun_;
     unsigned const numberEventsInSubRun_;
     steady_clock::time_point const beginTime_{steady_clock::now()};
@@ -140,8 +145,8 @@ namespace art {
 
 art::EmptyEvent::EmptyEvent(Parameters const& config,
                             InputSourceDescription& desc)
-  : DecrepitRelicInputSourceImplementation{config().drisi_config,
-                                           desc.moduleDescription}
+  : InputSource{desc.moduleDescription}
+  , limits_{config().limitsConfig(), [this] { return nextItemType_(); }}
   , numberEventsInRun_{static_cast<uint32_t>(config().numberEventsInRun())}
   , numberEventsInSubRun_{static_cast<uint32_t>(
       config().numberEventsInSubRun())}
@@ -182,8 +187,16 @@ art::EmptyEvent::EmptyEvent(Parameters const& config,
 }
 
 art::input::ItemType
-art::EmptyEvent::getNextItemType()
+art::EmptyEvent::nextItemType()
 {
+  return limits_.nextItemType();
+}
+
+art::input::ItemType
+art::EmptyEvent::nextItemType_()
+{
+  // Called by ProcessingLimits::nextItemType.
+
   // Trigger framework stop if max allowed time is exceeded.
   // N.B. Since the begin time corresponds to source construction and
   // not the actual event loop, there will be minor differences wrt
@@ -268,66 +281,64 @@ art::EmptyEvent::getNextItemType()
   return input::IsEvent;
 }
 
-unique_ptr<art::RunPrincipal>
-art::EmptyEvent::readRun_()
+unique_ptr<art::FileBlock>
+art::EmptyEvent::readFile()
 {
-  unique_ptr<RunPrincipal> result;
+  return make_unique<FileBlock>();
+}
+
+void
+art::EmptyEvent::closeFile()
+{}
+
+unique_ptr<art::RunPrincipal>
+art::EmptyEvent::readRun()
+{
   auto ts = plugin_ ? plugin_->doBeginRunTimestamp(eventID_.runID()) :
                       Timestamp::invalidTimestamp();
   RunAuxiliary const runAux{
     eventID_.runID(), ts, Timestamp::invalidTimestamp()};
-  result = make_unique<RunPrincipal>(runAux, processConfiguration(), nullptr);
-  assert(result.get() != nullptr);
+  auto result =
+    make_unique<RunPrincipal>(runAux, processConfiguration(), nullptr);
   if (plugin_) {
     ModuleContext const mc{moduleDescription()};
-    Run const r{*result, mc};
-    plugin_->doBeginRun(r);
+    plugin_->doBeginRun(std::as_const(*result).makeRun(mc));
   }
   return result;
 }
 
 unique_ptr<art::SubRunPrincipal>
-art::EmptyEvent::readSubRun_(cet::exempt_ptr<RunPrincipal const> rp)
+art::EmptyEvent::readSubRun(cet::exempt_ptr<RunPrincipal const> rp)
 {
-  unique_ptr<SubRunPrincipal> result;
-  if (processingMode() == Runs) {
-    return result;
-  }
   auto ts = plugin_ ? plugin_->doBeginSubRunTimestamp(eventID_.subRunID()) :
                       Timestamp::invalidTimestamp();
   SubRunAuxiliary const subRunAux{
     eventID_.subRunID(), ts, Timestamp::invalidTimestamp()};
-  result =
+  auto result =
     make_unique<SubRunPrincipal>(subRunAux, processConfiguration(), nullptr);
-  assert(result.get() != nullptr);
   result->setRunPrincipal(rp);
   if (plugin_) {
     ModuleContext const mc{moduleDescription()};
-    SubRun const sr{*result, mc};
-    plugin_->doBeginSubRun(sr);
+    plugin_->doBeginSubRun(std::as_const(*result).makeSubRun(mc));
   }
+  limits_.update(result->subRunID());
   return result;
 }
 
 unique_ptr<art::EventPrincipal>
-art::EmptyEvent::readEvent_()
+art::EmptyEvent::readEvent(cet::exempt_ptr<SubRunPrincipal const> srp)
 {
-  unique_ptr<EventPrincipal> result;
-  if (processingMode() != RunsSubRunsAndEvents) {
-    return result;
-  }
   auto timestamp = plugin_ ? plugin_->doEventTimestamp(eventID_) :
                              Timestamp::invalidTimestamp();
-  EventAuxiliary const eventAux{
-    eventID_, timestamp, false, EventAuxiliary::Any};
-  result = make_unique<EventPrincipal>(eventAux,
-                                       processConfiguration(),
-                                       nullptr,
-                                       make_unique<History>(),
-                                       make_unique<NoDelayedReader>(),
-                                       numberEventsInThisSubRun_ ==
-                                         numberEventsInSubRun_);
-  assert(result.get() != nullptr);
+  EventAuxiliary const eventAux{eventID_, timestamp, false};
+  auto result = make_unique<EventPrincipal>(eventAux,
+                                            processConfiguration(),
+                                            nullptr,
+                                            make_unique<NoDelayedReader>(),
+                                            numberEventsInThisSubRun_ ==
+                                              numberEventsInSubRun_);
+  result->setSubRunPrincipal(srp);
+  limits_.update(result->eventID());
   return result;
 }
 
@@ -344,7 +355,7 @@ art::EmptyEvent::subRunRangeSetHandler()
 }
 
 void
-art::EmptyEvent::beginJob()
+art::EmptyEvent::doBeginJob()
 {
   if (plugin_) {
     plugin_->doBeginJob();
@@ -352,7 +363,7 @@ art::EmptyEvent::beginJob()
 }
 
 void
-art::EmptyEvent::endJob()
+art::EmptyEvent::doEndJob()
 {
   if (plugin_) {
     plugin_->doEndJob();
@@ -362,31 +373,31 @@ art::EmptyEvent::endJob()
 std::unique_ptr<art::EmptyEventTimestampPlugin>
 art::EmptyEvent::makePlugin_(OptionalDelegatedParameter const& maybeConfig)
 {
-  std::unique_ptr<EmptyEventTimestampPlugin> result;
+  auto pset = maybeConfig.get_if_present<ParameterSet>();
+  if (!pset) {
+    return nullptr;
+  }
+
   try {
-    ParameterSet pset;
-    if (maybeConfig.get_if_present(pset)) {
-      auto const libspec = pset.get<std::string>("plugin_type");
-      auto const pluginType = pluginFactory_.pluginType(libspec);
-      if (pluginType ==
-          cet::PluginTypeDeducer<EmptyEventTimestampPlugin>::value) {
-        result = pluginFactory_.makePlugin<decltype(result)>(libspec, pset);
-      } else {
-        throw Exception(errors::Configuration, "EmptyEvent: ")
-          << "unrecognized plugin type " << pluginType << "for plugin "
-          << libspec << ".\n";
-      }
+    auto const libspec = pset->get<std::string>("plugin_type");
+    auto const pluginType = pluginFactory_.pluginType(libspec);
+    if (pluginType ==
+        cet::PluginTypeDeducer<EmptyEventTimestampPlugin>::value) {
+      return pluginFactory_
+        .makePlugin<std::unique_ptr<EmptyEventTimestampPlugin>>(libspec, *pset);
     }
+    throw Exception(errors::Configuration, "EmptyEvent: ")
+      << "unrecognized plugin type " << pluginType << "for plugin " << libspec
+      << ".\n";
   }
   catch (cet::exception& e) {
     throw Exception(errors::Configuration, "EmptyEvent: ", e)
       << "Exception caught while processing plugin spec.\n";
   }
-  return result;
 }
 
 void
-art::EmptyEvent::skip(int offset)
+art::EmptyEvent::skipEvents(int offset)
 {
   for (; offset < 0; ++offset) {
     eventID_ = eventID_.previous();
@@ -394,21 +405,6 @@ art::EmptyEvent::skip(int offset)
   for (; offset > 0; --offset) {
     eventID_ = eventID_.next();
   }
-}
-
-void
-art::EmptyEvent::rewind_()
-{
-  if (plugin_) {
-    plugin_->doRewind();
-  }
-  firstTime_ = true;
-  newFile_ = true;
-  newRun_ = true;
-  newSubRun_ = true;
-  numberEventsInThisRun_ = 0;
-  numberEventsInThisSubRun_ = 0;
-  eventID_ = origEventID_;
 }
 
 DEFINE_ART_INPUT_SOURCE(art::EmptyEvent)

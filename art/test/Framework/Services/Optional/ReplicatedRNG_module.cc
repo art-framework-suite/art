@@ -1,4 +1,3 @@
-#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/ReplicatedProducer.h"
 
 #include <cassert>

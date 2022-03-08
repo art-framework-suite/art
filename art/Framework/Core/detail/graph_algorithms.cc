@@ -5,6 +5,7 @@
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/HorizontalRule.h"
 #include "cetlib/compiler_macros.h"
+#include "range/v3/view.hpp"
 
 #include <limits>
 
@@ -70,22 +71,24 @@ art::detail::make_trigger_path_subgraphs(
   paths_to_modules_t const& trigger_paths,
   ModuleGraph& module_graph)
 {
+  using namespace ranges;
   std::map<path_name_t, ModuleGraph*> path_graphs;
   auto const source_index = modInfos.vertex_index("input_source");
-  for (auto const& path : trigger_paths) {
+  for (auto const& path_name : trigger_paths | views::keys |
+                                 views::transform([](auto const& path_spec) {
+                                   return path_spec.name;
+                                 })) {
     auto& path_graph = module_graph.create_subgraph();
     // Always include the source on the path.
     add_vertex(source_index, path_graph);
-    path_graphs[path.first.name] = &path_graph;
+    path_graphs[path_name] = &path_graph;
   }
 
   auto vertex_names = get(boost::vertex_name_t{}, module_graph);
-  for (auto const& pr : modInfos) {
-    auto const& module_name = pr.first;
-    auto const& info = pr.second;
+  for (auto const& [module_name, info] : modInfos) {
     if (!is_modifier(info.module_type))
       continue;
-    auto const index = modInfos.vertex_index(pr.first);
+    auto const index = modInfos.vertex_index(module_name);
     for (auto const& path : info.paths) {
       add_vertex(index, *path_graphs.at(path));
     }
@@ -115,8 +118,7 @@ art::detail::make_path_ordering_edges(ModuleGraphInfoMap const& modInfos,
 {
   // Make edges corresponding to path ordering
   auto path_label = get(boost::edge_name, graph);
-  for (auto const& path : trigger_paths) {
-    auto const& modules = path.second;
+  for (auto const& [path_spec, modules] : trigger_paths) {
     if (modules.empty())
       continue;
     auto prev = cbegin(modules);
@@ -126,7 +128,7 @@ art::detail::make_path_ordering_edges(ModuleGraphInfoMap const& modInfos,
       auto const pi = modInfos.vertex_index(module_label(*prev));
       auto const ci = modInfos.vertex_index(module_label(*curr));
       auto const edge = add_edge(ci, pi, graph);
-      path_label[edge.first] = "path:" + path.first.name;
+      path_label[edge.first] = "path:" + path_spec.name;
       prev = curr;
       ++curr;
     }
@@ -143,8 +145,7 @@ art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
   auto sync_label = get(boost::edge_name, graph);
   if (!trigger_paths.empty()) {
     auto const tr_index = modInfos.vertex_index("TriggerResults");
-    for (auto const& path : trigger_paths) {
-      auto const& modules = path.second;
+    for (auto const& [path_spec, modules] : trigger_paths) {
       if (modules.empty()) {
         continue;
       }
@@ -153,7 +154,7 @@ art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
       auto const back_index =
         modInfos.vertex_index(module_label(modules.back()));
       auto const edge1 = add_edge(front_index, source_index, graph);
-      sync_label[edge1.first] = "source:" + path.first.name;
+      sync_label[edge1.first] = "source:" + path_spec.name;
       auto const edge2 = add_edge(tr_index, back_index, graph);
       sync_label[edge2.first] = "sync";
     }
@@ -173,14 +174,14 @@ art::detail::make_synchronization_edges(ModuleGraphInfoMap const& modInfos,
   auto constexpr invalid = std::numeric_limits<std::size_t>::max();
 
   // Now synchronize between previous filters
-  for (auto const& path : trigger_paths) {
+  for (auto const& [path_spec, modules] : trigger_paths) {
     auto preceding_filter_index = invalid;
-    for (auto const& module : path.second) {
+    for (auto const& module : modules) {
       auto const index = modInfos.vertex_index(module_label(module));
       auto const& info = modInfos.info(index);
       if (preceding_filter_index != invalid) {
         auto const edge = add_edge(index, preceding_filter_index, graph);
-        sync_label[edge.first] = "filter:" + path.first.name;
+        sync_label[edge.first] = "filter:" + path_spec.name;
       }
       if (info.module_type == ModuleType::filter) {
         preceding_filter_index = index;
@@ -210,24 +211,21 @@ art::detail::verify_no_interpath_dependencies(
   ModuleGraphInfoMap const& modInfos,
   ModuleGraph const& graph)
 {
+  using namespace ranges;
+  auto make_range = [](auto const pr) { return subrange{pr.first, pr.second}; };
+
   std::map<Vertex, std::set<Vertex>> illegal_dependencies;
-  auto const children_iters = graph.children();
-  for (auto ci = children_iters.first, ci_end = children_iters.second;
-       ci != ci_end;
-       ++ci) {
-    auto const& path_graph = *ci;
-    auto const vertex_iters = vertices(path_graph);
-    for (auto i = vertex_iters.first, end = vertex_iters.second; i != end;
-         ++i) {
-      auto const gv = path_graph.local_to_global(*i);
-      auto const out_edge_iters = out_edges(gv, graph);
+  for (auto const& path_graph : make_range(graph.children())) {
+    for (auto const gv :
+         make_range(vertices(path_graph)) |
+           views::transform([&path_graph](auto const local_vertex) {
+             return path_graph.local_to_global(local_vertex);
+           })) {
       // Verify that the target of each out edge is a member of the
       // same subgraph (which is determined by calling find_vertex).
       // If not, then it is an illegal path specification.
-      for (auto ei = out_edge_iters.first, edge_end = out_edge_iters.second;
-           ei != edge_end;
-           ++ei) {
-        auto const tv = target(*ei, graph);
+      for (auto const out_edge : make_range(out_edges(gv, graph))) {
+        auto const tv = target(out_edge, graph);
         if (path_graph.find_vertex(tv).second) {
           continue;
         }
@@ -243,14 +241,13 @@ art::detail::verify_no_interpath_dependencies(
   std::ostringstream oss;
   oss << "\nThe following represent cross-path data-dependency errors:\n"
       << cet::HorizontalRule{60}('-') << '\n';
-  for (auto const& mod : illegal_dependencies) {
-    auto const mod_index = mod.first;
+  for (auto const& [mod_index, target_indices] : illegal_dependencies) {
     auto const& module_name = modInfos.name(mod_index);
     auto const& mod_paths = modInfos.info(mod_index).paths;
     oss << "  Module " << module_name << " on path"
         << (mod_paths.size() == 1ull ? " " : "s ")
         << comma_separated_list(mod_paths) << " depends on\n";
-    for (auto const& dep : mod.second) {
+    for (auto const& dep : target_indices) {
       auto const& dep_name = modInfos.name(dep);
       auto const& on_paths = modInfos.info(dep).paths;
       oss << "    Module " << dep_name << " on path"
@@ -519,38 +516,34 @@ art::detail::print_module_graph(std::ostream& os,
   }
 
   // Path edges
-  for (auto const& pr : path_edges) {
-    auto const& path_name = pr.first;
-    for (auto const& edge_pair : pr.second) {
-      os << "  \"" << info_map.name(edge_pair.first) << "\" -> \""
-         << info_map.name(edge_pair.second) << '\"' << "[label=\"" << path_name
+  for (auto const& [path_name, edges] : path_edges) {
+    for (auto const& [source, target] : edges) {
+      os << "  \"" << info_map.name(source) << "\" -> \""
+         << info_map.name(target) << '\"' << "[label=\"" << path_name
          << "\" color=gray];\n";
     }
   }
 
   // Filter edges
-  for (auto const& pr : filter_edges) {
-    auto const& path_name = pr.first;
-    for (auto const& edge_pair : pr.second) {
-      os << "  \"" << info_map.name(edge_pair.first) << "\" -> \""
-         << info_map.name(edge_pair.second) << '\"' << "[label=\"" << path_name
+  for (auto const& [path_name, edges] : filter_edges) {
+    for (auto const& [source, target] : edges) {
+      os << "  \"" << info_map.name(source) << "\" -> \""
+         << info_map.name(target) << '\"' << "[label=\"" << path_name
          << "\" color=red];\n";
     }
   }
 
   // Trigger-path edges
-  for (auto const& edge_pair : trigger_path_edges) {
-    os << "  \"" << info_map.name(edge_pair.first) << "\" -> \""
-       << info_map.name(edge_pair.second) << '\"'
-       << "[style=invisible arrowhead=none];\n";
+  for (auto const& [source, target] : trigger_path_edges) {
+    os << "  \"" << info_map.name(source) << "\" -> \"" << info_map.name(target)
+       << '\"' << "[style=invisible arrowhead=none];\n";
   }
 
   // Product edges
-  for (auto const& pr : product_edges) {
-    auto const& edge_pair = pr.first;
-    auto const multiplicity = pr.second;
-    os << "  \"" << info_map.name(edge_pair.first) << "\" -> \""
-       << info_map.name(edge_pair.second) << '\"';
+  for (auto const& [edge_pair, multiplicity] : product_edges) {
+    auto const& [source, target] = edge_pair;
+    os << "  \"" << info_map.name(source) << "\" -> \"" << info_map.name(target)
+       << '\"';
     if (multiplicity > 1) {
       os << "[label=\"" << multiplicity << "\" color=black]";
     }

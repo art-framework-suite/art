@@ -15,11 +15,11 @@ constexpr size_t numBits = 5;
 constexpr int numPatterns = 11;
 constexpr int numMasks = 9;
 
-typedef bool Answers[numPatterns][numMasks];
-typedef std::vector<std::string> Strings;
-typedef std::vector<Strings> VStrings;
-typedef std::vector<bool> Bools;
-typedef std::vector<Bools> VBools;
+using Answers = bool[numPatterns][numMasks];
+using Strings = std::vector<std::string>;
+using VStrings = std::vector<Strings>;
+using Bools = std::vector<bool>;
+using VBools = std::vector<Bools>;
 
 std::ostream&
 operator<<(std::ostream& ost, const Strings& s)

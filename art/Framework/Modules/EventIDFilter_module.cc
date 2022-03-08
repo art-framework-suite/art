@@ -7,7 +7,6 @@
 // from cetlib version v2_03_00.
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/SharedFilter.h"
 #include "art/Framework/Principal/Event.h"
 #include "canvas/Utilities/EventIDMatcher.h"

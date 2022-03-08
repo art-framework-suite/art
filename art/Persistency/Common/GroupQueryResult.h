@@ -18,7 +18,7 @@ namespace art {
   class Group;
   class GroupQueryResult;
 
-  using group_ptr_t = cet::exempt_ptr<Group const>;
+  using group_ptr_t = cet::exempt_ptr<Group>;
   using exception_ptr_t = std::shared_ptr<art::Exception const>;
 } // namespace art
 
@@ -42,7 +42,7 @@ public:
   }
 
   // properties
-  cet::exempt_ptr<Group const>
+  cet::exempt_ptr<Group>
   result() const
   {
     auto result = std::get_if<group_ptr_t>(&groupOrException_);

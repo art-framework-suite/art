@@ -43,7 +43,7 @@ namespace art {
     // Special Member Functions
     WorkerInPath(cet::exempt_ptr<Worker>,
                  detail::FilterAction,
-                 ModuleContext const&,
+                 PathContext const&,
                  GlobalTaskGroup& group);
 
     // API for user
@@ -52,7 +52,6 @@ namespace art {
 
     // Used only by Path
     bool returnCode() const;
-    std::string const& label() const;
     bool run(Transition, Principal&);
     void run(hep::concurrency::WaitingTaskPtr workerDoneTask, EventPrincipal&);
     void clearCounters();

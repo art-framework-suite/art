@@ -3,10 +3,14 @@
 
 namespace art {
 
-  std::string
-  EDAnalyzer::workerType() const
+  EDAnalyzer::EDAnalyzer(fhicl::ParameterSet const& pset)
+    : Analyzer{pset}, LegacyModule{pset.get<std::string>("module_label")}
+  {}
+
+  std::unique_ptr<Worker>
+  EDAnalyzer::doMakeWorker(WorkerParams const& wp)
   {
-    return "WorkerT<EDAnalyzer>";
+    return std::make_unique<WorkerT<EDAnalyzer>>(this, wp);
   }
 
   void

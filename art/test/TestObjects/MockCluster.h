@@ -13,17 +13,17 @@ namespace arttest {
 
 struct arttest::MockCluster {
 
-  typedef art::PtrVector<arttest::SimpleDerived> CellList;
+  using CellList = art::PtrVector<SimpleDerived>;
 
-  MockCluster() : skew(0), cells(), eNum(0) {}
+  MockCluster() = default;
 
-  short int skew;
-  CellList cells;
-  art::EventNumber_t eNum;
+  short int skew{};
+  CellList cells{};
+  art::EventNumber_t eNum{};
 };
 
 namespace arttest {
-  typedef std::vector<arttest::MockCluster> MockClusterList;
+  using MockClusterList = std::vector<MockCluster>;
 }
 
 #endif /* art_test_TestObjects_MockCluster_h */

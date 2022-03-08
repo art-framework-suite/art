@@ -1,7 +1,6 @@
 cet_make_library(HEADERS_TARGET SOURCE
     Breakpoints.cc
     ConsumesCollector.cc
-    DecrepitRelicInputSourceImplementation.cc
     EDAnalyzer.cc
     EDFilter.cc
     EDProducer.cc
@@ -25,9 +24,11 @@ cet_make_library(HEADERS_TARGET SOURCE
     PathManager.cc
     PathsInfo.cc
     ProcessAndEventSelectors.cc
+    ProcessingLimits.cc
     ProducesCollector.cc
     ProducingService.cc
     ProductRegistryHelper.cc
+    PtrRemapper.cc
     RPManager.cc
     ReplicatedAnalyzer.cc
     ReplicatedFilter.cc
@@ -55,7 +56,6 @@ cet_make_library(HEADERS_TARGET SOURCE
     detail/consumed_products.cc
     detail/graph_algorithms.cc
     detail/issue_reports.cc
-    detail/skip_non_replicated.cc
     detail/verify_names.cc
   LIBRARIES
   PUBLIC

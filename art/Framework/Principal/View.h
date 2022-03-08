@@ -25,7 +25,7 @@
 
 namespace art {
 
-  class DataViewImpl;
+  class ProductRetriever;
   class InputTag;
 
   template <typename T>
@@ -33,10 +33,10 @@ namespace art {
 
     // Give access to private ctor.
     template <typename Element>
-    friend bool DataViewImpl::getView(std::string const&,
-                                      std::string const&,
-                                      std::string const&,
-                                      View<Element>&) const;
+    friend bool ProductRetriever::getView(std::string const&,
+                                          std::string const&,
+                                          std::string const&,
+                                          View<Element>&) const;
 
   public:
     using collection_type = std::vector<T const*>;

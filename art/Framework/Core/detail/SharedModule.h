@@ -17,6 +17,8 @@ namespace art::detail {
   class SharedModule {
   public:
     SharedModule();
+    ~SharedModule();
+
     explicit SharedModule(std::string const& moduleLabel);
 
     hep::concurrency::SerialTaskQueueChain* serialTaskQueueChain() const;
@@ -70,7 +72,7 @@ namespace art::detail {
       }
     }
 
-    std::string moduleLabel_;
+    std::string moduleLabel_{};
     std::set<std::string> resourceNames_{};
     bool asyncDeclared_{false};
     std::unique_ptr<hep::concurrency::SerialTaskQueueChain> chain_{nullptr};

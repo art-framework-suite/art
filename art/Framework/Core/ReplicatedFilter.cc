@@ -3,10 +3,16 @@
 
 namespace art {
 
-  std::string
-  ReplicatedFilter::workerType() const
+  ReplicatedFilter::ReplicatedFilter(fhicl::ParameterSet const& pset,
+                                     ProcessingFrame const& frame)
+    : Filter{pset}
+    , EngineCreator{pset.get<std::string>("module_label"), frame.scheduleID()}
+  {}
+
+  std::unique_ptr<Worker>
+  ReplicatedFilter::doMakeWorker(WorkerParams const& wp)
   {
-    return "WorkerT<ReplicatedFilter>";
+    return std::make_unique<WorkerT<ReplicatedFilter>>(this, wp);
   }
 
   void

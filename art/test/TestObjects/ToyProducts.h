@@ -138,7 +138,7 @@ namespace arttest {
     Simple() = default;
 
     virtual ~Simple() noexcept = default;
-    typedef int key_type;
+    using key_type = int;
 
     key_type key{};
     double value{};

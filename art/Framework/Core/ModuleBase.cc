@@ -4,8 +4,6 @@
 #include "art/Persistency/Provenance/ModuleDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
 
-using namespace std;
-
 namespace art {
 
   ModuleBase::~ModuleBase() noexcept = default;
@@ -35,7 +33,13 @@ namespace art {
     md_ = md;
   }
 
-  array<vector<ProductInfo>, NumBranchTypes> const&
+  std::unique_ptr<Worker>
+  ModuleBase::makeWorker(WorkerParams const& wp)
+  {
+    return doMakeWorker(wp);
+  }
+
+  std::array<std::vector<ProductInfo>, NumBranchTypes> const&
   ModuleBase::getConsumables() const
   {
     return collector_.getConsumables();

@@ -1,4 +1,5 @@
 cet_make_library(SOURCE
+    ActivityRegistry.cc
     ServiceRegistry.cc
     ServicesManager.cc
     detail/ServiceCacheEntry.cc
@@ -13,7 +14,7 @@ cet_make_library(SOURCE
     cetlib::cetlib
     cetlib_except::cetlib_except
   PRIVATE
-    Boost::thread
+    range-v3::range-v3
 )
 
 cet_make_library(LIBRARY_NAME serviceDeclaration INTERFACE

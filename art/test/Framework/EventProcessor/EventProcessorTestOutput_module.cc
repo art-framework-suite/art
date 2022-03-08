@@ -6,7 +6,6 @@
 // ======================================================================
 
 #include "art/Framework/Core/FileBlock.h"
-#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/RunPrincipal.h"
@@ -125,8 +124,7 @@ namespace arttest {
     using Parameters =
       fhicl::WrappedTable<Config, OutputModule::Config::KeysToIgnore>;
     explicit EventProcessorTestOutput(Parameters const& ps)
-      : OutputModule{ps().omConfig, ps.get_PSet()}
-      , switchPoints_{ps().switchAfter()}
+      : OutputModule{ps().omConfig}, switchPoints_{ps().switchAfter()}
     {
       if (!switchPoints_.empty()) {
         activeSwitchPoint_ = switchPoints_.front();

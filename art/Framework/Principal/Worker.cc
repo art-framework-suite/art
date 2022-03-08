@@ -45,13 +45,13 @@ namespace {
     auto const bt = principal.branchType();
     switch (bt) {
     case art::InRun:
-      result << principal.runID();
+      result << static_cast<art::RunPrincipal const&>(principal).runID();
       break;
     case art::InSubRun:
-      result << principal.subRunID();
+      result << static_cast<art::SubRunPrincipal const&>(principal).subRunID();
       break;
     case art::InEvent:
-      result << principal.eventID();
+      result << static_cast<art::EventPrincipal const&>(principal).eventID();
       break;
     default: {}
     }
@@ -102,6 +102,8 @@ namespace {
 
 namespace art {
 
+  Worker::~Worker() = default;
+
   Worker::Worker(ModuleDescription const& md, WorkerParams const& wp)
     : scheduleID_{wp.scheduleID_}
     , md_{md}
@@ -136,7 +138,7 @@ namespace art {
   SerialTaskQueueChain*
   Worker::serialTaskQueueChain() const
   {
-    return implSerialTaskQueueChain();
+    return doSerialTaskQueueChain();
   }
 
   // Used by EventProcessor
@@ -192,7 +194,7 @@ namespace art {
   void
   Worker::beginJob(detail::SharedResources const& resources) try {
     actReg_.sPreModuleBeginJob.invoke(md_);
-    implBeginJob(resources);
+    doBeginJob(resources);
     actReg_.sPostModuleBeginJob.invoke(md_);
   }
   catch (...) {
@@ -202,7 +204,7 @@ namespace art {
   void
   Worker::endJob() try {
     actReg_.sPreModuleEndJob.invoke(md_);
-    implEndJob();
+    doEndJob();
     actReg_.sPostModuleEndJob.invoke(md_);
   }
   catch (...) {
@@ -213,7 +215,7 @@ namespace art {
   Worker::respondToOpenInputFile(FileBlock const& fb)
   {
     actReg_.sPreModuleRespondToOpenInputFile.invoke(md_);
-    implRespondToOpenInputFile(fb);
+    doRespondToOpenInputFile(fb);
     actReg_.sPostModuleRespondToOpenInputFile.invoke(md_);
   }
 
@@ -221,7 +223,7 @@ namespace art {
   Worker::respondToCloseInputFile(FileBlock const& fb)
   {
     actReg_.sPreModuleRespondToCloseInputFile.invoke(md_);
-    implRespondToCloseInputFile(fb);
+    doRespondToCloseInputFile(fb);
     actReg_.sPostModuleRespondToCloseInputFile.invoke(md_);
   }
 
@@ -229,7 +231,7 @@ namespace art {
   Worker::respondToOpenOutputFiles(FileBlock const& fb)
   {
     actReg_.sPreModuleRespondToOpenOutputFiles.invoke(md_);
-    implRespondToOpenOutputFiles(fb);
+    doRespondToOpenOutputFiles(fb);
     actReg_.sPostModuleRespondToOpenOutputFiles.invoke(md_);
   }
 
@@ -237,11 +239,11 @@ namespace art {
   Worker::respondToCloseOutputFiles(FileBlock const& fb)
   {
     actReg_.sPreModuleRespondToCloseOutputFiles.invoke(md_);
-    implRespondToCloseOutputFiles(fb);
+    doRespondToCloseOutputFiles(fb);
     actReg_.sPostModuleRespondToCloseOutputFiles.invoke(md_);
   }
 
-  bool
+  void
   Worker::doWork(Transition const trans,
                  Principal& principal,
                  ModuleContext const& mc)
@@ -250,9 +252,8 @@ namespace art {
     case Ready:
       break;
     case Pass:
-      return true;
     case Fail:
-      return false;
+      return;
     case ExceptionThrown: {
       // Rethrow the cached exception again. It seems impossible to
       // get here a second time unless a cet::exception has been
@@ -266,31 +267,31 @@ namespace art {
     case Working:
       break; // See below.
     }
-    bool rc = false;
+
     try {
       if (state_.load() == Working) {
         // Not part of the switch statement above because we want the
         // exception to be caught by our handling mechanism.
-        throw art::Exception(errors::ScheduleExecutionFailure)
+        throw Exception(errors::ScheduleExecutionFailure)
           << "A Module has been invoked while it is still being executed.\n"
           << "Product dependencies have invoked a module execution cycle.\n";
       }
       state_ = Working;
       if (trans == Transition::BeginRun) {
         actReg_.sPreModuleBeginRun.invoke(mc);
-        rc = implDoBegin(dynamic_cast<RunPrincipal&>(principal), mc);
+        doBegin(dynamic_cast<RunPrincipal&>(principal), mc);
         actReg_.sPostModuleBeginRun.invoke(mc);
       } else if (trans == Transition::EndRun) {
         actReg_.sPreModuleEndRun.invoke(mc);
-        rc = implDoEnd(dynamic_cast<RunPrincipal&>(principal), mc);
+        doEnd(dynamic_cast<RunPrincipal&>(principal), mc);
         actReg_.sPostModuleEndRun.invoke(mc);
       } else if (trans == Transition::BeginSubRun) {
         actReg_.sPreModuleBeginSubRun.invoke(mc);
-        rc = implDoBegin(dynamic_cast<SubRunPrincipal&>(principal), mc);
+        doBegin(dynamic_cast<SubRunPrincipal&>(principal), mc);
         actReg_.sPostModuleBeginSubRun.invoke(mc);
       } else if (trans == Transition::EndSubRun) {
         actReg_.sPreModuleEndSubRun.invoke(mc);
-        rc = implDoEnd(dynamic_cast<SubRunPrincipal&>(principal), mc);
+        doEnd(dynamic_cast<SubRunPrincipal&>(principal), mc);
         actReg_.sPostModuleEndSubRun.invoke(mc);
       }
       state_ = Pass;
@@ -299,10 +300,10 @@ namespace art {
       state_ = ExceptionThrown;
       e << "The above exception was thrown while processing module "
         << brief_context(md_, principal) << '\n';
-      if (auto edmEx = dynamic_cast<art::Exception*>(&e)) {
+      if (auto edmEx = dynamic_cast<Exception*>(&e)) {
         cached_exception_ = std::make_exception_ptr(*edmEx);
       } else {
-        auto art_ex = art::Exception{errors::OtherArt, std::string(), e};
+        auto art_ex = Exception{errors::OtherArt, std::string(), e};
         cached_exception_ = std::make_exception_ptr(art_ex);
       }
       throw;
@@ -355,7 +356,6 @@ namespace art {
       cached_exception_ = make_exception_ptr(art_ex);
       rethrow_exception(cached_exception_);
     }
-    return rc;
   }
 
   // This is used only to do trigger results insertion.
@@ -368,7 +368,7 @@ namespace art {
     actReg_.sPreModule.invoke(mc);
     // Note: Only the TriggerResults inserter--a producer--calls this
     // function.  The return code is thus always true.
-    returnCode_ = implDoProcess(p, mc);
+    returnCode_ = doProcess(p, mc);
     actReg_.sPostModule.invoke(mc);
     assert(returnCode_.load());
     state_ = Pass;
@@ -470,7 +470,7 @@ namespace art {
       actReg_.sPreModule.invoke(mc);
       // Note: Only filters ever return false, and when they do it
       // means they have rejected.
-      returnCode_ = implDoProcess(p, mc);
+      returnCode_ = doProcess(p, mc);
       actReg_.sPostModule.invoke(mc);
       state_ = Fail;
       if (returnCode_.load()) {
@@ -582,6 +582,15 @@ namespace art {
     }
     waitingTasks_.doneWaiting(exception_ptr{});
     TDEBUG_END_TASK_SI(4, sid);
+  }
+
+  bool
+  Worker::isUnique() const
+  {
+    if (scheduleID_ == ScheduleID::first()) {
+      return true;
+    }
+    return md_.moduleThreadingType() == ModuleThreadingType::replicated;
   }
 
   void

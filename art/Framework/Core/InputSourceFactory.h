@@ -2,25 +2,15 @@
 #define art_Framework_Core_InputSourceFactory_h
 // vim: set sw=2 expandtab :
 
+#include "art/Framework/Core/fwd.h"
+#include "fhiclcpp/fwd.h"
+
 #include <memory>
 
-namespace fhicl {
-  class ParameterSet;
-} // namespace fhicl
-
-namespace art {
-
-  class InputSource;
-  struct InputSourceDescription;
-
-  namespace InputSourceFactory {
-
-    std::unique_ptr<InputSource> make(fhicl::ParameterSet const&,
-                                      InputSourceDescription&);
-
-  } // namespace InputSourceFactory
-
-} // namespace art
+namespace art::InputSourceFactory {
+  std::unique_ptr<InputSource> make(fhicl::ParameterSet const&,
+                                    InputSourceDescription&);
+}
 
 #endif /* art_Framework_Core_InputSourceFactory_h */
 

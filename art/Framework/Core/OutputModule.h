@@ -9,6 +9,7 @@
 #include "art/Framework/Core/FileCatalogMetadataPlugin.h"
 #include "art/Framework/Core/GroupSelector.h"
 #include "art/Framework/Core/GroupSelectorRules.h"
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/Observer.h"
 #include "art/Framework/Core/OutputModuleDescription.h"
 #include "art/Framework/Core/OutputWorker.h"
@@ -46,7 +47,6 @@ namespace art {
   class ResultsPrincipal;
 
   class OutputModule : public Observer, public detail::SharedModule {
-    friend class WorkerT<OutputModule>;
     friend class OutputWorker;
 
   public:
@@ -56,7 +56,6 @@ namespace art {
     using PluginCollection_t =
       std::vector<std::unique_ptr<FileCatalogMetadataPlugin>>;
 
-  public: // CONFIGURATION
     struct Config {
       struct KeysToIgnore {
         std::set<std::string>
@@ -75,7 +74,14 @@ namespace art {
       fhicl::Sequence<std::string> outputCommands{
         fhicl::Name("outputCommands"),
         std::vector<std::string>{"keep *"}};
-      fhicl::Atom<std::string> fileName{fhicl::Name("fileName"), ""};
+      fhicl::Atom<std::string> fileName{
+        fhicl::Name("fileName"),
+        fhicl::Comment(
+          R"(The "fileName" parameter is a pattern used to form the name of the output file.
+The ROOT output module supports the placeholders described at:
+
+  https://cdcvs.fnal.gov/redmine/projects/art_root_io/wiki/Output_file_renaming_for_ROOT_files)"),
+        ""};
       fhicl::Atom<std::string> dataTier{fhicl::Name("dataTier"), ""};
       fhicl::Atom<std::string> streamName{fhicl::Name("streamName"), ""};
       fhicl::OptionalDelegatedParameter fcmdPlugins{
@@ -91,23 +97,14 @@ namespace art {
           "more information.")};
     };
 
-  public: // MEMBER FUNCTIONS -- Special Member Functions
-    virtual ~OutputModule() noexcept;
+    virtual ~OutputModule();
     explicit OutputModule(fhicl::ParameterSet const& pset);
-    explicit OutputModule(fhicl::TableFragment<Config> const& pset,
-                          fhicl::ParameterSet const& containing_pset);
+    explicit OutputModule(fhicl::TableFragment<Config> const& pset);
     OutputModule(OutputModule const&) = delete;
     OutputModule(OutputModule&&) = delete;
     OutputModule& operator=(OutputModule const&) = delete;
     OutputModule& operator=(OutputModule&&) = delete;
 
-  public: // MEMBER FUNCTIONS
-    // Accessor for maximum number of events to be written.
-    // -1 is used for unlimited.
-    int maxEvents() const;
-    // Accessor for remaining number of events to be written.
-    // -1 is used for unlimited.
-    int remainingEvents() const;
     bool fileIsOpen() const;
     OutputFileStatus fileStatus() const;
     // Name of output file (may be overridden if default implementation is
@@ -118,7 +115,7 @@ namespace art {
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const;
     void selectProducts(ProductTables const&);
     void doSelectProducts(ProductTables const&);
-    void registerProducts(ProductDescriptions&, ModuleDescription const&);
+    void registerProducts(ProductDescriptions&);
     BranchChildren const& branchChildren() const;
 
   protected:
@@ -127,6 +124,8 @@ namespace art {
                                     ModuleDescription const&);
 
   private:
+    std::unique_ptr<Worker> doMakeWorker(WorkerParams const& wp) final;
+
     void configure(OutputModuleDescription const& desc);
     virtual void doBeginJob(detail::SharedResources const& resources);
     // Called after selectProducts() has done its work.
@@ -153,9 +152,6 @@ namespace art {
     void doSetSubRunAuxiliaryRangeSetID(RangeSet const&);
     bool doCloseFile();
     bool doOpenFile(FileBlock const& fb);
-
-    // Implementation API, intended to be provided by derived classes.
-    std::string workerType() const;
 
     // Do the end-of-file tasks; this is only called internally, after
     // the appropriate tests have been done.
@@ -194,7 +190,6 @@ namespace art {
     virtual bool isFileOpen() const;
     void updateBranchParents(EventPrincipal& ep);
     void fillDependencyGraph();
-    bool limitReached() const;
 
     // The following member functions are part of the Template Method
     // pattern, used for implementing doCloseFile() and maybeEndFile().
@@ -202,11 +197,9 @@ namespace art {
     virtual void writeFileFormatVersion();
     virtual void writeFileIdentifier();
     virtual void writeFileIndex();
-    virtual void writeEventHistory();
     virtual void writeProcessConfigurationRegistry();
     virtual void writeProcessHistoryRegistry();
     virtual void writeParameterSetRegistry();
-    virtual void writeBranchIDListRegistry();
     virtual void writeParentageRegistry();
     virtual void writeProductDescriptionRegistry();
     void writeFileCatalogMetadata();
@@ -235,8 +228,6 @@ namespace art {
       groupSelector_{{nullptr}};
     std::array<bool, NumBranchTypes> hasNewlyDroppedBranch_{{false}};
     GroupSelectorRules groupSelectorRules_;
-    int maxEvents_{-1};
-    int remainingEvents_{maxEvents_};
     using BranchParents = std::map<ProductID, std::set<ParentageID>>;
     std::map<ProductID, std::set<ParentageID>> branchParents_{};
     BranchChildren branchChildren_{};

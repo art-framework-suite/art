@@ -14,8 +14,6 @@
 #include "canvas/Persistency/Common/WrappedTypeID.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "canvas/Persistency/Provenance/EventAuxiliary.h"
-#include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/Parentage.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
@@ -23,9 +21,6 @@
 #include "canvas/Persistency/Provenance/ProductStatus.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/RangeSet.h"
-#include "canvas/Persistency/Provenance/ResultsAuxiliary.h"
-#include "canvas/Persistency/Provenance/RunAuxiliary.h"
-#include "canvas/Persistency/Provenance/SubRunAuxiliary.h"
 #include "canvas/Persistency/Provenance/fwd.h"
 #include "canvas/Utilities/Exception.h"
 #include "canvas/Utilities/TypeID.h"
@@ -93,20 +88,19 @@ namespace art {
   void
   Principal::ctor_read_provenance()
   {
-    auto ppv = delayedReader_->readProvenance();
-    for (auto iter = ppv.begin(), end = ppv.end(); iter != end; ++iter) {
-      auto g = getGroupLocal(iter->productID());
+    for (auto&& provenance : delayedReader_->readProvenance()) {
+      auto g = getGroupLocal(provenance.productID());
       if (g.get() == nullptr) {
         continue;
       }
-      if (iter->productStatus() != productstatus::unknown()) {
-        g->setProductProvenance(make_unique<ProductProvenance>(*iter));
+      if (provenance.productStatus() != productstatus::unknown()) {
+        g->setProductProvenance(make_unique<ProductProvenance>(provenance));
       } else {
         // We have an old format file, convert.
         g->setProductProvenance(make_unique<ProductProvenance>(
-          iter->productID(),
+          provenance.productID(),
           productstatus::dummyToPreventDoubleCount(),
-          iter->parentage().parents()));
+          provenance.parentage().parents()));
       }
     }
   }
@@ -126,117 +120,17 @@ namespace art {
                        ProcessConfiguration const& pc,
                        cet::exempt_ptr<ProductTable const> presentProducts,
                        ProcessHistoryID const& hist,
-                       std::unique_ptr<DelayedReader>&& reader)
+                       std::unique_ptr<DelayedReader>&&
+                         reader /* = std::make_unique<NoDelayedReader>() */)
     : branchType_{branchType}
     , processConfiguration_{pc}
-    , delayedReader_{std::move(reader)}
+    , presentProducts_{presentProducts.get()}
+    , delayedReader_{move(reader)}
   {
-    processHistoryModified_ = false;
-    presentProducts_ = presentProducts.get();
-    producedProducts_ = nullptr;
-    enableLookupOfProducedProducts_ = false;
     delayedReader_->setPrincipal(this);
-    eventAux_ = nullptr;
-    subRunPrincipal_ = nullptr;
     ctor_create_groups(presentProducts);
     ctor_read_provenance();
     ctor_fetch_process_history(hist);
-  }
-
-  // Run
-  Principal::Principal(RunAuxiliary const& aux,
-                       ProcessConfiguration const& pc,
-                       cet::exempt_ptr<ProductTable const> presentProducts,
-                       std::unique_ptr<DelayedReader>&&
-                         reader /* = std::make_unique<NoDelayedReader>() */)
-    : branchType_{InRun}
-    , processConfiguration_{pc}
-    , delayedReader_{std::move(reader)}
-    , runAux_{aux}
-  {
-    processHistoryModified_ = false;
-    presentProducts_ = presentProducts.get();
-    producedProducts_ = nullptr;
-    enableLookupOfProducedProducts_ = false;
-    delayedReader_->setPrincipal(this);
-    eventAux_ = nullptr;
-    subRunPrincipal_ = nullptr;
-    ctor_create_groups(presentProducts);
-    ctor_read_provenance();
-    ctor_fetch_process_history(runAux_.processHistoryID());
-  }
-
-  // SubRun
-  Principal::Principal(SubRunAuxiliary const& aux,
-                       ProcessConfiguration const& pc,
-                       cet::exempt_ptr<ProductTable const> presentProducts,
-                       std::unique_ptr<DelayedReader>&&
-                         reader /* = std::make_unique<NoDelayedReader>() */)
-    : branchType_{InSubRun}
-    , processConfiguration_{pc}
-    , delayedReader_{std::move(reader)}
-    , subRunAux_{aux}
-  {
-    processHistoryModified_ = false;
-    presentProducts_ = presentProducts.get();
-    producedProducts_ = nullptr;
-    enableLookupOfProducedProducts_ = false;
-    delayedReader_->setPrincipal(this);
-    eventAux_ = nullptr;
-    subRunPrincipal_ = nullptr;
-    ctor_create_groups(presentProducts);
-    ctor_read_provenance();
-    ctor_fetch_process_history(subRunAux_.processHistoryID());
-  }
-
-  // Event
-  Principal::Principal(
-    EventAuxiliary const& aux,
-    ProcessConfiguration const& pc,
-    cet::exempt_ptr<ProductTable const> presentProducts,
-    std::unique_ptr<History>&& history /* = std::make_unique<History>() */,
-    std::unique_ptr<DelayedReader>&&
-      reader /* = std::make_unique<NoDelayedReader>() */,
-    bool const lastInSubRun /* = false */)
-    : branchType_{InEvent}
-    , processConfiguration_{pc}
-    , delayedReader_{std::move(reader)}
-    , history_{move(history)}
-    , lastInSubRun_{lastInSubRun}
-  {
-    processHistoryModified_ = false;
-    presentProducts_ = presentProducts.get();
-    producedProducts_ = nullptr;
-    enableLookupOfProducedProducts_ = false;
-    delayedReader_->setPrincipal(this);
-    eventAux_ = new EventAuxiliary(aux);
-    subRunPrincipal_ = nullptr;
-    ctor_create_groups(presentProducts);
-    ctor_read_provenance();
-    ctor_fetch_process_history(history_->processHistoryID());
-  }
-
-  // Results
-  Principal::Principal(ResultsAuxiliary const& aux,
-                       ProcessConfiguration const& pc,
-                       cet::exempt_ptr<ProductTable const> presentProducts,
-                       std::unique_ptr<DelayedReader>&&
-                         reader /* = std::make_unique<NoDelayedReader>() */)
-    : branchType_{InResults}
-    , processConfiguration_{pc}
-    , delayedReader_{std::move(reader)}
-    , resultsAux_{aux}
-  {
-    processHistoryModified_ = false;
-    presentProducts_ = presentProducts.get();
-    producedProducts_ = nullptr;
-    enableLookupOfProducedProducts_ = false;
-    delayedReader_->setPrincipal(this);
-    eventAux_ = nullptr;
-    subRunPrincipal_ = nullptr;
-    ctor_create_groups(presentProducts);
-    ctor_read_provenance();
-    ctor_fetch_process_history(resultsAux_.processHistoryID());
   }
 
   void
@@ -265,22 +159,7 @@ namespace art {
         << "In addition, please notify artists@fnal.gov of this error.\n";
     }
 
-    unique_ptr<Group> group = create_group(delayedReader_.get(), pd);
-    groups_[pd.productID()] = move(group);
-  }
-
-  void
-  Principal::setProcessHistoryIDcombined(ProcessHistoryID const& phid)
-  {
-    if (branchType_ == InRun) {
-      runAux_.setProcessHistoryID(phid);
-    } else if (branchType_ == InSubRun) {
-      subRunAux_.setProcessHistoryID(phid);
-    } else if (branchType_ == InEvent) {
-      history_->setProcessHistoryID(phid);
-    } else {
-      resultsAux_.setProcessHistoryID(phid);
-    }
+    groups_[pd.productID()] = create_group(delayedReader_.get(), pd);
   }
 
   // FIXME: This breaks the purpose of the
@@ -295,7 +174,7 @@ namespace art {
 
   // Note: LArSoft uses this extensively to create a Ptr by hand.
   EDProductGetter const*
-  Principal::productGetter(ProductID const& pid) const
+  Principal::productGetter(ProductID const pid) const
   {
     auto g = getGroupTryAllFiles(pid);
     if (g.get() != nullptr) {
@@ -303,6 +182,13 @@ namespace art {
       return g.get();
     }
     return nullptr;
+  }
+
+  // Note: LArSoft uses this extensively to create a Ptr by hand.
+  Provenance
+  Principal::provenance(ProductID const pid) const
+  {
+    return Provenance{getGroupLocal(pid)};
   }
 
   EDProductGetter const*
@@ -331,8 +217,7 @@ namespace art {
   }
 
   void
-  Principal::enableLookupOfProducedProducts(
-    ProductTables const& /*producedProducts*/)
+  Principal::enableLookupOfProducedProducts()
   {
     enableLookupOfProducedProducts_ = true;
   }
@@ -353,8 +238,7 @@ namespace art {
     //          at a time, and we do not want other threads to find
     //          the info only partly there.
     std::lock_guard sentry{groupMutex_};
-    for (auto const& pid_and_group : groups_) {
-      auto group = pid_and_group.second.get();
+    for (auto const& group : groups_ | ranges::views::values) {
       group->resolveProductIfAvailable();
     }
   }
@@ -408,30 +292,6 @@ namespace art {
   {
     std::lock_guard sentry{groupMutex_};
     return groups_.cend();
-  }
-
-  // This is intended to be used by a module that fetches a very large
-  // data product, makes a copy, and would like to release the memory
-  // held by the original immediately.
-  void
-  Principal::removeCachedProduct(ProductID const pid) const
-  {
-    // MT-FIXME: May be called by a module task, need to protect the
-    //           group with a lock.
-    if (auto g = getGroupLocal(pid)) {
-      g->removeCachedProduct();
-      return;
-    }
-    for (auto const& sp : secondaryPrincipals_) {
-      if (auto g = sp->getGroupLocal(pid)) {
-        g->removeCachedProduct();
-        return;
-      }
-    }
-    throw Exception(errors::ProductNotFound, "removeCachedProduct")
-      << "Attempt to remove unknown product corresponding to ProductID: " << pid
-      << '\n'
-      << "Please contact artists@fnal.gov\n";
   }
 
   cet::exempt_ptr<ProductProvenance const>
@@ -495,7 +355,7 @@ namespace art {
   //
   // Principal::getGroupTryAllFiles(ProductID const& pid) const
   //   Used by Principal::getByProductID(ProductID const& pid) const
-  //     Used by art::DataViewImpl<T>::get(ProductID const pid, Handle<T>&
+  //     Used by art::ProductRetriever<T>::get(ProductID const pid, Handle<T>&
   //       result) const. (easy user-facing api)
   //     Used by Principal::productGetter(ProductID const pid) const
   //       Used by (Run,SubRun,Event,Results)::productGetter (advanced
@@ -550,7 +410,7 @@ namespace art {
   //
   // FIXME: threading: We hand out processHistory_ through the
   // processHistory() interface, which is in turn handed out by
-  // the DataViewImpl::processHistory() interface to any module
+  // the ProductRetriever::processHistory() interface to any module
   // task that wants it.  This is a problem for output modules
   // and analyzers if an output module decides to update the
   // process history from startEndFile. We must stall users of
@@ -594,12 +454,6 @@ namespace art {
       // one Event.
       auto const phid = processHistory_.id();
       ProcessHistoryRegistry::emplace(phid, processHistory_);
-      // MT note: We must protect processHistory_!  The id() call can
-      //          modify it! Note: threading: We are modifying Run,
-      //          SubRun, Event, and Results principals here, and
-      //          their *Auxiliary Note: threading: and the event
-      //          principal art::History.
-      setProcessHistoryIDcombined(processHistory_.id());
     }
   }
 
@@ -641,8 +495,8 @@ namespace art {
     if (!result.has_value()) {
       auto whyFailed = std::make_shared<Exception>(errors::ProductNotFound);
       *whyFailed << "Found zero products matching all selection criteria\n"
-                 << indent << "C++ type: " << wrapped.product_type << "\n"
-                 << sel.print(indent);
+                 << indent << "C++ type: " << wrapped.product_type << '\n'
+                 << sel.print(indent) << '\n';
       return GroupQueryResult{whyFailed};
     }
     return *result;
@@ -823,6 +677,9 @@ namespace art {
         continue;
       }
       auto const& pd = group->productDescription();
+      if (pd.dropped()) {
+        continue;
+      }
       // If we are processing a trigger path, the only visible
       // produced products are those that originate from modules on
       // the same path we're currently processing.
@@ -840,40 +697,6 @@ namespace art {
     return found;
   }
 
-  SubRunPrincipal const&
-  Principal::subRunPrincipal() const
-  {
-    if (subRunPrincipal_.load() == nullptr) {
-      throw Exception(errors::NullPointerError)
-        << "Tried to obtain a NULL subRunPrincipal.\n";
-    }
-    return *subRunPrincipal_.load();
-  }
-
-  cet::exempt_ptr<RunPrincipal const>
-  Principal::runPrincipalExemptPtr() const
-  {
-    return runPrincipal_;
-  }
-
-  SubRunPrincipal const*
-  Principal::subRunPrincipalPtr() const
-  {
-    return subRunPrincipal_.load();
-  }
-
-  void
-  Principal::setRunPrincipal(cet::exempt_ptr<RunPrincipal const> rp)
-  {
-    runPrincipal_ = rp;
-  }
-
-  void
-  Principal::setSubRunPrincipal(cet::exempt_ptr<SubRunPrincipal const> srp)
-  {
-    subRunPrincipal_ = srp.get();
-  }
-
   RangeSet
   Principal::seenRanges() const
   {
@@ -884,46 +707,6 @@ namespace art {
   Principal::updateSeenRanges(RangeSet const& rs)
   {
     rangeSet_ = rs;
-  }
-
-  bool
-  Principal::isReal() const
-  {
-    return eventAux_.load()->isRealData();
-  }
-
-  EventAuxiliary::ExperimentType
-  Principal::ExperimentType() const
-  {
-    return eventAux_.load()->experimentType();
-  }
-
-  History const&
-  Principal::history() const
-  {
-    return *history_;
-  }
-
-  EventSelectionIDVector const&
-  Principal::eventSelectionIDs() const
-  {
-    return history_->eventSelectionIDs();
-  }
-
-  RunPrincipal const&
-  Principal::runPrincipal() const
-  {
-    if (!runPrincipal_) {
-      throw Exception(errors::NullPointerError)
-        << "Tried to obtain a NULL runPrincipal.\n";
-    }
-    return *runPrincipal_;
-  }
-
-  bool
-  Principal::isLastInSubRun() const
-  {
-    return lastInSubRun_;
   }
 
   void
@@ -1024,107 +807,10 @@ namespace art {
     return branchType_;
   }
 
-  RunAuxiliary const&
-  Principal::runAux() const
+  std::optional<ProductInserter>
+  Principal::makeInserter(ModuleContext const& mc)
   {
-    return runAux_;
-  }
-
-  SubRunAuxiliary const&
-  Principal::subRunAux() const
-  {
-    return subRunAux_;
-  }
-
-  EventAuxiliary const&
-  Principal::eventAux() const
-  {
-    return *eventAux_.load();
-  }
-
-  ResultsAuxiliary const&
-  Principal::resultsAux() const
-  {
-    return resultsAux_;
-  }
-
-  RunID const&
-  Principal::runID() const
-  {
-    return runAux_.id();
-  }
-
-  SubRunID
-  Principal::subRunID() const
-  {
-    return subRunAux_.id();
-  }
-
-  EventID const&
-  Principal::eventID() const
-  {
-    return eventAux_.load()->id();
-  }
-
-  RunNumber_t
-  Principal::run() const
-  {
-    if (branchType_ == InRun) {
-      return runAux_.run();
-    }
-    if (branchType_ == InSubRun) {
-      return subRunAux_.run();
-    }
-    return eventAux_.load()->id().run();
-  }
-
-  SubRunNumber_t
-  Principal::subRun() const
-  {
-    if (branchType_ == InSubRun) {
-      return subRunAux_.subRun();
-    }
-    return eventAux_.load()->id().subRun();
-  }
-
-  EventNumber_t
-  Principal::event() const
-  {
-    return eventAux_.load()->id().event();
-  }
-
-  Timestamp const&
-  Principal::beginTime() const
-  {
-    if (branchType_ == InRun) {
-      return runAux_.beginTime();
-    }
-    return subRunAux_.beginTime();
-  }
-
-  Timestamp const&
-  Principal::endTime() const
-  {
-    if (branchType_ == InRun) {
-      return runAux_.endTime();
-    }
-    return subRunAux_.endTime();
-  }
-
-  void
-  Principal::endTime(Timestamp const& time)
-  {
-    if (branchType_ == InRun) {
-      runAux_.endTime(time);
-      return;
-    }
-    subRunAux_.setEndTime(time);
-  }
-
-  Timestamp const&
-  Principal::time() const
-  {
-    return eventAux_.load()->time();
+    return std::make_optional<ProductInserter>(branchType_, *this, mc);
   }
 
   bool
@@ -1150,7 +836,7 @@ namespace art {
   GroupQueryResult
   Principal::getByProductID(ProductID const pid) const
   {
-    if (auto const g = getGroupTryAllFiles(pid)) {
+    if (auto g = getGroupTryAllFiles(pid)) {
       return GroupQueryResult{g};
     }
     auto whyFailed =
@@ -1168,7 +854,7 @@ namespace art {
     return it != groups_.cend() ? it->second.get() : nullptr;
   }
 
-  cet::exempt_ptr<Group const>
+  cet::exempt_ptr<Group>
   Principal::getGroupTryAllFiles(ProductID const pid) const
   {
     // Look through current process and currently opened primary input file.

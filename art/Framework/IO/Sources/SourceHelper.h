@@ -16,7 +16,6 @@
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
-#include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "canvas/Persistency/Provenance/fwd.h"
@@ -49,31 +48,24 @@ public:
                  Principal const& p,
                  typename Ptr<T>::key_type key) const;
 
-  RunPrincipal* makeRunPrincipal(RunAuxiliary const& runAux) const;
-
+  RunPrincipal* makeRunPrincipal(RunAuxiliary runAux) const;
   RunPrincipal* makeRunPrincipal(RunID r, Timestamp const& startTime) const;
-
   RunPrincipal* makeRunPrincipal(RunNumber_t r,
                                  Timestamp const& startTime) const;
 
-  SubRunPrincipal* makeSubRunPrincipal(SubRunAuxiliary const& subRunAux) const;
-
+  SubRunPrincipal* makeSubRunPrincipal(SubRunAuxiliary subRunAux) const;
   SubRunPrincipal* makeSubRunPrincipal(SubRunID const& sr,
                                        Timestamp const& startTime) const;
-
   SubRunPrincipal* makeSubRunPrincipal(RunNumber_t r,
                                        SubRunNumber_t sr,
                                        Timestamp const& startTime) const;
 
-  EventPrincipal* makeEventPrincipal(EventAuxiliary const& eventAux,
-                                     std::unique_ptr<History>&& history) const;
-
+  EventPrincipal* makeEventPrincipal(EventAuxiliary eventAux) const;
   EventPrincipal* makeEventPrincipal(
     EventID const& e,
     Timestamp const& startTime,
     bool isRealData = true,
     EventAuxiliary::ExperimentType eType = EventAuxiliary::Data) const;
-
   EventPrincipal* makeEventPrincipal(
     RunNumber_t r,
     SubRunNumber_t sr,
@@ -85,11 +77,12 @@ public:
 private:
   template <typename T>
   friend class Source;
+
+  template <typename T>
+  T* makePrincipal_(typename T::Auxiliary aux) const;
   void throwIfProductsNotRegistered_() const;
   ProcessHistoryID processHistoryID_(BranchType,
                                      ProcessConfiguration const&) const;
-  std::unique_ptr<History> history_(ProcessConfiguration const&,
-                                    std::unique_ptr<History>&&) const;
   void setPresentProducts(cet::exempt_ptr<ProductTables const> presentProducts);
   cet::exempt_ptr<ProductTables const> presentProducts_{nullptr};
   ModuleDescription md_;

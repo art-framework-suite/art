@@ -14,6 +14,7 @@
 // construction time.
 // ======================================================================
 
+#include "art/Framework/Core/ModuleBase.h"
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/WorkerInPath.h"
 #include "art/Framework/Core/detail/EnabledModules.h"
@@ -40,7 +41,6 @@ namespace art {
   class ActionTable;
   class ActivityRegistry;
   class GlobalTaskGroup;
-  class ModuleBase;
   class UpdateOutputCallbacks;
 
   namespace detail {
@@ -67,16 +67,17 @@ namespace art {
       GlobalTaskGroup& task_group,
       detail::SharedResources& resources,
       std::vector<std::string> const& producing_services);
+    std::unique_ptr<Worker> releaseTriggerResultsInserter(ScheduleID);
     PathsInfo& triggerPathsInfo(ScheduleID);
-    PerScheduleContainer<PathsInfo>& triggerPathsInfo();
+    PerScheduleContainer<PathsInfo> const& triggerPathsInfo();
     PathsInfo& endPathInfo(ScheduleID);
-    PerScheduleContainer<PathsInfo>& endPathInfo();
+    PerScheduleContainer<PathsInfo> const& endPathInfo();
 
   private:
     struct ModulesByThreadingType {
-      std::map<module_label_t, std::shared_ptr<ModuleBase>> shared{};
+      std::map<module_label_t, std::unique_ptr<ModuleBase>> shared{};
       std::map<module_label_t,
-               PerScheduleContainer<std::shared_ptr<ModuleBase>>>
+               PerScheduleContainer<std::unique_ptr<ModuleBase>>>
         replicated{};
     };
 
@@ -84,6 +85,9 @@ namespace art {
       detail::EnabledModules const& enabled_modules) const;
 
     ModulesByThreadingType makeModules_(ScheduleID::size_type n);
+    std::unique_ptr<ReplicatedProducer> makeTriggerResultsInserter_(
+      ScheduleID scheduleID);
+
     using maybe_module_t = std::variant<ModuleBase*, std::string>;
     maybe_module_t makeModule_(fhicl::ParameterSet const& module_pset,
                                ModuleDescription const& md,
@@ -91,12 +95,10 @@ namespace art {
     std::vector<WorkerInPath> fillWorkers_(
       PathContext const& pc,
       std::vector<WorkerInPath::ConfigInfo> const& wci_list,
-      ModulesByThreadingType const& modules,
       std::map<std::string, std::shared_ptr<Worker>>& workers,
       GlobalTaskGroup& task_group,
       detail::SharedResources& resources);
-    std::shared_ptr<Worker> makeWorker_(ModulesByThreadingType const& modules,
-                                        ModuleDescription const& md,
+    std::shared_ptr<Worker> makeWorker_(ModuleDescription const& md,
                                         WorkerParams const& wp);
     ModuleType loadModuleType_(std::string const& lib_spec) const;
     ModuleThreadingType loadModuleThreadingType_(
@@ -136,6 +138,8 @@ namespace art {
     std::map<std::string, detail::ModuleConfigInfo> allModules_{};
     art::detail::paths_to_modules_t protoTrigPathLabels_{};
     art::detail::configs_t protoEndPathLabels_{};
+    ModulesByThreadingType modules_{};
+    PerScheduleContainer<std::unique_ptr<Worker>> triggerResultsWorkers_;
   };
 } // namespace art
 

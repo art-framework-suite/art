@@ -3,7 +3,26 @@
 
 namespace art {
 
-  InputSource::~InputSource() noexcept {}
+  InputSource::~InputSource() = default;
+
+  InputSource::ProcessingMode
+  InputSource::mode(std::string const& modeString)
+  {
+    if (modeString == "Runs") {
+      return Runs;
+    }
+    if (modeString == "RunsAndSubRuns") {
+      return RunsAndSubRuns;
+    }
+    if (modeString == "RunsSubRunsAndEvents") {
+      return RunsSubRunsAndEvents;
+    }
+    throw Exception(errors::Configuration)
+      << "The 'processingMode' parameter for sources has an illegal value '"
+      << modeString << "'\n"
+      << "Legal values are 'Runs', 'RunsAndSubRuns', or "
+         "'RunsSubRunsAndEvents'.\n";
+  }
 
   InputSource::InputSource(ModuleDescription const& md) : moduleDescription_{md}
   {}
@@ -27,16 +46,6 @@ namespace art {
       << "The application has tried to peform random access on an input "
          "source\n"
       << "that does not support random access. Please reconfigure the program\n"
-      << "to use an input source that supports random access (e.g. "
-         "RootInput)\n";
-  }
-
-  void
-  InputSource::rewind()
-  {
-    throw Exception(errors::Configuration)
-      << "The application has tried to rewind an input source\n"
-      << "that does not support rewinding. Please reconfigure the program\n"
       << "to use an input source that supports random access (e.g. "
          "RootInput)\n";
   }

@@ -12,7 +12,7 @@ namespace art {
 
   class OptionsHandler {
   public:
-    virtual ~OptionsHandler() = default;
+    virtual ~OptionsHandler();
 
     int checkOptions(bpo::variables_map const& vm);
     int processOptions(bpo::variables_map const& vm,

@@ -1,7 +1,6 @@
 #include "art/Framework/Core/Schedule.h"
 // vim: set sw=2 expandtab :
 
-#include "art/Framework/Principal/Event.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 #include "art/Utilities/ScheduleID.h"
@@ -14,8 +13,6 @@
 using namespace hep::concurrency;
 using namespace std;
 
-using fhicl::ParameterSet;
-
 namespace art {
 
   Schedule::Schedule(ScheduleID const scheduleID,
@@ -23,17 +20,11 @@ namespace art {
                      ActionTable const& actions,
                      ActivityRegistry const& actReg,
                      UpdateOutputCallbacks& outputCallbacks,
-                     std::unique_ptr<Worker> triggerResultsInserter,
                      GlobalTaskGroup& task_group)
     : context_{scheduleID}
     , actions_{actions}
-    , actReg_{actReg}
-    , epExec_{scheduleID, pm, actions, actReg_, outputCallbacks, task_group}
-    , tpsExec_{scheduleID,
-               pm,
-               actions,
-               move(triggerResultsInserter),
-               task_group}
+    , epExec_{scheduleID, pm, actions, outputCallbacks, task_group}
+    , tpsExec_{scheduleID, pm, actions, actReg, task_group}
   {
     TDEBUG_FUNC_SI(5, scheduleID) << hex << this << dec;
   }
@@ -90,9 +81,6 @@ namespace art {
   void
   Schedule::process_event_modifiers(WaitingTaskPtr endPathTask)
   {
-    // We get here as part of the readAndProcessEvent task.
-    actReg_.sPreProcessEvent.invoke(
-      Event{*eventPrincipal_, ModuleContext::invalid()}, context_);
     tpsExec_.process_event(endPathTask, *eventPrincipal_);
   }
 

@@ -6,6 +6,7 @@
 //  The base class for all analyzer modules.
 //
 
+#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/Observer.h"
 #include "art/Framework/Core/ProcessingFrame.h"
 #include "art/Framework/Core/detail/ImplicitConfigs.h"
@@ -36,17 +37,15 @@ namespace art::detail {
     class Table : public fhicl::ConfigurationTable {
       template <typename T>
       struct FullConfig {
-        fhicl::Atom<std::string> module_type{
-          detail::ModuleConfig::plugin_type()};
+        fhicl::Atom<std::string> module_type{ModuleConfig::plugin_type()};
         fhicl::TableFragment<Observer::EOConfig> eoConfig;
         fhicl::TableFragment<T> user;
       };
 
-      using KeysToIgnore_t =
-        std::conditional_t<std::is_void<UserKeysToIgnore>::value,
-                           detail::ModuleConfig::IgnoreKeys,
-                           fhicl::KeysToIgnore<detail::ModuleConfig::IgnoreKeys,
-                                               UserKeysToIgnore>>;
+      using KeysToIgnore_t = std::conditional_t<
+        std::is_void<UserKeysToIgnore>::value,
+        ModuleConfig::IgnoreKeys,
+        fhicl::KeysToIgnore<ModuleConfig::IgnoreKeys, UserKeysToIgnore>>;
 
     public:
       explicit Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}

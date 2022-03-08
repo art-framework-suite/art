@@ -3,16 +3,17 @@
 
 #include "art/Framework/Core/fwd.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/EventPrincipal.h"
 #include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Provenance/ModuleContext.h"
 
 #include <ostream>
 
 using namespace std;
-
-using art::SharedResources;
 
 namespace art::detail {
 
@@ -66,36 +67,32 @@ namespace art::detail {
   bool
   Analyzer::doBeginRun(RunPrincipal& rp, ModuleContext const& mc)
   {
-    Run const r{rp, mc};
     ProcessingFrame const frame{mc.scheduleID()};
-    beginRunWithFrame(r, frame);
+    beginRunWithFrame(std::as_const(rp).makeRun(mc), frame);
     return true;
   }
 
   bool
   Analyzer::doEndRun(RunPrincipal& rp, ModuleContext const& mc)
   {
-    Run const r{rp, mc};
     ProcessingFrame const frame{mc.scheduleID()};
-    endRunWithFrame(r, frame);
+    endRunWithFrame(std::as_const(rp).makeRun(mc), frame);
     return true;
   }
 
   bool
   Analyzer::doBeginSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    SubRun const sr{srp, mc};
     ProcessingFrame const frame{mc.scheduleID()};
-    beginSubRunWithFrame(sr, frame);
+    beginSubRunWithFrame(std::as_const(srp).makeSubRun(mc), frame);
     return true;
   }
 
   bool
   Analyzer::doEndSubRun(SubRunPrincipal& srp, ModuleContext const& mc)
   {
-    SubRun const sr{srp, mc};
     ProcessingFrame const frame{mc.scheduleID()};
-    endSubRunWithFrame(sr, frame);
+    endSubRunWithFrame(std::as_const(srp).makeSubRun(mc), frame);
     return true;
   }
 
@@ -106,7 +103,7 @@ namespace art::detail {
                     std::atomic<std::size_t>& counts_passed,
                     std::atomic<std::size_t>& /*counts_failed*/)
   {
-    Event const e{ep, mc};
+    auto const e = std::as_const(ep).makeEvent(mc);
     if (wantEvent(mc.scheduleID(), e)) {
       ++counts_run;
       ProcessingFrame const frame{mc.scheduleID()};

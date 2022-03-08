@@ -1,15 +1,10 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
+#include "art/Framework/Principal/SubRun.h"
 // vim: set sw=2 expandtab :
-
-using namespace std;
 
 namespace art {
 
-  class SubRunAuxiliary;
-  class ProcessConfiguration;
-  class DelayedReader;
-
-  SubRunPrincipal::~SubRunPrincipal() {}
+  SubRunPrincipal::~SubRunPrincipal() = default;
 
   SubRunPrincipal::SubRunPrincipal(
     SubRunAuxiliary const& aux,
@@ -17,7 +12,90 @@ namespace art {
     cet::exempt_ptr<ProductTable const> presentProducts,
     std::unique_ptr<DelayedReader>&&
       reader /*= std::make_unique<NoDelayedReader>()*/)
-    : Principal{aux, pc, presentProducts, move(reader)}
+    : Principal{InSubRun,
+                pc,
+                presentProducts,
+                aux.processHistoryID(),
+                move(reader)}
+    , aux_{aux}
   {}
+
+  SubRun
+  SubRunPrincipal::makeSubRun(ModuleContext const& mc, RangeSet const& rs)
+  {
+    return SubRun{*this, mc, makeInserter(mc), rs};
+  }
+
+  SubRun
+  SubRunPrincipal::makeSubRun(ModuleContext const& mc) const
+  {
+    return SubRun{*this, mc};
+  }
+
+  SubRunAuxiliary const&
+  SubRunPrincipal::subRunAux() const
+  {
+    return aux_;
+  }
+
+  SubRunID
+  SubRunPrincipal::subRunID() const
+  {
+    return aux_.id();
+  }
+
+  SubRunNumber_t
+  SubRunPrincipal::subRun() const
+  {
+    return aux_.subRun();
+  }
+
+  Timestamp const&
+  SubRunPrincipal::beginTime() const
+  {
+    return aux_.beginTime();
+  }
+
+  Timestamp const&
+  SubRunPrincipal::endTime() const
+  {
+    return aux_.endTime();
+  }
+
+  RunPrincipal const&
+  SubRunPrincipal::runPrincipal() const
+  {
+    if (!runPrincipal_) {
+      throw Exception(errors::NullPointerError)
+        << "Tried to obtain a NULL runPrincipal.\n";
+    }
+    return *runPrincipal_;
+  }
+
+  RunID const&
+  SubRunPrincipal::runID() const
+  {
+    return aux_.runID();
+  }
+
+  SubRunNumber_t
+  SubRunPrincipal::run() const
+  {
+    return aux_.run();
+  }
+
+  void
+  SubRunPrincipal::setRunPrincipal(cet::exempt_ptr<RunPrincipal const> rp)
+  {
+    runPrincipal_ = rp;
+  }
+
+  void
+  SubRunPrincipal::createGroupsForProducedProducts(
+    ProductTables const& producedProducts)
+  {
+    Principal::createGroupsForProducedProducts(producedProducts);
+    aux_.setProcessHistoryID(processHistoryID());
+  }
 
 } // namespace art

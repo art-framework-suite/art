@@ -5,10 +5,20 @@ using namespace std;
 
 namespace art {
 
-  string
-  ReplicatedProducer::workerType() const
+  // Only the TriggerResults module is allowed to have no
+  // module_label parameter.  We provide a default empty string for
+  // only that reason.
+  ReplicatedProducer::ReplicatedProducer(fhicl::ParameterSet const& pset,
+                                         ProcessingFrame const& frame)
+    : Producer{pset}
+    , EngineCreator{pset.get<std::string>("module_label", {}),
+                    frame.scheduleID()}
+  {}
+
+  std::unique_ptr<Worker>
+  ReplicatedProducer::doMakeWorker(WorkerParams const& wp)
   {
-    return "WorkerT<ReplicatedProducer>";
+    return std::make_unique<WorkerT<ReplicatedProducer>>(this, wp);
   }
 
   void

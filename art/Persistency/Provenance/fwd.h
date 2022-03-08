@@ -5,11 +5,10 @@
 // Forward declarations of types in Provenance
 // ======================================================================
 
-#include <memory>
-
 namespace art {
   class ModuleContext;
   class ModuleDescription;
+  class PathContext;
 } // namespace art
 
 // ======================================================================

@@ -10,7 +10,7 @@ namespace art {
 #include "art/Framework/Art/OptionsHandler.h"
 #include "cetlib/filepath_maker.h"
 
-class art::BasicPostProcessor : public art::OptionsHandler {
+class art::BasicPostProcessor : public OptionsHandler {
 private:
   // Check selected options for consistency.
   int doCheckOptions(bpo::variables_map const& vm) override;

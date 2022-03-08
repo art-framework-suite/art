@@ -11,7 +11,9 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/ResultsPrincipal.h"
 #include "art/Framework/Principal/Run.h"
+#include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRun.h"
+#include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/FileServiceInterfaces/CatalogInterface.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -31,6 +33,7 @@
 #include "cetlib/BasicPluginFactory.h"
 #include "cetlib/canonical_string.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "range/v3/view.hpp"
 
 #include <array>
 #include <atomic>
@@ -49,13 +52,11 @@ using fhicl::ParameterSet;
 
 namespace art {
 
-  OutputModule::~OutputModule() noexcept = default;
+  OutputModule::~OutputModule() = default;
 
-  OutputModule::OutputModule(fhicl::TableFragment<Config> const& config,
-                             ParameterSet const& containing_pset)
+  OutputModule::OutputModule(fhicl::TableFragment<Config> const& config)
     : Observer{config().eoFragment().selectEvents(),
-               config().eoFragment().rejectEvents(),
-               containing_pset}
+               config().eoFragment().rejectEvents()}
     , groupSelectorRules_{config().outputCommands(),
                           "outputCommands",
                           "OutputModule"}
@@ -84,16 +85,16 @@ namespace art {
     serialize(detail::LegacyResource);
   }
 
+  std::unique_ptr<Worker>
+  OutputModule::doMakeWorker(WorkerParams const& wp)
+  {
+    return std::make_unique<OutputWorker>(this, wp);
+  }
+
   bool
   OutputModule::fileIsOpen() const
   {
     return isFileOpen();
-  }
-
-  string
-  OutputModule::workerType() const
-  {
-    return "OutputWorker";
   }
 
   void
@@ -119,12 +120,6 @@ namespace art {
   }
 
   void
-  OutputModule::configure(OutputModuleDescription const& desc)
-  {
-    remainingEvents_ = maxEvents_ = desc.maxEvents_;
-  }
-
-  void
   OutputModule::doSelectProducts(ProductTables const& tables)
   {
     // Note: The keptProducts_ data member records all of the
@@ -138,8 +133,7 @@ namespace art {
       // TODO: See if we can collapse keptProducts_ and groupSelector into
       // a single object. See the notes in the header for GroupSelector
       // for more information.
-      for (auto const& val : productList) {
-        BranchDescription const& pd = val.second;
+      for (auto const& pd : productList | ranges::views::values) {
         if (pd.transient() || pd.dropped()) {
           continue;
         }
@@ -176,10 +170,9 @@ namespace art {
   {}
 
   void
-  OutputModule::registerProducts(ProductDescriptions& producedProducts,
-                                 ModuleDescription const& md)
+  OutputModule::registerProducts(ProductDescriptions& producedProducts)
   {
-    doRegisterProducts(producedProducts, md);
+    doRegisterProducts(producedProducts, moduleDescription());
   }
 
   void
@@ -200,7 +193,7 @@ namespace art {
   {
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp);
-    Run const r{rp, mc};
+    auto const r = rp.makeRun(mc);
     cet::for_all(plugins_, [&r](auto& p) { p->doBeginRun(r); });
     return true;
   }
@@ -211,7 +204,7 @@ namespace art {
   {
     FDEBUG(2) << "beginSubRun called\n";
     beginSubRun(srp);
-    SubRun const sr{srp, mc};
+    auto const sr = srp.makeSubRun(mc);
     cet::for_all(plugins_, [&sr](auto& p) { p->doBeginSubRun(sr); });
     return true;
   }
@@ -224,8 +217,7 @@ namespace art {
                         std::atomic<std::size_t>& /*counts_failed*/)
   {
     FDEBUG(2) << "doEvent called\n";
-    Event const e{ep, mc};
-    if (wantEvent(mc.scheduleID(), e)) {
+    if (wantEvent(mc.scheduleID(), ep.makeEvent(mc))) {
       ++counts_run;
       event(ep);
       ++counts_passed;
@@ -237,7 +229,7 @@ namespace art {
   OutputModule::doWriteEvent(EventPrincipal& ep, ModuleContext const& mc)
   {
     FDEBUG(2) << "writeEvent called\n";
-    Event const e{ep, mc};
+    auto const e = std::as_const(ep).makeEvent(mc);
     if (wantEvent(mc.scheduleID(), e)) {
       write(ep);
       // Declare that the event was selected for write to the catalog interface.
@@ -250,9 +242,6 @@ namespace art {
       // ... and invoke the plugins:
       cet::for_all(plugins_, [&e](auto& p) { p->doCollectMetadata(e); });
       updateBranchParents(ep);
-      if (remainingEvents_ > 0) {
-        --remainingEvents_;
-      }
     }
   }
 
@@ -267,7 +256,7 @@ namespace art {
   {
     FDEBUG(2) << "endSubRun called\n";
     endSubRun(srp);
-    SubRun const sr{srp, mc};
+    auto const sr = srp.makeSubRun(mc);
     cet::for_all(plugins_, [&sr](auto& p) { p->doEndSubRun(sr); });
     return true;
   }
@@ -291,7 +280,7 @@ namespace art {
   {
     FDEBUG(2) << "endRun called\n";
     endRun(rp);
-    Run const r{rp, mc};
+    auto const r = rp.makeRun(mc);
     cet::for_all(plugins_, [&r](auto& p) { p->doEndRun(r); });
     return true;
   }
@@ -372,7 +361,6 @@ namespace art {
     writeFileFormatVersion();
     writeFileIdentifier();
     writeFileIndex();
-    writeEventHistory();
     writeProcessConfigurationRegistry();
     writeProcessHistoryRegistry();
     writeParameterSetRegistry();
@@ -391,27 +379,25 @@ namespace art {
   OutputModule::updateBranchParents(EventPrincipal& ep)
   {
     // Note: threading: We are implicitly using the Principal
-    //       iterators here which iterate over the groups held
-    //       by the principal, which may be updated by a producer
-    //       task in another stream while we are iterating! But
-    //       only for Run, SubRun, and Results principals, in the
-    //       case of Event principals we arrange that no producer
-    //       or filter tasks are running when we run. So since we
-    //       are only called for event principals we are safe.
+    //       iterators here which iterate over the groups held by the
+    //       principal, which may be updated by a producer task in
+    //       another stream while we are iterating! But only for Run,
+    //       SubRun, and Results principals, in the case of Event
+    //       principals we arrange that no producer or filter tasks
+    //       are running when we run. So since we are only called for
+    //       event principals we are safe.
     //
-    // Note: threading: We update branchParents_ and
-    //       branchChildren_ here which must be protected if we
-    //       become a stream or global module.
+    // Note: threading: We update branchParents_ and branchChildren_
+    //       here which must be protected if we become a stream or
+    //       global module.
     //
-    for (auto const& pid_and_uptr_to_grp : ep) {
-      auto const& group = *pid_and_uptr_to_grp.second;
-      if (group.productProvenance()) {
-        ProductID const pid = pid_and_uptr_to_grp.first;
+    for (auto const& [pid, group] : ep) {
+      if (auto provenance = group->productProvenance()) {
         auto iter = branchParents_.find(pid);
         if (iter == branchParents_.end()) {
           iter = branchParents_.emplace(pid, set<ParentageID>{}).first;
         }
-        iter->second.insert(group.productProvenance()->parentageID());
+        iter->second.insert(provenance->parentageID());
         branchChildren_.insertEmpty(pid);
       }
     }
@@ -422,9 +408,7 @@ namespace art {
   void
   OutputModule::fillDependencyGraph()
   {
-    for (auto const& bp : branchParents_) {
-      ProductID const child = bp.first;
-      set<ParentageID> const& eIds = bp.second;
+    for (auto const& [child, eIds] : branchParents_) {
       for (auto const& eId : eIds) {
         Parentage par;
         if (!ParentageRegistry::get(eId, par)) {
@@ -524,10 +508,6 @@ namespace art {
   {}
 
   void
-  OutputModule::writeEventHistory()
-  {}
-
-  void
   OutputModule::writeProcessConfigurationRegistry()
   {}
 
@@ -537,10 +517,6 @@ namespace art {
 
   void
   OutputModule::writeParameterSetRegistry()
-  {}
-
-  void
-  OutputModule::writeBranchIDListRegistry()
   {}
 
   void
@@ -658,18 +634,6 @@ namespace art {
     return result;
   }
 
-  int
-  OutputModule::maxEvents() const
-  {
-    return maxEvents_;
-  }
-
-  int
-  OutputModule::remainingEvents() const
-  {
-    return remainingEvents_;
-  }
-
   SelectionsArray const&
   OutputModule::keptProducts() const
   {
@@ -696,9 +660,4 @@ namespace art {
     return branchChildren_;
   }
 
-  bool
-  OutputModule::limitReached() const
-  {
-    return remainingEvents_ == 0;
-  }
 } // namespace art

@@ -3,10 +3,14 @@
 
 namespace art {
 
-  std::string
-  SharedAnalyzer::workerType() const
+  SharedAnalyzer::SharedAnalyzer(fhicl::ParameterSet const& pset)
+    : Analyzer{pset}, SharedModule{pset.get<std::string>("module_label")}
+  {}
+
+  std::unique_ptr<Worker>
+  SharedAnalyzer::doMakeWorker(WorkerParams const& wp)
   {
-    return "WorkerT<SharedAnalyzer>";
+    return std::make_unique<WorkerT<SharedAnalyzer>>(this, wp);
   }
 
   void

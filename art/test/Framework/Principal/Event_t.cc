@@ -14,6 +14,8 @@
 //
 // =====================================================================
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include "boost/test/unit_test.hpp"
 
 #include "art/Framework/Principal/Event.h"
@@ -32,7 +34,6 @@
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/EventAuxiliary.h"
 #include "canvas/Persistency/Provenance/EventID.h"
-#include "canvas/Persistency/Provenance/History.h"
 #include "canvas/Persistency/Provenance/ProcessHistory.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/RunAuxiliary.h"
@@ -42,12 +43,14 @@
 #include "canvas/Utilities/InputTag.h"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 
 #include <algorithm>
 #include <fstream>
 #include <iterator>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <typeinfo>
 #include <utility>
@@ -68,11 +71,7 @@ namespace {
     return art::EventID{2112, 47, 25};
   }
 
-  constexpr art::Timestamp
-  make_timestamp()
-  {
-    return art::Timestamp{1};
-  }
+  constexpr art::Timestamp timestamp{1};
 
   std::string
   module_class_name()
@@ -89,7 +88,6 @@ namespace {
   ModuleLabelSelector const modMultiSelector{"modMulti"};
 } // namespace
 
-// This is a gross hack, to allow us to test the event
 namespace art {
 
   std::ostream&
@@ -98,14 +96,17 @@ namespace art {
     return os << timestamp.value();
   }
 
-  class EDProducer {
-  public:
-    static void
-    commitEvent(EventPrincipal& ep, Event& e)
-    {
-      e.movePutProductsToPrincipal(ep);
-    }
-  };
+  // This gross hack allows us to test the event
+  namespace detail {
+    class Producer {
+    public:
+      static void
+      commit(Event& e)
+      {
+        e.commitProducts();
+      }
+    };
+  }
 
 } // namespace art
 
@@ -113,6 +114,7 @@ class ProductTablesFixture {
 public:
   ProductTablesFixture();
 
+  ProcessHistory processHistory() const;
   ModuleDescription currentModuleDescription_{};
   // The moduleConfigurations_ data member is a map that with the
   // following semantics:
@@ -177,6 +179,36 @@ ProductTablesFixture::ProductTablesFixture()
   }
 }
 
+ProcessHistory
+ProductTablesFixture::processHistory() const
+{
+  // Construct process history for event.  This takes several lines of
+  // code but other than the process names none of it is used or
+  // interesting.
+  ProcessHistory processHistory;
+  for (auto const& [process_name, module_configs] : moduleConfigurations_) {
+    // Skip current process since it is not yet part of the history.
+    if (process_name == "CURRENT") {
+      continue;
+    }
+
+    // Construct the ParameterSet for each process
+    ParameterSet processParameterSet;
+    processParameterSet.put("process_name", process_name);
+    for (auto const& [key, value] : module_configs) {
+      processParameterSet.put(key, value);
+    }
+
+    ProcessConfiguration const processConfiguration{
+      process_name, processParameterSet.id(), getReleaseVersion()};
+    processHistory.push_back(processConfiguration);
+  }
+
+  auto const processHistoryID = processHistory.id();
+  ProcessHistoryRegistry::emplace(processHistoryID, processHistory);
+  return processHistory;
+}
+
 template <class T, bool Present>
 ModuleDescription const&
 ProductTablesFixture::registerProduct(std::string const& tag,
@@ -194,6 +226,7 @@ ProductTablesFixture::registerProduct(std::string const& tag,
   processParams.put("process_name", processName);
   processParams.put(moduleLabel, moduleParams);
 
+  fhicl::ParameterSetRegistry::put(processParams);
   ProcessConfiguration const process{
     processName, processParams.id(), getReleaseVersion()};
 
@@ -233,75 +266,72 @@ public:
                              std::string const& tag,
                              std::string const& instanceName = {});
 
-  ProductTablesFixture& ptf();
-  std::unique_ptr<RunPrincipal> runPrincipal_{};
-  std::unique_ptr<SubRunPrincipal> subRunPrincipal_{};
-  std::unique_ptr<EventPrincipal> principal_{nullptr};
-  ModuleContext currentModuleContext_{ModuleContext::invalid()};
-  std::unique_ptr<Event> currentEvent_{nullptr};
+  ProductTablesFixture const& ptf();
+  ProcessHistory processHistory_;
+  ProcessConfiguration const& processConfiguration_;
+  ModuleContext currentModuleContext_;
+  RunPrincipal runPrincipal_;
+  std::unique_ptr<SubRunPrincipal> subRunPrincipal_;
+  std::unique_ptr<EventPrincipal> principal_;
+  Event currentEvent_;
 };
 
-EventTestFixture::EventTestFixture()
-{
-  // Construct process history for event.  This takes several lines of
-  // code but other than the process names none of it is used or
-  // interesting.
-  ProcessHistory processHistory;
-  for (auto const& process : ptf().moduleConfigurations_) {
-    auto const& process_name = process.first;
-    // Skip current process since it is not yet part of the history.
-    if (process_name == "CURRENT") {
-      continue;
-    }
-
-    // Construct the ParameterSet for each process
-    auto const& module_configurations = process.second;
-    ParameterSet processParameterSet;
-    processParameterSet.put("process_name", process_name);
-    for (auto const& modConfig : module_configurations) {
-      processParameterSet.put(modConfig.first, modConfig.second);
-    }
-
-    ProcessConfiguration const processConfiguration{
-      process.first, processParameterSet.id(), getReleaseVersion()};
-    processHistory.push_back(processConfiguration);
+namespace {
+  auto
+  make_run_principal(ProcessConfiguration const& pc)
+  {
+    RunAuxiliary const runAux{make_id().run(), timestamp, timestamp};
+    return RunPrincipal{runAux, pc, nullptr};
   }
 
-  auto const processHistoryID = processHistory.id();
-  ProcessHistoryRegistry::emplace(processHistoryID, processHistory);
+  auto
+  make_subrun_principal(RunPrincipal const& rp, ProcessConfiguration const& pc)
+  {
+    SubRunAuxiliary const subRunAux{rp.run(), 1u, timestamp, timestamp};
+    auto srp = std::make_unique<SubRunPrincipal>(subRunAux, pc, nullptr);
+    srp->setRunPrincipal(&rp);
+    return srp;
+  }
 
-  // When any new product is added to the event principal at
-  // movePutProductsToPrincipal, the "CURRENT" process will go into the
-  // ProcessHistory because the process name comes from the
-  // currentModuleDescription stored in the principal.  On the other hand, when
-  // addSourceProduct is called, another event is created with a fake
-  // moduleDescription containing the old process name and that is used to
-  // create the group in the principal used to look up the object.
-
-  constexpr auto time = make_timestamp();
-  EventID const id{make_id()};
-  ProcessConfiguration const& pc =
-    ptf().currentModuleDescription_.processConfiguration();
-
-  RunAuxiliary const runAux{id.run(), time, time};
-  runPrincipal_ = std::make_unique<RunPrincipal>(runAux, pc, nullptr);
-
-  SubRunAuxiliary const subRunAux{runPrincipal_->run(), 1u, time, time};
-  subRunPrincipal_ = std::make_unique<SubRunPrincipal>(subRunAux, pc, nullptr);
-  subRunPrincipal_->setRunPrincipal(runPrincipal_.get());
-
-  EventAuxiliary const eventAux{id, time, true};
-  auto history = std::make_unique<History>();
-  const_cast<ProcessHistoryID&>(history->processHistoryID()) = processHistoryID;
-  principal_ = std::make_unique<EventPrincipal>(
-    eventAux, pc, &ptf().presentProducts_, std::move(history));
-  principal_->setSubRunPrincipal(subRunPrincipal_.get());
-  principal_->createGroupsForProducedProducts(ptf().producedProducts_);
-  principal_->enableLookupOfProducedProducts(ptf().producedProducts_);
-
-  currentModuleContext_ = ModuleContext{ptf().currentModuleDescription_};
-  currentEvent_ = std::make_unique<Event>(*principal_, currentModuleContext_);
+  auto
+  make_event_principal(SubRunPrincipal const* srp,
+                       ProcessConfiguration const& pc,
+                       ProductTablesFixture const& ptf,
+                       ProcessHistoryID const& phid)
+  {
+    // When any new product is added to the event principal at
+    // commitProducts, the "CURRENT" process will go into the
+    // ProcessHistory because the process name comes from the
+    // currentModuleDescription stored in the principal.  On the other
+    // hand, when addSourceProduct is called, another event is created
+    // with a fake moduleDescription containing the old process name
+    // and that is used to create the group in the principal used to
+    // look up the object.
+    EventAuxiliary eventAux{make_id(), timestamp, true};
+    eventAux.setProcessHistoryID(phid);
+    auto ep =
+      std::make_unique<EventPrincipal>(eventAux, pc, &ptf.presentProducts_);
+    ep->setSubRunPrincipal(srp);
+    ep->createGroupsForProducedProducts(ptf.producedProducts_);
+    ep->enableLookupOfProducedProducts();
+    return ep;
+  }
 }
+
+EventTestFixture::EventTestFixture()
+  : processHistory_{ptf().processHistory()}
+  , processConfiguration_{ptf()
+                            .currentModuleDescription_.processConfiguration()}
+  , currentModuleContext_{ptf().currentModuleDescription_}
+  , runPrincipal_{make_run_principal(processConfiguration_)}
+  , subRunPrincipal_{make_subrun_principal(runPrincipal_,
+                                           processConfiguration_)}
+  , principal_{make_event_principal(subRunPrincipal_.get(),
+                                    processConfiguration_,
+                                    ptf(),
+                                    processHistory_.id())}
+  , currentEvent_{principal_->makeEvent(currentModuleContext_)}
+{}
 
 // Add the given product, of type T, to the current event, as if it
 // came from the module/source specified by the given tag.
@@ -322,17 +352,17 @@ EventTestFixture::addSourceProduct(std::unique_ptr<T>&& product,
       << "Failed to find a product lookup for tag: " << tag << '\n';
 
   ModuleContext const tempMC{description->second};
-  Event temporaryEvent{*principal_, tempMC};
+  auto temporaryEvent = principal_->makeEvent(tempMC);
   ProductID const id{temporaryEvent.put(std::move(product), instanceName)};
 
-  EDProducer::commitEvent(*principal_, temporaryEvent);
+  detail::Producer::commit(temporaryEvent);
   return id;
 }
 
-ProductTablesFixture&
+ProductTablesFixture const&
 EventTestFixture::ptf()
 {
-  static ProductTablesFixture ptf_s;
+  static ProductTablesFixture const ptf_s;
   return ptf_s;
 }
 
@@ -342,7 +372,7 @@ BOOST_AUTO_TEST_CASE(badProductID)
 {
   auto const pid = ProductID::invalid();
   InputTag tag{};
-  if (auto pd = currentEvent_->getProductDescription(pid)) {
+  if (auto pd = currentEvent_.getProductDescription(pid)) {
     tag = pd->inputTag();
   }
   BOOST_TEST(tag.empty());
@@ -350,9 +380,8 @@ BOOST_AUTO_TEST_CASE(badProductID)
 
 BOOST_AUTO_TEST_CASE(emptyEvent)
 {
-  BOOST_TEST_REQUIRE(currentEvent_.get());
-  BOOST_TEST(currentEvent_->id() == make_id());
-  BOOST_TEST(currentEvent_->time() == make_timestamp());
+  BOOST_TEST(currentEvent_.id() == make_id());
+  BOOST_TEST(currentEvent_.time() == timestamp);
 }
 
 BOOST_AUTO_TEST_CASE(getBySelectorFromEmpty)
@@ -361,7 +390,7 @@ BOOST_AUTO_TEST_CASE(getBySelectorFromEmpty)
   Handle<int> nonesuch;
   BOOST_TEST(not nonesuch);
   BOOST_TEST(!nonesuch.isValid());
-  BOOST_TEST(!currentEvent_->get(byModuleLabel, nonesuch));
+  BOOST_TEST(!currentEvent_.get(byModuleLabel, nonesuch));
   BOOST_TEST(!nonesuch.isValid());
   BOOST_TEST(nonesuch.failedToGet());
   BOOST_CHECK_THROW(*nonesuch, cet::exception);
@@ -376,14 +405,14 @@ BOOST_AUTO_TEST_CASE(dereferenceDfltHandle)
 
 BOOST_AUTO_TEST_CASE(putAnIntProduct)
 {
-  currentEvent_->put(product_with_value(3), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_);
+  currentEvent_.put(product_with_value(3), "int1");
+  detail::Producer::commit(currentEvent_);
 }
 
 BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
 {
-  currentEvent_->put(product_with_value(4), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_);
+  currentEvent_.put(product_with_value(4), "int1");
+  detail::Producer::commit(currentEvent_);
 
   ProcessNameSelector const should_match{"CURRENT"};
   ProcessNameSelector const should_not_match{"NONESUCH"};
@@ -391,19 +420,20 @@ BOOST_AUTO_TEST_CASE(putAndGetAnIntProduct)
   // string.  See notes in the Selector header file.
   ProcessNameSelector const should_also_not_match{"current_process"};
   Handle<arttest::IntProduct> h;
-  BOOST_TEST_REQUIRE(currentEvent_->get(should_match, h));
+  BOOST_TEST_REQUIRE(currentEvent_.get(should_match, h));
   BOOST_TEST(h);
   BOOST_TEST(h.isValid());
   h.clear();
   BOOST_CHECK_THROW(*h, cet::exception);
-  BOOST_TEST_REQUIRE(!currentEvent_->get(should_not_match, h));
+  BOOST_TEST_REQUIRE(!currentEvent_.get(should_not_match, h));
   BOOST_TEST(!h.isValid());
   BOOST_CHECK_THROW(*h, cet::exception);
-  BOOST_TEST_REQUIRE(!currentEvent_->get(should_also_not_match, h));
+  BOOST_TEST_REQUIRE(!currentEvent_.get(should_also_not_match, h));
   BOOST_TEST(!h.isValid());
   BOOST_CHECK_THROW(*h, cet::exception);
 }
 
+// The following is deprecated and will be removed.
 BOOST_AUTO_TEST_CASE(getByProductID)
 {
   using handle_t = Handle<product_t>;
@@ -421,13 +451,13 @@ BOOST_AUTO_TEST_CASE(getByProductID)
     BOOST_TEST(id2 != id1);
   }
   Handle<arttest::IntProduct> h;
-  currentEvent_->get(wanted, h);
+  currentEvent_.get(wanted, h);
   BOOST_TEST(h.isValid());
   BOOST_TEST(h.id() == wanted);
   BOOST_TEST(h->value == 1);
 
   ProductID const notpresent{};
-  BOOST_TEST_REQUIRE(!currentEvent_->get(notpresent, h));
+  BOOST_TEST_REQUIRE(!currentEvent_.get(notpresent, h));
   BOOST_TEST(!h.isValid());
   BOOST_TEST(h.failedToGet());
   BOOST_CHECK_THROW(*h, cet::exception);
@@ -436,10 +466,10 @@ BOOST_AUTO_TEST_CASE(getByProductID)
 BOOST_AUTO_TEST_CASE(transaction)
 {
   // Put a product into an Event, and make sure that if we don't
-  // movePutProductsToPrincipal, there is no product in the EventPrincipal
+  // commitProducts, there is no product in the EventPrincipal
   // afterwards.
   BOOST_TEST(principal_->size() == 6u);
-  currentEvent_->put(product_with_value(3), "int1");
+  currentEvent_.put(product_with_value(3), "int1");
   BOOST_TEST(principal_->size() == 6u);
 }
 
@@ -450,15 +480,15 @@ BOOST_AUTO_TEST_CASE(getProductTokens)
   addSourceProduct(product_with_value(3), "int3_tag");
   addSourceProduct(product_with_value(4), "nolabel_tag");
 
-  auto const tags = currentEvent_->getInputTags<product_t>();
-  auto const tokens = currentEvent_->getProductTokens<product_t>();
+  auto const tags = currentEvent_.getInputTags<product_t>();
+  auto const tokens = currentEvent_.getProductTokens<product_t>();
   BOOST_TEST(size(tags) == size(tokens));
 
   // Verify that the same products are retrieved whether tags or
   // tokens are used.
   for (std::size_t i{}; i < tags.size(); ++i) {
-    auto h1 = currentEvent_->getHandle<product_t>(tags[i]);
-    auto h2 = currentEvent_->getHandle(tokens[i]);
+    auto h1 = currentEvent_.getHandle<product_t>(tags[i]);
+    auto h2 = currentEvent_.getHandle(tokens[i]);
     BOOST_TEST(static_cast<bool>(h1) == static_cast<bool>(h2));
   }
 }
@@ -475,36 +505,36 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
 
   Selector const sel{ProductInstanceNameSelector{"int2"} &&
                      ModuleLabelSelector{"modMulti"}};
-  auto h = currentEvent_->getHandle<product_t>(sel);
+  auto h = currentEvent_.getHandle<product_t>(sel);
   BOOST_TEST_REQUIRE(h);
   BOOST_TEST(h->value == 2);
 
   Selector const sel2{ProductInstanceNameSelector{"int2"} ||
                       ProductInstanceNameSelector{"int1"}};
-  auto handles = currentEvent_->getMany<product_t>(sel2);
+  auto handles = currentEvent_.getMany<product_t>(sel2);
   BOOST_TEST(handles.size() == std::size_t{2});
 
   std::string const instance;
   Selector sel1{ProductInstanceNameSelector{instance}};
   sel1 = Selector{sel1 && ModuleLabelSelector{"modMulti"}};
 
-  BOOST_TEST_REQUIRE(currentEvent_->get(sel1, h));
+  BOOST_TEST_REQUIRE(currentEvent_.get(sel1, h));
   BOOST_TEST(h->value == 3);
   handles.clear();
 
   // There should be five registered products with the 'modMulti'
   // module label.
-  auto tags = currentEvent_->getInputTags<product_t>(modMultiSelector);
+  auto tags = currentEvent_.getInputTags<product_t>(modMultiSelector);
   BOOST_TEST(tags.size() == 5u);
   // Now remove the unavailable products
   auto new_end =
     std::remove_if(begin(tags), end(tags), [this](auto const& tag) {
-      return !currentEvent_->getHandle<product_t>(tag);
+      return !currentEvent_.getHandle<product_t>(tag);
     });
   tags.erase(new_end, end(tags));
 
   // Only three of the registered products are available.
-  handles = currentEvent_->getMany<product_t>(modMultiSelector);
+  handles = currentEvent_.getMany<product_t>(modMultiSelector);
   BOOST_TEST(handles.size() == 3u);
 
   // Make sure the resolved products agree with those specified in the
@@ -514,10 +544,10 @@ BOOST_AUTO_TEST_CASE(getByInstanceName)
     BOOST_TEST(handles[i].provenance()->inputTag() == tags[i]);
   }
 
-  handles = currentEvent_->getMany<product_t>(ModuleLabelSelector{"nomatch"});
+  handles = currentEvent_.getMany<product_t>(ModuleLabelSelector{"nomatch"});
   BOOST_TEST_REQUIRE(handles.empty());
 
-  auto const nomatches = currentEvent_->getMany<int>(modMultiSelector);
+  auto const nomatches = currentEvent_.getMany<int>(modMultiSelector);
   BOOST_TEST_REQUIRE(nomatches.empty());
 }
 
@@ -532,51 +562,51 @@ BOOST_AUTO_TEST_CASE(getBySelector)
   addSourceProduct(product_with_value(4), "nolabel_tag");
   addSourceProduct(product_with_value(100), "int1_tag_late", "int1");
 
-  currentEvent_->put(product_with_value(200), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_);
+  currentEvent_.put(product_with_value(200), "int1");
+  detail::Producer::commit(currentEvent_);
 
   Selector const sel{ProductInstanceNameSelector{"int2"} && modMultiSelector &&
                      ProcessNameSelector{"EARLY"}};
   handle_t h;
-  BOOST_TEST_REQUIRE(currentEvent_->get(sel, h));
+  BOOST_TEST_REQUIRE(currentEvent_.get(sel, h));
   BOOST_TEST(h->value == 2);
 
   Selector const sel1{ProductInstanceNameSelector{"nomatch"} &&
                       modMultiSelector && ProcessNameSelector{"EARLY"}};
-  BOOST_TEST_REQUIRE(!currentEvent_->get(sel1, h));
+  BOOST_TEST_REQUIRE(!currentEvent_.get(sel1, h));
   BOOST_TEST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
 
   Selector const sel2{ProductInstanceNameSelector{"int2"} &&
                       ModuleLabelSelector{"nomatch"} &&
                       ProcessNameSelector{"EARLY"}};
-  BOOST_TEST_REQUIRE(!currentEvent_->get(sel2, h));
+  BOOST_TEST_REQUIRE(!currentEvent_.get(sel2, h));
   BOOST_TEST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
 
   Selector const sel3{ProductInstanceNameSelector{"int2"} && modMultiSelector &&
                       ProcessNameSelector{"nomatch"}};
-  BOOST_TEST_REQUIRE(!currentEvent_->get(sel3, h));
+  BOOST_TEST_REQUIRE(!currentEvent_.get(sel3, h));
   BOOST_TEST_REQUIRE(!h.isValid());
   BOOST_REQUIRE_THROW(*h, cet::exception);
 
   Selector const sel4{modMultiSelector && ProcessNameSelector{"EARLY"}};
   // multiple selections throw
-  BOOST_REQUIRE_THROW(currentEvent_->get(sel4, h), cet::exception);
+  BOOST_REQUIRE_THROW(currentEvent_.get(sel4, h), cet::exception);
 
   Selector const sel5{modMultiSelector && ProcessNameSelector{"LATE"}};
-  BOOST_TEST_REQUIRE(currentEvent_->get(sel5, h));
+  BOOST_TEST_REQUIRE(currentEvent_.get(sel5, h));
   BOOST_TEST(h->value == 100);
 
   Selector const sel6{modMultiSelector && ProcessNameSelector{"CURRENT"}};
-  BOOST_TEST_REQUIRE(currentEvent_->get(sel6, h));
+  BOOST_TEST_REQUIRE(currentEvent_.get(sel6, h));
   BOOST_TEST(h->value == 200);
 
   Selector const sel7{modMultiSelector};
-  BOOST_TEST_REQUIRE(currentEvent_->get(sel7, h));
+  BOOST_TEST_REQUIRE(currentEvent_.get(sel7, h));
   BOOST_TEST(h->value == 200);
 
-  auto handles = currentEvent_->getMany<product_t>(modMultiSelector);
+  auto handles = currentEvent_.getMany<product_t>(modMultiSelector);
   BOOST_TEST(size(handles) == 5u);
   int sum = 0;
   for (int k = 0; k < 5; ++k) {
@@ -596,27 +626,27 @@ BOOST_AUTO_TEST_CASE(getByLabel)
   addSourceProduct(product_with_value(4), "nolabel_tag");
   addSourceProduct(product_with_value(100), "int1_tag_late", "int1");
 
-  currentEvent_->put(product_with_value(200), "int1");
+  currentEvent_.put(product_with_value(200), "int1");
 
-  EDProducer::commitEvent(*principal_, *currentEvent_);
+  detail::Producer::commit(currentEvent_);
 
   handle_t h;
-  BOOST_TEST_REQUIRE(currentEvent_->getByLabel("modMulti", h));
+  BOOST_TEST_REQUIRE(currentEvent_.getByLabel("modMulti", h));
   BOOST_TEST(h->value == 3);
-  BOOST_TEST_REQUIRE(currentEvent_->getByLabel("modMulti", "int1", h));
+  BOOST_TEST_REQUIRE(currentEvent_.getByLabel("modMulti", "int1", h));
   BOOST_TEST(h->value == 200);
   BOOST_TEST_REQUIRE(
-    currentEvent_->getByLabel("modMulti", "int1", "CURRENT", h));
+    currentEvent_.getByLabel("modMulti", "int1", "CURRENT", h));
   BOOST_TEST(h->value == 200);
   BOOST_TEST_REQUIRE(
-    currentEvent_->getByLabel("modMulti", "int1", "current_process", h));
+    currentEvent_.getByLabel("modMulti", "int1", "current_process", h));
   BOOST_TEST(h->value == 200);
-  BOOST_TEST(!currentEvent_->getByLabel("modMulti", "nomatch", h));
+  BOOST_TEST(!currentEvent_.getByLabel("modMulti", "nomatch", h));
   BOOST_TEST(!h.isValid());
   BOOST_CHECK_THROW(*h, cet::exception);
 
   InputTag const inputTag{"modMulti", "int1"};
-  BOOST_TEST_REQUIRE(currentEvent_->getByLabel(inputTag, h));
+  BOOST_TEST_REQUIRE(currentEvent_.getByLabel(inputTag, h));
   BOOST_TEST(h->value == 200);
 
   GroupQueryResult bh{principal_->getByLabel(currentModuleContext_,
@@ -639,23 +669,23 @@ BOOST_AUTO_TEST_CASE(getByLabel)
 BOOST_AUTO_TEST_CASE(getByLabelSpecialProcessNames)
 {
   addSourceProduct(product_with_value(2), "int2_tag", "int2");
-  currentEvent_->put(product_with_value(200), "int1");
+  currentEvent_.put(product_with_value(200), "int1");
 
   // Try to retrieve something that does not exist in the current process.
   InputTag const badEarlyTag{"modMulti", "int2", "current_process"};
-  BOOST_REQUIRE_THROW(currentEvent_->getValidHandle<product_t>(badEarlyTag),
+  BOOST_REQUIRE_THROW(currentEvent_.getValidHandle<product_t>(badEarlyTag),
                       cet::exception);
 
   // Verify that it can be read using the 'input_source' process name
   Handle<product_t> h;
   InputTag const goodEarlyTag{"modMulti", "int2", "input_source"};
-  BOOST_TEST_REQUIRE(currentEvent_->getByLabel(goodEarlyTag, h));
+  BOOST_TEST_REQUIRE(currentEvent_.getByLabel(goodEarlyTag, h));
   BOOST_TEST(h->value == 2);
 
   // Verify that "int1" cannot be looked up using the "input_source"
   // process name.
   InputTag const badCurrentTag{"modMulti", "int1", "input_source"};
-  BOOST_CHECK_THROW(currentEvent_->getValidHandle<product_t>(badCurrentTag),
+  BOOST_CHECK_THROW(currentEvent_.getValidHandle<product_t>(badCurrentTag),
                     cet::exception);
 }
 
@@ -668,15 +698,15 @@ BOOST_AUTO_TEST_CASE(getManyByType)
 
   addSourceProduct(product_with_value(100), "int1_tag_late", "int1");
 
-  currentEvent_->put(product_with_value(200), "int1");
-  EDProducer::commitEvent(*principal_, *currentEvent_);
+  currentEvent_.put(product_with_value(200), "int1");
+  detail::Producer::commit(currentEvent_);
 
   // Verify that the returned tags match thos provided through the
   // handles below.
-  auto const tags = currentEvent_->getInputTags<product_t>();
+  auto const tags = currentEvent_.getInputTags<product_t>();
   BOOST_TEST(tags.size() == 6u);
 
-  auto const handles = currentEvent_->getMany<product_t>();
+  auto const handles = currentEvent_.getMany<product_t>();
   BOOST_TEST(handles.size() == 6u);
   int sum = 0;
   for (int k = 0; k < 6; ++k) {
@@ -689,13 +719,25 @@ BOOST_AUTO_TEST_CASE(getManyByType)
 
 BOOST_AUTO_TEST_CASE(printHistory)
 {
-  auto const& history = currentEvent_->processHistory();
+  auto const& history = currentEvent_.processHistory();
   std::ofstream out{"history.log"};
 
   cet::copy_all(
     history,
     std::ostream_iterator<ProcessHistory::const_iterator::value_type>(out,
                                                                       "\n"));
+}
+
+BOOST_AUTO_TEST_CASE(getProcessConfiguration)
+{
+  auto pset = currentEvent_.getProcessParameterSet("CURRENT");
+  BOOST_REQUIRE(pset.has_value());
+  auto ref_pset = fhicl::ParameterSet::make(R"(modMulti: {
+   module_label: "modMulti"
+   module_type: "IntProducer"
+}
+process_name: "CURRENT")");
+  BOOST_TEST((pset == ref_pset));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

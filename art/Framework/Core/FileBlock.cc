@@ -8,6 +8,9 @@ using namespace std;
 
 namespace art {
 
+  FileBlock::FileBlock() = default;
+  FileBlock::~FileBlock() noexcept = default;
+
   FileBlock::FileBlock(FileFormatVersion const& version,
                        std::string const& fileName)
     : fileFormatVersion_{version}, fileName_{fileName}

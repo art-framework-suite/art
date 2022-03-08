@@ -8,7 +8,6 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/EDFilter.h"
-#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/fwd.h"
 #include "fhiclcpp/fwd.h"
 

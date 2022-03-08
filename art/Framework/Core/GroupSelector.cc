@@ -3,6 +3,8 @@
 #include "art/Framework/Core/GroupSelectorRules.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "cetlib/container_algorithms.h"
+#include "range/v3/action/sort.hpp"
+#include "range/v3/view.hpp"
 
 #include <ostream>
 #include <utility>
@@ -18,24 +20,23 @@ GroupSelector::GroupSelector(GroupSelectorRules const& rules,
 
   // Get a BranchSelectState for each branch, containing the branch
   // name, with its 'select bit' set to false.
-  vector<BranchSelectState> branchstates;
-  branchstates.reserve(descriptions.size());
-  for (auto const& pr : descriptions) {
-    branchstates.push_back(BranchSelectState{&pr.second});
-  }
+  auto branchstates = descriptions | ranges::views::values |
+                      ranges::views::transform(
+                        [](auto const& pd) { return BranchSelectState{&pd}; }) |
+                      ranges::to<std::vector>();
 
-  // Now  apply the rules to  the branchstates, in order.  Each rule
-  // can override any previous rule, or all previous rules.
+  // Now apply the rules to the branchstates, in order.  Each rule can
+  // override any previous rule, or all previous rules.
   rules.applyToAll(branchstates);
 
   // For each of the BranchSelectStates that indicates the branch is
   // to be selected, remember the branch.  The list of branch pointers
   // must be sorted for subsequent binary search to work.
-  for (auto const& state : branchstates) {
-    if (state.selectMe) {
-      groupsToSelect_.push_back(state.desc);
-    }
-  }
+  groupsToSelect_ =
+    branchstates |
+    ranges::views::filter([](auto const& state) { return state.selectMe; }) |
+    ranges::views::transform([](auto const& state) { return state.desc; }) |
+    ranges::to<std::vector>();
   sort_all(groupsToSelect_);
 }
 

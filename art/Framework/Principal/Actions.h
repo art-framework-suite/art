@@ -11,9 +11,6 @@
 #include <vector>
 
 namespace art {
-  namespace actions {
-    char const* actionName(ActionCodes code);
-  }
 
   class ActionTable {
   public:

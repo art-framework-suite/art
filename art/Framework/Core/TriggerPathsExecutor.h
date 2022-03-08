@@ -34,6 +34,7 @@
 #include <memory>
 
 namespace art {
+  class ActivityRegistry;
   class GlobalTaskGroup;
   namespace detail {
     class SharedResources;
@@ -44,7 +45,7 @@ namespace art {
     TriggerPathsExecutor(ScheduleID,
                          PathManager&,
                          ActionTable const&,
-                         std::unique_ptr<Worker> triggerResultsInserter,
+                         ActivityRegistry const& activityRegistry,
                          GlobalTaskGroup& group);
 
     // Disable copy/move operations
@@ -74,6 +75,7 @@ namespace art {
     // const after ctor.
     ScheduleContext const sc_;
     ActionTable const& actionTable_;
+    ActivityRegistry const& actReg_;
     PathsInfo& triggerPathsInfo_;
     std::unique_ptr<Worker> results_inserter_;
     GlobalTaskGroup& taskGroup_;

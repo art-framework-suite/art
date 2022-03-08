@@ -7,12 +7,12 @@
 #include <string>
 #include <vector>
 
-using namespace std::string_literals;
 using namespace hep::concurrency;
 
 namespace art::detail {
 
-  SharedModule::SharedModule() : SharedModule{""s} {}
+  SharedModule::SharedModule() = default;
+  SharedModule::~SharedModule() = default;
 
   SharedModule::SharedModule(std::string const& moduleLabel)
     : moduleLabel_{moduleLabel}

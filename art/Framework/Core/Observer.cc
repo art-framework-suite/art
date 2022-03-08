@@ -42,26 +42,15 @@ namespace art {
 
   Observer::Observer(ParameterSet const& pset)
     : Observer{pset.get<vector<string>>("SelectEvents", {}),
-               pset.get<vector<string>>("RejectEvents", {}),
-               pset}
+               pset.get<vector<string>>("RejectEvents", {})}
   {}
 
   Observer::Observer(vector<string> const& select_paths,
-                     vector<string> const& reject_paths,
-                     fhicl::ParameterSet const& pset)
+                     vector<string> const& reject_paths)
     : wantAllEvents_{empty(select_paths) and empty(reject_paths)}
     , process_name_{Globals::instance()->processName()}
     , selectors_{make_selectors(select_paths, process_name_)}
     , rejectors_{make_selectors(reject_paths, process_name_)}
-    , selector_config_id_{pset.id()}
-  {}
-
-  void
-  Observer::registerProducts(ProductDescriptions&, ModuleDescription const&)
-  {}
-
-  void
-  Observer::fillDescriptions(ModuleDescription const&)
   {}
 
   string const&
@@ -80,12 +69,6 @@ namespace art {
     bool const reject_event =
       rejectors_ ? rejectors_->matchEvent(id, e) : false;
     return select_event and not reject_event;
-  }
-
-  fhicl::ParameterSetID
-  Observer::selectorConfig() const
-  {
-    return selector_config_id_;
   }
 
   Handle<TriggerResults>

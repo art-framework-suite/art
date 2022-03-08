@@ -1,10 +1,9 @@
-
 #include "art/Framework/Core/Path.h"
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/WorkerInPath.h"
-#include "art/Framework/Core/detail/skip_non_replicated.h"
 #include "art/Framework/Principal/Actions.h"
+#include "art/Framework/Principal/Worker.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -25,8 +24,6 @@
 #include <string>
 #include <vector>
 
-using namespace cet;
-using namespace fhicl;
 using namespace hep::concurrency;
 using namespace std;
 
@@ -137,7 +134,7 @@ namespace art {
     for (WorkerInPath& wip : workers_) {
       // We do not want to call (e.g.) beginRun once per schedule for
       // non-replicated modules.
-      if (detail::skip_non_replicated(*wip.getWorker())) {
+      if (not wip.getWorker()->isUnique()) {
         continue;
       }
       try {
@@ -147,7 +144,7 @@ namespace art {
       }
       catch (cet::exception& e) {
         state_ = hlt::Exception;
-        throw art::Exception{
+        throw Exception{
           errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
           << "Exception going through path " << name() << "\n";
       }
@@ -165,7 +162,7 @@ namespace art {
       state_ = hlt::Fail;
     }
     // Invoke post-path signals only for the last schedule.
-    if (pc_.scheduleID().id() == art::Globals::instance()->nschedules() - 1) {
+    if (pc_.scheduleID().id() == Globals::instance()->nschedules() - 1) {
       HLTPathStatus const status(state_, idx);
       switch (trans) {
       case Transition::BeginRun:
@@ -284,7 +281,7 @@ namespace art {
                 HLTPathStatus(path_->state_, idx_);
             }
             auto art_ex =
-              art::Exception{
+              Exception{
                 errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
               << "Exception going through path " << path_->name() << "\n";
             auto ex_ptr = make_exception_ptr(art_ex);

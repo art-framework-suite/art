@@ -30,7 +30,7 @@ namespace art {
   }
 
   namespace {
-    typedef enum { UNKNOWN_CPU = 0, AMD_CPU = 1, INTEL_CPU = 2 } cpu_type;
+    enum cpu_type { UNKNOWN_CPU = 0, AMD_CPU = 1, INTEL_CPU = 2 };
 
     cpu_type
     get_cpu_type()

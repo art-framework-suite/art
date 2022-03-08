@@ -7,7 +7,6 @@
 // from cetpkgsupport v1_02_00.
 ////////////////////////////////////////////////////////////////////////
 
-#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/OutputModule.h"
 #include "art/Framework/Principal/fwd.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
@@ -37,7 +36,7 @@ namespace art::test {
 }
 
 art::test::PMTestOutput::PMTestOutput(Parameters const& p)
-  : OutputModule(p().omConfig, p.get_PSet())
+  : OutputModule{p().omConfig}
 {}
 
 DEFINE_ART_MODULE(art::test::PMTestOutput)

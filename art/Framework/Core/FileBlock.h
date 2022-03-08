@@ -16,8 +16,8 @@ namespace art {
 
   class FileBlock {
   public:
-    FileBlock() = default;
-    virtual ~FileBlock() noexcept = default;
+    FileBlock();
+    virtual ~FileBlock() noexcept;
 
     FileBlock(FileFormatVersion const& version, std::string const& fileName);
     FileBlock(FileFormatVersion const& version,

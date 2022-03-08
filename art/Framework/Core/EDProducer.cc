@@ -3,10 +3,14 @@
 
 namespace art {
 
-  std::string
-  EDProducer::workerType() const
+  EDProducer::EDProducer(fhicl::ParameterSet const& pset)
+    : Producer{pset}, LegacyModule{pset.get<std::string>("module_label")}
+  {}
+
+  std::unique_ptr<Worker>
+  EDProducer::doMakeWorker(WorkerParams const& wp)
   {
-    return "WorkerT<EDProducer>";
+    return std::make_unique<WorkerT<EDProducer>>(this, wp);
   }
 
   void

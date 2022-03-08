@@ -36,29 +36,29 @@ namespace art {
     explicit InputFileCatalog(fhicl::TableFragment<Config> const& config);
     virtual ~InputFileCatalog() = default;
     std::size_t
-    size() const
+    size() const noexcept
     {
       return fileCatalogItems_.size();
     }
     FileCatalogItem const& currentFile() const;
-    size_t currentIndex() const;
+    size_t currentIndex() const noexcept;
     bool getNextFile(int attempts = 5);
     bool hasNextFile(int attempts = 5);
     void rewind();
     void rewindTo(size_t index);
     bool
-    isSearchable()
+    isSearchable() const noexcept
     {
       return searchable_;
     }
     bool
-    empty() const
+    empty() const noexcept
     {
       return fileCatalogItems_.empty();
     }
     void finish(); // Dispose of the current file.
     std::vector<std::string> const&
-    fileSources() const
+    fileSources() const noexcept
     {
       return fileSources_;
     }
