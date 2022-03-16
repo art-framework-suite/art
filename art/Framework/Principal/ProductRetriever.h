@@ -5,6 +5,7 @@
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/ProcessTag.h"
+#include "art/Framework/Principal/Provenance.h"
 #include "art/Framework/Principal/Selector.h"
 #include "art/Framework/Principal/fwd.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
@@ -56,11 +57,6 @@ namespace art {
     ProductRetriever(ProductRetriever&&) = delete;
     ProductRetriever& operator=(ProductRetriever const&) = delete;
     ProductRetriever& operator=(ProductRetriever&) = delete;
-
-    // Miscellaneous functionality
-    EDProductGetter const* productGetter(ProductID const pid) const;
-    std::optional<fhicl::ParameterSet> getProcessParameterSet(
-      std::string const& process) const;
 
     // Product retrieval
     template <typename PROD>
@@ -156,12 +152,16 @@ namespace art {
 
     std::vector<ProductID> retrievedPIDs() const;
 
-    // Product ID and description
-    template <typename T>
-    ProductID getProductID(std::string const& instance_name = "") const;
-
+    // Miscellaneous functionality
+    std::optional<Provenance const> getProductProvenance(ProductID) const;
+    std::optional<fhicl::ParameterSet const> getProcessParameterSet(
+      std::string const& process) const;
     cet::exempt_ptr<BranchDescription const> getProductDescription(
       ProductID) const;
+
+    EDProductGetter const* productGetter(ProductID const pid) const;
+    template <typename T>
+    ProductID getProductID(std::string const& instance_name = "") const;
 
   private:
     void recordAsParent_(cet::exempt_ptr<Group const> grp) const;

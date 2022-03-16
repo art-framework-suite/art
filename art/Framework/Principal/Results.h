@@ -38,7 +38,10 @@ namespace art {
     using ProductRetriever::getValidHandle;
     using ProductRetriever::getView;
 
+    using ProductRetriever::getProcessParameterSet;
     using ProductRetriever::getProductDescription;
+    using ProductRetriever::getProductProvenance;
+
     using ProductRetriever::getProductID;
     using ProductRetriever::productGetter;
 

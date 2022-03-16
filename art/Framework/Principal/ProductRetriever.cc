@@ -49,7 +49,7 @@ namespace art {
     return principal_.productGetter(pid);
   }
 
-  std::optional<fhicl::ParameterSet>
+  std::optional<fhicl::ParameterSet const>
   ProductRetriever::getProcessParameterSet(std::string const& processName) const
   {
     std::lock_guard lock{mutex_};
@@ -72,6 +72,23 @@ namespace art {
     std::lock_guard lock{mutex_};
     return std::vector<ProductID>(begin(retrievedProducts_),
                                   end(retrievedProducts_));
+  }
+
+  std::optional<Provenance const>
+  ProductRetriever::getProductProvenance(ProductID const pid) const
+  {
+    auto gqr = principal_.getByProductID(pid);
+    if (gqr.failed()) {
+      return std::nullopt;
+    }
+
+    auto group = gqr.result();
+    if (!group->productProvenance()) {
+      // This can happen if someone tries to access the provenance
+      // before the product has been produced.
+      return std::nullopt;
+    }
+    return std::make_optional<Provenance const>(group);
   }
 
   cet::exempt_ptr<BranchDescription const>

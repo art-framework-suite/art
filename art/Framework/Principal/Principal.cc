@@ -436,7 +436,7 @@ namespace art {
       string const& processName = processConfiguration_.processName();
       for (auto const& val : processHistory_) {
         if (processName == val.processName()) {
-          throw art::Exception(errors::Configuration)
+          throw Exception(errors::Configuration)
             << "The process name " << processName
             << " was previously used on these products.\n"
             << "Please modify the configuration file to use a "
@@ -726,8 +726,7 @@ namespace art {
       auto group = getGroupLocal(bd.productID());
       assert(group);
       if (group->anyProduct() != nullptr) {
-        throw art::Exception(art::errors::ProductRegistrationFailure,
-                             "Principal::put:")
+        throw Exception(errors::ProductRegistrationFailure, "Principal::put:")
           << "Problem found during put of " << branchType_
           << " product: product already put for " << bd.branchName() << '\n';
       }
