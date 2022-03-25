@@ -66,9 +66,11 @@ namespace art {
     using ProductRetriever::getView;
 
     Run const& getRun() const;
+    using ProductRetriever::getProcessParameterSet;
     using ProductRetriever::getProductDescription;
-    using ProductRetriever::getProductID;
+    using ProductRetriever::getProductProvenance;
 
+    using ProductRetriever::getProductID;
     using ProductRetriever::productGetter;
 
     // Obsolete interface (will be deprecated)

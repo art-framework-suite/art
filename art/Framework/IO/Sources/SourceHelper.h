@@ -81,8 +81,9 @@ private:
   template <typename T>
   T* makePrincipal_(typename T::Auxiliary aux) const;
   void throwIfProductsNotRegistered_() const;
-  ProcessHistoryID processHistoryID_(BranchType,
-                                     ProcessConfiguration const&) const;
+  ProcessHistoryID updatedProcessHistoryID_(ProcessHistoryID const&,
+                                            BranchType,
+                                            ProcessConfiguration const&) const;
   void setPresentProducts(cet::exempt_ptr<ProductTables const> presentProducts);
   cet::exempt_ptr<ProductTables const> presentProducts_{nullptr};
   ModuleDescription md_;

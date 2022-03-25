@@ -31,16 +31,31 @@ art::SourceHelper::throwIfProductsNotRegistered_() const
 }
 
 art::ProcessHistoryID
-art::SourceHelper::processHistoryID_(BranchType const bt,
-                                     ProcessConfiguration const& pc) const
+art::SourceHelper::updatedProcessHistoryID_(
+  ProcessHistoryID const& processHistoryID,
+  BranchType const bt,
+  ProcessConfiguration const& pc) const
 {
-  art::ProcessHistory processHistory{};
   // If no products are present for this branch type, we do not
-  // register the process history.
+  // update the process history.
   if (presentProducts_->descriptions(bt).empty()) {
-    return processHistory.id();
+    return processHistoryID;
   }
 
+  art::ProcessHistory processHistory{};
+  if (processHistoryID.isValid()) {
+    bool const found =
+      ProcessHistoryRegistry::get(processHistoryID, processHistory);
+    if (!found) {
+      throw Exception(
+        errors::LogicError,
+        "Error while attempting to create principal from SourceHelper.\n")
+        << "The provided process-history ID\n"
+        << "  " << processHistory << '\n'
+        << "does not correspond to a known process history.\n"
+           "Please contact artists@fnal.gov for guidance.";
+    }
+  }
   processHistory.push_back(pc);
   auto const phid = processHistory.id();
   art::ProcessHistoryRegistry::emplace(phid, processHistory);
@@ -60,8 +75,8 @@ art::SourceHelper::makePrincipal_(typename T::Auxiliary aux) const
 {
   throwIfProductsNotRegistered_();
   constexpr auto branch_type = T::branch_type;
-  aux.setProcessHistoryID(
-    processHistoryID_(branch_type, md_.processConfiguration()));
+  aux.setProcessHistoryID(updatedProcessHistoryID_(
+    aux.processHistoryID(), branch_type, md_.processConfiguration()));
   auto principal =
     new T{aux, md_.processConfiguration(), &presentProducts_->get(branch_type)};
   if (aux.processHistoryID().isValid()) {

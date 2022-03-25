@@ -455,12 +455,21 @@ BOOST_AUTO_TEST_CASE(getByProductID)
   BOOST_TEST(h.isValid());
   BOOST_TEST(h.id() == wanted);
   BOOST_TEST(h->value == 1);
+  {
+    auto prov = currentEvent_.getProductProvenance(wanted);
+    BOOST_TEST(prov.has_value());
+    BOOST_TEST(*h.provenance() == *prov);
+  }
 
   ProductID const notpresent{};
   BOOST_TEST_REQUIRE(!currentEvent_.get(notpresent, h));
   BOOST_TEST(!h.isValid());
   BOOST_TEST(h.failedToGet());
   BOOST_CHECK_THROW(*h, cet::exception);
+  {
+    auto prov = currentEvent_.getProductProvenance(notpresent);
+    BOOST_TEST(!prov.has_value());
+  }
 }
 
 BOOST_AUTO_TEST_CASE(transaction)
@@ -469,7 +478,8 @@ BOOST_AUTO_TEST_CASE(transaction)
   // commitProducts, there is no product in the EventPrincipal
   // afterwards.
   BOOST_TEST(principal_->size() == 6u);
-  currentEvent_.put(product_with_value(3), "int1");
+  auto pH = currentEvent_.put(product_with_value(3), "int1");
+  BOOST_TEST(!currentEvent_.getProductProvenance(pH.id()));
   BOOST_TEST(principal_->size() == 6u);
 }
 
