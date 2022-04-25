@@ -37,7 +37,7 @@ cet_make_library(
 
 cet_make_library(LIBRARY_NAME toolMaker INTERFACE
   EXPORT_SET PluginSupport
-  SOURCE make_tool.h
+  SOURCE make_tool.h detail/tool_type.h
   LIBRARIES INTERFACE
     art::Utilities
     canvas::canvas
@@ -47,16 +47,21 @@ cet_make_library(LIBRARY_NAME toolMaker INTERFACE
 
 cet_make_library(LIBRARY_NAME tool INTERFACE
   EXPORT_SET PluginTypes
-  SOURCE ToolMacros.h ToolConfigTable.h
+  SOURCE ToolMacros.h
   LIBRARIES INTERFACE
-    art_plugin_support::toolMaker
-    art::Utilities
-    canvas::canvas
     art_plugin_support::plugin_config_macros
     fhiclcpp::types
     fhiclcpp::fhiclcpp
-    cetlib::cetlib
+    cetlib::compiler_macros
     art_plugin_support::support_macros
+)
+
+cet_make_library(LIBRARY_NAME tool_interface INTERFACE
+  EXPORT_SET PluginTypes
+  SOURCE ToolConfigTable.h
+  LIBRARIES INTERFACE
+  fhiclcpp::types
+  fhiclcpp::fhiclcpp
 )
 
 install_headers(SUBDIRS detail)
