@@ -4,7 +4,6 @@ X
 #]================================================================]
 include_guard()
 
-cmake_policy(PUSH)
 cmake_minimum_required(VERSION 3.18.2 FATAL_ERROR)
 
 include(BasicPlugin)
@@ -25,5 +24,3 @@ macro(art::tool NAME)
   basic_plugin(${NAME} tool ${ARGN} ${_art_tool_deps})
   unset(_art_tool_deps)
 endmacro()
-
-cmake_policy(POP)
