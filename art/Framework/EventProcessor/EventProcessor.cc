@@ -83,8 +83,8 @@ namespace art {
 
   EventProcessor::~EventProcessor() = default;
 
-  EventProcessor::EventProcessor(ParameterSet const& pset,
-                                 detail::EnabledModules const& enabled_modules)
+  EventProcessor::EventProcessor(ParameterSet pset,
+                                 detail::EnabledModules enabled_modules)
     : scheduler_{pset.get<ParameterSet>("services.scheduler")}
     , scheduleIteration_{scheduler_->num_schedules()}
     , servicesManager_{create_services_manager(
@@ -96,7 +96,7 @@ namespace art {
                    producedProductDescriptions_,
                    scheduler_->actionTable(),
                    actReg_,
-                   enabled_modules}
+                   std::move(enabled_modules)}
     , handleEmptyRuns_{scheduler_->handleEmptyRuns()}
     , handleEmptySubRuns_{scheduler_->handleEmptySubRuns()}
   {

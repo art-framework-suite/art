@@ -248,12 +248,12 @@ namespace art {
               "registry.\n";
       throw;
     }
-    return run_art_common_(main_pset, enabled_modules);
+    return run_art_common_(std::move(main_pset), std::move(enabled_modules));
   }
 
   int
-  run_art_common_(fhicl::ParameterSet const& main_pset,
-                  detail::EnabledModules const& enabled_modules)
+  run_art_common_(fhicl::ParameterSet main_pset,
+                  detail::EnabledModules enabled_modules)
   {
 #ifdef __linux__
     // Tell the system memory allocator to only use one arena: they
@@ -323,7 +323,7 @@ namespace art {
     //
     int rc{0};
     try {
-      EventProcessor ep{main_pset, enabled_modules};
+      EventProcessor ep{std::move(main_pset), std::move(enabled_modules)};
       // Behavior of validate_config is to validate FHiCL syntax *and*
       // user-specified configurations of paths, modules, services,
       // etc.  It is thus possible that an exception thrown during

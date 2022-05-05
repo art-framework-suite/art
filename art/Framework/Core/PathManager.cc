@@ -73,7 +73,7 @@ namespace art {
                            ProductDescriptions& productsToProduce,
                            ActionTable const& exceptActions,
                            ActivityRegistry const& actReg,
-                           detail::EnabledModules const& enabled_modules)
+                           detail::EnabledModules enabled_modules)
     : outputCallbacks_{outputCallbacks}
     , exceptActions_{exceptActions}
     , actReg_{actReg}

@@ -54,7 +54,7 @@ namespace art {
                 ProductDescriptions& productsToProduce,
                 ActionTable const& exceptActions,
                 ActivityRegistry const& areg,
-                detail::EnabledModules const& enabled_modules);
+                detail::EnabledModules enabled_modules);
 
     PathManager(PathManager const&) = delete;
     PathManager(PathManager&&) = delete;
