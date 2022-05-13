@@ -87,7 +87,7 @@
 #>  define_pythonpath
 ####################################
 parent		art
-defaultqual	e19
+defaultqual	e20
 ####################################
 
 ####################################
@@ -309,10 +309,12 @@ end_product_list
 qualifier	canvas		notes
 c7:debug	c7:debug
 c7:prof		c7:prof
-e19:debug	e19:debug
-e19:prof	e19:prof
 e20:debug	e20:debug
 e20:prof	e20:prof
+e24:debug	e24:debug
+e24:prof	e24:prof
+e25:debug	e25:debug
+e25:prof	e25:prof
 end_qualifier_list
 ####################################
 
