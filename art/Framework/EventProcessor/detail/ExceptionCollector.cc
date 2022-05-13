@@ -19,7 +19,7 @@ art::detail::ExceptionCollector::rethrow()
 {
   assert(!empty());
   std::string message;
-  for (auto const e : exceptions_) {
+  for (auto const& e : exceptions_) {
     message += exception_msg_from_ptr(e);
   }
   exceptions_.clear();
