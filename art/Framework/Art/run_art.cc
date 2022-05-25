@@ -248,13 +248,7 @@ namespace art {
               "registry.\n";
       throw;
     }
-    return run_art_common_(std::move(main_pset), std::move(enabled_modules));
-  }
 
-  int
-  run_art_common_(fhicl::ParameterSet main_pset,
-                  detail::EnabledModules enabled_modules)
-  {
 #ifdef __linux__
     // Tell the system memory allocator to only use one arena: they
     // are 64 MiB in size, and the default is 8 * num_of_cores.  Using

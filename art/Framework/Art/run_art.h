@@ -3,9 +3,6 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Art/OptionsHandlers.h"
-#include "art/Framework/Core/detail/EnabledModules.h"
-
-#include <string>
 
 namespace art {
 
@@ -13,9 +10,6 @@ namespace art {
               char** argv,
               bpo::options_description& all_desc,
               art::OptionsHandlers&& handlers);
-
-  int run_art_common_(fhicl::ParameterSet main_pset,
-                      detail::EnabledModules enabled_modules);
 
 } // namespace art
 
