@@ -522,7 +522,8 @@ namespace art {
   {
     auto get_module = [this](std::string const& module_label,
                              ModuleThreadingType const module_threading_type,
-                             ScheduleID const sid) -> auto& {
+                             ScheduleID const sid) -> auto&
+    {
       if (module_threading_type == ModuleThreadingType::shared ||
           module_threading_type == ModuleThreadingType::legacy) {
         return modules_.shared.at(module_label);

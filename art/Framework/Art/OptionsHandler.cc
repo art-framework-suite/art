@@ -12,9 +12,7 @@ namespace {
   // class F must be callable with no arguments, and return 'int'.
   template <class F>
   int
-  exceptionCatcher(F func,
-                   std::string const& funcName [[maybe_unused]],
-                   int failureCode)
+  exceptionCatcher(F func, std::string const& funcName, int failureCode)
   {
     try {
       return func();
