@@ -35,6 +35,8 @@ cet_make_library(
     range-v3::range-v3
 )
 
+cet_register_export_set(SET_NAME PluginSupport NAMESPACE art_plugin_support)
+
 cet_make_library(LIBRARY_NAME toolMaker INTERFACE
   EXPORT_SET PluginSupport
   SOURCE make_tool.h detail/tool_type.h
@@ -45,8 +47,10 @@ cet_make_library(LIBRARY_NAME toolMaker INTERFACE
     fhiclcpp::fhiclcpp
 )
 
+cet_register_export_set(SET_NAME ToolType NAMESPACE art_plugin_types)
+
 cet_make_library(LIBRARY_NAME tool INTERFACE
-  EXPORT_SET PluginTypes
+  EXPORT_SET ToolType
   SOURCE ToolMacros.h
   LIBRARIES INTERFACE
     art_plugin_support::plugin_config_macros
@@ -57,7 +61,7 @@ cet_make_library(LIBRARY_NAME tool INTERFACE
 )
 
 cet_make_library(LIBRARY_NAME tool_interface INTERFACE
-  EXPORT_SET PluginTypes
+  EXPORT_SET ToolType
   SOURCE ToolConfigTable.h
   LIBRARIES INTERFACE
   fhiclcpp::types

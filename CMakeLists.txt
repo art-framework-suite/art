@@ -47,8 +47,6 @@ endif()
 
 cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
 
-cet_register_export_set(SET_NAME art NAMESPACE art)
-
 # source
 add_subdirectory(art)
 
