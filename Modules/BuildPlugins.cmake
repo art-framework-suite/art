@@ -41,11 +41,11 @@ set(_simple_plugin_var_list CETLIB_EXCEPT HEP_CONCURRENCY CETLIB FHICLCPP
   MF_MESSAGELOGGER CANVAS ART_FRAMEWORK_CORE CANVAS_ROOT_IO ART_ROOT_IO
   ROOT_CORE_LIBRARY)
 
-find_package(messagefacility PRIVATE QUIET)
+find_package(messagefacility QUIET)
 if (messagefacility_FOUND)
   include(MessagefacilityPlugins)
 endif()
-find_package(art PRIVATE QUIET)
+find_package(art QUIET)
 if (art_FOUND)
   include(ArtPlugins)
 endif()
@@ -57,7 +57,7 @@ macro(simple_plugin NAME SUFFIX)
       _simple_plugin_target_list
       _simple_plugin_var_list)
     if (NOT (TARGET ${_sp_tgt} OR _sp_var))
-      find_package(${_sp_pkg} PRIVATE QUIET REQUIRED)
+      find_package(${_sp_pkg} QUIET REQUIRED)
     endif()
   endforeach()
   unset(_sp_pkg)

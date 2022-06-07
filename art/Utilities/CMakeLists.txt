@@ -53,11 +53,11 @@ cet_make_library(LIBRARY_NAME tool INTERFACE
   EXPORT_SET ToolType
   SOURCE ToolMacros.h
   LIBRARIES INTERFACE
-    art_plugin_support::plugin_config_macros
-    fhiclcpp::types
-    fhiclcpp::fhiclcpp
-    cetlib::compiler_macros
-    art_plugin_support::support_macros
+  art_plugin_support::plugin_config_macros
+  fhiclcpp::types
+  fhiclcpp::fhiclcpp
+  cetlib::compiler_macros
+  art_plugin_support::support_macros
 )
 
 cet_make_library(LIBRARY_NAME tool_interface INTERFACE
