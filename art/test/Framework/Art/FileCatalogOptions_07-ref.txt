@@ -8,6 +8,9 @@ outputs: {
    }
 }
 physics: {
+   end_paths: [
+      "injected_end_path_1"
+   ]
    injected_end_path_1: [
       "out"
    ]

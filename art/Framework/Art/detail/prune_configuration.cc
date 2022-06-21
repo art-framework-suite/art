@@ -667,14 +667,28 @@ art::detail::prune_config_if_enabled(bool const prune_config,
     }
   }
 
+  // Ensure that trigger_paths/end_paths is present in the configuration
+  if (not empty(end_paths) and not end_paths_override) {
+    // We do not return the Path ID for end paths as they are not meaningful.
+    auto end_paths_entries =
+      end_paths | views::keys |
+      views::transform([](auto const& path_spec) { return path_spec.name; }) |
+      to<std::vector>();
+
+    config.put("physics.end_paths", move(end_paths_entries));
+  }
+
   // Place 'trigger_paths' as top-level configuration table
-  if (trigger_paths_override) {
-    auto explicit_entries = trigger_paths | views::keys |
-                            views::transform([](auto const& path_spec) {
-                              return to_string(path_spec);
-                            }) |
-                            to<std::vector>();
-    config.put("trigger_paths.trigger_paths", move(explicit_entries));
+  if (not empty(trigger_paths)) {
+    auto trigger_paths_entries = trigger_paths | views::keys |
+                                 views::transform([](auto const& path_spec) {
+                                   return to_string(path_spec);
+                                 }) |
+                                 to<std::vector>();
+    if (not trigger_paths_override) {
+      config.put("physics.trigger_paths", trigger_paths_entries);
+    }
+    config.put("trigger_paths.trigger_paths", move(trigger_paths_entries));
   }
 
   return EnabledModules{std::move(enabled_modules),

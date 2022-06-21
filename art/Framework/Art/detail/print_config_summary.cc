@@ -50,10 +50,11 @@ art::detail::print_path_names(EnabledModules const& enabled_modules)
       return;
     }
 
-    std::string column_0{"Bit"};
+    std::string column_0{"Path ID"};
     std::string column_1{"Path name"};
     std::string column_2{"Path size"};
 
+    auto column_0_width = size(column_0);
     auto column_1_width = size(column_1);
     for (auto const& spec : trigger_paths | ranges::views::keys) {
       column_1_width = std::max(column_1_width, size(spec.name));
@@ -61,14 +62,15 @@ art::detail::print_path_names(EnabledModules const& enabled_modules)
 
     std::cout << column_0 << "  " << std::left << std::setw(column_1_width)
               << column_1 << "  " << column_2 << '\n'
-              << "---"
-              << "  " << std::string(column_1_width, '-') << "  "
+              << std::string(column_0_width, '-') << "  "
+              << std::string(column_1_width, '-') << "  "
               << std::string(size(column_2), '-') << '\n';
     for (auto const& [path_spec, entries] :
          enabled_modules.trigger_path_specs()) {
-      std::cout << std::right << std::setw(3) << to_string(path_spec.path_id)
-                << "  " << std::left << std::setw(column_1_width)
-                << path_spec.name << "  " << size(entries) << '\n';
+      std::cout << std::right << std::setw(column_0_width)
+                << to_string(path_spec.path_id) << "  " << std::left
+                << std::setw(column_1_width) << path_spec.name << "  "
+                << size(entries) << '\n';
     }
   }
 

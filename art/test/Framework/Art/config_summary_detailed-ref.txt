@@ -35,31 +35,31 @@ Output        RootOutput
 <separator (=)>
 Trigger paths: 23
 
-Bit  Path name                    Path size
----  <separator (-)>  ---------
-  0  RecoPath                     26
-  1  caloCalibCosmic_trigger      5
-  2  caloMVACE_trigger            5
-  3  caloPhoton_trigger           5
-  4  cprCosmicSeedDeM_trigger     14
-  5  cprCosmicSeedDeP_trigger     14
-  6  cprLowPSeedDeM_trigger       14
-  7  cprLowPSeedDeP_trigger       14
-  8  cprSeedDeM_trigger           14
-  9  cprSeedDeP_trigger           14
- 10  largeCDCount_trigger         3
- 11  largeSDCount_trigger         3
- 12  minimumbiasCDCount_trigger   3
- 13  minimumbiasSDCount_trigger   3
- 14  tprCosmicSeedDeM_trigger     14
- 15  tprCosmicSeedDeP_trigger     14
- 16  tprHelixCalibIPADeM_trigger  12
- 17  tprHelixIPADeM_trigger       12
- 18  tprLowPSeedDeM_trigger       14
- 19  tprLowPSeedDeP_trigger       14
- 20  tprSeedDeM_trigger           14
- 21  tprSeedDeP_trigger           14
- 22  unbiased_trigger             1
+Path ID  Path name                    Path size
+-------  <separator (-)>  ---------
+      0  RecoPath                     26
+      1  caloCalibCosmic_trigger      5
+      2  caloMVACE_trigger            5
+      3  caloPhoton_trigger           5
+      4  cprCosmicSeedDeM_trigger     14
+      5  cprCosmicSeedDeP_trigger     14
+      6  cprLowPSeedDeM_trigger       14
+      7  cprLowPSeedDeP_trigger       14
+      8  cprSeedDeM_trigger           14
+      9  cprSeedDeP_trigger           14
+     10  largeCDCount_trigger         3
+     11  largeSDCount_trigger         3
+     12  minimumbiasCDCount_trigger   3
+     13  minimumbiasSDCount_trigger   3
+     14  tprCosmicSeedDeM_trigger     14
+     15  tprCosmicSeedDeP_trigger     14
+     16  tprHelixCalibIPADeM_trigger  12
+     17  tprHelixIPADeM_trigger       12
+     18  tprLowPSeedDeM_trigger       14
+     19  tprLowPSeedDeP_trigger       14
+     20  tprSeedDeM_trigger           14
+     21  tprSeedDeP_trigger           14
+     22  unbiased_trigger             1
 
 <separator (=)>
 End paths: 1

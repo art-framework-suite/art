@@ -9,6 +9,10 @@ physics: {
          module_type: "dummy"
       }
    }
+   end_paths: [
+      "ep1",
+      "ep3"
+   ]
    ep1: [
       "a1"
    ]
