@@ -173,12 +173,6 @@ namespace arttest {
   }
 
   struct SimpleDerived : public Simple {
-    SimpleDerived() = default;
-
-    SimpleDerived(SimpleDerived const& other)
-      : Simple(other), dummy_(other.dummy_)
-    {}
-
     double dummy_{16.25};
     double
     dummy() const override
