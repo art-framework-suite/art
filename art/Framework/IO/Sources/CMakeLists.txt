@@ -13,7 +13,7 @@ cet_make_library(SOURCE
     cetlib::headers
 )
 
-cet_make_library(LIBRARY_NAME Source INTERFACE
+cet_make_library(LIBRARY_NAME SourceT INTERFACE
   EXPORT_SET PluginTypes SOURCE Source.h
   LIBRARIES INTERFACE
     art_plugin_types::InputSource
