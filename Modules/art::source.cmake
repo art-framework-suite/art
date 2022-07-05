@@ -9,7 +9,10 @@ cmake_minimum_required(VERSION 3.18.2 FATAL_ERROR)
 include(BasicPlugin)
 
 macro(art::source NAME)
-  if (TARGET art_plugin_types::Source)
+  if (TARGET art_plugin_types::SourceT)
+    # The vast majority of sources extant are based on the Source template.
+    set(_art_source_deps LIBRARIES REG art_plugin_types::SourceT)
+  elseif (TARGET art_plugin_types::Source)
     # The vast majority of sources extant are based on the Source template.
     set(_art_source_deps LIBRARIES REG art_plugin_types::Source)
   else()
