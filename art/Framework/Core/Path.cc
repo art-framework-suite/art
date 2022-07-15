@@ -150,7 +150,7 @@ namespace art {
       }
       catch (...) {
         mf::LogError("PassingThrough")
-          << "Exception passing through path " << name() << "\n";
+          << "Exception passing through path " << name();
         state_ = hlt::Exception;
         throw;
       }
@@ -292,12 +292,12 @@ namespace art {
           new_should_continue = false;
           mf::LogWarning(e.category()) << "Failing path " << path_->name()
                                        << ", due to exception, message:\n"
-                                       << e.what() << "\n";
+                                       << e.what();
           // WARNING: We continue processing below!!!
         }
         catch (...) {
           mf::LogError("PassingThrough")
-            << "Exception passing through path " << path_->name() << "\n";
+            << "Exception passing through path " << path_->name();
           ++path_->timesExcept_;
           path_->state_ = hlt::Exception;
           if (path_->trptr_) {

@@ -68,7 +68,7 @@ namespace {
     std::string const brief_module_context =
       brief_context(md) + " during " + transition;
     try {
-      std::rethrow_exception(eptr);
+      rethrow_exception(eptr);
     }
     catch (cet::exception& e) {
       throw Exception{errors::OtherArt,
@@ -261,7 +261,7 @@ namespace art {
       mf::LogWarning("repeat") << "A module has been invoked a second time "
                                   "even though it caught an exception during "
                                   "the previous invocation.\nThis may be an "
-                                  "indication of a configuration problem.\n";
+                                  "indication of a configuration problem.";
       rethrow_exception(cached_exception_);
     }
     case Working:
@@ -381,14 +381,14 @@ namespace art {
       returnCode_ = true;
       ++counts_passed_;
       mf::LogWarning("IgnoreCompletely") << "Module ignored an exception\n"
-                                         << e.what() << "\n";
+                                         << e.what();
       // WARNING: We will continue execution below!!!
     } else if (action == actions::FailModule) {
       state_ = Fail;
       returnCode_ = true;
       ++counts_failed_;
       mf::LogWarning("FailModule") << "Module failed due to an exception\n"
-                                   << e.what() << "\n";
+                                   << e.what();
       // WARNING: We will continue execution below!!!
     } else {
       state_ = ExceptionThrown;
@@ -491,14 +491,14 @@ namespace art {
         returnCode_ = true;
         ++counts_passed_;
         mf::LogWarning("IgnoreCompletely") << "Module ignored an exception\n"
-                                           << e.what() << "\n";
+                                           << e.what();
         // WARNING: We will continue execution below!!!
       } else if (action == actions::FailModule) {
         state_ = Fail;
         returnCode_ = true;
         ++counts_failed_;
         mf::LogWarning("FailModule") << "Module failed due to an exception\n"
-                                     << e.what() << "\n";
+                                     << e.what();
         // WARNING: We will continue execution below!!!
       } else {
         state_ = ExceptionThrown;

@@ -404,7 +404,7 @@ namespace art {
       for (auto const& err : configErrMsgs) {
         msg << "\n" << rule('-') << "\n" << err;
       }
-      msg << "\n" << rule('=') << "\n\n";
+      msg << "\n" << rule('=') << '\n';
       throw Exception(errors::Configuration) << msg.str();
     }
     return modules;

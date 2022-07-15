@@ -221,11 +221,11 @@ namespace art {
         if (is_glob(realname)) {
           mf::LogWarning("Configuration")
             << "EventSelector::init, A module is using SelectEvents\n"
-               "to request a wildcarded trigger name that "
-               "does not match any trigger.\n"
+               "to request a wildcarded trigger name that does not match any "
+               "trigger.\n"
                "The wildcarded trigger name is: "
             << realname
-            << " (from trigger-path specification: " << pathSpecifier << ") \n";
+            << " (from trigger-path specification: " << pathSpecifier << ")";
         } else {
           throw Exception(errors::Configuration)
             << "EventSelector::init, A module is using SelectEvents\n"

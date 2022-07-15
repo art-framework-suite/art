@@ -78,7 +78,7 @@ namespace {
   {
     if (fraction > (1 + std::numeric_limits<double>::epsilon())) {
       mf::LogWarning("Configuration")
-        << "coverageFraction > 1: treating as a percentage.\n";
+        << "coverageFraction > 1: treating as a percentage.";
       fraction /= 100.0;
     }
     return fraction;

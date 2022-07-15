@@ -444,19 +444,19 @@ namespace art {
     }
     catch (cet::exception& e) {
       mf::LogError("BeginJob") << "A cet::exception happened while processing"
-                                  " the beginJob of the 'source'\n";
+                                  " the beginJob of the 'source'";
       e << "A cet::exception happened while processing"
            " the beginJob of the 'source'\n";
       throw;
     }
     catch (exception const&) {
       mf::LogError("BeginJob") << "A exception happened while processing"
-                                  " the beginJob of the 'source'\n";
+                                  " the beginJob of the 'source'";
       throw;
     }
     catch (...) {
       mf::LogError("BeginJob") << "An unknown exception happened while"
-                                  " processing the beginJob of the 'source'\n";
+                                  " processing the beginJob of the 'source'";
       throw;
     }
     scheduleIteration_.for_each_schedule([this](ScheduleID const sid) {
@@ -694,7 +694,7 @@ namespace art {
     }
     catch (...) {
       mf::LogError("PassingThrough")
-        << "an exception occurred during current event processing\n";
+        << "an exception occurred during current event processing";
       throw;
     }
     FDEBUG(1) << string(8, ' ') << "beginRun....................(" << r
@@ -781,7 +781,7 @@ namespace art {
     }
     catch (...) {
       mf::LogError("PassingThrough")
-        << "an exception occurred during current event processing\n";
+        << "an exception occurred during current event processing";
       throw;
     }
     FDEBUG(1) << string(8, ' ') << "endRun......................(" << run
@@ -866,7 +866,7 @@ namespace art {
     }
     catch (...) {
       mf::LogError("PassingThrough")
-        << "an exception occurred during current event processing\n";
+        << "an exception occurred during current event processing";
       throw;
     }
     FDEBUG(1) << string(8, ' ') << "beginSubRun.................(" << sr
@@ -1010,7 +1010,7 @@ namespace art {
     }
     catch (...) {
       mf::LogError("PassingThrough")
-        << "an exception occurred during current event processing\n";
+        << "an exception occurred during current event processing";
       throw;
     }
     FDEBUG(1) << string(8, ' ') << "endSubRun...................(" << sr
@@ -1246,7 +1246,7 @@ namespace art {
         }
         catch (...) {
           mf::LogError("PassingThrough")
-            << "an exception occurred during current event processing\n";
+            << "an exception occurred during current event processing";
           evp_->sharedException_.store_current();
           TDEBUG_END_TASK_SI(4, sid_);
           return;
@@ -1308,7 +1308,7 @@ namespace art {
         }
         catch (...) {
           mf::LogError("PassingThrough")
-            << "an exception occurred during current event processing\n";
+            << "an exception occurred during current event processing";
           evp_->sharedException_.store_current();
           TDEBUG_END_TASK_SI(4, sid_)
             << "terminate event loop because of EXCEPTION";
@@ -1339,7 +1339,7 @@ namespace art {
       }
       catch (...) {
         mf::LogError("PassingThrough")
-          << "an exception occurred during current event processing\n";
+          << "an exception occurred during current event processing";
         evp_->sharedException_.store_current();
         TDEBUG_END_TASK_SI(4, sid_)
           << "terminate event loop because of EXCEPTION";
@@ -1383,7 +1383,10 @@ namespace art {
   catch (cet::exception& e) {
     // Upon exiting this scope, end this task, terminating event
     // processing.
-    if (error_action(e) != actions::IgnoreCompletely) {
+    auto const action = error_action(e);
+    if (action != actions::IgnoreCompletely) {
+      assert(action != actions::FailModule);
+      assert(action != actions::FailPath);
       sharedException_.store<Exception>(
         errors::EventProcessorFailure,
         "EventProcessor: an exception occurred during current event processing",
@@ -1398,7 +1401,7 @@ namespace art {
   }
   catch (...) {
     mf::LogError("PassingThrough")
-      << "an exception occurred during current event processing\n";
+      << "an exception occurred during current event processing";
     sharedException_.store_current();
     TDEBUG_END_FUNC_SI(4, sid) << "terminate event loop because of EXCEPTION";
   }
@@ -1460,7 +1463,7 @@ namespace art {
     }
     catch (...) {
       mf::LogError("PassingThrough")
-        << "an exception occurred during current event processing\n";
+        << "an exception occurred during current event processing";
       sharedException_.store_current();
       // And then end this task, terminating event processing.
       TDEBUG_END_FUNC_SI(4, sid) << "EXCEPTION";
