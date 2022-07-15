@@ -1,0 +1,14 @@
+services.scheduler: {
+  SkipEvent: ["IntentionalError"]
+  wantSummary: true
+}
+
+physics: {
+  producers: {
+    thrower: {
+      module_type: IntentionalError
+      throwAtEventNo: 3
+    }
+  }
+  tp: [thrower]
+}
