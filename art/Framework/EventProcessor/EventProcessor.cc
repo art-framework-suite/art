@@ -1280,7 +1280,18 @@ namespace art {
           rethrow_exception(ex);
         }
         catch (cet::exception& e) {
-          if (evp_->error_action(e) != actions::IgnoreCompletely) {
+          auto const action = evp_->error_action(e);
+          if (action != actions::IgnoreCompletely) {
+            assert(action != actions::FailModule);
+            assert(action != actions::FailPath);
+            if (action == actions::SkipEvent) {
+              mf::LogWarning(e.category())
+                << "Skipping event due to the following exception:\n"
+                << cet::trim_right_copy(e.what(), " \n");
+              TDEBUG_END_TASK_SI(4, sid_)
+                << "skipping event because of EXCEPTION";
+              return;
+            }
             evp_->sharedException_.store<Exception>(
               errors::EventProcessorFailure,
               "EventProcessor: an exception occurred during current "
