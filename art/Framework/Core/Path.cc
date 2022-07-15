@@ -146,7 +146,7 @@ namespace art {
         state_ = hlt::Exception;
         throw Exception{
           errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
-          << "Exception going through path " << name() << "\n";
+          << "Exception going through path " << name() << '\n';
       }
       catch (...) {
         mf::LogError("PassingThrough")
@@ -283,7 +283,7 @@ namespace art {
             auto art_ex =
               Exception{
                 errors::ScheduleExecutionFailure, "Path: ProcessingStopped.", e}
-              << "Exception going through path " << path_->name() << "\n";
+              << "Exception going through path " << path_->name() << '\n';
             auto ex_ptr = make_exception_ptr(art_ex);
             group_.may_run(pathsDone_, ex_ptr);
             TDEBUG_END_TASK_SI(4, sid) << "terminate path because of EXCEPTION";

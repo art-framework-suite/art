@@ -126,7 +126,7 @@ art::BasicOptionsHandler::doProcessOptions(
   catch (cet::exception& e) {
     std::cerr << "Failed to parse the configuration file '"
               << vm["config"].as<std::string>() << "' with exception\n"
-              << e.what() << "\n";
+              << e.what() << '\n';
     return 90;
   }
   if (raw_config.empty()) {

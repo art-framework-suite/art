@@ -162,7 +162,7 @@ namespace art {
     }
     catch (bpo::error const& e) {
       cerr << "Exception from command line processing in " << argv[0] << ": "
-           << e.what() << "\n";
+           << e.what() << '\n';
       return 88;
     }
     // Preliminary argument checking.

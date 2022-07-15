@@ -33,7 +33,7 @@ namespace {
         std::regex_search(component, sm, re) && sm.suffix().str().empty();
       if (!result) {
         errMsg += "Illegal character(s) found in " + designation + "\n  " +
-                  component + "\n" + std::string(2ul + sm.length(), ' ') + '^' +
+                  component + '\n' + std::string(2ul + sm.length(), ' ') + '^' +
                   std::string(component.length() - sm.length(), ' ') +
                   "(first infraction marked).\n";
       }

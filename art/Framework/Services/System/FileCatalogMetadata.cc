@@ -87,7 +87,7 @@ namespace art {
         throw Exception(errors::DataCorruption)
           << "FileCatalogMetadata::addMetadata() JSON " << ec.message() << ":\n"
           << "Faulty key/value clause:\n"
-          << checkString << "\n"
+          << checkString << '\n'
           << (n_parsed_chars ? string(n_parsed_chars, '-') : "") << "^\n";
       }
     }

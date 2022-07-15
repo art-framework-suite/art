@@ -444,7 +444,7 @@ namespace art {
                   << "A char const* thrown as an exception occurred during a "
                      "call to the module "
                   << brief_context(md_, p) << '\n'
-                  << c << "\n";
+                  << c << '\n';
     cached_exception_ = make_exception_ptr(art_ex);
     rethrow_exception(cached_exception_);
   }
@@ -562,7 +562,7 @@ namespace art {
         Exception{errors::BadExceptionType, "char const*"}
         << "A char const* was thrown as an exception while processing module "
         << brief_context(md_, p) << '\n'
-        << c << "\n";
+        << c << '\n';
       cached_exception_ = make_exception_ptr(art_ex);
       waitingTasks_.doneWaiting(cached_exception_);
       TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";

@@ -8,7 +8,7 @@ art::detail::describe(cet::exempt_ptr<fhicl::ConfigurationTable const> config,
 {
   std::ostringstream oss;
   if (config == nullptr) {
-    oss << "\n" << tab << "[ None provided ]\n";
+    oss << '\n' << tab << "[ None provided ]\n";
   } else {
     oss << '\n' << tab << fhicl::detail::optional_parameter_message() << '\n';
     fhicl::detail::PrintAllowedConfiguration pac{oss, false, tab};

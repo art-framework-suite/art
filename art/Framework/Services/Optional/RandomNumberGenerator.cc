@@ -148,7 +148,7 @@ namespace art {
       throw cet::exception("RANDOM")
         << "RNGservice::createEngine():\n"
         << "Attempt to create engine with out-of-range ScheduleID: " << sid
-        << "\n";
+        << '\n';
     }
     string const& label = qualify_engine_label(sid, module_label, engine_label);
     if (data_[sid].tracker_.find(label) != data_[sid].tracker_.cend()) {

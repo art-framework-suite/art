@@ -14,7 +14,7 @@ namespace art {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("ArtException");
     std::ostringstream longDesc;
-    longDesc << "cet::exception caught in " << programName << "\n"
+    longDesc << "cet::exception caught in " << programName << '\n'
              << cet::trim_right_copy(e.explain_self(), " \n");
     LogSystem(shortDesc) << longDesc.str();
   }
@@ -27,7 +27,7 @@ namespace art {
     std::string shortDesc("std::bad_allocException");
     std::ostringstream longDesc;
     longDesc
-      << "std::bad_alloc exception caught in " << programName << "\n"
+      << "std::bad_alloc exception caught in " << programName << '\n'
       << "The job has probably exhausted the virtual memory available to "
          "the process.";
     LogSystem(shortDesc) << longDesc.str();
@@ -40,7 +40,7 @@ namespace art {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("StdLibException");
     std::ostringstream longDesc;
-    longDesc << "Standard library exception caught in " << programName << "\n"
+    longDesc << "Standard library exception caught in " << programName << '\n'
              << cet::trim_right_copy(e.what(), " \n");
     LogSystem(shortDesc) << longDesc.str();
   }

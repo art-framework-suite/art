@@ -42,7 +42,7 @@ art::detail::print_path_names(EnabledModules const& enabled_modules)
     auto const& trigger_paths = enabled_modules.trigger_path_specs();
     std::cout << '\n'
               << header_rule('=') << '\n'
-              << "Trigger paths: " << size(trigger_paths) << "\n"
+              << "Trigger paths: " << size(trigger_paths) << '\n'
               << (enabled_modules.trigger_paths_override() ?
                     " -> 'trigger_paths' specified\n\n" :
                     "\n");
@@ -111,7 +111,7 @@ art::detail::print_service_types(fhicl::ParameterSet const& pset)
 {
   std::cout << '\n' << header_rule('=') << '\n';
   print_table_numbers(pset, "Services");
-  std::cout << "\n";
+  std::cout << '\n';
 
   auto const names = pset.get_names();
 
@@ -150,7 +150,7 @@ void
 art::detail::print_module_types(fhicl::ParameterSet const& pset,
                                 std::string const& header)
 {
-  std::cout << '\n' << header_rule('=') << "\n";
+  std::cout << '\n' << header_rule('=') << '\n';
   print_table_numbers(pset, header);
 
   auto const names = pset.get_names();
@@ -158,7 +158,7 @@ art::detail::print_module_types(fhicl::ParameterSet const& pset,
     return;
   }
 
-  std::cout << "\n";
+  std::cout << '\n';
   std::string column_1{"Module label"};
   std::string column_2{"module_type"};
   auto column_1_width = size(column_1);

@@ -19,27 +19,27 @@ namespace {
     }
     catch (cet::exception& e) {
       std::cerr << "OptionsHandler caught a cet::exception calling " << funcName
-                << "\n"
-                << e.what() << "\n";
+                << '\n'
+                << e.what() << '\n';
     }
     catch (std::exception& e) {
       std::cerr << "OptionsHandler caught an std::exception calling "
-                << funcName << "\n"
-                << e.what() << "\n";
+                << funcName << '\n'
+                << e.what() << '\n';
     }
     catch (std::string& s) {
       std::cerr << "OptionsHandler caught a string exception calling "
-                << funcName << "\n"
-                << s << "\n";
+                << funcName << '\n'
+                << s << '\n';
     }
     catch (char const* s) {
       std::cerr << "OptionsHandler caught a string exception calling "
-                << funcName << "\n"
-                << s << "\n";
+                << funcName << '\n'
+                << s << '\n';
     }
     catch (...) {
       std::cerr << "OptionsHandler caught an unknown exception calling "
-                << funcName << "\n";
+                << funcName << '\n';
     }
     return failureCode;
   }

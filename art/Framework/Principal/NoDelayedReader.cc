@@ -17,7 +17,7 @@ namespace art {
                                RangeSet&) const
   {
     throw Exception(errors::LogicError, "NoDelayedReader")
-      << "getProduct() called for ProductID: " << pid << "\n";
+      << "getProduct() called for ProductID: " << pid << '\n';
   }
 
 } // namespace art

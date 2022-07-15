@@ -47,7 +47,7 @@ namespace {
   auto
   config_exception(std::string const& context)
   {
-    return art::Exception{art::errors::Configuration, context + "\n"};
+    return art::Exception{art::errors::Configuration, context + '\n'};
   }
 
   auto

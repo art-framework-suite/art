@@ -46,7 +46,7 @@ namespace art::detail {
       std::ostringstream result;
       result << std::setw(widths_[0]) << std::right << entry << ". "
              << std::setw(widths_[1] + 4) << std::left << li.short_spec()
-             << std::left << li.path() << "\n";
+             << std::left << li.path() << '\n';
       return {result.str(), false};
     }
   };

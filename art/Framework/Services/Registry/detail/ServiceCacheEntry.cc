@@ -78,14 +78,14 @@ namespace art::detail {
     catch (fhicl::detail::validationException const& e) {
       std::ostringstream err_stream;
       constexpr cet::HorizontalRule rule{100};
-      err_stream << "\n"
+      err_stream << '\n'
                  << rule('=') << "\n\n"
                  << "!! The following service has been misconfigured: !!"
                  << "\n\n"
                  << rule('-') << "\n\nservice_type: "
                  << cet::bold_fontify(config_.get<std::string>("service_type"))
                  << "\n\n"
-                 << e.what() << "\n"
+                 << e.what() << '\n'
                  << rule('=') << "\n\n";
       throw art::Exception(art::errors::Configuration) << err_stream.str();
     }

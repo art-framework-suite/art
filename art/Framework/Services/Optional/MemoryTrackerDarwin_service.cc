@@ -21,7 +21,7 @@ namespace art {
     MemoryTracker(fhicl::ParameterSet const&)
     {
       mf::LogAbsolute("MemoryTracker")
-        << "\n"
+        << '\n'
         << "The MemoryTracker service is not supported for this operating "
            "system.\n"
         << "If desired, please log an issue with:\n\n"

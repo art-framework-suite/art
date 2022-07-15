@@ -88,8 +88,7 @@ art::ProcessingOptionsHandler::doCheckOptions(bpo::variables_map const& vm)
   if ((vm.count("rethrow-all") + vm.count("rethrow-default") +
        vm.count("no-rethrow-default")) > 1) {
     throw Exception(errors::Configuration)
-      << "Options --default-exceptions, --rethrow-all, and --rethrow-default "
-         "\n"
+      << "Options --default-exceptions, --rethrow-all, and --rethrow-default\n"
       << "are mutually incompatible.\n";
   }
 

@@ -18,7 +18,7 @@ namespace {
       history.end(),
       history.begin()->processName(),
       [](std::string result, art::ProcessConfiguration const& config) {
-        result += "\n";
+        result += '\n';
         result += config.processName();
         return result;
       });

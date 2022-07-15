@@ -54,7 +54,7 @@ namespace art::detail {
       result << std::setw(widths_[0]) << std::right << entry << '.' << dupl
              << std::setw(widths_[1] + 4) << std::left << li.short_spec()
              << std::setw(widths_[2] + 4) << std::left << li.plugin_type()
-             << std::left << li.path() << "\n";
+             << std::left << li.path() << '\n';
       return {result.str(), is_duplicate};
     }
   };

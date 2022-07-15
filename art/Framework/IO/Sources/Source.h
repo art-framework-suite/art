@@ -421,7 +421,7 @@ namespace art {
         srID = newSR->subRunID();
         if (rID != srID.runID()) {
           errMsg << "readNext returned a SubRun " << srID
-                 << " which is a mismatch to " << rID << "\n";
+                 << " which is a mismatch to " << rID << '\n';
           throwDataCorruption_(errMsg.str().c_str());
         }
         if (!srID.isValid()) {
@@ -435,7 +435,7 @@ namespace art {
         eID = newE->eventID();
         if (srID != eID.subRunID()) {
           errMsg << "readNext returned an Event " << eID
-                 << " which is a mismatch to " << srID << "\n";
+                 << " which is a mismatch to " << srID << '\n';
           throwDataCorruption_(errMsg.str().c_str());
         }
         if (!eID.isValid()) {

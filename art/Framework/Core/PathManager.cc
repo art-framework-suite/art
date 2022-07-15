@@ -397,14 +397,13 @@ namespace art {
     if (!configErrMsgs.empty()) {
       constexpr cet::HorizontalRule rule{100};
       ostringstream msg;
-      msg << "\n"
+      msg << '\n'
           << rule('=') << "\n\n"
-          << "!! The following modules have been misconfigured: !!"
-          << "\n";
+          << "!! The following modules have been misconfigured: !!" << '\n';
       for (auto const& err : configErrMsgs) {
-        msg << "\n" << rule('-') << "\n" << err;
+        msg << '\n' << rule('-') << '\n' << err;
       }
-      msg << "\n" << rule('=') << '\n';
+      msg << '\n' << rule('=') << '\n';
       throw Exception(errors::Configuration) << msg.str();
     }
     return modules;
@@ -506,7 +505,7 @@ namespace art {
         worker = makeWorker_(mci.modDescription, wp);
         TDEBUG(5) << "Made worker " << hex << worker << dec << " (" << sid
                   << ") path: " << to_string(pi) << " type: " << md.moduleName()
-                  << " label: " << module_label << "\n";
+                  << " label: " << module_label << '\n';
       }
 
       assert(worker);

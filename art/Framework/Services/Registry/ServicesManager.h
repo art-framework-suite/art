@@ -126,14 +126,14 @@ namespace art {
   catch (fhicl::detail::validationException const& e) {
     constexpr cet::HorizontalRule rule{100};
     throw Exception(errors::Configuration)
-      << "\n"
+      << '\n'
       << rule('=') << "\n\n"
       << "!! The following service has been misconfigured: !!"
       << "\n\n"
       << rule('-') << "\n\nservice_type: "
       << cet::bold_fontify(cet::demangle_symbol(typeid(SERVICE).name()))
       << "\n\n"
-      << e.what() << "\n"
+      << e.what() << '\n'
       << rule('=') << "\n\n";
   }
 
