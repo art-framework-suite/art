@@ -21,7 +21,7 @@ namespace art {
   private:
     // Check selected options for consistency (should throw on failure).
     virtual int doCheckOptions(bpo::variables_map const& vm) = 0;
-    // Act on selected options  (should throw on failure).
+    // Act on selected options (should throw on failure).
     virtual int doProcessOptions(bpo::variables_map const& vm,
                                  fhicl::intermediate_table& raw_config) = 0;
   };

@@ -164,7 +164,7 @@ namespace {
       art::Exception e(art::errors::Configuration);
       e << "SAM metadata information is required -- missing metadata:\n";
       for (auto const& s : missingItems) {
-        e << s << "\n";
+        e << s << '\n';
       }
     }
   }

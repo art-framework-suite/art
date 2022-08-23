@@ -148,7 +148,7 @@ namespace art {
       throw cet::exception("RANDOM")
         << "RNGservice::createEngine():\n"
         << "Attempt to create engine with out-of-range ScheduleID: " << sid
-        << "\n";
+        << '\n';
     }
     string const& label = qualify_engine_label(sid, module_label, engine_label);
     if (data_[sid].tracker_.find(label) != data_[sid].tracker_.cend()) {
@@ -250,7 +250,6 @@ namespace art {
         log << "\nEngine: " << ss.label() << "  Kind: " << ss.ekind()
             << "  Schedule ID: " << i << "  State size: " << ss.state().size();
       }
-      log << "\n";
     };
     cet::for_all_with_index(data_, print_per_stream);
   }
@@ -275,7 +274,7 @@ namespace art {
         data_[sid].kind_[label], label, eptr->put());
       log << " | " << label;
     }
-    log << " |\n";
+    log << " |";
   }
 
   void
@@ -392,7 +391,7 @@ namespace art {
           throw cet::exception("RANDOM")
             << "RNGservice::restoreFromFile_():\n"
             << "Failed during restore of state of engine for label " << label
-            << "from file \"" << restoreFromFilename_ << "\"\n";
+            << "from file \"" << restoreFromFilename_ << '"';
         }
         how = EngineSource::File;
       } else if (how == EngineSource::File) {

@@ -31,8 +31,8 @@ namespace art::detail {
     details_(LibraryInfo const& li) const
     {
       std::ostringstream result;
-      result << indent__2() << "provider: " << li.provider() << "\n"
-             << indent__2() << "source  : " << li.path() << "\n"
+      result << indent__2() << "provider: " << li.provider() << '\n'
+             << indent__2() << "source  : " << li.path() << '\n'
              << indent__2() << "library : " << li.so_name() << "\n\n";
       return result.str();
     }

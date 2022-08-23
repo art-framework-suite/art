@@ -68,7 +68,7 @@ namespace {
     std::string const brief_module_context =
       brief_context(md) + " during " + transition;
     try {
-      std::rethrow_exception(eptr);
+      rethrow_exception(eptr);
     }
     catch (cet::exception& e) {
       throw Exception{errors::OtherArt,
@@ -261,7 +261,7 @@ namespace art {
       mf::LogWarning("repeat") << "A module has been invoked a second time "
                                   "even though it caught an exception during "
                                   "the previous invocation.\nThis may be an "
-                                  "indication of a configuration problem.\n";
+                                  "indication of a configuration problem.";
       rethrow_exception(cached_exception_);
     }
     case Working:
@@ -381,14 +381,14 @@ namespace art {
       returnCode_ = true;
       ++counts_passed_;
       mf::LogWarning("IgnoreCompletely") << "Module ignored an exception\n"
-                                         << e.what() << "\n";
+                                         << e.what();
       // WARNING: We will continue execution below!!!
     } else if (action == actions::FailModule) {
       state_ = Fail;
       returnCode_ = true;
       ++counts_failed_;
       mf::LogWarning("FailModule") << "Module failed due to an exception\n"
-                                   << e.what() << "\n";
+                                   << e.what();
       // WARNING: We will continue execution below!!!
     } else {
       state_ = ExceptionThrown;
@@ -444,7 +444,7 @@ namespace art {
                   << "A char const* thrown as an exception occurred during a "
                      "call to the module "
                   << brief_context(md_, p) << '\n'
-                  << c << "\n";
+                  << c << '\n';
     cached_exception_ = make_exception_ptr(art_ex);
     rethrow_exception(cached_exception_);
   }
@@ -491,14 +491,14 @@ namespace art {
         returnCode_ = true;
         ++counts_passed_;
         mf::LogWarning("IgnoreCompletely") << "Module ignored an exception\n"
-                                           << e.what() << "\n";
+                                           << e.what();
         // WARNING: We will continue execution below!!!
       } else if (action == actions::FailModule) {
         state_ = Fail;
         returnCode_ = true;
         ++counts_failed_;
         mf::LogWarning("FailModule") << "Module failed due to an exception\n"
-                                     << e.what() << "\n";
+                                     << e.what();
         // WARNING: We will continue execution below!!!
       } else {
         state_ = ExceptionThrown;
@@ -562,7 +562,7 @@ namespace art {
         Exception{errors::BadExceptionType, "char const*"}
         << "A char const* was thrown as an exception while processing module "
         << brief_context(md_, p) << '\n'
-        << c << "\n";
+        << c << '\n';
       cached_exception_ = make_exception_ptr(art_ex);
       waitingTasks_.doneWaiting(cached_exception_);
       TDEBUG_END_TASK_SI(4, sid) << "because of EXCEPTION";

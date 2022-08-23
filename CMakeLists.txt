@@ -14,7 +14,7 @@
 cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
 find_package(cetmodules 2.13.00 REQUIRED)
-project(art VERSION 3.11.01 LANGUAGES CXX C)
+project(art VERSION 3.12.00 LANGUAGES CXX C)
 
 include(CetCMakeEnv)
 cet_cmake_env()
@@ -46,8 +46,6 @@ if(DEFINED ENV{CET_SANITIZE_THREAD} AND DEFINED ENV{GCC_FQ_DIR})
 endif()
 
 cet_report_compiler_flags(REPORT_THRESHOLD VERBOSE)
-
-cet_register_export_set(SET_NAME art NAMESPACE art)
 
 # source
 add_subdirectory(art)

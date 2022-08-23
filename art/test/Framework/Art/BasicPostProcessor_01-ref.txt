@@ -9,6 +9,9 @@ physics: {
          module_label: "a1"
       }
    }
+   end_paths: [
+      "epath1"
+   ]
    epath1: [
       "a1",
       "o1"
@@ -27,6 +30,9 @@ physics: {
          module_label: "p1"
       }
    }
+   trigger_paths: [
+      "0:path1"
+   ]
 }
 process_name: "DUMMY"
 services: {
@@ -75,4 +81,9 @@ source: {
    maxEvents: 1
    module_label: "source"
    module_type: "EmptyEvent"
+}
+trigger_paths: {
+   trigger_paths: [
+      "0:path1"
+   ]
 }

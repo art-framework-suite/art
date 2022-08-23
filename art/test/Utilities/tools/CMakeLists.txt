@@ -1,24 +1,29 @@
 foreach (tool
     ClassTool
     FunctionTool
-    NestedClassTool
-    NestedFunctionInClassTool
     NestedFunctionTool)
   cet_build_plugin(${tool} art::tool NO_INSTALL BASENAME_ONLY)
 endforeach()
 
 # Add transitive dependencies to a couple of our tools:
 target_sources(NestedFunctionTool_tool PUBLIC NestedFunctionTool.h)
-target_link_libraries(NestedFunctionTool_tool art_plugin_support::toolMaker)
+target_link_libraries(NestedFunctionTool_tool PRIVATE art_plugin_support::toolMaker)
 
-target_sources(NestedClassTool_tool INTERFACE NestedClassTool.h)
-target_link_libraries(NestedClassTool_tool INTERFACE fhiclcpp::fhiclcpp)
-
-target_sources(NestedFunctionInClassTool_tool PUBLIC NestedFunctionInClassTool.h)
-target_link_libraries(NestedFunctionInClassTool_tool PUBLIC
-  art_plugin_types::tool
+cet_build_plugin(NestedClassTool art::tool
+  NO_INSTALL BASENAME_ONLY IMPL_SOURCE
+  LIBRARIES INTERFACE
+  art_plugin_support::toolMaker
   fhiclcpp::fhiclcpp
 )
+target_sources(NestedClassTool_tool INTERFACE NestedClassTool.h)
+
+cet_build_plugin(NestedFunctionInClassTool art::tool
+  NO_INSTALL BASENAME_ONLY IMPL_SOURCE
+  LIBRARIES INTERFACE
+  art_plugin_support::toolMaker
+  fhiclcpp::fhiclcpp
+)
+target_sources(NestedFunctionInClassTool_tool INTERFACE NestedFunctionInClassTool.h)
 
 # Make a standalone interface target for an abstract tool base.
 cet_make_library(LIBRARY_NAME OperationBase

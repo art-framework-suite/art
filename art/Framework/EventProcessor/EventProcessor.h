@@ -49,8 +49,8 @@ namespace art {
     enum StatusCode { epSuccess = 0, epSignal = 3 };
 
     // Special Member Functions
-    explicit EventProcessor(fhicl::ParameterSet const& pset,
-                            detail::EnabledModules const& enabled_modules);
+    explicit EventProcessor(fhicl::ParameterSet pset,
+                            detail::EnabledModules enabled_modules);
     ~EventProcessor();
     EventProcessor(EventProcessor const&) = delete;
     EventProcessor(EventProcessor&&) = delete;

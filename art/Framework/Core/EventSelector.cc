@@ -47,7 +47,7 @@ namespace {
         << "EventSelector::init, A module is using SelectEvents\n"
         << "to request a trigger name that has extra characters after "
            "'&noexception'.\n"
-        << "The improper trigger name is: " << full_path_specifier << "\n";
+        << "The improper trigger name is: " << full_path_specifier << '\n';
     }
     specifier.erase(noexception_pos);
     return true;
@@ -81,7 +81,7 @@ namespace {
         << "EventSelector::init, A module is using SelectEvents\n"
         << "to request a trigger name that has disallowed characters before "
            "'exception@'.\n"
-        << "The improper trigger name is: " << full_path_specifier << "\n";
+        << "The improper trigger name is: " << full_path_specifier << '\n';
     }
     return false;
   }
@@ -199,7 +199,7 @@ namespace art {
           << "EventSelector::init, A module is using SelectEvents\n"
           << "to request a trigger name starting with !exception@.\n"
           << "This is not supported.\n"
-          << "The improper trigger name is: " << pathSpecifier << "\n";
+          << "The improper trigger name is: " << pathSpecifier << '\n';
       }
 
       if (noex_demanded && exception_spec) {
@@ -207,7 +207,7 @@ namespace art {
           << "EventSelector::init, A module is using SelectEvents\n"
           << "to request a trigger name starting with exception@ "
           << "and also demanding &noexception.\n"
-          << "The improper trigger name is: " << pathSpecifier << "\n";
+          << "The improper trigger name is: " << pathSpecifier << '\n';
       }
 
       // instead of "see if the name can be found in the full list of
@@ -221,11 +221,11 @@ namespace art {
         if (is_glob(realname)) {
           mf::LogWarning("Configuration")
             << "EventSelector::init, A module is using SelectEvents\n"
-               "to request a wildcarded trigger name that "
-               "does not match any trigger.\n"
+               "to request a wildcarded trigger name that does not match any "
+               "trigger.\n"
                "The wildcarded trigger name is: "
             << realname
-            << " (from trigger-path specification: " << pathSpecifier << ") \n";
+            << " (from trigger-path specification: " << pathSpecifier << ")";
         } else {
           throw Exception(errors::Configuration)
             << "EventSelector::init, A module is using SelectEvents\n"
@@ -267,7 +267,7 @@ namespace art {
             << "EventSelector::init, A module is using SelectEvents\n"
                "to request all fails on a set of trigger names that do not "
                "exist\n"
-            << "The problematic name is: " << pathSpecifier << "\n";
+            << "The problematic name is: " << pathSpecifier << '\n';
         }
 
         if (matches.size() == 1) {
@@ -288,7 +288,7 @@ namespace art {
             << "EventSelector::init, A module is using SelectEvents\n"
                "to request all fails on a set of trigger names that do not "
                "exist\n"
-            << "The problematic name is: " << pathSpecifier << "\n";
+            << "The problematic name is: " << pathSpecifier << '\n';
         }
 
         if (matches.size() == 1) {

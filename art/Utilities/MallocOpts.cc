@@ -137,7 +137,7 @@ namespace art {
       adjustMallocParams();
       if (hasErrors()) {
         std::cerr << "ERROR: Reset of malloc options has fails:\n"
-                  << error_message_ << "\n";
+                  << error_message_ << '\n';
       }
     }
   }
@@ -184,12 +184,12 @@ namespace art {
 
       if (ist.bad()) {
         std::cerr
-          << "bad malloc options in ART_MALLOC_RESET: " << spar << "\n"
+          << "bad malloc options in ART_MALLOC_RESET: " << spar << '\n'
           << "format is: "
           << "ART_MALLOC_RESET=\"mmap_max trim_thres top_pad mmap_thres\"\n";
       } else {
         std::cout << "MALLOC_OPTIONS> Reset options: "
-                  << "ART_MALLOC_RESET=" << par << "\n";
+                  << "ART_MALLOC_RESET=" << par << '\n';
       }
       rc = true;
       changed_ = true;

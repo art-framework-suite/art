@@ -6,29 +6,13 @@
                "type" : "STRING",
                "value" : "RelWithDebInfo"
             },
-            "CMAKE_CXX_COMPILER" : {
-               "type" : "STRING",
-               "value" : "clang++"
-            },
             "CMAKE_CXX_EXTENSIONS" : {
                "type" : "BOOL",
                "value" : "OFF"
             },
-            "CMAKE_CXX_STANDARD" : {
-               "type" : "STRING",
-               "value" : "17"
-            },
             "CMAKE_CXX_STANDARD_REQUIRED" : {
                "type" : "BOOL",
                "value" : "ON"
-            },
-            "CMAKE_C_COMPILER" : {
-               "type" : "STRING",
-               "value" : "clang"
-            },
-            "CMAKE_Fortran_COMPILER" : {
-               "type" : "STRING",
-               "value" : "gfortran"
             },
             "art_ADD_NOARCH_DIRS_INIT" : {
                "type" : "INTERNAL",
@@ -46,29 +30,45 @@
       },
       {
          "cacheVariables" : {
+            "CMAKE_CXX_COMPILER" : {
+               "type" : "STRING",
+               "value" : "$env{CETPKG_CXX_COMPILER}"
+            },
+            "CMAKE_CXX_STANDARD" : {
+               "type" : "STRING",
+               "value" : "$env{CETPKG_CXX_STANDARD}"
+            },
+            "CMAKE_C_COMPILER" : {
+               "type" : "STRING",
+               "value" : "$env{CETPKG_C_COMPILER}"
+            },
+            "CMAKE_Fortran_COMPILER" : {
+               "type" : "STRING",
+               "value" : "$env{CETPKG_Fortran_COMPILER}"
+            },
             "UPS_CXX_COMPILER_ID" : {
                "type" : "STRING",
-               "value" : "Clang"
+               "value" : "$env{CETPKG_CXX_COMPILER_ID}"
             },
             "UPS_CXX_COMPILER_VERSION" : {
                "type" : "STRING",
-               "value" : "7.0.0"
+               "value" : "$env{CETPKG_CXX_COMPILER_VERSION}"
             },
             "UPS_C_COMPILER_ID" : {
                "type" : "STRING",
-               "value" : "Clang"
+               "value" : "$env{CETPKG_C_COMPILER_ID}"
             },
             "UPS_C_COMPILER_VERSION" : {
                "type" : "STRING",
-               "value" : "7.0.0"
+               "value" : "$env{CETPKG_C_COMPILER_VERSION}"
             },
             "UPS_Fortran_COMPILER_ID" : {
                "type" : "STRING",
-               "value" : "GNU"
+               "value" : "$env{CETPKG_Fortran_COMPILER_ID}"
             },
             "UPS_Fortran_COMPILER_VERSION" : {
                "type" : "STRING",
-               "value" : "8.2.0"
+               "value" : "$env{CETPKG_Fortran_COMPILER_VERSION}"
             },
             "WANT_UPS" : {
                "type" : "BOOL",
@@ -93,10 +93,6 @@
             "art_UPS_QUALIFIER_STRING_INIT" : {
                "type" : "STRING",
                "value" : "$env{CETPKG_QUALSPEC}"
-            },
-            "art_UPS_USE_TIME_DEPENDENCIES_INIT" : {
-               "type" : "STRING",
-               "value" : "canvas"
             }
          },
          "description" : "Extra configuration for UPS package generation",

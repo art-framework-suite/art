@@ -89,9 +89,9 @@ testone(const Strings& paths,
     std::cerr << "failed to compare pattern with mask using pset ID: "
               << "correct=" << answer << " "
               << "results=" << std::boolalpha << result << '\n'
-              << "pattern=" << pattern << "\n"
-              << "mask=" << mask << "\n"
-              << "jmask = " << jmask << "\n";
+              << "pattern=" << pattern << '\n'
+              << "mask=" << mask << '\n'
+              << "jmask = " << jmask << '\n';
     abort();
   }
 }

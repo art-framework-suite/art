@@ -6,6 +6,9 @@ outputs: {
    }
 }
 physics: {
+   end_paths: [
+      "ep"
+   ]
    ep: [
       "o1"
    ]

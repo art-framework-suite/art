@@ -106,7 +106,6 @@ X
 
 include_guard()
 
-cmake_policy(PUSH)
 cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 include(BuildPlugins)
@@ -300,5 +299,3 @@ function(art_make)
     art_dictionary(${dict_args} DICTIONARY_LIBRARIES PRIVATE ${library_name})
   endif()
 endfunction()
-
-cmake_policy(POP)

@@ -377,8 +377,7 @@ namespace art {
            << boost::format(" %=12s ") % "Max"
            << boost::format(" %=12s ") % "Median"
            << boost::format(" %=12s ") % "RMS"
-           << boost::format(" %=10s ") % "nEvts"
-           << "\n";
+           << boost::format(" %=10s ") % "nEvts" << '\n';
     msgOss << rule('=') << '\n';
     if (evt.n == 0u) {
       msgOss << "[ No processed events ]\n";

@@ -151,11 +151,11 @@ namespace art {
       e << "getView: Found "
         << (qrs.empty() ? "no products" : "more than one product")
         << " matching all criteria\n"
-        << "Looking for sequence of type: " << typeID << "\n"
-        << "Looking for module label: " << moduleLabel << "\n"
-        << "Looking for productInstanceName: " << productInstanceName << "\n";
+        << "Looking for sequence of type: " << typeID << '\n'
+        << "Looking for module label: " << moduleLabel << '\n'
+        << "Looking for productInstanceName: " << productInstanceName << '\n';
       if (!processTag.name().empty()) {
-        e << "Looking for processName: " << processTag.name() << "\n";
+        e << "Looking for processName: " << processTag.name() << '\n';
       }
       throw e;
     }

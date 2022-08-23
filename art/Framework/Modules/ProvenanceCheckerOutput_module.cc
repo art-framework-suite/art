@@ -120,27 +120,27 @@ namespace art {
 
     if (missingFromMapper.size()) {
       mf::LogError("ProvenanceChecker")
-        << "Missing the following ProductIDs from BranchMapper\n";
+        << "Missing the following ProductIDs from BranchMapper";
       cet::for_all(missingFromMapper, logProductID);
     }
 
     if (missingFromPrincipal.size()) {
       mf::LogError("ProvenanceChecker")
-        << "Missing the following ProductIDs from EventPrincipal\n";
+        << "Missing the following ProductIDs from EventPrincipal";
       cet::for_all(missingFromPrincipal, logProductID);
     }
 
     if (missingProductProvenance.size()) {
       mf::LogError("ProvenanceChecker") << "The Groups for the following "
                                            "ProductIDs have no "
-                                           "ProductProvenance\n";
+                                           "ProductProvenance";
       cet::for_all(missingProductProvenance, logProductID);
     }
 
     if (missingFromTables.size()) {
       mf::LogError("ProvenanceChecker") << "Missing the following ProductIDs "
                                            "from the principal's product "
-                                           "tables\n";
+                                           "tables";
       cet::for_all(missingFromTables, logProductID);
     }
 
@@ -168,8 +168,4 @@ namespace art {
 
 } // namespace art
 
-// ======================================================================
-
 DEFINE_ART_MODULE(art::ProvenanceCheckerOutput)
-
-// ======================================================================

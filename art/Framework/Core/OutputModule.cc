@@ -552,7 +552,7 @@ namespace art {
                      << " in metadata produced by plugin "
                      << pluginNames[pluginCounter] << ":\n"
                      << " Faulty key/value clause:\n"
-                     << checkString << "\n"
+                     << checkString << '\n'
                      << (n_parsed_chars ? string(n_parsed_chars, '-') : "")
                      << "^\n";
             }

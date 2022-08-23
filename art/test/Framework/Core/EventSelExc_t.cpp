@@ -120,9 +120,9 @@ evSelTest(PathSpecifiers const& path_specifiers,
     std::cerr
       << "failed to compare pathspecs with trigger results using pset ID: "
       << "correct=" << ans << " "
-      << "results=" << std::boolalpha << result << "\n"
-      << "pathspecs =" << path_specifiers << "\n"
-      << "trigger results = " << tr << "\n";
+      << "results=" << std::boolalpha << result << '\n'
+      << "pathspecs =" << path_specifiers << '\n'
+      << "trigger results = " << tr << '\n';
     abort();
   }
 }
