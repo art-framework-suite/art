@@ -49,4 +49,6 @@ list(APPEND CETMODULES_PLUGIN_BUILDERS_PROJECT_${CETMODULES_CURRENT_PROJECT_NAME
 cet_collect_plugin_builders(Modules ArtPlugins)
 
 # Testing
+if ($BUILD_TESTING)
 add_subdirectory(test)
+endif()
