@@ -38,7 +38,7 @@ include(OperationTestTool)
 
 # Define the tools needing the OperationBase interface.
 foreach (op Add Multiply Subtract)
-  cet_build_plugin(${op}Number OperationTestTool BASENAME_ONLY
+  cet_build_plugin(${op}Number OperationTestTool NO_INSTALL BASENAME_ONLY
     IMPL_TARGET_VAR ${op}Number_impl_tgt)
 endforeach()
 
