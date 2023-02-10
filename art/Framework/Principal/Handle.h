@@ -162,7 +162,8 @@ art::Handle<T>::Handle(GroupQueryResult const& gqr)
 // pointer behaviors:
 
 template <class T>
-inline T const& art::Handle<T>::operator*() const
+inline T const&
+art::Handle<T>::operator*() const
 {
   return *product();
 }
@@ -181,7 +182,8 @@ art::Handle<T>::product() const
 }
 
 template <class T>
-inline T const* art::Handle<T>::operator->() const
+inline T const*
+art::Handle<T>::operator->() const
 {
   return product();
 }
@@ -342,13 +344,15 @@ inline art::ValidHandle<T>::operator T const*() const
 }
 
 template <class T>
-inline T const& art::ValidHandle<T>::operator*() const
+inline T const&
+art::ValidHandle<T>::operator*() const
 {
   return *prod_;
 }
 
 template <class T>
-inline T const* art::ValidHandle<T>::operator->() const
+inline T const*
+art::ValidHandle<T>::operator->() const
 {
   return prod_;
 }
@@ -506,13 +510,15 @@ inline art::PutHandle<T>::operator ProductID() const
 }
 
 template <class T>
-inline T const& art::PutHandle<T>::operator*() const
+inline T const&
+art::PutHandle<T>::operator*() const
 {
   return *prod_;
 }
 
 template <class T>
-inline T const* art::PutHandle<T>::operator->() const
+inline T const*
+art::PutHandle<T>::operator->() const
 {
   return prod_;
 }

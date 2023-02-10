@@ -9,7 +9,10 @@ namespace art {
 
   ActionTable::~ActionTable() = default;
 
-  ActionTable::ActionTable() { addDefaults_(); }
+  ActionTable::ActionTable()
+  {
+    addDefaults_();
+  }
 
   ActionTable::ActionTable(Config const& c)
   {

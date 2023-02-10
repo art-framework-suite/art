@@ -41,12 +41,10 @@ namespace art {
       "\n\nart-error: You cannot create a ServiceHandle for this type.\n"
       "           Please contact artists@fnal.gov for guidance.\n");
 
-    ServiceHandle() try : instance {
-      &ServiceRegistry::instance().get<std::remove_const_t<T>>()
+    ServiceHandle()
+    try : instance{&ServiceRegistry::instance().get<std::remove_const_t<T>>()} {
     }
-    {}
-    catch (Exception const& x)
-    {
+    catch (Exception const& x) {
       throw Exception(errors::ServiceNotFound)
         << "Unable to create ServiceHandle.\n"
         << "Perhaps the FHiCL configuration does not specify the necessary "
@@ -55,9 +53,17 @@ namespace art {
         << x;
     }
 
-    T* operator->() const { return instance; }
+    T*
+    operator->() const
+    {
+      return instance;
+    }
 
-    T& operator*() const { return *instance; }
+    T&
+    operator*() const
+    {
+      return *instance;
+    }
 
     T*
     get() const

@@ -384,7 +384,8 @@ namespace art {
     for (auto p : view) {
       castedView.push_back(static_cast<ELEMENT const*>(p));
     }
-    result = View{std::move(castedView), grp->productID(), grp->uniqueProduct()};
+    result =
+      View{std::move(castedView), grp->productID(), grp->uniqueProduct()};
     return true;
   }
 

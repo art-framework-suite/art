@@ -53,7 +53,8 @@ namespace {
     case art::InEvent:
       result << static_cast<art::EventPrincipal const&>(principal).eventID();
       break;
-    default: {}
+    default: {
+    }
     }
     return result.str();
   }
@@ -192,7 +193,8 @@ namespace art {
   }
 
   void
-  Worker::beginJob(detail::SharedResources const& resources) try {
+  Worker::beginJob(detail::SharedResources const& resources)
+  try {
     actReg_.sPreModuleBeginJob.invoke(md_);
     doBeginJob(resources);
     actReg_.sPostModuleBeginJob.invoke(md_);
@@ -202,7 +204,8 @@ namespace art {
   }
 
   void
-  Worker::endJob() try {
+  Worker::endJob()
+  try {
     actReg_.sPreModuleEndJob.invoke(md_);
     doEndJob();
     actReg_.sPostModuleEndJob.invoke(md_);
@@ -360,7 +363,8 @@ namespace art {
 
   // This is used only to do trigger results insertion.
   void
-  Worker::doWork_event(EventPrincipal& p, ModuleContext const& mc) try {
+  Worker::doWork_event(EventPrincipal& p, ModuleContext const& mc)
+  try {
     ++counts_visited_;
     returnCode_ = false;
     // Transition from Ready state to Working state.

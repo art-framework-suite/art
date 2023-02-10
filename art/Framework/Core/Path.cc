@@ -125,7 +125,8 @@ namespace art {
       case Transition::EndSubRun:
         actReg_.sPrePathEndSubRun.invoke(name());
         break;
-      default: {} // No other pre-path signals supported.
+      default: {
+      } // No other pre-path signals supported.
       }
     }
     state_ = hlt::Ready;
@@ -177,7 +178,8 @@ namespace art {
       case Transition::EndSubRun:
         actReg_.sPostPathEndSubRun.invoke(name(), status);
         break;
-      default: {} // No other post-path signals supported.
+      default: {
+      } // No other post-path signals supported.
       }
     }
   }

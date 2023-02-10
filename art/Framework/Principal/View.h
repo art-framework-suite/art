@@ -76,7 +76,7 @@ namespace art {
       return vals_;
     }
 
-    operator auto&() noexcept { return vals_; }
+    operator auto &() noexcept { return vals_; }
     operator auto const&() const noexcept { return vals_; }
 
     auto

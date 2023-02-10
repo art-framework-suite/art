@@ -97,9 +97,9 @@ namespace {
     bool const check_for_exception = (s == hlt::Exception);
     return std::any_of(
       begin(bits), end(bits), [check_for_exception, &tr](auto const& b) {
-        hlt::HLTState const bstate = check_for_exception ?
-                                       hlt::Exception :
-                                       b.accept_state ? hlt::Pass : hlt::Fail;
+        hlt::HLTState const bstate = check_for_exception ? hlt::Exception :
+                                     b.accept_state      ? hlt::Pass :
+                                                           hlt::Fail;
         return tr.at(b.pos).state() == bstate;
       });
   }
@@ -275,7 +275,8 @@ namespace art {
           absolute_acceptors.push_back(bi);
         } else {
           // We set this to false because that will demand bits are Fail.
-          auto must_fail = matches | ::ranges::views::transform(makeBitInfoFail) |
+          auto must_fail = matches |
+                           ::ranges::views::transform(makeBitInfoFail) |
                            ::ranges::to_vector;
           all_must_fail.push_back(std::move(must_fail));
         }
@@ -295,7 +296,8 @@ namespace art {
           BitInfo bi{path_position(trigger_path_specs, matches[0]), false};
           conditional_acceptors.push_back(bi);
         } else {
-          auto must_fail = matches | ::ranges::views::transform(makeBitInfoFail) |
+          auto must_fail = matches |
+                           ::ranges::views::transform(makeBitInfoFail) |
                            ::ranges::to_vector;
           all_must_fail_noex.push_back(std::move(must_fail));
         }

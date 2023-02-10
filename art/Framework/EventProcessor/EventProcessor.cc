@@ -73,7 +73,8 @@ namespace art {
       services_pset.erase("FloatingPointControl");
       services_pset.erase("message");
       services_pset.erase("scheduler");
-      auto mgr = new ServicesManager{std::move(services_pset), actReg, resources};
+      auto mgr =
+        new ServicesManager{std::move(services_pset), actReg, resources};
       mgr->addSystemService<FloatingPointControl>(fpcPSet, actReg);
       return mgr;
     }
@@ -1367,7 +1368,8 @@ namespace art {
   // task we gave it to do the end path processing, write the event,
   // and then start the next event processing task.
   void
-  EventProcessor::processEventAsync(ScheduleID const sid) try {
+  EventProcessor::processEventAsync(ScheduleID const sid)
+  try {
     // Note: We are part of the readAndProcessEventTask (schedule head
     // task), and our parent task is the eventLoopTask.
     TDEBUG_BEGIN_FUNC_SI(4, sid);
@@ -1539,7 +1541,8 @@ namespace art {
   // ===============================================================================
 
   void
-  EventProcessor::terminateAbnormally_() try {
+  EventProcessor::terminateAbnormally_()
+  try {
     if (ServiceRegistry::isAvailable<RandomNumberGenerator>()) {
       ServiceHandle<RandomNumberGenerator>()->saveToFile_();
     }

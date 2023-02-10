@@ -204,7 +204,8 @@ namespace art {
           sc, path_spec, sorted_module_labels(worker_config_infos)};
         auto wips = fillWorkers_(
           pc, worker_config_infos, pinfo.workers(), task_group, resources);
-        pinfo.add_path(exceptActions_, actReg_, pc, std::move(wips), task_group);
+        pinfo.add_path(
+          exceptActions_, actReg_, pc, std::move(wips), task_group);
       }
 
       if (protoEndPathLabels_.empty()) {
@@ -412,7 +413,8 @@ namespace art {
   PathManager::maybe_module_t
   PathManager::makeModule_(ParameterSet const& modPS,
                            ModuleDescription const& md,
-                           ScheduleID const sid) const try {
+                           ScheduleID const sid) const
+  try {
     auto const& module_type = md.moduleName();
     detail::ModuleMaker_t* module_factory_func{nullptr};
     try {

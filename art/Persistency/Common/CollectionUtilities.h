@@ -213,8 +213,9 @@ namespace art::detail {
 
   // Metaprogramming for two-argument insertion
   template <typename T, typename InIter = typename T::const_iterator>
-  using two_arg_insert_t = decltype(
-    std::declval<T>().insert(std::declval<InIter>(), std::declval<InIter>()));
+  using two_arg_insert_t =
+    decltype(std::declval<T>().insert(std::declval<InIter>(),
+                                      std::declval<InIter>()));
 
   template <typename T, typename = void>
   struct has_two_arg_insert : std::false_type {};

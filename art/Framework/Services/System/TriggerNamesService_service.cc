@@ -61,7 +61,8 @@ namespace {
       trigger_path_names.push_back(spec_str.name);
       module_names.push_back(physics_pset.get<vector<string>>(spec_str.name));
     }
-    return {std::move(specs), std::move(trigger_path_names), std::move(module_names)};
+    return {
+      std::move(specs), std::move(trigger_path_names), std::move(module_names)};
   }
 }
 

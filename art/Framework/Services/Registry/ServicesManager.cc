@@ -189,9 +189,9 @@ namespace art {
         // Need temporary because we can't guarantee the order of evaluation
         // of the arguments to make_pair() below.
         TypeID const iType{iface_helper->get_typeid()};
-        services_.emplace(
-          iType,
-          detail::ServiceCacheEntry(ps, std::move(iface_helper), svc.first->second));
+        services_.emplace(iType,
+                          detail::ServiceCacheEntry(
+                            ps, std::move(iface_helper), svc.first->second));
       }
       requestedCreationOrder_.emplace_back(std::move(service_typeid));
     }

@@ -43,7 +43,10 @@ namespace art::detail {
   EXTERN_C_FUNC_DECLARE_START                                                  \
   CET_PROVIDE_FILE_PATH()                                                      \
   FHICL_PROVIDE_ALLOWED_CONFIGURATION(tool)                                    \
-  std::string toolType() { return "class"; }                                   \
+  std::string toolType()                                                       \
+  {                                                                            \
+    return "class";                                                            \
+  }                                                                            \
   std::enable_if_t<std::is_class<tool>::value, std::unique_ptr<tool>>          \
   makeTool(fhicl::ParameterSet const& pset)                                    \
   {                                                                            \
@@ -55,7 +58,10 @@ namespace art::detail {
   EXTERN_C_FUNC_DECLARE_START                                                  \
   CET_PROVIDE_FILE_PATH()                                                      \
   ART_PROVIDE_ALLOWED_CONFIGURATION_FUNCTION_TOOL()                            \
-  std::string toolType() { return type; }                                      \
+  std::string toolType()                                                       \
+  {                                                                            \
+    return type;                                                               \
+  }                                                                            \
   auto toolFunction = tool;                                                    \
   EXTERN_C_FUNC_DECLARE_END
 

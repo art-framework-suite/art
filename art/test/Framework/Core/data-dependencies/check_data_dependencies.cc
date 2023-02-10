@@ -364,7 +364,8 @@ namespace {
 }
 
 int
-main(int argc, char** argv) try {
+main(int argc, char** argv)
+try {
   if (argc != 2)
     return 1;
 

@@ -216,7 +216,8 @@ namespace art {
     log_with_indent(1, "Job ended");
   }
 
-  void art::Tracer::preSourceEvent(ScheduleContext)
+  void
+  art::Tracer::preSourceEvent(ScheduleContext)
   {
     log_with_indent(2, "source event");
   }

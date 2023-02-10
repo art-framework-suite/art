@@ -342,7 +342,7 @@ public:
   void operator()(std::vector<PROD const*> const& in,
                   OutIter out,
                   OFFSETS const& offsets,
-                  CONT const& (X::*extractor)(PROD const*)const,
+                  CONT const& (X::*extractor)(PROD const*) const,
                   X const& x) const;
 
   // 10.
@@ -556,7 +556,7 @@ void
 art::PtrRemapper::operator()(std::vector<PROD const*> const& in,
                              OutIter out,
                              OFFSETS const& offsets,
-                             CONT const& (X::*)(PROD const*)const,
+                             CONT const& (X::*)(PROD const*) const,
                              X const& x) const
 {
   this->operator()<CONT>(

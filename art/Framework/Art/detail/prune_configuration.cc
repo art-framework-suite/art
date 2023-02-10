@@ -346,17 +346,18 @@ namespace {
     }
     sequence_t result = config.find(path_selection_override);
     for (auto const& name : empty_paths) {
-      std::replace_if(begin(result),
-                      end(result),
-                      [&name](auto const& ex_val) {
-                        if (not ex_val.is_a(STRING)) {
-                          return false;
-                        }
-                        std::string path_spec_str;
-                        fhicl::detail::decode(ex_val.value, path_spec_str);
-                        return matches(path_spec_str, name);
-                      },
-                      fhicl::extended_value{false, NIL, at_nil});
+      std::replace_if(
+        begin(result),
+        end(result),
+        [&name](auto const& ex_val) {
+          if (not ex_val.is_a(STRING)) {
+            return false;
+          }
+          std::string path_spec_str;
+          fhicl::detail::decode(ex_val.value, path_spec_str);
+          return matches(path_spec_str, name);
+        },
+        fhicl::extended_value{false, NIL, at_nil});
     }
     config.get<sequence_t&>(path_selection_override) = result;
   }

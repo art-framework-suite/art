@@ -129,7 +129,8 @@ namespace art {
     // place of the product before it is taken out of memory.
     cet::exempt_ptr<PROD const> product{wp->product()};
     auto result =
-      putProducts_.try_emplace(typeLabel, PMValue{std::move(wp), bd, rs}).second;
+      putProducts_.try_emplace(typeLabel, PMValue{std::move(wp), bd, rs})
+        .second;
     if (!result) {
       constexpr cet::HorizontalRule rule{30};
       throw Exception(errors::ProductPutFailure)

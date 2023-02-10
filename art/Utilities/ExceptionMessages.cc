@@ -10,7 +10,8 @@ using mf::LogSystem;
 
 namespace art {
   void
-  printArtException(cet::exception const& e, char const* prog) try {
+  printArtException(cet::exception const& e, char const* prog)
+  try {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("ArtException");
     std::ostringstream longDesc;
@@ -22,7 +23,8 @@ namespace art {
   }
 
   void
-  printBadAllocException(char const* prog) try {
+  printBadAllocException(char const* prog)
+  try {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("std::bad_allocException");
     std::ostringstream longDesc;
@@ -36,7 +38,8 @@ namespace art {
   }
 
   void
-  printStdException(std::exception const& e, char const* prog) try {
+  printStdException(std::exception const& e, char const* prog)
+  try {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("StdLibException");
     std::ostringstream longDesc;
@@ -48,7 +51,8 @@ namespace art {
   }
 
   void
-  printUnknownException(char const* prog) try {
+  printUnknownException(char const* prog)
+  try {
     std::string programName(prog ? prog : "program");
     std::string shortDesc("UnknownException");
     std::ostringstream longDesc;

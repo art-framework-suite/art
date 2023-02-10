@@ -30,7 +30,8 @@ namespace art::detail {
 
     template <typename F>
     void
-    call(F f) try {
+    call(F f)
+    try {
       f();
     }
     catch (...) {

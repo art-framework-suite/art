@@ -110,9 +110,17 @@ namespace art {
       return n;
     }
 
-    T& operator[](ScheduleID const sid) { return data_[sid.id()]; }
+    T&
+    operator[](ScheduleID const sid)
+    {
+      return data_[sid.id()];
+    }
 
-    T const& operator[](ScheduleID const sid) const { return data_[sid.id()]; }
+    T const&
+    operator[](ScheduleID const sid) const
+    {
+      return data_[sid.id()];
+    }
 
     T&
     at(ScheduleID const sid)

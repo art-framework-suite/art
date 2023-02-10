@@ -51,7 +51,8 @@ namespace art {
     , endPathInfo_{pm.endPathInfo(sid)}
     , taskGroup_{group}
   {
-    for (auto const& worker : endPathInfo_.workers() | ::ranges::views::values) {
+    for (auto const& worker :
+         endPathInfo_.workers() | ::ranges::views::values) {
       assert(sid == worker->scheduleID());
       if (auto owp = std::dynamic_pointer_cast<OutputWorker>(worker)) {
         outputWorkers_.emplace_back(owp.get());

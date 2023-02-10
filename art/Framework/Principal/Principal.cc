@@ -721,7 +721,8 @@ namespace art {
       //       for run and subrun products.
       auto group = getGroupLocal(bd.productID());
       assert(group);
-      group->setProductAndProvenance(std::move(pp), std::move(edp), std::move(rs));
+      group->setProductAndProvenance(
+        std::move(pp), std::move(edp), std::move(rs));
     } else {
       auto group = getGroupLocal(bd.productID());
       assert(group);
@@ -731,7 +732,9 @@ namespace art {
           << " product: product already put for " << bd.branchName() << '\n';
       }
       group->setProductAndProvenance(
-        std::move(pp), std::move(edp), make_unique<RangeSet>(RangeSet::invalid()));
+        std::move(pp),
+        std::move(edp),
+        make_unique<RangeSet>(RangeSet::invalid()));
     }
   }
 

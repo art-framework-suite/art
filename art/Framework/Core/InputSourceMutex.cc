@@ -9,5 +9,8 @@ namespace art {
     inputSourceMutex_.unlock();
   }
 
-  InputSourceMutexSentry::InputSourceMutexSentry() { inputSourceMutex_.lock(); }
+  InputSourceMutexSentry::InputSourceMutexSentry()
+  {
+    inputSourceMutex_.lock();
+  }
 } // namespace art

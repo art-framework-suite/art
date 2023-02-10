@@ -103,7 +103,8 @@
     };                                                                         \
   }
 
-#endif /* art_Framework_Services_Registry_detail_declaration_helper_macros_h */
+#endif /* art_Framework_Services_Registry_detail_declaration_helper_macros_h   \
+        */
 
 // Local Variables:
 // mode: c++
