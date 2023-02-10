@@ -56,7 +56,7 @@ art::detail::print_path_names(EnabledModules const& enabled_modules)
 
     auto column_0_width = size(column_0);
     auto column_1_width = size(column_1);
-    for (auto const& spec : trigger_paths | ranges::views::keys) {
+    for (auto const& spec : trigger_paths | ::ranges::views::keys) {
       column_1_width = std::max(column_1_width, size(spec.name));
     }
 
@@ -91,7 +91,7 @@ art::detail::print_path_names(EnabledModules const& enabled_modules)
     std::string column_1{"Path name"};
     std::string column_2{"Path size"};
     auto column_1_width = size(column_1);
-    for (auto const& spec : end_paths | ranges::views::keys) {
+    for (auto const& spec : end_paths | ::ranges::views::keys) {
       column_1_width = std::max(column_1_width, size(spec.name));
     }
 

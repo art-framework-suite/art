@@ -20,10 +20,10 @@ GroupSelector::GroupSelector(GroupSelectorRules const& rules,
 
   // Get a BranchSelectState for each branch, containing the branch
   // name, with its 'select bit' set to false.
-  auto branchstates = descriptions | ranges::views::values |
-                      ranges::views::transform(
+  auto branchstates = descriptions | ::ranges::views::values |
+                      ::ranges::views::transform(
                         [](auto const& pd) { return BranchSelectState{&pd}; }) |
-                      ranges::to<std::vector>();
+                      ::ranges::to<std::vector>();
 
   // Now apply the rules to the branchstates, in order.  Each rule can
   // override any previous rule, or all previous rules.
@@ -34,9 +34,9 @@ GroupSelector::GroupSelector(GroupSelectorRules const& rules,
   // must be sorted for subsequent binary search to work.
   groupsToSelect_ =
     branchstates |
-    ranges::views::filter([](auto const& state) { return state.selectMe; }) |
-    ranges::views::transform([](auto const& state) { return state.desc; }) |
-    ranges::to<std::vector>();
+    ::ranges::views::filter([](auto const& state) { return state.selectMe; }) |
+    ::ranges::views::transform([](auto const& state) { return state.desc; }) |
+    ::ranges::to<std::vector>();
   sort_all(groupsToSelect_);
 }
 

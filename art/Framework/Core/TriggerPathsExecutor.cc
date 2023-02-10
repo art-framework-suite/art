@@ -29,7 +29,7 @@ namespace {
   auto
   unique_workers(art::PathsInfo const& pinfo)
   {
-    using namespace ranges;
+    using namespace ::ranges;
     return pinfo.workers() | views::values | views::indirect |
            views::filter([](auto const& worker) { return worker.isUnique(); });
   }

@@ -79,7 +79,7 @@ namespace art {
     //       products, so getGroupTryAllFiles ignores groups for
     //       dropped products instead.
     for (auto const& pd :
-         presentProducts->descriptions | ranges::views::values) {
+         presentProducts->descriptions | ::ranges::views::values) {
       assert(pd.branchType() == branchType_);
       fillGroup(pd);
     }
@@ -209,7 +209,7 @@ namespace art {
     // The process history is expanded if there is a product that is
     // produced in this process.
     addToProcessHistory();
-    for (auto const& pd : produced.descriptions | ranges::views::values) {
+    for (auto const& pd : produced.descriptions | ::ranges::views::values) {
       assert(pd.branchType() == branchType_);
       // Create a group for the produced product.
       fillGroup(pd);
@@ -238,7 +238,7 @@ namespace art {
     //          at a time, and we do not want other threads to find
     //          the info only partly there.
     std::lock_guard sentry{groupMutex_};
-    for (auto const& group : groups_ | ranges::views::values) {
+    for (auto const& group : groups_ | ::ranges::views::values) {
       group->resolveProductIfAvailable();
     }
   }
@@ -476,7 +476,7 @@ namespace art {
     // configuration in the process history.  This unfortunately
     // happened with the SamplingInput source.
     for (auto const& h :
-         ranges::views::reverse(processHistory_) | ranges::views::unique) {
+         ::ranges::views::reverse(processHistory_) | ::ranges::views::unique) {
       if (auto it = pl.find(h.processName()); it != pl.end()) {
         found += findGroupsForProcess(it->second, mc, sel, groups);
       }

@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-using namespace ranges;
+using namespace ::ranges;
 
 namespace art::detail {
   struct ProductInfo {

@@ -62,9 +62,9 @@ namespace art {
       auto to_label = [](auto const& wci) {
         return wci.moduleConfigInfo->modDescription.moduleLabel();
       };
-      using namespace ranges;
+      using namespace ::ranges;
       return wcis | views::transform(to_label) | to<std::vector>() |
-             ranges::actions::sort;
+             ::ranges::actions::sort;
     }
   } // anonymous namespace
 
@@ -144,14 +144,14 @@ namespace art {
   std::vector<PathSpec>
   PathManager::triggerPathSpecs() const
   {
-    using namespace ranges;
+    using namespace ::ranges;
     return triggerPathSpecs_ | views::keys | to<std::vector>();
   }
 
   std::vector<std::string>
   PathManager::triggerPathNames_() const
   {
-    using namespace ranges;
+    using namespace ::ranges;
     return triggerPathSpecs_ | views::keys |
            views::transform([](auto const& spec) { return spec.name; }) |
            to<std::vector>();
@@ -160,7 +160,7 @@ namespace art {
   std::vector<std::string>
   PathManager::prependedTriggerPathNames_() const
   {
-    using namespace ranges;
+    using namespace ::ranges;
     return triggerPathSpecs_ | views::keys |
            views::transform([](auto const& spec) { return to_string(spec); }) |
            to<std::vector>();
@@ -585,7 +585,7 @@ namespace art {
     auto& source_info = result["input_source"];
     if (!protoTrigPathLabels_.empty()) {
       set<string> path_names;
-      for (auto const& spec : triggerPathSpecs_ | ranges::views::keys) {
+      for (auto const& spec : triggerPathSpecs_ | ::ranges::views::keys) {
         path_names.insert(spec.name);
       }
       source_info.paths = path_names;

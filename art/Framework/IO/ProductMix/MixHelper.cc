@@ -17,7 +17,7 @@
 #include <regex>
 #include <unordered_set>
 
-using namespace ranges;
+using namespace ::ranges;
 using namespace std::string_literals;
 
 namespace {

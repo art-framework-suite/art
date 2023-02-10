@@ -275,8 +275,8 @@ namespace art {
           absolute_acceptors.push_back(bi);
         } else {
           // We set this to false because that will demand bits are Fail.
-          auto must_fail = matches | ranges::views::transform(makeBitInfoFail) |
-                           ranges::to_vector;
+          auto must_fail = matches | ::ranges::views::transform(makeBitInfoFail) |
+                           ::ranges::to_vector;
           all_must_fail.push_back(move(must_fail));
         }
         continue;
@@ -295,8 +295,8 @@ namespace art {
           BitInfo bi{path_position(trigger_path_specs, matches[0]), false};
           conditional_acceptors.push_back(bi);
         } else {
-          auto must_fail = matches | ranges::views::transform(makeBitInfoFail) |
-                           ranges::to_vector;
+          auto must_fail = matches | ::ranges::views::transform(makeBitInfoFail) |
+                           ::ranges::to_vector;
           all_must_fail_noex.push_back(move(must_fail));
         }
       }

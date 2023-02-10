@@ -604,7 +604,7 @@ art::detail::prune_config_if_enabled(bool const prune_config,
   }
 
   // Find unused paths
-  using namespace ranges;
+  using namespace ::ranges;
   paths.erase("trigger_paths");
   paths.erase("end_paths");
   for (auto const& spec : trigger_paths | views::keys) {

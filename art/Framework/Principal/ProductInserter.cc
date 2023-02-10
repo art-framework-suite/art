@@ -72,7 +72,7 @@ namespace art {
       }
     }
 
-    for (auto&& [product, pd, rs] : putProducts_ | ranges::views::values) {
+    for (auto&& [product, pd, rs] : putProducts_ | ::ranges::views::values) {
       auto pp = make_unique<ProductProvenance const>(
         pd.productID(), productstatus::present(), retrievedPIDs);
       principal_->put(pd,
@@ -88,7 +88,7 @@ namespace art {
   {
     std::lock_guard lock{*mutex_};
     for (auto&& [product, pd, range_set] :
-         putProducts_ | ranges::views::values) {
+         putProducts_ | ::ranges::views::values) {
       auto pp = make_unique<ProductProvenance const>(pd.productID(),
                                                      productstatus::present());
       auto rs = detail::range_sets_supported(branchType_) ?

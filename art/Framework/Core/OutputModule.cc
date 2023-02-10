@@ -133,7 +133,7 @@ namespace art {
       // TODO: See if we can collapse keptProducts_ and groupSelector into
       // a single object. See the notes in the header for GroupSelector
       // for more information.
-      for (auto const& pd : productList | ranges::views::values) {
+      for (auto const& pd : productList | ::ranges::views::values) {
         if (pd.transient() || pd.dropped()) {
           continue;
         }

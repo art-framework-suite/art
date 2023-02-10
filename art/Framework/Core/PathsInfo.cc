@@ -76,7 +76,7 @@ namespace art {
   void
   PathsInfo::reset()
   {
-    for (auto const& worker : workers_ | ranges::views::values) {
+    for (auto const& worker : workers_ | ::ranges::views::values) {
       worker->reset();
     }
   }

@@ -69,7 +69,7 @@ namespace art {
                                     ProcessConfiguration const& pc)
   {
     std::vector<std::string> producing_services;
-    for (auto& serviceEntry : services_ | ranges::views::values) {
+    for (auto& serviceEntry : services_ | ::ranges::views::values) {
       // Service interfaces cannot be used for product insertion.
       if (serviceEntry.is_interface())
         continue;
@@ -201,7 +201,7 @@ namespace art {
   void
   ServicesManager::getParameterSets(std::vector<fhicl::ParameterSet>& out) const
   {
-    using namespace ranges;
+    using namespace ::ranges;
     out =
       services_ | views::values |
       views::transform([](auto const& sce) { return sce.getParameterSet(); }) |
