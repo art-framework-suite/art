@@ -51,7 +51,7 @@ namespace art {
     void
     productList(std::unique_ptr<ProductList> p)
     {
-      productList_ = move(p);
+      productList_ = std::move(p);
     }
 
     void registerProducts(ProductDescriptions& productsToRegister,

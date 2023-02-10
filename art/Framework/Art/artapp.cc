@@ -55,7 +55,7 @@ artapp(int argc, char* argv[], bool report_unused)
   handlers.emplace_back(new art::FileCatalogOptionsHandler{all_desc});
   // BasicPostProcessor should be last.
   handlers.emplace_back(new art::BasicPostProcessor);
-  return art::run_art(argc, argv, all_desc, move(handlers));
+  return art::run_art(argc, argv, all_desc, std::move(handlers));
 }
 
 // Local Variables:

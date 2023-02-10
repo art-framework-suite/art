@@ -32,7 +32,7 @@ namespace {
     ParameterSet tmp;
     tmp.put("service_type", name);
     ParameterSetRegistry::put(tmp);
-    service_set.emplace_back(move(tmp));
+    service_set.emplace_back(std::move(tmp));
   }
 
   void
@@ -41,7 +41,7 @@ namespace {
              vector<ParameterSet>& service_set)
   {
     if (auto service = source.get_if_present<ParameterSet>(name)) {
-      service_set.emplace_back(move(*service));
+      service_set.emplace_back(std::move(*service));
       return;
     }
     addService(name, service_set);
@@ -183,7 +183,7 @@ namespace art {
       // of the arguments to make_pair() below.
       TypeID const sType{service_helper->get_typeid()};
       auto svc = services_.emplace(
-        sType, detail::ServiceCacheEntry(ps, move(service_helper)));
+        sType, detail::ServiceCacheEntry(ps, std::move(service_helper)));
 
       if (iface_helper) {
         // Need temporary because we can't guarantee the order of evaluation
@@ -191,9 +191,9 @@ namespace art {
         TypeID const iType{iface_helper->get_typeid()};
         services_.emplace(
           iType,
-          detail::ServiceCacheEntry(ps, move(iface_helper), svc.first->second));
+          detail::ServiceCacheEntry(ps, std::move(iface_helper), svc.first->second));
       }
-      requestedCreationOrder_.emplace_back(move(service_typeid));
+      requestedCreationOrder_.emplace_back(std::move(service_typeid));
     }
     ServiceRegistry::instance().setManager(this);
   }

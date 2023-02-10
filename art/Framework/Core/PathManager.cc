@@ -204,7 +204,7 @@ namespace art {
           sc, path_spec, sorted_module_labels(worker_config_infos)};
         auto wips = fillWorkers_(
           pc, worker_config_infos, pinfo.workers(), task_group, resources);
-        pinfo.add_path(exceptActions_, actReg_, pc, move(wips), task_group);
+        pinfo.add_path(exceptActions_, actReg_, pc, std::move(wips), task_group);
       }
 
       if (protoEndPathLabels_.empty()) {
@@ -218,7 +218,7 @@ namespace art {
                            sorted_module_labels(protoEndPathLabels_)};
       auto wips = fillWorkers_(
         pc, protoEndPathLabels_, einfo.workers(), task_group, resources);
-      einfo.add_path(exceptActions_, actReg_, pc, move(wips), task_group);
+      einfo.add_path(exceptActions_, actReg_, pc, std::move(wips), task_group);
     }
 
     // Create trigger-results inserters
@@ -320,7 +320,7 @@ namespace art {
                                                         procPS_.id(),
                                                         getReleaseVersion()}};
         detail::ModuleConfigInfo mci{md, std::move(module_pset), module_type};
-        result.try_emplace(module_label, move(mci));
+        result.try_emplace(module_label, std::move(mci));
       }
       catch (exception const& e) {
         es << "  ERROR: Configuration of module with label " << module_label

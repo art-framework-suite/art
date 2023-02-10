@@ -352,7 +352,7 @@ namespace art {
       }
       ow->closeFile();
     }
-    outputWorkersToOpen_ = move(outputWorkersToClose_);
+    outputWorkersToOpen_ = std::move(outputWorkersToClose_);
   }
 
   bool

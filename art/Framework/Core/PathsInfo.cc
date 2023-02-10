@@ -39,10 +39,10 @@ namespace art {
   {
     if (pc.pathName() == PathContext::end_path()) {
       paths_.emplace_back(
-        actions, registry, pc, move(wips), nullptr, task_group);
+        actions, registry, pc, std::move(wips), nullptr, task_group);
     } else {
       paths_.emplace_back(
-        actions, registry, pc, move(wips), &pathResults_, task_group);
+        actions, registry, pc, std::move(wips), &pathResults_, task_group);
       pathResults_ = HLTGlobalStatus(size(paths_));
     }
     TDEBUG_FUNC_SI(5, pc.scheduleID())

@@ -64,7 +64,7 @@ namespace {
     for (auto const& process_names_str : collapsed) {
       std::vector<std::string> process_names;
       boost::split(process_names, process_names_str, boost::is_any_of("\n"));
-      result.push_back(move(process_names));
+      result.push_back(std::move(process_names));
     }
     return result;
   }

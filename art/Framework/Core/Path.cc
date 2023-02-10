@@ -40,7 +40,7 @@ namespace art {
     , pc_{pc}
     , pathPosition_{ServiceHandle<TriggerNamesService>()->index_for(
         pc_.pathID())}
-    , workers_{move(workers)}
+    , workers_{std::move(workers)}
     , trptr_{pathResults}
     , taskGroup_{taskGroup}
   {

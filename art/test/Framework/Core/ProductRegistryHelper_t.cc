@@ -14,7 +14,7 @@ namespace {
     std::string msg_;
 
   public:
-    explicit matches(std::string msg) : msg_{move(msg)} {}
+    explicit matches(std::string msg) : msg_{std::move(msg)} {}
 
     bool
     operator()(art::Exception const& e) const

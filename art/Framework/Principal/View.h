@@ -135,7 +135,7 @@ namespace art {
 
   template <typename T>
   View<T>::View(std::vector<T const*> v, ProductID const id, EDProduct const* p)
-    : vals_{move(v)}, id_{id}, prod_{p}
+    : vals_{std::move(v)}, id_{id}, prod_{p}
   {}
 
   // Fill a PtrVector<T> with Ptrs to each element of the container

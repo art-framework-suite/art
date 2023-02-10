@@ -101,7 +101,7 @@ namespace art {
   PutHandle<PROD>
   ProductInserter::put(std::unique_ptr<PROD>&& edp, std::string const& instance)
   {
-    return put(move(edp), instance, RangeSet::invalid());
+    return put(std::move(edp), instance, RangeSet::invalid());
   }
 
   template <typename PROD>
@@ -123,13 +123,13 @@ namespace art {
     assert(bd.productID() != ProductID::invalid());
     auto const typeLabel =
       detail::type_label_for(tid, instance, SupportsView<PROD>::value, *md_);
-    auto wp = std::make_unique<Wrapper<PROD>>(move(edp));
+    auto wp = std::make_unique<Wrapper<PROD>>(std::move(edp));
 
     // Mind the product ownership!  The wrapper is the final resting
     // place of the product before it is taken out of memory.
     cet::exempt_ptr<PROD const> product{wp->product()};
     auto result =
-      putProducts_.try_emplace(typeLabel, PMValue{move(wp), bd, rs}).second;
+      putProducts_.try_emplace(typeLabel, PMValue{std::move(wp), bd, rs}).second;
     if (!result) {
       constexpr cet::HorizontalRule rule{30};
       throw Exception(errors::ProductPutFailure)

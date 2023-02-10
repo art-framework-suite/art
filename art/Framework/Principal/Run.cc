@@ -12,7 +12,7 @@ namespace art {
            std::optional<ProductInserter> inserter,
            RangeSet const& rs /* = RangeSet::invalid() */)
     : ProductRetriever{InRun, srp, mc, false}
-    , inserter_{move(inserter)}
+    , inserter_{std::move(inserter)}
     , runPrincipal_{srp}
     , rangeSet_{rs}
   {}

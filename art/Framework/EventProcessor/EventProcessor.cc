@@ -73,7 +73,7 @@ namespace art {
       services_pset.erase("FloatingPointControl");
       services_pset.erase("message");
       services_pset.erase("scheduler");
-      auto mgr = new ServicesManager{move(services_pset), actReg, resources};
+      auto mgr = new ServicesManager{std::move(services_pset), actReg, resources};
       mgr->addSystemService<FloatingPointControl>(fpcPSet, actReg);
       return mgr;
     }
@@ -1198,7 +1198,7 @@ namespace art {
         std::as_const(*ep).makeEvent(invalid_module_context), sc);
       FDEBUG(1) << string(8, ' ') << "readEvent...................("
                 << ep->eventID() << ")\n";
-      schedule(sid).accept_principal(move(ep));
+      schedule(sid).accept_principal(std::move(ep));
       // Now we drop the input source lock by exiting the guarded
       // scope.
     }

@@ -440,7 +440,7 @@ namespace {
       }
 
       if (right_modules.size() == entries.size()) {
-        sorted_result.try_emplace(path_name, move(right_modules));
+        sorted_result.try_emplace(path_name, std::move(right_modules));
       } else {
         // This is the case where a path contains a mixture of
         // modifiers and observers.
@@ -675,7 +675,7 @@ art::detail::prune_config_if_enabled(bool const prune_config,
       views::transform([](auto const& path_spec) { return path_spec.name; }) |
       to<std::vector>();
 
-    config.put("physics.end_paths", move(end_paths_entries));
+    config.put("physics.end_paths", std::move(end_paths_entries));
   }
 
   // Place 'trigger_paths' as top-level configuration table
@@ -688,7 +688,7 @@ art::detail::prune_config_if_enabled(bool const prune_config,
     if (not trigger_paths_override) {
       config.put("physics.trigger_paths", trigger_paths_entries);
     }
-    config.put("trigger_paths.trigger_paths", move(trigger_paths_entries));
+    config.put("trigger_paths.trigger_paths", std::move(trigger_paths_entries));
   }
 
   return EnabledModules{std::move(enabled_modules),

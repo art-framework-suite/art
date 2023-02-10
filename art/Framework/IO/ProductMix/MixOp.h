@@ -126,7 +126,7 @@ namespace art {
              "function\n"
           << "declared with outputProduct=false.\n";
       }
-      e.put(move(rProd), outputInstanceLabel_);
+      e.put(std::move(rProd), outputInstanceLabel_);
     }
   }
 

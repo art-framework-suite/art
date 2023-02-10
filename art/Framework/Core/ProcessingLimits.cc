@@ -13,7 +13,7 @@ namespace art {
     , remainingEvents_{config.maxEvents()}
     , remainingSubRuns_{config.maxSubRuns()}
     , reportFrequency_{config.reportFrequency()}
-    , nextItemType_{move(nextItemType)}
+    , nextItemType_{std::move(nextItemType)}
   {
     if (reportFrequency_ < 0) {
       throw Exception(errors::Configuration)

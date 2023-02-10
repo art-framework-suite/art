@@ -557,7 +557,7 @@ namespace art {
                      << "^\n";
             }
           }
-          ssmd.emplace_back(move(entry));
+          ssmd.emplace_back(std::move(entry));
         }
         ++pluginCounter;
       }

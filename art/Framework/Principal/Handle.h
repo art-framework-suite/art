@@ -469,7 +469,7 @@ public:
   // backwards compatibility--up through art 3.10, the supported
   // interface is (e.g.):
   //
-  //   ProductID id = e.put(move(some_product));
+  //   ProductID id = e.put(std::move(some_product));
   //
   // With art 3.11, the return type of 'put' will be a PutHandle<T>
   // object.  Until users have time to migrate to the new usage, the

@@ -17,7 +17,7 @@ namespace art::detail {
   void
   FileNameComponents::setSuffix(std::string suffix)
   {
-    suffix_ = move(suffix);
+    suffix_ = std::move(suffix);
   }
 
   bool

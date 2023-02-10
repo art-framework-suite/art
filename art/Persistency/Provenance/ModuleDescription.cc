@@ -25,7 +25,7 @@ namespace art {
     , moduleLabel_{modLabel}
     , moduleThreadingType_{moduleThreadingType}
     , isEmulated_{isEmulated}
-    , processConfiguration_{move(pc)}
+    , processConfiguration_{std::move(pc)}
   {}
 
   fhicl::ParameterSetID const&

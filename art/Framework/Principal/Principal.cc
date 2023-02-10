@@ -125,7 +125,7 @@ namespace art {
     : branchType_{branchType}
     , processConfiguration_{pc}
     , presentProducts_{presentProducts.get()}
-    , delayedReader_{move(reader)}
+    , delayedReader_{std::move(reader)}
   {
     delayedReader_->setPrincipal(this);
     ctor_create_groups(presentProducts);
@@ -581,7 +581,7 @@ namespace art {
     // Open more secondary files if necessary
     if (groups.empty()) {
       while (auto sp = tryNextSecondaryFile()) {
-        auto& new_sp = secondaryPrincipals_.emplace_back(move(sp));
+        auto& new_sp = secondaryPrincipals_.emplace_back(std::move(sp));
         groups = new_sp->matchingSequenceFromInputFile(mc, selector);
         if (!groups.empty()) {
           return groups;
@@ -655,7 +655,7 @@ namespace art {
     }
     // Open more secondary files if necessary
     while (auto sp = tryNextSecondaryFile()) {
-      auto& new_sp = secondaryPrincipals_.emplace_back(move(sp));
+      auto& new_sp = secondaryPrincipals_.emplace_back(std::move(sp));
       if (new_sp->findGroupsFromInputFile(mc, wrapped, selector, results)) {
         return results;
       }
@@ -721,7 +721,7 @@ namespace art {
       //       for run and subrun products.
       auto group = getGroupLocal(bd.productID());
       assert(group);
-      group->setProductAndProvenance(move(pp), move(edp), move(rs));
+      group->setProductAndProvenance(std::move(pp), std::move(edp), std::move(rs));
     } else {
       auto group = getGroupLocal(bd.productID());
       assert(group);
@@ -731,7 +731,7 @@ namespace art {
           << " product: product already put for " << bd.branchName() << '\n';
       }
       group->setProductAndProvenance(
-        move(pp), move(edp), make_unique<RangeSet>(RangeSet::invalid()));
+        std::move(pp), std::move(edp), make_unique<RangeSet>(RangeSet::invalid()));
     }
   }
 
@@ -868,7 +868,7 @@ namespace art {
     }
     // Try new secondary files
     while (auto sp = tryNextSecondaryFile()) {
-      auto& new_sp = secondaryPrincipals_.emplace_back(move(sp));
+      auto& new_sp = secondaryPrincipals_.emplace_back(std::move(sp));
       if (new_sp->presentFromSource(pid)) {
         return new_sp->getGroupLocal(pid);
       }

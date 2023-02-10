@@ -14,7 +14,7 @@ namespace art {
                ModuleContext const& mc,
                std::optional<ProductInserter> inserter)
     : ProductRetriever{InEvent, ep, mc, inserter.has_value()}
-    , inserter_{move(inserter)}
+    , inserter_{std::move(inserter)}
     , eventPrincipal_{ep}
     , subRun_{ep.subRunPrincipal().makeSubRun(mc)}
   {}

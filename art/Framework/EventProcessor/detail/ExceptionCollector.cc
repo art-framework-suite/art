@@ -23,5 +23,5 @@ art::detail::ExceptionCollector::rethrow()
     message += exception_msg_from_ptr(e);
   }
   exceptions_.clear();
-  throw collected_exception{move(message)};
+  throw collected_exception{std::move(message)};
 }

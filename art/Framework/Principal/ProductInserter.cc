@@ -76,8 +76,8 @@ namespace art {
       auto pp = make_unique<ProductProvenance const>(
         pd.productID(), productstatus::present(), retrievedPIDs);
       principal_->put(pd,
-                      move(pp),
-                      move(product),
+                      std::move(pp),
+                      std::move(product),
                       make_unique<RangeSet>(RangeSet::invalid()));
     }
     putProducts_.clear();
@@ -94,7 +94,7 @@ namespace art {
       auto rs = detail::range_sets_supported(branchType_) ?
                   make_unique<RangeSet>(std::move(range_set)) :
                   make_unique<RangeSet>(RangeSet::invalid());
-      principal_->put(pd, move(pp), move(product), move(rs));
+      principal_->put(pd, std::move(pp), std::move(product), std::move(rs));
     }
     putProducts_.clear();
   }

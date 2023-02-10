@@ -277,7 +277,7 @@ namespace art {
           // We set this to false because that will demand bits are Fail.
           auto must_fail = matches | ::ranges::views::transform(makeBitInfoFail) |
                            ::ranges::to_vector;
-          all_must_fail.push_back(move(must_fail));
+          all_must_fail.push_back(std::move(must_fail));
         }
         continue;
       }
@@ -297,7 +297,7 @@ namespace art {
         } else {
           auto must_fail = matches | ::ranges::views::transform(makeBitInfoFail) |
                            ::ranges::to_vector;
-          all_must_fail_noex.push_back(move(must_fail));
+          all_must_fail_noex.push_back(std::move(must_fail));
         }
       }
     }
