@@ -14,11 +14,12 @@
 std::string
 art::parent_path(std::string const& in_path)
 {
+  using namespace std::string_literals;
   std::string result;
   boost::filesystem::path parent_path(
     boost::filesystem::path(in_path).parent_path());
   if (parent_path.empty()) {
-    result = ".";
+    result = "."s;
   } else {
     result = parent_path.native();
   }
