@@ -35,7 +35,7 @@ namespace arttest {
     art::PtrVector<double> pvd,
     std::vector<art::Ptr<double>> vpd,
     art::ProductPtr<std::vector<double>> ppvd)
-    : pvd_{std::move(pvd)}, vpd_{move(vpd)}, ppvd_{std::move(ppvd)}
+    : pvd_{std::move(pvd)}, vpd_{std::move(vpd)}, ppvd_{std::move(ppvd)}
   {}
 
   inline art::PtrVector<double> const&

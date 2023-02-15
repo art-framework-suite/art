@@ -17,8 +17,9 @@
 
 #define MFSU_1_ARG_UPDATER_DEFN(cb)                                            \
   decltype(ActivityRegistry::s##cb)::result_type                               \
-    MFStatusUpdater::updateStatusTo##cb(decltype(                              \
-      ActivityRegistry::s##cb)::slot_argument_type<0> arg1 [[maybe_unused]])
+    MFStatusUpdater::updateStatusTo##cb(                                       \
+      decltype(ActivityRegistry::s##cb)::slot_argument_type<0> arg1            \
+      [[maybe_unused]])
 
 #define MFSU_2_ARG_UPDATER_DECL(cb)                                            \
   decltype(ActivityRegistry::s##cb)::result_type updateStatusTo##cb(           \

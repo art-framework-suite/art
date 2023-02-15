@@ -23,8 +23,8 @@
   "deprecated.\n"                                                              \
   "             Please adjust your usage to include the correct semantic "     \
   "(e.g.):\n\n"                                                                \
-  "               run.put(move(product), art::fullRun());\n"                   \
-  "               run.put(move(product), instanceName, "                       \
+  "               run.put(std::move(product), art::fullRun());\n"              \
+  "               run.put(std::move(product), instanceName, "                  \
   "art::runFragment());\n\n"                                                   \
   "             Generally, Run::put calls made in beginRun should include "    \
   "art::fullRun();\n"                                                          \
@@ -122,14 +122,14 @@ namespace art {
   {
     // Should be protected when a Run is shared among threads.
     assert(inserter_);
-    return inserter_->put(move(edp), instance, rangeSet_.collapse());
+    return inserter_->put(std::move(edp), instance, rangeSet_.collapse());
   }
 
   template <typename PROD>
   PutHandle<PROD>
   Run::put(std::unique_ptr<PROD>&& edp, FullSemantic<Level::Run> const semantic)
   {
-    return put(move(edp), "", semantic);
+    return put(std::move(edp), "", semantic);
   }
 
   template <typename PROD>
@@ -137,7 +137,7 @@ namespace art {
   Run::put(std::unique_ptr<PROD>&& edp,
            FragmentSemantic<Level::Run> const semantic)
   {
-    return put(move(edp), "", semantic);
+    return put(std::move(edp), "", semantic);
   }
 
   template <typename PROD>
@@ -145,7 +145,7 @@ namespace art {
   Run::put(std::unique_ptr<PROD>&& edp,
            RangedFragmentSemantic<Level::Run> semantic)
   {
-    return put(move(edp), "", std::move(semantic));
+    return put(std::move(edp), "", std::move(semantic));
   }
 
   template <typename PROD>
@@ -155,7 +155,7 @@ namespace art {
            FullSemantic<Level::Run>)
   {
     assert(inserter_);
-    return inserter_->put(move(edp), instance, RangeSet::forRun(id()));
+    return inserter_->put(std::move(edp), instance, RangeSet::forRun(id()));
   }
 
   template <typename PROD>
@@ -182,7 +182,7 @@ namespace art {
         << "   art::runFragment(art::RangeSet const&)\n"
         << "or contact artists@fnal.gov for assistance.\n";
     }
-    return inserter_->put(move(edp), instance, rangeSet_);
+    return inserter_->put(std::move(edp), instance, rangeSet_);
   }
 
   template <typename PROD>
@@ -211,7 +211,7 @@ namespace art {
         << "\nCannot put a product with an invalid RangeSet.\n"
         << "Please contact artists@fnal.gov.\n";
     }
-    return inserter_->put(move(edp), instance, semantic.rs);
+    return inserter_->put(std::move(edp), instance, semantic.rs);
   }
 
 } // namespace art

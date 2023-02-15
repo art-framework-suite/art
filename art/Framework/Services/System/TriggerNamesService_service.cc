@@ -61,7 +61,8 @@ namespace {
       trigger_path_names.push_back(spec_str.name);
       module_names.push_back(physics_pset.get<vector<string>>(spec_str.name));
     }
-    return {move(specs), move(trigger_path_names), move(module_names)};
+    return {
+      std::move(specs), std::move(trigger_path_names), std::move(module_names)};
   }
 }
 
@@ -117,7 +118,7 @@ namespace art {
       auto const& pset = ParameterSetRegistry::get(config->parameterSetID());
       auto data =
         data_for_process(trigger_pset, pset.get<ParameterSet>("physics"));
-      it = dataPerProcess_.try_emplace(process_name, move(data)).first;
+      it = dataPerProcess_.try_emplace(process_name, std::move(data)).first;
     }
 
     auto const& names = it->second.triggerPathNames;

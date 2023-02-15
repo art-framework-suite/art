@@ -18,7 +18,10 @@ namespace art {
 
   ConsumesInfo::~ConsumesInfo() = default;
 
-  ConsumesInfo::ConsumesInfo() { requireConsumes_ = false; }
+  ConsumesInfo::ConsumesInfo()
+  {
+    requireConsumes_ = false;
+  }
 
   ConsumesInfo*
   ConsumesInfo::instance()

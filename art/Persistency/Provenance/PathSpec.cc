@@ -27,7 +27,7 @@ namespace art {
     }
     auto name = path_spec.substr(colon_position + 1);
     auto const id = std::stoull(path_spec.substr(0, colon_position));
-    return PathSpec{move(name), PathID{id}};
+    return PathSpec{std::move(name), PathID{id}};
   }
 
   std::vector<PathSpec>

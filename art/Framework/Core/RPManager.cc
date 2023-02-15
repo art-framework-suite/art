@@ -67,7 +67,7 @@ namespace art {
         ++idx;
       }
       if (errMsg.empty()) {
-        paths.emplace(*path_key, move(path));
+        paths.emplace(*path_key, std::move(path));
       }
     }
     if (paths.empty() && (errMsg.empty())) {

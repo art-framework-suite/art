@@ -27,7 +27,7 @@ namespace art {
   TriggerResultInserter::produce(Event& e, ProcessingFrame const&)
   {
     auto tr = std::make_unique<TriggerResults>(*trptr_, pset_id_);
-    e.put(move(tr));
+    e.put(std::move(tr));
   }
 
 } // namespace art

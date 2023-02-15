@@ -2,7 +2,8 @@
 #include "art/Utilities/PluginSuffixes.h"
 
 int
-main() try {
+main()
+try {
   for (auto const& suffix : art::Suffixes::all()) {
     art::detail::print_available_plugins(suffix, "Dummy.*", true);
   }

@@ -92,7 +92,7 @@ namespace art::detail {
       return a.first < b.first;
     });
 
-    using namespace ranges;
+    using namespace ::ranges;
     sortedResources_ =
       resources_sorted_by_count | views::values |
       views::transform([&group](auto const& key) {
@@ -108,7 +108,7 @@ namespace art::detail {
   SharedResources::createQueues(
     std::vector<std::string> const& resourceNames) const
   {
-    using namespace ranges;
+    using namespace ::ranges;
     if (cet::search_all(resourceNames, LegacyResource.name)) {
       // We do not trust legacy modules as they may be accessing one
       // of the shared resources without our knowledge.  We therefore

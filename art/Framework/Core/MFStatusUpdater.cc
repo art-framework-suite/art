@@ -86,7 +86,10 @@ namespace art {
     mf::SetIteration("BeforeEvents"s);
   }
 
-  MFSU_0_ARG_UPDATER_DEFN(PostEndJob) { mf::SetModuleName("PostEndJob"s); }
+  MFSU_0_ARG_UPDATER_DEFN(PostEndJob)
+  {
+    mf::SetModuleName("PostEndJob"s);
+  }
 
   MFSU_1_ARG_UPDATER_DEFN(PostSourceConstruction)
   {
@@ -94,7 +97,10 @@ namespace art {
     mf::SetIteration("SourceConstruction"s);
   }
 
-  MFSU_1_ARG_UPDATER_DEFN(PreSourceEvent) { mf::SetModuleName("SourceEvent"s); }
+  MFSU_1_ARG_UPDATER_DEFN(PreSourceEvent)
+  {
+    mf::SetModuleName("SourceEvent"s);
+  }
 
   MFSU_2_ARG_UPDATER_DEFN(PostSourceEvent)
   {
@@ -111,18 +117,30 @@ namespace art {
     mf::SetModuleName("PostSourceSubRun"s);
   }
 
-  MFSU_0_ARG_UPDATER_DEFN(PreSourceRun) { mf::SetModuleName("SourceRun"s); }
+  MFSU_0_ARG_UPDATER_DEFN(PreSourceRun)
+  {
+    mf::SetModuleName("SourceRun"s);
+  }
 
   MFSU_1_ARG_UPDATER_DEFN(PostSourceRun)
   {
     mf::SetModuleName("PostSourceRun"s);
   }
 
-  MFSU_0_ARG_UPDATER_DEFN(PreOpenFile) { mf::SetModuleName("OpenFile"s); }
+  MFSU_0_ARG_UPDATER_DEFN(PreOpenFile)
+  {
+    mf::SetModuleName("OpenFile"s);
+  }
 
-  MFSU_1_ARG_UPDATER_DEFN(PostOpenFile) { mf::SetModuleName("PostOpenFile"s); }
+  MFSU_1_ARG_UPDATER_DEFN(PostOpenFile)
+  {
+    mf::SetModuleName("PostOpenFile"s);
+  }
 
-  MFSU_0_ARG_UPDATER_DEFN(PreCloseFile) { mf::SetModuleName("CloseFile"s); }
+  MFSU_0_ARG_UPDATER_DEFN(PreCloseFile)
+  {
+    mf::SetModuleName("CloseFile"s);
+  }
 
   MFSU_0_ARG_UPDATER_DEFN(PostCloseFile)
   {
@@ -150,7 +168,10 @@ namespace art {
     mf::SetIteration(os.str());
   }
 
-  MFSU_1_ARG_UPDATER_DEFN(PostBeginRun) { mf::SetModuleName("PostBeginRun"s); }
+  MFSU_1_ARG_UPDATER_DEFN(PostBeginRun)
+  {
+    mf::SetModuleName("PostBeginRun"s);
+  }
 
   MFSU_2_ARG_UPDATER_DEFN(PreEndRun)
   {
@@ -160,7 +181,10 @@ namespace art {
     mf::SetIteration(os.str());
   }
 
-  MFSU_1_ARG_UPDATER_DEFN(PostEndRun) { mf::SetModuleName("PostEndRun"s); }
+  MFSU_1_ARG_UPDATER_DEFN(PostEndRun)
+  {
+    mf::SetModuleName("PostEndRun"s);
+  }
 
   MFSU_1_ARG_UPDATER_DEFN(PreBeginSubRun)
   {

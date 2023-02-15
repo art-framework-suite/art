@@ -33,7 +33,7 @@ namespace {
   auto
   unique_workers(art::PathsInfo const& pinfo)
   {
-    using namespace ranges;
+    using namespace ::ranges;
     return pinfo.workers() | views::values | views::indirect |
            views::filter([](auto const& worker) { return worker.isUnique(); });
   }
@@ -51,7 +51,8 @@ namespace art {
     , endPathInfo_{pm.endPathInfo(sid)}
     , taskGroup_{group}
   {
-    for (auto const& worker : endPathInfo_.workers() | ranges::views::values) {
+    for (auto const& worker :
+         endPathInfo_.workers() | ::ranges::views::values) {
       assert(sid == worker->scheduleID());
       if (auto owp = std::dynamic_pointer_cast<OutputWorker>(worker)) {
         outputWorkers_.emplace_back(owp.get());
@@ -352,7 +353,7 @@ namespace art {
       }
       ow->closeFile();
     }
-    outputWorkersToOpen_ = move(outputWorkersToClose_);
+    outputWorkersToOpen_ = std::move(outputWorkersToClose_);
   }
 
   bool

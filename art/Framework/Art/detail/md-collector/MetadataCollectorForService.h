@@ -51,7 +51,8 @@ namespace art::detail {
 
 }
 
-#endif /* art_Framework_Art_detail_md_collector_MetadataCollectorForService_h */
+#endif /* art_Framework_Art_detail_md_collector_MetadataCollectorForService_h  \
+        */
 
 // Local variables:
 // mode: c++

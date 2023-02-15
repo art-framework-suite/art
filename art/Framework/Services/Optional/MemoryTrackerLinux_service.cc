@@ -198,7 +198,7 @@ namespace art {
   MemoryTracker::MemoryTracker(ServiceTable<Config> const& config,
                                ActivityRegistry& iReg)
     : fileName_{config().dbOutput().filename()}
-    , db_{ServiceHandle<DatabaseConnection>{}->get(fileName_)}
+    , db_{ServiceHandle<DatabaseConnection>{} -> get(fileName_)}
     , overwriteContents_{config().dbOutput().overwrite()}
     , includeMallocInfo_{checkMallocConfig_(config().dbOutput().filename(),
                                             config().includeMallocInfo())}

@@ -120,7 +120,8 @@ namespace art {
 
   template <typename SERVICE, typename... ARGS>
   void
-  ServicesManager::addSystemService(ARGS&&... args) try {
+  ServicesManager::addSystemService(ARGS&&... args)
+  try {
     put(std::make_unique<SERVICE>(std::forward<ARGS>(args)...));
   }
   catch (fhicl::detail::validationException const& e) {

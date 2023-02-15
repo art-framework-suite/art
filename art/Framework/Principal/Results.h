@@ -54,7 +54,7 @@ namespace art {
     put(std::unique_ptr<PROD>&& edp, std::string const& instance = {})
     {
       assert(inserter_);
-      return inserter_->put(move(edp), instance);
+      return inserter_->put(std::move(edp), instance);
     }
 
   private:

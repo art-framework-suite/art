@@ -6,7 +6,8 @@ using namespace art;
 
 namespace {
   std::string
-  exception_msg_from_ptr(std::exception_ptr const eptr) try {
+  exception_msg_from_ptr(std::exception_ptr const eptr)
+  try {
     std::rethrow_exception(eptr);
   }
   catch (std::exception const& e) {
@@ -23,5 +24,5 @@ art::detail::ExceptionCollector::rethrow()
     message += exception_msg_from_ptr(e);
   }
   exceptions_.clear();
-  throw collected_exception{move(message)};
+  throw collected_exception{std::move(message)};
 }

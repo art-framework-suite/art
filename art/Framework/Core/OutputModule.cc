@@ -133,7 +133,7 @@ namespace art {
       // TODO: See if we can collapse keptProducts_ and groupSelector into
       // a single object. See the notes in the header for GroupSelector
       // for more information.
-      for (auto const& pd : productList | ranges::views::values) {
+      for (auto const& pd : productList | ::ranges::views::values) {
         if (pd.transient() || pd.dropped()) {
           continue;
         }
@@ -540,7 +540,8 @@ namespace art {
         FileCatalogMetadata::collection_type tmp = plugin->doProduceMetadata();
         ssmd.reserve(tmp.size() + ssmd.size());
         for (auto&& entry : tmp) {
-          if (ServiceHandle<FileCatalogMetadata const> {}->wantCheckSyntax()) {
+          if (ServiceHandle<FileCatalogMetadata const> {}
+              -> wantCheckSyntax()) {
             string checkString("{ ");
             checkString +=
               cet::canonical_string(entry.first) + " : " + entry.second + " }";
@@ -557,7 +558,7 @@ namespace art {
                      << "^\n";
             }
           }
-          ssmd.emplace_back(move(entry));
+          ssmd.emplace_back(std::move(entry));
         }
         ++pluginCounter;
       }
@@ -573,8 +574,9 @@ namespace art {
   {
     // Obtain metadata from service for output.
     FileCatalogMetadata::collection_type md;
-    ServiceHandle<FileCatalogMetadata const> {}
-    ->getMetadata(md);
+    ServiceHandle<FileCatalogMetadata const>
+    {
+      } -> getMetadata(md);
     if (!dataTier_.empty()) {
       md.emplace_back("data_tier", cet::canonical_string(dataTier_));
     }

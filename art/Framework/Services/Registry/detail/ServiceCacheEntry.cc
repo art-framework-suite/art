@@ -22,7 +22,7 @@ namespace art::detail {
   ServiceCacheEntry::ServiceCacheEntry(
     fhicl::ParameterSet const& pset,
     std::unique_ptr<ServiceHelperBase>&& helper)
-    : config_{pset}, helper_{move(helper)}
+    : config_{pset}, helper_{std::move(helper)}
   {}
 
   ServiceCacheEntry::ServiceCacheEntry(
@@ -30,14 +30,14 @@ namespace art::detail {
     std::unique_ptr<ServiceHelperBase>&& helper,
     ServiceCacheEntry const& impl)
     : config_{pset}
-    , helper_{move(helper)}
+    , helper_{std::move(helper)}
     , interface_impl_{cet::make_exempt_ptr(&impl)}
   {}
 
   ServiceCacheEntry::ServiceCacheEntry(
     std::shared_ptr<ServiceWrapperBase> premade_service,
     std::unique_ptr<ServiceHelperBase>&& helper)
-    : helper_{move(helper)}, service_{premade_service}
+    : helper_{std::move(helper)}, service_{premade_service}
   {}
 
   std::shared_ptr<ServiceWrapperBase>

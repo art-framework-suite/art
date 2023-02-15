@@ -180,8 +180,8 @@ namespace art {
 
   TimeTracker::TimeTracker(Parameters const& config, ActivityRegistry& areg)
     : printSummary_{config().printSummary()}
-    , db_{ServiceHandle<DatabaseConnection>{}->get(
-        config().dbOutput().filename())}
+    , db_{ServiceHandle<DatabaseConnection>{}
+          -> get(config().dbOutput().filename())}
     , overwriteContents_{config().dbOutput().overwrite()}
     , timeSourceColumnNames_{{"Run", "SubRun", "Event", "Source", "Time"}}
     , timeEventColumnNames_{{"Run", "SubRun", "Event", "Time"}}

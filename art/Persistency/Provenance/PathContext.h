@@ -39,7 +39,7 @@ namespace art {
                          std::vector<std::string> sortedModuleNames)
       : scheduleContext_{scheduleContext}
       , pathSpec_{pathSpec}
-      , sortedModuleLabels_{move(sortedModuleNames)}
+      , sortedModuleLabels_{std::move(sortedModuleNames)}
     {}
 
     static PathContext

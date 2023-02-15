@@ -10,7 +10,7 @@ namespace art {
   Results::Results(ResultsPrincipal const& p,
                    ModuleContext const& mc,
                    std::optional<ProductInserter> inserter)
-    : ProductRetriever{InResults, p, mc, false}, inserter_{move(inserter)}
+    : ProductRetriever{InResults, p, mc, false}, inserter_{std::move(inserter)}
   {}
 
   void

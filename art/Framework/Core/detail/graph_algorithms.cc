@@ -71,7 +71,7 @@ art::detail::make_trigger_path_subgraphs(
   paths_to_modules_t const& trigger_paths,
   ModuleGraph& module_graph)
 {
-  using namespace ranges;
+  using namespace ::ranges;
   std::map<path_name_t, ModuleGraph*> path_graphs;
   auto const source_index = modInfos.vertex_index("input_source");
   for (auto const& path_name : trigger_paths | views::keys |
@@ -211,7 +211,7 @@ art::detail::verify_no_interpath_dependencies(
   ModuleGraphInfoMap const& modInfos,
   ModuleGraph const& graph)
 {
-  using namespace ranges;
+  using namespace ::ranges;
   auto make_range = [](auto const pr) { return subrange{pr.first, pr.second}; };
 
   std::map<Vertex, std::set<Vertex>> illegal_dependencies;

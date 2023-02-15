@@ -17,7 +17,7 @@
 #include <regex>
 #include <unordered_set>
 
-using namespace ranges;
+using namespace ::ranges;
 using namespace std::string_literals;
 
 namespace {
@@ -102,7 +102,7 @@ art::MixHelper::MixHelper(fhicl::ParameterSet const& pset,
   , canWrapFiles_{pset.get<bool>("wrapFiles", false)}
   , engine_{initEngine_(pset.get<long>("seed", -1), readMode_)}
   , dist_{initDist_(engine_)}
-  , ioHandle_{move(ioHandle)}
+  , ioHandle_{std::move(ioHandle)}
 {}
 
 art::MixHelper::MixHelper(Config const& config,
@@ -120,7 +120,7 @@ art::MixHelper::MixHelper(Config const& config,
   , canWrapFiles_{config.wrapFiles()}
   , engine_{initEngine_(config.seed(), readMode_)}
   , dist_{initDist_(engine_)}
-  , ioHandle_{move(ioHandle)}
+  , ioHandle_{std::move(ioHandle)}
 {}
 
 art::MixHelper::~MixHelper() = default;

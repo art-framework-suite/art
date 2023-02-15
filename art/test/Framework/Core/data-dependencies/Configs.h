@@ -27,8 +27,8 @@ namespace art::test {
   // For producing products
   struct TypeAndInstance {
     explicit TypeAndInstance(std::string friendlyName, std::string instance)
-      : friendlyClassName{(throwIfEmpty(friendlyName), move(friendlyName))}
-      , productInstanceName{move(instance)}
+      : friendlyClassName{(throwIfEmpty(friendlyName), std::move(friendlyName))}
+      , productInstanceName{std::move(instance)}
     {}
 
     std::string friendlyClassName;
@@ -38,7 +38,7 @@ namespace art::test {
   // For consuming products
   struct TypeAndTag {
     explicit TypeAndTag(std::string friendlyName, art::InputTag tag)
-      : friendlyClassName{(throwIfEmpty(friendlyName), move(friendlyName))}
+      : friendlyClassName{(throwIfEmpty(friendlyName), std::move(friendlyName))}
       , inputTag{std::move(tag)}
     {}
 

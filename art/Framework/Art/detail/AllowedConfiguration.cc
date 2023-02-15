@@ -195,7 +195,8 @@ namespace {
       }
       instance_pattern = spec.substr(pos + 1);
     }
-    return std::make_pair(move(specified_plugin_type), move(instance_pattern));
+    return std::make_pair(std::move(specified_plugin_type),
+                          std::move(instance_pattern));
   }
 } // namespace
 

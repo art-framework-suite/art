@@ -77,7 +77,7 @@ namespace art {
     principal.put(
       *desc,
       std::make_unique<ProductProvenance const>(pid, productstatus::present()),
-      std::make_unique<Wrapper<T>>(move(product)),
+      std::make_unique<Wrapper<T>>(std::move(product)),
       std::make_unique<RangeSet>(RangeSet::invalid()));
   }
 
@@ -126,7 +126,7 @@ namespace art {
     principal.put(
       *desc,
       std::make_unique<ProductProvenance const>(pid, productstatus::present()),
-      std::make_unique<Wrapper<T>>(move(product)),
+      std::make_unique<Wrapper<T>>(std::move(product)),
       std::make_unique<RangeSet>(rs));
   }
 

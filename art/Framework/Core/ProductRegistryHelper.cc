@@ -37,7 +37,7 @@ namespace art {
     auto registerProductsPerBT = [this,
                                   &productsToRegister](BranchType const bt) {
       auto const& expectedProducts = collector_.expectedProducts(bt);
-      for (auto const& pd : expectedProducts | ranges::views::values) {
+      for (auto const& pd : expectedProducts | ::ranges::views::values) {
         productsToRegister.push_back(pd);
       }
     };

@@ -18,7 +18,7 @@ namespace art {
                 pc,
                 presentProducts,
                 aux.processHistoryID(),
-                move(reader)}
+                std::move(reader)}
     , aux_{aux}
     , lastInSubRun_{lastInSubRun}
   {}

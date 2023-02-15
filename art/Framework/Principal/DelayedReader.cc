@@ -25,7 +25,9 @@ namespace art {
     setPrincipal_(principal);
   }
 
-  void DelayedReader::setPrincipal_(cet::exempt_ptr<Principal>) {}
+  void
+  DelayedReader::setPrincipal_(cet::exempt_ptr<Principal>)
+  {}
 
   vector<ProductProvenance>
   DelayedReader::readProvenance() const
@@ -45,7 +47,8 @@ namespace art {
     return isAvailableAfterCombine_(pid);
   }
 
-  bool DelayedReader::isAvailableAfterCombine_(ProductID) const
+  bool
+  DelayedReader::isAvailableAfterCombine_(ProductID) const
   {
     return false;
   }

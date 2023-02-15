@@ -171,8 +171,8 @@ EventPrincipalTestFixture::EventPrincipalTestFixture()
   pEvent_->createGroupsForProducedProducts(ptf().producedProducts_);
   pEvent_->enableLookupOfProducedProducts();
   pEvent_->put(*pd,
-               move(productProvenancePtr),
-               move(product),
+               std::move(productProvenancePtr),
+               std::move(product),
                make_unique<RangeSet>(RangeSet::invalid()));
   BOOST_TEST_REQUIRE(pEvent_->size() == 5u);
 

@@ -30,7 +30,8 @@ namespace art::detail {
 
     template <typename F>
     void
-    call(F f) try {
+    call(F f)
+    try {
       f();
     }
     catch (...) {
@@ -43,7 +44,7 @@ namespace art::detail {
 
   class collected_exception : public std::exception {
   public:
-    explicit collected_exception(std::string msg) : msg_(move(msg)) {}
+    explicit collected_exception(std::string msg) : msg_(std::move(msg)) {}
     char const*
     what() const noexcept override
     {

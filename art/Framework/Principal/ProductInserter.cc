@@ -72,12 +72,12 @@ namespace art {
       }
     }
 
-    for (auto&& [product, pd, rs] : putProducts_ | ranges::views::values) {
+    for (auto&& [product, pd, rs] : putProducts_ | ::ranges::views::values) {
       auto pp = make_unique<ProductProvenance const>(
         pd.productID(), productstatus::present(), retrievedPIDs);
       principal_->put(pd,
-                      move(pp),
-                      move(product),
+                      std::move(pp),
+                      std::move(product),
                       make_unique<RangeSet>(RangeSet::invalid()));
     }
     putProducts_.clear();
@@ -88,13 +88,13 @@ namespace art {
   {
     std::lock_guard lock{*mutex_};
     for (auto&& [product, pd, range_set] :
-         putProducts_ | ranges::views::values) {
+         putProducts_ | ::ranges::views::values) {
       auto pp = make_unique<ProductProvenance const>(pd.productID(),
                                                      productstatus::present());
       auto rs = detail::range_sets_supported(branchType_) ?
                   make_unique<RangeSet>(std::move(range_set)) :
                   make_unique<RangeSet>(RangeSet::invalid());
-      principal_->put(pd, move(pp), move(product), move(rs));
+      principal_->put(pd, std::move(pp), std::move(product), std::move(rs));
     }
     putProducts_.clear();
   }

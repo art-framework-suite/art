@@ -39,7 +39,8 @@ namespace art::detail {
   };
 }
 
-#endif /* art_Framework_Art_detail_md_collector_MetadataCollectorForMFStatsPlugin_h */
+#endif /* art_Framework_Art_detail_md_collector_MetadataCollectorForMFStatsPlugin_h \
+        */
 
 // Local variables:
 // mode: c++

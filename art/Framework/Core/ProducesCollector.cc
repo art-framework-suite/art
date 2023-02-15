@@ -28,7 +28,7 @@ namespace art {
     void
     check_for_duplicate_friendly_names(TypeLabelLookup_t const& typeLabels)
     {
-      using ranges::views::keys;
+      using ::ranges::views::keys;
       map<string, set<string>> instanceToFriendlyNames;
       for (auto const& type_label : typeLabels | keys) {
         auto unique_entry = type_label.productInstanceName();

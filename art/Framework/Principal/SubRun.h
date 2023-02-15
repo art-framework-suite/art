@@ -25,8 +25,8 @@
   "deprecated.\n"                                                              \
   "             Please adjust your usage to include the correct semantic "     \
   "(e.g.):\n\n"                                                                \
-  "               subrun.put(move(product), art::fullSubRun());\n"             \
-  "               subrun.put(move(product), instanceName, "                    \
+  "               subrun.put(std::move(product), art::fullSubRun());\n"        \
+  "               subrun.put(std::move(product), instanceName, "               \
   "art::subRunFragment());\n\n"                                                \
   "             Generally, SubRun::put calls made in beginSubRun should "      \
   "include art::fullSubRun();\n"                                               \
@@ -127,7 +127,7 @@ namespace art {
   {
     assert(inserter_);
     // Should be protected when a SubRun is shared among threads.
-    return inserter_->put(move(edp), instance, rangeSet_.collapse());
+    return inserter_->put(std::move(edp), instance, rangeSet_.collapse());
   }
 
   template <typename PROD>
@@ -135,7 +135,7 @@ namespace art {
   SubRun::put(std::unique_ptr<PROD>&& edp,
               FullSemantic<Level::SubRun> const semantic)
   {
-    return put(move(edp), "", semantic);
+    return put(std::move(edp), "", semantic);
   }
 
   template <typename PROD>
@@ -143,7 +143,7 @@ namespace art {
   SubRun::put(std::unique_ptr<PROD>&& edp,
               FragmentSemantic<Level::SubRun> const semantic)
   {
-    return put(move(edp), "", semantic);
+    return put(std::move(edp), "", semantic);
   }
 
   template <typename PROD>
@@ -151,7 +151,7 @@ namespace art {
   SubRun::put(std::unique_ptr<PROD>&& edp,
               RangedFragmentSemantic<Level::SubRun> semantic)
   {
-    return put(move(edp), "", std::move(semantic));
+    return put(std::move(edp), "", std::move(semantic));
   }
 
   template <typename PROD>
@@ -161,7 +161,7 @@ namespace art {
               FullSemantic<Level::SubRun>)
   {
     assert(inserter_);
-    return inserter_->put(move(edp), instance, RangeSet::forSubRun(id()));
+    return inserter_->put(std::move(edp), instance, RangeSet::forSubRun(id()));
   }
 
   template <typename PROD>
@@ -188,7 +188,7 @@ namespace art {
         << "   art::subRunFragment(art::RangeSet const&)\n"
         << "or contact artists@fnal.gov for assistance.\n";
     }
-    return inserter_->put(move(edp), instance, rangeSet_);
+    return inserter_->put(std::move(edp), instance, rangeSet_);
   }
 
   template <typename PROD>
@@ -217,7 +217,7 @@ namespace art {
         << "\nCannot put a product with an invalid RangeSet.\n"
         << "Please contact artists@fnal.gov.\n";
     }
-    return inserter_->put(move(edp), instance, semantic.rs);
+    return inserter_->put(std::move(edp), instance, semantic.rs);
   }
 
 } // namespace art

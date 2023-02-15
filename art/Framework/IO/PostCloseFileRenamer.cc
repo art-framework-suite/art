@@ -291,7 +291,7 @@ art::PostCloseFileRenamer::maybeRenameFile(std::string const& inPath,
   if (ec) {
     // Fail (different filesystems? Try copy / delete instead).
     // This attempt will throw on failure.
-    bfs::copy_file(inPath, newFile, bfs::copy_option::overwrite_if_exists);
+    bfs::copy_file(inPath, newFile, bfs::copy_options::overwrite_existing);
     bfs::remove(inPath);
   }
   return newFile;

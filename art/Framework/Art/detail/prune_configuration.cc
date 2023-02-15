@@ -346,17 +346,18 @@ namespace {
     }
     sequence_t result = config.find(path_selection_override);
     for (auto const& name : empty_paths) {
-      std::replace_if(begin(result),
-                      end(result),
-                      [&name](auto const& ex_val) {
-                        if (not ex_val.is_a(STRING)) {
-                          return false;
-                        }
-                        std::string path_spec_str;
-                        fhicl::detail::decode(ex_val.value, path_spec_str);
-                        return matches(path_spec_str, name);
-                      },
-                      fhicl::extended_value{false, NIL, at_nil});
+      std::replace_if(
+        begin(result),
+        end(result),
+        [&name](auto const& ex_val) {
+          if (not ex_val.is_a(STRING)) {
+            return false;
+          }
+          std::string path_spec_str;
+          fhicl::detail::decode(ex_val.value, path_spec_str);
+          return matches(path_spec_str, name);
+        },
+        fhicl::extended_value{false, NIL, at_nil});
     }
     config.get<sequence_t&>(path_selection_override) = result;
   }
@@ -440,7 +441,7 @@ namespace {
       }
 
       if (right_modules.size() == entries.size()) {
-        sorted_result.try_emplace(path_name, move(right_modules));
+        sorted_result.try_emplace(path_name, std::move(right_modules));
       } else {
         // This is the case where a path contains a mixture of
         // modifiers and observers.
@@ -604,7 +605,7 @@ art::detail::prune_config_if_enabled(bool const prune_config,
   }
 
   // Find unused paths
-  using namespace ranges;
+  using namespace ::ranges;
   paths.erase("trigger_paths");
   paths.erase("end_paths");
   for (auto const& spec : trigger_paths | views::keys) {
@@ -675,7 +676,7 @@ art::detail::prune_config_if_enabled(bool const prune_config,
       views::transform([](auto const& path_spec) { return path_spec.name; }) |
       to<std::vector>();
 
-    config.put("physics.end_paths", move(end_paths_entries));
+    config.put("physics.end_paths", std::move(end_paths_entries));
   }
 
   // Place 'trigger_paths' as top-level configuration table
@@ -688,7 +689,7 @@ art::detail::prune_config_if_enabled(bool const prune_config,
     if (not trigger_paths_override) {
       config.put("physics.trigger_paths", trigger_paths_entries);
     }
-    config.put("trigger_paths.trigger_paths", move(trigger_paths_entries));
+    config.put("trigger_paths.trigger_paths", std::move(trigger_paths_entries));
   }
 
   return EnabledModules{std::move(enabled_modules),

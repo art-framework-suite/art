@@ -64,7 +64,7 @@ namespace {
     for (auto const& process_names_str : collapsed) {
       std::vector<std::string> process_names;
       boost::split(process_names, process_names_str, boost::is_any_of("\n"));
-      result.push_back(move(process_names));
+      result.push_back(std::move(process_names));
     }
     return result;
   }
@@ -75,7 +75,7 @@ art::detail::orderedProcessNamesCollection(ProcessHistoryMap const& histories)
 {
   std::vector<std::string> all_process_names;
   all_process_names.reserve(histories.size());
-  for (auto const& history : histories | ranges::views::values) {
+  for (auto const& history : histories | ::ranges::views::values) {
     all_process_names.push_back(stringified_process_names(history));
   }
   cet::sort_all(all_process_names);
