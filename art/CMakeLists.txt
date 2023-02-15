@@ -48,5 +48,6 @@ list(APPEND CETMODULES_PLUGIN_BUILDERS_PROJECT_${CETMODULES_CURRENT_PROJECT_NAME
 # hand-tooled plugin builders so we can use them easily in test/.
 cet_collect_plugin_builders(Modules ArtPlugins)
 
-# Testing
+# N.B. test/TestObjects should be built and installed even if
+# BUILD_TESTING is FALSE (see test/CMakeLists.txt).
 add_subdirectory(test)
