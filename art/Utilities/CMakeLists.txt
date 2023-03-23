@@ -54,6 +54,7 @@ cet_make_library(LIBRARY_NAME tool INTERFACE
   SOURCE ToolMacros.h
   LIBRARIES INTERFACE
   art_plugin_support::plugin_config_macros
+  canvas::canvas
   fhiclcpp::types
   fhiclcpp::fhiclcpp
   cetlib::compiler_macros
