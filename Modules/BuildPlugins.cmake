@@ -26,7 +26,6 @@ X
 ########################################################################
 include_guard()
 
-cmake_policy(PUSH)
 cmake_minimum_required(VERSION 3.18.2 FATAL_ERROR)
 
 include(BasicPlugin)
@@ -105,5 +104,3 @@ function(_get_plugin_base RESULT_VAR REMAINDER_VAR)
   set(${RESULT_VAR} ${result} PARENT_SCOPE)
   set(${REMAINDER_VAR} ${ARGN} PARENT_SCOPE)
 endfunction()
-
-cmake_policy(POP)

@@ -5,13 +5,10 @@
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
 #include "cetlib/sqlite/ConnectionFactory.h"
 #include "cetlib/sqlite/detail/DefaultDatabaseOpenPolicy.h"
+#include "fhiclcpp/fwd.h"
 
 #include <string>
 #include <utility>
-
-namespace fhicl {
-  class ParameterSet;
-} // namespace fhicl
 
 namespace art {
 
