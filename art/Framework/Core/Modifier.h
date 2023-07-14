@@ -15,9 +15,9 @@ namespace art {
 
   class Modifier : public ModuleBase, private ProductRegistryHelper {
   public:
-    template <typename UserConfig, typename UserKeysToIgnore = void>
+    template <typename UserConfig, typename... UserKeysToIgnore>
     using Table =
-      ProducerTable<UserConfig, detail::ModuleConfig, UserKeysToIgnore>;
+      ProducerTable<UserConfig, detail::ModuleConfig, UserKeysToIgnore...>;
 
     ~Modifier() noexcept;
     Modifier();
