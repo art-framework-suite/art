@@ -22,8 +22,8 @@ namespace art::detail {
 
   class Producer : public Modifier {
   public:
-    template <typename UserConfig, typename KeysToIgnore = void>
-    using Table = Modifier::Table<UserConfig, KeysToIgnore>;
+    template <typename UserConfig, typename... KeysToIgnore>
+    using Table = Modifier::Table<UserConfig, KeysToIgnore...>;
 
     virtual ~Producer() noexcept;
     explicit Producer(fhicl::ParameterSet const&);

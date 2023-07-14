@@ -12,10 +12,9 @@
 #include <string>
 
 namespace art {
-
   template <typename UserConfig,
             typename ImplicitConfig,
-            typename UserKeysToIgnore = void>
+            typename... UserKeysToIgnore>
   class ProducerTable : public fhicl::ConfigurationTable {
   private: // TYPES
     template <typename T, typename U = ImplicitConfig>
@@ -26,11 +25,7 @@ namespace art {
       fhicl::TableFragment<T> user;
     };
 
-    using KeysToIgnore_t = std::conditional_t<
-      std::is_void<UserKeysToIgnore>::value,
-      typename ImplicitConfig::IgnoreKeys,
-      fhicl::KeysToIgnore<typename ImplicitConfig::IgnoreKeys,
-                          UserKeysToIgnore>>;
+    using KeysToIgnore_t = fhicl::KeysToIgnore<typename ImplicitConfig::IgnoreKeys, UserKeysToIgnore...>;
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     explicit ProducerTable(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
