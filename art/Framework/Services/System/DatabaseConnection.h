@@ -3,10 +3,12 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+#include "cetlib/sqlite/Connection.h"
 #include "cetlib/sqlite/ConnectionFactory.h"
 #include "cetlib/sqlite/detail/DefaultDatabaseOpenPolicy.h"
 #include "fhiclcpp/fwd.h"
 
+#include <memory>
 #include <string>
 #include <utility>
 
@@ -18,7 +20,7 @@ namespace art {
     template <typename DatabaseOpenPolicy =
                 cet::sqlite::detail::DefaultDatabaseOpenPolicy,
               typename... PolicyArgs>
-    cet::sqlite::Connection*
+    std::unique_ptr<cet::sqlite::Connection>
     get(std::string const& filename, PolicyArgs&&... policyArgs)
     {
       return factory_.make_connection<DatabaseOpenPolicy>(
