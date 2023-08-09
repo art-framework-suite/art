@@ -161,6 +161,7 @@ namespace art {
     void recordTime(ModuleContext const& mc, string const& suffix);
     void logToDestination_(Statistics const& evt,
                            vector<Statistics> const& modules);
+    bool anyTableFull_() const;
 
     tbb::concurrent_unordered_map<ConcurrentKey,
                                   PerScheduleData,
@@ -289,6 +290,20 @@ namespace art {
         path, mod_label, mod_type, *db_, "temp.tmpModTable", "Time");
       drop_table(*db_, "temp.tmpModTable");
     }
+    if (anyTableFull_()) {
+      ostringstream msgOss;
+      HorizontalRule const rule{40};
+      msgOss << rule('=');
+      msgOss << '\n'
+             << "The SQLite database connected to the TimeTracker exceeded the "
+                "available resources.\n"
+             << "No timing information summary is available.\n"
+             << "The database will contain an incomplete record of this job's "
+                "timing information.\n";
+      msgOss << rule('=');
+      mf::LogAbsolute("TimeTracker") << msgOss.str();
+    }
+
     logToDestination_(evtStats, modStats);
   }
 
@@ -391,6 +406,13 @@ namespace art {
     }
     msgOss << rule('=');
     mf::LogAbsolute("TimeTracker") << msgOss.str();
+  }
+
+  bool
+  TimeTracker::anyTableFull_() const
+  {
+    return timeSourceTable_.full() || timeEventTable_.full() ||
+           timeModuleTable_.full();
   }
 
 } // namespace art
