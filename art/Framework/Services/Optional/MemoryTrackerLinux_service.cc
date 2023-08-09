@@ -138,6 +138,7 @@ namespace art {
     void flushTables_();
     bool using_file_database_() const;
     void summary_();
+    bool anyTableFull_() const;
 
     LinuxProcMgr procInfo_{};
     string const fileName_;
@@ -450,6 +451,15 @@ namespace art {
       }
     }
     log << rule('=');
+  }
+
+  bool
+  MemoryTracker::anyTableFull_() const
+  {
+    return peakUsageTable_.full() || otherInfoTable_.full() ||
+           eventTable_.full() || moduleTable_.full() ||
+           (eventHeapTable_ && eventHeapTable_->full()) ||
+           (moduleHeapTable_ && moduleHeapTable_->full());
   }
 
 } // namespace art
