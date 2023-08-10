@@ -248,9 +248,9 @@ perllib	product_dir
 #
 ####################################
 product		version		qual	flags		<table_format=2>
-canvas		v3_15_01	-
-catch		v3_3_1a		-	only_for_build
-cetmodules	v3_21_00	-	only_for_build
+canvas		v3_15_02	-
+catch		v3_3_2		-	only_for_build
+cetmodules	v3_22_01	-	only_for_build
 range		v3_0_12_0	-	only_for_build
 end_product_list
 ####################################
@@ -317,6 +317,8 @@ e26:debug	e26	e26:debug
 e26:prof	e26	e26:prof
 e27:debug	e27	e27:debug
 e27:prof	e27	e27:prof
+e28:debug	e28	e28:debug
+e28:prof	e28	e28:prof
 end_qualifier_list
 ####################################
 
