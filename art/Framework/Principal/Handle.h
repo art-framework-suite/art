@@ -36,6 +36,7 @@
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
 #include "canvas/Persistency/Common/detail/is_handle.h"
+#include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib_except/demangle.h"
