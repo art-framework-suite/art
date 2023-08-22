@@ -136,6 +136,7 @@ namespace art {
     bool checkMallocConfig_(string const&, bool);
     void recordPeakUsages_();
     void flushTables_();
+    bool using_file_database_() const;
     void summary_();
     bool anyTableFull_() const;
 
@@ -410,6 +411,12 @@ namespace art {
     }
   }
 
+  bool
+  MemoryTracker::using_file_database_() const
+  {
+    return !fileName_.empty() && fileName_ != ":memory:";
+  }
+
   void
   MemoryTracker::summary_()
   {
@@ -427,7 +434,7 @@ namespace art {
     HorizontalRule const rule{100};
     log << '\n' << rule('=') << '\n';
 
-    if (anyTableFull_()) {
+    if (anyTableFull_() && using_file_database_()) {
       log << "The SQLite database connected to the MemoryTracker exceeded the "
              "available resources.\n";
       log << "No memory usage summary is available.\n";
@@ -439,7 +446,7 @@ namespace art {
           << " MB\n"
           << "  Peak resident set size usage (VmHWM): " << unique_value(rRMax)
           << " MB\n";
-      if (!(fileName_.empty() || fileName_ == ":memory:")) {
+      if (using_file_database_()) {
         log << "  Details saved in: '" << fileName_ << "'\n";
       }
     }
