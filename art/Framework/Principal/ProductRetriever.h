@@ -259,7 +259,7 @@ namespace art {
   Handle<PROD>
   ProductRetriever::getHandle(ProductToken<PROD> const& token) const
   {
-    return getHandle<PROD>(token.inputTag_);
+    return getHandle<PROD>(token.inputTag());
   }
 
   // =========================================================================
@@ -275,7 +275,7 @@ namespace art {
   ValidHandle<PROD>
   ProductRetriever::getValidHandle(ProductToken<PROD> const& token) const
   {
-    return getValidHandle<PROD>(token.inputTag_);
+    return getValidHandle<PROD>(token.inputTag());
   }
 
   template <typename PROD>
