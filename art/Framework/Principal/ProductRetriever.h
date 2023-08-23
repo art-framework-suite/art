@@ -259,7 +259,7 @@ namespace art {
   Handle<PROD>
   ProductRetriever::getHandle(ProductToken<PROD> const& token) const
   {
-    return getHandle<PROD>(token.inputTag_);
+    return getHandle<PROD>(token.inputTag());
   }
 
   // =========================================================================
@@ -275,7 +275,7 @@ namespace art {
   ValidHandle<PROD>
   ProductRetriever::getValidHandle(ProductToken<PROD> const& token) const
   {
-    return getValidHandle<PROD>(token.inputTag_);
+    return getValidHandle<PROD>(token.inputTag());
   }
 
   template <typename PROD>
@@ -358,9 +358,9 @@ namespace art {
   ProductRetriever::getView(ViewToken<ELEMENT> const& token,
                             std::vector<ELEMENT const*>& result) const
   {
-    return getView(token.inputTag_.label(),
-                   token.inputTag_.instance(),
-                   token.inputTag_.process(),
+    return getView(token.inputTag().label(),
+                   token.inputTag().instance(),
+                   token.inputTag().process(),
                    result);
   }
 
@@ -410,9 +410,9 @@ namespace art {
   ProductRetriever::getView(ViewToken<ELEMENT> const& token,
                             View<ELEMENT>& result) const
   {
-    return getView(token.inputTag_.label(),
-                   token.inputTag_.instance(),
-                   token.inputTag_.process(),
+    return getView(token.inputTag().label(),
+                   token.inputTag().instance(),
+                   token.inputTag().process(),
                    result);
   }
 
