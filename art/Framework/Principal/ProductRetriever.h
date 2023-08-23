@@ -358,10 +358,7 @@ namespace art {
   ProductRetriever::getView(ViewToken<ELEMENT> const& token,
                             std::vector<ELEMENT const*>& result) const
   {
-    return getView(token.inputTag_.label(),
-                   token.inputTag_.instance(),
-                   token.inputTag_.process(),
-                   result);
+    return getView(token.inputTag(), result);
   }
 
   template <typename ELEMENT>
@@ -410,10 +407,7 @@ namespace art {
   ProductRetriever::getView(ViewToken<ELEMENT> const& token,
                             View<ELEMENT>& result) const
   {
-    return getView(token.inputTag_.label(),
-                   token.inputTag_.instance(),
-                   token.inputTag_.process(),
-                   result);
+    return getView(token.inputTag(), result);
   }
 
   // =======================================================================
