@@ -1,7 +1,8 @@
 #include "art/Framework/IO/FileStatsCollector.h"
-#include "boost/date_time/posix_time/posix_time.hpp"
-#include "boost/filesystem.hpp"
 
+#include "boost/date_time/posix_time/posix_time.hpp"
+
+#include <filesystem>
 #include <string>
 
 using boost::posix_time::ptime;
@@ -103,7 +104,7 @@ art::FileStatsCollector::parents(bool const want_basename) const
   if (want_basename) {
     result.reserve(inputFilesSeen_.size());
     for (auto const& ifile : inputFilesSeen_) {
-      boost::filesystem::path const ifp{ifile};
+      std::filesystem::path const ifp{ifile};
       result.emplace_back(ifp.filename().native());
     }
   } else {

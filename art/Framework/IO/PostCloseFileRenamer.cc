@@ -2,14 +2,15 @@
 
 #include "art/Framework/IO/FileStatsCollector.h"
 #include "boost/date_time/posix_time/posix_time.hpp"
-#include "boost/filesystem.hpp"
 #include "canvas/Utilities/Exception.h"
 
+#include <filesystem>
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <system_error>
 
-namespace bfs = boost::filesystem;
+namespace fs = std::filesystem;
 
 // For sanity.  To avoid unintentionally introducing std overloads, we
 // do not make a using declaration for boost::regex.
@@ -106,7 +107,7 @@ art::PostCloseFileRenamer::subInputFileName_(boost::smatch const& match) const
   // If the filename is empty, substitute "-". If it is merely the
   // required substitution that is empty, substitute "".
   if (!stats_.lastOpenedInputFile().empty()) {
-    bfs::path const ifp{stats_.lastOpenedInputFile()};
+    fs::path const ifp{stats_.lastOpenedInputFile()};
     if (match[4].matched) { // %if[bdenp]
       switch (*(match[4].first)) {
       case 'b': {
@@ -286,13 +287,13 @@ art::PostCloseFileRenamer::maybeRenameFile(std::string const& inPath,
                                            std::string const& toPattern)
 {
   std::string const& newFile = applySubstitutions(toPattern);
-  boost::system::error_code ec;
-  bfs::rename(inPath, newFile, ec);
+  std::error_code ec{};
+  fs::rename(inPath, newFile, ec);
   if (ec) {
     // Fail (different filesystems? Try copy / delete instead).
     // This attempt will throw on failure.
-    bfs::copy_file(inPath, newFile, bfs::copy_options::overwrite_existing);
-    bfs::remove(inPath);
+    fs::copy_file(inPath, newFile, fs::copy_options::overwrite_existing);
+    fs::remove(inPath);
   }
   return newFile;
 }

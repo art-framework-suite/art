@@ -9,15 +9,17 @@
 // This is a thin wrapper around boost::filesystem::path::parent_path().
 ////////////////////////////////////////////////////////////////////////
 #include "art/Utilities/parent_path.h"
-#include "boost/filesystem.hpp"
+
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 std::string
 art::parent_path(std::string const& in_path)
 {
   using namespace std::string_literals;
   std::string result;
-  boost::filesystem::path parent_path(
-    boost::filesystem::path(in_path).parent_path());
+  fs::path parent_path(fs::path(in_path).parent_path());
   if (parent_path.empty()) {
     result = "."s;
   } else {

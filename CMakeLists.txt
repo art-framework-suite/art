@@ -25,7 +25,8 @@ cet_cmake_module_directories(Modules BINARY)
 cet_set_compiler_flags(DIAGS VIGILANT
   WERROR
   NO_UNDEFINED
-  EXTRA_FLAGS -pedantic)
+  EXTRA_FLAGS -pedantic $<$<COMPILE_LANGUAGE:CXX>:-fconcepts-diagnostics-depth=4>
+)
 
 if(DEFINED ENV{CET_SANITIZE_ADDRESS} AND DEFINED ENV{GCC_FQ_DIR})
   find_file(ASAN_LIB libasan.so NO_DEFAULT_PATH PATHS $ENV{GCC_FQ_DIR}/lib64)

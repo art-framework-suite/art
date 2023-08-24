@@ -12,7 +12,7 @@
 #include "art/Framework/Art/run_art.h"
 #include "cetlib/filepath_maker.h"
 
-#include "boost/filesystem.hpp"
+#include <filesystem>
 #include "boost/program_options.hpp"
 
 #include <iostream>
@@ -38,7 +38,7 @@ artapp(int argc, char* argv[], bool report_unused)
 
   // Create and store options handlers.
   ostringstream descstr;
-  descstr << "\nUsage: " << boost::filesystem::path(argv[0]).filename().native()
+  descstr << "\nUsage: " << filesystem::path(argv[0]).filename().native()
           << " <-c <config-file>> <other-options> [<source-file>]+\n\n"
           << "Basic options";
   bpo::options_description all_desc{descstr.str()};

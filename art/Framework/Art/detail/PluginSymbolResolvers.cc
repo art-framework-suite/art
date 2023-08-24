@@ -1,13 +1,13 @@
 #include "art/Framework/Art/detail/PluginSymbolResolvers.h"
 #include "art/Persistency/Provenance/ModuleType.h"
 #include "art/Utilities/PluginSuffixes.h"
-#include "boost/filesystem.hpp"
 #include "cetlib/LibraryManager.h"
 
+#include <filesystem>
 #include <iostream>
 
 using namespace std::string_literals;
-namespace bfs = boost::filesystem;
+namespace fs = std::filesystem;
 using cet::LibraryManager;
 
 namespace {
@@ -37,8 +37,8 @@ namespace art::detail {
       GetSourceLoc_t* symbolLoc{};
       lm.getSymbolByLibspec(fullspec, "get_source_location", symbolLoc);
       std::string source{symbolLoc()};
-      boost::filesystem::path const p{source};
-      if (!boost::filesystem::exists(p)) {
+      fs::path const p{source};
+      if (!fs::exists(p)) {
         source =
           "/ [ external source ] /" + fullspec + "_" + lm.libType() + ".cc";
       }
