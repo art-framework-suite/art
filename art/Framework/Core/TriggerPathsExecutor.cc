@@ -232,10 +232,9 @@ namespace art {
         TDEBUG_END_FUNC_SI(4, scheduleID);
         return;
       }
-      auto pathsDoneTask =
-        make_waiting_task(
-          PathsDoneTask{this, endPathTask, event_principal, taskGroup_},
-          triggerPathsInfo_.paths().size());
+      auto pathsDoneTask = make_waiting_task(
+        PathsDoneTask{this, endPathTask, event_principal, taskGroup_},
+        triggerPathsInfo_.paths().size());
       for (auto& path : triggerPathsInfo_.paths()) {
         // Start each path running.  The path will start a spawn chain
         // going to run each worker in the order specified on the
