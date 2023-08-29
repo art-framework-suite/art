@@ -42,7 +42,9 @@ namespace art::detail {
         fhicl::TableFragment<T> user;
       };
 
-      using KeysToIgnore_t = fhicl::KeysToIgnore<typename ModuleConfig::IgnoreKeys, UserKeysToIgnore...>;
+      using KeysToIgnore_t =
+        fhicl::KeysToIgnore<typename ModuleConfig::IgnoreKeys,
+                            UserKeysToIgnore...>;
 
     public:
       explicit Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
