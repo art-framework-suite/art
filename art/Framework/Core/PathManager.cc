@@ -2,7 +2,6 @@
 // vim: set sw=2 expandtab :
 
 #include "art/Framework/Core/ModuleBase.h"
-#include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/PathsInfo.h"
 #include "art/Framework/Core/TriggerResultInserter.h"
 #include "art/Framework/Core/WorkerInPath.h"
