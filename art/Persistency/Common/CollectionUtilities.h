@@ -225,15 +225,19 @@ namespace art::detail {
     : std::true_type {};
 
   // Metaprogramming for three-argument insertion
-  template <typename T,
-            typename OutIter,
-            typename InIter = typename T::const_iterator>
-  using three_arg_insert_t =
-    decltype(std::declval<T>().insert(std::declval<OutIter>(),
-                                      std::declval<InIter>(),
-                                      std::declval<InIter>()));
+  // template <typename T,
+  //           typename OutIter,
+  //           typename InIter = typename T::const_iterator>
+  // using three_arg_insert_t =
+  //   decltype(std::declval<T>().insert(std::declval<OutIter>(),
+  //                                     std::declval<InIter>(),
+  //                                     std::declval<InIter>()));
 
-  template <typename T, typename OutIter, typename = void>
+  template <typename T>
+  concept has_three_arg_insert = requires (T t1, T t2) {
+    t2.insert(t1.begin(), t1.end(), t2.end());
+};
+/*template <typename T, typename OutIter, typename = void>
   struct has_three_arg_insert_t : std::false_type {};
 
   template <typename T, typename OutIter>
@@ -246,7 +250,7 @@ namespace art::detail {
   constexpr bool has_three_arg_insert =
     has_three_arg_insert_t<T, typename T::iterator>::value ||
     has_three_arg_insert_t<T, typename T::const_iterator>::value;
-
+*/
 } // namespace art::detail
 
 template <typename CONTAINER>
