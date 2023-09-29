@@ -211,53 +211,20 @@ namespace art::detail {
     }
   };
 
-  // Metaprogramming for two-argument insertion
-  template <typename T, typename InIter = typename T::const_iterator>
-  using two_arg_insert_t =
-    decltype(std::declval<T>().insert(std::declval<InIter>(),
-                                      std::declval<InIter>()));
-
-  template <typename T, typename = void>
-  struct has_two_arg_insert : std::false_type {};
+  template <typename T>
+  concept has_two_arg_insert =
+    requires(T t1, T t2) { t2.insert(t1.begin(), t1.end()); };
 
   template <typename T>
-  struct has_two_arg_insert<T, std::void_t<two_arg_insert_t<T>>>
-    : std::true_type {};
-
-  // Metaprogramming for three-argument insertion
-  // template <typename T,
-  //           typename OutIter,
-  //           typename InIter = typename T::const_iterator>
-  // using three_arg_insert_t =
-  //   decltype(std::declval<T>().insert(std::declval<OutIter>(),
-  //                                     std::declval<InIter>(),
-  //                                     std::declval<InIter>()));
-
-  template <typename T>
-  concept has_three_arg_insert = requires (T t1, T t2) {
-    t2.insert(t1.begin(), t1.end(), t2.end());
+  concept has_three_arg_insert =
+    requires(T t1, T t2) { t2.insert(t1.begin(), t1.end(), t2.end()); };
 };
-/*template <typename T, typename OutIter, typename = void>
-  struct has_three_arg_insert_t : std::false_type {};
-
-  template <typename T, typename OutIter>
-  struct has_three_arg_insert_t<T,
-                                OutIter,
-                                std::void_t<three_arg_insert_t<T, OutIter>>>
-    : std::true_type {};
-
-  template <typename T>
-  constexpr bool has_three_arg_insert =
-    has_three_arg_insert_t<T, typename T::iterator>::value ||
-    has_three_arg_insert_t<T, typename T::const_iterator>::value;
-*/
-} // namespace art::detail
 
 template <typename CONTAINER>
 void
 art::concatContainers(CONTAINER& out, CONTAINER const& in)
 {
-  if constexpr (detail::has_two_arg_insert<CONTAINER>::value) {
+  if constexpr (detail::has_two_arg_insert<CONTAINER>) {
     detail::TwoArgInsert<CONTAINER>::concatenate(out, in);
   } else {
     static_assert(detail::has_three_arg_insert<CONTAINER>);
