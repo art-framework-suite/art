@@ -1,39 +1,32 @@
-#include "art/Persistency/Common/CollectionUtilities.h"
-
+#include "catch2/catch_test_macros.hpp"
 #include <vector>
 #include <concepts>
-#include <catch2/catch_test_macros.hpp>
+
+#include "art/Persistency/Common/CollectionUtilities.h"
 
 using namespace art;
 
 namespace {
+  template <typename T>
   struct two_in_container{
-    template <typename T>
-    void insert(T::iterator beg, T::iterator end){}
+    void insert(typename T::iterator beg, typename T::iterator end){}
   };
 
+  template <typename T>
   struct three_in_container{
-    struct iterator {}
+    struct iterator {};
     iterator begin() {
-      return iterator;
+      return iterator();
     }
-    template<typename T>
-    void insert(T::iterator self_end, T::iterator other_beg, T::iterator other_end){}}
+    void insert(typename T::iterator self_end, typename T::iterator other_beg, typename T::iterator other_end){}
   };
 
-  template <typename T>
-  concept can_two_arg_insert = requires (T& t1, T& t2) {
+  template <typename T1, typename T2>
+  concept can_concat = requires (T1& t1, T2& t2) {
     { concatContainers(t1, t2) };
-  }
-
-  template <typename T>
-  concept can_three_arg_insert = requires (T& t1, T& t2) {
-    { concatContainers(t1, t2) };
-  }
+  };
 }
 
-
-
-int main(){
-  
+TEST_CASE("ensuring proper constraint enforcement in conicatContainers()"){
+  CHECK(can_concat<std::vector<int>, std::vector<int>>);
 }
