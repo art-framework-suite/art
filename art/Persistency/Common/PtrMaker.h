@@ -80,7 +80,7 @@ namespace art {
   public:
     // Creates a PtrMaker that creates Ptrs into a collection of type
     // 'Container'.
-    template <typename Container, typename DataLevel>
+    template <typename DataLevel, typename Container>
       requires can_get_product_id<DataLevel, Container>
     static PtrMaker<T> create(DataLevel const& E,
                               std::string const& instance = {});
@@ -105,7 +105,7 @@ namespace art {
   };
 
   template <typename T>
-  template <typename Container, typename DataLevel>
+  template <typename DataLevel, typename Container>
     requires can_get_product_id<DataLevel, Container>
   PtrMaker<T>
   PtrMaker<T>::create(DataLevel const& evt, std::string const& instance)
