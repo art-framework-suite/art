@@ -37,5 +37,7 @@ TEST_CASE("create() concept enforcement"){
 
   // Check if 'test_struct' satisfies 'can_call_productGetter' concept
   REQUIRE(can_call_productGetter<test_struct>);
+
+  PtrMaker<int>::create<std::vector<int>>(ts);
 }
 
