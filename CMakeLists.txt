@@ -22,7 +22,7 @@ cet_cmake_env()
 # Find our own CMake modules, and tell everyone else where to find them.
 cet_cmake_module_directories(Modules BINARY)
 
-cet_set_compiler_flags(DIAGS VIGILANT
+cet_set_compiler_flags(DIAGS VIGILANT DWARF_VER 4
   WERROR
   NO_UNDEFINED
   EXTRA_FLAGS -pedantic)
