@@ -7,23 +7,23 @@
 #include <type_traits>
 
 namespace art {
+
   template <typename T1, typename T2>
-  inline std::enable_if_t<std::is_same<T1, T2>::value ||
-                            std::is_base_of<T1, T2>::value ||
-                            std::is_base_of<T2, T1>::value,
-                          bool>
-  pointersEqual(T1* t1, T2* t2)
+  concept compatible = std::same_as<T1, T2> ||
+                    std::derived_from<T1, T2> ||
+                    std::derived_from<T2, T1>;
+
+  template <typename T1, typename T2>
+    requires (compatible<T1, T2>)
+  bool pointersEqual(T1* t1, T2* t2)
   {
     return t1 == t2;
   }
 
   // Not compatible.
   template <typename T1, typename T2>
-  std::enable_if_t<!std::is_same<T1, T2>::value &&
-                     !std::is_base_of<T1, T2>::value &&
-                     !std::is_base_of<T2, T1>::value,
-                   bool>
-  pointersEqual(T1*, T2*)
+    requires (!compatible<T1, T2>)
+  bool pointersEqual(T1*, T2*)
   {
     throw art::Exception(art::errors::LogicError)
       << "Tried to compare two incompatible pointers.\n";
