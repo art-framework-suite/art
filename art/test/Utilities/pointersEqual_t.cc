@@ -57,10 +57,10 @@ BOOST_AUTO_TEST_CASE(concept_enforcement){
   D d1;
   D* pd1d1(&d1);
   A* pd1a1(&d1);
-  int number = 4;
-  int* ip = &number;
+  int* ip = new int;
   BOOST_TEST(art::pointersEqual(pd1d1, pd1a1));
-  BOOST_TEST(art::pointersEqual(pd1d1, ip));
+  BOOST_CHECK_THROW(art::pointersEqual(pd1d1, ip), art::Exception);
+  delete ip;
 }
 
 BOOST_AUTO_TEST_SUITE_END()
