@@ -42,6 +42,7 @@
 #include "cetlib_except/demangle.h"
 #include "cetlib_except/exception.h"
 
+#include <concepts>
 #include <memory>
 #include <typeinfo>
 
@@ -77,20 +78,34 @@ namespace art {
     }
   } // namespace detail
 
-  template <class T>
-  std::enable_if_t<detail::is_handle_v<T>, RangeSet const&> range_of_validity(
-    T const& h);
-  template <class T, class U>
-  std::enable_if_t<detail::are_handles_v<T, U>, bool> same_ranges(T const& a,
-                                                                  U const& b);
-  template <class T, class U>
-  std::enable_if_t<detail::are_handles_v<T, U>, bool> disjoint_ranges(
-    T const& a,
-    U const& b);
-  template <class T, class U>
-  std::enable_if_t<detail::are_handles_v<T, U>, bool> overlapping_ranges(
-    T const& a,
-    U const& b);
+  template <detail::is_handle T>
+  RangeSet const& range_of_validity(T const& h);
+ 
+  template <typename T, typename U>
+    requires(detail::are_handles<T, U>)
+  bool same_ranges(T const& a, T const& b);
+
+  template <typename T, typename U>
+    requires(detail::are_handles<T, U>)
+  bool disjoint_ranges(T const& a, T const& b);
+
+  template <typename T, typename U>
+    requires(detail::are_handles<T, U>)
+  bool overlapping_ranges(T const& a, T const& b);
+  // template <class T>
+  // std::enable_if_t<detail::is_handle_v<T>, RangeSet const&> range_of_validity(
+  //   T const& h);
+  // template <class T, class U>
+  // std::enable_if_t<detail::are_handles_v<T, U>, bool> same_ranges(T const& a,
+  //                                                                 U const& b);
+  // template <class T, class U>
+  // std::enable_if_t<detail::are_handles_v<T, U>, bool> disjoint_ranges(
+  //   T const& a,
+  //   U const& b);
+  // template <class T, class U>
+  // std::enable_if_t<detail::are_handles_v<T, U>, bool> overlapping_ranges(
+  //   T const& a,
+  //   U const& b);
 
 } // namespace art
 
@@ -98,7 +113,8 @@ template <typename T>
 class art::Handle {
 public:
   using element_type = T;
-  class HandleTag {};
+  // class HandleTag {};
+  struct HandleTag {};
 
   ~Handle() = default;
   explicit constexpr Handle() =
@@ -417,9 +433,8 @@ art::ValidHandle<T>::productGetter() const noexcept
 // ======================================================================
 // Non-members:
 
-template <class T>
-std::enable_if_t<art::detail::is_handle_v<T>, art::RangeSet const&>
-art::range_of_validity(T const& h)
+template <art::detail::is_handle T>
+art::RangeSet const& art::range_of_validity(T const& h)
 {
   std::string const& errMsg =
     "Attempt to retrieve range set from invalid handle.";
@@ -428,8 +443,8 @@ art::range_of_validity(T const& h)
 }
 
 template <class T, class U>
-std::enable_if_t<art::detail::are_handles_v<T, U>, bool>
-art::same_ranges(T const& a, U const& b)
+  requires (art::detail::are_handles<T, U>)
+bool art::same_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
     "Attempt to compare range sets where one or both handles are invalid.";
@@ -438,8 +453,8 @@ art::same_ranges(T const& a, U const& b)
 }
 
 template <class T, class U>
-std::enable_if_t<art::detail::are_handles_v<T, U>, bool>
-art::disjoint_ranges(T const& a, U const& b)
+  requires (art::detail::are_handles<T, U>)
+bool art::disjoint_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
     "Attempt to compare range sets where one or both handles are invalid.";
@@ -448,8 +463,8 @@ art::disjoint_ranges(T const& a, U const& b)
 }
 
 template <class T, class U>
-std::enable_if_t<art::detail::are_handles_v<T, U>, bool>
-art::overlapping_ranges(T const& a, U const& b)
+  requires (art::detail::are_handles<T, U>)
+bool art::overlapping_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
     "Attempt to compare range sets where one or both handles are invalid.";
