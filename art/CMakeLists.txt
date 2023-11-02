@@ -36,6 +36,15 @@ find_package(fhiclcpp REQUIRED EXPORT)
 find_package(hep_concurrency REQUIRED EXPORT)
 find_package(messagefacility REQUIRED EXPORT)
 
+project_variable(PLUGIN_DIR ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+  OMIT_IF_MISSING OMIT_IF_NULL OMIT_IF_EMPTY
+  CONFIG)
+project_variable(TRANSITIVE_PLUGIN_DIRS
+  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}:${messagefacility_PLUGIN_DIR}"
+  OMIT_IF_MISSING OMIT_IF_NULL OMIT_IF_EMPTY
+  CONFIG)
+list(APPEND ${CETMODULES_CURRENT_PROJECT_NAME}_ADD_ARCH_DIRS PLUGIN_DIR TRANSITIVE_PLUGIN_DIRS)
+
 add_subdirectory(Version)
 add_subdirectory(Utilities)
 add_subdirectory(Persistency)

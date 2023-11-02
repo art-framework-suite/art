@@ -1,6 +1,7 @@
 include(CetTest)
 cet_enable_asserts()
 cet_test_env("FHICL_FILE_PATH=.")
+cet_test_env_prepend(CET_PLUGIN_PATH "${art_TRANSITIVE_PLUGIN_DIRS}")
 
 find_package(Boost COMPONENTS filesystem graph REQUIRED)
 find_package(Catch2 REQUIRED)
