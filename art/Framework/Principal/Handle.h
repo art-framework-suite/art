@@ -35,7 +35,6 @@
 #include "art/Framework/Principal/Group.h"
 #include "art/Framework/Principal/Provenance.h"
 #include "art/Persistency/Common/GroupQueryResult.h"
-#include "canvas/Persistency/Common/detail/is_handle.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 #include "canvas/Utilities/Exception.h"
@@ -76,37 +75,28 @@ namespace art {
         throw Exception{art::errors::NullPointerError} << msg << '\n';
       }
     }
+
+    template <typename T>
+    concept is_a_handle = requires { typename T::HandleTag; };
+
+    template <typename T, typename U>
+    concept are_both_handles = is_a_handle<T> && is_a_handle<U>;
   } // namespace detail
 
-  template <detail::is_handle T>
+  template <detail::is_a_handle T>
   RangeSet const& range_of_validity(T const& h);
  
   template <typename T, typename U>
-    requires(detail::are_handles<T, U>)
+    requires(detail::are_both_handles<T, U>)
   bool same_ranges(T const& a, T const& b);
 
   template <typename T, typename U>
-    requires(detail::are_handles<T, U>)
+    requires(detail::are_both_handles<T, U>)
   bool disjoint_ranges(T const& a, T const& b);
 
   template <typename T, typename U>
-    requires(detail::are_handles<T, U>)
+    requires(detail::are_both_handles<T, U>)
   bool overlapping_ranges(T const& a, T const& b);
-  // template <class T>
-  // std::enable_if_t<detail::is_handle_v<T>, RangeSet const&> range_of_validity(
-  //   T const& h);
-  // template <class T, class U>
-  // std::enable_if_t<detail::are_handles_v<T, U>, bool> same_ranges(T const& a,
-  //                                                                 U const& b);
-  // template <class T, class U>
-  // std::enable_if_t<detail::are_handles_v<T, U>, bool> disjoint_ranges(
-  //   T const& a,
-  //   U const& b);
-  // template <class T, class U>
-  // std::enable_if_t<detail::are_handles_v<T, U>, bool> overlapping_ranges(
-  //   T const& a,
-  //   U const& b);
-
 } // namespace art
 
 template <typename T>
@@ -304,7 +294,7 @@ template <typename T>
 class art::ValidHandle {
 public:
   using element_type = T;
-  class HandleTag {};
+  struct HandleTag {};
 
   ~ValidHandle() = default;
   ValidHandle() = delete;
@@ -433,7 +423,7 @@ art::ValidHandle<T>::productGetter() const noexcept
 // ======================================================================
 // Non-members:
 
-template <art::detail::is_handle T>
+template <art::detail::is_a_handle T>
 art::RangeSet const& art::range_of_validity(T const& h)
 {
   std::string const& errMsg =
@@ -443,7 +433,7 @@ art::RangeSet const& art::range_of_validity(T const& h)
 }
 
 template <class T, class U>
-  requires (art::detail::are_handles<T, U>)
+  requires (art::detail::are_both_handles<T, U>)
 bool art::same_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
@@ -453,7 +443,7 @@ bool art::same_ranges(T const& a, U const& b)
 }
 
 template <class T, class U>
-  requires (art::detail::are_handles<T, U>)
+  requires (art::detail::are_both_handles<T, U>)
 bool art::disjoint_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
@@ -463,7 +453,7 @@ bool art::disjoint_ranges(T const& a, U const& b)
 }
 
 template <class T, class U>
-  requires (art::detail::are_handles<T, U>)
+  requires (art::detail::are_both_handles<T, U>)
 bool art::overlapping_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =

@@ -63,11 +63,11 @@ namespace art {
       "art error: SummedValue<T>'s only support types that can be aggregated.\n"
       "           Please contact artists@fnal.gov.\n");
 
-    template <typename H>
-    std::enable_if_t<detail::is_handle_v<H>> update(H const& h);
+    template <detail::is_a_handle H>
+    void update(H const& h);
 
-    template <typename H>
-    std::enable_if_t<detail::is_handle_v<H>> update(H const& h, T const& t);
+    template <detail::is_a_handle H>
+    void update(H const& h, T const& t);
 
     void clear();
 
@@ -129,9 +129,8 @@ namespace art {
   // Implementation
 
   template <typename T>
-  template <typename H>
-  std::enable_if_t<detail::is_handle_v<H>>
-  SummedValue<T>::update(H const& h)
+  template <art::detail::is_a_handle H>
+  void SummedValue<T>::update(H const& h)
   {
     std::string const& errMsg{"Attempt to update " +
                               cet::demangle_symbol(typeid(*this).name()) +
@@ -141,9 +140,8 @@ namespace art {
   }
 
   template <typename T>
-  template <typename H>
-  std::enable_if_t<detail::is_handle_v<H>>
-  SummedValue<T>::update(H const& h, T const& t)
+  template <art::detail::is_a_handle H>
+  void SummedValue<T>::update(H const& h, T const& t)
   {
     std::string const& errMsg{"Attempt to update " +
                               cet::demangle_symbol(typeid(*this).name()) +
