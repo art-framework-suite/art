@@ -136,7 +136,9 @@ namespace art {
     bool checkMallocConfig_(string const&, bool);
     void recordPeakUsages_();
     void flushTables_();
+    bool using_file_database_() const;
     void summary_();
+    bool anyTableFull_() const;
 
     LinuxProcMgr procInfo_{};
     string const fileName_;
@@ -409,6 +411,12 @@ namespace art {
     }
   }
 
+  bool
+  MemoryTracker::using_file_database_() const
+  {
+    return !fileName_.empty() && fileName_ != ":memory:";
+  }
+
   void
   MemoryTracker::summary_()
   {
@@ -425,15 +433,33 @@ namespace art {
     mf::LogAbsolute log{"MemoryTracker"};
     HorizontalRule const rule{100};
     log << '\n' << rule('=') << '\n';
-    log << std::left << "MemoryTracker summary (base-10 MB units used)\n\n";
-    log << "  Peak virtual memory usage (VmPeak)  : " << unique_value(rVMax)
-        << " MB\n"
-        << "  Peak resident set size usage (VmHWM): " << unique_value(rRMax)
-        << " MB\n";
-    if (!(fileName_.empty() || fileName_ == ":memory:")) {
-      log << "  Details saved in: '" << fileName_ << "'\n";
+
+    if (anyTableFull_() && using_file_database_()) {
+      log << "The SQLite database connected to the MemoryTracker exceeded the "
+             "available resources.\n";
+      log << "No memory usage summary is available.\n";
+      log << "The database at " << fileName_
+          << " will contain an incomplete record of this job's memory usage.\n";
+    } else {
+      log << std::left << "MemoryTracker summary (base-10 MB units used)\n\n";
+      log << "  Peak virtual memory usage (VmPeak)  : " << unique_value(rVMax)
+          << " MB\n"
+          << "  Peak resident set size usage (VmHWM): " << unique_value(rRMax)
+          << " MB\n";
+      if (using_file_database_()) {
+        log << "  Details saved in: '" << fileName_ << "'\n";
+      }
     }
     log << rule('=');
+  }
+
+  bool
+  MemoryTracker::anyTableFull_() const
+  {
+    return peakUsageTable_.full() || otherInfoTable_.full() ||
+           eventTable_.full() || moduleTable_.full() ||
+           (eventHeapTable_ && eventHeapTable_->full()) ||
+           (moduleHeapTable_ && moduleHeapTable_->full());
   }
 
 } // namespace art
