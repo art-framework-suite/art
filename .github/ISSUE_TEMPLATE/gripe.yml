@@ -13,4 +13,4 @@ body:
     id: gripe-details
     attributes:
       label: Details
-      placeholder: Please describe your issue in as much detail as possible
+      placeholder: Please describe your issue in as much detail as possible.
