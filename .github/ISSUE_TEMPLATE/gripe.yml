@@ -5,11 +5,10 @@ title: "[Gripe]: "
 body:
   - type: markdown
     attributes:
-      value: |
-        ****[ If you are able to define a minimal reproducer for the issue, please use a different issue type ]**
-        ****[ Gripes will be dealt with on a "best effort" basis only, and cannot be high priority ]**
-        ****[ Multiple iterations may be necessary to understand your issue well enough to posit a remedy ]**
-
+      value: >-
+        * ** ** If you are able to define a minimal reproducer for the issue, please use a different issue type.**
+        * ** **  Gripes will be dealt with on a "best effort" basis only, and cannot be high priority.**
+        * **** Multiple iterations may be necessary to understand your issue well enough to posit a remedy.**
   - type: textarea
     id: gripe-details
     attributes:
