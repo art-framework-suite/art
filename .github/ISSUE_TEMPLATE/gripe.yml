@@ -1,10 +1,11 @@
 name: Gripe
-about: Describe a bug, problem, or annoyance that doesn't have a simple reproducer
+description: Describe a bug, problem, or annoyance that doesn't have a simple reproducer
 labels: ["best effort"]
+title: "[Gripe]: <title>"
 body:
   - type: markdown
     attributes:
-      value: >-
+      value: |
         **[ If you are able to define a minimal reproducer for the issue, please use a different issue type ]
 
         **[ Gripes will be dealt with on a "best effort" basis only, and cannot be high priority ]
@@ -14,7 +15,5 @@ body:
   - type: textarea
     id: gripe-details
     attributes:
-      label: best effort
-      placeholder: [ describe your issue in as much detail as possible ]
-    validations:
-      required: true
+      label: Details
+      placeholder: Please describe your issue in as much detail as possible
