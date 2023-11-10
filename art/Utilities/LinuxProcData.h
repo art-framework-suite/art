@@ -99,7 +99,6 @@ namespace art {
 
     template <typename T>
     requires (std::derived_from<T, proc_type>)
-    // static std::enable_if_t<std::is_base_of<proc_type, T>::value, double>
     static double getValueInMB(proc_tuple const& t)
     {
       // Info from proc is in bytes; convert to base-10 MB.

@@ -27,3 +27,4 @@ cet_test(EventPrincipal_t USE_BOOST_UNIT
 
 cet_test(Selector_t USE_BOOST_UNIT
   LIBRARIES PRIVATE art::Framework_Principal)
+

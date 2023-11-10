@@ -15,11 +15,17 @@ namespace fhicl {
 
 namespace art::detail {
 
-  template <typename T, typename = void>
-  struct tool_type;
+  template <typename T>
+  concept Function = std::is_function_v<std::remove_pointer_t<T>>;
 
   template <typename T>
-  struct tool_type<T, std::enable_if_t<std::is_class<T>::value>> {
+  concept Class = std::is_class_v<std::remove_pointer_t<T>>;
+
+  template <typename T/*, typename = void*/>
+  struct tool_type;
+
+  template <Class T>
+  struct tool_type<T> {
     using return_type = std::unique_ptr<T>;
 
     static auto
@@ -31,8 +37,8 @@ namespace art::detail {
     }
   };
 
-  template <typename T>
-  struct tool_type<T, std::enable_if_t<std::is_function<T>::value>> {
+  template <Function T>
+  struct tool_type<T> {
     using return_type = std::function<T>;
 
     static auto
