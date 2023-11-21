@@ -84,6 +84,9 @@ namespace art {
       memset(&tmpact, 0, sizeof(tmpact));
       tmpact.sa_handler = SIG_IGN;
       for (int num = SIGRTMIN; num < SIGRTMAX; ++num) {
+        if (num == 38) { // Intel VTune wants to use signal 38
+          continue;
+        }
         abort_on_error(sigaddset(&myset, num));
         abort_on_error(sigaction(num, &tmpact, nullptr));
       }
