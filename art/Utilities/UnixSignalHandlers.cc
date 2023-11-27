@@ -76,7 +76,7 @@ namespace art {
 
 #ifdef __linux__
     void
-    disableRTSigs()
+    tweakRTSigs_(int how)
     {
       sigset_t myset;
       abort_on_error(sigemptyset(&myset));
@@ -87,7 +87,7 @@ namespace art {
         abort_on_error(sigaddset(&myset, num));
         abort_on_error(sigaction(num, &tmpact, nullptr));
       }
-      abort_on_error(pthread_sigmask(SIG_BLOCK, &myset, 0));
+      abort_on_error(pthread_sigmask(how, &myset, 0));
     }
 #endif // __linux__
 
@@ -105,9 +105,12 @@ namespace art {
       sigset_t oldset;
       disableAllSigs(&oldset);
 #ifdef __linux__
-      disableRTSigs();
+      tweakRTSigs_(SIG_BLOCK);
 #endif // __linux__
       installSig(signum, func);
+#ifdef __linux__
+      tweakRTSigs_(SIG_UNBLOCK);
+#endif // __linux__
       reenableSigs(&oldset);
     }
 
