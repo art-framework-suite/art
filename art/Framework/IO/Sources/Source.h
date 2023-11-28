@@ -101,7 +101,6 @@
 #include "canvas/Persistency/Provenance/ProductTables.h"
 #include "canvas/Persistency/Provenance/SubRunID.h"
 #include "cetlib/exempt_ptr.h"
-#include "cetlib/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/ConfigurationTable.h"
@@ -109,6 +108,7 @@
 #include "fhiclcpp/types/TableFragment.h"
 
 #include <algorithm>
+#include <concepts>
 #include <memory>
 #include <type_traits>
 
@@ -134,22 +134,12 @@ namespace art {
 
   namespace detail {
 
-    // Template metaprogramming.
-
-    template <typename T, typename = void>
-    struct has_hasMoreData : std::false_type {};
-
     template <typename T>
-    struct has_hasMoreData<
-      T,
-      cet::enable_if_function_exists_t<bool (T::*)(), &T::hasMoreData>>
-      : std::true_type {};
-
-    template <typename T>
-    struct has_hasMoreData<
-      T,
-      cet::enable_if_function_exists_t<bool (T::*)() const, &T::hasMoreData>>
-      : std::true_type {};
+    concept has_hasMoreData = requires(T& t) {
+                                {
+                                  t.hasMoreData()
+                                  } -> std::same_as<bool>;
+                              };
 
     template <typename T>
     struct do_call_hasMoreData {
@@ -503,7 +493,7 @@ namespace art {
   {
     state_ = input::IsStop; // Default -- may change below.
     if (Source_generator<T>::value) {
-      std::conditional_t<detail::has_hasMoreData<T>::value,
+      std::conditional_t<detail::has_hasMoreData<T>,
                          detail::do_call_hasMoreData<T>,
                          detail::do_not_call_hasMoreData<T>>
         generatorHasMoreData;
