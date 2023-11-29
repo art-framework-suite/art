@@ -56,19 +56,23 @@
 namespace art {
 
   template <typename T, typename CONTAINER>
-    concept can_get_product_id =
-  requires (T & t, std::string const & instance) {
-    { t.template getProductID<CONTAINER>(instance) };
-  };
-  
+  concept can_get_product_id = requires(T& t, std::string const& instance) {
+                                 {
+                                   t.template getProductID<CONTAINER>(instance)
+                                 };
+                               };
+
   template <typename T, typename DATA_TYPE>
   concept data_level = can_get_product_id<T, std::vector<DATA_TYPE>>;
 
   template <typename T>
   concept can_call_productGetter =
-  requires (T & t, ProductID const pid)
-  { { t.productGetter(pid) } -> std::same_as<EDProductGetter const*>; };
-  
+    requires(T& t, ProductID const pid) {
+      {
+        t.productGetter(pid)
+        } -> std::same_as<EDProductGetter const*>;
+    };
+
   // To create art::Ptrs into a particular collection in an event,
   // subrun, run, or results.
   template <typename T>
@@ -77,14 +81,14 @@ namespace art {
     // Creates a PtrMaker that creates Ptrs into a collection of type
     // 'Container'.
     template <typename Container, typename DataLevel>
-    requires can_get_product_id<DataLevel, Container>
+      requires can_get_product_id<DataLevel, Container>
     static PtrMaker<T> create(DataLevel const& E,
                               std::string const& instance = {});
 
     // Creates a PtrMaker that creates Ptrs into a collection of type
     // std::vector<T>.
     template <typename DataLevel>
-    requires data_level<DataLevel, T>
+      requires data_level<DataLevel, T>
     PtrMaker(DataLevel const& evt, std::string const& instance = {});
 
     // Use this constructor when making Ptrs to products created in
@@ -102,7 +106,7 @@ namespace art {
 
   template <typename T>
   template <typename Container, typename DataLevel>
-  requires can_get_product_id<DataLevel, Container>
+    requires can_get_product_id<DataLevel, Container>
   PtrMaker<T>
   PtrMaker<T>::create(DataLevel const& evt, std::string const& instance)
   {
@@ -112,7 +116,7 @@ namespace art {
 
   template <typename T>
   template <typename DataLevel>
-  requires data_level<DataLevel, T>
+    requires data_level<DataLevel, T>
   PtrMaker<T>::PtrMaker(DataLevel const& evt, std::string const& instance)
     : PtrMaker{evt, evt.template getProductID<std::vector<T>>(instance)}
   {}

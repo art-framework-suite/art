@@ -62,10 +62,10 @@
 //
 //===================================================================
 
+#include <concepts>
 #include <sstream>
 #include <tuple>
 #include <type_traits>
-#include <concepts>
 
 namespace art {
 
@@ -98,7 +98,7 @@ namespace art {
     }
 
     template <typename T>
-    requires (std::derived_from<T, proc_type>)
+      requires(std::derived_from<T, proc_type>)
     static double getValueInMB(proc_tuple const& t)
     {
       // Info from proc is in bytes; convert to base-10 MB.

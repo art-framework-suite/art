@@ -130,7 +130,8 @@ namespace art {
 
   template <typename T>
   template <art::detail::is_a_handle H>
-  void SummedValue<T>::update(H const& h)
+  void
+  SummedValue<T>::update(H const& h)
   {
     std::string const& errMsg{"Attempt to update " +
                               cet::demangle_symbol(typeid(*this).name()) +
@@ -141,7 +142,8 @@ namespace art {
 
   template <typename T>
   template <art::detail::is_a_handle H>
-  void SummedValue<T>::update(H const& h, T const& t)
+  void
+  SummedValue<T>::update(H const& h, T const& t)
   {
     std::string const& errMsg{"Attempt to update " +
                               cet::demangle_symbol(typeid(*this).name()) +

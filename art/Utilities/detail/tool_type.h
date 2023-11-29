@@ -21,7 +21,7 @@ namespace art::detail {
   template <typename T>
   concept Class = std::is_class_v<std::remove_pointer_t<T>>;
 
-  template <typename T/*, typename = void*/>
+  template <typename T /*, typename = void*/>
   struct tool_type;
 
   template <Class T>

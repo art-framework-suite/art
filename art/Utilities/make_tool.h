@@ -14,7 +14,8 @@ namespace art {
   using tool_return_type = typename detail::tool_type<T>::return_type;
 
   template <detail::Class T>
-  tool_return_type<T> make_tool(fhicl::ParameterSet const& pset)
+  tool_return_type<T>
+  make_tool(fhicl::ParameterSet const& pset)
   {
     cet::BasicPluginFactory factory{Suffixes::tool(), "makeTool"};
     std::string const libspec{pset.get<std::string>("tool_type")};
@@ -30,7 +31,8 @@ namespace art {
   }
 
   template <detail::Function T>
-  tool_return_type<T> make_tool(fhicl::ParameterSet const& pset,
+  tool_return_type<T>
+  make_tool(fhicl::ParameterSet const& pset,
             std::string const& function_tool_type)
   {
     cet::BasicPluginFactory factory{

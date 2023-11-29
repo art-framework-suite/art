@@ -85,18 +85,18 @@ namespace art {
 
   template <detail::is_a_handle T>
   RangeSet const& range_of_validity(T const& h);
- 
-  template <typename T, typename U>
-    requires(detail::are_both_handles<T, U>)
-  bool same_ranges(T const& a, T const& b);
 
   template <typename T, typename U>
-    requires(detail::are_both_handles<T, U>)
-  bool disjoint_ranges(T const& a, T const& b);
+    requires(detail::are_both_handles<T, U>) bool
+  same_ranges(T const& a, T const& b);
 
   template <typename T, typename U>
-    requires(detail::are_both_handles<T, U>)
-  bool overlapping_ranges(T const& a, T const& b);
+    requires(detail::are_both_handles<T, U>) bool
+  disjoint_ranges(T const& a, T const& b);
+
+  template <typename T, typename U>
+    requires(detail::are_both_handles<T, U>) bool
+  overlapping_ranges(T const& a, T const& b);
 } // namespace art
 
 template <typename T>
@@ -424,7 +424,8 @@ art::ValidHandle<T>::productGetter() const noexcept
 // Non-members:
 
 template <art::detail::is_a_handle T>
-art::RangeSet const& art::range_of_validity(T const& h)
+art::RangeSet const&
+art::range_of_validity(T const& h)
 {
   std::string const& errMsg =
     "Attempt to retrieve range set from invalid handle.";
@@ -433,8 +434,8 @@ art::RangeSet const& art::range_of_validity(T const& h)
 }
 
 template <class T, class U>
-  requires (art::detail::are_both_handles<T, U>)
-bool art::same_ranges(T const& a, U const& b)
+  requires(art::detail::are_both_handles<T, U>) bool
+art::same_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
     "Attempt to compare range sets where one or both handles are invalid.";
@@ -443,8 +444,8 @@ bool art::same_ranges(T const& a, U const& b)
 }
 
 template <class T, class U>
-  requires (art::detail::are_both_handles<T, U>)
-bool art::disjoint_ranges(T const& a, U const& b)
+  requires(art::detail::are_both_handles<T, U>) bool
+art::disjoint_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
     "Attempt to compare range sets where one or both handles are invalid.";
@@ -453,8 +454,8 @@ bool art::disjoint_ranges(T const& a, U const& b)
 }
 
 template <class T, class U>
-  requires (art::detail::are_both_handles<T, U>)
-bool art::overlapping_ranges(T const& a, U const& b)
+  requires(art::detail::are_both_handles<T, U>) bool
+art::overlapping_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
     "Attempt to compare range sets where one or both handles are invalid.";

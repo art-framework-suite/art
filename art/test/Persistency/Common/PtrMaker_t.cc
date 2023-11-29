@@ -1,33 +1,40 @@
 #include "catch2/catch_test_macros.hpp"
 
-#include "art/Persistency/Common/PtrMaker.h"
-#include "canvas/Persistency/Provenance/ProductID.h"
-#include "canvas/Persistency/Common/Ptr.h"
 #include "art/Framework/Principal/Event.h"
+#include "art/Persistency/Common/PtrMaker.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "canvas/Persistency/Provenance/ProductID.h"
 
 using namespace art;
 
-struct test_struct{
+struct test_struct {
   template <typename CONTAINER>
-  ProductID getProductID(std::string const& instance){
-    (void) instance;
+  ProductID
+  getProductID(std::string const& instance)
+  {
+    (void)instance;
     return ProductID{};
   }
 
-  EDProductGetter const* productGetter(ProductID const pid){
-    (void) pid;
+  EDProductGetter const*
+  productGetter(ProductID const pid)
+  {
+    (void)pid;
     return new art::EDProductGetter{};
   }
 };
 
 template <typename T, typename CONTAINER>
 concept can_create = requires {
-  { can_get_product_id<T, CONTAINER> };
-};
+                       {
+                         can_get_product_id<T, CONTAINER>
+                       };
+                     };
 
-TEST_CASE("create() concept enforcement"){
+TEST_CASE("create() concept enforcement")
+{
   std::string const& instance = "instance";
-  [[maybe_unused]]  test_struct const& ts{};
+  [[maybe_unused]] test_struct const& ts{};
 
   // Check if 'test_struct' satisfies 'can_get_product_id' concept
   REQUIRE(can_get_product_id<test_struct, std::vector<int>>);
@@ -40,4 +47,3 @@ TEST_CASE("create() concept enforcement"){
 
   PtrMaker<int>::create<std::vector<int>>(ts);
 }
-
