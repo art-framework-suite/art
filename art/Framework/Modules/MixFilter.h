@@ -146,10 +146,10 @@
 #include "cetlib/metaprogramming.h"
 #include "fhiclcpp/types/TableFragment.h"
 
+#include <concepts>
 #include <functional>
 #include <memory>
 #include <type_traits>
-                                          #include <concepts>
 
 namespace art {
   template <typename T, typename IOPolicy>
@@ -186,11 +186,12 @@ namespace art {
     //   enable_if_function_exists_t<void (T::*)(Event const&), &T::startEvent>>
     //   : std::true_type {};
 
-
     template <typename T>
     concept has_startEvent = requires {
-                                        {T::startEvent};
-                                        };
+                               {
+                                 T::startEvent
+                               };
+                             };
 
     ////////////////////////////////////////////////////////////////////
 

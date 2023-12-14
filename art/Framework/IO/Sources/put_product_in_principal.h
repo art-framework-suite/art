@@ -41,11 +41,12 @@ namespace art {
 
   template <typename T, typename P>
   // std::enable_if_t<!detail::range_sets_supported(P::branch_type)>
-  void put_product_in_principal(std::unique_ptr<T>&& product,
+  void
+  put_product_in_principal(std::unique_ptr<T>&& product,
                            P& principal,
                            std::string const& module_label,
                            std::string const& instance_name = {})
-    requires (!detail::range_sets_supported(P::branch_type))
+    requires(!detail::range_sets_supported(P::branch_type))
   {
     TypeID const typeID{typeid(T)};
     if (product.get() == nullptr) {
