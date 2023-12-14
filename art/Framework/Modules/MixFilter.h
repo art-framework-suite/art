@@ -149,6 +149,7 @@
 #include <functional>
 #include <memory>
 #include <type_traits>
+                                          #include <concepts>
 
 namespace art {
   template <typename T, typename IOPolicy>
@@ -176,14 +177,20 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?
 
-    template <typename T, typename = void>
-    struct has_startEvent : std::false_type {};
+    // template <typename T, typename = void>
+    // struct has_startEvent : std::false_type {};
+    //
+    // template <typename T>
+    // struct has_startEvent<
+    //   T,
+    //   enable_if_function_exists_t<void (T::*)(Event const&), &T::startEvent>>
+    //   : std::true_type {};
+
 
     template <typename T>
-    struct has_startEvent<
-      T,
-      enable_if_function_exists_t<void (T::*)(Event const&), &T::startEvent>>
-      : std::true_type {};
+    concept has_startEvent = requires {
+                                        {T::startEvent};
+                                        };
 
     ////////////////////////////////////////////////////////////////////
 
@@ -481,7 +488,7 @@ bool
 art::MixFilter<T, IOPolicy>::filter(Event& e)
 {
   // 1. Call detail object's startEvent() if it exists.
-  if constexpr (detail::has_startEvent<T>::value) {
+  if constexpr (detail::has_startEvent<T>) {
     detail_.startEvent(e);
   }
 
