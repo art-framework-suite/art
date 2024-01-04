@@ -187,9 +187,9 @@ namespace art {
     //   : std::true_type {};
 
     template <typename T>
-    concept has_startEvent = requires {
+    concept has_startEvent = requires(T t, Event& e) {
                                {
-                                 T::startEvent
+                                 t.startEvent(e)
                                };
                              };
 
