@@ -99,7 +99,8 @@ namespace art {
     ResultsProducer() noexcept(false);
 
     template <typename UserConfig, typename... KeysToIgnore>
-    using Table = ProducerTable<UserConfig, detail::PluginConfig, KeysToIgnore...>;
+    using Table =
+      ProducerTable<UserConfig, detail::PluginConfig, KeysToIgnore...>;
 
     void doBeginJob();
     void doEndJob();

@@ -56,7 +56,9 @@ namespace art {
       fhicl::TableFragment<T> user;
     };
 
-    using KeysToIgnore_t = fhicl::KeysToIgnore<typename MinimalToolConfig::KeysToIgnore, UserKeysToIgnore...>;
+    using KeysToIgnore_t =
+      fhicl::KeysToIgnore<typename MinimalToolConfig::KeysToIgnore,
+                          UserKeysToIgnore...>;
 
     fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t> fullConfig_;
     cet::exempt_ptr<fhicl::detail::ParameterBase const>

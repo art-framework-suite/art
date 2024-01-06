@@ -25,7 +25,9 @@ namespace art {
       fhicl::TableFragment<T> user;
     };
 
-    using KeysToIgnore_t = fhicl::KeysToIgnore<typename ImplicitConfig::IgnoreKeys, UserKeysToIgnore...>;
+    using KeysToIgnore_t =
+      fhicl::KeysToIgnore<typename ImplicitConfig::IgnoreKeys,
+                          UserKeysToIgnore...>;
 
   public: // MEMBER FUNCTIONS -- Special Member Functions
     explicit ProducerTable(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
