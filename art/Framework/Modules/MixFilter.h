@@ -194,25 +194,12 @@ namespace art {
                              };
 
     ////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method size_t eventsToSkip() const?
-
-    template <typename T, typename = void>
-    struct has_eventsToSkip : std::false_type {};
-
+    // 
     template <typename T>
-    struct has_eventsToSkip<
-      T,
-      enable_if_function_exists_t<size_t (T::*)(), &T::eventsToSkip>>
-      : std::true_type {};
-
-    template <typename T>
-    struct has_eventsToSkip<
-      T,
-      enable_if_function_exists_t<size_t (T::*)() const, &T::eventsToSkip>>
-      : std::true_type {};
-    ////////////////////////////////////////////////////////////////////
+    concept has_eventsToSkip = requires (T t) {
+                                          {t.eventsToSkip()};
+                                          };
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void
@@ -427,7 +414,7 @@ art::MixFilter<T, IOPolicy>::MixFilter(
             std::make_unique<IOPolicy>()}
   , detail_{p, helper_}
 {
-  if constexpr (detail::has_eventsToSkip<T>::value) {
+  if constexpr (detail::has_eventsToSkip<T>) {
     helper_.setEventsToSkipFunction([this] { return detail_.eventsToSkip(); });
   }
 }
@@ -443,7 +430,7 @@ art::MixFilter<T, IOPolicy>::MixFilter(
             std::make_unique<IOPolicy>()}
   , detail_{p().userConfig, helper_}
 {
-  if constexpr (detail::has_eventsToSkip<T>::value) {
+  if constexpr (detail::has_eventsToSkip<T>) {
     helper_.setEventsToSkipFunction([this] { return detail_.eventsToSkip(); });
   }
 }
