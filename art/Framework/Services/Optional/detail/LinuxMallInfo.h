@@ -36,7 +36,6 @@ namespace art {
 
     class LinuxMallInfo {
     public:
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
       // FIXME: The 'mallinfo()' function is deprecated for AL9.

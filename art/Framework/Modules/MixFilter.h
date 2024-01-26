@@ -186,11 +186,13 @@ namespace art {
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method size_t eventsToSkip() const?
-    // 
+    //
     template <typename T>
-    concept has_eventsToSkip = requires (T t) {
-                                          {t.eventsToSkip()};
-                                          };
+    concept has_eventsToSkip = requires(T t) {
+                                 {
+                                   t.eventsToSkip()
+                                 };
+                               };
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void
@@ -198,8 +200,10 @@ namespace art {
 
     template <typename T>
     concept has_processEventIDs = requires(T t, EventIDSequence& e) {
-                                        {t.processEventIDs(e)};
-                                        };
+                                    {
+                                      t.processEventIDs(e)
+                                    };
+                                  };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
