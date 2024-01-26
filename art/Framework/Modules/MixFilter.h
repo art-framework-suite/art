@@ -177,15 +177,6 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?
 
-    // template <typename T, typename = void>
-    // struct has_startEvent : std::false_type {};
-    //
-    // template <typename T>
-    // struct has_startEvent<
-    //   T,
-    //   enable_if_function_exists_t<void (T::*)(Event const&), &T::startEvent>>
-    //   : std::true_type {};
-
     template <typename T>
     concept has_startEvent = requires(T t, Event& e) {
                                {
@@ -205,15 +196,10 @@ namespace art {
     // Does the detail object have a method void
     // processEventIDs(EventIDSequence const&)?
 
-    template <typename T, typename = void>
-    struct has_processEventIDs : std::false_type {};
-
     template <typename T>
-    struct has_processEventIDs<
-      T,
-      enable_if_function_exists_t<void (T::*)(EventIDSequence const&),
-                                  &T::processEventIDs>> : std::true_type {};
-
+    concept has_processEventIDs = requires(T t, EventIDSequence& e) {
+                                        {t.processEventIDs(e)};
+                                        };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
@@ -495,7 +481,7 @@ art::MixFilter<T, IOPolicy>::filter(Event& e)
   }
 
   // 4. Give the event ID sequence to the detail object.
-  if constexpr (detail::has_processEventIDs<T>::value) {
+  if constexpr (detail::has_processEventIDs<T>) {
     detail_.processEventIDs(eIDseq);
   }
 
