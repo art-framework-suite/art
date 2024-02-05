@@ -210,29 +210,24 @@ namespace art {
     // Does the detail object have a method void
     // processEventAuxiliaries(EventAuxiliarySequence const&)?
 
-    template <typename T, typename = void>
-    struct has_processEventAuxiliaries : std::false_type {};
-
     template <typename T>
-    struct has_processEventAuxiliaries<
-      T,
-      enable_if_function_exists_t<void (T::*)(EventAuxiliarySequence const&),
-                                  &T::processEventAuxiliaries>>
-      : std::true_type {};
+    concept has_processEventAuxiliaries =
+      requires(T t, EventAuxiliarySequence& e) {
+        {
+          t.processEventAuxiliaries(e)
+        };
+      };
 
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void finalizeEvent(Event&)?
-    template <typename T, typename = void>
-    struct has_finalizeEvent : std::false_type {};
-
     template <typename T>
-    struct has_finalizeEvent<
-      T,
-      enable_if_function_exists_t<void (T::*)(Event&), &T::finalizeEvent>>
-      : std::true_type {};
-
+    concept has_finalizeEvent = requires(T t, Event& e) {
+                                  {
+                                    t.finalizeEvent(e)
+                                  };
+                                };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
@@ -490,7 +485,7 @@ art::MixFilter<T, IOPolicy>::filter(Event& e)
   }
 
   // 5. Give the event auxiliary sequence to the detail object.
-  if constexpr (detail::has_processEventAuxiliaries<T>::value) {
+  if constexpr (detail::has_processEventAuxiliaries<T>) {
     auto const auxseq = helper_.generateEventAuxiliarySequence(enSeq);
     detail_.processEventAuxiliaries(auxseq);
   }
@@ -500,7 +495,7 @@ art::MixFilter<T, IOPolicy>::filter(Event& e)
   helper_.mixAndPut(enSeq, eIDseq, e);
 
   // 7. Call detail object's finalizeEvent() if it exists.
-  if constexpr (detail::has_finalizeEvent<T>::value) {
+  if constexpr (detail::has_finalizeEvent<T>) {
     detail_.finalizeEvent(e);
   }
   return true;
