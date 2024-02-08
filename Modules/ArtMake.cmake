@@ -110,6 +110,7 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 include(BuildPlugins)
 include(CetMake)
+include(CetMakeCommand)
 include(Compatibility)
 include(CetTest)
 
