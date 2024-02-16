@@ -232,108 +232,57 @@ namespace art {
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginSubRun(SubRun const&)?
-    template <typename T, typename = void>
-    struct has_beginSubRun : std::false_type {};
-
     template <typename T>
-    struct has_beginSubRun<
-      T,
-      enable_if_function_exists_t<void (T::*)(SubRun const&), &T::beginSubRun>>
-      : std::true_type {};
-
+    concept has_beginSubRun = requires (T t, SubRun& s) {
+                                        {t.beginSubRun(s)};
+                                        };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void endSubRun(SubRun&)?
-    template <typename T, typename = void>
-    struct has_endSubRun : std::false_type {};
-
     template <typename T>
-    struct has_endSubRun<
-      T,
-      enable_if_function_exists_t<void (T::*)(SubRun&), &T::endSubRun>>
-      : std::true_type {};
-
+    concept has_endSubRun = requires (T t, SubRun& s) {
+                                        {t.endSubRun(s)};
+                                        };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginRun(Run const&)?
-    template <typename T, typename = void>
-    struct has_beginRun : std::false_type {};
-
     template <typename T>
-    struct has_beginRun<
-      T,
-      enable_if_function_exists_t<void (T::*)(Run const&), &T::beginRun>>
-      : std::true_type {};
-
+                                        concept has_beginRun = requires(T t, Run& r) {
+                                        {t.beginRun(r)};
+                                        };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void endRun(Run&)?
-    template <typename T, typename = void>
-    struct has_endRun : std::false_type {};
-
     template <typename T>
-    struct has_endRun<
-      T,
-      enable_if_function_exists_t<void (T::*)(Run&), &T::endRun>>
-      : std::true_type {};
-
+    concept has_endRun = requires (T t, Run& r) {
+      {t.endRun(r)};
+    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have respondToXXX methods()?
     template <typename T>
-    using respond_to_file = void (T::*)(FileBlock const&);
+    concept has_respondToOpenInputFile = requires (T t, FileBlock& fb){
+{t.respondToOpenInputFile(fb)};
+    };
 
-    template <typename T, respond_to_file<T>>
-    struct respondToXXX_function;
+template <typename T>
+concept has_respondToCloseInputFile = requires (T t, FileBlock& fb) {
+{t.respondToCloseInputFile(fb)};
+};
 
-    // has_respondToOpenInputFile
-    template <typename T, typename = void>
-    struct has_respondToOpenInputFile : std::false_type {};
-
+template <typename T>
+concept has_respondToOpenOutputFiles = requires (T t, FileBlock& fb) {
+{t.respondToOpenOutputFiles(fb)};
+};
     template <typename T>
-    struct has_respondToOpenInputFile<
-      T,
-      enable_if_function_exists_t<respond_to_file<T>,
-                                  &T::respondToOpenInputFile>>
-      : std::true_type {};
-
-    // has_respondToCloseInputFile
-    template <typename T, typename = void>
-    struct has_respondToCloseInputFile : std::false_type {};
-
-    template <typename T>
-    struct has_respondToCloseInputFile<
-      T,
-      enable_if_function_exists_t<respond_to_file<T>,
-                                  &T::respondToCloseInputFile>>
-      : std::true_type {};
-
-    // has_respondToOpenOutputFiles
-    template <typename T, typename = void>
-    struct has_respondToOpenOutputFiles : std::false_type {};
-
-    template <typename T>
-    struct has_respondToOpenOutputFiles<
-      T,
-      enable_if_function_exists_t<respond_to_file<T>,
-                                  &T::respondToOpenOutputFiles>>
-      : std::true_type {};
-
-    // has_respondToCloseOutputFiles
-    template <typename T, typename = void>
-    struct has_respondToCloseOutputFiles : std::false_type {};
-
-    template <typename T>
-    struct has_respondToCloseOutputFiles<
-      T,
-      enable_if_function_exists_t<respond_to_file<T>,
-                                  &T::respondToCloseOutputFiles>>
-      : std::true_type {};
-
+concept has_respondToCloseOutputFiles = requires (T t, FileBlock& fb) {
+{t.respondToCloseOutputFiles(fb)};
+};
+ 
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
@@ -424,7 +373,7 @@ template <typename T, typename IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToOpenInputFile(FileBlock const& fb)
 {
-  if constexpr (detail::has_respondToOpenInputFile<T>::value) {
+  if constexpr (detail::has_respondToOpenInputFile<T>) {
     detail_.respondToOpenInputFile(fb);
   }
 }
@@ -433,7 +382,7 @@ template <typename T, typename IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToCloseInputFile(FileBlock const& fb)
 {
-  if constexpr (detail::has_respondToCloseInputFile<T>::value) {
+  if constexpr (detail::has_respondToCloseInputFile<T>) {
     detail_.respondToCloseInputFile(fb);
   }
 }
@@ -442,7 +391,7 @@ template <typename T, typename IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToOpenOutputFiles(FileBlock const& fb)
 {
-  if constexpr (detail::has_respondToOpenOutputFiles<T>::value) {
+  if constexpr (detail::has_respondToOpenOutputFiles<T>) {
     detail_.respondToOpenOutputFiles(fb);
   }
 }
@@ -451,7 +400,7 @@ template <typename T, typename IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToCloseOutputFiles(FileBlock const& fb)
 {
-  if constexpr (detail::has_respondToCloseOutputFiles<T>::value) {
+  if constexpr (detail::has_respondToCloseOutputFiles<T>) {
     detail_.respondToCloseOutputFiles(fb);
   }
 }
@@ -505,7 +454,7 @@ template <typename T, typename IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::beginSubRun(SubRun& sr)
 {
-  if constexpr (detail::has_beginSubRun<T>::value) {
+  if constexpr (detail::has_beginSubRun<T>) {
     detail_.beginSubRun(sr);
   }
   return true;
@@ -515,7 +464,7 @@ template <typename T, typename IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::endSubRun(SubRun& sr)
 {
-  if constexpr (detail::has_endSubRun<T>::value) {
+  if constexpr (detail::has_endSubRun<T>) {
     detail_.endSubRun(sr);
   }
   return true;
@@ -525,7 +474,7 @@ template <typename T, typename IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::beginRun(Run& r)
 {
-  if constexpr (detail::has_beginRun<T>::value) {
+  if constexpr (detail::has_beginRun<T>) {
     detail_.beginRun(r);
   }
   return true;
@@ -535,7 +484,7 @@ template <typename T, typename IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::endRun(Run& r)
 {
-  if constexpr (detail::has_endRun<T>::value) {
+  if constexpr (detail::has_endRun<T>) {
     detail_.endRun(r);
   }
   return true;
