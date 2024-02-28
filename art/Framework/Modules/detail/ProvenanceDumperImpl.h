@@ -80,204 +80,100 @@ namespace art::detail {
   }
 
   ////////////////////////////////////////////////////////////////////////
-  // Metaprogramming to provide default function if optional
-  // functions do not exist.
-
-  template <typename T>
-  struct default_invocation;
-
-  template <typename R, typename... ARGS>
-  struct default_invocation<R(ARGS...)> {
-    static R
-    invoke(ARGS...)
-    {}
-  };
-
-  ////////////////////////////////////////////////////////////////////////
   // Metaprogramming to deal with optional pre/post and begin/end
   // job functions.
-  using cet::enable_if_function_exists_t;
 
   // void DETAIL::beginJob();
-  template <typename DETAIL, typename Enable = void>
-  struct maybe_beginJob : default_invocation<void(DETAIL&)> {};
-
-  template <typename DETAIL>
-  struct maybe_beginJob<
-    DETAIL,
-    enable_if_function_exists_t<void (DETAIL::*)(), &DETAIL::beginJob>> {
-    static void
-    invoke(DETAIL& detail)
-    {
-      detail.beginJob();
-    }
-  };
+  template <typename T>
+  concept maybe_beginJob = requires(T& t) {
+                             {
+                               t.beginJob()
+                             };
+                           };
 
   // void DETAIL::preProcessEvent();
-  template <typename DETAIL, typename Enable = void>
-  struct maybe_preProcessEvent : default_invocation<void(DETAIL&)> {};
-
-  template <typename DETAIL>
-  struct maybe_preProcessEvent<
-    DETAIL,
-    enable_if_function_exists_t<void (DETAIL::*)(), &DETAIL::preProcessEvent>> {
-    static void
-    invoke(DETAIL& detail)
-    {
-      detail.preProcessEvent();
-    }
-  };
+  template <typename T>
+  concept maybe_preProcessEvent = requires(T& t) {
+                                    {
+                                      t.preProcessEvent()
+                                    };
+                                  };
 
   // void DETAIL::postProcessEvent();
-  template <typename DETAIL, typename Enable = void>
-  struct maybe_postProcessEvent : default_invocation<void(DETAIL&)> {};
-
-  template <typename DETAIL>
-  struct maybe_postProcessEvent<
-    DETAIL,
-    enable_if_function_exists_t<void (DETAIL::*)(),
-                                &DETAIL::postProcessEvent>> {
-    static void
-    invoke(DETAIL& detail)
-    {
-      detail.postProcessEvent();
-    }
-  };
+  template <typename T>
+  concept maybe_postProcessEvent = requires(T& t) {
+                                     {
+                                       t.postProcessEvent()
+                                     };
+                                   };
 
   // void DETAIL::preProcessSubRun();
-  template <typename DETAIL, typename Enable = void>
-  struct maybe_preProcessSubRun : default_invocation<void(DETAIL&)> {};
-
-  template <typename DETAIL>
-  struct maybe_preProcessSubRun<
-    DETAIL,
-    enable_if_function_exists_t<void (DETAIL::*)(),
-                                &DETAIL::preProcessSubRun>> {
-    static void
-    invoke(DETAIL& detail)
-    {
-      detail.preProcessSubRun();
-    }
-  };
+  template <typename T>
+  concept maybe_preProcessSubRun = requires(T& t) {
+                                     {
+                                       t.preProcessSubRun()
+                                     };
+                                   };
 
   // void DETAIL::postProcessSubRun();
-  template <typename DETAIL, typename Enable = void>
-  struct maybe_postProcessSubRun : default_invocation<void(DETAIL&)> {};
-
-  template <typename DETAIL>
-  struct maybe_postProcessSubRun<
-    DETAIL,
-    enable_if_function_exists_t<void (DETAIL::*)(),
-                                &DETAIL::postProcessSubRun>> {
-    static void
-    invoke(DETAIL& detail)
-    {
-      detail.postProcessSubRun();
-    }
-  };
+  template <typename T>
+  concept maybe_postProcessSubRun = requires(T& t) {
+                                      {
+                                        t.postProcessSubRun()
+                                      };
+                                    };
 
   // void DETAIL::preProcessRun();
-  template <typename DETAIL, typename Enable = void>
-  struct maybe_preProcessRun : default_invocation<void(DETAIL&)> {};
-
-  template <typename DETAIL>
-  struct maybe_preProcessRun<
-    DETAIL,
-    enable_if_function_exists_t<void (DETAIL::*)(), &DETAIL::preProcessRun>> {
-    static void
-    invoke(DETAIL& detail)
-    {
-      detail.preProcessRun();
-    }
-  };
+  template <typename T>
+  concept maybe_preProcessRun = requires(T& t) {
+                                  {
+                                    t.preProcessRun()
+                                  };
+                                };
 
   // void DETAIL::postProcessRun();
-  template <typename DETAIL, typename Enable = void>
-  struct maybe_postProcessRun : default_invocation<void(DETAIL&)> {};
-
-  template <typename DETAIL>
-  struct maybe_postProcessRun<
-    DETAIL,
-    enable_if_function_exists_t<void (DETAIL::*)(), &DETAIL::postProcessRun>> {
-    static void
-    invoke(DETAIL& detail)
-    {
-      detail.postProcessRun();
-    }
-  };
+  template <typename T>
+  concept maybe_postProcessRun = requires(T& t) {
+                                   {
+                                     t.postProcessRun()
+                                   };
+                                 };
 
   // void DETAIL::endJob();
-  template <typename DETAIL, typename Enable = void>
-  struct maybe_endJob : default_invocation<void(DETAIL&)> {};
-
-  template <typename DETAIL>
-  struct maybe_endJob<
-    DETAIL,
-    enable_if_function_exists_t<void (DETAIL::*)(), &DETAIL::endJob>> {
-    static void
-    invoke(DETAIL& detail)
-    {
-      detail.endJob();
-    }
-  };
+  template <typename T>
+  concept maybe_endJob = requires(T& t) {
+                           {
+                             t.endJob()
+                           };
+                         };
   ////////////////////////////////////////////////////////////////////////
 
   ////////////////////////////////////////////////////////////////////////
   // Metaprogramming to deal with optional per-provenance functions.
 
-  // void DETAIL::processSubRunProvenance(art:Provenance const &);
-  template <typename DETAIL, typename Enable = void>
-  struct maybe_processEventPrincipal
-    : default_invocation<void(PrincipalProcessor<DETAIL> const&,
-                              EventPrincipal const&)> {};
-
-  template <typename DETAIL>
-  struct maybe_processEventPrincipal<
-    DETAIL,
-    enable_if_function_exists_t<void (DETAIL::*)(Provenance const&),
-                                &DETAIL::processEventProvenance>> {
-    static void
-    invoke(PrincipalProcessor<DETAIL> const& pp, EventPrincipal const& p)
-    {
-      pp(p, &DETAIL::processEventProvenance);
-    }
-  };
+  // void DETAIL::processEventProvenance(art:Provenance const &);
+  template <typename T>
+  concept maybe_processEventPrincipal = requires(T& t, art::Provenance& p) {
+                                          {
+                                            t.processEventProvenance(p)
+                                          };
+                                        };
 
   // void DETAIL::processSubRunProvenance(art:Provenance const &);
-  template <typename DETAIL, typename Enable = void>
-  struct maybe_processSubRunPrincipal
-    : default_invocation<void(PrincipalProcessor<DETAIL> const&,
-                              SubRunPrincipal const&)> {};
-
-  template <typename DETAIL>
-  struct maybe_processSubRunPrincipal<
-    DETAIL,
-    enable_if_function_exists_t<void (DETAIL::*)(Provenance const&),
-                                &DETAIL::processSubRunProvenance>> {
-    static void
-    invoke(PrincipalProcessor<DETAIL> const& pp, SubRunPrincipal const& p)
-    {
-      pp(p, &DETAIL::processSubRunProvenance);
-    }
-  };
+  template <typename T>
+  concept maybe_processSubRunPrincipal = requires(T& t, art::Provenance& p) {
+                                           {
+                                             t.processSubRunProvenance(p)
+                                           };
+                                         };
 
   // void DETAIL::processRunProvenance(art:Provenance const &);
-  template <typename DETAIL, typename Enable = void>
-  struct maybe_processRunPrincipal
-    : default_invocation<void(PrincipalProcessor<DETAIL> const&,
-                              RunPrincipal const&)> {};
-
-  template <typename DETAIL>
-  struct maybe_processRunPrincipal<
-    DETAIL,
-    enable_if_function_exists_t<void (DETAIL::*)(Provenance const&),
-                                &DETAIL::processRunProvenance>> {
-    static void
-    invoke(PrincipalProcessor<DETAIL> const& pp, RunPrincipal const& p)
-    {
-      pp(p, &DETAIL::processRunProvenance);
-    }
-  };
+  template <typename T>
+  concept maybe_processRunPrincipal = requires(T& t, art::Provenance& p) {
+                                        {
+                                          t.processRunProvenance(p)
+                                        };
+                                      };
 
   ////////////////////////////////////////////////////////////////////////
 
@@ -295,37 +191,59 @@ namespace art::detail {
     void
     beginJob()
     {
-      maybe_beginJob<DETAIL>::invoke(detail_);
+      if constexpr (maybe_beginJob<DETAIL>) {
+        detail_.beginJob();
+      }
     }
 
     void
     write(EventPrincipal& e)
     {
-      maybe_preProcessEvent<DETAIL>::invoke(detail_);
-      maybe_processEventPrincipal<DETAIL>::invoke(pp_, e);
-      maybe_postProcessEvent<DETAIL>::invoke(detail_);
+      if constexpr (maybe_preProcessEvent<DETAIL>) {
+        detail_.preProcessEvent();
+      }
+      if constexpr (maybe_processEventPrincipal<DETAIL>) {
+        pp_(e, &DETAIL::processEventProvenance);
+      }
+      if constexpr (maybe_postProcessEvent<DETAIL>) {
+        detail_.postProcessEvent();
+      }
     }
 
     void
     writeSubRun(SubRunPrincipal& sr)
     {
-      maybe_preProcessSubRun<DETAIL>::invoke(detail_);
-      maybe_processSubRunPrincipal<DETAIL>::invoke(pp_, sr);
-      maybe_postProcessSubRun<DETAIL>::invoke(detail_);
+      if constexpr (maybe_preProcessSubRun<DETAIL>) {
+        detail_.preProcessSubRun();
+      }
+      if constexpr (maybe_processSubRunPrincipal<DETAIL>) {
+        pp_(sr, &DETAIL::processSubRunProvenance);
+      }
+      if constexpr (maybe_postProcessSubRun<DETAIL>) {
+        detail_.postProcessSubRun();
+      }
     }
 
     void
     writeRun(RunPrincipal& r)
     {
-      maybe_preProcessRun<DETAIL>::invoke(detail_);
-      maybe_processRunPrincipal<DETAIL>::invoke(pp_, r);
-      maybe_postProcessRun<DETAIL>::invoke(detail_);
+      if constexpr (maybe_preProcessRun<DETAIL>) {
+        detail_.preProcessRun();
+      }
+      if constexpr (maybe_processRunPrincipal<DETAIL>) {
+        pp_(r, &DETAIL::processRunProvenance);
+      }
+      if constexpr (maybe_postProcessRun<DETAIL>) {
+        detail_.postProcessRun();
+      }
     }
 
     void
     endJob()
     {
-      maybe_endJob<DETAIL>::invoke(detail_);
+      if constexpr (maybe_endJob<DETAIL>) {
+        detail_.endJob();
+      }
     }
   };
 

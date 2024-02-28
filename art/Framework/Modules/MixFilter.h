@@ -171,9 +171,6 @@ namespace art {
   };
 
   namespace detail {
-    // Template metaprogramming.
-    using cet::enable_if_function_exists_t;
-
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?
 
