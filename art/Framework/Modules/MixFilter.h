@@ -233,56 +233,72 @@ namespace art {
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginSubRun(SubRun const&)?
     template <typename T>
-    concept has_beginSubRun = requires (T t, SubRun& s) {
-                                        {t.beginSubRun(s)};
-                                        };
+    concept has_beginSubRun = requires(T t, SubRun& s) {
+                                {
+                                  t.beginSubRun(s)
+                                };
+                              };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void endSubRun(SubRun&)?
     template <typename T>
-    concept has_endSubRun = requires (T t, SubRun& s) {
-                                        {t.endSubRun(s)};
-                                        };
+    concept has_endSubRun = requires(T t, SubRun& s) {
+                              {
+                                t.endSubRun(s)
+                              };
+                            };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginRun(Run const&)?
     template <typename T>
-                                        concept has_beginRun = requires(T t, Run& r) {
-                                        {t.beginRun(r)};
-                                        };
+    concept has_beginRun = requires(T t, Run& r) {
+                             {
+                               t.beginRun(r)
+                             };
+                           };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void endRun(Run&)?
     template <typename T>
-    concept has_endRun = requires (T t, Run& r) {
-      {t.endRun(r)};
-    };
+    concept has_endRun = requires(T t, Run& r) {
+                           {
+                             t.endRun(r)
+                           };
+                         };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have respondToXXX methods()?
     template <typename T>
-    concept has_respondToOpenInputFile = requires (T t, FileBlock& fb){
-{t.respondToOpenInputFile(fb)};
-    };
+    concept has_respondToOpenInputFile = requires(T t, FileBlock& fb) {
+                                           {
+                                             t.respondToOpenInputFile(fb)
+                                           };
+                                         };
 
-template <typename T>
-concept has_respondToCloseInputFile = requires (T t, FileBlock& fb) {
-{t.respondToCloseInputFile(fb)};
-};
-
-template <typename T>
-concept has_respondToOpenOutputFiles = requires (T t, FileBlock& fb) {
-{t.respondToOpenOutputFiles(fb)};
-};
     template <typename T>
-concept has_respondToCloseOutputFiles = requires (T t, FileBlock& fb) {
-{t.respondToCloseOutputFiles(fb)};
-};
- 
+    concept has_respondToCloseInputFile = requires(T t, FileBlock& fb) {
+                                            {
+                                              t.respondToCloseInputFile(fb)
+                                            };
+                                          };
+
+    template <typename T>
+    concept has_respondToOpenOutputFiles = requires(T t, FileBlock& fb) {
+                                             {
+                                               t.respondToOpenOutputFiles(fb)
+                                             };
+                                           };
+    template <typename T>
+    concept has_respondToCloseOutputFiles = requires(T t, FileBlock& fb) {
+                                              {
+                                                t.respondToCloseOutputFiles(fb)
+                                              };
+                                            };
+
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
@@ -315,11 +331,11 @@ public:
   using Parameters = typename detail::maybe_has_Parameters<T>::Parameters;
 
   template <typename U = Parameters>
-  explicit MixFilter(std::enable_if_t<std::is_same_v<U, fhicl::ParameterSet>,
-                                      fhicl::ParameterSet> const& p);
+    requires std::same_as<U, fhicl::ParameterSet>
+  explicit MixFilter(fhicl::ParameterSet const& p);
   template <typename U = Parameters>
-  explicit MixFilter(
-    std::enable_if_t<!std::is_same_v<U, fhicl::ParameterSet>, U> const& p);
+    requires(!std::same_as<U, fhicl::ParameterSet>)
+  explicit MixFilter(U const& p);
 
 private:
   void respondToOpenInputFile(FileBlock const& fb) override;
@@ -338,9 +354,8 @@ private:
 
 template <typename T, typename IOPolicy>
 template <typename U>
-art::MixFilter<T, IOPolicy>::MixFilter(
-  std::enable_if_t<std::is_same_v<U, fhicl::ParameterSet>,
-                   fhicl::ParameterSet> const& p)
+  requires std::same_as<U, fhicl::ParameterSet>
+art::MixFilter<T, IOPolicy>::MixFilter(fhicl::ParameterSet const& p)
   : EDFilter{p}
   , helper_{p,
             p.template get<std::string>("module_label"),
@@ -355,8 +370,8 @@ art::MixFilter<T, IOPolicy>::MixFilter(
 
 template <typename T, typename IOPolicy>
 template <typename U>
-art::MixFilter<T, IOPolicy>::MixFilter(
-  std::enable_if_t<!std::is_same_v<U, fhicl::ParameterSet>, U> const& p)
+  requires(!std::same_as<U, fhicl::ParameterSet>)
+art::MixFilter<T, IOPolicy>::MixFilter(U const& p)
   : EDFilter{p}
   , helper_{p().mixHelper(),
             p.get_PSet().template get<std::string>("module_label"),
