@@ -41,7 +41,8 @@
 
 namespace art {
   template <typename T>
-  concept is_selector = std::derived_from<std::remove_reference_t<T>, SelectorBase>;
+  concept is_selector =
+    std::derived_from<std::remove_reference_t<T>, SelectorBase>;
   // constexpr bool is_selector =
   //   std::is_base_of_v<SelectorBase, std::remove_reference_t<T>>;
 
@@ -193,14 +194,13 @@ namespace art {
     // This constructor is only valid (via SFINAE) if the provided
     // iterators dereference to a type convertible to art::InputTag.
     template <typename IT>
-    InputTagListSelector(
-      IT begin,
-      IT end,
-      std::string const& description,
-      std::enable_if_t<std::is_convertible_v<decltype(std::declval<IT>().
-                                                      operator*()),
-                                             art::InputTag>>* dummy
-      [[maybe_unused]] = nullptr)
+      requires std::convertible_to<decltype(std::declval<IT>().
+                                            operator*()),
+                                   art::InputTag>
+    InputTagListSelector(IT begin,
+                         IT end,
+                         std::string const& description,
+                         void* dummy [[maybe_unused]] = nullptr)
       : tags_{begin, end}, description_{description}
     {}
 
@@ -261,7 +261,8 @@ namespace art {
   };
 
   template <is_selector A, is_selector B>
-  AndHelper<A, B> operator&&(A const& a, B const& b)
+  AndHelper<A, B>
+  operator&&(A const& a, B const& b)
   {
     return AndHelper<A, B>{a, b};
   }
