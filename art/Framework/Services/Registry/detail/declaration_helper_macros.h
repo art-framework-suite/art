@@ -26,7 +26,7 @@
     const final override                                                       \
   {                                                                            \
     if constexpr (is_shared(ServiceScope::scopeArg) &&                         \
-                  detail::handle_allowed_v<svc>) {                             \
+                  detail::handle_allowed<svc>) {                             \
       resources.registerSharedResource(SharedResource<svc>);                   \
     } else if constexpr (is_legacy(ServiceScope::scopeArg)) {                  \
       ensure_only_one_thread(pset);                                            \

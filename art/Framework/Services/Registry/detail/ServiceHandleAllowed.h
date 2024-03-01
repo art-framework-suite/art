@@ -11,17 +11,20 @@
 // ======================================================================
 
 #include <type_traits>
+#include <concepts>
 
 namespace art::detail {
-  template <typename T, typename = void>
-  struct handle_allowed : std::true_type {};
-
-  template <typename T>
-  struct handle_allowed<T, std::enable_if_t<!T::service_handle_allowed>>
-    : std::false_type {};
-
-  template <typename T>
-  bool constexpr handle_allowed_v{handle_allowed<T>::value};
+  template typename T
+  concept handle_allowed = T::service_handle_allowed == true;
+  // template <typename T, typename = void>
+  // struct handle_allowed : std::true_type {};
+  //
+  // template <typename T>
+  // struct handle_allowed<T, std::enable_if_t<!T::service_handle_allowed>>
+  //   : std::false_type {};
+  //
+  // template <typename T>
+  // bool constexpr handle_allowed_v{handle_allowed<T>::value};
 }
 
 #endif /* art_Framework_Services_Registry_detail_ServiceHandleAllowed_h */

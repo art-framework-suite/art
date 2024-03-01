@@ -52,7 +52,6 @@ namespace art {
 
     template <typename HEAD_FIELD, typename... TAIL_FIELDS>
       requires(sizeof...(TAIL_FIELDS) > 0)
-    // std::enable_if_t<(sizeof...(TAIL_FIELDS) > 0)>
     void increment()
     {
       increment<HEAD_FIELD>();
