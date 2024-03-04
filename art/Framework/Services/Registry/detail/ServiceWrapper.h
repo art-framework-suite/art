@@ -22,10 +22,11 @@ namespace art {
     // ActivityRegistry&, use it. Otherwise, call a one-argument
     // constructor taking fhicl::ParameterSet const& only.
     template <typename T>
-    std::enable_if_t<
-      std::is_constructible_v<T, fhicl::ParameterSet const&, ActivityRegistry&>,
-      std::shared_ptr<T>>
-    makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
+    // std::enable_if_t<
+    //   std::is_constructible_v<T, fhicl::ParameterSet const&, ActivityRegistry&>,
+      // std::shared_ptr<T>>
+    requires std::constructible_from<T, fhicl::ParameterSet const&, ActivityRegistry&>
+    std::shared_ptr<T> makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
     {
       static_assert(
         !std::is_base_of_v<ProducingService, T>,
@@ -36,11 +37,12 @@ namespace art {
     }
 
     template <typename T>
-    std::enable_if_t<!std::is_constructible_v<T,
-                                              fhicl::ParameterSet const&,
-                                              ActivityRegistry&>,
-                     std::shared_ptr<T>>
-    makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry&)
+    // std::enable_if_t<!std::is_constructible_v<T,
+    //                                           fhicl::ParameterSet const&,
+    //                                           ActivityRegistry&>,
+    //                  std::shared_ptr<T>>
+    requires (!std::constructible_from<T, fhicl::ParameterSet const&, ActivityRegistry&>)
+    std::shared_ptr<T> makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry&)
     {
       return std::make_shared<T>(ps);
     }

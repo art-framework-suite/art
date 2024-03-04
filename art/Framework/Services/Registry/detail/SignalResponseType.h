@@ -12,15 +12,15 @@ namespace art {
     enum class SignalResponseType { FIFO, LIFO };
 
     template <SignalResponseType STYPE, typename SIGNAL, typename FUNC>
-    std::enable_if_t<STYPE == SignalResponseType::FIFO>
-    connect_to_signal(SIGNAL& s, FUNC f)
+    requires (STYPE == SignalResponseType::FIFO)
+    void connect_to_signal(SIGNAL& s, FUNC f)
     {
       s.emplace_back(f);
     }
 
     template <SignalResponseType STYPE, typename SIGNAL, typename FUNC>
-    std::enable_if_t<STYPE == SignalResponseType::LIFO>
-    connect_to_signal(SIGNAL& s, FUNC f)
+    requires (STYPE == SignalResponseType::LIFO)
+    void connect_to_signal(SIGNAL& s, FUNC f)
     {
       s.emplace_front(f);
     }
