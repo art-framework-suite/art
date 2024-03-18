@@ -143,7 +143,6 @@
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "cetlib/metaprogramming.h"
 #include "fhiclcpp/types/TableFragment.h"
 
 #include <concepts>

@@ -116,7 +116,6 @@
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Utilities/Exception.h"
 #include "cetlib/exempt_ptr.h"
-#include "cetlib/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/ConfigurationTable.h"

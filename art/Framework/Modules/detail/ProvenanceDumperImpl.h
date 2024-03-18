@@ -17,7 +17,6 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "canvas/Utilities/Exception.h"
-#include "cetlib/metaprogramming.h"
 #include "fhiclcpp/ParameterSet.h"
 
 namespace art::detail {
