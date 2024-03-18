@@ -86,7 +86,7 @@ namespace art {
     template <Level L>
     bool levelsToProcess();
     template <Level L>
-    requires (is_above_most_deeply_nested_level(L))
+      requires(is_above_most_deeply_nested_level(L))
     void begin();
     template <Level L>
     void process();

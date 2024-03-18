@@ -22,8 +22,10 @@ namespace art {
     // ActivityRegistry&, use it. Otherwise, call a one-argument
     // constructor taking fhicl::ParameterSet const& only.
     template <typename T>
-    requires std::constructible_from<T, fhicl::ParameterSet const&, ActivityRegistry&>
-    std::shared_ptr<T> makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
+      requires std::
+        constructible_from<T, fhicl::ParameterSet const&, ActivityRegistry&>
+      std::shared_ptr<T>
+      makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
     {
       static_assert(
         !std::is_base_of_v<ProducingService, T>,
@@ -34,8 +36,11 @@ namespace art {
     }
 
     template <typename T>
-    requires (!std::constructible_from<T, fhicl::ParameterSet const&, ActivityRegistry&>)
-    std::shared_ptr<T> makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry&)
+      requires(!std::constructible_from<T,
+                                        fhicl::ParameterSet const&,
+                                        ActivityRegistry&>)
+    std::shared_ptr<T> makeServiceFrom(fhicl::ParameterSet const& ps,
+                                       ActivityRegistry&)
     {
       return std::make_shared<T>(ps);
     }
@@ -60,9 +65,8 @@ namespace art {
         return *service_ptr_;
       }
 
-      template <typename U,
-                typename = void>
-      requires std::derived_from<T, U>
+      template <typename U, typename = void>
+        requires std::derived_from<T, U>
       std::unique_ptr<ServiceWrapper<U>>
       getAs() const
       {

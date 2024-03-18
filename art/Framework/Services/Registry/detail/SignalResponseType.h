@@ -12,14 +12,14 @@ namespace art {
     enum class SignalResponseType { FIFO, LIFO };
 
     template <SignalResponseType STYPE, typename SIGNAL, typename FUNC>
-    requires (STYPE == SignalResponseType::FIFO)
+      requires(STYPE == SignalResponseType::FIFO)
     void connect_to_signal(SIGNAL& s, FUNC f)
     {
       s.emplace_back(f);
     }
 
     template <SignalResponseType STYPE, typename SIGNAL, typename FUNC>
-    requires (STYPE == SignalResponseType::LIFO)
+      requires(STYPE == SignalResponseType::LIFO)
     void connect_to_signal(SIGNAL& s, FUNC f)
     {
       s.emplace_front(f);

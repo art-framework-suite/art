@@ -3,20 +3,21 @@
 
 // Class for concatenating FHiCL names into a dot-delimited FHiCL key
 
-#include <string>
 #include <concepts>
+#include <string>
 
 namespace art::detail {
 
   template <typename T>
-  requires std::convertible_to<T, std::string>
-  std::string fhicl_key(T const& name)
+    requires std::convertible_to<T, std::string>
+  std::string
+  fhicl_key(T const& name)
   {
     return name;
   }
 
   template <typename H, typename... T>
-  requires (std::convertible_to<T, std::string> && ...)
+    requires(std::convertible_to<T, std::string> && ...)
   std::string fhicl_key(H const& hname, T const&... tnames)
   {
     std::string const head{hname};
