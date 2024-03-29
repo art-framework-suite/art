@@ -1,3 +1,6 @@
+# include(cetTest)
+find_package(Catch2 REQUIRED)
+
 foreach(test Closed Open)
   cet_test(${test}RangeSetHandler_t USE_BOOST_UNIT
     LIBRARIES PRIVATE
@@ -27,4 +30,6 @@ cet_test(EventPrincipal_t USE_BOOST_UNIT
 
 cet_test(Selector_t USE_BOOST_UNIT
   LIBRARIES PRIVATE art::Framework_Principal)
+
+cet_test(Handle_concepts_t USE_CATCH2_MAIN LIBRARIES PRIVATE art::Framework_Principal)
 
