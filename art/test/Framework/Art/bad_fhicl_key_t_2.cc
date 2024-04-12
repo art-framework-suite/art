@@ -2,11 +2,14 @@
 
 #include <concepts>
 
-struct inconvertible{};
+struct inconvertible {};
 
-int main() {
+int
+main()
+{
   inconvertible i;
   inconvertible i_2;
-  std::string name {"name"};
-  art::detail::fhicl_key<std::string, inconvertible, inconvertible>(name, i, i_2);
+  std::string name{"name"};
+  art::detail::fhicl_key<std::string, inconvertible, inconvertible>(
+    name, i, i_2);
 }

@@ -2,9 +2,11 @@
 
 #include <concepts>
 
-struct inconvertible{};
+struct inconvertible {};
 
-int main() {
+int
+main()
+{
   inconvertible i;
   art::detail::fhicl_key<inconvertible>(i);
 }
