@@ -1,8 +1,10 @@
 #define BOOST_TEST_MODULE (fhicl_key test)
 #include "art/Framework/Art/detail/fhicl_key.h"
 #include "boost/test/unit_test.hpp"
+#include "boost/concept/assert.hpp"
 
 #include <string>
+#include <concepts>
 
 using namespace std::string_literals;
 using art::detail::fhicl_key;

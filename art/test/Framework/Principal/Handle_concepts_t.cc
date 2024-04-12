@@ -1,8 +1,6 @@
 #include "art/Framework/Principal/Handle.h"
 #include <catch2/catch_test_macros.hpp>
 
-#include <concepts>
-
 struct not_a_handle{};
 
 struct valid_handle{

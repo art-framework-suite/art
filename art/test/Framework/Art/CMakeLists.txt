@@ -1,3 +1,4 @@
+include(CetTest)
 cet_test(artapp_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Framework_Art)
 cet_test(artapp_basicSourceOptions_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Framework_Art)
 cet_test(event_start_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Framework_Art)
@@ -664,3 +665,12 @@ cet_test(MaxThreadsSpecified_t5 HANDBUILT
   TEST_PROPERTIES ENVIRONMENT OMP_NUM_THREADS=3
   PASS_REGULAR_EXPRESSION
   "TBB has been configured to use.*a maximum of 3 threads")
+
+cet_test(bad_fhicl_key_t COMPILE_ONLY LIBRARIES PRIVATE art::Framework_Art
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "no known conversion for argument 1 from ‘const inconvertible’ to ‘const std::__cxx11::basic_string<char>&’")
+cet_test(bad_fhicl_key_t_2 COMPILE_ONLY LIBRARIES PRIVATE art::Framework_Art
+  TEST_PROPERTIES
+  PASS_REGULAR_EXPRESSION "constraints not satisfied")
+
+
