@@ -131,14 +131,14 @@ art::operator<<(std::ostream& os, MixHelper::Mode const mode)
   switch (mode) {
   case MixHelper::Mode::SEQUENTIAL:
     return os << "SEQUENTIAL";
+  case MixHelper::Mode::RANDOM_OFFSET:
+    return os << "RANDOM_OFFSET";
   case MixHelper::Mode::RANDOM_REPLACE:
     return os << "RANDOM_REPLACE";
   case MixHelper::Mode::RANDOM_LIM_REPLACE:
     return os << "RANDOM_LIM_REPLACE";
   case MixHelper::Mode::RANDOM_NO_REPLACE:
     return os << "RANDOM_NO_REPLACE";
-  case MixHelper::Mode::UNKNOWN:
-    return os << "UNKNOWN";
     // No default so compiler can warn.
   }
   return os;
@@ -190,6 +190,27 @@ art::MixHelper::createEngine(seed_t const seed,
 }
 
 bool
+art::MixHelper::overThreshold_(size_t const nSecondaries,
+                               size_t const nEventsInFile) const
+{
+  switch (readMode_) {
+  case Mode::SEQUENTIAL:
+    [[fallthrough]];
+  case Mode::RANDOM_OFFSET:
+    [[fallthrough]];
+  case Mode::RANDOM_NO_REPLACE:
+    return nEventsReadThisFile_ + nSecondaries > nEventsInFile;
+  case Mode::RANDOM_REPLACE:
+    [[fallthrough]];
+  case Mode::RANDOM_LIM_REPLACE:
+    return nEventsReadThisFile_ + nSecondaries >
+           nEventsInFile * coverageFraction_;
+  }
+  assert(false); // unreachable
+  return false;
+}
+
+bool
 art::MixHelper::generateEventSequence(size_t const nSecondaries,
                                       EntryNumberSequence& enSeq,
                                       EventIDSequence& eIDseq)
@@ -201,12 +222,7 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
   }
 
   auto const nEventsInFile = ioHandle_->nEventsInFile();
-  bool const over_threshold =
-    (readMode_ == Mode::SEQUENTIAL || readMode_ == Mode::RANDOM_NO_REPLACE) ?
-      ((nEventsReadThisFile_ + nSecondaries) > nEventsInFile) :
-      ((nEventsReadThisFile_ + nSecondaries) >
-       (nEventsInFile * coverageFraction_));
-  if (over_threshold) {
+  if (overThreshold_(nSecondaries, nEventsInFile)) {
     if (!providerFunc_) {
       ++nOpensOverThreshold_;
       if (nOpensOverThreshold_ > filenames_.size()) {
@@ -215,11 +231,13 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
                         "the current event.\n"}
           << "The number of requested secondaries (" << nSecondaries
           << ") exceeds the number of events in any\n"
-          << "of the files specified for product mixing.  For a read mode of '"
+          << "of the files specified for product mixing.  For a read mode of "
+             "'"
           << readMode_ << "',\n"
           << "the framework does not currently allow product-mixing to span "
              "multiple secondary\n"
-          << "input files for a given event.  Please contact artists@fnal.gov "
+          << "input files for a given event.  Please contact "
+             "artists@fnal.gov "
              "for more information.\n";
       }
     }
@@ -233,13 +251,15 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
   nOpensOverThreshold_ = {};
   switch (readMode_) {
   case Mode::SEQUENTIAL:
+    [[fallthrough]];
+  case Mode::RANDOM_OFFSET:
     enSeq.resize(nSecondaries);
     std::iota(begin(enSeq), end(enSeq), nEventsReadThisFile_);
     break;
   case Mode::RANDOM_REPLACE:
     std::generate_n(
       std::back_inserter(enSeq), nSecondaries, [this, nEventsInFile] {
-        return dist_.get()->fireInt(nEventsInFile);
+        return dist_->fireInt(nEventsInFile);
       });
     std::sort(enSeq.begin(), enSeq.end());
     break;
@@ -250,7 +270,7 @@ art::MixHelper::generateEventSequence(size_t const nSecondaries,
       std::generate_n(
         std::inserter(entries, entries.begin()),
         nSecondaries - entries.size(),
-        [this, nEventsInFile] { return dist_.get()->fireInt(nEventsInFile); });
+        [this, nEventsInFile] { return dist_->fireInt(nEventsInFile); });
     }
     enSeq.assign(cbegin(entries), cend(entries));
     std::sort(begin(enSeq), end(enSeq));
@@ -367,8 +387,9 @@ art::MixHelper::initReadMode_(std::string const& mode) const -> Mode
 {
   // These regexes must correspond by index to the valid Mode enumerator
   // values.
-  static std::regex const robjs[4]{
+  static std::regex const robjs[5]{
     std::regex("^seq", std::regex_constants::icase),
+    std::regex("^randomoffset$", std::regex_constants::icase),
     std::regex("^random(replace)?$", std::regex_constants::icase),
     std::regex("^randomlimreplace$", std::regex_constants::icase),
     std::regex("^randomnoreplace$", std::regex_constants::icase)};
@@ -384,9 +405,23 @@ art::MixHelper::initReadMode_(std::string const& mode) const -> Mode
     << "Unrecognized value of readMode parameter: \"" << mode
     << "\". Valid values are:\n"
     << "  sequential,\n"
+    << "  randomOffset,\n"
     << "  randomReplace (random is accepted for reasons of legacy),\n"
     << "  randomLimReplace,\n"
     << "  randomNoReplace.\n";
+}
+
+size_t
+art::MixHelper::eventOffset_(size_t nEventsInFile)
+{
+  if (readMode_ == Mode::SEQUENTIAL && eventsToSkip_) {
+    return eventsToSkip_();
+  }
+  if (readMode_ == Mode::RANDOM_OFFSET and not randomOffsetUsed_) {
+    randomOffsetUsed_ = true;
+    return dist_->fireInt(nEventsInFile);
+  }
+  return 0;
 }
 
 bool
@@ -416,10 +451,8 @@ art::MixHelper::openNextFile_()
     }
     filename = *fileIter_;
   }
-  nEventsReadThisFile_ = (readMode_ == Mode::SEQUENTIAL && eventsToSkip_) ?
-                           eventsToSkip_() :
-                           0; // Reset for this file.
   ioHandle_->openAndReadMetaData(filename, mixOps_);
+  nEventsReadThisFile_ = eventOffset_(ioHandle_->nEventsInFile());
 
   eventIDIndex_ = buildEventIDIndex(ioHandle_->fileIndex());
   auto transMap = buildProductIDTransMap(mixOps_);
