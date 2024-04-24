@@ -261,7 +261,23 @@ namespace art {
       fhicl::Atom<bool> compactMissingProducts{
         fhicl::Name{"compactMissingProducts"},
         false};
-      fhicl::Atom<std::string> readMode{fhicl::Name{"readMode"}, "sequential"};
+      fhicl::Atom<std::string> readMode{
+        fhicl::Name{"readMode"},
+        fhicl::Comment{R"(The readMode parameter specifies how secondary events
+should be chosen from each file.  Valid values are:
+
+  - "sequential" (default)
+       read the secondary events in order
+  - "randomOffset"
+       sequential but starting from a random location in the file
+  - "randomReplace"
+       random with replacement
+  - "randomLimReplace"
+       events unique within a primary event
+  - "randomNoReplace"
+       events guaranteed to be used once only
+)"},
+        "sequential"};
       fhicl::Atom<double> coverageFraction{fhicl::Name{"coverageFraction"},
                                            1.0};
       fhicl::Atom<bool> wrapFiles{fhicl::Name{"wrapFiles"}, false};
