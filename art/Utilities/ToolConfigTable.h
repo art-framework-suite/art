@@ -25,7 +25,7 @@ namespace art {
     };
   };
 
-  template <typename UserConfig, typename UserKeysToIgnore = void>
+  template <typename UserConfig, typename... UserKeysToIgnore>
   class ToolConfigTable : public fhicl::ConfigurationTable {
   public:
     ToolConfigTable(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
@@ -56,10 +56,9 @@ namespace art {
       fhicl::TableFragment<T> user;
     };
 
-    using KeysToIgnore_t = std::conditional_t<
-      std::is_void<UserKeysToIgnore>::value,
-      MinimalToolConfig::KeysToIgnore,
-      fhicl::KeysToIgnore<MinimalToolConfig::KeysToIgnore, UserKeysToIgnore>>;
+    using KeysToIgnore_t =
+      fhicl::KeysToIgnore<typename MinimalToolConfig::KeysToIgnore,
+                          UserKeysToIgnore...>;
 
     fhicl::Table<FullConfig<UserConfig>, KeysToIgnore_t> fullConfig_;
     cet::exempt_ptr<fhicl::detail::ParameterBase const>

@@ -232,7 +232,7 @@ namespace art {
         TDEBUG_END_FUNC_SI(4, scheduleID);
         return;
       }
-      auto pathsDoneTask = std::make_shared<WaitingTask>(
+      auto pathsDoneTask = make_waiting_task(
         PathsDoneTask{this, endPathTask, event_principal, taskGroup_},
         triggerPathsInfo_.paths().size());
       for (auto& path : triggerPathsInfo_.paths()) {

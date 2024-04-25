@@ -33,7 +33,7 @@ namespace art {
 namespace art::detail {
   class Analyzer : public Observer {
   public:
-    template <typename UserConfig, typename UserKeysToIgnore = void>
+    template <typename UserConfig, typename... UserKeysToIgnore>
     class Table : public fhicl::ConfigurationTable {
       template <typename T>
       struct FullConfig {
@@ -42,10 +42,9 @@ namespace art::detail {
         fhicl::TableFragment<T> user;
       };
 
-      using KeysToIgnore_t = std::conditional_t<
-        std::is_void<UserKeysToIgnore>::value,
-        ModuleConfig::IgnoreKeys,
-        fhicl::KeysToIgnore<ModuleConfig::IgnoreKeys, UserKeysToIgnore>>;
+      using KeysToIgnore_t =
+        fhicl::KeysToIgnore<typename ModuleConfig::IgnoreKeys,
+                            UserKeysToIgnore...>;
 
     public:
       explicit Table(fhicl::Name&& name) : fullConfig_{std::move(name)} {}
