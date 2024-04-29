@@ -24,13 +24,6 @@ struct test_struct {
   }
 };
 
-template <typename T, typename CONTAINER>
-concept can_create = requires {
-                       {
-                         can_get_product_id<T, CONTAINER>
-                       };
-                     };
-
 TEST_CASE("create() concept enforcement")
 {
   std::string const& instance = "instance";

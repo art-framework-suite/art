@@ -85,7 +85,5 @@ TEST_CASE("concatContainers() on invalid custom containers")
 
 TEST_CASE("concatContainers() on std::containers with no `insert()` function")
 {
-  // CHECK_FALSE(can_concat<std::queue<int>, std::queue<int>>);
-  // CHECK_FALSE(can_concat<std::stack<int>, std::stack<int>>);
   CHECK_FALSE(can_concat<std::array<int, 1>, std::array<int, 1>>);
 }
