@@ -1,4 +1,4 @@
-# include(cetTest)
+include(CetTest)
 find_package(Catch2 REQUIRED)
 
 foreach(test Closed Open)
@@ -33,4 +33,4 @@ cet_test(Selector_t USE_BOOST_UNIT
 
 cet_test(Handle_concepts_t USE_CATCH2_MAIN LIBRARIES PRIVATE art::Framework_Principal)
 
-cet_test(SummedValue_t COMPILE_ONLY LIBRARIES PRIVATE art::Framework_Principal PROPERTIES PASS_REGULAR_EXPRESSION "required for the satisfaction of \'is_a_handle<H>\'")
+cet_test(SummedValue_t COMPILE_ONLY LIBRARIES PRIVATE art::Framework_Principal TEST_PROPERTIES PASS_REGULAR_EXPRESSION "required for the satisfaction of ‘is_a_handle<H>’")
