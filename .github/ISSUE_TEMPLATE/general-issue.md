@@ -10,5 +10,4 @@ assignees: ''
 **Describe your request or issue**
 A concise and clear description of your request or issue.
 
-**If this is a high-priority issue**
-Please add the "high priority" label to this issue.
+**Is this a high-priority issue?**
