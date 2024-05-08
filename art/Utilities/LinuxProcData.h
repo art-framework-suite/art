@@ -97,8 +97,7 @@ namespace art {
       return proc_tuple{vsize_t{vsize}, rss_t{rss}};
     }
 
-    template <typename T>
-      requires(std::derived_from<T, proc_type>)
+    template <std::derived_from<proc_type> T>
     static double getValueInMB(proc_tuple const& t)
     {
       // Info from proc is in bytes; convert to base-10 MB.

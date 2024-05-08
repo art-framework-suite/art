@@ -1,4 +1,5 @@
 add_subdirectory(tools)
+include(CetTest)
 
 # Note we are linking to each tool's interface target, not the tool
 # itself (which is a plugin).
@@ -27,3 +28,4 @@ cet_test(pointersEqual_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
 cet_test(ScheduleID_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
 cet_test(parent_path_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
 cet_test(remove_whitespace_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
+cet_test(LinuxProcData_t COMPILE_ONLY LIBRARIES PRIVATE art::Utilities)
