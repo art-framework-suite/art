@@ -98,7 +98,8 @@ namespace art {
     }
 
     template <std::derived_from<proc_type> T>
-    static double getValueInMB(proc_tuple const& t)
+    static double
+    getValueInMB(proc_tuple const& t)
     {
       // Info from proc is in bytes; convert to base-10 MB.
       return std::get<T>(t).value / MB;
