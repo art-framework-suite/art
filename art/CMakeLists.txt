@@ -25,7 +25,7 @@ function(make_simple_builder NAME)
 endfunction()
 
 find_package(Boost COMPONENTS date_time graph program_options regex REQUIRED EXPORT)
-find_package(Boost COMPONENTS filesystem headers thread unit_test_framework json REQUIRED)
+find_package(Boost COMPONENTS filesystem thread unit_test_framework json REQUIRED)
 find_package(CLHEP COMPONENTS Random Vector REQUIRED EXPORT)
 find_package(Range-v3 REQUIRED)
 find_package(TBB REQUIRED EXPORT)

@@ -1,6 +1,8 @@
 #include "art/Framework/IO/Sources/detail/FileServiceProxy.h"
 #include "art/Framework/Services/FileServiceInterfaces/FileDisposition.h"
 
+#include <cassert>
+
 art::detail::FileServiceProxy::FileServiceProxy(
   std::vector<std::string>&& fileNames,
   size_t const attempts,

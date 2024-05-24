@@ -545,7 +545,7 @@ namespace art {
             string checkString("{ ");
             checkString +=
               cet::canonical_string(entry.first) + " : " + entry.second + " }";
-            boost::json::error_code ec;
+            boost::system::error_code ec;
             boost::json::parser p;
             auto const n_parsed_chars = p.write_some(checkString, ec);
             if (ec) {

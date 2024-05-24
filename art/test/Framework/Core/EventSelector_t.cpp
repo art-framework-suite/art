@@ -3,6 +3,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 
+#include <cassert>
 #include <iostream>
 #include <string>
 #include <vector>
