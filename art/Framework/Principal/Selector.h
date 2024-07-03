@@ -34,6 +34,7 @@
 #include "art/Framework/Principal/SelectorBase.h"
 #include "canvas/Persistency/Provenance/BranchDescription.h"
 
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <string>

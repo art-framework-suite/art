@@ -310,9 +310,9 @@ art::detail::verify_in_order_dependencies(
     // we have already guaranteed that there are no interpath
     // dependencies.
     auto const& first_path_for_module = *cbegin(module_paths);
-    auto const& path_it = std::find_if(trigger_paths.cbegin(),
-                                       trigger_paths.cend(),
-                                       path_matches{first_path_for_module});
+    auto const path_it = std::find_if(trigger_paths.cbegin(),
+                                      trigger_paths.cend(),
+                                      path_matches{first_path_for_module});
     assert(path_it != trigger_paths.cend());
     auto const begin = cbegin(path_it->second);
     auto const end = cend(path_it->second);
