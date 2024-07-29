@@ -2,6 +2,7 @@
 #define art_Framework_Core_ProcessingLimits_h
 
 #include "art/Framework/Core/InputSource.h"
+#include "art/Utilities/bounded_decrementer.h"
 #include "canvas/Persistency/Provenance/fwd.h"
 #include "fhiclcpp/types/Atom.h"
 
@@ -16,8 +17,10 @@ namespace art {
       {
         return "RunsSubRunsAndEvents";
       }
-      fhicl::Atom<int> maxEvents{fhicl::Name("maxEvents"), -1};
-      fhicl::Atom<int> maxSubRuns{fhicl::Name("maxSubRuns"), -1};
+      fhicl::Atom<int> maxEvents{fhicl::Name("maxEvents"),
+                                 bounded_decrementer::unlimited()};
+      fhicl::Atom<int> maxSubRuns{fhicl::Name("maxSubRuns"),
+                                  bounded_decrementer::unlimited()};
       fhicl::Atom<int> reportFrequency{fhicl::Name("reportFrequency"), 1};
       fhicl::Atom<std::string> processingMode{fhicl::Name("processingMode"),
                                               defaultMode()};
@@ -45,8 +48,8 @@ namespace art {
 
     InputSource::ProcessingMode processingMode_{
       InputSource::RunsSubRunsAndEvents};
-    int remainingEvents_;
-    int remainingSubRuns_;
+    bounded_decrementer remainingEvents_;
+    bounded_decrementer remainingSubRuns_;
     int reportFrequency_;
     int numberOfEventsRead_{};
     std::function<input::ItemType()> nextItemType_;

@@ -33,6 +33,7 @@
 #include "art/Utilities/TaskDebugMacros.h"
 #include "art/Utilities/Transition.h"
 #include "art/Utilities/UnixSignalHandlers.h"
+#include "art/Utilities/bounded_decrementer.h"
 #include "art/Version/GetReleaseVersion.h"
 #include "canvas/Persistency/Provenance/ParentageRegistry.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
@@ -188,7 +189,8 @@ namespace art {
       ParameterSet main_input;
       main_input.put("module_type", "EmptyEvent");
       main_input.put("module_label", "source");
-      main_input.put("maxEvents", -1);
+      main_input.put("maxEvents",
+                     static_cast<int>(bounded_decrementer::unlimited()));
       if (!pset.get_if_present("source", main_input)) {
         mf::LogInfo("EventProcessorSourceConfig")
           << "Could not find a source configuration: using default.";

@@ -56,17 +56,13 @@ namespace art {
   void
   ProcessingLimits::update(SubRunID const&)
   {
-    if (remainingSubRuns_ > 0) {
-      --remainingSubRuns_;
-    }
+    --remainingSubRuns_;
   }
 
   void
   ProcessingLimits::update(EventID const& id)
   {
-    if (remainingEvents_ > 0) {
-      --remainingEvents_;
-    }
+    --remainingEvents_;
     ++numberOfEventsRead_;
     if ((reportFrequency_ > 0) && !(numberOfEventsRead_ % reportFrequency_)) {
       detail::issue_reports(numberOfEventsRead_, id);
