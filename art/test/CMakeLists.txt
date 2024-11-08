@@ -8,7 +8,7 @@ cet_test_env_prepend(CET_PLUGIN_PATH ${TRANSITIVE_PATHS_WITH_LIBRARY_DIR})
 find_package(Boost COMPONENTS filesystem graph REQUIRED)
 find_package(Catch2 REQUIRED)
 find_package(canvas REQUIRED EXPORT)
-find_package(cetlib REQUIRED)
+find_package(cetlib 3.20.00 REQUIRED) # For cetlib::filter-output
 find_package(fhiclcpp REQUIRED)
 find_package(hep_concurrency REQUIRED)
 find_package(messagefacility REQUIRED)
@@ -30,6 +30,7 @@ function(config_ref_test TNAME)
     TEST_ARGS ../${TNAME}_w.d/config.out
     DATAFILES ${TNAME}-ref.txt
     REF ${TNAME}-ref.txt
+    OUTPUT_FILTERS cetlib::filter-output
     REQUIRED_FILES ../${TNAME}_w.d/config.out
     TEST_PROPERTIES DEPENDS ${TNAME}_w
     ${ARGN}

@@ -40,7 +40,9 @@ cet_test(BasicOptions_02_t HANDBUILT
 
 cet_test(BasicOptions_03_t
   LIBRARIES art_Framework_Art
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/BasicOptions_03-ref.txt")
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/BasicOptions_03-ref.txt"
+  OUTPUT_FILTERS cetlib::filter-output
+)
 
 ####################################
 # Test --config-summary
@@ -49,7 +51,9 @@ foreach(VERBOSITY IN ITEMS brief detailed full)
     TEST_EXEC art
     TEST_ARGS -c config-summary.fcl --config-summary=${VERBOSITY}
     DATAFILES fcl/config-summary.fcl
-    REF "${CMAKE_CURRENT_SOURCE_DIR}/config_summary_${VERBOSITY}-ref.txt")
+    REF "${CMAKE_CURRENT_SOURCE_DIR}/config_summary_${VERBOSITY}-ref.txt"
+    OUTPUT_FILTERS cetlib::filter-output
+  )
 endforeach()
 
 add_subdirectory(PrintAvailable)
@@ -87,7 +91,7 @@ cet_test(BasicOutputOptions_04_w HANDBUILT
     --debug-config=config.out)
 config_test_debug_pass(BasicOutputOptions_04_w)
 config_ref_test(BasicOutputOptions_04
-  OUTPUT_FILTERS DEFAULT ${filterOutputModule})
+  OUTPUT_FILTERS ${filterOutputModule})
 
 # Should pass -- simple.
 cet_test(BasicOutputOptions_05_w HANDBUILT
@@ -188,7 +192,7 @@ cet_test(BasicOutputOptions_15_w HANDBUILT
   DATAFILES fcl/multiout.fcl)
 config_test_debug_pass(BasicOutputOptions_15_w)
 config_ref_test(BasicOutputOptions_15
-  OUTPUT_FILTERS DEFAULT ${filterOutputModule})
+  OUTPUT_FILTERS ${filterOutputModule})
 
 # Should fail -- command-line multi-out with late no-stream spec.
 cet_test(BasicOutputOptions_16_w HANDBUILT
@@ -395,7 +399,7 @@ config_test_debug_pass(FileCatalogOptions_05_w)
 
 # Compare output from FileCatalogOptions_05_w against reference.
 config_ref_test(FileCatalogOptions_05
-  OUTPUT_FILTERS DEFAULT ${filterOutputModule})
+  OUTPUT_FILTERS ${filterOutputModule})
 
 # Should pass and provide config output file for comparison in
 # FileCatalogOptions_06_r.
@@ -417,7 +421,7 @@ config_test_debug_pass(FileCatalogOptions_06_w)
 
 # Compare output from FileCatalogOptions_06_w against reference.
 config_ref_test(FileCatalogOptions_06
-  OUTPUT_FILTERS DEFAULT ${filterOutputModule})
+  OUTPUT_FILTERS ${filterOutputModule})
 
 # Should pass and provide config output file for comparison in
 # FileCatalogOptions_07_r.
@@ -440,7 +444,7 @@ config_test_debug_pass(FileCatalogOptions_07_w)
 
 # Compare output from FileCatalogOptions_07_w against reference.
 config_ref_test(FileCatalogOptions_07
-  OUTPUT_FILTERS DEFAULT ${filterOutputModule})
+  OUTPUT_FILTERS ${filterOutputModule})
 
 # Should pass and provide config output file for comparison in
 # FileCatalogOptions_08_r.
@@ -591,7 +595,7 @@ config_test_debug_pass(FileCatalogOptions_14_w)
 
 # Compare output from FileCatalogOptions_14_w against reference.
 config_ref_test(FileCatalogOptions_14
-  OUTPUT_FILTERS DEFAULT ${filterOutputModule})
+  OUTPUT_FILTERS ${filterOutputModule})
 
 # Should all fail due to conflicting options
 cet_test(FileCatalogOptions_15 HANDBUILT

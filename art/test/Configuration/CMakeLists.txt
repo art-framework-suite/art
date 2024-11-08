@@ -10,7 +10,7 @@ cet_test(BasicOutputOptions_01_w HANDBUILT
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "\\*\\* Config output to file")
 config_ref_test(BasicOutputOptions_01
- OUTPUT_FILTERS DEFAULT ${filterOutputModule})
+ OUTPUT_FILTERS ${filterOutputModule})
 
 # Specified stream name with empty outputs.
 cet_test(BasicOutputOptions_12_w HANDBUILT
@@ -23,7 +23,7 @@ cet_test(BasicOutputOptions_12_w HANDBUILT
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "Config output to file")
 config_ref_test(BasicOutputOptions_12
- OUTPUT_FILTERS DEFAULT ${filterOutputModule})
+ OUTPUT_FILTERS ${filterOutputModule})
 ########################################################################
 
 # Must make sure that excluded paths that share modules with
