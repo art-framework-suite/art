@@ -106,7 +106,7 @@ X
 
 include_guard()
 
-cmake_minimum_required(VERSION 3.14...3.27 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14...3.31 FATAL_ERROR)
 
 include(BuildPlugins)
 include(CetCMakeUtils)
