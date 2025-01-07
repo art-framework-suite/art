@@ -82,5 +82,5 @@ foreach(config IN LISTS config_files)
   TEST_ARGS ${config}
   DATAFILES
   ${config}
-  OPTIONAL_GROUPS data-dependencies)
+  OPTIONAL_GROUPS DEFAULT RELEASE data-dependencies)
 endforeach()
