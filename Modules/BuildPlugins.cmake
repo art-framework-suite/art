@@ -36,9 +36,6 @@ set(_simple_plugin_target_list cetlib_except::cetlib_except hep_concurrency::hep
   cetlib::cetlib fhiclcpp::fhiclcpp messagefacility::MF_MessageLogger
   canvas::canvas art::Framework_Core canvas_root_io::canvas_root_io
   art_root_io::art_root_io ROOT::Core)
-set(_simple_plugin_var_list CETLIB_EXCEPT HEP_CONCURRENCY CETLIB FHICLCPP
-  MF_MESSAGELOGGER CANVAS ART_FRAMEWORK_CORE CANVAS_ROOT_IO ART_ROOT_IO
-  ROOT_CORE_LIBRARY)
 
 find_package(messagefacility QUIET)
 if (messagefacility_FOUND)
@@ -51,17 +48,15 @@ endif()
 
 # Simple plugin libraries - art suite packages are found automatically.
 macro(simple_plugin NAME SUFFIX)
-  foreach (_sp_pkg _sp_tgt _sp_var IN ZIP_LISTS
+  foreach (_sp_pkg _sp_tgt IN ZIP_LISTS
       _simple_plugin_pkg_list
-      _simple_plugin_target_list
-      _simple_plugin_var_list)
-    if (NOT (TARGET ${_sp_tgt} OR _sp_var))
+      _simple_plugin_target_list)
+    if (NOT TARGET ${_sp_tgt})
       find_package(${_sp_pkg} QUIET REQUIRED)
     endif()
   endforeach()
   unset(_sp_pkg)
   unset(_sp_tgt)
-  unset(_sp_var)
   build_plugin(${ARGV})
 endmacro()
 
