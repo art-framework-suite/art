@@ -17,6 +17,9 @@ find_package(cetmodules 2.13.00 REQUIRED)
 project(art VERSION 3.15.00 LANGUAGES CXX C)
 
 include(CetCMakeEnv)
+include(SetCompilerFlags)
+include(CetCMakeConfig)
+
 cet_cmake_env()
 
 # Find our own CMake modules, and tell everyone else where to find them.
