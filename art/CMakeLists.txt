@@ -1,5 +1,7 @@
 include(BasicPlugin)
+include(CetMakeLibrary)
 include(CetMakeCompletions)
+include(CetRegisterExportSet)
 
 set(dest_subdir Modules)
 
