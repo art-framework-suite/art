@@ -2,6 +2,8 @@ include(BasicPlugin)
 include(CetMakeLibrary)
 include(CetMakeCompletions)
 include(CetRegisterExportSet)
+include(InstallHeaders)
+include(InstallSource)
 
 set(dest_subdir Modules)
 

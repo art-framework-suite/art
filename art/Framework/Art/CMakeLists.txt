@@ -1,3 +1,5 @@
+include(CetMake)
+
 # Configure file to handle differences for Mac.
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/check_libs.cc.in
   ${CMAKE_CURRENT_BINARY_DIR}/check_libs.cc @ONLY)
