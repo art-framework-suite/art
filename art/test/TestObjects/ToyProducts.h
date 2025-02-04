@@ -115,7 +115,7 @@ namespace arttest {
 
   struct StringProduct {
     StringProduct() = default;
-    explicit StringProduct(const std::string& s) : name_(s) {}
+    explicit StringProduct(std::string const& s) : name_(s) {}
     void
     aggregate(StringProduct const&)
     {}

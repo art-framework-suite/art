@@ -44,19 +44,19 @@ namespace art {
     opt_type mmap_thr_{};
 
     bool
-    operator==(const MallocOpts& opts) const noexcept
+    operator==(MallocOpts const& opts) const noexcept
     {
       return mmap_max_ == opts.mmap_max_ && trim_thr_ == opts.trim_thr_ &&
              top_pad_ == opts.top_pad_ && mmap_thr_ == opts.mmap_thr_;
     }
     bool
-    operator!=(const MallocOpts& opts) const noexcept
+    operator!=(MallocOpts const& opts) const noexcept
     {
       return !operator==(opts);
     }
   };
 
-  std::ostream& operator<<(std::ostream& ost, const MallocOpts&);
+  std::ostream& operator<<(std::ostream& ost, MallocOpts const&);
 
   class MallocOptionSetter {
   public:

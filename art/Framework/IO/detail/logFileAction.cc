@@ -6,7 +6,7 @@
 #include <ctime>
 
 void
-art::detail::logFileAction(const char* msg, std::string const& file)
+art::detail::logFileAction(char const* msg, std::string const& file)
 {
   time_t t = time(0);
   char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";

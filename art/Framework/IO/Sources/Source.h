@@ -265,7 +265,7 @@ namespace art {
 
     // Throw an Exception(errors::DataCorruption), with the given
     // message text.
-    [[noreturn]] static void throwDataCorruption_(const char* msg);
+    [[noreturn]] static void throwDataCorruption_(char const* msg);
 
     ProductRegistryHelper h_{product_creation_mode::reconstitutes};
     UpdateOutputCallbacks& outputCallbacks_;
@@ -330,7 +330,7 @@ namespace art {
 
   template <typename T>
   void
-  Source<T>::throwDataCorruption_(const char* msg)
+  Source<T>::throwDataCorruption_(char const* msg)
   {
     throw Exception(errors::DataCorruption) << msg;
   }

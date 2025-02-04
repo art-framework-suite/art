@@ -15,7 +15,7 @@
 namespace art {
   // defined herein:
   class GroupSelector;
-  std::ostream& operator<<(std::ostream& os, const GroupSelector& gs);
+  std::ostream& operator<<(std::ostream& os, GroupSelector const& gs);
 
   // used herein:
   class GroupSelectorRules;
