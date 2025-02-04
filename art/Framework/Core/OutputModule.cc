@@ -540,8 +540,8 @@ namespace art {
         FileCatalogMetadata::collection_type tmp = plugin->doProduceMetadata();
         ssmd.reserve(tmp.size() + ssmd.size());
         for (auto&& entry : tmp) {
-          if (ServiceHandle<FileCatalogMetadata const> {}
-              -> wantCheckSyntax()) {
+          if (ServiceHandle<FileCatalogMetadata const> {
+              } -> wantCheckSyntax()) {
             string checkString("{ ");
             checkString +=
               cet::canonical_string(entry.first) + " : " + entry.second + " }";
@@ -576,7 +576,7 @@ namespace art {
     FileCatalogMetadata::collection_type md;
     ServiceHandle<FileCatalogMetadata const>
     {
-      } -> getMetadata(md);
+    } -> getMetadata(md);
     if (!dataTier_.empty()) {
       md.emplace_back("data_tier", cet::canonical_string(dataTier_));
     }

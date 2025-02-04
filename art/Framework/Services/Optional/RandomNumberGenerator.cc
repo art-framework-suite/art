@@ -83,7 +83,7 @@ namespace art {
     engine_factory(string const& kind_of_engine_to_make, long const seed)
     {
 #define MANUFACTURE(ENGINE)                                                    \
-  if (kind_of_engine_to_make == string{#ENGINE}) {                             \
+  if (kind_of_engine_to_make == string { #ENGINE }) {                          \
     return manufacture_an_engine<CLHEP::ENGINE>(seed);                         \
   }
       MANUFACTURE(DRand48Engine)
