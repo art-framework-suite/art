@@ -33,4 +33,6 @@ cet_test(Selector_t USE_BOOST_UNIT
 
 cet_test(Handle_concepts_t USE_CATCH2_MAIN LIBRARIES PRIVATE art::Framework_Principal)
 
-cet_test(SummedValue_t COMPILE_ONLY LIBRARIES PRIVATE art::Framework_Principal TEST_PROPERTIES PASS_REGULAR_EXPRESSION "required for the satisfaction of ‘is_a_handle<H>’")
+set(open_quote "('|‘)")
+set(close_quote "('|’)")
+cet_test(SummedValue_t COMPILE_ONLY LIBRARIES PRIVATE art::Framework_Principal TEST_PROPERTIES PASS_REGULAR_EXPRESSION "required for the satisfaction of ${open_quote}is_a_handle<H>${close_quote}")
