@@ -174,8 +174,8 @@ namespace art {
     // Does the detail object have a method void startEvent()?
 
     template <typename T>
-    concept has_startEvent = requires(T t, Event& e) {
-      { t.startEvent(e) };
+    concept has_startEvent = requires(T t, Event const& e) {
+      { t.startEvent(e) } -> std::same_as<void>;
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -183,7 +183,7 @@ namespace art {
     //
     template <typename T>
     concept has_eventsToSkip = requires(T t) {
-      { t.eventsToSkip() };
+      { t.eventsToSkip() } -> std::same_as<size_t>;
     };
 
     ////////////////////////////////////////////////////////////////////
@@ -191,8 +191,8 @@ namespace art {
     // processEventIDs(EventIDSequence const&)?
 
     template <typename T>
-    concept has_processEventIDs = requires(T t, EventIDSequence& e) {
-      { t.processEventIDs(e) };
+    concept has_processEventIDs = requires(T t, EventIDSequence const& e) {
+      { t.processEventIDs(e) } -> std::same_as<void>;
     };
     ////////////////////////////////////////////////////////////////////
 
@@ -202,8 +202,8 @@ namespace art {
 
     template <typename T>
     concept has_processEventAuxiliaries =
-      requires(T t, EventAuxiliarySequence& e) {
-        { t.processEventAuxiliaries(e) };
+      requires(T t, EventAuxiliarySequence const& e) {
+        { t.processEventAuxiliaries(e) } -> std::same_as<void>;
       };
 
     ////////////////////////////////////////////////////////////////////
@@ -212,15 +212,15 @@ namespace art {
     // Does the detail object have a method void finalizeEvent(Event&)?
     template <typename T>
     concept has_finalizeEvent = requires(T t, Event& e) {
-      { t.finalizeEvent(e) };
+      { t.finalizeEvent(e) } -> std::same_as<void>;
     };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginSubRun(SubRun const&)?
     template <typename T>
-    concept has_beginSubRun = requires(T t, SubRun& s) {
-      { t.beginSubRun(s) };
+    concept has_beginSubRun = requires(T t, SubRun const& s) {
+      { t.beginSubRun(s) } -> std::same_as<void>;
     };
     ////////////////////////////////////////////////////////////////////
 
@@ -228,15 +228,15 @@ namespace art {
     // Does the detail object have a method void endSubRun(SubRun&)?
     template <typename T>
     concept has_endSubRun = requires(T t, SubRun& s) {
-      { t.endSubRun(s) };
+      { t.endSubRun(s) } -> std::same_as<void>;
     };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginRun(Run const&)?
     template <typename T>
-    concept has_beginRun = requires(T t, Run& r) {
-      { t.beginRun(r) };
+    concept has_beginRun = requires(T t, Run const& r) {
+      { t.beginRun(r) } -> std::same_as<void>;
     };
     ////////////////////////////////////////////////////////////////////
 
@@ -244,29 +244,29 @@ namespace art {
     // Does the detail object have a method void endRun(Run&)?
     template <typename T>
     concept has_endRun = requires(T t, Run& r) {
-      { t.endRun(r) };
+      { t.endRun(r) } -> std::same_as<void>;
     };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have respondToXXX methods()?
     template <typename T>
-    concept has_respondToOpenInputFile = requires(T t, FileBlock& fb) {
-      { t.respondToOpenInputFile(fb) };
+    concept has_respondToOpenInputFile = requires(T t, FileBlock const& fb) {
+      { t.respondToOpenInputFile(fb) } -> std::same_as<void>;
     };
 
     template <typename T>
-    concept has_respondToCloseInputFile = requires(T t, FileBlock& fb) {
-      { t.respondToCloseInputFile(fb) };
+    concept has_respondToCloseInputFile = requires(T t, FileBlock const& fb) {
+      { t.respondToCloseInputFile(fb) } -> std::same_as<void>;
     };
 
     template <typename T>
-    concept has_respondToOpenOutputFiles = requires(T t, FileBlock& fb) {
-      { t.respondToOpenOutputFiles(fb) };
+    concept has_respondToOpenOutputFiles = requires(T t, FileBlock const& fb) {
+      { t.respondToOpenOutputFiles(fb) } -> std::same_as<void>;
     };
     template <typename T>
-    concept has_respondToCloseOutputFiles = requires(T t, FileBlock& fb) {
-      { t.respondToCloseOutputFiles(fb) };
+    concept has_respondToCloseOutputFiles = requires(T t, FileBlock const& fb) {
+      { t.respondToCloseOutputFiles(fb) } -> std::same_as<void>;
     };
 
     ////////////////////////////////////////////////////////////////////

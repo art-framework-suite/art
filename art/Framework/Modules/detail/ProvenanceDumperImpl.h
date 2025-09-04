@@ -85,49 +85,49 @@ namespace art::detail {
   // void DETAIL::beginJob();
   template <typename T>
   concept maybe_beginJob = requires(T& t) {
-    { t.beginJob() };
+    { t.beginJob() } -> std::same_as<void>;
   };
 
   // void DETAIL::preProcessEvent();
   template <typename T>
   concept maybe_preProcessEvent = requires(T& t) {
-    { t.preProcessEvent() };
+    { t.preProcessEvent() } -> std::same_as<void>;
   };
 
   // void DETAIL::postProcessEvent();
   template <typename T>
   concept maybe_postProcessEvent = requires(T& t) {
-    { t.postProcessEvent() };
+    { t.postProcessEvent() } -> std::same_as<void>;
   };
 
   // void DETAIL::preProcessSubRun();
   template <typename T>
   concept maybe_preProcessSubRun = requires(T& t) {
-    { t.preProcessSubRun() };
+    { t.preProcessSubRun() } -> std::same_as<void>;
   };
 
   // void DETAIL::postProcessSubRun();
   template <typename T>
   concept maybe_postProcessSubRun = requires(T& t) {
-    { t.postProcessSubRun() };
+    { t.postProcessSubRun() } -> std::same_as<void>;
   };
 
   // void DETAIL::preProcessRun();
   template <typename T>
   concept maybe_preProcessRun = requires(T& t) {
-    { t.preProcessRun() };
+    { t.preProcessRun() } -> std::same_as<void>;
   };
 
   // void DETAIL::postProcessRun();
   template <typename T>
   concept maybe_postProcessRun = requires(T& t) {
-    { t.postProcessRun() };
+    { t.postProcessRun() } -> std::same_as<void>;
   };
 
   // void DETAIL::endJob();
   template <typename T>
   concept maybe_endJob = requires(T& t) {
-    { t.endJob() };
+    { t.endJob() } -> std::same_as<void>;
   };
   ////////////////////////////////////////////////////////////////////////
 
@@ -136,20 +136,22 @@ namespace art::detail {
 
   // void DETAIL::processEventProvenance(art:Provenance const &);
   template <typename T>
-  concept maybe_processEventPrincipal = requires(T& t, art::Provenance& p) {
-    { t.processEventProvenance(p) };
-  };
+  concept maybe_processEventPrincipal =
+    requires(T& t, art::Provenance const& p) {
+      { t.processEventProvenance(p) } -> std::same_as<void>;
+    };
 
   // void DETAIL::processSubRunProvenance(art:Provenance const &);
   template <typename T>
-  concept maybe_processSubRunPrincipal = requires(T& t, art::Provenance& p) {
-    { t.processSubRunProvenance(p) };
-  };
+  concept maybe_processSubRunPrincipal =
+    requires(T& t, art::Provenance const& p) {
+      { t.processSubRunProvenance(p) } -> std::same_as<void>;
+    };
 
   // void DETAIL::processRunProvenance(art:Provenance const &);
   template <typename T>
-  concept maybe_processRunPrincipal = requires(T& t, art::Provenance& p) {
-    { t.processRunProvenance(p) };
+  concept maybe_processRunPrincipal = requires(T& t, art::Provenance const& p) {
+    { t.processRunProvenance(p) } -> std::same_as<void>;
   };
 
   ////////////////////////////////////////////////////////////////////////
@@ -180,7 +182,7 @@ namespace art::detail {
         detail_.preProcessEvent();
       }
       if constexpr (maybe_processEventPrincipal<DETAIL>) {
-        pp_(e, &DETAIL::processEventProvenance);
+        std::as_const(pp_)(e, &DETAIL::processEventProvenance);
       }
       if constexpr (maybe_postProcessEvent<DETAIL>) {
         detail_.postProcessEvent();
@@ -194,7 +196,7 @@ namespace art::detail {
         detail_.preProcessSubRun();
       }
       if constexpr (maybe_processSubRunPrincipal<DETAIL>) {
-        pp_(sr, &DETAIL::processSubRunProvenance);
+        std::as_const(pp_)(sr, &DETAIL::processSubRunProvenance);
       }
       if constexpr (maybe_postProcessSubRun<DETAIL>) {
         detail_.postProcessSubRun();
@@ -208,7 +210,7 @@ namespace art::detail {
         detail_.preProcessRun();
       }
       if constexpr (maybe_processRunPrincipal<DETAIL>) {
-        pp_(r, &DETAIL::processRunProvenance);
+        std::as_const(pp_)(r, &DETAIL::processRunProvenance);
       }
       if constexpr (maybe_postProcessRun<DETAIL>) {
         detail_.postProcessRun();

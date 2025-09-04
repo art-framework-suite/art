@@ -79,24 +79,19 @@ namespace art {
     template <typename T>
     concept is_a_handle = requires { typename T::HandleTag; };
 
-    template <typename T, typename U>
-    concept are_both_handles = is_a_handle<T> && is_a_handle<U>;
   } // namespace detail
 
   template <detail::is_a_handle T>
   RangeSet const& range_of_validity(T const& h);
 
-  template <typename T, typename U>
-    requires(detail::are_both_handles<T, U>)
-  bool same_ranges(T const& a, T const& b);
+  template <detail::is_a_handle T, detail::is_a_handle U>
+  bool same_ranges(T const& a, U const& b);
 
-  template <typename T, typename U>
-    requires(detail::are_both_handles<T, U>)
-  bool disjoint_ranges(T const& a, T const& b);
+  template <detail::is_a_handle T, detail::is_a_handle U>
+  bool disjoint_ranges(T const& a, U const& b);
 
-  template <typename T, typename U>
-    requires(detail::are_both_handles<T, U>)
-  bool overlapping_ranges(T const& a, T const& b);
+  template <detail::is_a_handle T, detail::is_a_handle U>
+  bool overlapping_ranges(T const& a, U const& b);
 } // namespace art
 
 template <typename T>
@@ -433,8 +428,7 @@ art::range_of_validity(T const& h)
   return h.provenance()->rangeOfValidity();
 }
 
-template <class T, class U>
-  requires(art::detail::are_both_handles<T, U>)
+template <art::detail::is_a_handle T, art::detail::is_a_handle U>
 bool
 art::same_ranges(T const& a, U const& b)
 {
@@ -444,8 +438,7 @@ art::same_ranges(T const& a, U const& b)
   return same_ranges(range_of_validity(a), range_of_validity(b));
 }
 
-template <class T, class U>
-  requires(art::detail::are_both_handles<T, U>)
+template <art::detail::is_a_handle T, art::detail::is_a_handle U>
 bool
 art::disjoint_ranges(T const& a, U const& b)
 {
@@ -455,8 +448,7 @@ art::disjoint_ranges(T const& a, U const& b)
   return disjoint_ranges(range_of_validity(a), range_of_validity(b));
 }
 
-template <class T, class U>
-  requires(art::detail::are_both_handles<T, U>)
+template <art::detail::is_a_handle T, art::detail::is_a_handle U>
 bool
 art::overlapping_ranges(T const& a, U const& b)
 {
