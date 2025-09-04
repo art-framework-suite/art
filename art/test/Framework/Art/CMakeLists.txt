@@ -672,7 +672,7 @@ cet_test(MaxThreadsSpecified_t5 HANDBUILT
 
 cet_test(bad_fhicl_key_t COMPILE_ONLY LIBRARIES PRIVATE art::Framework_Art
   TEST_PROPERTIES
-  PASS_REGULAR_EXPRESSION "no known conversion for argument 1 from ‘const inconvertible’ to ‘const std::__cxx11::basic_string<char>&’")
+  PASS_REGULAR_EXPRESSION "constraints not satisfied")
 cet_test(bad_fhicl_key_t_2 COMPILE_ONLY LIBRARIES PRIVATE art::Framework_Art
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "constraints not satisfied")

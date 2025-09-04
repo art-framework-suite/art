@@ -11,9 +11,6 @@ namespace art::detail {
   template <typename T>
   concept valid_key_arg = std::convertible_to<T, std::string>;
 
-  template <typename... T>
-  concept valid_key_args = (std::convertible_to<T, std::string> && ...);
-
   template <valid_key_arg T>
   std::string
   fhicl_key(T const& name)
@@ -21,7 +18,7 @@ namespace art::detail {
     return name;
   }
 
-  template <typename H, valid_key_args... T>
+  template <valid_key_arg H, valid_key_arg... T>
   std::string
   fhicl_key(H const& hname, T const&... tnames)
   {
