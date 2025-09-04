@@ -19,6 +19,7 @@
 #include "hep_concurrency/WaitingTask.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include <cassert>
 #include <cstddef>
 #include <exception>
 #include <string>

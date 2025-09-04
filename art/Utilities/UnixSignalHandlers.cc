@@ -53,7 +53,7 @@ namespace art {
     }
 
     void
-    installSig(const int signum, my_sigaction_func_t func)
+    installSig(int const signum, my_sigaction_func_t func)
     {
       struct sigaction act;
       memset(&act, 0, sizeof(act));
@@ -100,7 +100,7 @@ namespace art {
     }
 
     void
-    installCustomHandler(const int signum, my_sigaction_func_t func)
+    installCustomHandler(int const signum, my_sigaction_func_t func)
     {
       sigset_t oldset;
       disableAllSigs(&oldset);

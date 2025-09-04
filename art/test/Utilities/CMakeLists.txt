@@ -26,6 +26,7 @@ cet_test(MallocOpts_t SOURCE MallocOpts_t.cpp
 
 cet_test(pointersEqual_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
 cet_test(ScheduleID_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
+cet_test(bounded_decrementer_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
 cet_test(parent_path_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
 cet_test(remove_whitespace_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fconcepts-diagnostics-depth=4")

@@ -13,5 +13,4 @@ Please provide the context of this feature request--i.e. what issue has motivate
 **Describe your feature request**
 A clear and concise description of the requested feature.  Please describe *what* you want the feature to provide rather than implementation details.
 
-**If this is a high-priority issue**
-Please add the "high priority" label to this issue.
+**Is this a high-priority issue?**

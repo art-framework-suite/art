@@ -60,7 +60,7 @@ GroupSelector::print(ostream& os) const
 // Associated free function
 
 ostream&
-art::operator<<(ostream& os, const GroupSelector& gs)
+art::operator<<(ostream& os, GroupSelector const& gs)
 {
   gs.print(os);
   return os;

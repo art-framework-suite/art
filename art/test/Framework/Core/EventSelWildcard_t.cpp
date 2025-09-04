@@ -5,6 +5,7 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 #include <bitset>
+#include <cassert>
 #include <iostream>
 #include <string>
 #include <vector>

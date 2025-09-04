@@ -26,6 +26,8 @@
 //   are:
 //
 //     sequential -- read the secondary events in order
+//     randomOffset -- sequential but starting from a random location
+//                     in the file
 //     randomReplace -- random with replacement
 //     randomLimReplace -- events unique within a primary event
 //     randomNoReplace -- events guaranteed to be used once only.
@@ -248,10 +250,10 @@ namespace art {
   public:
     enum class Mode {
       SEQUENTIAL = 0,
+      RANDOM_OFFSET,
       RANDOM_REPLACE,
       RANDOM_LIM_REPLACE,
-      RANDOM_NO_REPLACE,
-      UNKNOWN
+      RANDOM_NO_REPLACE
     };
 
     struct Config {
@@ -259,7 +261,23 @@ namespace art {
       fhicl::Atom<bool> compactMissingProducts{
         fhicl::Name{"compactMissingProducts"},
         false};
-      fhicl::Atom<std::string> readMode{fhicl::Name{"readMode"}, "sequential"};
+      fhicl::Atom<std::string> readMode{
+        fhicl::Name{"readMode"},
+        fhicl::Comment{R"(The readMode parameter specifies how secondary events
+should be chosen from each file.  Valid values are:
+
+  - "sequential" (default)
+       read the secondary events in order
+  - "randomOffset"
+       sequential but starting from a random location in the file
+  - "randomReplace"
+       random with replacement
+  - "randomLimReplace"
+       events unique within a primary event
+  - "randomNoReplace"
+       events guaranteed to be used once only
+)"},
+        "sequential"};
       fhicl::Atom<double> coverageFraction{fhicl::Name{"coverageFraction"},
                                            1.0};
       fhicl::Atom<bool> wrapFiles{fhicl::Name{"wrapFiles"}, false};
@@ -386,7 +404,9 @@ namespace art {
       cet::exempt_ptr<base_engine_t> engine) const;
     bool consistentRequest_(std::string const& kind_of_engine_to_make,
                             label_t const& engine_label) const;
+    bool overThreshold_(size_t nSecondaries, size_t nEventsInFile) const;
     Mode initReadMode_(std::string const& mode) const;
+    size_t eventOffset_(size_t nEventsInFile);
     bool openNextFile_();
 
     ProdToProdMapBuilder::ProductIDTransMap buildProductIDTransMap_(
@@ -413,6 +433,7 @@ namespace art {
     EntryNumberSequence shuffledSequence_{}; // RANDOM_NO_REPLACE only.
     bool haveSubRunMixOps_{false};
     bool haveRunMixOps_{false};
+    bool randomOffsetUsed_{false}; // RANDOM_OFFSET only.
     EventIDIndex eventIDIndex_{};
 
     std::unique_ptr<MixIOPolicy> ioHandle_{nullptr};

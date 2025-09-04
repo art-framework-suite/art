@@ -3,6 +3,8 @@
 #include "art/Framework/Principal/ProductInfo.h"
 #include "canvas/Utilities/Exception.h"
 
+#include <cassert>
+
 using namespace art;
 using art::detail::config_const_iterator;
 

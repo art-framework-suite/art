@@ -22,7 +22,7 @@ namespace {
 
   // helper to ignore tokens in an istream
   struct token_ignore {
-    explicit token_ignore(const unsigned ntokens) : ntokens_{ntokens} {}
+    explicit token_ignore(unsigned const ntokens) : ntokens_{ntokens} {}
     unsigned ntokens_;
   };
 

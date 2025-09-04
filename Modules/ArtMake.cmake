@@ -106,12 +106,11 @@ X
 
 include_guard()
 
-cmake_minimum_required(VERSION 3.14...3.27 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14...3.31 FATAL_ERROR)
 
 include(BuildPlugins)
+include(CetCMakeUtils)
 include(CetMake)
-include(CetMakeCommand)
-include(Compatibility)
 include(CetTest)
 
 ####################################
@@ -130,11 +129,7 @@ macro(art_make_library)
   if (ART_MAKE_PREPEND_PRODUCT_NAME)
     list(PREPEND _cet_aml_args USE_PROJECT_NAME)
   endif()
-  if (_cet_aml_args MATCHES "(^|;)(NO_)?SOURCE(;|$)")
-    cet_make_library(${_cet_aml_args})
-  else()
-    cet_make(LIB_ONLY ${_cet_aml_args})
-  endif()
+  cet_make_library(${_cet_aml_args})
   unset(_cet_aml_args)
 endmacro()
 

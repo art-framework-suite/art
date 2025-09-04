@@ -96,6 +96,7 @@
 #include "art/Framework/Principal/RunPrincipal.h"
 #include "art/Framework/Principal/SubRunPrincipal.h"
 #include "art/Persistency/Provenance/ModuleDescription.h"
+#include "art/Utilities/bounded_decrementer.h"
 #include "canvas/Persistency/Provenance/EventID.h"
 #include "canvas/Persistency/Provenance/ProcessConfiguration.h"
 #include "canvas/Persistency/Provenance/ProductTables.h"
@@ -174,8 +175,10 @@ namespace art {
         struct SourceConfig {
           fhicl::Atom<std::string> type{ModuleConfig::plugin_type()};
           fhicl::Sequence<std::string> fileNames{fhicl::Name("fileNames"), {}};
-          fhicl::Atom<int64_t> maxSubRuns{fhicl::Name("maxSubRuns"), -1};
-          fhicl::Atom<int64_t> maxEvents{fhicl::Name("maxEvents"), -1};
+          fhicl::Atom<int> maxSubRuns{fhicl::Name("maxSubRuns"),
+                                      bounded_decrementer::unlimited()};
+          fhicl::Atom<int> maxEvents{fhicl::Name("maxEvents"),
+                                     bounded_decrementer::unlimited()};
         };
         fhicl::TableFragment<SourceConfig> sourceConfig;
         user_config_t userConfig;
@@ -252,7 +255,7 @@ namespace art {
 
     // Throw an Exception(errors::DataCorruption), with the given
     // message text.
-    [[noreturn]] static void throwDataCorruption_(const char* msg);
+    [[noreturn]] static void throwDataCorruption_(char const* msg);
 
     ProductRegistryHelper h_{product_creation_mode::reconstitutes};
     UpdateOutputCallbacks& outputCallbacks_;
@@ -277,10 +280,8 @@ namespace art {
     bool pendingSubRun_{false};
     bool pendingEvent_{false};
     bool subRunIsNew_{false};
-    SubRunNumber_t remainingSubRuns_{1};
-    bool haveSRLimit_{false};
-    EventNumber_t remainingEvents_{1};
-    bool haveEventLimit_{false};
+    bounded_decrementer remainingSubRuns_;
+    bounded_decrementer remainingEvents_;
   };
 
   template <typename T>
@@ -293,17 +294,11 @@ namespace art {
     , sourceHelper_{d.moduleDescription}
     , detail_{p, h_, sourceHelper_}
     , fh_{p.template get<std::vector<std::string>>("fileNames", {})}
+    , remainingSubRuns_{p.template get<int>("maxSubRuns",
+                                            bounded_decrementer::unlimited())}
+    , remainingEvents_{
+        p.template get<int>("maxEvents", bounded_decrementer::unlimited())}
   {
-    int64_t const maxSubRuns_par = p.template get<int64_t>("maxSubRuns", -1);
-    if (maxSubRuns_par > -1) {
-      remainingSubRuns_ = maxSubRuns_par;
-      haveSRLimit_ = true;
-    }
-    int64_t const maxEvents_par = p.template get<int64_t>("maxEvents", -1);
-    if (maxEvents_par > -1) {
-      remainingEvents_ = maxEvents_par;
-      haveEventLimit_ = true;
-    }
     finishProductRegistration_(d);
   }
 
@@ -317,23 +312,15 @@ namespace art {
     , sourceHelper_{d.moduleDescription}
     , detail_{p().userConfig, h_, sourceHelper_}
     , fh_{p().sourceConfig().fileNames()}
+    , remainingSubRuns_{p().sourceConfig().maxSubRuns()}
+    , remainingEvents_{p().sourceConfig().maxEvents()}
   {
-    if (int64_t const maxSubRuns_par = p().sourceConfig().maxSubRuns();
-        maxSubRuns_par > -1) {
-      remainingSubRuns_ = maxSubRuns_par;
-      haveSRLimit_ = true;
-    }
-    if (int64_t const maxEvents_par = p().sourceConfig().maxEvents();
-        maxEvents_par > -1) {
-      remainingEvents_ = maxEvents_par;
-      haveEventLimit_ = true;
-    }
     finishProductRegistration_(d);
   }
 
   template <typename T>
   void
-  Source<T>::throwDataCorruption_(const char* msg)
+  Source<T>::throwDataCorruption_(char const* msg)
   {
     throw Exception(errors::DataCorruption) << msg;
   }
@@ -669,9 +656,7 @@ namespace art {
         << "readSubRun() called when no SubRunPrincipal exists\n"
         << "Please report this to the art developers\n";
     if (subRunIsNew_) {
-      if (haveSRLimit_) {
-        --remainingSubRuns_;
-      }
+      --remainingSubRuns_;
       subRunIsNew_ = false;
     }
     cachedSRP_ = newSRP_.get();
@@ -682,9 +667,7 @@ namespace art {
   std::unique_ptr<EventPrincipal>
   Source<T>::readEvent(cet::exempt_ptr<SubRunPrincipal const>)
   {
-    if (haveEventLimit_) {
-      --remainingEvents_;
-    }
+    --remainingEvents_;
     return std::move(newE_);
   }
 

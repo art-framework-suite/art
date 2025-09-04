@@ -21,7 +21,7 @@
 namespace art {
 
   std::ostream&
-  operator<<(std::ostream& ost, const MallocOpts& opts)
+  operator<<(std::ostream& ost, MallocOpts const& opts)
   {
     ost << "mmap_max=" << opts.mmap_max_ << " trim_threshold=" << opts.trim_thr_
         << " top_padding=" << opts.top_pad_
@@ -40,8 +40,8 @@ namespace art {
       // member around in such a way that the =m directive misses the
       // the location.   Of course this means that this routine is not
       // multithread safe.
-      static volatile int op = 0, a;
-      static volatile int ans[4];
+      static int volatile op = 0, a;
+      static int volatile ans[4];
 
 // Still some problem on x86_64, so only i386 for now
 #if defined(__x86_64__)
@@ -83,14 +83,14 @@ namespace art {
                            : "a"(op));
 
 #else
-      const char* unknown_str = "Unknown";
+      char const* unknown_str = "Unknown";
       // int unknown_sz = strlen(unknown_str);
       strcpy((char*)&ans[0], unknown_str);
 #endif
 
-      const char* amd_str = "AuthenticAMD";
+      char const* amd_str = "AuthenticAMD";
       int amd_sz = strlen(amd_str);
-      const char* intel_str = "GenuineIntel";
+      char const* intel_str = "GenuineIntel";
       int intel_sz = strlen(intel_str);
 
       char* str = (char*)&ans[0];
@@ -102,8 +102,8 @@ namespace art {
     }
 
     // values determined experimentally for each architecture
-    const MallocOpts intel_opts(262144, 524288, 5242880, 131072);
-    const MallocOpts amd_opts(0, 8388608, 131072, 10485760);
+    MallocOpts const intel_opts(262144, 524288, 5242880, 131072);
+    MallocOpts const amd_opts(0, 8388608, 131072, 10485760);
 
   } // namespace
 
@@ -171,7 +171,7 @@ namespace art {
   bool
   MallocOptionSetter::retrieveFromEnv()
   {
-    const char* par = getenv("ART_MALLOC_RESET");
+    char const* par = getenv("ART_MALLOC_RESET");
     if (par == 0)
       return false; // leave quickly here
     std::string spar(par);
