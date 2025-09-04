@@ -676,5 +676,3 @@ cet_test(bad_fhicl_key_t COMPILE_ONLY LIBRARIES PRIVATE art::Framework_Art
 cet_test(bad_fhicl_key_t_2 COMPILE_ONLY LIBRARIES PRIVATE art::Framework_Art
   TEST_PROPERTIES
   PASS_REGULAR_EXPRESSION "constraints not satisfied")
-
-

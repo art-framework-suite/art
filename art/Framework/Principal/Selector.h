@@ -44,8 +44,6 @@ namespace art {
   template <typename T>
   concept is_selector =
     std::derived_from<std::remove_reference_t<T>, SelectorBase>;
-  // constexpr bool is_selector =
-  //   std::is_base_of_v<SelectorBase, std::remove_reference_t<T>>;
 
   //--------------------------------------------------------------------
   // Class ProcessNameSelector.
@@ -200,7 +198,7 @@ namespace art {
     InputTagListSelector(IT begin,
                          IT end,
                          std::string const& description,
-                         void* dummy [[maybe_unused]] = nullptr)
+                         void* = nullptr)
       : tags_{begin, end}, description_{description}
     {}
 
