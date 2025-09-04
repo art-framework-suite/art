@@ -28,7 +28,7 @@ using VStrings = std::vector<Strings>;
 using VBools = std::vector<std::bitset<numBits>>;
 
 std::ostream&
-operator<<(std::ostream& ost, const Strings& strings)
+operator<<(std::ostream& ost, Strings const& strings)
 {
   for (auto const& element : strings) {
     ost << element << " ";
@@ -37,9 +37,9 @@ operator<<(std::ostream& ost, const Strings& strings)
 }
 
 void
-testone(const Strings& paths,
-        const Strings& pattern,
-        const std::bitset<numBits>& mask,
+testone(Strings const& paths,
+        Strings const& pattern,
+        std::bitset<numBits> const& mask,
         bool answer,
         int jmask)
 {
@@ -95,10 +95,10 @@ testone(const Strings& paths,
 }
 
 void
-testall(const Strings& paths,
-        const VStrings& patterns,
-        const VBools& masks,
-        const Answers& answers)
+testall(Strings const& paths,
+        VStrings const& patterns,
+        VBools const& masks,
+        Answers const& answers)
 {
   for (unsigned int i = 0; i < patterns.size(); ++i) {
     for (unsigned int j = 0; j < masks.size(); ++j) {

@@ -175,20 +175,16 @@ namespace art {
 
     template <typename T>
     concept has_startEvent = requires(T t, Event& e) {
-                               {
-                                 t.startEvent(e)
-                               };
-                             };
+      { t.startEvent(e) };
+    };
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method size_t eventsToSkip() const?
     //
     template <typename T>
     concept has_eventsToSkip = requires(T t) {
-                                 {
-                                   t.eventsToSkip()
-                                 };
-                               };
+      { t.eventsToSkip() };
+    };
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void
@@ -196,10 +192,8 @@ namespace art {
 
     template <typename T>
     concept has_processEventIDs = requires(T t, EventIDSequence& e) {
-                                    {
-                                      t.processEventIDs(e)
-                                    };
-                                  };
+      { t.processEventIDs(e) };
+    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
@@ -209,9 +203,7 @@ namespace art {
     template <typename T>
     concept has_processEventAuxiliaries =
       requires(T t, EventAuxiliarySequence& e) {
-        {
-          t.processEventAuxiliaries(e)
-        };
+        { t.processEventAuxiliaries(e) };
       };
 
     ////////////////////////////////////////////////////////////////////
@@ -220,80 +212,62 @@ namespace art {
     // Does the detail object have a method void finalizeEvent(Event&)?
     template <typename T>
     concept has_finalizeEvent = requires(T t, Event& e) {
-                                  {
-                                    t.finalizeEvent(e)
-                                  };
-                                };
+      { t.finalizeEvent(e) };
+    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginSubRun(SubRun const&)?
     template <typename T>
     concept has_beginSubRun = requires(T t, SubRun& s) {
-                                {
-                                  t.beginSubRun(s)
-                                };
-                              };
+      { t.beginSubRun(s) };
+    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void endSubRun(SubRun&)?
     template <typename T>
     concept has_endSubRun = requires(T t, SubRun& s) {
-                              {
-                                t.endSubRun(s)
-                              };
-                            };
+      { t.endSubRun(s) };
+    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginRun(Run const&)?
     template <typename T>
     concept has_beginRun = requires(T t, Run& r) {
-                             {
-                               t.beginRun(r)
-                             };
-                           };
+      { t.beginRun(r) };
+    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void endRun(Run&)?
     template <typename T>
     concept has_endRun = requires(T t, Run& r) {
-                           {
-                             t.endRun(r)
-                           };
-                         };
+      { t.endRun(r) };
+    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have respondToXXX methods()?
     template <typename T>
     concept has_respondToOpenInputFile = requires(T t, FileBlock& fb) {
-                                           {
-                                             t.respondToOpenInputFile(fb)
-                                           };
-                                         };
+      { t.respondToOpenInputFile(fb) };
+    };
 
     template <typename T>
     concept has_respondToCloseInputFile = requires(T t, FileBlock& fb) {
-                                            {
-                                              t.respondToCloseInputFile(fb)
-                                            };
-                                          };
+      { t.respondToCloseInputFile(fb) };
+    };
 
     template <typename T>
     concept has_respondToOpenOutputFiles = requires(T t, FileBlock& fb) {
-                                             {
-                                               t.respondToOpenOutputFiles(fb)
-                                             };
-                                           };
+      { t.respondToOpenOutputFiles(fb) };
+    };
     template <typename T>
     concept has_respondToCloseOutputFiles = requires(T t, FileBlock& fb) {
-                                              {
-                                                t.respondToCloseOutputFiles(fb)
-                                              };
-                                            };
+      { t.respondToCloseOutputFiles(fb) };
+    };
 
     ////////////////////////////////////////////////////////////////////
 

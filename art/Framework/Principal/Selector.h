@@ -195,8 +195,7 @@ namespace art {
     // This constructor is only valid (via SFINAE) if the provided
     // iterators dereference to a type convertible to art::InputTag.
     template <typename IT>
-      requires std::convertible_to<decltype(std::declval<IT>().
-                                            operator*()),
+      requires std::convertible_to<decltype(std::declval<IT>().operator*()),
                                    art::InputTag>
     InputTagListSelector(IT begin,
                          IT end,

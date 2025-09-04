@@ -137,10 +137,8 @@ namespace art {
 
     template <typename T>
     concept has_hasMoreData = requires(T& t) {
-                                {
-                                  t.hasMoreData()
-                                  } -> std::same_as<bool>;
-                              };
+      { t.hasMoreData() } -> std::same_as<bool>;
+    };
 
     template <typename T>
     struct do_call_hasMoreData {

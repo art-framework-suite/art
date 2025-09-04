@@ -39,8 +39,8 @@ namespace art {
       requires(!std::constructible_from<T,
                                         fhicl::ParameterSet const&,
                                         ActivityRegistry&>)
-    std::shared_ptr<T> makeServiceFrom(fhicl::ParameterSet const& ps,
-                                       ActivityRegistry&)
+    std::shared_ptr<T>
+    makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry&)
     {
       return std::make_shared<T>(ps);
     }

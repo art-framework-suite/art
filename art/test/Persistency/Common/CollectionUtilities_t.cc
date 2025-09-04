@@ -52,17 +52,14 @@ namespace {
   };
 
   struct invalid_container {
-    void do_nothing(){};
+    void do_nothing() {};
   };
 
   template <typename T1, typename T2>
   concept can_concat = requires(T1& t1, T2& t2) {
-                         requires detail::has_two_arg_insert<T1> ||
-                                    detail::has_three_arg_insert<T1>;
-                         {
-                           concatContainers(t1, t2)
-                         };
-                       };
+    requires detail::has_two_arg_insert<T1> || detail::has_three_arg_insert<T1>;
+    { concatContainers(t1, t2) };
+  };
 }
 
 TEST_CASE("concatContainers() on std containers")

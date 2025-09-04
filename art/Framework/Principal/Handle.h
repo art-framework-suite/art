@@ -87,16 +87,16 @@ namespace art {
   RangeSet const& range_of_validity(T const& h);
 
   template <typename T, typename U>
-    requires(detail::are_both_handles<T, U>) bool
-  same_ranges(T const& a, T const& b);
+    requires(detail::are_both_handles<T, U>)
+  bool same_ranges(T const& a, T const& b);
 
   template <typename T, typename U>
-    requires(detail::are_both_handles<T, U>) bool
-  disjoint_ranges(T const& a, T const& b);
+    requires(detail::are_both_handles<T, U>)
+  bool disjoint_ranges(T const& a, T const& b);
 
   template <typename T, typename U>
-    requires(detail::are_both_handles<T, U>) bool
-  overlapping_ranges(T const& a, T const& b);
+    requires(detail::are_both_handles<T, U>)
+  bool overlapping_ranges(T const& a, T const& b);
 } // namespace art
 
 template <typename T>
@@ -434,7 +434,8 @@ art::range_of_validity(T const& h)
 }
 
 template <class T, class U>
-  requires(art::detail::are_both_handles<T, U>) bool
+  requires(art::detail::are_both_handles<T, U>)
+bool
 art::same_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
@@ -444,7 +445,8 @@ art::same_ranges(T const& a, U const& b)
 }
 
 template <class T, class U>
-  requires(art::detail::are_both_handles<T, U>) bool
+  requires(art::detail::are_both_handles<T, U>)
+bool
 art::disjoint_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =
@@ -454,7 +456,8 @@ art::disjoint_ranges(T const& a, U const& b)
 }
 
 template <class T, class U>
-  requires(art::detail::are_both_handles<T, U>) bool
+  requires(art::detail::are_both_handles<T, U>)
+bool
 art::overlapping_ranges(T const& a, U const& b)
 {
   std::string const& errMsg =

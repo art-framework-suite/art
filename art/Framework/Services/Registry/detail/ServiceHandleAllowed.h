@@ -16,15 +16,11 @@
 namespace art::detail {
   template <typename T>
   concept handle_not_allowed = requires {
-                                 {
-                                   T::service_handle_allowed
-                                   } -> std::same_as<bool>;
-                               } && !
-  T::service_handle_allowed;
+    { T::service_handle_allowed } -> std::same_as<bool>;
+  } && !T::service_handle_allowed;
 
   template <typename T>
-  concept handle_allowed = !
-  handle_not_allowed<T>;
+  concept handle_allowed = !handle_not_allowed<T>;
 
   template <typename T>
   concept handle_allowed_v = handle_allowed<T>;

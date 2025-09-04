@@ -13,7 +13,8 @@ namespace art {
                        std::derived_from<T2, T1>;
 
   template <typename T1, typename T2>
-    requires(compatible<T1, T2>) bool
+    requires(compatible<T1, T2>)
+  bool
   pointersEqual(T1* t1, T2* t2)
   {
     return t1 == t2;
@@ -21,7 +22,8 @@ namespace art {
 
   // Not compatible.
   template <typename T1, typename T2>
-    requires(!compatible<T1, T2>) bool
+    requires(!compatible<T1, T2>)
+  bool
   pointersEqual(T1*, T2*)
   {
     throw art::Exception(art::errors::LogicError)

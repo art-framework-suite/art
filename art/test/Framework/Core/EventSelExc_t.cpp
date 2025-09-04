@@ -59,7 +59,7 @@ struct TrigResults {
 };
 
 std::ostream&
-operator<<(std::ostream& ost, const Strings& strings)
+operator<<(std::ostream& ost, Strings const& strings)
 {
   for (auto const& element : strings) {
     ost << element << " ";
@@ -68,7 +68,7 @@ operator<<(std::ostream& ost, const Strings& strings)
 }
 
 std::ostream&
-operator<<(std::ostream& ost, const TrigResults& tr)
+operator<<(std::ostream& ost, TrigResults const& tr)
 {
   for (unsigned int i = 0; i < tr.bit.size(); ++i) {
     HLTPathStatus b = tr.bit[i];

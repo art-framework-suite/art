@@ -85,66 +85,50 @@ namespace art::detail {
   // void DETAIL::beginJob();
   template <typename T>
   concept maybe_beginJob = requires(T& t) {
-                             {
-                               t.beginJob()
-                             };
-                           };
+    { t.beginJob() };
+  };
 
   // void DETAIL::preProcessEvent();
   template <typename T>
   concept maybe_preProcessEvent = requires(T& t) {
-                                    {
-                                      t.preProcessEvent()
-                                    };
-                                  };
+    { t.preProcessEvent() };
+  };
 
   // void DETAIL::postProcessEvent();
   template <typename T>
   concept maybe_postProcessEvent = requires(T& t) {
-                                     {
-                                       t.postProcessEvent()
-                                     };
-                                   };
+    { t.postProcessEvent() };
+  };
 
   // void DETAIL::preProcessSubRun();
   template <typename T>
   concept maybe_preProcessSubRun = requires(T& t) {
-                                     {
-                                       t.preProcessSubRun()
-                                     };
-                                   };
+    { t.preProcessSubRun() };
+  };
 
   // void DETAIL::postProcessSubRun();
   template <typename T>
   concept maybe_postProcessSubRun = requires(T& t) {
-                                      {
-                                        t.postProcessSubRun()
-                                      };
-                                    };
+    { t.postProcessSubRun() };
+  };
 
   // void DETAIL::preProcessRun();
   template <typename T>
   concept maybe_preProcessRun = requires(T& t) {
-                                  {
-                                    t.preProcessRun()
-                                  };
-                                };
+    { t.preProcessRun() };
+  };
 
   // void DETAIL::postProcessRun();
   template <typename T>
   concept maybe_postProcessRun = requires(T& t) {
-                                   {
-                                     t.postProcessRun()
-                                   };
-                                 };
+    { t.postProcessRun() };
+  };
 
   // void DETAIL::endJob();
   template <typename T>
   concept maybe_endJob = requires(T& t) {
-                           {
-                             t.endJob()
-                           };
-                         };
+    { t.endJob() };
+  };
   ////////////////////////////////////////////////////////////////////////
 
   ////////////////////////////////////////////////////////////////////////
@@ -153,26 +137,20 @@ namespace art::detail {
   // void DETAIL::processEventProvenance(art:Provenance const &);
   template <typename T>
   concept maybe_processEventPrincipal = requires(T& t, art::Provenance& p) {
-                                          {
-                                            t.processEventProvenance(p)
-                                          };
-                                        };
+    { t.processEventProvenance(p) };
+  };
 
   // void DETAIL::processSubRunProvenance(art:Provenance const &);
   template <typename T>
   concept maybe_processSubRunPrincipal = requires(T& t, art::Provenance& p) {
-                                           {
-                                             t.processSubRunProvenance(p)
-                                           };
-                                         };
+    { t.processSubRunProvenance(p) };
+  };
 
   // void DETAIL::processRunProvenance(art:Provenance const &);
   template <typename T>
   concept maybe_processRunPrincipal = requires(T& t, art::Provenance& p) {
-                                        {
-                                          t.processRunProvenance(p)
-                                        };
-                                      };
+    { t.processRunProvenance(p) };
+  };
 
   ////////////////////////////////////////////////////////////////////////
 

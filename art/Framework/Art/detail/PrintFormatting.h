@@ -39,7 +39,7 @@ namespace art::detail {
   template <typename T, typename Elem>
   std::size_t
   columnWidth(T const& coll,
-              std::string const Elem::*cp,
+              std::string const Elem::* cp,
               std::string const& header)
   {
     std::size_t s{header.size()};

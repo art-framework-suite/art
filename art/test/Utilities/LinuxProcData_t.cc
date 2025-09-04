@@ -4,9 +4,7 @@
 template <typename T>
 concept enforcement =
   requires(art::LinuxProcData l, art::LinuxProcData::proc_tuple p) {
-    {
-      l.getValueInMB<T>(p)
-    };
+    { l.getValueInMB<T>(p) };
   };
 
 int

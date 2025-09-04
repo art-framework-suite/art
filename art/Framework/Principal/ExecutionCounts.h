@@ -52,7 +52,8 @@ namespace art {
 
     template <typename HEAD_FIELD, typename... TAIL_FIELDS>
       requires(sizeof...(TAIL_FIELDS) > 0)
-    void increment()
+    void
+    increment()
     {
       increment<HEAD_FIELD>();
       increment<TAIL_FIELDS...>();
