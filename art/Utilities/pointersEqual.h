@@ -19,16 +19,6 @@ namespace art {
   {
     return t1 == t2;
   }
-
-  // Not compatible.
-  template <typename T1, typename T2>
-    requires(!compatible<T1, T2>)
-  bool
-  pointersEqual(T1*, T2*)
-  {
-    throw art::Exception(art::errors::LogicError)
-      << "Tried to compare two incompatible pointers.\n";
-  }
 } // namespace art
 
 #endif /* art_Utilities_pointersEqual_h */

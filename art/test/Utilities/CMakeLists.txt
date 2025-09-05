@@ -25,6 +25,10 @@ cet_test(MallocOpts_t SOURCE MallocOpts_t.cpp
   LIBRARIES PRIVATE art::Utilities)
 
 cet_test(pointersEqual_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
+foreach(test basic_types inheritance_1 inheritance_2 concept_enforcement)
+  cet_test(bad_pointersEqual_${test}_t COMPILE_ONLY LIBRARIES PRIVATE art::Utilities
+    TEST_PROPERTIES PASS_REGULAR_EXPRESSION "constraints not satisfied")
+endforeach()
 cet_test(ScheduleID_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
 cet_test(bounded_decrementer_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
 cet_test(parent_path_t USE_BOOST_UNIT LIBRARIES PRIVATE art::Utilities)
