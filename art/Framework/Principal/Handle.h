@@ -98,7 +98,6 @@ template <typename T>
 class art::Handle {
 public:
   using element_type = T;
-  // class HandleTag {};
   struct HandleTag {};
 
   ~Handle() = default;
