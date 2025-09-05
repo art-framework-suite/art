@@ -22,10 +22,12 @@ namespace art {
     // ActivityRegistry&, use it. Otherwise, call a one-argument
     // constructor taking fhicl::ParameterSet const& only.
     template <typename T>
-      requires std::
-        constructible_from<T, fhicl::ParameterSet const&, ActivityRegistry&>
-      std::shared_ptr<T>
-      makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
+    concept constructible_with_ActivityRegistry =
+      std::constructible_from<T, fhicl::ParameterSet const&, ActivityRegistry&>;
+
+    template <constructible_with_ActivityRegistry T>
+    std::shared_ptr<T>
+    makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry& areg)
     {
       static_assert(
         !std::is_base_of_v<ProducingService, T>,
@@ -36,9 +38,7 @@ namespace art {
     }
 
     template <typename T>
-      requires(!std::constructible_from<T,
-                                        fhicl::ParameterSet const&,
-                                        ActivityRegistry&>)
+      requires(!constructible_with_ActivityRegistry<T>)
     std::shared_ptr<T>
     makeServiceFrom(fhicl::ParameterSet const& ps, ActivityRegistry&)
     {
