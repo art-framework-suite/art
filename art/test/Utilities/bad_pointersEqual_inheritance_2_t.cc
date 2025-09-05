@@ -5,9 +5,10 @@ namespace {
   class B {};
 }
 
-int main()
+int
+main()
 {
   A a1;
   B b1;
-  (void) art::pointersEqual(&a1, &b1);
+  (void)art::pointersEqual(&a1, &b1);
 }

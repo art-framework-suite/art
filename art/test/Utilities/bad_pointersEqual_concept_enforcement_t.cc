@@ -7,11 +7,12 @@ namespace {
   struct D : public C {};
 }
 
-int main()
+int
+main()
 {
   D d1;
   D* pd1d1(&d1);
   int* ip = new int;
-  (void) art::pointersEqual(pd1d1, ip);
+  (void)art::pointersEqual(pd1d1, ip);
   delete ip;
 }
