@@ -143,9 +143,9 @@
 #include "art/Framework/IO/ProductMix/MixOpBase.h"
 #include "art/Framework/IO/ProductMix/MixTypes.h"
 #include "canvas/Persistency/Provenance/BranchType.h"
-#include "cetlib/metaprogramming.h"
 #include "fhiclcpp/types/TableFragment.h"
 
+#include <concepts>
 #include <functional>
 #include <memory>
 #include <type_traits>
@@ -170,189 +170,104 @@ namespace art {
   };
 
   namespace detail {
-    // Template metaprogramming.
-    using cet::enable_if_function_exists_t;
-
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void startEvent()?
 
-    template <typename T, typename = void>
-    struct has_startEvent : std::false_type {};
-
     template <typename T>
-    struct has_startEvent<
-      T,
-      enable_if_function_exists_t<void (T::*)(Event const&), &T::startEvent>>
-      : std::true_type {};
-
-    ////////////////////////////////////////////////////////////////////
+    concept has_startEvent = requires(T t, Event const& e) {
+      { t.startEvent(e) } -> std::same_as<void>;
+    };
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method size_t eventsToSkip() const?
-
-    template <typename T, typename = void>
-    struct has_eventsToSkip : std::false_type {};
-
+    //
     template <typename T>
-    struct has_eventsToSkip<
-      T,
-      enable_if_function_exists_t<size_t (T::*)(), &T::eventsToSkip>>
-      : std::true_type {};
-
-    template <typename T>
-    struct has_eventsToSkip<
-      T,
-      enable_if_function_exists_t<size_t (T::*)() const, &T::eventsToSkip>>
-      : std::true_type {};
-    ////////////////////////////////////////////////////////////////////
+    concept has_eventsToSkip = requires(T t) {
+      { t.eventsToSkip() } -> std::same_as<size_t>;
+    };
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void
     // processEventIDs(EventIDSequence const&)?
 
-    template <typename T, typename = void>
-    struct has_processEventIDs : std::false_type {};
-
     template <typename T>
-    struct has_processEventIDs<
-      T,
-      enable_if_function_exists_t<void (T::*)(EventIDSequence const&),
-                                  &T::processEventIDs>> : std::true_type {};
-
+    concept has_processEventIDs = requires(T t, EventIDSequence const& e) {
+      { t.processEventIDs(e) } -> std::same_as<void>;
+    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void
     // processEventAuxiliaries(EventAuxiliarySequence const&)?
 
-    template <typename T, typename = void>
-    struct has_processEventAuxiliaries : std::false_type {};
-
     template <typename T>
-    struct has_processEventAuxiliaries<
-      T,
-      enable_if_function_exists_t<void (T::*)(EventAuxiliarySequence const&),
-                                  &T::processEventAuxiliaries>>
-      : std::true_type {};
+    concept has_processEventAuxiliaries =
+      requires(T t, EventAuxiliarySequence const& e) {
+        { t.processEventAuxiliaries(e) } -> std::same_as<void>;
+      };
 
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void finalizeEvent(Event&)?
-    template <typename T, typename = void>
-    struct has_finalizeEvent : std::false_type {};
-
     template <typename T>
-    struct has_finalizeEvent<
-      T,
-      enable_if_function_exists_t<void (T::*)(Event&), &T::finalizeEvent>>
-      : std::true_type {};
-
+    concept has_finalizeEvent = requires(T t, Event& e) {
+      { t.finalizeEvent(e) } -> std::same_as<void>;
+    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginSubRun(SubRun const&)?
-    template <typename T, typename = void>
-    struct has_beginSubRun : std::false_type {};
-
     template <typename T>
-    struct has_beginSubRun<
-      T,
-      enable_if_function_exists_t<void (T::*)(SubRun const&), &T::beginSubRun>>
-      : std::true_type {};
-
+    concept has_beginSubRun = requires(T t, SubRun const& s) {
+      { t.beginSubRun(s) } -> std::same_as<void>;
+    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void endSubRun(SubRun&)?
-    template <typename T, typename = void>
-    struct has_endSubRun : std::false_type {};
-
     template <typename T>
-    struct has_endSubRun<
-      T,
-      enable_if_function_exists_t<void (T::*)(SubRun&), &T::endSubRun>>
-      : std::true_type {};
-
+    concept has_endSubRun = requires(T t, SubRun& s) {
+      { t.endSubRun(s) } -> std::same_as<void>;
+    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void beginRun(Run const&)?
-    template <typename T, typename = void>
-    struct has_beginRun : std::false_type {};
-
     template <typename T>
-    struct has_beginRun<
-      T,
-      enable_if_function_exists_t<void (T::*)(Run const&), &T::beginRun>>
-      : std::true_type {};
-
+    concept has_beginRun = requires(T t, Run const& r) {
+      { t.beginRun(r) } -> std::same_as<void>;
+    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have a method void endRun(Run&)?
-    template <typename T, typename = void>
-    struct has_endRun : std::false_type {};
-
     template <typename T>
-    struct has_endRun<
-      T,
-      enable_if_function_exists_t<void (T::*)(Run&), &T::endRun>>
-      : std::true_type {};
-
+    concept has_endRun = requires(T t, Run& r) {
+      { t.endRun(r) } -> std::same_as<void>;
+    };
     ////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////
     // Does the detail object have respondToXXX methods()?
     template <typename T>
-    using respond_to_file = void (T::*)(FileBlock const&);
-
-    template <typename T, respond_to_file<T>>
-    struct respondToXXX_function;
-
-    // has_respondToOpenInputFile
-    template <typename T, typename = void>
-    struct has_respondToOpenInputFile : std::false_type {};
+    concept has_respondToOpenInputFile = requires(T t, FileBlock const& fb) {
+      { t.respondToOpenInputFile(fb) } -> std::same_as<void>;
+    };
 
     template <typename T>
-    struct has_respondToOpenInputFile<
-      T,
-      enable_if_function_exists_t<respond_to_file<T>,
-                                  &T::respondToOpenInputFile>>
-      : std::true_type {};
-
-    // has_respondToCloseInputFile
-    template <typename T, typename = void>
-    struct has_respondToCloseInputFile : std::false_type {};
+    concept has_respondToCloseInputFile = requires(T t, FileBlock const& fb) {
+      { t.respondToCloseInputFile(fb) } -> std::same_as<void>;
+    };
 
     template <typename T>
-    struct has_respondToCloseInputFile<
-      T,
-      enable_if_function_exists_t<respond_to_file<T>,
-                                  &T::respondToCloseInputFile>>
-      : std::true_type {};
-
-    // has_respondToOpenOutputFiles
-    template <typename T, typename = void>
-    struct has_respondToOpenOutputFiles : std::false_type {};
-
+    concept has_respondToOpenOutputFiles = requires(T t, FileBlock const& fb) {
+      { t.respondToOpenOutputFiles(fb) } -> std::same_as<void>;
+    };
     template <typename T>
-    struct has_respondToOpenOutputFiles<
-      T,
-      enable_if_function_exists_t<respond_to_file<T>,
-                                  &T::respondToOpenOutputFiles>>
-      : std::true_type {};
-
-    // has_respondToCloseOutputFiles
-    template <typename T, typename = void>
-    struct has_respondToCloseOutputFiles : std::false_type {};
-
-    template <typename T>
-    struct has_respondToCloseOutputFiles<
-      T,
-      enable_if_function_exists_t<respond_to_file<T>,
-                                  &T::respondToCloseOutputFiles>>
-      : std::true_type {};
+    concept has_respondToCloseOutputFiles = requires(T t, FileBlock const& fb) {
+      { t.respondToCloseOutputFiles(fb) } -> std::same_as<void>;
+    };
 
     ////////////////////////////////////////////////////////////////////
 
@@ -386,11 +301,11 @@ public:
   using Parameters = typename detail::maybe_has_Parameters<T>::Parameters;
 
   template <typename U = Parameters>
-  explicit MixFilter(std::enable_if_t<std::is_same_v<U, fhicl::ParameterSet>,
-                                      fhicl::ParameterSet> const& p);
+    requires std::same_as<U, fhicl::ParameterSet>
+  explicit MixFilter(fhicl::ParameterSet const& p);
   template <typename U = Parameters>
-  explicit MixFilter(
-    std::enable_if_t<!std::is_same_v<U, fhicl::ParameterSet>, U> const& p);
+    requires(!std::same_as<U, fhicl::ParameterSet>)
+  explicit MixFilter(U const& p);
 
 private:
   void respondToOpenInputFile(FileBlock const& fb) override;
@@ -409,9 +324,8 @@ private:
 
 template <typename T, typename IOPolicy>
 template <typename U>
-art::MixFilter<T, IOPolicy>::MixFilter(
-  std::enable_if_t<std::is_same_v<U, fhicl::ParameterSet>,
-                   fhicl::ParameterSet> const& p)
+  requires std::same_as<U, fhicl::ParameterSet>
+art::MixFilter<T, IOPolicy>::MixFilter(fhicl::ParameterSet const& p)
   : EDFilter{p}
   , helper_{p,
             p.template get<std::string>("module_label"),
@@ -419,15 +333,15 @@ art::MixFilter<T, IOPolicy>::MixFilter(
             std::make_unique<IOPolicy>()}
   , detail_{p, helper_}
 {
-  if constexpr (detail::has_eventsToSkip<T>::value) {
+  if constexpr (detail::has_eventsToSkip<T>) {
     helper_.setEventsToSkipFunction([this] { return detail_.eventsToSkip(); });
   }
 }
 
 template <typename T, typename IOPolicy>
 template <typename U>
-art::MixFilter<T, IOPolicy>::MixFilter(
-  std::enable_if_t<!std::is_same_v<U, fhicl::ParameterSet>, U> const& p)
+  requires(!std::same_as<U, fhicl::ParameterSet>)
+art::MixFilter<T, IOPolicy>::MixFilter(U const& p)
   : EDFilter{p}
   , helper_{p().mixHelper(),
             p.get_PSet().template get<std::string>("module_label"),
@@ -435,7 +349,7 @@ art::MixFilter<T, IOPolicy>::MixFilter(
             std::make_unique<IOPolicy>()}
   , detail_{p().userConfig, helper_}
 {
-  if constexpr (detail::has_eventsToSkip<T>::value) {
+  if constexpr (detail::has_eventsToSkip<T>) {
     helper_.setEventsToSkipFunction([this] { return detail_.eventsToSkip(); });
   }
 }
@@ -444,7 +358,7 @@ template <typename T, typename IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToOpenInputFile(FileBlock const& fb)
 {
-  if constexpr (detail::has_respondToOpenInputFile<T>::value) {
+  if constexpr (detail::has_respondToOpenInputFile<T>) {
     detail_.respondToOpenInputFile(fb);
   }
 }
@@ -453,7 +367,7 @@ template <typename T, typename IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToCloseInputFile(FileBlock const& fb)
 {
-  if constexpr (detail::has_respondToCloseInputFile<T>::value) {
+  if constexpr (detail::has_respondToCloseInputFile<T>) {
     detail_.respondToCloseInputFile(fb);
   }
 }
@@ -462,7 +376,7 @@ template <typename T, typename IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToOpenOutputFiles(FileBlock const& fb)
 {
-  if constexpr (detail::has_respondToOpenOutputFiles<T>::value) {
+  if constexpr (detail::has_respondToOpenOutputFiles<T>) {
     detail_.respondToOpenOutputFiles(fb);
   }
 }
@@ -471,7 +385,7 @@ template <typename T, typename IOPolicy>
 void
 art::MixFilter<T, IOPolicy>::respondToCloseOutputFiles(FileBlock const& fb)
 {
-  if constexpr (detail::has_respondToCloseOutputFiles<T>::value) {
+  if constexpr (detail::has_respondToCloseOutputFiles<T>) {
     detail_.respondToCloseOutputFiles(fb);
   }
 }
@@ -481,7 +395,7 @@ bool
 art::MixFilter<T, IOPolicy>::filter(Event& e)
 {
   // 1. Call detail object's startEvent() if it exists.
-  if constexpr (detail::has_startEvent<T>::value) {
+  if constexpr (detail::has_startEvent<T>) {
     detail_.startEvent(e);
   }
 
@@ -500,12 +414,12 @@ art::MixFilter<T, IOPolicy>::filter(Event& e)
   }
 
   // 4. Give the event ID sequence to the detail object.
-  if constexpr (detail::has_processEventIDs<T>::value) {
+  if constexpr (detail::has_processEventIDs<T>) {
     detail_.processEventIDs(eIDseq);
   }
 
   // 5. Give the event auxiliary sequence to the detail object.
-  if constexpr (detail::has_processEventAuxiliaries<T>::value) {
+  if constexpr (detail::has_processEventAuxiliaries<T>) {
     auto const auxseq = helper_.generateEventAuxiliarySequence(enSeq);
     detail_.processEventAuxiliaries(auxseq);
   }
@@ -515,7 +429,7 @@ art::MixFilter<T, IOPolicy>::filter(Event& e)
   helper_.mixAndPut(enSeq, eIDseq, e);
 
   // 7. Call detail object's finalizeEvent() if it exists.
-  if constexpr (detail::has_finalizeEvent<T>::value) {
+  if constexpr (detail::has_finalizeEvent<T>) {
     detail_.finalizeEvent(e);
   }
   return true;
@@ -525,7 +439,7 @@ template <typename T, typename IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::beginSubRun(SubRun& sr)
 {
-  if constexpr (detail::has_beginSubRun<T>::value) {
+  if constexpr (detail::has_beginSubRun<T>) {
     detail_.beginSubRun(sr);
   }
   return true;
@@ -535,7 +449,7 @@ template <typename T, typename IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::endSubRun(SubRun& sr)
 {
-  if constexpr (detail::has_endSubRun<T>::value) {
+  if constexpr (detail::has_endSubRun<T>) {
     detail_.endSubRun(sr);
   }
   return true;
@@ -545,7 +459,7 @@ template <typename T, typename IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::beginRun(Run& r)
 {
-  if constexpr (detail::has_beginRun<T>::value) {
+  if constexpr (detail::has_beginRun<T>) {
     detail_.beginRun(r);
   }
   return true;
@@ -555,7 +469,7 @@ template <typename T, typename IOPolicy>
 bool
 art::MixFilter<T, IOPolicy>::endRun(Run& r)
 {
-  if constexpr (detail::has_endRun<T>::value) {
+  if constexpr (detail::has_endRun<T>) {
     detail_.endRun(r);
   }
   return true;

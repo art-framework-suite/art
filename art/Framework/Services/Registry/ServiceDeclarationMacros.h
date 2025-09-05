@@ -79,7 +79,7 @@
 // Declare an interface.
 #define DECLARE_ART_SERVICE_INTERFACE(svc, scope)                              \
   static_assert(                                                               \
-    art::detail::handle_allowed_v<svc>,                                        \
+    art::detail::handle_allowed<svc>,                                          \
     "\n\nart-error: You cannot create a service interface for type "           \
     "'" ART_DETAIL_STRINGIZED_TYPE(svc) "'.\n"                                 \
                                         "           There is a base class of " \
@@ -93,7 +93,7 @@
 // Declare a service implementing an interface.
 #define DECLARE_ART_SERVICE_INTERFACE_IMPL(svc, iface, scope)                  \
   static_assert(                                                               \
-    art::detail::handle_allowed_v<svc>,                                        \
+    art::detail::handle_allowed<svc>,                                          \
     "\n\nart-error: You cannot create a service implementation for type "      \
     "'" ART_DETAIL_STRINGIZED_TYPE(svc) "'.\n"                                 \
                                         "           There is a base class of " \

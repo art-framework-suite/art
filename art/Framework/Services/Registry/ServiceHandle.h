@@ -37,7 +37,7 @@ namespace art {
   class ServiceHandle {
   public:
     static_assert(
-      detail::handle_allowed_v<T>,
+      detail::handle_allowed<T>,
       "\n\nart-error: You cannot create a ServiceHandle for this type.\n"
       "           Please contact artists@fnal.gov for guidance.\n");
 

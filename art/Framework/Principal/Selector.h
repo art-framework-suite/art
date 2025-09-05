@@ -42,8 +42,8 @@
 
 namespace art {
   template <typename T>
-  constexpr bool is_selector =
-    std::is_base_of_v<SelectorBase, std::remove_reference_t<T>>;
+  concept is_selector =
+    std::derived_from<std::remove_reference_t<T>, SelectorBase>;
 
   //--------------------------------------------------------------------
   // Class ProcessNameSelector.
@@ -193,13 +193,12 @@ namespace art {
     // This constructor is only valid (via SFINAE) if the provided
     // iterators dereference to a type convertible to art::InputTag.
     template <typename IT>
-    InputTagListSelector(
-      IT begin,
-      IT end,
-      std::string const& description,
-      std::enable_if_t<
-        std::is_convertible_v<decltype(std::declval<IT>().operator*()),
-                              art::InputTag>>* dummy [[maybe_unused]] = nullptr)
+      requires std::convertible_to<decltype(std::declval<IT>().operator*()),
+                                   art::InputTag>
+    InputTagListSelector(IT begin,
+                         IT end,
+                         std::string const& description,
+                         void* = nullptr)
       : tags_{begin, end}, description_{description}
     {}
 
@@ -259,8 +258,8 @@ namespace art {
     B b_;
   };
 
-  template <typename A, typename B>
-  std::enable_if_t<is_selector<A> && is_selector<B>, AndHelper<A, B>>
+  template <is_selector A, is_selector B>
+  AndHelper<A, B>
   operator&&(A const& a, B const& b)
   {
     return AndHelper<A, B>{a, b};
@@ -298,8 +297,8 @@ namespace art {
     B b_;
   };
 
-  template <typename A, typename B>
-  std::enable_if_t<is_selector<A> && is_selector<B>, OrHelper<A, B>>
+  template <is_selector A, is_selector B>
+  OrHelper<A, B>
   operator||(A const& a, B const& b)
   {
     return OrHelper<A, B>{a, b};
@@ -333,8 +332,8 @@ namespace art {
     A a_;
   };
 
-  template <typename A>
-  std::enable_if_t<is_selector<A>, NotHelper<A>>
+  template <is_selector A>
+  NotHelper<A>
   operator!(A const& a)
   {
     return NotHelper<A>{a};

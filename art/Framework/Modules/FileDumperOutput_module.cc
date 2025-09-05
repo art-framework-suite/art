@@ -74,7 +74,7 @@ namespace {
 
   std::size_t
   columnWidth(std::map<std::string, ProductInfos> const& m,
-              std::string const art::detail::ProductInfo::*pim,
+              std::string const art::detail::ProductInfo::* pim,
               std::string const& title)
   {
     std::size_t i{title.size()};

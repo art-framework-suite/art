@@ -23,7 +23,7 @@ using Bools = std::vector<bool>;
 using VBools = std::vector<Bools>;
 
 std::ostream&
-operator<<(std::ostream& ost, const Strings& s)
+operator<<(std::ostream& ost, Strings const& s)
 {
   for (auto const& str : s) {
     ost << str << " ";
@@ -32,7 +32,7 @@ operator<<(std::ostream& ost, const Strings& s)
 }
 
 std::ostream&
-operator<<(std::ostream& ost, const Bools& b)
+operator<<(std::ostream& ost, Bools const& b)
 {
   for (unsigned int i = 0; i < b.size(); ++i) {
     ost << b[i] << " ";
@@ -41,9 +41,9 @@ operator<<(std::ostream& ost, const Bools& b)
 }
 
 void
-testone(const Strings& paths,
-        const Strings& pattern,
-        const Bools& mask,
+testone(Strings const& paths,
+        Strings const& pattern,
+        Bools const& mask,
         bool answer,
         int jmask)
 {
@@ -53,10 +53,10 @@ testone(const Strings& paths,
   std::vector<unsigned char> bitArray;
 
   HLTGlobalStatus bm(mask.size());
-  const HLTPathStatus pass = HLTPathStatus(art::hlt::Pass);
-  const HLTPathStatus fail = HLTPathStatus(art::hlt::Fail);
-  const HLTPathStatus ex = HLTPathStatus(art::hlt::Exception);
-  const HLTPathStatus ready = HLTPathStatus(art::hlt::Ready);
+  HLTPathStatus const pass = HLTPathStatus(art::hlt::Pass);
+  HLTPathStatus const fail = HLTPathStatus(art::hlt::Fail);
+  HLTPathStatus const ex = HLTPathStatus(art::hlt::Exception);
+  HLTPathStatus const ready = HLTPathStatus(art::hlt::Ready);
   for (unsigned int b = 0; b < mask.size(); ++b) {
     bm.at(b) = (mask[b] ? pass : fail);
 
@@ -98,10 +98,10 @@ testone(const Strings& paths,
 }
 
 void
-testall(const Strings& paths,
-        const VStrings& patterns,
-        const VBools& masks,
-        const Answers& answers)
+testall(Strings const& paths,
+        VStrings const& patterns,
+        VBools const& masks,
+        Answers const& answers)
 {
   for (unsigned int i = 0; i < patterns.size(); ++i) {
     for (unsigned int j = 0; j < masks.size(); ++j) {

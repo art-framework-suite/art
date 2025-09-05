@@ -319,7 +319,7 @@ public:
   void operator()(std::vector<PROD const*> const& in,
                   OutIter out,
                   OFFSETS const& offsets,
-                  CONT const PROD::*data) const;
+                  CONT const PROD::* data) const;
 
   // 8.
   template <typename PROD,
@@ -372,7 +372,7 @@ public:
   // 13.
   template <typename PROD, typename T>
   ProductPtr<T> operator()(std::vector<PROD const*> const& in,
-                           ProductPtr<T> const PROD::*data) const;
+                           ProductPtr<T> const PROD::* data) const;
 
   // 14.
   template <typename PROD, typename T>
@@ -524,7 +524,7 @@ void
 art::PtrRemapper::operator()(std::vector<PROD const*> const& in,
                              OutIter out,
                              OFFSETS const& offsets,
-                             CONT const PROD::*data) const
+                             CONT const PROD::* data) const
 {
   this->operator()<CONT, CONT const PROD::*>(in, out, offsets, data); // 10.
 }
@@ -628,7 +628,7 @@ art::PtrRemapper::operator()(
 template <typename PROD, typename T>
 art::ProductPtr<T>
 art::PtrRemapper::operator()(std::vector<PROD const*> const& in,
-                             ProductPtr<T> const PROD::*data) const
+                             ProductPtr<T> const PROD::* data) const
 {
   art::ProductPtr<T> result{};
   for (auto const* ptr : in) {

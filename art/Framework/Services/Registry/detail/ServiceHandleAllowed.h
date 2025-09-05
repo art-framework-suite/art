@@ -10,18 +10,17 @@
 // definition, then the 'handle_allowed_v<T>' value is 'true'.
 // ======================================================================
 
+#include <concepts>
 #include <type_traits>
 
 namespace art::detail {
-  template <typename T, typename = void>
-  struct handle_allowed : std::true_type {};
+  template <typename T>
+  concept handle_not_allowed = requires {
+    { T::service_handle_allowed } -> std::same_as<bool>;
+  } && !T::service_handle_allowed;
 
   template <typename T>
-  struct handle_allowed<T, std::enable_if_t<!T::service_handle_allowed>>
-    : std::false_type {};
-
-  template <typename T>
-  bool constexpr handle_allowed_v{handle_allowed<T>::value};
+  concept handle_allowed = !handle_not_allowed<T>;
 }
 
 #endif /* art_Framework_Services_Registry_detail_ServiceHandleAllowed_h */

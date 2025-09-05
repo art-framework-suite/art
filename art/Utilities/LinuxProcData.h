@@ -62,6 +62,7 @@
 //
 //===================================================================
 
+#include <concepts>
 #include <sstream>
 #include <tuple>
 #include <type_traits>
@@ -96,8 +97,8 @@ namespace art {
       return proc_tuple{vsize_t{vsize}, rss_t{rss}};
     }
 
-    template <typename T>
-    static std::enable_if_t<std::is_base_of<proc_type, T>::value, double>
+    template <std::derived_from<proc_type> T>
+    static double
     getValueInMB(proc_tuple const& t)
     {
       // Info from proc is in bytes; convert to base-10 MB.
