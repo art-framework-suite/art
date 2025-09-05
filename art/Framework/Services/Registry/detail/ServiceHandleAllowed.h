@@ -21,9 +21,6 @@ namespace art::detail {
 
   template <typename T>
   concept handle_allowed = !handle_not_allowed<T>;
-
-  template <typename T>
-  concept handle_allowed_v = handle_allowed<T>;
 }
 
 #endif /* art_Framework_Services_Registry_detail_ServiceHandleAllowed_h */
