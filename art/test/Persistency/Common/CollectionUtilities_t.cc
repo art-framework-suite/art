@@ -3,6 +3,7 @@
 #include <concepts>
 #include <queue>
 #include <stack>
+#include <utility>
 #include <vector>
 
 #include "art/Persistency/Common/CollectionUtilities.h"
@@ -15,8 +16,8 @@ namespace {
     void
     insert(iterator beg, iterator end)
     {
-      (void)beg;
-      (void)end;
+      std::ignore = beg;
+      std::ignore = end;
     }
     iterator
     begin()
@@ -45,9 +46,9 @@ namespace {
     void
     insert(iterator self_end, iterator other_beg, iterator other_end)
     {
-      (void)self_end;
-      (void)other_beg;
-      (void)other_end;
+      std::ignore = self_end;
+      std::ignore = other_beg;
+      std::ignore = other_end;
     }
   };
 

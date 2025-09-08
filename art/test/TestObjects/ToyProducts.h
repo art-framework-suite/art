@@ -15,6 +15,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace arttest {
@@ -39,7 +40,7 @@ namespace arttest {
     void
     aggregate(IntProduct const& other)
     {
-      (void)operator+=(other);
+      std::ignore = operator+=(other);
     }
 
     int value{};
@@ -59,7 +60,7 @@ namespace arttest {
     void
     aggregate(CompressedIntProduct const& other)
     {
-      (void)operator+=(other);
+      std::ignore = operator+=(other);
     }
 
     int value{};

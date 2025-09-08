@@ -5,6 +5,8 @@
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Provenance/ProductID.h"
 
+#include <utility>
+
 using namespace art;
 
 struct test_struct {
@@ -12,14 +14,14 @@ struct test_struct {
   ProductID
   getProductID(std::string const& instance)
   {
-    (void)instance;
+    std::ignore = instance;
     return ProductID{};
   }
 
   EDProductGetter const*
   productGetter(ProductID const pid)
   {
-    (void)pid;
+    std::ignore = pid;
     return new art::EDProductGetter{};
   }
 };
