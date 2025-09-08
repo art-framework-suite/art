@@ -1,9 +1,11 @@
 #include "art/Utilities/pointersEqual.h"
 
+#include <utility>
+
 int
 main()
 {
   int i = 3;
   double p = i;
-  (void)art::pointersEqual(&i, &p);
+  std::ignore = art::pointersEqual(&i, &p);
 }

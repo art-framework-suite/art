@@ -1,5 +1,7 @@
 #include "art/Utilities/pointersEqual.h"
 
+#include <utility>
+
 namespace {
   class A {};
   class B {};
@@ -13,6 +15,6 @@ main()
   D d1;
   D* pd1d1(&d1);
   int* ip = new int;
-  (void)art::pointersEqual(pd1d1, ip);
+  std::ignore = art::pointersEqual(pd1d1, ip);
   delete ip;
 }

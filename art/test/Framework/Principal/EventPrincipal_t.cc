@@ -32,6 +32,7 @@
 #include <memory>
 #include <string>
 #include <typeinfo>
+#include <utility>
 
 using namespace std;
 using namespace std::string_literals;
@@ -131,7 +132,7 @@ struct EventPrincipalTestFixture {
 
 EventPrincipalTestFixture::EventPrincipalTestFixture()
 {
-  (void)ptf(); // Bootstrap ProductTables creation first time out.
+  ignore = ptf(); // Bootstrap ProductTables creation first time out.
   EventID const eventID{101, 87, 20};
 
   // Making a functional EventPrincipal is not trivial, so we do it

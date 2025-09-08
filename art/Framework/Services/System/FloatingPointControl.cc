@@ -78,7 +78,7 @@ namespace art {
         (fpControl.mxcsr | fpControl_ALL_SSE_EXCEPT) & (~enable_sse);
 #endif
       // Write back.
-      (void)setFPControl(fpControl);
+      ignore = setFPControl(fpControl);
     }
     if (reportSettings_) {
       mf::LogVerbatim("FPE_Enable")
@@ -92,7 +92,7 @@ namespace art {
   void
   FloatingPointControl::postEndJob()
   {
-    (void)setFPControl(OSdefault_);
+    ignore = setFPControl(OSdefault_);
     if (reportSettings_) {
       mf::LogVerbatim("FPE_Enable") << "\nRestored to OS's FPE settings";
       echoState();
